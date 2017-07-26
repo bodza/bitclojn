@@ -1,19 +1,3 @@
-/*
- * Copyright by the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.bitcoinj.wallet;
 
 import org.bitcoinj.core.BloomFilter;
@@ -1213,7 +1197,7 @@ public class DeterministicKeyChain implements EncryptableKeyChain {
     }
 
     // For internal usage only
-    /* package */ List<ECKey> getKeys(boolean includeLookahead, boolean includeParents) {
+    List<ECKey> getKeys(boolean includeLookahead, boolean includeParents) {
         List<ECKey> keys = basicKeyChain.getKeys();
         if (!includeLookahead) {
             int treeSize = internalParentKey.getPath().size();
@@ -1259,7 +1243,7 @@ public class DeterministicKeyChain implements EncryptableKeyChain {
         return keys.build();
     }
 
-    /*package*/ static void serializeSeedEncryptableItem(DeterministicSeed seed, Protos.Key.Builder proto) {
+    static void serializeSeedEncryptableItem(DeterministicSeed seed, Protos.Key.Builder proto) {
         // The seed can be missing if we have not derived it yet from the mnemonic.
         // This will not normally happen once all the wallets are on the latest code that caches
         // the seed.
