@@ -26,7 +26,7 @@ import java.io.OutputStream;
  * this is different to the {@link TxConfidenceTable} object which doesn't try to keep track of all pending transactions,
  * it's just a holding area for transactions that a part of the app may find interesting. The mempool message has
  * no fields.</p>
- * 
+ *
  * <p>Instances of this class are not safe for use by multiple threads.</p>
  */
 public class MemoryPoolMessage extends Message {

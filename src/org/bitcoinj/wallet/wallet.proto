@@ -134,14 +134,6 @@ message Key {
   optional EncryptedData encrypted_deterministic_seed = 9;
 }
 
-message Script {
-  required bytes program = 1;
-
-  // Timestamp stored as millis since epoch. Useful for skipping block bodies before this point
-  // when watching for scripts on the blockchain.
-  required int64 creation_timestamp = 2;
-}
-
 message TransactionInput {
   // Hash of the transaction this input is using.
   required bytes transaction_out_point_hash = 1;
@@ -307,16 +299,6 @@ message ScryptParameters {
   optional int32 p = 4 [default = 1];             // Parallelisation parameter
 }
 
-/** An extension to the wallet */
-message Extension {
-  required string id = 1;   // like org.whatever.foo.bar
-  required bytes data = 2;
-  // If we do not understand a mandatory extension, abort to prevent data loss.
-  // For example, this could be applied to a new type of holding, such as a contract, where
-  // dropping of an extension in a read/write cycle could cause loss of value.
-  required bool mandatory = 3;
-}
-
 /**
  * A simple key->value mapping that has no interpreted content at all. A bit like the extensions mechanism except
  * an extension is keyed by the ID of a piece of code that's loaded with the given data, and has the concept of
@@ -363,7 +345,6 @@ message Wallet {
 
   repeated Key key = 3;
   repeated Transaction transaction = 4;
-  repeated Script watched_script = 15;
 
   optional EncryptionType encryption_type = 5 [default=UNENCRYPTED];
   optional ScryptParameters encryption_parameters = 6;
@@ -372,11 +353,6 @@ message Wallet {
   // (i.e. the wallet may contain some future format this protobuf or parser code does not know about).
   // A version that's higher than the default is considered from the future.
   optional int32 version = 7 [default = 1];
-
-  // deprecated - do not recycle this numeric identifier
-  // optional int32 minor_version = 8;
-
-  repeated Extension extension = 10;
 
   // A UTF8 encoded text description of the wallet that is intended for end user provided text.
   optional string description = 11;

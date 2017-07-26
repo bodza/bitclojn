@@ -73,7 +73,7 @@ public class MemoryBlockStore implements BlockStore {
         if (blockMap == null) throw new BlockStoreException("MemoryBlockStore is closed");
         this.chainHead = chainHead;
     }
-    
+
     @Override
     public void close() {
         blockMap = null;

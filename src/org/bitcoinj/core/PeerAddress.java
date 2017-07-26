@@ -35,7 +35,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * <p>A PeerAddress holds an IP address and port number representing the network location of
  * a peer in the Bitcoin P2P network. It exists primarily for serialization purposes.</p>
- * 
+ *
  * <p>Instances of this class are not safe for use by multiple threads.</p>
  */
 public class PeerAddress extends ChildMessage {
@@ -163,7 +163,7 @@ public class PeerAddress extends ChildMessage {
             throw new RuntimeException(e);  // Cannot happen.
         }
         port = ((0xFF & payload[cursor++]) << 8) | (0xFF & payload[cursor++]);
-        // The 4 byte difference is the uint32 timestamp that was introduced in version 31402 
+        // The 4 byte difference is the uint32 timestamp that was introduced in version 31402
         length = protocolVersion > 31402 ? MESSAGE_SIZE : MESSAGE_SIZE - 4;
     }
 
@@ -211,7 +211,7 @@ public class PeerAddress extends ChildMessage {
     public int hashCode() {
         return Objects.hashCode(addr, port, time, services);
     }
-    
+
     public InetSocketAddress toSocketAddress() {
         // Reconstruct the InetSocketAddress properly
         if (hostname != null) {

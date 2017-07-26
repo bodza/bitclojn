@@ -63,7 +63,7 @@ public class Base58 {
     public static String encode(byte[] input) {
         if (input.length == 0) {
             return "";
-        }       
+        }
         // Count leading zeros.
         int zeros = 0;
         while (zeros < input.length && input[zeros] == 0) {
@@ -132,7 +132,7 @@ public class Base58 {
         // Return decoded data (including original number of leading zeros).
         return Arrays.copyOfRange(decoded, outputStart - zeros, decoded.length);
     }
-    
+
     public static BigInteger decodeToBigInteger(String input) throws AddressFormatException {
         return new BigInteger(1, decode(input));
     }

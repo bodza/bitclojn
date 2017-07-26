@@ -165,7 +165,6 @@ public class DeterministicKey extends ECKey {
         this.parentFingerprint = ascertainParentFingerprint(parent, parentFingerprint);
     }
 
-    
     /** Clones the key */
     public DeterministicKey(DeterministicKey keyToClone, DeterministicKey newParent) {
         super(keyToClone.priv, keyToClone.pub.get());

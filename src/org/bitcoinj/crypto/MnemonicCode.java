@@ -163,7 +163,7 @@ public class MnemonicCode {
             for (int ii = 0; ii < 11; ++ii)
                 concatBits[(wordindex * 11) + ii] = (ndx & (1 << (10 - ii))) != 0;
             ++wordindex;
-        }        
+        }
 
         int checksumLengthBits = concatLenBits / 33;
         int entropyLengthBits = concatLenBits - checksumLengthBits;
@@ -202,11 +202,11 @@ public class MnemonicCode {
 
         byte[] hash = Sha256Hash.hash(entropy);
         boolean[] hashBits = bytesToBits(hash);
-        
+
         boolean[] entropyBits = bytesToBits(entropy);
         int checksumLengthBits = entropyBits.length / 32;
 
-        // We append these bits to the end of the initial entropy. 
+        // We append these bits to the end of the initial entropy.
         boolean[] concatBits = new boolean[entropyBits.length + checksumLengthBits];
         System.arraycopy(entropyBits, 0, concatBits, 0, entropyBits.length);
         System.arraycopy(hashBits, 0, concatBits, entropyBits.length, checksumLengthBits);
@@ -227,8 +227,8 @@ public class MnemonicCode {
             }
             words.add(this.wordList.get(index));
         }
-            
-        return words;        
+
+        return words;
     }
 
     /**

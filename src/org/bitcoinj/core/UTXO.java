@@ -164,7 +164,7 @@ public class UTXO implements Serializable {
 
         bos.write(new byte[] { (byte)(coinbase ? 1 : 0) });
     }
-    
+
     public void deserializeFromStream(InputStream in) throws IOException {
         byte[] valueBytes = new byte[8];
         if (in.read(valueBytes, 0, 8) != 8)
@@ -199,13 +199,12 @@ public class UTXO implements Serializable {
         in.read(coinbaseByte);
         coinbase = coinbaseByte[0] == 1;
     }
-    
-    
+
     private void writeObject(ObjectOutputStream o) throws IOException {
         serializeToStream(o);
     }
-          
+
     private void readObject(ObjectInputStream o) throws IOException, ClassNotFoundException {
         deserializeFromStream(o);
-    }        
+    }
 }

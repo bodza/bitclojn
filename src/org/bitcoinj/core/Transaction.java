@@ -58,7 +58,7 @@ import java.math.BigInteger;
  * Whether to trust a transaction is something that needs to be decided on a case by case basis - a rule that makes
  * sense for selling MP3s might not make sense for selling cars, or accepting payments from a family member. If you
  * are building a wallet, how to present confidence to your users is something to consider carefully.</p>
- * 
+ *
  * <p>Instances of this class are not safe for use by multiple threads.</p>
  */
 public class Transaction extends ChildMessage {
@@ -304,7 +304,7 @@ public class Transaction extends ChildMessage {
         // This is tested in WalletTest.
         Coin v = Coin.ZERO;
         for (TransactionOutput o : outputs) {
-            if (!o.isMineOrWatched(transactionBag)) continue;
+            if (!o.isMine(transactionBag)) continue;
             v = v.add(o.getValue());
         }
         return v;
@@ -387,7 +387,7 @@ public class Transaction extends ChildMessage {
                 continue;
             // The connected output may be the change to the sender of a previous input sent to this wallet. In this
             // case we ignore it.
-            if (!connected.isMineOrWatched(wallet))
+            if (!connected.isMine(wallet))
                 continue;
             v = v.add(connected.getValue());
         }
@@ -465,7 +465,7 @@ public class Transaction extends ChildMessage {
      */
     public boolean isEveryOwnedOutputSpent(TransactionBag transactionBag) {
         for (TransactionOutput output : outputs) {
-            if (output.isAvailableForSpending() && output.isMineOrWatched(transactionBag))
+            if (output.isAvailableForSpending() && output.isMine(transactionBag))
                 return false;
         }
         return true;
@@ -904,7 +904,6 @@ public class Transaction extends ChildMessage {
         return addOutput(new TransactionOutput(params, this, value, script.getProgram()));
     }
 
-
     /**
      * Calculates a signature that is valid for being inserted into the input at the given position. This is simply
      * a wrapper around calling {@link Transaction#hashForSignature(int, byte[], org.bitcoinj.core.Transaction.SigHash, boolean)}
@@ -1129,7 +1128,6 @@ public class Transaction extends ChildMessage {
         uint32ToByteStreamLE(lockTime, stream);
     }
 
-
     /**
      * Transactions can have an associated lock time, specified either as a block height or in seconds since the
      * UNIX epoch. A transaction is not allowed to be confirmed by miners until the lock time is reached, and
@@ -1192,10 +1190,10 @@ public class Transaction extends ChildMessage {
      */
     public List<TransactionOutput> getWalletOutputs(TransactionBag transactionBag){
         List<TransactionOutput> walletOutputs = new LinkedList<>();
-        for (TransactionOutput o : outputs) {
-            if (!o.isMineOrWatched(transactionBag)) continue;
-            walletOutputs.add(o);
-        }
+
+        for (TransactionOutput o : outputs)
+            if (o.isMine(transactionBag))
+                walletOutputs.add(o);
 
         return walletOutputs;
     }

@@ -69,8 +69,6 @@ public class BitcoinSerializer extends MessageSerializer {
         names.put(NotFoundMessage.class, "notfound");
         names.put(MemoryPoolMessage.class, "mempool");
         names.put(RejectMessage.class, "reject");
-        names.put(GetUTXOsMessage.class, "getutxos");
-        names.put(UTXOsMessage.class, "utxos");
     }
 
     /**
@@ -191,7 +189,7 @@ public class BitcoinSerializer extends MessageSerializer {
         Message message;
         if (command.equals("version")) {
             return new VersionMessage(params, payloadBytes);
-        } else if (command.equals("inv")) { 
+        } else if (command.equals("inv")) {
             message = makeInventoryMessage(payloadBytes, length);
         } else if (command.equals("block")) {
             message = makeBlock(payloadBytes, length);
@@ -225,10 +223,6 @@ public class BitcoinSerializer extends MessageSerializer {
             return new MemoryPoolMessage();
         } else if (command.equals("reject")) {
             return new RejectMessage(params, payloadBytes);
-        } else if (command.equals("utxos")) {
-            return new UTXOsMessage(params, payloadBytes);
-        } else if (command.equals("getutxos")) {
-            return new GetUTXOsMessage(params, payloadBytes);
         } else {
             log.warn("No support for deserializing message with name {}", command);
             return new UnknownMessage(params, command, payloadBytes);
@@ -339,7 +333,6 @@ public class BitcoinSerializer extends MessageSerializer {
     public boolean isParseRetainMode() {
         return parseRetain;
     }
-
 
     public static class BitcoinPacketHeader {
         /** The largest number of bytes that a header can represent */

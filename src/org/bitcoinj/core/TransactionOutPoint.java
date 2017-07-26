@@ -28,7 +28,7 @@ import static com.google.common.base.Preconditions.*;
 
 /**
  * <p>This message is a reference or pointer to an output of a different transaction.</p>
- * 
+ *
  * <p>Instances of this class are not safe for use by multiple threads.</p>
  */
 public class TransactionOutPoint extends ChildMessage {
@@ -198,7 +198,7 @@ public class TransactionOutPoint extends ChildMessage {
     public long getIndex() {
         return index;
     }
-    
+
     public void setIndex(long index) {
         this.index = index;
     }

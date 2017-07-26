@@ -49,7 +49,7 @@ public class TransactionBroadcast {
     /** Used for shuffling the peers before broadcast: unit tests can replace this to make themselves deterministic. */
     @VisibleForTesting
     public static Random random = new Random();
-    
+
     // Tracks which nodes sent us a reject message about this broadcast, if any. Useful for debugging.
     private Map<Peer, RejectMessage> rejects = Collections.synchronizedMap(new HashMap<Peer, RejectMessage>());
 

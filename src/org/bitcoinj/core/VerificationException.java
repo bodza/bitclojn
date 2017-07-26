@@ -60,13 +60,11 @@ public class VerificationException extends RuntimeException {
         }
     }
 
-
     public static class CoinbaseScriptSizeOutOfRange extends VerificationException {
         public CoinbaseScriptSizeOutOfRange() {
             super("Coinbase script size out of range");
         }
     }
-
 
     public static class BlockVersionOutOfDate extends VerificationException {
         public BlockVersionOutOfDate(final long version) {

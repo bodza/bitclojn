@@ -28,9 +28,6 @@ public interface TransactionBag {
     /** Returns true if this wallet contains a public key which hashes to the given hash. */
     boolean isPubKeyHashMine(byte[] pubkeyHash);
 
-    /** Returns true if this wallet is watching transactions for outputs with the script. */
-    boolean isWatchedScript(Script script);
-
     /** Returns true if this wallet contains a keypair with the given public key. */
     boolean isPubKeyMine(byte[] pubkey);
 

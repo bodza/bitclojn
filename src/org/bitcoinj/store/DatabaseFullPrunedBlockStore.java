@@ -651,7 +651,6 @@ public abstract class DatabaseFullPrunedBlockStore implements FullPrunedBlockSto
         }
     }
 
-
     @Override
     public void put(StoredBlock storedBlock, StoredUndoableBlock undoableBlock) throws BlockStoreException {
         maybeConnect();
@@ -1075,15 +1074,6 @@ public abstract class DatabaseFullPrunedBlockStore implements FullPrunedBlockSto
         return params;
     }
 
-    @Override
-    public int getChainHeadHeight() throws UTXOProviderException {
-        try {
-            return getVerifiedChainHead().getHeight();
-        } catch (BlockStoreException e) {
-            throw new UTXOProviderException(e);
-        }
-    }
-
     /**
      * Resets the store by deleting the contents of the tables and reinitialising them.
      * @throws BlockStoreException If the tables couldn't be cleared and initialised.
@@ -1152,49 +1142,6 @@ public abstract class DatabaseFullPrunedBlockStore implements FullPrunedBlockSto
                     throw new BlockStoreException("Could not close statement");
                 }
             }
-        }
-    }
-
-    @Override
-    public List<UTXO> getOpenTransactionOutputs(List<Address> addresses) throws UTXOProviderException {
-        PreparedStatement s = null;
-        List<UTXO> outputs = new ArrayList<>();
-        try {
-            maybeConnect();
-            s = conn.get().prepareStatement(getTransactionOutputSelectSQL());
-            for (Address address : addresses) {
-                s.setString(1, address.toString());
-                ResultSet rs = s.executeQuery();
-                while (rs.next()) {
-                    Sha256Hash hash = Sha256Hash.wrap(rs.getBytes(1));
-                    Coin amount = Coin.valueOf(rs.getLong(2));
-                    byte[] scriptBytes = rs.getBytes(3);
-                    int height = rs.getInt(4);
-                    int index = rs.getInt(5);
-                    boolean coinbase = rs.getBoolean(6);
-                    String toAddress = rs.getString(7);
-                    UTXO output = new UTXO(hash,
-                            index,
-                            amount,
-                            height,
-                            coinbase,
-                            new Script(scriptBytes),
-                            toAddress);
-                    outputs.add(output);
-                }
-            }
-            return outputs;
-        } catch (SQLException ex) {
-            throw new UTXOProviderException(ex);
-        } catch (BlockStoreException bse) {
-            throw new UTXOProviderException(bse);
-        } finally {
-            if (s != null)
-                try {
-                    s.close();
-                } catch (SQLException e) {
-                    throw new UTXOProviderException("Could not close statement", e);
-                }
         }
     }
 

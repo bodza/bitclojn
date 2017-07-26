@@ -58,7 +58,7 @@ public class FullPrunedBlockChain extends AbstractBlockChain {
     /**
      * Constructs a block chain connected to the given wallet and store. To obtain a {@link Wallet} you can construct
      * one from scratch, or you can deserialize a saved wallet from disk using
-     * {@link Wallet#loadFromFile(java.io.File, WalletExtension...)}
+     * {@link Wallet#loadFromFile(java.io.File)}
      */
     public FullPrunedBlockChain(Context context, Wallet wallet, FullPrunedBlockStore blockStore) throws BlockStoreException {
         this(context, new ArrayList<Wallet>(), blockStore);
@@ -68,7 +68,7 @@ public class FullPrunedBlockChain extends AbstractBlockChain {
     /**
      * Constructs a block chain connected to the given wallet and store. To obtain a {@link Wallet} you can construct
      * one from scratch, or you can deserialize a saved wallet from disk using
-     * {@link Wallet#loadFromFile(java.io.File, WalletExtension...)}
+     * {@link Wallet#loadFromFile(java.io.File)}
      */
     public FullPrunedBlockChain(NetworkParameters params, Wallet wallet, FullPrunedBlockStore blockStore) throws BlockStoreException {
         this(Context.getOrCreate(params), wallet, blockStore);

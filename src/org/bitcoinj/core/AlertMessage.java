@@ -32,9 +32,9 @@ import java.util.Set;
  * For example, you could treat it as an upgrade notification specific to your app. Satoshi designed alerts to ensure
  * that software upgrades could be distributed independently of a hard-coded website, in order to allow everything to
  * be purely peer-to-peer. You don't have to use this of course, and indeed it often makes more sense not to.<p>
- *     
+ *
  * <p>Before doing anything with an alert, you should check {@link AlertMessage#isSignatureValid()}.</p>
- * 
+ *
  * <p>Instances of this class are not safe for use by multiple threads.</p>
  */
 public class AlertMessage extends Message {
@@ -243,7 +243,7 @@ public class AlertMessage extends Message {
     public void setReserved(String reserved) {
         this.reserved = reserved;
     }
-    
+
     public long getVersion() {
         return version;
     }

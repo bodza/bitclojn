@@ -29,7 +29,7 @@ import com.google.common.primitives.Longs;
 /**
  * Represents a monetary fiat value. It was decided to not fold this into {@link org.bitcoinj.core.Coin} because of type
  * safety. Fiat values always come with an attached currency code.
- * 
+ *
  * This class is immutable.
  */
 public final class Fiat implements Monetary, Comparable<Fiat>, Serializable {

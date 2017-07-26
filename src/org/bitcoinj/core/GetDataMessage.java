@@ -19,7 +19,7 @@ package org.bitcoinj.core;
 /**
  * <p>Represents the "getdata" P2P network message, which requests the contents of blocks or transactions given their
  * hashes.</p>
- * 
+ *
  * <p>Instances of this class are not safe for use by multiple threads.</p>
  */
 public class GetDataMessage extends ListMessage {

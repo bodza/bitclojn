@@ -19,12 +19,12 @@ package org.bitcoinj.core;
 import com.google.common.base.Objects;
 
 public class InventoryItem {
-    
+
     /**
      * 4 byte uint32 type field + 32 byte hash
      */
     static final int MESSAGE_LENGTH = 36;
-    
+
     public enum Type {
         Error,
         Transaction,

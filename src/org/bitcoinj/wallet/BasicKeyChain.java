@@ -393,7 +393,6 @@ public class BasicKeyChain implements EncryptableKeyChain {
         }
     }
 
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Event listener support
@@ -557,7 +556,6 @@ public class BasicKeyChain implements EncryptableKeyChain {
     //
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
     @Override
     public BloomFilter getFilter(int size, double falsePositiveRate, long tweak) {
         lock.lock();
@@ -575,7 +573,6 @@ public class BasicKeyChain implements EncryptableKeyChain {
     public int numBloomFilterEntries() {
         return numKeys() * 2;
     }
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

@@ -533,7 +533,7 @@ public class KeyChainGroup implements KeyBag {
     /**
      * Returns whether this chain has only watching keys (unencrypted keys with no private part). Mixed chains are
      * forbidden.
-     * 
+     *
      * @throws IllegalStateException if there are no keys, or if there is a mix between watching and non-watching keys.
      */
     public boolean isWatching() {
@@ -592,11 +592,6 @@ public class KeyChainGroup implements KeyBag {
             filter.merge(chain.getFilter(size, falsePositiveRate, nTweak));
         }
         return filter;
-    }
-
-    /** {@inheritDoc} */
-    public boolean isRequiringUpdateAllBloomFilter() {
-        throw new UnsupportedOperationException();   // Unused.
     }
 
     private Script makeP2SHOutputScript(DeterministicKey followedKey, DeterministicKeyChain chain) {

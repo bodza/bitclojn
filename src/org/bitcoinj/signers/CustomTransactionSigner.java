@@ -104,5 +104,3 @@ public abstract class CustomTransactionSigner extends StatelessTransactionSigner
     }
 
 }
-
-

@@ -26,6 +26,6 @@ import org.bitcoinj.core.listeners.TransactionConfidenceEventListener;
 public interface WalletEventListener extends
         KeyChainEventListener, WalletChangeEventListener,
         WalletCoinsReceivedEventListener, WalletCoinsSentEventListener,
-        WalletReorganizeEventListener, ScriptsChangeEventListener,
+        WalletReorganizeEventListener,
         TransactionConfidenceEventListener {
 }

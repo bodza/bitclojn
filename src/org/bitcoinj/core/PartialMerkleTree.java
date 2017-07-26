@@ -52,7 +52,7 @@ import com.google.common.base.Objects;
  *  - varint     number of bytes of flag bits (1-3 bytes)
  *  - byte[]     flag bits, packed per 8 in a byte, least significant bit first (&lt;= 2*N-1 bits)
  * The size constraints follow from this.</pre></p>
- * 
+ *
  * <p>Instances of this class are not safe for use by multiple threads.</p>
  */
 public class PartialMerkleTree extends Message {
@@ -64,7 +64,7 @@ public class PartialMerkleTree extends Message {
 
     // txids and internal hashes
     private List<Sha256Hash> hashes;
-    
+
     public PartialMerkleTree(NetworkParameters params, byte[] payloadBytes, int offset) throws ProtocolException {
         super(params, payloadBytes, offset);
     }
@@ -174,11 +174,11 @@ public class PartialMerkleTree extends Message {
     private static int getTreeWidth(int transactionCount, int height) {
         return (transactionCount + (1 << height) - 1) >> height;
     }
-    
+
     private static class ValuesUsed {
         public int bitsUsed = 0, hashesUsed = 0;
     }
-    
+
     // recursive function that traverses tree nodes, consuming the bits and hashes produced by TraverseAndBuild.
     // it returns the hash of the respective node.
     private Sha256Hash recursiveExtractHashes(int height, int pos, ValuesUsed used, List<Sha256Hash> matchedHashes) throws VerificationException {
@@ -221,17 +221,17 @@ public class PartialMerkleTree extends Message {
     /**
      * Extracts tx hashes that are in this merkle tree
      * and returns the merkle root of this tree.
-     * 
+     *
      * The returned root should be checked against the
      * merkle root contained in the block header for security.
-     * 
+     *
      * @param matchedHashesOut A list which will contain the matched txn (will be cleared).
      * @return the merkle root of this merkle tree
      * @throws ProtocolException if this partial merkle tree is invalid
      */
     public Sha256Hash getTxnHashAndMerkleRoot(List<Sha256Hash> matchedHashesOut) throws VerificationException {
         matchedHashesOut.clear();
-        
+
         // An empty set will not work
         if (transactionCount == 0)
             throw new VerificationException("Got a CPartialMerkleTree with 0 transactions");
@@ -256,7 +256,7 @@ public class PartialMerkleTree extends Message {
                 // verify that all hashes were consumed
                 used.hashesUsed != hashes.size())
             throw new VerificationException("Got a CPartialMerkleTree that didn't need all the data it provided");
-        
+
         return merkleRoot;
     }
 

@@ -63,7 +63,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * in its object form if you'd like to modify the flattened data structure before serialization to binary.<p>
  *
  * You can extend the wallet format with additional fields specific to your application if you want, but make sure
- * to either put the extra data in the provided extension areas, or select tag numbers that are unlikely to be used
+ * to either put the extra data in the provided extension areas, or select tag numbers that are unlikely to be used
  * by anyone else.<p>
  *
  * @author Miron Cuperman
@@ -78,8 +78,6 @@ public class WalletProtobufSerializer {
     // Used for de-serialization
     protected Map<ByteString, Transaction> txMap;
 
-    private boolean requireMandatoryExtensions = true;
-    private boolean requireAllExtensionsKnown = false;
     private int walletWriteBufferSize = CodedOutputStream.DEFAULT_BUFFER_SIZE;
 
     public interface WalletFactory {
@@ -106,22 +104,6 @@ public class WalletProtobufSerializer {
 
     public void setKeyChainFactory(KeyChainFactory keyChainFactory) {
         this.keyChainFactory = keyChainFactory;
-    }
-
-    /**
-     * If this property is set to false, then unknown mandatory extensions will be ignored instead of causing load
-     * errors. You should only use this if you know exactly what you are doing, as the extension data will NOT be
-     * round-tripped, possibly resulting in a corrupted wallet if you save it back out again.
-     */
-    public void setRequireMandatoryExtensions(boolean value) {
-        requireMandatoryExtensions = value;
-    }
-
-    /**
-     * If this property is set to true, the wallet will fail to load if  any found extensions are unknown..
-     */
-    public void setRequireAllExtensionsKnown(boolean value) {
-        requireAllExtensionsKnown = value;
     }
 
     /**
@@ -174,16 +156,6 @@ public class WalletProtobufSerializer {
 
         walletBuilder.addAllKey(wallet.serializeKeyChainGroupToProtobuf());
 
-        for (Script script : wallet.getWatchedScripts()) {
-            Protos.Script protoScript =
-                    Protos.Script.newBuilder()
-                            .setProgram(ByteString.copyFrom(script.getProgram()))
-                            .setCreationTimestamp(script.getCreationTimeSeconds() * 1000)
-                            .build();
-
-            walletBuilder.addWatchedScript(protoScript);
-        }
-
         // Populate the lastSeenBlockHash field.
         Sha256Hash lastSeenBlockHash = wallet.getLastBlockSeenHash();
         if (lastSeenBlockHash != null) {
@@ -215,8 +187,6 @@ public class WalletProtobufSerializer {
             walletBuilder.setKeyRotationTime(timeSecs);
         }
 
-        populateExtensions(wallet, walletBuilder);
-
         for (Map.Entry<String, ByteString> entry : wallet.getTags().entrySet()) {
             Protos.Tag.Builder tag = Protos.Tag.newBuilder().setTag(entry.getKey()).setData(entry.getValue());
             walletBuilder.addTags(tag);
@@ -236,16 +206,6 @@ public class WalletProtobufSerializer {
         walletBuilder.setVersion(wallet.getVersion());
 
         return walletBuilder.build();
-    }
-
-    private static void populateExtensions(Wallet wallet, Protos.Wallet.Builder walletBuilder) {
-        for (WalletExtension extension : wallet.getExtensions().values()) {
-            Protos.Extension.Builder proto = Protos.Extension.newBuilder();
-            proto.setId(extension.getWalletExtensionID());
-            proto.setMandatory(extension.isWalletExtensionMandatory());
-            proto.setData(ByteString.copyFrom(extension.serializeWalletExtension()));
-            walletBuilder.addExtension(proto);
-        }
     }
 
     private static Protos.Transaction makeTxProto(WalletTransaction wtx) {
@@ -398,22 +358,22 @@ public class WalletProtobufSerializer {
 
     /**
      * <p>Loads wallet data from the given protocol buffer and inserts it into the given Wallet object. This is primarily
-     * useful when you wish to pre-register extension objects. Note that if loading fails the provided Wallet object
+     * useful when you wish to pre-register extension objects. Note that if loading fails the provided Wallet object
      * may be in an indeterminate state and should be thrown away.</p>
      *
      * <p>A wallet can be unreadable for various reasons, such as inability to open the file, corrupt data, internally
-     * inconsistent data, a wallet extension marked as mandatory that cannot be handled and so on. You should always
+     * inconsistent data and so on. You should always
      * handle {@link UnreadableWalletException} and communicate failure to the user in an appropriate manner.</p>
      *
      * @throws UnreadableWalletException thrown in various error conditions (see description).
      */
-    public Wallet readWallet(InputStream input, @Nullable WalletExtension... walletExtensions) throws UnreadableWalletException {
-        return readWallet(input, false, walletExtensions);
+    public Wallet readWallet(InputStream input) throws UnreadableWalletException {
+        return readWallet(input, false);
     }
 
     /**
      * <p>Loads wallet data from the given protocol buffer and inserts it into the given Wallet object. This is primarily
-     * useful when you wish to pre-register extension objects. Note that if loading fails the provided Wallet object
+     * useful when you wish to pre-register extension objects. Note that if loading fails the provided Wallet object
      * may be in an indeterminate state and should be thrown away. Do not simply call this method again on the same
      * Wallet object with {@code forceReset} set {@code true}. It won't work.</p>
      *
@@ -422,19 +382,19 @@ public class WalletProtobufSerializer {
      * had been called immediately thereafter).
      *
      * <p>A wallet can be unreadable for various reasons, such as inability to open the file, corrupt data, internally
-     * inconsistent data, a wallet extension marked as mandatory that cannot be handled and so on. You should always
+     * inconsistent data and so on. You should always
      * handle {@link UnreadableWalletException} and communicate failure to the user in an appropriate manner.</p>
      *
      * @throws UnreadableWalletException thrown in various error conditions (see description).
      */
-    public Wallet readWallet(InputStream input, boolean forceReset, @Nullable WalletExtension[] extensions) throws UnreadableWalletException {
+    public Wallet readWallet(InputStream input, boolean forceReset) throws UnreadableWalletException {
         try {
             Protos.Wallet walletProto = parseToProto(input);
             final String paramsID = walletProto.getNetworkIdentifier();
             NetworkParameters params = NetworkParameters.fromID(paramsID);
             if (params == null)
                 throw new UnreadableWalletException("Unknown network parameters ID " + paramsID);
-            return readWallet(params, extensions, walletProto, forceReset);
+            return readWallet(params, walletProto, forceReset);
         } catch (IOException e) {
             throw new UnreadableWalletException("Could not parse input stream to protobuf", e);
         } catch (IllegalStateException e) {
@@ -446,23 +406,22 @@ public class WalletProtobufSerializer {
 
     /**
      * <p>Loads wallet data from the given protocol buffer and inserts it into the given Wallet object. This is primarily
-     * useful when you wish to pre-register extension objects. Note that if loading fails the provided Wallet object
+     * useful when you wish to pre-register extension objects. Note that if loading fails the provided Wallet object
      * may be in an indeterminate state and should be thrown away.</p>
      *
      * <p>A wallet can be unreadable for various reasons, such as inability to open the file, corrupt data, internally
-     * inconsistent data, a wallet extension marked as mandatory that cannot be handled and so on. You should always
+     * inconsistent data and so on. You should always
      * handle {@link UnreadableWalletException} and communicate failure to the user in an appropriate manner.</p>
      *
      * @throws UnreadableWalletException thrown in various error conditions (see description).
      */
-    public Wallet readWallet(NetworkParameters params, @Nullable WalletExtension[] extensions,
-                             Protos.Wallet walletProto) throws UnreadableWalletException {
-        return readWallet(params, extensions, walletProto, false);
+    public Wallet readWallet(NetworkParameters params, Protos.Wallet walletProto) throws UnreadableWalletException {
+        return readWallet(params, walletProto, false);
     }
 
     /**
      * <p>Loads wallet data from the given protocol buffer and inserts it into the given Wallet object. This is primarily
-     * useful when you wish to pre-register extension objects. Note that if loading fails the provided Wallet object
+     * useful when you wish to pre-register extension objects. Note that if loading fails the provided Wallet object
      * may be in an indeterminate state and should be thrown away. Do not simply call this method again on the same
      * Wallet object with {@code forceReset} set {@code true}. It won't work.</p>
      *
@@ -471,13 +430,12 @@ public class WalletProtobufSerializer {
      * had been called immediately thereafter).
      *
      * <p>A wallet can be unreadable for various reasons, such as inability to open the file, corrupt data, internally
-     * inconsistent data, a wallet extension marked as mandatory that cannot be handled and so on. You should always
+     * inconsistent data and so on. You should always
      * handle {@link UnreadableWalletException} and communicate failure to the user in an appropriate manner.</p>
      *
      * @throws UnreadableWalletException thrown in various error conditions (see description).
      */
-    public Wallet readWallet(NetworkParameters params, @Nullable WalletExtension[] extensions,
-                             Protos.Wallet walletProto, boolean forceReset) throws UnreadableWalletException {
+    public Wallet readWallet(NetworkParameters params, Protos.Wallet walletProto, boolean forceReset) throws UnreadableWalletException {
         if (walletProto.getVersion() > CURRENT_WALLET_VERSION)
             throw new UnreadableWalletException.FutureVersion();
         if (!walletProto.getNetworkIdentifier().equals(params.getId()))
@@ -493,20 +451,6 @@ public class WalletProtobufSerializer {
             keyChainGroup = KeyChainGroup.fromProtobufUnencrypted(params, walletProto.getKeyList(), keyChainFactory);
         }
         Wallet wallet = factory.create(params, keyChainGroup);
-
-        List<Script> scripts = Lists.newArrayList();
-        for (Protos.Script protoScript : walletProto.getWatchedScriptList()) {
-            try {
-                Script script =
-                        new Script(protoScript.getProgram().toByteArray(),
-                                protoScript.getCreationTimestamp() / 1000);
-                scripts.add(script);
-            } catch (ScriptException e) {
-                throw new UnreadableWalletException("Unparseable script in wallet");
-            }
-        }
-
-        wallet.addWatchedScripts(scripts);
 
         if (walletProto.hasDescription()) {
             wallet.setDescription(walletProto.getDescription());
@@ -548,8 +492,6 @@ public class WalletProtobufSerializer {
             }
         }
 
-        loadExtensions(wallet, extensions != null ? extensions : new WalletExtension[0], walletProto);
-
         for (Protos.Tag tag : walletProto.getTagsList()) {
             wallet.setTag(tag.getTag(), tag.getData());
         }
@@ -576,47 +518,9 @@ public class WalletProtobufSerializer {
         return wallet;
     }
 
-    private void loadExtensions(Wallet wallet, WalletExtension[] extensionsList, Protos.Wallet walletProto) throws UnreadableWalletException {
-        final Map<String, WalletExtension> extensions = new HashMap<>();
-        for (WalletExtension e : extensionsList)
-            extensions.put(e.getWalletExtensionID(), e);
-        // The Wallet object, if subclassed, might have added some extensions to itself already. In that case, don't
-        // expect them to be passed in, just fetch them here and don't re-add.
-        extensions.putAll(wallet.getExtensions());
-        for (Protos.Extension extProto : walletProto.getExtensionList()) {
-            String id = extProto.getId();
-            WalletExtension extension = extensions.get(id);
-            if (extension == null) {
-                if (extProto.getMandatory()) {
-                    if (requireMandatoryExtensions)
-                        throw new UnreadableWalletException("Unknown mandatory extension in wallet: " + id);
-                    else
-                        log.error("Unknown extension in wallet {}, ignoring", id);
-                } else if (requireAllExtensionsKnown) {
-                    throw new UnreadableWalletException("Unknown extension in wallet: " + id);
-                }
-            } else {
-                log.info("Loading wallet extension {}", id);
-                try {
-                    wallet.deserializeExtension(extension, extProto.getData().toByteArray());
-                } catch (Exception e) {
-                    if (extProto.getMandatory() && requireMandatoryExtensions) {
-                        log.error("Error whilst reading mandatory extension {}, failing to read wallet", id);
-                        throw new UnreadableWalletException("Could not parse mandatory extension in wallet: " + id);
-                    } else if (requireAllExtensionsKnown) {
-                        log.error("Error whilst reading extension {}, failing to read wallet", id);
-                        throw new UnreadableWalletException("Could not parse extension in wallet: " + id);
-                    } else {
-                        log.warn("Error whilst reading extension {}, ignoring extension", id, e);
-                    }
-                }
-            }
-        }
-    }
-
     /**
      * Returns the loaded protocol buffer from the given byte stream. You normally want
-     * {@link Wallet#loadFromFile(java.io.File, WalletExtension...)} instead - this method is designed for low level
+     * {@link Wallet#loadFromFile(java.io.File)} instead - this method is designed for low level
      * work involving the wallet file format itself.
      */
     public static Protos.Wallet parseToProto(InputStream input) throws IOException {

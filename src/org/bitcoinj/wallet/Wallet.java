@@ -24,7 +24,6 @@ import com.google.common.primitives.*;
 import com.google.common.util.concurrent.*;
 import com.google.protobuf.*;
 import net.jcip.annotations.*;
-import org.bitcoin.protocols.payments.Protos.*;
 import org.bitcoinj.core.listeners.*;
 import org.bitcoinj.core.AbstractBlockChain;
 import org.bitcoinj.core.Address;
@@ -52,8 +51,6 @@ import org.bitcoinj.core.TransactionInput;
 import org.bitcoinj.core.TransactionOutPoint;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.core.UTXO;
-import org.bitcoinj.core.UTXOProvider;
-import org.bitcoinj.core.UTXOProviderException;
 import org.bitcoinj.core.Utils;
 import org.bitcoinj.core.VarInt;
 import org.bitcoinj.core.VerificationException;
@@ -65,7 +62,6 @@ import org.bitcoinj.utils.*;
 import org.bitcoinj.wallet.Protos.Wallet.*;
 import org.bitcoinj.wallet.WalletTransaction.*;
 import org.bitcoinj.wallet.listeners.KeyChainEventListener;
-import org.bitcoinj.wallet.listeners.ScriptsChangeEventListener;
 import org.bitcoinj.wallet.listeners.WalletChangeEventListener;
 import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
 import org.bitcoinj.wallet.listeners.WalletCoinsSentEventListener;
@@ -181,9 +177,6 @@ public class Wallet extends BaseTaggableObject
     // outside the wallet lock. So don't expose this object directly via any accessors!
     @GuardedBy("keyChainGroupLock") private KeyChainGroup keyChainGroup;
 
-    // A list of scripts watched by this wallet.
-    @GuardedBy("keyChainGroupLock") private Set<Script> watchedScripts;
-
     protected final Context context;
     protected final NetworkParameters params;
 
@@ -198,8 +191,6 @@ public class Wallet extends BaseTaggableObject
     private final CopyOnWriteArrayList<ListenerRegistration<WalletCoinsSentEventListener>> coinsSentListeners
         = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<ListenerRegistration<WalletReorganizeEventListener>> reorganizeListeners
-        = new CopyOnWriteArrayList<>();
-    private final CopyOnWriteArrayList<ListenerRegistration<ScriptsChangeEventListener>> scriptChangeListeners
         = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<ListenerRegistration<TransactionConfidenceEventListener>> transactionConfidenceListeners
         = new CopyOnWriteArrayList<>();
@@ -239,15 +230,9 @@ public class Wallet extends BaseTaggableObject
     private int version;
     // User-provided description that may help people keep track of what a wallet is for.
     private String description;
-    // Stores objects that know how to serialize/unserialize themselves to byte streams and whether they're mandatory
-    // or not. The string key comes from the extension itself.
-    private final HashMap<String, WalletExtension> extensions;
 
     // Objects that perform transaction signing. Applied subsequently one after another
     @GuardedBy("lock") private List<TransactionSigner> signers;
-
-    // If this is set then the wallet selects spendable candidate outputs from a UTXO provider.
-    @Nullable private volatile UTXOProvider vUTXOProvider;
 
     /**
      * Creates a new, empty wallet with a randomly chosen seed and no transactions. Make sure to provide for sufficient
@@ -318,13 +303,11 @@ public class Wallet extends BaseTaggableObject
         // we're probably being deserialized so leave things alone: the API user can upgrade later.
         if (this.keyChainGroup.numKeys() == 0)
             this.keyChainGroup.createAndActivateNewHDChain();
-        watchedScripts = Sets.newHashSet();
         unspent = new HashMap<>();
         spent = new HashMap<>();
         pending = new HashMap<>();
         dead = new HashMap<>();
         transactions = new HashMap<>();
-        extensions = new HashMap<>();
         // Use a linked hash map to ensure ordering of event listeners is correct.
         confidenceChanged = new LinkedHashMap<>();
         signers = new ArrayList<>();
@@ -588,18 +571,6 @@ public class Wallet extends BaseTaggableObject
     }
 
     /**
-     * Returns a snapshot of the watched scripts. This view is not live.
-     */
-    public List<Script> getWatchedScripts() {
-        keyChainGroupLock.lock();
-        try {
-            return new ArrayList<>(watchedScripts);
-        } finally {
-            keyChainGroupLock.unlock();
-        }
-    }
-
-    /**
      * Removes the given key from the basicKeyChain. Be very careful with this - losing a private key <b>destroys the
      * money associated with it</b>.
      * @return Whether the key was removed or not.
@@ -816,7 +787,7 @@ public class Wallet extends BaseTaggableObject
     /**
      * Returns whether this wallet consists entirely of watching keys (unencrypted keys with no private part). Mixed
      * wallets are forbidden.
-     * 
+     *
      * @throws IllegalStateException
      *             if there are no keys, or if there is a mix between watching and non-watching keys.
      */
@@ -825,147 +796,6 @@ public class Wallet extends BaseTaggableObject
         try {
             maybeUpgradeToHD();
             return keyChainGroup.isWatching();
-        } finally {
-            keyChainGroupLock.unlock();
-        }
-    }
-
-    /**
-     * Return true if we are watching this address.
-     */
-    public boolean isAddressWatched(Address address) {
-        Script script = ScriptBuilder.createOutputScript(address);
-        return isWatchedScript(script);
-    }
-
-    /**
-     * Same as {@link #addWatchedAddress(Address, long)} with the current time as the creation time.
-     */
-    public boolean addWatchedAddress(final Address address) {
-        long now = Utils.currentTimeMillis() / 1000;
-        return addWatchedAddresses(Lists.newArrayList(address), now) == 1;
-    }
-
-    /**
-     * Adds the given address to the wallet to be watched. Outputs can be retrieved by {@link #getWatchedOutputs(boolean)}.
-     *
-     * @param creationTime creation time in seconds since the epoch, for scanning the blockchain
-     * @return whether the address was added successfully (not already present)
-     */
-    public boolean addWatchedAddress(final Address address, long creationTime) {
-        return addWatchedAddresses(Lists.newArrayList(address), creationTime) == 1;
-    }
-
-    /**
-     * Adds the given address to the wallet to be watched. Outputs can be retrieved
-     * by {@link #getWatchedOutputs(boolean)}.
-     *
-     * @return how many addresses were added successfully
-     */
-    public int addWatchedAddresses(final List<Address> addresses, long creationTime) {
-        List<Script> scripts = Lists.newArrayList();
-
-        for (Address address : addresses) {
-            Script script = ScriptBuilder.createOutputScript(address);
-            script.setCreationTimeSeconds(creationTime);
-            scripts.add(script);
-        }
-
-        return addWatchedScripts(scripts);
-    }
-
-    /**
-     * Adds the given output scripts to the wallet to be watched. Outputs can be retrieved by {@link #getWatchedOutputs(boolean)}.
-     * If a script is already being watched, the object is replaced with the one in the given list. As {@link Script}
-     * equality is defined in terms of program bytes only this lets you update metadata such as creation time. Note that
-     * you should be careful not to add scripts with a creation time of zero (the default!) because otherwise it will
-     * disable the important wallet checkpointing optimisation.
-     *
-     * @return how many scripts were added successfully
-     */
-    public int addWatchedScripts(final List<Script> scripts) {
-        int added = 0;
-        keyChainGroupLock.lock();
-        try {
-            for (final Script script : scripts) {
-                // Script.equals/hashCode() only takes into account the program bytes, so this step lets the user replace
-                // a script in the wallet with an incorrect creation time.
-                if (watchedScripts.contains(script))
-                    watchedScripts.remove(script);
-                if (script.getCreationTimeSeconds() == 0)
-                    log.warn("Adding a script to the wallet with a creation time of zero, this will disable the checkpointing optimization!    {}", script);
-                watchedScripts.add(script);
-                added++;
-            }
-        } finally {
-            keyChainGroupLock.unlock();
-        }
-        if (added > 0) {
-            queueOnScriptsChanged(scripts, true);
-            saveNow();
-        }
-        return added;
-    }
-
-    /**
-     * Removes the given output scripts from the wallet that were being watched.
-     *
-     * @return true if successful
-     */
-    public boolean removeWatchedAddress(final Address address) {
-        return removeWatchedAddresses(ImmutableList.of(address));
-    }
-
-    /**
-     * Removes the given output scripts from the wallet that were being watched.
-     *
-     * @return true if successful
-     */
-    public boolean removeWatchedAddresses(final List<Address> addresses) {
-        List<Script> scripts = Lists.newArrayList();
-
-        for (Address address : addresses) {
-            Script script = ScriptBuilder.createOutputScript(address);
-            scripts.add(script);
-        }
-
-        return removeWatchedScripts(scripts);
-    }
-
-    /**
-     * Removes the given output scripts from the wallet that were being watched.
-     *
-     * @return true if successful
-     */
-    public boolean removeWatchedScripts(final List<Script> scripts) {
-        lock.lock();
-        try {
-            for (final Script script : scripts) {
-                if (!watchedScripts.contains(script))
-                    continue;
-
-                watchedScripts.remove(script);
-            }
-
-            queueOnScriptsChanged(scripts, false);
-            saveNow();
-            return true;
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    /**
-     * Returns all addresses watched by this wallet.
-     */
-    public List<Address> getWatchedAddresses() {
-        keyChainGroupLock.lock();
-        try {
-            List<Address> addresses = new LinkedList<>();
-            for (Script script : watchedScripts)
-                if (script.isSentToAddress())
-                    addresses.add(script.getToAddress(params));
-            return addresses;
         } finally {
             keyChainGroupLock.unlock();
         }
@@ -1002,17 +832,6 @@ public class Wallet extends BaseTaggableObject
     @Override
     public boolean isPubKeyHashMine(byte[] pubkeyHash) {
         return findKeyFromPubHash(pubkeyHash) != null;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean isWatchedScript(Script script) {
-        keyChainGroupLock.lock();
-        try {
-            return watchedScripts.contains(script);
-        } finally {
-            keyChainGroupLock.unlock();
-        }
     }
 
     /**
@@ -1498,18 +1317,16 @@ public class Wallet extends BaseTaggableObject
     }
 
     /**
-     * <p>Returns a wallet deserialized from the given file. Extensions previously saved with the wallet can be
-     * deserialized by calling @{@link WalletExtension#deserializeWalletExtension(Wallet, byte[])}}</p>
+     * <p>Returns a wallet deserialized from the given file.</p>
      *
-     * @param file the wallet file to read
-     * @param walletExtensions extensions possibly added to the wallet.
+     * @param file the wallet file to read.
      */
-    public static Wallet loadFromFile(File file, @Nullable WalletExtension... walletExtensions) throws UnreadableWalletException {
+    public static Wallet loadFromFile(File file) throws UnreadableWalletException {
         try {
             FileInputStream stream = null;
             try {
                 stream = new FileInputStream(file);
-                return loadFromFileStream(stream, walletExtensions);
+                return loadFromFileStream(stream);
             } finally {
                 if (stream != null) stream.close();
             }
@@ -1586,7 +1403,7 @@ public class Wallet extends BaseTaggableObject
         boolean isActuallySpent = true;
         for (TransactionOutput o : tx.getOutputs()) {
             if (o.isAvailableForSpending()) {
-                if (o.isMineOrWatched(this)) isActuallySpent = false;
+                if (o.isMine(this)) isActuallySpent = false;
                 if (o.getSpentBy() != null) {
                     log.error("isAvailableForSpending != spentBy");
                     return false;
@@ -1601,9 +1418,9 @@ public class Wallet extends BaseTaggableObject
         return isActuallySpent == isSpent;
     }
 
-    /** Returns a wallet deserialized from the given input stream and wallet extensions. */
-    public static Wallet loadFromFileStream(InputStream stream, @Nullable WalletExtension... walletExtensions) throws UnreadableWalletException {
-        Wallet wallet = new WalletProtobufSerializer().readWallet(stream, walletExtensions);
+    /** Returns a wallet deserialized from the given input stream. */
+    public static Wallet loadFromFileStream(InputStream stream) throws UnreadableWalletException {
+        Wallet wallet = new WalletProtobufSerializer().readWallet(stream);
         if (!wallet.isConsistent()) {
             log.error("Loaded an inconsistent wallet");
         }
@@ -2222,7 +2039,7 @@ public class Wallet extends BaseTaggableObject
             // disconnect irrelevant inputs (otherwise might cause protobuf serialization issue)
             for (TransactionInput input : tx.getInputs()) {
                 TransactionOutput output = input.getConnectedOutput();
-                if (output != null && !output.isMineOrWatched(this)) {
+                if (output != null && !output.isMine(this)) {
                     input.disconnect();
                 }
             }
@@ -2293,7 +2110,7 @@ public class Wallet extends BaseTaggableObject
                 log.info("  marked {} as spent by {}", input.getOutpoint(), tx.getHashAsString());
                 maybeMovePool(connected, "prevtx");
                 // Just because it's connected doesn't mean it's actually ours: sometimes we have total visibility.
-                if (output.isMineOrWatched(this)) {
+                if (output.isMine(this)) {
                     checkState(myUnspents.remove(output));
                 }
             }
@@ -2427,7 +2244,7 @@ public class Wallet extends BaseTaggableObject
             // Put any outputs that are sending money back to us into the unspents map, and calculate their total value.
             Coin valueSentToMe = Coin.ZERO;
             for (TransactionOutput o : tx.getOutputs()) {
-                if (!o.isMineOrWatched(this)) continue;
+                if (!o.isMine(this)) continue;
                 valueSentToMe = valueSentToMe.add(o.getValue());
             }
             // Mark the outputs we're spending as spent so we won't try and use them in future creations. This will also
@@ -2531,7 +2348,6 @@ public class Wallet extends BaseTaggableObject
         addCoinsSentEventListener(Threading.USER_THREAD, listener);
         addKeyChainEventListener(Threading.USER_THREAD, listener);
         addReorganizeEventListener(Threading.USER_THREAD, listener);
-        addScriptChangeEventListener(Threading.USER_THREAD, listener);
         addTransactionConfidenceEventListener(Threading.USER_THREAD, listener);
     }
 
@@ -2543,7 +2359,6 @@ public class Wallet extends BaseTaggableObject
         addChangeEventListener(executor, listener);
         addKeyChainEventListener(executor, listener);
         addReorganizeEventListener(executor, listener);
-        addScriptChangeEventListener(executor, listener);
         addTransactionConfidenceEventListener(executor, listener);
     }
 
@@ -2632,23 +2447,6 @@ public class Wallet extends BaseTaggableObject
     }
 
     /**
-     * Adds an event listener object. Methods on this object are called when scripts
-     * watched by this wallet change. Runs the listener methods in the user thread.
-     */
-    public void addScriptsChangeEventListener(ScriptsChangeEventListener listener) {
-        addScriptChangeEventListener(Threading.USER_THREAD, listener);
-    }
-
-    /**
-     * Adds an event listener object. Methods on this object are called when scripts
-     * watched by this wallet change. The listener is executed by the given executor.
-     */
-    public void addScriptChangeEventListener(Executor executor, ScriptsChangeEventListener listener) {
-        // This is thread safe, so we don't need to take the lock.
-        scriptChangeListeners.add(new ListenerRegistration<>(listener, executor));
-    }
-
-    /**
      * Adds an event listener object. Methods on this object are called when confidence
      * of a transaction changes. Runs the listener methods in the user thread.
      */
@@ -2724,14 +2522,6 @@ public class Wallet extends BaseTaggableObject
      * Removes the given event listener object. Returns true if the listener was removed, false if that listener
      * was never added.
      */
-    public boolean removeScriptChangeEventListener(ScriptsChangeEventListener listener) {
-        return ListenerRegistration.removeFromList(listener, scriptChangeListeners);
-    }
-
-    /**
-     * Removes the given event listener object. Returns true if the listener was removed, false if that listener
-     * was never added.
-     */
     public boolean removeTransactionConfidenceEventListener(TransactionConfidenceEventListener listener) {
         return ListenerRegistration.removeFromList(listener, transactionConfidenceListeners);
     }
@@ -2800,17 +2590,6 @@ public class Wallet extends BaseTaggableObject
                 @Override
                 public void run() {
                     registration.listener.onReorganize(Wallet.this);
-                }
-            });
-        }
-    }
-
-    protected void queueOnScriptsChanged(final List<Script> scripts, final boolean isAddingScripts) {
-        for (final ListenerRegistration<ScriptsChangeEventListener> registration : scriptChangeListeners) {
-            registration.executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    registration.listener.onScriptsChanged(Wallet.this, scripts, isAddingScripts);
                 }
             });
         }
@@ -2903,7 +2682,7 @@ public class Wallet extends BaseTaggableObject
         }
         if (pool == Pool.UNSPENT || pool == Pool.PENDING) {
             for (TransactionOutput output : tx.getOutputs()) {
-                if (output.isAvailableForSpending() && output.isMineOrWatched(this))
+                if (output.isAvailableForSpending() && output.isMine(this))
                     myUnspents.add(output);
             }
         }
@@ -3033,36 +2812,6 @@ public class Wallet extends BaseTaggableObject
     }
 
     /**
-     * Returns all the outputs that match addresses or scripts added via {@link #addWatchedAddress(Address)} or
-     * {@link #addWatchedScripts(java.util.List)}.
-     * @param excludeImmatureCoinbases Whether to ignore outputs that are unspendable due to being immature.
-     */
-    public List<TransactionOutput> getWatchedOutputs(boolean excludeImmatureCoinbases) {
-        lock.lock();
-        keyChainGroupLock.lock();
-        try {
-            LinkedList<TransactionOutput> candidates = Lists.newLinkedList();
-            for (Transaction tx : Iterables.concat(unspent.values(), pending.values())) {
-                if (excludeImmatureCoinbases && !tx.isMature()) continue;
-                for (TransactionOutput output : tx.getOutputs()) {
-                    if (!output.isAvailableForSpending()) continue;
-                    try {
-                        Script scriptPubKey = output.getScriptPubKey();
-                        if (!watchedScripts.contains(scriptPubKey)) continue;
-                        candidates.add(output);
-                    } catch (ScriptException e) {
-                        // Ignore
-                    }
-                }
-            }
-            return candidates;
-        } finally {
-            keyChainGroupLock.unlock();
-            lock.unlock();
-        }
-    }
-
-    /**
      * Clean up the wallet. Currently, it only removes risky pending transaction from the wallet and only if their
      * outputs have not been spent.
      */
@@ -3079,7 +2828,7 @@ public class Wallet extends BaseTaggableObject
                         for (TransactionInput input : tx.getInputs()) {
                             TransactionOutput output = input.getConnectedOutput();
                             if (output == null) continue;
-                            if (output.isMineOrWatched(this))
+                            if (output.isMine(this))
                                 checkState(myUnspents.add(output));
                             input.disconnect();
                         }
@@ -3183,20 +2932,17 @@ public class Wallet extends BaseTaggableObject
 
     @Override
     public String toString() {
-        return toString(false, true, true, null);
+        return toString(false, true, null);
     }
-
 
     /**
      * Formats the wallet as a human readable piece of text. Intended for debugging, the format is not meant to be
      * stable or human readable.
      * @param includePrivateKeys Whether raw private key data should be included.
      * @param includeTransactions Whether to print transaction data.
-     * @param includeExtensions Whether to print extension data.
      * @param chain If set, will be used to estimate lock times for block timelocked transactions.
      */
-    public String toString(boolean includePrivateKeys, boolean includeTransactions, boolean includeExtensions,
-                           @Nullable AbstractBlockChain chain) {
+    public String toString(boolean includePrivateKeys, boolean includeTransactions, @Nullable AbstractBlockChain chain) {
         lock.lock();
         keyChainGroupLock.lock();
         try {
@@ -3228,13 +2974,6 @@ public class Wallet extends BaseTaggableObject
                 builder.append("Key rotation time:      ").append(Utils.dateTimeFormat(keyRotationTime)).append('\n');
             builder.append(keyChainGroup.toString(includePrivateKeys));
 
-            if (!watchedScripts.isEmpty()) {
-                builder.append("\nWatched scripts:\n");
-                for (Script script : watchedScripts) {
-                    builder.append("  ").append(script).append("\n");
-                }
-            }
-
             if (includeTransactions) {
                 // Print the transactions themselves
                 if (pending.size() > 0) {
@@ -3252,12 +2991,6 @@ public class Wallet extends BaseTaggableObject
                 if (dead.size() > 0) {
                     builder.append("\n>>> DEAD:\n");
                     toStringHelper(builder, dead, chain, Transaction.SORT_TX_BY_UPDATE_TIME);
-                }
-            }
-            if (includeExtensions && extensions.size() > 0) {
-                builder.append("\n>>> EXTENSIONS:\n");
-                for (WalletExtension extension : extensions.values()) {
-                    builder.append(extension).append("\n\n");
                 }
             }
             return builder.toString();
@@ -3325,8 +3058,6 @@ public class Wallet extends BaseTaggableObject
         keyChainGroupLock.lock();
         try {
             long earliestTime = keyChainGroup.getEarliestKeyCreationTime();
-            for (Script script : watchedScripts)
-                earliestTime = Math.min(script.getCreationTimeSeconds(), earliestTime);
             if (earliestTime == Long.MAX_VALUE)
                 return Utils.currentTimeSeconds();
             return earliestTime;
@@ -3487,18 +3218,6 @@ public class Wallet extends BaseTaggableObject
         ESTIMATED_SPENDABLE,
         /** Same as AVAILABLE but only for outputs we have the private keys for and can sign ourselves. */
         AVAILABLE_SPENDABLE
-    }
-
-    /** @deprecated Use {@link #getBalance()} instead as including watched balances is now the default behaviour */
-    @Deprecated
-    public Coin getWatchedBalance() {
-        return getBalance();
-    }
-
-    /** @deprecated Use {@link #getBalance(CoinSelector)} instead as including watched balances is now the default behaviour */
-    @Deprecated
-    public Coin getWatchedBalance(CoinSelector selector) {
-        return getBalance(selector);
     }
 
     /**
@@ -4126,14 +3845,8 @@ public class Wallet extends BaseTaggableObject
         return calculateAllSpendCandidates(true, true);
     }
 
-    /** @deprecated Use {@link #calculateAllSpendCandidates(boolean, boolean)} or the zero-parameter form instead. */
-    @Deprecated
-    public List<TransactionOutput> calculateAllSpendCandidates(boolean excludeImmatureCoinbases) {
-        return calculateAllSpendCandidates(excludeImmatureCoinbases, true);
-    }
-
     /**
-     * Returns a list of all outputs that are being tracked by this wallet either from the {@link UTXOProvider}
+     * Returns a list of all outputs that are being tracked by this wallet either from the {@link UTXOProvider}
      * (in this case the existence or not of private keys is ignored), or the wallets internal storage (the default)
      * taking into account the flags.
      *
@@ -4143,18 +3856,13 @@ public class Wallet extends BaseTaggableObject
     public List<TransactionOutput> calculateAllSpendCandidates(boolean excludeImmatureCoinbases, boolean excludeUnsignable) {
         lock.lock();
         try {
-            List<TransactionOutput> candidates;
-            if (vUTXOProvider == null) {
-                candidates = new ArrayList<>(myUnspents.size());
-                for (TransactionOutput output : myUnspents) {
-                    if (excludeUnsignable && !canSignFor(output.getScriptPubKey())) continue;
-                    Transaction transaction = checkNotNull(output.getParentTransaction());
-                    if (excludeImmatureCoinbases && !transaction.isMature())
-                        continue;
-                    candidates.add(output);
-                }
-            } else {
-                candidates = calculateAllSpendCandidatesFromUTXOProvider(excludeImmatureCoinbases);
+            List<TransactionOutput> candidates = new ArrayList<>(myUnspents.size());
+            for (TransactionOutput output : myUnspents) {
+                if (excludeUnsignable && !canSignFor(output.getScriptPubKey())) continue;
+                Transaction transaction = checkNotNull(output.getParentTransaction());
+                if (excludeImmatureCoinbases && !transaction.isMature())
+                    continue;
+                candidates.add(output);
             }
             return candidates;
         } finally {
@@ -4200,66 +3908,6 @@ public class Wallet extends BaseTaggableObject
         return false;
     }
 
-    /**
-     * Returns the spendable candidates from the {@link UTXOProvider} based on keys that the wallet contains.
-     * @return The list of candidates.
-     */
-    protected LinkedList<TransactionOutput> calculateAllSpendCandidatesFromUTXOProvider(boolean excludeImmatureCoinbases) {
-        checkState(lock.isHeldByCurrentThread());
-        UTXOProvider utxoProvider = checkNotNull(vUTXOProvider, "No UTXO provider has been set");
-        LinkedList<TransactionOutput> candidates = Lists.newLinkedList();
-        try {
-            int chainHeight = utxoProvider.getChainHeadHeight();
-            for (UTXO output : getStoredOutputsFromUTXOProvider()) {
-                boolean coinbase = output.isCoinbase();
-                int depth = chainHeight - output.getHeight() + 1; // the current depth of the output (1 = same as head).
-                // Do not try and spend coinbases that were mined too recently, the protocol forbids it.
-                if (!excludeImmatureCoinbases || !coinbase || depth >= params.getSpendableCoinbaseDepth()) {
-                    candidates.add(new FreeStandingTransactionOutput(params, output, chainHeight));
-                }
-            }
-        } catch (UTXOProviderException e) {
-            throw new RuntimeException("UTXO provider error", e);
-        }
-        // We need to handle the pending transactions that we know about.
-        for (Transaction tx : pending.values()) {
-            // Remove the spent outputs.
-            for (TransactionInput input : tx.getInputs()) {
-                if (input.getConnectedOutput().isMine(this)) {
-                    candidates.remove(input.getConnectedOutput());
-                }
-            }
-            // Add change outputs. Do not try and spend coinbases that were mined too recently, the protocol forbids it.
-            if (!excludeImmatureCoinbases || tx.isMature()) {
-                for (TransactionOutput output : tx.getOutputs()) {
-                    if (output.isAvailableForSpending() && output.isMine(this)) {
-                        candidates.add(output);
-                    }
-                }
-            }
-        }
-        return candidates;
-    }
-
-    /**
-     * Get all the {@link UTXO}'s from the {@link UTXOProvider} based on keys that the
-     * wallet contains.
-     * @return The list of stored outputs.
-     */
-    protected List<UTXO> getStoredOutputsFromUTXOProvider() throws UTXOProviderException {
-        UTXOProvider utxoProvider = checkNotNull(vUTXOProvider, "No UTXO provider has been set");
-        List<UTXO> candidates = new ArrayList<>();
-        List<ECKey> keys = getImportedKeys();
-        keys.addAll(getActiveKeyChain().getLeafKeys());
-        List<Address> addresses = new ArrayList<>();
-        for (ECKey key : keys) {
-            Address address = new Address(params, key.getPubKeyHash());
-            addresses.add(address);
-        }
-        candidates.addAll(utxoProvider.getOpenTransactionOutputs(addresses));
-        return candidates;
-    }
-
     /** Returns the {@link CoinSelector} object which controls which outputs can be spent by this wallet. */
     public CoinSelector getCoinSelector() {
         lock.lock();
@@ -4292,38 +3940,6 @@ public class Wallet extends BaseTaggableObject
      */
     public void allowSpendingUnconfirmedTransactions() {
         setCoinSelector(AllowUnconfirmedCoinSelector.get());
-    }
-
-    /**
-     * Get the {@link UTXOProvider}.
-     * @return The UTXO provider.
-     */
-    @Nullable public UTXOProvider getUTXOProvider() {
-        lock.lock();
-        try {
-            return vUTXOProvider;
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    /**
-     * Set the {@link UTXOProvider}.
-     *
-     * <p>The wallet will query the provider for spendable candidates, i.e. outputs controlled exclusively
-     * by private keys contained in the wallet.</p>
-     *
-     * <p>Note that the associated provider must be reattached after a wallet is loaded from disk.
-     * The association is not serialized.</p>
-     */
-    public void setUTXOProvider(@Nullable UTXOProvider provider) {
-        lock.lock();
-        try {
-            checkArgument(provider == null || provider.getParams().equals(params));
-            this.vUTXOProvider = provider;
-        } finally {
-            lock.unlock();
-        }
     }
 
     //endregion
@@ -4380,7 +3996,6 @@ public class Wallet extends BaseTaggableObject
     }
 
     /******************************************************************************************************************/
-
 
     /******************************************************************************************************************/
 
@@ -4480,7 +4095,7 @@ public class Wallet extends BaseTaggableObject
                         for (TransactionOutput output : tx.getOutputs()) {
                             TransactionInput input = output.getSpentBy();
                             if (input != null) {
-                                if (output.isMineOrWatched(this))
+                                if (output.isMine(this))
                                     checkState(myUnspents.add(output));
                                 input.disconnect();
                             }
@@ -4626,31 +4241,9 @@ public class Wallet extends BaseTaggableObject
     public int getBloomFilterElementCount() {
         beginBloomFilterCalculation();
         try {
-            int size = bloomOutPoints.size();
-            size += keyChainGroup.getBloomFilterElementCount();
-            // Some scripts may have more than one bloom element.  That should normally be okay, because under-counting
-            // just increases false-positive rate.
-            size += watchedScripts.size();
-            return size;
+            return bloomOutPoints.size() + keyChainGroup.getBloomFilterElementCount();
         } finally {
             endBloomFilterCalculation();
-        }
-    }
-
-    /**
-     * If we are watching any scripts, the bloom filter must update on peers whenever an output is
-     * identified.  This is because we don't necessarily have the associated pubkey, so we can't
-     * watch for it on spending transactions.
-     */
-    @Override
-    public boolean isRequiringUpdateAllBloomFilter() {
-        // This is typically called by the PeerGroup, in which case it will have already explicitly taken the lock
-        // before calling, but because this is public API we must still lock again regardless.
-        keyChainGroupLock.lock();
-        try {
-            return !watchedScripts.isEmpty();
-        } finally {
-            keyChainGroupLock.unlock();
         }
     }
 
@@ -4671,10 +4264,10 @@ public class Wallet extends BaseTaggableObject
      * <p>Gets a bloom filter that contains all of the public keys from this wallet, and which will provide the given
      * false-positive rate if it has size elements. Keep in mind that you will get 2 elements in the bloom filter for
      * each key in the wallet, for the public key and the hash of the public key (address form).</p>
-     * 
+     *
      * <p>This is used to generate a BloomFilter which can be {@link BloomFilter#merge(BloomFilter)}d with another.
      * It could also be used if you have a specific target for the filter's size.</p>
-     * 
+     *
      * <p>See the docs for {@link BloomFilter(int, double)} for a brief explanation of anonymity when using bloom
      * filters.</p>
      */
@@ -4683,16 +4276,6 @@ public class Wallet extends BaseTaggableObject
         beginBloomFilterCalculation();
         try {
             BloomFilter filter = keyChainGroup.getBloomFilter(size, falsePositiveRate, nTweak);
-            for (Script script : watchedScripts) {
-                for (ScriptChunk chunk : script.getChunks()) {
-                    // Only add long (at least 64 bit) data to the bloom filter.
-                    // If any long constants become popular in scripts, we will need logic
-                    // here to exclude them.
-                    if (!chunk.isOpCode() && chunk.data.length >= MINIMUM_BLOOM_DATA_LENGTH) {
-                        filter.insert(chunk.data);
-                    }
-                }
-            }
             for (TransactionOutPoint point : bloomOutPoints)
                 filter.insert(point.unsafeBitcoinSerialize());
             return filter;
@@ -4704,8 +4287,8 @@ public class Wallet extends BaseTaggableObject
     // Returns true if the output is one that won't be selected by a data element matching in the scriptSig.
     private boolean isTxOutputBloomFilterable(TransactionOutput out) {
         Script script = out.getScriptPubKey();
-        boolean isScriptTypeSupported = script.isSentToRawPubKey() || script.isPayToScriptHash();
-        return (isScriptTypeSupported && myUnspents.contains(out)) || watchedScripts.contains(script);
+        boolean isScriptTypeSupported = (script.isSentToRawPubKey() || script.isPayToScriptHash());
+        return (isScriptTypeSupported && myUnspents.contains(out));
     }
 
     /**
@@ -4736,90 +4319,6 @@ public class Wallet extends BaseTaggableObject
     /******************************************************************************************************************/
 
     //region Extensions to the wallet format.
-
-    /**
-     * By providing an object implementing the {@link WalletExtension} interface, you can save and load arbitrary
-     * additional data that will be stored with the wallet. Each extension is identified by an ID, so attempting to
-     * add the same extension twice (or two different objects that use the same ID) will throw an IllegalStateException.
-     */
-    public void addExtension(WalletExtension extension) {
-        String id = checkNotNull(extension).getWalletExtensionID();
-        lock.lock();
-        try {
-            if (extensions.containsKey(id))
-                throw new IllegalStateException("Cannot add two extensions with the same ID: " + id);
-            extensions.put(id, extension);
-            saveNow();
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    /**
-     * Atomically adds extension or returns an existing extension if there is one with the same id already present.
-     */
-    public WalletExtension addOrGetExistingExtension(WalletExtension extension) {
-        String id = checkNotNull(extension).getWalletExtensionID();
-        lock.lock();
-        try {
-            WalletExtension previousExtension = extensions.get(id);
-            if (previousExtension != null)
-                return previousExtension;
-            extensions.put(id, extension);
-            saveNow();
-            return extension;
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    /**
-     * Either adds extension as a new extension or replaces the existing extension if one already exists with the same
-     * id. This also triggers wallet auto-saving, so may be useful even when called with the same extension as is
-     * already present.
-     */
-    public void addOrUpdateExtension(WalletExtension extension) {
-        String id = checkNotNull(extension).getWalletExtensionID();
-        lock.lock();
-        try {
-            extensions.put(id, extension);
-            saveNow();
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    /** Returns a snapshot of all registered extension objects. The extensions themselves are not copied. */
-    public Map<String, WalletExtension> getExtensions() {
-        lock.lock();
-        try {
-            return ImmutableMap.copyOf(extensions);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    /**
-     * Deserialize the wallet extension with the supplied data and then install it, replacing any existing extension
-     * that may have existed with the same ID. If an exception is thrown then the extension is removed from the wallet,
-     * if already present.
-     */
-    public void deserializeExtension(WalletExtension extension, byte[] data) throws Exception {
-        lock.lock();
-        keyChainGroupLock.lock();
-        try {
-            // This method exists partly to establish a lock ordering of wallet > extension.
-            extension.deserializeWalletExtension(this, data);
-            extensions.put(extension.getWalletExtensionID(), extension);
-        } catch (Throwable throwable) {
-            log.error("Error during extension deserialization", throwable);
-            extensions.remove(extension.getWalletExtensionID());
-            Throwables.propagate(throwable);
-        } finally {
-            keyChainGroupLock.unlock();
-            lock.unlock();
-        }
-    }
 
     @Override
     public void setTag(String tag, ByteString value) {
@@ -5078,12 +4577,6 @@ public class Wallet extends BaseTaggableObject
     public boolean isKeyRotating(ECKey key) {
         long time = vKeyRotationTimestamp;
         return time != 0 && key.getCreationTimeSeconds() < time;
-    }
-
-    /** @deprecated Renamed to doMaintenance */
-    @Deprecated
-    public ListenableFuture<List<Transaction>> maybeDoMaintenance(@Nullable KeyParameter aesKey, boolean andSend) throws DeterministicUpgradeRequiresPassword {
-        return doMaintenance(aesKey, andSend);
     }
 
     /**

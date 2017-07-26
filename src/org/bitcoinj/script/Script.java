@@ -264,11 +264,11 @@ public class Script {
      * <p>If a program matches the standard template DUP HASH160 &lt;pubkey hash&gt; EQUALVERIFY CHECKSIG
      * then this function retrieves the third element.
      * In this case, this is useful for fetching the destination address of a transaction.</p>
-     * 
+     *
      * <p>If a program matches the standard template HASH160 &lt;script hash&gt; EQUAL
      * then this function retrieves the second element.
      * In this case, this is useful for fetching the hash of the redeem script of a transaction.</p>
-     * 
+     *
      * <p>Otherwise it throws a ScriptException.</p>
      *
      */
@@ -358,7 +358,7 @@ public class Script {
 
     /**
      * Gets the destination address from this script, if it's in the required form (see getPubKey).
-     * 
+     *
      * @param forcePayToPubKey
      *            If true, allow payToPubKey to be casted to the corresponding address. This is useful if you prefer
      *            showing addresses rather than pubkeys.
@@ -480,7 +480,6 @@ public class Script {
         return ScriptBuilder.updateScriptWithSignature(scriptSig, sigBytes, index, sigsPrefixCount, sigsSuffixCount);
     }
 
-
     /**
      * Returns the index where a signature by the key should be inserted.  Only applicable to
      * a P2SH scriptSig.
@@ -549,8 +548,6 @@ public class Script {
         throw new IllegalStateException("Could not find matching key for signature on " + hash.toString() + " sig " + Utils.HEX.encode(signatureBytes));
     }
 
-
-
     ////////////////////// Interface used during verification of transactions/blocks ////////////////////////////////
 
     private static int getSigOpCount(List<ScriptChunk> chunks, boolean accurate) throws ScriptException {
@@ -611,7 +608,7 @@ public class Script {
         }
         return getSigOpCount(script.chunks, false);
     }
-    
+
     /**
      * Gets the count of P2SH Sig Ops in the Script scriptSig
      */
@@ -747,7 +744,7 @@ public class Script {
                 return false;
         return true;
     }
-    
+
     /**
      * Returns the script bytes of inputScript with all instances of the specified script object removed
      */
@@ -758,7 +755,7 @@ public class Script {
         int cursor = 0;
         while (cursor < inputScript.length) {
             boolean skip = equalsRange(inputScript, cursor, chunkToRemove);
-            
+
             int opcode = inputScript[cursor++] & 0xFF;
             int additionalBytes = 0;
             if (opcode >= 0 && opcode < OP_PUSHDATA1) {
@@ -786,16 +783,16 @@ public class Script {
         }
         return bos.toByteArray();
     }
-    
+
     /**
      * Returns the script bytes of inputScript with all instances of the given op code removed
      */
     public static byte[] removeAllInstancesOfOp(byte[] inputScript, int opCode) {
         return removeAllInstancesOf(inputScript, new byte[] {(byte)opCode});
     }
-    
+
     ////////////////////// Script verification and helpers ////////////////////////////////
-    
+
     private static boolean castToBool(byte[] data) {
         for (int i = 0; i < data.length; i++)
         {
@@ -887,10 +884,10 @@ public class Script {
                                      Script script, LinkedList<byte[]> stack, Set<VerifyFlag> verifyFlags) throws ScriptException {
         int opCount = 0;
         int lastCodeSepLocation = 0;
-        
+
         LinkedList<byte[]> altstack = new LinkedList<>();
         LinkedList<Boolean> ifStack = new LinkedList<>();
-        
+
         for (ScriptChunk chunk : script.chunks) {
             boolean shouldExecute = !ifStack.contains(false);
             int opcode = chunk.opcode;
@@ -1152,7 +1149,7 @@ public class Script {
                     if (stack.size() < 1)
                         throw new ScriptException(ScriptError.SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted a numeric op on an empty stack");
                     BigInteger numericOPnum = castToBigInteger(stack.pollLast(), verifyFlags.contains(VerifyFlag.MINIMALDATA));
-                                        
+
                     switch (opcode) {
                     case OP_1ADD:
                         numericOPnum = numericOPnum.add(BigInteger.ONE);
@@ -1182,7 +1179,7 @@ public class Script {
                     default:
                         throw new AssertionError("Unreachable");
                     }
-                    
+
                     stack.add(Utils.reverseBytes(Utils.encodeMPI(numericOPnum, false)));
                     break;
                 case OP_ADD:
@@ -1273,7 +1270,7 @@ public class Script {
                     default:
                         throw new RuntimeException("Opcode switched at runtime?");
                     }
-                    
+
                     stack.add(Utils.reverseBytes(Utils.encodeMPI(numericOPresult, false)));
                     break;
                 case OP_NUMEQUALVERIFY:
@@ -1281,7 +1278,7 @@ public class Script {
                         throw new ScriptException(ScriptError.SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_NUMEQUALVERIFY on a stack with size < 2");
                     BigInteger OPNUMEQUALVERIFYnum2 = castToBigInteger(stack.pollLast(), verifyFlags.contains(VerifyFlag.MINIMALDATA));
                     BigInteger OPNUMEQUALVERIFYnum1 = castToBigInteger(stack.pollLast(), verifyFlags.contains(VerifyFlag.MINIMALDATA));
-                    
+
                     if (!OPNUMEQUALVERIFYnum1.equals(OPNUMEQUALVERIFYnum2))
                         throw new ScriptException(ScriptError.SCRIPT_ERR_NUMEQUALVERIFY, "OP_NUMEQUALVERIFY failed");
                     break;
@@ -1377,16 +1374,16 @@ public class Script {
                         throw new ScriptException(ScriptError.SCRIPT_ERR_DISCOURAGE_UPGRADABLE_NOPS, "Script used a reserved opcode " + opcode);
                     }
                     break;
-                    
+
                 default:
                     throw new ScriptException(ScriptError.SCRIPT_ERR_BAD_OPCODE, "Script used a reserved or disabled opcode: " + opcode);
                 }
             }
-            
+
             if (stack.size() + altstack.size() > MAX_STACK_SIZE || stack.size() + altstack.size() < 0)
                 throw new ScriptException(ScriptError.SCRIPT_ERR_STACK_SIZE, "Stack size exceeded range");
         }
-        
+
         if (!ifStack.isEmpty())
             throw new ScriptException(ScriptError.SCRIPT_ERR_UNBALANCED_CONDITIONAL, "OP_IF/OP_NOTIF without OP_ENDIF");
     }
@@ -1505,7 +1502,7 @@ public class Script {
     }
 
     private static void executeCheckSig(Transaction txContainingThis, int index, Script script, LinkedList<byte[]> stack,
-                                        int lastCodeSepLocation, int opcode, 
+                                        int lastCodeSepLocation, int opcode,
                                         Set<VerifyFlag> verifyFlags) throws ScriptException {
         final boolean requireCanonical = verifyFlags.contains(VerifyFlag.STRICTENC)
             || verifyFlags.contains(VerifyFlag.DERSIG)
@@ -1553,7 +1550,7 @@ public class Script {
     }
 
     private static int executeMultiSig(Transaction txContainingThis, int index, Script script, LinkedList<byte[]> stack,
-                                       int opCount, int lastCodeSepLocation, int opcode, 
+                                       int opCount, int lastCodeSepLocation, int opcode,
                                        Set<VerifyFlag> verifyFlags) throws ScriptException {
         final boolean requireCanonical = verifyFlags.contains(VerifyFlag.STRICTENC)
             || verifyFlags.contains(VerifyFlag.DERSIG)
@@ -1672,18 +1669,18 @@ public class Script {
         }
         if (getProgram().length > MAX_SCRIPT_SIZE || scriptPubKey.getProgram().length > MAX_SCRIPT_SIZE)
             throw new ScriptException(ScriptError.SCRIPT_ERR_SCRIPT_SIZE, "Script larger than 10,000 bytes");
-        
+
         LinkedList<byte[]> stack = new LinkedList<>();
         LinkedList<byte[]> p2shStack = null;
-        
+
         executeScript(txContainingThis, scriptSigIndex, this, stack, verifyFlags);
         if (verifyFlags.contains(VerifyFlag.P2SH))
             p2shStack = new LinkedList<>(stack);
         executeScript(txContainingThis, scriptSigIndex, scriptPubKey, stack, verifyFlags);
-        
+
         if (stack.size() == 0)
             throw new ScriptException(ScriptError.SCRIPT_ERR_EVAL_FALSE, "Stack empty at end of script execution.");
-        
+
         if (!castToBool(stack.pollLast()))
             throw new ScriptException(ScriptError.SCRIPT_ERR_EVAL_FALSE, "Script resulted in a non-true stack: " + stack);
 
@@ -1704,15 +1701,15 @@ public class Script {
             for (ScriptChunk chunk : chunks)
                 if (chunk.isOpCode() && chunk.opcode > OP_16)
                     throw new ScriptException(ScriptError.SCRIPT_ERR_SIG_PUSHONLY, "Attempted to spend a P2SH scriptPubKey with a script that contained script ops");
-            
+
             byte[] scriptPubKeyBytes = p2shStack.pollLast();
             Script scriptPubKeyP2SH = new Script(scriptPubKeyBytes);
-            
+
             executeScript(txContainingThis, scriptSigIndex, scriptPubKeyP2SH, p2shStack, verifyFlags);
-            
+
             if (p2shStack.size() == 0)
                 throw new ScriptException(ScriptError.SCRIPT_ERR_EVAL_FALSE, "P2SH stack empty at end of script execution.");
-            
+
             if (!castToBool(p2shStack.pollLast()))
                 throw new ScriptException(ScriptError.SCRIPT_ERR_EVAL_FALSE, "P2SH script execution resulted in a non-true stack");
         }

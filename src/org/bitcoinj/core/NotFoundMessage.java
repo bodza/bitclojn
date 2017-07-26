@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * <p>Sent by a peer when a getdata request doesn't find the requested data in the mempool. It has the same format
  * as an inventory message and lists the hashes of the missing items.</p>
- * 
+ *
  * <p>Instances of this class are not safe for use by multiple threads.</p>
  */
 public class NotFoundMessage extends InventoryMessage {

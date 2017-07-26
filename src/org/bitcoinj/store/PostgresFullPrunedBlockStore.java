@@ -194,7 +194,6 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
             throw new BlockStoreException(e);
         }
 
-
         try {
             if (log.isDebugEnabled())
                 log.debug("Looking for undoable block with hash: " + Utils.HEX.encode(hashBytes));

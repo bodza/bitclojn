@@ -21,7 +21,6 @@ import com.google.common.collect.Lists;
 
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.VersionMessage;
-import org.bitcoinj.net.discovery.HttpDiscovery;
 import org.bitcoinj.net.discovery.DnsDiscovery.DnsSeedDiscovery;
 import org.bitcoinj.utils.*;
 import org.slf4j.Logger;
@@ -32,8 +31,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
-
-import okhttp3.OkHttpClient;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -57,12 +54,6 @@ public class MultiplexingDiscovery implements PeerDiscovery {
      */
     public static MultiplexingDiscovery forServices(NetworkParameters params, long services) {
         List<PeerDiscovery> discoveries = Lists.newArrayList();
-        HttpDiscovery.Details[] httpSeeds = params.getHttpSeeds();
-        if (httpSeeds != null) {
-            OkHttpClient httpClient = new OkHttpClient();
-            for (HttpDiscovery.Details httpSeed : httpSeeds)
-                discoveries.add(new HttpDiscovery(params, httpSeed, httpClient));
-        }
         // Also use DNS seeds if there is no specific service requirement
         if (services == 0) {
             String[] dnsSeeds = params.getDnsSeeds();

@@ -1,6 +1,6 @@
 /*
  * Copyright by the original author or authors.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -92,7 +92,7 @@ import static com.google.common.collect.Lists.newLinkedList;
  * keys, you can request 33 keys before more keys will be calculated and the Bloom filter rebuilt and rebroadcast.
  * But even when you are requesting the 33rd key, you will still be looking 100 keys ahead.
  * </p>
- * 
+ *
  * @author Andreas Schildbach
  */
 @SuppressWarnings("PublicStaticCollectionField")
@@ -159,7 +159,6 @@ public class DeterministicKeyChain implements EncryptableKeyChain {
     // holds a number of signatures required to spend. It's the N from N-of-M CHECKMULTISIG script for P2SH transactions
     // and always 1 for other transaction types
     protected int sigsRequiredToSpend = 1;
-
 
     public static class Builder<T extends Builder<T>> {
         protected SecureRandom random;
@@ -1028,7 +1027,6 @@ public class DeterministicKeyChain implements EncryptableKeyChain {
     // Bloom filtering support
     //
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
     @Override
     public int numBloomFilterEntries() {

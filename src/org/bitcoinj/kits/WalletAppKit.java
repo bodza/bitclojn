@@ -22,7 +22,6 @@ import com.google.common.util.concurrent.*;
 import org.bitcoinj.core.listeners.*;
 import org.bitcoinj.core.*;
 import org.bitcoinj.net.discovery.*;
-import org.bitcoinj.protocols.channels.*;
 import org.bitcoinj.store.*;
 import org.bitcoinj.wallet.*;
 import org.slf4j.*;
@@ -206,16 +205,6 @@ public class WalletAppKit extends AbstractIdleService {
     }
 
     /**
-     * <p>Override this to return wallet extensions if any are necessary.</p>
-     *
-     * <p>When this is called, chain(), store(), and peerGroup() will return the created objects, however they are not
-     * initialized/started.</p>
-     */
-    protected List<WalletExtension> provideWalletExtensions() throws Exception {
-        return ImmutableList.of();
-    }
-
-    /**
      * Override this to use a {@link BlockStore} that isn't the default of {@link SPVBlockStore}.
      */
     protected BlockStore provideBlockStore(File file) throws BlockStoreException {
@@ -309,7 +298,7 @@ public class WalletAppKit extends AbstractIdleService {
             if (this.userAgent != null)
                 vPeerGroup.setUserAgent(userAgent, version);
 
-            // Set up peer addresses or discovery first, so if wallet extensions try to broadcast a transaction
+            // Set up peer addresses or discovery first, so if wallet extensions try to broadcast a transaction
             // before we're actually connected the broadcast waits for an appropriate number of connections.
             if (peerAddresses != null) {
                 for (PeerAddress addr : peerAddresses) vPeerGroup.addAddress(addr);
@@ -326,7 +315,6 @@ public class WalletAppKit extends AbstractIdleService {
                 vPeerGroup.start();
                 // Make sure we shut down cleanly.
                 installShutdownHook();
-                completeExtensionInitiations(vPeerGroup);
 
                 // TODO: Be able to use the provided download listener when doing a blocking startup.
                 final DownloadProgressTracker listener = new DownloadProgressTracker();
@@ -336,7 +324,6 @@ public class WalletAppKit extends AbstractIdleService {
                 Futures.addCallback(vPeerGroup.startAsync(), new FutureCallback() {
                     @Override
                     public void onSuccess(@Nullable Object result) {
-                        completeExtensionInitiations(vPeerGroup);
                         final DownloadProgressTracker l = downloadListener == null ? new DownloadProgressTracker() : downloadListener;
                         vPeerGroup.startBlockChainDownload(l);
                     }
@@ -363,13 +350,10 @@ public class WalletAppKit extends AbstractIdleService {
         } else {
             wallet = createWallet();
             wallet.freshReceiveKey();
-            for (WalletExtension e : provideWalletExtensions()) {
-                wallet.addExtension(e);
-            }
 
-            // Currently the only way we can be sure that an extension is aware of its containing wallet is by
-            // deserializing the extension (see WalletExtension#deserializeWalletExtension(Wallet, byte[]))
-            // Hence, we first save and then load wallet to ensure any extensions are correctly initialized.
+            // Currently the only way we can be sure that an extension is aware of its containing wallet is by
+            // deserializing the extension (see WalletExtension#deserializeWalletExtension(Wallet, byte[]))
+            // Hence, we first save and then load wallet to ensure any extensions are correctly initialized.
             wallet.saveToFile(vWalletFile);
             wallet = loadWallet(false);
         }
@@ -389,15 +373,13 @@ public class WalletAppKit extends AbstractIdleService {
         Wallet wallet;
         FileInputStream walletStream = new FileInputStream(vWalletFile);
         try {
-            List<WalletExtension> extensions = provideWalletExtensions();
-            WalletExtension[] extArray = extensions.toArray(new WalletExtension[extensions.size()]);
             Protos.Wallet proto = WalletProtobufSerializer.parseToProto(walletStream);
             final WalletProtobufSerializer serializer;
             if (walletFactory != null)
                 serializer = new WalletProtobufSerializer(walletFactory);
             else
                 serializer = new WalletProtobufSerializer();
-            wallet = serializer.readWallet(params, extArray, proto);
+            wallet = serializer.readWallet(params, proto);
             if (shouldReplayWallet)
                 wallet.reset();
         } finally {
@@ -434,24 +416,6 @@ public class WalletAppKit extends AbstractIdleService {
             throw new RuntimeException("Failed to rename wallet for restore");
         }
     }
-
-    /*
-     * As soon as the transaction broadcaster han been created we will pass it to the
-     * payment channel extensions
-     */
-    private void completeExtensionInitiations(TransactionBroadcaster transactionBroadcaster) {
-        StoredPaymentChannelClientStates clientStoredChannels = (StoredPaymentChannelClientStates)
-                vWallet.getExtensions().get(StoredPaymentChannelClientStates.class.getName());
-        if(clientStoredChannels != null) {
-            clientStoredChannels.setTransactionBroadcaster(transactionBroadcaster);
-        }
-        StoredPaymentChannelServerStates serverStoredChannels = (StoredPaymentChannelServerStates)
-                vWallet.getExtensions().get(StoredPaymentChannelServerStates.class.getName());
-        if(serverStoredChannels != null) {
-            serverStoredChannels.setTransactionBroadcaster(transactionBroadcaster);
-        }
-    }
-
 
     protected PeerGroup createPeerGroup() throws TimeoutException {
         return new PeerGroup(params, vChain);

@@ -27,7 +27,7 @@ import java.util.List;
  * <p>Represents an "addr" message on the P2P network, which contains broadcast IP addresses of other peers. This is
  * one of the ways peers can find each other without using the DNS or IRC discovery mechanisms. However storing and
  * using addr messages is not presently implemented.</p>
- * 
+ *
  * <p>Instances of this class are not safe for use by multiple threads.</p>
  */
 public class AddressMessage extends Message {
@@ -39,8 +39,8 @@ public class AddressMessage extends Message {
      * Contruct a new 'addr' message.
      * @param params NetworkParameters object.
      * @param offset The location of the first payload byte within the array.
-     * @param parseRetain Whether to retain the backing byte array for quick reserialization.  
-     * If true and the backing byte array is invalidated due to modification of a field then 
+     * @param parseRetain Whether to retain the backing byte array for quick reserialization.
+     * If true and the backing byte array is invalidated due to modification of a field then
      * the cached bytes may be repopulated and retained if the message is serialized again in the future.
      * @param length The length of message if known.  Usually this is provided when deserializing of the wire
      * as the length will be provided as part of the header.  If unknown then set to Message.UNKNOWN_LENGTH

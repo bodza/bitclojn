@@ -31,7 +31,7 @@ import static com.google.common.base.Preconditions.*;
 /**
  * <p>A TransactionOutput message contains a scriptPubKey that controls who is able to spend its value. It is a sub-part
  * of the Transaction message.</p>
- * 
+ *
  * <p>Instances of this class are not safe for use by multiple threads.</p>
  */
 public class TransactionOutput extends ChildMessage {
@@ -291,27 +291,6 @@ public class TransactionOutput extends ChildMessage {
     */
     public byte[] getScriptBytes() {
         return scriptBytes;
-    }
-
-    /**
-     * Returns true if this output is to a key in the wallet or to an address/script we are watching.
-     */
-    public boolean isMineOrWatched(TransactionBag transactionBag) {
-        return isMine(transactionBag) || isWatched(transactionBag);
-    }
-
-    /**
-     * Returns true if this output is to a key, or an address we have the keys for, in the wallet.
-     */
-    public boolean isWatched(TransactionBag transactionBag) {
-        try {
-            Script script = getScriptPubKey();
-            return transactionBag.isWatchedScript(script);
-        } catch (ScriptException e) {
-            // Just means we didn't understand the output of this transaction: ignore it.
-            log.debug("Could not parse tx output script: {}", e.toString());
-            return false;
-        }
     }
 
     /**

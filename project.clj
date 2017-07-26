@@ -8,8 +8,7 @@
                    [com.google.guava/guava "22.0-android"]
                    [net.jcip/jcip-annotations "1.0"]
                    [com.lambdaworks/scrypt "1.4.0"]
-                   [postgresql/postgresql "9.1-901.jdbc4"]
-                   [com.squareup.okhttp3/okhttp "3.6.0"]]
+                   [postgresql/postgresql "9.1-901.jdbc4"]]
     :plugins [[lein-try "0.4.3"]]
 ;   :global-vars {*warn-on-reflection* true}
     :jvm-opts ["-Xmx12g"]
