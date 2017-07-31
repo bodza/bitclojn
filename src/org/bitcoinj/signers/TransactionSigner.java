@@ -17,14 +17,14 @@ import java.util.Map;
  * along with the wallet data. In order for a wallet to recreate signer after deserialization, each signer
  * should have no-args constructor</p>
  */
-public interface TransactionSigner {
-
+public interface TransactionSigner
+{
     /**
      * This class wraps transaction proposed to complete keeping a metadata that may be updated, used and effectively
      * shared by transaction signers.
      */
-    class ProposedTransaction {
-
+    class ProposedTransaction
+    {
         public final Transaction partialTx;
 
         /**
@@ -36,13 +36,15 @@ public interface TransactionSigner {
          */
         public final Map<Script, List<ChildNumber>> keyPaths;
 
-        public ProposedTransaction(Transaction partialTx) {
+        public ProposedTransaction(Transaction partialTx)
+        {
             this.partialTx = partialTx;
             this.keyPaths = new HashMap<>();
         }
     }
 
-    class MissingSignatureException extends RuntimeException {
+    class MissingSignatureException extends RuntimeException
+    {
     }
 
     /**

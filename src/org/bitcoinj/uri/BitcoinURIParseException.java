@@ -9,12 +9,15 @@ package org.bitcoinj.uri;
  * that reported in the exception message). Since this is in English, it may not be worth reporting directly
  * to the user other than as part of a "general failure to parse" response.</p>
  */
-public class BitcoinURIParseException extends Exception {
-    public BitcoinURIParseException(String s) {
+public class BitcoinURIParseException extends Exception
+{
+    public BitcoinURIParseException(String s)
+    {
         super(s);
     }
 
-    public BitcoinURIParseException(String s, Throwable throwable) {
+    public BitcoinURIParseException(String s, Throwable throwable)
+    {
         super(s, throwable);
     }
 }

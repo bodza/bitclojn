@@ -5,7 +5,8 @@ import org.bitcoinj.core.*;
 /**
  * Called when a new transaction is broadcast over the network.
  */
-public interface OnTransactionBroadcastListener {
+public interface OnTransactionBroadcastListener
+{
     /**
      * Called when a new transaction is broadcast over the network.
      */

@@ -345,12 +345,14 @@ import java.util.regex.Pattern;
  * String[] output = new String[rows.length];
  * int[] indexes = new int[rows.length];
  * int maxIndex = 0;
- * for (int i = 0; i < rows.length; i++) {
+ * for (int i = 0; i < rows.length; i++)
+ {
  *     output[i] = f.format(rows[i], new StringBuffer(), fp).toString();
  *     indexes[i] = fp.getBeginIndex();
  *     if (indexes[i] > maxIndex) maxIndex = indexes[i];
  * }
- * for (int i = 0; i < output.length; i++) {
+ * for (int i = 0; i < output.length; i++)
+ {
  *     System.out.println(repeat(" ", (maxIndex - indexes[i])) + output[i]);
  * }
  * </pre></blockquote>
@@ -451,8 +453,8 @@ import java.util.regex.Pattern;
  * @see          org.bitcoinj.core.Coin
  */
 
-public abstract class BtcFormat extends Format {
-
+public abstract class BtcFormat extends Format
+{
     /* CONCURRENCY NOTES
      *
      * There is one mutable member of this class, the `DecimalFormat` object bound to variable
@@ -523,15 +525,19 @@ public abstract class BtcFormat extends Format {
      *
      * <p>Instances of this class are <strong>not</strong> thread-safe.
      */
-    public static class Builder {
-
-        private enum Variant {
-            AUTO { @Override BtcFormat newInstance(Builder b) {
-                       return getInstance(b.style, b.locale, b.minimumFractionDigits);
-                   }},
+    public static class Builder
+    {
+        private enum Variant
+        {
+            AUTO
+            {
+                @Override BtcFormat newInstance(Builder b) { return getInstance(b.style, b.locale, b.minimumFractionDigits); }
+            },
             FIXED,
             UNSET;
-            BtcFormat newInstance(Builder b) {
+
+            BtcFormat newInstance(Builder b)
+            {
                 return getInstance(b.scale, b.locale, b.minimumFractionDigits, b.fractionGroups);
             }
         }
@@ -542,9 +548,11 @@ public abstract class BtcFormat extends Format {
         private int[] fractionGroups = {};
         private Style style = BtcAutoFormat.Style.CODE;
         private int scale = 0;
-        private String symbol = "",code = "",pattern = "",localizedPattern = "";
+        private String symbol = "", code = "", pattern = "", localizedPattern = "";
 
-        private Builder() {}
+        private Builder()
+        {
+        }
 
         /** Specify the new <code>BtcFormat</code> is to be automatically-denominating.
          * The argument determines which of either codes or symbols the new <code>BtcFormat</code>
@@ -556,7 +564,8 @@ public abstract class BtcFormat extends Format {
          *
          * @throws IllegalArgumentException if {@link #scale(int)} has
          *         previously been invoked on this instance.*/
-        public Builder style(BtcAutoFormat.Style val) {
+        public Builder style(BtcAutoFormat.Style val)
+        {
             if (variant == Variant.FIXED)
                 throw new IllegalStateException("You cannot invoke both style() and scale()");
             variant = Variant.AUTO;
@@ -586,7 +595,8 @@ public abstract class BtcFormat extends Format {
          * <code>Builder</code>, then the <code>BtcFormat</code> will default to a
          * fixed-denomination of bitcoins, equivalent to invoking this method with an argument
          * of <code>0</code>. */
-        public Builder scale(int val) {
+        public Builder scale(int val)
+        {
             if (variant == Variant.AUTO)
                 throw new IllegalStateException("You cannot invoke both scale() and style()");
             variant = Variant.FIXED;
@@ -657,7 +667,8 @@ public abstract class BtcFormat extends Format {
          *
          *  <p>Note that by applying a pattern you override the configured formatting style of
          *  {@link BtcAutoFormat} instances.  */
-        public Builder pattern(String val) {
+        public Builder pattern(String val)
+        {
             if (localizedPattern != "")
                 throw new IllegalStateException("You cannot invoke both pattern() and localizedPattern()");
             pattern = val;
@@ -691,7 +702,8 @@ public abstract class BtcFormat extends Format {
          *
          *  <p>Note that by applying a pattern you override the configured formatting style of
          *  {@link BtcAutoFormat} instances.         */
-        public Builder localizedPattern(String val) {
+        public Builder localizedPattern(String val)
+        {
             if (pattern != "")
                 throw new IllegalStateException("You cannot invoke both pattern() and localizedPattern().");
             localizedPattern = val;
@@ -700,16 +712,19 @@ public abstract class BtcFormat extends Format {
 
         /** Return a new {@link BtcFormat} instance.  The object returned will be configured according
          *  to the state of this <code>Builder</code> instance at the time this method is invoked. */
-        public BtcFormat build() {
+        public BtcFormat build()
+        {
             BtcFormat f = variant.newInstance(this);
-            if (symbol != "" || code != "") { synchronized(f.numberFormat) {
+            if (symbol != "" || code != "") { synchronized(f.numberFormat)
+            {
                 DecimalFormatSymbols defaultSigns = f.numberFormat.getDecimalFormatSymbols();
                 setSymbolAndCode(f.numberFormat,
                     symbol != "" ? symbol : defaultSigns.getCurrencySymbol(),
                     code != "" ? code : defaultSigns.getInternationalCurrencySymbol()
                 );
             }}
-            if (localizedPattern != "" || pattern != "") {
+            if (localizedPattern != "" || pattern != "")
+            {
                 int places = f.numberFormat.getMinimumFractionDigits();
                 if (localizedPattern != "") f.numberFormat.applyLocalizedPattern(negify(localizedPattern));
                 else f.numberFormat.applyPattern(negify(pattern));
@@ -718,14 +733,14 @@ public abstract class BtcFormat extends Format {
             }
             return f;
         }
-
     }
 
     /** Return a new {@link Builder} object.  See the documentation of that class for usage details. */
     public static Builder builder() { return new Builder(); }
 
     /** This single constructor is invoked by the overriding subclass constructors. */
-    protected BtcFormat(DecimalFormat numberFormat, int minDecimals, List<Integer> groups) {
+    protected BtcFormat(DecimalFormat numberFormat, int minDecimals, List<Integer> groups)
+    {
         checkArgument(minDecimals >= 0, "There can be no fewer than zero fractional decimal places");
         this.numberFormat = numberFormat;
         this.numberFormat.setParseBigDecimal(true);
@@ -734,13 +749,10 @@ public abstract class BtcFormat extends Format {
         this.numberFormat.setMinimumFractionDigits(this.minimumFractionDigits);
         this.numberFormat.setMaximumFractionDigits(this.minimumFractionDigits);
         this.decimalGroups = groups;
-        synchronized (this.numberFormat) { setSymbolAndCode(
-            this.numberFormat,
-            (this.numberFormat.getDecimalFormatSymbols().getCurrencySymbol().contains(COIN_SYMBOL))
-                ? COIN_SYMBOL_ALT
-                : COIN_SYMBOL,
-            COIN_CODE
-        );}
+        synchronized (this.numberFormat)
+        {
+            setSymbolAndCode(this.numberFormat, (this.numberFormat.getDecimalFormatSymbols().getCurrencySymbol().contains(COIN_SYMBOL)) ? COIN_SYMBOL_ALT : COIN_SYMBOL, COIN_CODE);
+        }
     }
 
     /**
@@ -774,7 +786,8 @@ public abstract class BtcFormat extends Format {
      * fractional satoshis.  Formatting and parsing will be done according to the default
      * locale.
      */
-    public static BtcFormat getSymbolInstance(int fractionPlaces) {
+    public static BtcFormat getSymbolInstance(int fractionPlaces)
+    {
         return getSymbolInstance(defaultLocale(), fractionPlaces);
     }
 
@@ -786,7 +799,8 @@ public abstract class BtcFormat extends Format {
      * fractional satoshis.  Formatting and parsing will be done according to the default
      * locale.
      */
-    public static BtcFormat getCodeInstance(int minDecimals) {
+    public static BtcFormat getCodeInstance(int minDecimals)
+    {
         return getCodeInstance(defaultLocale(), minDecimals);
     }
 
@@ -812,7 +826,8 @@ public abstract class BtcFormat extends Format {
      * the given number of decimal places, or fewer as necessary to avoid giving a place to
      * fractional satoshis.
      */
-    public static BtcFormat getInstance(Locale locale, int minDecimals) {
+    public static BtcFormat getInstance(Locale locale, int minDecimals)
+    {
         return getCodeInstance(locale, minDecimals);
     }
 
@@ -824,7 +839,8 @@ public abstract class BtcFormat extends Format {
      * the given number of decimal places, or fewer as necessary to avoid giving a place to
      * fractional satoshis.
      */
-    public static BtcFormat getCodeInstance(Locale locale, int minDecimals) {
+    public static BtcFormat getCodeInstance(Locale locale, int minDecimals)
+    {
         return getInstance(CODE, locale, minDecimals);
     }
 
@@ -833,7 +849,8 @@ public abstract class BtcFormat extends Format {
      * select denominational units based on each value being formatted, and will indicate those
      * units using a currency symbol, for example, <code>"µ฿"</code>.
      */
-    public static BtcFormat getSymbolInstance(Locale locale) {
+    public static BtcFormat getSymbolInstance(Locale locale)
+    {
         return getInstance(SYMBOL, locale);
     }
 
@@ -845,7 +862,8 @@ public abstract class BtcFormat extends Format {
      * the given number of decimal places, or fewer as necessary to avoid giving a place to
      * fractional satoshis.
      */
-    public static BtcFormat getSymbolInstance(Locale locale, int fractionPlaces) {
+    public static BtcFormat getSymbolInstance(Locale locale, int fractionPlaces)
+    {
         return getInstance(SYMBOL, locale, fractionPlaces);
     }
 
@@ -866,7 +884,8 @@ public abstract class BtcFormat extends Format {
      * fewer as necessary to avoid giving a place to fractional satoshis.  Formatting and
      * parsing will be done according to the default locale.
      */
-    public static BtcFormat getInstance(Style style, int fractionPlaces) {
+    public static BtcFormat getInstance(Style style, int fractionPlaces)
+    {
         return getInstance(style, defaultLocale(), fractionPlaces);
     }
 
@@ -879,7 +898,8 @@ public abstract class BtcFormat extends Format {
      * <p>The number of fractional decimal places in formatted number will be two, or fewer
      * as necessary to avoid giving a place to fractional satoshis.
      */
-    public static BtcFormat getInstance(Style style, Locale locale) {
+    public static BtcFormat getInstance(Style style, Locale locale)
+    {
         return getInstance(style, locale, 2);
     }
 
@@ -895,7 +915,8 @@ public abstract class BtcFormat extends Format {
      * formatted number, reduced as neccesary when formatting to avoid giving a place to
      * fractional satoshis.
      */
-    public static BtcFormat getInstance(Style style, Locale locale, int fractionPlaces) {
+    public static BtcFormat getInstance(Style style, Locale locale, int fractionPlaces)
+    {
         return new BtcAutoFormat(locale, style, fractionPlaces);
     }
 
@@ -906,9 +927,12 @@ public abstract class BtcFormat extends Format {
      */
     public static BtcFormat getCoinInstance() { return getCoinInstance(defaultLocale()); }
 
-    private static List<Integer> boxAsList(int[] elements) throws IllegalArgumentException {
+    private static List<Integer> boxAsList(int[] elements)
+        throws IllegalArgumentException
+    {
         List<Integer> list = new ArrayList<>(elements.length);
-        for (int e : elements) {
+        for (int e : elements)
+        {
             checkArgument(e > 0, "Size of decimal group must be at least one.");
             list.add(e);
         }
@@ -924,7 +948,8 @@ public abstract class BtcFormat extends Format {
      * useful for expressing precision, and will be only partially applied if necessary to
      * avoid giving a place to fractional satoshis.
      */
-    public static BtcFormat getCoinInstance(int minFractionPlaces, int... groups) {
+    public static BtcFormat getCoinInstance(int minFractionPlaces, int... groups)
+    {
         return getInstance(COIN_SCALE, defaultLocale(), minFractionPlaces, boxAsList(groups));
     }
 
@@ -932,7 +957,8 @@ public abstract class BtcFormat extends Format {
      * Return a new coin-denominated formatter for the given locale.  The returned object will
      * format the fractional part of numbers with two decimal places, rounding as necessary.
      */
-    public static BtcFormat getCoinInstance(Locale locale) {
+    public static BtcFormat getCoinInstance(Locale locale)
+    {
         return getInstance(COIN_SCALE, locale, 2);
     }
 
@@ -943,7 +969,8 @@ public abstract class BtcFormat extends Format {
      * indicating the size of an additional group of fractional decimal places to be
      * used as necessary to avoid rounding, to a limiting precision of satoshis.
      */
-    public static BtcFormat getCoinInstance(Locale locale, int scale, int... groups) {
+    public static BtcFormat getCoinInstance(Locale locale, int scale, int... groups)
+    {
         return getInstance(COIN_SCALE, locale, scale, boxAsList(groups));
     }
 
@@ -959,7 +986,8 @@ public abstract class BtcFormat extends Format {
      * will format the fractional part of numbers with two decimal places, rounding as
      * necessary.
      */
-    public static BtcFormat getMilliInstance(Locale locale) {
+    public static BtcFormat getMilliInstance(Locale locale)
+    {
         return getInstance(MILLICOIN_SCALE, locale, 2);
     }
 
@@ -971,7 +999,8 @@ public abstract class BtcFormat extends Format {
      * indicating the size of an additional group of fractional decimal places to be used as
      * necessary to avoid rounding, to a limiting precision of satoshis.
      */
-    public static BtcFormat getMilliInstance(int scale, int... groups) {
+    public static BtcFormat getMilliInstance(int scale, int... groups)
+    {
         return getInstance(MILLICOIN_SCALE, defaultLocale(), scale, boxAsList(groups));
     }
 
@@ -983,7 +1012,8 @@ public abstract class BtcFormat extends Format {
      * group of fractional decimal places to be used as necessary to avoid rounding, to a
      * limiting precision of satoshis.
      */
-    public static BtcFormat getMilliInstance(Locale locale, int scale, int... groups) {
+    public static BtcFormat getMilliInstance(Locale locale, int scale, int... groups)
+    {
         return getInstance(MILLICOIN_SCALE, locale, scale, boxAsList(groups));
     }
 
@@ -999,7 +1029,8 @@ public abstract class BtcFormat extends Format {
      * will format the fractional part of numbers with two decimal places, rounding as
      * necessary.
      */
-    public static BtcFormat getMicroInstance(Locale locale) {
+    public static BtcFormat getMicroInstance(Locale locale)
+    {
         return getInstance(MICROCOIN_SCALE, locale);
     }
 
@@ -1011,7 +1042,8 @@ public abstract class BtcFormat extends Format {
      * indicating the size of an additional group of fractional decimal places to be used as
      * necessary to avoid rounding, to a limiting precision of satoshis.
      */
-    public static BtcFormat getMicroInstance(int scale, int... groups) {
+    public static BtcFormat getMicroInstance(int scale, int... groups)
+    {
         return getInstance(MICROCOIN_SCALE, defaultLocale(), scale, boxAsList(groups));
     }
 
@@ -1023,7 +1055,8 @@ public abstract class BtcFormat extends Format {
      * group of fractional decimal places to be used as necessary to avoid rounding, to a
      * limiting precision of satoshis.
      */
-    public static BtcFormat getMicroInstance(Locale locale, int scale, int... groups) {
+    public static BtcFormat getMicroInstance(Locale locale, int scale, int... groups)
+    {
         return getInstance(MICROCOIN_SCALE, locale, scale, boxAsList(groups));
     }
 
@@ -1037,7 +1070,8 @@ public abstract class BtcFormat extends Format {
      * group of fractional decimal places to be used as necessary to avoid rounding, to a
      * limiting precision of satoshis.
      */
-    public static BtcFormat getInstance(int scale, int minDecimals, int... groups) {
+    public static BtcFormat getInstance(int scale, int minDecimals, int... groups)
+    {
         return getInstance(scale, defaultLocale(), minDecimals, boxAsList(groups));
     }
 
@@ -1048,7 +1082,8 @@ public abstract class BtcFormat extends Format {
      * will format the fractional part of numbers with two decimal places, or fewer as
      * necessary to avoid giving a place to fractional satoshis.
      */
-    public static BtcFormat getInstance(int scale) {
+    public static BtcFormat getInstance(int scale)
+    {
         return getInstance(scale, defaultLocale());
     }
 
@@ -1060,7 +1095,8 @@ public abstract class BtcFormat extends Format {
      * part of numbers with two decimal places, or fewer as necessary to avoid giving a place
      * to fractional satoshis.
      */
-    public static BtcFormat getInstance(int scale, Locale locale) {
+    public static BtcFormat getInstance(int scale, Locale locale)
+    {
         return getInstance(scale, locale, 2);
     }
 
@@ -1073,7 +1109,8 @@ public abstract class BtcFormat extends Format {
      * fractional decimal places to use as necessary to avoid rounding, down to a maximum
      * precision of satoshis.
      */
-    public static BtcFormat getInstance(int scale, Locale locale, int minDecimals, int... groups) {
+    public static BtcFormat getInstance(int scale, Locale locale, int minDecimals, int... groups)
+    {
         return getInstance(scale, locale, minDecimals, boxAsList(groups));
     }
 
@@ -1087,7 +1124,8 @@ public abstract class BtcFormat extends Format {
      * specifies the size of an additional group of fractional decimal places to use as
      * necessary to avoid rounding, down to a maximum precision of satoshis.
      */
-    public static BtcFormat getInstance(int scale, Locale locale, int minDecimals, List<Integer> groups) {
+    public static BtcFormat getInstance(int scale, Locale locale, int minDecimals, List<Integer> groups)
+    {
         return new BtcFixedFormat(locale, scale, minDecimals, groups);
     }
 
@@ -1104,7 +1142,8 @@ public abstract class BtcFormat extends Format {
      * @see java.text.AttributedCharacterIterator
      */
     @Override
-    public AttributedCharacterIterator formatToCharacterIterator(Object obj) { synchronized(numberFormat) {
+    public AttributedCharacterIterator formatToCharacterIterator(Object obj) { synchronized(numberFormat)
+    {
         DecimalFormatSymbols anteSigns = numberFormat.getDecimalFormatSymbols();
         BigDecimal units = denominateAndRound(inSatoshis(obj), minimumFractionDigits, decimalGroups);
         List<Integer> anteDigits = setFormatterDigits(numberFormat, units.scale(), units.scale());
@@ -1126,7 +1165,8 @@ public abstract class BtcFormat extends Format {
      * @return the <code>StringBuffer</code> passed in as <code>toAppendTo</code>
      */
     @Override
-    public StringBuffer format(Object qty, StringBuffer toAppendTo, FieldPosition pos) {
+    public StringBuffer format(Object qty, StringBuffer toAppendTo, FieldPosition pos)
+    {
         return format(qty, toAppendTo, pos, minimumFractionDigits, decimalGroups);
     }
 
@@ -1143,7 +1183,8 @@ public abstract class BtcFormat extends Format {
      * @param fractionGroups The sizes of optional additional fractional decimal-place groups
      * @throws IllegalArgumentException if the number of fraction places is negative.
      */
-    public String format(Object qty, int minDecimals, int... fractionGroups) {
+    public String format(Object qty, int minDecimals, int... fractionGroups)
+    {
         return format(qty, new StringBuffer(), new FieldPosition(0), minDecimals, boxAsList(fractionGroups)).toString();
     }
 
@@ -1160,15 +1201,16 @@ public abstract class BtcFormat extends Format {
      * @param fractionGroups The sizes of optional additional fractional decimal-place groups
      * @throws IllegalArgumentException if the number of fraction places is negative.
      */
-    public StringBuffer format(Object qty, StringBuffer toAppendTo, FieldPosition pos,
-                                            int minDecimals, int... fractionGroups) {
+    public StringBuffer format(Object qty, StringBuffer toAppendTo, FieldPosition pos, int minDecimals, int... fractionGroups)
+    {
         return format(qty, toAppendTo, pos, minDecimals, boxAsList(fractionGroups));
     }
 
-    private StringBuffer format(Object qty, StringBuffer toAppendTo, FieldPosition pos,
-                                            int minDecimals, List<Integer> fractionGroups) {
+    private StringBuffer format(Object qty, StringBuffer toAppendTo, FieldPosition pos, int minDecimals, List<Integer> fractionGroups)
+    {
         checkArgument(minDecimals >= 0, "There can be no fewer than zero fractional decimal places");
-        synchronized (numberFormat) {
+        synchronized (numberFormat)
+        {
             DecimalFormatSymbols anteSigns = numberFormat.getDecimalFormatSymbols();
             BigDecimal denominatedUnitCount = denominateAndRound(inSatoshis(qty), minDecimals, fractionGroups);
             List<Integer> antePlaces =
@@ -1205,7 +1247,8 @@ public abstract class BtcFormat extends Format {
      * side-effect of changing the currency symbol and code of the underlying `NumberFormat`
      * object, therefore only invoke this from a synchronized method that resets the NumberFormat.
      */
-    private BigDecimal denominateAndRound(BigInteger satoshis, int minDecimals, List<Integer> fractionGroups) {
+    private BigDecimal denominateAndRound(BigInteger satoshis, int minDecimals, List<Integer> fractionGroups)
+    {
         int scale = scale(satoshis, minDecimals);
         BigDecimal denominatedUnitCount = new BigDecimal(satoshis).movePointLeft(offSatoshis(scale));
         int places = calculateFractionPlaces(denominatedUnitCount, scale, minDecimals, fractionGroups);
@@ -1216,7 +1259,8 @@ public abstract class BtcFormat extends Format {
      *  NumberFormat object to the value of the given integer.
      *  @return The minimum and maximum fractional places settings that the
      *          formatter had before this change, as an ImmutableList. */
-    private static ImmutableList<Integer> setFormatterDigits(DecimalFormat formatter, int min, int max) {
+    private static ImmutableList<Integer> setFormatterDigits(DecimalFormat formatter, int min, int max)
+    {
         ImmutableList<Integer> ante = ImmutableList.of(
             formatter.getMinimumFractionDigits(),
             formatter.getMaximumFractionDigits()
@@ -1235,8 +1279,7 @@ public abstract class BtcFormat extends Format {
      *  @param minDecimals    the minimum number of fractional decimal places
      *  @param fractionGroups the sizes of option fractional decimal-place groups
      */
-    private static int calculateFractionPlaces(
-        BigDecimal unitCount, int scale, int minDecimals, List<Integer> fractionGroups)
+    private static int calculateFractionPlaces(BigDecimal unitCount, int scale, int minDecimals, List<Integer> fractionGroups)
     {
         /* Taking into account BOTH the user's preference for decimal-place groups, AND the prohibition
          * against displaying a fractional number of satoshis, determine the maximum possible number of
@@ -1245,8 +1288,9 @@ public abstract class BtcFormat extends Format {
         for (int group : fractionGroups) { places += group; }
         int max = Math.min(places, offSatoshis(scale));
 
-        places = Math.min(minDecimals,max);
-        for (int group : fractionGroups) {
+        places = Math.min(minDecimals, max);
+        for (int group : fractionGroups)
+        {
             /* Compare the value formatted using only this many decimal places to the
              * same value using as many places as possible.  If there's no difference, then
              * there's no reason to continue adding more places.  */
@@ -1261,7 +1305,8 @@ public abstract class BtcFormat extends Format {
      * Takes an object representing a bitcoin quantity of any type the
      * client is permitted to pass us, and return a BigInteger representing the
      * number of satoshis having the equivalent value. */
-    private static BigInteger inSatoshis(Object qty) {
+    private static BigInteger inSatoshis(Object qty)
+    {
         BigInteger satoshis;
         // the value might be bitcoins or satoshis
         if (qty instanceof Long || qty instanceof Integer)
@@ -1270,7 +1315,7 @@ public abstract class BtcFormat extends Format {
             satoshis = (BigInteger)qty;
         else if (qty instanceof BigDecimal)
             satoshis = ((BigDecimal)qty).movePointRight(Coin.SMALLEST_UNIT_EXPONENT).
-                       setScale(0,BigDecimal.ROUND_HALF_UP).unscaledValue();
+                       setScale(0, BigDecimal.ROUND_HALF_UP).unscaledValue();
         else if (qty instanceof Coin)
             satoshis = BigInteger.valueOf(((Coin)qty).value);
         else
@@ -1290,7 +1335,8 @@ public abstract class BtcFormat extends Format {
     @Override
     public final Object parseObject(String source, ParsePosition pos) { return parse(source, pos); }
 
-    private class ScaleMatcher {
+    private class ScaleMatcher
+    {
         public Pattern pattern;
         public int scale;
         ScaleMatcher(Pattern p, int s) { pattern = p; scale = s; }
@@ -1301,17 +1347,21 @@ public abstract class BtcFormat extends Format {
     private volatile String ci = "(" + COIN_SYMBOL + "|" + COIN_SYMBOL_ALT + "|B⃦|" + COIN_CODE + "|XBT)";
     private Pattern coinPattern;
     private volatile ScaleMatcher[] denoms;
-    ScaleMatcher[] denomMatchers() {
+    ScaleMatcher[] denomMatchers()
+    {
         ScaleMatcher[] result = denoms;
-        if (result == null) { synchronized(this) {
+        if (result == null) { synchronized(this)
+        {
             result = denoms;
-            if (result == null) {
-                if (! coinSymbol().matches(ci)) ci = ci.replaceFirst("\\(", "(" + coinSymbol() + "|");
-                if (! coinCode().matches(ci))  {
+            if (result == null)
+            {
+                if (! coinSymbol().matches(ci))
+                    ci = ci.replaceFirst("\\(", "(" + coinSymbol() + "|");
+                if (! coinCode().matches(ci))
                     ci = ci.replaceFirst("\\)", "|" + coinCode() + ")");
-                }
                 coinPattern = Pattern.compile(ci + "?");
-                result = denoms = new ScaleMatcher[]{
+                result = denoms = new ScaleMatcher[]
+                {
                     new ScaleMatcher(Pattern.compile("¢" + ci + "?|c" + ci), 2), // centi
                     new ScaleMatcher(Pattern.compile("₥" + ci + "?|m" + ci), MILLICOIN_SCALE),
                     new ScaleMatcher(Pattern.compile("([µu]" + ci + ")"),    MICROCOIN_SCALE),
@@ -1332,7 +1382,8 @@ public abstract class BtcFormat extends Format {
       * Only invoke this from code synchronized on the value of the first argument, and don't
       * forget to put the symbols back otherwise equals(), hashCode() and immutability will
       * break.  */
-    private static DecimalFormatSymbols setSymbolAndCode(DecimalFormat numberFormat, String sign) {
+    private static DecimalFormatSymbols setSymbolAndCode(DecimalFormat numberFormat, String sign)
+    {
         return setSymbolAndCode(numberFormat, sign, sign);
     }
 
@@ -1343,7 +1394,8 @@ public abstract class BtcFormat extends Format {
       * Only invoke this from code synchronized on value of the first argument, and don't
       * forget to put the symbols back otherwise equals(), hashCode() and immutability will
       * break.  */
-    private static DecimalFormatSymbols setSymbolAndCode(DecimalFormat numberFormat, String symbol, String code) {
+    private static DecimalFormatSymbols setSymbolAndCode(DecimalFormat numberFormat, String symbol, String code)
+    {
         checkState(Thread.holdsLock(numberFormat));
         DecimalFormatSymbols fs = numberFormat.getDecimalFormatSymbols();
         DecimalFormatSymbols ante = (DecimalFormatSymbols)fs.clone();
@@ -1364,12 +1416,11 @@ public abstract class BtcFormat extends Format {
      *              a quantity of satoshis.
      * @return The DecimalFormatSymbols before changing
      */
-    protected static void prefixUnitsIndicator(DecimalFormat numberFormat, int scale) {
+    protected static void prefixUnitsIndicator(DecimalFormat numberFormat, int scale)
+    {
         checkState(Thread.holdsLock(numberFormat)); // make sure caller intends to reset before changing
         DecimalFormatSymbols fs = numberFormat.getDecimalFormatSymbols();
-        setSymbolAndCode(numberFormat,
-            prefixSymbol(fs.getCurrencySymbol(), scale), prefixCode(fs.getInternationalCurrencySymbol(), scale)
-        );
+        setSymbolAndCode(numberFormat, prefixSymbol(fs.getCurrencySymbol(), scale), prefixCode(fs.getInternationalCurrencySymbol(), scale));
     }
 
     /** Parse a <code>String</code> representation of a Bitcoin monetary value.  If this
@@ -1392,33 +1443,43 @@ public abstract class BtcFormat extends Format {
      * @return a Coin object representing the parsed value
      * @see java.text.ParsePosition
      */
-    public Coin parse(String source, ParsePosition pos) {
+    public Coin parse(String source, ParsePosition pos)
+    {
         DecimalFormatSymbols anteSigns = null;
         int parseScale = COIN_SCALE; // default
         Coin coin = null;
-        synchronized (numberFormat) {
-            if (numberFormat.toPattern().contains("¤")) {
-                for(ScaleMatcher d : denomMatchers()) {
+        synchronized (numberFormat)
+        {
+            if (numberFormat.toPattern().contains("¤"))
+            {
+                for(ScaleMatcher d : denomMatchers())
+                {
                     Matcher matcher = d.pattern.matcher(source);
-                    if (matcher.find()) {
+                    if (matcher.find())
+                    {
                         anteSigns = setSymbolAndCode(numberFormat, matcher.group());
                         parseScale = d.scale;
                         break;
                     }
                 }
-                if (parseScale == COIN_SCALE) {
+                if (parseScale == COIN_SCALE)
+                {
                     Matcher matcher = coinPattern.matcher(source);
                     matcher.find();
                     anteSigns = setSymbolAndCode(numberFormat, matcher.group());
                 }
-            } else parseScale = scale();
+            }
+            else parseScale = scale();
 
             Number number = numberFormat.parse(source, pos);
-            if (number != null) try {
+            if (number != null) try
+            {
                     coin = Coin.valueOf(
                         ((BigDecimal)number).movePointRight(offSatoshis(parseScale)).setScale(0, HALF_UP).longValue()
                     );
-                } catch (IllegalArgumentException e) {
+                }
+                catch (IllegalArgumentException e)
+                {
                     pos.setIndex(0);
                 }
             if (anteSigns != null) numberFormat.setDecimalFormatSymbols(anteSigns);
@@ -1442,7 +1503,9 @@ public abstract class BtcFormat extends Format {
      *
      * @return a Coin object representing the parsed value
      */
-    public Coin parse(String source) throws ParseException {
+    public Coin parse(String source)
+        throws ParseException
+    {
         return (Coin)parseObject(source);
     }
 
@@ -1450,8 +1513,10 @@ public abstract class BtcFormat extends Format {
     /****** END OF PARSING STUFF *****/
     /*********************************/
 
-    protected static String prefixCode(String code, int scale) {
-        switch (scale) {
+    protected static String prefixCode(String code, int scale)
+    {
+        switch (scale)
+        {
         case COIN_SCALE:      return code;
         case 1:               return "d" + code;
         case 2:               return "c" + code;
@@ -1465,8 +1530,10 @@ public abstract class BtcFormat extends Format {
         }
     }
 
-    protected static String prefixSymbol(String symbol, int scale) {
-        switch (scale) {
+    protected static String prefixSymbol(String symbol, int scale)
+    {
+        switch (scale)
+        {
         case COIN_SCALE:      return symbol;
         case 1:               return "d" + symbol;
         case 2:               return "¢" + symbol;
@@ -1494,14 +1561,16 @@ public abstract class BtcFormat extends Format {
      *  units, and therefore it ought to be adjacent to the number, displacing the
      *  currency-units indicator if necessary.
      */
-    protected static String negify(String pattern) {
-        if (pattern.contains(";")) return pattern;
-        else {
-            if (pattern.contains("-"))
-                throw new IllegalStateException("Positive pattern contains negative sign");
-            // the regex matches everything until the first non-quoted number character
-            return pattern + ";" + pattern.replaceFirst("^([^#0,.']*('[^']*')?)*", "$0-");
-        }
+    protected static String negify(String pattern)
+    {
+        if (pattern.contains(";"))
+            return pattern;
+
+        if (pattern.contains("-"))
+            throw new IllegalStateException("Positive pattern contains negative sign");
+
+        // the regex matches everything until the first non-quoted number character
+        return pattern + ";" + pattern.replaceFirst("^([^#0,.']*('[^']*')?)*", "$0-");
     }
 
     /**
@@ -1512,13 +1581,15 @@ public abstract class BtcFormat extends Format {
 
     /** Return the unprefixed currency symbol for bitcoins configured for this object.  The
      *  return value of this method is constant throughough the life of an instance.  */
-    public String coinSymbol() { synchronized(numberFormat) {
+    public String coinSymbol() { synchronized(numberFormat)
+    {
         return numberFormat.getDecimalFormatSymbols().getCurrencySymbol();
     }}
 
     /** Return the unprefixed international currency code for bitcoins configured for this
      * object.  The return value of this method is constant throughough the life of an instance.  */
-    public String coinCode() { synchronized(numberFormat) {
+    public String coinCode() { synchronized(numberFormat)
+    {
         return numberFormat.getDecimalFormatSymbols().getInternationalCurrencySymbol();
     }}
 
@@ -1527,9 +1598,11 @@ public abstract class BtcFormat extends Format {
      *  {@link Builder#pattern} and {@link Builder#localizedPattern} methods.  The pattern
      *  returned by this method is localized, any currency signs expressed are literally, and
      *  optional fractional decimal places are shown grouped in parentheses. */
-    public String pattern() { synchronized(numberFormat) {
+    public String pattern() { synchronized(numberFormat)
+    {
         StringBuilder groups = new StringBuilder();
-        for (int group : decimalGroups) {
+        for (int group : decimalGroups)
+        {
             groups.append("(").append(Strings.repeat("#", group)).append(")");
         }
         DecimalFormatSymbols s = numberFormat.getDecimalFormatSymbols();
@@ -1553,26 +1626,29 @@ public abstract class BtcFormat extends Format {
     }}
 
     /** Return a copy of the localized symbols used by this instance for formatting and parsing.  */
-    public DecimalFormatSymbols symbols() { synchronized(numberFormat) {
+    public DecimalFormatSymbols symbols() { synchronized(numberFormat)
+    {
         return numberFormat.getDecimalFormatSymbols();
     }}
 
     /** Return true if the given object is equivalent to this one.
       * Formatters for different locales will never be equal, even
       * if they behave identically. */
-    @Override public boolean equals(Object o) {
-        if (o == this) return true;
-        if (!(o instanceof BtcFormat)) return false;
+    @Override public boolean equals(Object o)
+    {
+        if (o == this)
+            return true;
+        if (!(o instanceof BtcFormat))
+            return false;
         BtcFormat other = (BtcFormat)o;
-        return other.pattern().equals(pattern()) &&
-               other.symbols().equals(symbols()) &&
-               other.minimumFractionDigits == minimumFractionDigits;
+        return (other.pattern().equals(pattern()) && other.symbols().equals(symbols()) && other.minimumFractionDigits == minimumFractionDigits);
     }
 
     /** Return a hash code value for this instance.
      *  @see java.lang.Object#hashCode
      */
-    @Override public int hashCode() {
+    @Override public int hashCode()
+    {
         return Objects.hashCode(pattern(), symbols(), minimumFractionDigits, decimalGroups);
     }
 }

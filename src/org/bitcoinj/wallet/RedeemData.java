@@ -17,18 +17,21 @@ import static com.google.common.base.Preconditions.checkArgument;
  * redeem script will be a CHECKMULTISIG program. Keys will be sorted in the same order they appear in
  * a program (lexicographical order).
  */
-public class RedeemData {
+public class RedeemData
+{
     public final Script redeemScript;
     public final List<ECKey> keys;
 
-    private RedeemData(List<ECKey> keys, Script redeemScript) {
+    private RedeemData(List<ECKey> keys, Script redeemScript)
+    {
         this.redeemScript = redeemScript;
         List<ECKey> sortedKeys = new ArrayList<>(keys);
         Collections.sort(sortedKeys, ECKey.PUBKEY_COMPARATOR);
         this.keys = sortedKeys;
     }
 
-    public static RedeemData of(List<ECKey> keys, Script redeemScript) {
+    public static RedeemData of(List<ECKey> keys, Script redeemScript)
+    {
         return new RedeemData(keys, redeemScript);
     }
 
@@ -36,7 +39,8 @@ public class RedeemData {
      * Creates RedeemData for pay-to-address or pay-to-pubkey input. Provided key is a single private key needed
      * to spend such inputs and provided program should be a proper CHECKSIG program.
      */
-    public static RedeemData of(ECKey key, Script program) {
+    public static RedeemData of(ECKey key, Script program)
+    {
         checkArgument(program.isSentToAddress() || program.isSentToRawPubKey());
         return key != null ? new RedeemData(Collections.singletonList(key), program) : null;
     }
@@ -44,7 +48,8 @@ public class RedeemData {
     /**
      * Returns the first key that has private bytes
      */
-    public ECKey getFullKey() {
+    public ECKey getFullKey()
+    {
         for (ECKey key : keys)
             if (key.hasPrivKey())
                 return key;

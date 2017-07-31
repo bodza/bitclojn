@@ -6,7 +6,8 @@ import org.bitcoinj.crypto.KeyCrypter;
 /**
  * Factory interface for creation keychains while de-serializing a wallet.
  */
-public interface KeyChainFactory {
+public interface KeyChainFactory
+{
     /**
      * Make a keychain (but not a watching one).
      *
@@ -29,5 +30,6 @@ public interface KeyChainFactory {
      * @param isFollowingKey whether the keychain is following in a marriage
      * @param isMarried whether the keychain is leading in a marriage
      */
-    DeterministicKeyChain makeWatchingKeyChain(Protos.Key key, Protos.Key firstSubKey, DeterministicKey accountKey, boolean isFollowingKey, boolean isMarried) throws UnreadableWalletException;
+    DeterministicKeyChain makeWatchingKeyChain(Protos.Key key, Protos.Key firstSubKey, DeterministicKey accountKey, boolean isFollowingKey, boolean isMarried)
+        throws UnreadableWalletException;
 }

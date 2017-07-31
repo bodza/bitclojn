@@ -15,7 +15,8 @@ import org.slf4j.LoggerFactory;
  * Creates a simple server listener which listens for incoming client connections and uses a {@link StreamConnection} to
  * process data.
  */
-public class NioServer extends AbstractExecutionThreadService {
+public class NioServer extends AbstractExecutionThreadService
+{
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(NioServer.class);
 
     private final StreamConnectionFactory connectionFactory;
@@ -24,22 +25,29 @@ public class NioServer extends AbstractExecutionThreadService {
     @VisibleForTesting final Selector selector;
 
     // Handle a SelectionKey which was selected
-    private void handleKey(Selector selector, SelectionKey key) throws IOException {
-        if (key.isValid() && key.isAcceptable()) {
+    private void handleKey(Selector selector, SelectionKey key)
+        throws IOException
+    {
+        if (key.isValid() && key.isAcceptable())
+        {
             // Accept a new connection, give it a stream connection as an attachment
             SocketChannel newChannel = sc.accept();
             newChannel.configureBlocking(false);
             SelectionKey newKey = newChannel.register(selector, SelectionKey.OP_READ);
-            try {
+            try
+            {
                 ConnectionHandler handler = new ConnectionHandler(connectionFactory, newKey);
                 newKey.attach(handler);
                 handler.connection.connectionOpened();
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 // This can happen if ConnectionHandler's call to get a new handler returned null
                 log.error("Error handling new connection", Throwables.getRootCause(e).getMessage());
                 newKey.channel().close();
             }
-        } else { // Got a closing channel or a channel to a client connection
+        }
+        else { // Got a closing channel or a channel to a client connection
             ConnectionHandler.handleKey(key);
         }
     }
@@ -50,7 +58,9 @@ public class NioServer extends AbstractExecutionThreadService {
      *
      * @throws IOException If there is an issue opening the server socket or binding fails for some reason
      */
-    public NioServer(final StreamConnectionFactory connectionFactory, InetSocketAddress bindAddress) throws IOException {
+    public NioServer(final StreamConnectionFactory connectionFactory, InetSocketAddress bindAddress)
+        throws IOException
+    {
         this.connectionFactory = connectionFactory;
 
         sc = ServerSocketChannel.open();
@@ -61,44 +71,66 @@ public class NioServer extends AbstractExecutionThreadService {
     }
 
     @Override
-    protected void run() throws Exception {
-        try {
-            while (isRunning()) {
+    protected void run()
+        throws Exception
+    {
+        try
+        {
+            while (isRunning())
+            {
                 selector.select();
 
                 Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
-                while (keyIterator.hasNext()) {
+                while (keyIterator.hasNext())
+                {
                     SelectionKey key = keyIterator.next();
                     keyIterator.remove();
 
                     handleKey(selector, key);
                 }
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             log.error("Error trying to open/read from connection: {}", e);
-        } finally {
+        }
+        finally
+        {
             // Go through and close everything, without letting IOExceptions get in our way
-            for (SelectionKey key : selector.keys()) {
-                try {
+            for (SelectionKey key : selector.keys())
+            {
+                try
+                {
                     key.channel().close();
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     log.error("Error closing channel", e);
                 }
-                try {
+                try
+                {
                     key.cancel();
                     handleKey(selector, key);
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     log.error("Error closing selection key", e);
                 }
             }
-            try {
+            try
+            {
                 selector.close();
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 log.error("Error closing server selector", e);
             }
-            try {
+            try
+            {
                 sc.close();
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 log.error("Error closing server channel", e);
             }
         }
@@ -110,7 +142,8 @@ public class NioServer extends AbstractExecutionThreadService {
      * {@link com.google.common.util.concurrent.AbstractExecutionThreadService#stop()} instead.
      */
     @Override
-    public void triggerShutdown() {
+    public void triggerShutdown()
+    {
         // Wake up the selector and let the selection thread break its loop as the ExecutionService !isRunning()
         selector.wakeup();
     }

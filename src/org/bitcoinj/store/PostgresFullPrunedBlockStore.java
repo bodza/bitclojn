@@ -19,7 +19,8 @@ import java.util.List;
  * so you can use {@link #calculateBalanceForAddress(org.bitcoinj.core.Address)} to quickly look up
  * the quantity of bitcoins controlled by that address.</p>
  */
-public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
+public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore
+{
     private static final Logger log = LoggerFactory.getLogger(PostgresFullPrunedBlockStore.class);
 
     private static final String POSTGRES_DUPLICATE_KEY_ERROR_CODE = "23505";
@@ -82,8 +83,9 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
      * @param password The password to the database
      * @throws BlockStoreException if the database fails to open for any reason
      */
-    public PostgresFullPrunedBlockStore(NetworkParameters params, int fullStoreDepth, String hostname, String dbName,
-                                        String username, String password) throws BlockStoreException {
+    public PostgresFullPrunedBlockStore(NetworkParameters params, int fullStoreDepth, String hostname, String dbName, String username, String password)
+        throws BlockStoreException
+    {
         super(params, DATABASE_CONNECTION_URL_PREFIX + hostname + "/" + dbName, fullStoreDepth, username, password, null);
     }
 
@@ -103,18 +105,21 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
      * @param schemaName The name of the schema to put the tables in.  May be null if no schema is being used.
      * @throws BlockStoreException If the database fails to open for any reason.
      */
-    public PostgresFullPrunedBlockStore(NetworkParameters params, int fullStoreDepth, String hostname, String dbName,
-                                        String username, String password, @Nullable String schemaName) throws BlockStoreException {
+    public PostgresFullPrunedBlockStore(NetworkParameters params, int fullStoreDepth, String hostname, String dbName, String username, String password, @Nullable String schemaName)
+        throws BlockStoreException
+    {
         super(params, DATABASE_CONNECTION_URL_PREFIX + hostname + "/" + dbName, fullStoreDepth, username, password, schemaName);
     }
 
     @Override
-    protected String getDuplicateKeyErrorCode() {
+    protected String getDuplicateKeyErrorCode()
+    {
         return POSTGRES_DUPLICATE_KEY_ERROR_CODE;
     }
 
     @Override
-    protected List<String> getCreateTablesSQL() {
+    protected List<String> getCreateTablesSQL()
+    {
         List<String> sqlStatements = new ArrayList<>();
         sqlStatements.add(CREATE_SETTINGS_TABLE);
         sqlStatements.add(CREATE_HEADERS_TABLE);
@@ -124,7 +129,8 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
     }
 
     @Override
-    protected List<String> getCreateIndexesSQL() {
+    protected List<String> getCreateIndexesSQL()
+    {
         List<String> sqlStatements = new ArrayList<>();
         sqlStatements.add(CREATE_UNDOABLE_TABLE_INDEX);
         sqlStatements.add(CREATE_OUTPUTS_ADDRESS_MULTI_INDEX);
@@ -135,7 +141,8 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
     }
 
     @Override
-    protected List<String> getCreateSchemeSQL() {
+    protected List<String> getCreateSchemeSQL()
+    {
         List<String> sqlStatements = new ArrayList<>();
         sqlStatements.add("CREATE SCHEMA IF NOT EXISTS " + schemaName);
         sqlStatements.add("set search_path to '" + schemaName +"'");
@@ -143,12 +150,15 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
     }
 
     @Override
-    protected String getDatabaseDriverClass() {
+    protected String getDatabaseDriverClass()
+    {
         return DATABASE_DRIVER_CLASS;
     }
 
     @Override
-    public void put(StoredBlock storedBlock, StoredUndoableBlock undoableBlock) throws BlockStoreException {
+    public void put(StoredBlock storedBlock, StoredUndoableBlock undoableBlock)
+        throws BlockStoreException
+    {
         maybeConnect();
         // We skip the first 4 bytes because (on mainnet) the minimum target has 4 0-bytes
         byte[] hashBytes = new byte[28];
@@ -156,12 +166,16 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
         int height = storedBlock.getHeight();
         byte[] transactions = null;
         byte[] txOutChanges = null;
-        try {
+        try
+        {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            if (undoableBlock.getTxOutChanges() != null) {
+            if (undoableBlock.getTxOutChanges() != null)
+            {
                 undoableBlock.getTxOutChanges().serializeToStream(bos);
                 txOutChanges = bos.toByteArray();
-            } else {
+            }
+            else
+            {
                 int numTxn = undoableBlock.getTransactions().size();
                 bos.write(0xFF & numTxn);
                 bos.write(0xFF & (numTxn >> 8));
@@ -172,11 +186,14 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
                 transactions = bos.toByteArray();
             }
             bos.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             throw new BlockStoreException(e);
         }
 
-        try {
+        try
+        {
             if (log.isDebugEnabled())
                 log.debug("Looking for undoable block with hash: " + Utils.HEX.encode(hashBytes));
 
@@ -198,10 +215,13 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
                 if (log.isDebugEnabled())
                     log.debug("Updating undoable block with hash: " + Utils.HEX.encode(hashBytes));
 
-                if (transactions == null) {
+                if (transactions == null)
+                {
                     s.setBytes(1, txOutChanges);
                     s.setNull(2, Types.BINARY);
-                } else {
+                }
+                else
+                {
                     s.setNull(1, Types.BINARY);
                     s.setBytes(2, transactions);
                 }
@@ -219,24 +239,31 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
             if (log.isDebugEnabled())
                 log.debug("Inserting undoable block with hash: " + Utils.HEX.encode(hashBytes)  + " at height " + height);
 
-            if (transactions == null) {
+            if (transactions == null)
+            {
                 s.setBytes(3, txOutChanges);
                 s.setNull(4, Types.BINARY);
-            } else {
+            }
+            else
+            {
                 s.setNull(3, Types.BINARY);
                 s.setBytes(4, transactions);
             }
             s.executeUpdate();
             s.close();
-            try {
+            try
+            {
                 putUpdateStoredBlock(storedBlock, true);
-            } catch (SQLException e) {
+            }
+            catch (SQLException e)
+            {
                 throw new BlockStoreException(e);
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e)
+        {
             if (!e.getSQLState().equals(POSTGRES_DUPLICATE_KEY_ERROR_CODE))
                 throw new BlockStoreException(e);
         }
-
     }
 }

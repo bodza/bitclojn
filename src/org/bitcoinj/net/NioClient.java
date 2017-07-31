@@ -11,54 +11,65 @@ import java.nio.*;
 /**
  * Creates a simple connection to a server using a {@link StreamConnection} to process data.
  */
-public class NioClient implements MessageWriteTarget {
+public class NioClient implements MessageWriteTarget
+{
     private static final Logger log = LoggerFactory.getLogger(NioClient.class);
 
     private final Handler handler;
     private final NioClientManager manager = new NioClientManager();
 
-    class Handler extends AbstractTimeoutHandler implements StreamConnection {
+    class Handler extends AbstractTimeoutHandler implements StreamConnection
+    {
         private final StreamConnection upstreamConnection;
         private MessageWriteTarget writeTarget;
         private boolean closeOnOpen = false;
         private boolean closeCalled = false;
-        Handler(StreamConnection upstreamConnection, int connectTimeoutMillis) {
+        Handler(StreamConnection upstreamConnection, int connectTimeoutMillis)
+        {
             this.upstreamConnection = upstreamConnection;
             setSocketTimeout(connectTimeoutMillis);
             setTimeoutEnabled(true);
         }
 
         @Override
-        protected synchronized void timeoutOccurred() {
+        protected synchronized void timeoutOccurred()
+        {
             closeOnOpen = true;
             connectionClosed();
         }
 
         @Override
-        public synchronized void connectionClosed() {
+        public synchronized void connectionClosed()
+        {
             manager.stopAsync();
-            if (!closeCalled) {
+            if (!closeCalled)
+            {
                 closeCalled = true;
                 upstreamConnection.connectionClosed();
             }
         }
 
         @Override
-        public synchronized void connectionOpened() {
+        public synchronized void connectionOpened()
+        {
             if (!closeOnOpen)
                 upstreamConnection.connectionOpened();
         }
 
         @Override
-        public int receiveBytes(ByteBuffer buff) throws Exception {
+        public int receiveBytes(ByteBuffer buff)
+            throws Exception
+        {
             return upstreamConnection.receiveBytes(buff);
         }
 
         @Override
-        public synchronized void setWriteTarget(MessageWriteTarget writeTarget) {
+        public synchronized void setWriteTarget(MessageWriteTarget writeTarget)
+        {
             if (closeOnOpen)
                 writeTarget.closeConnection();
-            else {
+            else
+            {
                 setTimeoutEnabled(false);
                 this.writeTarget = writeTarget;
                 upstreamConnection.setWriteTarget(writeTarget);
@@ -66,7 +77,8 @@ public class NioClient implements MessageWriteTarget {
         }
 
         @Override
-        public int getMaxMessageSize() {
+        public int getMaxMessageSize()
+        {
             return upstreamConnection.getMaxMessageSize();
         }
     }
@@ -80,30 +92,37 @@ public class NioClient implements MessageWriteTarget {
      * @param connectTimeoutMillis The connect timeout set on the connection (in milliseconds). 0 is interpreted as no
      *                             timeout.
      */
-    public NioClient(final SocketAddress serverAddress, final StreamConnection parser,
-                     final int connectTimeoutMillis) throws IOException {
+    public NioClient(final SocketAddress serverAddress, final StreamConnection parser, final int connectTimeoutMillis)
+        throws IOException
+    {
         manager.startAsync();
         manager.awaitRunning();
         handler = new Handler(parser, connectTimeoutMillis);
-        Futures.addCallback(manager.openConnection(serverAddress, handler), new FutureCallback<SocketAddress>() {
+        Futures.addCallback(manager.openConnection(serverAddress, handler), new FutureCallback<SocketAddress>()
+        {
             @Override
-            public void onSuccess(SocketAddress result) {
+            public void onSuccess(SocketAddress result)
+            {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Throwable t)
+            {
                 log.error("Connect to {} failed: {}", serverAddress, Throwables.getRootCause(t));
             }
         });
     }
 
     @Override
-    public void closeConnection() {
+    public void closeConnection()
+    {
         handler.writeTarget.closeConnection();
     }
 
     @Override
-    public synchronized void writeBytes(byte[] message) throws IOException {
+    public synchronized void writeBytes(byte[] message)
+        throws IOException
+    {
         handler.writeTarget.writeBytes(message);
     }
 }

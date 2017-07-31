@@ -26,8 +26,8 @@ import org.bitcoinj.core.BitcoinSerializer;
 /**
  * Parameters for Bitcoin-like networks.
  */
-public abstract class AbstractBitcoinNetParams extends NetworkParameters {
-
+public abstract class AbstractBitcoinNetParams extends NetworkParameters
+{
     /**
      * Scheme part for Bitcoin URIs.
      */
@@ -36,7 +36,8 @@ public abstract class AbstractBitcoinNetParams extends NetworkParameters {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractBitcoinNetParams.class);
 
-    public AbstractBitcoinNetParams() {
+    public AbstractBitcoinNetParams()
+    {
         super();
     }
 
@@ -45,7 +46,8 @@ public abstract class AbstractBitcoinNetParams extends NetworkParameters {
      * @param height The height of the previous stored block
      * @return If this is a reward halving point
      */
-    public final boolean isRewardHalvingPoint(final int height) {
+    public final boolean isRewardHalvingPoint(final int height)
+    {
         return ((height + 1) % REWARD_HALVING_INTERVAL) == 0;
     }
 
@@ -54,18 +56,20 @@ public abstract class AbstractBitcoinNetParams extends NetworkParameters {
      * @param height The height of the previous stored block
      * @return If this is a difficulty transition point
      */
-    public final boolean isDifficultyTransitionPoint(final int height) {
+    public final boolean isDifficultyTransitionPoint(final int height)
+    {
         return ((height + 1) % this.getInterval()) == 0;
     }
 
     @Override
-    public void checkDifficultyTransitions(final StoredBlock storedPrev, final Block nextBlock,
-        final BlockStore blockStore) throws VerificationException, BlockStoreException {
+    public void checkDifficultyTransitions(final StoredBlock storedPrev, final Block nextBlock, final BlockStore blockStore)
+        throws VerificationException, BlockStoreException
+    {
         final Block prev = storedPrev.getHeader();
 
         // Is this supposed to be a difficulty transition point?
-        if (!isDifficultyTransitionPoint(storedPrev.getHeight())) {
-
+        if (!isDifficultyTransitionPoint(storedPrev.getHeight()))
+        {
             // No ... so check the difficulty didn't actually change.
             if (nextBlock.getDifficultyTarget() != prev.getDifficultyTarget())
                 throw new VerificationException("Unexpected change in difficulty at height " + storedPrev.getHeight() +
@@ -80,17 +84,17 @@ public abstract class AbstractBitcoinNetParams extends NetworkParameters {
         Sha256Hash hash = prev.getHash();
         StoredBlock cursor = null;
         final int interval = this.getInterval();
-        for (int i = 0; i < interval; i++) {
+        for (int i = 0; i < interval; i++)
+        {
             cursor = blockStore.get(hash);
-            if (cursor == null) {
+            if (cursor == null)
+            {
                 // This should never happen. If it does, it means we are following an incorrect or busted chain.
-                throw new VerificationException(
-                        "Difficulty transition point but we did not find a way back to the last transition point. Not found: " + hash);
+                throw new VerificationException("Difficulty transition point but we did not find a way back to the last transition point. Not found: " + hash);
             }
             hash = cursor.getHeader().getPrevBlockHash();
         }
-        checkState(cursor != null && isDifficultyTransitionPoint(cursor.getHeight() - 1),
-                "Didn't arrive at a transition point.");
+        checkState(cursor != null && isDifficultyTransitionPoint(cursor.getHeight() - 1), "Didn't arrive at a transition point.");
         watch.stop();
         if (watch.elapsed(TimeUnit.MILLISECONDS) > 50)
             log.info("Difficulty transition traversal took {}", watch);
@@ -108,7 +112,8 @@ public abstract class AbstractBitcoinNetParams extends NetworkParameters {
         newTarget = newTarget.multiply(BigInteger.valueOf(timespan));
         newTarget = newTarget.divide(BigInteger.valueOf(targetTimespan));
 
-        if (newTarget.compareTo(this.getMaxTarget()) > 0) {
+        if (newTarget.compareTo(this.getMaxTarget()) > 0)
+        {
             log.info("Difficulty hit proof of work limit: {}", newTarget.toString(16));
             newTarget = this.getMaxTarget();
         }
@@ -127,37 +132,44 @@ public abstract class AbstractBitcoinNetParams extends NetworkParameters {
     }
 
     @Override
-    public Coin getMaxMoney() {
+    public Coin getMaxMoney()
+    {
         return MAX_MONEY;
     }
 
     @Override
-    public Coin getMinNonDustOutput() {
+    public Coin getMinNonDustOutput()
+    {
         return Transaction.MIN_NONDUST_OUTPUT;
     }
 
     @Override
-    public MonetaryFormat getMonetaryFormat() {
+    public MonetaryFormat getMonetaryFormat()
+    {
         return new MonetaryFormat();
     }
 
     @Override
-    public int getProtocolVersionNum(final ProtocolVersion version) {
+    public int getProtocolVersionNum(final ProtocolVersion version)
+    {
         return version.getBitcoinProtocolVersion();
     }
 
     @Override
-    public BitcoinSerializer getSerializer(boolean parseRetain) {
+    public BitcoinSerializer getSerializer(boolean parseRetain)
+    {
         return new BitcoinSerializer(this, parseRetain);
     }
 
     @Override
-    public String getUriScheme() {
+    public String getUriScheme()
+    {
         return BITCOIN_SCHEME;
     }
 
     @Override
-    public boolean hasMaxMoney() {
+    public boolean hasMaxMoney()
+    {
         return true;
     }
 }

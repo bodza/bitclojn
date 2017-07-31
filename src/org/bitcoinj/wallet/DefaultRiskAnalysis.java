@@ -24,7 +24,8 @@ import static com.google.common.base.Preconditions.checkState;
  * whether a tx/dependency violates the dust rules. Outside of specialised protocols you should not encounter non-final
  * transactions.</p>
  */
-public class DefaultRiskAnalysis implements RiskAnalysis {
+public class DefaultRiskAnalysis implements RiskAnalysis
+{
     private static final Logger log = LoggerFactory.getLogger(DefaultRiskAnalysis.class);
 
     /**
@@ -42,14 +43,16 @@ public class DefaultRiskAnalysis implements RiskAnalysis {
     protected Transaction nonFinal;
     protected boolean analyzed;
 
-    private DefaultRiskAnalysis(Wallet wallet, Transaction tx, List<Transaction> dependencies) {
+    private DefaultRiskAnalysis(Wallet wallet, Transaction tx, List<Transaction> dependencies)
+    {
         this.tx = tx;
         this.dependencies = dependencies;
         this.wallet = wallet;
     }
 
     @Override
-    public Result analyze() {
+    public Result analyze()
+    {
         checkState(!analyzed);
         analyzed = true;
 
@@ -61,13 +64,15 @@ public class DefaultRiskAnalysis implements RiskAnalysis {
     }
 
     @Nullable
-    private Result analyzeIsFinal() {
+    private Result analyzeIsFinal()
+    {
         // Transactions we create ourselves are, by definition, not at risk of double spending against us.
         if (tx.getConfidence().getSource() == TransactionConfidence.Source.SELF)
             return Result.OK;
 
         // We consider transactions that opt into replace-by-fee at risk of double spending.
-        if (tx.isOptInFullRBF()) {
+        if (tx.isOptInFullRBF())
+        {
             nonFinal = tx;
             return Result.NON_FINAL;
         }
@@ -81,12 +86,15 @@ public class DefaultRiskAnalysis implements RiskAnalysis {
         // next block it is not risky (as it would confirm normally).
         final int adjustedHeight = height + 1;
 
-        if (!tx.isFinal(adjustedHeight, time)) {
+        if (!tx.isFinal(adjustedHeight, time))
+        {
             nonFinal = tx;
             return Result.NON_FINAL;
         }
-        for (Transaction dep : dependencies) {
-            if (!dep.isFinal(adjustedHeight, time)) {
+        for (Transaction dep : dependencies)
+        {
+            if (!dep.isFinal(adjustedHeight, time))
+            {
                 nonFinal = dep;
                 return Result.NON_FINAL;
             }
@@ -99,7 +107,8 @@ public class DefaultRiskAnalysis implements RiskAnalysis {
      * The reason a transaction is considered non-standard, returned by
      * {@link #isStandard(org.bitcoinj.core.Transaction)}.
      */
-    public enum RuleViolation {
+    public enum RuleViolation
+    {
         NONE,
         VERSION,
         DUST,
@@ -114,28 +123,34 @@ public class DefaultRiskAnalysis implements RiskAnalysis {
      *
      * <p>Note that this method currently only implements a minimum of checks. More to be added later.</p>
      */
-    public static RuleViolation isStandard(Transaction tx) {
+    public static RuleViolation isStandard(Transaction tx)
+    {
         // TODO: Finish this function off.
-        if (tx.getVersion() > 1 || tx.getVersion() < 1) {
+        if (tx.getVersion() > 1 || tx.getVersion() < 1)
+        {
             log.warn("TX considered non-standard due to unknown version number {}", tx.getVersion());
             return RuleViolation.VERSION;
         }
 
         final List<TransactionOutput> outputs = tx.getOutputs();
-        for (int i = 0; i < outputs.size(); i++) {
+        for (int i = 0; i < outputs.size(); i++)
+        {
             TransactionOutput output = outputs.get(i);
             RuleViolation violation = isOutputStandard(output);
-            if (violation != RuleViolation.NONE) {
+            if (violation != RuleViolation.NONE)
+            {
                 log.warn("TX considered non-standard due to output {} violating rule {}", i, violation);
                 return violation;
             }
         }
 
         final List<TransactionInput> inputs = tx.getInputs();
-        for (int i = 0; i < inputs.size(); i++) {
+        for (int i = 0; i < inputs.size(); i++)
+        {
             TransactionInput input = inputs.get(i);
             RuleViolation violation = isInputStandard(input);
-            if (violation != RuleViolation.NONE) {
+            if (violation != RuleViolation.NONE)
+            {
                 log.warn("TX considered non-standard due to input {} violating rule {}", i, violation);
                 return violation;
             }
@@ -147,10 +162,12 @@ public class DefaultRiskAnalysis implements RiskAnalysis {
     /**
      * Checks the output to see if the script violates a standardness rule. Not complete.
      */
-    public static RuleViolation isOutputStandard(TransactionOutput output) {
+    public static RuleViolation isOutputStandard(TransactionOutput output)
+    {
         if (output.getValue().compareTo(MIN_ANALYSIS_NONDUST_OUTPUT) < 0)
             return RuleViolation.DUST;
-        for (ScriptChunk chunk : output.getScriptPubKey().getChunks()) {
+        for (ScriptChunk chunk : output.getScriptPubKey().getChunks())
+        {
             if (chunk.isPushData() && !chunk.isShortestPossiblePushData())
                 return RuleViolation.SHORTEST_POSSIBLE_PUSHDATA;
         }
@@ -158,19 +175,26 @@ public class DefaultRiskAnalysis implements RiskAnalysis {
     }
 
     /** Checks if the given input passes some of the AreInputsStandard checks. Not complete. */
-    public static RuleViolation isInputStandard(TransactionInput input) {
-        for (ScriptChunk chunk : input.getScriptSig().getChunks()) {
+    public static RuleViolation isInputStandard(TransactionInput input)
+    {
+        for (ScriptChunk chunk : input.getScriptSig().getChunks())
+        {
             if (chunk.data != null && !chunk.isShortestPossiblePushData())
                 return RuleViolation.SHORTEST_POSSIBLE_PUSHDATA;
-            if (chunk.isPushData()) {
+            if (chunk.isPushData())
+            {
                 ECDSASignature signature;
-                try {
+                try
+                {
                     signature = ECKey.ECDSASignature.decodeFromDER(chunk.data);
-                } catch (IllegalArgumentException x) {
+                }
+                catch (IllegalArgumentException x)
+                {
                     // Doesn't look like a signature.
                     signature = null;
                 }
-                if (signature != null) {
+                if (signature != null)
+                {
                     if (!TransactionSignature.isEncodingCanonical(chunk.data))
                         return RuleViolation.SIGNATURE_CANONICAL_ENCODING;
                     if (!signature.isCanonical())
@@ -181,21 +205,25 @@ public class DefaultRiskAnalysis implements RiskAnalysis {
         return RuleViolation.NONE;
     }
 
-    private Result analyzeIsStandard() {
+    private Result analyzeIsStandard()
+    {
         // The IsStandard rules don't apply on testnet, because they're just a safety mechanism and we don't want to
         // crush innovation with valueless test coins.
         if (wallet != null && !wallet.getNetworkParameters().getId().equals(NetworkParameters.ID_MAINNET))
             return Result.OK;
 
         RuleViolation ruleViolation = isStandard(tx);
-        if (ruleViolation != RuleViolation.NONE) {
+        if (ruleViolation != RuleViolation.NONE)
+        {
             nonStandard = tx;
             return Result.NON_STANDARD;
         }
 
-        for (Transaction dep : dependencies) {
+        for (Transaction dep : dependencies)
+        {
             ruleViolation = isStandard(dep);
-            if (ruleViolation != RuleViolation.NONE) {
+            if (ruleViolation != RuleViolation.NONE)
+            {
                 nonStandard = dep;
                 return Result.NON_STANDARD;
             }
@@ -206,18 +234,21 @@ public class DefaultRiskAnalysis implements RiskAnalysis {
 
     /** Returns the transaction that was found to be non-standard, or null. */
     @Nullable
-    public Transaction getNonStandard() {
+    public Transaction getNonStandard()
+    {
         return nonStandard;
     }
 
     /** Returns the transaction that was found to be non-final, or null. */
     @Nullable
-    public Transaction getNonFinal() {
+    public Transaction getNonFinal()
+    {
         return nonFinal;
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         if (!analyzed)
             return "Pending risk analysis for " + tx.getHashAsString();
         else if (nonFinal != null)
@@ -228,9 +259,11 @@ public class DefaultRiskAnalysis implements RiskAnalysis {
             return "Non-risky";
     }
 
-    public static class Analyzer implements RiskAnalysis.Analyzer {
+    public static class Analyzer implements RiskAnalysis.Analyzer
+    {
         @Override
-        public DefaultRiskAnalysis create(Wallet wallet, Transaction tx, List<Transaction> dependencies) {
+        public DefaultRiskAnalysis create(Wallet wallet, Transaction tx, List<Transaction> dependencies)
+        {
             return new DefaultRiskAnalysis(wallet, tx, dependencies);
         }
     }

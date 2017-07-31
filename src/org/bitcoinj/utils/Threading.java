@@ -18,8 +18,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * bitcoinj performs cycle detection or not. Cycle detection is useful to detect bugs but comes with a small cost.
  * Also provides a worker thread that is designed for event listeners to be dispatched on.
  */
-public class Threading {
-
+public class Threading
+{
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // User thread/event handling utilities
@@ -48,10 +48,13 @@ public class Threading {
      * to do is usually to create a {@link com.google.common.util.concurrent.SettableFuture} and then call set
      * on it. You can then either block on that future, compose it, add listeners to it and so on.
      */
-    public static void waitForUserCode() {
+    public static void waitForUserCode()
+    {
         final CountDownLatch latch = new CountDownLatch(1);
-        USER_THREAD.execute(new Runnable() {
-            @Override public void run() {
+        USER_THREAD.execute(new Runnable()
+        {
+            @Override public void run()
+            {
                 latch.countDown();
             }
         });
@@ -69,14 +72,15 @@ public class Threading {
     @Nullable
     public static volatile Thread.UncaughtExceptionHandler uncaughtExceptionHandler;
 
-    public static class UserThread extends Thread implements Executor {
+    public static class UserThread extends Thread implements Executor
+    {
         private static final Logger log = LoggerFactory.getLogger(UserThread.class);
-        // 10,000 pending tasks is entirely arbitrary and may or may not be appropriate for the device we're
-        // running on.
+        // 10,000 pending tasks is entirely arbitrary and may or may not be appropriate for the device we're running on
         public static int WARNING_THRESHOLD = 10000;
         private LinkedBlockingQueue<Runnable> tasks;
 
-        public UserThread() {
+        public UserThread()
+        {
             super("bitcoinj user thread");
             setDaemon(true);
             tasks = new LinkedBlockingQueue<>();
@@ -84,12 +88,17 @@ public class Threading {
         }
 
         @SuppressWarnings("InfiniteLoopStatement") @Override
-        public void run() {
-            while (true) {
+        public void run()
+        {
+            while (true)
+            {
                 Runnable task = Uninterruptibles.takeUninterruptibly(tasks);
-                try {
+                try
+                {
                     task.run();
-                } catch (Throwable throwable) {
+                }
+                catch (Throwable throwable)
+                {
                     log.warn("Exception in user thread", throwable);
                     Thread.UncaughtExceptionHandler handler = uncaughtExceptionHandler;
                     if (handler != null)
@@ -99,9 +108,11 @@ public class Threading {
         }
 
         @Override
-        public void execute(Runnable command) {
+        public void execute(Runnable command)
+        {
             final int size = tasks.size();
-            if (size == WARNING_THRESHOLD) {
+            if (size == WARNING_THRESHOLD)
+            {
                 log.warn(
                     "User thread has {} pending tasks, memory exhaustion may occur.\n" +
                     "If you see this message, check your memory consumption and see if it's problematic or excessively spikey.\n" +
@@ -112,16 +123,19 @@ public class Threading {
         }
     }
 
-    static {
+    static
+    {
         // Default policy goes here. If you want to change this, use one of the static methods before
         // instantiating any bitcoinj objects. The policy change will take effect only on new objects
         // from that point onwards.
         throwOnLockCycles();
 
         USER_THREAD = new UserThread();
-        SAME_THREAD = new Executor() {
+        SAME_THREAD = new Executor()
+        {
             @Override
-            public void execute(@Nonnull Runnable runnable) {
+            public void execute(@Nonnull Runnable runnable)
+            {
                 runnable.run();
             }
         };
@@ -136,31 +150,37 @@ public class Threading {
     private static CycleDetectingLockFactory.Policy policy;
     public static CycleDetectingLockFactory factory;
 
-    public static ReentrantLock lock(String name) {
+    public static ReentrantLock lock(String name)
+    {
         if (Utils.isAndroidRuntime())
             return new ReentrantLock(true);
         else
             return factory.newReentrantLock(name);
     }
 
-    public static void warnOnLockCycles() {
+    public static void warnOnLockCycles()
+    {
         setPolicy(CycleDetectingLockFactory.Policies.WARN);
     }
 
-    public static void throwOnLockCycles() {
+    public static void throwOnLockCycles()
+    {
         setPolicy(CycleDetectingLockFactory.Policies.THROW);
     }
 
-    public static void ignoreLockCycles() {
+    public static void ignoreLockCycles()
+    {
         setPolicy(CycleDetectingLockFactory.Policies.DISABLED);
     }
 
-    public static void setPolicy(CycleDetectingLockFactory.Policy policy) {
+    public static void setPolicy(CycleDetectingLockFactory.Policy policy)
+    {
         Threading.policy = policy;
         factory = CycleDetectingLockFactory.newInstance(policy);
     }
 
-    public static CycleDetectingLockFactory.Policy getPolicy() {
+    public static CycleDetectingLockFactory.Policy getPolicy()
+    {
         return policy;
     }
 
@@ -172,9 +192,11 @@ public class Threading {
 
     /** A caching thread pool that creates daemon threads, which won't keep the JVM alive waiting for more work. */
     public static ListeningExecutorService THREAD_POOL = MoreExecutors.listeningDecorator(
-            Executors.newCachedThreadPool(new ThreadFactory() {
+            Executors.newCachedThreadPool(new ThreadFactory()
+            {
                 @Override
-                public Thread newThread(Runnable r) {
+                public Thread newThread(Runnable r)
+                {
                     Thread t = new Thread(r);
                     t.setName("Threading.THREAD_POOL worker");
                     t.setDaemon(true);

@@ -5,62 +5,64 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * An unsynchronized implementation of ByteArrayOutputStream that will return the backing byte array if its length == size().
- * This avoids unneeded array copy where the BOS is simply being used to extract a byte array of known length from a
- * 'serialized to stream' method.
- * <p/>
- * Unless the final length can be accurately predicted the only performance this will yield is due to unsynchronized
- * methods.
+ * An unsynchronized implementation of ByteArrayOutputStream that will return the backing byte array
+ * if its length == size().  This avoids unneeded array copy where the BOS is simply being used to
+ * extract a byte array of known length from a 'serialized to stream' method.
+ *
+ * Unless the final length can be accurately predicted the only performance this will yield is due
+ * to unsynchronized methods.
  *
  * @author git
  */
-public class UnsafeByteArrayOutputStream extends ByteArrayOutputStream {
-
-    public UnsafeByteArrayOutputStream() {
+public class UnsafeByteArrayOutputStream extends ByteArrayOutputStream
+{
+    public UnsafeByteArrayOutputStream()
+    {
         super(32);
     }
 
-    public UnsafeByteArrayOutputStream(int size) {
+    public UnsafeByteArrayOutputStream(int size)
+    {
         super(size);
     }
 
     /**
      * Writes the specified byte to this byte array output stream.
      *
-     * @param b the byte to be written.
+     * @param b The byte to be written.
      */
     @Override
-    public void write(int b) {
-        int newcount = count + 1;
-        if (newcount > buf.length) {
-            buf = Utils.copyOf(buf, Math.max(buf.length << 1, newcount));
-        }
-        buf[count] = (byte) b;
-        count = newcount;
+    public void write(int b)
+    {
+        int n = count + 1;
+        if (buf.length < n)
+            buf = Utils.copyOf(buf, Math.max(buf.length << 1, n));
+        buf[count] = (byte)b;
+        count = n;
     }
 
     /**
      * Writes <code>len</code> bytes from the specified byte array
      * starting at offset <code>off</code> to this byte array output stream.
      *
-     * @param b   the data.
-     * @param off the start offset in the data.
-     * @param len the number of bytes to write.
+     * @param b   The data.
+     * @param off The start offset in the data.
+     * @param len The number of bytes to write.
      */
     @Override
-    public void write(byte[] b, int off, int len) {
-        if ((off < 0) || (off > b.length) || (len < 0) ||
-                ((off + len) > b.length) || ((off + len) < 0)) {
+    public void write(byte[] b, int off, int len)
+    {
+        if (off < 0 || b.length < off || len < 0 || b.length < off + len || off + len < 0)
             throw new IndexOutOfBoundsException();
-        } else if (len == 0) {
-            return;
+
+        if (len != 0)
+        {
+            int n = count + len;
+            if (buf.length < n)
+                buf = Utils.copyOf(buf, Math.max(buf.length << 1, n));
+            System.arraycopy(b, off, buf, count, len);
+            count = n;
         }
-        int newcount = count + len;
-        if (newcount > buf.length) {
-            buf = Utils.copyOf(buf, Math.max(buf.length << 1, newcount));
-        }
-        System.arraycopy(b, off, buf, count, len);
-        count = newcount;
     }
 
     /**
@@ -68,29 +70,32 @@ public class UnsafeByteArrayOutputStream extends ByteArrayOutputStream {
      * the specified output stream argument, as if by calling the output
      * stream's write method using <code>out.write(buf, 0, count)</code>.
      *
-     * @param out the output stream to which to write the data.
+     * @param out The output stream to which to write the data.
      * @throws IOException if an I/O error occurs.
      */
     @Override
-    public void writeTo(OutputStream out) throws IOException {
+    public void writeTo(OutputStream out)
+        throws IOException
+    {
         out.write(buf, 0, count);
     }
 
     /**
      * Resets the <code>count</code> field of this byte array output
      * stream to zero, so that all currently accumulated output in the
-     * output stream is discarded. The output stream can be used again,
+     * output stream is discarded.  The output stream can be used again,
      * reusing the already allocated buffer space.
      *
      * @see java.io.ByteArrayInputStream#count
      */
     @Override
-    public void reset() {
+    public void reset()
+    {
         count = 0;
     }
 
     /**
-     * Creates a newly allocated byte array. Its size is the current
+     * Creates a newly allocated byte array.  Its size is the current
      * size of this output stream and the valid contents of the buffer
      * have been copied into it.
      *
@@ -98,8 +103,9 @@ public class UnsafeByteArrayOutputStream extends ByteArrayOutputStream {
      * @see java.io.ByteArrayOutputStream#size()
      */
     @Override
-    public byte toByteArray()[] {
-        return count == buf.length ? buf : Utils.copyOf(buf, count);
+    public byte toByteArray()[]
+    {
+        return (count == buf.length) ? buf : Utils.copyOf(buf, count);
     }
 
     /**
@@ -110,7 +116,8 @@ public class UnsafeByteArrayOutputStream extends ByteArrayOutputStream {
      * @see java.io.ByteArrayOutputStream#count
      */
     @Override
-    public int size() {
+    public int size()
+    {
         return count;
     }
 }

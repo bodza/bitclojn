@@ -8,7 +8,8 @@ import java.nio.ByteBuffer;
  *
  * Used to be callet StreamParser.
  */
-public interface StreamConnection {
+public interface StreamConnection
+{
     /** Called when the connection socket is closed */
     void connectionClosed();
 
@@ -34,7 +35,8 @@ public interface StreamConnection {
      *
      * @return The amount of bytes consumed which should not be provided again
      */
-    int receiveBytes(ByteBuffer buff) throws Exception;
+    int receiveBytes(ByteBuffer buff)
+        throws Exception;
 
     /**
      * Called when this connection is attached to an upstream write target (ie a low-level connection handler). This

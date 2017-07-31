@@ -12,13 +12,14 @@ import com.google.common.base.Objects;
 /**
  * An exchange rate is expressed as a ratio of a {@link Coin} and a {@link Fiat} amount.
  */
-public class ExchangeRate implements Serializable {
-
+public class ExchangeRate implements Serializable
+{
     public final Coin coin;
     public final Fiat fiat;
 
     /** Construct exchange rate. This amount of coin is worth that amount of fiat. */
-    public ExchangeRate(Coin coin, Fiat fiat) {
+    public ExchangeRate(Coin coin, Fiat fiat)
+    {
         checkArgument(coin.isPositive());
         checkArgument(fiat.isPositive());
         checkArgument(fiat.currencyCode != null, "currency code required");
@@ -27,7 +28,8 @@ public class ExchangeRate implements Serializable {
     }
 
     /** Construct exchange rate. One coin is worth this amount of fiat. */
-    public ExchangeRate(Fiat fiat) {
+    public ExchangeRate(Fiat fiat)
+    {
         this(Coin.COIN, fiat);
     }
 
@@ -35,12 +37,11 @@ public class ExchangeRate implements Serializable {
      * Convert a coin amount to a fiat amount using this exchange rate.
      * @throws ArithmeticException if the converted fiat amount is too high or too low.
      */
-    public Fiat coinToFiat(Coin convertCoin) {
+    public Fiat coinToFiat(Coin convertCoin)
+    {
         // Use BigInteger because it's much easier to maintain full precision without overflowing.
-        final BigInteger converted = BigInteger.valueOf(convertCoin.value).multiply(BigInteger.valueOf(fiat.value))
-                .divide(BigInteger.valueOf(coin.value));
-        if (converted.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0
-                || converted.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) < 0)
+        final BigInteger converted = BigInteger.valueOf(convertCoin.value).multiply(BigInteger.valueOf(fiat.value)).divide(BigInteger.valueOf(coin.value));
+        if (converted.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0 || converted.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) < 0)
             throw new ArithmeticException("Overflow");
         return Fiat.valueOf(fiat.currencyCode, converted.longValue());
     }
@@ -49,32 +50,37 @@ public class ExchangeRate implements Serializable {
      * Convert a fiat amount to a coin amount using this exchange rate.
      * @throws ArithmeticException if the converted coin amount is too high or too low.
      */
-    public Coin fiatToCoin(Fiat convertFiat) {
-        checkArgument(convertFiat.currencyCode.equals(fiat.currencyCode), "Currency mismatch: %s vs %s",
-                convertFiat.currencyCode, fiat.currencyCode);
+    public Coin fiatToCoin(Fiat convertFiat)
+    {
+        checkArgument(convertFiat.currencyCode.equals(fiat.currencyCode), "Currency mismatch: %s vs %s", convertFiat.currencyCode, fiat.currencyCode);
         // Use BigInteger because it's much easier to maintain full precision without overflowing.
-        final BigInteger converted = BigInteger.valueOf(convertFiat.value).multiply(BigInteger.valueOf(coin.value))
-                .divide(BigInteger.valueOf(fiat.value));
-        if (converted.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0
-                || converted.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) < 0)
+        final BigInteger converted = BigInteger.valueOf(convertFiat.value).multiply(BigInteger.valueOf(coin.value)).divide(BigInteger.valueOf(fiat.value));
+        if (converted.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0 || converted.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) < 0)
             throw new ArithmeticException("Overflow");
-        try {
+        try
+        {
             return Coin.valueOf(converted.longValue());
-        } catch (IllegalArgumentException x) {
+        }
+        catch (IllegalArgumentException x)
+        {
             throw new ArithmeticException("Overflow: " + x.getMessage());
         }
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ExchangeRate other = (ExchangeRate) o;
-        return Objects.equal(this.coin, other.coin) && Objects.equal(this.fiat, other.fiat);
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ExchangeRate other = (ExchangeRate)o;
+        return (Objects.equal(this.coin, other.coin) && Objects.equal(this.fiat, other.fiat));
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return Objects.hashCode(coin, fiat);
     }
 }

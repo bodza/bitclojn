@@ -22,7 +22,8 @@ import static com.google.common.base.Preconditions.*;
  * may not be able to process very deep re-orgs and could be disconnected from the chain (requiring a replay),
  * but as they are virtually unheard of this is not a significant risk.
  */
-public class SPVBlockStore implements BlockStore {
+public class SPVBlockStore implements BlockStore
+{
     private static final Logger log = LoggerFactory.getLogger(SPVBlockStore.class);
 
     /** The default number of headers that will be stored in the ring buffer. */
@@ -42,9 +43,11 @@ public class SPVBlockStore implements BlockStore {
     // the OpenJDK/Oracle JVM calls into the get() methods are compiled down to inlined native code on Android each
     // get() call is actually a full-blown JNI method under the hood, meaning it's unbelievably slow. The caches
     // below let us stay in the JIT-compiled Java world without expensive JNI transitions and make a 10x difference!
-    protected LinkedHashMap<Sha256Hash, StoredBlock> blockCache = new LinkedHashMap<Sha256Hash, StoredBlock>() {
+    protected LinkedHashMap<Sha256Hash, StoredBlock> blockCache = new LinkedHashMap<Sha256Hash, StoredBlock>()
+    {
         @Override
-        protected boolean removeEldestEntry(Map.Entry<Sha256Hash, StoredBlock> entry) {
+        protected boolean removeEldestEntry(Map.Entry<Sha256Hash, StoredBlock> entry)
+        {
             return size() > 2050;  // Slightly more than the difficulty transition period.
         }
     };
@@ -55,9 +58,11 @@ public class SPVBlockStore implements BlockStore {
     // We don't care about the value in this cache. It is always notFoundMarker. Unfortunately LinkedHashSet does not
     // provide the removeEldestEntry control.
     private static final Object NOT_FOUND_MARKER = new Object();
-    protected LinkedHashMap<Sha256Hash, Object> notFoundCache = new LinkedHashMap<Sha256Hash, Object>() {
+    protected LinkedHashMap<Sha256Hash, Object> notFoundCache = new LinkedHashMap<Sha256Hash, Object>()
+    {
         @Override
-        protected boolean removeEldestEntry(Map.Entry<Sha256Hash, Object> entry) {
+        protected boolean removeEldestEntry(Map.Entry<Sha256Hash, Object> entry)
+        {
             return size() > 100;  // This was chosen arbitrarily.
         }
     };
@@ -71,7 +76,9 @@ public class SPVBlockStore implements BlockStore {
      * @param file file to use for the block store
      * @throws BlockStoreException if something goes wrong
      */
-    public SPVBlockStore(NetworkParameters params, File file) throws BlockStoreException {
+    public SPVBlockStore(NetworkParameters params, File file)
+        throws BlockStoreException
+    {
         this(params, file, DEFAULT_CAPACITY);
     }
 
@@ -82,20 +89,26 @@ public class SPVBlockStore implements BlockStore {
      * @param capacity custom capacity
      * @throws BlockStoreException if something goes wrong
      */
-    public SPVBlockStore(NetworkParameters params, File file, int capacity) throws BlockStoreException {
+    public SPVBlockStore(NetworkParameters params, File file, int capacity)
+        throws BlockStoreException
+    {
         checkNotNull(file);
         this.params = checkNotNull(params);
         checkArgument(capacity > 0);
         this.capacity = capacity;
-        try {
+        try
+        {
             boolean exists = file.exists();
             // Set up the backing file.
             randomAccessFile = new RandomAccessFile(file, "rw");
             long fileSize = getFileSize(capacity);
-            if (!exists) {
+            if (!exists)
+            {
                 log.info("Creating new SPV block chain file " + file);
                 randomAccessFile.setLength(fileSize);
-            } else if (randomAccessFile.length() != fileSize) {
+            }
+            else if (randomAccessFile.length() != fileSize)
+            {
                 throw new BlockStoreException("File size on disk does not match expected size: " +
                         randomAccessFile.length() + " vs " + fileSize);
             }
@@ -114,33 +127,46 @@ public class SPVBlockStore implements BlockStore {
 
             // Check or initialize the header bytes to ensure we don't try to open some random file.
             byte[] header;
-            if (exists) {
+            if (exists)
+            {
                 header = new byte[4];
                 buffer.get(header);
                 if (!new String(header, Charsets.US_ASCII).equals(HEADER_MAGIC))
                     throw new BlockStoreException("Header bytes do not equal " + HEADER_MAGIC);
-            } else {
+            }
+            else
+            {
                 initNewStore(params);
             }
-        } catch (Exception e) {
-            try {
+        }
+        catch (Exception e)
+        {
+            try
+            {
                 if (randomAccessFile != null) randomAccessFile.close();
-            } catch (IOException e2) {
+            }
+            catch (IOException e2)
+            {
                 throw new BlockStoreException(e2);
             }
             throw new BlockStoreException(e);
         }
     }
 
-    private void initNewStore(NetworkParameters params) throws Exception {
+    private void initNewStore(NetworkParameters params)
+        throws Exception
+    {
         byte[] header;
         header = HEADER_MAGIC.getBytes("US-ASCII");
         buffer.put(header);
         // Insert the genesis block.
         lock.lock();
-        try {
+        try
+        {
             setRingCursor(buffer, FILE_PROLOGUE_BYTES);
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
         Block genesis = params.getGenesisBlock().cloneAsHeader();
@@ -150,19 +176,24 @@ public class SPVBlockStore implements BlockStore {
     }
 
     /** Returns the size in bytes of the file that is used to store the chain with the current parameters. */
-    public static final int getFileSize(int capacity) {
+    public static final int getFileSize(int capacity)
+    {
         return RECORD_SIZE * capacity + FILE_PROLOGUE_BYTES /* extra kilobyte for stuff */;
     }
 
     @Override
-    public void put(StoredBlock block) throws BlockStoreException {
+    public void put(StoredBlock block)
+        throws BlockStoreException
+    {
         final MappedByteBuffer buffer = this.buffer;
         if (buffer == null) throw new BlockStoreException("Store closed");
 
         lock.lock();
-        try {
+        try
+        {
             int cursor = getRingCursor(buffer);
-            if (cursor == getFileSize(capacity)) {
+            if (cursor == getFileSize(capacity))
+            {
                 // Wrapped around.
                 cursor = FILE_PROLOGUE_BYTES;
             }
@@ -173,17 +204,21 @@ public class SPVBlockStore implements BlockStore {
             block.serializeCompact(buffer);
             setRingCursor(buffer, buffer.position());
             blockCache.put(hash, block);
-        } finally { lock.unlock(); }
+        }
+        finally { lock.unlock(); }
     }
 
     @Override
     @Nullable
-    public StoredBlock get(Sha256Hash hash) throws BlockStoreException {
+    public StoredBlock get(Sha256Hash hash)
+        throws BlockStoreException
+    {
         final MappedByteBuffer buffer = this.buffer;
         if (buffer == null) throw new BlockStoreException("Store closed");
 
         lock.lock();
-        try {
+        try
+        {
             StoredBlock cacheHit = blockCache.get(hash);
             if (cacheHit != null)
                 return cacheHit;
@@ -197,16 +232,19 @@ public class SPVBlockStore implements BlockStore {
             final int fileSize = getFileSize(capacity);
             final byte[] targetHashBytes = hash.getBytes();
             byte[] scratch = new byte[32];
-            do {
+            do
+            {
                 cursor -= RECORD_SIZE;
-                if (cursor < FILE_PROLOGUE_BYTES) {
+                if (cursor < FILE_PROLOGUE_BYTES)
+                {
                     // We hit the start, so wrap around.
                     cursor = fileSize - RECORD_SIZE;
                 }
                 // Cursor is now at the start of the next record to check, so read the hash and compare it.
                 buffer.position(cursor);
                 buffer.get(scratch);
-                if (Arrays.equals(scratch, targetHashBytes)) {
+                if (Arrays.equals(scratch, targetHashBytes))
+                {
                     // Found the target.
                     StoredBlock storedBlock = StoredBlock.deserializeCompact(params, buffer);
                     blockCache.put(hash, storedBlock);
@@ -216,21 +254,28 @@ public class SPVBlockStore implements BlockStore {
             // Not found.
             notFoundCache.put(hash, NOT_FOUND_MARKER);
             return null;
-        } catch (ProtocolException e) {
+        }
+        catch (ProtocolException e)
+        {
             throw new RuntimeException(e);  // Cannot happen.
-        } finally { lock.unlock(); }
+        }
+        finally { lock.unlock(); }
     }
 
     protected StoredBlock lastChainHead = null;
 
     @Override
-    public StoredBlock getChainHead() throws BlockStoreException {
+    public StoredBlock getChainHead()
+        throws BlockStoreException
+    {
         final MappedByteBuffer buffer = this.buffer;
         if (buffer == null) throw new BlockStoreException("Store closed");
 
         lock.lock();
-        try {
-            if (lastChainHead == null) {
+        try
+        {
+            if (lastChainHead == null)
+            {
                 byte[] headHash = new byte[32];
                 buffer.position(8);
                 buffer.get(headHash);
@@ -241,36 +286,47 @@ public class SPVBlockStore implements BlockStore {
                 lastChainHead = block;
             }
             return lastChainHead;
-        } finally { lock.unlock(); }
+        }
+        finally { lock.unlock(); }
     }
 
     @Override
-    public void setChainHead(StoredBlock chainHead) throws BlockStoreException {
+    public void setChainHead(StoredBlock chainHead)
+        throws BlockStoreException
+    {
         final MappedByteBuffer buffer = this.buffer;
         if (buffer == null) throw new BlockStoreException("Store closed");
 
         lock.lock();
-        try {
+        try
+        {
             lastChainHead = chainHead;
             byte[] headHash = chainHead.getHeader().getHash().getBytes();
             buffer.position(8);
             buffer.put(headHash);
-        } finally { lock.unlock(); }
+        }
+        finally { lock.unlock(); }
     }
 
     @Override
-    public void close() throws BlockStoreException {
-        try {
+    public void close()
+        throws BlockStoreException
+    {
+        try
+        {
             buffer.force();
             buffer = null;  // Allow it to be GCd and the underlying file mapping to go away.
             randomAccessFile.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             throw new BlockStoreException(e);
         }
     }
 
     @Override
-    public NetworkParameters getParams() {
+    public NetworkParameters getParams()
+    {
         return params;
     }
 
@@ -289,13 +345,15 @@ public class SPVBlockStore implements BlockStore {
     protected static final int FILE_PROLOGUE_BYTES = 1024;
 
     /** Returns the offset from the file start where the latest block should be written (end of prev block). */
-    private int getRingCursor(ByteBuffer buffer) {
+    private int getRingCursor(ByteBuffer buffer)
+    {
         int c = buffer.getInt(4);
         checkState(c >= FILE_PROLOGUE_BYTES, "Integer overflow");
         return c;
     }
 
-    private void setRingCursor(ByteBuffer buffer, int newCursor) {
+    private void setRingCursor(ByteBuffer buffer, int newCursor)
+    {
         checkArgument(newCursor >= 0);
         buffer.putInt(4, newCursor);
     }

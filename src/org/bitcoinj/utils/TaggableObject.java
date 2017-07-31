@@ -18,7 +18,8 @@ import java.util.Map;
  * "owner" or just "o". Also, it's good practice to create constants for each string you use, to help avoid typos
  * in string parameters causing confusing bugs!</p>
  */
-public interface TaggableObject {
+public interface TaggableObject
+{
     /** Returns the immutable byte array associated with the given tag name, or null if there is none. */
     @Nullable ByteString maybeGetTag(String tag);
 

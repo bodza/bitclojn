@@ -27,7 +27,8 @@ import static com.google.common.base.Preconditions.checkState;
  *
  * <p>(Used to be called ProtobufParser)</p>
  */
-public class ProtobufConnection<MessageType extends MessageLite> extends AbstractTimeoutHandler implements StreamConnection {
+public class ProtobufConnection<MessageType extends MessageLite> extends AbstractTimeoutHandler implements StreamConnection
+{
     private static final Logger log = LoggerFactory.getLogger(ProtobufConnection.class);
 
     /**
@@ -35,7 +36,8 @@ public class ProtobufConnection<MessageType extends MessageLite> extends Abstrac
      * @param <MessageType> The protobuf type which is used on this socket.
      *                      This <b>MUST</b> match the MessageType used in the parent {@link ProtobufConnection}
      */
-    public interface Listener<MessageType extends MessageLite> {
+    public interface Listener<MessageType extends MessageLite>
+    {
         /** Called when a new protobuf is received from the remote side. */
         void messageReceived(ProtobufConnection<MessageType> handler, MessageType msg);
         /** Called when the connection is opened and available for writing data to. */
@@ -74,7 +76,8 @@ public class ProtobufConnection<MessageType extends MessageLite> extends Abstrac
      * @param timeoutMillis The timeout between messages before the connection is automatically closed. Only enabled
      *                      after the connection is established.
      */
-    public ProtobufConnection(Listener<MessageType> handler, MessageType prototype, int maxMessageSize, int timeoutMillis) {
+    public ProtobufConnection(Listener<MessageType> handler, MessageType prototype, int maxMessageSize, int timeoutMillis)
+    {
         this.handler = handler;
         this.prototype = prototype;
         this.maxMessageSize = Math.min(maxMessageSize, Integer.MAX_VALUE - 4);
@@ -83,25 +86,29 @@ public class ProtobufConnection<MessageType extends MessageLite> extends Abstrac
     }
 
     @Override
-    public void setWriteTarget(MessageWriteTarget writeTarget) {
+    public void setWriteTarget(MessageWriteTarget writeTarget)
+    {
         // Only allow it to be set once.
         checkState(this.writeTarget.getAndSet(checkNotNull(writeTarget)) == null);
     }
 
     @Override
-    public int getMaxMessageSize() {
+    public int getMaxMessageSize()
+    {
         return maxMessageSize;
     }
 
     /**
      * Closes this connection, eventually triggering a {@link ProtobufConnection.Listener#connectionClosed()} event.
      */
-    public void closeConnection() {
+    public void closeConnection()
+    {
         this.writeTarget.get().closeConnection();
     }
 
     @Override
-    protected void timeoutOccurred() {
+    protected void timeoutOccurred()
+    {
         log.warn("Timeout occurred for " + handler);
         closeConnection();
     }
@@ -111,22 +118,29 @@ public class ProtobufConnection<MessageType extends MessageLite> extends Abstrac
     @SuppressWarnings("unchecked")
     // The warning 'unchecked cast' being suppressed here comes from the build() formally returning
     // a MessageLite-derived class that cannot be statically guaranteed to be the MessageType.
-    private void deserializeMessage(ByteBuffer buff) throws Exception {
+    private void deserializeMessage(ByteBuffer buff)
+        throws Exception
+    {
         MessageType msg = (MessageType) prototype.newBuilderForType().mergeFrom(ByteString.copyFrom(buff)).build();
         resetTimeout();
         handler.messageReceived(this, msg);
     }
 
     @Override
-    public int receiveBytes(ByteBuffer buff) throws Exception {
+    public int receiveBytes(ByteBuffer buff)
+        throws Exception
+    {
         lock.lock();
-        try {
-            if (messageBytes != null) {
+        try
+        {
+            if (messageBytes != null)
+            {
                 // Just keep filling up the currently being worked on message
                 int bytesToGet = Math.min(messageBytes.length - messageBytesOffset, buff.remaining());
                 buff.get(messageBytes, messageBytesOffset, bytesToGet);
                 messageBytesOffset += bytesToGet;
-                if (messageBytesOffset == messageBytes.length) {
+                if (messageBytesOffset == messageBytes.length)
+                {
                     // Filled up our buffer, decode the message
                     deserializeMessage(ByteBuffer.wrap(messageBytes));
                     messageBytes = null;
@@ -151,7 +165,8 @@ public class ProtobufConnection<MessageType extends MessageLite> extends Abstrac
 
             // If the buffer's capacity is less than the next messages length + 4 (length prefix), we must use messageBytes
             // as a temporary buffer to store the message
-            if (buff.capacity() < len + 4) {
+            if (buff.capacity() < len + 4)
+            {
                 messageBytes = new byte[len];
                 // Now copy all remaining bytes into the new buffer, set messageBytesOffset and tell the caller how many
                 // bytes we consumed
@@ -161,7 +176,8 @@ public class ProtobufConnection<MessageType extends MessageLite> extends Abstrac
                 return bytesToRead + 4;
             }
 
-            if (buff.remaining() < len) {
+            if (buff.remaining() < len)
+            {
                 // Wait until the whole message is available in the buffer
                 buff.position(buff.position() - 4); // Make sure the buffer's position is right at the end
                 return 0;
@@ -179,18 +195,22 @@ public class ProtobufConnection<MessageType extends MessageLite> extends Abstrac
                 return len + 4 + receiveBytes(buff);
             else
                 return len + 4;
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
     }
 
     @Override
-    public void connectionClosed() {
+    public void connectionClosed()
+    {
         handler.connectionClosed(this);
     }
 
     @Override
-    public void connectionOpened() {
+    public void connectionOpened()
+    {
         setTimeoutEnabled(true);
         handler.connectionOpen(this);
     }
@@ -202,16 +222,21 @@ public class ProtobufConnection<MessageType extends MessageLite> extends Abstrac
      *
      * @throws IllegalStateException If the encoded message is larger than the maximum message size.
      */
-    public void write(MessageType msg) throws IllegalStateException {
+    public void write(MessageType msg)
+        throws IllegalStateException
+    {
         byte[] messageBytes = msg.toByteArray();
         checkState(messageBytes.length <= maxMessageSize);
         byte[] messageLength = new byte[4];
         Utils.uint32ToByteArrayBE(messageBytes.length, messageLength, 0);
-        try {
+        try
+        {
             MessageWriteTarget target = writeTarget.get();
             target.writeBytes(messageLength);
             target.writeBytes(messageBytes);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             closeConnection();
         }
     }

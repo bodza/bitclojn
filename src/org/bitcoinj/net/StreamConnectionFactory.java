@@ -6,7 +6,8 @@ import javax.annotation.Nullable;
 /**
  * A factory which generates new {@link StreamConnection}s when a new connection is opened.
  */
-public interface StreamConnectionFactory {
+public interface StreamConnectionFactory
+{
     /**
      * Returns a new handler or null to have the connection close.
      * @param inetAddress The client's (IP) address

@@ -41,14 +41,14 @@ import java.util.Locale;
  * @see          org.bitcoinj.core.Coin
  */
 
-public final class BtcAutoFormat extends BtcFormat {
-
+public final class BtcAutoFormat extends BtcFormat
+{
     /**
      * Enum for specifying the style of currency indicators thas are used
      * when formatting, ether codes or symbols.
      */
-    public enum Style {
-
+    public enum Style
+    {
         /* Notes:
          * 1) The odd-looking character in the replacements below, named "currency sign," is used in
          *    the patterns recognized by Java's number formatter.  A single occurrence of this
@@ -63,27 +63,27 @@ public final class BtcAutoFormat extends BtcFormat {
          */
 
         /** Constant for the formatting style that uses a currency code, e.g., "BTC". */
-        CODE {
-            @Override void apply(DecimalFormat decimalFormat) {
+        CODE
+        {
+            @Override void apply(DecimalFormat decimalFormat)
+            {
                 /* To switch to using codes from symbols, we replace each single occurrence of the
                  * currency-sign character with two such characters in a row.
                  * We also insert a space character between every occurence of this character and an
                  * adjacent numerical digit or negative sign (that is, between the currency-sign and
                  * the signed-number). */
-                decimalFormat.applyPattern(
-                    negify(decimalFormat.toPattern()).replaceAll("¤","¤¤").
-                                                      replaceAll("([#0.,E-])¤¤","$1 ¤¤").
-                                                      replaceAll("¤¤([0#.,E-])","¤¤ $1")
-                );
+                decimalFormat.applyPattern(negify(decimalFormat.toPattern()).replaceAll("¤", "¤¤").replaceAll("([#0.,E-])¤¤", "$1 ¤¤").replaceAll("¤¤([0#.,E-])", "¤¤ $1"));
             }
         },
 
         /** Constant for the formatting style that uses a currency symbol, e.g., "฿". */
-        SYMBOL {
-            @Override void apply(DecimalFormat decimalFormat) {
+        SYMBOL
+        {
+            @Override void apply(DecimalFormat decimalFormat)
+            {
                 /* To make certain we are using symbols rather than codes, we replace
                  * each double occurrence of the currency sign character with a single. */
-                decimalFormat.applyPattern(negify(decimalFormat.toPattern()).replaceAll("¤¤","¤"));
+                decimalFormat.applyPattern(negify(decimalFormat.toPattern()).replaceAll("¤¤", "¤"));
             }
         };
 
@@ -92,7 +92,8 @@ public final class BtcAutoFormat extends BtcFormat {
     }
 
     /** Constructor */
-    protected BtcAutoFormat(Locale locale, Style style, int fractionPlaces) {
+    protected BtcAutoFormat(Locale locale, Style style, int fractionPlaces)
+    {
         super((DecimalFormat)NumberFormat.getCurrencyInstance(locale), fractionPlaces, ImmutableList.<Integer>of());
         style.apply(this.numberFormat);
     }
@@ -109,7 +110,8 @@ public final class BtcAutoFormat extends BtcFormat {
      * back to its proper state, otherwise immutability, equals() and hashCode() fail.
      */
     @Override
-    protected int scale(BigInteger satoshis, int fractionPlaces) {
+    protected int scale(BigInteger satoshis, int fractionPlaces)
+    {
         /* The algorithm is as follows.  TODO: is there a way to optimize step 4?
            1. Can we use coin denomination w/ no rounding?  If yes, do it.
            2. Else, can we use millicoin denomination w/ no rounding? If yes, do it.
@@ -125,17 +127,26 @@ public final class BtcAutoFormat extends BtcFormat {
         int places;
         int coinOffset = Math.max(SMALLEST_UNIT_EXPONENT - fractionPlaces, 0);
         BigDecimal inCoins = new BigDecimal(satoshis).movePointLeft(coinOffset);
-        if (inCoins.remainder(ONE).compareTo(ZERO) == 0) {
+        if (inCoins.remainder(ONE).compareTo(ZERO) == 0)
+        {
             places = COIN_SCALE;
-        } else {
+        }
+        else
+        {
             BigDecimal inMillis = inCoins.movePointRight(MILLICOIN_SCALE);
-            if (inMillis.remainder(ONE).compareTo(ZERO) == 0) {
+            if (inMillis.remainder(ONE).compareTo(ZERO) == 0)
+            {
                 places = MILLICOIN_SCALE;
-            } else {
+            }
+            else
+            {
                 BigDecimal inMicros = inCoins.movePointRight(MICROCOIN_SCALE);
-                if (inMicros.remainder(ONE).compareTo(ZERO) == 0) {
+                if (inMicros.remainder(ONE).compareTo(ZERO) == 0)
+                {
                     places = MICROCOIN_SCALE;
-                } else {
+                }
+                else
+                {
                     // no way to avoid rounding: so what denomination gives smallest error?
                     BigDecimal a = inCoins.subtract(inCoins.setScale(0, HALF_UP)).
                                    movePointRight(coinOffset).abs();
@@ -169,9 +180,12 @@ public final class BtcAutoFormat extends BtcFormat {
     /** Return true if the other instance is equivalent to this one.
       * Formatters for different locales will never be equal, even
       * if they behave identically. */
-    @Override public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BtcAutoFormat)) return false;
+    @Override public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+        if (!(o instanceof BtcAutoFormat))
+            return false;
         return super.equals(o);
     }
 
@@ -181,5 +195,8 @@ public final class BtcAutoFormat extends BtcFormat {
      * pattern and the number of fractional decimal places.
      */
     @Override
-    public String toString() { return "Auto-format " + pattern(); }
+    public String toString()
+    {
+        return "Auto-format " + pattern();
+    }
 }

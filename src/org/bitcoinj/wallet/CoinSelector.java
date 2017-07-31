@@ -11,7 +11,8 @@ import java.util.List;
  * may return a {@link CoinSelection} that has a valueGathered lower than the requested target, if there's not
  * enough money in the wallet.
  */
-public interface CoinSelector {
+public interface CoinSelector
+{
     /**
      * Creates a CoinSelection that tries to meet the target amount of value. The candidates list is given to
      * this call and can be edited freely. See the docs for CoinSelection to learn more, or look a the implementation

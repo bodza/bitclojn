@@ -1,6 +1,12 @@
 package org.bitcoinj.crypto;
 
-import org.bitcoinj.core.ECKey;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Nonnull;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -8,27 +14,25 @@ import org.spongycastle.crypto.digests.SHA512Digest;
 import org.spongycastle.crypto.macs.HMac;
 import org.spongycastle.crypto.params.KeyParameter;
 
-import javax.annotation.Nonnull;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import org.bitcoinj.core.ECKey;
 
 /**
  * Static utilities used in BIP 32 Hierarchical Deterministic Wallets (HDW).
  */
-public final class HDUtils {
+public final class HDUtils
+{
     private static final Joiner PATH_JOINER = Joiner.on("/");
 
-    static HMac createHmacSha512Digest(byte[] key) {
+    static HMac createHmacSha512Digest(byte[] key)
+    {
         SHA512Digest digest = new SHA512Digest();
         HMac hMac = new HMac(digest);
         hMac.init(new KeyParameter(key));
         return hMac;
     }
 
-    static byte[] hmacSha512(HMac hmacSha512, byte[] input) {
+    static byte[] hmacSha512(HMac hmacSha512, byte[] input)
+    {
         hmacSha512.reset();
         hmacSha512.update(input, 0, input.length);
         byte[] out = new byte[64];
@@ -36,53 +40,64 @@ public final class HDUtils {
         return out;
     }
 
-    public static byte[] hmacSha512(byte[] key, byte[] data) {
+    public static byte[] hmacSha512(byte[] key, byte[] data)
+    {
         return hmacSha512(createHmacSha512Digest(key), data);
     }
 
-    static byte[] toCompressed(byte[] uncompressedPoint) {
+    static byte[] toCompressed(byte[] uncompressedPoint)
+    {
         return ECKey.CURVE.getCurve().decodePoint(uncompressedPoint).getEncoded(true);
     }
 
-    static byte[] longTo4ByteArray(long n) {
+    static byte[] longTo4ByteArray(long n)
+    {
         byte[] bytes = Arrays.copyOfRange(ByteBuffer.allocate(8).putLong(n).array(), 4, 8);
-        assert bytes.length == 4 : bytes.length;
+        assert (bytes.length == 4) : bytes.length;
         return bytes;
     }
 
-    /** Append a derivation level to an existing path */
-    public static ImmutableList<ChildNumber> append(List<ChildNumber> path, ChildNumber childNumber) {
+    /** Append a derivation level to an existing path. */
+    public static ImmutableList<ChildNumber> append(List<ChildNumber> path, ChildNumber childNumber)
+    {
         return ImmutableList.<ChildNumber>builder().addAll(path).add(childNumber).build();
     }
 
-    /** Concatenate two derivation paths */
-    public static ImmutableList<ChildNumber> concat(List<ChildNumber> path, List<ChildNumber> path2) {
+    /** Concatenate two derivation paths. */
+    public static ImmutableList<ChildNumber> concat(List<ChildNumber> path, List<ChildNumber> path2)
+    {
         return ImmutableList.<ChildNumber>builder().addAll(path).addAll(path2).build();
     }
 
-    /** Convert to a string path, starting with "M/" */
-    public static String formatPath(List<ChildNumber> path) {
+    /** Convert to a string path, starting with "M/". */
+    public static String formatPath(List<ChildNumber> path)
+    {
         return PATH_JOINER.join(Iterables.concat(Collections.singleton("M"), path));
     }
 
     /**
-     * The path is a human-friendly representation of the deterministic path. For example:
+     * The path is a human-friendly representation of the deterministic path.  For example:
      *
      * "44H / 0H / 0H / 1 / 1"
      *
-     * Where a letter "H" means hardened key. Spaces are ignored.
+     * Where a letter "H" means hardened key.  Spaces are ignored.
      */
-    public static List<ChildNumber> parsePath(@Nonnull String path) {
+    public static List<ChildNumber> parsePath(@Nonnull String path)
+    {
         String[] parsedNodes = path.replace("M", "").split("/");
         List<ChildNumber> nodes = new ArrayList<>();
 
-        for (String n : parsedNodes) {
+        for (String n : parsedNodes)
+        {
             n = n.replaceAll(" ", "");
-            if (n.length() == 0) continue;
-            boolean isHard = n.endsWith("H");
-            if (isHard) n = n.substring(0, n.length() - 1);
-            int nodeNumber = Integer.parseInt(n);
-            nodes.add(new ChildNumber(nodeNumber, isHard));
+            if (n.length() != 0)
+            {
+                boolean isHard = n.endsWith("H");
+                if (isHard)
+                    n = n.substring(0, n.length() - 1);
+                int nodeNumber = Integer.parseInt(n);
+                nodes.add(new ChildNumber(nodeNumber, isHard));
+            }
         }
 
         return nodes;

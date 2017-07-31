@@ -12,13 +12,15 @@ package org.bitcoinj.uri;
  * @since 0.3.0
  *
  */
-public class RequiredFieldValidationException extends BitcoinURIParseException {
-
-    public RequiredFieldValidationException(String s) {
+public class RequiredFieldValidationException extends BitcoinURIParseException
+{
+    public RequiredFieldValidationException(String s)
+    {
         super(s);
     }
 
-    public RequiredFieldValidationException(String s, Throwable throwable) {
+    public RequiredFieldValidationException(String s, Throwable throwable)
+    {
         super(s, throwable);
     }
 }

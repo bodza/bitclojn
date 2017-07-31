@@ -1,23 +1,22 @@
 package org.bitcoinj.core;
 
-import org.bitcoinj.script.*;
-import com.google.common.base.Objects;
-
 import java.io.*;
 import java.math.*;
 import java.util.Locale;
 
-// TODO: Fix this class: should not talk about addresses, height should be optional/support mempool height etc
+import com.google.common.base.Objects;
+
+import org.bitcoinj.script.*;
+
+// TODO: Fix this class: should not talk about addresses, height should be optional/support mempool height etc.
 
 /**
  * A UTXO message contains the information necessary to check a spending transaction.
  * It avoids having to store the entire parentTransaction just to get the hash and index.
  * Useful when working with free standing outputs.
  */
-public class UTXO implements Serializable {
-
-    private static final long serialVersionUID = 4736241649298988166L;
-
+public class UTXO implements Serializable
+{
     private Coin value;
     private Script script;
     private Sha256Hash hash;
@@ -35,12 +34,8 @@ public class UTXO implements Serializable {
      * @param height   The height this output was created in.
      * @param coinbase The coinbase flag.
      */
-    public UTXO(Sha256Hash hash,
-                long index,
-                Coin value,
-                int height,
-                boolean coinbase,
-                Script script) {
+    public UTXO(Sha256Hash hash, long index, Coin value, int height, boolean coinbase, Script script)
+    {
         this.hash = hash;
         this.index = index;
         this.value = value;
@@ -60,135 +55,154 @@ public class UTXO implements Serializable {
      * @param coinbase The coinbase flag.
      * @param address  The address.
      */
-    public UTXO(Sha256Hash hash,
-                long index,
-                Coin value,
-                int height,
-                boolean coinbase,
-                Script script,
-                String address) {
+    public UTXO(Sha256Hash hash, long index, Coin value, int height, boolean coinbase, Script script, String address)
+    {
         this(hash, index, value, height, coinbase, script);
         this.address = address;
     }
 
-    public UTXO(InputStream in) throws IOException {
+    public UTXO(InputStream in)
+        throws IOException
+    {
         deserializeFromStream(in);
     }
 
     /** The value which this Transaction output holds. */
-    public Coin getValue() {
+    public Coin getValue()
+    {
         return value;
     }
 
     /** The Script object which you can use to get address, script bytes or script type. */
-    public Script getScript() {
+    public Script getScript()
+    {
         return script;
     }
 
     /** The hash of the transaction which holds this output. */
-    public Sha256Hash getHash() {
+    public Sha256Hash getHash()
+    {
         return hash;
     }
 
     /** The index of this output in the transaction which holds it. */
-    public long getIndex() {
+    public long getIndex()
+    {
         return index;
     }
 
     /** Gets the height of the block that created this output. */
-    public int getHeight() {
+    public int getHeight()
+    {
         return height;
     }
 
     /** Gets the flag of whether this was created by a coinbase tx. */
-    public boolean isCoinbase() {
+    public boolean isCoinbase()
+    {
         return coinbase;
     }
 
-    /** The address of this output, can be the empty string if none was provided at construction time or was deserialized */
-    public String getAddress() {
+    /** The address of this output, can be the empty string if none was provided at construction time or was deserialized. */
+    public String getAddress()
+    {
         return address;
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return String.format(Locale.US, "Stored TxOut of %s (%s:%d)", value.toFriendlyString(), hash, index);
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return Objects.hashCode(getIndex(), getHash());
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UTXO other = (UTXO) o;
-        return getIndex() == other.getIndex() && getHash().equals(other.getHash());
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        UTXO other = (UTXO)o;
+        return (getIndex() == other.getIndex() && getHash().equals(other.getHash()));
     }
 
-    public void serializeToStream(OutputStream bos) throws IOException {
-        Utils.uint64ToByteStreamLE(BigInteger.valueOf(value.value), bos);
+    private static final void write4x8le(OutputStream os, int n)
+        throws IOException
+    {
+        os.write(0xff & n);
+        os.write(0xff & (n >> 8));
+        os.write(0xff & (n >> 16));
+        os.write(0xff & (n >> 24));
+    }
+
+    public void serializeToStream(OutputStream os)
+        throws IOException
+    {
+        Utils.uint64ToByteStreamLE(BigInteger.valueOf(value.value), os);
 
         byte[] scriptBytes = script.getProgram();
-        bos.write(0xFF & scriptBytes.length);
-        bos.write(0xFF & scriptBytes.length >> 8);
-        bos.write(0xFF & (scriptBytes.length >> 16));
-        bos.write(0xFF & (scriptBytes.length >> 24));
-        bos.write(scriptBytes);
+        write4x8le(os, scriptBytes.length);
+        os.write(scriptBytes);
 
-        bos.write(hash.getBytes());
-        Utils.uint32ToByteStreamLE(index, bos);
+        os.write(hash.getBytes());
+        Utils.uint32ToByteStreamLE(index, os);
 
-        bos.write(0xFF & (height));
-        bos.write(0xFF & (height >> 8));
-        bos.write(0xFF & (height >> 16));
-        bos.write(0xFF & (height >> 24));
-
-        bos.write(new byte[] { (byte)(coinbase ? 1 : 0) });
+        write4x8le(os, height);
+        os.write(new byte[] { (byte)(coinbase ? 1 : 0) });
     }
 
-    public void deserializeFromStream(InputStream in) throws IOException {
+    private static final int read4x8le(InputStream is)
+        throws IOException
+    {
+        return (is.read() & 0xff) | ((is.read() & 0xff) << 8) | ((is.read() & 0xff) << 16) | ((is.read() & 0xff) << 24);
+    }
+
+    public void deserializeFromStream(InputStream is)
+        throws IOException
+    {
         byte[] valueBytes = new byte[8];
-        if (in.read(valueBytes, 0, 8) != 8)
+        if (is.read(valueBytes, 0, 8) != 8)
             throw new EOFException();
         value = Coin.valueOf(Utils.readInt64(valueBytes, 0));
 
-        int scriptBytesLength = ((in.read() & 0xFF)) |
-                ((in.read() & 0xFF) << 8) |
-                ((in.read() & 0xFF) << 16) |
-                ((in.read() & 0xFF) << 24);
+        int scriptBytesLength = read4x8le(is);
         byte[] scriptBytes = new byte[scriptBytesLength];
-        if (in.read(scriptBytes) != scriptBytesLength)
+        if (is.read(scriptBytes) != scriptBytesLength)
             throw new EOFException();
         script = new Script(scriptBytes);
 
         byte[] hashBytes = new byte[32];
-        if (in.read(hashBytes) != 32)
+        if (is.read(hashBytes) != 32)
             throw new EOFException();
         hash = Sha256Hash.wrap(hashBytes);
 
         byte[] indexBytes = new byte[4];
-        if (in.read(indexBytes) != 4)
+        if (is.read(indexBytes) != 4)
             throw new EOFException();
         index = Utils.readUint32(indexBytes, 0);
 
-        height = ((in.read() & 0xFF)) |
-                ((in.read() & 0xFF) << 8) |
-                ((in.read() & 0xFF) << 16) |
-                ((in.read() & 0xFF) << 24);
+        height = read4x8le(is);
 
         byte[] coinbaseByte = new byte[1];
-        in.read(coinbaseByte);
-        coinbase = coinbaseByte[0] == 1;
+        is.read(coinbaseByte);
+        coinbase = (coinbaseByte[0] == 1);
     }
 
-    private void writeObject(ObjectOutputStream o) throws IOException {
+    private void writeObject(ObjectOutputStream o)
+        throws IOException
+    {
         serializeToStream(o);
     }
 
-    private void readObject(ObjectInputStream o) throws IOException, ClassNotFoundException {
+    private void readObject(ObjectInputStream o)
+        throws IOException, ClassNotFoundException
+    {
         deserializeFromStream(o);
     }
 }

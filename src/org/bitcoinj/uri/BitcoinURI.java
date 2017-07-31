@@ -60,7 +60,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @author Gary Rowe (BIP21 support)
  * @see <a href="https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki">BIP 0021</a>
  */
-public class BitcoinURI {
+public class BitcoinURI
+{
     // Not worth turning into an enum
     public static final String FIELD_MESSAGE = "message";
     public static final String FIELD_LABEL = "label";
@@ -90,7 +91,9 @@ public class BitcoinURI {
      * @param uri The raw URI data to be parsed (see class comments for accepted formats)
      * @throws BitcoinURIParseException if the URI is not syntactically or semantically valid.
      */
-    public BitcoinURI(String uri) throws BitcoinURIParseException {
+    public BitcoinURI(String uri)
+        throws BitcoinURIParseException
+    {
         this(null, uri);
     }
 
@@ -103,7 +106,9 @@ public class BitcoinURI {
      *
      * @throws BitcoinURIParseException If the input fails Bitcoin URI syntax and semantic checks.
      */
-    public BitcoinURI(@Nullable NetworkParameters params, String input) throws BitcoinURIParseException {
+    public BitcoinURI(@Nullable NetworkParameters params, String input)
+        throws BitcoinURIParseException
+    {
         checkNotNull(input);
 
         String scheme = null == params
@@ -112,9 +117,12 @@ public class BitcoinURI {
 
         // Attempt to form the URI (fail fast syntax checking to official standards).
         URI uri;
-        try {
+        try
+        {
             uri = new URI(input);
-        } catch (URISyntaxException e) {
+        }
+        catch (URISyntaxException e)
+        {
             throw new BitcoinURIParseException("Bad URI syntax", e);
         }
 
@@ -130,11 +138,16 @@ public class BitcoinURI {
         String blockchainInfoScheme = scheme + "://";
         String correctScheme = scheme + ":";
         String schemeSpecificPart;
-        if (input.startsWith(blockchainInfoScheme)) {
+        if (input.startsWith(blockchainInfoScheme))
+        {
             schemeSpecificPart = input.substring(blockchainInfoScheme.length());
-        } else if (input.startsWith(correctScheme)) {
+        }
+        else if (input.startsWith(correctScheme))
+        {
             schemeSpecificPart = input.substring(correctScheme.length());
-        } else {
+        }
+        else
+        {
             throw new BitcoinURIParseException("Unsupported URI scheme: " + uri.getScheme());
         }
 
@@ -145,10 +158,13 @@ public class BitcoinURI {
         String addressToken = addressSplitTokens[0];  // may be empty!
 
         String[] nameValuePairTokens;
-        if (addressSplitTokens.length == 1) {
+        if (addressSplitTokens.length == 1)
+        {
             // Only an address is specified - use an empty '<name>=<value>' token array.
             nameValuePairTokens = new String[] {};
-        } else {
+        }
+        else
+        {
             // Split into '<name>=<value>' tokens.
             nameValuePairTokens = addressSplitTokens[1].split("&");
         }
@@ -156,17 +172,22 @@ public class BitcoinURI {
         // Attempt to parse the rest of the URI parameters.
         parseParameters(params, addressToken, nameValuePairTokens);
 
-        if (!addressToken.isEmpty()) {
+        if (!addressToken.isEmpty())
+        {
             // Attempt to parse the addressToken as a Bitcoin address for this network
-            try {
+            try
+            {
                 Address address = Address.fromBase58(params, addressToken);
                 putWithValidation(FIELD_ADDRESS, address);
-            } catch (final AddressFormatException e) {
+            }
+            catch (final AddressFormatException e)
+            {
                 throw new BitcoinURIParseException("Bad address", e);
             }
         }
 
-        if (addressToken.isEmpty() && getPaymentRequestUrl() == null) {
+        if (addressToken.isEmpty() && getPaymentRequestUrl() == null)
+        {
             throw new BitcoinURIParseException("No address and no r= parameter found");
         }
     }
@@ -176,9 +197,12 @@ public class BitcoinURI {
      * @param nameValuePairTokens The tokens representing the name value pairs (assumed to be
      *                            separated by '=' e.g. 'amount=0.2')
      */
-    private void parseParameters(@Nullable NetworkParameters params, String addressToken, String[] nameValuePairTokens) throws BitcoinURIParseException {
+    private void parseParameters(@Nullable NetworkParameters params, String addressToken, String[] nameValuePairTokens)
+        throws BitcoinURIParseException
+    {
         // Attempt to decode the rest of the tokens into a parameter map.
-        for (String nameValuePairToken : nameValuePairTokens) {
+        for (String nameValuePairToken : nameValuePairTokens)
+        {
             final int sepIndex = nameValuePairToken.indexOf('=');
             if (sepIndex == -1)
                 throw new BitcoinURIParseException("Malformed Bitcoin URI - no separator in '" +
@@ -190,30 +214,44 @@ public class BitcoinURI {
             final String valueToken = nameValuePairToken.substring(sepIndex + 1);
 
             // Parse the amount.
-            if (FIELD_AMOUNT.equals(nameToken)) {
+            if (FIELD_AMOUNT.equals(nameToken))
+            {
                 // Decode the amount (contains an optional decimal component to 8dp).
-                try {
+                try
+                {
                     Coin amount = Coin.parseCoin(valueToken);
                     if (params != null && amount.isGreaterThan(params.getMaxMoney()))
                         throw new BitcoinURIParseException("Max number of coins exceeded");
                     if (amount.signum() < 0)
                         throw new ArithmeticException("Negative coins specified");
                     putWithValidation(FIELD_AMOUNT, amount);
-                } catch (IllegalArgumentException e) {
+                }
+                catch (IllegalArgumentException e)
+                {
                     throw new OptionalFieldValidationException(String.format(Locale.US, "'%s' is not a valid amount", valueToken), e);
-                } catch (ArithmeticException e) {
+                }
+                catch (ArithmeticException e)
+                {
                     throw new OptionalFieldValidationException(String.format(Locale.US, "'%s' has too many decimal places", valueToken), e);
                 }
-            } else {
-                if (nameToken.startsWith("req-")) {
+            }
+            else
+            {
+                if (nameToken.startsWith("req-"))
+                {
                     // A required parameter that we do not know about.
                     throw new RequiredFieldValidationException("'" + nameToken + "' is required but not known, this URI is not valid");
-                } else {
+                }
+                else
+                {
                     // Known fields and unknown parameters that are optional.
-                    try {
+                    try
+                    {
                         if (valueToken.length() > 0)
                             putWithValidation(nameToken, URLDecoder.decode(valueToken, "UTF-8"));
-                    } catch (UnsupportedEncodingException e) {
+                    }
+                    catch (UnsupportedEncodingException e)
+                    {
                         throw new RuntimeException(e); // can't happen
                     }
                 }
@@ -230,10 +268,15 @@ public class BitcoinURI {
      * @param key The key for the map
      * @param value The value to store
      */
-    private void putWithValidation(String key, Object value) throws BitcoinURIParseException {
-        if (parameterMap.containsKey(key)) {
+    private void putWithValidation(String key, Object value)
+        throws BitcoinURIParseException
+    {
+        if (parameterMap.containsKey(key))
+        {
             throw new BitcoinURIParseException(String.format(Locale.US, "'%s' is duplicated, URI is invalid", key));
-        } else {
+        }
+        else
+        {
             parameterMap.put(key, value);
         }
     }
@@ -244,7 +287,8 @@ public class BitcoinURI {
      * it.
      */
     @Nullable
-    public Address getAddress() {
+    public Address getAddress()
+    {
         return (Address) parameterMap.get(FIELD_ADDRESS);
     }
 
@@ -252,21 +296,24 @@ public class BitcoinURI {
      * @return The amount name encoded using a pure integer value based at
      *         10,000,000 units is 1 BTC. May be null if no amount is specified
      */
-    public Coin getAmount() {
+    public Coin getAmount()
+    {
         return (Coin) parameterMap.get(FIELD_AMOUNT);
     }
 
     /**
      * @return The label from the URI.
      */
-    public String getLabel() {
+    public String getLabel()
+    {
         return (String) parameterMap.get(FIELD_LABEL);
     }
 
     /**
      * @return The message from the URI.
      */
-    public String getMessage() {
+    public String getMessage()
+    {
         return (String) parameterMap.get(FIELD_MESSAGE);
     }
 
@@ -274,7 +321,8 @@ public class BitcoinURI {
      * @return The URL where a payment request (as specified in BIP 70) may
      *         be fetched.
      */
-    public final String getPaymentRequestUrl() {
+    public final String getPaymentRequestUrl()
+    {
         return (String) parameterMap.get(FIELD_PAYMENT_REQUEST_URL);
     }
 
@@ -282,9 +330,11 @@ public class BitcoinURI {
      * Returns the URLs where a payment request (as specified in BIP 70) may be fetched. The first URL is the main URL,
      * all subsequent URLs are fallbacks.
      */
-    public List<String> getPaymentRequestUrls() {
+    public List<String> getPaymentRequestUrls()
+    {
         ArrayList<String> urls = new ArrayList<>();
-        while (true) {
+        while (true)
+        {
             int i = urls.size();
             String paramName = FIELD_PAYMENT_REQUEST_URL + (i > 0 ? Integer.toString(i) : "");
             String url = (String) parameterMap.get(paramName);
@@ -300,18 +350,24 @@ public class BitcoinURI {
      * @param name The name of the parameter
      * @return The parameter value, or null if not present
      */
-    public Object getParameterByName(String name) {
+    public Object getParameterByName(String name)
+    {
         return parameterMap.get(name);
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         StringBuilder builder = new StringBuilder("BitcoinURI[");
         boolean first = true;
-        for (Map.Entry<String, Object> entry : parameterMap.entrySet()) {
-            if (first) {
+        for (Map.Entry<String, Object> entry : parameterMap.entrySet())
+        {
+            if (first)
+            {
                 first = false;
-            } else {
+            }
+            else
+            {
                 builder.append(",");
             }
             builder.append("'").append(entry.getKey()).append("'=").append("'").append(entry.getValue()).append("'");
@@ -329,8 +385,8 @@ public class BitcoinURI {
      * @param message A message
      * @return A String containing the Bitcoin URI
      */
-    public static String convertToBitcoinURI(Address address, Coin amount,
-                                             String label, String message) {
+    public static String convertToBitcoinURI(Address address, Coin amount, String label, String message)
+    {
         return convertToBitcoinURI(address.getParameters(), address.toString(), amount, label, message);
     }
 
@@ -345,12 +401,12 @@ public class BitcoinURI {
      * @param message A message
      * @return A String containing the Bitcoin URI
      */
-    public static String convertToBitcoinURI(NetworkParameters params,
-                                             String address, @Nullable Coin amount,
-                                             @Nullable String label, @Nullable String message) {
+    public static String convertToBitcoinURI(NetworkParameters params, String address, @Nullable Coin amount, @Nullable String label, @Nullable String message)
+    {
         checkNotNull(params);
         checkNotNull(address);
-        if (amount != null && amount.signum() < 0) {
+        if (amount != null && amount.signum() < 0)
+        {
             throw new IllegalArgumentException("Coin must be positive");
         }
 
@@ -360,26 +416,35 @@ public class BitcoinURI {
 
         boolean questionMarkHasBeenOutput = false;
 
-        if (amount != null) {
+        if (amount != null)
+        {
             builder.append(QUESTION_MARK_SEPARATOR).append(FIELD_AMOUNT).append("=");
             builder.append(amount.toPlainString());
             questionMarkHasBeenOutput = true;
         }
 
-        if (label != null && !"".equals(label)) {
-            if (questionMarkHasBeenOutput) {
+        if (label != null && !"".equals(label))
+        {
+            if (questionMarkHasBeenOutput)
+            {
                 builder.append(AMPERSAND_SEPARATOR);
-            } else {
+            }
+            else
+            {
                 builder.append(QUESTION_MARK_SEPARATOR);
                 questionMarkHasBeenOutput = true;
             }
             builder.append(FIELD_LABEL).append("=").append(encodeURLString(label));
         }
 
-        if (message != null && !"".equals(message)) {
-            if (questionMarkHasBeenOutput) {
+        if (message != null && !"".equals(message))
+        {
+            if (questionMarkHasBeenOutput)
+            {
                 builder.append(AMPERSAND_SEPARATOR);
-            } else {
+            }
+            else
+            {
                 builder.append(QUESTION_MARK_SEPARATOR);
             }
             builder.append(FIELD_MESSAGE).append("=").append(encodeURLString(message));
@@ -393,10 +458,14 @@ public class BitcoinURI {
      *
      * @param stringToEncode The string to URL encode
      */
-    static String encodeURLString(String stringToEncode) {
-        try {
+    static String encodeURLString(String stringToEncode)
+    {
+        try
+        {
             return java.net.URLEncoder.encode(stringToEncode, "UTF-8").replace("+", ENCODED_SPACE_CHARACTER);
-        } catch (UnsupportedEncodingException e) {
+        }
+        catch (UnsupportedEncodingException e)
+        {
             throw new RuntimeException(e); // can't happen
         }
     }

@@ -16,7 +16,8 @@ import java.util.List;
  * H2 automatically frees some space at shutdown, so close()ing the database
  * decreases the space usage somewhat (to only around 1.3G).
  */
-public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
+public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore
+{
     private static final String H2_DUPLICATE_KEY_ERROR_CODE = "23505";
     private static final String DATABASE_DRIVER_CLASS = "org.h2.Driver";
     private static final String DATABASE_CONNECTION_URL_PREFIX = "jdbc:h2:";
@@ -70,8 +71,9 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
      * @param fullStoreDepth The number of blocks of history stored in full (something like 1000 is pretty safe)
      * @throws BlockStoreException if the database fails to open for any reason
      */
-    public H2FullPrunedBlockStore(NetworkParameters params, String dbName, String username, String password,
-            int fullStoreDepth) throws BlockStoreException {
+    public H2FullPrunedBlockStore(NetworkParameters params, String dbName, String username, String password, int fullStoreDepth)
+        throws BlockStoreException
+    {
         super(params, DATABASE_CONNECTION_URL_PREFIX + dbName + ";create=true;LOCK_TIMEOUT=60000;DB_CLOSE_ON_EXIT=FALSE", fullStoreDepth, username, password, null);
     }
 
@@ -83,7 +85,8 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
      * @throws BlockStoreException if the database fails to open for any reason
      */
     public H2FullPrunedBlockStore(NetworkParameters params, String dbName, int fullStoreDepth)
-            throws BlockStoreException {
+        throws BlockStoreException
+    {
         this(params, dbName, null, null, fullStoreDepth);
     }
 
@@ -98,24 +101,30 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
      * @throws BlockStoreException if the database fails to open for any reason
      */
     public H2FullPrunedBlockStore(NetworkParameters params, String dbName, int fullStoreDepth, int cacheSize)
-            throws BlockStoreException {
+        throws BlockStoreException
+    {
         this(params, dbName, fullStoreDepth);
-        try {
+        try
+        {
             Statement s = conn.get().createStatement();
             s.executeUpdate("SET CACHE_SIZE " + cacheSize);
             s.close();
-        } catch (SQLException e) {
+        }
+        catch (SQLException e)
+        {
             throw new BlockStoreException(e);
         }
     }
 
     @Override
-    protected String getDuplicateKeyErrorCode() {
+    protected String getDuplicateKeyErrorCode()
+    {
         return H2_DUPLICATE_KEY_ERROR_CODE;
     }
 
     @Override
-    protected List<String> getCreateTablesSQL() {
+    protected List<String> getCreateTablesSQL()
+    {
         List<String> sqlStatements = new ArrayList<>();
         sqlStatements.add(CREATE_SETTINGS_TABLE);
         sqlStatements.add(CREATE_HEADERS_TABLE);
@@ -125,7 +134,8 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
     }
 
     @Override
-    protected List<String> getCreateIndexesSQL() {
+    protected List<String> getCreateIndexesSQL()
+    {
         List<String> sqlStatements = new ArrayList<>();
         sqlStatements.add(CREATE_UNDOABLE_TABLE_INDEX);
         sqlStatements.add(CREATE_OUTPUTS_ADDRESS_MULTI_INDEX);
@@ -136,13 +146,15 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
     }
 
     @Override
-    protected List<String> getCreateSchemeSQL() {
+    protected List<String> getCreateSchemeSQL()
+    {
         // do nothing
         return Collections.emptyList();
     }
 
     @Override
-    protected String getDatabaseDriverClass() {
+    protected String getDatabaseDriverClass()
+    {
         return DATABASE_DRIVER_CLASS;
     }
 }

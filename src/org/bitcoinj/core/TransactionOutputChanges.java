@@ -7,55 +7,60 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * <p>TransactionOutputChanges represents a delta to the set of unspent outputs. It used as a return value for
- * {@link AbstractBlockChain#connectTransactions(int, Block)}. It contains the full list of transaction outputs created
- * and spent in a block. It DOES contain outputs created that were spent later in the block, as those are needed for
+ * <p>TransactionOutputChanges represents a delta to the set of unspent outputs.  It used as a return value for
+ * {@link AbstractBlockChain#connectTransactions(int, Block)}.  It contains the full list of transaction outputs created
+ * and spent in a block.  It DOES contain outputs created that were spent later in the block, as those are needed for
  * BIP30 (no duplicate txid creation if the previous one was not fully spent prior to this block) verification.</p>
  */
-public class TransactionOutputChanges {
+public class TransactionOutputChanges
+{
     public final List<UTXO> txOutsCreated;
     public final List<UTXO> txOutsSpent;
 
-    public TransactionOutputChanges(List<UTXO> txOutsCreated, List<UTXO> txOutsSpent) {
+    public TransactionOutputChanges(List<UTXO> txOutsCreated, List<UTXO> txOutsSpent)
+    {
         this.txOutsCreated = txOutsCreated;
         this.txOutsSpent = txOutsSpent;
     }
 
-    public TransactionOutputChanges(InputStream in) throws IOException {
-        int numOutsCreated = (in.read() & 0xFF) |
-                             ((in.read() & 0xFF) << 8) |
-                             ((in.read() & 0xFF) << 16) |
-                             ((in.read() & 0xFF) << 24);
-        txOutsCreated = new LinkedList<>();
-        for (int i = 0; i < numOutsCreated; i++)
-            txOutsCreated.add(new UTXO(in));
-
-        int numOutsSpent = (in.read() & 0xFF) |
-                           ((in.read() & 0xFF) << 8) |
-                           ((in.read() & 0xFF) << 16) |
-                           ((in.read() & 0xFF) << 24);
-        txOutsSpent = new LinkedList<>();
-        for (int i = 0; i < numOutsSpent; i++)
-            txOutsSpent.add(new UTXO(in));
+    private static final int read4x8le(InputStream is)
+        throws IOException
+    {
+        return (is.read() & 0xff) | ((is.read() & 0xff) << 8) | ((is.read() & 0xff) << 16) | ((is.read() & 0xff) << 24);
     }
 
-    public void serializeToStream(OutputStream bos) throws IOException {
-        int numOutsCreated = txOutsCreated.size();
-        bos.write(0xFF & numOutsCreated);
-        bos.write(0xFF & (numOutsCreated >> 8));
-        bos.write(0xFF & (numOutsCreated >> 16));
-        bos.write(0xFF & (numOutsCreated >> 24));
-        for (UTXO output : txOutsCreated) {
-            output.serializeToStream(bos);
-        }
+    public TransactionOutputChanges(InputStream is)
+        throws IOException
+    {
+        int nCreated = read4x8le(is);
+        txOutsCreated = new LinkedList<>();
+        for (int i = 0; i < nCreated; i++)
+            txOutsCreated.add(new UTXO(is));
 
-        int numOutsSpent = txOutsSpent.size();
-        bos.write(0xFF & numOutsSpent);
-        bos.write(0xFF & (numOutsSpent >> 8));
-        bos.write(0xFF & (numOutsSpent >> 16));
-        bos.write(0xFF & (numOutsSpent >> 24));
-        for (UTXO output : txOutsSpent) {
-            output.serializeToStream(bos);
-        }
+        int nSpent = read4x8le(is);
+        txOutsSpent = new LinkedList<>();
+        for (int i = 0; i < nSpent; i++)
+            txOutsSpent.add(new UTXO(is));
+    }
+
+    private static final void write4x8le(OutputStream os, int n)
+        throws IOException
+    {
+        os.write(0xff & n);
+        os.write(0xff & (n >> 8));
+        os.write(0xff & (n >> 16));
+        os.write(0xff & (n >> 24));
+    }
+
+    public void serializeToStream(OutputStream os)
+        throws IOException
+    {
+        write4x8le(os, txOutsCreated.size());
+        for (UTXO output : txOutsCreated)
+            output.serializeToStream(os);
+
+        write4x8le(os, txOutsSpent.size());
+        for (UTXO output : txOutsSpent)
+            output.serializeToStream(os);
     }
 }

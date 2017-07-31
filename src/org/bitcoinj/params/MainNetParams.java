@@ -10,17 +10,18 @@ import static com.google.common.base.Preconditions.*;
 /**
  * Parameters for the main production network on which people trade goods and services.
  */
-public class MainNetParams extends AbstractBitcoinNetParams {
+public class MainNetParams extends AbstractBitcoinNetParams
+{
     public static final int MAINNET_MAJORITY_WINDOW = 1000;
     public static final int MAINNET_MAJORITY_REJECT_BLOCK_OUTDATED = 950;
     public static final int MAINNET_MAJORITY_ENFORCE_BLOCK_UPGRADE = 750;
 
-    public MainNetParams() {
+    public MainNetParams()
+    {
         super();
         interval = INTERVAL;
         targetTimespan = TARGET_TIMESPAN;
         maxTarget = Utils.decodeCompactBits(0x1d00ffffL);
-        dumpedPrivateKeyHeader = 128;
         addressHeader = 0;
         p2shHeader = 5;
         acceptableAddressCodes = new int[] { addressHeader, p2shHeader };
@@ -40,8 +41,7 @@ public class MainNetParams extends AbstractBitcoinNetParams {
         subsidyDecreaseBlockCount = 210000;
         spendableCoinbaseDepth = 100;
         String genesisHash = genesisBlock.getHashAsString();
-        checkState(genesisHash.equals("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
-                genesisHash);
+        checkState(genesisHash.equals("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"), genesisHash);
 
         // This contains (at a minimum) the blocks which are not BIP30 compliant. BIP30 changed how duplicate
         // transactions are handled. Duplicated transactions could occur in the case where a coinbase had the same
@@ -53,7 +53,8 @@ public class MainNetParams extends AbstractBitcoinNetParams {
         checkpoints.put(91880, Sha256Hash.wrap("00000000000743f190a18c5577a3c2d2a1f610ae9601ac046a38084ccb7cd721"));
         checkpoints.put(200000, Sha256Hash.wrap("000000000000034a7dedef4a161fa058a2d67a173a90155f3a2fe6fc132e0ebf"));
 
-        dnsSeeds = new String[] {
+        dnsSeeds = new String[]
+        {
                 "seed.bitcoin.sipa.be",         // Pieter Wuille
                 "dnsseed.bluematt.me",          // Matt Corallo
                 "dnsseed.bitcoin.dashjr.org",   // Luke Dashjr
@@ -63,7 +64,8 @@ public class MainNetParams extends AbstractBitcoinNetParams {
                 "seed.bitcoin.jonasschnelli.ch" // Jonas Schnelli
         };
 
-        addrSeeds = new int[] {
+        addrSeeds = new int[]
+        {
                 0x1ddb1032, 0x6242ce40, 0x52d6a445, 0x2dd7a445, 0x8a53cd47, 0x73263750, 0xda23c257, 0xecd4ed57,
                 0x0a40ec59, 0x75dce160, 0x7df76791, 0x89370bad, 0xa4f214ad, 0x767700ae, 0x638b0418, 0x868a1018,
                 0xcd9f332e, 0x0129653e, 0xcc92dc3e, 0x96671640, 0x56487e40, 0x5b66f440, 0xb1d01f41, 0xf1dc6041,
@@ -108,15 +110,18 @@ public class MainNetParams extends AbstractBitcoinNetParams {
     }
 
     private static MainNetParams instance;
-    public static synchronized MainNetParams get() {
-        if (instance == null) {
+    public static synchronized MainNetParams get()
+    {
+        if (instance == null)
+        {
             instance = new MainNetParams();
         }
         return instance;
     }
 
     @Override
-    public String getPaymentProtocolId() {
+    public String getPaymentProtocolId()
+    {
         return PAYMENT_PROTOCOL_ID_MAINNET;
     }
 }

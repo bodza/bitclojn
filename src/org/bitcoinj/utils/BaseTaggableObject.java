@@ -13,13 +13,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * A simple implementation of {@link TaggableObject} that just uses a lazily created hashmap that is
  * synchronized on this objects Java monitor.
  */
-public class BaseTaggableObject implements TaggableObject {
+public class BaseTaggableObject implements TaggableObject
+{
     @Nullable protected Map<String, ByteString> tags;
 
     /** {@inheritDoc} */
     @Override
     @Nullable
-    public synchronized ByteString maybeGetTag(String tag) {
+    public synchronized ByteString maybeGetTag(String tag)
+    {
         if (tags == null)
             return null;
         else
@@ -28,7 +30,8 @@ public class BaseTaggableObject implements TaggableObject {
 
     /** {@inheritDoc} */
     @Override
-    public ByteString getTag(String tag) {
+    public ByteString getTag(String tag)
+    {
         ByteString b = maybeGetTag(tag);
         if (b == null)
             throw new IllegalArgumentException("Unknown tag " + tag);
@@ -37,7 +40,8 @@ public class BaseTaggableObject implements TaggableObject {
 
     /** {@inheritDoc} */
     @Override
-    public synchronized void setTag(String tag, ByteString value) {
+    public synchronized void setTag(String tag, ByteString value)
+    {
         checkNotNull(tag);
         checkNotNull(value);
         if (tags == null)
@@ -47,7 +51,8 @@ public class BaseTaggableObject implements TaggableObject {
 
     /** {@inheritDoc} */
     @Override
-    public synchronized Map<String, ByteString> getTags() {
+    public synchronized Map<String, ByteString> getTags()
+    {
         if (tags != null)
             return Maps.newHashMap(tags);
         else

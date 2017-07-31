@@ -3,8 +3,8 @@ package org.bitcoinj.script;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum ScriptError {
-
+public enum ScriptError
+{
     SCRIPT_ERR_OK("OK"),
     SCRIPT_ERR_UNKNOWN_ERROR("UNKNOWN_ERROR"),
     SCRIPT_ERR_EVAL_FALSE("EVAL_FALSE"),
@@ -66,22 +66,27 @@ public enum ScriptError {
     private final String mnemonic;
     private static final Map<String, ScriptError> mnemonicToScriptErrorMap;
 
-    private ScriptError(String name) {
+    private ScriptError(String name)
+    {
         this.mnemonic = name;
     }
 
-    static {
+    static
+    {
         mnemonicToScriptErrorMap = new HashMap<>();
-        for (ScriptError err : ScriptError.values()) {
+        for (ScriptError err : ScriptError.values())
+        {
             mnemonicToScriptErrorMap.put(err.getMnemonic(), err);
         }
     }
 
-    public String getMnemonic() {
+    public String getMnemonic()
+    {
         return mnemonic;
     }
 
-    public static ScriptError fromMnemonic(String name) {
+    public static ScriptError fromMnemonic(String name)
+    {
         ScriptError err = mnemonicToScriptErrorMap.get(name);
         if (err == null)
             throw new IllegalArgumentException(name + " is not a valid name");

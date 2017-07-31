@@ -17,8 +17,10 @@ import static com.google.common.base.Preconditions.checkState;
  * Parameters for the testnet, a separate public instance of Bitcoin that has relaxed rules suitable for development
  * and testing of applications and new Bitcoin versions.
  */
-public class TestNet3Params extends AbstractBitcoinNetParams {
-    public TestNet3Params() {
+public class TestNet3Params extends AbstractBitcoinNetParams
+{
+    public TestNet3Params()
+    {
         super();
         id = ID_TESTNET;
         // Genesis hash is 000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943
@@ -30,7 +32,6 @@ public class TestNet3Params extends AbstractBitcoinNetParams {
         addressHeader = 111;
         p2shHeader = 196;
         acceptableAddressCodes = new int[] { addressHeader, p2shHeader };
-        dumpedPrivateKeyHeader = 239;
         genesisBlock.setTime(1296688602L);
         genesisBlock.setDifficultyTarget(0x1d00ffffL);
         genesisBlock.setNonce(414098458);
@@ -40,7 +41,8 @@ public class TestNet3Params extends AbstractBitcoinNetParams {
         checkState(genesisHash.equals("000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"));
         alertSigningKey = Utils.HEX.decode("04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a");
 
-        dnsSeeds = new String[] {
+        dnsSeeds = new String[]
+        {
                 "testnet-seed.bitcoin.jonasschnelli.ch", // Jonas Schnelli
                 "testnet-seed.bluematt.me",              // Matt Corallo
                 "testnet-seed.bitcoin.petertodd.org",    // Peter Todd
@@ -56,15 +58,18 @@ public class TestNet3Params extends AbstractBitcoinNetParams {
     }
 
     private static TestNet3Params instance;
-    public static synchronized TestNet3Params get() {
-        if (instance == null) {
+    public static synchronized TestNet3Params get()
+    {
+        if (instance == null)
+        {
             instance = new TestNet3Params();
         }
         return instance;
     }
 
     @Override
-    public String getPaymentProtocolId() {
+    public String getPaymentProtocolId()
+    {
         return PAYMENT_PROTOCOL_ID_TESTNET;
     }
 
@@ -72,9 +77,11 @@ public class TestNet3Params extends AbstractBitcoinNetParams {
     private static final Date testnetDiffDate = new Date(1329264000000L);
 
     @Override
-    public void checkDifficultyTransitions(final StoredBlock storedPrev, final Block nextBlock,
-        final BlockStore blockStore) throws VerificationException, BlockStoreException {
-        if (!isDifficultyTransitionPoint(storedPrev.getHeight()) && nextBlock.getTime().after(testnetDiffDate)) {
+    public void checkDifficultyTransitions(final StoredBlock storedPrev, final Block nextBlock, final BlockStore blockStore)
+        throws VerificationException, BlockStoreException
+    {
+        if (!isDifficultyTransitionPoint(storedPrev.getHeight()) && nextBlock.getTime().after(testnetDiffDate))
+        {
             Block prev = storedPrev.getHeader();
 
             // After 15th February 2012 the rules on the testnet change to avoid people running up the difficulty
@@ -83,7 +90,8 @@ public class TestNet3Params extends AbstractBitcoinNetParams {
             final long timeDelta = nextBlock.getTimeSeconds() - prev.getTimeSeconds();
             // There is an integer underflow bug in bitcoin-qt that means mindiff blocks are accepted when time
             // goes backwards.
-            if (timeDelta >= 0 && timeDelta <= NetworkParameters.TARGET_SPACING * 2) {
+            if (timeDelta >= 0 && timeDelta <= NetworkParameters.TARGET_SPACING * 2)
+            {
                 // Walk backwards until we find a block that doesn't have the easiest proof of work, then check
                 // that difficulty is equal to that one.
                 StoredBlock cursor = storedPrev;
@@ -98,7 +106,9 @@ public class TestNet3Params extends AbstractBitcoinNetParams {
                         Long.toHexString(cursor.getHeader().getDifficultyTarget()) + " vs " +
                         Long.toHexString(nextBlock.getDifficultyTarget()));
             }
-        } else {
+        }
+        else
+        {
             super.checkDifficultyTransitions(storedPrev, nextBlock, blockStore);
         }
     }

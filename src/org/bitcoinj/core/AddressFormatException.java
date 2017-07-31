@@ -1,12 +1,14 @@
 package org.bitcoinj.core;
 
-@SuppressWarnings("serial")
-public class AddressFormatException extends IllegalArgumentException {
-    public AddressFormatException() {
+public class AddressFormatException extends IllegalArgumentException
+{
+    public AddressFormatException()
+    {
         super();
     }
 
-    public AddressFormatException(String message) {
+    public AddressFormatException(String message)
+    {
         super(message);
     }
 }

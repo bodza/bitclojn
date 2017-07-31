@@ -5,7 +5,8 @@ import org.bitcoinj.wallet.Wallet;
 /**
  * <p>Implementors are called when the wallet is reorganized.</p>
  */
-public interface WalletReorganizeEventListener {
+public interface WalletReorganizeEventListener
+{
     // TODO: Finish onReorganize to be more useful.
     /**
      * <p>This is called when a block is received that triggers a block chain re-organization.</p>

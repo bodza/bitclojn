@@ -9,7 +9,8 @@ import javax.annotation.Nullable;
 /**
  * An encryptable key chain is a key-chain that can be encrypted with a user-provided password or AES key.
  */
-public interface EncryptableKeyChain extends KeyChain {
+public interface EncryptableKeyChain extends KeyChain
+{
     /**
      * Takes the given password, which should be strong, derives a key from it and then invokes
      * {@link #toEncrypted(org.bitcoinj.crypto.KeyCrypter, org.spongycastle.crypto.params.KeyParameter)} with

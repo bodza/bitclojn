@@ -14,8 +14,10 @@ import java.util.List;
  *
  * <p>A factory interface is provided. The wallet will use this to analyze new pending transactions.</p>
  */
-public interface RiskAnalysis {
-    enum Result {
+public interface RiskAnalysis
+{
+    enum Result
+    {
         OK,
         NON_FINAL,
         NON_STANDARD
@@ -23,7 +25,8 @@ public interface RiskAnalysis {
 
     Result analyze();
 
-    interface Analyzer {
+    interface Analyzer
+    {
         RiskAnalysis create(Wallet wallet, Transaction tx, List<Transaction> dependencies);
     }
 }

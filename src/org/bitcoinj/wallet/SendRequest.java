@@ -28,7 +28,8 @@ import com.google.common.base.MoreObjects;
  * just simplify the most common use cases. You may wish to customize a SendRequest if you want to attach a fee or
  * modify the change address.
  */
-public class SendRequest {
+public class SendRequest
+{
     /**
      * <p>A transaction, probably incomplete, that describes the outline of what you want to do. This typically will
      * mean it has some outputs to the intended destinations, but no inputs or change address (and therefore no
@@ -145,7 +146,8 @@ public class SendRequest {
      * <p>Be very careful when value is smaller than {@link Transaction#MIN_NONDUST_OUTPUT} as the transaction will
      * likely be rejected by the network in this case.</p>
      */
-    public static SendRequest to(Address destination, Coin value) {
+    public static SendRequest to(Address destination, Coin value)
+    {
         SendRequest req = new SendRequest();
         final NetworkParameters parameters = destination.getParameters();
         checkNotNull(parameters, "Address is for an unknown network");
@@ -162,7 +164,8 @@ public class SendRequest {
      * rejected by the network. Note that using {@link SendRequest#to(Address, Coin)} will result
      * in a smaller output, and thus the ability to use a smaller output value without rejection.</p>
      */
-    public static SendRequest to(NetworkParameters params, ECKey destination, Coin value) {
+    public static SendRequest to(NetworkParameters params, ECKey destination, Coin value)
+    {
         SendRequest req = new SendRequest();
         req.tx = new Transaction(params);
         req.tx.addOutput(value, destination);
@@ -170,13 +173,15 @@ public class SendRequest {
     }
 
     /** Simply wraps a pre-built incomplete transaction provided by you. */
-    public static SendRequest forTx(Transaction tx) {
+    public static SendRequest forTx(Transaction tx)
+    {
         SendRequest req = new SendRequest();
         req.tx = tx;
         return req;
     }
 
-    public static SendRequest emptyWallet(Address destination) {
+    public static SendRequest emptyWallet(Address destination)
+    {
         SendRequest req = new SendRequest();
         final NetworkParameters parameters = destination.getParameters();
         checkNotNull(parameters, "Address is for an unknown network");
@@ -191,11 +196,13 @@ public class SendRequest {
      * completed, so you should directly proceed to signing and broadcasting/committing the transaction. CPFP is
      * currently only supported by a few miners, so use with care.
      */
-    public static SendRequest childPaysForParent(Wallet wallet, Transaction parentTransaction, Coin feeRaise) {
+    public static SendRequest childPaysForParent(Wallet wallet, Transaction parentTransaction, Coin feeRaise)
+    {
         TransactionOutput outputToSpend = null;
-        for (final TransactionOutput output : parentTransaction.getOutputs()) {
-            if (output.isMine(wallet) && output.isAvailableForSpending()
-                    && output.getValue().isGreaterThan(feeRaise)) {
+        for (final TransactionOutput output : parentTransaction.getOutputs())
+        {
+            if (output.isMine(wallet) && output.isAvailableForSpending() && output.getValue().isGreaterThan(feeRaise))
+            {
                 outputToSpend = output;
                 break;
             }
@@ -212,18 +219,21 @@ public class SendRequest {
         return req;
     }
 
-    public static SendRequest toCLTVPaymentChannel(NetworkParameters params, Date releaseTime, ECKey from, ECKey to, Coin value) {
+    public static SendRequest toCLTVPaymentChannel(NetworkParameters params, Date releaseTime, ECKey from, ECKey to, Coin value)
+    {
         long time = releaseTime.getTime() / 1000L;
         checkArgument(time >= Transaction.LOCKTIME_THRESHOLD, "Release time was too small");
         return toCLTVPaymentChannel(params, BigInteger.valueOf(time), from, to, value);
     }
 
-    public static SendRequest toCLTVPaymentChannel(NetworkParameters params, int releaseBlock, ECKey from, ECKey to, Coin value) {
+    public static SendRequest toCLTVPaymentChannel(NetworkParameters params, int releaseBlock, ECKey from, ECKey to, Coin value)
+    {
         checkArgument(0 <= releaseBlock && releaseBlock < Transaction.LOCKTIME_THRESHOLD, "Block number was too large");
         return toCLTVPaymentChannel(params, BigInteger.valueOf(releaseBlock), from, to, value);
     }
 
-    public static SendRequest toCLTVPaymentChannel(NetworkParameters params, BigInteger time, ECKey from, ECKey to, Coin value) {
+    public static SendRequest toCLTVPaymentChannel(NetworkParameters params, BigInteger time, ECKey from, ECKey to, Coin value)
+    {
         SendRequest req = new SendRequest();
         Script output = ScriptBuilder.createCLTVPaymentChannelOutput(time, from, to);
         req.tx = new Transaction(params);
@@ -232,7 +242,8 @@ public class SendRequest {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         // print only the user-settable fields
         MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper(this).omitNullValues();
         helper.add("emptyWallet", emptyWallet);

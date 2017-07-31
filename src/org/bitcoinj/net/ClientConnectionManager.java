@@ -12,7 +12,8 @@ import java.net.SocketAddress;
  * <p>When the service is {@link com.google.common.util.concurrent.Service#stop()}ed, all connections will be closed and
  * the appropriate connectionClosed() calls must be made.</p>
  */
-public interface ClientConnectionManager extends Service {
+public interface ClientConnectionManager extends Service
+{
     /**
      * Creates a new connection to the given address, with the given connection used to handle incoming data. Any errors
      * that occur during connection will be returned in the given future, including errors that can occur immediately.

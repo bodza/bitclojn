@@ -8,8 +8,8 @@ import org.bitcoinj.wallet.Wallet;
  * <p>Implementors are called when the contents of the wallet changes, for instance due to receiving/sending money
  * or a block chain re-organize. It may be convenient to derive from {@link AbstractWalletEventListener} instead.</p>
  */
-public interface WalletCoinsSentEventListener {
-
+public interface WalletCoinsSentEventListener
+{
     /**
      * This is called when a transaction is seen that sends coins <b>from</b> this wallet, either
      * because it was broadcast across the network or because a block was received. This may at first glance seem

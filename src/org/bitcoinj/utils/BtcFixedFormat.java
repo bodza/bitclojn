@@ -29,8 +29,8 @@ import java.util.List;
  * @see          org.bitcoinj.core.Coin
  */
 
-public final class BtcFixedFormat extends BtcFormat {
-
+public final class BtcFixedFormat extends BtcFormat
+{
     /** A constant specifying the use of as many optional decimal places in the fraction part
      * of a formatted number as are useful for expressing precision.  This value can be passed
      * as the final argument to a factory method or {@link #format(Object, int, int...)}.
@@ -54,14 +54,10 @@ public final class BtcFixedFormat extends BtcFormat {
     private final int scale;
 
     /** Constructor */
-    protected BtcFixedFormat(
-        Locale locale, int scale, int minDecimals, List<Integer> groups
-    ) {
+    protected BtcFixedFormat(Locale locale, int scale, int minDecimals, List<Integer> groups)
+    {
         super((DecimalFormat)NumberFormat.getInstance(locale), minDecimals, groups);
-        checkArgument(
-            scale <= SMALLEST_UNIT_EXPONENT,
-            "decimal cannot be shifted " + String.valueOf(scale) + " places"
-        );
+        checkArgument(scale <= SMALLEST_UNIT_EXPONENT, "decimal cannot be shifted " + String.valueOf(scale) + " places");
         this.scale = scale;
     }
 
@@ -72,7 +68,8 @@ public final class BtcFixedFormat extends BtcFormat {
      * the denomination is fixed regardless of the value being formatted.
      */
     @Override
-    protected int scale(BigInteger satoshis, int fractionPlaces) {
+    protected int scale(BigInteger satoshis, int fractionPlaces)
+    {
         prefixUnitsIndicator(numberFormat, scale);
         return scale;
     }
@@ -104,7 +101,8 @@ public final class BtcFixedFormat extends BtcFormat {
      *  possibly partially, if useful for expressing precision.  The actual size of each group
      *  is limited to, and may be reduced to the limit of, a precision of no smaller than
      *  satoshis. */
-    public int[] fractionPlaceGroups() {
+    public int[] fractionPlaceGroups()
+    {
         Object[] boxedArray = decimalGroups.toArray();
         int len = boxedArray.length + 1;
         int[] array = new int[len];
@@ -115,22 +113,28 @@ public final class BtcFixedFormat extends BtcFormat {
 
     /** Return true if the given object is equivalent to this one.  Formatters for different
       * locales will never be equal, even if they behave identically. */
-    @Override public boolean equals(Object o) {
-        if (o == this) return true;
-        if (!(o instanceof BtcFixedFormat)) return false;
+    @Override public boolean equals(Object o)
+    {
+        if (o == this)
+            return true;
+        if (!(o instanceof BtcFixedFormat))
+            return false;
         BtcFixedFormat other = (BtcFixedFormat)o;
-        return super.equals(other) && other.scale() == scale() && other.decimalGroups.equals(decimalGroups);
+        return (super.equals(other) && other.scale() == scale() && other.decimalGroups.equals(decimalGroups));
     }
 
     /** Return a hash code value for this instance.
      *  @see java.lang.Object#hashCode
      */
-    @Override public int hashCode() {
+    @Override public int hashCode()
+    {
         return Objects.hashCode(super.hashCode(), scale);
     }
 
-    private static String prefixLabel(int scale) {
-        switch (scale) {
+    private static String prefixLabel(int scale)
+    {
+        switch (scale)
+        {
         case COIN_SCALE:      return "Coin-";
         case 1:               return "Decicoin-";
         case 2:               return "Centicoin-";
@@ -150,7 +154,8 @@ public final class BtcFixedFormat extends BtcFormat {
      * formatting/parsing pattern and the fractional decimal place grouping.
      */
     @Override
-    public String toString() {
+    public String toString()
+    {
         return prefixLabel(scale) + "format " + pattern();
     }
 }

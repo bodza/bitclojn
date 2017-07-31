@@ -15,7 +15,8 @@ import org.bitcoinj.store.BlockStoreException;
  * @see org.bitcoinj.core.NetworkParameters#getMajorityEnforceBlockUpgrade()
  * @see org.bitcoinj.core.NetworkParameters#getMajorityRejectBlockOutdated()
  */
-public class VersionTally {
+public class VersionTally
+{
     /**
      * Cache of version numbers.
      */
@@ -33,19 +34,21 @@ public class VersionTally {
      */
     private int versionsStored = 0;
 
-    public VersionTally(final NetworkParameters params) {
+    public VersionTally(final NetworkParameters params)
+    {
         versionWindow = new long[params.getMajorityWindow()];
     }
 
     /**
-     * Add a new block version to the tally, and return the count for that version
-     * within the window.
+     * Add a new block version to the tally, and return the count for that version within the window.
      *
      * @param version the block version to add.
      */
-    public void add(final long version) {
+    public void add(final long version)
+    {
         versionWindow[versionWriteHead++] = version;
-        if (versionWriteHead == versionWindow.length) {
+        if (versionWriteHead == versionWindow.length)
+        {
             versionWriteHead = 0;
         }
         versionsStored++;
@@ -58,13 +61,17 @@ public class VersionTally {
      * @return the count for the block version, or null if the window is not yet
      * full.
      */
-    public Integer getCountAtOrAbove(final long version) {
-        if (versionsStored < versionWindow.length) {
+    public Integer getCountAtOrAbove(final long version)
+    {
+        if (versionsStored < versionWindow.length)
+        {
             return null;
         }
         int count = 0;
-        for (int versionIdx = 0; versionIdx < versionWindow.length; versionIdx++) {
-            if (versionWindow[versionIdx] >= version) {
+        for (int versionIdx = 0; versionIdx < versionWindow.length; versionIdx++)
+        {
+            if (versionWindow[versionIdx] >= version)
+            {
                 count++;
             }
         }
@@ -81,22 +88,26 @@ public class VersionTally {
      * @param chainHead current chain tip.
      */
     public void initialize(final BlockStore blockStore, final StoredBlock chainHead)
-        throws BlockStoreException {
+        throws BlockStoreException
+    {
         StoredBlock versionBlock = chainHead;
         final Stack<Long> versions = new Stack<>();
 
         // We don't know how many blocks back we can go, so load what we can first
         versions.push(versionBlock.getHeader().getVersion());
-        for (int headOffset = 0; headOffset < versionWindow.length; headOffset++) {
+        for (int headOffset = 0; headOffset < versionWindow.length; headOffset++)
+        {
             versionBlock = versionBlock.getPrev(blockStore);
-            if (null == versionBlock) {
+            if (null == versionBlock)
+            {
                 break;
             }
             versions.push(versionBlock.getHeader().getVersion());
         }
 
         // Replay the versions into the tally
-        while (!versions.isEmpty()) {
+        while (!versions.isEmpty())
+        {
             add(versions.pop());
         }
     }
@@ -104,7 +115,8 @@ public class VersionTally {
     /**
      * Get the size of the version window.
      */
-    public int size() {
+    public int size()
+    {
         return versionWindow.length;
     }
 }

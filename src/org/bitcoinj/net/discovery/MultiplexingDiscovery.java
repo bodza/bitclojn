@@ -22,7 +22,8 @@ import static com.google.common.base.Preconditions.checkArgument;
  * thus selecting randomly between them and reducing the influence of any particular seed. Any that don't respond
  * within the timeout are ignored. Backends are queried in parallel. Backends may block.
  */
-public class MultiplexingDiscovery implements PeerDiscovery {
+public class MultiplexingDiscovery implements PeerDiscovery
+{
     private static final Logger log = LoggerFactory.getLogger(MultiplexingDiscovery.class);
 
     protected final List<PeerDiscovery> seeds;
@@ -35,10 +36,12 @@ public class MultiplexingDiscovery implements PeerDiscovery {
      * @param params Network to use.
      * @param services Required services as a bitmask, e.g. {@link VersionMessage#NODE_NETWORK}.
      */
-    public static MultiplexingDiscovery forServices(NetworkParameters params, long services) {
+    public static MultiplexingDiscovery forServices(NetworkParameters params, long services)
+    {
         List<PeerDiscovery> discoveries = Lists.newArrayList();
         // Also use DNS seeds if there is no specific service requirement
-        if (services == 0) {
+        if (services == 0)
+        {
             String[] dnsSeeds = params.getDnsSeeds();
             if (dnsSeeds != null)
                 for (String dnsSeed : dnsSeeds)
@@ -50,37 +53,50 @@ public class MultiplexingDiscovery implements PeerDiscovery {
     /**
      * Will query the given seeds in parallel before producing a merged response.
      */
-    public MultiplexingDiscovery(NetworkParameters params, List<PeerDiscovery> seeds) {
+    public MultiplexingDiscovery(NetworkParameters params, List<PeerDiscovery> seeds)
+    {
         checkArgument(!seeds.isEmpty());
         this.netParams = params;
         this.seeds = seeds;
     }
 
     @Override
-    public InetSocketAddress[] getPeers(final long services, final long timeoutValue, final TimeUnit timeoutUnit) throws PeerDiscoveryException {
+    public InetSocketAddress[] getPeers(final long services, final long timeoutValue, final TimeUnit timeoutUnit)
+        throws PeerDiscoveryException
+    {
         vThreadPool = createExecutor();
-        try {
+        try
+        {
             List<Callable<InetSocketAddress[]>> tasks = Lists.newArrayList();
-            for (final PeerDiscovery seed : seeds) {
-                tasks.add(new Callable<InetSocketAddress[]>() {
+            for (final PeerDiscovery seed : seeds)
+            {
+                tasks.add(new Callable<InetSocketAddress[]>()
+                {
                     @Override
-                    public InetSocketAddress[] call() throws Exception {
+                    public InetSocketAddress[] call()
+                        throws Exception
+                    {
                         return seed.getPeers(services, timeoutValue,  timeoutUnit);
                     }
                 });
             }
             final List<Future<InetSocketAddress[]>> futures = vThreadPool.invokeAll(tasks, timeoutValue, timeoutUnit);
             ArrayList<InetSocketAddress> addrs = Lists.newArrayList();
-            for (int i = 0; i < futures.size(); i++) {
+            for (int i = 0; i < futures.size(); i++)
+            {
                 Future<InetSocketAddress[]> future = futures.get(i);
-                if (future.isCancelled()) {
+                if (future.isCancelled())
+                {
                     log.warn("Seed {}: timed out", seeds.get(i));
                     continue;  // Timed out.
                 }
                 final InetSocketAddress[] inetAddresses;
-                try {
+                try
+                {
                     inetAddresses = future.get();
-                } catch (ExecutionException e) {
+                }
+                catch (ExecutionException e)
+                {
                     log.warn("Seed {}: failed to look up: {}", seeds.get(i), e.getMessage());
                     continue;
                 }
@@ -92,19 +108,25 @@ public class MultiplexingDiscovery implements PeerDiscovery {
             Collections.shuffle(addrs);
             vThreadPool.shutdownNow();
             return addrs.toArray(new InetSocketAddress[addrs.size()]);
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e)
+        {
             throw new PeerDiscoveryException(e);
-        } finally {
+        }
+        finally
+        {
             vThreadPool.shutdown();
         }
     }
 
-    protected ExecutorService createExecutor() {
+    protected ExecutorService createExecutor()
+    {
         return Executors.newFixedThreadPool(seeds.size(), new ContextPropagatingThreadFactory("Multiplexing discovery"));
     }
 
     @Override
-    public void shutdown() {
+    public void shutdown()
+    {
         ExecutorService tp = vThreadPool;
         if (tp != null)
             tp.shutdown();

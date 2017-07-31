@@ -18,13 +18,15 @@ import java.util.concurrent.*;
  * will return up to 30 random peers from the set of those returned within the timeout period. If you want more peers
  * to connect to, you need to discover them via other means (like addr broadcasts).</p>
  */
-public class DnsDiscovery extends MultiplexingDiscovery {
+public class DnsDiscovery extends MultiplexingDiscovery
+{
     /**
      * Supports finding peers through DNS A records. Community run DNS entry points will be used.
      *
      * @param netParams Network parameters to be used for port information.
      */
-    public DnsDiscovery(NetworkParameters netParams) {
+    public DnsDiscovery(NetworkParameters netParams)
+    {
         this(netParams.getDnsSeeds(), netParams);
     }
 
@@ -34,11 +36,13 @@ public class DnsDiscovery extends MultiplexingDiscovery {
      * @param dnsSeeds Host names to be examined for seed addresses.
      * @param params Network parameters to be used for port information.
      */
-    public DnsDiscovery(String[] dnsSeeds, NetworkParameters params) {
+    public DnsDiscovery(String[] dnsSeeds, NetworkParameters params)
+    {
         super(params, buildDiscoveries(params, dnsSeeds));
     }
 
-    private static List<PeerDiscovery> buildDiscoveries(NetworkParameters params, String[] seeds) {
+    private static List<PeerDiscovery> buildDiscoveries(NetworkParameters params, String[] seeds)
+    {
         List<PeerDiscovery> discoveries = new ArrayList<>();
         if (seeds != null)
             for (String seed : seeds)
@@ -47,7 +51,8 @@ public class DnsDiscovery extends MultiplexingDiscovery {
     }
 
     @Override
-    protected ExecutorService createExecutor() {
+    protected ExecutorService createExecutor()
+    {
         // Attempted workaround for reported bugs on Linux in which gethostbyname does not appear to be properly
         // thread safe and can cause segfaults on some libc versions.
         if (System.getProperty("os.name").toLowerCase().contains("linux"))
@@ -57,36 +62,45 @@ public class DnsDiscovery extends MultiplexingDiscovery {
     }
 
     /** Implements discovery from a single DNS host. */
-    public static class DnsSeedDiscovery implements PeerDiscovery {
+    public static class DnsSeedDiscovery implements PeerDiscovery
+    {
         private final String hostname;
         private final NetworkParameters params;
 
-        public DnsSeedDiscovery(NetworkParameters params, String hostname) {
+        public DnsSeedDiscovery(NetworkParameters params, String hostname)
+        {
             this.hostname = hostname;
             this.params = params;
         }
 
         @Override
-        public InetSocketAddress[] getPeers(long services, long timeoutValue, TimeUnit timeoutUnit) throws PeerDiscoveryException {
+        public InetSocketAddress[] getPeers(long services, long timeoutValue, TimeUnit timeoutUnit)
+            throws PeerDiscoveryException
+        {
             if (services != 0)
                 throw new PeerDiscoveryException("DNS seeds cannot filter by services: " + services);
-            try {
+            try
+            {
                 InetAddress[] response = InetAddress.getAllByName(hostname);
                 InetSocketAddress[] result = new InetSocketAddress[response.length];
                 for (int i = 0; i < response.length; i++)
                     result[i] = new InetSocketAddress(response[i], params.getPort());
                 return result;
-            } catch (UnknownHostException e) {
+            }
+            catch (UnknownHostException e)
+            {
                 throw new PeerDiscoveryException(e);
             }
         }
 
         @Override
-        public void shutdown() {
+        public void shutdown()
+        {
         }
 
         @Override
-        public String toString() {
+        public String toString()
+        {
             return hostname;
         }
     }

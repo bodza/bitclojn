@@ -38,7 +38,8 @@ import static com.google.common.collect.Lists.newArrayList;
  * <p>This method will throw an IllegalStateException, if the keychain is already married or already has leaf keys
  * issued.</p>
  */
-public class MarriedKeyChain extends DeterministicKeyChain {
+public class MarriedKeyChain extends DeterministicKeyChain
+{
     // The map holds P2SH redeem script and corresponding ECKeys issued by this KeyChainGroup (including lookahead)
     // mapped to redeem script hashes.
     private LinkedHashMap<ByteString, RedeemData> marriedKeysRedeemData = new LinkedHashMap<>();
@@ -46,19 +47,23 @@ public class MarriedKeyChain extends DeterministicKeyChain {
     private List<DeterministicKeyChain> followingKeyChains;
 
     /** Builds a {@link MarriedKeyChain} */
-    public static class Builder<T extends Builder<T>> extends DeterministicKeyChain.Builder<T> {
+    public static class Builder<T extends Builder<T>> extends DeterministicKeyChain.Builder<T>
+    {
         private List<DeterministicKey> followingKeys;
         private int threshold;
 
-        protected Builder() {
+        protected Builder()
+        {
         }
 
-        public T followingKeys(List<DeterministicKey> followingKeys) {
+        public T followingKeys(List<DeterministicKey> followingKeys)
+        {
             this.followingKeys = followingKeys;
             return self();
         }
 
-        public T followingKeys(DeterministicKey followingKey, DeterministicKey ...followingKeys) {
+        public T followingKeys(DeterministicKey followingKey, DeterministicKey ...followingKeys)
+        {
             this.followingKeys = Lists.asList(followingKey, followingKeys);
             return self();
         }
@@ -69,26 +74,35 @@ public class MarriedKeyChain extends DeterministicKeyChain {
          * and such spends won't be processed by peers with default settings, essentially making such transactions almost
          * nonspendable</p>
          */
-        public T threshold(int threshold) {
+        public T threshold(int threshold)
+        {
             this.threshold = threshold;
             return self();
         }
 
         @Override
-        public MarriedKeyChain build() {
+        public MarriedKeyChain build()
+        {
             checkState(random != null || entropy != null || seed != null || watchingKey!= null, "Must provide either entropy or random or seed or watchingKey");
             checkNotNull(followingKeys, "followingKeys must be provided");
             MarriedKeyChain chain;
             if (threshold == 0)
                 threshold = (followingKeys.size() + 1) / 2 + 1;
-            if (random != null) {
+            if (random != null)
+            {
                 chain = new MarriedKeyChain(random, bits, getPassphrase(), seedCreationTimeSecs);
-            } else if (entropy != null) {
+            }
+            else if (entropy != null)
+            {
                 chain = new MarriedKeyChain(entropy, getPassphrase(), seedCreationTimeSecs);
-            } else if (seed != null) {
+            }
+            else if (seed != null)
+            {
                 seed.setCreationTimeSeconds(seedCreationTimeSecs);
                 chain = new MarriedKeyChain(seed);
-            } else {
+            }
+            else
+            {
                 watchingKey.setCreationTimeSeconds(seedCreationTimeSecs);
                 chain = new MarriedKeyChain(watchingKey);
             }
@@ -97,48 +111,58 @@ public class MarriedKeyChain extends DeterministicKeyChain {
         }
     }
 
-    public static Builder<?> builder() {
+    public static Builder<?> builder()
+    {
         return new Builder();
     }
 
     // Protobuf deserialization constructors
-    MarriedKeyChain(DeterministicKey accountKey) {
+    MarriedKeyChain(DeterministicKey accountKey)
+    {
         super(accountKey, false);
     }
 
-    MarriedKeyChain(DeterministicSeed seed, KeyCrypter crypter) {
+    MarriedKeyChain(DeterministicSeed seed, KeyCrypter crypter)
+    {
         super(seed, crypter);
     }
 
     // Builder constructors
-    private MarriedKeyChain(SecureRandom random, int bits, String passphrase, long seedCreationTimeSecs) {
+    private MarriedKeyChain(SecureRandom random, int bits, String passphrase, long seedCreationTimeSecs)
+    {
         super(random, bits, passphrase, seedCreationTimeSecs);
     }
 
-    private MarriedKeyChain(byte[] entropy, String passphrase, long seedCreationTimeSecs) {
+    private MarriedKeyChain(byte[] entropy, String passphrase, long seedCreationTimeSecs)
+    {
         super(entropy, passphrase, seedCreationTimeSecs);
     }
 
-    private MarriedKeyChain(DeterministicSeed seed) {
+    private MarriedKeyChain(DeterministicSeed seed)
+    {
         super(seed);
     }
 
-    void setFollowingKeyChains(List<DeterministicKeyChain> followingKeyChains) {
+    void setFollowingKeyChains(List<DeterministicKeyChain> followingKeyChains)
+    {
         checkArgument(!followingKeyChains.isEmpty());
         this.followingKeyChains = followingKeyChains;
     }
 
     @Override
-    public boolean isMarried() {
+    public boolean isMarried()
+    {
         return true;
     }
 
-    /** Create a new married key and return the matching output script */
+    /** Create a new married key and return the matching output script. */
     @Override
-    public Script freshOutputScript(KeyPurpose purpose) {
+    public Script freshOutputScript(KeyPurpose purpose)
+    {
         DeterministicKey followedKey = getKey(purpose);
         ImmutableList.Builder<ECKey> keys = ImmutableList.<ECKey>builder().add(followedKey);
-        for (DeterministicKeyChain keyChain : followingKeyChains) {
+        for (DeterministicKeyChain keyChain : followingKeyChains)
+        {
             DeterministicKey followingKey = keyChain.getKey(purpose);
             checkState(followedKey.getChildNumber().equals(followingKey.getChildNumber()), "Following keychains should be in sync");
             keys.add(followingKey);
@@ -148,9 +172,11 @@ public class MarriedKeyChain extends DeterministicKeyChain {
         return ScriptBuilder.createP2SHOutputScript(redeemScript);
     }
 
-    private List<ECKey> getMarriedKeysWithFollowed(DeterministicKey followedKey) {
+    private List<ECKey> getMarriedKeysWithFollowed(DeterministicKey followedKey)
+    {
         ImmutableList.Builder<ECKey> keys = ImmutableList.builder();
-        for (DeterministicKeyChain keyChain : followingKeyChains) {
+        for (DeterministicKeyChain keyChain : followingKeyChains)
+        {
             keyChain.maybeLookAhead();
             keys.add(keyChain.getKeyByPath(followedKey.getPath()));
         }
@@ -160,20 +186,23 @@ public class MarriedKeyChain extends DeterministicKeyChain {
 
     /** Get the redeem data for a key in this married chain */
     @Override
-    public RedeemData getRedeemData(DeterministicKey followedKey) {
+    public RedeemData getRedeemData(DeterministicKey followedKey)
+    {
         List<ECKey> marriedKeys = getMarriedKeysWithFollowed(followedKey);
         Script redeemScript = ScriptBuilder.createRedeemScript(sigsRequiredToSpend, marriedKeys);
         return RedeemData.of(marriedKeys, redeemScript);
     }
 
-    private void addFollowingAccountKeys(List<DeterministicKey> followingAccountKeys, int sigsRequiredToSpend) {
+    private void addFollowingAccountKeys(List<DeterministicKey> followingAccountKeys, int sigsRequiredToSpend)
+    {
         checkArgument(sigsRequiredToSpend <= followingAccountKeys.size() + 1, "Multisig threshold can't exceed total number of keys");
         checkState(numLeafKeysIssued() == 0, "Active keychain already has keys in use");
         checkState(followingKeyChains == null);
 
         List<DeterministicKeyChain> followingKeyChains = Lists.newArrayList();
 
-        for (DeterministicKey key : followingAccountKeys) {
+        for (DeterministicKey key : followingAccountKeys)
+        {
             checkArgument(key.getPath().size() == getAccountPath().size(), "Following keys have to be account keys");
             DeterministicKeyChain chain = DeterministicKeyChain.watchAndFollow(key);
             if (lookaheadSize >= 0)
@@ -188,46 +217,58 @@ public class MarriedKeyChain extends DeterministicKeyChain {
     }
 
     @Override
-    public void setLookaheadSize(int lookaheadSize) {
+    public void setLookaheadSize(int lookaheadSize)
+    {
         lock.lock();
-        try {
+        try
+        {
             super.setLookaheadSize(lookaheadSize);
-            if (followingKeyChains != null) {
-                for (DeterministicKeyChain followingChain : followingKeyChains) {
+            if (followingKeyChains != null)
+            {
+                for (DeterministicKeyChain followingChain : followingKeyChains)
+                {
                     followingChain.setLookaheadSize(lookaheadSize);
                 }
             }
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
     }
 
     @Override
-    public List<Protos.Key> serializeToProtobuf() {
+    public List<Protos.Key> serializeToProtobuf()
+    {
         List<Protos.Key> result = newArrayList();
         lock.lock();
-        try {
-            for (DeterministicKeyChain chain : followingKeyChains) {
+        try
+        {
+            for (DeterministicKeyChain chain : followingKeyChains)
+            {
                 result.addAll(chain.serializeMyselfToProtobuf());
             }
             result.addAll(serializeMyselfToProtobuf());
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
         return result;
     }
 
     @Override
-    protected void formatAddresses(boolean includePrivateKeys, NetworkParameters params, StringBuilder builder2) {
+    protected void formatAddresses(boolean includePrivateKeys, NetworkParameters params, StringBuilder builder2)
+    {
         for (DeterministicKeyChain followingChain : followingKeyChains)
-            builder2.append("Following chain:  ").append(followingChain.getWatchingKey().serializePubB58(params))
-                    .append('\n');
+            builder2.append("Following chain:  ").append(followingChain.getWatchingKey().serializePubB58(params)).append('\n');
         builder2.append('\n');
         for (RedeemData redeemData : marriedKeysRedeemData.values())
             formatScript(ScriptBuilder.createP2SHOutputScript(redeemData.redeemScript), builder2, params);
     }
 
-    private void formatScript(Script script, StringBuilder builder, NetworkParameters params) {
+    private void formatScript(Script script, StringBuilder builder, NetworkParameters params)
+    {
         builder.append("  addr:");
         builder.append(script.getToAddress(params));
         builder.append("  hash160:");
@@ -238,7 +279,8 @@ public class MarriedKeyChain extends DeterministicKeyChain {
     }
 
     @Override
-    public void maybeLookAheadScripts() {
+    public void maybeLookAheadScripts()
+    {
         super.maybeLookAheadScripts();
         int numLeafKeys = getLeafKeys().size();
 
@@ -247,7 +289,8 @@ public class MarriedKeyChain extends DeterministicKeyChain {
             return;
 
         maybeLookAhead();
-        for (DeterministicKey followedKey : getLeafKeys()) {
+        for (DeterministicKey followedKey : getLeafKeys())
+        {
             RedeemData redeemData = getRedeemData(followedKey);
             Script scriptPubKey = ScriptBuilder.createP2SHOutputScript(redeemData.redeemScript);
             marriedKeysRedeemData.put(ByteString.copyFrom(scriptPubKey.getPubKeyHash()), redeemData);
@@ -256,28 +299,35 @@ public class MarriedKeyChain extends DeterministicKeyChain {
 
     @Nullable
     @Override
-    public RedeemData findRedeemDataByScriptHash(ByteString bytes) {
+    public RedeemData findRedeemDataByScriptHash(ByteString bytes)
+    {
         return marriedKeysRedeemData.get(bytes);
     }
 
     @Override
-    public BloomFilter getFilter(int size, double falsePositiveRate, long tweak) {
+    public BloomFilter getFilter(int size, double falsePositiveRate, long tweak)
+    {
         lock.lock();
         BloomFilter filter;
-        try {
+        try
+        {
             filter = new BloomFilter(size, falsePositiveRate, tweak);
-            for (Map.Entry<ByteString, RedeemData> entry : marriedKeysRedeemData.entrySet()) {
+            for (Map.Entry<ByteString, RedeemData> entry : marriedKeysRedeemData.entrySet())
+            {
                 filter.insert(entry.getKey().toByteArray());
                 filter.insert(entry.getValue().redeemScript.getProgram());
             }
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
         return filter;
     }
 
     @Override
-    public int numBloomFilterEntries() {
+    public int numBloomFilterEntries()
+    {
         maybeLookAhead();
         return getLeafKeys().size() * 2;
     }

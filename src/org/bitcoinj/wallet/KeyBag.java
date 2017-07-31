@@ -8,7 +8,8 @@ import javax.annotation.Nullable;
  * A KeyBag is simply an object that can map public keys, their 160-bit hashes and script hashes to ECKey
  * and {@link RedeemData} objects.
  */
-public interface KeyBag {
+public interface KeyBag
+{
     /**
      * Locates a keypair from the keychain given the hash of the public key. This is needed when finding out which
      * key we need to use to redeem a transaction output.

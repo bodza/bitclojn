@@ -20,7 +20,8 @@ import static com.google.common.base.Preconditions.*;
  * can come to dominate the chain processing speed, i.e. on Android phones. By coalescing writes and doing serialization
  * and disk IO on a background thread performance can be improved.
  */
-public class WalletFiles {
+public class WalletFiles
+{
     private static final Logger log = LoggerFactory.getLogger(WalletFiles.class);
 
     private final Wallet wallet;
@@ -36,7 +37,8 @@ public class WalletFiles {
     /**
      * Implementors can do pre/post treatment of the wallet file. Useful for adjusting permissions and other things.
      */
-    public interface Listener {
+    public interface Listener
+    {
         /**
          * Called on the auto-save thread when a new temporary file is created but before the wallet data is saved
          * to it. If you want to do something here like adjust permissions, go ahead and do so.
@@ -54,7 +56,8 @@ public class WalletFiles {
      * saved automatically. The {@link Wallet} calls {@link #saveNow()} or {@link #saveLater()} as wallet state changes,
      * depending on the urgency of the changes.
      */
-    public WalletFiles(final Wallet wallet, File file, long delay, TimeUnit delayTimeUnit) {
+    public WalletFiles(final Wallet wallet, File file, long delay, TimeUnit delayTimeUnit)
+    {
         // An executor that starts up threads when needed and shuts them down later.
         this.executor = new ScheduledThreadPoolExecutor(1, new ContextPropagatingThreadFactory("Wallet autosave thread", Thread.MIN_PRIORITY));
         this.executor.setKeepAliveTime(5, TimeUnit.SECONDS);
@@ -67,10 +70,13 @@ public class WalletFiles {
         this.delay = delay;
         this.delayTimeUnit = checkNotNull(delayTimeUnit);
 
-        this.saver = new Callable<Void>() {
-            @Override public Void call() throws Exception {
+        this.saver = new Callable<Void>()
+        {
+            @Override public Void call() throws Exception
+            {
                 // Runs in an auto save thread.
-                if (!savePending.getAndSet(false)) {
+                if (!savePending.getAndSet(false))
+                {
                     // Some other scheduled request already beat us to it.
                     return null;
                 }
@@ -88,12 +94,15 @@ public class WalletFiles {
     /**
      * The given listener will be called on the autosave thread before and after the wallet is saved to disk.
      */
-    public void setListener(@Nonnull Listener listener) {
+    public void setListener(@Nonnull Listener listener)
+    {
         this.vListener = checkNotNull(listener);
     }
 
     /** Actually write the wallet file to disk, using an atomic rename when possible. Runs on the current thread. */
-    public void saveNow() throws IOException {
+    public void saveNow()
+        throws IOException
+    {
         // Can be called by any thread. However the wallet is locked whilst saving, so we can have two saves in flight
         // but they will serialize (using different temp files).
         Date lastBlockSeenTime = wallet.getLastBlockSeenTime();
@@ -103,7 +112,9 @@ public class WalletFiles {
         saveNowInternal();
     }
 
-    private void saveNowInternal() throws IOException {
+    private void saveNowInternal()
+        throws IOException
+    {
         final Stopwatch watch = Stopwatch.createStarted();
         File directory = file.getAbsoluteFile().getParentFile();
         File temp = File.createTempFile("wallet", null, directory);
@@ -118,18 +129,23 @@ public class WalletFiles {
     }
 
     /** Queues up a save in the background. Useful for not very important wallet changes. */
-    public void saveLater() {
+    public void saveLater()
+    {
         if (savePending.getAndSet(true))
             return;   // Already pending.
         executor.schedule(saver, delay, delayTimeUnit);
     }
 
     /** Shut down auto-saving. */
-    public void shutdownAndWait() {
+    public void shutdownAndWait()
+    {
         executor.shutdown();
-        try {
+        try
+        {
             executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS); // forever
-        } catch (InterruptedException x) {
+        }
+        catch (InterruptedException x)
+        {
             throw new RuntimeException(x);
         }
     }

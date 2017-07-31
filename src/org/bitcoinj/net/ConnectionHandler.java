@@ -27,7 +27,8 @@ import static com.google.common.base.Preconditions.checkState;
  * A simple NIO MessageWriteTarget which handles all the business logic of a connection (reading+writing bytes).
  * Used only by the NioClient and NioServer classes
  */
-class ConnectionHandler implements MessageWriteTarget {
+class ConnectionHandler implements MessageWriteTarget
+{
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(ConnectionHandler.class);
 
     private static final int BUFFER_SIZE_LOWER_BOUND = 4096;
@@ -49,16 +50,20 @@ class ConnectionHandler implements MessageWriteTarget {
 
     private Set<ConnectionHandler> connectedHandlers;
 
-    public ConnectionHandler(StreamConnectionFactory connectionFactory, SelectionKey key) throws IOException {
+    public ConnectionHandler(StreamConnectionFactory connectionFactory, SelectionKey key)
+        throws IOException
+    {
         this(connectionFactory.getNewConnection(((SocketChannel) key.channel()).socket().getInetAddress(), ((SocketChannel) key.channel()).socket().getPort()), key);
         if (connection == null)
             throw new IOException("Parser factory.getNewConnection returned null");
     }
 
-    private ConnectionHandler(@Nullable StreamConnection connection, SelectionKey key) {
+    private ConnectionHandler(@Nullable StreamConnection connection, SelectionKey key)
+    {
         this.key = key;
         this.channel = checkNotNull(((SocketChannel)key.channel()));
-        if (connection == null) {
+        if (connection == null)
+        {
             readBuff = null;
             return;
         }
@@ -68,24 +73,29 @@ class ConnectionHandler implements MessageWriteTarget {
         connectedHandlers = null;
     }
 
-    public ConnectionHandler(StreamConnection connection, SelectionKey key, Set<ConnectionHandler> connectedHandlers) {
+    public ConnectionHandler(StreamConnection connection, SelectionKey key, Set<ConnectionHandler> connectedHandlers)
+    {
         this(checkNotNull(connection), key);
 
         // closeConnection() may have already happened because we invoked the other c'tor above, which called
         // connection.setWriteTarget which might have re-entered already. In this case we shouldn't add ourselves
         // to the connectedHandlers set.
         lock.lock();
-        try {
+        try
+        {
             this.connectedHandlers = connectedHandlers;
             if (!closeCalled)
                 checkState(this.connectedHandlers.add(this));
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
     }
 
     @GuardedBy("lock")
-    private void setWriteOps() {
+    private void setWriteOps()
+    {
         // Make sure we are registered to get updated when writing is available again
         key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
         // Refresh the selector to make sure it gets the new interestOps
@@ -93,17 +103,22 @@ class ConnectionHandler implements MessageWriteTarget {
     }
 
     // Tries to write any outstanding write bytes, runs in any thread (possibly unlocked)
-    private void tryWriteBytes() throws IOException {
+    private void tryWriteBytes()
+        throws IOException
+    {
         lock.lock();
-        try {
+        try
+        {
             // Iterate through the outbound ByteBuff queue, pushing as much as possible into the OS' network buffer.
             Iterator<ByteBuffer> bytesIterator = bytesToWrite.iterator();
-            while (bytesIterator.hasNext()) {
+            while (bytesIterator.hasNext())
+            {
                 ByteBuffer buff = bytesIterator.next();
                 bytesToWriteRemaining -= channel.write(buff);
                 if (!buff.hasRemaining())
                     bytesIterator.remove();
-                else {
+                else
+                {
                     setWriteOps();
                     break;
                 }
@@ -112,16 +127,21 @@ class ConnectionHandler implements MessageWriteTarget {
             if (bytesToWrite.isEmpty())
                 key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
             // Don't bother waking up the selector here, since we're just removing an op, not adding
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
     }
 
     @Override
-    public void writeBytes(byte[] message) throws IOException {
+    public void writeBytes(byte[] message)
+        throws IOException
+    {
         boolean andUnlock = true;
         lock.lock();
-        try {
+        try
+        {
             // Network buffers are not unlimited (and are often smaller than some messages we may wish to send), and
             // thus we have to buffer outbound messages sometimes. To do this, we use a queue of ByteBuffers and just
             // append to it when we want to send a message. We then let tryWriteBytes() either send the message or
@@ -134,19 +154,25 @@ class ConnectionHandler implements MessageWriteTarget {
             bytesToWrite.offer(ByteBuffer.wrap(Arrays.copyOf(message, message.length)));
             bytesToWriteRemaining += message.length;
             setWriteOps();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             lock.unlock();
             andUnlock = false;
             log.warn("Error writing message to connection, closing connection", e);
             closeConnection();
             throw e;
-        } catch (CancelledKeyException e) {
+        }
+        catch (CancelledKeyException e)
+        {
             lock.unlock();
             andUnlock = false;
             log.warn("Error writing message to connection, closing connection", e);
             closeConnection();
             throw new IOException(e);
-        } finally {
+        }
+        finally
+        {
             if (andUnlock)
                 lock.unlock();
         }
@@ -154,26 +180,35 @@ class ConnectionHandler implements MessageWriteTarget {
 
     // May NOT be called with lock held
     @Override
-    public void closeConnection() {
+    public void closeConnection()
+    {
         checkState(!lock.isHeldByCurrentThread());
-        try {
+        try
+        {
             channel.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             throw new RuntimeException(e);
         }
         connectionClosed();
     }
 
-    private void connectionClosed() {
+    private void connectionClosed()
+    {
         boolean callClosed = false;
         lock.lock();
-        try {
+        try
+        {
             callClosed = !closeCalled;
             closeCalled = true;
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
-        if (callClosed) {
+        if (callClosed)
+        {
             checkState(connectedHandlers == null || connectedHandlers.remove(this));
             connection.connectionClosed();
         }
@@ -182,16 +217,20 @@ class ConnectionHandler implements MessageWriteTarget {
     // Handle a SelectionKey which was selected
     // Runs unlocked as the caller is single-threaded (or if not, should enforce that handleKey is only called
     // atomically for a given ConnectionHandler)
-    public static void handleKey(SelectionKey key) {
+    public static void handleKey(SelectionKey key)
+    {
         ConnectionHandler handler = ((ConnectionHandler)key.attachment());
-        try {
+        try
+        {
             if (handler == null)
                 return;
-            if (!key.isValid()) {
+            if (!key.isValid())
+            {
                 handler.closeConnection(); // Key has been cancelled, make sure the socket gets closed
                 return;
             }
-            if (key.isReadable()) {
+            if (key.isReadable())
+            {
                 // Do a socket read and invoke the connection's receiveBytes message
                 int read = handler.channel.read(handler.readBuff);
                 if (read == 0)
@@ -212,7 +251,9 @@ class ConnectionHandler implements MessageWriteTarget {
             }
             if (key.isWritable())
                 handler.tryWriteBytes();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             // This can happen eg if the channel closes while the thread is about to get killed
             // (ClosedByInterruptException), or if handler.connection.receiveBytes throws something
             Throwable t = Throwables.getRootCause(e);

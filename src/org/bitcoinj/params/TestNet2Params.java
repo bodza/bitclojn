@@ -8,12 +8,14 @@ import static com.google.common.base.Preconditions.checkState;
  * Parameters for the old version 2 testnet. This is not useful to you - it exists only because some unit tests are
  * based on it.
  */
-public class TestNet2Params extends AbstractBitcoinNetParams {
+public class TestNet2Params extends AbstractBitcoinNetParams
+{
     public static final int TESTNET_MAJORITY_WINDOW = 100;
     public static final int TESTNET_MAJORITY_REJECT_BLOCK_OUTDATED = 75;
     public static final int TESTNET_MAJORITY_ENFORCE_BLOCK_UPGRADE = 51;
 
-    public TestNet2Params() {
+    public TestNet2Params()
+    {
         super();
         id = ID_TESTNET;
         packetMagic = 0xfabfb5daL;
@@ -24,7 +26,6 @@ public class TestNet2Params extends AbstractBitcoinNetParams {
         interval = INTERVAL;
         targetTimespan = TARGET_TIMESPAN;
         maxTarget = Utils.decodeCompactBits(0x1d0fffffL);
-        dumpedPrivateKeyHeader = 239;
         genesisBlock.setTime(1296688602L);
         genesisBlock.setDifficultyTarget(0x1d07fff8L);
         genesisBlock.setNonce(384568319);
@@ -43,15 +44,18 @@ public class TestNet2Params extends AbstractBitcoinNetParams {
     }
 
     private static TestNet2Params instance;
-    public static synchronized TestNet2Params get() {
-        if (instance == null) {
+    public static synchronized TestNet2Params get()
+    {
+        if (instance == null)
+        {
             instance = new TestNet2Params();
         }
         return instance;
     }
 
     @Override
-    public String getPaymentProtocolId() {
+    public String getPaymentProtocolId()
+    {
         return null;
     }
 }

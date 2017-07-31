@@ -7,13 +7,13 @@ import org.bitcoinj.core.*;
  * they can pre-filter messages before they are procesesed by a {@link Peer} or {@link PeerGroup}, and they can
  * provide transactions to remote peers when they ask for them.</p>
  */
-public interface ChainDownloadStartedEventListener {
-
+public interface ChainDownloadStartedEventListener
+{
     /**
      * Called when a download is started with the initial number of blocks to be downloaded.
      *
-     * @param peer       the peer receiving the block
-     * @param blocksLeft the number of blocks left to download
+     * @param peer The peer receiving the block.
+     * @param blocksLeft The number of blocks left to download.
      */
     void onChainDownloadStarted(Peer peer, int blocksLeft);
 }

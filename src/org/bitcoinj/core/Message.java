@@ -1,22 +1,21 @@
 package org.bitcoinj.core;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.*;
 import java.math.BigInteger;
 import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>A Message is a data structure that can be serialized/deserialized using the Bitcoin serialization format.
- * Specific types of messages that are used both in the block chain, and on the wire, are derived from this
- * class.</p>
+ * Specific types of messages that are used both in the block chain, and on the wire, are derived from this class.</p>
  *
  * <p>Instances of this class are not safe for use by multiple threads.</p>
  */
-public abstract class Message {
+public abstract class Message
+{
     private static final Logger log = LoggerFactory.getLogger(Message.class);
 
     public static final int MAX_SIZE = 0x02000000; // 32MB
@@ -44,16 +43,20 @@ public abstract class Message {
 
     protected NetworkParameters params;
 
-    protected Message() {
+    protected Message()
+    {
         serializer = DummySerializer.DEFAULT;
     }
 
-    protected Message(NetworkParameters params) {
+    protected Message(NetworkParameters params)
+    {
         this.params = params;
         serializer = params.getDefaultSerializer();
     }
 
-    protected Message(NetworkParameters params, byte[] payload, int offset, int protocolVersion) throws ProtocolException {
+    protected Message(NetworkParameters params, byte[] payload, int offset, int protocolVersion)
+        throws ProtocolException
+    {
         this(params, payload, offset, protocolVersion, params.getDefaultSerializer(), UNKNOWN_LENGTH);
     }
 
@@ -63,12 +66,14 @@ public abstract class Message {
      * @param payload Bitcoin protocol formatted byte array containing message content.
      * @param offset The location of the first payload byte within the array.
      * @param protocolVersion Bitcoin protocol version.
-     * @param serializer the serializer to use for this message.
+     * @param serializer The serializer to use for this message.
      * @param length The length of message payload if known.  Usually this is provided when deserializing of the wire
-     * as the length will be provided as part of the header.  If unknown then set to Message.UNKNOWN_LENGTH
+     * as the length will be provided as part of the header.  Set to Message.UNKNOWN_LENGTH, if not known.
      * @throws ProtocolException
      */
-    protected Message(NetworkParameters params, byte[] payload, int offset, int protocolVersion, MessageSerializer serializer, int length) throws ProtocolException {
+    protected Message(NetworkParameters params, byte[] payload, int offset, int protocolVersion, MessageSerializer serializer, int length)
+        throws ProtocolException
+    {
         this.serializer = serializer;
         this.protocolVersion = protocolVersion;
         this.params = params;
@@ -79,66 +84,70 @@ public abstract class Message {
         parse();
 
         if (this.length == UNKNOWN_LENGTH)
-            checkState(false, "Length field has not been set in constructor for %s after parse.",
-                       getClass().getSimpleName());
+            checkState(false, "Length field has not been set in constructor for %s after parse.", getClass().getSimpleName());
 
-        if (SELF_CHECK) {
+        if (SELF_CHECK)
             selfCheck(payload, offset);
-        }
 
         if (!serializer.isParseRetainMode())
             this.payload = null;
     }
 
-    private void selfCheck(byte[] payload, int offset) {
-        if (!(this instanceof VersionMessage)) {
+    private void selfCheck(byte[] payload, int offset)
+    {
+        if (!(this instanceof VersionMessage))
+        {
             byte[] payloadBytes = new byte[cursor - offset];
             System.arraycopy(payload, offset, payloadBytes, 0, cursor - offset);
             byte[] reserialized = bitcoinSerialize();
             if (!Arrays.equals(reserialized, payloadBytes))
-                throw new RuntimeException("Serialization is wrong: \n" +
-                        Utils.HEX.encode(reserialized) + " vs \n" +
-                        Utils.HEX.encode(payloadBytes));
+                throw new RuntimeException("Serialization is wrong: \n" + Utils.HEX.encode(reserialized) + " vs \n" + Utils.HEX.encode(payloadBytes));
         }
     }
 
-    protected Message(NetworkParameters params, byte[] payload, int offset) throws ProtocolException {
-        this(params, payload, offset, params.getProtocolVersionNum(NetworkParameters.ProtocolVersion.CURRENT),
-             params.getDefaultSerializer(), UNKNOWN_LENGTH);
+    protected Message(NetworkParameters params, byte[] payload, int offset)
+        throws ProtocolException
+    {
+        this(params, payload, offset, params.getProtocolVersionNum(NetworkParameters.ProtocolVersion.CURRENT), params.getDefaultSerializer(), UNKNOWN_LENGTH);
     }
 
-    protected Message(NetworkParameters params, byte[] payload, int offset, MessageSerializer serializer, int length) throws ProtocolException {
-        this(params, payload, offset, params.getProtocolVersionNum(NetworkParameters.ProtocolVersion.CURRENT),
-             serializer, length);
+    protected Message(NetworkParameters params, byte[] payload, int offset, MessageSerializer serializer, int length)
+        throws ProtocolException
+    {
+        this(params, payload, offset, params.getProtocolVersionNum(NetworkParameters.ProtocolVersion.CURRENT), serializer, length);
     }
 
     // These methods handle the serialization/deserialization using the custom Bitcoin protocol.
 
-    protected abstract void parse() throws ProtocolException;
+    protected abstract void parse()
+        throws ProtocolException;
 
     /**
-     * <p>To be called before any change of internal values including any setters. This ensures any cached byte array is
+     * <p>To be called before any change of internal values including any setters.  This ensures any cached byte array is
      * removed.<p/>
-     * <p>Child messages of this object(e.g. Transactions belonging to a Block) will not have their internal byte caches
+     * <p>Child messages of this object (e.g. Transactions belonging to a Block) will not have their internal byte caches
      * invalidated unless they are also modified internally.</p>
      */
-    protected void unCache() {
+    protected void unCache()
+    {
         payload = null;
         recached = false;
     }
 
-    protected void adjustLength(int newArraySize, int adjustment) {
+    protected void adjustLength(int newArraySize, int adjustment)
+    {
         if (length == UNKNOWN_LENGTH)
             return;
         // Our own length is now unknown if we have an unknown length adjustment.
-        if (adjustment == UNKNOWN_LENGTH) {
+        if (adjustment == UNKNOWN_LENGTH)
+        {
             length = UNKNOWN_LENGTH;
             return;
         }
         length += adjustment;
         // Check if we will need more bytes to encode the length prefix.
         if (newArraySize == 1)
-            length++;  // The assumption here is we never call adjustLength with the same arraySize as before.
+            length++; // The assumption here is we never call adjustLength with the same arraySize as before.
         else if (newArraySize != 0)
             length += VarInt.sizeOf(newArraySize) - VarInt.sizeOf(newArraySize - 1);
     }
@@ -146,11 +155,13 @@ public abstract class Message {
     /**
      * used for unit testing
      */
-    public boolean isCached() {
-        return payload != null;
+    public boolean isCached()
+    {
+        return (payload != null);
     }
 
-    public boolean isRecached() {
+    public boolean isRecached()
+    {
         return recached;
     }
 
@@ -158,9 +169,10 @@ public abstract class Message {
      * Returns a copy of the array returned by {@link Message#unsafeBitcoinSerialize()}, which is safe to mutate.
      * If you need extra performance and can guarantee you won't write to the array, you can use the unsafe version.
      *
-     * @return a freshly allocated serialized byte array
+     * @return a freshly allocated serialized byte array.
      */
-    public byte[] bitcoinSerialize() {
+    public byte[] bitcoinSerialize()
+    {
         byte[] bytes = unsafeBitcoinSerialize();
         byte[] copy = new byte[bytes.length];
         System.arraycopy(bytes, 0, copy, 0, bytes.length);
@@ -179,19 +191,19 @@ public abstract class Message {
      * </ol>
      *
      * If condition 3 is not met then an copy of the relevant portion of the array will be returned.
-     * Otherwise a full serialize will occur. For this reason you should only use this API if you can guarantee you
-     * will treat the resulting array as read only.
+     * Otherwise a full serialize will occur.  For this reason you should only use this API
+     * if you can guarantee you will treat the resulting array as read only.
      *
      * @return a byte array owned by this object, do NOT mutate it.
      */
-    public byte[] unsafeBitcoinSerialize() {
+    public byte[] unsafeBitcoinSerialize()
+    {
         // 1st attempt to use a cached array.
-        if (payload != null) {
-            if (offset == 0 && length == payload.length) {
-                // Cached byte array is the entire message with no extras so we can return as is and avoid an array
-                // copy.
+        if (payload != null)
+        {
+            // Cached byte array is the entire message with no extras so we can return as is and avoid an array copy.
+            if (offset == 0 && length == payload.length)
                 return payload;
-            }
 
             byte[] buf = new byte[length];
             System.arraycopy(payload, offset, buf, 0, length);
@@ -200,13 +212,17 @@ public abstract class Message {
 
         // No cached array available so serialize parts by stream.
         ByteArrayOutputStream stream = new UnsafeByteArrayOutputStream(length < 32 ? 32 : length + 32);
-        try {
+        try
+        {
             bitcoinSerializeToStream(stream);
-        } catch (IOException e) {
+        }
+        catch (IOException _)
+        {
             // Cannot happen, we are serializing to a memory stream.
         }
 
-        if (serializer.isParseRetainMode()) {
+        if (serializer.isParseRetainMode())
+        {
             // A free set of steak knives!
             // If there happens to be a call to this method we gain an opportunity to recache
             // the byte array and in this case it contains no bytes from parent messages.
@@ -222,7 +238,7 @@ public abstract class Message {
             length = payload.length;
             return payload;
         }
-        // Record length. If this Message wasn't parsed from a byte stream it won't have length field
+        // Record length.  If this Message wasn't parsed from a byte stream it won't have length field
         // set (except for static length message types).  Setting it makes future streaming more efficient
         // because we can preallocate the ByteArrayOutputStream buffer and avoid resizing.
         byte[] buf = stream.toByteArray();
@@ -236,9 +252,12 @@ public abstract class Message {
      * @param stream
      * @throws IOException
      */
-    public final void bitcoinSerialize(OutputStream stream) throws IOException {
+    public final void bitcoinSerialize(OutputStream stream)
+        throws IOException
+    {
         // 1st check for cached bytes.
-        if (payload != null && length != UNKNOWN_LENGTH) {
+        if (payload != null && length != UNKNOWN_LENGTH)
+        {
             stream.write(payload, offset, length);
             return;
         }
@@ -247,9 +266,11 @@ public abstract class Message {
     }
 
     /**
-     * Serializes this message to the provided stream. If you just want the raw bytes use bitcoinSerialize().
+     * Serializes this message to the provided stream.  If you just want the raw bytes use bitcoinSerialize().
      */
-    protected void bitcoinSerializeToStream(OutputStream stream) throws IOException {
+    protected void bitcoinSerializeToStream(OutputStream stream)
+        throws IOException
+    {
         log.error("Error: {} class has not implemented bitcoinSerializeToStream method.  Generating message with no payload", getClass());
     }
 
@@ -257,94 +278,128 @@ public abstract class Message {
      * This method is a NOP for all classes except Block and Transaction.  It is only declared in Message
      * so BitcoinSerializer can avoid 2 instanceof checks + a casting.
      */
-    public Sha256Hash getHash() {
+    public Sha256Hash getHash()
+    {
         throw new UnsupportedOperationException();
     }
 
     /**
      * This returns a correct value by parsing the message.
      */
-    public final int getMessageSize() {
+    public final int getMessageSize()
+    {
         if (length == UNKNOWN_LENGTH)
             checkState(false, "Length field has not been set in %s.", getClass().getSimpleName());
         return length;
     }
 
-    protected long readUint32() throws ProtocolException {
-        try {
+    protected long readUint32()
+        throws ProtocolException
+    {
+        try
+        {
             long u = Utils.readUint32(payload, cursor);
             cursor += 4;
             return u;
-        } catch (ArrayIndexOutOfBoundsException e) {
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
             throw new ProtocolException(e);
         }
     }
 
-    protected long readInt64() throws ProtocolException {
-        try {
+    protected long readInt64()
+        throws ProtocolException
+    {
+        try
+        {
             long u = Utils.readInt64(payload, cursor);
             cursor += 8;
             return u;
-        } catch (ArrayIndexOutOfBoundsException e) {
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
             throw new ProtocolException(e);
         }
     }
 
-    protected BigInteger readUint64() throws ProtocolException {
+    protected BigInteger readUint64()
+        throws ProtocolException
+    {
         // Java does not have an unsigned 64 bit type. So scrape it off the wire then flip.
         return new BigInteger(Utils.reverseBytes(readBytes(8)));
     }
 
-    protected long readVarInt() throws ProtocolException {
+    protected long readVarInt()
+        throws ProtocolException
+    {
         return readVarInt(0);
     }
 
-    protected long readVarInt(int offset) throws ProtocolException {
-        try {
+    protected long readVarInt(int offset)
+        throws ProtocolException
+    {
+        try
+        {
             VarInt varint = new VarInt(payload, cursor + offset);
             cursor += offset + varint.getOriginalSizeInBytes();
             return varint.value;
-        } catch (ArrayIndexOutOfBoundsException e) {
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
             throw new ProtocolException(e);
         }
     }
 
-    protected byte[] readBytes(int length) throws ProtocolException {
-        if (length > MAX_SIZE) {
+    protected byte[] readBytes(int length)
+        throws ProtocolException
+    {
+        if (MAX_SIZE < length)
             throw new ProtocolException("Claimed value length too large: " + length);
-        }
-        try {
+
+        try
+        {
             byte[] b = new byte[length];
             System.arraycopy(payload, cursor, b, 0, length);
             cursor += length;
             return b;
-        } catch (IndexOutOfBoundsException e) {
+        }
+        catch (IndexOutOfBoundsException e)
+        {
             throw new ProtocolException(e);
         }
     }
 
-    protected byte[] readByteArray() throws ProtocolException {
+    protected byte[] readByteArray()
+        throws ProtocolException
+    {
         long len = readVarInt();
         return readBytes((int)len);
     }
 
-    protected String readStr() throws ProtocolException {
+    protected String readStr()
+        throws ProtocolException
+    {
         long length = readVarInt();
-        return length == 0 ? "" : Utils.toString(readBytes((int) length), "UTF-8"); // optimization for empty strings
+        return (length == 0) ? "" : Utils.toString(readBytes((int)length), "UTF-8"); // optimization for empty strings
     }
 
-    protected Sha256Hash readHash() throws ProtocolException {
+    protected Sha256Hash readHash()
+        throws ProtocolException
+    {
         // We have to flip it around, as it's been read off the wire in little endian.
         // Not the most efficient way to do this but the clearest.
         return Sha256Hash.wrapReversed(readBytes(32));
     }
 
-    protected boolean hasMoreBytes() {
-        return cursor < payload.length;
+    protected boolean hasMoreBytes()
+    {
+        return (cursor < payload.length);
     }
 
     /** Network parameters this message was created with. */
-    public NetworkParameters getParams() {
+    public NetworkParameters getParams()
+    {
         return params;
     }
 
@@ -352,10 +407,10 @@ public abstract class Message {
      * Set the serializer for this message when deserialized by Java.
      */
     private void readObject(java.io.ObjectInputStream in)
-        throws IOException, ClassNotFoundException {
+        throws IOException, ClassNotFoundException
+    {
         in.defaultReadObject();
-        if (null != params) {
+        if (null != params)
             this.serializer = params.getDefaultSerializer();
-        }
     }
 }

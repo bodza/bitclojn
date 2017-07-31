@@ -14,19 +14,22 @@ import org.bitcoinj.core.StoredBlock;
  *
  * BlockStores are thread safe.
  */
-public interface BlockStore {
+public interface BlockStore
+{
     /**
      * Saves the given block header+extra data. The key isn't specified explicitly as it can be calculated from the
      * StoredBlock directly. Can throw if there is a problem with the underlying storage layer such as running out of
      * disk space.
      */
-    void put(StoredBlock block) throws BlockStoreException;
+    void put(StoredBlock block)
+        throws BlockStoreException;
 
     /**
      * Returns the StoredBlock given a hash. The returned values block.getHash() method will be equal to the
      * parameter. If no such block is found, returns null.
      */
-    StoredBlock get(Sha256Hash hash) throws BlockStoreException;
+    StoredBlock get(Sha256Hash hash)
+        throws BlockStoreException;
 
     /**
      * Returns the {@link StoredBlock} that represents the top of the chain of greatest total work. Note that this
@@ -34,15 +37,18 @@ public interface BlockStore {
      * or perhaps {@link org.bitcoinj.core.BlockChain#getBestChainHeight()} which will run in constant time and
      * not take any heavyweight locks.
      */
-    StoredBlock getChainHead() throws BlockStoreException;
+    StoredBlock getChainHead()
+        throws BlockStoreException;
 
     /**
      * Sets the {@link StoredBlock} that represents the top of the chain of greatest total work.
      */
-    void setChainHead(StoredBlock chainHead) throws BlockStoreException;
+    void setChainHead(StoredBlock chainHead)
+        throws BlockStoreException;
 
     /** Closes the store. */
-    void close() throws BlockStoreException;
+    void close()
+        throws BlockStoreException;
 
     /**
      * Get the {@link org.bitcoinj.core.NetworkParameters} of this store.

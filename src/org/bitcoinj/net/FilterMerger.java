@@ -21,7 +21,8 @@ import java.util.LinkedList;
  * calculated in parallel, thus a filter provider can do things like make blocking calls into PeerGroup from a separate
  * thread. However the bloomFilterFPRate property IS thread safe, for convenience.</p>
  */
-public class FilterMerger {
+public class FilterMerger
+{
     // We use a constant tweak to avoid giving up privacy when we regenerate our filter with new keys
     private final long bloomFilterTweak = (long) (Math.random() * Long.MAX_VALUE);
 
@@ -29,24 +30,29 @@ public class FilterMerger {
     private int lastBloomFilterElementCount;
     private BloomFilter lastFilter;
 
-    public FilterMerger(double bloomFilterFPRate) {
+    public FilterMerger(double bloomFilterFPRate)
+    {
         this.vBloomFilterFPRate = bloomFilterFPRate;
     }
 
-    public static class Result {
+    public static class Result
+    {
         public BloomFilter filter;
         public long earliestKeyTimeSecs;
         public boolean changed;
     }
 
-    public Result calculate(ImmutableList<PeerFilterProvider> providers) {
+    public Result calculate(ImmutableList<PeerFilterProvider> providers)
+    {
         LinkedList<PeerFilterProvider> begunProviders = Lists.newLinkedList();
-        try {
+        try
+        {
             // All providers must be in a consistent, unchanging state because the filter is a merged one that's
             // large enough for all providers elements: if a provider were to get more elements in the middle of the
             // calculation, we might assert or calculate the filter wrongly. Most providers use a lock here but
             // snapshotting required state is also a legitimate strategy.
-            for (PeerFilterProvider provider : providers) {
+            for (PeerFilterProvider provider : providers)
+            {
                 provider.beginBloomFilterCalculation();
                 begunProviders.add(provider);
             }
@@ -54,12 +60,14 @@ public class FilterMerger {
             result.earliestKeyTimeSecs = Long.MAX_VALUE;
             int elements = 0;
             boolean requiresUpdateAll = false;
-            for (PeerFilterProvider p : providers) {
+            for (PeerFilterProvider p : providers)
+            {
                 result.earliestKeyTimeSecs = Math.min(result.earliestKeyTimeSecs, p.getEarliestKeyCreationTime());
                 elements += p.getBloomFilterElementCount();
             }
 
-            if (elements > 0) {
+            if (elements > 0)
+            {
                 // We stair-step our element count so that we avoid creating a filter with different parameters
                 // as much as possible as that results in a loss of privacy.
                 // The constant 100 here is somewhat arbitrary, but makes sense for small to medium wallets -
@@ -80,22 +88,28 @@ public class FilterMerger {
             // (to within a small amount of tolerance).
             result.earliestKeyTimeSecs -= 86400 * 7;
             return result;
-        } finally {
-            for (PeerFilterProvider provider : begunProviders) {
+        }
+        finally
+        {
+            for (PeerFilterProvider provider : begunProviders)
+            {
                 provider.endBloomFilterCalculation();
             }
         }
     }
 
-    public void setBloomFilterFPRate(double bloomFilterFPRate) {
+    public void setBloomFilterFPRate(double bloomFilterFPRate)
+    {
         this.vBloomFilterFPRate = bloomFilterFPRate;
     }
 
-    public double getBloomFilterFPRate() {
+    public double getBloomFilterFPRate()
+    {
         return vBloomFilterFPRate;
     }
 
-    public BloomFilter getLastFilter() {
+    public BloomFilter getLastFilter()
+    {
         return lastFilter;
     }
 }

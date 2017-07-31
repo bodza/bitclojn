@@ -12,40 +12,48 @@ import java.util.List;
  * Deprecated: implement the more specific event listener interfaces instead.
  */
 @Deprecated
-public abstract class AbstractWalletEventListener extends AbstractKeyChainEventListener implements WalletEventListener {
+public abstract class AbstractWalletEventListener extends AbstractKeyChainEventListener implements WalletEventListener
+{
     @Override
-    public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
+    public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance)
+    {
         onChange();
     }
 
     @Override
-    public void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
+    public void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance)
+    {
         onChange();
     }
 
     @Override
-    public void onReorganize(Wallet wallet) {
+    public void onReorganize(Wallet wallet)
+    {
         onChange();
     }
 
     @Override
-    public void onTransactionConfidenceChanged(Wallet wallet, Transaction tx) {
+    public void onTransactionConfidenceChanged(Wallet wallet, Transaction tx)
+    {
         onChange();
     }
 
     @Override
-    public void onKeysAdded(List<ECKey> keys) {
+    public void onKeysAdded(List<ECKey> keys)
+    {
         onChange();
     }
 
     @Override
-    public void onWalletChanged(Wallet wallet) {
+    public void onWalletChanged(Wallet wallet)
+    {
         onChange();
     }
 
     /**
      * Default method called on change events.
      */
-    public void onChange() {
+    public void onChange()
+    {
     }
 }

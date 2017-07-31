@@ -7,6 +7,6 @@ import org.bitcoinj.core.*;
  * they can pre-filter messages before they are processed by a {@link Peer} or {@link PeerGroup}, and they can
  * provide transactions to remote peers when they ask for them.</p>
  */
-public interface PeerDataEventListener extends BlocksDownloadedEventListener, ChainDownloadStartedEventListener,
-        GetDataEventListener, PreMessageReceivedEventListener {
+public interface PeerDataEventListener extends BlocksDownloadedEventListener, ChainDownloadStartedEventListener, GetDataEventListener, PreMessageReceivedEventListener
+{
 }

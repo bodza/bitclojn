@@ -6,7 +6,8 @@ import org.bitcoinj.wallet.Wallet;
  * <p>Implementors are called when the contents of the wallet changes, for instance due to receiving/sending money
  * or a block chain re-organize. It may be convenient to derive from {@link AbstractWalletEventListener} instead.</p>
  */
-public interface WalletChangeEventListener {
+public interface WalletChangeEventListener
+{
     /**
      * <p>Designed for GUI applications to refresh their transaction lists. This callback is invoked in the following
      * situations:</p>

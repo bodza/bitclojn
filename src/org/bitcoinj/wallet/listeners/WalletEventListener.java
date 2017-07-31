@@ -7,9 +7,6 @@ import org.bitcoinj.core.listeners.TransactionConfidenceEventListener;
  * @deprecated Use the superinterfaces directly instead.
  */
 @Deprecated
-public interface WalletEventListener extends
-        KeyChainEventListener, WalletChangeEventListener,
-        WalletCoinsReceivedEventListener, WalletCoinsSentEventListener,
-        WalletReorganizeEventListener,
-        TransactionConfidenceEventListener {
+public interface WalletEventListener extends KeyChainEventListener, WalletChangeEventListener, WalletCoinsReceivedEventListener, WalletCoinsSentEventListener, WalletReorganizeEventListener, TransactionConfidenceEventListener
+{
 }
