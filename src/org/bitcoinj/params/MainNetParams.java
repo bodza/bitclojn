@@ -1,11 +1,11 @@
 package org.bitcoinj.params;
 
-import org.bitcoinj.core.*;
-import org.bitcoinj.net.discovery.*;
-
 import java.net.*;
 
 import static com.google.common.base.Preconditions.*;
+
+import org.bitcoinj.core.*;
+import org.bitcoinj.net.discovery.*;
 
 /**
  * Parameters for the main production network on which people trade goods and services.
@@ -19,6 +19,7 @@ public class MainNetParams extends AbstractBitcoinNetParams
     public MainNetParams()
     {
         super();
+
         interval = INTERVAL;
         targetTimespan = TARGET_TIMESPAN;
         maxTarget = Utils.decodeCompactBits(0x1d00ffffL);
@@ -27,8 +28,8 @@ public class MainNetParams extends AbstractBitcoinNetParams
         acceptableAddressCodes = new int[] { addressHeader, p2shHeader };
         port = 8333;
         packetMagic = 0xf9beb4d9L;
-        bip32HeaderPub = 0x0488B21E; //The 4 byte header that serializes in base58 to "xpub".
-        bip32HeaderPriv = 0x0488ADE4; //The 4 byte header that serializes in base58 to "xprv"
+        bip32HeaderPub = 0x0488b21e; // 4 byte header that serializes in base58 to "xpub"
+        bip32HeaderPriv = 0x0488ade4; // 4 byte header that serializes in base58 to "xprv"
 
         majorityEnforceBlockUpgrade = MAINNET_MAJORITY_ENFORCE_BLOCK_UPGRADE;
         majorityRejectBlockOutdated = MAINNET_MAJORITY_REJECT_BLOCK_OUTDATED;
@@ -43,8 +44,8 @@ public class MainNetParams extends AbstractBitcoinNetParams
         String genesisHash = genesisBlock.getHashAsString();
         checkState(genesisHash.equals("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"), genesisHash);
 
-        // This contains (at a minimum) the blocks which are not BIP30 compliant. BIP30 changed how duplicate
-        // transactions are handled. Duplicated transactions could occur in the case where a coinbase had the same
+        // This contains (at a minimum) the blocks which are not BIP30 compliant.  BIP30 changed how duplicate
+        // transactions are handled.  Duplicated transactions could occur in the case where a coinbase had the same
         // extraNonce and the same outputs but appeared at different heights, and greatly complicated re-org handling.
         // Having these here simplifies block connection logic considerably.
         checkpoints.put(91722, Sha256Hash.wrap("00000000000271a2dc26e7667f8419f2e15416dc6955e5a6c6cdf3f2574dd08e"));
@@ -55,13 +56,13 @@ public class MainNetParams extends AbstractBitcoinNetParams
 
         dnsSeeds = new String[]
         {
-                "seed.bitcoin.sipa.be",         // Pieter Wuille
-                "dnsseed.bluematt.me",          // Matt Corallo
-                "dnsseed.bitcoin.dashjr.org",   // Luke Dashjr
-                "seed.bitcoinstats.com",        // Chris Decker
-                "seed.bitnodes.io",             // Addy Yeow
-                "bitseed.xf2.org",              // Jeff Garzik
-                "seed.bitcoin.jonasschnelli.ch" // Jonas Schnelli
+            "seed.bitcoin.sipa.be",          // Pieter Wuille
+            "dnsseed.bluematt.me",           // Matt Corallo
+            "dnsseed.bitcoin.dashjr.org",    // Luke Dashjr
+            "seed.bitcoinstats.com",         // Chris Decker
+            "seed.bitnodes.io",              // Addy Yeow
+            "bitseed.xf2.org",               // Jeff Garzik
+            "seed.bitcoin.jonasschnelli.ch", // Jonas Schnelli
         };
 
         addrSeeds = new int[]
@@ -110,12 +111,11 @@ public class MainNetParams extends AbstractBitcoinNetParams
     }
 
     private static MainNetParams instance;
+
     public static synchronized MainNetParams get()
     {
         if (instance == null)
-        {
             instance = new MainNetParams();
-        }
         return instance;
     }
 

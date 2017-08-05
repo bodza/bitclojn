@@ -33,6 +33,6 @@ public class ListenerRegistration<T>
                 break;
             }
         }
-        return item != null && list.remove(item);
+        return (item != null && list.remove(item));
     }
 }

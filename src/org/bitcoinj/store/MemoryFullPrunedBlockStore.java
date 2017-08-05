@@ -1,16 +1,17 @@
 package org.bitcoinj.store;
 
-import org.bitcoinj.core.*;
+import java.util.*;
+import javax.annotation.Nullable;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import javax.annotation.Nullable;
-import java.util.*;
+import org.bitcoinj.core.*;
 
 /**
  * Used as a key for memory map (to avoid having to think about NetworkParameters,
- * which is required for {@link TransactionOutPoint}
+ * which is required for {@link TransactionOutPoint}.
  */
 class StoredTransactionOutPoint
 {
@@ -32,7 +33,7 @@ class StoredTransactionOutPoint
     }
 
     /**
-     * The hash of the transaction to which we refer
+     * The hash of the transaction to which we refer.
      */
     Sha256Hash getHash()
     {
@@ -40,7 +41,7 @@ class StoredTransactionOutPoint
     }
 
     /**
-     * The index of the output in transaction to which we refer
+     * The index of the output in transaction to which we refer.
      */
     long getIndex()
     {
@@ -72,7 +73,7 @@ class StoredTransactionOutPoint
 }
 
 /**
- * A HashMap<KeyType, ValueType> that is DB transaction-aware
+ * A HashMap<KeyType, ValueType> that is DB transaction-aware.
  * This class is not thread-safe.
  */
 class TransactionalHashMap<KeyType, ValueType>
@@ -99,7 +100,7 @@ class TransactionalHashMap<KeyType, ValueType>
     public void commitDatabaseBatchWrite()
     {
         if (tempSetRemoved.get() != null)
-            for(KeyType key : tempSetRemoved.get())
+            for (KeyType key : tempSetRemoved.get())
                 map.remove(key);
         if (tempMap.get() != null)
             for (Map.Entry<KeyType, ValueType> entry : tempMap.get().entrySet())
@@ -135,9 +136,7 @@ class TransactionalHashMap<KeyType, ValueType>
     {
         List<ValueType> valueTypes = new ArrayList<>();
         for (KeyType keyType : map.keySet())
-        {
             valueTypes.add(get(keyType));
-        }
         return valueTypes;
     }
 
@@ -187,8 +186,8 @@ class TransactionalHashMap<KeyType, ValueType>
 /**
  * A Map with multiple key types that is DB per-thread-transaction-aware.
  * However, this class is not thread-safe.
- * @param <UniqueKeyType> is a key that must be unique per object
- * @param <MultiKeyType> is a key that can have multiple values
+ * @param <UniqueKeyType> Is a key that must be unique per object.
+ * @param <MultiKeyType> Is a key that can have multiple values.
  */
 class TransactionalMultiKeyHashMap<UniqueKeyType, MultiKeyType, ValueType>
 {
@@ -275,21 +274,21 @@ public class MemoryFullPrunedBlockStore implements FullPrunedBlockStore
     private NetworkParameters params;
 
     /**
-     * Set up the MemoryFullPrunedBlockStore
-     * @param params The network parameters of this block store - used to get genesis block
-     * @param fullStoreDepth The depth of blocks to keep FullStoredBlocks instead of StoredBlocks
+     * Set up the MemoryFullPrunedBlockStore.
+     * @param params The network parameters of this block store - used to get genesis block.
+     * @param fullStoreDepth The depth of blocks to keep FullStoredBlocks instead of StoredBlocks.
      */
     public MemoryFullPrunedBlockStore(NetworkParameters params, int fullStoreDepth)
     {
         blockMap = new TransactionalHashMap<>();
         fullBlockMap = new TransactionalMultiKeyHashMap<>();
         transactionOutputMap = new TransactionalHashMap<>();
-        this.fullStoreDepth = fullStoreDepth > 0 ? fullStoreDepth : 1;
+        this.fullStoreDepth = (0 < fullStoreDepth) ? fullStoreDepth : 1;
         // Insert the genesis block.
         try
         {
             StoredBlock storedGenesisHeader = new StoredBlock(params.getGenesisBlock().cloneAsHeader(), params.getGenesisBlock().getWork(), 0);
-            // The coinbase in the genesis block is not spendable
+            // The coinbase in the genesis block is not spendable.
             List<Transaction> genesisTransactions = Lists.newLinkedList();
             StoredUndoableBlock storedGenesis = new StoredUndoableBlock(params.getGenesisBlock().getHash(), genesisTransactions);
             put(storedGenesisHeader, storedGenesis);
@@ -299,11 +298,11 @@ public class MemoryFullPrunedBlockStore implements FullPrunedBlockStore
         }
         catch (BlockStoreException e)
         {
-            throw new RuntimeException(e);  // Cannot happen.
+            throw new RuntimeException(e); // Cannot happen.
         }
         catch (VerificationException e)
         {
-            throw new RuntimeException(e);  // Cannot happen.
+            throw new RuntimeException(e); // Cannot happen.
         }
     }
 
@@ -333,7 +332,7 @@ public class MemoryFullPrunedBlockStore implements FullPrunedBlockStore
     {
         Preconditions.checkNotNull(blockMap, "MemoryFullPrunedBlockStore is closed");
         StoredBlockAndWasUndoableFlag storedBlock = blockMap.get(hash);
-        return storedBlock == null ? null : storedBlock.block;
+        return (storedBlock != null) ? storedBlock.block : null;
     }
 
     @Override
@@ -387,7 +386,7 @@ public class MemoryFullPrunedBlockStore implements FullPrunedBlockStore
         this.verifiedChainHead = chainHead;
         if (this.chainHead.getHeight() < chainHead.getHeight())
             setChainHead(chainHead);
-        // Potential leak here if not all blocks get setChainHead'd
+        // Potential leak here if not all blocks get setChainHead'd.
         // Though the FullPrunedBlockStore allows for this, the current AbstractBlockChain will not do it.
         fullBlockMap.removeByMultiKey(chainHead.getHeight() - fullStoreDepth);
     }

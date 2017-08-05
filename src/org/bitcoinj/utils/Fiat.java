@@ -1,26 +1,26 @@
 package org.bitcoinj.utils;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import org.bitcoinj.core.Monetary;
 import com.google.common.base.Objects;
+import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.math.LongMath;
 import com.google.common.primitives.Longs;
 
+import org.bitcoinj.core.Monetary;
+
 /**
- * Represents a monetary fiat value. It was decided to not fold this into {@link org.bitcoinj.core.Coin} because of type
- * safety. Fiat values always come with an attached currency code.
+ * Represents a monetary fiat value.  It was decided to not fold this into {@link org.bitcoinj.core.Coin}
+ * because of type safety.  Fiat values always come with an attached currency code.
  *
  * This class is immutable.
  */
 public final class Fiat implements Monetary, Comparable<Fiat>, Serializable
 {
     /**
-     * The absolute value of exponent of the value of a "smallest unit" in scientific notation. We picked 4 rather than
-     * 2, because in financial applications it's common to use sub-cent precision.
+     * The absolute value of exponent of the value of a "smallest unit" in scientific notation.
+     * We picked 4 rather than 2, because in financial applications it's common to use sub-cent precision.
      */
     public static final int SMALLEST_UNIT_EXPONENT = 4;
 
@@ -62,16 +62,12 @@ public final class Fiat implements Monetary, Comparable<Fiat>, Serializable
     }
 
     /**
-     * <p>
      * Parses an amount expressed in the way humans are used to.
-     * <p/>
-     * <p>
-     * This takes string in a format understood by {@link BigDecimal#BigDecimal(String)}, for example "0", "1", "0.10",
-     * "1.23E3", "1234.5E-5".
-     * <p/>
      *
-     * @throws IllegalArgumentException
-     *             if you try to specify more than 4 digits after the comma, or a value out of range.
+     * This takes string in a format understood by {@link BigDecimal#BigDecimal(String)},
+     * for example "0", "1", "0.10", "1.23E3", "1234.5E-5".
+     *
+     * @throws IllegalArgumentException if you try to specify more than 4 digits after the comma, or a value out of range.
      */
     public static Fiat parseFiat(final String currencyCode, final String str)
     {
@@ -87,16 +83,12 @@ public final class Fiat implements Monetary, Comparable<Fiat>, Serializable
     }
 
     /**
-     * <p>
-     * Parses an amount expressed in the way humans are used to. The amount is cut to 4 digits after the comma.
-     * <p/>
-     * <p>
-     * This takes string in a format understood by {@link BigDecimal#BigDecimal(String)}, for example "0", "1", "0.10",
-     * "1.23E3", "1234.5E-5".
-     * <p/>
+     * Parses an amount expressed in the way humans are used to.  The amount is cut to 4 digits after the comma.
      *
-     * @throws IllegalArgumentException
-     *             if you try to specify a value out of range.
+     * This takes string in a format understood by {@link BigDecimal#BigDecimal(String)},
+     * for example "0", "1", "0.10", "1.23E3", "1234.5E-5".
+     *
+     * @throws IllegalArgumentException if you try to specify a value out of range.
      */
     public static Fiat parseFiatInexact(final String currencyCode, final String str)
     {
@@ -114,12 +106,14 @@ public final class Fiat implements Monetary, Comparable<Fiat>, Serializable
     public Fiat add(final Fiat value)
     {
         checkArgument(value.currencyCode.equals(currencyCode));
+
         return new Fiat(currencyCode, LongMath.checkedAdd(this.value, value.value));
     }
 
     public Fiat subtract(final Fiat value)
     {
         checkArgument(value.currencyCode.equals(currencyCode));
+
         return new Fiat(currencyCode, LongMath.checkedSubtract(this.value, value.value));
     }
 
@@ -141,6 +135,7 @@ public final class Fiat implements Monetary, Comparable<Fiat>, Serializable
     public long divide(final Fiat divisor)
     {
         checkArgument(divisor.currencyCode.equals(currencyCode));
+
         return this.value / divisor.value;
     }
 
@@ -149,7 +144,7 @@ public final class Fiat implements Monetary, Comparable<Fiat>, Serializable
      */
     public boolean isPositive()
     {
-        return signum() == 1;
+        return (signum() == 1);
     }
 
     /**
@@ -157,7 +152,7 @@ public final class Fiat implements Monetary, Comparable<Fiat>, Serializable
      */
     public boolean isNegative()
     {
-        return signum() == -1;
+        return (signum() == -1);
     }
 
     /**
@@ -165,7 +160,7 @@ public final class Fiat implements Monetary, Comparable<Fiat>, Serializable
      */
     public boolean isZero()
     {
-        return signum() == 0;
+        return (signum() == 0);
     }
 
     /**
@@ -174,7 +169,7 @@ public final class Fiat implements Monetary, Comparable<Fiat>, Serializable
      */
     public boolean isGreaterThan(Fiat other)
     {
-        return compareTo(other) > 0;
+        return (compareTo(other) > 0);
     }
 
     /**
@@ -183,15 +178,13 @@ public final class Fiat implements Monetary, Comparable<Fiat>, Serializable
      */
     public boolean isLessThan(Fiat other)
     {
-        return compareTo(other) < 0;
+        return (compareTo(other) < 0);
     }
 
     @Override
     public int signum()
     {
-        if (this.value == 0)
-            return 0;
-        return this.value < 0 ? -1 : 1;
+        return (this.value == 0) ? 0 : (this.value < 0) ? -1 : 1;
     }
 
     public Fiat negate()
@@ -200,8 +193,8 @@ public final class Fiat implements Monetary, Comparable<Fiat>, Serializable
     }
 
     /**
-     * Returns the number of "smallest units" of this monetary value. It's deprecated in favour of accessing {@link #value}
-     * directly.
+     * Returns the number of "smallest units" of this monetary value.
+     * It's deprecated in favour of accessing {@link #value} directly.
      */
     public long longValue()
     {
@@ -211,8 +204,8 @@ public final class Fiat implements Monetary, Comparable<Fiat>, Serializable
     private static final MonetaryFormat FRIENDLY_FORMAT = MonetaryFormat.FIAT.postfixCode();
 
     /**
-     * Returns the value as a 0.12 type string. More digits after the decimal place will be used if necessary, but two
-     * will always be present.
+     * Returns the value as a 0.12 type string.
+     * More digits after the decimal place will be used if necessary, but two will always be present.
      */
     public String toFriendlyString()
     {
@@ -222,10 +215,8 @@ public final class Fiat implements Monetary, Comparable<Fiat>, Serializable
     private static final MonetaryFormat PLAIN_FORMAT = MonetaryFormat.FIAT.minDecimals(0).repeatOptionalDecimals(1, 4).noCode();
 
     /**
-     * <p>
-     * Returns the value as a plain string. The result is unformatted with no trailing zeroes. For
-     * instance, a value of 150000 "smallest units" gives an output string of "0.0015".
-     * </p>
+     * Returns the value as a plain string.  The result is unformatted with no trailing zeroes.
+     * For instance, a value of 150000 "smallest units" gives an output string of "0.0015".
      */
     public String toPlainString()
     {
@@ -258,8 +249,6 @@ public final class Fiat implements Monetary, Comparable<Fiat>, Serializable
     @Override
     public int compareTo(final Fiat other)
     {
-        if (!this.currencyCode.equals(other.currencyCode))
-            return this.currencyCode.compareTo(other.currencyCode);
-        return Longs.compare(this.value, other.value);
+        return this.currencyCode.equals(other.currencyCode) ? Longs.compare(this.value, other.value) : this.currencyCode.compareTo(other.currencyCode);
     }
 }

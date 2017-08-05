@@ -1,26 +1,24 @@
 package org.bitcoinj.wallet;
 
-import org.bitcoinj.core.Utils;
-import org.bitcoinj.crypto.*;
+import java.security.SecureRandom;
+import java.util.List;
+import javax.annotation.Nullable;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import com.google.common.base.Splitter;
 import org.spongycastle.crypto.params.KeyParameter;
 
-import javax.annotation.Nullable;
-import java.security.SecureRandom;
-import java.util.List;
-
-import static com.google.common.base.Preconditions.checkArgument;
+import org.bitcoinj.core.Utils;
 import static org.bitcoinj.core.Utils.HEX;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import org.bitcoinj.crypto.*;
 
 /**
- * Holds the seed bytes for the BIP32 deterministic wallet algorithm, inside a
- * {@link DeterministicKeyChain}. The purpose of this wrapper is to simplify the encryption
- * code.
+ * Holds the seed bytes for the BIP32 deterministic wallet algorithm, inside a {@link DeterministicKeyChain}.
+ * The purpose of this wrapper is to simplify the encryption code.
  */
 public class DeterministicSeed implements EncryptableItem
 {
@@ -58,24 +56,24 @@ public class DeterministicSeed implements EncryptableItem
     }
 
     /**
-     * Constructs a seed from a BIP 39 mnemonic code. See {@link org.bitcoinj.crypto.MnemonicCode} for more
-     * details on this scheme.
+     * Constructs a seed from a BIP 39 mnemonic code.
+     * See {@link org.bitcoinj.crypto.MnemonicCode} for more details on this scheme.
      * @param mnemonicCode A list of words.
-     * @param seed The derived seed, or pass null to derive it from mnemonicCode (slow)
-     * @param passphrase A user supplied passphrase, or an empty string if there is no passphrase
+     * @param seed The derived seed, or pass null to derive it from mnemonicCode (slow).
+     * @param passphrase A user supplied passphrase, or an empty string if there is no passphrase.
      * @param creationTimeSeconds When the seed was originally created, UNIX time.
      */
     public DeterministicSeed(List<String> mnemonicCode, @Nullable byte[] seed, String passphrase, long creationTimeSeconds)
     {
-        this((seed != null ? seed : MnemonicCode.toSeed(mnemonicCode, checkNotNull(passphrase))), mnemonicCode, creationTimeSeconds);
+        this((seed != null) ? seed : MnemonicCode.toSeed(mnemonicCode, checkNotNull(passphrase)), mnemonicCode, creationTimeSeconds);
     }
 
     /**
-     * Constructs a seed from a BIP 39 mnemonic code. See {@link org.bitcoinj.crypto.MnemonicCode} for more
-     * details on this scheme.
-     * @param random Entropy source
-     * @param bits number of bits, must be divisible by 32
-     * @param passphrase A user supplied passphrase, or an empty string if there is no passphrase
+     * Constructs a seed from a BIP 39 mnemonic code.
+     * See {@link org.bitcoinj.crypto.MnemonicCode} for more details on this scheme.
+     * @param random Entropy source.
+     * @param bits Number of bits, must be divisible by 32.
+     * @param passphrase A user supplied passphrase, or an empty string if there is no passphrase.
      * @param creationTimeSeconds When the seed was originally created, UNIX time.
      */
     public DeterministicSeed(SecureRandom random, int bits, String passphrase, long creationTimeSeconds)
@@ -84,16 +82,16 @@ public class DeterministicSeed implements EncryptableItem
     }
 
     /**
-     * Constructs a seed from a BIP 39 mnemonic code. See {@link org.bitcoinj.crypto.MnemonicCode} for more
-     * details on this scheme.
-     * @param entropy entropy bits, length must be divisible by 32
-     * @param passphrase A user supplied passphrase, or an empty string if there is no passphrase
+     * Constructs a seed from a BIP 39 mnemonic code.
+     * See {@link org.bitcoinj.crypto.MnemonicCode} for more details on this scheme.
+     * @param entropy Entropy bits, length must be divisible by 32.
+     * @param passphrase A user supplied passphrase, or an empty string if there is no passphrase.
      * @param creationTimeSeconds When the seed was originally created, UNIX time.
      */
     public DeterministicSeed(byte[] entropy, String passphrase, long creationTimeSeconds)
     {
         checkArgument(entropy.length % 4 == 0, "entropy size in bits not divisible by 32");
-        checkArgument(entropy.length * 8 >= DEFAULT_SEED_ENTROPY_BITS, "entropy size too small");
+        checkArgument(DEFAULT_SEED_ENTROPY_BITS <= entropy.length * 8, "entropy size too small");
         checkNotNull(passphrase);
 
         try
@@ -102,8 +100,7 @@ public class DeterministicSeed implements EncryptableItem
         }
         catch (MnemonicException.MnemonicLengthException e)
         {
-            // cannot happen
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); // Cannot happen.
         }
         this.seed = MnemonicCode.toSeed(mnemonicCode, passphrase);
         this.encryptedMnemonicCode = null;
@@ -138,7 +135,7 @@ public class DeterministicSeed implements EncryptableItem
     @Nullable
     public String toHexString()
     {
-        return seed != null ? HEX.encode(seed) : null;
+        return (seed != null) ? HEX.encode(seed) : null;
     }
 
     @Nullable
@@ -188,6 +185,7 @@ public class DeterministicSeed implements EncryptableItem
     {
         checkState(encryptedMnemonicCode == null, "Trying to encrypt seed twice");
         checkState(mnemonicCode != null, "Mnemonic missing so cannot encrypt");
+
         EncryptedData encryptedMnemonic = keyCrypter.encrypt(getMnemonicAsBytes(), aesKey);
         EncryptedData encryptedSeed = keyCrypter.encrypt(seed, aesKey);
         return new DeterministicSeed(encryptedMnemonic, encryptedSeed, creationTimeSeconds);
@@ -202,8 +200,9 @@ public class DeterministicSeed implements EncryptableItem
     {
         checkState(isEncrypted());
         checkNotNull(encryptedMnemonicCode);
+
         List<String> mnemonic = decodeMnemonicCode(crypter.decrypt(encryptedMnemonicCode, aesKey));
-        byte[] seed = encryptedSeed == null ? null : crypter.decrypt(encryptedSeed, aesKey);
+        byte[] seed = (encryptedSeed != null) ? crypter.decrypt(encryptedSeed, aesKey) : null;
         return new DeterministicSeed(mnemonic, seed, passphrase, creationTimeSeconds);
     }
 
@@ -228,7 +227,7 @@ public class DeterministicSeed implements EncryptableItem
      * Check if our mnemonic is a valid mnemonic phrase for our word list.
      * Does nothing if we are encrypted.
      *
-     * @throws org.bitcoinj.crypto.MnemonicException if check fails
+     * @throws org.bitcoinj.crypto.MnemonicException if check fails.
      */
     public void check()
         throws MnemonicException

@@ -1,7 +1,7 @@
 package org.bitcoinj.store;
 
 /**
- * Thrown when something goes wrong with storing a block. Examples: out of disk space.
+ * Thrown when something goes wrong with storing a block.  Examples: out of disk space.
  */
 public class BlockStoreException extends Exception
 {

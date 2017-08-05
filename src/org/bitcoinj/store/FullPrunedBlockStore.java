@@ -5,24 +5,24 @@ import org.bitcoinj.core.*;
 /**
  * <p>An implementor of FullPrunedBlockStore saves StoredBlock objects to some storage mechanism.</p>
  *
- * <p>In addition to keeping track of a chain using {@link StoredBlock}s, it should also keep track of a second
- * copy of the chain which holds {@link StoredUndoableBlock}s. In this way, an application can perform a
- * headers-only initial sync and then use that information to more efficiently download a locally verified
- * full copy of the block chain.</p>
+ * <p>In addition to keeping track of a chain using {@link StoredBlock}s, it should also keep track of
+ * a second copy of the chain which holds {@link StoredUndoableBlock}s.  In this way, an application can
+ * perform a headers-only initial sync and then use that information to more efficiently download a locally
+ * verified full copy of the block chain.</p>
  *
  * <p>A FullPrunedBlockStore should function well as a standard {@link BlockStore} and then be able to
  * trivially switch to being used as a FullPrunedBlockStore.</p>
  *
- * <p>It should store the {@link StoredUndoableBlock}s of a number of recent blocks before verifiedHead.height and
- * all those after verifiedHead.height.
+ * <p>It should store the {@link StoredUndoableBlock}s of a number of recent blocks before verifiedHead.height
+ * and all those after verifiedHead.height.
  * It is advisable to store any {@link StoredUndoableBlock} which has a height > verifiedHead.height - N.
- * Because N determines the memory usage, it is recommended that N be customizable. N should be chosen such that
- * re-orgs beyond that point are vanishingly unlikely, for example, a few thousand blocks is a reasonable choice.</p>
+ * Because N determines the memory usage, it is recommended that N be customizable.  N should be chosen such
+ * that re-orgs beyond that point are vanishingly unlikely, e.g. a few thousand blocks is a reasonable choice.</p>
  *
  * <p>It must store the {@link StoredBlock} of all blocks.</p>
  *
- * <p>A FullPrunedBlockStore contains a map of hashes to [Full]StoredBlock. The hash is the double digest of the
- * Bitcoin serialization of the block header, <b>not</b> the header with the extra data as well.</p>
+ * <p>A FullPrunedBlockStore contains a map of hashes to [Full]StoredBlock.  The hash is the double digest of
+ * the Bitcoin serialization of the block header, <b>not</b> the header with the extra data as well.</p>
  *
  * <p>A FullPrunedBlockStore also contains a map of hash+index to UTXO.  Again, the hash is
  * a standard Bitcoin double-SHA256 hash of the transaction.</p>
@@ -32,7 +32,7 @@ import org.bitcoinj.core.*;
 public interface FullPrunedBlockStore extends BlockStore
 {
     /**
-     * <p>Saves the given {@link StoredUndoableBlock} and {@link StoredBlock}. Calculates keys from the {@link StoredBlock}</p>
+     * <p>Saves the given {@link StoredUndoableBlock} and {@link StoredBlock}.  Calculates keys from the {@link StoredBlock}.</p>
      *
      * <p>Though not required for proper function of a FullPrunedBlockStore, any user of a FullPrunedBlockStore should ensure
      * that a StoredUndoableBlock for each block up to the fully verified chain head has been added to this block store using
@@ -44,34 +44,34 @@ public interface FullPrunedBlockStore extends BlockStore
         throws BlockStoreException;
 
     /**
-     * Returns the StoredBlock that was added as a StoredUndoableBlock given a hash. The returned values block.getHash()
-     * method will be equal to the parameter. If no such block is found, returns null.
+     * Returns the StoredBlock that was added as a StoredUndoableBlock given a hash.  The returned values block.getHash()
+     * method will be equal to the parameter.  If no such block is found, returns null.
      */
     StoredBlock getOnceUndoableStoredBlock(Sha256Hash hash)
         throws BlockStoreException;
 
     /**
-     * Returns a {@link StoredUndoableBlock} whose block.getHash() method will be equal to the parameter. If no such
-     * block is found, returns null. Note that this may return null more often than get(Sha256Hash hash) as not all
+     * Returns a {@link StoredUndoableBlock} whose block.getHash() method will be equal to the parameter.  If no such
+     * block is found, returns null.  Note that this may return null more often than get(Sha256Hash hash) as not all
      * {@link StoredBlock}s have a {@link StoredUndoableBlock} copy stored as well.
      */
     StoredUndoableBlock getUndoBlock(Sha256Hash hash)
         throws BlockStoreException;
 
     /**
-     * Gets a {@link org.bitcoinj.core.UTXO} with the given hash and index, or null if none is found
+     * Gets a {@link org.bitcoinj.core.UTXO} with the given hash and index, or null if none is found.
      */
     UTXO getTransactionOutput(Sha256Hash hash, long index)
         throws BlockStoreException;
 
     /**
-     * Adds a {@link org.bitcoinj.core.UTXO} to the list of unspent TransactionOutputs
+     * Adds a {@link org.bitcoinj.core.UTXO} to the list of unspent TransactionOutputs.
      */
     void addUnspentTransactionOutput(UTXO out)
         throws BlockStoreException;
 
     /**
-     * Removes a {@link org.bitcoinj.core.UTXO} from the list of unspent TransactionOutputs
+     * Removes a {@link org.bitcoinj.core.UTXO} from the list of unspent TransactionOutputs.
      * Note that the coinbase of the genesis block should NEVER be spendable and thus never in the list.
      * @throws BlockStoreException if there is an underlying storage issue, or out was not in the list.
      */
@@ -79,8 +79,8 @@ public interface FullPrunedBlockStore extends BlockStore
         throws BlockStoreException;
 
     /**
-     * True if this store has any unspent outputs from a transaction with a hash equal to the first parameter
-     * @param numOutputs the number of outputs the given transaction has
+     * True if this store has any unspent outputs from a transaction with a hash equal to the first parameter.
+     * @param numOutputs The number of outputs the given transaction has.
      */
     boolean hasUnspentOutputs(Sha256Hash hash, int numOutputs)
         throws BlockStoreException;
@@ -95,10 +95,10 @@ public interface FullPrunedBlockStore extends BlockStore
 
     /**
      * Sets the {@link StoredBlock} that represents the top of the chain of greatest total work that has been
-     * fully verified. It should generally be set after a batch of updates to the transaction unspent output set,
+     * fully verified.  It should generally be set after a batch of updates to the transaction unspent output set,
      * before a call to commitDatabaseBatchWrite.
      *
-     * If chainHead has a greater height than the non-verified chain head (ie that set with
+     * If chainHead has a greater height than the non-verified chain head (i.e. that set with
      * {@link BlockStore#setChainHead}) the non-verified chain head should be set to the one set here.
      * In this way a class using a FullPrunedBlockStore only in full-verification mode can ignore the regular
      * {@link BlockStore} functions implemented as a part of a FullPrunedBlockStore.
@@ -117,10 +117,7 @@ public interface FullPrunedBlockStore extends BlockStore
      * by any other threads until commitDatabaseBatchWrite() has been called by this thread.
      * Multiple calls to beginDatabaseBatchWrite() in any given thread should be ignored and treated as one call.</p>
      */
-    void beginDatabaseBatchWrite()
-        throws BlockStoreException;
-    void commitDatabaseBatchWrite()
-        throws BlockStoreException;
-    void abortDatabaseBatchWrite()
-        throws BlockStoreException;
+    void beginDatabaseBatchWrite() throws BlockStoreException;
+    void commitDatabaseBatchWrite() throws BlockStoreException;
+    void abortDatabaseBatchWrite() throws BlockStoreException;
 }

@@ -10,12 +10,7 @@ public class DefaultKeyChainFactory implements KeyChainFactory
     @Override
     public DeterministicKeyChain makeKeyChain(Protos.Key key, Protos.Key firstSubKey, DeterministicSeed seed, KeyCrypter crypter, boolean isMarried)
     {
-        DeterministicKeyChain chain;
-        if (isMarried)
-            chain = new MarriedKeyChain(seed, crypter);
-        else
-            chain = new DeterministicKeyChain(seed, crypter);
-        return chain;
+        return isMarried ? new MarriedKeyChain(seed, crypter) : new DeterministicKeyChain(seed, crypter);
     }
 
     @Override
@@ -24,11 +19,7 @@ public class DefaultKeyChainFactory implements KeyChainFactory
     {
         if (!accountKey.getPath().equals(DeterministicKeyChain.ACCOUNT_ZERO_PATH))
             throw new UnreadableWalletException("Expecting account key but found key with path: " + HDUtils.formatPath(accountKey.getPath()));
-        DeterministicKeyChain chain;
-        if (isMarried)
-            chain = new MarriedKeyChain(accountKey);
-        else
-            chain = new DeterministicKeyChain(accountKey, isFollowingKey);
-        return chain;
+
+        return isMarried ? new MarriedKeyChain(accountKey) : new DeterministicKeyChain(accountKey, isFollowingKey);
     }
 }

@@ -1,11 +1,5 @@
 package org.bitcoinj.utils;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.math.LongMath.checkedMultiply;
-import static com.google.common.math.LongMath.checkedPow;
-import static com.google.common.math.LongMath.divide;
-
 import java.math.RoundingMode;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -13,19 +7,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.math.LongMath.checkedMultiply;
+import static com.google.common.math.LongMath.checkedPow;
+import static com.google.common.math.LongMath.divide;
+
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.Monetary;
 
 /**
- * <p>
  * Utility for formatting and parsing coin values to and from human readable form.
- * </p>
  *
- * <p>
- * MonetaryFormat instances are immutable. Invoking a configuration method has no effect on the receiving instance; you
- * must store and use the new instance it returns, instead. Instances are thread safe, so they may be stored safely as
- * static constants.
- * </p>
+ * MonetaryFormat instances are immutable.  Invoking a configuration method has no effect on the receiving instance;
+ * you must store and use the new instance it returns, instead.  Instances are thread safe, so they may be stored safely
+ * as static constants.
  */
 public final class MonetaryFormat
 {
@@ -66,79 +62,61 @@ public final class MonetaryFormat
     public MonetaryFormat negativeSign(char negativeSign)
     {
         checkArgument(!Character.isDigit(negativeSign));
-        checkArgument(negativeSign > 0);
-        if (negativeSign == this.negativeSign)
-            return this;
-        else
-            return new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
+        checkArgument(0 < negativeSign);
+
+        return (negativeSign == this.negativeSign) ? this : new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
     }
 
     /**
-     * Set character to prefix positive values. A zero value means no sign is used in this case. For parsing, a missing
-     * sign will always be interpreted as if the positive sign was used.
+     * Set character to prefix positive values.  A zero value means no sign is used in this case.
+     * For parsing, a missing sign will always be interpreted as if the positive sign was used.
      */
     public MonetaryFormat positiveSign(char positiveSign)
     {
         checkArgument(!Character.isDigit(positiveSign));
-        if (positiveSign == this.positiveSign)
-            return this;
-        else
-            return new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
+
+        return (positiveSign == this.positiveSign) ? this : new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
     }
 
     /**
-     * Set character range to use for representing digits. It starts with the specified character representing zero.
+     * Set character range to use for representing digits.  It starts with the specified character representing zero.
      */
     public MonetaryFormat digits(char zeroDigit)
     {
-        if (zeroDigit == this.zeroDigit)
-            return this;
-        else
-            return new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
+        return (zeroDigit == this.zeroDigit) ? this : new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
     }
 
     /**
-     * Set character to use as the decimal mark. If the formatted value does not have any decimals, no decimal mark is
-     * used either.
+     * Set character to use as the decimal mark.  If the formatted value does not have any decimals,
+     * no decimal mark is used either.
      */
     public MonetaryFormat decimalMark(char decimalMark)
     {
         checkArgument(!Character.isDigit(decimalMark));
-        checkArgument(decimalMark > 0);
-        if (decimalMark == this.decimalMark)
-            return this;
-        else
-            return new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
+        checkArgument(0 < decimalMark);
+
+        return (decimalMark == this.decimalMark) ? this : new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
     }
 
     /**
-     * Set minimum number of decimals to use for formatting. If the value precision exceeds all decimals specified
-     * (including additional decimals specified by {@link #optionalDecimals(int...)} or
-     * {@link #repeatOptionalDecimals(int, int)}), the value will be rounded. This configuration is not relevant for
-     * parsing.
+     * Set minimum number of decimals to use for formatting.  If the value precision exceeds all decimals specified
+     * (including additional decimals specified by {@link #optionalDecimals(int...)} or {@link #repeatOptionalDecimals(int, int)}),
+     * the value will be rounded.  This configuration is not relevant for parsing.
      */
     public MonetaryFormat minDecimals(int minDecimals)
     {
-        if (minDecimals == this.minDecimals)
-            return this;
-        else
-            return new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
+        return (minDecimals == this.minDecimals) ? this : new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
     }
 
     /**
-     * <p>
      * Set additional groups of decimals to use after the minimum decimals, if they are useful for expressing precision.
-     * Each value is a number of decimals in that group. If the value precision exceeds all decimals specified
-     * (including minimum decimals), the value will be rounded. This configuration is not relevant for parsing.
-     * </p>
+     * Each value is a number of decimals in that group.  If the value precision exceeds all decimals specified
+     * (including minimum decimals), the value will be rounded.  This configuration is not relevant for parsing.
      *
-     * <p>
      * For example, if you pass <tt>4,2</tt> it will add four decimals to your formatted string if needed, and then add
-     * another two decimals if needed. At this point, rather than adding further decimals the value will be rounded.
-     * </p>
+     * another two decimals if needed.  At this point, rather than adding further decimals the value will be rounded.
      *
-     * @param groups
-     *            any number numbers of decimals, one for each group
+     * @param groups Any number numbers of decimals, one for each group.
      */
     public MonetaryFormat optionalDecimals(int... groups)
     {
@@ -149,25 +127,20 @@ public final class MonetaryFormat
     }
 
     /**
-     * <p>
      * Set repeated additional groups of decimals to use after the minimum decimals, if they are useful for expressing
-     * precision. If the value precision exceeds all decimals specified (including minimum decimals), the value will be
-     * rounded. This configuration is not relevant for parsing.
-     * </p>
+     * precision.  If the value precision exceeds all decimals specified (including minimum decimals), the value will be
+     * rounded.  This configuration is not relevant for parsing.
      *
-     * <p>
-     * For example, if you pass <tt>1,8</tt> it will up to eight decimals to your formatted string if needed. After
-     * these have been used up, rather than adding further decimals the value will be rounded.
-     * </p>
+     * For example, if you pass <tt>1,8</tt> it will up to eight decimals to your formatted string if needed.
+     * After these have been used up, rather than adding further decimals the value will be rounded.
      *
-     * @param decimals
-     *            value of the group to be repeated
-     * @param repetitions
-     *            number of repetitions
+     * @param decimals Value of the group to be repeated.
+     * @param repetitions Number of repetitions.
      */
     public MonetaryFormat repeatOptionalDecimals(int decimals, int repetitions)
     {
-        checkArgument(repetitions >= 0);
+        checkArgument(0 <= repetitions);
+
         List<Integer> decimalGroups = new ArrayList<>(repetitions);
         for (int i = 0; i < repetitions; i++)
             decimalGroups.add(decimals);
@@ -176,14 +149,11 @@ public final class MonetaryFormat
 
     /**
      * Set number of digits to shift the decimal separator to the right, coming from the standard BTC notation that was
-     * common pre-2014. Note this will change the currency code if enabled.
+     * common pre-2014.  Note this will change the currency code if enabled.
      */
     public MonetaryFormat shift(int shift)
     {
-        if (shift == this.shift)
-            return this;
-        else
-            return new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
+        return (shift == this.shift) ? this : new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
     }
 
     /**
@@ -191,75 +161,58 @@ public final class MonetaryFormat
      */
     public MonetaryFormat roundingMode(RoundingMode roundingMode)
     {
-        if (roundingMode == this.roundingMode)
-            return this;
-        else
-            return new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
+        return (roundingMode == this.roundingMode) ? this : new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
     }
 
     /**
-     * Don't display currency code when formatting. This configuration is not relevant for parsing.
+     * Don't display currency code when formatting.  This configuration is not relevant for parsing.
      */
     public MonetaryFormat noCode()
     {
-        if (codes == null)
-            return this;
-        else
-            return new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, null, codeSeparator, codePrefixed);
+        return (codes == null) ? this : new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, null, codeSeparator, codePrefixed);
     }
 
     /**
-     * Configure currency code for given decimal separator shift. This configuration is not relevant for parsing.
+     * Configure currency code for given decimal separator shift.  This configuration is not relevant for parsing.
      *
-     * @param codeShift
-     *            decimal separator shift, see {@link #shift}
-     * @param code
-     *            currency code
+     * @param codeShift Decimal separator shift, see {@link #shift}.
+     * @param code Currency code.
      */
     public MonetaryFormat code(int codeShift, String code)
     {
-        checkArgument(codeShift >= 0);
-        final String[] codes = null == this.codes
-            ? new String[MAX_DECIMALS]
-            : Arrays.copyOf(this.codes, this.codes.length);
+        checkArgument(0 <= codeShift);
+
+        final String[] codes = (this.codes != null) ? Arrays.copyOf(this.codes, this.codes.length) : new String[MAX_DECIMALS];
 
         codes[codeShift] = code;
         return new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
     }
 
     /**
-     * Separator between currency code and formatted value. This configuration is not relevant for parsing.
+     * Separator between currency code and formatted value.  This configuration is not relevant for parsing.
      */
     public MonetaryFormat codeSeparator(char codeSeparator)
     {
         checkArgument(!Character.isDigit(codeSeparator));
-        checkArgument(codeSeparator > 0);
-        if (codeSeparator == this.codeSeparator)
-            return this;
-        else
-            return new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
+        checkArgument(0 < codeSeparator);
+
+        return (codeSeparator == this.codeSeparator) ? this : new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed);
     }
 
     /**
-     * Prefix formatted output by currency code. This configuration is not relevant for parsing.
+     * Prefix formatted output by currency code.  This configuration is not relevant for parsing.
      */
     public MonetaryFormat prefixCode()
     {
-        if (codePrefixed)
-            return this;
-        else
-            return new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, true);
+        return codePrefixed ? this : new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, true);
     }
 
     /**
-     * Postfix formatted output with currency code. This configuration is not relevant for parsing.
+     * Postfix formatted output with currency code.  This configuration is not relevant for parsing.
      */
     public MonetaryFormat postfixCode()
     {
-        if (!codePrefixed)
-            return this;
-        else
-            return new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, false);
+        return !codePrefixed ? this : new MonetaryFormat(negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, false);
     }
 
     /**
@@ -333,41 +286,41 @@ public final class MonetaryFormat
 
         // formatting
         String decimalsStr = String.format(Locale.US, "%0" + (smallestUnitExponent - shift) + "d", decimals);
-        StringBuilder str = new StringBuilder(decimalsStr);
-        while (str.length() > minDecimals && str.charAt(str.length() - 1) == '0')
-            str.setLength(str.length() - 1); // trim trailing zero
+        StringBuilder sb = new StringBuilder(decimalsStr);
+        while (minDecimals < sb.length() && sb.charAt(sb.length() - 1) == '0')
+            sb.setLength(sb.length() - 1); // trim trailing zero
         int i = minDecimals;
         if (decimalGroups != null)
         {
             for (int group : decimalGroups)
             {
-                if (str.length() > i && str.length() < i + group)
+                if (i < sb.length() && sb.length() < i + group)
                 {
-                    while (str.length() < i + group)
-                        str.append('0');
+                    while (sb.length() < i + group)
+                        sb.append('0');
                     break;
                 }
                 i += group;
             }
         }
-        if (str.length() > 0)
-            str.insert(0, decimalMark);
-        str.insert(0, numbers);
+        if (0 < sb.length())
+            sb.insert(0, decimalMark);
+        sb.insert(0, numbers);
         if (monetary.getValue() < 0)
-            str.insert(0, negativeSign);
+            sb.insert(0, negativeSign);
         else if (positiveSign != 0)
-            str.insert(0, positiveSign);
+            sb.insert(0, positiveSign);
         if (codes != null)
         {
             if (codePrefixed)
             {
-                str.insert(0, codeSeparator);
-                str.insert(0, code());
+                sb.insert(0, codeSeparator);
+                sb.insert(0, code());
             }
             else
             {
-                str.append(codeSeparator);
-                str.append(code());
+                sb.append(codeSeparator);
+                sb.append(code());
             }
         }
 
@@ -375,21 +328,20 @@ public final class MonetaryFormat
         if (zeroDigit != '0')
         {
             int offset = zeroDigit - '0';
-            for (int d = 0; d < str.length(); d++)
+            for (int d = 0; d < sb.length(); d++)
             {
-                char c = str.charAt(d);
+                char c = sb.charAt(d);
                 if (Character.isDigit(c))
-                    str.setCharAt(d, (char) (c + offset));
+                    sb.setCharAt(d, (char)(c + offset));
             }
         }
-        return str;
+        return sb;
     }
 
     /**
      * Parse a human readable coin value to a {@link org.bitcoinj.core.Coin} instance.
      *
-     * @throws NumberFormatException
-     *             if the string cannot be parsed for some reason
+     * @throws NumberFormatException if the string cannot be parsed for some reason.
      */
     public Coin parse(String str)
         throws NumberFormatException
@@ -400,8 +352,7 @@ public final class MonetaryFormat
     /**
      * Parse a human readable fiat value to a {@link org.bitcoinj.utils.Fiat} instance.
      *
-     * @throws NumberFormatException
-     *             if the string cannot be parsed for some reason
+     * @throws NumberFormatException if the string cannot be parsed for some reason.
      */
     public Fiat parseFiat(String currencyCode, String str)
         throws NumberFormatException
@@ -411,9 +362,11 @@ public final class MonetaryFormat
 
     private long parseValue(String str, int smallestUnitExponent)
     {
-        checkState(DECIMALS_PADDING.length() >= smallestUnitExponent);
+        checkState(smallestUnitExponent <= DECIMALS_PADDING.length());
+
         if (str.isEmpty())
             throw new NumberFormatException("empty string");
+
         char first = str.charAt(0);
         if (first == negativeSign || first == positiveSign)
             str = str.substring(1);
@@ -432,11 +385,14 @@ public final class MonetaryFormat
             numbers = str;
             decimals = DECIMALS_PADDING;
         }
+
         String satoshis = numbers + decimals.substring(0, smallestUnitExponent - shift);
         for (char c : satoshis.toCharArray())
             if (!Character.isDigit(c))
                 throw new NumberFormatException("illegal character: " + c);
-        long value = Long.parseLong(satoshis); // Non-arabic digits allowed here.
+
+        // Non-arabic digits allowed here.
+        long value = Long.parseLong(satoshis);
         if (first == negativeSign)
             value = -value;
         return value;

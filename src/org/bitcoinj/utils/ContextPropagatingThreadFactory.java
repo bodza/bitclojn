@@ -1,18 +1,20 @@
 package org.bitcoinj.utils;
 
-import com.google.common.base.*;
-import org.bitcoinj.core.*;
-import org.slf4j.*;
-
 import java.util.concurrent.*;
 
+import com.google.common.base.*;
+import org.slf4j.*;
+
+import org.bitcoinj.core.*;
+
 /**
- * A {@link java.util.concurrent.ThreadFactory} that propagates a {@link org.bitcoinj.core.Context} from the creating
- * thread into the new thread. This factory creates daemon threads.
+ * A {@link java.util.concurrent.ThreadFactory} that propagates a {@link org.bitcoinj.core.Context}
+ * from the creating thread into the new thread.  This factory creates daemon threads.
  */
 public class ContextPropagatingThreadFactory implements ThreadFactory
 {
     private static final Logger log = LoggerFactory.getLogger(ContextPropagatingThreadFactory.class);
+
     private final String name;
     private final int priority;
 

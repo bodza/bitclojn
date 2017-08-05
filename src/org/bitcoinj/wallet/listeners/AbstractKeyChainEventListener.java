@@ -1,8 +1,8 @@
 package org.bitcoinj.wallet.listeners;
 
-import org.bitcoinj.core.ECKey;
-
 import java.util.List;
+
+import org.bitcoinj.core.ECKey;
 
 public class AbstractKeyChainEventListener implements KeyChainEventListener
 {

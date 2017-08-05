@@ -22,7 +22,7 @@ public abstract class AbstractTimeoutHandler
      * <p>Enables or disables the timeout entirely.  This may be useful if you want to store the timeout value
      * but wish to temporarily disable/enable timeouts.</p>
      *
-     * <p>The default is for timeoutEnabled to be true but timeoutMillis to be set to 0 (ie disabled).</p>
+     * <p>The default is for timeoutEnabled to be true but timeoutMillis to be set to 0 (i.e. disabled).</p>
      *
      * <p>This call will reset the current progress towards the timeout.</p>
      */
@@ -38,7 +38,7 @@ public abstract class AbstractTimeoutHandler
      *
      * <p>A timeout of 0 is interpreted as no timeout.</p>
      *
-     * <p>The default is for timeoutEnabled to be true but timeoutMillis to be set to 0 (ie disabled).</p>
+     * <p>The default is for timeoutEnabled to be true but timeoutMillis to be set to 0 (i.e. disabled).</p>
      *
      * <p>This call will reset the current progress towards the timeout.</p>
      */

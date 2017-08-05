@@ -33,15 +33,15 @@ public class BlockingClient implements MessageWriteTarget
 
     /**
      * <p>Creates a new client to the given server address using the given {@link StreamConnection} to decode the data.
-     * The given connection <b>MUST</b> be unique to this object. This does not block while waiting for the connection to
-     * open, but will call either the {@link StreamConnection#connectionOpened()} or
+     * The given connection <b>MUST</b> be unique to this object.  This does not block while waiting for the connection
+     * to open, but will call either the {@link StreamConnection#connectionOpened()} or
      * {@link StreamConnection#connectionClosed()} callback on the created network event processing thread.</p>
      *
-     * @param connectTimeoutMillis The connect timeout set on the connection (in milliseconds). 0 is interpreted as no
-     *                             timeout.
+     * @param connectTimeoutMillis The connect timeout set on the connection (in milliseconds).
+     *                             0 is interpreted as no timeout.
      * @param socketFactory An object that creates {@link Socket} objects on demand, which may be customised to control
-     *                      how this client connects to the internet. If not sure, use SocketFactory.getDefault()
-     * @param clientSet A set which this object will add itself to after initialization, and then remove itself from
+     *                      how this client connects to the internet.  If not sure, use SocketFactory.getDefault().
+     * @param clientSet A set which this object will add itself to after initialization, and then remove itself from.
      */
     public BlockingClient(final SocketAddress serverAddress, final StreamConnection connection, final int connectTimeoutMillis, final SocketFactory socketFactory, @Nullable final Set<BlockingClient> clientSet)
         throws IOException
@@ -84,7 +84,7 @@ public class BlockingClient implements MessageWriteTarget
                     }
                     catch (IOException e1)
                     {
-                        // At this point there isn't much we can do, and we can probably assume the channel is closed
+                        // At this point there isn't much we can do, and we can probably assume the channel is closed.
                     }
                     if (clientSet != null)
                         clientSet.remove(BlockingClient.this);
@@ -98,7 +98,7 @@ public class BlockingClient implements MessageWriteTarget
     }
 
     /**
-     * A blocking call that never returns, except by throwing an exception. It reads bytes from the input stream
+     * A blocking call that never returns, except by throwing an exception.  It reads bytes from the input stream
      * and feeds them to the provided {@link StreamConnection}, for example, a {@link Peer}.
      */
     public static void runReadLoop(InputStream stream, StreamConnection connection)
@@ -108,20 +108,19 @@ public class BlockingClient implements MessageWriteTarget
         byte[] readBuff = new byte[dbuf.capacity()];
         while (true)
         {
-            // TODO Kill the message duplication here
-            checkState(dbuf.remaining() > 0 && dbuf.remaining() <= readBuff.length);
+            // TODO: Kill the message duplication here.
+            checkState(0 < dbuf.remaining() && dbuf.remaining() <= readBuff.length);
             int read = stream.read(readBuff, 0, Math.max(1, Math.min(dbuf.remaining(), stream.available())));
             if (read == -1)
                 return;
+
             dbuf.put(readBuff, 0, read);
             // "flip" the buffer - setting the limit to the current position and setting position to 0
             dbuf.flip();
-            // Use connection.receiveBytes's return value as a double-check that it stopped reading at the right
-            // location
+            // Use connection.receiveBytes's return value as a double-check that it stopped reading at the right location.
             int bytesConsumed = connection.receiveBytes(dbuf);
             checkState(dbuf.position() == bytesConsumed);
-            // Now drop the bytes which were read by compacting dbuf (resetting limit and keeping relative
-            // position)
+            // Now drop the bytes which were read by compacting dbuf (resetting limit and keeping relative position).
             dbuf.compact();
         }
     }
@@ -133,7 +132,7 @@ public class BlockingClient implements MessageWriteTarget
     @Override
     public void closeConnection()
     {
-        // Closes the channel, triggering an exception in the network-handling thread triggering connectionClosed()
+        // Closes the channel, triggering an exception in the network-handling thread triggering connectionClosed().
         try
         {
             vCloseRequested = true;

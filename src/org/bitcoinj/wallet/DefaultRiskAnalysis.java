@@ -1,5 +1,12 @@
 package org.bitcoinj.wallet;
 
+import java.util.List;
+import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.ECKey.ECDSASignature;
@@ -10,28 +17,20 @@ import org.bitcoinj.core.TransactionInput;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.crypto.TransactionSignature;
 import org.bitcoinj.script.ScriptChunk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
-
-import static com.google.common.base.Preconditions.checkState;
 
 /**
- * <p>The default risk analysis. Currently, it only is concerned with whether a tx/dependency is non-final or not, and
- * whether a tx/dependency violates the dust rules. Outside of specialised protocols you should not encounter non-final
- * transactions.</p>
+ * <p>The default risk analysis.  Currently, it only is concerned with whether a tx/dependency is non-final or not,
+ * and whether a tx/dependency violates the dust rules.  Outside of specialised protocols you should not encounter
+ * non-final transactions.</p>
  */
 public class DefaultRiskAnalysis implements RiskAnalysis
 {
     private static final Logger log = LoggerFactory.getLogger(DefaultRiskAnalysis.class);
 
     /**
-     * Any standard output smaller than this value (in satoshis) will be considered risky, as it's most likely be
-     * rejected by the network. This is usually the same as {@link Transaction#MIN_NONDUST_OUTPUT} but can be
-     * different when the fee is about to change in Bitcoin Core.
+     * Any standard output smaller than this value (in satoshis) will be considered risky, as it's most likely
+     * be rejected by the network.  This is usually the same as {@link Transaction#MIN_NONDUST_OUTPUT} but can
+     * be different when the fee is about to change in Bitcoin Core.
      */
     public static final Coin MIN_ANALYSIS_NONDUST_OUTPUT = Transaction.MIN_NONDUST_OUTPUT;
 
@@ -82,8 +81,8 @@ public class DefaultRiskAnalysis implements RiskAnalysis
 
         final int height = wallet.getLastBlockSeenHeight();
         final long time = wallet.getLastBlockSeenTimeSecs();
-        // If the transaction has a lock time specified in blocks, we consider that if the tx would become final in the
-        // next block it is not risky (as it would confirm normally).
+        // If the transaction has a lock time specified in blocks, we consider that if the tx would become final
+        // in the next block, it is not risky (as it would confirm normally).
         final int adjustedHeight = height + 1;
 
         if (!tx.isFinal(adjustedHeight, time))
@@ -91,6 +90,7 @@ public class DefaultRiskAnalysis implements RiskAnalysis
             nonFinal = tx;
             return Result.NON_FINAL;
         }
+
         for (Transaction dep : dependencies)
         {
             if (!dep.isFinal(adjustedHeight, time))
@@ -104,8 +104,7 @@ public class DefaultRiskAnalysis implements RiskAnalysis
     }
 
     /**
-     * The reason a transaction is considered non-standard, returned by
-     * {@link #isStandard(org.bitcoinj.core.Transaction)}.
+     * The reason a transaction is considered non-standard, returned by {@link #isStandard(org.bitcoinj.core.Transaction)}.
      */
     public enum RuleViolation
     {
@@ -118,15 +117,14 @@ public class DefaultRiskAnalysis implements RiskAnalysis
     }
 
     /**
-     * <p>Checks if a transaction is considered "standard" by Bitcoin Core's IsStandardTx and AreInputsStandard
-     * functions.</p>
+     * <p>Checks if a transaction is considered "standard" by Bitcoin Core's IsStandardTx and AreInputsStandard functions.</p>
      *
-     * <p>Note that this method currently only implements a minimum of checks. More to be added later.</p>
+     * <p>Note that this method currently only implements a minimum of checks.  More to be added later.</p>
      */
     public static RuleViolation isStandard(Transaction tx)
     {
         // TODO: Finish this function off.
-        if (tx.getVersion() > 1 || tx.getVersion() < 1)
+        if (1 < tx.getVersion() || tx.getVersion() < 1)
         {
             log.warn("TX considered non-standard due to unknown version number {}", tx.getVersion());
             return RuleViolation.VERSION;
@@ -160,27 +158,28 @@ public class DefaultRiskAnalysis implements RiskAnalysis
     }
 
     /**
-     * Checks the output to see if the script violates a standardness rule. Not complete.
+     * Checks the output to see if the script violates a standardness rule.  Not complete.
      */
     public static RuleViolation isOutputStandard(TransactionOutput output)
     {
         if (output.getValue().compareTo(MIN_ANALYSIS_NONDUST_OUTPUT) < 0)
             return RuleViolation.DUST;
+
         for (ScriptChunk chunk : output.getScriptPubKey().getChunks())
-        {
             if (chunk.isPushData() && !chunk.isShortestPossiblePushData())
                 return RuleViolation.SHORTEST_POSSIBLE_PUSHDATA;
-        }
+
         return RuleViolation.NONE;
     }
 
-    /** Checks if the given input passes some of the AreInputsStandard checks. Not complete. */
+    /** Checks if the given input passes some of the AreInputsStandard checks.  Not complete. */
     public static RuleViolation isInputStandard(TransactionInput input)
     {
         for (ScriptChunk chunk : input.getScriptSig().getChunks())
         {
             if (chunk.data != null && !chunk.isShortestPossiblePushData())
                 return RuleViolation.SHORTEST_POSSIBLE_PUSHDATA;
+
             if (chunk.isPushData())
             {
                 ECDSASignature signature;
@@ -188,7 +187,7 @@ public class DefaultRiskAnalysis implements RiskAnalysis
                 {
                     signature = ECKey.ECDSASignature.decodeFromDER(chunk.data);
                 }
-                catch (IllegalArgumentException x)
+                catch (IllegalArgumentException _)
                 {
                     // Doesn't look like a signature.
                     signature = null;
@@ -207,8 +206,8 @@ public class DefaultRiskAnalysis implements RiskAnalysis
 
     private Result analyzeIsStandard()
     {
-        // The IsStandard rules don't apply on testnet, because they're just a safety mechanism and we don't want to
-        // crush innovation with valueless test coins.
+        // The IsStandard rules don't apply on testnet, because they're just a safety mechanism and we don't
+        // want to crush innovation with valueless test coins.
         if (wallet != null && !wallet.getNetworkParameters().getId().equals(NetworkParameters.ID_MAINNET))
             return Result.OK;
 
@@ -251,12 +250,12 @@ public class DefaultRiskAnalysis implements RiskAnalysis
     {
         if (!analyzed)
             return "Pending risk analysis for " + tx.getHashAsString();
-        else if (nonFinal != null)
+        if (nonFinal != null)
             return "Risky due to non-finality of " + nonFinal.getHashAsString();
-        else if (nonStandard != null)
+        if (nonStandard != null)
             return "Risky due to non-standard tx " + nonStandard.getHashAsString();
-        else
-            return "Non-risky";
+
+        return "Non-risky";
     }
 
     public static class Analyzer implements RiskAnalysis.Analyzer

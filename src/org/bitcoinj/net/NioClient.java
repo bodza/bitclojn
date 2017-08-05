@@ -1,12 +1,12 @@
 package org.bitcoinj.net;
 
-import com.google.common.base.*;
-import com.google.common.util.concurrent.*;
-import org.slf4j.*;
-
 import java.io.*;
 import java.net.*;
 import java.nio.*;
+
+import com.google.common.base.*;
+import com.google.common.util.concurrent.*;
+import org.slf4j.*;
 
 /**
  * Creates a simple connection to a server using a {@link StreamConnection} to process data.
@@ -22,8 +22,9 @@ public class NioClient implements MessageWriteTarget
     {
         private final StreamConnection upstreamConnection;
         private MessageWriteTarget writeTarget;
-        private boolean closeOnOpen = false;
-        private boolean closeCalled = false;
+        private boolean closeOnOpen;
+        private boolean closeCalled;
+
         Handler(StreamConnection upstreamConnection, int connectTimeoutMillis)
         {
             this.upstreamConnection = upstreamConnection;
@@ -85,12 +86,12 @@ public class NioClient implements MessageWriteTarget
 
     /**
      * <p>Creates a new client to the given server address using the given {@link StreamConnection} to decode the data.
-     * The given connection <b>MUST</b> be unique to this object. This does not block while waiting for the connection to
-     * open, but will call either the {@link StreamConnection#connectionOpened()} or
+     * The given connection <b>MUST</b> be unique to this object.  This does not block while waiting for the connection
+     * to open, but will call either the {@link StreamConnection#connectionOpened()} or
      * {@link StreamConnection#connectionClosed()} callback on the created network event processing thread.</p>
      *
-     * @param connectTimeoutMillis The connect timeout set on the connection (in milliseconds). 0 is interpreted as no
-     *                             timeout.
+     * @param connectTimeoutMillis The connect timeout set on the connection (in milliseconds).
+                                   0 is interpreted as no timeout.
      */
     public NioClient(final SocketAddress serverAddress, final StreamConnection parser, final int connectTimeoutMillis)
         throws IOException

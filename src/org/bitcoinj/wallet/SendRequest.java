@@ -1,10 +1,12 @@
 package org.bitcoinj.wallet;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.math.BigInteger;
 import java.util.Date;
+
+import com.google.common.base.MoreObjects;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import org.spongycastle.crypto.params.KeyParameter;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Coin;
@@ -18,69 +20,66 @@ import org.bitcoinj.script.ScriptBuilder;
 import org.bitcoinj.utils.ExchangeRate;
 import org.bitcoinj.wallet.KeyChain.KeyPurpose;
 import org.bitcoinj.wallet.Wallet.MissingSigsMode;
-import org.spongycastle.crypto.params.KeyParameter;
-
-import com.google.common.base.MoreObjects;
 
 /**
  * A SendRequest gives the wallet information about precisely how to send money to a recipient or set of recipients.
  * Static methods are provided to help you create SendRequests and there are a few helper methods on the wallet that
- * just simplify the most common use cases. You may wish to customize a SendRequest if you want to attach a fee or
+ * just simplify the most common use cases.  You may wish to customize a SendRequest if you want to attach a fee or
  * modify the change address.
  */
 public class SendRequest
 {
     /**
-     * <p>A transaction, probably incomplete, that describes the outline of what you want to do. This typically will
-     * mean it has some outputs to the intended destinations, but no inputs or change address (and therefore no
-     * fees) - the wallet will calculate all that for you and update tx later.</p>
+     * <p>A transaction, probably incomplete, that describes the outline of what you want to do.  This typically
+     * will mean it has some outputs to the intended destinations, but no inputs or change address (and therefore
+     * no fees) - the wallet will calculate all that for you and update tx later.</p>
      *
      * <p>Be careful when adding outputs that you check the min output value
      * ({@link TransactionOutput#getMinNonDustValue(Coin)}) to avoid the whole transaction being rejected
      * because one output is dust.</p>
      *
      * <p>If there are already inputs to the transaction, make sure their out point has a connected output,
-     * otherwise their value will be added to fee.  Also ensure they are either signed or are spendable by a wallet
-     * key, otherwise the behavior of {@link Wallet#completeTx(Wallet.SendRequest)} is undefined (likely
-     * RuntimeException).</p>
+     * otherwise their value will be added to fee.  Also ensure they are either signed or are spendable by
+     * a wallet key, otherwise the behavior of {@link Wallet#completeTx(Wallet.SendRequest)} is undefined
+     * (likely RuntimeException).</p>
      */
     public Transaction tx;
 
     /**
      * When emptyWallet is set, all coins selected by the coin selector are sent to the first output in tx
      * (its value is ignored and set to {@link org.bitcoinj.wallet.Wallet#getBalance()} - the fees required
-     * for the transaction). Any additional outputs are removed.
+     * for the transaction).  Any additional outputs are removed.
      */
     public boolean emptyWallet = false;
 
     /**
      * "Change" means the difference between the value gathered by a transactions inputs (the size of which you
-     * don't really control as it depends on who sent you money), and the value being sent somewhere else. The
-     * change address should be selected from this wallet, normally. <b>If null this will be chosen for you.</b>
+     * don't really control as it depends on who sent you money), and the value being sent somewhere else.  The
+     * change address should be selected from this wallet, normally.  <b>If null this will be chosen for you.</b>
      */
     public Address changeAddress = null;
 
     /**
      * <p>A transaction can have a fee attached, which is defined as the difference between the input values
-     * and output values. Any value taken in that is not provided to an output can be claimed by a miner. This
-     * is how mining is incentivized in later years of the Bitcoin system when inflation drops. It also provides
+     * and output values.  Any value taken in that is not provided to an output can be claimed by a miner.  This
+     * is how mining is incentivized in later years of the Bitcoin system when inflation drops.  It also provides
      * a way for people to prioritize their transactions over others and is used as a way to make denial of service
      * attacks expensive.</p>
      *
      * <p>This is a dynamic fee (in satoshis) which will be added to the transaction for each kilobyte in size
-     * including the first. This is useful as as miners usually sort pending transactions by their fee per unit size
-     * when choosing which transactions to add to a block. Note that, to keep this equivalent to Bitcoin Core
+     * including the first.  This is useful as as miners usually sort pending transactions by their fee per unit size
+     * when choosing which transactions to add to a block.  Note that, to keep this equivalent to Bitcoin Core
      * definition, a kilobyte is defined as 1000 bytes, not 1024.</p>
      */
     public Coin feePerKb = Context.get().getFeePerKb();
 
     /**
      * <p>Requires that there be enough fee for a default Bitcoin Core to at least relay the transaction.
-     * (ie ensure the transaction will not be outright rejected by the network). Defaults to true, you should
-     * only set this to false if you know what you're doing.</p>
+     * (i.e. ensure the transaction will not be outright rejected by the network).  Defaults to true,
+     * you should only set this to false if you know what you're doing.</p>
      *
-     * <p>Note that this does not enforce certain fee rules that only apply to transactions which are larger than
-     * 26,000 bytes. If you get a transaction which is that large, you should set a feePerKb of at least
+     * <p>Note that this does not enforce certain fee rules that only apply to transactions which are larger
+     * than 26,000 bytes.  If you get a transaction which is that large, you should set a feePerKb of at least
      * {@link Transaction#REFERENCE_DEFAULT_MIN_TX_FEE}.</p>
      */
     public boolean ensureMinRequiredFee = Context.get().isEnsureMinRequiredFee();
@@ -98,22 +97,22 @@ public class SendRequest
     public KeyParameter aesKey = null;
 
     /**
-     * If not null, the {@link org.bitcoinj.wallet.CoinSelector} to use instead of the wallets default. Coin selectors are
-     * responsible for choosing which transaction outputs (coins) in a wallet to use given the desired send value
-     * amount.
+     * If not null, the {@link org.bitcoinj.wallet.CoinSelector} to use instead of the wallets default.
+     * Coin selectors are responsible for choosing which transaction outputs (coins) in a wallet to use given
+     * the desired send value amount.
      */
     public CoinSelector coinSelector = null;
 
     /**
-     * If true (the default), the outputs will be shuffled during completion to randomize the location of the change
-     * output, if any. This is normally what you want for privacy reasons but in unit tests it can be annoying
-     * so it can be disabled here.
+     * If true (the default), the outputs will be shuffled during completion to randomize the location
+     * of the change output, if any.  This is normally what you want for privacy reasons but in unit tests
+     * it can be annoying, so it can be disabled here.
      */
     public boolean shuffleOutputs = true;
 
     /**
-     * Specifies what to do with missing signatures left after completing this request. Default strategy is to
-     * throw an exception on missing signature ({@link MissingSigsMode#THROW}).
+     * Specifies what to do with missing signatures left after completing this request.  Default strategy is
+     * to throw an exception on missing signature ({@link MissingSigsMode#THROW}).
      * @see MissingSigsMode
      */
     public MissingSigsMode missingSigsMode = MissingSigsMode.THROW;
@@ -124,33 +123,38 @@ public class SendRequest
     public ExchangeRate exchangeRate = null;
 
     /**
-     * If not null, this memo is recorded with the transaction during completion. It can be used to record the memo
-     * of the payment request that initiated the transaction.
+     * If not null, this memo is recorded with the transaction during completion.  It can be used to record
+     * the memo of the payment request that initiated the transaction.
      */
     public String memo = null;
 
     /**
-     * If false (default value), tx fee is paid by the sender If true, tx fee is paid by the recipient/s. If there is
-     * more than one recipient, the tx fee is split equally between them regardless of output value and size.
+     * If false (default value), tx fee is paid by the sender.  If true, tx fee is paid by the recipient/s.
+     * If there is more than one recipient, the tx fee is split equally between them regardless of output
+     * value and size.
      */
     public boolean recipientsPayFees = false;
 
     // Tracks if this has been passed to wallet.completeTx already: just a safety check.
     boolean completed;
 
-    private SendRequest() {}
+    private SendRequest()
+    {
+    }
 
     /**
      * <p>Creates a new SendRequest to the given address for the given value.</p>
      *
-     * <p>Be very careful when value is smaller than {@link Transaction#MIN_NONDUST_OUTPUT} as the transaction will
-     * likely be rejected by the network in this case.</p>
+     * <p>Be very careful when value is smaller than {@link Transaction#MIN_NONDUST_OUTPUT} as the transaction
+     * will likely be rejected by the network in this case.</p>
      */
     public static SendRequest to(Address destination, Coin value)
     {
         SendRequest req = new SendRequest();
         final NetworkParameters parameters = destination.getParameters();
+
         checkNotNull(parameters, "Address is for an unknown network");
+
         req.tx = new Transaction(parameters);
         req.tx.addOutput(value, destination);
         return req;
@@ -161,7 +165,7 @@ public class SendRequest
      *
      * <p>Be careful to check the output's value is reasonable using
      * {@link TransactionOutput#getMinNonDustValue(Coin)} afterwards or you risk having the transaction
-     * rejected by the network. Note that using {@link SendRequest#to(Address, Coin)} will result
+     * rejected by the network.  Note that using {@link SendRequest#to(Address, Coin)} will result
      * in a smaller output, and thus the ability to use a smaller output value without rejection.</p>
      */
     public static SendRequest to(NetworkParameters params, ECKey destination, Coin value)
@@ -184,7 +188,9 @@ public class SendRequest
     {
         SendRequest req = new SendRequest();
         final NetworkParameters parameters = destination.getParameters();
+
         checkNotNull(parameters, "Address is for an unknown network");
+
         req.tx = new Transaction(parameters);
         req.tx.addOutput(Coin.ZERO, destination);
         req.emptyWallet = true;
@@ -192,9 +198,9 @@ public class SendRequest
     }
 
     /**
-     * Construct a SendRequest for a CPFP (child-pays-for-parent) transaction. The resulting transaction is already
-     * completed, so you should directly proceed to signing and broadcasting/committing the transaction. CPFP is
-     * currently only supported by a few miners, so use with care.
+     * Construct a SendRequest for a CPFP (child-pays-for-parent) transaction.  The resulting transaction is
+     * already completed, so you should directly proceed to signing and broadcasting/committing the transaction.
+     * CPFP is currently only supported by a few miners, so use with care.
      */
     public static SendRequest childPaysForParent(Wallet wallet, Transaction parentTransaction, Coin feeRaise)
     {
@@ -207,7 +213,7 @@ public class SendRequest
                 break;
             }
         }
-        // TODO spend another confirmed output of own wallet if needed
+        // TODO: Spend another confirmed output of own wallet if needed.
         checkNotNull(outputToSpend, "Can't find adequately sized output that spends to us");
 
         final Transaction tx = new Transaction(parentTransaction.getParams());
@@ -222,13 +228,16 @@ public class SendRequest
     public static SendRequest toCLTVPaymentChannel(NetworkParameters params, Date releaseTime, ECKey from, ECKey to, Coin value)
     {
         long time = releaseTime.getTime() / 1000L;
-        checkArgument(time >= Transaction.LOCKTIME_THRESHOLD, "Release time was too small");
+
+        checkArgument(Transaction.LOCKTIME_THRESHOLD <= time, "Release time was too small");
+
         return toCLTVPaymentChannel(params, BigInteger.valueOf(time), from, to, value);
     }
 
     public static SendRequest toCLTVPaymentChannel(NetworkParameters params, int releaseBlock, ECKey from, ECKey to, Coin value)
     {
         checkArgument(0 <= releaseBlock && releaseBlock < Transaction.LOCKTIME_THRESHOLD, "Block number was too large");
+
         return toCLTVPaymentChannel(params, BigInteger.valueOf(releaseBlock), from, to, value);
     }
 
@@ -244,14 +253,14 @@ public class SendRequest
     @Override
     public String toString()
     {
-        // print only the user-settable fields
+        // Print only the user-settable fields.
         MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper(this).omitNullValues();
         helper.add("emptyWallet", emptyWallet);
         helper.add("changeAddress", changeAddress);
         helper.add("feePerKb", feePerKb);
         helper.add("ensureMinRequiredFee", ensureMinRequiredFee);
         helper.add("signInputs", signInputs);
-        helper.add("aesKey", aesKey != null ? "set" : null); // careful to not leak the key
+        helper.add("aesKey", (aesKey != null) ? "set" : null); // Careful to not leak the key.
         helper.add("coinSelector", coinSelector);
         helper.add("shuffleOutputs", shuffleOutputs);
         helper.add("recipientsPayFees", recipientsPayFees);

@@ -1,8 +1,8 @@
 package org.bitcoinj.wallet;
 
-import org.bitcoinj.core.Transaction;
-
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import org.bitcoinj.core.Transaction;
 
 /**
  * Stores data about a transaction that is only relevant to the {@link org.bitcoinj.wallet.Wallet} class.
@@ -14,7 +14,7 @@ public class WalletTransaction
         UNSPENT, // unspent in best chain
         SPENT, // spent in best chain
         DEAD, // double-spend in alt chain
-        PENDING, // a pending tx we would like to go into the best chain
+        PENDING // a pending tx we would like to go into the best chain
     }
     private final Transaction transaction;
     private final Pool pool;

@@ -1,25 +1,24 @@
 package org.bitcoinj.store;
 
-import org.bitcoinj.core.*;
-import org.bitcoinj.utils.*;
-import org.slf4j.*;
-
-import com.google.common.base.Charsets;
-
-import javax.annotation.*;
 import java.io.*;
 import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
 import java.util.concurrent.locks.*;
+import javax.annotation.*;
 
+import com.google.common.base.Charsets;
 import static com.google.common.base.Preconditions.*;
+import org.slf4j.*;
 
-// TODO: Lose the mmap in this class. There are too many platform bugs that require odd workarounds.
+import org.bitcoinj.core.*;
+import org.bitcoinj.utils.*;
+
+// TODO: Lose the mmap in this class.  There are too many platform bugs that require odd workarounds.
 
 /**
- * An SPVBlockStore holds a limited number of block headers in a memory mapped ring buffer. With such a store, you
- * may not be able to process very deep re-orgs and could be disconnected from the chain (requiring a replay),
+ * An SPVBlockStore holds a limited number of block headers in a memory mapped ring buffer.  With such a store,
+ * you may not be able to process very deep re-orgs and could be disconnected from the chain (requiring a replay),
  * but as they are virtually unheard of this is not a significant risk.
  */
 public class SPVBlockStore implements BlockStore
@@ -37,44 +36,46 @@ public class SPVBlockStore implements BlockStore
     protected ReentrantLock lock = Threading.lock("SPVBlockStore");
 
     // The entire ring-buffer is mmapped and accessing it should be as fast as accessing regular memory once it's
-    // faulted in. Unfortunately, in theory practice and theory are the same. In practice they aren't.
+    // faulted in.  Unfortunately, in theory practice and theory are the same.  In practice they aren't.
     //
     // MMapping a file in Java does not give us a byte[] as you may expect but rather a ByteBuffer, and whilst on
     // the OpenJDK/Oracle JVM calls into the get() methods are compiled down to inlined native code on Android each
-    // get() call is actually a full-blown JNI method under the hood, meaning it's unbelievably slow. The caches
+    // get() call is actually a full-blown JNI method under the hood, meaning it's unbelievably slow.  The caches
     // below let us stay in the JIT-compiled Java world without expensive JNI transitions and make a 10x difference!
     protected LinkedHashMap<Sha256Hash, StoredBlock> blockCache = new LinkedHashMap<Sha256Hash, StoredBlock>()
     {
         @Override
         protected boolean removeEldestEntry(Map.Entry<Sha256Hash, StoredBlock> entry)
         {
-            return size() > 2050;  // Slightly more than the difficulty transition period.
+            return (2050 < size()); // Slightly more than the difficulty transition period.
         }
     };
-    // Use a separate cache to track get() misses. This is to efficiently handle the case of an unconnected block
-    // during chain download. Each new block will do a get() on the unconnected block so if we haven't seen it yet we
-    // must efficiently respond.
+
+    // Use a separate cache to track get() misses.  This is to efficiently handle the case of an unconnected block
+    // during chain download.  Each new block will do a get() on the unconnected block so if we haven't seen it yet
+    // we must efficiently respond.
     //
-    // We don't care about the value in this cache. It is always notFoundMarker. Unfortunately LinkedHashSet does not
-    // provide the removeEldestEntry control.
+    // We don't care about the value in this cache.  It is always notFoundMarker.  Unfortunately LinkedHashSet does
+    // not provide the removeEldestEntry control.
     private static final Object NOT_FOUND_MARKER = new Object();
     protected LinkedHashMap<Sha256Hash, Object> notFoundCache = new LinkedHashMap<Sha256Hash, Object>()
     {
         @Override
         protected boolean removeEldestEntry(Map.Entry<Sha256Hash, Object> entry)
         {
-            return size() > 100;  // This was chosen arbitrarily.
+            return (100 < size()); // This was chosen arbitrarily.
         }
     };
+
     // Used to stop other applications/processes from opening the store.
-    protected FileLock fileLock = null;
-    protected RandomAccessFile randomAccessFile = null;
+    protected FileLock fileLock;
+    protected RandomAccessFile randomAccessFile;
 
     /**
-     * Creates and initializes an SPV block store that can hold {@link #DEFAULT_CAPACITY} blocks. Will create the given
-     * file if it's missing. This operation will block on disk.
-     * @param file file to use for the block store
-     * @throws BlockStoreException if something goes wrong
+     * Creates and initializes an SPV block store that can hold {@link #DEFAULT_CAPACITY} blocks.
+     * Will create the given file if it's missing.  This operation will block on disk.
+     * @param file File to use for the block store.
+     * @throws BlockStoreException if something goes wrong.
      */
     public SPVBlockStore(NetworkParameters params, File file)
         throws BlockStoreException
@@ -83,11 +84,11 @@ public class SPVBlockStore implements BlockStore
     }
 
     /**
-     * Creates and initializes an SPV block store that can hold a given amount of blocks. Will create the given file if
-     * it's missing. This operation will block on disk.
-     * @param file file to use for the block store
-     * @param capacity custom capacity
-     * @throws BlockStoreException if something goes wrong
+     * Creates and initializes an SPV block store that can hold a given amount of blocks.
+     * Will create the given file if it's missing.  This operation will block on disk.
+     * @param file File to use for the block store.
+     * @param capacity Custom capacity.
+     * @throws BlockStoreException if something goes wrong.
      */
     public SPVBlockStore(NetworkParameters params, File file, int capacity)
         throws BlockStoreException
@@ -95,6 +96,7 @@ public class SPVBlockStore implements BlockStore
         checkNotNull(file);
         this.params = checkNotNull(params);
         checkArgument(capacity > 0);
+
         this.capacity = capacity;
         try
         {
@@ -109,8 +111,7 @@ public class SPVBlockStore implements BlockStore
             }
             else if (randomAccessFile.length() != fileSize)
             {
-                throw new BlockStoreException("File size on disk does not match expected size: " +
-                        randomAccessFile.length() + " vs " + fileSize);
+                throw new BlockStoreException("File size on disk does not match expected size: " + randomAccessFile.length() + " vs " + fileSize);
             }
 
             FileChannel channel = randomAccessFile.getChannel();
@@ -118,11 +119,11 @@ public class SPVBlockStore implements BlockStore
             if (fileLock == null)
                 throw new ChainFileLockedException("Store file is already locked by another process");
 
-            // Map it into memory read/write. The kernel will take care of flushing writes to disk at the most
+            // Map it into memory read/write.  The kernel will take care of flushing writes to disk at the most
             // efficient times, which may mean that until the map is deallocated the data on disk is randomly
-            // inconsistent. However the only process accessing it is us, via this mapping, so our own view will
-            // always be correct. Once we establish the mmap the underlying file and channel can go away. Note that
-            // the details of mmapping vary between platforms.
+            // inconsistent.  However the only process accessing it is us, via this mapping, so our own view will
+            // always be correct.  Once we establish the mmap the underlying file and channel can go away.  Note
+            // that the details of mmapping vary between platforms.
             buffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, fileSize);
 
             // Check or initialize the header bytes to ensure we don't try to open some random file.
@@ -139,25 +140,25 @@ public class SPVBlockStore implements BlockStore
                 initNewStore(params);
             }
         }
-        catch (Exception e)
+        catch (Exception e1)
         {
             try
             {
-                if (randomAccessFile != null) randomAccessFile.close();
+                if (randomAccessFile != null)
+                    randomAccessFile.close();
             }
             catch (IOException e2)
             {
                 throw new BlockStoreException(e2);
             }
-            throw new BlockStoreException(e);
+            throw new BlockStoreException(e1);
         }
     }
 
     private void initNewStore(NetworkParameters params)
         throws Exception
     {
-        byte[] header;
-        header = HEADER_MAGIC.getBytes("US-ASCII");
+        byte[] header = HEADER_MAGIC.getBytes("US-ASCII");
         buffer.put(header);
         // Insert the genesis block.
         lock.lock();
@@ -186,17 +187,16 @@ public class SPVBlockStore implements BlockStore
         throws BlockStoreException
     {
         final MappedByteBuffer buffer = this.buffer;
-        if (buffer == null) throw new BlockStoreException("Store closed");
+        if (buffer == null)
+            throw new BlockStoreException("Store closed");
 
         lock.lock();
         try
         {
             int cursor = getRingCursor(buffer);
+            // Wrapped around.
             if (cursor == getFileSize(capacity))
-            {
-                // Wrapped around.
                 cursor = FILE_PROLOGUE_BYTES;
-            }
             buffer.position(cursor);
             Sha256Hash hash = block.getHeader().getHash();
             notFoundCache.remove(hash);
@@ -205,7 +205,10 @@ public class SPVBlockStore implements BlockStore
             setRingCursor(buffer, buffer.position());
             blockCache.put(hash, block);
         }
-        finally { lock.unlock(); }
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     @Override
@@ -214,7 +217,8 @@ public class SPVBlockStore implements BlockStore
         throws BlockStoreException
     {
         final MappedByteBuffer buffer = this.buffer;
-        if (buffer == null) throw new BlockStoreException("Store closed");
+        if (buffer == null)
+            throw new BlockStoreException("Store closed");
 
         lock.lock();
         try
@@ -225,8 +229,8 @@ public class SPVBlockStore implements BlockStore
             if (notFoundCache.get(hash) != null)
                 return null;
 
-            // Starting from the current tip of the ring work backwards until we have either found the block or
-            // wrapped around.
+            // Starting from the current tip of the ring work backwards until we have either
+            // found the block or wrapped around.
             int cursor = getRingCursor(buffer);
             final int startingPoint = cursor;
             final int fileSize = getFileSize(capacity);
@@ -235,11 +239,9 @@ public class SPVBlockStore implements BlockStore
             do
             {
                 cursor -= RECORD_SIZE;
+                // We hit the start, so wrap around.
                 if (cursor < FILE_PROLOGUE_BYTES)
-                {
-                    // We hit the start, so wrap around.
                     cursor = fileSize - RECORD_SIZE;
-                }
                 // Cursor is now at the start of the next record to check, so read the hash and compare it.
                 buffer.position(cursor);
                 buffer.get(scratch);
@@ -251,25 +253,30 @@ public class SPVBlockStore implements BlockStore
                     return storedBlock;
                 }
             } while (cursor != startingPoint);
+
             // Not found.
             notFoundCache.put(hash, NOT_FOUND_MARKER);
             return null;
         }
         catch (ProtocolException e)
         {
-            throw new RuntimeException(e);  // Cannot happen.
+            throw new RuntimeException(e); // Cannot happen.
         }
-        finally { lock.unlock(); }
+        finally
+        {
+            lock.unlock();
+        }
     }
 
-    protected StoredBlock lastChainHead = null;
+    protected StoredBlock lastChainHead;
 
     @Override
     public StoredBlock getChainHead()
         throws BlockStoreException
     {
         final MappedByteBuffer buffer = this.buffer;
-        if (buffer == null) throw new BlockStoreException("Store closed");
+        if (buffer == null)
+            throw new BlockStoreException("Store closed");
 
         lock.lock();
         try
@@ -283,11 +290,15 @@ public class SPVBlockStore implements BlockStore
                 StoredBlock block = get(hash);
                 if (block == null)
                     throw new BlockStoreException("Corrupted block store: could not find chain head: " + hash);
+
                 lastChainHead = block;
             }
             return lastChainHead;
         }
-        finally { lock.unlock(); }
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     @Override
@@ -295,7 +306,8 @@ public class SPVBlockStore implements BlockStore
         throws BlockStoreException
     {
         final MappedByteBuffer buffer = this.buffer;
-        if (buffer == null) throw new BlockStoreException("Store closed");
+        if (buffer == null)
+            throw new BlockStoreException("Store closed");
 
         lock.lock();
         try
@@ -305,7 +317,10 @@ public class SPVBlockStore implements BlockStore
             buffer.position(8);
             buffer.put(headHash);
         }
-        finally { lock.unlock(); }
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     @Override
@@ -315,7 +330,7 @@ public class SPVBlockStore implements BlockStore
         try
         {
             buffer.force();
-            buffer = null;  // Allow it to be GCd and the underlying file mapping to go away.
+            buffer = null; // Allow it to be GCd and the underlying file mapping to go away.
             randomAccessFile.close();
         }
         catch (IOException e)
@@ -334,7 +349,7 @@ public class SPVBlockStore implements BlockStore
 
     // File format:
     //   4 header bytes = "SPVB"
-    //   4 cursor bytes, which indicate the offset from the first kb where the next block header should be written.
+    //   4 cursor bytes, which indicate the offset from the first kb where the next block header should be written
     //   32 bytes for the hash of the chain head
     //
     // For each header (128 bytes)
@@ -348,13 +363,13 @@ public class SPVBlockStore implements BlockStore
     private int getRingCursor(ByteBuffer buffer)
     {
         int c = buffer.getInt(4);
-        checkState(c >= FILE_PROLOGUE_BYTES, "Integer overflow");
+        checkState(FILE_PROLOGUE_BYTES <= c, "Integer overflow");
         return c;
     }
 
     private void setRingCursor(ByteBuffer buffer, int newCursor)
     {
-        checkArgument(newCursor >= 0);
+        checkArgument(0 <= newCursor);
         buffer.putInt(4, newCursor);
     }
 }

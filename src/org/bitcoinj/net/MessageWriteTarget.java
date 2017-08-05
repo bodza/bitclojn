@@ -3,7 +3,7 @@ package org.bitcoinj.net;
 import java.io.IOException;
 
 /**
- * A target to which messages can be written/connection can be closed
+ * A target to which messages can be written/connection can be closed.
  */
 public interface MessageWriteTarget
 {

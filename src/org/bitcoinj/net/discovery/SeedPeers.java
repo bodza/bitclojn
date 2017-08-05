@@ -1,17 +1,17 @@
 package org.bitcoinj.net.discovery;
 
-import org.bitcoinj.core.NetworkParameters;
-
-import javax.annotation.Nullable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
+
+import org.bitcoinj.core.NetworkParameters;
 
 /**
- * SeedPeers stores a pre-determined list of Bitcoin node addresses. These nodes are selected based on being
- * active on the network for a long period of time. The intention is to be a last resort way of finding a connection
- * to the network, in case IRC and DNS fail. The list comes from the Bitcoin C++ source code.
+ * SeedPeers stores a pre-determined list of Bitcoin node addresses.  These nodes are selected based on
+ * being active on the network for a long period of time.  The intention is to be a last resort way of finding
+ * a connection to the network, in case IRC and DNS fail.  The list comes from the Bitcoin C++ source code.
  */
 public class SeedPeers implements PeerDiscovery
 {
@@ -20,7 +20,7 @@ public class SeedPeers implements PeerDiscovery
     private int pnseedIndex;
 
     /**
-     * Supports finding peers by IP addresses
+     * Supports finding peers by IP addresses.
      *
      * @param params Network parameters to be used for port information.
      */
@@ -30,7 +30,7 @@ public class SeedPeers implements PeerDiscovery
     }
 
     /**
-     * Supports finding peers by IP addresses
+     * Supports finding peers by IP addresses.
      *
      * @param seedAddrs IP addresses for seed addresses.
      * @param params Network parameters to be used for port information.
@@ -45,7 +45,7 @@ public class SeedPeers implements PeerDiscovery
      * Acts as an iterator, returning the address of each node in the list sequentially.
      * Once all the list has been iterated, null will be returned for each subsequent query.
      *
-     * @return InetSocketAddress - The address/port of the next node.
+     * @return InetSocketAddress - the address/port of the next node.
      * @throws PeerDiscoveryException
      */
     @Nullable
@@ -69,7 +69,7 @@ public class SeedPeers implements PeerDiscovery
         if (seedAddrs == null || seedAddrs.length == 0)
             throw new PeerDiscoveryException("No IP address seeds configured; unable to find any peers");
 
-        if (pnseedIndex >= seedAddrs.length)
+        if (seedAddrs.length <= pnseedIndex)
             return null;
 
         return new InetSocketAddress(convertAddress(seedAddrs[pnseedIndex++]), params.getPort());
@@ -84,6 +84,7 @@ public class SeedPeers implements PeerDiscovery
     {
         if (services != 0)
             throw new PeerDiscoveryException("Pre-determined peers cannot be filtered by services: " + services);
+
         try
         {
             return allPeers();
@@ -99,9 +100,7 @@ public class SeedPeers implements PeerDiscovery
     {
         InetSocketAddress[] addresses = new InetSocketAddress[seedAddrs.length];
         for (int i = 0; i < seedAddrs.length; ++i)
-        {
             addresses[i] = new InetSocketAddress(convertAddress(seedAddrs[i]), params.getPort());
-        }
         return addresses;
     }
 
@@ -109,10 +108,10 @@ public class SeedPeers implements PeerDiscovery
         throws UnknownHostException
     {
         byte[] v4addr = new byte[4];
-        v4addr[0] = (byte) (0xFF & (seed));
-        v4addr[1] = (byte) (0xFF & (seed >> 8));
-        v4addr[2] = (byte) (0xFF & (seed >> 16));
-        v4addr[3] = (byte) (0xFF & (seed >> 24));
+        v4addr[0] = (byte)(0xff & seed);
+        v4addr[1] = (byte)(0xff & (seed >> 8));
+        v4addr[2] = (byte)(0xff & (seed >> 16));
+        v4addr[3] = (byte)(0xff & (seed >> 24));
         return InetAddress.getByAddress(v4addr);
     }
 

@@ -1,19 +1,17 @@
 package org.bitcoinj.wallet;
 
-import org.bitcoinj.core.ECKey;
-import org.spongycastle.crypto.params.KeyParameter;
-
-import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import org.spongycastle.crypto.params.KeyParameter;
+
+import org.bitcoinj.core.ECKey;
 
 /**
- * A DecryptingKeyBag filters a pre-existing key bag, decrypting keys as they are requested using the provided
- * AES key. If the keys are encrypted and no AES key provided, {@link org.bitcoinj.core.ECKey.KeyIsEncryptedException}
- * will be thrown.
+ * A DecryptingKeyBag filters a pre-existing key bag, decrypting keys as they are requested using the provided AES key.
+ * If the keys are encrypted and no AES key provided, {@link org.bitcoinj.core.ECKey.KeyIsEncryptedException} will be thrown.
  */
 public class DecryptingKeyBag implements KeyBag
 {
@@ -31,25 +29,22 @@ public class DecryptingKeyBag implements KeyBag
     {
         if (key == null)
             return null;
-        else if (key.isEncrypted())
+
+        if (key.isEncrypted())
         {
             if (aesKey == null)
                 throw new ECKey.KeyIsEncryptedException();
             return key.decrypt(aesKey);
         }
-        else
-        {
-            return key;
-        }
+
+        return key;
     }
 
     private RedeemData maybeDecrypt(RedeemData redeemData)
     {
         List<ECKey> decryptedKeys = new ArrayList<>();
         for (ECKey key : redeemData.keys)
-        {
             decryptedKeys.add(maybeDecrypt(key));
-        }
         return RedeemData.of(decryptedKeys, redeemData.redeemScript);
     }
 

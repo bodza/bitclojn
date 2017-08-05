@@ -10,7 +10,7 @@ public enum ScriptError
     SCRIPT_ERR_EVAL_FALSE("EVAL_FALSE"),
     SCRIPT_ERR_OP_RETURN("OP_RETURN"),
 
-    /* Max sizes */
+    /* max sizes */
     SCRIPT_ERR_SCRIPT_SIZE("SCRIPT_SIZE"),
     SCRIPT_ERR_PUSH_SIZE("PUSH_SIZE"),
     SCRIPT_ERR_OP_COUNT("OP_COUNT"),
@@ -18,14 +18,14 @@ public enum ScriptError
     SCRIPT_ERR_SIG_COUNT("SIG_COUNT"),
     SCRIPT_ERR_PUBKEY_COUNT("PUBKEY_COUNT"),
 
-    /* Failed verify operations */
+    /* failed verify operations */
     SCRIPT_ERR_VERIFY("VERIFY"),
     SCRIPT_ERR_EQUALVERIFY("EQUALVERIFY"),
     SCRIPT_ERR_CHECKMULTISIGVERIFY("CHECKMULTISIGVERIFY"),
     SCRIPT_ERR_CHECKSIGVERIFY("CHECKSIGVERIFY"),
     SCRIPT_ERR_NUMEQUALVERIFY("NUMEQUALVERIFY"),
 
-    /* Logical/Format/Canonical errors */
+    /* logical/format/canonical errors */
     SCRIPT_ERR_BAD_OPCODE("BAD_OPCODE"),
     SCRIPT_ERR_DISABLED_OPCODE("DISABLED_OPCODE"),
     SCRIPT_ERR_INVALID_STACK_OPERATION("INVALID_STACK_OPERATION"),
@@ -36,7 +36,7 @@ public enum ScriptError
     SCRIPT_ERR_NEGATIVE_LOCKTIME("NEGATIVE_LOCKTIME"),
     SCRIPT_ERR_UNSATISFIED_LOCKTIME("UNSATISFIED_LOCKTIME"),
 
-    /* Malleability */
+    /* malleability */
     SCRIPT_ERR_SIG_HASHTYPE("SIG_HASHTYPE"),
     SCRIPT_ERR_SIG_DER("SIG_DER"),
     SCRIPT_ERR_MINIMALDATA("MINIMALDATA"),
@@ -75,9 +75,7 @@ public enum ScriptError
     {
         mnemonicToScriptErrorMap = new HashMap<>();
         for (ScriptError err : ScriptError.values())
-        {
             mnemonicToScriptErrorMap.put(err.getMnemonic(), err);
-        }
     }
 
     public String getMnemonic()

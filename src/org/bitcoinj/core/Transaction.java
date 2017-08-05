@@ -1117,7 +1117,7 @@ public class Transaction extends ChildMessage
             }
             else if ((sigHashType & 0x1f) == SigHash.SINGLE.value)
             {
-                // SIGHASH_SINGLE means only sign the output at the same index as the input (ie, my output).
+                // SIGHASH_SINGLE means only sign the output at the same index as the input (i.e. my output).
                 if (tx.outputs.size() <= inputIndex)
                 {
                     // The input index is beyond the number of outputs, it's a buggy signature made by a broken

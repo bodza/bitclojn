@@ -4,7 +4,7 @@ import org.bitcoinj.core.Transaction;
 
 /**
  * This coin selector will select any transaction at all, regardless of where it came from or whether it was
- * confirmed yet. However immature coinbases will not be included (would be a protocol violation).
+ * confirmed yet.  However immature coinbases will not be included (would be a protocol violation).
  */
 public class AllowUnconfirmedCoinSelector extends DefaultCoinSelector
 {

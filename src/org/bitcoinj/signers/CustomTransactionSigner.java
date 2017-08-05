@@ -1,17 +1,17 @@
 package org.bitcoinj.signers;
 
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.bitcoinj.core.*;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.TransactionSignature;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.wallet.KeyBag;
 import org.bitcoinj.wallet.RedeemData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * <p>This signer may be used as a template for creating custom multisig transaction signers.</p>
@@ -42,9 +42,8 @@ public abstract class CustomTransactionSigner extends StatelessTransactionSigner
             TransactionInput txIn = tx.getInput(i);
             TransactionOutput txOut = txIn.getConnectedOutput();
             if (txOut == null)
-            {
                 continue;
-            }
+
             Script scriptPubKey = txOut.getScriptPubKey();
             if (!scriptPubKey.isPayToScriptHash())
             {
@@ -58,12 +57,12 @@ public abstract class CustomTransactionSigner extends StatelessTransactionSigner
             {
                 // We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
                 // we sign missing pieces (to check this would require either assuming any signatures are signing
-                // standard output types or a way to get processed signatures out of script execution)
+                // standard output types or a way to get processed signatures out of script execution).
                 txIn.getScriptSig().correctlySpends(tx, i, txIn.getConnectedOutput().getScriptPubKey());
                 log.warn("Input {} already correctly spends output, assuming SIGHASH type used will be safe and skipping signing.", i);
                 continue;
             }
-            catch (ScriptException e)
+            catch (ScriptException _)
             {
                 // Expected.
             }

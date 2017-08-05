@@ -3,6 +3,8 @@ package org.bitcoinj.params;
 import java.math.BigInteger;
 import java.util.Date;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import org.bitcoinj.core.Block;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.StoredBlock;
@@ -11,19 +13,21 @@ import org.bitcoinj.core.VerificationException;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 
-import static com.google.common.base.Preconditions.checkState;
-
 /**
  * Parameters for the testnet, a separate public instance of Bitcoin that has relaxed rules suitable for development
  * and testing of applications and new Bitcoin versions.
  */
 public class TestNet3Params extends AbstractBitcoinNetParams
 {
+    public static final int TESTNET_MAJORITY_WINDOW = 100;
+    public static final int TESTNET_MAJORITY_REJECT_BLOCK_OUTDATED = 75;
+    public static final int TESTNET_MAJORITY_ENFORCE_BLOCK_UPGRADE = 51;
+
     public TestNet3Params()
     {
         super();
+
         id = ID_TESTNET;
-        // Genesis hash is 000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943
         packetMagic = 0x0b110907;
         interval = INTERVAL;
         targetTimespan = TARGET_TIMESPAN;
@@ -43,27 +47,26 @@ public class TestNet3Params extends AbstractBitcoinNetParams
 
         dnsSeeds = new String[]
         {
-                "testnet-seed.bitcoin.jonasschnelli.ch", // Jonas Schnelli
-                "testnet-seed.bluematt.me",              // Matt Corallo
-                "testnet-seed.bitcoin.petertodd.org",    // Peter Todd
-                "testnet-seed.bitcoin.schildbach.de",    // Andreas Schildbach
+            "testnet-seed.bitcoin.jonasschnelli.ch", // Jonas Schnelli
+            "testnet-seed.bluematt.me",              // Matt Corallo
+            "testnet-seed.bitcoin.petertodd.org",    // Peter Todd
+            "testnet-seed.bitcoin.schildbach.de",    // Andreas Schildbach
         };
         addrSeeds = null;
-        bip32HeaderPub = 0x043587CF;
+        bip32HeaderPub = 0x043587cf;
         bip32HeaderPriv = 0x04358394;
 
-        majorityEnforceBlockUpgrade = TestNet2Params.TESTNET_MAJORITY_ENFORCE_BLOCK_UPGRADE;
-        majorityRejectBlockOutdated = TestNet2Params.TESTNET_MAJORITY_REJECT_BLOCK_OUTDATED;
-        majorityWindow = TestNet2Params.TESTNET_MAJORITY_WINDOW;
+        majorityEnforceBlockUpgrade = TESTNET_MAJORITY_ENFORCE_BLOCK_UPGRADE;
+        majorityRejectBlockOutdated = TESTNET_MAJORITY_REJECT_BLOCK_OUTDATED;
+        majorityWindow = TESTNET_MAJORITY_WINDOW;
     }
 
     private static TestNet3Params instance;
+
     public static synchronized TestNet3Params get()
     {
         if (instance == null)
-        {
             instance = new TestNet3Params();
-        }
         return instance;
     }
 
@@ -85,26 +88,25 @@ public class TestNet3Params extends AbstractBitcoinNetParams
             Block prev = storedPrev.getHeader();
 
             // After 15th February 2012 the rules on the testnet change to avoid people running up the difficulty
-            // and then leaving, making it too hard to mine a block. On non-difficulty transition points, easy
+            // and then leaving, making it too hard to mine a block.  On non-difficulty transition points, easy
             // blocks are allowed if there has been a span of 20 minutes without one.
             final long timeDelta = nextBlock.getTimeSeconds() - prev.getTimeSeconds();
             // There is an integer underflow bug in bitcoin-qt that means mindiff blocks are accepted when time
             // goes backwards.
-            if (timeDelta >= 0 && timeDelta <= NetworkParameters.TARGET_SPACING * 2)
+            if (0 <= timeDelta && timeDelta <= NetworkParameters.TARGET_SPACING * 2)
             {
                 // Walk backwards until we find a block that doesn't have the easiest proof of work, then check
                 // that difficulty is equal to that one.
                 StoredBlock cursor = storedPrev;
-                while (!cursor.getHeader().equals(getGenesisBlock()) &&
-                       cursor.getHeight() % getInterval() != 0 &&
-                       cursor.getHeader().getDifficultyTargetAsInteger().equals(getMaxTarget()))
+                while (!cursor.getHeader().equals(getGenesisBlock())
+                        && cursor.getHeight() % getInterval() != 0
+                        && cursor.getHeader().getDifficultyTargetAsInteger().equals(getMaxTarget()))
                     cursor = cursor.getPrev(blockStore);
                 BigInteger cursorTarget = cursor.getHeader().getDifficultyTargetAsInteger();
                 BigInteger newTarget = nextBlock.getDifficultyTargetAsInteger();
                 if (!cursorTarget.equals(newTarget))
-                    throw new VerificationException("Testnet block transition that is not allowed: " +
-                        Long.toHexString(cursor.getHeader().getDifficultyTarget()) + " vs " +
-                        Long.toHexString(nextBlock.getDifficultyTarget()));
+                    throw new VerificationException("Testnet block transition that is not allowed: "
+                            + Long.toHexString(cursor.getHeader().getDifficultyTarget()) + " vs " + Long.toHexString(nextBlock.getDifficultyTarget()));
             }
         }
         else

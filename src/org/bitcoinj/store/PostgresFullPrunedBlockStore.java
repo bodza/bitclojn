@@ -1,10 +1,5 @@
 package org.bitcoinj.store;
 
-import org.bitcoinj.core.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.PreparedStatement;
@@ -13,9 +8,15 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.bitcoinj.core.*;
 
 /**
- * <p>A full pruned block store using the Postgres database engine. As an added bonus an address index is calculated,
+ * <p>A full pruned block store using the Postgres database engine.  As an added bonus an address index is calculated,
  * so you can use {@link #calculateBalanceForAddress(org.bitcoinj.core.Address)} to quickly look up
  * the quantity of bitcoins controlled by that address.</p>
  */
@@ -63,25 +64,25 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore
             "    CONSTRAINT openoutputs_pk PRIMARY KEY (hash,index)\n" +
             ")\n";
 
-    // Some indexes to speed up inserts
-    private static final String CREATE_OUTPUTS_ADDRESS_MULTI_INDEX      = "CREATE INDEX openoutputs_hash_index_num_height_toaddress_idx ON openoutputs USING btree (hash, index, height, toaddress)";
-    private static final String CREATE_OUTPUTS_TOADDRESS_INDEX          = "CREATE INDEX openoutputs_toaddress_idx ON openoutputs USING btree (toaddress)";
-    private static final String CREATE_OUTPUTS_ADDRESSTARGETABLE_INDEX  = "CREATE INDEX openoutputs_addresstargetable_idx ON openoutputs USING btree (addresstargetable)";
-    private static final String CREATE_OUTPUTS_HASH_INDEX               = "CREATE INDEX openoutputs_hash_idx ON openoutputs USING btree (hash)";
-    private static final String CREATE_UNDOABLE_TABLE_INDEX             = "CREATE INDEX undoableblocks_height_idx ON undoableBlocks USING btree (height)";
+    // Some indexes to speed up inserts.
+    private static final String CREATE_OUTPUTS_ADDRESS_MULTI_INDEX     = "CREATE INDEX openoutputs_hash_index_num_height_toaddress_idx ON openoutputs USING btree (hash, index, height, toaddress)";
+    private static final String CREATE_OUTPUTS_TOADDRESS_INDEX         = "CREATE INDEX openoutputs_toaddress_idx ON openoutputs USING btree (toaddress)";
+    private static final String CREATE_OUTPUTS_ADDRESSTARGETABLE_INDEX = "CREATE INDEX openoutputs_addresstargetable_idx ON openoutputs USING btree (addresstargetable)";
+    private static final String CREATE_OUTPUTS_HASH_INDEX              = "CREATE INDEX openoutputs_hash_idx ON openoutputs USING btree (hash)";
+    private static final String CREATE_UNDOABLE_TABLE_INDEX            = "CREATE INDEX undoableblocks_height_idx ON undoableBlocks USING btree (height)";
 
-    private static final String SELECT_UNDOABLEBLOCKS_EXISTS_SQL        = "select 1 from undoableblocks where hash = ?";
+    private static final String SELECT_UNDOABLEBLOCKS_EXISTS_SQL       = "select 1 from undoableblocks where hash = ?";
 
     /**
      * Creates a new PostgresFullPrunedBlockStore.
      *
-     * @param params A copy of the NetworkParameters used
-     * @param fullStoreDepth The number of blocks of history stored in full (something like 1000 is pretty safe)
-     * @param hostname The hostname of the database to connect to
-     * @param dbName The database to connect to
-     * @param username The database username
-     * @param password The password to the database
-     * @throws BlockStoreException if the database fails to open for any reason
+     * @param params A copy of the NetworkParameters used.
+     * @param fullStoreDepth The number of blocks of history stored in full (something like 1000 is pretty safe).
+     * @param hostname The hostname of the database to connect to.
+     * @param dbName The database to connect to.
+     * @param username The database username.
+     * @param password The password to the database.
+     * @throws BlockStoreException if the database fails to open for any reason.
      */
     public PostgresFullPrunedBlockStore(NetworkParameters params, int fullStoreDepth, String hostname, String dbName, String username, String password)
         throws BlockStoreException
@@ -93,8 +94,8 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore
      * <p>Create a new PostgresFullPrunedBlockStore, storing the tables in the schema specified.  You may want to
      * specify a schema to avoid name collisions, or just to keep the database better organized.  The schema is not
      * required, and if one is not provided than the default schema for the username will be used.  See
-     * <a href="http://www.postgres.org/docs/9.3/static/ddl-schemas.html">the postgres schema docs</a> for more on
-     * schemas.</p>
+     * <a href="http://www.postgres.org/docs/9.3/static/ddl-schemas.html">the postgres schema docs</a>
+     * for more on schemas.</p>
      *
      * @param params A copy of the NetworkParameters used.
      * @param fullStoreDepth The number of blocks of history stored in full (something like 1000 is pretty safe).
@@ -103,7 +104,7 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore
      * @param username The database username.
      * @param password The password to the database.
      * @param schemaName The name of the schema to put the tables in.  May be null if no schema is being used.
-     * @throws BlockStoreException If the database fails to open for any reason.
+     * @throws BlockStoreException if the database fails to open for any reason.
      */
     public PostgresFullPrunedBlockStore(NetworkParameters params, int fullStoreDepth, String hostname, String dbName, String username, String password, @Nullable String schemaName)
         throws BlockStoreException
@@ -120,33 +121,33 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore
     @Override
     protected List<String> getCreateTablesSQL()
     {
-        List<String> sqlStatements = new ArrayList<>();
-        sqlStatements.add(CREATE_SETTINGS_TABLE);
-        sqlStatements.add(CREATE_HEADERS_TABLE);
-        sqlStatements.add(CREATE_UNDOABLE_TABLE);
-        sqlStatements.add(CREATE_OPEN_OUTPUT_TABLE);
-        return sqlStatements;
+        List<String> sql = new ArrayList<>();
+        sql.add(CREATE_SETTINGS_TABLE);
+        sql.add(CREATE_HEADERS_TABLE);
+        sql.add(CREATE_UNDOABLE_TABLE);
+        sql.add(CREATE_OPEN_OUTPUT_TABLE);
+        return sql;
     }
 
     @Override
     protected List<String> getCreateIndexesSQL()
     {
-        List<String> sqlStatements = new ArrayList<>();
-        sqlStatements.add(CREATE_UNDOABLE_TABLE_INDEX);
-        sqlStatements.add(CREATE_OUTPUTS_ADDRESS_MULTI_INDEX);
-        sqlStatements.add(CREATE_OUTPUTS_ADDRESSTARGETABLE_INDEX);
-        sqlStatements.add(CREATE_OUTPUTS_HASH_INDEX);
-        sqlStatements.add(CREATE_OUTPUTS_TOADDRESS_INDEX);
-        return sqlStatements;
+        List<String> sql = new ArrayList<>();
+        sql.add(CREATE_UNDOABLE_TABLE_INDEX);
+        sql.add(CREATE_OUTPUTS_ADDRESS_MULTI_INDEX);
+        sql.add(CREATE_OUTPUTS_ADDRESSTARGETABLE_INDEX);
+        sql.add(CREATE_OUTPUTS_HASH_INDEX);
+        sql.add(CREATE_OUTPUTS_TOADDRESS_INDEX);
+        return sql;
     }
 
     @Override
     protected List<String> getCreateSchemeSQL()
     {
-        List<String> sqlStatements = new ArrayList<>();
-        sqlStatements.add("CREATE SCHEMA IF NOT EXISTS " + schemaName);
-        sqlStatements.add("set search_path to '" + schemaName +"'");
-        return sqlStatements;
+        List<String> sql = new ArrayList<>();
+        sql.add("CREATE SCHEMA IF NOT EXISTS " + schemaName);
+        sql.add("set search_path to '" + schemaName +"'");
+        return sql;
     }
 
     @Override
@@ -160,7 +161,7 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore
         throws BlockStoreException
     {
         maybeConnect();
-        // We skip the first 4 bytes because (on mainnet) the minimum target has 4 0-bytes
+        // We skip the first 4 bytes because (on mainnet) the minimum target has 4 0-bytes.
         byte[] hashBytes = new byte[28];
         System.arraycopy(storedBlock.getHeader().getHash().getBytes(), 4, hashBytes, 0, 28);
         int height = storedBlock.getHeight();
@@ -177,10 +178,10 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore
             else
             {
                 int numTxn = undoableBlock.getTransactions().size();
-                bos.write(0xFF & numTxn);
-                bos.write(0xFF & (numTxn >> 8));
-                bos.write(0xFF & (numTxn >> 16));
-                bos.write(0xFF & (numTxn >> 24));
+                bos.write(0xff & numTxn);
+                bos.write(0xff & (numTxn >> 8));
+                bos.write(0xff & (numTxn >> 16));
+                bos.write(0xff & (numTxn >> 24));
                 for (Transaction tx : undoableBlock.getTransactions())
                     tx.bitcoinSerialize(bos);
                 transactions = bos.toByteArray();
@@ -206,51 +207,49 @@ public class PostgresFullPrunedBlockStore extends DatabaseFullPrunedBlockStore
                 // We already have this output, update it.
                 findS.close();
 
-                // Postgres insert-or-updates are very complex (and finnicky).  This level of transaction isolation
-                // seems to work for bitcoinj
-                PreparedStatement s =
-                        conn.get().prepareStatement(getUpdateUndoableBlocksSQL());
-                s.setBytes(3, hashBytes);
+                // Postgres insert-or-updates are very complex (and finnicky).
+                // This level of transaction isolation seems to work for bitcoinj.
+                PreparedStatement ps = conn.get().prepareStatement(getUpdateUndoableBlocksSQL());
+                ps.setBytes(3, hashBytes);
 
                 if (log.isDebugEnabled())
                     log.debug("Updating undoable block with hash: " + Utils.HEX.encode(hashBytes));
 
                 if (transactions == null)
                 {
-                    s.setBytes(1, txOutChanges);
-                    s.setNull(2, Types.BINARY);
+                    ps.setBytes(1, txOutChanges);
+                    ps.setNull(2, Types.BINARY);
                 }
                 else
                 {
-                    s.setNull(1, Types.BINARY);
-                    s.setBytes(2, transactions);
+                    ps.setNull(1, Types.BINARY);
+                    ps.setBytes(2, transactions);
                 }
-                s.executeUpdate();
-                s.close();
+                ps.executeUpdate();
+                ps.close();
 
                 return;
             }
 
-            PreparedStatement s =
-                    conn.get().prepareStatement(getInsertUndoableBlocksSQL());
-            s.setBytes(1, hashBytes);
-            s.setInt(2, height);
+            PreparedStatement ps = conn.get().prepareStatement(getInsertUndoableBlocksSQL());
+            ps.setBytes(1, hashBytes);
+            ps.setInt(2, height);
 
             if (log.isDebugEnabled())
                 log.debug("Inserting undoable block with hash: " + Utils.HEX.encode(hashBytes)  + " at height " + height);
 
             if (transactions == null)
             {
-                s.setBytes(3, txOutChanges);
-                s.setNull(4, Types.BINARY);
+                ps.setBytes(3, txOutChanges);
+                ps.setNull(4, Types.BINARY);
             }
             else
             {
-                s.setNull(3, Types.BINARY);
-                s.setBytes(4, transactions);
+                ps.setNull(3, Types.BINARY);
+                ps.setBytes(4, transactions);
             }
-            s.executeUpdate();
-            s.close();
+            ps.executeUpdate();
+            ps.close();
             try
             {
                 putUpdateStoredBlock(storedBlock, true);

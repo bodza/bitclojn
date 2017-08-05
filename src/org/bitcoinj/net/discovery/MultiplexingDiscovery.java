@@ -1,14 +1,5 @@
 package org.bitcoinj.net.discovery;
 
-import com.google.common.collect.Lists;
-
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.VersionMessage;
-import org.bitcoinj.net.discovery.DnsDiscovery.DnsSeedDiscovery;
-import org.bitcoinj.utils.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,11 +7,19 @@ import java.util.List;
 import java.util.concurrent.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.VersionMessage;
+import org.bitcoinj.net.discovery.DnsDiscovery.DnsSeedDiscovery;
+import org.bitcoinj.utils.*;
 
 /**
  * MultiplexingDiscovery queries multiple PeerDiscovery objects, shuffles their responses and then returns the results,
- * thus selecting randomly between them and reducing the influence of any particular seed. Any that don't respond
- * within the timeout are ignored. Backends are queried in parallel. Backends may block.
+ * thus selecting randomly between them and reducing the influence of any particular seed.  Any that don't respond
+ * within the timeout are ignored.  Backends are queried in parallel.  Backends may block.
  */
 public class MultiplexingDiscovery implements PeerDiscovery
 {
@@ -31,7 +30,7 @@ public class MultiplexingDiscovery implements PeerDiscovery
     private volatile ExecutorService vThreadPool;
 
     /**
-     * Builds a suitable set of peer discoveries. Will query them in parallel before producing a merged response.
+     * Builds a suitable set of peer discoveries.  Will query them in parallel before producing a merged response.
      * If specific services are required, DNS is not used as the protocol can't handle it.
      * @param params Network to use.
      * @param services Required services as a bitmask, e.g. {@link VersionMessage#NODE_NETWORK}.
@@ -39,7 +38,7 @@ public class MultiplexingDiscovery implements PeerDiscovery
     public static MultiplexingDiscovery forServices(NetworkParameters params, long services)
     {
         List<PeerDiscovery> discoveries = Lists.newArrayList();
-        // Also use DNS seeds if there is no specific service requirement
+        // Also use DNS seeds if there is no specific service requirement.
         if (services == 0)
         {
             String[] dnsSeeds = params.getDnsSeeds();
@@ -56,6 +55,7 @@ public class MultiplexingDiscovery implements PeerDiscovery
     public MultiplexingDiscovery(NetworkParameters params, List<PeerDiscovery> seeds)
     {
         checkArgument(!seeds.isEmpty());
+
         this.netParams = params;
         this.seeds = seeds;
     }
@@ -88,7 +88,7 @@ public class MultiplexingDiscovery implements PeerDiscovery
                 if (future.isCancelled())
                 {
                     log.warn("Seed {}: timed out", seeds.get(i));
-                    continue;  // Timed out.
+                    continue; // Timed out.
                 }
                 final InetSocketAddress[] inetAddresses;
                 try
@@ -103,8 +103,8 @@ public class MultiplexingDiscovery implements PeerDiscovery
                 Collections.addAll(addrs, inetAddresses);
             }
             if (addrs.size() == 0)
-                throw new PeerDiscoveryException("No peer discovery returned any results in "
-                        + timeoutUnit.toMillis(timeoutValue) + "ms. Check internet connection?");
+                throw new PeerDiscoveryException("No peer discovery returned any results in " + timeoutUnit.toMillis(timeoutValue) + "ms. Check internet connection?");
+
             Collections.shuffle(addrs);
             vThreadPool.shutdownNow();
             return addrs.toArray(new InetSocketAddress[addrs.size()]);

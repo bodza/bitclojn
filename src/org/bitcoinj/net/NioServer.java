@@ -12,8 +12,8 @@ import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import org.slf4j.LoggerFactory;
 
 /**
- * Creates a simple server listener which listens for incoming client connections and uses a {@link StreamConnection} to
- * process data.
+ * Creates a simple server listener which listens for incoming client connections and uses a {@link StreamConnection}
+ * to process data.
  */
 public class NioServer extends AbstractExecutionThreadService
 {
@@ -24,13 +24,13 @@ public class NioServer extends AbstractExecutionThreadService
     private final ServerSocketChannel sc;
     @VisibleForTesting final Selector selector;
 
-    // Handle a SelectionKey which was selected
+    // Handle a SelectionKey which was selected.
     private void handleKey(Selector selector, SelectionKey key)
         throws IOException
     {
         if (key.isValid() && key.isAcceptable())
         {
-            // Accept a new connection, give it a stream connection as an attachment
+            // Accept a new connection, give it a stream connection as an attachment.
             SocketChannel newChannel = sc.accept();
             newChannel.configureBlocking(false);
             SelectionKey newKey = newChannel.register(selector, SelectionKey.OP_READ);
@@ -42,21 +42,22 @@ public class NioServer extends AbstractExecutionThreadService
             }
             catch (IOException e)
             {
-                // This can happen if ConnectionHandler's call to get a new handler returned null
+                // This can happen if ConnectionHandler's call to get a new handler returned null.
                 log.error("Error handling new connection", Throwables.getRootCause(e).getMessage());
                 newKey.channel().close();
             }
         }
-        else { // Got a closing channel or a channel to a client connection
+        else // Got a closing channel or a channel to a client connection.
+        {
             ConnectionHandler.handleKey(key);
         }
     }
 
     /**
      * Creates a new server which is capable of listening for incoming connections and processing client provided data
-     * using {@link StreamConnection}s created by the given {@link StreamConnectionFactory}
+     * using {@link StreamConnection}s created by the given {@link StreamConnectionFactory}.
      *
-     * @throws IOException If there is an issue opening the server socket or binding fails for some reason
+     * @throws IOException if there is an issue opening the server socket or binding fails for some reason.
      */
     public NioServer(final StreamConnectionFactory connectionFactory, InetSocketAddress bindAddress)
         throws IOException
@@ -96,7 +97,7 @@ public class NioServer extends AbstractExecutionThreadService
         }
         finally
         {
-            // Go through and close everything, without letting IOExceptions get in our way
+            // Go through and close everything, without letting IOExceptions get in our way.
             for (SelectionKey key : selector.keys())
             {
                 try
@@ -144,7 +145,7 @@ public class NioServer extends AbstractExecutionThreadService
     @Override
     public void triggerShutdown()
     {
-        // Wake up the selector and let the selection thread break its loop as the ExecutionService !isRunning()
+        // Wake up the selector and let the selection thread break its loop as the ExecutionService !isRunning().
         selector.wakeup();
     }
 }

@@ -1,27 +1,27 @@
 package org.bitcoinj.net.discovery;
 
-import org.bitcoinj.core.*;
-import org.bitcoinj.utils.*;
-
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
+
+import org.bitcoinj.core.*;
+import org.bitcoinj.utils.*;
 
 /**
  * <p>Supports peer discovery through DNS.</p>
  *
  * <p>Failure to resolve individual host names will not cause an Exception to be thrown.
- * However, if all hosts passed fail to resolve a PeerDiscoveryException will be thrown during getPeers().
- * </p>
+ * However, if all hosts passed fail to resolve a PeerDiscoveryException will be thrown during getPeers().</p>
  *
- * <p>DNS seeds do not attempt to enumerate every peer on the network. {@link DnsDiscovery#getPeers(long, java.util.concurrent.TimeUnit)}
- * will return up to 30 random peers from the set of those returned within the timeout period. If you want more peers
- * to connect to, you need to discover them via other means (like addr broadcasts).</p>
+ * <p>DNS seeds do not attempt to enumerate every peer on the network.
+ * {@link DnsDiscovery#getPeers(long, java.util.concurrent.TimeUnit)} will return up to 30 random peers
+ * from the set of those returned within the timeout period.  If you want more peers to connect to,
+ * you need to discover them via other means (like addr broadcasts).</p>
  */
 public class DnsDiscovery extends MultiplexingDiscovery
 {
     /**
-     * Supports finding peers through DNS A records. Community run DNS entry points will be used.
+     * Supports finding peers through DNS A records.  Community run DNS entry points will be used.
      *
      * @param netParams Network parameters to be used for port information.
      */
@@ -79,6 +79,7 @@ public class DnsDiscovery extends MultiplexingDiscovery
         {
             if (services != 0)
                 throw new PeerDiscoveryException("DNS seeds cannot filter by services: " + services);
+
             try
             {
                 InetAddress[] response = InetAddress.getAllByName(hostname);

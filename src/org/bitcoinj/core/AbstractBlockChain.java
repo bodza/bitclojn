@@ -1060,7 +1060,7 @@ public abstract class AbstractBlockChain
     }
 
     /**
-     * An orphan block is one that does not connect to the chain anywhere (ie we can't find its parent, therefore
+     * An orphan block is one that does not connect to the chain anywhere (i.e. we can't find its parent, therefore
      * it's an orphan).  Typically this occurs when we are downloading the chain and didn't reach the head yet, and/or
      * if a block is solved whilst we are downloading.  It's possible that we see a small amount of orphan blocks which
      * chain together, this method tries walking backwards through the known orphan blocks to find the bottom-most.

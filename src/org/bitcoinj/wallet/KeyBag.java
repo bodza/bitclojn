@@ -1,8 +1,8 @@
 package org.bitcoinj.wallet;
 
-import org.bitcoinj.core.ECKey;
-
 import javax.annotation.Nullable;
+
+import org.bitcoinj.core.ECKey;
 
 /**
  * A KeyBag is simply an object that can map public keys, their 160-bit hashes and script hashes to ECKey
@@ -11,8 +11,8 @@ import javax.annotation.Nullable;
 public interface KeyBag
 {
     /**
-     * Locates a keypair from the keychain given the hash of the public key. This is needed when finding out which
-     * key we need to use to redeem a transaction output.
+     * Locates a keypair from the keychain given the hash of the public key.  This is needed when finding out
+     * which key we need to use to redeem a transaction output.
      *
      * @return ECKey object or null if no such key was found.
      */
@@ -32,7 +32,7 @@ public interface KeyBag
      * This is needed when finding out which key and script we need to use to locally sign a P2SH transaction input.
      * It is assumed that wallet should not have more than one private key for a single P2SH tx for security reasons.
      *
-     * Returns RedeemData object or null if no such data was found.
+     * @return RedeemData object or null if no such data was found.
      */
     @Nullable
     RedeemData findRedeemDataFromScriptHash(byte[] scriptHash);

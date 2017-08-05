@@ -1,10 +1,10 @@
 package org.bitcoinj.wallet;
 
-import org.bitcoinj.core.*;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+
+import org.bitcoinj.core.*;
 
 /**
  * A filtering coin selector delegates to another coin selector, but won't select outputs spent by the given transactions.
@@ -22,9 +22,7 @@ public class FilteringCoinSelector implements CoinSelector
     public void excludeOutputsSpentBy(Transaction tx)
     {
         for (TransactionInput input : tx.getInputs())
-        {
             spent.add(input.getOutpoint());
-        }
     }
 
     @Override
@@ -34,7 +32,8 @@ public class FilteringCoinSelector implements CoinSelector
         while (iter.hasNext())
         {
             TransactionOutput output = iter.next();
-            if (spent.contains(output.getOutPointFor())) iter.remove();
+            if (spent.contains(output.getOutPointFor()))
+                iter.remove();
         }
         return delegate.select(target, candidates);
     }

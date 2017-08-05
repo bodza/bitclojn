@@ -1,10 +1,5 @@
 package org.bitcoinj.net;
 
-import com.google.common.base.Throwables;
-import com.google.common.util.concurrent.*;
-import org.bitcoinj.utils.*;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketAddress;
@@ -13,9 +8,15 @@ import java.nio.channels.spi.SelectorProvider;
 import java.util.*;
 import java.util.concurrent.*;
 
+import com.google.common.base.Throwables;
+import com.google.common.util.concurrent.*;
+import org.slf4j.LoggerFactory;
+
+import org.bitcoinj.utils.*;
+
 /**
- * A class which manages a set of client connections. Uses Java NIO to select network events and processes them in a
- * single network processing thread.
+ * A class which manages a set of client connections.  Uses Java NIO to select network events and processes them
+ * in a single network processing thread.
  */
 public class NioClientManager extends AbstractExecutionThreadService implements ClientConnectionManager
 {
@@ -30,23 +31,30 @@ public class NioClientManager extends AbstractExecutionThreadService implements 
         SocketAddress address;
         SettableFuture<SocketAddress> future = SettableFuture.create();
 
-        PendingConnect(SocketChannel sc, StreamConnection connection, SocketAddress address) { this.sc = sc; this.connection = connection; this.address = address; }
+        PendingConnect(SocketChannel sc, StreamConnection connection, SocketAddress address)
+        {
+            this.sc = sc;
+            this.connection = connection;
+            this.address = address;
+        }
     }
     final Queue<PendingConnect> newConnectionChannels = new LinkedBlockingQueue<>();
 
     // Added to/removed from by the individual ConnectionHandler's, thus must by synchronized on its own.
     private final Set<ConnectionHandler> connectedHandlers = Collections.synchronizedSet(new HashSet<ConnectionHandler>());
 
-    // Handle a SelectionKey which was selected
+    // Handle a SelectionKey which was selected.
     private void handleKey(SelectionKey key)
         throws IOException
     {
-        // We could have a !isValid() key here if the connection is already closed at this point
-        if (key.isValid() && key.isConnectable()) { // ie a client connection which has finished the initial connect process
-            // Create a ConnectionHandler and hook everything together
-            PendingConnect data = (PendingConnect) key.attachment();
+        // We could have a !isValid() key here if the connection is already closed at this point,
+        // i.e. a client connection which has finished the initial connect process.
+        if (key.isValid() && key.isConnectable())
+        {
+            // Create a ConnectionHandler and hook everything together.
+            PendingConnect data = (PendingConnect)key.attachment();
             StreamConnection connection = data.connection;
-            SocketChannel sc = (SocketChannel) key.channel();
+            SocketChannel sc = (SocketChannel)key.channel();
             ConnectionHandler handler = new ConnectionHandler(connection, key, connectedHandlers);
             try
             {
@@ -60,7 +68,7 @@ public class NioClientManager extends AbstractExecutionThreadService implements 
                 else
                 {
                     log.warn("Failed to connect to {}", sc.socket().getRemoteSocketAddress());
-                    handler.closeConnection(); // Failed to connect for some reason
+                    handler.closeConnection(); // Failed to connect for some reason.
                     data.future.setException(new ConnectException("Unknown reason"));
                     data.future = null;
                 }
@@ -68,8 +76,8 @@ public class NioClientManager extends AbstractExecutionThreadService implements 
             catch (Exception e)
             {
                 // If e is a CancelledKeyException, there is a race to get to interestOps after finishConnect() which
-                // may cause this. Otherwise it may be any arbitrary kind of connection failure.
-                // Calling sc.socket().getRemoteSocketAddress() here throws an exception, so we can only log the error itself
+                // may cause this.  Otherwise it may be any arbitrary kind of connection failure.
+                // Calling sc.socket().getRemoteSocketAddress() here throws an exception, so we can only log the error itself.
                 Throwable cause = Throwables.getRootCause(e);
                 log.warn("Failed to connect with exception: {}: {}", cause.getClass().getName(), cause.getMessage(), e);
                 handler.closeConnection();
@@ -77,13 +85,13 @@ public class NioClientManager extends AbstractExecutionThreadService implements 
                 data.future = null;
             }
         }
-        else // Process bytes read
+        else // Process bytes read.
             ConnectionHandler.handleKey(key);
     }
 
     /**
-     * Creates a new client manager which uses Java NIO for socket management. Uses a single thread to handle all select
-     * calls.
+     * Creates a new client manager which uses Java NIO for socket management.
+     * Uses a single thread to handle all select calls.
      */
     public NioClientManager()
     {
@@ -93,7 +101,7 @@ public class NioClientManager extends AbstractExecutionThreadService implements 
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e); // Shouldn't ever happen
+            throw new RuntimeException(e); // Shouldn't ever happen.
         }
     }
 
@@ -113,7 +121,7 @@ public class NioClientManager extends AbstractExecutionThreadService implements 
                         SelectionKey key = conn.sc.register(selector, SelectionKey.OP_CONNECT);
                         key.attach(conn);
                     }
-                    catch (ClosedChannelException e)
+                    catch (ClosedChannelException _)
                     {
                         log.warn("SocketChannel was closed before it could be registered");
                     }
@@ -136,7 +144,7 @@ public class NioClientManager extends AbstractExecutionThreadService implements 
         }
         finally
         {
-            // Go through and close everything, without letting IOExceptions get in our way
+            // Go through and close everything, without letting IOExceptions get in our way.
             for (SelectionKey key : selector.keys())
             {
                 try
@@ -149,7 +157,7 @@ public class NioClientManager extends AbstractExecutionThreadService implements 
                 }
                 key.cancel();
                 if (key.attachment() instanceof ConnectionHandler)
-                    ConnectionHandler.handleKey(key); // Close connection if relevant
+                    ConnectionHandler.handleKey(key); // Close connection if relevant.
             }
             try
             {
@@ -167,7 +175,8 @@ public class NioClientManager extends AbstractExecutionThreadService implements 
     {
         if (!isRunning())
             throw new IllegalStateException();
-        // Create a new connection, give it a connection as an attachment
+
+        // Create a new connection, give it a connection as an attachment.
         try
         {
             SocketChannel sc = SocketChannel.open();
@@ -199,7 +208,7 @@ public class NioClientManager extends AbstractExecutionThreadService implements 
     @Override
     public void closeConnections(int n)
     {
-        while (n-- > 0)
+        while (0 < n--)
         {
             ConnectionHandler handler;
             synchronized (connectedHandlers)
@@ -207,7 +216,7 @@ public class NioClientManager extends AbstractExecutionThreadService implements 
                 handler = connectedHandlers.iterator().next();
             }
             if (handler != null)
-                handler.closeConnection(); // Removes handler from connectedHandlers before returning
+                handler.closeConnection(); // Removes handler from connectedHandlers before returning.
         }
     }
 

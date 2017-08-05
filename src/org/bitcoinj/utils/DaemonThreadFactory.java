@@ -1,9 +1,9 @@
 package org.bitcoinj.utils;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /** Thread factory whose threads are marked as daemon and won't prevent process exit. */
 public class DaemonThreadFactory implements ThreadFactory

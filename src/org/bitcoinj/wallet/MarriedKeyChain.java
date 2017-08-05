@@ -1,7 +1,17 @@
 package org.bitcoinj.wallet;
 
+import java.security.SecureRandom;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import static com.google.common.collect.Lists.newArrayList;
 import com.google.protobuf.ByteString;
 
 import org.bitcoinj.core.BloomFilter;
@@ -13,30 +23,18 @@ import org.bitcoinj.crypto.KeyCrypter;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.script.ScriptBuilder;
 
-import java.security.SecureRandom;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nullable;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Lists.newArrayList;
-
 /**
- * <p>A multi-signature keychain using synchronized HD keys (a.k.a HDM)</p>
- * <p>This keychain keeps track of following keychains that follow the account key of this keychain.
- * You can get P2SH addresses to receive coins to from this chain. The threshold - sigsRequiredToSpend
- * specifies how many signatures required to spend transactions for this married keychain. This value should not exceed
- * total number of keys involved (one followed key plus number of following keys), otherwise IllegalArgumentException
- * will be thrown.</p>
- * <p>IMPORTANT: As of Bitcoin Core 0.9 all multisig transactions which require more than 3 public keys are non-standard
- * and such spends won't be processed by peers with default settings, essentially making such transactions almost
- * nonspendable</p>
- * <p>This method will throw an IllegalStateException, if the keychain is already married or already has leaf keys
- * issued.</p>
+ * <p>A multi-signature keychain using synchronized HD keys (a.k.a HDM).</p>
+ *
+ * <p>This keychain keeps track of following keychains that follow the account key of this keychain.  You can get P2SH
+ * addresses to receive coins to from this chain.  The threshold - sigsRequiredToSpend specifies how many signatures
+ * required to spend transactions for this married keychain.  This value should not exceed the total number of keys
+ * involved (one followed key plus number of following keys), otherwise IllegalArgumentException will be thrown.</p>
+ *
+ * <p>IMPORTANT: As of Bitcoin Core 0.9 all multisig transactions which require more than 3 public keys are non-standard and
+ * such spends won't be processed by peers with default settings, essentially making such transactions almost nonspendable.</p>
+ *
+ * <p>This method will throw an IllegalStateException, if the keychain is already married or already has leaf keys issued.</p>
  */
 public class MarriedKeyChain extends DeterministicKeyChain
 {
@@ -46,7 +44,7 @@ public class MarriedKeyChain extends DeterministicKeyChain
 
     private List<DeterministicKeyChain> followingKeyChains;
 
-    /** Builds a {@link MarriedKeyChain} */
+    /** Builds a {@link MarriedKeyChain}. */
     public static class Builder<T extends Builder<T>> extends DeterministicKeyChain.Builder<T>
     {
         private List<DeterministicKey> followingKeys;
@@ -69,10 +67,10 @@ public class MarriedKeyChain extends DeterministicKeyChain
         }
 
         /**
-         * Threshold, or <code>(followingKeys.size() + 1) / 2 + 1)</code> (majority) if unspecified.</p>
-         * <p>IMPORTANT: As of Bitcoin Core 0.9 all multisig transactions which require more than 3 public keys are non-standard
-         * and such spends won't be processed by peers with default settings, essentially making such transactions almost
-         * nonspendable</p>
+         * Threshold, or <code>(followingKeys.size() + 1) / 2 + 1)</code> (majority) if unspecified.
+         *
+         * IMPORTANT: As of Bitcoin Core 0.9 all multisig transactions which require more than 3 public keys are non-standard and
+         * such spends won't be processed by peers with default settings, essentially making such transactions almost nonspendable.
          */
         public T threshold(int threshold)
         {
@@ -85,9 +83,11 @@ public class MarriedKeyChain extends DeterministicKeyChain
         {
             checkState(random != null || entropy != null || seed != null || watchingKey!= null, "Must provide either entropy or random or seed or watchingKey");
             checkNotNull(followingKeys, "followingKeys must be provided");
+
             MarriedKeyChain chain;
             if (threshold == 0)
                 threshold = (followingKeys.size() + 1) / 2 + 1;
+
             if (random != null)
             {
                 chain = new MarriedKeyChain(random, bits, getPassphrase(), seedCreationTimeSecs);
@@ -106,6 +106,7 @@ public class MarriedKeyChain extends DeterministicKeyChain
                 watchingKey.setCreationTimeSeconds(seedCreationTimeSecs);
                 chain = new MarriedKeyChain(watchingKey);
             }
+
             chain.addFollowingAccountKeys(followingKeys, threshold);
             return chain;
         }
@@ -116,7 +117,7 @@ public class MarriedKeyChain extends DeterministicKeyChain
         return new Builder();
     }
 
-    // Protobuf deserialization constructors
+    // Protobuf deserialization constructors.
     MarriedKeyChain(DeterministicKey accountKey)
     {
         super(accountKey, false);
@@ -127,7 +128,7 @@ public class MarriedKeyChain extends DeterministicKeyChain
         super(seed, crypter);
     }
 
-    // Builder constructors
+    // Builder constructors.
     private MarriedKeyChain(SecureRandom random, int bits, String passphrase, long seedCreationTimeSecs)
     {
         super(random, bits, passphrase, seedCreationTimeSecs);
@@ -184,7 +185,7 @@ public class MarriedKeyChain extends DeterministicKeyChain
         return keys.build();
     }
 
-    /** Get the redeem data for a key in this married chain */
+    /** Get the redeem data for a key in this married chain. */
     @Override
     public RedeemData getRedeemData(DeterministicKey followedKey)
     {
@@ -204,10 +205,11 @@ public class MarriedKeyChain extends DeterministicKeyChain
         for (DeterministicKey key : followingAccountKeys)
         {
             checkArgument(key.getPath().size() == getAccountPath().size(), "Following keys have to be account keys");
+
             DeterministicKeyChain chain = DeterministicKeyChain.watchAndFollow(key);
-            if (lookaheadSize >= 0)
+            if (0 <= lookaheadSize)
                 chain.setLookaheadSize(lookaheadSize);
-            if (lookaheadThreshold >= 0)
+            if (0 <= lookaheadThreshold)
                 chain.setLookaheadThreshold(lookaheadThreshold);
             followingKeyChains.add(chain);
         }
@@ -223,13 +225,10 @@ public class MarriedKeyChain extends DeterministicKeyChain
         try
         {
             super.setLookaheadSize(lookaheadSize);
+
             if (followingKeyChains != null)
-            {
                 for (DeterministicKeyChain followingChain : followingKeyChains)
-                {
                     followingChain.setLookaheadSize(lookaheadSize);
-                }
-            }
         }
         finally
         {
@@ -245,9 +244,7 @@ public class MarriedKeyChain extends DeterministicKeyChain
         try
         {
             for (DeterministicKeyChain chain : followingKeyChains)
-            {
                 result.addAll(chain.serializeMyselfToProtobuf());
-            }
             result.addAll(serializeMyselfToProtobuf());
         }
         finally
@@ -258,42 +255,41 @@ public class MarriedKeyChain extends DeterministicKeyChain
     }
 
     @Override
-    protected void formatAddresses(boolean includePrivateKeys, NetworkParameters params, StringBuilder builder2)
+    protected void formatAddresses(boolean includePrivateKeys, NetworkParameters params, StringBuilder sb)
     {
         for (DeterministicKeyChain followingChain : followingKeyChains)
-            builder2.append("Following chain:  ").append(followingChain.getWatchingKey().serializePubB58(params)).append('\n');
-        builder2.append('\n');
+            sb.append("Following chain:  ").append(followingChain.getWatchingKey().serializePubB58(params)).append('\n');
+        sb.append('\n');
         for (RedeemData redeemData : marriedKeysRedeemData.values())
-            formatScript(ScriptBuilder.createP2SHOutputScript(redeemData.redeemScript), builder2, params);
+            formatScript(ScriptBuilder.createP2SHOutputScript(redeemData.redeemScript), sb, params);
     }
 
-    private void formatScript(Script script, StringBuilder builder, NetworkParameters params)
+    private void formatScript(Script script, StringBuilder sb, NetworkParameters params)
     {
-        builder.append("  addr:");
-        builder.append(script.getToAddress(params));
-        builder.append("  hash160:");
-        builder.append(Utils.HEX.encode(script.getPubKeyHash()));
-        if (script.getCreationTimeSeconds() > 0)
-            builder.append("  creationTimeSeconds:").append(script.getCreationTimeSeconds());
-        builder.append('\n');
+        sb.append("  addr:").append(script.getToAddress(params));
+        sb.append("  hash160:").append(Utils.HEX.encode(script.getPubKeyHash()));
+        if (0 < script.getCreationTimeSeconds())
+            sb.append("  creationTimeSeconds:").append(script.getCreationTimeSeconds());
+        sb.append('\n');
     }
 
     @Override
     public void maybeLookAheadScripts()
     {
         super.maybeLookAheadScripts();
+
         int numLeafKeys = getLeafKeys().size();
-
         checkState(marriedKeysRedeemData.size() <= numLeafKeys, "Number of scripts is greater than number of leaf keys");
-        if (marriedKeysRedeemData.size() == numLeafKeys)
-            return;
 
-        maybeLookAhead();
-        for (DeterministicKey followedKey : getLeafKeys())
+        if (marriedKeysRedeemData.size() != numLeafKeys)
         {
-            RedeemData redeemData = getRedeemData(followedKey);
-            Script scriptPubKey = ScriptBuilder.createP2SHOutputScript(redeemData.redeemScript);
-            marriedKeysRedeemData.put(ByteString.copyFrom(scriptPubKey.getPubKeyHash()), redeemData);
+            maybeLookAhead();
+            for (DeterministicKey followedKey : getLeafKeys())
+            {
+                RedeemData redeemData = getRedeemData(followedKey);
+                Script scriptPubKey = ScriptBuilder.createP2SHOutputScript(redeemData.redeemScript);
+                marriedKeysRedeemData.put(ByteString.copyFrom(scriptPubKey.getPubKeyHash()), redeemData);
+            }
         }
     }
 

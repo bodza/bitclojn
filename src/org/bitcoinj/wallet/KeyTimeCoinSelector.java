@@ -1,15 +1,15 @@
 package org.bitcoinj.wallet;
 
-import org.bitcoinj.core.*;
-import org.bitcoinj.script.Script;
-import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.LinkedList;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.bitcoinj.core.*;
+import org.bitcoinj.script.Script;
 
 /**
  * A coin selector that takes all coins assigned to keys created before the given timestamp.
@@ -19,7 +19,7 @@ public class KeyTimeCoinSelector implements CoinSelector
 {
     private static final Logger log = LoggerFactory.getLogger(KeyTimeCoinSelector.class);
 
-    /** A number of inputs chosen to avoid hitting {@link org.bitcoinj.core.Transaction#MAX_STANDARD_TX_SIZE} */
+    /** A number of inputs chosen to avoid hitting {@link org.bitcoinj.core.Transaction#MAX_STANDARD_TX_SIZE}. */
     public static final int MAX_SIMULTANEOUS_INPUTS = 600;
 
     private final long unixTimeSeconds;
@@ -44,29 +44,29 @@ public class KeyTimeCoinSelector implements CoinSelector
             {
                 if (ignorePending && !isConfirmed(output))
                     continue;
+
                 // Find the key that controls output, assuming it's a regular pay-to-pubkey or pay-to-address output.
                 // We ignore any other kind of exotic output on the assumption we can't spend it ourselves.
                 final Script scriptPubKey = output.getScriptPubKey();
                 ECKey controllingKey;
                 if (scriptPubKey.isSentToRawPubKey())
-                {
                     controllingKey = wallet.findKeyFromPubKey(scriptPubKey.getPubKey());
-                }
                 else if (scriptPubKey.isSentToAddress())
-                {
                     controllingKey = wallet.findKeyFromPubHash(scriptPubKey.getPubKeyHash());
-                }
                 else
                 {
                     log.info("Skipping tx output {} because it's not of simple form.", output);
                     continue;
                 }
+
                 checkNotNull(controllingKey, "Coin selector given output as candidate for which we lack the key");
-                if (controllingKey.getCreationTimeSeconds() >= unixTimeSeconds) continue;
+                if (unixTimeSeconds <= controllingKey.getCreationTimeSeconds())
+                    continue;
+
                 // It's older than the cutoff time so select.
                 valueGathered = valueGathered.add(output.getValue());
                 gathered.push(output);
-                if (gathered.size() >= MAX_SIMULTANEOUS_INPUTS)
+                if (MAX_SIMULTANEOUS_INPUTS <= gathered.size())
                 {
                     log.warn("Reached {} inputs, going further would yield a tx that is too large, stopping here.", gathered.size());
                     break;
@@ -76,7 +76,7 @@ public class KeyTimeCoinSelector implements CoinSelector
         }
         catch (ScriptException e)
         {
-            throw new RuntimeException(e);  // We should never have problems understanding scripts in our wallet.
+            throw new RuntimeException(e); // We should never have problems understanding scripts in our wallet.
         }
     }
 

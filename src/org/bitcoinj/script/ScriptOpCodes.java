@@ -1,12 +1,12 @@
 package org.bitcoinj.script;
 
-import com.google.common.collect.ImmutableMap;
-
 import java.util.Map;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Various constants that define the assembly-like scripting language that forms part of the Bitcoin protocol.
- * See {@link org.bitcoinj.script.Script} for details. Also provides a method to convert them to a string.
+ * See {@link org.bitcoinj.script.Script} for details.  Also provides a method to convert them to a string.
  */
 public class ScriptOpCodes
 {
@@ -128,7 +128,7 @@ public class ScriptOpCodes
     public static final int OP_CHECKMULTISIGVERIFY = 0xaf;
 
     // block state
-    /** Check lock time of the block. Introduced in BIP 65, replacing OP_NOP2 */
+    /** Check lock time of the block.  Introduced in BIP 65, replacing OP_NOP2 */
     public static final int OP_CHECKLOCKTIMEVERIFY = 0xb1;
     public static final int OP_CHECKSEQUENCEVERIFY = 0xb2;
 
@@ -378,7 +378,7 @@ public class ScriptOpCodes
         .put("NOP10", OP_NOP10).build();
 
     /**
-     * Converts the given OpCode into a string (eg "0", "PUSHDATA", or "NON_OP(10)")
+     * Converts the given OpCode into a string (e.g. "0", "PUSHDATA", or "NON_OP(10)")
      */
     public static String getOpCodeName(int opcode)
     {
@@ -389,7 +389,7 @@ public class ScriptOpCodes
     }
 
     /**
-     * Converts the given pushdata OpCode into a string (eg "PUSHDATA2", or "PUSHDATA(23)")
+     * Converts the given pushdata OpCode into a string (e.g. "PUSHDATA2", or "PUSHDATA(23)")
      */
     public static String getPushDataName(int opcode)
     {
@@ -400,13 +400,10 @@ public class ScriptOpCodes
     }
 
     /**
-     * Converts the given OpCodeName into an int
+     * Converts the given OpCodeName into an int.
      */
     public static int getOpCode(String opCodeName)
     {
-        if (opCodeNameMap.containsKey(opCodeName))
-            return opCodeNameMap.get(opCodeName);
-
-        return OP_INVALIDOPCODE;
+        return (opCodeNameMap.containsKey(opCodeName)) ? opCodeNameMap.get(opCodeName) : OP_INVALIDOPCODE;
     }
 }

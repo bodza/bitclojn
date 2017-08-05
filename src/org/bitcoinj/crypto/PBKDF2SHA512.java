@@ -7,7 +7,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * <p>This is a clean-room implementation of PBKDF2 using RFC 2898 as a reference. </p>
+ * <p>This is a clean-room implementation of PBKDF2 using RFC 2898 as a reference.</p>
  *
  * <p>RFC 2898: http://tools.ietf.org/html/rfc2898#section-5.2</p>
  *

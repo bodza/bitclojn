@@ -1,13 +1,5 @@
 package org.bitcoinj.uri;
 
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.core.Coin;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.params.AbstractBitcoinNetParams;
-
-import javax.annotation.Nullable;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,8 +10,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import org.bitcoinj.core.Address;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.params.AbstractBitcoinNetParams;
 
 /**
  * <p>Provides a standard implementation of a Bitcoin URI with support for the following:</p>
@@ -35,8 +34,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  * <ul>
  * <li>{@code bitcoin:<address>}</li>
- * <li>{@code bitcoin:<address>?<name1>=<value1>&<name2>=<value2>} with multiple
- * additional name/value pairs</li>
+ * <li>{@code bitcoin:<address>?<name1>=<value1>&<name2>=<value2>} with multiple additional name/value pairs</li>
  * </ul>
  *
  * <p>The name/value pairs are processed as follows.</p>
@@ -49,8 +47,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  * <p>The following names are known and have the following formats:</p>
  * <ul>
- * <li>{@code amount} decimal value to 8 dp (e.g. 0.12345678) <b>Note that the
- * exponent notation is not supported any more</b></li>
+ * <li>{@code amount} decimal value to 8 dp (e.g. 0.12345678) <b>Note that the exponent notation is not supported any more.</b></li>
  * <li>{@code label} any URL encoded alphanumeric</li>
  * <li>{@code message} any URL encoded alphanumeric</li>
  * </ul>
@@ -62,7 +59,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class BitcoinURI
 {
-    // Not worth turning into an enum
+    // Not worth turning into an enum.
     public static final String FIELD_MESSAGE = "message";
     public static final String FIELD_LABEL = "label";
     public static final String FIELD_AMOUNT = "amount";
@@ -70,9 +67,9 @@ public class BitcoinURI
     public static final String FIELD_PAYMENT_REQUEST_URL = "r";
 
     /**
-     * URI for Bitcoin network. Use {@link org.bitcoinj.params.AbstractBitcoinNetParams#BITCOIN_SCHEME} if you specifically
-     * need Bitcoin, or use {@link org.bitcoinj.core.NetworkParameters#getUriScheme} to get the scheme
-     * from network parameters.
+     * URI for Bitcoin network.  Use {@link org.bitcoinj.params.AbstractBitcoinNetParams#BITCOIN_SCHEME}
+     * if you specifically need Bitcoin, or use {@link org.bitcoinj.core.NetworkParameters#getUriScheme}
+     * to get the scheme from network parameters.
      */
     @Deprecated
     public static final String BITCOIN_SCHEME = "bitcoin";
@@ -81,14 +78,14 @@ public class BitcoinURI
     private static final String QUESTION_MARK_SEPARATOR = "?";
 
     /**
-     * Contains all the parameters in the order in which they were processed
+     * Contains all the parameters in the order in which they were processed.
      */
     private final Map<String, Object> parameterMap = new LinkedHashMap<>();
 
     /**
-     * Constructs a new BitcoinURI from the given string. Can be for any network.
+     * Constructs a new BitcoinURI from the given string.  Can be for any network.
      *
-     * @param uri The raw URI data to be parsed (see class comments for accepted formats)
+     * @param uri The raw URI data to be parsed (see class comments for accepted formats).
      * @throws BitcoinURIParseException if the URI is not syntactically or semantically valid.
      */
     public BitcoinURI(String uri)
@@ -100,20 +97,18 @@ public class BitcoinURI
     /**
      * Constructs a new object by trying to parse the input as a valid Bitcoin URI.
      *
-     * @param params The network parameters that determine which network the URI is from, or null if you don't have
-     *               any expectation about what network the URI is for and wish to check yourself.
-     * @param input The raw URI data to be parsed (see class comments for accepted formats)
+     * @param params The network parameters that determine which network the URI is from, or null if you
+     *               don't have any expectation about what network the URI is for and wish to check yourself.
+     * @param input The raw URI data to be parsed (see class comments for accepted formats).
      *
-     * @throws BitcoinURIParseException If the input fails Bitcoin URI syntax and semantic checks.
+     * @throws BitcoinURIParseException if the input fails Bitcoin URI syntax and semantic checks.
      */
     public BitcoinURI(@Nullable NetworkParameters params, String input)
         throws BitcoinURIParseException
     {
         checkNotNull(input);
 
-        String scheme = null == params
-            ? AbstractBitcoinNetParams.BITCOIN_SCHEME
-            : params.getUriScheme();
+        String scheme = (params != null) ? params.getUriScheme() : AbstractBitcoinNetParams.BITCOIN_SCHEME;
 
         // Attempt to form the URI (fail fast syntax checking to official standards).
         URI uri;
@@ -132,30 +127,25 @@ public class BitcoinURI
 
         // Remove the bitcoin scheme.
         // (Note: getSchemeSpecificPart() is not used as it unescapes the label and parse then fails.
-        // For instance with : bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=0.06&label=Tom%20%26%20Jerry
+        // For instance with  bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=0.06&label=Tom%20%26%20Jerry
         // the & (%26) in Tom and Jerry gets interpreted as a separator and the label then gets parsed
-        // as 'Tom ' instead of 'Tom & Jerry')
+        // as 'Tom ' instead of 'Tom & Jerry'.)
         String blockchainInfoScheme = scheme + "://";
         String correctScheme = scheme + ":";
         String schemeSpecificPart;
         if (input.startsWith(blockchainInfoScheme))
-        {
             schemeSpecificPart = input.substring(blockchainInfoScheme.length());
-        }
         else if (input.startsWith(correctScheme))
-        {
             schemeSpecificPart = input.substring(correctScheme.length());
-        }
         else
-        {
             throw new BitcoinURIParseException("Unsupported URI scheme: " + uri.getScheme());
-        }
 
         // Split off the address from the rest of the query parameters.
         String[] addressSplitTokens = schemeSpecificPart.split("\\?", 2);
         if (addressSplitTokens.length == 0)
             throw new BitcoinURIParseException("No data found after the bitcoin: prefix");
-        String addressToken = addressSplitTokens[0];  // may be empty!
+
+        String addressToken = addressSplitTokens[0]; // may be empty!
 
         String[] nameValuePairTokens;
         if (addressSplitTokens.length == 1)
@@ -174,7 +164,7 @@ public class BitcoinURI
 
         if (!addressToken.isEmpty())
         {
-            // Attempt to parse the addressToken as a Bitcoin address for this network
+            // Attempt to parse the addressToken as a Bitcoin address for this network.
             try
             {
                 Address address = Address.fromBase58(params, addressToken);
@@ -187,15 +177,12 @@ public class BitcoinURI
         }
 
         if (addressToken.isEmpty() && getPaymentRequestUrl() == null)
-        {
             throw new BitcoinURIParseException("No address and no r= parameter found");
-        }
     }
 
     /**
-     * @param params The network parameters or null
-     * @param nameValuePairTokens The tokens representing the name value pairs (assumed to be
-     *                            separated by '=' e.g. 'amount=0.2')
+     * @param params The network parameters or null.
+     * @param nameValuePairTokens The tokens representing the name value pairs (assumed to be separated by '=' e.g. 'amount=0.2').
      */
     private void parseParameters(@Nullable NetworkParameters params, String addressToken, String[] nameValuePairTokens)
         throws BitcoinURIParseException
@@ -205,11 +192,10 @@ public class BitcoinURI
         {
             final int sepIndex = nameValuePairToken.indexOf('=');
             if (sepIndex == -1)
-                throw new BitcoinURIParseException("Malformed Bitcoin URI - no separator in '" +
-                        nameValuePairToken + "'");
+                throw new BitcoinURIParseException("Malformed Bitcoin URI - no separator in '" + nameValuePairToken + "'");
             if (sepIndex == 0)
-                throw new BitcoinURIParseException("Malformed Bitcoin URI - empty name '" +
-                        nameValuePairToken + "'");
+                throw new BitcoinURIParseException("Malformed Bitcoin URI - empty name '" + nameValuePairToken + "'");
+
             final String nameToken = nameValuePairToken.substring(0, sepIndex).toLowerCase(Locale.ENGLISH);
             final String valueToken = nameValuePairToken.substring(sepIndex + 1);
 
@@ -224,6 +210,7 @@ public class BitcoinURI
                         throw new BitcoinURIParseException("Max number of coins exceeded");
                     if (amount.signum() < 0)
                         throw new ArithmeticException("Negative coins specified");
+
                     putWithValidation(FIELD_AMOUNT, amount);
                 }
                 catch (IllegalArgumentException e)
@@ -242,93 +229,86 @@ public class BitcoinURI
                     // A required parameter that we do not know about.
                     throw new RequiredFieldValidationException("'" + nameToken + "' is required but not known, this URI is not valid");
                 }
-                else
+
+                // Known fields and unknown parameters that are optional.
+                try
                 {
-                    // Known fields and unknown parameters that are optional.
-                    try
-                    {
-                        if (valueToken.length() > 0)
-                            putWithValidation(nameToken, URLDecoder.decode(valueToken, "UTF-8"));
-                    }
-                    catch (UnsupportedEncodingException e)
-                    {
-                        throw new RuntimeException(e); // can't happen
-                    }
+                    if (0 < valueToken.length())
+                        putWithValidation(nameToken, URLDecoder.decode(valueToken, "UTF-8"));
+                }
+                catch (UnsupportedEncodingException e)
+                {
+                    throw new RuntimeException(e); // Can't happen.
                 }
             }
         }
 
-        // Note to the future: when you want to implement 'req-expires' have a look at commit 410a53791841
-        // which had it in.
+        // Note to the future:
+        // when you want to implement 'req-expires', have a look at commit 410a53791841 which had it in.
     }
 
     /**
-     * Put the value against the key in the map checking for duplication. This avoids address field overwrite etc.
+     * Put the value against the key in the map checking for duplication.  This avoids address field overwrite etc.
      *
-     * @param key The key for the map
-     * @param value The value to store
+     * @param key The key for the map.
+     * @param value The value to store.
      */
     private void putWithValidation(String key, Object value)
         throws BitcoinURIParseException
     {
         if (parameterMap.containsKey(key))
-        {
             throw new BitcoinURIParseException(String.format(Locale.US, "'%s' is duplicated, URI is invalid", key));
-        }
-        else
-        {
-            parameterMap.put(key, value);
-        }
+
+        parameterMap.put(key, value);
     }
 
     /**
-     * The Bitcoin Address from the URI, if one was present. It's possible to have Bitcoin URI's with no address if a
-     * r= payment protocol parameter is specified, though this form is not recommended as older wallets can't understand
-     * it.
+     * The Bitcoin Address from the URI, if one was present.  It's possible to have Bitcoin URI's with no address
+     * if a r= payment protocol parameter is specified, though this form is not recommended as older wallets
+     * can't understand it.
      */
     @Nullable
     public Address getAddress()
     {
-        return (Address) parameterMap.get(FIELD_ADDRESS);
+        return (Address)parameterMap.get(FIELD_ADDRESS);
     }
 
     /**
-     * @return The amount name encoded using a pure integer value based at
-     *         10,000,000 units is 1 BTC. May be null if no amount is specified
+     * @return The amount name encoded using a pure integer value based at 10,000,000 units is 1 BTC.
+     *         May be null if no amount is specified.
      */
     public Coin getAmount()
     {
-        return (Coin) parameterMap.get(FIELD_AMOUNT);
+        return (Coin)parameterMap.get(FIELD_AMOUNT);
     }
 
     /**
-     * @return The label from the URI.
+     * @return the label from the URI.
      */
     public String getLabel()
     {
-        return (String) parameterMap.get(FIELD_LABEL);
+        return (String)parameterMap.get(FIELD_LABEL);
     }
 
     /**
-     * @return The message from the URI.
+     * @return the message from the URI.
      */
     public String getMessage()
     {
-        return (String) parameterMap.get(FIELD_MESSAGE);
+        return (String)parameterMap.get(FIELD_MESSAGE);
     }
 
     /**
-     * @return The URL where a payment request (as specified in BIP 70) may
-     *         be fetched.
+     * @return the URL where a payment request (as specified in BIP 70) may be fetched.
      */
     public final String getPaymentRequestUrl()
     {
-        return (String) parameterMap.get(FIELD_PAYMENT_REQUEST_URL);
+        return (String)parameterMap.get(FIELD_PAYMENT_REQUEST_URL);
     }
 
     /**
-     * Returns the URLs where a payment request (as specified in BIP 70) may be fetched. The first URL is the main URL,
-     * all subsequent URLs are fallbacks.
+     * Returns the URLs where a payment request (as specified in BIP 70) may be fetched.
+     * The first URL is the main URL, all subsequent URLs are fallbacks.
      */
     public List<String> getPaymentRequestUrls()
     {
@@ -336,8 +316,8 @@ public class BitcoinURI
         while (true)
         {
             int i = urls.size();
-            String paramName = FIELD_PAYMENT_REQUEST_URL + (i > 0 ? Integer.toString(i) : "");
-            String url = (String) parameterMap.get(paramName);
+            String paramName = FIELD_PAYMENT_REQUEST_URL + (0 < i ? Integer.toString(i) : "");
+            String url = (String)parameterMap.get(paramName);
             if (url == null)
                 break;
             urls.add(url);
@@ -347,8 +327,8 @@ public class BitcoinURI
     }
 
     /**
-     * @param name The name of the parameter
-     * @return The parameter value, or null if not present
+     * @param name The name of the parameter.
+     * @return the parameter value, or null if not present.
      */
     public Object getParameterByName(String name)
     {
@@ -358,32 +338,28 @@ public class BitcoinURI
     @Override
     public String toString()
     {
-        StringBuilder builder = new StringBuilder("BitcoinURI[");
+        StringBuilder sb = new StringBuilder("BitcoinURI[");
         boolean first = true;
         for (Map.Entry<String, Object> entry : parameterMap.entrySet())
         {
             if (first)
-            {
                 first = false;
-            }
             else
-            {
-                builder.append(",");
-            }
-            builder.append("'").append(entry.getKey()).append("'=").append("'").append(entry.getValue()).append("'");
+                sb.append(",");
+            sb.append("'").append(entry.getKey()).append("'=").append("'").append(entry.getValue()).append("'");
         }
-        builder.append("]");
-        return builder.toString();
+        sb.append("]");
+        return sb.toString();
     }
 
     /**
      * Simple Bitcoin URI builder using known good fields.
      *
-     * @param address The Bitcoin address
-     * @param amount The amount
-     * @param label A label
-     * @param message A message
-     * @return A String containing the Bitcoin URI
+     * @param address The Bitcoin address.
+     * @param amount The amount.
+     * @param label A label.
+     * @param message A message.
+     * @return a String containing the Bitcoin URI.
      */
     public static String convertToBitcoinURI(Address address, Coin amount, String label, String message)
     {
@@ -393,33 +369,31 @@ public class BitcoinURI
     /**
      * Simple Bitcoin URI builder using known good fields.
      *
-     * @param params The network parameters that determine which network the URI
-     * is for.
-     * @param address The Bitcoin address
-     * @param amount The amount
-     * @param label A label
-     * @param message A message
-     * @return A String containing the Bitcoin URI
+     * @param params The network parameters that determine which network the URI is for.
+     * @param address The Bitcoin address.
+     * @param amount The amount.
+     * @param label A label.
+     * @param message A message.
+     * @return a String containing the Bitcoin URI.
      */
     public static String convertToBitcoinURI(NetworkParameters params, String address, @Nullable Coin amount, @Nullable String label, @Nullable String message)
     {
         checkNotNull(params);
         checkNotNull(address);
-        if (amount != null && amount.signum() < 0)
-        {
-            throw new IllegalArgumentException("Coin must be positive");
-        }
 
-        StringBuilder builder = new StringBuilder();
+        if (amount != null && amount.signum() < 0)
+            throw new IllegalArgumentException("Coin must be positive");
+
+        StringBuilder sb = new StringBuilder();
         String scheme = params.getUriScheme();
-        builder.append(scheme).append(":").append(address);
+        sb.append(scheme).append(":").append(address);
 
         boolean questionMarkHasBeenOutput = false;
 
         if (amount != null)
         {
-            builder.append(QUESTION_MARK_SEPARATOR).append(FIELD_AMOUNT).append("=");
-            builder.append(amount.toPlainString());
+            sb.append(QUESTION_MARK_SEPARATOR).append(FIELD_AMOUNT).append("=");
+            sb.append(amount.toPlainString());
             questionMarkHasBeenOutput = true;
         }
 
@@ -427,36 +401,36 @@ public class BitcoinURI
         {
             if (questionMarkHasBeenOutput)
             {
-                builder.append(AMPERSAND_SEPARATOR);
+                sb.append(AMPERSAND_SEPARATOR);
             }
             else
             {
-                builder.append(QUESTION_MARK_SEPARATOR);
+                sb.append(QUESTION_MARK_SEPARATOR);
                 questionMarkHasBeenOutput = true;
             }
-            builder.append(FIELD_LABEL).append("=").append(encodeURLString(label));
+            sb.append(FIELD_LABEL).append("=").append(encodeURLString(label));
         }
 
         if (message != null && !"".equals(message))
         {
             if (questionMarkHasBeenOutput)
             {
-                builder.append(AMPERSAND_SEPARATOR);
+                sb.append(AMPERSAND_SEPARATOR);
             }
             else
             {
-                builder.append(QUESTION_MARK_SEPARATOR);
+                sb.append(QUESTION_MARK_SEPARATOR);
             }
-            builder.append(FIELD_MESSAGE).append("=").append(encodeURLString(message));
+            sb.append(FIELD_MESSAGE).append("=").append(encodeURLString(message));
         }
 
-        return builder.toString();
+        return sb.toString();
     }
 
     /**
-     * Encode a string using URL encoding
+     * Encode a string using URL encoding.
      *
-     * @param stringToEncode The string to URL encode
+     * @param stringToEncode The string to URL encode.
      */
     static String encodeURLString(String stringToEncode)
     {
@@ -466,7 +440,7 @@ public class BitcoinURI
         }
         catch (UnsupportedEncodingException e)
         {
-            throw new RuntimeException(e); // can't happen
+            throw new RuntimeException(e); // Can't happen.
         }
     }
 }

@@ -1,19 +1,18 @@
 package org.bitcoinj.utils;
 
-import static org.bitcoinj.core.Coin.SMALLEST_UNIT_EXPONENT;
-import com.google.common.collect.ImmutableList;
-
-import java.math.BigInteger;
+import java.math.BigDecimal;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
-import java.math.BigDecimal;
+import java.math.BigInteger;
 import static java.math.RoundingMode.HALF_UP;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
-
 import java.util.Locale;
+
+import com.google.common.collect.ImmutableList;
+
+import static org.bitcoinj.core.Coin.SMALLEST_UNIT_EXPONENT;
 
 /**
  * <p>This class, a concrete extension of {@link BtcFormat}, is distinguished by its
@@ -33,12 +32,12 @@ import java.util.Locale;
  * <p>A more detailed explanation, including examples, is in the documentation for the {@link
  * BtcFormat} class, and further information beyond that is in the documentation for the {@link
  * java.text.Format} class, from which this class descends.
-
- * @see          java.text.Format
- * @see          java.text.NumberFormat
- * @see          java.text.DecimalFormat
- * @see          DecimalFormatSymbols
- * @see          org.bitcoinj.core.Coin
+ *
+ * @see java.text.Format
+ * @see java.text.NumberFormat
+ * @see java.text.DecimalFormat
+ * @see DecimalFormatSymbols
+ * @see org.bitcoinj.core.Coin
  */
 
 public final class BtcAutoFormat extends BtcFormat
@@ -50,19 +49,19 @@ public final class BtcAutoFormat extends BtcFormat
     public enum Style
     {
         /* Notes:
-         * 1) The odd-looking character in the replacements below, named "currency sign," is used in
-         *    the patterns recognized by Java's number formatter.  A single occurrence of this
+         * 1) The odd-looking character in the replacements below, named "currency sign," is used
+         *    in the patterns recognized by Java's number formatter.  A single occurrence of this
          *    character specifies a currency symbol, while two adjacent occurrences indicate an
          *    international currency code.
          * 2) The positive and negative patterns each have three parts: prefix, number, suffix.
-         *    The number characters are limited to digits, zero, decimal-separator, group-separator, and
-         *    scientific-notation specifier: [#0.,E]
+         *    The number characters are limited to digits, zero, decimal-separator, group-separator,
+         *    and scientific-notation specifier: [#0.,E]
          *    All number characters besides 'E' must be single-quoted in order to appear as
          *    literals in either the prefix or suffix.
          * These patterns are explained in the documentation for java.text.DecimalFormat.
          */
 
-        /** Constant for the formatting style that uses a currency code, e.g., "BTC". */
+        /** Constant for the formatting style that uses a currency code, e.g. "BTC". */
         CODE
         {
             @Override void apply(DecimalFormat decimalFormat)
@@ -72,11 +71,14 @@ public final class BtcAutoFormat extends BtcFormat
                  * We also insert a space character between every occurence of this character and an
                  * adjacent numerical digit or negative sign (that is, between the currency-sign and
                  * the signed-number). */
-                decimalFormat.applyPattern(negify(decimalFormat.toPattern()).replaceAll("¤", "¤¤").replaceAll("([#0.,E-])¤¤", "$1 ¤¤").replaceAll("¤¤([0#.,E-])", "¤¤ $1"));
+                decimalFormat.applyPattern(negify(decimalFormat.toPattern())
+                    .replaceAll("¤", "¤¤")
+                    .replaceAll("([#0.,E-])¤¤", "$1 ¤¤")
+                    .replaceAll("¤¤([0#.,E-])", "¤¤ $1"));
             }
         },
 
-        /** Constant for the formatting style that uses a currency symbol, e.g., "฿". */
+        /** Constant for the formatting style that uses a currency symbol, e.g. "฿". */
         SYMBOL
         {
             @Override void apply(DecimalFormat decimalFormat)
@@ -91,16 +93,17 @@ public final class BtcAutoFormat extends BtcFormat
         abstract void apply(DecimalFormat decimalFormat);
     }
 
-    /** Constructor */
+    /** Constructor. */
     protected BtcAutoFormat(Locale locale, Style style, int fractionPlaces)
     {
         super((DecimalFormat)NumberFormat.getCurrencyInstance(locale), fractionPlaces, ImmutableList.<Integer>of());
+
         style.apply(this.numberFormat);
     }
 
     /**
-     * Calculate the appropriate denomination for the given Bitcoin monetary value.  This
-     * method takes a BigInteger representing a quantity of satoshis, and returns the
+     * Calculate the appropriate denomination for the given Bitcoin monetary value.
+     * This method takes a BigInteger representing a quantity of satoshis, and returns the
      * number of places that value's decimal point is to be moved when formatting said value
      * in order that the resulting number represents the correct quantity of denominational
      * units.
@@ -114,15 +117,15 @@ public final class BtcAutoFormat extends BtcFormat
     {
         /* The algorithm is as follows.  TODO: is there a way to optimize step 4?
            1. Can we use coin denomination w/ no rounding?  If yes, do it.
-           2. Else, can we use millicoin denomination w/ no rounding? If yes, do it.
+           2. Else, can we use millicoin denomination w/ no rounding?  If yes, do it.
            3. Else, can we use micro denomination w/ no rounding?  If yes, do it.
            4. Otherwise we must round:
              (a) round to nearest coin + decimals
              (b) round to nearest millicoin + decimals
              (c) round to nearest microcoin + decimals
              Subtract each of (a), (b) and (c) from the true value, and choose the
-             denomination that gives smallest absolute difference.  It case of tie, use the
-             smaller denomination.
+             denomination that gives smallest absolute difference.  It case of tie,
+             use the smaller denomination.
         */
         int places;
         int coinOffset = Math.max(SMALLEST_UNIT_EXPONENT - fractionPlaces, 0);
@@ -147,18 +150,16 @@ public final class BtcAutoFormat extends BtcFormat
                 }
                 else
                 {
-                    // no way to avoid rounding: so what denomination gives smallest error?
-                    BigDecimal a = inCoins.subtract(inCoins.setScale(0, HALF_UP)).
-                                   movePointRight(coinOffset).abs();
-                    BigDecimal b = inMillis.subtract(inMillis.setScale(0, HALF_UP)).
-                                   movePointRight(coinOffset - MILLICOIN_SCALE).abs();
-                    BigDecimal c = inMicros.subtract(inMicros.setScale(0, HALF_UP)).
-                                   movePointRight(coinOffset - MICROCOIN_SCALE).abs();
+                    // No way to avoid rounding: so what denomination gives smallest error?
+                    BigDecimal a = inCoins.subtract(inCoins.setScale(0, HALF_UP)).movePointRight(coinOffset).abs();
+                    BigDecimal b = inMillis.subtract(inMillis.setScale(0, HALF_UP)).movePointRight(coinOffset - MILLICOIN_SCALE).abs();
+                    BigDecimal c = inMicros.subtract(inMicros.setScale(0, HALF_UP)).movePointRight(coinOffset - MICROCOIN_SCALE).abs();
                     if (a.compareTo(b) < 0)
-                        if (a.compareTo(c) < 0) places = COIN_SCALE;
-                        else places = MICROCOIN_SCALE;
-                    else if (b.compareTo(c) < 0) places = MILLICOIN_SCALE;
-                    else places = MICROCOIN_SCALE;
+                        places = (a.compareTo(c) < 0) ? COIN_SCALE : MICROCOIN_SCALE;
+                    else if (b.compareTo(c) < 0)
+                        places = MILLICOIN_SCALE;
+                    else
+                        places = MICROCOIN_SCALE;
                 }
             }
         }
@@ -166,20 +167,25 @@ public final class BtcAutoFormat extends BtcFormat
         return places;
     }
 
-    /** Returns the <code>int</code> value indicating coin denomination.  This is what causes
-     *  the number in a parsed value that lacks a units indicator to be interpreted as a quantity
-     *  of bitcoins. */
+    /**
+     * Returns the <code>int</code> value indicating coin denomination.  This is what causes
+     * the number in a parsed value that lacks a units indicator to be interpreted as a quantity
+     * of bitcoins.
+     */
     @Override
     protected int scale() { return COIN_SCALE; }
 
-    /** Return the number of decimal places in the fraction part of numbers formatted by this
-     *  instance.  This is the maximum number of fraction places that will be displayed;
-     *  the actual number used is limited to a precision of satoshis. */
+    /**
+     * Return the number of decimal places in the fraction part of numbers formatted by this
+     * instance.  This is the maximum number of fraction places that will be displayed;
+     * the actual number used is limited to a precision of satoshis.
+     */
     public int fractionPlaces() { return minimumFractionDigits; }
 
-    /** Return true if the other instance is equivalent to this one.
-      * Formatters for different locales will never be equal, even
-      * if they behave identically. */
+    /**
+     * Return true if the other instance is equivalent to this one.
+     * Formatters for different locales will never be equal, even if they behave identically.
+     */
     @Override public boolean equals(Object o)
     {
         if (this == o)
@@ -190,7 +196,7 @@ public final class BtcAutoFormat extends BtcFormat
     }
 
     /**
-     * Return a brief description of this formatter. The exact details of the representation
+     * Return a brief description of this formatter.  The exact details of the representation
      * are unspecified and subject to change, but will include some representation of the
      * pattern and the number of fractional decimal places.
      */

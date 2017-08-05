@@ -1,12 +1,12 @@
 package org.bitcoinj.store;
 
-import org.bitcoinj.core.*;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.bitcoinj.core.*;
+
 /**
- * Keeps {@link org.bitcoinj.core.StoredBlock}s in memory. Used primarily for unit testing.
+ * Keeps {@link org.bitcoinj.core.StoredBlock}s in memory.  Used primarily for unit testing.
  */
 public class MemoryBlockStore implements BlockStore
 {
@@ -15,7 +15,7 @@ public class MemoryBlockStore implements BlockStore
         @Override
         protected boolean removeEldestEntry(Map.Entry<Sha256Hash, StoredBlock> eldest)
         {
-            return blockMap.size() > 5000;
+            return (5000 < blockMap.size());
         }
     };
     private StoredBlock chainHead;
@@ -34,11 +34,11 @@ public class MemoryBlockStore implements BlockStore
         }
         catch (BlockStoreException e)
         {
-            throw new RuntimeException(e);  // Cannot happen.
+            throw new RuntimeException(e); // Cannot happen.
         }
         catch (VerificationException e)
         {
-            throw new RuntimeException(e);  // Cannot happen.
+            throw new RuntimeException(e); // Cannot happen.
         }
     }
 
@@ -46,7 +46,9 @@ public class MemoryBlockStore implements BlockStore
     public synchronized final void put(StoredBlock block)
         throws BlockStoreException
     {
-        if (blockMap == null) throw new BlockStoreException("MemoryBlockStore is closed");
+        if (blockMap == null)
+            throw new BlockStoreException("MemoryBlockStore is closed");
+
         Sha256Hash hash = block.getHeader().getHash();
         blockMap.put(hash, block);
     }
@@ -55,7 +57,9 @@ public class MemoryBlockStore implements BlockStore
     public synchronized StoredBlock get(Sha256Hash hash)
         throws BlockStoreException
     {
-        if (blockMap == null) throw new BlockStoreException("MemoryBlockStore is closed");
+        if (blockMap == null)
+            throw new BlockStoreException("MemoryBlockStore is closed");
+
         return blockMap.get(hash);
     }
 
@@ -63,7 +67,9 @@ public class MemoryBlockStore implements BlockStore
     public StoredBlock getChainHead()
         throws BlockStoreException
     {
-        if (blockMap == null) throw new BlockStoreException("MemoryBlockStore is closed");
+        if (blockMap == null)
+            throw new BlockStoreException("MemoryBlockStore is closed");
+
         return chainHead;
     }
 
@@ -71,7 +77,9 @@ public class MemoryBlockStore implements BlockStore
     public final void setChainHead(StoredBlock chainHead)
         throws BlockStoreException
     {
-        if (blockMap == null) throw new BlockStoreException("MemoryBlockStore is closed");
+        if (blockMap == null)
+            throw new BlockStoreException("MemoryBlockStore is closed");
+
         this.chainHead = chainHead;
     }
 

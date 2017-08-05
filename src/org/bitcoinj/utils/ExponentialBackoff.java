@@ -1,9 +1,9 @@
 package org.bitcoinj.utils;
 
-import org.bitcoinj.core.Utils;
+import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.primitives.Longs;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import org.bitcoinj.core.Utils;
 
 /**
  * <p>Tracks successes and failures and calculates a time to retry the operation.</p>
@@ -30,14 +30,14 @@ public class ExponentialBackoff implements Comparable<ExponentialBackoff>
         private final float maximum;
 
         /**
-         * @param initialMillis the initial interval to wait, in milliseconds
-         * @param multiplier the multiplier to apply on each failure
-         * @param maximumMillis the maximum interval to wait, in milliseconds
+         * @param initialMillis The initial interval to wait, in milliseconds.
+         * @param multiplier The multiplier to apply on each failure.
+         * @param maximumMillis The maximum interval to wait, in milliseconds.
          */
         public Params(long initialMillis, float multiplier, long maximumMillis)
         {
-            checkArgument(multiplier > 1.0f, "multiplier must be greater than 1.0");
-            checkArgument(maximumMillis >= initialMillis, "maximum must not be less than initial");
+            checkArgument(1.0f < multiplier, "multiplier must be greater than 1.0");
+            checkArgument(initialMillis <= maximumMillis, "maximum must not be less than initial");
 
             this.initial = initialMillis;
             this.multiplier = multiplier;
@@ -61,21 +61,21 @@ public class ExponentialBackoff implements Comparable<ExponentialBackoff>
         trackSuccess();
     }
 
-    /** Track a success - reset back off interval to the initial value */
+    /** Track a success - reset back off interval to the initial value. */
     public final void trackSuccess()
     {
         backoff = params.initial;
         retryTime = Utils.currentTimeMillis();
     }
 
-    /** Track a failure - multiply the back off interval by the multiplier */
+    /** Track a failure - multiply the back off interval by the multiplier. */
     public void trackFailure()
     {
         retryTime = Utils.currentTimeMillis() + (long)backoff;
         backoff = Math.min(backoff * params.multiplier, params.maximum);
     }
 
-    /** Get the next time to retry, in milliseconds since the epoch */
+    /** Get the next time to retry, in milliseconds since the epoch. */
     public long getRetryTime()
     {
         return retryTime;
@@ -84,7 +84,7 @@ public class ExponentialBackoff implements Comparable<ExponentialBackoff>
     @Override
     public int compareTo(ExponentialBackoff other)
     {
-        // note that in this implementation compareTo() is not consistent with equals()
+        // Note that in this implementation compareTo() is not consistent with equals().
         return Longs.compare(retryTime, other.retryTime);
     }
 
