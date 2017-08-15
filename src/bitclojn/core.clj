@@ -106,7 +106,7 @@
     ;; locked most of the time.
     #_private
     #_final
-    (§ field (§ type Object) (§ name chainHeadLock) (§ expr new Object(§ pars )))
+    (§ field (§ type Object) (§ name chainHeadLock) (§ new Object(§ pars )))
 
     #_protected
     #_final
@@ -134,7 +134,7 @@
         (§ block
             #_final
             (§ var (§ type boolean) (§ name filtered) (§ expr filteredTxHashes != nil && filteredTxn != nil))
-            (§ call Preconditions.checkArgument(§ pars (§ expr block.transactions == nil && filtered) || (§ expr block.transactions != nil && !filtered)))
+            (§ call Preconditions.checkArgument(§ pars (§ expr block.transactions == nil && filtered) || (§ expr block.transactions != nil && (§ not filtered))))
             (§ ass (§ name this.block) (§ expr block))
             (§ ass (§ name this.filteredTxHashes) (§ expr filteredTxHashes))
             (§ ass (§ name this.filteredTxn) (§ expr filteredTxn))
@@ -188,9 +188,9 @@
         (§ call log.info(§ pars "chain head is at height {}:\n{}", chainHead.getHeight(§ pars ), chainHead.getHeader(§ pars )))
         (§ ass (§ name this.params) (§ expr context.getParams(§ pars )))
 
-        (§ ass (§ name this.newBestBlockListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
-        (§ ass (§ name this.reorganizeListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
-        (§ ass (§ name this.transactionReceivedListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name this.newBestBlockListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name this.reorganizeListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name this.transactionReceivedListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
         (§ for (§ var (§ type NewBestBlockListener) (§ name l)) :for (§ expr wallets))
         (§ block
             (§ call addNewBestBlockListener(§ pars Threading.SAME_THREAD, l))
@@ -204,7 +204,7 @@
             (§ call addTransactionReceivedListener(§ pars Threading.SAME_THREAD, l))
         )
 
-        (§ ass (§ name this.versionTally) (§ expr new VersionTally(§ pars context.getParams(§ pars ))))
+        (§ ass (§ name this.versionTally) (§ new VersionTally(§ pars context.getParams(§ pars ))))
         (§ call this.versionTally.initialize(§ pars blockStore, chainHead))
     )
 
@@ -663,7 +663,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var (§ type Set<Sha256Hash>) (§ name hashes) (§ expr new HashSet<>(§ pars orphanBlocks.keySet(§ pars ))))
+            (§ var (§ type Set<Sha256Hash>) (§ name hashes) (§ new HashSet<>(§ pars orphanBlocks.keySet(§ pars ))))
             (§ call orphanBlocks.clear(§ pars ))
             (§ return (§ expr hashes))
         )
@@ -683,7 +683,7 @@
         (§ call Preconditions.checkState(§ pars lock.isHeldByCurrentThread(§ pars )))
         (§ var (§ type boolean) (§ name filtered) (§ expr filteredTxHashList != nil && filteredTxn != nil))
         ;; Check that we aren't connecting a block that fails a checkpoint check.
-        (§ if (§ expr !params.passesCheckpoint(§ pars storedPrev.getHeight(§ pars ) + 1, block.getHash(§ pars ))))
+        (§ if (§ expr (§ not params.passesCheckpoint(§ pars storedPrev.getHeight(§ pars ) + 1, block.getHash(§ pars )))))
         (§ block
             (§ throw (§ new VerificationException(§ pars "Block failed checkpoint lockin at " + (§ expr storedPrev.getHeight(§ pars ) + 1))))
         )
@@ -692,7 +692,7 @@
             (§ call Preconditions.checkNotNull(§ pars block.transactions))
             (§ for (§ var (§ type Transaction) (§ name tx)) :for (§ expr block.transactions))
             (§ block
-                (§ if (§ expr !tx.isFinal(§ pars storedPrev.getHeight(§ pars ) + 1, block.getTimeSeconds(§ pars ))))
+                (§ if (§ expr (§ not tx.isFinal(§ pars storedPrev.getHeight(§ pars ) + 1, block.getTimeSeconds(§ pars )))))
                 (§ block
                     (§ throw (§ new VerificationException(§ pars "Block contains non-final transaction")))
                 )
@@ -819,7 +819,7 @@
             (§ block
                 ;; Listener wants to be run on some other thread, so marshal it across here.
                 #_final
-                (§ var (§ type boolean) (§ name notFirst) (§ expr !first))
+                (§ var (§ type boolean) (§ name notFirst) (§ expr (§ not first)))
                 (§ call registration.executor.execute(§ pars (§ new Runnable(§ pars ))
                 (§ anon
                     #_override
@@ -896,7 +896,7 @@
             ;; is relevant to both of them, they don't end up accidentally sharing the same object (which can
             ;; result in temporary in-memory corruption during re-orgs).  See bug 257.  We only duplicate in
             ;; the case of multiple wallets to avoid an unnecessary efficiency hit in the common case.
-            (§ call sendTransactionsToListener(§ pars newStoredBlock, newBlockType, listener, 0, block.transactions, !first, falsePositives))
+            (§ call sendTransactionsToListener(§ pars newStoredBlock, newBlockType, listener, 0, block.transactions, (§ not first), falsePositives))
         )
         (§ elseif (§ expr filteredTxHashList != nil))
         (§ block
@@ -910,7 +910,7 @@
                 (§ var (§ type Transaction) (§ name tx) (§ expr filteredTxn.get(§ pars hash)))
                 (§ if (§ expr tx != nil))
                 (§ block
-                    (§ call sendTransactionsToListener(§ pars newStoredBlock, newBlockType, listener, relativityOffset, Collections.singletonList(§ pars tx), !first, falsePositives))
+                    (§ call sendTransactionsToListener(§ pars newStoredBlock, newBlockType, listener, relativityOffset, Collections.singletonList(§ pars tx), (§ not first), falsePositives))
                 )
                 (§ elseif (§ expr listener.notifyTransactionIsInBlock(§ pars hash, newStoredBlock, newBlockType, relativityOffset)))
                 (§ block
@@ -929,7 +929,7 @@
     (§ method long getMedianTimestampOfRecentBlocks(§ args StoredBlock storedBlock, BlockStore store))
         (§ throws BlockStoreException)
     (§ block
-        (§ var (§ type long[]) (§ name timestamps) (§ expr new long[11]))
+        (§ var (§ type long[]) (§ name timestamps) (§ new long[11]))
         (§ var (§ type int) (§ name unused) (§ expr 9))
         (§ ass timestamps[10] = storedBlock.getHeader(§ pars ).getTimeSeconds(§ pars ))
         (§ for (§ var ) :for (§ expr 0 <= unused && (§ ass (§ name storedBlock) (§ expr storedBlock.getPrev(§ pars store))) != nil) :for (§ ass (§ name unused) (§ expr unused - 1)))
@@ -1076,7 +1076,7 @@
         (§ throws BlockStoreException)
     (§ block
         (§ call Preconditions.checkArgument(§ pars lower.getHeight(§ pars ) < higher.getHeight(§ pars ), "higher and lower are reversed"))
-        (§ var (§ type LinkedList<StoredBlock>) (§ name results) (§ expr new LinkedList<>(§ pars )))
+        (§ var (§ type LinkedList<StoredBlock>) (§ name results) (§ new LinkedList<>(§ pars )))
         (§ var (§ type StoredBlock) (§ name cursor) (§ expr higher))
         (§ while (§ expr true))
         (§ block
@@ -1108,7 +1108,7 @@
         ;;         \--> E -> F -> G
         ;;
         ;; findSplit will return block B.  oldChainHead = D and newChainHead = G.
-        (§ while (§ expr !currentChainCursor.equals(§ pars newChainCursor)))
+        (§ while (§ expr (§ not currentChainCursor.equals(§ pars newChainCursor))))
         (§ block
             (§ if (§ expr newChainCursor.getHeight(§ pars ) < currentChainCursor.getHeight(§ pars )))
             (§ block
@@ -1450,7 +1450,7 @@
 
         (§ call Preconditions.checkNotNull(§ pars params))
         (§ call Preconditions.checkArgument(§ pars hash160.length == 20, "Addresses are 160-bit hashes, so you must provide 20 bytes"))
-        (§ if (§ expr !isAcceptableVersion(§ pars params, version)))
+        (§ if (§ expr (§ not isAcceptableVersion(§ pars params, version))))
         (§ block
             (§ throw (§ new WrongNetworkException(§ pars version, params.getAcceptableAddressCodes(§ pars ))))
         )
@@ -1524,7 +1524,7 @@
 
         (§ if (§ expr params != nil))
         (§ block
-            (§ if (§ expr !isAcceptableVersion(§ pars params, version)))
+            (§ if (§ expr (§ not isAcceptableVersion(§ pars params, version))))
             (§ block
                 (§ throw (§ new WrongNetworkException(§ pars version, params.getAcceptableAddressCodes(§ pars ))))
             )
@@ -1744,14 +1744,14 @@
         (§ block
             (§ throw (§ new ProtocolException(§ pars "Address message too large.")))
         )
-        (§ ass (§ name addresses) (§ expr new ArrayList<>(§ pars (§ cast int)numAddresses)))
+        (§ ass (§ name addresses) (§ new ArrayList<>(§ pars (§ cast int)numAddresses)))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < numAddresses) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
-            (§ var (§ type PeerAddress) (§ name addr) (§ expr new PeerAddress(§ pars params, payload, cursor, protocolVersion, this, serializer)))
+            (§ var (§ type PeerAddress) (§ name addr) (§ new PeerAddress(§ pars params, payload, cursor, protocolVersion, this, serializer)))
             (§ call addresses.add(§ pars addr))
             (§ ass (§ name cursor) (§ expr cursor + addr.getMessageSize(§ pars )))
         )
-        (§ ass (§ name length) (§ expr new VarInt(§ pars addresses.size(§ pars )).getSizeInBytes(§ pars )))
+        (§ ass (§ name length) (§ expr (§ new VarInt(§ pars addresses.size(§ pars ))).getSizeInBytes(§ pars )))
         ;; The 4 byte difference is the uint32 timestamp that was introduced in version 31402.
         (§ ass (§ name length) (§ expr length + (§ expr addresses.size(§ pars ) * (§ expr 31402 < protocolVersion ? PeerAddress.MESSAGE_SIZE :else PeerAddress.MESSAGE_SIZE - 4))))
     )
@@ -1900,8 +1900,8 @@
         ;; We're inside the embedded structure.
         (§ ass (§ name version) (§ expr readUint32(§ pars )))
         ;; Read the timestamps.  Bitcoin uses seconds since the epoch.
-        (§ ass (§ name relayUntil) (§ expr new Date(§ pars readUint64(§ pars ).longValue(§ pars ) * 1000)))
-        (§ ass (§ name expiration) (§ expr new Date(§ pars readUint64(§ pars ).longValue(§ pars ) * 1000)))
+        (§ ass (§ name relayUntil) (§ new Date(§ pars readUint64(§ pars ).longValue(§ pars ) * 1000)))
+        (§ ass (§ name expiration) (§ new Date(§ pars readUint64(§ pars ).longValue(§ pars ) * 1000)))
         (§ ass (§ name id) (§ expr readUint32(§ pars )))
         (§ ass (§ name cancel) (§ expr readUint32(§ pars )))
         ;; Sets are serialized as <len><item><item><item>....
@@ -1912,7 +1912,7 @@
         )
         ;; Using a hashset here is very inefficient given that this will normally be only one item.  But Java doesn't
         ;; make it easy to do better.  What we really want is just an array-backed set.
-        (§ var (§ type Set<Long>) (§ name cancelSet) (§ expr new HashSet<>(§ pars (§ cast int)cancelSetSize)))
+        (§ var (§ type Set<Long>) (§ name cancelSet) (§ new HashSet<>(§ pars (§ cast int)cancelSetSize)))
         (§ for (§ var (§ type long) (§ name i) (§ expr 0)) :for (§ expr i < cancelSetSize) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ call cancelSet.add(§ pars readUint32(§ pars )))
@@ -1925,7 +1925,7 @@
         (§ block
             (§ throw (§ new ProtocolException(§ pars "Bad subver set size: " + subverSetSize)))
         )
-        (§ var (§ type Set<String>) (§ name matchingSubVers) (§ expr new HashSet<>(§ pars (§ cast int)subverSetSize)))
+        (§ var (§ type Set<String>) (§ name matchingSubVers) (§ new HashSet<>(§ pars (§ cast int)subverSetSize)))
         (§ for (§ var (§ type long) (§ name i) (§ expr 0)) :for (§ expr i < subverSetSize) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ call matchingSubVers.add(§ pars readStr(§ pars )))
@@ -2159,7 +2159,7 @@
     #_private
     #_static
     #_final
-    (§ field (§ type int[]) (§ name INDEXES) (§ expr new int[128]))
+    (§ field (§ type int[]) (§ name INDEXES) (§ new int[128]))
     #_static
     (§ block
         (§ call Arrays.fill(§ pars INDEXES, -1))
@@ -2193,7 +2193,7 @@
 
         ;; Convert base-256 digits to base-58 digits (plus conversion to ASCII characters).
         (§ ass (§ name input) (§ expr Arrays.copyOf(§ pars input, input.length))) ;; since we modify it in-place
-        (§ var (§ type char[]) (§ name encoded) (§ expr new char[input.length * 2])) ;; upper bound
+        (§ var (§ type char[]) (§ name encoded) (§ new char[input.length * 2])) ;; upper bound
         (§ var (§ type int) (§ name outputStart) (§ expr encoded.length))
         (§ for (§ var (§ type int) (§ name inputStart) (§ expr zeros)) :for (§ expr inputStart < input.length) :for (§ expr ))
         (§ block
@@ -2233,11 +2233,11 @@
     (§ block
         (§ if (§ expr input.length(§ pars ) == 0))
         (§ block
-            (§ return (§ expr new byte[0]))
+            (§ return (§ new byte[0]))
         )
 
         ;; Convert the base58-encoded ASCII chars to a base58 byte sequence (base58 digits).
-        (§ var (§ type byte[]) (§ name input58) (§ expr new byte[input.length(§ pars )]))
+        (§ var (§ type byte[]) (§ name input58) (§ new byte[input.length(§ pars )]))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < input.length(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ var (§ type char) (§ name c) (§ expr input.charAt(§ pars i)))
@@ -2255,7 +2255,7 @@
             (§ ass (§ name zeros) (§ expr zeros + 1))
         )
         ;; Convert base-58 digits to base-256 digits.
-        (§ var (§ type byte[]) (§ name decoded) (§ expr new byte[input.length(§ pars )]))
+        (§ var (§ type byte[]) (§ name decoded) (§ new byte[input.length(§ pars )]))
         (§ var (§ type int) (§ name outputStart) (§ expr decoded.length))
         (§ for (§ var (§ type int) (§ name inputStart) (§ expr zeros)) :for (§ expr inputStart < input58.length) :for (§ expr ))
         (§ block
@@ -2305,7 +2305,7 @@
         (§ var (§ type byte[]) (§ name data) (§ expr Arrays.copyOfRange(§ pars decoded, 0, decoded.length - 4)))
         (§ var (§ type byte[]) (§ name checksum) (§ expr Arrays.copyOfRange(§ pars decoded, decoded.length - 4, decoded.length)))
         (§ var (§ type byte[]) (§ name actualChecksum) (§ expr Arrays.copyOfRange(§ pars Sha256Hash.hashTwice(§ pars data), 0, 4)))
-        (§ if (§ expr !Arrays.equals(§ pars checksum, actualChecksum)))
+        (§ if (§ expr (§ not Arrays.equals(§ pars checksum, actualChecksum))))
         (§ block
             (§ throw (§ new AddressFormatException(§ pars "Checksum does not validate")))
         )
@@ -2425,7 +2425,7 @@
     (§ method void serialize(§ args String name, byte[] message, OutputStream out))
         (§ throws IOException)
     (§ block
-        (§ var (§ type byte[]) (§ name header) (§ expr new byte[4 + COMMAND_LEN + 4 + 4])) ;; checksum
+        (§ var (§ type byte[]) (§ name header) (§ new byte[4 + COMMAND_LEN + 4 + 4])) ;; checksum
         (§ call uint32ToByteArrayBE(§ pars params.getPacketMagic(§ pars ), header, 0))
 
         ;; The header array is initialized to zero by Java so we don't have to worry
@@ -2488,7 +2488,7 @@
         ;; Bitcoin Core ignores garbage before the magic header bytes. We have to do the same because
         ;; sometimes it sends us stuff that isn't part of any message.
         (§ call seekPastMagicBytes(§ pars in))
-        (§ var (§ type BitcoinPacketHeader) (§ name header) (§ expr new BitcoinPacketHeader(§ pars in)))
+        (§ var (§ type BitcoinPacketHeader) (§ name header) (§ new BitcoinPacketHeader(§ pars in)))
         ;; Now try to read the whole message.
         (§ return (§ expr deserializePayload(§ pars header, in)))
     )
@@ -2514,7 +2514,7 @@
     (§ method Message deserializePayload(§ args BitcoinPacketHeader header, ByteBuffer in))
         (§ throws ProtocolException, BufferUnderflowException)
     (§ block
-        (§ var (§ type byte[]) (§ name payloadBytes) (§ expr new byte[header.size]))
+        (§ var (§ type byte[]) (§ name payloadBytes) (§ new byte[header.size]))
         (§ call in.get(§ pars payloadBytes, 0, header.size))
 
         ;; Verify the checksum.
@@ -2704,7 +2704,7 @@
     (§ method Transaction makeTransaction(§ args byte[] payloadBytes, int offset, int length, byte[] hash))
         (§ throws ProtocolException)
     (§ block
-        (§ var (§ type Transaction) (§ name tx) (§ expr new Transaction(§ pars params, payloadBytes, offset, nil, this, length)))
+        (§ var (§ type Transaction) (§ name tx) (§ new Transaction(§ pars params, payloadBytes, offset, nil, this, length)))
         (§ if (§ expr hash != nil))
         (§ block
             (§ call tx.setHash(§ pars Sha256Hash.wrapReversed(§ pars hash)))
@@ -2775,7 +2775,7 @@
         (§ constructor BitcoinPacketHeader(§ args ByteBuffer in))
             (§ throws ProtocolException, BufferUnderflowException)
         (§ block
-            (§ ass (§ name header) (§ expr new byte[HEADER_LENGTH]))
+            (§ ass (§ name header) (§ new byte[HEADER_LENGTH]))
             (§ call in.get(§ pars header, 0, header.length))
 
             (§ var (§ type int) (§ name cursor) (§ expr 0))
@@ -2786,7 +2786,7 @@
             (§ block
                 (§ ass (§ name cursor) (§ expr cursor + 1))
             )
-            (§ var (§ type byte[]) (§ name commandBytes) (§ expr new byte[cursor]))
+            (§ var (§ type byte[]) (§ name commandBytes) (§ new byte[cursor]))
             (§ call System.arraycopy(§ pars header, 0, commandBytes, 0, cursor))
             (§ ass (§ name command) (§ expr Utils.toString(§ pars commandBytes, "US-ASCII")))
             (§ ass (§ name cursor) (§ expr COMMAND_LEN))
@@ -2800,7 +2800,7 @@
             )
 
             ;; Old clients don't send the checksum.
-            (§ ass (§ name checksum) (§ expr new byte[4]))
+            (§ ass (§ name checksum) (§ new byte[4]))
             ;; Note that the size read above includes the checksum bytes.
             (§ call System.arraycopy(§ pars header, cursor, checksum, 0, 4))
             (§ ass (§ name cursor) (§ expr cursor + 4))
@@ -3049,7 +3049,7 @@
         (§ ass (§ name this.time) (§ expr time))
         (§ ass (§ name this.difficultyTarget) (§ expr difficultyTarget))
         (§ ass (§ name this.nonce) (§ expr nonce))
-        (§ ass (§ name this.transactions) (§ expr new LinkedList<>(§ pars )))
+        (§ ass (§ name this.transactions) (§ new LinkedList<>(§ pars )))
         (§ call this.transactions.addAll(§ pars transactions))
     )
 
@@ -3088,10 +3088,10 @@
 
         (§ var (§ type int) (§ name numTransactions) (§ expr (§ cast int)readVarInt(§ pars )))
         (§ ass (§ name optimalEncodingMessageSize) (§ expr optimalEncodingMessageSize + VarInt.sizeOf(§ pars numTransactions)))
-        (§ ass (§ name transactions) (§ expr new ArrayList<>(§ pars numTransactions)))
+        (§ ass (§ name transactions) (§ new ArrayList<>(§ pars numTransactions)))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < numTransactions) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
-            (§ var (§ type Transaction) (§ name tx) (§ expr new Transaction(§ pars params, payload, cursor, this, serializer, UNKNOWN_LENGTH)))
+            (§ var (§ type Transaction) (§ name tx) (§ new Transaction(§ pars params, payload, cursor, this, serializer, UNKNOWN_LENGTH)))
             ;; Label the transaction as coming from the P2P network, so code that cares where we first saw it knows.
             (§ call tx.getConfidence(§ pars ).setSource(§ pars TransactionConfidence.Source.NETWORK))
             (§ call transactions.add(§ pars tx))
@@ -3199,13 +3199,13 @@
             )
 
             ;; byte array is offset, so copy out the correct range
-            (§ var (§ type byte[]) (§ name buf) (§ expr new byte[length]))
+            (§ var (§ type byte[]) (§ name buf) (§ new byte[length]))
             (§ call System.arraycopy(§ pars payload, offset, buf, 0, length))
             (§ return (§ expr buf))
         )
 
         ;; At least one of the two cacheable components is invalid, so fall back to stream write since we can't be sure of the length.
-        (§ var (§ type ByteArrayOutputStream) (§ name stream) (§ expr new UnsafeByteArrayOutputStream(§ pars (§ expr length == UNKNOWN_LENGTH) ? HEADER_SIZE + guessTransactionsLength(§ pars ) :else length)))
+        (§ var (§ type ByteArrayOutputStream) (§ name stream) (§ new UnsafeByteArrayOutputStream(§ pars (§ expr length == UNKNOWN_LENGTH) ? HEADER_SIZE + guessTransactionsLength(§ pars ) :else length)))
         (§ try )
         (§ block
             (§ call writeHeader(§ pars stream))
@@ -3268,7 +3268,7 @@
     (§ method void unCacheHeader(§ args ))
     (§ block
         (§ ass (§ name headerBytesValid) (§ expr false))
-        (§ if (§ expr !transactionBytesValid))
+        (§ if (§ expr (§ not transactionBytesValid)))
         (§ block
             (§ ass (§ name payload) (§ expr nil))
         )
@@ -3279,7 +3279,7 @@
     (§ method void unCacheTransactions(§ args ))
     (§ block
         (§ ass (§ name transactionBytesValid) (§ expr false))
-        (§ if (§ expr !headerBytesValid))
+        (§ if (§ expr (§ not headerBytesValid)))
         (§ block
             (§ ass (§ name payload) (§ expr nil))
         )
@@ -3298,7 +3298,7 @@
     (§ block
         (§ try )
         (§ block
-            (§ var (§ type ByteArrayOutputStream) (§ name bos) (§ expr new UnsafeByteArrayOutputStream(§ pars HEADER_SIZE)))
+            (§ var (§ type ByteArrayOutputStream) (§ name bos) (§ new UnsafeByteArrayOutputStream(§ pars HEADER_SIZE)))
             (§ call writeHeader(§ pars bos))
             (§ return (§ expr Sha256Hash.wrapReversed(§ pars Sha256Hash.hashTwice(§ pars bos.toByteArray(§ pars )))))
         )
@@ -3361,7 +3361,7 @@
     #_public
     (§ method Block cloneAsHeader(§ args ))
     (§ block
-        (§ var (§ type Block) (§ name block) (§ expr new Block(§ pars params, BLOCK_VERSION_GENESIS)))
+        (§ var (§ type Block) (§ name block) (§ new Block(§ pars params, BLOCK_VERSION_GENESIS)))
         (§ call copyBitcoinHeaderTo(§ pars block))
         (§ return (§ expr block))
     )
@@ -3389,12 +3389,12 @@
     #_public
     (§ method String toString(§ args ))
     (§ block
-        (§ var (§ type StringBuilder) (§ name sb) (§ expr new StringBuilder(§ pars )))
+        (§ var (§ type StringBuilder) (§ name sb) (§ new StringBuilder(§ pars )))
         (§ call sb.append(§ pars " block: \n"))
         (§ call sb.append(§ pars "   hash: ").append(§ pars getHashAsString(§ pars )).append(§ pars "\n"))
         (§ call sb.append(§ pars "   version: ").append(§ pars version))
         (§ var (§ type String) (§ name bips) (§ expr Joiner.on(§ pars ", ").skipNulls(§ pars ).join(§ pars isBIP34(§ pars ) ? "BIP34" :else nil, isBIP66(§ pars ) ? "BIP66" :else nil, isBIP65(§ pars ) ? "BIP65" :else nil)))
-        (§ if (§ expr !bips.isEmpty(§ pars )))
+        (§ if (§ expr (§ not bips.isEmpty(§ pars ))))
         (§ block
             (§ call sb.append(§ pars " (").append(§ pars bips).append(§ pars ")"))
         )
@@ -3527,7 +3527,7 @@
         (§ throws VerificationException)
     (§ block
         (§ var (§ type Sha256Hash) (§ name calculatedRoot) (§ expr calculateMerkleRoot(§ pars )))
-        (§ if (§ expr !calculatedRoot.equals(§ pars merkleRoot)))
+        (§ if (§ expr (§ not calculatedRoot.equals(§ pars merkleRoot))))
         (§ block
             (§ call log.error(§ pars "Merkle tree did not verify"))
             (§ throw (§ new VerificationException(§ pars "Merkle hashes do not match: " + calculatedRoot + " vs " + merkleRoot)))
@@ -3573,7 +3573,7 @@
         ;;   2     3     4   4
         ;;  / \   / \   / \
         ;; t1 t2 t3 t4 t5 t5
-        (§ var (§ type ArrayList<byte[]>) (§ name tree) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type ArrayList<byte[]>) (§ name tree) (§ new ArrayList<>(§ pars )))
         ;; Start by adding all the hashes of the transactions as leaves of the tree.
         (§ for (§ var (§ type Transaction) (§ name t)) :for (§ expr transactions))
         (§ block
@@ -3612,7 +3612,7 @@
         (§ throws VerificationException)
     (§ block
         ;; The first transaction in a block must always be a coinbase transaction.
-        (§ if (§ expr !transactions.get(§ pars 0).isCoinBase(§ pars )))
+        (§ if (§ not (§ dot transactions.get(§ pars 0).isCoinBase(§ pars ))))
         (§ block
             (§ throw (§ new VerificationException(§ pars "First tx is not coinbase")))
         )
@@ -3759,10 +3759,10 @@
         (§ call unCacheTransactions(§ pars ))
         (§ if (§ expr transactions == nil))
         (§ block
-            (§ ass (§ name transactions) (§ expr new ArrayList<>(§ pars )))
+            (§ ass (§ name transactions) (§ new ArrayList<>(§ pars )))
         )
         (§ call t.setParent(§ pars this))
-        (§ if (§ expr runSanityChecks && transactions.size(§ pars ) == 0 && !t.isCoinBase(§ pars )))
+        (§ if (§ expr runSanityChecks && transactions.size(§ pars ) == 0 && (§ not t.isCoinBase(§ pars ))))
         (§ block
             (§ throw (§ new RuntimeException(§ pars "Attempted to add a non-coinbase transaction as the first transaction: " + t)))
         )
@@ -3893,10 +3893,10 @@
     (§ method void addCoinbaseTransaction(§ args byte[] pubKeyTo, Coin value, #_final int height))
     (§ block
         (§ call unCacheTransactions(§ pars ))
-        (§ ass (§ name transactions) (§ expr new ArrayList<>(§ pars )))
-        (§ var (§ type Transaction) (§ name coinbase) (§ expr new Transaction(§ pars params)))
+        (§ ass (§ name transactions) (§ new ArrayList<>(§ pars )))
+        (§ var (§ type Transaction) (§ name coinbase) (§ new Transaction(§ pars params)))
         #_final
-        (§ var (§ type ScriptBuilder) (§ name inputBuilder) (§ expr new ScriptBuilder(§ pars )))
+        (§ var (§ type ScriptBuilder) (§ name inputBuilder) (§ new ScriptBuilder(§ pars )))
 
         (§ if (§ expr Block.BLOCK_HEIGHT_GENESIS <= height))
         (§ block
@@ -3920,13 +3920,13 @@
 
     #_static
     #_final
-    (§ field (§ type byte[]) (§ name EMPTY_BYTES) (§ expr new byte[32]))
+    (§ field (§ type byte[]) (§ name EMPTY_BYTES) (§ new byte[32]))
 
     ;; It's pretty weak to have this around at runtime: fix later.
     #_private
     #_static
     #_final
-    (§ field (§ type byte[]) (§ name pubkeyForTesting) (§ expr new ECKey(§ pars ).getPubKey(§ pars )))
+    (§ field (§ type byte[]) (§ name pubkeyForTesting) (§ expr (§ new ECKey(§ pars )).getPubKey(§ pars )))
 
     ;;;
      ; Returns a solved block that builds on top of this one.  This exists for unit tests.
@@ -3946,23 +3946,23 @@
      ;;
     (§ method Block createNextBlock(§ args #_nilable #_final Address to, #_final long version, #_nilable TransactionOutPoint prevOut, #_final long time, #_final byte[] pubKey, #_final Coin coinbaseValue, #_final int height))
     (§ block
-        (§ var (§ type Block) (§ name b) (§ expr new Block(§ pars params, version)))
+        (§ var (§ type Block) (§ name b) (§ new Block(§ pars params, version)))
         (§ call b.setDifficultyTarget(§ pars difficultyTarget))
         (§ call b.addCoinbaseTransaction(§ pars pubKey, coinbaseValue, height))
 
         (§ if (§ expr to != nil))
         (§ block
             ;; Add a transaction paying 50 coins to the "to" address.
-            (§ var (§ type Transaction) (§ name t) (§ expr new Transaction(§ pars params)))
+            (§ var (§ type Transaction) (§ name t) (§ new Transaction(§ pars params)))
             (§ call t.addOutput(§ pars (§ new TransactionOutput(§ pars params, t, FIFTY_COINS, to))))
             ;; The input does not really need to be a valid signature, as long as it has the right general form.
             (§ var (§ type TransactionInput) (§ name input))
             (§ if (§ expr prevOut == nil))
             (§ block
-                (§ ass (§ name input) (§ expr new TransactionInput(§ pars params, t, Script.createInputScript(§ pars EMPTY_BYTES, EMPTY_BYTES))))
+                (§ ass (§ name input) (§ new TransactionInput(§ pars params, t, Script.createInputScript(§ pars EMPTY_BYTES, EMPTY_BYTES))))
                 ;; Importantly, the outpoint hash cannot be zero as that's how we detect a coinbase transaction in isolation,
                 ;; but it must be unique to avoid 'different' transactions looking the same.
-                (§ var (§ type byte[]) (§ name counter) (§ expr new byte[32]))
+                (§ var (§ type byte[]) (§ name counter) (§ new byte[32]))
                 (§ ass counter[0] = (§ cast byte)txCounter)
                 (§ ass counter[1] = (§ cast byte)(§ expr txCounter >> 8))
                 (§ ass (§ name txCounter) (§ expr txCounter + 1))
@@ -3970,7 +3970,7 @@
             )
             (§ else )
             (§ block
-                (§ ass (§ name input) (§ expr new TransactionInput(§ pars params, t, Script.createInputScript(§ pars EMPTY_BYTES, EMPTY_BYTES), prevOut)))
+                (§ ass (§ name input) (§ new TransactionInput(§ pars params, t, Script.createInputScript(§ pars EMPTY_BYTES, EMPTY_BYTES), prevOut)))
             )
             (§ call t.addInput(§ pars input))
             (§ call b.addTransaction(§ pars t))
@@ -4060,7 +4060,7 @@
     #_public
     (§ method boolean hasTransactions(§ args ))
     (§ block
-        (§ return (§ expr !this.transactions.isEmpty(§ pars )))
+        (§ return (§ expr (§ not this.transactions.isEmpty(§ pars ))))
     )
 
     ;;;
@@ -4410,7 +4410,7 @@
         ;; Size required for a given number of elements and false-positive rate.
         (§ var (§ type int) (§ name size) (§ expr (§ cast int)(§ expr -1 / pow(§ pars log(§ pars 2), 2) * elements * log(§ pars falsePositiveRate))))
         (§ ass (§ name size) (§ expr max(§ pars 1, min(§ pars size, (§ cast int)MAX_FILTER_SIZE * 8) / 8)))
-        (§ ass (§ name data) (§ expr new byte[size]))
+        (§ ass (§ name data) (§ new byte[size]))
         ;; Optimal number of hash functions for a given filter size and element count.
         (§ ass hashFuncs = (§ cast int)(§ expr data.length * 8 / (§ cast double)elements * log(§ pars 2)))
         (§ ass (§ name hashFuncs) (§ expr max(§ pars 1, min(§ pars hashFuncs, MAX_HASH_FUNCS))))
@@ -4555,7 +4555,7 @@
     (§ block
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < hashFuncs) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
-            (§ if (§ expr !Utils.checkBitLE(§ pars data, murmurHash3(§ pars data, nTweak, i, object))))
+            (§ if (§ expr (§ not Utils.checkBitLE(§ pars data, murmurHash3(§ pars data, nTweak, i, object)))))
             (§ block
                 (§ return (§ expr false))
             )
@@ -4595,7 +4595,7 @@
     #_synchronized
     (§ method void setMatchAll(§ args ))
     (§ block
-        (§ ass (§ name data) (§ expr new byte[] (§ coll (§ cast byte)0xff )))
+        (§ ass (§ name data) (§ new byte[] (§ coll (§ cast byte)0xff )))
     )
 
     ;;;
@@ -4606,7 +4606,7 @@
     #_synchronized
     (§ method void merge(§ args BloomFilter filter))
     (§ block
-        (§ if (§ expr !this.matchesAll(§ pars ) && !filter.matchesAll(§ pars )))
+        (§ if (§ expr (§ not this.matchesAll(§ pars )) && (§ not filter.matchesAll(§ pars ))))
         (§ block
             (§ call Preconditions.checkArgument(§ pars filter.data.length == this.data.length && filter.hashFuncs == this.hashFuncs && filter.nTweak == this.nTweak))
 
@@ -4617,7 +4617,7 @@
         )
         (§ else )
         (§ block
-            (§ ass (§ name this.data) (§ expr new byte[] (§ coll (§ cast byte)0xff )))
+            (§ ass (§ name this.data) (§ new byte[] (§ coll (§ cast byte)0xff )))
         )
     )
 
@@ -4674,9 +4674,9 @@
     (§ method FilteredBlock applyAndUpdate(§ args Block block))
     (§ block
         (§ var (§ type List<Transaction>) (§ name txns) (§ expr block.getTransactions(§ pars )))
-        (§ var (§ type List<Sha256Hash>) (§ name txHashes) (§ expr new ArrayList<>(§ pars txns.size(§ pars ))))
+        (§ var (§ type List<Sha256Hash>) (§ name txHashes) (§ new ArrayList<>(§ pars txns.size(§ pars ))))
         (§ var (§ type List<Transaction>) (§ name matched) (§ expr Lists.newArrayList(§ pars )))
-        (§ var (§ type byte[]) (§ name bits) (§ expr new byte[(§ cast int)Math.ceil(§ pars txns.size(§ pars ) / 8.0)]))
+        (§ var (§ type byte[]) (§ name bits) (§ new byte[(§ cast int)Math.ceil(§ pars txns.size(§ pars ) / 8.0)]))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < txns.size(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ var (§ type Transaction) (§ name tx) (§ expr txns.get(§ pars i)))
@@ -4688,7 +4688,7 @@
             )
         )
         (§ var (§ type PartialMerkleTree) (§ name pmt) (§ expr PartialMerkleTree.buildFromLeaves(§ pars block.getParams(§ pars ), bits, txHashes)))
-        (§ var (§ type FilteredBlock) (§ name filteredBlock) (§ expr new FilteredBlock(§ pars block.getParams(§ pars ), block.cloneAsHeader(§ pars ), pmt)))
+        (§ var (§ type FilteredBlock) (§ name filteredBlock) (§ new FilteredBlock(§ pars block.getParams(§ pars ), block.cloneAsHeader(§ pars ), pmt)))
         (§ for (§ var (§ type Transaction) (§ name transaction)) :for (§ expr matched))
         (§ block
             (§ call filteredBlock.provideTransaction(§ pars transaction))
@@ -4860,7 +4860,7 @@
             (§ ass (§ name inputStream) (§ expr openStream(§ pars params)))
         )
         (§ call Preconditions.checkNotNull(§ pars inputStream))
-        (§ ass (§ name inputStream) (§ expr new BufferedInputStream(§ pars inputStream)))
+        (§ ass (§ name inputStream) (§ new BufferedInputStream(§ pars inputStream)))
         (§ call inputStream.mark(§ pars 1))
         (§ var (§ type int) (§ name first) (§ expr inputStream.read(§ pars )))
         (§ call inputStream.reset(§ pars ))
@@ -4894,19 +4894,19 @@
         (§ try )
         (§ block
             (§ var (§ type MessageDigest) (§ name digest) (§ expr Sha256Hash.newDigest(§ pars )))
-            (§ var (§ type DigestInputStream) (§ name digestInputStream) (§ expr new DigestInputStream(§ pars inputStream, digest)))
-            (§ ass (§ name dis) (§ expr new DataInputStream(§ pars digestInputStream)))
+            (§ var (§ type DigestInputStream) (§ name digestInputStream) (§ new DigestInputStream(§ pars inputStream, digest)))
+            (§ ass (§ name dis) (§ new DataInputStream(§ pars digestInputStream)))
             (§ call digestInputStream.on(§ pars false))
-            (§ var (§ type byte[]) (§ name header) (§ expr new byte[BINARY_MAGIC.length(§ pars )]))
+            (§ var (§ type byte[]) (§ name header) (§ new byte[BINARY_MAGIC.length(§ pars )]))
             (§ call dis.readFully(§ pars header))
-            (§ if (§ expr !Arrays.equals(§ pars header, BINARY_MAGIC.getBytes(§ pars "US-ASCII"))))
+            (§ if (§ expr (§ not Arrays.equals(§ pars header, BINARY_MAGIC.getBytes(§ pars "US-ASCII")))))
             (§ block
                 (§ throw (§ new IOException(§ pars "Header bytes did not match expected version")))
             )
             (§ var (§ type int) (§ name numSignatures) (§ expr checkPositionIndex(§ pars dis.readInt(§ pars ), MAX_SIGNATURES, "Num signatures out of range")))
             (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < numSignatures) :for (§ ass (§ name i) (§ expr i + 1)))
             (§ block
-                (§ var (§ type byte[]) (§ name sig) (§ expr new byte[65]))
+                (§ var (§ type byte[]) (§ name sig) (§ new byte[65]))
                 (§ call dis.readFully(§ pars sig))
                 ;; TODO: Do something with the signature here.
             )
@@ -4952,9 +4952,9 @@
         (§ var (§ type BufferedReader) (§ name reader) (§ expr nil))
         (§ try )
         (§ block
-            (§ ass (§ name reader) (§ expr new BufferedReader(§ pars (§ new InputStreamReader(§ pars inputStream, Charsets.US_ASCII)))))
+            (§ ass (§ name reader) (§ new BufferedReader(§ pars (§ new InputStreamReader(§ pars inputStream, Charsets.US_ASCII)))))
             (§ var (§ type String) (§ name magic) (§ expr reader.readLine(§ pars )))
-            (§ if (§ expr !TEXTUAL_MAGIC.equals(§ pars magic)))
+            (§ if (§ expr (§ not TEXTUAL_MAGIC.equals(§ pars magic))))
             (§ block
                 (§ throw (§ new IOException(§ pars "unexpected magic: " + magic)))
             )
@@ -5046,15 +5046,15 @@
     (§ block
         (§ call Preconditions.checkNotNull(§ pars params))
         (§ call Preconditions.checkNotNull(§ pars store))
-        (§ call Preconditions.checkArgument(§ pars !(§ expr store instanceof FullPrunedBlockStore), "You cannot use checkpointing with a full store."))
+        (§ call Preconditions.checkArgument(§ pars (§ not (§ expr store instanceof FullPrunedBlockStore)), "You cannot use checkpointing with a full store."))
 
         (§ ass (§ name time) (§ expr time - (§ expr 86400 * 7)))
 
         (§ call Preconditions.checkArgument(§ pars 0 < time))
         (§ call log.info(§ pars "Attempting to initialize a new block store with a checkpoint for time {} ({})", time, Utils.dateTimeFormat(§ pars time * 1000)))
 
-        (§ var (§ type BufferedInputStream) (§ name stream) (§ expr new BufferedInputStream(§ pars checkpoints)))
-        (§ var (§ type CheckpointManager) (§ name manager) (§ expr new CheckpointManager(§ pars params, stream)))
+        (§ var (§ type BufferedInputStream) (§ name stream) (§ new BufferedInputStream(§ pars checkpoints)))
+        (§ var (§ type CheckpointManager) (§ name manager) (§ new CheckpointManager(§ pars params, stream)))
         (§ var (§ type StoredBlock) (§ name checkpoint) (§ expr manager.getCheckpointBefore(§ pars time)))
         (§ call store.put(§ pars checkpoint))
         (§ call store.setChainHead(§ pars checkpoint))
@@ -5309,7 +5309,7 @@
     (§ block
         (§ try )
         (§ block
-            (§ var (§ type long) (§ name satoshis) (§ expr new BigDecimal(§ pars str).movePointRight(§ pars SMALLEST_UNIT_EXPONENT).longValueExact(§ pars )))
+            (§ var (§ type long) (§ name satoshis) (§ expr (§ new BigDecimal(§ pars str)).movePointRight(§ pars SMALLEST_UNIT_EXPONENT).longValueExact(§ pars )))
             (§ return (§ expr Coin.valueOf(§ pars satoshis)))
         )
         (§ catch (§ type ArithmeticException) (§ name e))
@@ -5332,7 +5332,7 @@
     (§ block
         (§ try )
         (§ block
-            (§ var (§ type long) (§ name satoshis) (§ expr new BigDecimal(§ pars str).movePointRight(§ pars SMALLEST_UNIT_EXPONENT).longValue(§ pars )))
+            (§ var (§ type long) (§ name satoshis) (§ expr (§ new BigDecimal(§ pars str)).movePointRight(§ pars SMALLEST_UNIT_EXPONENT).longValue(§ pars )))
             (§ return (§ expr Coin.valueOf(§ pars satoshis)))
         )
         (§ catch (§ type ArithmeticException) (§ name e))
@@ -5410,7 +5410,7 @@
     #_public
     (§ method Coin[] divideAndRemainder(§ args #_final long divisor))
     (§ block
-        (§ return (§ expr new Coin[] (§ coll new Coin(§ pars this.value / divisor), new Coin(§ pars this.value % divisor) )))
+        (§ return (§ new Coin[] (§ coll new Coin(§ pars this.value / divisor), new Coin(§ pars this.value % divisor) )))
     )
 
     #_public
@@ -5652,7 +5652,7 @@
     (§ constructor Context(§ args NetworkParameters params, int eventHorizon, Coin feePerKb, boolean ensureMinRequiredFee))
     (§ block
         (§ call log.info(§ pars "Creating bitcoinj {} context.", VersionMessage.BITCOINJ_VERSION))
-        (§ ass (§ name this.confidenceTable) (§ expr new TxConfidenceTable(§ pars )))
+        (§ ass (§ name this.confidenceTable) (§ new TxConfidenceTable(§ pars )))
         (§ ass (§ name this.params) (§ expr params))
         (§ ass (§ name this.eventHorizon) (§ expr eventHorizon))
         (§ ass (§ name this.ensureMinRequiredFee) (§ expr ensureMinRequiredFee))
@@ -5671,7 +5671,7 @@
     #_private
     #_static
     #_final
-    (§ field (§ type ThreadLocal<Context>) (§ name slot) (§ expr new ThreadLocal<>(§ pars )))
+    (§ field (§ type ThreadLocal<Context>) (§ name slot) (§ new ThreadLocal<>(§ pars )))
 
     ;;;
      ; Returns the current context that is associated with the <b>calling thread</b>.  BitcoinJ is an API that has thread
@@ -5737,7 +5737,7 @@
         (§ catch (§ type IllegalStateException) (§ name e))
         (§ block
             (§ call log.warn(§ pars "Implicitly creating context. This is a migration step and this message will eventually go away."))
-            (§ ass (§ name context) (§ expr new Context(§ pars params)))
+            (§ ass (§ name context) (§ new Context(§ pars params)))
             (§ return (§ expr context))
         )
         (§ if (§ expr context.getParams(§ pars ) != params))
@@ -5824,7 +5824,7 @@
     #_public
     #_static
     #_final
-    (§ field (§ type DummySerializer) (§ name DEFAULT) (§ expr new DummySerializer(§ pars )))
+    (§ field (§ type DummySerializer) (§ name DEFAULT) (§ new DummySerializer(§ pars )))
 
     #_private
     #_static
@@ -6014,7 +6014,7 @@
     #_public
     #_static
     #_final
-    (§ field (§ type Comparator<ECKey>) (§ name AGE_COMPARATOR) (§ expr new Comparator<ECKey>(§ pars )
+    (§ field (§ type Comparator<ECKey>) (§ name AGE_COMPARATOR) (§ new Comparator<ECKey>(§ pars )
         (§ anon
             #_override
             #_public
@@ -6033,7 +6033,7 @@
     #_public
     #_static
     #_final
-    (§ field (§ type Comparator<ECKey>) (§ name PUBKEY_COMPARATOR) (§ expr new Comparator<ECKey>(§ pars )
+    (§ field (§ type Comparator<ECKey>) (§ name PUBKEY_COMPARATOR) (§ new Comparator<ECKey>(§ pars )
         (§ anon
             #_private
             (§ field (§ type Comparator<byte[]>) (§ name comparator) (§ expr UnsignedBytes.lexicographicalComparator(§ pars )))
@@ -6086,7 +6086,7 @@
         (§ call FixedPointUtil.precompute(§ pars CURVE_PARAMS.getG(§ pars ), 12))
         (§ ass CURVE = new ECDomainParameters(§ pars CURVE_PARAMS.getCurve(§ pars ), CURVE_PARAMS.getG(§ pars ), CURVE_PARAMS.getN(§ pars ), CURVE_PARAMS.getH(§ pars )))
         (§ ass HALF_CURVE_ORDER = CURVE_PARAMS.getN(§ pars ).shiftRight(§ pars 1))
-        (§ ass (§ name secureRandom) (§ expr new SecureRandom(§ pars )))
+        (§ ass (§ name secureRandom) (§ new SecureRandom(§ pars )))
     )
 
     ;; The two parts of the key.  If "priv" is set, "pub" can always be calculated.  If "pub" is set but not "priv", we
@@ -6128,14 +6128,14 @@
     #_public
     (§ constructor ECKey(§ args SecureRandom secureRandom))
     (§ block
-        (§ var (§ type ECKeyPairGenerator) (§ name generator) (§ expr new ECKeyPairGenerator(§ pars )))
-        (§ var (§ type ECKeyGenerationParameters) (§ name keygenParams) (§ expr new ECKeyGenerationParameters(§ pars CURVE, secureRandom)))
+        (§ var (§ type ECKeyPairGenerator) (§ name generator) (§ new ECKeyPairGenerator(§ pars )))
+        (§ var (§ type ECKeyGenerationParameters) (§ name keygenParams) (§ new ECKeyGenerationParameters(§ pars CURVE, secureRandom)))
         (§ call generator.init(§ pars keygenParams))
         (§ var (§ type AsymmetricCipherKeyPair) (§ name keypair) (§ expr generator.generateKeyPair(§ pars )))
         (§ var (§ type ECPrivateKeyParameters) (§ name privParams) (§ expr (§ cast ECPrivateKeyParameters)keypair.getPrivate(§ pars )))
         (§ var (§ type ECPublicKeyParameters) (§ name pubParams) (§ expr (§ cast ECPublicKeyParameters)keypair.getPublic(§ pars )))
         (§ ass (§ name priv) (§ expr privParams.getD(§ pars )))
-        (§ ass (§ name pub) (§ expr new LazyECPoint(§ pars CURVE.getCurve(§ pars ), pubParams.getQ(§ pars ).getEncoded(§ pars true))))
+        (§ ass (§ name pub) (§ new LazyECPoint(§ pars CURVE.getCurve(§ pars ), pubParams.getQ(§ pars ).getEncoded(§ pars true))))
         (§ ass (§ name creationTimeSeconds) (§ expr Utils.currentTimeSeconds(§ pars )))
     )
 
@@ -6154,8 +6154,8 @@
             ;; Try and catch buggy callers or bad key imports, etc.  Zero and one are special because these are often
             ;; used as sentinel values and because scripting languages have a habit of auto-casting true and false to
             ;; 1 and 0 or vice-versa.  Type confusion bugs could therefore result in private keys with these values.
-            (§ call Preconditions.checkArgument(§ pars !priv.equals(§ pars BigInteger.ZERO)))
-            (§ call Preconditions.checkArgument(§ pars !priv.equals(§ pars BigInteger.ONE)))
+            (§ call Preconditions.checkArgument(§ pars (§ not priv.equals(§ pars BigInteger.ZERO))))
+            (§ call Preconditions.checkArgument(§ pars (§ not priv.equals(§ pars BigInteger.ONE))))
         )
         (§ ass (§ name this.priv) (§ expr priv))
         (§ ass (§ name this.pub) (§ expr Preconditions.checkNotNull(§ pars pub)))
@@ -6194,7 +6194,7 @@
     #_static
     (§ method LazyECPoint decompressPoint(§ args LazyECPoint point))
     (§ block
-        (§ return (§ expr !point.isCompressed(§ pars ) ? point :else new LazyECPoint(§ pars decompressPoint(§ pars point.get(§ pars )))))
+        (§ return (§ quest (§ not point.isCompressed(§ pars )) ? point :else new LazyECPoint(§ pars decompressPoint(§ pars point.get(§ pars )))))
     )
 
     #_private
@@ -6391,14 +6391,14 @@
             ;; Derive public from private.
             (§ var (§ type ECPoint) (§ name point) (§ expr publicPointFromPrivate(§ pars privKey)))
             (§ ass (§ name point) (§ expr getPointWithCompression(§ pars point, compressed)))
-            (§ ass (§ name this.pub) (§ expr new LazyECPoint(§ pars point)))
+            (§ ass (§ name this.pub) (§ new LazyECPoint(§ pars point)))
         )
         (§ else )
         (§ block
             ;; We expect the pubkey to be in regular encoded form, just as a BigInteger.
             ;; Therefore the first byte is a special marker byte.
             ;; TODO: This is probably not a useful API and may be confusing.
-            (§ ass (§ name this.pub) (§ expr new LazyECPoint(§ pars CURVE.getCurve(§ pars ), pubKey)))
+            (§ ass (§ name this.pub) (§ new LazyECPoint(§ pars CURVE.getCurve(§ pars ), pubKey)))
         )
     )
 
@@ -6440,7 +6440,7 @@
     #_public
     (§ method boolean isWatching(§ args ))
     (§ block
-        (§ return (§ expr isPubKeyOnly(§ pars ) && !isEncrypted(§ pars )))
+        (§ return (§ expr isPubKeyOnly(§ pars ) && (§ not isEncrypted(§ pars ))))
     )
 
     ;;;
@@ -6454,7 +6454,7 @@
         (§ try )
         (§ block
             (§ var (§ type byte[]) (§ name privKeyBytes) (§ expr getPrivKeyBytes(§ pars )))
-            (§ var (§ type ByteArrayOutputStream) (§ name baos) (§ expr new ByteArrayOutputStream(§ pars 400)))
+            (§ var (§ type ByteArrayOutputStream) (§ name baos) (§ new ByteArrayOutputStream(§ pars 400)))
 
             ;; ASN1_SEQUENCE(EC_PRIVATEKEY) = {
             ;;   ASN1_SIMPLE(EC_PRIVATEKEY, version, LONG),
@@ -6462,7 +6462,7 @@
             ;;   ASN1_EXP_OPT(EC_PRIVATEKEY, parameters, ECPKPARAMETERS, 0),
             ;;   ASN1_EXP_OPT(EC_PRIVATEKEY, publicKey, ASN1_BIT_STRING, 1)
             ;; } ASN1_SEQUENCE_END(EC_PRIVATEKEY)
-            (§ var (§ type DERSequenceGenerator) (§ name seq) (§ expr new DERSequenceGenerator(§ pars baos)))
+            (§ var (§ type DERSequenceGenerator) (§ name seq) (§ new DERSequenceGenerator(§ pars baos)))
             (§ call seq.addObject(§ pars (§ new ASN1Integer(§ pars 1)))) ;; version
             (§ call seq.addObject(§ pars (§ new DEROctetString(§ pars privKeyBytes))))
             (§ call seq.addObject(§ pars (§ new DERTaggedObject(§ pars 0, CURVE_PARAMS.toASN1Primitive(§ pars )))))
@@ -6613,7 +6613,7 @@
         #_public
         (§ method ECDSASignature toCanonicalised(§ args ))
         (§ block
-            (§ if (§ expr !isCanonical(§ pars )))
+            (§ if (§ expr (§ not isCanonical(§ pars ))))
             (§ block
                 ;; The order of the curve is the number of valid points that exist on that curve.  If S is in the upper
                 ;; half of the number of valid points, then bring it back to the lower half.  Otherwise, imagine that
@@ -6652,7 +6652,7 @@
             (§ var (§ type ASN1InputStream) (§ name decoder) (§ expr nil))
             (§ try )
             (§ block
-                (§ ass (§ name decoder) (§ expr new ASN1InputStream(§ pars bytes)))
+                (§ ass (§ name decoder) (§ new ASN1InputStream(§ pars bytes)))
                 (§ var (§ type DLSequence) (§ name seq) (§ expr (§ cast DLSequence)decoder.readObject(§ pars )))
                 (§ if (§ expr seq == nil))
                 (§ block
@@ -6697,8 +6697,8 @@
             (§ throws IOException)
         (§ block
             ;; Usually 70-72 bytes.
-            (§ var (§ type ByteArrayOutputStream) (§ name bos) (§ expr new ByteArrayOutputStream(§ pars 72)))
-            (§ var (§ type DERSequenceGenerator) (§ name seq) (§ expr new DERSequenceGenerator(§ pars bos)))
+            (§ var (§ type ByteArrayOutputStream) (§ name bos) (§ new ByteArrayOutputStream(§ pars 72)))
+            (§ var (§ type DERSequenceGenerator) (§ name seq) (§ new DERSequenceGenerator(§ pars bos)))
             (§ call seq.addObject(§ pars (§ new ASN1Integer(§ pars r))))
             (§ call seq.addObject(§ pars (§ new ASN1Integer(§ pars s))))
             (§ call seq.close(§ pars ))
@@ -6797,8 +6797,8 @@
 
         (§ call Preconditions.checkNotNull(§ pars privateKeyForSigning))
 
-        (§ var (§ type ECDSASigner) (§ name signer) (§ expr new ECDSASigner(§ pars (§ new HMacDSAKCalculator(§ pars (§ new SHA256Digest(§ pars )))))))
-        (§ var (§ type ECPrivateKeyParameters) (§ name privKey) (§ expr new ECPrivateKeyParameters(§ pars privateKeyForSigning, CURVE)))
+        (§ var (§ type ECDSASigner) (§ name signer) (§ new ECDSASigner(§ pars (§ new HMacDSAKCalculator(§ pars (§ new SHA256Digest(§ pars )))))))
+        (§ var (§ type ECPrivateKeyParameters) (§ name privKey) (§ new ECPrivateKeyParameters(§ pars privateKeyForSigning, CURVE)))
         (§ call signer.init(§ pars true, privKey))
         (§ var (§ type BigInteger[]) (§ name components) (§ expr signer.generateSignature(§ pars input.getBytes(§ pars ))))
         (§ return (§ new ECDSASignature(§ pars components[0], components[1])).toCanonicalised(§ pars ))
@@ -6823,8 +6823,8 @@
             (§ return (§ expr true))
         )
 
-        (§ var (§ type ECDSASigner) (§ name signer) (§ expr new ECDSASigner(§ pars )))
-        (§ var (§ type ECPublicKeyParameters) (§ name params) (§ expr new ECPublicKeyParameters(§ pars CURVE.getCurve(§ pars ).decodePoint(§ pars pub), CURVE)))
+        (§ var (§ type ECDSASigner) (§ name signer) (§ new ECDSASigner(§ pars )))
+        (§ var (§ type ECPublicKeyParameters) (§ name params) (§ new ECPublicKeyParameters(§ pars CURVE.getCurve(§ pars ).decodePoint(§ pars pub), CURVE)))
         (§ call signer.init(§ pars false, params))
         (§ try )
         (§ block
@@ -6883,7 +6883,7 @@
     (§ method void verifyOrThrow(§ args byte[] hash, byte[] signature))
         (§ throws SignatureException)
     (§ block
-        (§ if (§ expr !verify(§ pars hash, signature)))
+        (§ if (§ expr (§ not verify(§ pars hash, signature))))
         (§ block
             (§ throw (§ new SignatureException(§ pars )))
         )
@@ -6898,7 +6898,7 @@
     (§ method void verifyOrThrow(§ args Sha256Hash sigHash, ECDSASignature signature))
         (§ throws SignatureException)
     (§ block
-        (§ if (§ expr !ECKey.verify(§ pars sigHash.getBytes(§ pars ), signature, getPubKey(§ pars ))))
+        (§ if (§ expr (§ not ECKey.verify(§ pars sigHash.getBytes(§ pars ), signature, getPubKey(§ pars )))))
         (§ block
             (§ throw (§ new SignatureException(§ pars )))
         )
@@ -6943,7 +6943,7 @@
         ;; } ASN1_SEQUENCE_END(EC_PRIVATEKEY)
         (§ try )
         (§ block
-            (§ var (§ type ASN1InputStream) (§ name decoder) (§ expr new ASN1InputStream(§ pars asn1privkey)))
+            (§ var (§ type ASN1InputStream) (§ name decoder) (§ new ASN1InputStream(§ pars asn1privkey)))
             (§ var (§ type DLSequence) (§ name seq) (§ expr (§ cast DLSequence)decoder.readObject(§ pars )))
             (§ call Preconditions.checkArgument(§ pars decoder.readObject(§ pars ) == nil, "Input contains extra bytes"))
             (§ call decoder.close(§ pars ))
@@ -6953,7 +6953,7 @@
             (§ call Preconditions.checkArgument(§ pars (§ expr (§ cast ASN1Integer)seq.getObjectAt(§ pars 0)).getValue(§ pars ).equals(§ pars BigInteger.ONE), "Input is of wrong version"))
 
             (§ var (§ type byte[]) (§ name privbits) (§ expr (§ expr (§ cast ASN1OctetString)seq.getObjectAt(§ pars 1)).getOctets(§ pars )))
-            (§ var (§ type BigInteger) (§ name privkey) (§ expr new BigInteger(§ pars 1, privbits)))
+            (§ var (§ type BigInteger) (§ name privkey) (§ new BigInteger(§ pars 1, privbits)))
 
             (§ var (§ type ASN1TaggedObject) (§ name pubkey) (§ expr (§ cast ASN1TaggedObject)seq.getObjectAt(§ pars 3)))
             (§ call Preconditions.checkArgument(§ pars pubkey.getTagNo(§ pars ) == 1, "Input has 'publicKey' with bad tag number"))
@@ -6965,8 +6965,8 @@
 
             ;; Now sanity check to ensure the pubkey bytes match the privkey.
             (§ var (§ type boolean) (§ name compressed) (§ expr pubbits.length == 33))
-            (§ var (§ type ECKey) (§ name key) (§ expr new ECKey(§ pars privkey, nil, compressed)))
-            (§ if (§ expr !Arrays.equals(§ pars key.getPubKey(§ pars ), pubbits)))
+            (§ var (§ type ECKey) (§ name key) (§ new ECKey(§ pars privkey, nil, compressed)))
+            (§ if (§ expr (§ not Arrays.equals(§ pars key.getPubKey(§ pars ), pubbits))))
             (§ block
                 (§ throw (§ new IllegalArgumentException(§ pars "Public key in ASN.1 structure does not match private key.")))
             )
@@ -7022,7 +7022,7 @@
             (§ throw (§ new RuntimeException(§ pars "Could not construct a recoverable key. This should never happen.")))
         )
         (§ var (§ type int) (§ name headerByte) (§ expr recId + 27 + (§ expr isCompressed(§ pars ) ? 4 :else 0)))
-        (§ var (§ type byte[]) (§ name sigData) (§ expr new byte[65])) ;; 1 header + 32 bytes for R + 32 bytes for S
+        (§ var (§ type byte[]) (§ name sigData) (§ new byte[65])) ;; 1 header + 32 bytes for R + 32 bytes for S
         (§ ass sigData[0] = (§ cast byte)headerByte)
         (§ call System.arraycopy(§ pars Utils.bigIntegerToBytes(§ pars sig.r, 32), 0, sigData, 1, 32))
         (§ call System.arraycopy(§ pars Utils.bigIntegerToBytes(§ pars sig.s, 32), 0, sigData, 33, 32))
@@ -7068,9 +7068,9 @@
         (§ block
             (§ throw (§ new SignatureException(§ pars "Header byte out of range: " + header)))
         )
-        (§ var (§ type BigInteger) (§ name r) (§ expr new BigInteger(§ pars 1, Arrays.copyOfRange(§ pars signatureEncoded, 1, 33))))
-        (§ var (§ type BigInteger) (§ name s) (§ expr new BigInteger(§ pars 1, Arrays.copyOfRange(§ pars signatureEncoded, 33, 65))))
-        (§ var (§ type ECDSASignature) (§ name sig) (§ expr new ECDSASignature(§ pars r, s)))
+        (§ var (§ type BigInteger) (§ name r) (§ new BigInteger(§ pars 1, Arrays.copyOfRange(§ pars signatureEncoded, 1, 33))))
+        (§ var (§ type BigInteger) (§ name s) (§ new BigInteger(§ pars 1, Arrays.copyOfRange(§ pars signatureEncoded, 33, 65))))
+        (§ var (§ type ECDSASignature) (§ name sig) (§ new ECDSASignature(§ pars r, s)))
         (§ var (§ type byte[]) (§ name messageBytes) (§ expr Utils.formatMessageForSigning(§ pars message)))
         ;; Note that the C++ code doesn't actually seem to specify any character encoding.
         ;; Presumably it's whatever JSON-SPIRIT hands back.  Assume UTF-8 for now.
@@ -7099,7 +7099,7 @@
         (§ throws SignatureException)
     (§ block
         (§ var (§ type ECKey) (§ name key) (§ expr ECKey.signedMessageToKey(§ pars message, signatureBase64)))
-        (§ if (§ expr !key.pub.equals(§ pars pub)))
+        (§ if (§ expr (§ not key.pub.equals(§ pars pub))))
         (§ block
             (§ throw (§ new SignatureException(§ pars "Signature did not match for message")))
         )
@@ -7158,7 +7158,7 @@
         ;; So it's encoded in the recId.
         (§ var (§ type ECPoint) (§ name R) (§ expr decompressKey(§ pars x, (§ expr recId & 1) == 1)))
         ;;   1.4. If nR != point at infinity, then do another iteration of Step 1 (callers responsibility).
-        (§ if (§ expr !R.multiply(§ pars n).isInfinity(§ pars )))
+        (§ if (§ not (§ dot R.multiply(§ pars n).isInfinity(§ pars ))))
         (§ block
             (§ return (§ expr nil))
         )
@@ -7189,7 +7189,7 @@
     #_static
     (§ method ECPoint decompressKey(§ args BigInteger xBN, boolean yBit))
     (§ block
-        (§ var (§ type X9IntegerConverter) (§ name x9) (§ expr new X9IntegerConverter(§ pars )))
+        (§ var (§ type X9IntegerConverter) (§ name x9) (§ new X9IntegerConverter(§ pars )))
         (§ var (§ type byte[]) (§ name compEnc) (§ expr x9.integerToBytes(§ pars xBN, 1 + x9.getByteLength(§ pars CURVE.getCurve(§ pars )))))
         (§ ass compEnc[0] = (§ cast byte)(§ expr yBit ? 0x03 :else 0x02))
         (§ return (§ expr CURVE.getCurve(§ pars ).decodePoint(§ pars compEnc)))
@@ -7267,7 +7267,7 @@
         (§ call Preconditions.checkNotNull(§ pars keyCrypter))
 
         ;; Check that the keyCrypter matches the one used to encrypt the keys, if set.
-        (§ if (§ expr this.keyCrypter != nil && !this.keyCrypter.equals(§ pars keyCrypter)))
+        (§ if (§ expr this.keyCrypter != nil && (§ not this.keyCrypter.equals(§ pars keyCrypter))))
         (§ block
             (§ throw (§ new KeyCrypterException(§ pars "The keyCrypter being used to decrypt the key is different to the one that was used to encrypt it")))
         )
@@ -7276,11 +7276,11 @@
 
         (§ var (§ type byte[]) (§ name unencryptedPrivateKey) (§ expr keyCrypter.decrypt(§ pars encryptedPrivateKey, aesKey)))
         (§ var (§ type ECKey) (§ name key) (§ expr ECKey.fromPrivate(§ pars unencryptedPrivateKey)))
-        (§ if (§ expr !isCompressed(§ pars )))
+        (§ if (§ expr (§ not isCompressed(§ pars ))))
         (§ block
             (§ ass (§ name key) (§ expr key.decompress(§ pars )))
         )
-        (§ if (§ expr !Arrays.equals(§ pars key.getPubKey(§ pars ), getPubKey(§ pars ))))
+        (§ if (§ expr (§ not Arrays.equals(§ pars key.getPubKey(§ pars ), getPubKey(§ pars )))))
         (§ block
             (§ throw (§ new KeyCrypterException(§ pars "Provided AES key is wrong")))
         )
@@ -7340,7 +7340,7 @@
             (§ var (§ type ECKey) (§ name rebornUnencryptedKey) (§ expr encryptedKey.decrypt(§ pars keyCrypter, aesKey)))
             (§ var (§ type byte[]) (§ name originalPrivateKeyBytes) (§ expr originalKey.getPrivKeyBytes(§ pars )))
             (§ var (§ type byte[]) (§ name rebornKeyBytes) (§ expr rebornUnencryptedKey.getPrivKeyBytes(§ pars )))
-            (§ if (§ expr !Arrays.equals(§ pars originalPrivateKeyBytes, rebornKeyBytes)))
+            (§ if (§ expr (§ not Arrays.equals(§ pars originalPrivateKeyBytes, rebornKeyBytes))))
             (§ block
                 (§ call log.error(§ pars "The check that encryption could be reversed failed for {}", originalKey))
                 (§ return (§ expr false))
@@ -7438,7 +7438,7 @@
         (§ block
             (§ return (§ expr true))
         )
-        (§ if (§ expr o == nil || !(§ expr o instanceof ECKey)))
+        (§ if (§ expr o == nil || (§ not (§ expr o instanceof ECKey))))
         (§ block
             (§ return (§ expr false))
         )
@@ -7594,7 +7594,7 @@
     #_public
     (§ method byte[] bitcoinSerialize(§ args ))
     (§ block
-        (§ return (§ expr new byte[0]))
+        (§ return (§ new byte[0]))
     )
 )
 
@@ -7660,11 +7660,11 @@
     (§ method void parse(§ args ))
         (§ throws ProtocolException)
     (§ block
-        (§ var (§ type byte[]) (§ name headerBytes) (§ expr new byte[Block.HEADER_SIZE]))
+        (§ var (§ type byte[]) (§ name headerBytes) (§ new byte[Block.HEADER_SIZE]))
         (§ call System.arraycopy(§ pars payload, 0, headerBytes, 0, Block.HEADER_SIZE))
         (§ ass (§ name header) (§ expr params.getDefaultSerializer(§ pars ).makeBlock(§ pars headerBytes)))
 
-        (§ ass (§ name merkleTree) (§ expr new PartialMerkleTree(§ pars params, payload, Block.HEADER_SIZE)))
+        (§ ass (§ name merkleTree) (§ new PartialMerkleTree(§ pars params, payload, Block.HEADER_SIZE)))
 
         (§ ass (§ name length) (§ expr Block.HEADER_SIZE + merkleTree.getMessageSize(§ pars )))
     )
@@ -7683,7 +7683,7 @@
             (§ return (§ expr Collections.unmodifiableList(§ pars cachedTransactionHashes)))
         )
 
-        (§ var (§ type List<Sha256Hash>) (§ name hashesMatched) (§ expr new LinkedList<>(§ pars )))
+        (§ var (§ type List<Sha256Hash>) (§ name hashesMatched) (§ new LinkedList<>(§ pars )))
         (§ if (§ expr header.getMerkleRoot(§ pars ).equals(§ pars merkleTree.getTxnHashAndMerkleRoot(§ pars hashesMatched))))
         (§ block
             (§ ass (§ name cachedTransactionHashes) (§ expr hashesMatched))
@@ -8028,15 +8028,15 @@
         (§ block
             (§ throw (§ new RuntimeException(§ pars "connectTransactions called with Block that didn't have transactions!")))
         )
-        (§ if (§ expr !params.passesCheckpoint(§ pars height, block.getHash(§ pars ))))
+        (§ if (§ expr (§ not params.passesCheckpoint(§ pars height, block.getHash(§ pars )))))
         (§ block
             (§ throw (§ new VerificationException(§ pars "Block failed checkpoint lockin at " + height)))
         )
 
         (§ call blockStore.beginDatabaseBatchWrite(§ pars ))
 
-        (§ var (§ type LinkedList<UTXO>) (§ name txOutsSpent) (§ expr new LinkedList<>(§ pars )))
-        (§ var (§ type LinkedList<UTXO>) (§ name txOutsCreated) (§ expr new LinkedList<>(§ pars )))
+        (§ var (§ type LinkedList<UTXO>) (§ name txOutsSpent) (§ new LinkedList<>(§ pars )))
+        (§ var (§ type LinkedList<UTXO>) (§ name txOutsCreated) (§ new LinkedList<>(§ pars )))
         (§ var (§ type long) (§ name sigOps) (§ expr 0))
 
         (§ if (§ expr scriptVerificationExecutor.isShutdown(§ pars )))
@@ -8044,10 +8044,10 @@
             (§ ass (§ name scriptVerificationExecutor) (§ expr Executors.newFixedThreadPool(§ pars Runtime.getRuntime(§ pars ).availableProcessors(§ pars ))))
         )
 
-        (§ var (§ type List<Future<VerificationException>>) (§ name listScriptVerificationResults) (§ expr new ArrayList<>(§ pars block.transactions.size(§ pars ))))
+        (§ var (§ type List<Future<VerificationException>>) (§ name listScriptVerificationResults) (§ new ArrayList<>(§ pars block.transactions.size(§ pars ))))
         (§ try )
         (§ block
-            (§ if (§ expr !params.isCheckpoint(§ pars height)))
+            (§ if (§ expr (§ not params.isCheckpoint(§ pars height))))
             (§ block
                 ;; BIP30 violator blocks are ones that contain a duplicated transaction.  They are all in the checkpoints list
                 ;; and we therefore only check non-checkpoints for duplicated transactions here.  See the BIP30 document
@@ -8078,10 +8078,10 @@
                 (§ var (§ type Coin) (§ name valueIn) (§ expr Coin.ZERO))
                 (§ var (§ type Coin) (§ name valueOut) (§ expr Coin.ZERO))
                 #_final
-                (§ var (§ type List<Script>) (§ name prevOutScripts) (§ expr new LinkedList<>(§ pars )))
+                (§ var (§ type List<Script>) (§ name prevOutScripts) (§ new LinkedList<>(§ pars )))
                 #_final
                 (§ var (§ type Set<VerifyFlag>) (§ name verifyFlags) (§ expr params.getTransactionVerificationFlags(§ pars block, tx, getVersionTally(§ pars ), height)))
-                (§ if (§ expr !isCoinBase))
+                (§ if (§ expr (§ not isCoinBase)))
                 (§ block
                     ;; For each input of the transaction remove the corresponding output from the set of unspent outputs.
                     (§ for (§ var (§ type int) (§ name index) (§ expr 0)) :for (§ expr index < tx.getInputs(§ pars ).size(§ pars )) :for (§ ass (§ name index) (§ expr index + 1)))
@@ -8126,7 +8126,7 @@
                     (§ ass (§ name valueOut) (§ expr valueOut.add(§ pars out.getValue(§ pars ))))
                     ;; For each output, add it to the set of unspent outputs so it can be consumed in future.
                     (§ var (§ type Script) (§ name script) (§ expr getScript(§ pars out.getScriptBytes(§ pars ))))
-                    (§ var (§ type UTXO) (§ name newOut) (§ expr new UTXO(§ pars hash, out.getIndex(§ pars ), out.getValue(§ pars ), height, isCoinBase, script, getScriptAddress(§ pars script))))
+                    (§ var (§ type UTXO) (§ name newOut) (§ new UTXO(§ pars hash, out.getIndex(§ pars ), out.getValue(§ pars ), height, isCoinBase, script, getScriptAddress(§ pars script))))
                     (§ call blockStore.addUnspentTransactionOutput(§ pars newOut))
                     (§ call txOutsCreated.add(§ pars newOut))
                 )
@@ -8150,10 +8150,10 @@
                     (§ ass (§ name totalFees) (§ expr totalFees.add(§ pars valueIn.subtract(§ pars valueOut))))
                 )
 
-                (§ if (§ expr !isCoinBase && runScripts))
+                (§ if (§ expr (§ not isCoinBase) && runScripts))
                 (§ block
                     ;; Because correctlySpends modifies transactions, this must come after we are done with tx.
-                    (§ var (§ type FutureTask<VerificationException>) (§ name future) (§ expr new FutureTask<>(§ pars new Verifier(§ pars tx, prevOutScripts, verifyFlags))))
+                    (§ var (§ type FutureTask<VerificationException>) (§ name future) (§ new FutureTask<>(§ pars new Verifier(§ pars tx, prevOutScripts, verifyFlags))))
                     (§ call scriptVerificationExecutor.execute(§ pars future))
                     (§ call listScriptVerificationResults.add(§ pars future))
                 )
@@ -8211,7 +8211,7 @@
         (§ throws VerificationException, BlockStoreException, PrunedException)
     (§ block
         (§ call Preconditions.checkState(§ pars lock.isHeldByCurrentThread(§ pars )))
-        (§ if (§ expr !params.passesCheckpoint(§ pars newBlock.getHeight(§ pars ), newBlock.getHeader(§ pars ).getHash(§ pars ))))
+        (§ if (§ expr (§ not params.passesCheckpoint(§ pars newBlock.getHeight(§ pars ), newBlock.getHeader(§ pars ).getHash(§ pars )))))
         (§ block
             (§ throw (§ new VerificationException(§ pars "Block failed checkpoint lockin at " + newBlock.getHeight(§ pars ))))
         )
@@ -8231,11 +8231,11 @@
             (§ var (§ type List<Transaction>) (§ name transactions) (§ expr block.getTransactions(§ pars )))
             (§ if (§ expr transactions != nil))
             (§ block
-                (§ var (§ type LinkedList<UTXO>) (§ name txOutsSpent) (§ expr new LinkedList<>(§ pars )))
-                (§ var (§ type LinkedList<UTXO>) (§ name txOutsCreated) (§ expr new LinkedList<>(§ pars )))
+                (§ var (§ type LinkedList<UTXO>) (§ name txOutsSpent) (§ new LinkedList<>(§ pars )))
+                (§ var (§ type LinkedList<UTXO>) (§ name txOutsCreated) (§ new LinkedList<>(§ pars )))
                 (§ var (§ type long) (§ name sigOps) (§ expr 0))
 
-                (§ if (§ expr !params.isCheckpoint(§ pars newBlock.getHeight(§ pars ))))
+                (§ if (§ expr (§ not params.isCheckpoint(§ pars newBlock.getHeight(§ pars )))))
                 (§ block
                     (§ for (§ var (§ type Transaction) (§ name tx)) :for (§ expr transactions))
                     (§ block
@@ -8255,7 +8255,7 @@
                     (§ ass (§ name scriptVerificationExecutor) (§ expr Executors.newFixedThreadPool(§ pars Runtime.getRuntime(§ pars ).availableProcessors(§ pars ))))
                 )
 
-                (§ var (§ type List<Future<VerificationException>>) (§ name listScriptVerificationResults) (§ expr new ArrayList<>(§ pars transactions.size(§ pars ))))
+                (§ var (§ type List<Future<VerificationException>>) (§ name listScriptVerificationResults) (§ new ArrayList<>(§ pars transactions.size(§ pars ))))
                 (§ for (§ var #_final Transaction tx) :for (§ expr transactions))
                 (§ block
                     #_final
@@ -8264,9 +8264,9 @@
                     (§ var (§ type Coin) (§ name valueIn) (§ expr Coin.ZERO))
                     (§ var (§ type Coin) (§ name valueOut) (§ expr Coin.ZERO))
                     #_final
-                    (§ var (§ type List<Script>) (§ name prevOutScripts) (§ expr new LinkedList<>(§ pars )))
+                    (§ var (§ type List<Script>) (§ name prevOutScripts) (§ new LinkedList<>(§ pars )))
 
-                    (§ if (§ expr !isCoinBase))
+                    (§ if (§ expr (§ not isCoinBase)))
                     (§ block
                         (§ for (§ var (§ type int) (§ name index) (§ expr 0)) :for (§ expr index < tx.getInputs(§ pars ).size(§ pars )) :for (§ ass (§ name index) (§ expr index + 1)))
                         (§ block
@@ -8308,7 +8308,7 @@
                     (§ block
                         (§ ass (§ name valueOut) (§ expr valueOut.add(§ pars out.getValue(§ pars ))))
                         (§ var (§ type Script) (§ name script) (§ expr getScript(§ pars out.getScriptBytes(§ pars ))))
-                        (§ var (§ type UTXO) (§ name newOut) (§ expr new UTXO(§ pars hash, out.getIndex(§ pars ), out.getValue(§ pars ), newBlock.getHeight(§ pars ), isCoinBase, script, getScriptAddress(§ pars script))))
+                        (§ var (§ type UTXO) (§ name newOut) (§ new UTXO(§ pars hash, out.getIndex(§ pars ), out.getValue(§ pars ), newBlock.getHeight(§ pars ), isCoinBase, script, getScriptAddress(§ pars script))))
                         (§ call blockStore.addUnspentTransactionOutput(§ pars newOut))
                         (§ call txOutsCreated.add(§ pars newOut))
                     )
@@ -8332,10 +8332,10 @@
                         (§ ass (§ name totalFees) (§ expr totalFees.add(§ pars valueIn.subtract(§ pars valueOut))))
                     )
 
-                    (§ if (§ expr !isCoinBase))
+                    (§ if (§ expr (§ not isCoinBase)))
                     (§ block
                         ;; Because correctlySpends modifies transactions, this must come after we are done with tx.
-                        (§ var (§ type FutureTask<VerificationException>) (§ name future) (§ expr new FutureTask<>(§ pars new Verifier(§ pars tx, prevOutScripts, verifyFlags))))
+                        (§ var (§ type FutureTask<VerificationException>) (§ name future) (§ new FutureTask<>(§ pars new Verifier(§ pars tx, prevOutScripts, verifyFlags))))
                         (§ call scriptVerificationExecutor.execute(§ pars future))
                         (§ call listScriptVerificationResults.add(§ pars future))
                     )
@@ -8345,7 +8345,7 @@
                     (§ throw (§ new VerificationException(§ pars "Transaction fees out of range")))
                 )
 
-                (§ ass (§ name txOutChanges) (§ expr new TransactionOutputChanges(§ pars txOutsCreated, txOutsSpent)))
+                (§ ass (§ name txOutChanges) (§ new TransactionOutputChanges(§ pars txOutsCreated, txOutsSpent)))
                 (§ for (§ var (§ type Future<VerificationException>) (§ name future)) :for (§ expr listScriptVerificationResults))
                 (§ block
                     (§ var (§ type VerificationException) (§ name e))
@@ -8371,7 +8371,7 @@
             (§ else )
             (§ block
                 (§ ass (§ name txOutChanges) (§ expr block.getTxOutChanges(§ pars )))
-                (§ if (§ expr !params.isCheckpoint(§ pars newBlock.getHeight(§ pars ))))
+                (§ if (§ expr (§ not params.isCheckpoint(§ pars newBlock.getHeight(§ pars )))))
                 (§ block
                     (§ for (§ var (§ type UTXO) (§ name out)) :for (§ expr txOutChanges.txOutsCreated))
                     (§ block
@@ -8543,7 +8543,7 @@
         )
 
         (§ ass (§ name length) (§ expr cursor - offset + (§ expr (§ expr startCount + 1) * 32)))
-        (§ ass (§ name locator) (§ expr new ArrayList<>(§ pars startCount)))
+        (§ ass (§ name locator) (§ new ArrayList<>(§ pars startCount)))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < startCount) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ call locator.add(§ pars readHash(§ pars )))
@@ -8823,7 +8823,7 @@
             (§ throw (§ new ProtocolException(§ pars "Too many headers: got " + numHeaders + " which is larger than " + MAX_HEADERS)))
         )
 
-        (§ ass (§ name blockHeaders) (§ expr new ArrayList<>(§ pars )))
+        (§ ass (§ name blockHeaders) (§ new ArrayList<>(§ pars )))
         #_final
         (§ var (§ type BitcoinSerializer) (§ name serializer) (§ expr this.params.getSerializer(§ pars true)))
 
@@ -9026,7 +9026,7 @@
     (§ method InventoryMessage with(§ args Transaction... txs))
     (§ block
         (§ call Preconditions.checkArgument(§ pars 0 < txs.length))
-        (§ var (§ type InventoryMessage) (§ name result) (§ expr new InventoryMessage(§ pars txs[0].getParams(§ pars ))))
+        (§ var (§ type InventoryMessage) (§ name result) (§ new InventoryMessage(§ pars txs[0].getParams(§ pars ))))
         (§ for (§ var (§ type Transaction) (§ name tx)) :for (§ expr txs))
         (§ block
             (§ call result.addTransaction(§ pars tx))
@@ -9077,7 +9077,7 @@
     (§ block
         (§ super (§ pars params))
 
-        (§ ass (§ name items) (§ expr new ArrayList<>(§ pars )))
+        (§ ass (§ name items) (§ new ArrayList<>(§ pars )))
         (§ ass (§ name length) (§ expr 1)) ;; length of 0 varint
     )
 
@@ -9118,7 +9118,7 @@
         (§ ass length = (§ cast int)(§ expr cursor - offset + (§ expr arrayLen * InventoryItem.MESSAGE_LENGTH)))
 
         ;; An inv is vector<CInv> where CInv is int+hash.  The int is either 1 or 2 for tx or block.
-        (§ ass (§ name items) (§ expr new ArrayList<>(§ pars (§ cast int)arrayLen)))
+        (§ ass (§ name items) (§ new ArrayList<>(§ pars (§ cast int)arrayLen)))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < arrayLen) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ if (§ expr payload.length < cursor + InventoryItem.MESSAGE_LENGTH))
@@ -9344,7 +9344,7 @@
             (§ call selfCheck(§ pars payload, offset))
         )
 
-        (§ if (§ expr !serializer.isParseRetainMode(§ pars )))
+        (§ if (§ expr (§ not serializer.isParseRetainMode(§ pars ))))
         (§ block
             (§ ass (§ name this.payload) (§ expr nil))
         )
@@ -9353,12 +9353,12 @@
     #_private
     (§ method void selfCheck(§ args byte[] payload, int offset))
     (§ block
-        (§ if (§ expr !(§ expr this instanceof VersionMessage)))
+        (§ if (§ expr (§ not (§ expr this instanceof VersionMessage))))
         (§ block
-            (§ var (§ type byte[]) (§ name payloadBytes) (§ expr new byte[cursor - offset]))
+            (§ var (§ type byte[]) (§ name payloadBytes) (§ new byte[cursor - offset]))
             (§ call System.arraycopy(§ pars payload, offset, payloadBytes, 0, cursor - offset))
             (§ var (§ type byte[]) (§ name reserialized) (§ expr bitcoinSerialize(§ pars )))
-            (§ if (§ expr !Arrays.equals(§ pars reserialized, payloadBytes)))
+            (§ if (§ expr (§ not Arrays.equals(§ pars reserialized, payloadBytes))))
             (§ block
                 (§ throw (§ new RuntimeException(§ pars "Serialization is wrong: \n" + Utils.HEX.encode(§ pars reserialized) + " vs \n" + Utils.HEX.encode(§ pars payloadBytes))))
             )
@@ -9449,7 +9449,7 @@
     (§ method byte[] bitcoinSerialize(§ args ))
     (§ block
         (§ var (§ type byte[]) (§ name bytes) (§ expr unsafeBitcoinSerialize(§ pars )))
-        (§ var (§ type byte[]) (§ name copy) (§ expr new byte[bytes.length]))
+        (§ var (§ type byte[]) (§ name copy) (§ new byte[bytes.length]))
         (§ call System.arraycopy(§ pars bytes, 0, copy, 0, bytes.length))
         (§ return (§ expr copy))
     )
@@ -9483,13 +9483,13 @@
                 (§ return (§ expr payload))
             )
 
-            (§ var (§ type byte[]) (§ name buf) (§ expr new byte[length]))
+            (§ var (§ type byte[]) (§ name buf) (§ new byte[length]))
             (§ call System.arraycopy(§ pars payload, offset, buf, 0, length))
             (§ return (§ expr buf))
         )
 
         ;; No cached array available so serialize parts by stream.
-        (§ var (§ type ByteArrayOutputStream) (§ name stream) (§ expr new UnsafeByteArrayOutputStream(§ pars length < 32 ? 32 :else length + 32)))
+        (§ var (§ type ByteArrayOutputStream) (§ name stream) (§ new UnsafeByteArrayOutputStream(§ pars length < 32 ? 32 :else length + 32)))
         (§ try )
         (§ block
             (§ call bitcoinSerializeToStream(§ pars stream))
@@ -9632,7 +9632,7 @@
     (§ block
         (§ try )
         (§ block
-            (§ var (§ type VarInt) (§ name varint) (§ expr new VarInt(§ pars payload, cursor + offset)))
+            (§ var (§ type VarInt) (§ name varint) (§ new VarInt(§ pars payload, cursor + offset)))
             (§ ass (§ name cursor) (§ expr cursor + offset + varint.getOriginalSizeInBytes(§ pars )))
             (§ return (§ expr varint.value))
         )
@@ -9653,7 +9653,7 @@
 
         (§ try )
         (§ block
-            (§ var (§ type byte[]) (§ name b) (§ expr new byte[length]))
+            (§ var (§ type byte[]) (§ name b) (§ new byte[length]))
             (§ call System.arraycopy(§ pars payload, cursor, b, 0, length))
             (§ ass (§ name cursor) (§ expr cursor + length))
             (§ return (§ expr b))
@@ -10079,14 +10079,14 @@
     #_static
     (§ method Block createGenesis(§ args NetworkParameters n))
     (§ block
-        (§ var (§ type Block) (§ name genesisBlock) (§ expr new Block(§ pars n, Block.BLOCK_VERSION_GENESIS)))
-        (§ var (§ type Transaction) (§ name t) (§ expr new Transaction(§ pars n)))
+        (§ var (§ type Block) (§ name genesisBlock) (§ new Block(§ pars n, Block.BLOCK_VERSION_GENESIS)))
+        (§ var (§ type Transaction) (§ name t) (§ new Transaction(§ pars n)))
         (§ try )
         (§ block
             ;; A script containing the difficulty bits and the following message: "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks".
             (§ var (§ type byte[]) (§ name bytes) (§ expr Utils.HEX.decode(§ pars "04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73")))
             (§ call t.addInput(§ pars (§ new TransactionInput(§ pars n, t, bytes))))
-            (§ var (§ type ByteArrayOutputStream) (§ name scriptPubKeyBytes) (§ expr new ByteArrayOutputStream(§ pars )))
+            (§ var (§ type ByteArrayOutputStream) (§ name scriptPubKeyBytes) (§ new ByteArrayOutputStream(§ pars )))
             (§ call Script.writeBytes(§ pars scriptPubKeyBytes, Utils.HEX.decode(§ pars "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f")))
             (§ call scriptPubKeyBytes.write(§ pars ScriptOpCodes.OP_CHECKSIG))
             (§ call t.addOutput(§ pars (§ new TransactionOutput(§ pars n, t, FIFTY_COINS, scriptPubKeyBytes.toByteArray(§ pars )))))
@@ -10614,7 +10614,7 @@
     (§ constructor NotFoundMessage(§ args NetworkParameters params, List<InventoryItem> items))
     (§ block
         (§ super (§ pars params))
-        (§ ass (§ name this.items) (§ expr new ArrayList<>(§ pars items)))
+        (§ ass (§ name this.items) (§ new ArrayList<>(§ pars items)))
     )
 )
 
@@ -10699,10 +10699,10 @@
         (§ block
             (§ ass (§ name height) (§ expr height + 1))
         )
-        (§ var (§ type List<Boolean>) (§ name bitList) (§ expr new ArrayList<>(§ pars )))
-        (§ var (§ type List<Sha256Hash>) (§ name hashes) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type List<Boolean>) (§ name bitList) (§ new ArrayList<>(§ pars )))
+        (§ var (§ type List<Sha256Hash>) (§ name hashes) (§ new ArrayList<>(§ pars )))
         (§ call traverseAndBuild(§ pars height, 0, allLeafHashes, includeBits, bitList, hashes))
-        (§ var (§ type byte[]) (§ name bits) (§ expr new byte[(§ cast int)Math.ceil(§ pars bitList.size(§ pars ) / 8.0)]))
+        (§ var (§ type byte[]) (§ name bits) (§ new byte[(§ cast int)Math.ceil(§ pars bitList.size(§ pars ) / 8.0)]))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < bitList.size(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ if (§ expr bitList.get(§ pars i)))
@@ -10738,7 +10738,7 @@
         (§ ass transactionCount = (§ cast int)readUint32(§ pars ))
 
         (§ var (§ type int) (§ name nHashes) (§ expr (§ cast int)readVarInt(§ pars )))
-        (§ ass (§ name hashes) (§ expr new ArrayList<>(§ pars nHashes)))
+        (§ ass (§ name hashes) (§ new ArrayList<>(§ pars nHashes)))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < nHashes) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ call hashes.add(§ pars readHash(§ pars )))
@@ -10767,7 +10767,7 @@
         )
         ;; Store as a flag bit.
         (§ call matchedChildBits.add(§ pars parentOfMatch))
-        (§ if (§ expr height == 0 || !parentOfMatch))
+        (§ if (§ expr height == 0 || (§ not parentOfMatch)))
         (§ block
             ;; If at height 0, or nothing interesting below, store hash and stop.
             (§ call resultHashes.add(§ pars calcHash(§ pars height, pos, allLeafHashes)))
@@ -10835,7 +10835,7 @@
         (§ ass (§ name used.bitsUsed) (§ expr used.bitsUsed + 1))
 
         ;; if at height 0, or nothing interesting below, use stored hash and do not descend
-        (§ if (§ expr height == 0 || !parentOfMatch))
+        (§ if (§ expr height == 0 || (§ not parentOfMatch)))
         (§ block
             ;; overflowed hash array - failure
             (§ if (§ expr hashes.size(§ pars ) <= used.hashesUsed))
@@ -10924,7 +10924,7 @@
             (§ ass (§ name height) (§ expr height + 1))
         )
         ;; traverse the partial tree
-        (§ var (§ type ValuesUsed) (§ name used) (§ expr new ValuesUsed(§ pars )))
+        (§ var (§ type ValuesUsed) (§ name used) (§ new ValuesUsed(§ pars )))
         (§ var (§ type Sha256Hash) (§ name merkleRoot) (§ expr recursiveExtractHashes(§ pars height, 0, used, matchedHashesOut)))
         ;; verify that all bits were consumed (except for the padding caused by serializing it as a byte sequence)
         ;; verify that all hashes were consumed
@@ -11021,25 +11021,25 @@
 
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>) (§ name blocksDownloadedEventListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>) (§ name blocksDownloadedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>) (§ name chainDownloadStartedEventListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>) (§ name chainDownloadStartedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>) (§ name connectedEventListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>) (§ name connectedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>) (§ name disconnectedEventListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>) (§ name disconnectedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>) (§ name getDataEventListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>) (§ name getDataEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>) (§ name preMessageReceivedEventListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>) (§ name preMessageReceivedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>) (§ name onTransactionEventListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>) (§ name onTransactionEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
 
     ;; Whether to try and download blocks and transactions from this peer.  Set to false by PeerGroup if not the
     ;; primary peer.  This is to avoid redundant work and concurrency problems with downloading the same chain
@@ -11061,7 +11061,7 @@
     ;; message.  This method can go wrong if the peer re-orgs onto a shorter (but harder) chain, however, this is rare.
     #_private
     #_final
-    (§ field (§ type AtomicInteger) (§ name blocksAnnounced) (§ expr new AtomicInteger(§ pars )))
+    (§ field (§ type AtomicInteger) (§ name blocksAnnounced) (§ new AtomicInteger(§ pars )))
     ;; Each wallet added to the peer will be notified of downloaded transaction data.
     #_private
     #_final
@@ -11114,7 +11114,7 @@
     ;; simultaneously if we were to receive a newly solved block whilst parts of the chain are streaming to us.
     #_private
     #_final
-    (§ field (§ type HashSet<Sha256Hash>) (§ name pendingBlockDownloads) (§ expr new HashSet<>(§ pars )))
+    (§ field (§ type HashSet<Sha256Hash>) (§ name pendingBlockDownloads) (§ new HashSet<>(§ pars )))
     ;; Keep references to TransactionConfidence objects for transactions that were announced by a remote peer, but
     ;; which we haven't downloaded yet.  These objects are de-duplicated by the TxConfidenceTable class.
     ;; Once the tx is downloaded (by some peer), the Transaction object that is created will have a reference to
@@ -11123,7 +11123,7 @@
     #_suppress(§ opt "MismatchedQueryAndUpdateOfCollection")
     #_private
     #_final
-    (§ field (§ type HashSet<TransactionConfidence>) (§ name pendingTxDownloads) (§ expr new HashSet<>(§ pars )))
+    (§ field (§ type HashSet<TransactionConfidence>) (§ name pendingTxDownloads) (§ new HashSet<>(§ pars )))
     ;; The lowest version number we're willing to accept.  Lower than this will result in an immediate disconnect.
     #_private
     #_volatile
@@ -11162,7 +11162,7 @@
     ;; Outstanding pings against this peer and how long the last one took to complete.
     #_private
     #_final
-    (§ field (§ type ReentrantLock) (§ name lastPingTimesLock) (§ expr new ReentrantLock(§ pars )))
+    (§ field (§ type ReentrantLock) (§ name lastPingTimesLock) (§ new ReentrantLock(§ pars )))
     #_guarded-by(§ opt "lastPingTimesLock")
     #_private
     (§ field (§ type long[]) (§ name lastPingTimes))
@@ -11261,12 +11261,12 @@
         (§ ass this.vDownloadTxDependencyDepth = (§ expr chain != nil) ? downloadTxDependencyDepth :else 0)
         (§ ass (§ name this.blockChain) (§ expr chain)) ;; Allowed to be nil.
         (§ ass this.vDownloadData = (§ expr chain != nil))
-        (§ ass (§ name this.getDataFutures) (§ expr new CopyOnWriteArrayList<>(§ pars )))
-        (§ ass (§ name this.getAddrFutures) (§ expr new LinkedList<>(§ pars )))
+        (§ ass (§ name this.getDataFutures) (§ new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name this.getAddrFutures) (§ new LinkedList<>(§ pars )))
         (§ ass (§ name this.fastCatchupTimeSecs) (§ expr params.getGenesisBlock(§ pars ).getTimeSeconds(§ pars )))
-        (§ ass (§ name this.pendingPings) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name this.pendingPings) (§ new CopyOnWriteArrayList<>(§ pars )))
         (§ ass (§ name this.vMinProtocolVersion) (§ expr params.getProtocolVersionNum(§ pars NetworkParameters.ProtocolVersion.PONG)))
-        (§ ass (§ name this.wallets) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name this.wallets) (§ new CopyOnWriteArrayList<>(§ pars )))
         (§ ass (§ name this.context) (§ expr Context.get(§ pars )))
 
         (§ call this.versionHandshakeFuture.addListener(§ pars (§ new Runnable(§ pars ))
@@ -11456,7 +11456,7 @@
     (§ block
         (§ call super.timeoutOccurred(§ pars ))
 
-        (§ if (§ expr !connectionOpenFuture.isDone(§ pars )))
+        (§ if (§ expr (§ not connectionOpenFuture.isDone(§ pars ))))
         (§ block
             ;; Invoke the event handlers to tell listeners e.g. PeerGroup that we never managed to connect.
             (§ call connectionClosed(§ pars ))
@@ -11537,14 +11537,14 @@
 
         ;; If we are in the middle of receiving transactions as part of a filtered block push from the remote node,
         ;; and we receive something that's not a transaction, then we're done.
-        (§ if (§ expr currentFilteredBlock != nil && !(§ expr m instanceof Transaction)))
+        (§ if (§ expr currentFilteredBlock != nil && (§ not (§ expr m instanceof Transaction))))
         (§ block
             (§ call endFilteredBlock(§ pars currentFilteredBlock))
             (§ ass (§ name currentFilteredBlock) (§ expr nil))
         )
 
         ;; No further communication is possible until version handshake is complete.
-        (§ if (§ expr !(§ expr m instanceof VersionMessage || m instanceof VersionAck || (§ expr versionHandshakeFuture.isDone(§ pars ) && !versionHandshakeFuture.isCancelled(§ pars )))))
+        (§ if (§ expr (§ not (§ expr m instanceof VersionMessage || m instanceof VersionAck || (§ expr versionHandshakeFuture.isDone(§ pars ) && (§ not versionHandshakeFuture.isCancelled(§ pars )))))))
         (§ block
             (§ throw (§ new ProtocolException(§ pars "Received " + m.getClass(§ pars ).getSimpleName(§ pars ) + " before version handshake is complete.")))
         )
@@ -11648,7 +11648,7 @@
         ;; mode nodes because we can't download the data from them we need to find/verify transactions.  Some bogus
         ;; implementations claim to have a block chain in their services field but then report a height of zero, filter
         ;; them out here.
-        (§ if (§ expr !vPeerVersionMessage.hasBlockChain(§ pars ) || (§ expr !params.allowEmptyPeerChain(§ pars ) && vPeerVersionMessage.bestHeight == 0)))
+        (§ if (§ expr (§ not vPeerVersionMessage.hasBlockChain(§ pars )) || (§ expr (§ not params.allowEmptyPeerChain(§ pars )) && vPeerVersionMessage.bestHeight == 0)))
         (§ block
             ;; Shut down the channel gracefully.
             (§ call log.info(§ pars "{}: Peer does not have a copy of the block chain.", this))
@@ -11811,7 +11811,7 @@
 
         (§ try )
         (§ block
-            (§ call Preconditions.checkState(§ pars !downloadBlockBodies, toString(§ pars )))
+            (§ call Preconditions.checkState(§ pars (§ not downloadBlockBodies), toString(§ pars )))
 
             (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < m.getBlockHeaders(§ pars ).size(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
             (§ block
@@ -11821,9 +11821,9 @@
                 ;; fast catchup mode (in which we ignore new blocks).
                 (§ var (§ type boolean) (§ name passedTime) (§ expr fastCatchupTimeSecs <= header.getTimeSeconds(§ pars )))
                 (§ var (§ type boolean) (§ name reachedTop) (§ expr vPeerVersionMessage.bestHeight <= blockChain.getBestChainHeight(§ pars )))
-                (§ if (§ expr !passedTime && !reachedTop))
+                (§ if (§ expr (§ not passedTime) && (§ not reachedTop)))
                 (§ block
-                    (§ if (§ expr !vDownloadData))
+                    (§ if (§ expr (§ not vDownloadData)))
                     (§ block
                         ;; Not download peer anymore, some other peer probably became better.
                         (§ call log.info(§ pars "Lost download peer status, throwing away downloaded headers."))
@@ -11890,7 +11890,7 @@
     (§ method void processGetData(§ args GetDataMessage getdata))
     (§ block
         (§ call log.info(§ pars "{}: Received getdata message: {}", getAddress(§ pars ), getdata.toString(§ pars )))
-        (§ var (§ type ArrayList<Message>) (§ name items) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type ArrayList<Message>) (§ name items) (§ new ArrayList<>(§ pars )))
         (§ for (§ var (§ type ListenerRegistration<GetDataEventListener>) (§ name registration)) :for (§ expr getDataEventListeners))
         (§ block
             (§ if (§ expr registration.executor != Threading.SAME_THREAD))
@@ -11904,7 +11904,7 @@
             )
             (§ call items.addAll(§ pars listenerItems))
         )
-        (§ if (§ expr !items.isEmpty(§ pars )))
+        (§ if (§ expr (§ not items.isEmpty(§ pars ))))
         (§ block
             (§ call log.info(§ pars "{}: Sending {} items gathered from listeners to peer", getAddress(§ pars ), items.size(§ pars )))
             (§ for (§ var (§ type Message) (§ name item)) :for (§ expr items))
@@ -11941,7 +11941,7 @@
 
             (§ if (§ expr currentFilteredBlock != nil))
             (§ block
-                (§ if (§ expr !currentFilteredBlock.provideTransaction(§ pars tx)))
+                (§ if (§ expr (§ not currentFilteredBlock.provideTransaction(§ pars tx))))
                 (§ block
                     ;; Got a tx that didn't fit into the filtered block, so we must have received everything.
                     (§ call endFilteredBlock(§ pars currentFilteredBlock))
@@ -12061,7 +12061,7 @@
         (§ call Preconditions.checkArgument(§ pars txConfidence != TransactionConfidence.ConfidenceType.BUILDING))
         (§ call log.info(§ pars "{}: Downloading dependencies of {}", getAddress(§ pars ), tx.getHashAsString(§ pars )))
         #_final
-        (§ var (§ type LinkedList<Transaction>) (§ name results) (§ expr new LinkedList<>(§ pars )))
+        (§ var (§ type LinkedList<Transaction>) (§ name results) (§ new LinkedList<>(§ pars )))
         ;; future will be invoked when the entire dependency tree has been walked and the results compiled.
         #_final
         (§ var (§ type ListenableFuture<Object>) (§ name future) (§ expr downloadDependenciesInternal(§ pars vDownloadTxDependencyDepth, 0, tx, new Object(§ pars ), results)))
@@ -12099,7 +12099,7 @@
         ;; or depends on a no-fee transaction.
 
         ;; We may end up requesting transactions that we've already downloaded and thrown away here.
-        (§ var (§ type Set<Sha256Hash>) (§ name needToRequest) (§ expr new CopyOnWriteArraySet<>(§ pars )))
+        (§ var (§ type Set<Sha256Hash>) (§ name needToRequest) (§ new CopyOnWriteArraySet<>(§ pars )))
         (§ for (§ var (§ type TransactionInput) (§ name input)) :for (§ expr tx.getInputs(§ pars )))
         (§ block
             ;; There may be multiple inputs that connect to the same transaction.
@@ -12111,7 +12111,7 @@
         (§ block
             ;; Build the request for the missing dependencies.
             (§ var (§ type List<ListenableFuture<Transaction>>) (§ name futures) (§ expr Lists.newArrayList(§ pars )))
-            (§ var (§ type GetDataMessage) (§ name getdata) (§ expr new GetDataMessage(§ pars params)))
+            (§ var (§ type GetDataMessage) (§ name getdata) (§ new GetDataMessage(§ pars params)))
 
             (§ if (§ expr 1 < needToRequest.size(§ pars )))
             (§ block
@@ -12121,7 +12121,7 @@
             (§ for (§ var (§ type Sha256Hash) (§ name hash)) :for (§ expr needToRequest))
             (§ block
                 (§ call getdata.addTransaction(§ pars hash))
-                (§ var (§ type GetDataRequest) (§ name req) (§ expr new GetDataRequest(§ pars hash, SettableFuture.create(§ pars ))))
+                (§ var (§ type GetDataRequest) (§ name req) (§ new GetDataRequest(§ pars hash, SettableFuture.create(§ pars ))))
                 (§ call futures.add(§ pars req.future))
                 (§ call getDataFutures.add(§ pars req))
             )
@@ -12223,7 +12223,7 @@
         )
 
         ;; Did we lose download peer status after requesting block data?
-        (§ if (§ expr !vDownloadData))
+        (§ if (§ expr (§ not vDownloadData)))
         (§ block
             (§ call log.debug(§ pars "{}: Received block we did not ask for: {}", getAddress(§ pars ), m.getHashAsString(§ pars )))
             (§ return )
@@ -12300,7 +12300,7 @@
             (§ call log.debug(§ pars "{}: Received broadcast filtered block {}", getAddress(§ pars ), m.getHash(§ pars ).toString(§ pars )))
         )
 
-        (§ if (§ expr !vDownloadData))
+        (§ if (§ expr (§ not vDownloadData)))
         (§ block
             (§ call log.debug(§ pars "{}: Received block we did not ask for: {}", getAddress(§ pars ), m.getHash(§ pars ).toString(§ pars )))
             (§ return )
@@ -12359,7 +12359,7 @@
                     ;; that the new filter is now in use (which we have to simulate with a ping/pong), and then we can
                     ;; safely restart the chain download with the new filter that contains a new set of lookahead keys.
                     (§ call log.info(§ pars "Bloom filter exhausted whilst processing block {}, discarding", m.getHash(§ pars )))
-                    (§ ass (§ name awaitingFreshFilter) (§ expr new LinkedList<>(§ pars )))
+                    (§ ass (§ name awaitingFreshFilter) (§ new LinkedList<>(§ pars )))
                     (§ call awaitingFreshFilter.add(§ pars m.getHash(§ pars )))
                     (§ call awaitingFreshFilter.addAll(§ pars blockChain.drainOrphanBlocks(§ pars )))
                     (§ return ) ;; Chain download process is restarted via a call to setBloomFilter.
@@ -12476,8 +12476,8 @@
         (§ var (§ type List<InventoryItem>) (§ name items) (§ expr inv.getItems(§ pars )))
 
         ;; Separate out the blocks and transactions, we'll handle them differently.
-        (§ var (§ type List<InventoryItem>) (§ name transactions) (§ expr new LinkedList<>(§ pars )))
-        (§ var (§ type List<InventoryItem>) (§ name blocks) (§ expr new LinkedList<>(§ pars )))
+        (§ var (§ type List<InventoryItem>) (§ name transactions) (§ new LinkedList<>(§ pars )))
+        (§ var (§ type List<InventoryItem>) (§ name blocks) (§ new LinkedList<>(§ pars )))
 
         (§ for (§ var (§ type InventoryItem) (§ name item)) :for (§ expr items))
         (§ block
@@ -12511,7 +12511,7 @@
             ;; chain, so count it.  This way getBestChainHeight() can be accurate.
             (§ if (§ expr downloadData && blockChain != nil))
             (§ block
-                (§ if (§ expr !blockChain.isOrphan(§ pars blocks.get(§ pars 0).hash)))
+                (§ if (§ expr (§ not blockChain.isOrphan(§ pars blocks.get(§ pars 0).hash))))
                 (§ block
                     (§ call blocksAnnounced.incrementAndGet(§ pars ))
                 )
@@ -12522,7 +12522,7 @@
             )
         )
 
-        (§ var (§ type GetDataMessage) (§ name getdata) (§ expr new GetDataMessage(§ pars params)))
+        (§ var (§ type GetDataMessage) (§ name getdata) (§ new GetDataMessage(§ pars params)))
 
         (§ var (§ type Iterator<InventoryItem>) (§ name it) (§ expr transactions.iterator(§ pars )))
         (§ while (§ expr it.hasNext(§ pars )))
@@ -12592,7 +12592,7 @@
                         ;; part of chain download with newly announced blocks, so it should always be taken care of by
                         ;; the duplicate check in blockChainDownloadLocked().  But Bitcoin Core may change in future so
                         ;; it's better to be safe here.
-                        (§ if (§ expr !pendingBlockDownloads.contains(§ pars item.hash)))
+                        (§ if (§ expr (§ not pendingBlockDownloads.contains(§ pars item.hash))))
                         (§ block
                             (§ if (§ expr vPeerVersionMessage.isBloomFilteringSupported(§ pars ) && useFilteredBlocks))
                             (§ block
@@ -12619,7 +12619,7 @@
             (§ call lock.unlock(§ pars ))
         )
 
-        (§ if (§ expr !getdata.getItems(§ pars ).isEmpty(§ pars )))
+        (§ if (§ not (§ dot getdata.getItems(§ pars ).isEmpty(§ pars ))))
         (§ block
             ;; This will cause us to receive a bunch of block or tx messages.
             (§ call sendMessage(§ pars getdata))
@@ -12645,7 +12645,7 @@
     (§ block
         ;; This does not need to be locked.
         (§ call log.info(§ pars "Request to fetch block {}", blockHash))
-        (§ var (§ type GetDataMessage) (§ name getdata) (§ expr new GetDataMessage(§ pars params)))
+        (§ var (§ type GetDataMessage) (§ name getdata) (§ new GetDataMessage(§ pars params)))
         (§ call getdata.addBlock(§ pars blockHash))
         (§ return (§ expr sendSingleGetData(§ pars getdata)))
     )
@@ -12664,7 +12664,7 @@
     (§ block
         ;; This does not need to be locked.
         (§ call log.info(§ pars "Request to fetch peer mempool tx  {}", hash))
-        (§ var (§ type GetDataMessage) (§ name getdata) (§ expr new GetDataMessage(§ pars params)))
+        (§ var (§ type GetDataMessage) (§ name getdata) (§ new GetDataMessage(§ pars params)))
         (§ call getdata.addTransaction(§ pars hash))
         (§ return (§ expr sendSingleGetData(§ pars getdata)))
     )
@@ -12675,7 +12675,7 @@
     (§ block
         ;; This does not need to be locked.
         (§ call Preconditions.checkArgument(§ pars getdata.getItems(§ pars ).size(§ pars ) == 1))
-        (§ var (§ type GetDataRequest) (§ name req) (§ expr new GetDataRequest(§ pars getdata.getItems(§ pars ).get(§ pars 0).hash, SettableFuture.create(§ pars ))))
+        (§ var (§ type GetDataRequest) (§ name req) (§ new GetDataRequest(§ pars getdata.getItems(§ pars ).get(§ pars 0).hash, SettableFuture.create(§ pars ))))
         (§ call getDataFutures.add(§ pars req))
         (§ call sendMessage(§ pars getdata))
         (§ return (§ expr req.future))
@@ -12796,7 +12796,7 @@
         ;; sends us the data we requested in a "headers" message.
 
         ;; TODO: Block locators should be abstracted out rather than special cased here.
-        (§ var (§ type List<Sha256Hash>) (§ name blockLocator) (§ expr new ArrayList<>(§ pars 51)))
+        (§ var (§ type List<Sha256Hash>) (§ name blockLocator) (§ new ArrayList<>(§ pars 51)))
 
         ;; For now, we don't do the exponential thinning as suggested here:
         ;;
@@ -12855,13 +12855,13 @@
 
         (§ if (§ expr downloadBlockBodies))
         (§ block
-            (§ var (§ type GetBlocksMessage) (§ name message) (§ expr new GetBlocksMessage(§ pars params, blockLocator, toHash)))
+            (§ var (§ type GetBlocksMessage) (§ name message) (§ new GetBlocksMessage(§ pars params, blockLocator, toHash)))
             (§ call sendMessage(§ pars message))
         )
         (§ else )
         (§ block
             ;; Downloading headers for a while instead of full blocks.
-            (§ var (§ type GetHeadersMessage) (§ name message) (§ expr new GetHeadersMessage(§ pars params, blockLocator, toHash)))
+            (§ var (§ type GetHeadersMessage) (§ name message) (§ new GetHeadersMessage(§ pars params, blockLocator, toHash)))
             (§ call sendMessage(§ pars message))
         )
     )
@@ -12930,7 +12930,7 @@
         #_public
         (§ method void complete(§ args ))
         (§ block
-            (§ if (§ expr !future.isDone(§ pars )))
+            (§ if (§ expr (§ not future.isDone(§ pars ))))
             (§ block
                 (§ var (§ type Long) (§ name elapsed) (§ expr Utils.currentTimeMillis(§ pars ) - startTimeMsec))
                 (§ call Peer.this.addPingTimeData(§ pars elapsed))
@@ -12949,7 +12949,7 @@
         (§ block
             (§ if (§ expr lastPingTimes == nil))
             (§ block
-                (§ ass (§ name lastPingTimes) (§ expr new long[PING_MOVING_AVERAGE_WINDOW]))
+                (§ ass (§ name lastPingTimes) (§ new long[PING_MOVING_AVERAGE_WINDOW]))
                 ;; Initialize the averaging window to the first sample.
                 (§ call Arrays.fill(§ pars lastPingTimes, sample))
             )
@@ -12987,12 +12987,12 @@
     (§ block
         #_final
         (§ var (§ type VersionMessage) (§ name ver) (§ expr vPeerVersionMessage))
-        (§ if (§ expr !ver.isPingPongSupported(§ pars )))
+        (§ if (§ expr (§ not ver.isPingPongSupported(§ pars ))))
         (§ block
             (§ throw (§ new ProtocolException(§ pars "Peer version is too low for measurable pings: " + ver)))
         )
 
-        (§ var (§ type PendingPing) (§ name pendingPing) (§ expr new PendingPing(§ pars nonce)))
+        (§ var (§ type PendingPing) (§ name pendingPing) (§ new PendingPing(§ pars nonce)))
         (§ call pendingPings.add(§ pars pendingPing))
         (§ call sendMessage(§ pars (§ new Ping(§ pars pendingPing.nonce))))
 
@@ -13225,7 +13225,7 @@
                 (§ return )
             )
 
-            (§ if (§ expr !vDownloadData))
+            (§ if (§ expr (§ not vDownloadData)))
             (§ block
                 ;; This branch should be harmless but I want to know how often it happens in reality.
                 (§ call log.warn(§ pars "Lost download peer status whilst awaiting fresh filter."))
@@ -13241,7 +13241,7 @@
                 (§ block
                     (§ call lock.lock(§ pars ))
                     (§ call Preconditions.checkNotNull(§ pars awaitingFreshFilter))
-                    (§ var (§ type GetDataMessage) (§ name getdata) (§ expr new GetDataMessage(§ pars params)))
+                    (§ var (§ type GetDataMessage) (§ name getdata) (§ new GetDataMessage(§ pars params)))
                     (§ for (§ var (§ type Sha256Hash) (§ name hash)) :for (§ expr awaitingFreshFilter))
                     (§ block
                         (§ call getdata.addFilteredBlock(§ pars hash))
@@ -13450,7 +13450,7 @@
         (§ var (§ type byte[]) (§ name ipBytes) (§ expr addr.getAddress(§ pars )))
         (§ if (§ expr ipBytes.length == 4))
         (§ block
-            (§ var (§ type byte[]) (§ name v6addr) (§ expr new byte[16]))
+            (§ var (§ type byte[]) (§ name v6addr) (§ new byte[16]))
             (§ call System.arraycopy(§ pars ipBytes, 0, v6addr, 12, 4))
             (§ ass v6addr[10] = (§ cast byte)0xff)
             (§ ass v6addr[11] = (§ cast byte)0xff)
@@ -13769,32 +13769,32 @@
 
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>) (§ name peersBlocksDownloadedEventListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>) (§ name peersBlocksDownloadedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>) (§ name peersChainDownloadStartedEventListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>) (§ name peersChainDownloadStartedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     ;;; Callbacks for events related to peers connecting. ;;
     #_protected
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>) (§ name peerConnectedEventListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>) (§ name peerConnectedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     ;;; Callbacks for events related to peer connection/disconnection. ;;
     #_protected
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<PeerDiscoveredEventListener>>) (§ name peerDiscoveredEventListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<PeerDiscoveredEventListener>>) (§ name peerDiscoveredEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     ;;; Callbacks for events related to peers disconnecting. ;;
     #_protected
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>) (§ name peerDisconnectedEventListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>) (§ name peerDisconnectedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     ;;; Callbacks for events related to peer data being received. ;;
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>) (§ name peerGetDataEventListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>) (§ name peerGetDataEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>) (§ name peersPreMessageReceivedEventListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>) (§ name peersPreMessageReceivedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     #_protected
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>) (§ name peersTransactionBroadastEventListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>) (§ name peersTransactionBroadastEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
 
     ;; Peer discovery sources, will be polled occasionally if there aren't enough inactives.
     #_private
@@ -13848,14 +13848,14 @@
     ;; every peer can fetch them.
     #_private
     #_final
-    (§ field (§ type PeerListener) (§ name peerListener) (§ expr new PeerListener(§ pars )))
+    (§ field (§ type PeerListener) (§ name peerListener) (§ new PeerListener(§ pars )))
 
     #_private
     (§ field (§ type int) (§ name minBroadcastConnections) (§ expr 0))
 
     #_private
     #_final
-    (§ field (§ type KeyChainEventListener) (§ name walletKeyEventListener) (§ expr new KeyChainEventListener(§ pars )
+    (§ field (§ type KeyChainEventListener) (§ name walletKeyEventListener) (§ new KeyChainEventListener(§ pars )
         (§ anon
             #_override
             #_public
@@ -13867,7 +13867,7 @@
 
     #_private
     #_final
-    (§ field (§ type WalletCoinsReceivedEventListener) (§ name walletCoinsReceivedEventListener) (§ expr new WalletCoinsReceivedEventListener(§ pars )
+    (§ field (§ type WalletCoinsReceivedEventListener) (§ name walletCoinsReceivedEventListener) (§ new WalletCoinsReceivedEventListener(§ pars )
         (§ anon
             #_override
             #_public
@@ -13917,11 +13917,11 @@
     ;; Exponential backoff for peers starts at 1 second and maxes at 10 minutes.
     #_private
     #_final
-    (§ field (§ type ExponentialBackoff.Params) (§ name peerBackoffParams) (§ expr new ExponentialBackoff.Params(§ pars 1000, 1.5, 10 * 60 * 1000)))
+    (§ field (§ type ExponentialBackoff.Params) (§ name peerBackoffParams) (§ new ExponentialBackoff.Params(§ pars 1000, 1.5, 10 * 60 * 1000)))
     ;; Tracks failures globally in case of a network failure.
     #_guarded-by(§ opt "lock")
     #_private
-    (§ field (§ type ExponentialBackoff) (§ name groupBackoff) (§ expr new ExponentialBackoff(§ pars new ExponentialBackoff.Params(§ pars 1000, 1.5, 10 * 1000))))
+    (§ field (§ type ExponentialBackoff) (§ name groupBackoff) (§ new ExponentialBackoff(§ pars new ExponentialBackoff.Params(§ pars 1000, 1.5, 10 * 1000))))
 
     ;; This is a synchronized set, so it locks on itself.  We use it to prevent TransactionBroadcast objects from
     ;; being garbage collected if nothing in the apps code holds on to them transitively.  See the discussion
@@ -13988,7 +13988,7 @@
 
     #_private
     #_final
-    (§ field (§ type PeerStartupListener) (§ name startupListener) (§ expr new PeerStartupListener(§ pars )))
+    (§ field (§ type PeerStartupListener) (§ name startupListener) (§ new PeerStartupListener(§ pars )))
 
     ;;;
      ; The default Bloom filter false positive rate, which is selected to be extremely low such that you hardly ever
@@ -14081,8 +14081,8 @@
         (§ ass (§ name this.params) (§ expr context.getParams(§ pars )))
         (§ ass (§ name this.chain) (§ expr chain))
         (§ ass (§ name fastCatchupTimeSecs) (§ expr params.getGenesisBlock(§ pars ).getTimeSeconds(§ pars )))
-        (§ ass (§ name wallets) (§ expr new CopyOnWriteArrayList<>(§ pars )))
-        (§ ass (§ name peerFilterProviders) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name wallets) (§ new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name peerFilterProviders) (§ new CopyOnWriteArrayList<>(§ pars )))
 
         (§ ass (§ name executor) (§ expr createPrivateExecutor(§ pars )))
 
@@ -14092,13 +14092,13 @@
         (§ ass (§ name maxConnections) (§ expr 0))
 
         (§ var (§ type int) (§ name height) (§ quest (§ expr chain != nil) ? chain.getBestChainHeight(§ pars ) :else 0))
-        (§ ass (§ name versionMessage) (§ expr new VersionMessage(§ pars params, height)))
+        (§ ass (§ name versionMessage) (§ new VersionMessage(§ pars params, height)))
         ;; We never request that the remote node wait for a bloom filter yet, as we have no wallets.
         (§ ass (§ name versionMessage.relayTxesBeforeFilter) (§ expr true))
 
         (§ ass (§ name downloadTxDependencyDepth) (§ expr Integer.MAX_VALUE))
 
-        (§ ass (§ name inactives) (§ expr new PriorityQueue<>(§ pars 1, new Comparator<PeerAddress>(§ pars )
+        (§ ass (§ name inactives) (§ new PriorityQueue<>(§ pars 1, new Comparator<PeerAddress>(§ pars )
         (§ anon
             #_suppress(§ opt "FieldAccessNotGuarded") ;; Only called when inactives is accessed, and lock is held then.
             #_override
@@ -14116,18 +14116,18 @@
                 (§ return (§ expr result))
             )
         ))))
-        (§ ass (§ name backoffMap) (§ expr new HashMap<>(§ pars )))
-        (§ ass (§ name peers) (§ expr new CopyOnWriteArrayList<>(§ pars )))
-        (§ ass (§ name pendingPeers) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name backoffMap) (§ new HashMap<>(§ pars )))
+        (§ ass (§ name peers) (§ new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name pendingPeers) (§ new CopyOnWriteArrayList<>(§ pars )))
         (§ ass (§ name channels) (§ expr connectionManager))
-        (§ ass (§ name peerDiscoverers) (§ expr new CopyOnWriteArraySet<>(§ pars )))
+        (§ ass (§ name peerDiscoverers) (§ new CopyOnWriteArraySet<>(§ pars )))
         (§ ass (§ name runningBroadcasts) (§ expr Collections.synchronizedSet(§ pars new HashSet<TransactionBroadcast>(§ pars ))))
-        (§ ass (§ name bloomFilterMerger) (§ expr new FilterMerger(§ pars DEFAULT_BLOOM_FILTER_FP_RATE)))
+        (§ ass (§ name bloomFilterMerger) (§ new FilterMerger(§ pars DEFAULT_BLOOM_FILTER_FP_RATE)))
         (§ ass (§ name vMinRequiredProtocolVersion) (§ expr params.getProtocolVersionNum(§ pars NetworkParameters.ProtocolVersion.BLOOM_FILTER)))
     )
 
     #_private
-    (§ field (§ type CountDownLatch) (§ name executorStartupLatch) (§ expr new CountDownLatch(§ pars 1)))
+    (§ field (§ type CountDownLatch) (§ name executorStartupLatch) (§ new CountDownLatch(§ pars 1)))
 
     #_protected
     (§ method ListeningScheduledExecutorService createPrivateExecutor(§ args ))
@@ -14168,7 +14168,7 @@
         (§ try )
         (§ block
             (§ ass (§ name this.maxConnections) (§ expr maxConnections))
-            (§ if (§ expr !isRunning(§ pars )))
+            (§ if (§ expr (§ not isRunning(§ pars ))))
             (§ block
                 (§ return )
             )
@@ -14209,7 +14209,7 @@
     )
 
     #_private
-    (§ field (§ type Runnable) (§ name triggerConnectionsJob) (§ expr new Runnable(§ pars )
+    (§ field (§ type Runnable) (§ name triggerConnectionsJob) (§ new Runnable(§ pars )
         (§ anon
             #_private
             (§ field (§ type boolean) (§ name firstRun) (§ expr true))
@@ -14235,7 +14235,7 @@
             #_public
             (§ method void go(§ args ))
             (§ block
-                (§ if (§ expr !vRunning))
+                (§ if (§ expr (§ not vRunning)))
                 (§ block
                     (§ return )
                 )
@@ -14248,7 +14248,7 @@
                     ;; First run: try and use a local node if there is one, for the additional security it can provide.
                     ;; But, not on Android as there are none for this platform: it could only be a malicious app trying
                     ;; to hijack our traffic.
-                    (§ if (§ expr !Utils.isAndroidRuntime(§ pars ) && useLocalhostPeerWhenPossible && maybeCheckForLocalhostPeer(§ pars ) && firstRun))
+                    (§ if (§ expr (§ not Utils.isAndroidRuntime(§ pars )) && useLocalhostPeerWhenPossible && maybeCheckForLocalhostPeer(§ pars ) && firstRun))
                     (§ block
                         (§ call log.info(§ pars "Localhost peer detected, trying to use it instead of P2P discovery"))
                         (§ ass (§ name maxConnections) (§ expr 0))
@@ -14256,8 +14256,8 @@
                         (§ return )
                     )
 
-                    (§ var (§ type boolean) (§ name havePeerWeCanTry) (§ expr !inactives.isEmpty(§ pars ) && backoffMap.get(§ pars inactives.peek(§ pars )).getRetryTime(§ pars ) <= now))
-                    (§ ass (§ name doDiscovery) (§ expr !havePeerWeCanTry))
+                    (§ var (§ type boolean) (§ name havePeerWeCanTry) (§ expr (§ not inactives.isEmpty(§ pars )) && backoffMap.get(§ pars inactives.peek(§ pars )).getRetryTime(§ pars ) <= now))
+                    (§ ass (§ name doDiscovery) (§ expr (§ not havePeerWeCanTry)))
                 )
                 (§ finally )
                 (§ block
@@ -14348,7 +14348,7 @@
     (§ method void triggerConnections(§ args ))
     (§ block
         ;; Run on a background thread due to the need to potentially retry and back off in the background.
-        (§ if (§ expr !executor.isShutdown(§ pars )))
+        (§ if (§ expr (§ not executor.isShutdown(§ pars ))))
         (§ block
             (§ call executor.execute(§ pars triggerConnectionsJob))
         )
@@ -14377,8 +14377,8 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var (§ type LinkedList<Message>) (§ name transactions) (§ expr new LinkedList<>(§ pars )))
-            (§ var (§ type LinkedList<InventoryItem>) (§ name items) (§ expr new LinkedList<>(§ pars m.getItems(§ pars ))))
+            (§ var (§ type LinkedList<Message>) (§ name transactions) (§ new LinkedList<>(§ pars )))
+            (§ var (§ type LinkedList<InventoryItem>) (§ name items) (§ new LinkedList<>(§ pars m.getItems(§ pars ))))
             (§ var (§ type Iterator<InventoryItem>) (§ name it) (§ expr items.iterator(§ pars )))
             (§ while (§ expr it.hasNext(§ pars )))
             (§ block
@@ -14454,7 +14454,7 @@
     (§ block
         ;; TODO: Check that height is needed here (it wasnt, but it should be, no?)
         (§ var (§ type int) (§ name height) (§ quest (§ expr chain != nil) ? chain.getBestChainHeight(§ pars ) :else 0))
-        (§ var (§ type VersionMessage) (§ name ver) (§ expr new VersionMessage(§ pars params, height)))
+        (§ var (§ type VersionMessage) (§ name ver) (§ new VersionMessage(§ pars params, height)))
         (§ ass (§ name ver.relayTxesBeforeFilter) (§ expr false))
         (§ call updateVersionMessageRelayTxesBeforeFilter(§ pars ver))
         (§ call ver.appendToSubVer(§ pars name, version, comments))
@@ -14471,9 +14471,9 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var (§ type boolean) (§ name spvMode) (§ expr chain != nil && !chain.shouldVerifyTransactions(§ pars )))
+            (§ var (§ type boolean) (§ name spvMode) (§ expr chain != nil && (§ not chain.shouldVerifyTransactions(§ pars ))))
             (§ var (§ type boolean) (§ name willSendFilter) (§ expr spvMode && 0 < peerFilterProviders.size(§ pars ) && vBloomFilteringEnabled))
-            (§ ass (§ name ver.relayTxesBeforeFilter) (§ expr !willSendFilter))
+            (§ ass (§ name ver.relayTxesBeforeFilter) (§ expr (§ not willSendFilter)))
         )
         (§ finally )
         (§ block
@@ -14804,7 +14804,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ return (§ expr new ArrayList<>(§ pars peers)))
+            (§ return (§ new ArrayList<>(§ pars peers)))
         )
         (§ finally )
         (§ block
@@ -14821,7 +14821,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ return (§ expr new ArrayList<>(§ pars pendingPeers)))
+            (§ return (§ new ArrayList<>(§ pars pendingPeers)))
         )
         (§ finally )
         (§ block
@@ -14928,7 +14928,7 @@
         (§ throws PeerDiscoveryException)
     (§ block
         ;; Don't hold the lock whilst doing peer discovery: it can take a long time and cause high API latency.
-        (§ call Preconditions.checkState(§ pars !lock.isHeldByCurrentThread(§ pars )))
+        (§ call Preconditions.checkState(§ pars (§ not lock.isHeldByCurrentThread(§ pars ))))
 
         (§ var (§ type int) (§ name maxPeersToDiscoverCount) (§ expr this.vMaxPeersToDiscoverCount))
         (§ var (§ type long) (§ name peerDiscoveryTimeoutMillis) (§ expr this.vPeerDiscoveryTimeoutMillis))
@@ -14950,7 +14950,7 @@
             )
         )
 
-        (§ if (§ expr !addressList.isEmpty(§ pars )))
+        (§ if (§ expr (§ not addressList.isEmpty(§ pars ))))
         (§ block
             (§ for (§ var (§ type PeerAddress) (§ name address)) :for (§ expr addressList))
             (§ block
@@ -15018,7 +15018,7 @@
             (§ var (§ type Socket) (§ name socket) (§ expr nil))
             (§ try )
             (§ block
-                (§ ass (§ name socket) (§ expr new Socket(§ pars )))
+                (§ ass (§ name socket) (§ new Socket(§ pars )))
                 (§ call socket.connect(§ pars (§ new InetSocketAddress(§ pars InetAddresses.forString(§ pars "127.0.0.1"), params.getPort(§ pars ))), vConnectTimeoutMillis))
                 (§ ass (§ name localhostCheckState) (§ expr LocalhostCheckState.FOUND))
                 (§ return (§ expr true))
@@ -15059,7 +15059,7 @@
             ;; Just try to help catch what might be a programming error.
             (§ call log.warn(§ pars "Starting up with no attached block chain. Did you forget to pass one to the constructor?"))
         )
-        (§ call Preconditions.checkState(§ pars !vUsedUp, "Cannot start a peer group twice"))
+        (§ call Preconditions.checkState(§ pars (§ not vUsedUp), "Cannot start a peer group twice"))
 
         (§ ass (§ name vRunning) (§ expr true))
         (§ ass (§ name vUsedUp) (§ expr true))
@@ -15190,7 +15190,7 @@
         (§ try )
         (§ block
             (§ call Preconditions.checkNotNull(§ pars wallet))
-            (§ call Preconditions.checkState(§ pars !wallets.contains(§ pars wallet)))
+            (§ call Preconditions.checkState(§ pars (§ not wallets.contains(§ pars wallet))))
             (§ call wallets.add(§ pars wallet))
             (§ call wallet.setTransactionBroadcaster(§ pars this))
             (§ call wallet.addCoinsReceivedEventListener(§ pars Threading.SAME_THREAD, walletCoinsReceivedEventListener))
@@ -15226,7 +15226,7 @@
         (§ try )
         (§ block
             (§ call Preconditions.checkNotNull(§ pars provider))
-            (§ call Preconditions.checkState(§ pars !peerFilterProviders.contains(§ pars provider)))
+            (§ call Preconditions.checkState(§ pars (§ not peerFilterProviders.contains(§ pars provider))))
             ;; Insert provider at the start.  This avoids various concurrency problems that could occur because we need
             ;; all providers to be in a consistent, unchanging state whilst the filter is built.  Providers can give
             ;; this guarantee by taking a lock in their begin method, but if we add to the end of the list here, it
@@ -15320,7 +15320,7 @@
 
             (§ call inFlightRecalculations.put(§ pars mode, future))
         )
-        (§ var (§ type Runnable) (§ name command) (§ expr new Runnable(§ pars )
+        (§ var (§ type Runnable) (§ name command) (§ new Runnable(§ pars )
         (§ anon
             #_override
             #_public
@@ -15339,9 +15339,9 @@
             #_public
             (§ method void go(§ args ))
             (§ block
-                (§ call Preconditions.checkState(§ pars !lock.isHeldByCurrentThread(§ pars )))
+                (§ call Preconditions.checkState(§ pars (§ not lock.isHeldByCurrentThread(§ pars ))))
                 ;; Fully verifying mode doesn't use this optimization (it can't as it needs to see all transactions).
-                (§ if (§ expr (§ expr chain != nil && chain.shouldVerifyTransactions(§ pars )) || !vBloomFilteringEnabled))
+                (§ if (§ expr (§ expr chain != nil && chain.shouldVerifyTransactions(§ pars )) || (§ not vBloomFilteringEnabled)))
                 (§ block
                     (§ return )
                 )
@@ -15458,7 +15458,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var (§ type PeerAddress) (§ name peerAddress) (§ expr new PeerAddress(§ pars params, address)))
+            (§ var (§ type PeerAddress) (§ name peerAddress) (§ new PeerAddress(§ pars params, address)))
             (§ call backoffMap.put(§ pars peerAddress, new ExponentialBackoff(§ pars peerBackoffParams)))
             (§ return (§ expr connectTo(§ pars peerAddress, true, vConnectTimeoutMillis)))
         )
@@ -15587,7 +15587,7 @@
             ;; TODO: Be more nuanced about which peer to download from.  We can also try
             ;; downloading from multiple peers and handle the case when a new peer comes along
             ;; with a longer chain after we thought we were done.
-            (§ if (§ expr !peers.isEmpty(§ pars )))
+            (§ if (§ expr (§ not peers.isEmpty(§ pars ))))
             (§ block
                 (§ call startBlockChainDownloadFromPeer(§ pars peers.iterator(§ pars ).next(§ pars ))) ;; Will add the new download listener.
             )
@@ -15635,7 +15635,7 @@
     #_public
     (§ method void downloadBlockChain(§ args ))
     (§ block
-        (§ var (§ type DownloadProgressTracker) (§ name listener) (§ expr new DownloadProgressTracker(§ pars )))
+        (§ var (§ type DownloadProgressTracker) (§ name listener) (§ new DownloadProgressTracker(§ pars )))
         (§ call startBlockChainDownload(§ pars listener))
         (§ try )
         (§ block
@@ -15838,7 +15838,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ call Preconditions.checkState(§ pars chain == nil || !chain.shouldVerifyTransactions(§ pars ), "Fast catchup is incompatible with fully verifying"))
+            (§ call Preconditions.checkState(§ pars chain == nil || (§ not chain.shouldVerifyTransactions(§ pars )), "Fast catchup is incompatible with fully verifying"))
 
             (§ ass (§ name fastCatchupTimeSecs) (§ expr secondsSinceEpoch))
             (§ if (§ expr downloadPeer != nil))
@@ -15876,7 +15876,7 @@
     (§ method void handlePeerDeath(§ args #_final Peer peer, #_nilable Throwable exception))
     (§ block
         ;; Peer deaths can occur during startup if a connect attempt after peer discovery aborts immediately.
-        (§ if (§ expr !isRunning(§ pars )))
+        (§ if (§ expr (§ not isRunning(§ pars ))))
         (§ block
             (§ return )
         )
@@ -15915,7 +15915,7 @@
 
             (§ if (§ expr exception instanceof NoRouteToHostException))
             (§ block
-                (§ if (§ expr address.getAddr(§ pars ) instanceof Inet6Address && !ipv6Unreachable))
+                (§ if (§ expr address.getAddr(§ pars ) instanceof Inet6Address && (§ not ipv6Unreachable)))
                 (§ block
                     (§ ass (§ name ipv6Unreachable) (§ expr true))
                     (§ call log.warn(§ pars "IPv6 peer connect failed due to routing failure, ignoring IPv6 addresses from now on"))
@@ -16104,18 +16104,18 @@
             (§ block
                 (§ if (§ expr samples == nil || samples.length != period))
                 (§ block
-                    (§ ass (§ name samples) (§ expr new long[period]))
+                    (§ ass (§ name samples) (§ new long[period]))
                     ;; *2 because otherwise a single low sample could cause an immediate disconnect which is too harsh.
                     (§ call Arrays.fill(§ pars samples, minSpeedBytesPerSec * 2))
                     (§ ass (§ name warmupSeconds) (§ expr 15))
                 )
 
                 (§ var (§ type boolean) (§ name behindPeers) (§ expr chain != nil && chain.getBestChainHeight(§ pars ) < getMostCommonChainHeight(§ pars )))
-                (§ if (§ expr !behindPeers))
+                (§ if (§ expr (§ not behindPeers)))
                 (§ block
                     (§ ass (§ name syncDone) (§ expr true))
                 )
-                (§ if (§ expr !syncDone))
+                (§ if (§ expr (§ not syncDone)))
                 (§ block
                     (§ if (§ expr warmupSeconds < 0))
                     (§ block
@@ -16191,7 +16191,7 @@
             (§ if (§ expr chainDownloadSpeedCalculator == nil))
             (§ block
                 ;; Every second, run the calculator which will log how fast we are downloading the chain.
-                (§ ass (§ name chainDownloadSpeedCalculator) (§ expr new ChainDownloadSpeedCalculator(§ pars )))
+                (§ ass (§ name chainDownloadSpeedCalculator) (§ new ChainDownloadSpeedCalculator(§ pars )))
                 (§ call executor.scheduleAtFixedRate(§ pars chainDownloadSpeedCalculator, 1, 1, TimeUnit.SECONDS))
             )
             (§ call peer.addBlocksDownloadedEventListener(§ pars Threading.SAME_THREAD, chainDownloadSpeedCalculator))
@@ -16266,7 +16266,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var (§ type ArrayList<Peer>) (§ name results) (§ expr new ArrayList<Peer>(§ pars peers.size(§ pars ))))
+            (§ var (§ type ArrayList<Peer>) (§ name results) (§ new ArrayList<Peer>(§ pars peers.size(§ pars ))))
             (§ for (§ var (§ type Peer) (§ name peer)) :for (§ expr peers))
             (§ block
                 (§ if (§ expr peer.getPeerVersionMessage(§ pars ).clientVersion >= protocolVersion))
@@ -16336,7 +16336,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var (§ type ArrayList<Peer>) (§ name results) (§ expr new ArrayList<Peer>(§ pars peers.size(§ pars ))))
+            (§ var (§ type ArrayList<Peer>) (§ name results) (§ new ArrayList<Peer>(§ pars peers.size(§ pars ))))
             (§ for (§ var (§ type Peer) (§ name peer)) :for (§ expr peers))
             (§ block
                 (§ if (§ expr (§ expr peer.getPeerVersionMessage(§ pars ).localServices & mask) == mask))
@@ -16442,7 +16442,7 @@
             (§ call tx.getConfidence(§ pars ).setSource(§ pars TransactionConfidence.Source.SELF))
         )
         #_final
-        (§ var (§ type TransactionBroadcast) (§ name broadcast) (§ expr new TransactionBroadcast(§ pars this, tx)))
+        (§ var (§ type TransactionBroadcast) (§ name broadcast) (§ new TransactionBroadcast(§ pars this, tx)))
         (§ call broadcast.setMinConnections(§ pars minConnections))
         ;; Send the TX to the wallet once we have a successful broadcast.
         (§ call Futures.addCallback(§ pars broadcast.future(§ pars ), new FutureCallback<Transaction>(§ pars )
@@ -16584,7 +16584,7 @@
             (§ return (§ expr 0))
         )
 
-        (§ var (§ type List<Integer>) (§ name heights) (§ expr new ArrayList<>(§ pars peers.size(§ pars ))))
+        (§ var (§ type List<Integer>) (§ name heights) (§ new ArrayList<>(§ pars peers.size(§ pars ))))
         (§ for (§ var (§ type Peer) (§ name peer)) :for (§ expr peers))
         (§ block
             (§ call heights.add(§ pars (§ cast int)peer.getBestHeight(§ pars )))
@@ -16611,7 +16611,7 @@
 
         ;; Make sure we don't select a peer that is behind/synchronizing itself.
         (§ var (§ type int) (§ name mostCommonChainHeight) (§ expr getMostCommonChainHeight(§ pars peers)))
-        (§ var (§ type List<Peer>) (§ name candidates) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type List<Peer>) (§ name candidates) (§ new ArrayList<>(§ pars )))
         (§ for (§ var (§ type Peer) (§ name peer)) :for (§ expr peers))
         (§ block
             (§ if (§ expr peer.getBestHeight(§ pars ) == mostCommonChainHeight))
@@ -16634,7 +16634,7 @@
             (§ ass (§ name highestVersion) (§ expr Math.max(§ pars peer.getPeerVersionMessage(§ pars ).clientVersion, highestVersion)))
             (§ ass (§ name preferredVersion) (§ expr Math.min(§ pars highestVersion, PREFERRED_VERSION)))
         )
-        (§ var (§ type ArrayList<Peer>) (§ name candidates2) (§ expr new ArrayList<>(§ pars candidates.size(§ pars ))))
+        (§ var (§ type ArrayList<Peer>) (§ name candidates2) (§ new ArrayList<>(§ pars candidates.size(§ pars ))))
         (§ for (§ var (§ type Peer) (§ name peer)) :for (§ expr candidates))
         (§ block
             (§ if (§ expr preferredVersion <= peer.getPeerVersionMessage(§ pars ).clientVersion))
@@ -16800,7 +16800,7 @@
     (§ block
         (§ call Preconditions.checkNotNull(§ pars params))
         (§ ass (§ name serializer) (§ expr params.getDefaultSerializer(§ pars )))
-        (§ ass (§ name this.peerAddress) (§ expr new PeerAddress(§ pars params, remoteIp)))
+        (§ ass (§ name this.peerAddress) (§ new PeerAddress(§ pars params, remoteIp)))
     )
 
     #_public
@@ -16833,7 +16833,7 @@
             (§ call lock.unlock(§ pars ))
         )
         ;; TODO: Some round-tripping could be avoided here.
-        (§ var (§ type ByteArrayOutputStream) (§ name out) (§ expr new ByteArrayOutputStream(§ pars )))
+        (§ var (§ type ByteArrayOutputStream) (§ name out) (§ new ByteArrayOutputStream(§ pars )))
         (§ try )
         (§ block
             (§ call serializer.serialize(§ pars message, out))
@@ -16936,7 +16936,7 @@
                             (§ call serializer.seekPastMagicBytes(§ pars buff))
                             (§ ass (§ name header) (§ expr serializer.deserializeHeader(§ pars buff)))
                             ;; Initialize the largeReadBuffer with the next message's size and fill it with any bytes left in buff.
-                            (§ ass (§ name largeReadBuffer) (§ expr new byte[header.size]))
+                            (§ ass (§ name largeReadBuffer) (§ new byte[header.size]))
                             (§ ass (§ name largeReadBufferPos) (§ expr buff.remaining(§ pars )))
                             (§ call buff.get(§ pars largeReadBuffer, 0, largeReadBufferPos))
                         )
@@ -17621,7 +17621,7 @@
     (§ method Sha256Hash of(§ args File file))
         (§ throws IOException)
     (§ block
-        (§ var (§ type FileInputStream) (§ name in) (§ expr new FileInputStream(§ pars file)))
+        (§ var (§ type FileInputStream) (§ name in) (§ new FileInputStream(§ pars file)))
         (§ try )
         (§ block
             (§ return (§ expr of(§ pars ByteStreams.toByteArray(§ pars in))))
@@ -17842,7 +17842,7 @@
     #_public
     #_static
     #_final
-    (§ field (§ type byte[]) (§ name EMPTY_BYTES) (§ expr new byte[CHAIN_WORK_BYTES]))
+    (§ field (§ type byte[]) (§ name EMPTY_BYTES) (§ new byte[CHAIN_WORK_BYTES]))
     #_public
     #_static
     #_final
@@ -17974,11 +17974,11 @@
     (§ method StoredBlock deserializeCompact(§ args NetworkParameters params, ByteBuffer buffer))
         (§ throws ProtocolException)
     (§ block
-        (§ var (§ type byte[]) (§ name chainWorkBytes) (§ expr new byte[StoredBlock.CHAIN_WORK_BYTES]))
+        (§ var (§ type byte[]) (§ name chainWorkBytes) (§ new byte[StoredBlock.CHAIN_WORK_BYTES]))
         (§ call buffer.get(§ pars chainWorkBytes))
-        (§ var (§ type BigInteger) (§ name chainWork) (§ expr new BigInteger(§ pars 1, chainWorkBytes)))
+        (§ var (§ type BigInteger) (§ name chainWork) (§ new BigInteger(§ pars 1, chainWorkBytes)))
         (§ var (§ type int) (§ name height) (§ expr buffer.getInt(§ pars ))) ;; +4 bytes
-        (§ var (§ type byte[]) (§ name header) (§ expr new byte[Block.HEADER_SIZE + 1])) ;; Extra byte for the 00 transactions length.
+        (§ var (§ type byte[]) (§ name header) (§ new byte[Block.HEADER_SIZE + 1])) ;; Extra byte for the 00 transactions length.
         (§ call buffer.get(§ pars header, 0, Block.HEADER_SIZE))
         (§ return (§ new StoredBlock(§ pars params.getDefaultSerializer(§ pars ).makeBlock(§ pars header), chainWork, height)))
     )
@@ -18129,7 +18129,7 @@
     #_public
     #_static
     #_final
-    (§ field (§ type Comparator<Transaction>) (§ name SORT_TX_BY_UPDATE_TIME) (§ expr new Comparator<Transaction>(§ pars )
+    (§ field (§ type Comparator<Transaction>) (§ name SORT_TX_BY_UPDATE_TIME) (§ new Comparator<Transaction>(§ pars )
         (§ anon
             #_override
             #_public
@@ -18150,7 +18150,7 @@
     #_public
     #_static
     #_final
-    (§ field (§ type Comparator<Transaction>) (§ name SORT_TX_BY_HEIGHT) (§ expr new Comparator<Transaction>(§ pars )
+    (§ field (§ type Comparator<Transaction>) (§ name SORT_TX_BY_HEIGHT) (§ new Comparator<Transaction>(§ pars )
         (§ anon
             #_override
             #_public
@@ -18340,8 +18340,8 @@
         (§ super (§ pars params))
 
         (§ ass (§ name version) (§ expr 1))
-        (§ ass (§ name inputs) (§ expr new ArrayList<>(§ pars )))
-        (§ ass (§ name outputs) (§ expr new ArrayList<>(§ pars )))
+        (§ ass (§ name inputs) (§ new ArrayList<>(§ pars )))
+        (§ ass (§ name outputs) (§ new ArrayList<>(§ pars )))
         ;; We don't initialize appearsIn deliberately as it's only useful for transactions stored in the wallet.
         (§ ass (§ name length) (§ expr 8)) ;; 8 for std fields
     )
@@ -18507,7 +18507,7 @@
         (§ var (§ type long) (§ name blockTime) (§ expr block.getHeader(§ pars ).getTimeSeconds(§ pars ) * 1000))
         (§ if (§ expr bestChain && (§ expr updatedAt == nil || updatedAt.getTime(§ pars ) == 0 || blockTime < updatedAt.getTime(§ pars ))))
         (§ block
-            (§ ass (§ name updatedAt) (§ expr new Date(§ pars blockTime)))
+            (§ ass (§ name updatedAt) (§ new Date(§ pars blockTime)))
         )
 
         (§ call addBlockAppearance(§ pars block.getHeader(§ pars ).getHash(§ pars ), relativityOffset))
@@ -18526,7 +18526,7 @@
         ;; TODO: This could be a lot more memory efficient as we'll typically only store one element.
         (§ if (§ expr appearsInHashes == nil))
         (§ block
-            (§ ass (§ name appearsInHashes) (§ expr new TreeMap<>(§ pars )))
+            (§ ass (§ name appearsInHashes) (§ new TreeMap<>(§ pars )))
         )
 
         (§ call appearsInHashes.put(§ pars blockHash, relativityOffset))
@@ -18654,7 +18654,7 @@
     (§ block
         (§ for (§ var (§ type TransactionOutput) (§ name output)) :for (§ expr outputs))
         (§ block
-            (§ if (§ expr !output.isAvailableForSpending(§ pars )))
+            (§ if (§ expr (§ not output.isAvailableForSpending(§ pars ))))
             (§ block
                 (§ return (§ expr true))
             )
@@ -18691,7 +18691,7 @@
         ;; Older wallets did not store this field.  Set to the epoch.
         (§ if (§ expr updatedAt == nil))
         (§ block
-            (§ ass (§ name updatedAt) (§ expr new Date(§ pars 0)))
+            (§ ass (§ name updatedAt) (§ new Date(§ pars 0)))
         )
         (§ return (§ expr updatedAt))
     )
@@ -18755,7 +18755,7 @@
         ;; jump past version (uint32)
         (§ var (§ type int) (§ name cursor) (§ expr offset + 4))
 
-        (§ var (§ type VarInt) (§ name varint) (§ expr new VarInt(§ pars buf, cursor)))
+        (§ var (§ type VarInt) (§ name varint) (§ new VarInt(§ pars buf, cursor)))
         (§ var (§ type long) (§ name txInCount) (§ expr varint.value))
         (§ ass (§ name cursor) (§ expr cursor + varint.getOriginalSizeInBytes(§ pars )))
 
@@ -18763,13 +18763,13 @@
         (§ block
             ;; 36 = length of previous_outpoint
             (§ ass (§ name cursor) (§ expr cursor + 36))
-            (§ ass (§ name varint) (§ expr new VarInt(§ pars buf, cursor)))
+            (§ ass (§ name varint) (§ new VarInt(§ pars buf, cursor)))
             (§ var (§ type long) (§ name scriptLen) (§ expr varint.value))
             ;; 4 = length of sequence field (unint32)
             (§ ass (§ name cursor) (§ expr cursor + scriptLen + 4 + varint.getOriginalSizeInBytes(§ pars )))
         )
 
-        (§ ass (§ name varint) (§ expr new VarInt(§ pars buf, cursor)))
+        (§ ass (§ name varint) (§ new VarInt(§ pars buf, cursor)))
         (§ var (§ type long) (§ name txOutCount) (§ expr varint.value))
         (§ ass (§ name cursor) (§ expr cursor + varint.getOriginalSizeInBytes(§ pars )))
 
@@ -18777,7 +18777,7 @@
         (§ block
             ;; 8 = length of tx value field (uint64)
             (§ ass (§ name cursor) (§ expr cursor + 8))
-            (§ ass (§ name varint) (§ expr new VarInt(§ pars buf, cursor)))
+            (§ ass (§ name varint) (§ new VarInt(§ pars buf, cursor)))
             (§ var (§ type long) (§ name scriptLen) (§ expr varint.value))
             (§ ass (§ name cursor) (§ expr cursor + scriptLen + varint.getOriginalSizeInBytes(§ pars )))
         )
@@ -18798,10 +18798,10 @@
         ;; First come the inputs.
         (§ var (§ type long) (§ name numInputs) (§ expr readVarInt(§ pars )))
         (§ ass (§ name optimalEncodingMessageSize) (§ expr optimalEncodingMessageSize + VarInt.sizeOf(§ pars numInputs)))
-        (§ ass (§ name inputs) (§ expr new ArrayList<>(§ pars (§ cast int)numInputs)))
+        (§ ass (§ name inputs) (§ new ArrayList<>(§ pars (§ cast int)numInputs)))
         (§ for (§ var (§ type long) (§ name i) (§ expr 0)) :for (§ expr i < numInputs) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
-            (§ var (§ type TransactionInput) (§ name input) (§ expr new TransactionInput(§ pars params, this, payload, cursor, serializer)))
+            (§ var (§ type TransactionInput) (§ name input) (§ new TransactionInput(§ pars params, this, payload, cursor, serializer)))
             (§ call inputs.add(§ pars input))
             (§ var (§ type long) (§ name scriptLen) (§ expr readVarInt(§ pars TransactionOutPoint.MESSAGE_LENGTH)))
             (§ ass (§ name optimalEncodingMessageSize) (§ expr optimalEncodingMessageSize + TransactionOutPoint.MESSAGE_LENGTH + VarInt.sizeOf(§ pars scriptLen) + scriptLen + 4))
@@ -18810,10 +18810,10 @@
         ;; Now the outputs.
         (§ var (§ type long) (§ name numOutputs) (§ expr readVarInt(§ pars )))
         (§ ass (§ name optimalEncodingMessageSize) (§ expr optimalEncodingMessageSize + VarInt.sizeOf(§ pars numOutputs)))
-        (§ ass (§ name outputs) (§ expr new ArrayList<>(§ pars (§ cast int)numOutputs)))
+        (§ ass (§ name outputs) (§ new ArrayList<>(§ pars (§ cast int)numOutputs)))
         (§ for (§ var (§ type long) (§ name i) (§ expr 0)) :for (§ expr i < numOutputs) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
-            (§ var (§ type TransactionOutput) (§ name output) (§ expr new TransactionOutput(§ pars params, this, payload, cursor, serializer)))
+            (§ var (§ type TransactionOutput) (§ name output) (§ new TransactionOutput(§ pars params, this, payload, cursor, serializer)))
             (§ call outputs.add(§ pars output))
             (§ var (§ type long) (§ name scriptLen) (§ expr readVarInt(§ pars 8)))
             (§ ass (§ name optimalEncodingMessageSize) (§ expr optimalEncodingMessageSize + 8 + VarInt.sizeOf(§ pars scriptLen) + scriptLen))
@@ -18876,7 +18876,7 @@
     #_public
     (§ method boolean isMature(§ args ))
     (§ block
-        (§ if (§ expr !isCoinBase(§ pars )))
+        (§ if (§ expr (§ not isCoinBase(§ pars ))))
         (§ block
             (§ return (§ expr true))
         )
@@ -18903,7 +18903,7 @@
     #_public
     (§ method String toString(§ args #_nilable AbstractBlockChain chain))
     (§ block
-        (§ var (§ type StringBuilder) (§ name sb) (§ expr new StringBuilder(§ pars )))
+        (§ var (§ type StringBuilder) (§ name sb) (§ new StringBuilder(§ pars )))
         (§ call sb.append(§ pars "  ").append(§ pars getHashAsString(§ pars )).append(§ pars "\n"))
         (§ if (§ expr updatedAt != nil))
         (§ block
@@ -18952,7 +18952,7 @@
             (§ return (§ expr sb.toString(§ pars )))
         )
 
-        (§ if (§ expr !inputs.isEmpty(§ pars )))
+        (§ if (§ expr (§ not inputs.isEmpty(§ pars ))))
         (§ block
             (§ for (§ var (§ type TransactionInput) (§ name in)) :for (§ expr inputs))
             (§ block
@@ -18961,7 +18961,7 @@
                 (§ try )
                 (§ block
                     (§ var (§ type String) (§ name scriptSigStr) (§ expr in.getScriptSig(§ pars ).toString(§ pars )))
-                    (§ call sb.append(§ pars !Strings.isNullOrEmpty(§ pars scriptSigStr) ? scriptSigStr :else "<no scriptSig>"))
+                    (§ call sb.append(§ pars (§ not Strings.isNullOrEmpty(§ pars scriptSigStr)) ? scriptSigStr :else "<no scriptSig>"))
                     #_final
                     (§ var (§ type Coin) (§ name value) (§ expr in.getValue(§ pars )))
                     (§ if (§ expr value != nil))
@@ -19009,8 +19009,8 @@
             (§ try )
             (§ block
                 (§ var (§ type String) (§ name scriptPubKeyStr) (§ expr out.getScriptPubKey(§ pars ).toString(§ pars )))
-                (§ call sb.append(§ pars !Strings.isNullOrEmpty(§ pars scriptPubKeyStr) ? scriptPubKeyStr :else "<no scriptPubKey>").append(§ pars " ").append(§ pars out.getValue(§ pars ).toFriendlyString(§ pars )))
-                (§ if (§ expr !out.isAvailableForSpending(§ pars )))
+                (§ call sb.append(§ pars (§ not Strings.isNullOrEmpty(§ pars scriptPubKeyStr)) ? scriptPubKeyStr :else "<no scriptPubKey>").append(§ pars " ").append(§ pars out.getValue(§ pars ).toFriendlyString(§ pars )))
+                (§ if (§ expr (§ not out.isAvailableForSpending(§ pars ))))
                 (§ block
                     (§ call sb.append(§ pars " Spent"))
                 )
@@ -19110,13 +19110,13 @@
         (§ throws ScriptException)
     (§ block
         ;; Verify the API user didn't try to do operations out of order.
-        (§ call Preconditions.checkState(§ pars !outputs.isEmpty(§ pars ), "Attempting to sign tx without outputs."))
+        (§ call Preconditions.checkState(§ pars (§ not outputs.isEmpty(§ pars )), "Attempting to sign tx without outputs."))
 
-        (§ var (§ type TransactionInput) (§ name input) (§ expr new TransactionInput(§ pars params, this, new byte[] (§ coll ), prevOut)))
+        (§ var (§ type TransactionInput) (§ name input) (§ new TransactionInput(§ pars params, this, new byte[] (§ coll ), prevOut)))
         (§ call addInput(§ pars input))
         (§ var (§ type Sha256Hash) (§ name hash) (§ expr hashForSignature(§ pars inputs.size(§ pars ) - 1, scriptPubKey, sigHash, anyoneCanPay)))
         (§ var (§ type ECKey.ECDSASignature) (§ name ecSig) (§ expr sigKey.sign(§ pars hash)))
-        (§ var (§ type TransactionSignature) (§ name txSig) (§ expr new TransactionSignature(§ pars ecSig, sigHash, anyoneCanPay)))
+        (§ var (§ type TransactionSignature) (§ name txSig) (§ new TransactionSignature(§ pars ecSig, sigHash, anyoneCanPay)))
         (§ if (§ expr scriptPubKey.isSentToRawPubKey(§ pars )))
         (§ block
             (§ call input.setScriptSig(§ pars ScriptBuilder.createInputScript(§ pars txSig)))
@@ -19387,7 +19387,7 @@
             (§ if (§ expr (§ expr sigHashType & 0x1f) == SigHash.NONE.value))
             (§ block
                 ;; SIGHASH_NONE means no outputs are signed at all - the signature is effectively for a "blank cheque".
-                (§ ass (§ name tx.outputs) (§ expr new ArrayList<>(§ pars 0)))
+                (§ ass (§ name tx.outputs) (§ new ArrayList<>(§ pars 0)))
                 ;; The signature isn't broken by new versions of the transaction issued by other parties.
                 (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < tx.inputs.size(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
                 (§ block
@@ -19414,7 +19414,7 @@
                 )
                 ;; In SIGHASH_SINGLE the outputs after the matching input index are deleted, and the outputs before
                 ;; that position are "nulled out".  Unintuitively, the value in a "null" transaction is set to -1.
-                (§ ass (§ name tx.outputs) (§ expr new ArrayList<>(§ pars tx.outputs.subList(§ pars 0, inputIndex + 1))))
+                (§ ass (§ name tx.outputs) (§ new ArrayList<>(§ pars tx.outputs.subList(§ pars 0, inputIndex + 1))))
                 (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < inputIndex) :for (§ ass (§ name i) (§ expr i + 1)))
                 (§ block
                     (§ call tx.outputs.set(§ pars i, new TransactionOutput(§ pars tx.params, tx, Coin.NEGATIVE_SATOSHI, new byte[] (§ coll ))))
@@ -19433,11 +19433,11 @@
             (§ block
                 ;; SIGHASH_ANYONECANPAY means the signature in the input is not broken by changes/additions/removals
                 ;; of other inputs.  For example, this is useful for building assurance contracts.
-                (§ ass (§ name tx.inputs) (§ expr new ArrayList<TransactionInput>(§ pars )))
+                (§ ass (§ name tx.inputs) (§ new ArrayList<TransactionInput>(§ pars )))
                 (§ call tx.inputs.add(§ pars input))
             )
 
-            (§ var (§ type ByteArrayOutputStream) (§ name bos) (§ expr new UnsafeByteArrayOutputStream(§ pars (§ expr tx.length == UNKNOWN_LENGTH) ? 256 :else tx.length + 4)))
+            (§ var (§ type ByteArrayOutputStream) (§ name bos) (§ new UnsafeByteArrayOutputStream(§ pars (§ expr tx.length == UNKNOWN_LENGTH) ? 256 :else tx.length + 4)))
             (§ call tx.bitcoinSerialize(§ pars bos))
             ;; We also have to write a hash type (sigHashType is actually an unsigned char).
             (§ call uint32ToByteStreamLE(§ pars 0x000000ff & sigHashType, bos))
@@ -19504,7 +19504,7 @@
                 (§ break )
             )
         )
-        (§ if (§ expr lockTime != 0 && (§ expr !seqNumSet || inputs.isEmpty(§ pars ))))
+        (§ if (§ expr lockTime != 0 && (§ expr (§ not seqNumSet) || inputs.isEmpty(§ pars ))))
         (§ block
             ;; At least one input must have a non-default sequence number for lock times to have any effect.
             ;; For instance one of them can be set to zero to make this feature work.
@@ -19551,7 +19551,7 @@
     #_public
     (§ method List<TransactionOutput> getWalletOutputs(§ args TransactionBag transactionBag))
     (§ block
-        (§ var (§ type List<TransactionOutput>) (§ name walletOutputs) (§ expr new LinkedList<>(§ pars )))
+        (§ var (§ type List<TransactionOutput>) (§ name walletOutputs) (§ new LinkedList<>(§ pars )))
 
         (§ for (§ var (§ type TransactionOutput) (§ name o)) :for (§ expr outputs))
         (§ block
@@ -19681,7 +19681,7 @@
         #_final
         (§ var (§ type TransactionInput) (§ name in) (§ expr this.getInputs(§ pars ).get(§ pars 0)))
         #_final
-        (§ var (§ type ScriptBuilder) (§ name builder) (§ expr new ScriptBuilder(§ pars )))
+        (§ var (§ type ScriptBuilder) (§ name builder) (§ new ScriptBuilder(§ pars )))
         (§ call builder.number(§ pars height))
         #_final
         (§ var (§ type byte[]) (§ name expected) (§ expr builder.build(§ pars ).getProgram(§ pars )))
@@ -19731,7 +19731,7 @@
         )
 
         (§ var (§ type Coin) (§ name valueOut) (§ expr Coin.ZERO))
-        (§ var (§ type HashSet<TransactionOutPoint>) (§ name outpoints) (§ expr new HashSet<>(§ pars )))
+        (§ var (§ type HashSet<TransactionOutPoint>) (§ name outpoints) (§ new HashSet<>(§ pars )))
         (§ for (§ var (§ type TransactionInput) (§ name input)) :for (§ expr inputs))
         (§ block
             (§ if (§ expr outpoints.contains(§ pars input.getOutpoint(§ pars ))))
@@ -19837,7 +19837,7 @@
     (§ method boolean isFinal(§ args int height, long blockTimeSeconds))
     (§ block
         (§ var (§ type long) (§ name time) (§ expr getLockTime(§ pars )))
-        (§ return (§ expr time < (§ expr time < LOCKTIME_THRESHOLD ? height :else blockTimeSeconds) || !isTimeLocked(§ pars )))
+        (§ return (§ expr time < (§ expr time < LOCKTIME_THRESHOLD ? height :else blockTimeSeconds) || (§ not isTimeLocked(§ pars ))))
     )
 
     ;;;
@@ -19975,7 +19975,7 @@
     #_testing
     #_public
     #_static
-    (§ field (§ type Random) (§ name random) (§ expr new Random(§ pars )))
+    (§ field (§ type Random) (§ name random) (§ new Random(§ pars )))
 
     ;; Tracks which nodes sent us a reject message about this broadcast, if any.  Useful for debugging.
     #_private
@@ -20032,7 +20032,7 @@
     )
 
     #_private
-    (§ field (§ type PreMessageReceivedEventListener) (§ name rejectionListener) (§ expr new PreMessageReceivedEventListener(§ pars )
+    (§ field (§ type PreMessageReceivedEventListener) (§ name rejectionListener) (§ new PreMessageReceivedEventListener(§ pars )
         (§ anon
             #_override
             #_public
@@ -20437,8 +20437,8 @@
     (§ constructor TransactionConfidence(§ args Sha256Hash hash))
     (§ block
         ;; Assume a default number of peers for our set.
-        (§ ass (§ name broadcastBy) (§ expr new CopyOnWriteArrayList<>(§ pars )))
-        (§ ass (§ name listeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name broadcastBy) (§ new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name listeners) (§ new CopyOnWriteArrayList<>(§ pars )))
         (§ ass (§ name this.hash) (§ expr hash))
     )
 
@@ -20619,7 +20619,7 @@
     (§ method boolean markBroadcastBy(§ args PeerAddress address))
     (§ block
         (§ ass (§ name lastBroadcastedAt) (§ expr Utils.now(§ pars )))
-        (§ if (§ expr !broadcastBy.addIfAbsent(§ pars address)))
+        (§ if (§ expr (§ not broadcastBy.addIfAbsent(§ pars address))))
         (§ block
             (§ return (§ expr false)) ;; Duplicate.
         )
@@ -20679,7 +20679,7 @@
     #_synchronized
     (§ method String toString(§ args ))
     (§ block
-        (§ var (§ type StringBuilder) (§ name sb) (§ expr new StringBuilder(§ pars )))
+        (§ var (§ type StringBuilder) (§ name sb) (§ new StringBuilder(§ pars )))
         (§ var (§ type int) (§ name peers) (§ expr numBroadcastPeers(§ pars )))
         (§ if (§ expr 0 < peers))
         (§ block
@@ -20815,7 +20815,7 @@
     #_public
     (§ method TransactionConfidence duplicate(§ args ))
     (§ block
-        (§ var (§ type TransactionConfidence) (§ name c) (§ expr new TransactionConfidence(§ pars hash)))
+        (§ var (§ type TransactionConfidence) (§ name c) (§ new TransactionConfidence(§ pars hash)))
         (§ call c.broadcastBy.addAll(§ pars broadcastBy))
         (§ ass (§ name c.lastBroadcastedAt) (§ expr lastBroadcastedAt))
         (§ sync this)
@@ -20948,7 +20948,7 @@
     #_private
     #_static
     #_final
-    (§ field (§ type byte[]) (§ name EMPTY_ARRAY) (§ expr new byte[0]))
+    (§ field (§ type byte[]) (§ name EMPTY_ARRAY) (§ new byte[0]))
     ;; Magic outpoint index that indicates the input is in fact unconnected.
     #_private
     #_static
@@ -21013,11 +21013,11 @@
         (§ var (§ type long) (§ name outputIndex) (§ expr output.getIndex(§ pars )))
         (§ if (§ expr output.getParentTransaction(§ pars ) != nil ))
         (§ block
-            (§ ass (§ name outpoint) (§ expr new TransactionOutPoint(§ pars params, outputIndex, output.getParentTransaction(§ pars ))))
+            (§ ass (§ name outpoint) (§ new TransactionOutPoint(§ pars params, outputIndex, output.getParentTransaction(§ pars ))))
         )
         (§ else )
         (§ block
-            (§ ass (§ name outpoint) (§ expr new TransactionOutPoint(§ pars params, output)))
+            (§ ass (§ name outpoint) (§ new TransactionOutPoint(§ pars params, output)))
         )
         (§ ass (§ name scriptBytes) (§ expr EMPTY_ARRAY))
         (§ ass (§ name sequence) (§ expr NO_SEQUENCE))
@@ -21061,7 +21061,7 @@
     (§ method void parse(§ args ))
         (§ throws ProtocolException)
     (§ block
-        (§ ass (§ name outpoint) (§ expr new TransactionOutPoint(§ pars params, payload, cursor, this, serializer)))
+        (§ ass (§ name outpoint) (§ new TransactionOutPoint(§ pars params, payload, cursor, this, serializer)))
         (§ ass (§ name cursor) (§ expr cursor + outpoint.getMessageSize(§ pars )))
         (§ var (§ type int) (§ name scriptLen) (§ expr (§ cast int)readVarInt(§ pars )))
         (§ ass (§ name length) (§ expr cursor - offset + scriptLen + 4))
@@ -21102,8 +21102,8 @@
         (§ var (§ type Script) (§ name script) (§ quest (§ expr scriptSig != nil) ? scriptSig.get(§ pars ) :else nil))
         (§ if (§ expr script == nil))
         (§ block
-            (§ ass (§ name script) (§ expr new Script(§ pars scriptBytes)))
-            (§ ass (§ name scriptSig) (§ expr new WeakReference<>(§ pars script)))
+            (§ ass (§ name script) (§ new Script(§ pars scriptBytes)))
+            (§ ass (§ name scriptSig) (§ new WeakReference<>(§ pars script)))
         )
         (§ return (§ expr script))
     )
@@ -21112,7 +21112,7 @@
     #_public
     (§ method void setScriptSig(§ args Script scriptSig))
     (§ block
-        (§ ass (§ name this.scriptSig) (§ expr new WeakReference<>(§ pars Preconditions.checkNotNull(§ pars scriptSig))))
+        (§ ass (§ name this.scriptSig) (§ new WeakReference<>(§ pars Preconditions.checkNotNull(§ pars scriptSig))))
         ;; TODO: This should all be cleaned up so we have a consistent internal representation.
         (§ call setScriptBytes(§ pars scriptSig.getProgram(§ pars )))
     )
@@ -21289,7 +21289,7 @@
     #_public
     (§ method ConnectionResult connect(§ args Transaction transaction, ConnectMode mode))
     (§ block
-        (§ if (§ expr !transaction.getHash(§ pars ).equals(§ pars outpoint.getHash(§ pars ))))
+        (§ if (§ not (§ dot transaction.getHash(§ pars ).equals(§ pars outpoint.getHash(§ pars )))))
         (§ block
             (§ return (§ expr ConnectionResult.NO_SUCH_TX))
         )
@@ -21297,7 +21297,7 @@
         (§ call Preconditions.checkElementIndex(§ pars (§ cast int)outpoint.getIndex(§ pars ), transaction.getOutputs(§ pars ).size(§ pars ), "Corrupt transaction"))
 
         (§ var (§ type TransactionOutput) (§ name out) (§ expr transaction.getOutput(§ pars (§ cast int)outpoint.getIndex(§ pars ))))
-        (§ if (§ expr !out.isAvailableForSpending(§ pars )))
+        (§ if (§ expr (§ not out.isAvailableForSpending(§ pars ))))
         (§ block
             (§ if (§ expr getParentTransaction(§ pars ).equals(§ pars outpoint.fromTx)))
             (§ block
@@ -21418,7 +21418,7 @@
     (§ block
         (§ if (§ expr output.parent != nil))
         (§ block
-            (§ if (§ expr !getOutpoint(§ pars ).getHash(§ pars ).equals(§ pars output.getParentTransaction(§ pars ).getHash(§ pars ))))
+            (§ if (§ not (§ dot getOutpoint(§ pars ).getHash(§ pars ).equals(§ pars output.getParentTransaction(§ pars ).getHash(§ pars )))))
             (§ block
                 (§ throw (§ new VerificationException(§ pars "This input does not refer to the tx containing the output.")))
             )
@@ -21508,7 +21508,7 @@
     (§ block
         (§ try )
         (§ block
-            (§ var (§ type StringBuilder) (§ name sb) (§ expr new StringBuilder(§ pars "TxIn")))
+            (§ var (§ type StringBuilder) (§ name sb) (§ new StringBuilder(§ pars "TxIn")))
             (§ if (§ expr isCoinBase(§ pars )))
             (§ block
                 (§ call sb.append(§ pars ": COINBASE"))
@@ -21517,7 +21517,7 @@
             (§ block
                 (§ call sb.append(§ pars " for [").append(§ pars outpoint).append(§ pars "]: ").append(§ pars getScriptSig(§ pars )))
                 (§ var (§ type String) (§ name flags) (§ expr Joiner.on(§ pars ", ").skipNulls(§ pars ).join(§ pars hasSequence(§ pars ) ? "sequence: " + Long.toHexString(§ pars sequence) :else nil, isOptInFullRBF(§ pars ) ? "opts into full RBF" :else nil)))
-                (§ if (§ expr !flags.isEmpty(§ pars )))
+                (§ if (§ expr (§ not flags.isEmpty(§ pars ))))
                 (§ block
                     (§ call sb.append(§ pars " (").append(§ pars flags).append(§ pars ")"))
                 )
@@ -21907,7 +21907,7 @@
         ;; Negative values obviously make no sense, except for -1 which is used as a sentinel value when calculating
         ;; SIGHASH_SINGLE signatures, so unfortunately we have to allow that here.
         (§ call Preconditions.checkArgument(§ pars 0 <= value.signum(§ pars ) || value.equals(§ pars Coin.NEGATIVE_SATOSHI), "Negative values not allowed"))
-        (§ call Preconditions.checkArgument(§ pars !params.hasMaxMoney(§ pars ) || value.compareTo(§ pars params.getMaxMoney(§ pars )) <= 0, "Values larger than MAX_MONEY not allowed"))
+        (§ call Preconditions.checkArgument(§ pars (§ not params.hasMaxMoney(§ pars )) || value.compareTo(§ pars params.getMaxMoney(§ pars )) <= 0, "Values larger than MAX_MONEY not allowed"))
 
         (§ ass (§ name this.value) (§ expr value.value))
         (§ ass (§ name this.scriptBytes) (§ expr scriptBytes))
@@ -21922,7 +21922,7 @@
     (§ block
         (§ if (§ expr scriptPubKey == nil))
         (§ block
-            (§ ass (§ name scriptPubKey) (§ expr new Script(§ pars scriptBytes)))
+            (§ ass (§ name scriptPubKey) (§ new Script(§ pars scriptBytes)))
         )
         (§ return (§ expr scriptPubKey))
     )
@@ -22190,7 +22190,7 @@
         (§ try )
         (§ block
             (§ var (§ type Script) (§ name script) (§ expr getScriptPubKey(§ pars )))
-            (§ var (§ type StringBuilder) (§ name sb) (§ expr new StringBuilder(§ pars "TxOut of ")))
+            (§ var (§ type StringBuilder) (§ name sb) (§ new StringBuilder(§ pars "TxOut of ")))
             (§ call sb.append(§ pars Coin.valueOf(§ pars value).toFriendlyString(§ pars )))
             (§ if (§ expr script.isSentToAddress(§ pars ) || script.isPayToScriptHash(§ pars )))
             (§ block
@@ -22349,14 +22349,14 @@
         (§ throws IOException)
     (§ block
         (§ var (§ type int) (§ name nCreated) (§ expr read4x8le(§ pars is)))
-        (§ ass (§ name txOutsCreated) (§ expr new LinkedList<>(§ pars )))
+        (§ ass (§ name txOutsCreated) (§ new LinkedList<>(§ pars )))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < nCreated) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ call txOutsCreated.add(§ pars (§ new UTXO(§ pars is))))
         )
 
         (§ var (§ type int) (§ name nSpent) (§ expr read4x8le(§ pars is)))
-        (§ ass (§ name txOutsSpent) (§ expr new LinkedList<>(§ pars )))
+        (§ ass (§ name txOutsSpent) (§ new LinkedList<>(§ pars )))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < nSpent) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ call txOutsSpent.add(§ pars (§ new UTXO(§ pars is))))
@@ -22454,7 +22454,7 @@
     #_public
     (§ constructor TxConfidenceTable(§ args #_final int size))
     (§ block
-        (§ ass (§ name table) (§ expr new LinkedHashMap<Sha256Hash, WeakConfidenceReference>(§ pars )
+        (§ ass (§ name table) (§ new LinkedHashMap<Sha256Hash, WeakConfidenceReference>(§ pars )
         (§ anon
             #_override
             #_protected
@@ -22465,7 +22465,7 @@
                 (§ return (§ expr size < size(§ pars )))
             )
         )))
-        (§ ass (§ name referenceQueue) (§ expr new ReferenceQueue<>(§ pars )))
+        (§ ass (§ name referenceQueue) (§ new ReferenceQueue<>(§ pars )))
     )
 
     ;;;
@@ -22583,7 +22583,7 @@
                     (§ return (§ expr confidence))
                 )
             )
-            (§ var (§ type TransactionConfidence) (§ name newConfidence) (§ expr new TransactionConfidence(§ pars hash)))
+            (§ var (§ type TransactionConfidence) (§ name newConfidence) (§ new TransactionConfidence(§ pars hash)))
             (§ call table.put(§ pars hash, new WeakConfidenceReference(§ pars newConfidence, referenceQueue)))
             (§ return (§ expr newConfidence))
         )
@@ -22811,7 +22811,7 @@
     (§ method void deserializeFromStream(§ args InputStream is))
         (§ throws IOException)
     (§ block
-        (§ var (§ type byte[]) (§ name valueBytes) (§ expr new byte[8]))
+        (§ var (§ type byte[]) (§ name valueBytes) (§ new byte[8]))
         (§ if (§ expr is.read(§ pars valueBytes, 0, 8) != 8))
         (§ block
             (§ throw (§ new EOFException(§ pars )))
@@ -22819,21 +22819,21 @@
         (§ ass (§ name value) (§ expr Coin.valueOf(§ pars Utils.readInt64(§ pars valueBytes, 0))))
 
         (§ var (§ type int) (§ name scriptBytesLength) (§ expr read4x8le(§ pars is)))
-        (§ var (§ type byte[]) (§ name scriptBytes) (§ expr new byte[scriptBytesLength]))
+        (§ var (§ type byte[]) (§ name scriptBytes) (§ new byte[scriptBytesLength]))
         (§ if (§ expr is.read(§ pars scriptBytes) != scriptBytesLength))
         (§ block
             (§ throw (§ new EOFException(§ pars )))
         )
-        (§ ass (§ name script) (§ expr new Script(§ pars scriptBytes)))
+        (§ ass (§ name script) (§ new Script(§ pars scriptBytes)))
 
-        (§ var (§ type byte[]) (§ name hashBytes) (§ expr new byte[32]))
+        (§ var (§ type byte[]) (§ name hashBytes) (§ new byte[32]))
         (§ if (§ expr is.read(§ pars hashBytes) != 32))
         (§ block
             (§ throw (§ new EOFException(§ pars )))
         )
         (§ ass (§ name hash) (§ expr Sha256Hash.wrap(§ pars hashBytes)))
 
-        (§ var (§ type byte[]) (§ name indexBytes) (§ expr new byte[4]))
+        (§ var (§ type byte[]) (§ name indexBytes) (§ new byte[4]))
         (§ if (§ expr is.read(§ pars indexBytes) != 4))
         (§ block
             (§ throw (§ new EOFException(§ pars )))
@@ -22842,7 +22842,7 @@
 
         (§ ass (§ name height) (§ expr read4x8le(§ pars is)))
 
-        (§ var (§ type byte[]) (§ name coinbaseByte) (§ expr new byte[1]))
+        (§ var (§ type byte[]) (§ name coinbaseByte) (§ new byte[1]))
         (§ call is.read(§ pars coinbaseByte))
         (§ ass coinbase = (§ expr coinbaseByte[0] == 1))
     )
@@ -23085,7 +23085,7 @@
         (§ call Preconditions.checkArgument(§ pars 0 < numBytes, "numBytes must be positive"))
 
         (§ var (§ type byte[]) (§ name src) (§ expr b.toByteArray(§ pars )))
-        (§ var (§ type byte[]) (§ name dest) (§ expr new byte[numBytes]))
+        (§ var (§ type byte[]) (§ name dest) (§ new byte[numBytes]))
         (§ var (§ type boolean) (§ name isFirstByteOnlyForSign) (§ expr src[0] == 0))
         (§ var (§ type int) (§ name length) (§ expr isFirstByteOnlyForSign ? src.length - 1 :else src.length))
 
@@ -23216,7 +23216,7 @@
     (§ block
         ;; We could use the XOR trick here, but it's easier to understand if we don't.
         ;; If we find this is really a performance issue, the matter can be revisited.
-        (§ var (§ type byte[]) (§ name buf) (§ expr new byte[bytes.length]))
+        (§ var (§ type byte[]) (§ name buf) (§ new byte[bytes.length]))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < bytes.length) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ ass buf[i] = bytes[bytes.length - 1 - i])
@@ -23237,7 +23237,7 @@
         (§ call Preconditions.checkArgument(§ pars bytes.length % 4 == 0))
         (§ call Preconditions.checkArgument(§ pars trimLength < 0 || trimLength % 4 == 0))
 
-        (§ var (§ type byte[]) (§ name rev) (§ expr new byte[(§ expr 0 <= trimLength && trimLength < bytes.length) ? trimLength :else bytes.length]))
+        (§ var (§ type byte[]) (§ name rev) (§ new byte[(§ expr 0 <= trimLength && trimLength < bytes.length) ? trimLength :else bytes.length]))
 
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < rev.length) :for (§ ass (§ name i) (§ expr i + 4)))
         (§ block
@@ -23290,9 +23290,9 @@
     (§ method byte[] sha256hash160(§ args byte[] input))
     (§ block
         (§ var (§ type byte[]) (§ name sha256) (§ expr Sha256Hash.hash(§ pars input)))
-        (§ var (§ type RIPEMD160Digest) (§ name digest) (§ expr new RIPEMD160Digest(§ pars )))
+        (§ var (§ type RIPEMD160Digest) (§ name digest) (§ new RIPEMD160Digest(§ pars )))
         (§ call digest.update(§ pars sha256, 0, sha256.length))
-        (§ var (§ type byte[]) (§ name out) (§ expr new byte[20]))
+        (§ var (§ type byte[]) (§ name out) (§ new byte[20]))
         (§ call digest.doFinal(§ pars out, 0))
         (§ return (§ expr out))
     )
@@ -23311,7 +23311,7 @@
         (§ if (§ expr hasLength))
         (§ block
             (§ var (§ type int) (§ name length) (§ expr (§ cast int)readUint32BE(§ pars mpi, 0)))
-            (§ ass (§ name buf) (§ expr new byte[length]))
+            (§ ass (§ name buf) (§ new byte[length]))
             (§ call System.arraycopy(§ pars mpi, 4, buf, 0, length))
         )
         (§ else )
@@ -23328,7 +23328,7 @@
         (§ block
             (§ ass buf[0] = buf[0] & 0x7f)
         )
-        (§ var (§ type BigInteger) (§ name result) (§ expr new BigInteger(§ pars buf)))
+        (§ var (§ type BigInteger) (§ name result) (§ new BigInteger(§ pars buf)))
         (§ return (§ expr isNegative ? result.negate(§ pars ) :else result))
     )
 
@@ -23361,7 +23361,7 @@
 
         (§ if (§ expr includeLength))
         (§ block
-            (§ var (§ type byte[]) (§ name result) (§ expr new byte[length + 4]))
+            (§ var (§ type byte[]) (§ name result) (§ new byte[length + 4]))
             (§ call System.arraycopy(§ pars array, 0, result, length - array.length + 3, array.length))
             (§ call uint32ToByteArrayBE(§ pars length, result, 0))
             (§ if (§ expr isNegative))
@@ -23375,7 +23375,7 @@
             (§ var (§ type byte[]) (§ name result))
             (§ if (§ expr length != array.length))
             (§ block
-                (§ ass (§ name result) (§ expr new byte[length]))
+                (§ ass (§ name result) (§ new byte[length]))
                 (§ call System.arraycopy(§ pars array, 0, result, 1, array.length))
             )
             (§ else )
@@ -23408,7 +23408,7 @@
     (§ method BigInteger decodeCompactBits(§ args long compact))
     (§ block
         (§ var (§ type int) (§ name size) (§ expr (§ expr (§ cast int)(§ expr compact >> 24)) & 0xff))
-        (§ var (§ type byte[]) (§ name bytes) (§ expr new byte[4 + size]))
+        (§ var (§ type byte[]) (§ name bytes) (§ new byte[4 + size]))
         (§ ass bytes[3] = (§ cast byte)size)
         (§ if (§ expr 1 <= size))
         (§ block
@@ -23484,7 +23484,7 @@
             (§ throw (§ new IllegalStateException(§ pars "You need to use setMockClock() first.")))
         )
 
-        (§ ass (§ name mockTime) (§ expr new Date(§ pars mockTime.getTime(§ pars ) + millis)))
+        (§ ass (§ name mockTime) (§ new Date(§ pars mockTime.getTime(§ pars ) + millis)))
         (§ return (§ expr mockTime))
     )
 
@@ -23495,7 +23495,7 @@
     #_static
     (§ method void setMockClock(§ args ))
     (§ block
-        (§ ass (§ name mockTime) (§ expr new Date(§ pars )))
+        (§ ass (§ name mockTime) (§ new Date(§ pars )))
     )
 
     ;;;
@@ -23505,7 +23505,7 @@
     #_static
     (§ method void setMockClock(§ args long mockClockSeconds))
     (§ block
-        (§ ass (§ name mockTime) (§ expr new Date(§ pars mockClockSeconds * 1000)))
+        (§ ass (§ name mockTime) (§ new Date(§ pars mockClockSeconds * 1000)))
     )
 
     ;;;
@@ -23547,7 +23547,7 @@
     #_static
     (§ method String dateTimeFormat(§ args Date dateTime))
     (§ block
-        (§ var (§ type DateFormat) (§ name iso8601) (§ expr new SimpleDateFormat(§ pars "yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)))
+        (§ var (§ type DateFormat) (§ name iso8601) (§ new SimpleDateFormat(§ pars "yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)))
         (§ call iso8601.setTimeZone(§ pars UTC))
         (§ return (§ expr iso8601.format(§ pars dateTime)))
     )
@@ -23560,7 +23560,7 @@
     #_static
     (§ method String dateTimeFormat(§ args long dateTime))
     (§ block
-        (§ var (§ type DateFormat) (§ name iso8601) (§ expr new SimpleDateFormat(§ pars "yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)))
+        (§ var (§ type DateFormat) (§ name iso8601) (§ new SimpleDateFormat(§ pars "yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)))
         (§ call iso8601.setTimeZone(§ pars UTC))
         (§ return (§ expr iso8601.format(§ pars dateTime)))
     )
@@ -23569,7 +23569,7 @@
     #_static
     (§ method byte[] copyOf(§ args byte[] in, int length))
     (§ block
-        (§ var (§ type byte[]) (§ name out) (§ expr new byte[length]))
+        (§ var (§ type byte[]) (§ name out) (§ new byte[length]))
         (§ call System.arraycopy(§ pars in, 0, out, 0, Math.min(§ pars length, in.length)))
         (§ return (§ expr out))
     )
@@ -23680,11 +23680,11 @@
     (§ block
         (§ try )
         (§ block
-            (§ var (§ type ByteArrayOutputStream) (§ name bos) (§ expr new ByteArrayOutputStream(§ pars )))
+            (§ var (§ type ByteArrayOutputStream) (§ name bos) (§ new ByteArrayOutputStream(§ pars )))
             (§ call bos.write(§ pars BITCOIN_SIGNED_MESSAGE_HEADER_BYTES.length))
             (§ call bos.write(§ pars BITCOIN_SIGNED_MESSAGE_HEADER_BYTES))
             (§ var (§ type byte[]) (§ name messageBytes) (§ expr message.getBytes(§ pars Charsets.UTF_8)))
-            (§ var (§ type VarInt) (§ name size) (§ expr new VarInt(§ pars messageBytes.length)))
+            (§ var (§ type VarInt) (§ name size) (§ new VarInt(§ pars messageBytes.length)))
             (§ call bos.write(§ pars size.encode(§ pars )))
             (§ call bos.write(§ pars messageBytes))
             (§ return (§ expr bos.toByteArray(§ pars )))
@@ -23751,8 +23751,8 @@
     (§ block
         (§ if (§ expr isEnable))
         (§ block
-            (§ ass (§ name mockSleepQueue) (§ expr new ArrayBlockingQueue<>(§ pars 1)))
-            (§ ass (§ name mockTime) (§ expr new Date(§ pars System.currentTimeMillis(§ pars ))))
+            (§ ass (§ name mockSleepQueue) (§ new ArrayBlockingQueue<>(§ pars 1)))
+            (§ ass (§ name mockTime) (§ new Date(§ pars System.currentTimeMillis(§ pars ))))
         )
         (§ else )
         (§ block
@@ -23821,7 +23821,7 @@
     (§ method int maxOfMostFreq(§ args int... items))
     (§ block
         ;; Java 6 sucks.
-        (§ var (§ type ArrayList<Integer>) (§ name list) (§ expr new ArrayList<>(§ pars items.length)))
+        (§ var (§ type ArrayList<Integer>) (§ name list) (§ new ArrayList<>(§ pars items.length)))
         (§ for (§ var (§ type int) (§ name item)) :for (§ expr items))
         (§ block
             (§ call list.add(§ pars item))
@@ -23847,7 +23847,7 @@
             (§ var (§ type Pair) (§ name pair) (§ expr pairs.getLast(§ pars )))
             (§ if (§ expr pair.item != item))
             (§ block
-                (§ call pairs.add(§ pars (§ ass (§ name pair) (§ expr new Pair(§ pars item, 0)))))
+                (§ call pairs.add(§ pars (§ ass (§ name pair) (§ new Pair(§ pars item, 0)))))
             )
             (§ ass (§ name pair.count) (§ expr pair.count + 1))
         )
@@ -24032,22 +24032,22 @@
         (§ block
             (§ case 1)
             (§ block
-                (§ return (§ expr new byte[] (§ coll (§ cast byte)value )))
+                (§ return (§ new byte[] (§ coll (§ cast byte)value )))
             )
             (§ case 3)
             (§ block
-                (§ return (§ expr new byte[] (§ coll (§ cast byte)253, (§ cast byte)value, (§ cast byte)(§ expr value >> 8) )))
+                (§ return (§ new byte[] (§ coll (§ cast byte)253, (§ cast byte)value, (§ cast byte)(§ expr value >> 8) )))
             )
             (§ case 5)
             (§ block
-                (§ ass (§ name bytes) (§ expr new byte[5]))
+                (§ ass (§ name bytes) (§ new byte[5]))
                 (§ ass bytes[0] = (§ cast byte)254)
                 (§ call Utils.uint32ToByteArrayLE(§ pars value, bytes, 1))
                 (§ return (§ expr bytes))
             )
             (§ default )
             (§ block
-                (§ ass (§ name bytes) (§ expr new byte[9]))
+                (§ ass (§ name bytes) (§ new byte[9]))
                 (§ ass bytes[0] = (§ cast byte)255)
                 (§ call Utils.uint64ToByteArrayLE(§ pars value, bytes, 1))
                 (§ return (§ expr bytes))
@@ -24294,8 +24294,8 @@
         ;; Note that the Bitcoin Core doesn't do anything with these, and finding out your own external IP address
         ;; is kind of tricky anyway, so we just put nonsense here for now.
         (§ var (§ type InetAddress) (§ name localhost) (§ expr InetAddresses.forString(§ pars "127.0.0.1")))
-        (§ ass (§ name myAddr) (§ expr new PeerAddress(§ pars params, localhost, params.getPort(§ pars ), 0, BigInteger.ZERO)))
-        (§ ass (§ name theirAddr) (§ expr new PeerAddress(§ pars params, localhost, params.getPort(§ pars ), 0, BigInteger.ZERO)))
+        (§ ass (§ name myAddr) (§ new PeerAddress(§ pars params, localhost, params.getPort(§ pars ), 0, BigInteger.ZERO)))
+        (§ ass (§ name theirAddr) (§ new PeerAddress(§ pars params, localhost, params.getPort(§ pars ), 0, BigInteger.ZERO)))
         (§ ass (§ name subVer) (§ expr LIBRARY_SUBVER))
         (§ ass (§ name bestHeight) (§ expr newBestHeight))
         (§ ass (§ name relayTxesBeforeFilter) (§ expr true))
@@ -24316,9 +24316,9 @@
         (§ ass clientVersion = (§ cast int)readUint32(§ pars ))
         (§ ass (§ name localServices) (§ expr readUint64(§ pars ).longValue(§ pars )))
         (§ ass (§ name time) (§ expr readUint64(§ pars ).longValue(§ pars )))
-        (§ ass (§ name myAddr) (§ expr new PeerAddress(§ pars params, payload, cursor, 0)))
+        (§ ass (§ name myAddr) (§ new PeerAddress(§ pars params, payload, cursor, 0)))
         (§ ass (§ name cursor) (§ expr cursor + myAddr.getMessageSize(§ pars )))
-        (§ ass (§ name theirAddr) (§ expr new PeerAddress(§ pars params, payload, cursor, 0)))
+        (§ ass (§ name theirAddr) (§ new PeerAddress(§ pars params, payload, cursor, 0)))
         (§ ass (§ name cursor) (§ expr cursor + theirAddr.getMessageSize(§ pars )))
         ;; uint64 localHostNonce (random data)
         ;; We don't care about the localhost nonce.  It's used to detect connecting back to yourself in cases where
@@ -24330,21 +24330,21 @@
             (§ ass (§ name subVer) (§ expr ""))
             (§ ass (§ name bestHeight) (§ expr 0))
             (§ ass (§ name relayTxesBeforeFilter) (§ expr true))
-            (§ if (§ expr !hasMoreBytes(§ pars )))
+            (§ if (§ expr (§ not hasMoreBytes(§ pars ))))
             (§ block
                 (§ return )
             )
 
             ;; string subVer (currently "")
             (§ ass (§ name subVer) (§ expr readStr(§ pars )))
-            (§ if (§ expr !hasMoreBytes(§ pars )))
+            (§ if (§ expr (§ not hasMoreBytes(§ pars ))))
             (§ block
                 (§ return )
             )
 
             ;; int bestHeight (size of known block chain)
             (§ ass (§ name bestHeight) (§ expr readUint32(§ pars )))
-            (§ if (§ expr !hasMoreBytes(§ pars )))
+            (§ if (§ expr (§ not hasMoreBytes(§ pars ))))
             (§ block
                 (§ return )
             )
@@ -24432,7 +24432,7 @@
     #_public
     (§ method String toString(§ args ))
     (§ block
-        (§ var (§ type StringBuilder) (§ name sb) (§ expr new StringBuilder(§ pars )))
+        (§ var (§ type StringBuilder) (§ name sb) (§ new StringBuilder(§ pars )))
         (§ call sb.append(§ pars "\n"))
         (§ call sb.append(§ pars "client version: ").append(§ pars clientVersion).append(§ pars "\n"))
         (§ call sb.append(§ pars "local services: ").append(§ pars localServices).append(§ pars "\n"))
@@ -24441,14 +24441,14 @@
         (§ call sb.append(§ pars "their addr:     ").append(§ pars theirAddr).append(§ pars "\n"))
         (§ call sb.append(§ pars "sub version:    ").append(§ pars subVer).append(§ pars "\n"))
         (§ call sb.append(§ pars "best height:    ").append(§ pars bestHeight).append(§ pars "\n"))
-        (§ call sb.append(§ pars "delay tx relay: ").append(§ pars !relayTxesBeforeFilter).append(§ pars "\n"))
+        (§ call sb.append(§ pars "delay tx relay: ").append(§ pars (§ not relayTxesBeforeFilter)).append(§ pars "\n"))
         (§ return (§ expr sb.toString(§ pars )))
     )
 
     #_public
     (§ method VersionMessage duplicate(§ args ))
     (§ block
-        (§ var (§ type VersionMessage) (§ name v) (§ expr new VersionMessage(§ pars params, (§ cast int)bestHeight)))
+        (§ var (§ type VersionMessage) (§ name v) (§ new VersionMessage(§ pars params, (§ cast int)bestHeight)))
         (§ ass (§ name v.clientVersion) (§ expr clientVersion))
         (§ ass (§ name v.localServices) (§ expr localServices))
         (§ ass (§ name v.time) (§ expr time))
@@ -24555,7 +24555,7 @@
         (§ var (§ type byte[]) (§ name versionAndDataBytes) (§ expr Base58.decodeChecked(§ pars encoded)))
         (§ var (§ type byte) (§ name versionByte) (§ expr versionAndDataBytes[0]))
         (§ ass (§ name version) (§ expr versionByte & 0xff))
-        (§ ass (§ name bytes) (§ expr new byte[versionAndDataBytes.length - 1]))
+        (§ ass (§ name bytes) (§ new byte[versionAndDataBytes.length - 1]))
         (§ call System.arraycopy(§ pars versionAndDataBytes, 1, bytes, 0, versionAndDataBytes.length - 1))
     )
 
@@ -24577,7 +24577,7 @@
     (§ method String toBase58(§ args ))
     (§ block
         ;; A stringified buffer is: 1 byte version + data bytes + 4 bytes check code (a truncated hash).
-        (§ var (§ type byte[]) (§ name addressBytes) (§ expr new byte[1 + bytes.length + 4]))
+        (§ var (§ type byte[]) (§ name addressBytes) (§ new byte[1 + bytes.length + 4]))
         (§ ass addressBytes[0] = (§ cast byte)version)
         (§ call System.arraycopy(§ pars bytes, 0, addressBytes, 1, bytes.length))
         (§ var (§ type byte[]) (§ name checksum) (§ expr Sha256Hash.hashTwice(§ pars addressBytes, 0, bytes.length + 1)))
@@ -25191,15 +25191,15 @@
     #_public
     #_static
     #_final
-    (§ field (§ type ChildNumber) (§ name ZERO) (§ expr new ChildNumber(§ pars 0)))
+    (§ field (§ type ChildNumber) (§ name ZERO) (§ new ChildNumber(§ pars 0)))
     #_public
     #_static
     #_final
-    (§ field (§ type ChildNumber) (§ name ONE) (§ expr new ChildNumber(§ pars 1)))
+    (§ field (§ type ChildNumber) (§ name ONE) (§ new ChildNumber(§ pars 1)))
     #_public
     #_static
     #_final
-    (§ field (§ type ChildNumber) (§ name ZERO_HARDENED) (§ expr new ChildNumber(§ pars 0, true)))
+    (§ field (§ type ChildNumber) (§ name ZERO_HARDENED) (§ new ChildNumber(§ pars 0, true)))
 
     ;;; Integer i as per BIP 32 spec, including the MSB denoting derivation type (0 = public, 1 = private). ;;
     #_private
@@ -25377,9 +25377,9 @@
     (§ method DeterministicKey get(§ args List<ChildNumber> path, boolean relativePath, boolean create))
     (§ block
         (§ var (§ type ImmutableList<ChildNumber>) (§ name absolutePath) (§ expr relativePath ? ImmutableList.<ChildNumber>builder(§ pars ).addAll(§ pars rootPath).addAll(§ pars path).build(§ pars ) :else ImmutableList.copyOf(§ pars path)))
-        (§ if (§ expr !keys.containsKey(§ pars absolutePath)))
+        (§ if (§ expr (§ not keys.containsKey(§ pars absolutePath))))
         (§ block
-            (§ if (§ expr !create))
+            (§ if (§ expr (§ not create)))
             (§ block
                 (§ throw (§ new IllegalArgumentException(§ pars String.format(§ pars Locale.US, "No key found for %s path %s.", relativePath ? "relative") :for (§ expr "absolute", HDUtils.formatPath(§ pars path)))))
             )
@@ -25423,7 +25423,7 @@
     (§ method ChildNumber getNextChildNumberToDerive(§ args ImmutableList<ChildNumber> path, boolean privateDerivation))
     (§ block
         (§ var (§ type ChildNumber) (§ name lastChildNumber) (§ expr lastChildNumbers.get(§ pars path)))
-        (§ var (§ type ChildNumber) (§ name nextChildNumber) (§ expr new ChildNumber(§ pars lastChildNumber != nil ? lastChildNumber.num(§ pars ) + 1 :else 0, privateDerivation)))
+        (§ var (§ type ChildNumber) (§ name nextChildNumber) (§ new ChildNumber(§ pars lastChildNumber != nil ? lastChildNumber.num(§ pars ) + 1 :else 0, privateDerivation)))
         (§ call lastChildNumbers.put(§ pars path, nextChildNumber))
         (§ return (§ expr nextChildNumber))
     )
@@ -25494,7 +25494,7 @@
     #_public
     #_static
     #_final
-    (§ field (§ type Comparator<ECKey>) (§ name CHILDNUM_ORDER) (§ expr new Comparator<ECKey>(§ pars )
+    (§ field (§ type Comparator<ECKey>) (§ name CHILDNUM_ORDER) (§ new Comparator<ECKey>(§ pars )
         (§ anon
             #_override
             #_public
@@ -25729,7 +25729,7 @@
     #_public
     (§ method byte[] getPrivKeyBytes33(§ args ))
     (§ block
-        (§ var (§ type byte[]) (§ name bytes33) (§ expr new byte[33]))
+        (§ var (§ type byte[]) (§ name bytes33) (§ new byte[33]))
         (§ var (§ type byte[]) (§ name priv) (§ expr getPrivKeyBytes(§ pars )))
         (§ call System.arraycopy(§ pars priv, 0, bytes33, 33 - priv.length, priv.length))
         (§ return (§ expr bytes33))
@@ -25759,7 +25759,7 @@
     #_public
     (§ method DeterministicKey dropParent(§ args ))
     (§ block
-        (§ var (§ type DeterministicKey) (§ name key) (§ expr new DeterministicKey(§ pars getPath(§ pars ), getChainCode(§ pars ), pub, priv, nil)))
+        (§ var (§ type DeterministicKey) (§ name key) (§ new DeterministicKey(§ pars getPath(§ pars ), getChainCode(§ pars ), pub, priv, nil)))
         (§ ass (§ name key.parentFingerprint) (§ expr parentFingerprint))
         (§ return (§ expr key))
     )
@@ -25768,7 +25768,7 @@
     (§ method byte[] addChecksum(§ args byte[] input))
     (§ block
         (§ var (§ type int) (§ name inputLength) (§ expr input.length))
-        (§ var (§ type byte[]) (§ name checksummed) (§ expr new byte[inputLength + 4]))
+        (§ var (§ type byte[]) (§ name checksummed) (§ new byte[inputLength + 4]))
         (§ call System.arraycopy(§ pars input, 0, checksummed, 0, inputLength))
         (§ var (§ type byte[]) (§ name checksum) (§ expr Sha256Hash.hashTwice(§ pars input)))
         (§ call System.arraycopy(§ pars checksum, 0, checksummed, inputLength, 4))
@@ -25799,7 +25799,7 @@
         (§ call Preconditions.checkState(§ pars privKeyBytes != nil, "Private key is not available"))
 
         (§ var (§ type EncryptedData) (§ name encryptedPrivateKey) (§ expr keyCrypter.encrypt(§ pars privKeyBytes, aesKey)))
-        (§ var (§ type DeterministicKey) (§ name key) (§ expr new DeterministicKey(§ pars childNumberPath, chainCode, keyCrypter, pub, encryptedPrivateKey, newParent)))
+        (§ var (§ type DeterministicKey) (§ name key) (§ new DeterministicKey(§ pars childNumberPath, chainCode, keyCrypter, pub, encryptedPrivateKey, newParent)))
         (§ if (§ expr newParent == nil))
         (§ block
             (§ call key.setCreationTimeSeconds(§ pars getCreationTimeSeconds(§ pars )))
@@ -25899,14 +25899,14 @@
     (§ block
         (§ call Preconditions.checkNotNull(§ pars keyCrypter))
         ;; Check that the keyCrypter matches the one used to encrypt the keys, if set.
-        (§ if (§ expr this.keyCrypter != nil && !this.keyCrypter.equals(§ pars keyCrypter)))
+        (§ if (§ expr this.keyCrypter != nil && (§ not this.keyCrypter.equals(§ pars keyCrypter))))
         (§ block
             (§ throw (§ new KeyCrypterException(§ pars "The keyCrypter being used to decrypt the key is different to the one that was used to encrypt it")))
         )
 
         (§ var (§ type BigInteger) (§ name privKey) (§ expr findOrDeriveEncryptedPrivateKey(§ pars keyCrypter, aesKey)))
-        (§ var (§ type DeterministicKey) (§ name key) (§ expr new DeterministicKey(§ pars childNumberPath, chainCode, privKey, parent)))
-        (§ if (§ expr !Arrays.equals(§ pars key.getPubKey(§ pars ), getPubKey(§ pars ))))
+        (§ var (§ type DeterministicKey) (§ name key) (§ new DeterministicKey(§ pars childNumberPath, chainCode, privKey, parent)))
+        (§ if (§ expr (§ not Arrays.equals(§ pars key.getPubKey(§ pars ), getPubKey(§ pars )))))
         (§ block
             (§ throw (§ new KeyCrypterException(§ pars "Provided AES key is wrong")))
         )
@@ -25987,7 +25987,7 @@
     #_private
     (§ method BigInteger derivePrivateKeyDownwards(§ args DeterministicKey cursor, byte[] parentalPrivateKeyBytes))
     (§ block
-        (§ var (§ type DeterministicKey) (§ name downCursor) (§ expr new DeterministicKey(§ pars cursor.childNumberPath, cursor.chainCode, cursor.pub, new BigInteger(§ pars 1, parentalPrivateKeyBytes), cursor.parent)))
+        (§ var (§ type DeterministicKey) (§ name downCursor) (§ new DeterministicKey(§ pars cursor.childNumberPath, cursor.chainCode, cursor.pub, new BigInteger(§ pars 1, parentalPrivateKeyBytes), cursor.parent)))
         ;; Now we have to rederive the keys along the path back to ourselves.  That path can be found by just truncating
         ;; our path with the length of the parents path.
         (§ var (§ type ImmutableList<ChildNumber>) (§ name path) (§ expr childNumberPath.subList(§ pars cursor.getPath(§ pars ).size(§ pars ), childNumberPath.size(§ pars ))))
@@ -25998,7 +25998,7 @@
         ;; downCursor is now the same key as us, but with private key bytes.
         ;; If it's not, it means we tried decrypting with an invalid password and earlier checks e.g. for padding didn't
         ;; catch it.
-        (§ if (§ expr !downCursor.pub.equals(§ pars pub)))
+        (§ if (§ expr (§ not downCursor.pub.equals(§ pars pub))))
         (§ block
             (§ throw (§ new KeyCrypterException(§ pars "Could not decrypt bytes")))
         )
@@ -26128,7 +26128,7 @@
         #_final
         (§ var (§ type int) (§ name i) (§ expr buffer.getInt(§ pars )))
         #_final
-        (§ var (§ type ChildNumber) (§ name childNumber) (§ expr new ChildNumber(§ pars i)))
+        (§ var (§ type ChildNumber) (§ name childNumber) (§ new ChildNumber(§ pars i)))
         (§ var (§ type ImmutableList<ChildNumber>) (§ name path))
         (§ if (§ expr parent != nil))
         (§ block
@@ -26161,11 +26161,11 @@
                 (§ ass (§ name path) (§ expr ImmutableList.of(§ pars )))
             )
         )
-        (§ var (§ type byte[]) (§ name chainCode) (§ expr new byte[32]))
+        (§ var (§ type byte[]) (§ name chainCode) (§ new byte[32]))
         (§ call buffer.get(§ pars chainCode))
-        (§ var (§ type byte[]) (§ name data) (§ expr new byte[33]))
+        (§ var (§ type byte[]) (§ name data) (§ new byte[33]))
         (§ call buffer.get(§ pars data))
-        (§ call Preconditions.checkArgument(§ pars !buffer.hasRemaining(§ pars ), "Found unexpected data in key"))
+        (§ call Preconditions.checkArgument(§ pars (§ not buffer.hasRemaining(§ pars )), "Found unexpected data in key"))
         (§ if (§ expr pub))
         (§ block
             (§ return (§ new DeterministicKey(§ pars path, chainCode, new LazyECPoint(§ pars ECKey.CURVE.getCurve(§ pars ), data), parent, depth, parentFingerprint)))
@@ -26461,7 +26461,7 @@
     (§ method DeterministicKey createMasterPrivKeyFromBytes(§ args byte[] privKeyBytes, byte[] chainCode))
         (§ throws HDDerivationException)
     (§ block
-        (§ var (§ type BigInteger) (§ name priv) (§ expr new BigInteger(§ pars 1, privKeyBytes)))
+        (§ var (§ type BigInteger) (§ name priv) (§ new BigInteger(§ pars 1, privKeyBytes)))
         (§ call assertNonZero(§ pars priv, "Generated master key is invalid."))
         (§ call assertLessThanN(§ pars priv, "Generated master key is invalid."))
         (§ return (§ new DeterministicKey(§ pars ImmutableList.<ChildNumber>of(§ pars ), chainCode, priv, nil)))
@@ -26497,13 +26497,13 @@
     #_static
     (§ method DeterministicKey deriveThisOrNextChildKey(§ args DeterministicKey parent, int childNumber))
     (§ block
-        (§ var (§ type ChildNumber) (§ name child) (§ expr new ChildNumber(§ pars childNumber)))
+        (§ var (§ type ChildNumber) (§ name child) (§ new ChildNumber(§ pars childNumber)))
         (§ var (§ type boolean) (§ name isHardened) (§ expr child.isHardened(§ pars )))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < MAX_CHILD_DERIVATION_ATTEMPTS) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ try )
             (§ block
-                (§ ass (§ name child) (§ expr new ChildNumber(§ pars child.num(§ pars ) + i, isHardened)))
+                (§ ass (§ name child) (§ new ChildNumber(§ pars child.num(§ pars ) + i, isHardened)))
                 (§ return (§ expr deriveChildKey(§ pars parent, child)))
             )
             (§ catch (§ type HDDerivationException) (§ name _))
@@ -26522,7 +26522,7 @@
     (§ method DeterministicKey deriveChildKey(§ args DeterministicKey parent, ChildNumber childNumber))
         (§ throws HDDerivationException)
     (§ block
-        (§ if (§ expr !parent.hasPrivKey(§ pars )))
+        (§ if (§ expr (§ not parent.hasPrivKey(§ pars ))))
         (§ block
             (§ var (§ type RawKeyBytes) (§ name rawKey) (§ expr deriveChildKeyBytesFromPublic(§ pars parent, childNumber, PublicDeriveMode.NORMAL)))
             (§ return (§ new DeterministicKey(§ pars HDUtils.append(§ pars parent.getPath(§ pars ), childNumber), rawKey.chainCode, new LazyECPoint(§ pars ECKey.CURVE.getCurve(§ pars ), rawKey.keyBytes), nil, parent)))
@@ -26553,7 +26553,7 @@
 
         (§ var (§ type byte[]) (§ name il) (§ expr Arrays.copyOfRange(§ pars i, 0, 32)))
         (§ var (§ type byte[]) (§ name chainCode) (§ expr Arrays.copyOfRange(§ pars i, 32, 64)))
-        (§ var (§ type BigInteger) (§ name ilInt) (§ expr new BigInteger(§ pars 1, il)))
+        (§ var (§ type BigInteger) (§ name ilInt) (§ new BigInteger(§ pars 1, il)))
         (§ call assertLessThanN(§ pars ilInt, "Illegal derived key: I_L >= n"))
 
         #_final
@@ -26575,7 +26575,7 @@
     (§ method RawKeyBytes deriveChildKeyBytesFromPublic(§ args DeterministicKey parent, ChildNumber childNumber, PublicDeriveMode mode))
         (§ throws HDDerivationException)
     (§ block
-        (§ call Preconditions.checkArgument(§ pars !childNumber.isHardened(§ pars ), "Can't use private derivation with public keys only."))
+        (§ call Preconditions.checkArgument(§ pars (§ not childNumber.isHardened(§ pars )), "Can't use private derivation with public keys only."))
 
         (§ var (§ type byte[]) (§ name parentPublicKey) (§ expr parent.getPubKeyPoint(§ pars ).getEncoded(§ pars true)))
         (§ call Preconditions.checkState(§ pars parentPublicKey.length == 33, "Parent pubkey must be 33 bytes, but is " + parentPublicKey.length))
@@ -26589,7 +26589,7 @@
 
         (§ var (§ type byte[]) (§ name il) (§ expr Arrays.copyOfRange(§ pars i, 0, 32)))
         (§ var (§ type byte[]) (§ name chainCode) (§ expr Arrays.copyOfRange(§ pars i, 32, 64)))
-        (§ var (§ type BigInteger) (§ name ilInt) (§ expr new BigInteger(§ pars 1, il)))
+        (§ var (§ type BigInteger) (§ name ilInt) (§ new BigInteger(§ pars 1, il)))
         (§ call assertLessThanN(§ pars ilInt, "Illegal derived key: I_L >= n"))
 
         #_final
@@ -26694,8 +26694,8 @@
     #_static
     (§ method HMac createHmacSha512Digest(§ args byte[] key))
     (§ block
-        (§ var (§ type SHA512Digest) (§ name digest) (§ expr new SHA512Digest(§ pars )))
-        (§ var (§ type HMac) (§ name hMac) (§ expr new HMac(§ pars digest)))
+        (§ var (§ type SHA512Digest) (§ name digest) (§ new SHA512Digest(§ pars )))
+        (§ var (§ type HMac) (§ name hMac) (§ new HMac(§ pars digest)))
         (§ call hMac.init(§ pars (§ new KeyParameter(§ pars key))))
         (§ return (§ expr hMac))
     )
@@ -26705,7 +26705,7 @@
     (§ block
         (§ call hmacSha512.reset(§ pars ))
         (§ call hmacSha512.update(§ pars input, 0, input.length))
-        (§ var (§ type byte[]) (§ name out) (§ expr new byte[64]))
+        (§ var (§ type byte[]) (§ name out) (§ new byte[64]))
         (§ call hmacSha512.doFinal(§ pars out, 0))
         (§ return (§ expr out))
     )
@@ -26767,7 +26767,7 @@
     (§ method List<ChildNumber> parsePath(§ args #_non-nil String path))
     (§ block
         (§ var (§ type String[]) (§ name parsedNodes) (§ expr path.replace(§ pars "M", "").split(§ pars "/")))
-        (§ var (§ type List<ChildNumber>) (§ name nodes) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type List<ChildNumber>) (§ name nodes) (§ new ArrayList<>(§ pars )))
 
         (§ for (§ var (§ type String) (§ name n)) :for (§ expr parsedNodes))
         (§ block
@@ -26938,7 +26938,7 @@
             (§ call (§ new LinuxSecureRandom(§ pars )))
         )
 
-        (§ ass (§ name secureRandom) (§ expr new SecureRandom(§ pars )))
+        (§ ass (§ name secureRandom) (§ new SecureRandom(§ pars )))
     )
 
     #_private
@@ -26951,7 +26951,7 @@
     #_static
     (§ method byte[] randomSalt(§ args ))
     (§ block
-        (§ var (§ type byte[]) (§ name salt) (§ expr new byte[SALT_LENGTH]))
+        (§ var (§ type byte[]) (§ name salt) (§ new byte[SALT_LENGTH]))
         (§ call secureRandom.nextBytes(§ pars salt))
         (§ return (§ expr salt))
     )
@@ -27020,7 +27020,7 @@
         (§ try )
         (§ block
             (§ ass (§ name passwordBytes) (§ expr convertToByteArray(§ pars password)))
-            (§ var (§ type byte[]) (§ name salt) (§ expr new byte[0]))
+            (§ var (§ type byte[]) (§ name salt) (§ new byte[0]))
             (§ if (§ expr scryptParameters.getSalt(§ pars ) != nil))
             (§ block
                 (§ ass (§ name salt) (§ expr scryptParameters.getSalt(§ pars ).toByteArray(§ pars )))
@@ -27066,15 +27066,15 @@
         (§ try )
         (§ block
             ;; Generate iv - each encryption call has a different iv.
-            (§ var (§ type byte[]) (§ name iv) (§ expr new byte[BLOCK_LENGTH]))
+            (§ var (§ type byte[]) (§ name iv) (§ new byte[BLOCK_LENGTH]))
             (§ call secureRandom.nextBytes(§ pars iv))
 
-            (§ var (§ type ParametersWithIV) (§ name keyWithIv) (§ expr new ParametersWithIV(§ pars aesKey, iv)))
+            (§ var (§ type ParametersWithIV) (§ name keyWithIv) (§ new ParametersWithIV(§ pars aesKey, iv)))
 
             ;; Encrypt using AES.
-            (§ var (§ type BufferedBlockCipher) (§ name cipher) (§ expr new PaddedBufferedBlockCipher(§ pars (§ new CBCBlockCipher(§ pars (§ new AESFastEngine(§ pars )))))))
+            (§ var (§ type BufferedBlockCipher) (§ name cipher) (§ new PaddedBufferedBlockCipher(§ pars (§ new CBCBlockCipher(§ pars (§ new AESFastEngine(§ pars )))))))
             (§ call cipher.init(§ pars true, keyWithIv))
-            (§ var (§ type byte[]) (§ name encryptedBytes) (§ expr new byte[cipher.getOutputSize(§ pars plainBytes.length)]))
+            (§ var (§ type byte[]) (§ name encryptedBytes) (§ new byte[cipher.getOutputSize(§ pars plainBytes.length)]))
             #_final
             (§ var (§ type int) (§ name length1) (§ expr cipher.processBytes(§ pars plainBytes, 0, plainBytes.length, encryptedBytes, 0)))
             #_final
@@ -27106,14 +27106,14 @@
 
         (§ try )
         (§ block
-            (§ var (§ type ParametersWithIV) (§ name keyWithIv) (§ expr new ParametersWithIV(§ pars (§ new KeyParameter(§ pars aesKey.getKey(§ pars ))), dataToDecrypt.initialisationVector)))
+            (§ var (§ type ParametersWithIV) (§ name keyWithIv) (§ new ParametersWithIV(§ pars (§ new KeyParameter(§ pars aesKey.getKey(§ pars ))), dataToDecrypt.initialisationVector)))
 
             ;; Decrypt the message.
-            (§ var (§ type BufferedBlockCipher) (§ name cipher) (§ expr new PaddedBufferedBlockCipher(§ pars (§ new CBCBlockCipher(§ pars (§ new AESFastEngine(§ pars )))))))
+            (§ var (§ type BufferedBlockCipher) (§ name cipher) (§ new PaddedBufferedBlockCipher(§ pars (§ new CBCBlockCipher(§ pars (§ new AESFastEngine(§ pars )))))))
             (§ call cipher.init(§ pars false, keyWithIv))
 
             (§ var (§ type byte[]) (§ name cipherBytes) (§ expr dataToDecrypt.encryptedBytes))
-            (§ var (§ type byte[]) (§ name decryptedBytes) (§ expr new byte[cipher.getOutputSize(§ pars cipherBytes.length)]))
+            (§ var (§ type byte[]) (§ name decryptedBytes) (§ new byte[cipher.getOutputSize(§ pars cipherBytes.length)]))
             #_final
             (§ var (§ type int) (§ name length1) (§ expr cipher.processBytes(§ pars cipherBytes, 0, cipherBytes.length, decryptedBytes, 0)))
             #_final
@@ -27138,7 +27138,7 @@
     (§ block
         (§ call Preconditions.checkNotNull(§ pars charSequence))
 
-        (§ var (§ type byte[]) (§ name byteArray) (§ expr new byte[charSequence.length(§ pars ) << 1]))
+        (§ var (§ type byte[]) (§ name byteArray) (§ new byte[charSequence.length(§ pars ) << 1]))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < charSequence.length(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ var (§ type int) (§ name bytePosition) (§ expr i << 1))
@@ -27505,9 +27505,9 @@
     (§ block
         (§ try )
         (§ block
-            (§ var (§ type File) (§ name file) (§ expr new File(§ pars "/dev/urandom")))
+            (§ var (§ type File) (§ name file) (§ new File(§ pars "/dev/urandom")))
             ;; This stream is deliberately leaked.
-            (§ ass (§ name urandom) (§ expr new FileInputStream(§ pars file)))
+            (§ ass (§ name urandom) (§ new FileInputStream(§ pars file)))
             (§ if (§ expr urandom.read(§ pars ) == -1))
             (§ block
                 (§ throw (§ new RuntimeException(§ pars "/dev/urandom not readable?")))
@@ -27546,7 +27546,7 @@
     (§ constructor LinuxSecureRandom(§ args ))
     (§ block
         ;; DataInputStream is not thread safe, so each random object has its own.
-        (§ ass (§ name dis) (§ expr new DataInputStream(§ pars urandom)))
+        (§ ass (§ name dis) (§ new DataInputStream(§ pars urandom)))
     )
 
     #_override
@@ -27574,7 +27574,7 @@
     #_protected
     (§ method byte[] engineGenerateSeed(§ args int i))
     (§ block
-        (§ var (§ type byte[]) (§ name bits) (§ expr new byte[i]))
+        (§ var (§ type byte[]) (§ name bits) (§ new byte[i]))
         (§ call engineNextBytes(§ pars bits))
         (§ return (§ expr bits))
     )
@@ -27636,7 +27636,7 @@
         (§ catch (§ type FileNotFoundException) (§ name e))
         (§ block
             ;; We expect failure on Android.  The developer has to set INSTANCE themselves.
-            (§ if (§ expr !Utils.isAndroidRuntime(§ pars )))
+            (§ if (§ expr (§ not Utils.isAndroidRuntime(§ pars ))))
             (§ block
                 (§ call log.error(§ pars "Could not find word list", e))
             )
@@ -27676,8 +27676,8 @@
     (§ constructor MnemonicCode(§ args InputStream wordstream, String wordListDigest))
         (§ throws IOException, IllegalArgumentException)
     (§ block
-        (§ var (§ type BufferedReader) (§ name br) (§ expr new BufferedReader(§ pars (§ new InputStreamReader(§ pars wordstream, "UTF-8")))))
-        (§ ass (§ name this.wordList) (§ expr new ArrayList<>(§ pars 2048)))
+        (§ var (§ type BufferedReader) (§ name br) (§ new BufferedReader(§ pars (§ new InputStreamReader(§ pars wordstream, "UTF-8")))))
+        (§ ass (§ name this.wordList) (§ new ArrayList<>(§ pars 2048)))
         (§ var (§ type MessageDigest) (§ name md) (§ expr Sha256Hash.newDigest(§ pars )))
         (§ var (§ type String) (§ name word))
         (§ while (§ expr (§ ass (§ name word) (§ expr br.readLine(§ pars ))) != nil))
@@ -27697,7 +27697,7 @@
         (§ block
             (§ var (§ type byte[]) (§ name digest) (§ expr md.digest(§ pars )))
             (§ var (§ type String) (§ name hexdigest) (§ expr HEX.encode(§ pars digest)))
-            (§ if (§ expr !hexdigest.equals(§ pars wordListDigest)))
+            (§ if (§ expr (§ not hexdigest.equals(§ pars wordListDigest))))
             (§ block
                 (§ throw (§ new IllegalArgumentException(§ pars "wordlist digest mismatch")))
             )
@@ -27755,7 +27755,7 @@
         ;; Look up all the words in the list and construct the concatenation of the original entropy and the checksum.
 
         (§ var (§ type int) (§ name concatLenBits) (§ expr words.size(§ pars ) * 11))
-        (§ var (§ type boolean[]) (§ name concatBits) (§ expr new boolean[concatLenBits]))
+        (§ var (§ type boolean[]) (§ name concatBits) (§ new boolean[concatLenBits]))
         (§ var (§ type int) (§ name wordindex) (§ expr 0))
         (§ for (§ var (§ type String) (§ name word)) :for (§ expr words))
         (§ block
@@ -27778,7 +27778,7 @@
         (§ var (§ type int) (§ name entropyLengthBits) (§ expr concatLenBits - checksumLengthBits))
 
         ;; Extract original entropy as bytes.
-        (§ var (§ type byte[]) (§ name entropy) (§ expr new byte[entropyLengthBits / 8]))
+        (§ var (§ type byte[]) (§ name entropy) (§ new byte[entropyLengthBits / 8]))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < entropy.length) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ for (§ var (§ type int) (§ name j) (§ expr 0)) :for (§ expr j < 8) :for (§ ass (§ name j) (§ expr j + 1)))
@@ -27832,14 +27832,14 @@
         (§ var (§ type int) (§ name checksumLengthBits) (§ expr entropyBits.length / 32))
 
         ;; We append these bits to the end of the initial entropy.
-        (§ var (§ type boolean[]) (§ name concatBits) (§ expr new boolean[entropyBits.length + checksumLengthBits]))
+        (§ var (§ type boolean[]) (§ name concatBits) (§ new boolean[entropyBits.length + checksumLengthBits]))
         (§ call System.arraycopy(§ pars entropyBits, 0, concatBits, 0, entropyBits.length))
         (§ call System.arraycopy(§ pars hashBits, 0, concatBits, entropyBits.length, checksumLengthBits))
 
         ;; Next we take these concatenated bits and split them into groups of 11 bits.  Each group encodes number from 0-2047
         ;; which is a position in a wordlist.  We convert numbers into words and use joined words as mnemonic sentence.
 
-        (§ var (§ type ArrayList<String>) (§ name words) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type ArrayList<String>) (§ name words) (§ new ArrayList<>(§ pars )))
         (§ var (§ type int) (§ name nwords) (§ expr concatBits.length / 11))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < nwords) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
@@ -27872,7 +27872,7 @@
     #_static
     (§ method boolean[] bytesToBits(§ args byte[] data))
     (§ block
-        (§ var (§ type boolean[]) (§ name bits) (§ expr new boolean[data.length * 8]))
+        (§ var (§ type boolean[]) (§ name bits) (§ new boolean[data.length * 8]))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < data.length) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ for (§ var (§ type int) (§ name j) (§ expr 0)) :for (§ expr j < 8) :for (§ ass (§ name j) (§ expr j + 1)))
@@ -27971,7 +27971,7 @@
     #_static
     (§ method byte[] derive(§ args String P, String S, int c, int dkLen))
     (§ block
-        (§ var (§ type ByteArrayOutputStream) (§ name baos) (§ expr new ByteArrayOutputStream(§ pars )))
+        (§ var (§ type ByteArrayOutputStream) (§ name baos) (§ new ByteArrayOutputStream(§ pars )))
 
         (§ try )
         (§ block
@@ -27996,7 +27996,7 @@
             (§ throw (§ new RuntimeException(§ pars e)))
         )
 
-        (§ var (§ type byte[]) (§ name baDerived) (§ expr new byte[dkLen]))
+        (§ var (§ type byte[]) (§ name baDerived) (§ new byte[dkLen]))
         (§ call System.arraycopy(§ pars baos.toByteArray(§ pars ), 0, baDerived, 0, baDerived.length))
 
         (§ return (§ expr baDerived))
@@ -28010,7 +28010,7 @@
         (§ var (§ type byte[]) (§ name U_LAST) (§ expr nil))
         (§ var (§ type byte[]) (§ name U_XOR) (§ expr nil))
 
-        (§ var (§ type SecretKeySpec) (§ name key) (§ expr new SecretKeySpec(§ pars P.getBytes(§ pars "UTF-8"), "HmacSHA512")))
+        (§ var (§ type SecretKeySpec) (§ name key) (§ new SecretKeySpec(§ pars P.getBytes(§ pars "UTF-8"), "HmacSHA512")))
         (§ var (§ type Mac) (§ name mac) (§ expr Mac.getInstance(§ pars key.getAlgorithm(§ pars ))))
         (§ call mac.init(§ pars key))
 
@@ -28020,7 +28020,7 @@
             (§ block
                 (§ var (§ type byte[]) (§ name baS) (§ expr S.getBytes(§ pars "UTF-8")))
                 (§ var (§ type byte[]) (§ name baI) (§ expr INT(§ pars i)))
-                (§ var (§ type byte[]) (§ name baU) (§ expr new byte[baS.length + baI.length]))
+                (§ var (§ type byte[]) (§ name baU) (§ new byte[baS.length + baI.length]))
 
                 (§ call System.arraycopy(§ pars baS, 0, baU, 0, baS.length))
                 (§ call System.arraycopy(§ pars baI, 0, baU, baS.length, baI.length))
@@ -28282,7 +28282,7 @@
         (§ throws VerificationException)
     (§ block
         ;; Bitcoin encoding is DER signature + sighash byte.
-        (§ if (§ expr requireCanonicalEncoding && !isEncodingCanonical(§ pars bytes)))
+        (§ if (§ expr requireCanonicalEncoding && (§ not isEncodingCanonical(§ pars bytes))))
         (§ block
             (§ throw (§ new VerificationException(§ pars "Signature encoding is not canonical.")))
         )
@@ -28296,7 +28296,7 @@
         (§ block
             (§ throw (§ new VerificationException(§ pars "Could not decode DER", e)))
         )
-        (§ if (§ expr requireCanonicalSValue && !sig.isCanonical(§ pars )))
+        (§ if (§ expr requireCanonicalSValue && (§ not sig.isCanonical(§ pars ))))
         (§ block
             (§ throw (§ new VerificationException(§ pars "S-value is not canonical.")))
         )
@@ -28589,8 +28589,8 @@
         (§ var (§ type RandomAccessFile) (§ name file2) (§ expr nil))
         (§ try )
         (§ block
-            (§ var (§ type File) (§ name file) (§ expr new File(§ pars directory, filePrefix + ".spvchain")))
-            (§ if (§ expr !file.exists(§ pars )))
+            (§ var (§ type File) (§ name file) (§ new File(§ pars directory, filePrefix + ".spvchain")))
+            (§ if (§ expr (§ not file.exists(§ pars ))))
             (§ block
                 (§ return (§ expr false))
             )
@@ -28598,7 +28598,7 @@
             (§ block
                 (§ return (§ expr false))
             )
-            (§ ass (§ name file2) (§ expr new RandomAccessFile(§ pars file, "rw")))
+            (§ ass (§ name file2) (§ new RandomAccessFile(§ pars file, "rw")))
             (§ var (§ type FileLock) (§ name lock) (§ expr file2.getChannel(§ pars ).tryLock(§ pars )))
             (§ if (§ expr lock == nil))
             (§ block
@@ -28623,7 +28623,7 @@
     (§ block
         ;; Runs in a separate thread.
         (§ call Context.propagate(§ pars context))
-        (§ if (§ expr !directory.exists(§ pars ) && !directory.mkdirs(§ pars )))
+        (§ if (§ expr (§ not directory.exists(§ pars )) && (§ not directory.mkdirs(§ pars ))))
         (§ block
             (§ throw (§ new IOException(§ pars "Could not create directory " + directory.getAbsolutePath(§ pars ))))
         )
@@ -28631,17 +28631,17 @@
         (§ ass log.info(§ pars "Starting up with directory = {}", directory))
         (§ try )
         (§ block
-            (§ var (§ type File) (§ name chainFile) (§ expr new File(§ pars directory, filePrefix + ".spvchain")))
+            (§ var (§ type File) (§ name chainFile) (§ new File(§ pars directory, filePrefix + ".spvchain")))
             (§ var (§ type boolean) (§ name chainFileExists) (§ expr chainFile.exists(§ pars )))
-            (§ ass (§ name vWalletFile) (§ expr new File(§ pars directory, filePrefix + ".wallet")))
-            (§ var (§ type boolean) (§ name shouldReplayWallet) (§ expr (§ expr vWalletFile.exists(§ pars ) && !chainFileExists) || restoreFromSeed != nil))
+            (§ ass (§ name vWalletFile) (§ new File(§ pars directory, filePrefix + ".wallet")))
+            (§ var (§ type boolean) (§ name shouldReplayWallet) (§ expr (§ expr vWalletFile.exists(§ pars ) && (§ not chainFileExists)) || restoreFromSeed != nil))
             (§ ass (§ name vWallet) (§ expr createOrLoadWallet(§ pars shouldReplayWallet)))
 
             ;; Initiate Bitcoin network objects (block store, blockchain and peer group).
             (§ ass (§ name vStore) (§ expr provideBlockStore(§ pars chainFile)))
-            (§ if (§ expr !chainFileExists || restoreFromSeed != nil))
+            (§ if (§ expr (§ not chainFileExists) || restoreFromSeed != nil))
             (§ block
-                (§ if (§ expr checkpoints == nil && !Utils.isAndroidRuntime(§ pars )))
+                (§ if (§ expr checkpoints == nil && (§ not Utils.isAndroidRuntime(§ pars ))))
                 (§ block
                     (§ ass (§ name checkpoints) (§ expr CheckpointManager.openStream(§ pars params)))
                 )
@@ -28657,12 +28657,12 @@
                         (§ block
                             (§ call log.info(§ pars "Deleting the chain file in preparation from restore."))
                             (§ call vStore.close(§ pars ))
-                            (§ if (§ expr !chainFile.delete(§ pars )))
+                            (§ if (§ expr (§ not chainFile.delete(§ pars ))))
                             (§ block
                                 (§ throw (§ new IOException(§ pars "Failed to delete chain file in preparation for restore.")))
                             )
 
-                            (§ ass (§ name vStore) (§ expr new SPVBlockStore(§ pars params, chainFile)))
+                            (§ ass (§ name vStore) (§ new SPVBlockStore(§ pars params, chainFile)))
                         )
                     )
                     (§ else )
@@ -28682,15 +28682,15 @@
                 (§ block
                     (§ call log.info(§ pars "Deleting the chain file in preparation from restore."))
                     (§ call vStore.close(§ pars ))
-                    (§ if (§ expr !chainFile.delete(§ pars )))
+                    (§ if (§ expr (§ not chainFile.delete(§ pars ))))
                     (§ block
                         (§ throw (§ new IOException(§ pars "Failed to delete chain file in preparation for restore.")))
                     )
 
-                    (§ ass (§ name vStore) (§ expr new SPVBlockStore(§ pars params, chainFile)))
+                    (§ ass (§ name vStore) (§ new SPVBlockStore(§ pars params, chainFile)))
                 )
             )
-            (§ ass (§ name vChain) (§ expr new BlockChain(§ pars params, vStore)))
+            (§ ass (§ name vChain) (§ new BlockChain(§ pars params, vStore)))
             (§ ass (§ name vPeerGroup) (§ expr createPeerGroup(§ pars )))
             (§ if (§ expr this.userAgent != nil))
             (§ block
@@ -28724,7 +28724,7 @@
 
                 ;; TODO: Be able to use the provided download listener when doing a blocking startup.
                 #_final
-                (§ var (§ type DownloadProgressTracker) (§ name listener) (§ expr new DownloadProgressTracker(§ pars )))
+                (§ var (§ type DownloadProgressTracker) (§ name listener) (§ new DownloadProgressTracker(§ pars )))
                 (§ call vPeerGroup.startBlockChainDownload(§ pars listener))
                 (§ call listener.await(§ pars ))
             )
@@ -28799,7 +28799,7 @@
         (§ throws Exception)
     (§ block
         (§ var (§ type Wallet) (§ name wallet))
-        (§ var (§ type FileInputStream) (§ name walletStream) (§ expr new FileInputStream(§ pars vWalletFile)))
+        (§ var (§ type FileInputStream) (§ name walletStream) (§ new FileInputStream(§ pars vWalletFile)))
         (§ try )
         (§ block
             (§ var (§ type Protos.Wallet) (§ name proto) (§ expr WalletProtobufSerializer.parseToProto(§ pars walletStream)))
@@ -28807,11 +28807,11 @@
             (§ var (§ type WalletProtobufSerializer) (§ name serializer))
             (§ if (§ expr walletFactory != nil))
             (§ block
-                (§ ass (§ name serializer) (§ expr new WalletProtobufSerializer(§ pars walletFactory)))
+                (§ ass (§ name serializer) (§ new WalletProtobufSerializer(§ pars walletFactory)))
             )
             (§ else )
             (§ block
-                (§ ass (§ name serializer) (§ expr new WalletProtobufSerializer(§ pars )))
+                (§ ass (§ name serializer) (§ new WalletProtobufSerializer(§ pars )))
             )
             (§ ass (§ name wallet) (§ expr serializer.readWallet(§ pars params, proto)))
             (§ if (§ expr shouldReplayWallet))
@@ -28832,11 +28832,11 @@
         (§ var (§ type KeyChainGroup) (§ name kcg))
         (§ if (§ expr restoreFromSeed != nil))
         (§ block
-            (§ ass (§ name kcg) (§ expr new KeyChainGroup(§ pars params, restoreFromSeed)))
+            (§ ass (§ name kcg) (§ new KeyChainGroup(§ pars params, restoreFromSeed)))
         )
         (§ else )
         (§ block
-            (§ ass (§ name kcg) (§ expr new KeyChainGroup(§ pars params)))
+            (§ ass (§ name kcg) (§ new KeyChainGroup(§ pars params)))
         )
         (§ return (§ quest (§ expr walletFactory != nil) ? walletFactory.create(§ pars params, kcg) :else new Wallet(§ pars params, kcg))) ;; default
     )
@@ -28848,7 +28848,7 @@
         (§ block
             (§ return )
         )
-        (§ if (§ expr !vWalletFile.exists(§ pars )))
+        (§ if (§ expr (§ not vWalletFile.exists(§ pars ))))
         (§ block
             (§ return )
         )
@@ -28857,7 +28857,7 @@
         (§ var (§ type File) (§ name newName))
         (§ do )
         (§ block
-            (§ ass (§ name newName) (§ expr new File(§ pars vWalletFile.getParent(§ pars ), "Backup " + counter + " for " + vWalletFile.getName(§ pars ))))
+            (§ ass (§ name newName) (§ new File(§ pars vWalletFile.getParent(§ pars ), "Backup " + counter + " for " + vWalletFile.getName(§ pars ))))
             (§ ass (§ name counter) (§ expr counter + 1))
         )
         (§ again (§ expr newName.exists(§ pars )))
@@ -28865,7 +28865,7 @@
         (§ call log.info(§ pars "Renaming old wallet file {} to {}", vWalletFile, newName))
 
         ;; This should not happen unless something is really messed up.
-        (§ if (§ expr !vWalletFile.renameTo(§ pars newName)))
+        (§ if (§ expr (§ not vWalletFile.renameTo(§ pars newName))))
         (§ block
             (§ throw (§ new RuntimeException(§ pars "Failed to rename wallet for restore")))
         )
@@ -28991,7 +28991,7 @@
     #_private
     #_static
     #_final
-    (§ field (§ type Timer) (§ name timeoutTimer) (§ expr new Timer(§ pars "AbstractTimeoutHandler timeouts", true)))
+    (§ field (§ type Timer) (§ name timeoutTimer) (§ new Timer(§ pars "AbstractTimeoutHandler timeouts", true)))
 
     ;;;
      ; <p>Enables or disables the timeout entirely.  This may be useful if you want to store the timeout value
@@ -29040,12 +29040,12 @@
         (§ block
             (§ call timeoutTask.cancel(§ pars ))
         )
-        (§ if (§ expr timeoutMillis == 0 || !timeoutEnabled))
+        (§ if (§ expr timeoutMillis == 0 || (§ not timeoutEnabled)))
         (§ block
             (§ return )
         )
 
-        (§ ass (§ name timeoutTask) (§ expr new TimerTask(§ pars )
+        (§ ass (§ name timeoutTask) (§ new TimerTask(§ pars )
         (§ anon
             #_override
             #_public
@@ -29127,7 +29127,7 @@
         (§ ass (§ name socket) (§ expr socketFactory.createSocket(§ pars )))
         #_final
         (§ var (§ type Context) (§ name context) (§ expr Context.get(§ pars )))
-        (§ var (§ type Thread) (§ name t) (§ expr new Thread(§ pars )
+        (§ var (§ type Thread) (§ name t) (§ new Thread(§ pars )
         (§ anon
             #_override
             #_public
@@ -29148,7 +29148,7 @@
                 )
                 (§ catch (§ type Exception) (§ name e))
                 (§ block
-                    (§ if (§ expr !vCloseRequested))
+                    (§ if (§ expr (§ not vCloseRequested)))
                     (§ block
                         (§ call log.error(§ pars "Error trying to open/read from connection: {}: {}", serverAddress, e.getMessage(§ pars )))
                         (§ call connectFuture.setException(§ pars e))
@@ -29187,7 +29187,7 @@
         (§ throws Exception)
     (§ block
         (§ var (§ type ByteBuffer) (§ name dbuf) (§ expr ByteBuffer.allocateDirect(§ pars Math.min(§ pars Math.max(§ pars connection.getMaxMessageSize(§ pars ), BUFFER_SIZE_LOWER_BOUND), BUFFER_SIZE_UPPER_BOUND))))
-        (§ var (§ type byte[]) (§ name readBuff) (§ expr new byte[dbuf.capacity(§ pars )]))
+        (§ var (§ type byte[]) (§ name readBuff) (§ new byte[dbuf.capacity(§ pars )]))
         (§ while (§ expr true))
         (§ block
             ;; TODO: Kill the message duplication here.
@@ -29306,7 +29306,7 @@
     (§ block
         (§ try )
         (§ block
-            (§ if (§ expr !isRunning(§ pars )))
+            (§ if (§ expr (§ not isRunning(§ pars ))))
             (§ block
                 (§ throw (§ new IllegalStateException(§ pars )))
             )
@@ -29358,7 +29358,7 @@
     #_public
     (§ method void closeConnections(§ args int n))
     (§ block
-        (§ if (§ expr !isRunning(§ pars )))
+        (§ if (§ expr (§ not isRunning(§ pars ))))
         (§ block
             (§ throw (§ new IllegalStateException(§ pars )))
         )
@@ -29466,7 +29466,7 @@
     #_guarded-by(§ opt "lock")
     #_private
     #_final
-    (§ field (§ type LinkedList<ByteBuffer>) (§ name bytesToWrite) (§ expr new LinkedList<>(§ pars )))
+    (§ field (§ type LinkedList<ByteBuffer>) (§ name bytesToWrite) (§ new LinkedList<>(§ pars )))
 
     #_private
     (§ field (§ type Set<ConnectionHandler>) (§ name connectedHandlers))
@@ -29511,7 +29511,7 @@
         (§ try )
         (§ block
             (§ ass (§ name this.connectedHandlers) (§ expr connectedHandlers))
-            (§ if (§ expr !closeCalled))
+            (§ if (§ expr (§ not closeCalled)))
             (§ block
                 (§ call Preconditions.checkState(§ pars this.connectedHandlers.add(§ pars this)))
             )
@@ -29546,7 +29546,7 @@
             (§ block
                 (§ var (§ type ByteBuffer) (§ name buff) (§ expr bytesIterator.next(§ pars )))
                 (§ ass (§ name bytesToWriteRemaining) (§ expr bytesToWriteRemaining - channel.write(§ pars buff)))
-                (§ if (§ expr !buff.hasRemaining(§ pars )))
+                (§ if (§ expr (§ not buff.hasRemaining(§ pars ))))
                 (§ block
                     (§ call bytesIterator.remove(§ pars ))
                 )
@@ -29623,7 +29623,7 @@
     #_public
     (§ method void closeConnection(§ args ))
     (§ block
-        (§ call Preconditions.checkState(§ pars !lock.isHeldByCurrentThread(§ pars )))
+        (§ call Preconditions.checkState(§ pars (§ not lock.isHeldByCurrentThread(§ pars ))))
         (§ try )
         (§ block
             (§ call channel.close(§ pars ))
@@ -29642,7 +29642,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ ass (§ name callClosed) (§ expr !closeCalled))
+            (§ ass (§ name callClosed) (§ expr (§ not closeCalled)))
             (§ ass (§ name closeCalled) (§ expr true))
         )
         (§ finally )
@@ -29670,7 +29670,7 @@
             (§ block
                 (§ return )
             )
-            (§ if (§ expr !key.isValid(§ pars )))
+            (§ if (§ expr (§ not key.isValid(§ pars ))))
             (§ block
                 (§ call handler.closeConnection(§ pars )) ;; Key has been cancelled, make sure the socket gets closed.
                 (§ return )
@@ -29777,7 +29777,7 @@
                 (§ call provider.beginBloomFilterCalculation(§ pars ))
                 (§ call begunProviders.add(§ pars provider))
             )
-            (§ var (§ type Result) (§ name result) (§ expr new Result(§ pars )))
+            (§ var (§ type Result) (§ name result) (§ new Result(§ pars )))
             (§ ass (§ name result.earliestKeyTimeSecs) (§ expr Long.MAX_VALUE))
             (§ var (§ type int) (§ name elements) (§ expr 0))
             (§ var (§ type boolean) (§ name requiresUpdateAll) (§ expr false))
@@ -29796,13 +29796,13 @@
                 (§ ass lastBloomFilterElementCount = (§ expr lastBloomFilterElementCount < elements) ? elements + 100 :else lastBloomFilterElementCount)
                 (§ var (§ type BloomFilter.BloomUpdate) (§ name bloomFlags) (§ expr requiresUpdateAll ? BloomFilter.BloomUpdate.UPDATE_ALL :else BloomFilter.BloomUpdate.UPDATE_P2PUBKEY_ONLY))
                 (§ var (§ type double) (§ name fpRate) (§ expr vBloomFilterFPRate))
-                (§ var (§ type BloomFilter) (§ name filter) (§ expr new BloomFilter(§ pars lastBloomFilterElementCount, fpRate, bloomFilterTweak, bloomFlags)))
+                (§ var (§ type BloomFilter) (§ name filter) (§ new BloomFilter(§ pars lastBloomFilterElementCount, fpRate, bloomFilterTweak, bloomFlags)))
                 (§ for (§ var (§ type PeerFilterProvider) (§ name p)) :for (§ expr providers))
                 (§ block
                     (§ call filter.merge(§ pars p.getBloomFilter(§ pars lastBloomFilterElementCount, fpRate, bloomFilterTweak)))
                 )
 
-                (§ ass (§ name result.changed) (§ expr !filter.equals(§ pars lastFilter)))
+                (§ ass (§ name result.changed) (§ expr (§ not filter.equals(§ pars lastFilter))))
                 (§ ass (§ name result.filter) (§ expr lastFilter = filter))
             )
             ;; Now adjust the earliest key time backwards by a week to handle the case of clock drift.  This can occur
@@ -29882,7 +29882,7 @@
     (§ field (§ type Handler) (§ name handler))
     #_private
     #_final
-    (§ field (§ type NioClientManager) (§ name manager) (§ expr new NioClientManager(§ pars )))
+    (§ field (§ type NioClientManager) (§ name manager) (§ new NioClientManager(§ pars )))
 
     (§ class Handler extends AbstractTimeoutHandler implements StreamConnection
         #_private
@@ -29917,7 +29917,7 @@
         (§ method void connectionClosed(§ args ))
         (§ block
             (§ call manager.stopAsync(§ pars ))
-            (§ if (§ expr !closeCalled))
+            (§ if (§ expr (§ not closeCalled)))
             (§ block
                 (§ ass (§ name closeCalled) (§ expr true))
                 (§ call upstreamConnection.connectionClosed(§ pars ))
@@ -29929,7 +29929,7 @@
         #_synchronized
         (§ method void connectionOpened(§ args ))
         (§ block
-            (§ if (§ expr !closeOnOpen))
+            (§ if (§ expr (§ not closeOnOpen)))
             (§ block
                 (§ call upstreamConnection.connectionOpened(§ pars ))
             )
@@ -29983,7 +29983,7 @@
     (§ block
         (§ call manager.startAsync(§ pars ))
         (§ call manager.awaitRunning(§ pars ))
-        (§ ass (§ name handler) (§ expr new Handler(§ pars parser, connectTimeoutMillis)))
+        (§ ass (§ name handler) (§ new Handler(§ pars parser, connectTimeoutMillis)))
         (§ call Futures.addCallback(§ pars manager.openConnection(§ pars serverAddress, handler), new FutureCallback<SocketAddress>(§ pars )
         (§ anon
             #_override
@@ -30059,7 +30059,7 @@
         )
     )
     #_final
-    (§ field (§ type Queue<PendingConnect>) (§ name newConnectionChannels) (§ expr new LinkedBlockingQueue<>(§ pars )))
+    (§ field (§ type Queue<PendingConnect>) (§ name newConnectionChannels) (§ new LinkedBlockingQueue<>(§ pars )))
 
     ;; Added to/removed from by the individual ConnectionHandler's, thus must by synchronized on its own.
     #_private
@@ -30079,7 +30079,7 @@
             (§ var (§ type PendingConnect) (§ name data) (§ expr (§ cast PendingConnect)key.attachment(§ pars )))
             (§ var (§ type StreamConnection) (§ name connection) (§ expr data.connection))
             (§ var (§ type SocketChannel) (§ name sc) (§ expr (§ cast SocketChannel)key.channel(§ pars )))
-            (§ var (§ type ConnectionHandler) (§ name handler) (§ expr new ConnectionHandler(§ pars connection, key, connectedHandlers)))
+            (§ var (§ type ConnectionHandler) (§ name handler) (§ new ConnectionHandler(§ pars connection, key, connectedHandlers)))
             (§ try )
             (§ block
                 (§ if (§ expr sc.finishConnect(§ pars )))
@@ -30204,7 +30204,7 @@
     #_public
     (§ method ListenableFuture<SocketAddress> openConnection(§ args SocketAddress serverAddress, StreamConnection connection))
     (§ block
-        (§ if (§ expr !isRunning(§ pars )))
+        (§ if (§ expr (§ not isRunning(§ pars ))))
         (§ block
             (§ throw (§ new IllegalStateException(§ pars )))
         )
@@ -30215,7 +30215,7 @@
             (§ var (§ type SocketChannel) (§ name sc) (§ expr SocketChannel.open(§ pars )))
             (§ call sc.configureBlocking(§ pars false))
             (§ call sc.connect(§ pars serverAddress))
-            (§ var (§ type PendingConnect) (§ name data) (§ expr new PendingConnect(§ pars sc, connection, serverAddress)))
+            (§ var (§ type PendingConnect) (§ name data) (§ new PendingConnect(§ pars sc, connection, serverAddress)))
             (§ call newConnectionChannels.offer(§ pars data))
             (§ call selector.wakeup(§ pars ))
             (§ return (§ expr data.future))
@@ -30320,7 +30320,7 @@
             (§ var (§ type SelectionKey) (§ name newKey) (§ expr newChannel.register(§ pars selector, SelectionKey.OP_READ)))
             (§ try )
             (§ block
-                (§ var (§ type ConnectionHandler) (§ name handler) (§ expr new ConnectionHandler(§ pars connectionFactory, newKey)))
+                (§ var (§ type ConnectionHandler) (§ name handler) (§ new ConnectionHandler(§ pars connectionFactory, newKey)))
                 (§ call newKey.attach(§ pars handler))
                 (§ call handler.connection.connectionOpened(§ pars ))
             )
@@ -30509,7 +30509,7 @@
 
     #_testing
     #_final
-    (§ field (§ type AtomicReference<MessageWriteTarget>) (§ name writeTarget) (§ expr new AtomicReference<>(§ pars )))
+    (§ field (§ type AtomicReference<MessageWriteTarget>) (§ name writeTarget) (§ new AtomicReference<>(§ pars )))
 
     ;;;
      ; Creates a new protobuf handler.
@@ -30627,7 +30627,7 @@
             ;; as a temporary buffer to store the message.
             (§ if (§ expr buff.capacity(§ pars ) < len + 4))
             (§ block
-                (§ ass (§ name messageBytes) (§ expr new byte[len]))
+                (§ ass (§ name messageBytes) (§ new byte[len]))
                 ;; Now copy all remaining bytes into the new buffer, set messageBytesOffset and tell the caller how many
                 ;; bytes we consumed.
                 (§ var (§ type int) (§ name bytesToRead) (§ expr buff.remaining(§ pars )))
@@ -30697,7 +30697,7 @@
         (§ var (§ type byte[]) (§ name messageBytes) (§ expr msg.toByteArray(§ pars )))
         (§ call Preconditions.checkState(§ pars messageBytes.length <= maxMessageSize))
 
-        (§ var (§ type byte[]) (§ name messageLength) (§ expr new byte[4]))
+        (§ var (§ type byte[]) (§ name messageLength) (§ new byte[4]))
         (§ call Utils.uint32ToByteArrayBE(§ pars messageBytes.length, messageLength, 0))
         (§ try )
         (§ block
@@ -30825,7 +30825,7 @@
     #_static
     (§ method List<PeerDiscovery> buildDiscoveries(§ args NetworkParameters params, String[] seeds))
     (§ block
-        (§ var (§ type List<PeerDiscovery>) (§ name discoveries) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type List<PeerDiscovery>) (§ name discoveries) (§ new ArrayList<>(§ pars )))
         (§ if (§ expr seeds != nil))
         (§ block
             (§ for (§ var (§ type String) (§ name seed)) :for (§ expr seeds))
@@ -30883,7 +30883,7 @@
             (§ try )
             (§ block
                 (§ var (§ type InetAddress[]) (§ name response) (§ expr InetAddress.getAllByName(§ pars hostname)))
-                (§ var (§ type InetSocketAddress[]) (§ name result) (§ expr new InetSocketAddress[response.length]))
+                (§ var (§ type InetSocketAddress[]) (§ name result) (§ new InetSocketAddress[response.length]))
                 (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < response.length) :for (§ ass (§ name i) (§ expr i + 1)))
                 (§ block
                     (§ ass result[i] = new InetSocketAddress(§ pars response[i], params.getPort(§ pars )))
@@ -30976,7 +30976,7 @@
     #_public
     (§ constructor MultiplexingDiscovery(§ args NetworkParameters params, List<PeerDiscovery> seeds))
     (§ block
-        (§ call Preconditions.checkArgument(§ pars !seeds.isEmpty(§ pars )))
+        (§ call Preconditions.checkArgument(§ pars (§ not seeds.isEmpty(§ pars ))))
 
         (§ ass (§ name this.netParams) (§ expr params))
         (§ ass (§ name this.seeds) (§ expr seeds))
@@ -31229,7 +31229,7 @@
     (§ method InetSocketAddress[] allPeers(§ args ))
         (§ throws UnknownHostException)
     (§ block
-        (§ var (§ type InetSocketAddress[]) (§ name addresses) (§ expr new InetSocketAddress[seedAddrs.length]))
+        (§ var (§ type InetSocketAddress[]) (§ name addresses) (§ new InetSocketAddress[seedAddrs.length]))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < seedAddrs.length) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ ass addresses[i] = new InetSocketAddress(§ pars convertAddress(§ pars seedAddrs[i]), params.getPort(§ pars )))
@@ -31241,7 +31241,7 @@
     (§ method InetAddress convertAddress(§ args int seed))
         (§ throws UnknownHostException)
     (§ block
-        (§ var (§ type byte[]) (§ name v4addr) (§ expr new byte[4]))
+        (§ var (§ type byte[]) (§ name v4addr) (§ new byte[4]))
         (§ ass v4addr[0] = (§ cast byte)(§ expr 0xff & seed))
         (§ ass v4addr[1] = (§ cast byte)(§ expr 0xff & (§ expr seed >> 8)))
         (§ ass v4addr[2] = (§ cast byte)(§ expr 0xff & (§ expr seed >> 16)))
@@ -31327,7 +31327,7 @@
         (§ var (§ type Block) (§ name prev) (§ expr storedPrev.getHeader(§ pars )))
 
         ;; Is this supposed to be a difficulty transition point?
-        (§ if (§ expr !isDifficultyTransitionPoint(§ pars storedPrev.getHeight(§ pars ))))
+        (§ if (§ expr (§ not isDifficultyTransitionPoint(§ pars storedPrev.getHeight(§ pars )))))
         (§ block
             ;; No ... so check the difficulty didn't actually change.
             (§ if (§ expr nextBlock.getDifficultyTarget(§ pars ) != prev.getDifficultyTarget(§ pars )))
@@ -31486,7 +31486,7 @@
         (§ ass (§ name maxTarget) (§ expr Utils.decodeCompactBits(§ pars 0x1d00ffff)))
         (§ ass (§ name addressHeader) (§ expr 0))
         (§ ass (§ name p2shHeader) (§ expr 5))
-        (§ ass (§ name acceptableAddressCodes) (§ expr new int[] (§ coll addressHeader, p2shHeader )))
+        (§ ass (§ name acceptableAddressCodes) (§ new int[] (§ coll addressHeader, p2shHeader )))
         (§ ass (§ name port) (§ expr 8333))
         (§ ass (§ name packetMagic) (§ expr 0xf9beb4d9))
         (§ ass (§ name bip32HeaderPub) (§ expr 0x0488b21e)) ;; 4 byte header that serializes in base58 to "xpub"
@@ -31515,7 +31515,7 @@
         (§ call checkpoints.put(§ pars 91880, Sha256Hash.wrap(§ pars "00000000000743f190a18c5577a3c2d2a1f610ae9601ac046a38084ccb7cd721")))
         (§ call checkpoints.put(§ pars 200000, Sha256Hash.wrap(§ pars "000000000000034a7dedef4a161fa058a2d67a173a90155f3a2fe6fc132e0ebf")))
 
-        (§ ass (§ name dnsSeeds) (§ expr new String[]
+        (§ ass (§ name dnsSeeds) (§ new String[]
         (§ coll
             "seed.bitcoin.sipa.be",          ;; Pieter Wuille
             "dnsseed.bluematt.me",           ;; Matt Corallo
@@ -31526,7 +31526,7 @@
             "seed.bitcoin.jonasschnelli.ch", ;; Jonas Schnelli
         )))
 
-        (§ ass (§ name addrSeeds) (§ expr new int[]
+        (§ ass (§ name addrSeeds) (§ new int[]
         (§ coll
                 0x1ddb1032, 0x6242ce40, 0x52d6a445, 0x2dd7a445, 0x8a53cd47, 0x73263750, 0xda23c257, 0xecd4ed57,
                 0x0a40ec59, 0x75dce160, 0x7df76791, 0x89370bad, 0xa4f214ad, 0x767700ae, 0x638b0418, 0x868a1018,
@@ -31582,7 +31582,7 @@
     (§ block
         (§ if (§ expr instance == nil))
         (§ block
-            (§ ass (§ name instance) (§ expr new MainNetParams(§ pars )))
+            (§ ass (§ name instance) (§ new MainNetParams(§ pars )))
         )
         (§ return (§ expr instance))
     )
@@ -31646,7 +31646,7 @@
 
             (§ for (§ var (§ type NetworkParameters) (§ name parameters)) :for (§ expr networks))
             (§ block
-                (§ if (§ expr !parameters.equals(§ pars network)))
+                (§ if (§ expr (§ not parameters.equals(§ pars network))))
                 (§ block
                     (§ call builder.add(§ pars parameters))
                 )
@@ -31696,7 +31696,7 @@
         (§ ass (§ name port) (§ expr 18333))
         (§ ass (§ name addressHeader) (§ expr 111))
         (§ ass (§ name p2shHeader) (§ expr 196))
-        (§ ass (§ name acceptableAddressCodes) (§ expr new int[] (§ coll addressHeader, p2shHeader )))
+        (§ ass (§ name acceptableAddressCodes) (§ new int[] (§ coll addressHeader, p2shHeader )))
         (§ call genesisBlock.setTime(§ pars 1296688602))
         (§ call genesisBlock.setDifficultyTarget(§ pars 0x1d00ffff))
         (§ call genesisBlock.setNonce(§ pars 414098458))
@@ -31706,7 +31706,7 @@
         (§ call Preconditions.checkState(§ pars genesisHash.equals(§ pars "000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943")))
         (§ ass (§ name alertSigningKey) (§ expr Utils.HEX.decode(§ pars "04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a")))
 
-        (§ ass (§ name dnsSeeds) (§ expr new String[]
+        (§ ass (§ name dnsSeeds) (§ new String[]
         (§ coll
             "testnet-seed.bitcoin.jonasschnelli.ch", ;; Jonas Schnelli
             "testnet-seed.bluematt.me",              ;; Matt Corallo
@@ -31733,7 +31733,7 @@
     (§ block
         (§ if (§ expr instance == nil))
         (§ block
-            (§ ass (§ name instance) (§ expr new TestNet3Params(§ pars )))
+            (§ ass (§ name instance) (§ new TestNet3Params(§ pars )))
         )
         (§ return (§ expr instance))
     )
@@ -31749,14 +31749,14 @@
     #_private
     #_static
     #_final
-    (§ field (§ type Date) (§ name testnetDiffDate) (§ expr new Date(§ pars 1329264000000)))
+    (§ field (§ type Date) (§ name testnetDiffDate) (§ new Date(§ pars 1329264000000)))
 
     #_override
     #_public
     (§ method void checkDifficultyTransitions(§ args #_final StoredBlock storedPrev, #_final Block nextBlock, #_final BlockStore blockStore))
         (§ throws VerificationException, BlockStoreException)
     (§ block
-        (§ if (§ expr !isDifficultyTransitionPoint(§ pars storedPrev.getHeight(§ pars )) && nextBlock.getTime(§ pars ).after(§ pars testnetDiffDate)))
+        (§ if (§ expr (§ not isDifficultyTransitionPoint(§ pars storedPrev.getHeight(§ pars ))) && nextBlock.getTime(§ pars ).after(§ pars testnetDiffDate)))
         (§ block
             (§ var (§ type Block) (§ name prev) (§ expr storedPrev.getHeader(§ pars )))
 
@@ -31772,13 +31772,13 @@
                 ;; Walk backwards until we find a block that doesn't have the easiest proof of work, then check
                 ;; that difficulty is equal to that one.
                 (§ var (§ type StoredBlock) (§ name cursor) (§ expr storedPrev))
-                (§ while (§ expr !cursor.getHeader(§ pars ).equals(§ pars getGenesisBlock(§ pars )) && cursor.getHeight(§ pars ) % getInterval(§ pars ) != 0 && cursor.getHeader(§ pars ).getDifficultyTargetAsInteger(§ pars ).equals(§ pars getMaxTarget(§ pars ))))
+                (§ while (§ expr (§ not (§ dot cursor.getHeader(§ pars ).equals(§ pars getGenesisBlock(§ pars )))) && cursor.getHeight(§ pars ) % getInterval(§ pars ) != 0 && cursor.getHeader(§ pars ).getDifficultyTargetAsInteger(§ pars ).equals(§ pars getMaxTarget(§ pars ))))
                 (§ block
                     (§ ass (§ name cursor) (§ expr cursor.getPrev(§ pars blockStore)))
                 )
                 (§ var (§ type BigInteger) (§ name cursorTarget) (§ expr cursor.getHeader(§ pars ).getDifficultyTargetAsInteger(§ pars )))
                 (§ var (§ type BigInteger) (§ name newTarget) (§ expr nextBlock.getDifficultyTargetAsInteger(§ pars )))
-                (§ if (§ expr !cursorTarget.equals(§ pars newTarget)))
+                (§ if (§ expr (§ not cursorTarget.equals(§ pars newTarget))))
                 (§ block
                     (§ throw (§ new VerificationException(§ pars "Testnet block transition that is not allowed: " + Long.toHexString(§ pars cursor.getHeader(§ pars ).getDifficultyTarget(§ pars )) + " vs " + Long.toHexString(§ pars nextBlock.getDifficultyTarget(§ pars )))))
                 )
@@ -31823,8 +31823,8 @@
         (§ ass (§ name packetMagic) (§ expr 0x0b110907))
         (§ ass (§ name addressHeader) (§ expr 111))
         (§ ass (§ name p2shHeader) (§ expr 196))
-        (§ ass (§ name acceptableAddressCodes) (§ expr new int[] (§ coll addressHeader, p2shHeader )))
-        (§ ass (§ name maxTarget) (§ expr new BigInteger(§ pars "00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16)))
+        (§ ass (§ name acceptableAddressCodes) (§ new int[] (§ coll addressHeader, p2shHeader )))
+        (§ ass (§ name maxTarget) (§ new BigInteger(§ pars "00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16)))
         (§ call genesisBlock.setTime(§ pars System.currentTimeMillis(§ pars ) / 1000))
         (§ call genesisBlock.setDifficultyTarget(§ pars Block.EASIEST_DIFFICULTY_TARGET))
         (§ call genesisBlock.solve(§ pars ))
@@ -31854,7 +31854,7 @@
     (§ block
         (§ if (§ expr instance == nil))
         (§ block
-            (§ ass (§ name instance) (§ expr new UnitTestParams(§ pars )))
+            (§ ass (§ name instance) (§ new UnitTestParams(§ pars )))
         )
         (§ return (§ expr instance))
     )
@@ -32045,7 +32045,7 @@
                 (§ return (§ expr Arrays.copyOf(§ pars program, program.length)))
             )
 
-            (§ var (§ type ByteArrayOutputStream) (§ name bos) (§ expr new ByteArrayOutputStream(§ pars )))
+            (§ var (§ type ByteArrayOutputStream) (§ name bos) (§ new ByteArrayOutputStream(§ pars )))
             (§ for (§ var (§ type ScriptChunk) (§ name chunk)) :for (§ expr chunks))
             (§ block
                 (§ call chunk.write(§ pars bos))
@@ -32090,8 +32090,8 @@
     (§ method void parse(§ args byte[] program))
         (§ throws ScriptException)
     (§ block
-        (§ ass (§ name chunks) (§ expr new ArrayList<>(§ pars 5))) ;; Common size.
-        (§ var (§ type ByteArrayInputStream) (§ name bis) (§ expr new ByteArrayInputStream(§ pars program)))
+        (§ ass (§ name chunks) (§ new ArrayList<>(§ pars 5))) ;; Common size.
+        (§ var (§ type ByteArrayInputStream) (§ name bis) (§ new ByteArrayInputStream(§ pars program)))
         (§ var (§ type int) (§ name initialSize) (§ expr bis.available(§ pars )))
         (§ while (§ expr 0 < bis.available(§ pars )))
         (§ block
@@ -32135,7 +32135,7 @@
             (§ var (§ type ScriptChunk) (§ name chunk))
             (§ if (§ expr dataToRead == -1))
             (§ block
-                (§ ass (§ name chunk) (§ expr new ScriptChunk(§ pars opcode, nil, startLocationInProgram)))
+                (§ ass (§ name chunk) (§ new ScriptChunk(§ pars opcode, nil, startLocationInProgram)))
             )
             (§ else )
             (§ block
@@ -32144,9 +32144,9 @@
                     (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_BAD_OPCODE, "Push of data element that is larger than remaining data")))
                 )
 
-                (§ var (§ type byte[]) (§ name data) (§ expr new byte[(§ cast int)dataToRead]))
+                (§ var (§ type byte[]) (§ name data) (§ new byte[(§ cast int)dataToRead]))
                 (§ call Preconditions.checkState(§ pars dataToRead == 0 || bis.read(§ pars data, 0, (§ cast int)dataToRead) == dataToRead))
-                (§ ass (§ name chunk) (§ expr new ScriptChunk(§ pars opcode, data, startLocationInProgram)))
+                (§ ass (§ name chunk) (§ new ScriptChunk(§ pars opcode, data, startLocationInProgram)))
             )
             ;; Save some memory by eliminating redundant copies of the same chunk objects.
             (§ for (§ var (§ type ScriptChunk) (§ name c)) :for (§ expr STANDARD_TRANSACTION_SCRIPT_CHUNKS))
@@ -32169,7 +32169,7 @@
     #_public
     (§ method boolean isSentToRawPubKey(§ args ))
     (§ block
-        (§ return (§ expr chunks.size(§ pars ) == 2 && chunks.get(§ pars 1).equalsOpCode(§ pars OP_CHECKSIG) && !chunks.get(§ pars 0).isOpCode(§ pars ) && 1 < chunks.get(§ pars 0).data.length))
+        (§ return (§ expr chunks.size(§ pars ) == 2 && chunks.get(§ pars 1).equalsOpCode(§ pars OP_CHECKSIG) && (§ not (§ dot chunks.get(§ pars 0).isOpCode(§ pars ))) && 1 < chunks.get(§ pars 0).data.length))
     )
 
     ;;;
@@ -32396,7 +32396,7 @@
 
         (§ try )
         (§ block
-            (§ var (§ type ByteArrayOutputStream) (§ name bits) (§ expr new ByteArrayOutputStream(§ pars )))
+            (§ var (§ type ByteArrayOutputStream) (§ name bits) (§ new ByteArrayOutputStream(§ pars )))
             (§ call bits.write(§ pars encodeToOpN(§ pars threshold)))
             (§ for (§ var (§ type ECKey) (§ name key)) :for (§ expr pubkeys))
             (§ block
@@ -32419,7 +32419,7 @@
         (§ try )
         (§ block
             ;; TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
-            (§ var (§ type ByteArrayOutputStream) (§ name bits) (§ expr new UnsafeByteArrayOutputStream(§ pars signature.length + pubkey.length + 2)))
+            (§ var (§ type ByteArrayOutputStream) (§ name bits) (§ new UnsafeByteArrayOutputStream(§ pars signature.length + pubkey.length + 2)))
             (§ call writeBytes(§ pars bits, signature))
             (§ call writeBytes(§ pars bits, pubkey))
             (§ return (§ expr bits.toByteArray(§ pars )))
@@ -32437,7 +32437,7 @@
         (§ try )
         (§ block
             ;; TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
-            (§ var (§ type ByteArrayOutputStream) (§ name bits) (§ expr new UnsafeByteArrayOutputStream(§ pars signature.length + 2)))
+            (§ var (§ type ByteArrayOutputStream) (§ name bits) (§ new UnsafeByteArrayOutputStream(§ pars signature.length + 2)))
             (§ call writeBytes(§ pars bits, signature))
             (§ return (§ expr bits.toByteArray(§ pars )))
         )
@@ -32512,7 +32512,7 @@
         (§ var (§ type List<ScriptChunk>) (§ name existingChunks) (§ expr chunks.subList(§ pars 1, chunks.size(§ pars ) - 1)))
         (§ var (§ type ScriptChunk) (§ name redeemScriptChunk) (§ expr chunks.get(§ pars chunks.size(§ pars ) - 1)))
         (§ call Preconditions.checkNotNull(§ pars redeemScriptChunk.data))
-        (§ var (§ type Script) (§ name redeemScript) (§ expr new Script(§ pars redeemScriptChunk.data)))
+        (§ var (§ type Script) (§ name redeemScript) (§ new Script(§ pars redeemScriptChunk.data)))
 
         (§ var (§ type int) (§ name sigCount) (§ expr 0))
         (§ var (§ type int) (§ name myIndex) (§ expr redeemScript.findKeyInRedeem(§ pars signingKey)))
@@ -32560,7 +32560,7 @@
     #_public
     (§ method List<ECKey> getPubKeys(§ args ))
     (§ block
-        (§ if (§ expr !isSentToMultiSig(§ pars )))
+        (§ if (§ expr (§ not isSentToMultiSig(§ pars ))))
         (§ block
             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_UNKNOWN_ERROR, "Only usable for multisig scripts.")))
         )
@@ -32677,7 +32677,7 @@
     (§ method int getSigOpCount(§ args byte[] program))
         (§ throws ScriptException)
     (§ block
-        (§ var (§ type Script) (§ name script) (§ expr new Script(§ pars )))
+        (§ var (§ type Script) (§ name script) (§ new Script(§ pars )))
         (§ try )
         (§ block
             (§ call script.parse(§ pars program))
@@ -32697,7 +32697,7 @@
     (§ method long getP2SHSigOpCount(§ args byte[] scriptSig))
         (§ throws ScriptException)
     (§ block
-        (§ var (§ type Script) (§ name script) (§ expr new Script(§ pars )))
+        (§ var (§ type Script) (§ name script) (§ new Script(§ pars )))
         (§ try )
         (§ block
             (§ call script.parse(§ pars scriptSig))
@@ -32708,9 +32708,9 @@
         )
         (§ for (§ var (§ type int) (§ name i) (§ expr script.chunks.size(§ pars ) - 1)) :for (§ expr 0 <= i) :for (§ ass (§ name i) (§ expr i - 1)))
         (§ block
-            (§ if (§ expr !script.chunks.get(§ pars i).isOpCode(§ pars )))
+            (§ if (§ not (§ dot script.chunks.get(§ pars i).isOpCode(§ pars ))))
             (§ block
-                (§ var (§ type Script) (§ name subScript) (§ expr new Script(§ pars )))
+                (§ var (§ type Script) (§ name subScript) (§ new Script(§ pars )))
                 (§ call subScript.parse(§ pars script.chunks.get(§ pars i).data))
                 (§ return (§ expr getSigOpCount(§ pars subScript.chunks, true)))
             )
@@ -32815,11 +32815,11 @@
 
         (§ var (§ type ScriptChunk) (§ name chunk) (§ expr chunks.get(§ pars chunks.size(§ pars ) - 1)))
         ;; Must end in OP_CHECKMULTISIG[VERIFY].
-        (§ if (§ expr !chunk.isOpCode(§ pars )))
+        (§ if (§ expr (§ not chunk.isOpCode(§ pars ))))
         (§ block
             (§ return (§ expr false))
         )
-        (§ if (§ expr !(§ expr chunk.equalsOpCode(§ pars OP_CHECKMULTISIG) || chunk.equalsOpCode(§ pars OP_CHECKMULTISIGVERIFY))))
+        (§ if (§ expr (§ not (§ expr chunk.equalsOpCode(§ pars OP_CHECKMULTISIG) || chunk.equalsOpCode(§ pars OP_CHECKMULTISIGVERIFY)))))
         (§ block
             (§ return (§ expr false))
         )
@@ -32828,7 +32828,7 @@
         (§ block
             ;; Second to last chunk must be an OP_N opcode and there should be that many data chunks (keys).
             (§ var (§ type ScriptChunk) (§ name m) (§ expr chunks.get(§ pars chunks.size(§ pars ) - 2)))
-            (§ if (§ expr !m.isOpCode(§ pars )))
+            (§ if (§ expr (§ not m.isOpCode(§ pars ))))
             (§ block
                 (§ return (§ expr false))
             )
@@ -32898,7 +32898,7 @@
     (§ method byte[] removeAllInstancesOf(§ args byte[] inputScript, byte[] chunkToRemove))
     (§ block
         ;; We usually don't end up removing anything.
-        (§ var (§ type UnsafeByteArrayOutputStream) (§ name bos) (§ expr new UnsafeByteArrayOutputStream(§ pars inputScript.length)))
+        (§ var (§ type UnsafeByteArrayOutputStream) (§ name bos) (§ new UnsafeByteArrayOutputStream(§ pars inputScript.length)))
 
         (§ var (§ type int) (§ name cursor) (§ expr 0))
         (§ while (§ expr cursor < inputScript.length))
@@ -32924,7 +32924,7 @@
             (§ block
                 (§ ass additionalBytes = (§ expr (§ expr (§ expr 0xff & inputScript[cursor]) | (§ expr (§ expr 0xff & inputScript[cursor + 1]) << 8) | (§ expr (§ expr 0xff & inputScript[cursor + 1]) << 16) | (§ expr (§ expr 0xff & inputScript[cursor + 1]) << 24)) + 4))
             )
-            (§ if (§ expr !skip))
+            (§ if (§ expr (§ not skip)))
             (§ block
                 (§ try )
                 (§ block
@@ -33063,12 +33063,12 @@
         (§ var (§ type int) (§ name opCount) (§ expr 0))
         (§ var (§ type int) (§ name lastCodeSepLocation) (§ expr 0))
 
-        (§ var (§ type LinkedList<byte[]>) (§ name altstack) (§ expr new LinkedList<>(§ pars )))
-        (§ var (§ type LinkedList<Boolean>) (§ name ifStack) (§ expr new LinkedList<>(§ pars )))
+        (§ var (§ type LinkedList<byte[]>) (§ name altstack) (§ new LinkedList<>(§ pars )))
+        (§ var (§ type LinkedList<Boolean>) (§ name ifStack) (§ new LinkedList<>(§ pars )))
 
         (§ for (§ var (§ type ScriptChunk) (§ name chunk)) :for (§ expr script.chunks))
         (§ block
-            (§ var (§ type boolean) (§ name shouldExecute) (§ expr !ifStack.contains(§ pars false)))
+            (§ var (§ type boolean) (§ name shouldExecute) (§ expr (§ not ifStack.contains(§ pars false))))
             (§ var (§ type int) (§ name opcode) (§ expr chunk.opcode))
 
             ;; Check stack element size.
@@ -33096,7 +33096,7 @@
             (§ if (§ expr shouldExecute && OP_0 <= opcode && opcode <= OP_PUSHDATA4))
             (§ block
                 ;; Check minimal push.
-                (§ if (§ expr verifyFlags.contains(§ pars VerifyFlag.MINIMALDATA) && !chunk.isShortestPossiblePushData(§ pars )))
+                (§ if (§ expr verifyFlags.contains(§ pars VerifyFlag.MINIMALDATA) && (§ not chunk.isShortestPossiblePushData(§ pars ))))
                 (§ block
                     (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_MINIMALDATA, "Script included a not minimal push operation.")))
                 )
@@ -33116,7 +33116,7 @@
                 (§ block
                     (§ case OP_IF)
                     (§ block
-                        (§ if (§ expr !shouldExecute))
+                        (§ if (§ expr (§ not shouldExecute)))
                         (§ block
                             (§ call ifStack.add(§ pars false))
                             (§ continue )
@@ -33130,7 +33130,7 @@
                     )
                     (§ case OP_NOTIF)
                     (§ block
-                        (§ if (§ expr !shouldExecute))
+                        (§ if (§ expr (§ not shouldExecute)))
                         (§ block
                             (§ call ifStack.add(§ pars false))
                             (§ continue )
@@ -33139,7 +33139,7 @@
                         (§ block
                             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_UNBALANCED_CONDITIONAL, "Attempted OP_NOTIF on an empty stack")))
                         )
-                        (§ call ifStack.add(§ pars !castToBool(§ pars stack.pollLast(§ pars ))))
+                        (§ call ifStack.add(§ pars (§ not castToBool(§ pars stack.pollLast(§ pars )))))
                         (§ continue )
                     )
                     (§ case OP_ELSE)
@@ -33148,7 +33148,7 @@
                         (§ block
                             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_UNBALANCED_CONDITIONAL, "Attempted OP_ELSE without OP_IF/NOTIF")))
                         )
-                        (§ call ifStack.add(§ pars !ifStack.pollLast(§ pars )))
+                        (§ call ifStack.add(§ pars (§ not ifStack.pollLast(§ pars ))))
                         (§ continue )
                     )
                     (§ case OP_ENDIF)
@@ -33197,7 +33197,7 @@
                         (§ block
                             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_VERIFY on an empty stack")))
                         )
-                        (§ if (§ expr !castToBool(§ pars stack.pollLast(§ pars ))))
+                        (§ if (§ expr (§ not castToBool(§ pars stack.pollLast(§ pars )))))
                         (§ block
                             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_VERIFY, "OP_VERIFY failed")))
                         )
@@ -33448,7 +33448,7 @@
                         (§ block
                             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_EQUALVERIFY on a stack with size < 2")))
                         )
-                        (§ if (§ expr !Arrays.equals(§ pars stack.pollLast(§ pars ), stack.pollLast(§ pars ))))
+                        (§ if (§ expr (§ not Arrays.equals(§ pars stack.pollLast(§ pars ), stack.pollLast(§ pars )))))
                         (§ block
                             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_EQUALVERIFY, "OP_EQUALVERIFY: non-equal data")))
                         )
@@ -33560,7 +33560,7 @@
                             )
                             (§ case OP_BOOLAND)
                             (§ block
-                                (§ if (§ expr !numericOPnum1.equals(§ pars BigInteger.ZERO) && !numericOPnum2.equals(§ pars BigInteger.ZERO)))
+                                (§ if (§ expr (§ not numericOPnum1.equals(§ pars BigInteger.ZERO)) && (§ not numericOPnum2.equals(§ pars BigInteger.ZERO))))
                                 (§ block
                                     (§ ass (§ name numericOPresult) (§ expr BigInteger.ONE))
                                 )
@@ -33572,7 +33572,7 @@
                             )
                             (§ case OP_BOOLOR)
                             (§ block
-                                (§ if (§ expr !numericOPnum1.equals(§ pars BigInteger.ZERO) || !numericOPnum2.equals(§ pars BigInteger.ZERO)))
+                                (§ if (§ expr (§ not numericOPnum1.equals(§ pars BigInteger.ZERO)) || (§ not numericOPnum2.equals(§ pars BigInteger.ZERO))))
                                 (§ block
                                     (§ ass (§ name numericOPresult) (§ expr BigInteger.ONE))
                                 )
@@ -33596,7 +33596,7 @@
                             )
                             (§ case OP_NUMNOTEQUAL)
                             (§ block
-                                (§ if (§ expr !numericOPnum1.equals(§ pars numericOPnum2)))
+                                (§ if (§ expr (§ not numericOPnum1.equals(§ pars numericOPnum2))))
                                 (§ block
                                     (§ ass (§ name numericOPresult) (§ expr BigInteger.ONE))
                                 )
@@ -33696,7 +33696,7 @@
                         (§ var (§ type BigInteger) (§ name OPNUMEQUALVERIFYnum2) (§ expr castToBigInteger(§ pars stack.pollLast(§ pars ), verifyFlags.contains(§ pars VerifyFlag.MINIMALDATA))))
                         (§ var (§ type BigInteger) (§ name OPNUMEQUALVERIFYnum1) (§ expr castToBigInteger(§ pars stack.pollLast(§ pars ), verifyFlags.contains(§ pars VerifyFlag.MINIMALDATA))))
 
-                        (§ if (§ expr !OPNUMEQUALVERIFYnum1.equals(§ pars OPNUMEQUALVERIFYnum2)))
+                        (§ if (§ expr (§ not OPNUMEQUALVERIFYnum1.equals(§ pars OPNUMEQUALVERIFYnum2))))
                         (§ block
                             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_NUMEQUALVERIFY, "OP_NUMEQUALVERIFY failed")))
                         )
@@ -33727,10 +33727,10 @@
                         (§ block
                             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_RIPEMD160 on an empty stack")))
                         )
-                        (§ var (§ type RIPEMD160Digest) (§ name digest) (§ expr new RIPEMD160Digest(§ pars )))
+                        (§ var (§ type RIPEMD160Digest) (§ name digest) (§ new RIPEMD160Digest(§ pars )))
                         (§ var (§ type byte[]) (§ name dataToHash) (§ expr stack.pollLast(§ pars )))
                         (§ call digest.update(§ pars dataToHash, 0, dataToHash.length))
-                        (§ var (§ type byte[]) (§ name ripmemdHash) (§ expr new byte[20]))
+                        (§ var (§ type byte[]) (§ name ripmemdHash) (§ new byte[20]))
                         (§ call digest.doFinal(§ pars ripmemdHash, 0))
                         (§ call stack.add(§ pars ripmemdHash))
                         (§ break )
@@ -33805,7 +33805,7 @@
                     )
                     (§ case OP_CHECKLOCKTIMEVERIFY)
                     (§ block
-                        (§ if (§ expr !verifyFlags.contains(§ pars VerifyFlag.CHECKLOCKTIMEVERIFY)))
+                        (§ if (§ expr (§ not verifyFlags.contains(§ pars VerifyFlag.CHECKLOCKTIMEVERIFY))))
                         (§ block
                             ;; not enabled; treat as a NOP2
                             (§ if (§ expr verifyFlags.contains(§ pars VerifyFlag.DISCOURAGE_UPGRADABLE_NOPS)))
@@ -33819,7 +33819,7 @@
                     )
                     (§ case OP_CHECKSEQUENCEVERIFY)
                     (§ block
-                        (§ if (§ expr !verifyFlags.contains(§ pars VerifyFlag.CHECKSEQUENCEVERIFY)))
+                        (§ if (§ expr (§ not verifyFlags.contains(§ pars VerifyFlag.CHECKSEQUENCEVERIFY))))
                         (§ block
                             ;; not enabled; treat as a NOP3
                             (§ if (§ expr verifyFlags.contains(§ pars VerifyFlag.DISCOURAGE_UPGRADABLE_NOPS)))
@@ -33860,7 +33860,7 @@
             )
         )
 
-        (§ if (§ expr !ifStack.isEmpty(§ pars )))
+        (§ if (§ expr (§ not ifStack.isEmpty(§ pars ))))
         (§ block
             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_UNBALANCED_CONDITIONAL, "OP_IF/OP_NOTIF without OP_ENDIF")))
         )
@@ -33887,7 +33887,7 @@
         )
 
         ;; There are two kinds of nLockTime, need to ensure we're comparing apples-to-apples.
-        (§ if (§ expr !(§ expr (§ expr (§ expr txContainingThis.getLockTime(§ pars ) <  Transaction.LOCKTIME_THRESHOLD) && (§ expr nLockTime.compareTo(§ pars Transaction.LOCKTIME_THRESHOLD_BIG)) <  0) || (§ expr (§ expr txContainingThis.getLockTime(§ pars ) >= Transaction.LOCKTIME_THRESHOLD) && (§ expr nLockTime.compareTo(§ pars Transaction.LOCKTIME_THRESHOLD_BIG)) >= 0))))
+        (§ if (§ expr (§ not (§ expr (§ expr (§ expr txContainingThis.getLockTime(§ pars ) <  Transaction.LOCKTIME_THRESHOLD) && (§ expr nLockTime.compareTo(§ pars Transaction.LOCKTIME_THRESHOLD_BIG)) <  0) || (§ expr (§ expr txContainingThis.getLockTime(§ pars ) >= Transaction.LOCKTIME_THRESHOLD) && (§ expr nLockTime.compareTo(§ pars Transaction.LOCKTIME_THRESHOLD_BIG)) >= 0)))))
         (§ block
             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_UNSATISFIED_LOCKTIME, "Locktime requirement type mismatch")))
         )
@@ -33904,7 +33904,7 @@
         ;;
         ;; Testing if this vin is not final is sufficient to prevent this condition.  Alternatively we could test all
         ;; inputs, but testing just this input minimizes the data required to prove correct CHECKLOCKTIMEVERIFY execution.
-        (§ if (§ expr !txContainingThis.getInput(§ pars index).hasSequence(§ pars )))
+        (§ if (§ not (§ dot txContainingThis.getInput(§ pars index).hasSequence(§ pars ))))
         (§ block
             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_UNSATISFIED_LOCKTIME, "Transaction contains a final transaction input for a CHECKLOCKTIMEVERIFY script.")))
         )
@@ -33944,7 +33944,7 @@
         )
 
         ;; Compare the specified sequence number with the input.
-        (§ if (§ expr !checkSequence(§ pars nSequence, txContainingThis, index)))
+        (§ if (§ expr (§ not checkSequence(§ pars nSequence, txContainingThis, index))))
         (§ block
             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_UNSATISFIED_LOCKTIME, "Unsatisfied CHECKLOCKTIMEVERIFY lock time")))
         )
@@ -33982,7 +33982,7 @@
         ;;
         ;; We want to compare apples to apples, so fail the script unless the type of nSequenceMasked
         ;; being tested is the same as the nSequenceMasked in the transaction.
-        (§ if (§ expr !(§ expr (§ expr txToSequenceMasked <  Transaction.SEQUENCE_LOCKTIME_TYPE_FLAG && nSequenceMasked <  Transaction.SEQUENCE_LOCKTIME_TYPE_FLAG) || (§ expr txToSequenceMasked >= Transaction.SEQUENCE_LOCKTIME_TYPE_FLAG && nSequenceMasked >= Transaction.SEQUENCE_LOCKTIME_TYPE_FLAG))))
+        (§ if (§ expr (§ not (§ expr (§ expr txToSequenceMasked <  Transaction.SEQUENCE_LOCKTIME_TYPE_FLAG && nSequenceMasked <  Transaction.SEQUENCE_LOCKTIME_TYPE_FLAG) || (§ expr txToSequenceMasked >= Transaction.SEQUENCE_LOCKTIME_TYPE_FLAG && nSequenceMasked >= Transaction.SEQUENCE_LOCKTIME_TYPE_FLAG)))))
         (§ block
             (§ return (§ expr false))
         )
@@ -34014,7 +34014,7 @@
         (§ var (§ type byte[]) (§ name prog) (§ expr script.getProgram(§ pars )))
         (§ var (§ type byte[]) (§ name connectedScript) (§ expr Arrays.copyOfRange(§ pars prog, lastCodeSepLocation, prog.length)))
 
-        (§ var (§ type UnsafeByteArrayOutputStream) (§ name outStream) (§ expr new UnsafeByteArrayOutputStream(§ pars sigBytes.length + 1)))
+        (§ var (§ type UnsafeByteArrayOutputStream) (§ name outStream) (§ new UnsafeByteArrayOutputStream(§ pars sigBytes.length + 1)))
         (§ try )
         (§ block
             (§ call writeBytes(§ pars outStream, sigBytes))
@@ -34042,7 +34042,7 @@
 
             ;; This RuntimeException occurs when signing as we run partial/invalid scripts to see if they need more
             ;; signing work to be done inside LocalTransactionSigner.signInputs.
-            (§ if (§ expr !e.getMessage(§ pars ).contains(§ pars "Reached past end of ASN.1 stream")))
+            (§ if (§ not (§ dot e.getMessage(§ pars ).contains(§ pars "Reached past end of ASN.1 stream"))))
             (§ block
                 (§ call log.warn(§ pars "Signature checking failed!", e))
             )
@@ -34052,7 +34052,7 @@
         (§ block
             (§ call stack.add(§ pars sigValid ? new byte[] (§ coll 1 ) :else new byte[] (§ coll )))
         )
-        (§ elseif (§ expr opcode == OP_CHECKSIGVERIFY && !sigValid))
+        (§ elseif (§ expr opcode == OP_CHECKSIGVERIFY && (§ not sigValid)))
         (§ block
             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_CHECKSIGVERIFY, "Script failed OP_CHECKSIGVERIFY")))
         )
@@ -34086,7 +34086,7 @@
             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + 2")))
         )
 
-        (§ var (§ type LinkedList<byte[]>) (§ name pubkeys) (§ expr new LinkedList<>(§ pars )))
+        (§ var (§ type LinkedList<byte[]>) (§ name pubkeys) (§ new LinkedList<>(§ pars )))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < pubKeyCount) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ call pubkeys.add(§ pars stack.pollLast(§ pars )))
@@ -34102,7 +34102,7 @@
             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + num_of_signatures + 3")))
         )
 
-        (§ var (§ type LinkedList<byte[]>) (§ name sigs) (§ expr new LinkedList<>(§ pars )))
+        (§ var (§ type LinkedList<byte[]>) (§ name sigs) (§ new LinkedList<>(§ pars )))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < sigCount) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ call sigs.add(§ pars stack.pollLast(§ pars )))
@@ -34113,7 +34113,7 @@
 
         (§ for (§ var (§ type byte[]) (§ name sig)) :for (§ expr sigs))
         (§ block
-            (§ var (§ type UnsafeByteArrayOutputStream) (§ name outStream) (§ expr new UnsafeByteArrayOutputStream(§ pars sig.length + 1)))
+            (§ var (§ type UnsafeByteArrayOutputStream) (§ name outStream) (§ new UnsafeByteArrayOutputStream(§ pars sig.length + 1)))
             (§ try )
             (§ block
                 (§ call writeBytes(§ pars outStream, sig))
@@ -34164,7 +34164,7 @@
         (§ block
             (§ call stack.add(§ pars valid ? new byte[] (§ coll 1 ) :else new byte[] (§ coll )))
         )
-        (§ elseif (§ expr opcode == OP_CHECKMULTISIGVERIFY && !valid))
+        (§ elseif (§ expr opcode == OP_CHECKMULTISIGVERIFY && (§ not valid)))
         (§ block
             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_SIG_NULLFAIL, "Script failed OP_CHECKMULTISIGVERIFY")))
         )
@@ -34218,13 +34218,13 @@
             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_SCRIPT_SIZE, "Script larger than 10,000 bytes")))
         )
 
-        (§ var (§ type LinkedList<byte[]>) (§ name stack) (§ expr new LinkedList<>(§ pars )))
+        (§ var (§ type LinkedList<byte[]>) (§ name stack) (§ new LinkedList<>(§ pars )))
         (§ var (§ type LinkedList<byte[]>) (§ name p2shStack) (§ expr nil))
 
         (§ call executeScript(§ pars txContainingThis, scriptSigIndex, this, stack, verifyFlags))
         (§ if (§ expr verifyFlags.contains(§ pars VerifyFlag.P2SH)))
         (§ block
-            (§ ass (§ name p2shStack) (§ expr new LinkedList<>(§ pars stack)))
+            (§ ass (§ name p2shStack) (§ new LinkedList<>(§ pars stack)))
         )
         (§ call executeScript(§ pars txContainingThis, scriptSigIndex, scriptPubKey, stack, verifyFlags))
 
@@ -34233,7 +34233,7 @@
             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_EVAL_FALSE, "Stack empty at end of script execution.")))
         )
 
-        (§ if (§ expr !castToBool(§ pars stack.pollLast(§ pars ))))
+        (§ if (§ expr (§ not castToBool(§ pars stack.pollLast(§ pars )))))
         (§ block
             (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_EVAL_FALSE, "Script resulted in a non-true stack: " + stack)))
         )
@@ -34262,7 +34262,7 @@
             )
 
             (§ var (§ type byte[]) (§ name scriptPubKeyBytes) (§ expr p2shStack.pollLast(§ pars )))
-            (§ var (§ type Script) (§ name scriptPubKeyP2SH) (§ expr new Script(§ pars scriptPubKeyBytes)))
+            (§ var (§ type Script) (§ name scriptPubKeyP2SH) (§ new Script(§ pars scriptPubKeyBytes)))
 
             (§ call executeScript(§ pars txContainingThis, scriptSigIndex, scriptPubKeyP2SH, p2shStack, verifyFlags))
 
@@ -34271,7 +34271,7 @@
                 (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_EVAL_FALSE, "P2SH stack empty at end of script execution.")))
             )
 
-            (§ if (§ expr !castToBool(§ pars p2shStack.pollLast(§ pars ))))
+            (§ if (§ expr (§ not castToBool(§ pars p2shStack.pollLast(§ pars )))))
             (§ block
                 (§ throw (§ new ScriptException(§ pars ScriptError.SCRIPT_ERR_EVAL_FALSE, "P2SH script execution resulted in a non-true stack")))
             )
@@ -34361,7 +34361,7 @@
     #_public
     (§ constructor ScriptBuilder(§ args Script template))
     (§ block
-        (§ ass (§ name chunks) (§ expr new ArrayList<>(§ pars template.getChunks(§ pars ))))
+        (§ ass (§ name chunks) (§ new ArrayList<>(§ pars template.getChunks(§ pars ))))
     )
 
     ;;; Adds the given chunk to the end of the program. ;;
@@ -34519,11 +34519,11 @@
 
         (§ if (§ expr num == 0))
         (§ block
-            (§ ass (§ name data) (§ expr new byte[0]))
+            (§ ass (§ name data) (§ new byte[0]))
         )
         (§ else )
         (§ block
-            (§ var (§ type Stack<Byte>) (§ name result) (§ expr new Stack<>(§ pars )))
+            (§ var (§ type Stack<Byte>) (§ name result) (§ new Stack<>(§ pars )))
             #_final
             (§ var (§ type boolean) (§ name neg) (§ expr num < 0))
             (§ var (§ type long) (§ name absvalue) (§ expr Math.abs(§ pars num)))
@@ -34548,7 +34548,7 @@
                 (§ call result.push(§ pars (§ cast byte)(§ expr result.pop(§ pars ) | 0x80)))
             )
 
-            (§ ass (§ name data) (§ expr new byte[result.size(§ pars )]))
+            (§ ass (§ name data) (§ new byte[result.size(§ pars )]))
             (§ for (§ var (§ type int) (§ name byteIdx) (§ expr 0)) :for (§ expr byteIdx < data.length) :for (§ ass (§ name byteIdx) (§ expr byteIdx + 1)))
             (§ block
                 (§ ass data[byteIdx] = result.get(§ pars byteIdx))
@@ -34626,7 +34626,7 @@
         (§ call Preconditions.checkArgument(§ pars threshold <= pubkeys.size(§ pars )))
         (§ call Preconditions.checkArgument(§ pars pubkeys.size(§ pars ) <= 16)) ;; That's the max we can represent with a single opcode.
 
-        (§ var (§ type ScriptBuilder) (§ name builder) (§ expr new ScriptBuilder(§ pars )))
+        (§ var (§ type ScriptBuilder) (§ name builder) (§ new ScriptBuilder(§ pars )))
         (§ call builder.smallNum(§ pars threshold))
         (§ for (§ var (§ type ECKey) (§ name key)) :for (§ expr pubkeys))
         (§ block
@@ -34642,7 +34642,7 @@
     #_static
     (§ method Script createMultiSigInputScript(§ args List<TransactionSignature> signatures))
     (§ block
-        (§ var (§ type List<byte[]>) (§ name sigs) (§ expr new ArrayList<>(§ pars signatures.size(§ pars ))))
+        (§ var (§ type List<byte[]>) (§ name sigs) (§ new ArrayList<>(§ pars signatures.size(§ pars ))))
         (§ for (§ var (§ type TransactionSignature) (§ name signature)) :for (§ expr signatures))
         (§ block
             (§ call sigs.add(§ pars signature.encodeToBitcoin(§ pars )))
@@ -34675,7 +34675,7 @@
     #_static
     (§ method Script createP2SHMultiSigInputScript(§ args #_nilable List<TransactionSignature> signatures, Script multisigProgram))
     (§ block
-        (§ var (§ type List<byte[]>) (§ name sigs) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type List<byte[]>) (§ name sigs) (§ new ArrayList<>(§ pars )))
         (§ if (§ expr signatures == nil))
         (§ block
             ;; Create correct number of empty signatures.
@@ -34705,7 +34705,7 @@
     (§ block
         (§ call Preconditions.checkArgument(§ pars signatures.size(§ pars ) <= 16))
 
-        (§ var (§ type ScriptBuilder) (§ name builder) (§ expr new ScriptBuilder(§ pars )))
+        (§ var (§ type ScriptBuilder) (§ name builder) (§ new ScriptBuilder(§ pars )))
         (§ call builder.smallNum(§ pars 0)) ;; Work around a bug in CHECKMULTISIG that is now a required part of the protocol.
         (§ for (§ var (§ type byte[]) (§ name signature)) :for (§ expr signatures))
         (§ block
@@ -34742,7 +34742,7 @@
         (§ call Preconditions.checkArgument(§ pars hasMissingSigs, "ScriptSig is already filled with signatures"))
 
         ;; copy the prefix
-        (§ var (§ type ScriptBuilder) (§ name builder) (§ expr new ScriptBuilder(§ pars )))
+        (§ var (§ type ScriptBuilder) (§ name builder) (§ new ScriptBuilder(§ pars )))
         (§ for (§ var (§ type ScriptChunk) (§ name chunk)) :for (§ expr inputChunks.subList(§ pars 0, sigsPrefixCount)))
         (§ block
             (§ call builder.addChunk(§ pars chunk))
@@ -34759,7 +34759,7 @@
                 (§ call builder.data(§ pars signature))
                 (§ ass (§ name pos) (§ expr pos + 1))
             )
-            (§ if (§ expr !chunk.equalsOpCode(§ pars OP_0)))
+            (§ if (§ expr (§ not chunk.equalsOpCode(§ pars OP_0))))
             (§ block
                 (§ call builder.addChunk(§ pars chunk))
                 (§ ass (§ name pos) (§ expr pos + 1))
@@ -34836,7 +34836,7 @@
     #_static
     (§ method Script createRedeemScript(§ args int threshold, List<ECKey> pubkeys))
     (§ block
-        (§ ass (§ name pubkeys) (§ expr new ArrayList<>(§ pars pubkeys)))
+        (§ ass (§ name pubkeys) (§ new ArrayList<>(§ pars pubkeys)))
         (§ call Collections.sort(§ pars pubkeys, ECKey.PUBKEY_COMPARATOR))
         (§ return (§ expr ScriptBuilder.createMultiSigOutputScript(§ pars threshold, pubkeys)))
     )
@@ -34872,7 +34872,7 @@
     #_static
     (§ method Script createCLTVPaymentChannelRefund(§ args TransactionSignature signature))
     (§ block
-        (§ var (§ type ScriptBuilder) (§ name builder) (§ expr new ScriptBuilder(§ pars )))
+        (§ var (§ type ScriptBuilder) (§ name builder) (§ new ScriptBuilder(§ pars )))
         (§ call builder.data(§ pars signature.encodeToBitcoin(§ pars )))
         (§ call builder.data(§ pars new byte[] (§ coll 0 ))) ;; Use the CHECKLOCKTIMEVERIFY if branch.
         (§ return (§ expr builder.build(§ pars )))
@@ -34882,7 +34882,7 @@
     #_static
     (§ method Script createCLTVPaymentChannelP2SHRefund(§ args TransactionSignature signature, Script redeemScript))
     (§ block
-        (§ var (§ type ScriptBuilder) (§ name builder) (§ expr new ScriptBuilder(§ pars )))
+        (§ var (§ type ScriptBuilder) (§ name builder) (§ new ScriptBuilder(§ pars )))
         (§ call builder.data(§ pars signature.encodeToBitcoin(§ pars )))
         (§ call builder.data(§ pars new byte[] (§ coll 0 ))) ;; Use the CHECKLOCKTIMEVERIFY if branch.
         (§ call builder.data(§ pars redeemScript.getProgram(§ pars )))
@@ -34893,7 +34893,7 @@
     #_static
     (§ method Script createCLTVPaymentChannelP2SHInput(§ args byte[] from, byte[] to, Script redeemScript))
     (§ block
-        (§ var (§ type ScriptBuilder) (§ name builder) (§ expr new ScriptBuilder(§ pars )))
+        (§ var (§ type ScriptBuilder) (§ name builder) (§ new ScriptBuilder(§ pars )))
         (§ call builder.data(§ pars from))
         (§ call builder.data(§ pars to))
         (§ call builder.smallNum(§ pars 1)) ;; Use the CHECKLOCKTIMEVERIFY if branch.
@@ -34912,7 +34912,7 @@
     #_static
     (§ method Script createCLTVPaymentChannelInput(§ args byte[] from, byte[] to))
     (§ block
-        (§ var (§ type ScriptBuilder) (§ name builder) (§ expr new ScriptBuilder(§ pars )))
+        (§ var (§ type ScriptBuilder) (§ name builder) (§ new ScriptBuilder(§ pars )))
         (§ call builder.data(§ pars from))
         (§ call builder.data(§ pars to))
         (§ call builder.smallNum(§ pars 1)) ;; Use the CHECKLOCKTIMEVERIFY if branch.
@@ -35099,7 +35099,7 @@
     #_public
     (§ method String toString(§ args ))
     (§ block
-        (§ var (§ type StringBuilder) (§ name sb) (§ expr new StringBuilder(§ pars )))
+        (§ var (§ type StringBuilder) (§ name sb) (§ new StringBuilder(§ pars )))
         (§ if (§ expr isOpCode(§ pars )))
         (§ block
             (§ call sb.append(§ pars getOpCodeName(§ pars opcode)))
@@ -35218,7 +35218,7 @@
 
     #_static
     (§ block
-        (§ ass (§ name mnemonicToScriptErrorMap) (§ expr new HashMap<>(§ pars )))
+        (§ ass (§ name mnemonicToScriptErrorMap) (§ new HashMap<>(§ pars )))
         (§ for (§ var (§ type ScriptError) (§ name err)) :for (§ expr ScriptError.values(§ pars )))
         (§ block
             (§ call mnemonicToScriptErrorMap.put(§ pars err.getMnemonic(§ pars ), err))
@@ -35841,7 +35841,7 @@
             )
 
             (§ var (§ type Script) (§ name scriptPubKey) (§ expr txOut.getScriptPubKey(§ pars )))
-            (§ if (§ expr !scriptPubKey.isPayToScriptHash(§ pars )))
+            (§ if (§ expr (§ not scriptPubKey.isPayToScriptHash(§ pars ))))
             (§ block
                 (§ call log.warn(§ pars "CustomTransactionSigner works only with P2SH transactions"))
                 (§ return (§ expr false))
@@ -35872,7 +35872,7 @@
 
             (§ var (§ type Sha256Hash) (§ name sighash) (§ expr tx.hashForSignature(§ pars i, redeemData.redeemScript, Transaction.SigHash.ALL, false)))
             (§ var (§ type SignatureAndKey) (§ name sigKey) (§ expr getSignature(§ pars sighash, propTx.keyPaths.get(§ pars scriptPubKey))))
-            (§ var (§ type TransactionSignature) (§ name txSig) (§ expr new TransactionSignature(§ pars sigKey.sig, Transaction.SigHash.ALL, false)))
+            (§ var (§ type TransactionSignature) (§ name txSig) (§ new TransactionSignature(§ pars sigKey.sig, Transaction.SigHash.ALL, false)))
             (§ var (§ type int) (§ name sigIndex) (§ expr inputScript.getSigInsertionIndex(§ pars sighash, sigKey.pubKey)))
             (§ ass (§ name inputScript) (§ expr scriptPubKey.getScriptSigWithSignature(§ pars inputScript, txSig.encodeToBitcoin(§ pars ), sigIndex)))
             (§ call txIn.setScriptSig(§ pars inputScript))
@@ -36152,7 +36152,7 @@
     #_public
     (§ method byte[] serialize(§ args ))
     (§ block
-        (§ return (§ expr new byte[0]))
+        (§ return (§ new byte[0]))
     )
 )
 
@@ -36197,7 +36197,7 @@
         (§ constructor ProposedTransaction(§ args Transaction partialTx))
         (§ block
             (§ ass (§ name this.partialTx) (§ expr partialTx))
-            (§ ass (§ name this.keyPaths) (§ expr new HashMap<>(§ pars )))
+            (§ ass (§ name this.keyPaths) (§ new HashMap<>(§ pars )))
         )
     )
 
@@ -36582,8 +36582,8 @@
         (§ ass (§ name this.schemaName) (§ expr schemaName))
         (§ ass (§ name this.username) (§ expr username))
         (§ ass (§ name this.password) (§ expr password))
-        (§ ass (§ name this.conn) (§ expr new ThreadLocal<>(§ pars )))
-        (§ ass (§ name this.allConnections) (§ expr new LinkedList<>(§ pars )))
+        (§ ass (§ name this.conn) (§ new ThreadLocal<>(§ pars )))
+        (§ ass (§ name this.allConnections) (§ new LinkedList<>(§ pars )))
 
         (§ try )
         (§ block
@@ -36600,7 +36600,7 @@
         (§ try )
         (§ block
             ;; Create tables if needed.
-            (§ if (§ expr !tablesExist(§ pars )))
+            (§ if (§ expr (§ not tablesExist(§ pars ))))
             (§ block
                 (§ call createTables(§ pars ))
             )
@@ -36684,7 +36684,7 @@
     #_protected
     (§ method List<String> getCompatibilitySQL(§ args ))
     (§ block
-        (§ var (§ type List<String>) (§ name sql) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type List<String>) (§ name sql) (§ new ArrayList<>(§ pars )))
         (§ call sql.add(§ pars SELECT_COMPATIBILITY_COINBASE_SQL))
         (§ return (§ expr sql))
     )
@@ -36706,7 +36706,7 @@
     #_protected
     (§ method List<String> getDropTablesSQL(§ args ))
     (§ block
-        (§ var (§ type List<String>) (§ name sql) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type List<String>) (§ name sql) (§ new ArrayList<>(§ pars )))
         (§ call sql.add(§ pars DROP_SETTINGS_TABLE))
         (§ call sql.add(§ pars DROP_HEADERS_TABLE))
         (§ call sql.add(§ pars DROP_UNDOABLE_TABLE))
@@ -36907,7 +36907,7 @@
     (§ block
         (§ try )
         (§ block
-            (§ if (§ expr conn.get(§ pars ) != nil && !conn.get(§ pars ).isClosed(§ pars )))
+            (§ if (§ expr conn.get(§ pars ) != nil && (§ not (§ dot conn.get(§ pars ).isClosed(§ pars )))))
             (§ block
                 (§ return )
             )
@@ -36918,7 +36918,7 @@
             )
             (§ else )
             (§ block
-                (§ var (§ type Properties) (§ name props) (§ expr new Properties(§ pars )))
+                (§ var (§ type Properties) (§ name props) (§ new Properties(§ pars )))
                 (§ call props.setProperty(§ pars "user", this.username))
                 (§ call props.setProperty(§ pars "password", this.password))
                 (§ call conn.set(§ pars DriverManager.getConnection(§ pars connectionURL, props)))
@@ -36951,7 +36951,7 @@
         (§ block
             (§ try )
             (§ block
-                (§ if (§ expr !conn.getAutoCommit(§ pars )))
+                (§ if (§ expr (§ not conn.getAutoCommit(§ pars ))))
                 (§ block
                     (§ call conn.rollback(§ pars ))
                 )
@@ -36997,7 +36997,7 @@
         )
         (§ finally )
         (§ block
-            (§ if (§ expr ps != nil && !ps.isClosed(§ pars )))
+            (§ if (§ expr ps != nil && (§ not ps.isClosed(§ pars ))))
             (§ block
                 (§ call ps.close(§ pars ))
             )
@@ -37027,7 +37027,7 @@
             )
             (§ finally )
             (§ block
-                (§ if (§ expr ps != nil && !ps.isClosed(§ pars )))
+                (§ if (§ expr ps != nil && (§ not ps.isClosed(§ pars ))))
                 (§ block
                     (§ call ps.close(§ pars ))
                 )
@@ -37093,11 +37093,11 @@
         (§ try )
         (§ block
             ;; Set up the genesis block.  When we start out fresh, it is by definition the top of the chain.
-            (§ var (§ type StoredBlock) (§ name storedGenesisHeader) (§ expr new StoredBlock(§ pars params.getGenesisBlock(§ pars ).cloneAsHeader(§ pars ), params.getGenesisBlock(§ pars ).getWork(§ pars ), 0)))
+            (§ var (§ type StoredBlock) (§ name storedGenesisHeader) (§ new StoredBlock(§ pars params.getGenesisBlock(§ pars ).cloneAsHeader(§ pars ), params.getGenesisBlock(§ pars ).getWork(§ pars ), 0)))
             ;; The coinbase in the genesis block is not spendable.  This is because of how Bitcoin Core inits
             ;; its database - the genesis transaction isn't actually in the db so its spent flags can never be updated.
             (§ var (§ type List<Transaction>) (§ name genesisTransactions) (§ expr Lists.newLinkedList(§ pars )))
-            (§ var (§ type StoredUndoableBlock) (§ name storedGenesis) (§ expr new StoredUndoableBlock(§ pars params.getGenesisBlock(§ pars ).getHash(§ pars ), genesisTransactions)))
+            (§ var (§ type StoredUndoableBlock) (§ name storedGenesis) (§ new StoredUndoableBlock(§ pars params.getGenesisBlock(§ pars ).getHash(§ pars ), genesisTransactions)))
             (§ call put(§ pars storedGenesisHeader, storedGenesis))
             (§ call setChainHead(§ pars storedGenesisHeader))
             (§ call setVerifiedChainHead(§ pars storedGenesisHeader))
@@ -37121,7 +37121,7 @@
         (§ var (§ type ResultSet) (§ name rs))
         (§ call ps.setString(§ pars 1, CHAIN_HEAD_SETTING))
         (§ ass (§ name rs) (§ expr ps.executeQuery(§ pars )))
-        (§ if (§ expr !rs.next(§ pars )))
+        (§ if (§ expr (§ not rs.next(§ pars ))))
         (§ block
             (§ throw (§ new BlockStoreException(§ pars "corrupt database block store - no chain head pointer")))
         )
@@ -37137,7 +37137,7 @@
 
         (§ call ps.setString(§ pars 1, VERIFIED_CHAIN_HEAD_SETTING))
         (§ ass (§ name rs) (§ expr ps.executeQuery(§ pars )))
-        (§ if (§ expr !rs.next(§ pars )))
+        (§ if (§ expr (§ not rs.next(§ pars ))))
         (§ block
             (§ throw (§ new BlockStoreException(§ pars "corrupt database block store - no verified chain head pointer")))
         )
@@ -37161,7 +37161,7 @@
         (§ block
             (§ var (§ type PreparedStatement) (§ name ps) (§ expr conn.get(§ pars ).prepareStatement(§ pars getInsertHeadersSQL(§ pars ))))
             ;; We skip the first 4 bytes because (on mainnet) the minimum target has 4 0-bytes.
-            (§ var (§ type byte[]) (§ name hashBytes) (§ expr new byte[28]))
+            (§ var (§ type byte[]) (§ name hashBytes) (§ new byte[28]))
             (§ call System.arraycopy(§ pars storedBlock.getHeader(§ pars ).getHash(§ pars ).getBytes(§ pars ), 4, hashBytes, 0, 28))
             (§ call ps.setBytes(§ pars 1, hashBytes))
             (§ call ps.setBytes(§ pars 2, storedBlock.getChainWork(§ pars ).toByteArray(§ pars )))
@@ -37175,7 +37175,7 @@
         (§ block
             ;; It is possible we try to add a duplicate StoredBlock if we upgraded.
             ;; In that case, we just update the entry to mark it wasUndoable.
-            (§ if (§ expr !(§ expr e.getSQLState(§ pars ).equals(§ pars getDuplicateKeyErrorCode(§ pars ))) || !wasUndoable))
+            (§ if (§ expr (§ not (§ dot e.getSQLState(§ pars ).equals(§ pars getDuplicateKeyErrorCode(§ pars )))) || (§ not wasUndoable)))
             (§ block
                 (§ throw e)
             )
@@ -37183,7 +37183,7 @@
             (§ var (§ type PreparedStatement) (§ name ps) (§ expr conn.get(§ pars ).prepareStatement(§ pars getUpdateHeadersSQL(§ pars ))))
             (§ call ps.setBoolean(§ pars 1, true))
             ;; We skip the first 4 bytes because (on mainnet) the minimum target has 4 0-bytes.
-            (§ var (§ type byte[]) (§ name hashBytes) (§ expr new byte[28]))
+            (§ var (§ type byte[]) (§ name hashBytes) (§ new byte[28]))
             (§ call System.arraycopy(§ pars storedBlock.getHeader(§ pars ).getHash(§ pars ).getBytes(§ pars ), 4, hashBytes, 0, 28))
             (§ call ps.setBytes(§ pars 2, hashBytes))
             (§ call ps.executeUpdate(§ pars ))
@@ -37214,14 +37214,14 @@
     (§ block
         (§ call maybeConnect(§ pars ))
         ;; We skip the first 4 bytes because (on mainnet) the minimum target has 4 0-bytes.
-        (§ var (§ type byte[]) (§ name hashBytes) (§ expr new byte[28]))
+        (§ var (§ type byte[]) (§ name hashBytes) (§ new byte[28]))
         (§ call System.arraycopy(§ pars storedBlock.getHeader(§ pars ).getHash(§ pars ).getBytes(§ pars ), 4, hashBytes, 0, 28))
         (§ var (§ type int) (§ name height) (§ expr storedBlock.getHeight(§ pars )))
         (§ var (§ type byte[]) (§ name transactions) (§ expr nil))
         (§ var (§ type byte[]) (§ name txOutChanges) (§ expr nil))
         (§ try )
         (§ block
-            (§ var (§ type ByteArrayOutputStream) (§ name bos) (§ expr new ByteArrayOutputStream(§ pars )))
+            (§ var (§ type ByteArrayOutputStream) (§ name bos) (§ new ByteArrayOutputStream(§ pars )))
             (§ if (§ expr undoableBlock.getTxOutChanges(§ pars ) != nil))
             (§ block
                 (§ call undoableBlock.getTxOutChanges(§ pars ).serializeToStream(§ pars bos))
@@ -37277,7 +37277,7 @@
             )
             (§ catch (§ type SQLException) (§ name e))
             (§ block
-                (§ if (§ expr !e.getSQLState(§ pars ).equals(§ pars getDuplicateKeyErrorCode(§ pars ))))
+                (§ if (§ not (§ dot e.getSQLState(§ pars ).equals(§ pars getDuplicateKeyErrorCode(§ pars )))))
                 (§ block
                     (§ throw (§ new BlockStoreException(§ pars e)))
                 )
@@ -37326,26 +37326,26 @@
         (§ block
             (§ ass (§ name ps) (§ expr conn.get(§ pars ).prepareStatement(§ pars getSelectHeadersSQL(§ pars ))))
             ;; We skip the first 4 bytes because (on mainnet) the minimum target has 4 0-bytes.
-            (§ var (§ type byte[]) (§ name hashBytes) (§ expr new byte[28]))
+            (§ var (§ type byte[]) (§ name hashBytes) (§ new byte[28]))
             (§ call System.arraycopy(§ pars hash.getBytes(§ pars ), 4, hashBytes, 0, 28))
             (§ call ps.setBytes(§ pars 1, hashBytes))
             (§ var (§ type ResultSet) (§ name results) (§ expr ps.executeQuery(§ pars )))
-            (§ if (§ expr !results.next(§ pars )))
+            (§ if (§ expr (§ not results.next(§ pars ))))
             (§ block
                 (§ return (§ expr nil))
             )
 
             ;; Parse it.
-            (§ if (§ expr wasUndoableOnly && !results.getBoolean(§ pars 4)))
+            (§ if (§ expr wasUndoableOnly && (§ not results.getBoolean(§ pars 4))))
             (§ block
                 (§ return (§ expr nil))
             )
 
-            (§ var (§ type BigInteger) (§ name chainWork) (§ expr new BigInteger(§ pars results.getBytes(§ pars 1))))
+            (§ var (§ type BigInteger) (§ name chainWork) (§ new BigInteger(§ pars results.getBytes(§ pars 1))))
             (§ var (§ type int) (§ name height) (§ expr results.getInt(§ pars 2)))
             (§ var (§ type Block) (§ name b) (§ expr params.getDefaultSerializer(§ pars ).makeBlock(§ pars results.getBytes(§ pars 3))))
             (§ call b.verifyHeader(§ pars ))
-            (§ var (§ type StoredBlock) (§ name stored) (§ expr new StoredBlock(§ pars b, chainWork, height)))
+            (§ var (§ type StoredBlock) (§ name stored) (§ new StoredBlock(§ pars b, chainWork, height)))
             (§ return (§ expr stored))
         )
         (§ catch (§ type SQLException) (§ name e))
@@ -37406,11 +37406,11 @@
             (§ ass (§ name ps) (§ expr conn.get(§ pars ).prepareStatement(§ pars getSelectUndoableBlocksSQL(§ pars ))))
             ;; We skip the first 4 bytes because (on mainnet) the minimum target has 4 0-bytes.
 
-            (§ var (§ type byte[]) (§ name hashBytes) (§ expr new byte[28]))
+            (§ var (§ type byte[]) (§ name hashBytes) (§ new byte[28]))
             (§ call System.arraycopy(§ pars hash.getBytes(§ pars ), 4, hashBytes, 0, 28))
             (§ call ps.setBytes(§ pars 1, hashBytes))
             (§ var (§ type ResultSet) (§ name results) (§ expr ps.executeQuery(§ pars )))
-            (§ if (§ expr !results.next(§ pars )))
+            (§ if (§ expr (§ not results.next(§ pars ))))
             (§ block
                 (§ return (§ expr nil))
             )
@@ -37423,19 +37423,19 @@
             (§ block
                 (§ var (§ type int) (§ name numTxn) (§ expr (§ expr transactions[0] & 0xff) | (§ expr (§ expr transactions[1] & 0xff) << 8) | (§ expr (§ expr transactions[2] & 0xff) << 16) | (§ expr (§ expr transactions[3] & 0xff) << 24)))
                 (§ var (§ type int) (§ name offset) (§ expr 4))
-                (§ var (§ type List<Transaction>) (§ name transactionList) (§ expr new LinkedList<>(§ pars )))
+                (§ var (§ type List<Transaction>) (§ name transactionList) (§ new LinkedList<>(§ pars )))
                 (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < numTxn) :for (§ ass (§ name i) (§ expr i + 1)))
                 (§ block
                     (§ var (§ type Transaction) (§ name tx) (§ expr params.getDefaultSerializer(§ pars ).makeTransaction(§ pars transactions, offset)))
                     (§ call transactionList.add(§ pars tx))
                     (§ ass (§ name offset) (§ expr offset + tx.getMessageSize(§ pars )))
                 )
-                (§ ass (§ name block) (§ expr new StoredUndoableBlock(§ pars hash, transactionList)))
+                (§ ass (§ name block) (§ new StoredUndoableBlock(§ pars hash, transactionList)))
             )
             (§ else )
             (§ block
-                (§ var (§ type TransactionOutputChanges) (§ name outChangesObject) (§ expr new TransactionOutputChanges(§ pars (§ new ByteArrayInputStream(§ pars txOutChanges)))))
-                (§ ass (§ name block) (§ expr new StoredUndoableBlock(§ pars hash, outChangesObject)))
+                (§ var (§ type TransactionOutputChanges) (§ name outChangesObject) (§ new TransactionOutputChanges(§ pars (§ new ByteArrayInputStream(§ pars txOutChanges)))))
+                (§ ass (§ name block) (§ new StoredUndoableBlock(§ pars hash, outChangesObject)))
             )
             (§ return (§ expr block))
         )
@@ -37581,7 +37581,7 @@
             ;; index is actually an unsigned int
             (§ call ps.setInt(§ pars 2, (§ cast int)index))
             (§ var (§ type ResultSet) (§ name results) (§ expr ps.executeQuery(§ pars )))
-            (§ if (§ expr !results.next(§ pars )))
+            (§ if (§ expr (§ not results.next(§ pars ))))
             (§ block
                 (§ return (§ expr nil))
             )
@@ -37638,7 +37638,7 @@
         )
         (§ catch (§ type SQLException) (§ name e))
         (§ block
-            (§ if (§ expr !(§ expr e.getSQLState(§ pars ).equals(§ pars getDuplicateKeyErrorCode(§ pars )))))
+            (§ if (§ not (§ dot e.getSQLState(§ pars ).equals(§ pars getDuplicateKeyErrorCode(§ pars )))))
             (§ block
                 (§ throw (§ new BlockStoreException(§ pars e)))
             )
@@ -37742,7 +37742,7 @@
 
         (§ try )
         (§ block
-            (§ if (§ expr !conn.get(§ pars ).getAutoCommit(§ pars )))
+            (§ if (§ not (§ dot conn.get(§ pars ).getAutoCommit(§ pars ))))
             (§ block
                 (§ call conn.get(§ pars ).rollback(§ pars ))
                 (§ call conn.get(§ pars ).setAutoCommit(§ pars true))
@@ -37770,7 +37770,7 @@
             (§ ass (§ name ps) (§ expr conn.get(§ pars ).prepareStatement(§ pars getSelectOpenoutputsCountSQL(§ pars ))))
             (§ call ps.setBytes(§ pars 1, hash.getBytes(§ pars )))
             (§ var (§ type ResultSet) (§ name results) (§ expr ps.executeQuery(§ pars )))
-            (§ if (§ expr !results.next(§ pars )))
+            (§ if (§ expr (§ not results.next(§ pars ))))
             (§ block
                 (§ throw (§ new BlockStoreException(§ pars "Got no results from a COUNT(*) query")))
             )
@@ -38191,7 +38191,7 @@
     #_protected
     (§ method List<String> getCreateTablesSQL(§ args ))
     (§ block
-        (§ var (§ type List<String>) (§ name sql) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type List<String>) (§ name sql) (§ new ArrayList<>(§ pars )))
         (§ call sql.add(§ pars CREATE_SETTINGS_TABLE))
         (§ call sql.add(§ pars CREATE_HEADERS_TABLE))
         (§ call sql.add(§ pars CREATE_UNDOABLE_TABLE))
@@ -38203,7 +38203,7 @@
     #_protected
     (§ method List<String> getCreateIndexesSQL(§ args ))
     (§ block
-        (§ var (§ type List<String>) (§ name sql) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type List<String>) (§ name sql) (§ new ArrayList<>(§ pars )))
         (§ call sql.add(§ pars CREATE_UNDOABLE_TABLE_INDEX))
         (§ call sql.add(§ pars CREATE_OUTPUTS_ADDRESS_MULTI_INDEX))
         (§ call sql.add(§ pars CREATE_OUTPUTS_ADDRESSTARGETABLE_INDEX))
@@ -38259,7 +38259,7 @@
         (§ try )
         (§ block
             (§ var (§ type Block) (§ name genesisHeader) (§ expr params.getGenesisBlock(§ pars ).cloneAsHeader(§ pars )))
-            (§ var (§ type StoredBlock) (§ name storedGenesis) (§ expr new StoredBlock(§ pars genesisHeader, genesisHeader.getWork(§ pars ), 0)))
+            (§ var (§ type StoredBlock) (§ name storedGenesis) (§ new StoredBlock(§ pars genesisHeader, genesisHeader.getWork(§ pars ), 0)))
             (§ call put(§ pars storedGenesis))
             (§ call setChainHead(§ pars storedGenesis))
             (§ ass (§ name this.params) (§ expr params))
@@ -38436,10 +38436,10 @@
     #_public
     (§ constructor TransactionalHashMap(§ args ))
     (§ block
-        (§ ass (§ name tempMap) (§ expr new ThreadLocal<>(§ pars )))
-        (§ ass (§ name tempSetRemoved) (§ expr new ThreadLocal<>(§ pars )))
-        (§ ass (§ name inTransaction) (§ expr new ThreadLocal<>(§ pars )))
-        (§ ass (§ name map) (§ expr new HashMap<>(§ pars )))
+        (§ ass (§ name tempMap) (§ new ThreadLocal<>(§ pars )))
+        (§ ass (§ name tempSetRemoved) (§ new ThreadLocal<>(§ pars )))
+        (§ ass (§ name inTransaction) (§ new ThreadLocal<>(§ pars )))
+        (§ ass (§ name map) (§ new HashMap<>(§ pars )))
     )
 
     #_public
@@ -38501,7 +38501,7 @@
     #_public
     (§ method List<ValueType> values(§ args ))
     (§ block
-        (§ var (§ type List<ValueType>) (§ name valueTypes) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type List<ValueType>) (§ name valueTypes) (§ new ArrayList<>(§ pars )))
         (§ for (§ var (§ type KeyType) (§ name keyType)) :for (§ expr map.keySet(§ pars )))
         (§ block
             (§ call valueTypes.add(§ pars get(§ pars keyType)))
@@ -38575,8 +38575,8 @@
     #_public
     (§ constructor TransactionalMultiKeyHashMap(§ args ))
     (§ block
-        (§ ass (§ name mapValues) (§ expr new TransactionalHashMap<>(§ pars )))
-        (§ ass (§ name mapKeys) (§ expr new HashMap<>(§ pars )))
+        (§ ass (§ name mapValues) (§ new TransactionalHashMap<>(§ pars )))
+        (§ ass (§ name mapKeys) (§ new HashMap<>(§ pars )))
     )
 
     #_public
@@ -38611,7 +38611,7 @@
         (§ var (§ type Set<UniqueKeyType>) (§ name set) (§ expr mapKeys.get(§ pars multiKey)))
         (§ if (§ expr set == nil))
         (§ block
-            (§ ass (§ name set) (§ expr new HashSet<>(§ pars )))
+            (§ ass (§ name set) (§ new HashSet<>(§ pars )))
             (§ call set.add(§ pars uniqueKey))
             (§ call mapKeys.put(§ pars multiKey, set))
         )
@@ -38686,17 +38686,17 @@
     #_public
     (§ constructor MemoryFullPrunedBlockStore(§ args NetworkParameters params, int fullStoreDepth))
     (§ block
-        (§ ass (§ name blockMap) (§ expr new TransactionalHashMap<>(§ pars )))
-        (§ ass (§ name fullBlockMap) (§ expr new TransactionalMultiKeyHashMap<>(§ pars )))
-        (§ ass (§ name transactionOutputMap) (§ expr new TransactionalHashMap<>(§ pars )))
+        (§ ass (§ name blockMap) (§ new TransactionalHashMap<>(§ pars )))
+        (§ ass (§ name fullBlockMap) (§ new TransactionalMultiKeyHashMap<>(§ pars )))
+        (§ ass (§ name transactionOutputMap) (§ new TransactionalHashMap<>(§ pars )))
         (§ ass this.fullStoreDepth = (§ expr 0 < fullStoreDepth) ? fullStoreDepth :else 1)
         ;; Insert the genesis block.
         (§ try )
         (§ block
-            (§ var (§ type StoredBlock) (§ name storedGenesisHeader) (§ expr new StoredBlock(§ pars params.getGenesisBlock(§ pars ).cloneAsHeader(§ pars ), params.getGenesisBlock(§ pars ).getWork(§ pars ), 0)))
+            (§ var (§ type StoredBlock) (§ name storedGenesisHeader) (§ new StoredBlock(§ pars params.getGenesisBlock(§ pars ).cloneAsHeader(§ pars ), params.getGenesisBlock(§ pars ).getWork(§ pars ), 0)))
             ;; The coinbase in the genesis block is not spendable.
             (§ var (§ type List<Transaction>) (§ name genesisTransactions) (§ expr Lists.newLinkedList(§ pars )))
-            (§ var (§ type StoredUndoableBlock) (§ name storedGenesis) (§ expr new StoredUndoableBlock(§ pars params.getGenesisBlock(§ pars ).getHash(§ pars ), genesisTransactions)))
+            (§ var (§ type StoredUndoableBlock) (§ name storedGenesis) (§ new StoredUndoableBlock(§ pars params.getGenesisBlock(§ pars ).getHash(§ pars ), genesisTransactions)))
             (§ call put(§ pars storedGenesisHeader, storedGenesis))
             (§ call setChainHead(§ pars storedGenesisHeader))
             (§ call setVerifiedChainHead(§ pars storedGenesisHeader))
@@ -39079,7 +39079,7 @@
     #_protected
     (§ method List<String> getCreateTablesSQL(§ args ))
     (§ block
-        (§ var (§ type List<String>) (§ name sql) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type List<String>) (§ name sql) (§ new ArrayList<>(§ pars )))
         (§ call sql.add(§ pars CREATE_SETTINGS_TABLE))
         (§ call sql.add(§ pars CREATE_HEADERS_TABLE))
         (§ call sql.add(§ pars CREATE_UNDOABLE_TABLE))
@@ -39091,7 +39091,7 @@
     #_protected
     (§ method List<String> getCreateIndexesSQL(§ args ))
     (§ block
-        (§ var (§ type List<String>) (§ name sql) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type List<String>) (§ name sql) (§ new ArrayList<>(§ pars )))
         (§ call sql.add(§ pars CREATE_UNDOABLE_TABLE_INDEX))
         (§ call sql.add(§ pars CREATE_OUTPUTS_ADDRESS_MULTI_INDEX))
         (§ call sql.add(§ pars CREATE_OUTPUTS_ADDRESSTARGETABLE_INDEX))
@@ -39104,7 +39104,7 @@
     #_protected
     (§ method List<String> getCreateSchemeSQL(§ args ))
     (§ block
-        (§ var (§ type List<String>) (§ name sql) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type List<String>) (§ name sql) (§ new ArrayList<>(§ pars )))
         (§ call sql.add(§ pars "CREATE SCHEMA IF NOT EXISTS " + schemaName))
         (§ call sql.add(§ pars "set search_path to '" + schemaName +"'"))
         (§ return (§ expr sql))
@@ -39124,14 +39124,14 @@
     (§ block
         (§ call maybeConnect(§ pars ))
         ;; We skip the first 4 bytes because (on mainnet) the minimum target has 4 0-bytes.
-        (§ var (§ type byte[]) (§ name hashBytes) (§ expr new byte[28]))
+        (§ var (§ type byte[]) (§ name hashBytes) (§ new byte[28]))
         (§ call System.arraycopy(§ pars storedBlock.getHeader(§ pars ).getHash(§ pars ).getBytes(§ pars ), 4, hashBytes, 0, 28))
         (§ var (§ type int) (§ name height) (§ expr storedBlock.getHeight(§ pars )))
         (§ var (§ type byte[]) (§ name transactions) (§ expr nil))
         (§ var (§ type byte[]) (§ name txOutChanges) (§ expr nil))
         (§ try )
         (§ block
-            (§ var (§ type ByteArrayOutputStream) (§ name bos) (§ expr new ByteArrayOutputStream(§ pars )))
+            (§ var (§ type ByteArrayOutputStream) (§ name bos) (§ new ByteArrayOutputStream(§ pars )))
             (§ if (§ expr undoableBlock.getTxOutChanges(§ pars ) != nil))
             (§ block
                 (§ call undoableBlock.getTxOutChanges(§ pars ).serializeToStream(§ pars bos))
@@ -39231,7 +39231,7 @@
         )
         (§ catch (§ type SQLException) (§ name e))
         (§ block
-            (§ if (§ expr !e.getSQLState(§ pars ).equals(§ pars POSTGRES_DUPLICATE_KEY_ERROR_CODE)))
+            (§ if (§ not (§ dot e.getSQLState(§ pars ).equals(§ pars POSTGRES_DUPLICATE_KEY_ERROR_CODE))))
             (§ block
                 (§ throw (§ new BlockStoreException(§ pars e)))
             )
@@ -39314,7 +39314,7 @@
     #_private
     #_static
     #_final
-    (§ field (§ type Object) (§ name NOT_FOUND_MARKER) (§ expr new Object(§ pars )))
+    (§ field (§ type Object) (§ name NOT_FOUND_MARKER) (§ new Object(§ pars )))
     #_protected
     (§ field LinkedHashMap<Sha256Hash, Object> notFoundCache = new LinkedHashMap<Sha256Hash, Object>(§ pars )
         (§ anon
@@ -39365,9 +39365,9 @@
         (§ block
             (§ var (§ type boolean) (§ name exists) (§ expr file.exists(§ pars )))
             ;; Set up the backing file.
-            (§ ass (§ name randomAccessFile) (§ expr new RandomAccessFile(§ pars file, "rw")))
+            (§ ass (§ name randomAccessFile) (§ new RandomAccessFile(§ pars file, "rw")))
             (§ var (§ type long) (§ name fileSize) (§ expr getFileSize(§ pars capacity)))
-            (§ if (§ expr !exists))
+            (§ if (§ expr (§ not exists)))
             (§ block
                 (§ call log.info(§ pars "Creating new SPV block chain file " + file))
                 (§ call randomAccessFile.setLength(§ pars fileSize))
@@ -39395,9 +39395,9 @@
             (§ var (§ type byte[]) (§ name header))
             (§ if (§ expr exists))
             (§ block
-                (§ ass (§ name header) (§ expr new byte[4]))
+                (§ ass (§ name header) (§ new byte[4]))
                 (§ call buffer.get(§ pars header))
-                (§ if (§ expr !(§ new String(§ pars header, Charsets.US_ASCII)).equals(§ pars HEADER_MAGIC)))
+                (§ if (§ not (§ dot (§ new String(§ pars header, Charsets.US_ASCII)).equals(§ pars HEADER_MAGIC))))
                 (§ block
                     (§ throw (§ new BlockStoreException(§ pars "Header bytes do not equal " + HEADER_MAGIC)))
                 )
@@ -39441,7 +39441,7 @@
             (§ call lock.unlock(§ pars ))
         )
         (§ var (§ type Block) (§ name genesis) (§ expr params.getGenesisBlock(§ pars ).cloneAsHeader(§ pars )))
-        (§ var (§ type StoredBlock) (§ name storedGenesis) (§ expr new StoredBlock(§ pars genesis, genesis.getWork(§ pars ), 0)))
+        (§ var (§ type StoredBlock) (§ name storedGenesis) (§ new StoredBlock(§ pars genesis, genesis.getWork(§ pars ), 0)))
         (§ call put(§ pars storedGenesis))
         (§ call setChainHead(§ pars storedGenesis))
     )
@@ -39525,7 +39525,7 @@
             (§ var (§ type int) (§ name fileSize) (§ expr getFileSize(§ pars capacity)))
             #_final
             (§ var (§ type byte[]) (§ name targetHashBytes) (§ expr hash.getBytes(§ pars )))
-            (§ var (§ type byte[]) (§ name scratch) (§ expr new byte[32]))
+            (§ var (§ type byte[]) (§ name scratch) (§ new byte[32]))
             (§ do )
             (§ block
                 (§ ass (§ name cursor) (§ expr cursor - RECORD_SIZE))
@@ -39581,7 +39581,7 @@
         (§ block
             (§ if (§ expr lastChainHead == nil))
             (§ block
-                (§ var (§ type byte[]) (§ name headHash) (§ expr new byte[32]))
+                (§ var (§ type byte[]) (§ name headHash) (§ new byte[32]))
                 (§ call buffer.position(§ pars 8))
                 (§ call buffer.get(§ pars headHash))
                 (§ var (§ type Sha256Hash) (§ name hash) (§ expr Sha256Hash.wrap(§ pars headHash)))
@@ -39821,7 +39821,7 @@
         (§ var (§ type URI) (§ name uri))
         (§ try )
         (§ block
-            (§ ass (§ name uri) (§ expr new URI(§ pars input)))
+            (§ ass (§ name uri) (§ new URI(§ pars input)))
         )
         (§ catch (§ type URISyntaxException) (§ name e))
         (§ block
@@ -39866,7 +39866,7 @@
         (§ if (§ expr addressSplitTokens.length == 1))
         (§ block
             ;; Only an address is specified - use an empty '<name>=<value>' token array.
-            (§ ass (§ name nameValuePairTokens) (§ expr new String[] (§ coll )))
+            (§ ass (§ name nameValuePairTokens) (§ new String[] (§ coll )))
         )
         (§ else )
         (§ block
@@ -39877,7 +39877,7 @@
         ;; Attempt to parse the rest of the URI parameters.
         (§ call parseParameters(§ pars params, addressToken, nameValuePairTokens))
 
-        (§ if (§ expr !addressToken.isEmpty(§ pars )))
+        (§ if (§ expr (§ not addressToken.isEmpty(§ pars ))))
         (§ block
             ;; Attempt to parse the addressToken as a Bitcoin address for this network.
             (§ try )
@@ -40053,7 +40053,7 @@
     #_public
     (§ method List<String> getPaymentRequestUrls(§ args ))
     (§ block
-        (§ var (§ type ArrayList<String>) (§ name urls) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type ArrayList<String>) (§ name urls) (§ new ArrayList<>(§ pars )))
         (§ while (§ expr true))
         (§ block
             (§ var (§ type int) (§ name i) (§ expr urls.size(§ pars )))
@@ -40083,7 +40083,7 @@
     #_public
     (§ method String toString(§ args ))
     (§ block
-        (§ var (§ type StringBuilder) (§ name sb) (§ expr new StringBuilder(§ pars "BitcoinURI[")))
+        (§ var (§ type StringBuilder) (§ name sb) (§ new StringBuilder(§ pars "BitcoinURI[")))
         (§ var (§ type boolean) (§ name first) (§ expr true))
         (§ for (§ var Map.Entry<String, Object> entry) :for (§ expr parameterMap.entrySet(§ pars )))
         (§ block
@@ -40139,7 +40139,7 @@
             (§ throw (§ new IllegalArgumentException(§ pars "Coin must be positive")))
         )
 
-        (§ var (§ type StringBuilder) (§ name sb) (§ expr new StringBuilder(§ pars )))
+        (§ var (§ type StringBuilder) (§ name sb) (§ new StringBuilder(§ pars )))
         (§ var (§ type String) (§ name scheme) (§ expr params.getUriScheme(§ pars )))
         (§ call sb.append(§ pars scheme).append(§ pars ":").append(§ pars address))
 
@@ -40152,7 +40152,7 @@
             (§ ass (§ name questionMarkHasBeenOutput) (§ expr true))
         )
 
-        (§ if (§ expr label != nil && !"".equals(§ pars label)))
+        (§ if (§ expr label != nil && (§ not "".equals(§ pars label))))
         (§ block
             (§ if (§ expr questionMarkHasBeenOutput))
             (§ block
@@ -40166,7 +40166,7 @@
             (§ call sb.append(§ pars FIELD_LABEL).append(§ pars "=").append(§ pars encodeURLString(§ pars label)))
         )
 
-        (§ if (§ expr message != nil && !"".equals(§ pars message)))
+        (§ if (§ expr message != nil && (§ not "".equals(§ pars message))))
         (§ block
             (§ if (§ expr questionMarkHasBeenOutput))
             (§ block
@@ -40415,7 +40415,7 @@
          ;;
         (§ var (§ type int) (§ name places))
         (§ var (§ type int) (§ name coinOffset) (§ expr Math.max(§ pars SMALLEST_UNIT_EXPONENT - fractionPlaces, 0)))
-        (§ var (§ type BigDecimal) (§ name inCoins) (§ expr new BigDecimal(§ pars satoshis).movePointLeft(§ pars coinOffset)))
+        (§ var (§ type BigDecimal) (§ name inCoins) (§ expr (§ new BigDecimal(§ pars satoshis)).movePointLeft(§ pars coinOffset)))
         (§ if (§ expr inCoins.remainder(§ pars ONE).compareTo(§ pars ZERO) == 0))
         (§ block
             (§ ass (§ name places) (§ expr COIN_SCALE))
@@ -40494,7 +40494,7 @@
         (§ block
             (§ return (§ expr true))
         )
-        (§ if (§ expr !(§ expr o instanceof BtcAutoFormat)))
+        (§ if (§ expr (§ not (§ expr o instanceof BtcAutoFormat))))
         (§ block
             (§ return (§ expr false))
         )
@@ -40660,7 +40660,7 @@
     (§ block
         (§ var (§ type Object[]) (§ name boxedArray) (§ expr decimalGroups.toArray(§ pars )))
         (§ var (§ type int) (§ name len) (§ expr boxedArray.length + 1))
-        (§ var (§ type int[]) (§ name array) (§ expr new int[len]))
+        (§ var (§ type int[]) (§ name array) (§ new int[len]))
         (§ ass array[0] = minimumFractionDigits)
         (§ for (§ var (§ type int) (§ name i) (§ expr 1)) :for (§ expr i < len) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
@@ -40681,7 +40681,7 @@
         (§ block
             (§ return (§ expr true))
         )
-        (§ if (§ expr !(§ expr o instanceof BtcFixedFormat)))
+        (§ if (§ expr (§ not (§ expr o instanceof BtcFixedFormat))))
         (§ block
             (§ return (§ expr false))
         )
@@ -41775,7 +41775,7 @@
     (§ method List<Integer> boxAsList(§ args int[] elements))
         (§ throws IllegalArgumentException)
     (§ block
-        (§ var (§ type List<Integer>) (§ name list) (§ expr new ArrayList<>(§ pars elements.length)))
+        (§ var (§ type List<Integer>) (§ name list) (§ new ArrayList<>(§ pars elements.length)))
         (§ for (§ var (§ type int) (§ name e)) :for (§ expr elements))
         (§ block
             (§ call Preconditions.checkArgument(§ pars 0 < e, "Size of decimal group must be at least one."))
@@ -42123,7 +42123,7 @@
     (§ method BigDecimal denominateAndRound(§ args BigInteger satoshis, int minDecimals, List<Integer> fractionGroups))
     (§ block
         (§ var (§ type int) (§ name scale) (§ expr scale(§ pars satoshis, minDecimals)))
-        (§ var (§ type BigDecimal) (§ name denominatedUnitCount) (§ expr new BigDecimal(§ pars satoshis).movePointLeft(§ pars offSatoshis(§ pars scale))))
+        (§ var (§ type BigDecimal) (§ name denominatedUnitCount) (§ expr (§ new BigDecimal(§ pars satoshis)).movePointLeft(§ pars offSatoshis(§ pars scale))))
         (§ var (§ type int) (§ name places) (§ expr calculateFractionPlaces(§ pars denominatedUnitCount, scale, minDecimals, fractionGroups)))
         (§ return (§ expr denominatedUnitCount.setScale(§ pars places, HALF_UP)))
     )
@@ -42262,11 +42262,11 @@
                 (§ ass (§ name result) (§ expr denoms))
                 (§ if (§ expr result == nil))
                 (§ block
-                    (§ if (§ expr !coinSymbol(§ pars ).matches(§ pars ci)))
+                    (§ if (§ not (§ dot coinSymbol(§ pars ).matches(§ pars ci))))
                     (§ block
                         (§ ass (§ name ci) (§ expr ci.replaceFirst(§ pars "\\(", "(" + coinSymbol(§ pars ) + "|")))
                     )
-                    (§ if (§ expr !coinCode(§ pars ).matches(§ pars ci)))
+                    (§ if (§ not (§ dot coinCode(§ pars ).matches(§ pars ci))))
                     (§ block
                         (§ ass (§ name ci) (§ expr ci.replaceFirst(§ pars "\\)", "|" + coinCode(§ pars ) + ")")))
                     )
@@ -42620,7 +42620,7 @@
     (§ block
         (§ sync numberFormat)
         (§ block
-            (§ var (§ type StringBuilder) (§ name groups) (§ expr new StringBuilder(§ pars )))
+            (§ var (§ type StringBuilder) (§ name groups) (§ new StringBuilder(§ pars )))
             (§ for (§ var (§ type int) (§ name group)) :for (§ expr decimalGroups))
             (§ block
                 (§ call groups.append(§ pars "(").append(§ pars Strings.repeat(§ pars "#", group)).append(§ pars ")"))
@@ -42664,7 +42664,7 @@
         (§ block
             (§ return (§ expr true))
         )
-        (§ if (§ expr !(§ expr o instanceof BtcFormat)))
+        (§ if (§ expr (§ not (§ expr o instanceof BtcFormat))))
         (§ block
             (§ return (§ expr false))
         )
@@ -42727,7 +42727,7 @@
     (§ block
         #_final
         (§ var (§ type Context) (§ name context) (§ expr Context.get(§ pars )))
-        (§ var (§ type Thread) (§ name thread) (§ expr new Thread(§ pars (§ new Runnable(§ pars ))
+        (§ var (§ type Thread) (§ name thread) (§ new Thread(§ pars (§ new Runnable(§ pars ))
         (§ anon
             #_override
             #_public
@@ -43112,7 +43112,7 @@
     (§ block
         (§ try )
         (§ block
-            (§ var (§ type long) (§ name val) (§ expr new BigDecimal(§ pars str).movePointRight(§ pars SMALLEST_UNIT_EXPONENT).longValueExact(§ pars )))
+            (§ var (§ type long) (§ name val) (§ expr (§ new BigDecimal(§ pars str)).movePointRight(§ pars SMALLEST_UNIT_EXPONENT).longValueExact(§ pars )))
             (§ return (§ expr Fiat.valueOf(§ pars currencyCode, val)))
         )
         (§ catch (§ type ArithmeticException) (§ name e))
@@ -43135,7 +43135,7 @@
     (§ block
         (§ try )
         (§ block
-            (§ var (§ type long) (§ name val) (§ expr new BigDecimal(§ pars str).movePointRight(§ pars SMALLEST_UNIT_EXPONENT).longValue(§ pars )))
+            (§ var (§ type long) (§ name val) (§ expr (§ new BigDecimal(§ pars str)).movePointRight(§ pars SMALLEST_UNIT_EXPONENT).longValue(§ pars )))
             (§ return (§ expr Fiat.valueOf(§ pars currencyCode, val)))
         )
         (§ catch (§ type ArithmeticException) (§ name e))
@@ -43175,7 +43175,7 @@
     #_public
     (§ method Fiat[] divideAndRemainder(§ args #_final long divisor))
     (§ block
-        (§ return (§ expr new Fiat[] (§ coll new Fiat(§ pars currencyCode, this.value / divisor), new Fiat(§ pars currencyCode, this.value % divisor) )))
+        (§ return (§ new Fiat[] (§ coll new Fiat(§ pars currencyCode, this.value / divisor), new Fiat(§ pars currencyCode, this.value % divisor) )))
     )
 
     #_public
@@ -43393,22 +43393,22 @@
     #_public
     #_static
     #_final
-    (§ field (§ type MonetaryFormat) (§ name BTC) (§ expr new MonetaryFormat(§ pars ).shift(§ pars 0).minDecimals(§ pars 2).repeatOptionalDecimals(§ pars 2, 3)))
+    (§ field (§ type MonetaryFormat) (§ name BTC) (§ expr (§ new MonetaryFormat(§ pars )).shift(§ pars 0).minDecimals(§ pars 2).repeatOptionalDecimals(§ pars 2, 3)))
     ;;; Standard format for the mBTC denomination. ;;
     #_public
     #_static
     #_final
-    (§ field (§ type MonetaryFormat) (§ name MBTC) (§ expr new MonetaryFormat(§ pars ).shift(§ pars 3).minDecimals(§ pars 2).optionalDecimals(§ pars 2)))
+    (§ field (§ type MonetaryFormat) (§ name MBTC) (§ expr (§ new MonetaryFormat(§ pars )).shift(§ pars 3).minDecimals(§ pars 2).optionalDecimals(§ pars 2)))
     ;;; Standard format for the µBTC denomination. ;;
     #_public
     #_static
     #_final
-    (§ field (§ type MonetaryFormat) (§ name UBTC) (§ expr new MonetaryFormat(§ pars ).shift(§ pars 6).minDecimals(§ pars 0).optionalDecimals(§ pars 2)))
+    (§ field (§ type MonetaryFormat) (§ name UBTC) (§ expr (§ new MonetaryFormat(§ pars )).shift(§ pars 6).minDecimals(§ pars 0).optionalDecimals(§ pars 2)))
     ;;; Standard format for fiat amounts. ;;
     #_public
     #_static
     #_final
-    (§ field (§ type MonetaryFormat) (§ name FIAT) (§ expr new MonetaryFormat(§ pars ).shift(§ pars 0).minDecimals(§ pars 2).repeatOptionalDecimals(§ pars 2, 1)))
+    (§ field (§ type MonetaryFormat) (§ name FIAT) (§ expr (§ new MonetaryFormat(§ pars )).shift(§ pars 0).minDecimals(§ pars 2).repeatOptionalDecimals(§ pars 2, 1)))
     ;;; Currency code for base 1 Bitcoin. ;;
     #_public
     #_static
@@ -43475,7 +43475,7 @@
     #_public
     (§ method MonetaryFormat negativeSign(§ args char negativeSign))
     (§ block
-        (§ call Preconditions.checkArgument(§ pars !Character.isDigit(§ pars negativeSign)))
+        (§ call Preconditions.checkArgument(§ pars (§ not Character.isDigit(§ pars negativeSign))))
         (§ call Preconditions.checkArgument(§ pars 0 < negativeSign))
 
         (§ return (§ quest (§ expr negativeSign == this.negativeSign) ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed)))
@@ -43488,7 +43488,7 @@
     #_public
     (§ method MonetaryFormat positiveSign(§ args char positiveSign))
     (§ block
-        (§ call Preconditions.checkArgument(§ pars !Character.isDigit(§ pars positiveSign)))
+        (§ call Preconditions.checkArgument(§ pars (§ not Character.isDigit(§ pars positiveSign))))
 
         (§ return (§ quest (§ expr positiveSign == this.positiveSign) ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed)))
     )
@@ -43509,7 +43509,7 @@
     #_public
     (§ method MonetaryFormat decimalMark(§ args char decimalMark))
     (§ block
-        (§ call Preconditions.checkArgument(§ pars !Character.isDigit(§ pars decimalMark)))
+        (§ call Preconditions.checkArgument(§ pars (§ not Character.isDigit(§ pars decimalMark))))
         (§ call Preconditions.checkArgument(§ pars 0 < decimalMark))
 
         (§ return (§ quest (§ expr decimalMark == this.decimalMark) ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed)))
@@ -43539,7 +43539,7 @@
     #_public
     (§ method MonetaryFormat optionalDecimals(§ args int... groups))
     (§ block
-        (§ var (§ type List<Integer>) (§ name decimalGroups) (§ expr new ArrayList<>(§ pars groups.length)))
+        (§ var (§ type List<Integer>) (§ name decimalGroups) (§ new ArrayList<>(§ pars groups.length)))
         (§ for (§ var (§ type int) (§ name group)) :for (§ expr groups))
         (§ block
             (§ call decimalGroups.add(§ pars group))
@@ -43563,7 +43563,7 @@
     (§ block
         (§ call Preconditions.checkArgument(§ pars 0 <= repetitions))
 
-        (§ var (§ type List<Integer>) (§ name decimalGroups) (§ expr new ArrayList<>(§ pars repetitions)))
+        (§ var (§ type List<Integer>) (§ name decimalGroups) (§ new ArrayList<>(§ pars repetitions)))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < repetitions) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ call decimalGroups.add(§ pars decimals))
@@ -43623,7 +43623,7 @@
     #_public
     (§ method MonetaryFormat codeSeparator(§ args char codeSeparator))
     (§ block
-        (§ call Preconditions.checkArgument(§ pars !Character.isDigit(§ pars codeSeparator)))
+        (§ call Preconditions.checkArgument(§ pars (§ not Character.isDigit(§ pars codeSeparator))))
         (§ call Preconditions.checkArgument(§ pars 0 < codeSeparator))
 
         (§ return (§ quest (§ expr codeSeparator == this.codeSeparator) ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed)))
@@ -43644,7 +43644,7 @@
     #_public
     (§ method MonetaryFormat postfixCode(§ args ))
     (§ block
-        (§ return (§ expr !codePrefixed ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, false)))
+        (§ return (§ quest (§ not codePrefixed) ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, false)))
     )
 
     ;;;
@@ -43653,7 +43653,7 @@
     #_public
     (§ method MonetaryFormat withLocale(§ args Locale locale))
     (§ block
-        (§ var (§ type DecimalFormatSymbols) (§ name dfs) (§ expr new DecimalFormatSymbols(§ pars locale)))
+        (§ var (§ type DecimalFormatSymbols) (§ name dfs) (§ new DecimalFormatSymbols(§ pars locale)))
         (§ var (§ type char) (§ name negativeSign) (§ expr dfs.getMinusSign(§ pars )))
         (§ var (§ type char) (§ name zeroDigit) (§ expr dfs.getZeroDigit(§ pars )))
         (§ var (§ type char) (§ name decimalMark) (§ expr dfs.getMonetaryDecimalSeparator(§ pars )))
@@ -43672,7 +43672,7 @@
         (§ ass (§ name this.decimalGroups) (§ expr nil))
         (§ ass (§ name this.shift) (§ expr 0))
         (§ ass (§ name this.roundingMode) (§ expr RoundingMode.HALF_UP))
-        (§ ass (§ name this.codes) (§ expr new String[MAX_DECIMALS]))
+        (§ ass (§ name this.codes) (§ new String[MAX_DECIMALS]))
         (§ ass this.codes[0] = CODE_BTC)
         (§ ass this.codes[3] = CODE_MBTC)
         (§ ass this.codes[6] = CODE_UBTC)
@@ -43726,7 +43726,7 @@
 
         ;; formatting
         (§ var (§ type String) (§ name decimalsStr) (§ expr String.format(§ pars Locale.US, "%0" + (§ expr smallestUnitExponent - shift) + "d", decimals)))
-        (§ var (§ type StringBuilder) (§ name sb) (§ expr new StringBuilder(§ pars decimalsStr)))
+        (§ var (§ type StringBuilder) (§ name sb) (§ new StringBuilder(§ pars decimalsStr)))
         (§ while (§ expr minDecimals < sb.length(§ pars ) && sb.charAt(§ pars sb.length(§ pars ) - 1) == \0))
         (§ block
             (§ call sb.setLength(§ pars sb.length(§ pars ) - 1)) ;; trim trailing zero
@@ -43850,7 +43850,7 @@
         (§ var (§ type String) (§ name satoshis) (§ expr numbers + decimals.substring(§ pars 0, smallestUnitExponent - shift)))
         (§ for (§ var (§ type char) (§ name c)) :for (§ expr satoshis.toCharArray(§ pars )))
         (§ block
-            (§ if (§ expr !Character.isDigit(§ pars c)))
+            (§ if (§ expr (§ not Character.isDigit(§ pars c))))
             (§ block
                 (§ throw (§ new NumberFormatException(§ pars "illegal character: " + c)))
             )
@@ -43929,7 +43929,7 @@
     (§ method void waitForUserCode(§ args ))
     (§ block
         #_final
-        (§ var (§ type CountDownLatch) (§ name latch) (§ expr new CountDownLatch(§ pars 1)))
+        (§ var (§ type CountDownLatch) (§ name latch) (§ new CountDownLatch(§ pars 1)))
         (§ call USER_THREAD.execute(§ pars (§ new Runnable(§ pars ))
         (§ anon
             #_override
@@ -43977,7 +43977,7 @@
             (§ super (§ pars "bitcoinj user thread"))
 
             (§ call setDaemon(§ pars true))
-            (§ ass (§ name tasks) (§ expr new LinkedBlockingQueue<>(§ pars )))
+            (§ ass (§ name tasks) (§ new LinkedBlockingQueue<>(§ pars )))
             (§ call start(§ pars ))
         )
 
@@ -44096,7 +44096,7 @@
             #_public
             (§ method Thread newThread(§ args Runnable r))
             (§ block
-                (§ var (§ type Thread) (§ name t) (§ expr new Thread(§ pars r)))
+                (§ var (§ type Thread) (§ name t) (§ new Thread(§ pars r)))
                 (§ call t.setName(§ pars "Threading.THREAD_POOL worker"))
                 (§ call t.setDaemon(§ pars true))
                 (§ return (§ expr t))
@@ -44142,7 +44142,7 @@
     #_public
     (§ constructor VersionTally(§ args #_final NetworkParameters params))
     (§ block
-        (§ ass (§ name versionWindow) (§ expr new long[params.getMajorityWindow(§ pars )]))
+        (§ ass (§ name versionWindow) (§ new long[params.getMajorityWindow(§ pars )]))
     )
 
     ;;;
@@ -44201,7 +44201,7 @@
     (§ block
         (§ var (§ type StoredBlock) (§ name versionBlock) (§ expr chainHead))
         #_final
-        (§ var (§ type Stack<Long>) (§ name versions) (§ expr new Stack<>(§ pars )))
+        (§ var (§ type Stack<Long>) (§ name versions) (§ new Stack<>(§ pars )))
 
         ;; We don't know how many blocks back we can go, so load what we can first.
         (§ call versions.push(§ pars versionBlock.getHeader(§ pars ).getVersion(§ pars )))
@@ -44216,7 +44216,7 @@
         )
 
         ;; Replay the versions into the tally.
-        (§ while (§ expr !versions.isEmpty(§ pars )))
+        (§ while (§ expr (§ not versions.isEmpty(§ pars ))))
         (§ block
             (§ call add(§ pars versions.pop(§ pars )))
         )
@@ -44269,7 +44269,7 @@
         ;; This doesn't have to be thread safe as the object has no state, so discarded duplicates are harmless.
         (§ if (§ expr instance == nil))
         (§ block
-            (§ ass (§ name instance) (§ expr new AllowUnconfirmedCoinSelector(§ pars )))
+            (§ ass (§ name instance) (§ new AllowUnconfirmedCoinSelector(§ pars )))
         )
         (§ return (§ expr instance))
     )
@@ -44327,9 +44327,9 @@
     (§ constructor BasicKeyChain(§ args #_nilable KeyCrypter crypter))
     (§ block
         (§ ass (§ name this.keyCrypter) (§ expr crypter))
-        (§ ass (§ name hashToKeys) (§ expr new LinkedHashMap<>(§ pars )))
-        (§ ass (§ name pubkeyToKeys) (§ expr new LinkedHashMap<>(§ pars )))
-        (§ ass (§ name listeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name hashToKeys) (§ new LinkedHashMap<>(§ pars )))
+        (§ ass (§ name pubkeyToKeys) (§ new LinkedHashMap<>(§ pars )))
+        (§ ass (§ name listeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     )
 
     ;;; Returns the {@link KeyCrypter} in use or null if the key chain is not encrypted. ;;
@@ -44362,7 +44362,7 @@
                 (§ call Preconditions.checkState(§ pars keyCrypter == nil))
 
                 #_final
-                (§ var (§ type ECKey) (§ name key) (§ expr new ECKey(§ pars )))
+                (§ var (§ type ECKey) (§ name key) (§ new ECKey(§ pars )))
                 (§ call importKeyLocked(§ pars key))
                 (§ call queueOnKeysAdded(§ pars ImmutableList.of(§ pars key)))
             )
@@ -44387,7 +44387,7 @@
             (§ block
                 (§ call Preconditions.checkState(§ pars keyCrypter == nil))
 
-                (§ var (§ type List<ECKey>) (§ name keys) (§ expr new ArrayList<>(§ pars )))
+                (§ var (§ type List<ECKey>) (§ name keys) (§ new ArrayList<>(§ pars )))
                 (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < numberOfKeys - hashToKeys.size(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
                 (§ block
                     (§ call keys.add(§ pars (§ new ECKey(§ pars ))))
@@ -44398,7 +44398,7 @@
                 (§ call queueOnKeysAdded(§ pars immutableKeys))
             )
 
-            (§ var (§ type List<ECKey>) (§ name keysToReturn) (§ expr new ArrayList<>(§ pars )))
+            (§ var (§ type List<ECKey>) (§ name keysToReturn) (§ new ArrayList<>(§ pars )))
             (§ var (§ type int) (§ name count) (§ expr 0))
             (§ while (§ expr hashToKeys.values(§ pars ).iterator(§ pars ).hasNext(§ pars ) && numberOfKeys != count))
             (§ block
@@ -44420,7 +44420,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ return (§ expr new ArrayList<>(§ pars hashToKeys.values(§ pars ))))
+            (§ return (§ new ArrayList<>(§ pars hashToKeys.values(§ pars ))))
         )
         (§ finally )
         (§ block
@@ -44449,10 +44449,10 @@
                 (§ call checkKeyEncryptionStateMatches(§ pars key))
             )
 
-            (§ var (§ type List<ECKey>) (§ name actuallyAdded) (§ expr new ArrayList<>(§ pars keys.size(§ pars ))))
+            (§ var (§ type List<ECKey>) (§ name actuallyAdded) (§ new ArrayList<>(§ pars keys.size(§ pars ))))
             (§ for (§ var #_final ECKey key) :for (§ expr keys))
             (§ block
-                (§ if (§ expr !hasKey(§ pars key)))
+                (§ if (§ expr (§ not hasKey(§ pars key))))
                 (§ block
                     (§ call actuallyAdded.add(§ pars key))
                     (§ call importKeyLocked(§ pars key))
@@ -44477,11 +44477,11 @@
         (§ block
             (§ throw (§ new KeyCrypterException(§ pars "Key is encrypted but chain is not")))
         )
-        (§ if (§ expr keyCrypter != nil && !key.isEncrypted(§ pars )))
+        (§ if (§ expr keyCrypter != nil && (§ not key.isEncrypted(§ pars ))))
         (§ block
             (§ throw (§ new KeyCrypterException(§ pars "Key is not encrypted but chain is")))
         )
-        (§ if (§ expr keyCrypter != nil && key.getKeyCrypter(§ pars ) != nil && !key.getKeyCrypter(§ pars ).equals(§ pars keyCrypter)))
+        (§ if (§ expr keyCrypter != nil && key.getKeyCrypter(§ pars ) != nil && (§ not (§ dot key.getKeyCrypter(§ pars ).equals(§ pars keyCrypter)))))
         (§ block
             (§ throw (§ new KeyCrypterException(§ pars "Key encrypted under different parameters to chain")))
         )
@@ -44496,11 +44496,11 @@
         )
         (§ else )
         (§ block
-            (§ if (§ expr key.isWatching(§ pars ) && !isWatching))
+            (§ if (§ expr key.isWatching(§ pars ) && (§ not isWatching)))
             (§ block
                 (§ throw (§ new IllegalArgumentException(§ pars "Key is watching but chain is not")))
             )
-            (§ if (§ expr !key.isWatching(§ pars ) && isWatching))
+            (§ if (§ expr (§ not key.isWatching(§ pars )) && isWatching))
             (§ block
                 (§ throw (§ new IllegalArgumentException(§ pars "Key is not watching but chain is")))
             )
@@ -44656,7 +44656,7 @@
     #_public
     (§ method List<ListenerRegistration<KeyChainEventListener>> getListeners(§ args ))
     (§ block
-        (§ return (§ expr new ArrayList<>(§ pars listeners)))
+        (§ return (§ new ArrayList<>(§ pars listeners)))
     )
 
     (§ method Map<ECKey, Protos.Key.Builder> serializeToEditableProtobufs(§ args ))
@@ -44676,7 +44676,7 @@
     (§ method List<Protos.Key> serializeToProtobuf(§ args ))
     (§ block
         (§ var (§ type Collection<Protos.Key.Builder>) (§ name builders) (§ expr serializeToEditableProtobufs(§ pars ).values(§ pars )))
-        (§ var (§ type List<Protos.Key>) (§ name result) (§ expr new ArrayList<>(§ pars builders.size(§ pars ))))
+        (§ var (§ type List<Protos.Key>) (§ name result) (§ new ArrayList<>(§ pars builders.size(§ pars ))))
         (§ for (§ var (§ type Protos.Key.Builder) (§ name builder)) :for (§ expr builders))
         (§ block
             (§ call result.add(§ pars builder.build(§ pars )))
@@ -44724,7 +44724,7 @@
     (§ method BasicKeyChain fromProtobufUnencrypted(§ args List<Protos.Key> keys))
         (§ throws UnreadableWalletException)
     (§ block
-        (§ var (§ type BasicKeyChain) (§ name chain) (§ expr new BasicKeyChain(§ pars )))
+        (§ var (§ type BasicKeyChain) (§ name chain) (§ new BasicKeyChain(§ pars )))
         (§ call chain.deserializeFromProtobuf(§ pars keys))
         (§ return (§ expr chain))
     )
@@ -44740,7 +44740,7 @@
     (§ method BasicKeyChain fromProtobufEncrypted(§ args List<Protos.Key> keys, KeyCrypter crypter))
         (§ throws UnreadableWalletException)
     (§ block
-        (§ var (§ type BasicKeyChain) (§ name chain) (§ expr new BasicKeyChain(§ pars Preconditions.checkNotNull(§ pars crypter))))
+        (§ var (§ type BasicKeyChain) (§ name chain) (§ new BasicKeyChain(§ pars Preconditions.checkNotNull(§ pars crypter))))
         (§ call chain.deserializeFromProtobuf(§ pars keys))
         (§ return (§ expr chain))
     )
@@ -44762,7 +44762,7 @@
 
                 (§ var (§ type boolean) (§ name encrypted) (§ expr key.getType(§ pars ) == Protos.Key.Type.ENCRYPTED_SCRYPT_AES))
                 (§ var (§ type byte[]) (§ name priv) (§ expr key.hasSecretBytes(§ pars ) ? key.getSecretBytes(§ pars ).toByteArray(§ pars ) :else nil))
-                (§ if (§ expr !key.hasPublicKey(§ pars )))
+                (§ if (§ expr (§ not key.hasPublicKey(§ pars ))))
                 (§ block
                     (§ throw (§ new UnreadableWalletException(§ pars "Public key missing")))
                 )
@@ -44772,13 +44772,13 @@
                 (§ if (§ expr encrypted))
                 (§ block
                     (§ call Preconditions.checkState(§ pars keyCrypter != nil, "This wallet is encrypted but encrypt() was not called prior to deserialization"))
-                    (§ if (§ expr !key.hasEncryptedData(§ pars )))
+                    (§ if (§ expr (§ not key.hasEncryptedData(§ pars ))))
                     (§ block
                         (§ throw (§ new UnreadableWalletException(§ pars "Encrypted private key data missing")))
                     )
 
                     (§ var (§ type Protos.EncryptedData) (§ name proto) (§ expr key.getEncryptedData(§ pars )))
-                    (§ var (§ type EncryptedData) (§ name e) (§ expr new EncryptedData(§ pars proto.getInitialisationVector(§ pars ).toByteArray(§ pars ), proto.getEncryptedPrivateKey(§ pars ).toByteArray(§ pars ))))
+                    (§ var (§ type EncryptedData) (§ name e) (§ new EncryptedData(§ pars proto.getInitialisationVector(§ pars ).toByteArray(§ pars ), proto.getEncryptedPrivateKey(§ pars ).toByteArray(§ pars ))))
                     (§ ass (§ name ecKey) (§ expr ECKey.fromEncrypted(§ pars e, keyCrypter, pub)))
                 )
                 (§ else )
@@ -44847,7 +44847,7 @@
         (§ call Preconditions.checkNotNull(§ pars password))
         (§ call Preconditions.checkArgument(§ pars 0 < password.length(§ pars )))
 
-        (§ var (§ type KeyCrypter) (§ name scrypt) (§ expr new KeyCrypterScrypt(§ pars )))
+        (§ var (§ type KeyCrypter) (§ name scrypt) (§ new KeyCrypterScrypt(§ pars )))
         (§ var (§ type KeyParameter) (§ name derivedKey) (§ expr scrypt.deriveKey(§ pars password)))
         (§ return (§ expr toEncrypted(§ pars scrypt, derivedKey)))
     )
@@ -44871,7 +44871,7 @@
             (§ call Preconditions.checkNotNull(§ pars keyCrypter))
             (§ call Preconditions.checkState(§ pars this.keyCrypter == nil, "Key chain is already encrypted"))
 
-            (§ var (§ type BasicKeyChain) (§ name encrypted) (§ expr new BasicKeyChain(§ pars keyCrypter)))
+            (§ var (§ type BasicKeyChain) (§ name encrypted) (§ new BasicKeyChain(§ pars keyCrypter)))
             (§ for (§ var (§ type ECKey) (§ name key)) :for (§ expr hashToKeys.values(§ pars )))
             (§ block
                 (§ var (§ type ECKey) (§ name encryptedKey) (§ expr key.encrypt(§ pars keyCrypter, aesKey)))
@@ -44880,7 +44880,7 @@
                 ;; (all bitcoin controlled by that private key is lost forever).
                 ;; For a correctly constructed keyCrypter the encryption should always be reversible so it is just
                 ;; being as cautious as possible.
-                (§ if (§ expr !ECKey.encryptionIsReversible(§ pars key, encryptedKey, keyCrypter, aesKey)))
+                (§ if (§ expr (§ not ECKey.encryptionIsReversible(§ pars key, encryptedKey, keyCrypter, aesKey))))
                 (§ block
                     (§ throw (§ new KeyCrypterException(§ pars "The key " + key + " cannot be successfully decrypted after encryption so aborting wallet encryption.")))
                 )
@@ -44913,12 +44913,12 @@
             (§ call Preconditions.checkState(§ pars keyCrypter != nil, "Wallet is already decrypted"))
 
             ;; Do an up-front check.
-            (§ if (§ expr 0 < numKeys(§ pars ) && !checkAESKey(§ pars aesKey)))
+            (§ if (§ expr 0 < numKeys(§ pars ) && (§ not checkAESKey(§ pars aesKey))))
             (§ block
                 (§ throw (§ new KeyCrypterException(§ pars "Password/key was incorrect.")))
             )
 
-            (§ var (§ type BasicKeyChain) (§ name decrypted) (§ expr new BasicKeyChain(§ pars )))
+            (§ var (§ type BasicKeyChain) (§ name decrypted) (§ new BasicKeyChain(§ pars )))
             (§ for (§ var (§ type ECKey) (§ name key)) :for (§ expr hashToKeys.values(§ pars )))
             (§ block
                 (§ call decrypted.importKeyLocked(§ pars key.decrypt(§ pars aesKey)))
@@ -45001,7 +45001,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var (§ type BloomFilter) (§ name filter) (§ expr new BloomFilter(§ pars size, falsePositiveRate, tweak)))
+            (§ var (§ type BloomFilter) (§ name filter) (§ new BloomFilter(§ pars size, falsePositiveRate, tweak)))
             (§ for (§ var (§ type ECKey) (§ name key)) :for (§ expr hashToKeys.values(§ pars )))
             (§ block
                 (§ call filter.insert(§ pars key))
@@ -45168,7 +45168,7 @@
     #_private
     (§ method RedeemData maybeDecrypt(§ args RedeemData redeemData))
     (§ block
-        (§ var (§ type List<ECKey>) (§ name decryptedKeys) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type List<ECKey>) (§ name decryptedKeys) (§ new ArrayList<>(§ pars )))
         (§ for (§ var (§ type ECKey) (§ name key)) :for (§ expr redeemData.keys))
         (§ block
             (§ call decryptedKeys.add(§ pars maybeDecrypt(§ pars key)))
@@ -45218,15 +45218,15 @@
     #_public
     (§ method CoinSelection select(§ args Coin target, List<TransactionOutput> candidates))
     (§ block
-        (§ var (§ type ArrayList<TransactionOutput>) (§ name selected) (§ expr new ArrayList<>(§ pars )))
+        (§ var (§ type ArrayList<TransactionOutput>) (§ name selected) (§ new ArrayList<>(§ pars )))
         ;; Sort the inputs by age * value, so we get the highest "coindays" spent.
         ;; TODO: Consider changing the wallets internal format to track just outputs and keep them ordered.
-        (§ var (§ type ArrayList<TransactionOutput>) (§ name sortedOutputs) (§ expr new ArrayList<>(§ pars candidates)))
+        (§ var (§ type ArrayList<TransactionOutput>) (§ name sortedOutputs) (§ new ArrayList<>(§ pars candidates)))
         ;; When calculating the wallet balance, we may be asked to select all possible coins, if so, avoid
         ;; sorting them in order to improve performance.
         ;; TODO: Take in network parameters when instanatiated, and then test against the current network.
         ;; Or just have a boolean parameter for "give me everything".
-        (§ if (§ expr !target.equals(§ pars NetworkParameters.MAX_MONEY)))
+        (§ if (§ expr (§ not target.equals(§ pars NetworkParameters.MAX_MONEY))))
         (§ block
             (§ call sortOutputs(§ pars sortedOutputs))
         )
@@ -45327,7 +45327,7 @@
     (§ method DeterministicKeyChain makeWatchingKeyChain(§ args Protos.Key key, Protos.Key firstSubKey, DeterministicKey accountKey, boolean isFollowingKey, boolean isMarried))
         (§ throws UnreadableWalletException)
     (§ block
-        (§ if (§ expr !accountKey.getPath(§ pars ).equals(§ pars DeterministicKeyChain.ACCOUNT_ZERO_PATH)))
+        (§ if (§ not (§ dot accountKey.getPath(§ pars ).equals(§ pars DeterministicKeyChain.ACCOUNT_ZERO_PATH))))
         (§ block
             (§ throw (§ new UnreadableWalletException(§ pars "Expecting account key but found key with path: " + HDUtils.formatPath(§ pars accountKey.getPath(§ pars )))))
         )
@@ -45398,7 +45398,7 @@
     #_public
     (§ method Result analyze(§ args ))
     (§ block
-        (§ call Preconditions.checkState(§ pars !analyzed))
+        (§ call Preconditions.checkState(§ pars (§ not analyzed)))
         (§ ass (§ name analyzed) (§ expr true))
 
         (§ var (§ type Result) (§ name result) (§ expr analyzeIsFinal(§ pars )))
@@ -45441,7 +45441,7 @@
         #_final
         (§ var (§ type int) (§ name adjustedHeight) (§ expr height + 1))
 
-        (§ if (§ expr !tx.isFinal(§ pars adjustedHeight, time)))
+        (§ if (§ expr (§ not tx.isFinal(§ pars adjustedHeight, time))))
         (§ block
             (§ ass (§ name nonFinal) (§ expr tx))
             (§ return (§ expr Result.NON_FINAL))
@@ -45449,7 +45449,7 @@
 
         (§ for (§ var (§ type Transaction) (§ name dep)) :for (§ expr dependencies))
         (§ block
-            (§ if (§ expr !dep.isFinal(§ pars adjustedHeight, time)))
+            (§ if (§ expr (§ not dep.isFinal(§ pars adjustedHeight, time))))
             (§ block
                 (§ ass (§ name nonFinal) (§ expr dep))
                 (§ return (§ expr Result.NON_FINAL))
@@ -45531,7 +45531,7 @@
 
         (§ for (§ var (§ type ScriptChunk) (§ name chunk)) :for (§ expr output.getScriptPubKey(§ pars ).getChunks(§ pars )))
         (§ block
-            (§ if (§ expr chunk.isPushData(§ pars ) && !chunk.isShortestPossiblePushData(§ pars )))
+            (§ if (§ expr chunk.isPushData(§ pars ) && (§ not chunk.isShortestPossiblePushData(§ pars ))))
             (§ block
                 (§ return (§ expr RuleViolation.SHORTEST_POSSIBLE_PUSHDATA))
             )
@@ -45547,7 +45547,7 @@
     (§ block
         (§ for (§ var (§ type ScriptChunk) (§ name chunk)) :for (§ expr input.getScriptSig(§ pars ).getChunks(§ pars )))
         (§ block
-            (§ if (§ expr chunk.data != nil && !chunk.isShortestPossiblePushData(§ pars )))
+            (§ if (§ expr chunk.data != nil && (§ not chunk.isShortestPossiblePushData(§ pars ))))
             (§ block
                 (§ return (§ expr RuleViolation.SHORTEST_POSSIBLE_PUSHDATA))
             )
@@ -45566,11 +45566,11 @@
                 )
                 (§ if (§ expr signature != nil))
                 (§ block
-                    (§ if (§ expr !TransactionSignature.isEncodingCanonical(§ pars chunk.data)))
+                    (§ if (§ expr (§ not TransactionSignature.isEncodingCanonical(§ pars chunk.data))))
                     (§ block
                         (§ return (§ expr RuleViolation.SIGNATURE_CANONICAL_ENCODING))
                     )
-                    (§ if (§ expr !signature.isCanonical(§ pars )))
+                    (§ if (§ expr (§ not signature.isCanonical(§ pars ))))
                     (§ block
                         (§ return (§ expr RuleViolation.SIGNATURE_CANONICAL_ENCODING))
                     )
@@ -45585,7 +45585,7 @@
     (§ block
         ;; The IsStandard rules don't apply on testnet, because they're just a safety mechanism and we don't
         ;; want to crush innovation with valueless test coins.
-        (§ if (§ expr wallet != nil && !wallet.getNetworkParameters(§ pars ).getId(§ pars ).equals(§ pars NetworkParameters.ID_MAINNET)))
+        (§ if (§ expr wallet != nil && (§ not (§ dot wallet.getNetworkParameters(§ pars ).getId(§ pars ).equals(§ pars NetworkParameters.ID_MAINNET)))))
         (§ block
             (§ return (§ expr Result.OK))
         )
@@ -45630,7 +45630,7 @@
     #_public
     (§ method String toString(§ args ))
     (§ block
-        (§ if (§ expr !analyzed))
+        (§ if (§ expr (§ not analyzed)))
         (§ block
             (§ return (§ expr "Pending risk analysis for " + tx.getHashAsString(§ pars )))
         )
@@ -45659,7 +45659,7 @@
 
     #_public
     #_static
-    (§ field (§ type Analyzer) (§ name FACTORY) (§ expr new Analyzer(§ pars )))
+    (§ field (§ type Analyzer) (§ name FACTORY) (§ new Analyzer(§ pars )))
 )
 
 #_(ns org.bitcoinj.wallet #_"DeterministicKeyChain"
@@ -46048,11 +46048,11 @@
         (§ call Preconditions.checkArgument(§ pars watchingKey.isPubKeyOnly(§ pars ), "Private subtrees not currently supported: if you got this key from DKC.getWatchingKey() then use .dropPrivate().dropParent() on it first."))
         (§ call Preconditions.checkArgument(§ pars watchingKey.getPath(§ pars ).size(§ pars ) == getAccountPath(§ pars ).size(§ pars ), "You can only watch an account key currently"))
 
-        (§ ass (§ name basicKeyChain) (§ expr new BasicKeyChain(§ pars )))
+        (§ ass (§ name basicKeyChain) (§ new BasicKeyChain(§ pars )))
         (§ ass (§ name this.seed) (§ expr nil))
         (§ ass (§ name this.rootKey) (§ expr nil))
         (§ call basicKeyChain.importKey(§ pars watchingKey))
-        (§ ass (§ name hierarchy) (§ expr new DeterministicHierarchy(§ pars watchingKey)))
+        (§ ass (§ name hierarchy) (§ new DeterministicHierarchy(§ pars watchingKey)))
         (§ call initializeHierarchyUnencrypted(§ pars watchingKey))
     )
 
@@ -46097,13 +46097,13 @@
     (§ constructor DeterministicKeyChain(§ args DeterministicSeed seed, #_nilable KeyCrypter crypter))
     (§ block
         (§ ass (§ name this.seed) (§ expr seed))
-        (§ ass (§ name basicKeyChain) (§ expr new BasicKeyChain(§ pars crypter)))
-        (§ if (§ expr !seed.isEncrypted(§ pars )))
+        (§ ass (§ name basicKeyChain) (§ new BasicKeyChain(§ pars crypter)))
+        (§ if (§ expr (§ not seed.isEncrypted(§ pars ))))
         (§ block
             (§ ass (§ name rootKey) (§ expr HDKeyDerivation.createMasterPrivateKey(§ pars Preconditions.checkNotNull(§ pars seed.getSeedBytes(§ pars )))))
             (§ call rootKey.setCreationTimeSeconds(§ pars seed.getCreationTimeSeconds(§ pars )))
             (§ call basicKeyChain.importKey(§ pars rootKey))
-            (§ ass (§ name hierarchy) (§ expr new DeterministicHierarchy(§ pars rootKey)))
+            (§ ass (§ name hierarchy) (§ new DeterministicHierarchy(§ pars rootKey)))
             (§ for (§ var (§ type int) (§ name i) (§ expr 1)) :for (§ expr i <= getAccountPath(§ pars ).size(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
             (§ block
                 (§ call basicKeyChain.importKey(§ pars hierarchy.get(§ pars getAccountPath(§ pars ).subList(§ pars 0, i), false, true)))
@@ -46128,7 +46128,7 @@
         (§ call Preconditions.checkNotNull(§ pars chain.rootKey))
         (§ call Preconditions.checkNotNull(§ pars chain.seed))
 
-        (§ call Preconditions.checkArgument(§ pars !chain.rootKey.isEncrypted(§ pars ), "Chain already encrypted"))
+        (§ call Preconditions.checkArgument(§ pars (§ not chain.rootKey.isEncrypted(§ pars )), "Chain already encrypted"))
 
         (§ ass (§ name this.issuedExternalKeys) (§ expr chain.issuedExternalKeys))
         (§ ass (§ name this.issuedInternalKeys) (§ expr chain.issuedInternalKeys))
@@ -46137,10 +46137,10 @@
         (§ ass (§ name this.lookaheadThreshold) (§ expr chain.lookaheadThreshold))
 
         (§ ass (§ name this.seed) (§ expr chain.seed.encrypt(§ pars crypter, aesKey)))
-        (§ ass (§ name basicKeyChain) (§ expr new BasicKeyChain(§ pars crypter)))
+        (§ ass (§ name basicKeyChain) (§ new BasicKeyChain(§ pars crypter)))
         ;; The first number is the "account number" but we don't use that feature.
         (§ ass (§ name rootKey) (§ expr chain.rootKey.encrypt(§ pars crypter, aesKey, nil)))
-        (§ ass (§ name hierarchy) (§ expr new DeterministicHierarchy(§ pars rootKey)))
+        (§ ass (§ name hierarchy) (§ new DeterministicHierarchy(§ pars rootKey)))
         (§ call basicKeyChain.importKey(§ pars rootKey))
 
         (§ for (§ var (§ type int) (§ name i) (§ expr 1)) :for (§ expr i < getAccountPath(§ pars ).size(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
@@ -46164,7 +46164,7 @@
 
             (§ var (§ type DeterministicKey) (§ name parent) (§ expr hierarchy.get(§ pars Preconditions.checkNotNull(§ pars key.getParent(§ pars )).getPath(§ pars ), false, false)))
             ;; Clone the key to the new encrypted hierarchy.
-            (§ ass (§ name key) (§ expr new DeterministicKey(§ pars key.dropPrivateBytes(§ pars ), parent)))
+            (§ ass (§ name key) (§ new DeterministicKey(§ pars key.dropPrivateBytes(§ pars ), parent)))
             (§ call hierarchy.putKey(§ pars key))
             (§ call basicKeyChain.importKey(§ pars key))
         )
@@ -46257,7 +46257,7 @@
             ;; and calculate the full lookahead zone there, so network requests will always use the right amount.
             (§ var (§ type List<DeterministicKey>) (§ name lookahead) (§ expr maybeLookAhead(§ pars parentKey, index, 0, 0)))
             (§ call basicKeyChain.importKeys(§ pars lookahead))
-            (§ var (§ type List<DeterministicKey>) (§ name keys) (§ expr new ArrayList<>(§ pars numberOfKeys)))
+            (§ var (§ type List<DeterministicKey>) (§ name keys) (§ new ArrayList<>(§ pars numberOfKeys)))
             (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < numberOfKeys) :for (§ ass (§ name i) (§ expr i + 1)))
             (§ block
                 (§ var (§ type ImmutableList<ChildNumber>) (§ name path) (§ expr HDUtils.append(§ pars parentKey.getPath(§ pars ), new ChildNumber(§ pars index - numberOfKeys + i, false))))
@@ -46284,7 +46284,7 @@
         (§ var (§ type DeterministicKey) (§ name parent) (§ expr Preconditions.checkNotNull(§ pars k.getParent(§ pars ))))
         (§ var (§ type byte[]) (§ name rederived) (§ expr HDKeyDerivation.deriveChildKeyBytesFromPublic(§ pars parent, k.getChildNumber(§ pars ), HDKeyDerivation.PublicDeriveMode.WITH_INVERSION).keyBytes))
         (§ var (§ type byte[]) (§ name actual) (§ expr k.getPubKey(§ pars )))
-        (§ if (§ expr !Arrays.equals(§ pars rederived, actual)))
+        (§ if (§ expr (§ not Arrays.equals(§ pars rederived, actual))))
         (§ block
             (§ throw (§ new IllegalStateException(§ pars String.format(§ pars Locale.US, "Bit-flip check failed: %s vs %s", Arrays.toString(§ pars rederived), Arrays.toString(§ pars actual)))))
         )
@@ -46673,7 +46673,7 @@
                     (§ block
                         (§ ass (§ name seedBytes) (§ expr key.getDeterministicSeed(§ pars ).toByteArray(§ pars )))
                     )
-                    (§ ass (§ name seed) (§ expr new DeterministicSeed(§ pars key.getSecretBytes(§ pars ).toStringUtf8(§ pars ), seedBytes, passphrase, timestamp)))
+                    (§ ass (§ name seed) (§ new DeterministicSeed(§ pars key.getSecretBytes(§ pars ).toStringUtf8(§ pars ), seedBytes, passphrase, timestamp)))
                 )
                 (§ elseif (§ expr key.hasEncryptedData(§ pars )))
                 (§ block
@@ -46682,14 +46682,14 @@
                         (§ throw (§ new UnreadableWalletException(§ pars "Malformed key proto: " + key)))
                     )
 
-                    (§ var (§ type EncryptedData) (§ name data) (§ expr new EncryptedData(§ pars key.getEncryptedData(§ pars ).getInitialisationVector(§ pars ).toByteArray(§ pars ), key.getEncryptedData(§ pars ).getEncryptedPrivateKey(§ pars ).toByteArray(§ pars ))))
+                    (§ var (§ type EncryptedData) (§ name data) (§ new EncryptedData(§ pars key.getEncryptedData(§ pars ).getInitialisationVector(§ pars ).toByteArray(§ pars ), key.getEncryptedData(§ pars ).getEncryptedPrivateKey(§ pars ).toByteArray(§ pars ))))
                     (§ var (§ type EncryptedData) (§ name encryptedSeedBytes) (§ expr nil))
                     (§ if (§ expr key.hasEncryptedDeterministicSeed(§ pars )))
                     (§ block
                         (§ var (§ type Protos.EncryptedData) (§ name encryptedSeed) (§ expr key.getEncryptedDeterministicSeed(§ pars )))
-                        (§ ass (§ name encryptedSeedBytes) (§ expr new EncryptedData(§ pars encryptedSeed.getInitialisationVector(§ pars ).toByteArray(§ pars ), encryptedSeed.getEncryptedPrivateKey(§ pars ).toByteArray(§ pars ))))
+                        (§ ass (§ name encryptedSeedBytes) (§ new EncryptedData(§ pars encryptedSeed.getInitialisationVector(§ pars ).toByteArray(§ pars ), encryptedSeed.getEncryptedPrivateKey(§ pars ).toByteArray(§ pars ))))
                     )
-                    (§ ass (§ name seed) (§ expr new DeterministicSeed(§ pars data, encryptedSeedBytes, timestamp)))
+                    (§ ass (§ name seed) (§ new DeterministicSeed(§ pars data, encryptedSeedBytes, timestamp)))
                 )
                 (§ else )
                 (§ block
@@ -46703,7 +46703,7 @@
             )
             (§ elseif (§ expr t == Protos.Key.Type.DETERMINISTIC_KEY))
             (§ block
-                (§ if (§ expr !key.hasDeterministicKey(§ pars )))
+                (§ if (§ expr (§ not key.hasDeterministicKey(§ pars ))))
                 (§ block
                     (§ throw (§ new UnreadableWalletException(§ pars "Deterministic key missing extra data: " + key)))
                 )
@@ -46717,7 +46717,7 @@
                 )
 
                 ;; Deserialize the public key and path.
-                (§ var (§ type LazyECPoint) (§ name pubkey) (§ expr new LazyECPoint(§ pars ECKey.CURVE.getCurve(§ pars ), key.getPublicKey(§ pars ).toByteArray(§ pars ))))
+                (§ var (§ type LazyECPoint) (§ name pubkey) (§ new LazyECPoint(§ pars ECKey.CURVE.getCurve(§ pars ), key.getPublicKey(§ pars ).toByteArray(§ pars ))))
                 #_final
                 (§ var (§ type ImmutableList<ChildNumber>) (§ name immutablePath) (§ expr ImmutableList.copyOf(§ pars path)))
                 ;; Possibly create the chain, if we didn't already do so yet.
@@ -46744,10 +46744,10 @@
                 (§ if (§ expr chain == nil))
                 (§ block
                     ;; If this is not a following chain and previous was, this must be married.
-                    (§ var (§ type boolean) (§ name isMarried) (§ expr !isFollowingKey && !chains.isEmpty(§ pars ) && chains.get(§ pars chains.size(§ pars ) - 1).isFollowing(§ pars )))
+                    (§ var (§ type boolean) (§ name isMarried) (§ expr (§ not isFollowingKey) && (§ not chains.isEmpty(§ pars )) && chains.get(§ pars chains.size(§ pars ) - 1).isFollowing(§ pars )))
                     (§ if (§ expr seed == nil))
                     (§ block
-                        (§ var (§ type DeterministicKey) (§ name accountKey) (§ expr new DeterministicKey(§ pars immutablePath, chainCode, pubkey, nil, nil)))
+                        (§ var (§ type DeterministicKey) (§ name accountKey) (§ new DeterministicKey(§ pars immutablePath, chainCode, pubkey, nil, nil)))
                         (§ call accountKey.setCreationTimeSeconds(§ pars key.getCreationTimestamp(§ pars ) / 1000))
                         (§ ass (§ name chain) (§ expr factory.makeWatchingKeyChain(§ pars key, iter.peek(§ pars ), accountKey, isFollowingKey, isMarried)))
                         (§ ass (§ name isWatchingAccountKey) (§ expr true))
@@ -46763,7 +46763,7 @@
                 )
                 ;; Find the parent key assuming this is not the root key, and not an account key for a watching chain.
                 (§ var (§ type DeterministicKey) (§ name parent) (§ expr nil))
-                (§ if (§ expr !path.isEmpty(§ pars ) && !isWatchingAccountKey))
+                (§ if (§ expr (§ not path.isEmpty(§ pars )) && (§ not isWatchingAccountKey)))
                 (§ block
                     (§ var (§ type ChildNumber) (§ name index) (§ expr path.removeLast(§ pars )))
                     (§ ass (§ name parent) (§ expr chain.hierarchy.get(§ pars path, false, false)))
@@ -46774,23 +46774,23 @@
                 (§ block
                     ;; Not encrypted: private key is available.
                     #_final
-                    (§ var (§ type BigInteger) (§ name priv) (§ expr new BigInteger(§ pars 1, key.getSecretBytes(§ pars ).toByteArray(§ pars ))))
-                    (§ ass (§ name detkey) (§ expr new DeterministicKey(§ pars immutablePath, chainCode, pubkey, priv, parent)))
+                    (§ var (§ type BigInteger) (§ name priv) (§ new BigInteger(§ pars 1, key.getSecretBytes(§ pars ).toByteArray(§ pars ))))
+                    (§ ass (§ name detkey) (§ new DeterministicKey(§ pars immutablePath, chainCode, pubkey, priv, parent)))
                 )
                 (§ else )
                 (§ block
                     (§ if (§ expr key.hasEncryptedData(§ pars )))
                     (§ block
                         (§ var (§ type Protos.EncryptedData) (§ name proto) (§ expr key.getEncryptedData(§ pars )))
-                        (§ var (§ type EncryptedData) (§ name data) (§ expr new EncryptedData(§ pars proto.getInitialisationVector(§ pars ).toByteArray(§ pars ), proto.getEncryptedPrivateKey(§ pars ).toByteArray(§ pars ))))
+                        (§ var (§ type EncryptedData) (§ name data) (§ new EncryptedData(§ pars proto.getInitialisationVector(§ pars ).toByteArray(§ pars ), proto.getEncryptedPrivateKey(§ pars ).toByteArray(§ pars ))))
                         (§ call Preconditions.checkNotNull(§ pars crypter, "Encountered an encrypted key but no key crypter provided"))
-                        (§ ass (§ name detkey) (§ expr new DeterministicKey(§ pars immutablePath, chainCode, crypter, pubkey, data, parent)))
+                        (§ ass (§ name detkey) (§ new DeterministicKey(§ pars immutablePath, chainCode, crypter, pubkey, data, parent)))
                     )
                     (§ else )
                     (§ block
                         ;; No secret key bytes and key is not encrypted: either a watching key or private key bytes
                         ;; will be rederived on the fly from the parent.
-                        (§ ass (§ name detkey) (§ expr new DeterministicKey(§ pars immutablePath, chainCode, pubkey, nil, parent)))
+                        (§ ass (§ name detkey) (§ new DeterministicKey(§ pars immutablePath, chainCode, pubkey, nil, parent)))
                     )
                 )
                 (§ if (§ expr key.hasCreationTimestamp(§ pars )))
@@ -46801,7 +46801,7 @@
                 (§ block
                     (§ call log.debug(§ pars "Deserializing: DETERMINISTIC_KEY: {}", detkey))
                 )
-                (§ if (§ expr !isWatchingAccountKey))
+                (§ if (§ expr (§ not isWatchingAccountKey)))
                 (§ block
                     ;; If the non-encrypted case, the non-leaf keys (account, internal, external) have already
                     ;; been rederived and inserted at this point.  In the encrypted case though, we can't
@@ -46812,7 +46812,7 @@
                         (§ if (§ expr chain.rootKey == nil))
                         (§ block
                             (§ ass (§ name chain.rootKey) (§ expr detkey))
-                            (§ ass (§ name chain.hierarchy) (§ expr new DeterministicHierarchy(§ pars detkey)))
+                            (§ ass (§ name chain.hierarchy) (§ new DeterministicHierarchy(§ pars detkey)))
                         )
                     )
                     (§ elseif (§ expr path.size(§ pars ) == chain.getAccountPath(§ pars ).size(§ pars ) + 1))
@@ -46853,9 +46853,9 @@
         (§ call Preconditions.checkNotNull(§ pars password))
         (§ call Preconditions.checkArgument(§ pars 0 < password.length(§ pars )))
         (§ call Preconditions.checkState(§ pars seed != nil, "Attempt to encrypt a watching chain."))
-        (§ call Preconditions.checkState(§ pars !seed.isEncrypted(§ pars )))
+        (§ call Preconditions.checkState(§ pars (§ not seed.isEncrypted(§ pars ))))
 
-        (§ var (§ type KeyCrypter) (§ name scrypt) (§ expr new KeyCrypterScrypt(§ pars )))
+        (§ var (§ type KeyCrypter) (§ name scrypt) (§ new KeyCrypterScrypt(§ pars )))
         (§ var (§ type KeyParameter) (§ name derivedKey) (§ expr scrypt.deriveKey(§ pars password)))
         (§ return (§ expr toEncrypted(§ pars scrypt, derivedKey)))
     )
@@ -46892,7 +46892,7 @@
         (§ var (§ type DeterministicSeed) (§ name decSeed) (§ expr seed.decrypt(§ pars getKeyCrypter(§ pars ), passphrase, aesKey)))
         (§ var (§ type DeterministicKeyChain) (§ name chain) (§ expr makeKeyChainFromSeed(§ pars decSeed)))
         ;; Now double check that the keys match to catch the case where the key is wrong but padding didn't catch it.
-        (§ if (§ expr !chain.getWatchingKey(§ pars ).getPubKeyPoint(§ pars ).equals(§ pars getWatchingKey(§ pars ).getPubKeyPoint(§ pars ))))
+        (§ if (§ not (§ dot chain.getWatchingKey(§ pars ).getPubKeyPoint(§ pars ).equals(§ pars getWatchingKey(§ pars ).getPubKeyPoint(§ pars )))))
         (§ block
             (§ throw (§ new KeyCrypterException(§ pars "Provided AES key is wrong")))
         )
@@ -46911,7 +46911,7 @@
             (§ call Preconditions.checkState(§ pars key.isEncrypted(§ pars )))
             (§ var (§ type DeterministicKey) (§ name parent) (§ expr chain.hierarchy.get(§ pars Preconditions.checkNotNull(§ pars key.getParent(§ pars )).getPath(§ pars ), false, false)))
             ;; Clone the key to the new decrypted hierarchy.
-            (§ ass (§ name key) (§ expr new DeterministicKey(§ pars key.dropPrivateBytes(§ pars ), parent)))
+            (§ ass (§ name key) (§ new DeterministicKey(§ pars key.dropPrivateBytes(§ pars ), parent)))
             (§ call chain.hierarchy.putKey(§ pars key))
             (§ call chain.basicKeyChain.importKey(§ pars key))
         )
@@ -47136,12 +47136,12 @@
 
         (§ if (§ expr needed <= lookaheadThreshold))
         (§ block
-            (§ return (§ expr new ArrayList<>(§ pars )))
+            (§ return (§ new ArrayList<>(§ pars )))
         )
 
         (§ call log.info(§ pars "{} keys needed for {} = {} issued + {} lookahead size + {} lookahead threshold - {} num children", needed, parent.getPathAsString(§ pars ), issued, lookaheadSize, lookaheadThreshold, numChildren))
 
-        (§ var (§ type List<DeterministicKey>) (§ name result) (§ expr new ArrayList<>(§ pars needed)))
+        (§ var (§ type List<DeterministicKey>) (§ name result) (§ new ArrayList<>(§ pars needed)))
         #_final
         (§ var (§ type Stopwatch) (§ name watch) (§ expr Stopwatch.createStarted(§ pars )))
         (§ var (§ type int) (§ name nextChild) (§ expr numChildren))
@@ -47220,19 +47220,19 @@
     (§ method List<ECKey> getKeys(§ args boolean includeLookahead, boolean includeParents))
     (§ block
         (§ var (§ type List<ECKey>) (§ name keys) (§ expr basicKeyChain.getKeys(§ pars )))
-        (§ if (§ expr !includeLookahead))
+        (§ if (§ expr (§ not includeLookahead)))
         (§ block
             (§ var (§ type int) (§ name treeSize) (§ expr internalParentKey.getPath(§ pars ).size(§ pars )))
-            (§ var (§ type List<ECKey>) (§ name issuedKeys) (§ expr new LinkedList<>(§ pars )))
+            (§ var (§ type List<ECKey>) (§ name issuedKeys) (§ new LinkedList<>(§ pars )))
             (§ for (§ var (§ type ECKey) (§ name key)) :for (§ expr keys))
             (§ block
                 (§ var (§ type DeterministicKey) (§ name detkey) (§ expr (§ cast DeterministicKey)key))
                 (§ var (§ type DeterministicKey) (§ name parent) (§ expr detkey.getParent(§ pars )))
-                (§ if (§ expr !includeParents && parent == nil))
+                (§ if (§ expr (§ not includeParents) && parent == nil))
                 (§ block
                     (§ continue )
                 )
-                (§ if (§ expr !includeParents && detkey.getPath(§ pars ).size(§ pars ) <= treeSize))
+                (§ if (§ expr (§ not includeParents) && detkey.getPath(§ pars ).size(§ pars ) <= treeSize))
                 (§ block
                     (§ continue )
                 )
@@ -47258,11 +47258,11 @@
     (§ method List<ECKey> getIssuedReceiveKeys(§ args ))
     (§ block
         #_final
-        (§ var (§ type List<ECKey>) (§ name keys) (§ expr new ArrayList<>(§ pars getKeys(§ pars false, false))))
+        (§ var (§ type List<ECKey>) (§ name keys) (§ new ArrayList<>(§ pars getKeys(§ pars false, false))))
         (§ for (§ var (§ type Iterator<ECKey>) (§ name i) (§ expr keys.iterator(§ pars ))) :for (§ expr i.hasNext(§ pars )) :for (§ expr ))
         (§ block
             (§ var (§ type DeterministicKey) (§ name parent) (§ expr (§ expr (§ cast DeterministicKey)i.next(§ pars )).getParent(§ pars )))
-            (§ if (§ expr parent == nil || !externalParentKey.equals(§ pars parent)))
+            (§ if (§ expr parent == nil || (§ not externalParentKey.equals(§ pars parent))))
             (§ block
                 (§ call i.remove(§ pars ))
             )
@@ -47361,7 +47361,7 @@
         #_final
         (§ var (§ type DeterministicKey) (§ name watchingKey) (§ expr getWatchingKey(§ pars )))
         #_final
-        (§ var (§ type StringBuilder) (§ name sb) (§ expr new StringBuilder(§ pars )))
+        (§ var (§ type StringBuilder) (§ name sb) (§ new StringBuilder(§ pars )))
         (§ if (§ expr seed != nil))
         (§ block
             (§ if (§ expr seed.isEncrypted(§ pars )))
@@ -47551,7 +47551,7 @@
     (§ block
         (§ call Preconditions.checkArgument(§ pars bits <= MAX_SEED_ENTROPY_BITS, "requested entropy size too large"))
 
-        (§ var (§ type byte[]) (§ name seed) (§ expr new byte[bits / 8]))
+        (§ var (§ type byte[]) (§ name seed) (§ new byte[bits / 8]))
         (§ call random.nextBytes(§ pars seed))
         (§ return (§ expr seed))
     )
@@ -47805,7 +47805,7 @@
     #_protected
     (§ field (§ type CoinSelector) (§ name delegate))
     #_protected
-    (§ field (§ type HashSet<TransactionOutPoint>) (§ name spent) (§ expr new HashSet<>(§ pars )))
+    (§ field (§ type HashSet<TransactionOutPoint>) (§ name spent) (§ new HashSet<>(§ pars )))
 
     #_public
     (§ constructor FilteringCoinSelector(§ args CoinSelector delegate))
@@ -48097,10 +48097,10 @@
     (§ block
         (§ ass (§ name this.params) (§ expr params))
         (§ ass this.basic = (§ expr basicKeyChain == nil) ? new BasicKeyChain(§ pars ) :else basicKeyChain)
-        (§ ass (§ name this.chains) (§ expr new LinkedList<>(§ pars Preconditions.checkNotNull(§ pars chains))))
+        (§ ass (§ name this.chains) (§ new LinkedList<>(§ pars Preconditions.checkNotNull(§ pars chains))))
         (§ ass (§ name this.keyCrypter) (§ expr crypter))
         (§ ass this.currentKeys = (§ expr currentKeys == nil) ? new EnumMap<KeyChain.KeyPurpose, DeterministicKey>(§ pars KeyChain.KeyPurpose.class) :else currentKeys)
-        (§ ass (§ name this.currentAddresses) (§ expr new EnumMap<>(§ pars KeyChain.KeyPurpose.class)))
+        (§ ass (§ name this.currentAddresses) (§ new EnumMap<>(§ pars KeyChain.KeyPurpose.class)))
         (§ call maybeLookaheadScripts(§ pars ))
 
         (§ if (§ expr isMarried(§ pars )))
@@ -48129,7 +48129,7 @@
     (§ block
         ;; We can't do auto upgrade here because we don't know the rotation time, if any.
         #_final
-        (§ var (§ type DeterministicKeyChain) (§ name chain) (§ expr new DeterministicKeyChain(§ pars (§ new SecureRandom(§ pars )))))
+        (§ var (§ type DeterministicKeyChain) (§ name chain) (§ new DeterministicKeyChain(§ pars (§ new SecureRandom(§ pars )))))
         (§ call addAndActivateHDChain(§ pars chain))
     )
 
@@ -48575,7 +48575,7 @@
     (§ method boolean removeImportedKey(§ args ECKey key))
     (§ block
         (§ call Preconditions.checkNotNull(§ pars key))
-        (§ call Preconditions.checkArgument(§ pars !(§ expr key instanceof DeterministicKey)))
+        (§ call Preconditions.checkArgument(§ pars (§ not (§ expr key instanceof DeterministicKey))))
 
         (§ return (§ expr basic.removeKey(§ pars key)))
     )
@@ -48589,7 +48589,7 @@
     #_final
     (§ method boolean isMarried(§ args ))
     (§ block
-        (§ return (§ expr !chains.isEmpty(§ pars ) && getActiveKeyChain(§ pars ).isMarried(§ pars )))
+        (§ return (§ expr (§ not chains.isEmpty(§ pars )) && getActiveKeyChain(§ pars ).isMarried(§ pars )))
     )
 
     ;;;
@@ -48608,7 +48608,7 @@
 
         ;; This code must be exception safe.
         (§ var (§ type BasicKeyChain) (§ name newBasic) (§ expr basic.toEncrypted(§ pars keyCrypter, aesKey)))
-        (§ var (§ type List<DeterministicKeyChain>) (§ name newChains) (§ expr new ArrayList<>(§ pars chains.size(§ pars ))))
+        (§ var (§ type List<DeterministicKeyChain>) (§ name newChains) (§ new ArrayList<>(§ pars chains.size(§ pars ))))
         (§ if (§ expr chains.isEmpty(§ pars ) && basic.numKeys(§ pars ) == 0))
         (§ block
             ;; No HD chains and no random keys: encrypting an entirely empty keychain group.
@@ -48638,7 +48638,7 @@
         (§ call Preconditions.checkNotNull(§ pars aesKey))
 
         (§ var (§ type BasicKeyChain) (§ name newBasic) (§ expr basic.toDecrypted(§ pars aesKey)))
-        (§ var (§ type List<DeterministicKeyChain>) (§ name newChains) (§ expr new ArrayList<>(§ pars chains.size(§ pars ))))
+        (§ var (§ type List<DeterministicKeyChain>) (§ name newChains) (§ new ArrayList<>(§ pars chains.size(§ pars ))))
         (§ for (§ var (§ type DeterministicKeyChain) (§ name chain)) :for (§ expr chains))
         (§ block
             (§ call newChains.add(§ pars chain.toDecrypted(§ pars aesKey)))
@@ -48667,7 +48667,7 @@
     (§ method boolean isWatching(§ args ))
     (§ block
         (§ var (§ type BasicKeyChain.State) (§ name activeState) (§ expr BasicKeyChain.State.EMPTY))
-        (§ if (§ expr !chains.isEmpty(§ pars )))
+        (§ if (§ expr (§ not chains.isEmpty(§ pars ))))
         (§ block
             (§ ass (§ name activeState) (§ expr getActiveKeyChain(§ pars ).isWatching(§ pars ) ? BasicKeyChain.State.WATCHING :else BasicKeyChain.State.REGULAR))
         )
@@ -48738,7 +48738,7 @@
     #_public
     (§ method BloomFilter getBloomFilter(§ args int size, double falsePositiveRate, long nTweak))
     (§ block
-        (§ var (§ type BloomFilter) (§ name filter) (§ expr new BloomFilter(§ pars size, falsePositiveRate, nTweak)))
+        (§ var (§ type BloomFilter) (§ name filter) (§ new BloomFilter(§ pars size, falsePositiveRate, nTweak)))
         (§ if (§ expr 0 < basic.numKeys(§ pars )))
         (§ block
             (§ call filter.merge(§ pars basic.getFilter(§ pars size, falsePositiveRate, nTweak)))
@@ -48820,7 +48820,7 @@
         (§ var (§ type BasicKeyChain) (§ name basicKeyChain) (§ expr BasicKeyChain.fromProtobufUnencrypted(§ pars keys)))
         (§ var (§ type List<DeterministicKeyChain>) (§ name chains) (§ expr DeterministicKeyChain.fromProtobuf(§ pars keys, nil, factory)))
         (§ var EnumMap<KeyChain.KeyPurpose, DeterministicKey> currentKeys = nil)
-        (§ if (§ expr !chains.isEmpty(§ pars )))
+        (§ if (§ expr (§ not chains.isEmpty(§ pars ))))
         (§ block
             (§ ass (§ name currentKeys) (§ expr createCurrentKeysMap(§ pars chains)))
         )
@@ -48845,7 +48845,7 @@
         (§ var (§ type BasicKeyChain) (§ name basicKeyChain) (§ expr BasicKeyChain.fromProtobufEncrypted(§ pars keys, crypter)))
         (§ var (§ type List<DeterministicKeyChain>) (§ name chains) (§ expr DeterministicKeyChain.fromProtobuf(§ pars keys, crypter, factory)))
         (§ var EnumMap<KeyChain.KeyPurpose, DeterministicKey> currentKeys = nil)
-        (§ if (§ expr !chains.isEmpty(§ pars )))
+        (§ if (§ expr (§ not chains.isEmpty(§ pars ))))
         (§ block
             (§ ass (§ name currentKeys) (§ expr createCurrentKeysMap(§ pars chains)))
         )
@@ -48929,7 +48929,7 @@
         (§ ass (§ name entropy) (§ expr Arrays.copyOfRange(§ pars entropy, 0, DeterministicSeed.DEFAULT_SEED_ENTROPY_BITS / 8))) ;; Final argument is exclusive range.
         (§ call Preconditions.checkState(§ pars entropy.length == DeterministicSeed.DEFAULT_SEED_ENTROPY_BITS / 8))
         (§ var (§ type String) (§ name passphrase) (§ expr "")) ;; FIXME allow non-empty passphrase
-        (§ var (§ type DeterministicKeyChain) (§ name chain) (§ expr new DeterministicKeyChain(§ pars entropy, passphrase, keyToUse.getCreationTimeSeconds(§ pars ))))
+        (§ var (§ type DeterministicKeyChain) (§ name chain) (§ new DeterministicKeyChain(§ pars entropy, passphrase, keyToUse.getCreationTimeSeconds(§ pars ))))
         (§ if (§ expr aesKey != nil))
         (§ block
             (§ ass (§ name chain) (§ expr chain.toEncrypted(§ pars Preconditions.checkNotNull(§ pars basic.getKeyCrypter(§ pars )), aesKey)))
@@ -48985,9 +48985,9 @@
                 (§ call followingChains.add(§ pars chain))
                 (§ call it.remove(§ pars ))
             )
-            (§ elseif (§ expr !followingChains.isEmpty(§ pars )))
+            (§ elseif (§ expr (§ not followingChains.isEmpty(§ pars ))))
             (§ block
-                (§ if (§ expr !(§ expr chain instanceof MarriedKeyChain)))
+                (§ if (§ expr (§ not (§ expr chain instanceof MarriedKeyChain))))
                 (§ block
                     (§ throw (§ new IllegalStateException(§ pars )))
                 )
@@ -49002,7 +49002,7 @@
     (§ method String toString(§ args boolean includePrivateKeys))
     (§ block
         #_final
-        (§ var (§ type StringBuilder) (§ name sb) (§ expr new StringBuilder(§ pars )))
+        (§ var (§ type StringBuilder) (§ name sb) (§ new StringBuilder(§ pars )))
         (§ if (§ expr basic != nil))
         (§ block
             (§ var (§ type List<ECKey>) (§ name keys) (§ expr basic.getKeys(§ pars )))
@@ -49023,7 +49023,7 @@
     #_public
     (§ method List<DeterministicKeyChain> getDeterministicKeyChains(§ args ))
     (§ block
-        (§ return (§ expr new ArrayList<>(§ pars chains)))
+        (§ return (§ new ArrayList<>(§ pars chains)))
     )
 
     ;;;
@@ -49095,7 +49095,7 @@
             (§ var (§ type Coin) (§ name valueGathered) (§ expr Coin.ZERO))
             (§ for (§ var (§ type TransactionOutput) (§ name output)) :for (§ expr candidates))
             (§ block
-                (§ if (§ expr ignorePending && !isConfirmed(§ pars output)))
+                (§ if (§ expr ignorePending && (§ not isConfirmed(§ pars output))))
                 (§ block
                     (§ continue )
                 )
@@ -49239,21 +49239,21 @@
 
             (§ if (§ expr random != nil))
             (§ block
-                (§ ass (§ name chain) (§ expr new MarriedKeyChain(§ pars random, bits, getPassphrase(§ pars ), seedCreationTimeSecs)))
+                (§ ass (§ name chain) (§ new MarriedKeyChain(§ pars random, bits, getPassphrase(§ pars ), seedCreationTimeSecs)))
             )
             (§ elseif (§ expr entropy != nil))
             (§ block
-                (§ ass (§ name chain) (§ expr new MarriedKeyChain(§ pars entropy, getPassphrase(§ pars ), seedCreationTimeSecs)))
+                (§ ass (§ name chain) (§ new MarriedKeyChain(§ pars entropy, getPassphrase(§ pars ), seedCreationTimeSecs)))
             )
             (§ elseif (§ expr seed != nil))
             (§ block
                 (§ call seed.setCreationTimeSeconds(§ pars seedCreationTimeSecs))
-                (§ ass (§ name chain) (§ expr new MarriedKeyChain(§ pars seed)))
+                (§ ass (§ name chain) (§ new MarriedKeyChain(§ pars seed)))
             )
             (§ else )
             (§ block
                 (§ call watchingKey.setCreationTimeSeconds(§ pars seedCreationTimeSecs))
-                (§ ass (§ name chain) (§ expr new MarriedKeyChain(§ pars watchingKey)))
+                (§ ass (§ name chain) (§ new MarriedKeyChain(§ pars watchingKey)))
             )
 
             (§ call chain.addFollowingAccountKeys(§ pars followingKeys, threshold))
@@ -49300,7 +49300,7 @@
 
     (§ method void setFollowingKeyChains(§ args List<DeterministicKeyChain> followingKeyChains))
     (§ block
-        (§ call Preconditions.checkArgument(§ pars !followingKeyChains.isEmpty(§ pars )))
+        (§ call Preconditions.checkArgument(§ pars (§ not followingKeyChains.isEmpty(§ pars ))))
         (§ ass (§ name this.followingKeyChains) (§ expr followingKeyChains))
     )
 
@@ -49489,7 +49489,7 @@
         (§ var (§ type BloomFilter) (§ name filter))
         (§ try )
         (§ block
-            (§ ass (§ name filter) (§ expr new BloomFilter(§ pars size, falsePositiveRate, tweak)))
+            (§ ass (§ name filter) (§ new BloomFilter(§ pars size, falsePositiveRate, tweak)))
             (§ for (§ var Map.Entry<ByteString, RedeemData> entry) :for (§ expr marriedKeysRedeemData.entrySet(§ pars )))
             (§ block
                 (§ call filter.insert(§ pars entry.getKey(§ pars ).toByteArray(§ pars )))
@@ -49539,7 +49539,7 @@
     (§ constructor RedeemData(§ args List<ECKey> keys, Script redeemScript))
     (§ block
         (§ ass (§ name this.redeemScript) (§ expr redeemScript))
-        (§ var (§ type List<ECKey>) (§ name sortedKeys) (§ expr new ArrayList<>(§ pars keys)))
+        (§ var (§ type List<ECKey>) (§ name sortedKeys) (§ new ArrayList<>(§ pars keys)))
         (§ call Collections.sort(§ pars sortedKeys, ECKey.PUBKEY_COMPARATOR))
         (§ ass (§ name this.keys) (§ expr sortedKeys))
     )
@@ -49766,13 +49766,13 @@
     #_static
     (§ method SendRequest to(§ args Address destination, Coin value))
     (§ block
-        (§ var (§ type SendRequest) (§ name req) (§ expr new SendRequest(§ pars )))
+        (§ var (§ type SendRequest) (§ name req) (§ new SendRequest(§ pars )))
         #_final
         (§ var (§ type NetworkParameters) (§ name parameters) (§ expr destination.getParameters(§ pars )))
 
         (§ call Preconditions.checkNotNull(§ pars parameters, "Address is for an unknown network"))
 
-        (§ ass (§ name req.tx) (§ expr new Transaction(§ pars parameters)))
+        (§ ass (§ name req.tx) (§ new Transaction(§ pars parameters)))
         (§ call req.tx.addOutput(§ pars value, destination))
         (§ return (§ expr req))
     )
@@ -49789,8 +49789,8 @@
     #_static
     (§ method SendRequest to(§ args NetworkParameters params, ECKey destination, Coin value))
     (§ block
-        (§ var (§ type SendRequest) (§ name req) (§ expr new SendRequest(§ pars )))
-        (§ ass (§ name req.tx) (§ expr new Transaction(§ pars params)))
+        (§ var (§ type SendRequest) (§ name req) (§ new SendRequest(§ pars )))
+        (§ ass (§ name req.tx) (§ new Transaction(§ pars params)))
         (§ call req.tx.addOutput(§ pars value, destination))
         (§ return (§ expr req))
     )
@@ -49800,7 +49800,7 @@
     #_static
     (§ method SendRequest forTx(§ args Transaction tx))
     (§ block
-        (§ var (§ type SendRequest) (§ name req) (§ expr new SendRequest(§ pars )))
+        (§ var (§ type SendRequest) (§ name req) (§ new SendRequest(§ pars )))
         (§ ass (§ name req.tx) (§ expr tx))
         (§ return (§ expr req))
     )
@@ -49809,13 +49809,13 @@
     #_static
     (§ method SendRequest emptyWallet(§ args Address destination))
     (§ block
-        (§ var (§ type SendRequest) (§ name req) (§ expr new SendRequest(§ pars )))
+        (§ var (§ type SendRequest) (§ name req) (§ new SendRequest(§ pars )))
         #_final
         (§ var (§ type NetworkParameters) (§ name parameters) (§ expr destination.getParameters(§ pars )))
 
         (§ call Preconditions.checkNotNull(§ pars parameters, "Address is for an unknown network"))
 
-        (§ ass (§ name req.tx) (§ expr new Transaction(§ pars parameters)))
+        (§ ass (§ name req.tx) (§ new Transaction(§ pars parameters)))
         (§ call req.tx.addOutput(§ pars Coin.ZERO, destination))
         (§ ass (§ name req.emptyWallet) (§ expr true))
         (§ return (§ expr req))
@@ -49843,7 +49843,7 @@
         (§ call Preconditions.checkNotNull(§ pars outputToSpend, "Can't find adequately sized output that spends to us"))
 
         #_final
-        (§ var (§ type Transaction) (§ name tx) (§ expr new Transaction(§ pars parentTransaction.getParams(§ pars ))))
+        (§ var (§ type Transaction) (§ name tx) (§ new Transaction(§ pars parentTransaction.getParams(§ pars ))))
         (§ call tx.addInput(§ pars outputToSpend))
         (§ call tx.addOutput(§ pars outputToSpend.getValue(§ pars ).subtract(§ pars feeRaise), wallet.freshAddress(§ pars KeyPurpose.CHANGE)))
         (§ call tx.setPurpose(§ pars Transaction.Purpose.RAISE_FEE))
@@ -49877,9 +49877,9 @@
     #_static
     (§ method SendRequest toCLTVPaymentChannel(§ args NetworkParameters params, BigInteger time, ECKey from, ECKey to, Coin value))
     (§ block
-        (§ var (§ type SendRequest) (§ name req) (§ expr new SendRequest(§ pars )))
+        (§ var (§ type SendRequest) (§ name req) (§ new SendRequest(§ pars )))
         (§ var (§ type Script) (§ name output) (§ expr ScriptBuilder.createCLTVPaymentChannelOutput(§ pars time, from, to)))
-        (§ ass (§ name req.tx) (§ expr new Transaction(§ pars params)))
+        (§ ass (§ name req.tx) (§ new Transaction(§ pars params)))
         (§ call req.tx.addOutput(§ pars value, output))
         (§ return (§ expr req))
     )
@@ -50123,19 +50123,19 @@
 
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<WalletChangeEventListener>>) (§ name changeListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<WalletChangeEventListener>>) (§ name changeListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<WalletCoinsReceivedEventListener>>) (§ name coinsReceivedListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<WalletCoinsReceivedEventListener>>) (§ name coinsReceivedListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<WalletCoinsSentEventListener>>) (§ name coinsSentListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<WalletCoinsSentEventListener>>) (§ name coinsSentListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<WalletReorganizeEventListener>>) (§ name reorganizeListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<WalletReorganizeEventListener>>) (§ name reorganizeListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
     #_private
     #_final
-    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<TransactionConfidenceEventListener>>) (§ name transactionConfidenceListeners) (§ expr new CopyOnWriteArrayList<>(§ pars )))
+    (§ field (§ type CopyOnWriteArrayList<ListenerRegistration<TransactionConfidenceEventListener>>) (§ name transactionConfidenceListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
 
     ;; A listener that relays confidence changes from the transaction confidence object to the wallet event listener,
     ;; as a convenience to API users so they don't have to register on every transaction themselves.
@@ -50178,7 +50178,7 @@
     (§ field (§ type long) (§ name vKeyRotationTimestamp))
 
     #_protected
-    (§ field (§ type CoinSelector) (§ name coinSelector) (§ expr new DefaultCoinSelector(§ pars )))
+    (§ field (§ type CoinSelector) (§ name coinSelector) (§ new DefaultCoinSelector(§ pars )))
 
     ;; The wallet version.  This is an int that can be used to track breaking changes in the wallet format.
     ;; You can also use it to detect wallets that come from the future (i.e. they contain features you
@@ -50259,10 +50259,10 @@
     (§ block
         (§ for (§ var (§ type ECKey) (§ name key)) :for (§ expr keys))
         (§ block
-            (§ call Preconditions.checkArgument(§ pars !(§ expr key instanceof DeterministicKey)))
+            (§ call Preconditions.checkArgument(§ pars (§ not (§ expr key instanceof DeterministicKey))))
         )
 
-        (§ var (§ type KeyChainGroup) (§ name group) (§ expr new KeyChainGroup(§ pars params)))
+        (§ var (§ type KeyChainGroup) (§ name group) (§ new KeyChainGroup(§ pars params)))
         (§ call group.importKeys(§ pars keys))
         (§ return (§ new Wallet(§ pars params, group)))
     )
@@ -50290,14 +50290,14 @@
         (§ block
             (§ call this.keyChainGroup.createAndActivateNewHDChain(§ pars ))
         )
-        (§ ass (§ name unspent) (§ expr new HashMap<>(§ pars )))
-        (§ ass (§ name spent) (§ expr new HashMap<>(§ pars )))
-        (§ ass (§ name pending) (§ expr new HashMap<>(§ pars )))
-        (§ ass (§ name dead) (§ expr new HashMap<>(§ pars )))
-        (§ ass (§ name transactions) (§ expr new HashMap<>(§ pars )))
+        (§ ass (§ name unspent) (§ new HashMap<>(§ pars )))
+        (§ ass (§ name spent) (§ new HashMap<>(§ pars )))
+        (§ ass (§ name pending) (§ new HashMap<>(§ pars )))
+        (§ ass (§ name dead) (§ new HashMap<>(§ pars )))
+        (§ ass (§ name transactions) (§ new HashMap<>(§ pars )))
         ;; Use a linked hash map to ensure ordering of event listeners is correct.
-        (§ ass (§ name confidenceChanged) (§ expr new LinkedHashMap<>(§ pars )))
-        (§ ass (§ name signers) (§ expr new ArrayList<>(§ pars )))
+        (§ ass (§ name confidenceChanged) (§ new LinkedHashMap<>(§ pars )))
+        (§ ass (§ name signers) (§ new ArrayList<>(§ pars )))
         (§ call addTransactionSigner(§ pars (§ new LocalTransactionSigner(§ pars ))))
         (§ call createTransientState(§ pars ))
     )
@@ -50305,8 +50305,8 @@
     #_private
     (§ method void createTransientState(§ args ))
     (§ block
-        (§ ass (§ name ignoreNextNewBlock) (§ expr new HashSet<>(§ pars )))
-        (§ ass (§ name txConfidenceListener) (§ expr new TransactionConfidence.Listener(§ pars )
+        (§ ass (§ name ignoreNextNewBlock) (§ new HashSet<>(§ pars )))
+        (§ ass (§ name txConfidenceListener) (§ new TransactionConfidence.Listener(§ pars )
         (§ anon
             #_override
             #_public
@@ -50564,7 +50564,7 @@
     (§ block
         #_final
         (§ var (§ type List<ECKey>) (§ name keys) (§ expr getIssuedReceiveKeys(§ pars )))
-        (§ var (§ type List<Address>) (§ name addresses) (§ expr new ArrayList<>(§ pars keys.size(§ pars ))))
+        (§ var (§ type List<Address>) (§ name addresses) (§ new ArrayList<>(§ pars keys.size(§ pars ))))
         (§ for (§ var (§ type ECKey) (§ name key)) :for (§ expr keys))
         (§ block
             (§ call addresses.add(§ pars key.toAddress(§ pars getParams(§ pars ))))
@@ -51127,7 +51127,7 @@
         (§ try )
         (§ block
             #_final
-            (§ var (§ type KeyCrypterScrypt) (§ name scrypt) (§ expr new KeyCrypterScrypt(§ pars )))
+            (§ var (§ type KeyCrypterScrypt) (§ name scrypt) (§ new KeyCrypterScrypt(§ pars )))
             (§ call keyChainGroup.encrypt(§ pars scrypt, scrypt.deriveKey(§ pars password)))
         )
         (§ finally )
@@ -51346,7 +51346,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ ass (§ name stream) (§ expr new FileOutputStream(§ pars temp)))
+            (§ ass (§ name stream) (§ new FileOutputStream(§ pars temp)))
             (§ call saveToFileStream(§ pars stream))
             ;; Attempt to force the bits to hit the disk.  In reality the OS or hard disk itself may still decide
             ;; to not write through to physical media for at least a few seconds, but this is the best we can do.
@@ -51358,7 +51358,7 @@
             (§ block
                 ;; Work around an issue on Windows whereby you can't rename over existing files.
                 (§ var (§ type File) (§ name canonical) (§ expr destFile.getCanonicalFile(§ pars )))
-                (§ if (§ expr canonical.exists(§ pars ) && !canonical.delete(§ pars )))
+                (§ if (§ expr canonical.exists(§ pars ) && (§ not canonical.delete(§ pars ))))
                 (§ block
                     (§ throw (§ new IOException(§ pars "Failed to delete canonical wallet file for replacement with autosave")))
                 )
@@ -51368,7 +51368,7 @@
                 )
                 (§ throw (§ new IOException(§ pars "Failed to rename " + temp + " to " + canonical)))
             )
-            (§ elseif (§ expr !temp.renameTo(§ pars destFile)))
+            (§ elseif (§ expr (§ not temp.renameTo(§ pars destFile))))
             (§ block
                 (§ throw (§ new IOException(§ pars "Failed to rename " + temp + " to " + destFile)))
             )
@@ -51511,7 +51511,7 @@
         (§ try )
         (§ block
             (§ call Preconditions.checkState(§ pars vFileManager == nil, "Already auto saving this wallet."))
-            (§ var (§ type WalletFiles) (§ name manager) (§ expr new WalletFiles(§ pars this, f, delayTime, timeUnit)))
+            (§ var (§ type WalletFiles) (§ name manager) (§ new WalletFiles(§ pars this, f, delayTime, timeUnit)))
             (§ if (§ expr eventListener != nil))
             (§ block
                 (§ call manager.setListener(§ pars eventListener))
@@ -51630,7 +51630,7 @@
             (§ var (§ type FileInputStream) (§ name stream) (§ expr nil))
             (§ try )
             (§ block
-                (§ ass (§ name stream) (§ expr new FileInputStream(§ pars file)))
+                (§ ass (§ name stream) (§ new FileInputStream(§ pars file)))
                 (§ return (§ expr loadFromFileStream(§ pars stream)))
             )
             (§ finally )
@@ -51687,7 +51687,7 @@
         (§ block
             (§ var (§ type Set<Transaction>) (§ name transactions) (§ expr getTransactions(§ pars true)))
 
-            (§ var (§ type Set<Sha256Hash>) (§ name hashes) (§ expr new HashSet<>(§ pars )))
+            (§ var (§ type Set<Sha256Hash>) (§ name hashes) (§ new HashSet<>(§ pars )))
             (§ for (§ var (§ type Transaction) (§ name tx)) :for (§ expr transactions))
             (§ block
                 (§ call hashes.add(§ pars tx.getHash(§ pars )))
@@ -51707,7 +51707,7 @@
 
             (§ for (§ var (§ type Transaction) (§ name tx)) :for (§ expr unspent.values(§ pars )))
             (§ block
-                (§ if (§ expr !isTxConsistent(§ pars tx, false)))
+                (§ if (§ expr (§ not isTxConsistent(§ pars tx, false))))
                 (§ block
                     (§ throw (§ new IllegalStateException(§ pars "Inconsistent unspent tx: " + tx.getHashAsString(§ pars ))))
                 )
@@ -51715,7 +51715,7 @@
 
             (§ for (§ var (§ type Transaction) (§ name tx)) :for (§ expr spent.values(§ pars )))
             (§ block
-                (§ if (§ expr !isTxConsistent(§ pars tx, true)))
+                (§ if (§ expr (§ not isTxConsistent(§ pars tx, true))))
                 (§ block
                     (§ throw (§ new IllegalStateException(§ pars "Inconsistent spent tx: " + tx.getHashAsString(§ pars ))))
                 )
@@ -51764,8 +51764,8 @@
     (§ method Wallet loadFromFileStream(§ args InputStream stream))
         (§ throws UnreadableWalletException)
     (§ block
-        (§ var (§ type Wallet) (§ name wallet) (§ expr new WalletProtobufSerializer(§ pars ).readWallet(§ pars stream)))
-        (§ if (§ expr !wallet.isConsistent(§ pars )))
+        (§ var (§ type Wallet) (§ name wallet) (§ expr (§ new WalletProtobufSerializer(§ pars )).readWallet(§ pars stream)))
+        (§ if (§ expr (§ not wallet.isConsistent(§ pars ))))
         (§ block
             (§ call log.error(§ pars "Loaded an inconsistent wallet"))
         )
@@ -51849,19 +51849,19 @@
             ;; Ignore it if we already know about this transaction.  Receiving a pending transaction never moves it
             ;; between pools.
             (§ var (§ type EnumSet<Pool>) (§ name containingPools) (§ expr getContainingPools(§ pars tx)))
-            (§ if (§ expr !containingPools.equals(§ pars EnumSet.noneOf(§ pars Pool.class))))
+            (§ if (§ expr (§ not containingPools.equals(§ pars EnumSet.noneOf(§ pars Pool.class)))))
             (§ block
                 (§ call log.debug(§ pars "Received tx we already saw in a block or created ourselves: " + tx.getHashAsString(§ pars )))
                 (§ return )
             )
             ;; Repeat the check of relevancy here, even though the caller may have already done so - this is to avoid
             ;; race conditions where receivePending may be being called in parallel.
-            (§ if (§ expr !overrideIsRelevant && !isPendingTransactionRelevant(§ pars tx)))
+            (§ if (§ expr (§ not overrideIsRelevant) && (§ not isPendingTransactionRelevant(§ pars tx))))
             (§ block
                 (§ return )
             )
 
-            (§ if (§ expr isTransactionRisky(§ pars tx, dependencies) && !acceptRiskyTransactions))
+            (§ if (§ expr isTransactionRisky(§ pars tx, dependencies) && (§ not acceptRiskyTransactions)))
             (§ block
                 ;; isTransactionRisky already logged the reason.
                 (§ call riskDropped.put(§ pars tx.getHash(§ pars ), tx))
@@ -51958,7 +51958,7 @@
             ;; Ignore it if we already know about this transaction.  Receiving a pending transaction never moves it
             ;; between pools.
             (§ var (§ type EnumSet<Pool>) (§ name containingPools) (§ expr getContainingPools(§ pars tx)))
-            (§ if (§ expr !containingPools.equals(§ pars EnumSet.noneOf(§ pars Pool.class))))
+            (§ if (§ expr (§ not containingPools.equals(§ pars EnumSet.noneOf(§ pars Pool.class)))))
             (§ block
                 (§ call log.debug(§ pars "Received tx we already saw in a block or created ourselves: " + tx.getHashAsString(§ pars )))
                 (§ return (§ expr false))
@@ -51968,7 +51968,7 @@
             ;;   - Send us coins.
             ;;   - Spend our coins.
             ;;   - Double spend a tx in our wallet.
-            (§ if (§ expr !isTransactionRelevant(§ pars tx)))
+            (§ if (§ expr (§ not isTransactionRelevant(§ pars tx))))
             (§ block
                 (§ call log.debug(§ pars "Received tx that isn't relevant to this wallet, discarding."))
                 (§ return (§ expr false))
@@ -51996,7 +51996,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ return (§ expr 0 < tx.getValueSentFromMe(§ pars this).signum(§ pars ) || 0 < tx.getValueSentToMe(§ pars this).signum(§ pars ) || !findDoubleSpendsAgainst(§ pars tx, transactions).isEmpty(§ pars )))
+            (§ return (§ expr 0 < tx.getValueSentFromMe(§ pars this).signum(§ pars ) || 0 < tx.getValueSentToMe(§ pars this).signum(§ pars ) || (§ not (§ dot findDoubleSpendsAgainst(§ pars tx, transactions).isEmpty(§ pars )))))
         )
         (§ finally )
         (§ block
@@ -52019,7 +52019,7 @@
         )
 
         ;; Compile a set of outpoints that are spent by tx.
-        (§ var (§ type HashSet<TransactionOutPoint>) (§ name outpoints) (§ expr new HashSet<>(§ pars )))
+        (§ var (§ type HashSet<TransactionOutPoint>) (§ name outpoints) (§ new HashSet<>(§ pars )))
         (§ for (§ var (§ type TransactionInput) (§ name input)) :for (§ expr tx.getInputs(§ pars )))
         (§ block
             (§ call outpoints.add(§ pars input.getOutpoint(§ pars )))
@@ -52061,7 +52061,7 @@
             (§ call txQueue.put(§ pars tx.getHash(§ pars ), tx))
         )
 
-        (§ while (§ expr !txQueue.isEmpty(§ pars )))
+        (§ while (§ expr (§ not txQueue.isEmpty(§ pars ))))
         (§ block
             (§ var (§ type Transaction) (§ name tx) (§ expr txQueue.remove(§ pars txQueue.keySet(§ pars ).iterator(§ pars ).next(§ pars ))))
             (§ for (§ var (§ type Transaction) (§ name anotherTx)) :for (§ expr txPool))
@@ -52208,7 +52208,7 @@
                 ;; Ignore the case where a tx appears on a side chain at the same time as the best chain
                 ;; (this is quite normal and expected).
                 (§ var (§ type Sha256Hash) (§ name hash) (§ expr tx.getHash(§ pars )))
-                (§ if (§ expr !unspent.containsKey(§ pars hash) && !spent.containsKey(§ pars hash) && !dead.containsKey(§ pars hash)))
+                (§ if (§ expr (§ not unspent.containsKey(§ pars hash)) && (§ not spent.containsKey(§ pars hash)) && (§ not dead.containsKey(§ pars hash))))
                 (§ block
                     ;; Otherwise put it (possibly back) into pending.
                     ;; Committing it updates the spent flags and inserts into the pool as well.
@@ -52270,11 +52270,11 @@
         ;;  - We have not already informed the user about the coins when we received the tx broadcast,
         ;;    or for our own spends.  If users want to know when a broadcast tx becomes confirmed,
         ;;    they need to use tx confidence listeners.
-        (§ if (§ expr !insideReorg && bestChain))
+        (§ if (§ expr (§ not insideReorg) && bestChain))
         (§ block
             (§ var (§ type Coin) (§ name newBalance) (§ expr getBalance(§ pars ))) ;; This is slow.
             (§ call log.info(§ pars "Balance is now: " + newBalance.toFriendlyString(§ pars )))
-            (§ if (§ expr !wasPending))
+            (§ if (§ expr (§ not wasPending)))
             (§ block
                 (§ var (§ type int) (§ name diff) (§ expr valueDifference.signum(§ pars )))
                 ;; We pick one callback based on the value difference, though a tx can of course both
@@ -52321,7 +52321,7 @@
      ;;
     (§ method List<Transaction> sortTxnsByDependency(§ args Set<Transaction> inputSet))
     (§ block
-        (§ var (§ type ArrayList<Transaction>) (§ name result) (§ expr new ArrayList<>(§ pars inputSet)))
+        (§ var (§ type ArrayList<Transaction>) (§ name result) (§ new ArrayList<>(§ pars inputSet)))
         (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < result.size(§ pars ) - 1) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ var (§ type boolean) (§ name txAtISpendsOtherTxInTheList))
@@ -52465,7 +52465,7 @@
         (§ throws VerificationException)
     (§ block
         (§ call Preconditions.checkState(§ pars lock.isHeldByCurrentThread(§ pars )))
-        (§ call Preconditions.checkState(§ pars !pending.containsKey(§ pars tx.getHash(§ pars ))))
+        (§ call Preconditions.checkState(§ pars (§ not pending.containsKey(§ pars tx.getHash(§ pars )))))
 
         ;; This TX may spend our existing outputs even though it was not pending.  This can happen in unit tests,
         ;; if keys are moved between wallets, if we're catching up to the chain given only a set of keys,
@@ -52522,18 +52522,18 @@
 
         ;; Kill txns in conflict with this tx.
         (§ var (§ type Set<Transaction>) (§ name doubleSpendTxns) (§ expr findDoubleSpendsAgainst(§ pars tx, pending)))
-        (§ if (§ expr !doubleSpendTxns.isEmpty(§ pars )))
+        (§ if (§ expr (§ not doubleSpendTxns.isEmpty(§ pars ))))
         (§ block
             ;; No need to addTransactionsDependingOn(doubleSpendTxns), because killTxns() already kills dependencies.
             (§ call killTxns(§ pars doubleSpendTxns, tx))
         )
-        (§ if (§ expr !hasOutputsToMe && !hasOutputsFromMe && !forceAddToPool && !findDoubleSpendsAgainst(§ pars tx, transactions).isEmpty(§ pars )))
+        (§ if (§ expr (§ not hasOutputsToMe) && (§ not hasOutputsFromMe) && (§ not forceAddToPool) && (§ not (§ dot findDoubleSpendsAgainst(§ pars tx, transactions).isEmpty(§ pars )))))
         (§ block
             ;; Disconnect irrelevant inputs (otherwise might cause protobuf serialization issue).
             (§ for (§ var (§ type TransactionInput) (§ name input)) :for (§ expr tx.getInputs(§ pars )))
             (§ block
                 (§ var (§ type TransactionOutput) (§ name output) (§ expr input.getConnectedOutput(§ pars )))
-                (§ if (§ expr output != nil && !output.isMine(§ pars this)))
+                (§ if (§ expr output != nil && (§ not output.isMine(§ pars this))))
                 (§ block
                     (§ call input.disconnect(§ pars ))
                 )
@@ -52566,7 +52566,7 @@
         (§ call Preconditions.checkState(§ pars lock.isHeldByCurrentThread(§ pars )))
         (§ if (§ expr fromChain))
         (§ block
-            (§ call Preconditions.checkState(§ pars !pending.containsKey(§ pars tx.getHash(§ pars ))))
+            (§ call Preconditions.checkState(§ pars (§ not pending.containsKey(§ pars tx.getHash(§ pars )))))
         )
 
         (§ for (§ var (§ type TransactionInput) (§ name input)) :for (§ expr tx.getInputs(§ pars )))
@@ -52657,7 +52657,7 @@
                 )
             )
         )
-        (§ if (§ expr !fromChain))
+        (§ if (§ expr (§ not fromChain)))
         (§ block
             (§ call maybeMovePool(§ pars tx, "pendingtx"))
         )
@@ -52672,8 +52672,8 @@
     #_private
     (§ method void killTxns(§ args Set<Transaction> txnsToKill, #_nilable Transaction overridingTx))
     (§ block
-        (§ var (§ type LinkedList<Transaction>) (§ name work) (§ expr new LinkedList<>(§ pars txnsToKill)))
-        (§ while (§ expr !work.isEmpty(§ pars )))
+        (§ var (§ type LinkedList<Transaction>) (§ name work) (§ new LinkedList<>(§ pars txnsToKill)))
+        (§ while (§ expr (§ not work.isEmpty(§ pars ))))
         (§ block
             #_final
             (§ var (§ type Transaction) (§ name tx) (§ expr work.poll(§ pars )))
@@ -52820,7 +52820,7 @@
             (§ var (§ type Set<Transaction>) (§ name doubleSpendUnspentTxns) (§ expr findDoubleSpendsAgainst(§ pars tx, unspent)))
             (§ var (§ type Set<Transaction>) (§ name doubleSpendSpentTxns) (§ expr findDoubleSpendsAgainst(§ pars tx, spent)))
 
-            (§ if (§ expr !doubleSpendUnspentTxns.isEmpty(§ pars ) || !doubleSpendSpentTxns.isEmpty(§ pars ) || !isNotSpendingTxnsInConfidenceType(§ pars tx, ConfidenceType.DEAD)))
+            (§ if (§ expr (§ not doubleSpendUnspentTxns.isEmpty(§ pars )) || (§ not doubleSpendSpentTxns.isEmpty(§ pars )) || (§ not isNotSpendingTxnsInConfidenceType(§ pars tx, ConfidenceType.DEAD))))
             (§ block
                 ;; tx is a double spend against a tx already in the best chain or spends outputs of a DEAD tx.
                 ;; Add tx to the dead pool and schedule confidence listener notifications.
@@ -52829,7 +52829,7 @@
                 (§ call confidenceChanged.put(§ pars tx, TransactionConfidence.Listener.ChangeReason.TYPE))
                 (§ call addWalletTransaction(§ pars Pool.DEAD, tx))
             )
-            (§ elseif (§ expr !doubleSpendPendingTxns.isEmpty(§ pars ) || !isNotSpendingTxnsInConfidenceType(§ pars tx, ConfidenceType.IN_CONFLICT)))
+            (§ elseif (§ expr (§ not doubleSpendPendingTxns.isEmpty(§ pars )) || (§ not isNotSpendingTxnsInConfidenceType(§ pars tx, ConfidenceType.IN_CONFLICT))))
             (§ block
                 ;; tx is a double spend against a pending tx or spends outputs of a tx already IN_CONFLICT.
                 ;; Add tx to the pending pool.  Update the confidence type of tx, the txns in conflict with tx
@@ -53218,7 +53218,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var (§ type Set<Transaction>) (§ name all) (§ expr new HashSet<>(§ pars )))
+            (§ var (§ type Set<Transaction>) (§ name all) (§ new HashSet<>(§ pars )))
             (§ call all.addAll(§ pars unspent.values(§ pars )))
             (§ call all.addAll(§ pars spent.values(§ pars )))
             (§ call all.addAll(§ pars pending.values(§ pars )))
@@ -53243,7 +53243,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var (§ type Set<WalletTransaction>) (§ name all) (§ expr new HashSet<>(§ pars )))
+            (§ var (§ type Set<WalletTransaction>) (§ name all) (§ new HashSet<>(§ pars )))
             (§ call addWalletTransactionsToSet(§ pars all, Pool.UNSPENT, unspent.values(§ pars )))
             (§ call addWalletTransactionsToSet(§ pars all, Pool.SPENT, spent.values(§ pars )))
             (§ call addWalletTransactionsToSet(§ pars all, Pool.DEAD, dead.values(§ pars )))
@@ -53369,7 +53369,7 @@
                 (§ ass (§ name numTransactions) (§ expr size))
             )
 
-            (§ var (§ type ArrayList<Transaction>) (§ name all) (§ expr new ArrayList<>(§ pars getTransactions(§ pars includeDead))))
+            (§ var (§ type ArrayList<Transaction>) (§ name all) (§ new ArrayList<>(§ pars getTransactions(§ pars includeDead))))
             ;; Order by update time.
             (§ call Collections.sort(§ pars all, Transaction.SORT_TX_BY_UPDATE_TIME))
             (§ if (§ expr numTransactions == all.size(§ pars )))
@@ -53517,10 +53517,10 @@
             (§ for (§ var (§ type Iterator<Transaction>) (§ name i) (§ expr pending.values(§ pars ).iterator(§ pars ))) :for (§ expr i.hasNext(§ pars )) :for (§ expr ))
             (§ block
                 (§ var (§ type Transaction) (§ name tx) (§ expr i.next(§ pars )))
-                (§ if (§ expr isTransactionRisky(§ pars tx, nil) && !acceptRiskyTransactions))
+                (§ if (§ expr isTransactionRisky(§ pars tx, nil) && (§ not acceptRiskyTransactions)))
                 (§ block
                     (§ call log.debug(§ pars "Found risky transaction {} in wallet during cleanup.", tx.getHashAsString(§ pars )))
-                    (§ if (§ expr !tx.isAnyOutputSpent(§ pars )))
+                    (§ if (§ expr (§ not tx.isAnyOutputSpent(§ pars ))))
                     (§ block
                         ;; Sync myUnspents with the change.
                         (§ for (§ var (§ type TransactionInput) (§ name input)) :for (§ expr tx.getInputs(§ pars )))
@@ -53674,7 +53674,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ return (§ expr new ArrayList<>(§ pars myUnspents)))
+            (§ return (§ new ArrayList<>(§ pars myUnspents)))
         )
         (§ finally )
         (§ block
@@ -53703,7 +53703,7 @@
         (§ call keyChainGroupLock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var (§ type StringBuilder) (§ name sb) (§ expr new StringBuilder(§ pars )))
+            (§ var (§ type StringBuilder) (§ name sb) (§ new StringBuilder(§ pars )))
             (§ var (§ type Coin) (§ name estimatedBalance) (§ expr getBalance(§ pars BalanceType.ESTIMATED)))
             (§ var (§ type Coin) (§ name availableBalance) (§ expr getBalance(§ pars BalanceType.AVAILABLE_SPENDABLE)))
             (§ call sb.append(§ pars "Wallet containing ").append(§ pars estimatedBalance.toFriendlyString(§ pars )).append(§ pars " (spendable: ").append(§ pars availableBalance.toFriendlyString(§ pars )).append(§ pars ") in:\n"))
@@ -53778,7 +53778,7 @@
         (§ var (§ type Collection<Transaction>) (§ name txns))
         (§ if (§ expr sortOrder != nil))
         (§ block
-            (§ ass (§ name txns) (§ expr new TreeSet<>(§ pars sortOrder)))
+            (§ ass (§ name txns) (§ new TreeSet<>(§ pars sortOrder)))
             (§ call txns.addAll(§ pars transactionMap.values(§ pars )))
         )
         (§ else )
@@ -54158,7 +54158,7 @@
                 ;; Will be checked later in checkBalanceFutures.  We don't just add an event listener for ourselves
                 ;; here so that running getBalanceFuture().get() in the user code thread works - generally we must
                 ;; avoid giving the user back futures that require the user code thread to be free.
-                (§ var (§ type BalanceFutureRequest) (§ name req) (§ expr new BalanceFutureRequest(§ pars )))
+                (§ var (§ type BalanceFutureRequest) (§ name req) (§ new BalanceFutureRequest(§ pars )))
                 (§ ass (§ name req.future) (§ expr future))
                 (§ ass (§ name req.value) (§ expr value))
                 (§ ass (§ name req.type) (§ expr type))
@@ -54266,7 +54266,7 @@
             (§ var (§ type Coin) (§ name txOutputTotal) (§ expr Coin.ZERO))
             (§ for (§ var (§ type TransactionOutput) (§ name out)) :for (§ expr tx.getOutputs(§ pars )))
             (§ block
-                (§ if (§ expr !out.isMine(§ pars this)))
+                (§ if (§ expr (§ not out.isMine(§ pars this))))
                 (§ block
                     (§ ass (§ name txOutputTotal) (§ expr txOutputTotal.add(§ pars out.getValue(§ pars ))))
                 )
@@ -54288,7 +54288,7 @@
             (§ if (§ expr txOwnedInputsTotal != txInputsTotal))
             (§ block
                 ;; Multiply our output total by the appropriate proportion to account for the inputs that we don't own.
-                (§ var (§ type BigInteger) (§ name txOutputTotalNum) (§ expr new BigInteger(§ pars txOutputTotal.toString(§ pars ))))
+                (§ var (§ type BigInteger) (§ name txOutputTotalNum) (§ new BigInteger(§ pars txOutputTotal.toString(§ pars ))))
                 (§ ass (§ name txOutputTotalNum) (§ expr txOutputTotalNum.multiply(§ pars (§ new BigInteger(§ pars txOwnedInputsTotal.toString(§ pars ))))))
                 (§ ass (§ name txOutputTotalNum) (§ expr txOutputTotalNum.divide(§ pars (§ new BigInteger(§ pars txInputsTotal.toString(§ pars ))))))
                 (§ ass (§ name txOutputTotal) (§ expr Coin.valueOf(§ pars txOutputTotalNum.longValue(§ pars ))))
@@ -54471,12 +54471,12 @@
     (§ block
         ;; Should not be locked here, as we're going to call into the broadcaster and that might want to hold its
         ;; own lock.  sendCoinsOffline handles everything that needs to be locked.
-        (§ call Preconditions.checkState(§ pars !lock.isHeldByCurrentThread(§ pars )))
+        (§ call Preconditions.checkState(§ pars (§ not lock.isHeldByCurrentThread(§ pars ))))
 
         ;; Commit the TX to the wallet immediately so the spent coins won't be reused.
         ;; TODO: We should probably allow the request to specify tx commit only after the network has accepted it.
         (§ var (§ type Transaction) (§ name tx) (§ expr sendCoinsOffline(§ pars request)))
-        (§ var (§ type SendResult) (§ name result) (§ expr new SendResult(§ pars )))
+        (§ var (§ type SendResult) (§ name result) (§ new SendResult(§ pars )))
         (§ ass (§ name result.tx) (§ expr tx))
         ;; The tx has been committed to the pending pool by this point (via sendCoinsOffline -> commitTx), so it has
         ;; a txConfidenceListener registered.  Once the tx is broadcast the peers will update the memory pool with the
@@ -54590,7 +54590,7 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ call Preconditions.checkArgument(§ pars !req.completed, "Given SendRequest has already been completed."))
+            (§ call Preconditions.checkArgument(§ pars (§ not req).completed, "Given SendRequest has already been completed."))
 
             ;; Calculate the amount of value we need to import.
             (§ var (§ type Coin) (§ name value) (§ expr Coin.ZERO))
@@ -54616,10 +54616,10 @@
             )
             (§ ass (§ name value) (§ expr value.subtract(§ pars totalInput)))
 
-            (§ var (§ type List<TransactionInput>) (§ name originalInputs) (§ expr new ArrayList<>(§ pars req.tx.getInputs(§ pars ))))
+            (§ var (§ type List<TransactionInput>) (§ name originalInputs) (§ new ArrayList<>(§ pars req.tx.getInputs(§ pars ))))
 
             ;; Check for dusty sends and the OP_RETURN limit.
-            (§ if (§ expr req.ensureMinRequiredFee && !req.emptyWallet)) ;; Min fee checking is handled later for emptyWallet.
+            (§ if (§ expr req.ensureMinRequiredFee && (§ not (§ expr req.emptyWallet)))) ;; Min fee checking is handled later for emptyWallet.
             (§ block
                 (§ var (§ type int) (§ name opReturnCount) (§ expr 0))
                 (§ for (§ var (§ type TransactionOutput) (§ name output)) :for (§ expr req.tx.getOutputs(§ pars )))
@@ -54648,7 +54648,7 @@
             (§ var (§ type CoinSelection) (§ name bestCoinSelection))
             (§ var (§ type TransactionOutput) (§ name bestChangeOutput) (§ expr nil))
             (§ var (§ type List<Coin>) (§ name updatedOutputValues) (§ expr nil))
-            (§ if (§ expr !req.emptyWallet))
+            (§ if (§ expr (§ not req.emptyWallet)))
             (§ block
                 ;; This can throw InsufficientMoneyException.
                 (§ var (§ type FeeCalculation) (§ name feeCalculation) (§ expr calculateFee(§ pars req, value, originalInputs, req.ensureMinRequiredFee, candidates)))
@@ -54678,7 +54678,7 @@
             (§ block
                 #_final
                 (§ var (§ type Coin) (§ name feePerKb) (§ quest (§ expr req.feePerKb == nil) ? Coin.ZERO :else req.feePerKb))
-                (§ if (§ expr !adjustOutputDownwardsForFee(§ pars req.tx, bestCoinSelection, feePerKb, req.ensureMinRequiredFee)))
+                (§ if (§ expr (§ not adjustOutputDownwardsForFee(§ pars req.tx, bestCoinSelection, feePerKb, req.ensureMinRequiredFee))))
                 (§ block
                     (§ throw (§ new CouldNotAdjustDownwards(§ pars )))
                 )
@@ -54756,7 +54756,7 @@
             (§ call Preconditions.checkState(§ pars 0 < inputs.size(§ pars )))
             (§ call Preconditions.checkState(§ pars 0 < outputs.size(§ pars )))
 
-            (§ var (§ type KeyBag) (§ name maybeDecryptingKeyBag) (§ expr new DecryptingKeyBag(§ pars this, req.aesKey)))
+            (§ var (§ type KeyBag) (§ name maybeDecryptingKeyBag) (§ new DecryptingKeyBag(§ pars this, req.aesKey)))
 
             (§ var (§ type int) (§ name numInputs) (§ expr tx.getInputs(§ pars ).size(§ pars )))
             (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < numInputs) :for (§ ass (§ name i) (§ expr i + 1)))
@@ -54789,10 +54789,10 @@
                 (§ call txIn.setScriptSig(§ pars scriptPubKey.createEmptyInputScript(§ pars redeemData.keys.get(§ pars 0), redeemData.redeemScript)))
             )
 
-            (§ var (§ type TransactionSigner.ProposedTransaction) (§ name proposal) (§ expr new TransactionSigner.ProposedTransaction(§ pars tx)))
+            (§ var (§ type TransactionSigner.ProposedTransaction) (§ name proposal) (§ new TransactionSigner.ProposedTransaction(§ pars tx)))
             (§ for (§ var (§ type TransactionSigner) (§ name signer)) :for (§ expr signers))
             (§ block
-                (§ if (§ expr !signer.signInputs(§ pars proposal, maybeDecryptingKeyBag)))
+                (§ if (§ expr (§ not signer.signInputs(§ pars proposal, maybeDecryptingKeyBag))))
                 (§ block
                     (§ call log.info(§ pars "{} returned false for the tx", signer.getClass(§ pars ).getName(§ pars )))
                 )
@@ -54820,7 +54820,7 @@
         )
         (§ var (§ type TransactionOutput) (§ name output) (§ expr tx.getOutput(§ pars 0)))
         (§ call output.setValue(§ pars output.getValue(§ pars ).subtract(§ pars fee)))
-        (§ return (§ expr !output.isDust(§ pars )))
+        (§ return (§ expr (§ not output.isDust(§ pars ))))
     )
 
     ;;;
@@ -54845,15 +54845,15 @@
         (§ call lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var (§ type List<TransactionOutput>) (§ name candidates) (§ expr new ArrayList<>(§ pars myUnspents.size(§ pars ))))
+            (§ var (§ type List<TransactionOutput>) (§ name candidates) (§ new ArrayList<>(§ pars myUnspents.size(§ pars ))))
             (§ for (§ var (§ type TransactionOutput) (§ name output)) :for (§ expr myUnspents))
             (§ block
-                (§ if (§ expr excludeUnsignable && !canSignFor(§ pars output.getScriptPubKey(§ pars ))))
+                (§ if (§ expr excludeUnsignable && (§ not canSignFor(§ pars output.getScriptPubKey(§ pars )))))
                 (§ block
                     (§ continue )
                 )
                 (§ var (§ type Transaction) (§ name transaction) (§ expr Preconditions.checkNotNull(§ pars output.getParentTransaction(§ pars ))))
-                (§ if (§ expr excludeImmatureCoinbases && !transaction.isMature(§ pars )))
+                (§ if (§ expr excludeImmatureCoinbases && (§ not transaction.isMature(§ pars ))))
                 (§ block
                     (§ continue )
                 )
@@ -55091,7 +55091,7 @@
 
             ;; Avoid spuriously informing the user of wallet/tx confidence changes whilst we're re-organizing.
             (§ call Preconditions.checkState(§ pars confidenceChanged.size(§ pars ) == 0))
-            (§ call Preconditions.checkState(§ pars !insideReorg))
+            (§ call Preconditions.checkState(§ pars (§ not insideReorg)))
             (§ ass (§ name insideReorg) (§ expr true))
             (§ call Preconditions.checkState(§ pars onWalletChangedSuppressions == 0))
             (§ ass (§ name onWalletChangedSuppressions) (§ expr onWalletChangedSuppressions + 1))
@@ -55116,7 +55116,7 @@
                 (§ call Collections.sort(§ pars mapBlockTx.get(§ pars blockHash)))
             )
 
-            (§ var (§ type List<Sha256Hash>) (§ name oldBlockHashes) (§ expr new ArrayList<>(§ pars oldBlocks.size(§ pars ))))
+            (§ var (§ type List<Sha256Hash>) (§ name oldBlockHashes) (§ new ArrayList<>(§ pars oldBlocks.size(§ pars ))))
             (§ call log.info(§ pars "Old part of chain (top to bottom):"))
             (§ for (§ var (§ type StoredBlock) (§ name b)) :for (§ expr oldBlocks))
             (§ block
@@ -55170,8 +55170,8 @@
                         (§ call oldChainTxns.add(§ pars tx))
                         (§ call unspent.remove(§ pars txHash))
                         (§ call spent.remove(§ pars txHash))
-                        (§ call Preconditions.checkState(§ pars !pending.containsKey(§ pars txHash)))
-                        (§ call Preconditions.checkState(§ pars !dead.containsKey(§ pars txHash)))
+                        (§ call Preconditions.checkState(§ pars (§ not pending.containsKey(§ pars txHash))))
+                        (§ call Preconditions.checkState(§ pars (§ not dead.containsKey(§ pars txHash))))
                     )
                 )
             )
@@ -55273,7 +55273,7 @@
     ;; Used to track whether we must automatically begin/end a filter calculation and calc outpoints/take the locks.
     #_private
     #_final
-    (§ field (§ type AtomicInteger) (§ name bloomFilterGuard) (§ expr new AtomicInteger(§ pars 0)))
+    (§ field (§ type AtomicInteger) (§ name bloomFilterGuard) (§ new AtomicInteger(§ pars 0)))
 
     #_override
     #_public
@@ -55295,7 +55295,7 @@
     (§ block
         ;; TODO: This could be done once and then kept up to date.
         (§ call bloomOutPoints.clear(§ pars ))
-        (§ var (§ type Set<Transaction>) (§ name all) (§ expr new HashSet<>(§ pars )))
+        (§ var (§ type Set<Transaction>) (§ name all) (§ new HashSet<>(§ pars )))
         (§ call all.addAll(§ pars unspent.values(§ pars )))
         (§ call all.addAll(§ pars spent.values(§ pars )))
         (§ call all.addAll(§ pars pending.values(§ pars )))
@@ -55465,23 +55465,23 @@
         (§ var (§ type Coin) (§ name fee) (§ expr Coin.ZERO))
         (§ while (§ expr true))
         (§ block
-            (§ ass (§ name result) (§ expr new FeeCalculation(§ pars )))
-            (§ var (§ type Transaction) (§ name tx) (§ expr new Transaction(§ pars params)))
+            (§ ass (§ name result) (§ new FeeCalculation(§ pars )))
+            (§ var (§ type Transaction) (§ name tx) (§ new Transaction(§ pars params)))
             (§ call addSuppliedInputs(§ pars tx, req.tx.getInputs(§ pars )))
 
             (§ var (§ type Coin) (§ name valueNeeded) (§ expr value))
-            (§ if (§ expr !req.recipientsPayFees))
+            (§ if (§ expr (§ not req.recipientsPayFees)))
             (§ block
                 (§ ass (§ name valueNeeded) (§ expr valueNeeded.add(§ pars fee)))
             )
             (§ if (§ expr req.recipientsPayFees))
             (§ block
-                (§ ass (§ name result.updatedOutputValues) (§ expr new ArrayList<Coin>(§ pars )))
+                (§ ass (§ name result.updatedOutputValues) (§ new ArrayList<Coin>(§ pars )))
             )
 
             (§ for (§ var (§ type int) (§ name i) (§ expr 0)) :for (§ expr i < req.tx.getOutputs(§ pars ).size(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
             (§ block
-                (§ var (§ type TransactionOutput) (§ name output) (§ expr new TransactionOutput(§ pars params, tx, req.tx.getOutputs(§ pars ).get(§ pars i).bitcoinSerialize(§ pars ), 0)))
+                (§ var (§ type TransactionOutput) (§ name output) (§ new TransactionOutput(§ pars params, tx, req.tx.getOutputs(§ pars ).get(§ pars i).bitcoinSerialize(§ pars ), 0)))
                 (§ if (§ expr req.recipientsPayFees))
                 (§ block
                     ;; Subtract fee equally from each selected recipient.
@@ -55524,7 +55524,7 @@
                     (§ ass (§ name changeAddress) (§ expr currentChangeAddress(§ pars )))
                 )
 
-                (§ var (§ type TransactionOutput) (§ name changeOutput) (§ expr new TransactionOutput(§ pars params, tx, change, changeAddress)))
+                (§ var (§ type TransactionOutput) (§ name changeOutput) (§ new TransactionOutput(§ pars params, tx, change, changeAddress)))
                 (§ if (§ expr req.recipientsPayFees && changeOutput.isDust(§ pars )))
                 (§ block
                     ;; We do not move dust-change to fees, because the sender would end up paying more than requested.
@@ -55574,7 +55574,7 @@
 
             (§ var (§ type Coin) (§ name feeNeeded) (§ expr feePerKb.multiply(§ pars size).divide(§ pars 1000)))
 
-            (§ if (§ expr !fee.isLessThan(§ pars feeNeeded)))
+            (§ if (§ expr (§ not fee.isLessThan(§ pars feeNeeded))))
             (§ block
                 ;; Done, enough fee included.
                 (§ break )
@@ -55763,7 +55763,7 @@
         (§ try )
         (§ block
             (§ ass (§ name txns) (§ expr maybeRotateKeys(§ pars aesKey, signAndSend)))
-            (§ if (§ expr !signAndSend))
+            (§ if (§ expr (§ not signAndSend)))
             (§ block
                 (§ return (§ expr Futures.immediateFuture(§ pars txns)))
             )
@@ -55773,8 +55773,8 @@
             (§ call keyChainGroupLock.unlock(§ pars ))
             (§ call lock.unlock(§ pars ))
         )
-        (§ call Preconditions.checkState(§ pars !lock.isHeldByCurrentThread(§ pars )))
-        (§ var (§ type ArrayList<ListenableFuture<Transaction>>) (§ name futures) (§ expr new ArrayList<>(§ pars txns.size(§ pars ))))
+        (§ call Preconditions.checkState(§ pars (§ not lock.isHeldByCurrentThread(§ pars ))))
+        (§ var (§ type ArrayList<ListenableFuture<Transaction>>) (§ name futures) (§ new ArrayList<>(§ pars txns.size(§ pars ))))
         (§ var (§ type TransactionBroadcaster) (§ name broadcaster) (§ expr vTransactionBroadcaster))
         (§ for (§ var (§ type Transaction) (§ name tx)) :for (§ expr txns))
         (§ block
@@ -55892,8 +55892,8 @@
             ;; have already got stuck double spends in their wallet due to the Bloom-filtering block reordering
             ;; bug that was fixed in 0.10, thus, making a re-key transaction depend on those would cause it to
             ;; never confirm at all.
-            (§ var (§ type CoinSelector) (§ name keyTimeSelector) (§ expr new KeyTimeCoinSelector(§ pars this, timeSecs, true)))
-            (§ var (§ type FilteringCoinSelector) (§ name selector) (§ expr new FilteringCoinSelector(§ pars keyTimeSelector)))
+            (§ var (§ type CoinSelector) (§ name keyTimeSelector) (§ new KeyTimeCoinSelector(§ pars this, timeSecs, true)))
+            (§ var (§ type FilteringCoinSelector) (§ name selector) (§ new FilteringCoinSelector(§ pars keyTimeSelector)))
             (§ for (§ var (§ type Transaction) (§ name other)) :for (§ expr others))
             (§ block
                 (§ call selector.excludeOutputsSpentBy(§ pars other))
@@ -55906,14 +55906,14 @@
             )
 
             (§ call maybeUpgradeToHD(§ pars aesKey))
-            (§ var (§ type Transaction) (§ name rekeyTx) (§ expr new Transaction(§ pars params)))
+            (§ var (§ type Transaction) (§ name rekeyTx) (§ new Transaction(§ pars params)))
             (§ for (§ var (§ type TransactionOutput) (§ name output)) :for (§ expr toMove.gathered))
             (§ block
                 (§ call rekeyTx.addInput(§ pars output))
             )
             ;; When not signing, don't waste addresses.
             (§ call rekeyTx.addOutput(§ pars toMove.valueGathered, sign ? freshReceiveAddress(§ pars ) :else currentReceiveAddress(§ pars )))
-            (§ if (§ expr !adjustOutputDownwardsForFee(§ pars rekeyTx, toMove, Transaction.DEFAULT_TX_FEE, true)))
+            (§ if (§ expr (§ not adjustOutputDownwardsForFee(§ pars rekeyTx, toMove, Transaction.DEFAULT_TX_FEE, true))))
             (§ block
                 (§ call log.error(§ pars "Failed to adjust rekey tx for fees."))
                 (§ return (§ expr nil))
@@ -56017,18 +56017,18 @@
     (§ constructor WalletFiles(§ args #_final Wallet wallet, File file, long delay, TimeUnit delayTimeUnit))
     (§ block
         ;; An executor that starts up threads when needed and shuts them down later.
-        (§ ass (§ name this.executor) (§ expr new ScheduledThreadPoolExecutor(§ pars 1, new ContextPropagatingThreadFactory(§ pars "Wallet autosave thread", Thread.MIN_PRIORITY))))
+        (§ ass (§ name this.executor) (§ new ScheduledThreadPoolExecutor(§ pars 1, new ContextPropagatingThreadFactory(§ pars "Wallet autosave thread", Thread.MIN_PRIORITY))))
         (§ call this.executor.setKeepAliveTime(§ pars 5, TimeUnit.SECONDS))
         (§ call this.executor.allowCoreThreadTimeOut(§ pars true))
         (§ call this.executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(§ pars false))
         (§ ass (§ name this.wallet) (§ expr Preconditions.checkNotNull(§ pars wallet)))
         ;; File must only be accessed from the auto-save executor from now on, to avoid simultaneous access.
         (§ ass (§ name this.file) (§ expr Preconditions.checkNotNull(§ pars file)))
-        (§ ass (§ name this.savePending) (§ expr new AtomicBoolean(§ pars )))
+        (§ ass (§ name this.savePending) (§ new AtomicBoolean(§ pars )))
         (§ ass (§ name this.delay) (§ expr delay))
         (§ ass (§ name this.delayTimeUnit) (§ expr Preconditions.checkNotNull(§ pars delayTimeUnit)))
 
-        (§ ass (§ name this.saver) (§ expr new Callable<Void>(§ pars )
+        (§ ass (§ name this.saver) (§ new Callable<Void>(§ pars )
         (§ anon
             #_override
             #_public
@@ -56036,7 +56036,7 @@
                 (§ throws Exception)
             (§ block
                 ;; Runs in an auto save thread.
-                (§ if (§ expr !savePending.getAndSet(§ pars false)))
+                (§ if (§ expr (§ not savePending.getAndSet(§ pars false))))
                 (§ block
                     ;; Some other scheduled request already beat us to it.
                     (§ return (§ expr nil))
@@ -56210,9 +56210,9 @@
     #_public
     (§ constructor WalletProtobufSerializer(§ args WalletFactory factory))
     (§ block
-        (§ ass (§ name txMap) (§ expr new HashMap<>(§ pars )))
+        (§ ass (§ name txMap) (§ new HashMap<>(§ pars )))
         (§ ass (§ name this.factory) (§ expr factory))
-        (§ ass (§ name this.keyChainFactory) (§ expr new DefaultKeyChainFactory(§ pars )))
+        (§ ass (§ name this.keyChainFactory) (§ new DefaultKeyChainFactory(§ pars )))
     )
 
     #_public
@@ -56685,7 +56685,7 @@
         (§ block
             (§ throw new UnreadableWalletException.FutureVersion(§ pars ))
         )
-        (§ if (§ expr !walletProto.getNetworkIdentifier(§ pars ).equals(§ pars params.getId(§ pars ))))
+        (§ if (§ not (§ dot walletProto.getNetworkIdentifier(§ pars ).equals(§ pars params.getId(§ pars )))))
         (§ block
             (§ throw new UnreadableWalletException.WrongNetwork(§ pars ))
         )
@@ -56696,7 +56696,7 @@
         (§ block
             (§ var (§ type Protos.ScryptParameters) (§ name encryptionParameters) (§ expr walletProto.getEncryptionParameters(§ pars )))
             #_final
-            (§ var (§ type KeyCrypterScrypt) (§ name keyCrypter) (§ expr new KeyCrypterScrypt(§ pars encryptionParameters)))
+            (§ var (§ type KeyCrypterScrypt) (§ name keyCrypter) (§ new KeyCrypterScrypt(§ pars encryptionParameters)))
             (§ ass (§ name keyChainGroup) (§ expr KeyChainGroup.fromProtobufEncrypted(§ pars params, walletProto.getKeyList(§ pars ), keyCrypter, keyChainFactory)))
         )
         (§ else )
@@ -56733,7 +56733,7 @@
             )
 
             ;; Update the lastBlockSeenHash.
-            (§ if (§ expr !walletProto.hasLastSeenBlockHash(§ pars )))
+            (§ if (§ expr (§ not walletProto.hasLastSeenBlockHash(§ pars ))))
             (§ block
                 (§ call wallet.setLastBlockSeenHash(§ pars nil))
             )
@@ -56742,7 +56742,7 @@
                 (§ call wallet.setLastBlockSeenHash(§ pars byteStringToHash(§ pars walletProto.getLastSeenBlockHash(§ pars ))))
             )
 
-            (§ if (§ expr !walletProto.hasLastSeenBlockHeight(§ pars )))
+            (§ if (§ expr (§ not walletProto.hasLastSeenBlockHeight(§ pars ))))
             (§ block
                 (§ call wallet.setLastBlockSeenHeight(§ pars -1))
             )
@@ -56805,7 +56805,7 @@
     (§ method void readTransaction(§ args Protos.Transaction txProto, NetworkParameters params))
         (§ throws UnreadableWalletException)
     (§ block
-        (§ var (§ type Transaction) (§ name tx) (§ expr new Transaction(§ pars params)))
+        (§ var (§ type Transaction) (§ name tx) (§ new Transaction(§ pars params)))
 
         (§ call tx.setVersion(§ pars txProto.getVersion(§ pars )))
 
@@ -56818,16 +56818,16 @@
         (§ block
             (§ var (§ type Coin) (§ name value) (§ expr Coin.valueOf(§ pars outputProto.getValue(§ pars ))))
             (§ var (§ type byte[]) (§ name scriptBytes) (§ expr outputProto.getScriptBytes(§ pars ).toByteArray(§ pars )))
-            (§ var (§ type TransactionOutput) (§ name output) (§ expr new TransactionOutput(§ pars params, tx, value, scriptBytes)))
+            (§ var (§ type TransactionOutput) (§ name output) (§ new TransactionOutput(§ pars params, tx, value, scriptBytes)))
             (§ call tx.addOutput(§ pars output))
         )
 
         (§ for (§ var (§ type Protos.TransactionInput) (§ name inputProto)) :for (§ expr txProto.getTransactionInputList(§ pars )))
         (§ block
             (§ var (§ type byte[]) (§ name scriptBytes) (§ expr inputProto.getScriptBytes(§ pars ).toByteArray(§ pars )))
-            (§ var (§ type TransactionOutPoint) (§ name outpoint) (§ expr new TransactionOutPoint(§ pars params, inputProto.getTransactionOutPointIndex(§ pars ) & 0xffffffff, byteStringToHash(§ pars inputProto.getTransactionOutPointHash(§ pars )))))
+            (§ var (§ type TransactionOutPoint) (§ name outpoint) (§ new TransactionOutPoint(§ pars params, inputProto.getTransactionOutPointIndex(§ pars ) & 0xffffffff, byteStringToHash(§ pars inputProto.getTransactionOutPointHash(§ pars )))))
             (§ var (§ type Coin) (§ name value) (§ expr inputProto.hasValue(§ pars ) ? Coin.valueOf(§ pars inputProto.getValue(§ pars )) :else nil))
-            (§ var (§ type TransactionInput) (§ name input) (§ expr new TransactionInput(§ pars params, tx, scriptBytes, outpoint, value)))
+            (§ var (§ type TransactionInput) (§ name input) (§ new TransactionInput(§ pars params, tx, scriptBytes, outpoint, value)))
             (§ if (§ expr inputProto.hasSequence(§ pars )))
             (§ block
                 (§ call input.setSequenceNumber(§ pars 0xffffffff & inputProto.getSequence(§ pars )))
@@ -56915,7 +56915,7 @@
 
         ;; Transaction should now be complete.
         (§ var (§ type Sha256Hash) (§ name protoHash) (§ expr byteStringToHash(§ pars txProto.getHash(§ pars ))))
-        (§ if (§ expr !tx.getHash(§ pars ).equals(§ pars protoHash)))
+        (§ if (§ not (§ dot tx.getHash(§ pars ).equals(§ pars protoHash))))
         (§ block
             (§ throw (§ new UnreadableWalletException(§ pars String.format(§ pars Locale.US, "Transaction did not deserialize completely: %s vs %s", tx.getHash(§ pars ), protoHash))))
         )
@@ -57008,7 +57008,7 @@
     (§ block
         ;; We are lenient here because tx confidence is not an essential part of the wallet.
         ;; If the tx has an unknown type of confidence, ignore.
-        (§ if (§ expr !confidenceProto.hasType(§ pars )))
+        (§ if (§ expr (§ not confidenceProto.hasType(§ pars ))))
         (§ block
             (§ call log.warn(§ pars "Unknown confidence type for tx {}", tx.getHashAsString(§ pars )))
             (§ return )
@@ -57105,7 +57105,7 @@
             (§ var (§ type int) (§ name port) (§ expr proto.getPort(§ pars )))
             (§ var (§ type int) (§ name protocolVersion) (§ expr params.getProtocolVersionNum(§ pars NetworkParameters.ProtocolVersion.CURRENT)))
             (§ var (§ type BigInteger) (§ name services) (§ expr BigInteger.valueOf(§ pars proto.getServices(§ pars ))))
-            (§ var (§ type PeerAddress) (§ name address) (§ expr new PeerAddress(§ pars params, ip, port, protocolVersion, services)))
+            (§ var (§ type PeerAddress) (§ name address) (§ new PeerAddress(§ pars params, ip, port, protocolVersion, services)))
             (§ call confidence.markBroadcastBy(§ pars address))
         )
 
