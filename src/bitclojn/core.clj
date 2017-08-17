@@ -188,9 +188,9 @@
         (§ expr log.info(§ pars "chain head is at height {}:\n{}", chainHead.getHeight(§ pars ), chainHead.getHeader(§ pars )))
         (§ ass (§ name this.params) (§ expr context.getParams(§ pars )))
 
-        (§ ass (§ name this.newBestBlockListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
-        (§ ass (§ name this.reorganizeListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
-        (§ ass (§ name this.transactionReceivedListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name this.newBestBlockListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
+        (§ ass (§ name this.reorganizeListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
+        (§ ass (§ name this.transactionReceivedListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
         (§ for (§ var #_"NewBestBlockListener" (§ name l)) :for (§ expr wallets))
         (§ block
             (§ expr addNewBestBlockListener(§ pars Threading.SAME_THREAD, l))
@@ -300,7 +300,7 @@
     #_final
     (§ method #_"void" (§ fn addNewBestBlockListener) [#_"Executor" (§ name executor), #_"NewBestBlockListener" (§ name listener)])
     (§ block
-        (§ expr newBestBlockListeners.add(§ pars (§ new ListenerRegistration<>(§ pars listener, executor))))
+        (§ expr newBestBlockListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars listener, executor))))
     )
 
     ;;;
@@ -319,7 +319,7 @@
     #_final
     (§ method #_"void" (§ fn addReorganizeListener) [#_"Executor" (§ name executor), #_"ReorganizeListener" (§ name listener)])
     (§ block
-        (§ expr reorganizeListeners.add(§ pars (§ new ListenerRegistration<>(§ pars listener, executor))))
+        (§ expr reorganizeListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars listener, executor))))
     )
 
     ;;;
@@ -338,7 +338,7 @@
     #_final
     (§ method #_"void" (§ fn addTransactionReceivedListener) [#_"Executor" (§ name executor), #_"TransactionReceivedInBlockListener" (§ name listener)])
     (§ block
-        (§ expr transactionReceivedListeners.add(§ pars (§ new ListenerRegistration<>(§ pars listener, executor))))
+        (§ expr transactionReceivedListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars listener, executor))))
     )
 
     ;;;
@@ -663,7 +663,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var #_"Set<Sha256Hash>" (§ name hashes) (§ new HashSet<>(§ pars orphanBlocks.keySet(§ pars ))))
+            (§ var #_"Set<Sha256Hash>" (§ name hashes) (§ new #_"HashSet<>" (§ pars orphanBlocks.keySet(§ pars ))))
             (§ expr orphanBlocks.clear(§ pars ))
             (§ return (§ expr hashes))
         )
@@ -734,7 +734,7 @@
             (§ block
                 (§ ass (§ name txOutChanges) (§ expr connectTransactions(§ pars storedPrev.getHeight(§ pars ) + 1, block)))
             )
-            (§ var #_"StoredBlock" (§ name newStoredBlock) (§ expr addToBlockStore(§ pars storedPrev, (§ expr block.transactions == nil) ? block :else block.cloneAsHeader(§ pars ), txOutChanges)))
+            (§ var #_"StoredBlock" (§ name newStoredBlock) (§ expr addToBlockStore(§ pars storedPrev, (§ quest (§ expr block.transactions == nil) ? (§ expr block) :else (§ expr block.cloneAsHeader(§ pars ))), txOutChanges)))
             (§ expr versionTally.add(§ pars block.getVersion(§ pars )))
             (§ expr setChainHead(§ pars newStoredBlock))
             (§ expr log.debug(§ pars "Chain is now {} blocks high, running listeners", newStoredBlock.getHeight(§ pars )))
@@ -1076,7 +1076,7 @@
         (§ throws #_"BlockStoreException")
     (§ block
         (§ expr Preconditions.checkArgument(§ pars lower.getHeight(§ pars ) < higher.getHeight(§ pars ), "higher and lower are reversed"))
-        (§ var #_"LinkedList<StoredBlock>" (§ name results) (§ new LinkedList<>(§ pars )))
+        (§ var #_"LinkedList<StoredBlock>" (§ name results) (§ new #_"LinkedList<>" (§ pars )))
         (§ var #_"StoredBlock" (§ name cursor) (§ expr higher))
         (§ while (§ expr true))
         (§ block
@@ -1386,7 +1386,7 @@
         (§ ass (§ name falsePositiveRate) (§ expr falsePositiveRate + (§ expr FP_ESTIMATOR_ALPHA * count)))
         (§ if (§ expr 0 < count))
         (§ block
-            (§ ass log.debug(§ pars "{} false positives, current rate = {} trend = {}", count, falsePositiveRate, falsePositiveTrend))
+            (§ expr log.debug(§ pars "{} false positives, current rate = {} trend = {}", count, falsePositiveRate, falsePositiveTrend))
         )
     )
 
@@ -1630,7 +1630,7 @@
     (§ method #_"Address" (§ fn clone) [])
         (§ throws #_"CloneNotSupportedException")
     (§ block
-        (§ return (§ cast Address)super.clone(§ pars ))
+        (§ return (§ cast #_"Address" (§ expr super.clone(§ pars ))))
     )
 
     ;; Java serialization
@@ -1744,7 +1744,7 @@
         (§ block
             (§ throw (§ new #_"ProtocolException" (§ pars "Address message too large.")))
         )
-        (§ ass (§ name addresses) (§ new ArrayList<>(§ pars (§ cast int)numAddresses)))
+        (§ ass (§ name addresses) (§ new #_"ArrayList<>" (§ pars (§ cast #_"int" numAddresses))))
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < numAddresses) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ var #_"PeerAddress" (§ name addr) (§ new #_"PeerAddress" (§ pars params, payload, cursor, protocolVersion, this, serializer)))
@@ -1753,7 +1753,7 @@
         )
         (§ ass (§ name length) (§ expr (§ new #_"VarInt" (§ pars addresses.size(§ pars ))).getSizeInBytes(§ pars )))
         ;; The 4 byte difference is the uint32 timestamp that was introduced in version 31402.
-        (§ ass (§ name length) (§ expr length + (§ expr addresses.size(§ pars ) * (§ expr 31402 < protocolVersion ? PeerAddress.MESSAGE_SIZE :else PeerAddress.MESSAGE_SIZE - 4))))
+        (§ ass (§ name length) (§ expr length + (§ expr (§ expr addresses.size(§ pars )) * (§ quest (§ expr 31402 < protocolVersion) ? (§ expr PeerAddress.MESSAGE_SIZE) :else (§ expr PeerAddress.MESSAGE_SIZE - 4)))))
     )
 
     #_override
@@ -1912,7 +1912,7 @@
         )
         ;; Using a hashset here is very inefficient given that this will normally be only one item.  But Java doesn't
         ;; make it easy to do better.  What we really want is just an array-backed set.
-        (§ var #_"Set<Long>" (§ name cancelSet) (§ new HashSet<>(§ pars (§ cast int)cancelSetSize)))
+        (§ var #_"Set<Long>" (§ name cancelSet) (§ new #_"HashSet<>" (§ pars (§ cast #_"int" cancelSetSize))))
         (§ for (§ var #_"long" (§ name i) (§ expr 0)) :for (§ expr i < cancelSetSize) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ expr cancelSet.add(§ pars readUint32(§ pars )))
@@ -1925,7 +1925,7 @@
         (§ block
             (§ throw (§ new #_"ProtocolException" (§ pars "Bad subver set size: " + subverSetSize)))
         )
-        (§ var #_"Set<String>" (§ name matchingSubVers) (§ new HashSet<>(§ pars (§ cast int)subverSetSize)))
+        (§ var #_"Set<String>" (§ name matchingSubVers) (§ new #_"HashSet<>" (§ pars (§ cast #_"int" subverSetSize))))
         (§ for (§ var #_"long" (§ name i) (§ expr 0)) :for (§ expr i < subverSetSize) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ expr matchingSubVers.add(§ pars readStr(§ pars )))
@@ -2241,12 +2241,12 @@
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < input.length(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ var #_"char" (§ name c) (§ expr input.charAt(§ pars i)))
-            (§ var #_"int" (§ name digit) (§ quest (§ expr c < 128) ? INDEXES[c] :else -1))
+            (§ var #_"int" (§ name digit) (§ quest (§ expr c < 128) ? (§ expr INDEXES[c]) :else (§ expr -1)))
             (§ if (§ expr digit < 0))
             (§ block
                 (§ throw (§ new #_"AddressFormatException" (§ pars "Illegal character " + c + " at position " + i)))
             )
-            (§ ass input58[i] = (§ cast byte)digit)
+            (§ ass input58[i] = (§ cast #_"byte" digit))
         )
         ;; Count leading zeros.
         (§ var #_"int" (§ name zeros) (§ expr 0))
@@ -2332,12 +2332,12 @@
         (§ var #_"int" (§ name remainder) (§ expr 0))
         (§ for (§ var #_"int" (§ name i) (§ expr firstDigit)) :for (§ expr i < number.length) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
-            (§ var #_"int" (§ name digit) (§ expr (§ cast int)number[i] & 0xff))
+            (§ var #_"int" (§ name digit) (§ expr (§ cast #_"int" number[i]) & 0xff))
             (§ var #_"int" (§ name temp) (§ expr remainder * base + digit))
-            (§ ass number[i] = (§ cast byte)(§ expr temp / divisor))
+            (§ ass number[i] = (§ cast #_"byte" (§ expr temp / divisor)))
             (§ ass (§ name remainder) (§ expr temp % divisor))
         )
-        (§ return (§ cast byte)remainder)
+        (§ return (§ cast #_"byte" remainder))
     )
 )
 
@@ -2432,7 +2432,7 @@
         ;; about NULL terminating the string here.
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < name.length(§ pars ) && i < COMMAND_LEN) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
-            (§ ass header[4 + i] = (§ cast byte)(§ expr name.codePointAt(§ pars i) & 0xff))
+            (§ ass header[4 + i] = (§ cast #_"byte" (§ expr name.codePointAt(§ pars i) & 0xff)))
         )
 
         (§ expr Utils.uint32ToByteArrayLE(§ pars message.length, header, 4 + COMMAND_LEN))
@@ -2723,7 +2723,7 @@
             (§ var #_"byte" (§ name b) (§ expr in.get(§ pars )))
             ;; We're looking for a run of bytes that is the same as the packet magic but we want to ignore partial
             ;; magics that aren't complete.  So we keep track of where we're up to with magicCursor.
-            (§ var #_"byte" (§ name expectedByte) (§ expr (§ cast byte)(§ expr 0xff & params.getPacketMagic(§ pars ) >>> (§ expr magicCursor << 3))))
+            (§ var #_"byte" (§ name expectedByte) (§ expr (§ cast #_"byte" (§ expr 0xff & params.getPacketMagic(§ pars ) >>> (§ expr magicCursor << 3)))))
             (§ if (§ expr b == expectedByte))
             (§ block
                 (§ ass (§ name magicCursor) (§ expr magicCursor - 1))
@@ -2791,7 +2791,7 @@
             (§ ass (§ name command) (§ expr Utils.toString(§ pars commandBytes, "US-ASCII")))
             (§ ass (§ name cursor) (§ expr COMMAND_LEN))
 
-            (§ ass size = (§ cast int)readUint32(§ pars header, cursor))
+            (§ ass size = (§ cast #_"int" (§ expr readUint32(§ pars header, cursor))))
             (§ ass (§ name cursor) (§ expr cursor + 4))
 
             (§ if (§ expr Message.MAX_SIZE < size || size < 0))
@@ -3049,7 +3049,7 @@
         (§ ass (§ name this.time) (§ expr time))
         (§ ass (§ name this.difficultyTarget) (§ expr difficultyTarget))
         (§ ass (§ name this.nonce) (§ expr nonce))
-        (§ ass (§ name this.transactions) (§ new LinkedList<>(§ pars )))
+        (§ ass (§ name this.transactions) (§ new #_"LinkedList<>" (§ pars )))
         (§ expr this.transactions.addAll(§ pars transactions))
     )
 
@@ -3086,9 +3086,9 @@
             (§ return )
         )
 
-        (§ var #_"int" (§ name numTransactions) (§ expr (§ cast int)readVarInt(§ pars )))
+        (§ var #_"int" (§ name numTransactions) (§ expr (§ cast #_"int" (§ expr readVarInt(§ pars )))))
         (§ ass (§ name optimalEncodingMessageSize) (§ expr optimalEncodingMessageSize + VarInt.sizeOf(§ pars numTransactions)))
-        (§ ass (§ name transactions) (§ new ArrayList<>(§ pars numTransactions)))
+        (§ ass (§ name transactions) (§ new #_"ArrayList<>" (§ pars numTransactions)))
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < numTransactions) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ var #_"Transaction" (§ name tx) (§ new #_"Transaction" (§ pars params, payload, cursor, this, serializer, UNKNOWN_LENGTH)))
@@ -3205,7 +3205,7 @@
         )
 
         ;; At least one of the two cacheable components is invalid, so fall back to stream write since we can't be sure of the length.
-        (§ var #_"ByteArrayOutputStream" (§ name stream) (§ new #_"UnsafeByteArrayOutputStream" (§ pars (§ expr length == UNKNOWN_LENGTH) ? HEADER_SIZE + guessTransactionsLength(§ pars ) :else length)))
+        (§ var #_"ByteArrayOutputStream" (§ name stream) (§ new #_"UnsafeByteArrayOutputStream" (§ pars (§ quest (§ expr length == UNKNOWN_LENGTH) ? (§ expr HEADER_SIZE + guessTransactionsLength(§ pars )) :else (§ expr length)))))
         (§ try )
         (§ block
             (§ expr writeHeader(§ pars stream))
@@ -3250,7 +3250,7 @@
         (§ for (§ var #_"Transaction" (§ name tx)) :for (§ expr transactions))
         (§ block
             ;; 255 is just a guess at an average tx length
-            (§ ass (§ name len) (§ expr len + (§ expr tx.length == UNKNOWN_LENGTH ? 255 :else tx.length)))
+            (§ ass (§ name len) (§ expr len + (§ quest (§ expr tx.length == UNKNOWN_LENGTH) ? 255 :else (§ expr tx.length))))
         )
         (§ return (§ expr len))
     )
@@ -3393,7 +3393,7 @@
         (§ expr sb.append(§ pars " block: \n"))
         (§ expr sb.append(§ pars "   hash: ").append(§ pars getHashAsString(§ pars )).append(§ pars "\n"))
         (§ expr sb.append(§ pars "   version: ").append(§ pars version))
-        (§ var #_"String" (§ name bips) (§ expr Joiner.on(§ pars ", ").skipNulls(§ pars ).join(§ pars isBIP34(§ pars ) ? "BIP34" :else nil, isBIP66(§ pars ) ? "BIP66" :else nil, isBIP65(§ pars ) ? "BIP65" :else nil)))
+        (§ var #_"String" (§ name bips) (§ dot Joiner.on(§ pars ", ").skipNulls(§ pars ).join(§ pars (§ quest (§ expr isBIP34(§ pars )) ? (§ expr "BIP34") :else (§ expr nil)), (§ quest (§ expr isBIP66(§ pars )) ? (§ expr "BIP66") :else (§ expr nil)), (§ quest (§ expr isBIP65(§ pars )) ? (§ expr "BIP65") :else (§ expr nil)))))
         (§ if (§ expr (§ not bips.isEmpty(§ pars ))))
         (§ block
             (§ expr sb.append(§ pars " (").append(§ pars bips).append(§ pars ")"))
@@ -3573,7 +3573,7 @@
         ;;   2     3     4   4
         ;;  / \   / \   / \
         ;; t1 t2 t3 t4 t5 t5
-        (§ var #_"ArrayList<byte[]>" (§ name tree) (§ new ArrayList<>(§ pars )))
+        (§ var #_"ArrayList<byte[]>" (§ name tree) (§ new #_"ArrayList<>" (§ pars )))
         ;; Start by adding all the hashes of the transactions as leaves of the tree.
         (§ for (§ var #_"Transaction" (§ name t)) :for (§ expr transactions))
         (§ block
@@ -3713,7 +3713,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ return (§ expr getHash(§ pars ).equals(§ pars (§ expr (§ cast Block)o).getHash(§ pars ))))
+        (§ return (§ expr getHash(§ pars ).equals(§ pars (§ expr (§ cast #_"Block" o)).getHash(§ pars ))))
     )
 
     #_override
@@ -3759,7 +3759,7 @@
         (§ expr unCacheTransactions(§ pars ))
         (§ if (§ expr transactions == nil))
         (§ block
-            (§ ass (§ name transactions) (§ new ArrayList<>(§ pars )))
+            (§ ass (§ name transactions) (§ new #_"ArrayList<>" (§ pars )))
         )
         (§ expr t.setParent(§ pars this))
         (§ if (§ expr runSanityChecks && transactions.size(§ pars ) == 0 && (§ not t.isCoinBase(§ pars ))))
@@ -3877,7 +3877,7 @@
     #_public
     (§ method #_"List<Transaction>" (§ fn getTransactions) [])
     (§ block
-        (§ return (§ quest (§ expr transactions == nil) ? nil :else ImmutableList.copyOf(§ pars transactions)))
+        (§ return (§ quest (§ expr transactions == nil) ? (§ expr nil) :else (§ expr ImmutableList.copyOf(§ pars transactions))))
     )
 
     ;; Used to make transactions unique.
@@ -3893,7 +3893,7 @@
     (§ method #_"void" (§ fn addCoinbaseTransaction) [#_"byte[]" (§ name pubKeyTo), #_"Coin" (§ name value), #_final #_"int" (§ name height)])
     (§ block
         (§ expr unCacheTransactions(§ pars ))
-        (§ ass (§ name transactions) (§ new ArrayList<>(§ pars )))
+        (§ ass (§ name transactions) (§ new #_"ArrayList<>" (§ pars )))
         (§ var #_"Transaction" (§ name coinbase) (§ new #_"Transaction" (§ pars params)))
         #_final
         (§ var #_"ScriptBuilder" (§ name inputBuilder) (§ new #_"ScriptBuilder" (§ pars )))
@@ -3902,7 +3902,7 @@
         (§ block
             (§ expr inputBuilder.number(§ pars height))
         )
-        (§ expr inputBuilder.data(§ pars (§ new byte[] (§ coll (§ cast byte)txCounter, (§ cast byte)(§ expr txCounter >> 8) ))))
+        (§ expr inputBuilder.data(§ pars (§ new byte[] (§ coll (§ cast #_"byte" txCounter), (§ cast #_"byte" (§ expr txCounter >> 8)) ))))
         (§ ass (§ name txCounter) (§ expr txCounter + 1))
 
         ;; A real coinbase transaction has some stuff in the scriptSig like the extraNonce and difficulty.
@@ -3963,8 +3963,8 @@
                 ;; Importantly, the outpoint hash cannot be zero as that's how we detect a coinbase transaction in isolation,
                 ;; but it must be unique to avoid 'different' transactions looking the same.
                 (§ var #_"byte[]" (§ name counter) (§ new byte[32]))
-                (§ ass counter[0] = (§ cast byte)txCounter)
-                (§ ass counter[1] = (§ cast byte)(§ expr txCounter >> 8))
+                (§ ass counter[0] = (§ cast #_"byte" txCounter))
+                (§ ass counter[1] = (§ cast #_"byte" (§ expr txCounter >> 8)))
                 (§ ass (§ name txCounter) (§ expr txCounter + 1))
                 (§ expr input.getOutpoint(§ pars ).setHash(§ pars Sha256Hash.wrap(§ pars counter)))
             )
@@ -4027,7 +4027,7 @@
     #_public
     (§ method #_"Block" (§ fn createNextBlockWithCoinbase) [#_"long" (§ name version), #_"byte[]" (§ name pubKey), #_"Coin" (§ name coinbaseValue), #_final #_"int" (§ name height)])
     (§ block
-        (§ return (§ expr createNextBlock(§ pars nil, version, (§ cast TransactionOutPoint)nil, Utils.currentTimeSeconds(§ pars ), pubKey, coinbaseValue, height)))
+        (§ return (§ expr createNextBlock(§ pars nil, version, (§ cast #_"TransactionOutPoint" nil), Utils.currentTimeSeconds(§ pars ), pubKey, coinbaseValue, height)))
     )
 
     ;;;
@@ -4037,7 +4037,7 @@
     #_testing
     (§ method #_"Block" (§ fn createNextBlockWithCoinbase) [#_"long" (§ name version), #_"byte[]" (§ name pubKey), #_final #_"int" (§ name height)])
     (§ block
-        (§ return (§ expr createNextBlock(§ pars nil, version, (§ cast TransactionOutPoint)nil, Utils.currentTimeSeconds(§ pars ), pubKey, FIFTY_COINS, height)))
+        (§ return (§ expr createNextBlock(§ pars nil, version, (§ cast #_"TransactionOutPoint" nil), Utils.currentTimeSeconds(§ pars ), pubKey, FIFTY_COINS, height)))
     )
 
     #_testing
@@ -4408,14 +4408,14 @@
     (§ block
         ;; The following formulas were stolen from Wikipedia's page on Bloom Filters (with the addition of min(..., MAX_...)).
         ;; Size required for a given number of elements and false-positive rate.
-        (§ var #_"int" (§ name size) (§ expr (§ cast int)(§ expr -1 / pow(§ pars log(§ pars 2), 2) * elements * log(§ pars falsePositiveRate))))
-        (§ ass (§ name size) (§ expr max(§ pars 1, min(§ pars size, (§ cast int)MAX_FILTER_SIZE * 8) / 8)))
+        (§ var #_"int" (§ name size) (§ expr (§ cast #_"int" (§ expr -1 / pow(§ pars log(§ pars 2), 2) * elements * log(§ pars falsePositiveRate)))))
+        (§ ass (§ name size) (§ expr max(§ pars 1, min(§ pars size, (§ cast #_"int" MAX_FILTER_SIZE) * 8) / 8)))
         (§ ass (§ name data) (§ new byte[size]))
         ;; Optimal number of hash functions for a given filter size and element count.
-        (§ ass hashFuncs = (§ cast int)(§ expr data.length * 8 / (§ cast double)elements * log(§ pars 2)))
+        (§ ass hashFuncs = (§ cast #_"int" (§ expr data.length * 8 / (§ cast #_"double" elements) * log(§ pars 2))))
         (§ ass (§ name hashFuncs) (§ expr max(§ pars 1, min(§ pars hashFuncs, MAX_HASH_FUNCS))))
         (§ ass (§ name this.nTweak) (§ expr randomNonce))
-        (§ ass this.nFlags = (§ cast byte)(§ expr 0xff & updateFlag.ordinal(§ pars )))
+        (§ ass this.nFlags = (§ cast #_"byte" (§ expr 0xff & updateFlag.ordinal(§ pars ))))
     )
 
     ;;;
@@ -4484,7 +4484,7 @@
     #_static
     (§ method #_"int" (§ fn murmurHash3) [#_"byte[]" (§ name data), #_"long" (§ name nTweak), #_"int" (§ name hashNum), #_"byte[]" (§ name object)])
     (§ block
-        (§ var #_"int" (§ name h1) (§ expr (§ cast int)(§ expr hashNum * 0xfba4c795 + nTweak)))
+        (§ var #_"int" (§ name h1) (§ expr (§ cast #_"int" (§ expr hashNum * 0xfba4c795 + nTweak))))
         #_final
         (§ var #_"int" (§ name c1) (§ expr 0xcc9e2d51))
         #_final
@@ -4543,7 +4543,7 @@
         (§ ass (§ name h1) (§ expr h1 * 0xc2b2ae35))
         (§ ass (§ name h1) (§ expr h1 :xor (§ expr h1 >>> 16)))
 
-        (§ return (§ cast int)(§ expr (§ expr h1 & 0xffffffff) % (§ expr data.length * 8)))
+        (§ return (§ cast #_"int" (§ expr (§ expr h1 & 0xffffffff) % (§ expr data.length * 8))))
     )
 
     ;;;
@@ -4595,7 +4595,7 @@
     #_synchronized
     (§ method #_"void" (§ fn setMatchAll) [])
     (§ block
-        (§ ass (§ name data) (§ new byte[] (§ coll (§ cast byte)0xff )))
+        (§ ass (§ name data) (§ new byte[] (§ coll (§ cast #_"byte" 0xff) )))
     )
 
     ;;;
@@ -4617,7 +4617,7 @@
         )
         (§ else )
         (§ block
-            (§ ass (§ name this.data) (§ new byte[] (§ coll (§ cast byte)0xff )))
+            (§ ass (§ name this.data) (§ new byte[] (§ coll (§ cast #_"byte" 0xff) )))
         )
     )
 
@@ -4631,7 +4631,7 @@
     (§ block
         (§ for (§ var #_"byte" (§ name b)) :for (§ expr data))
         (§ block
-            (§ if (§ expr b != (§ cast byte)0xff))
+            (§ if (§ expr b != (§ cast #_"byte" 0xff)))
             (§ block
                 (§ return (§ expr false))
             )
@@ -4674,9 +4674,9 @@
     (§ method #_"FilteredBlock" (§ fn applyAndUpdate) [#_"Block" (§ name block)])
     (§ block
         (§ var #_"List<Transaction>" (§ name txns) (§ expr block.getTransactions(§ pars )))
-        (§ var #_"List<Sha256Hash>" (§ name txHashes) (§ new ArrayList<>(§ pars txns.size(§ pars ))))
+        (§ var #_"List<Sha256Hash>" (§ name txHashes) (§ new #_"ArrayList<>" (§ pars txns.size(§ pars ))))
         (§ var #_"List<Transaction>" (§ name matched) (§ expr Lists.newArrayList(§ pars )))
-        (§ var #_"byte[]" (§ name bits) (§ new byte[(§ cast int)Math.ceil(§ pars txns.size(§ pars ) / 8.0)]))
+        (§ var #_"byte[]" (§ name bits) (§ new byte[(§ cast #_"int" (§ expr Math.ceil(§ pars txns.size(§ pars ) / 8.0)))]))
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < txns.size(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ var #_"Transaction" (§ name tx) (§ expr txns.get(§ pars i)))
@@ -4757,7 +4757,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"BloomFilter" (§ name other) (§ expr (§ cast BloomFilter)o))
+        (§ var #_"BloomFilter" (§ name other) (§ expr (§ cast #_"BloomFilter" o)))
         (§ return (§ expr hashFuncs == other.hashFuncs && nTweak == other.nTweak && Arrays.equals(§ pars data, other.data)))
     )
 
@@ -5489,7 +5489,7 @@
         (§ block
             (§ return (§ expr 0))
         )
-        (§ return (§ expr this.value < 0) ? -1 :else 1)
+        (§ return (§ quest (§ expr this.value < 0) ? (§ expr -1) :else 1))
     )
 
     #_public
@@ -5557,14 +5557,14 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ return (§ expr this.value == (§ expr (§ cast Coin)o).value))
+        (§ return (§ expr this.value == (§ expr (§ cast #_"Coin" o)).value))
     )
 
     #_override
     #_public
     (§ method #_"int" (§ fn hashCode) [])
     (§ block
-        (§ return (§ cast int)this.value)
+        (§ return (§ cast #_"int" this.value))
     )
 
     #_override
@@ -5671,7 +5671,7 @@
     #_private
     #_static
     #_final
-    (§ field #_"ThreadLocal<Context>" (§ name slot) (§ new ThreadLocal<>(§ pars )))
+    (§ field #_"ThreadLocal<Context>" (§ name slot) (§ new #_"ThreadLocal<>" (§ pars )))
 
     ;;;
      ; Returns the current context that is associated with the <b>calling thread</b>.  BitcoinJ is an API that has thread
@@ -6014,7 +6014,7 @@
     #_public
     #_static
     #_final
-    (§ field #_"Comparator<ECKey>" (§ name AGE_COMPARATOR) (§ new Comparator<ECKey>(§ pars )
+    (§ field #_"Comparator<ECKey>" (§ name AGE_COMPARATOR) (§ new #_"Comparator<ECKey>" (§ pars )
         (§ anon
             #_override
             #_public
@@ -6025,7 +6025,7 @@
                     (§ return (§ expr 0))
                 )
 
-                (§ return (§ expr k1.creationTimeSeconds < k2.creationTimeSeconds) ? -1 :else 1)
+                (§ return (§ quest (§ expr k1.creationTimeSeconds < k2.creationTimeSeconds) ? (§ expr -1) :else 1))
             )
         )))
 
@@ -6033,7 +6033,7 @@
     #_public
     #_static
     #_final
-    (§ field #_"Comparator<ECKey>" (§ name PUBKEY_COMPARATOR) (§ new Comparator<ECKey>(§ pars )
+    (§ field #_"Comparator<ECKey>" (§ name PUBKEY_COMPARATOR) (§ new #_"Comparator<ECKey>" (§ pars )
         (§ anon
             #_private
             (§ field #_"Comparator<byte[]>" (§ name comparator) (§ expr UnsignedBytes.lexicographicalComparator(§ pars )))
@@ -6132,8 +6132,8 @@
         (§ var #_"ECKeyGenerationParameters" (§ name keygenParams) (§ new #_"ECKeyGenerationParameters" (§ pars CURVE, secureRandom)))
         (§ expr generator.init(§ pars keygenParams))
         (§ var #_"AsymmetricCipherKeyPair" (§ name keypair) (§ expr generator.generateKeyPair(§ pars )))
-        (§ var #_"ECPrivateKeyParameters" (§ name privParams) (§ expr (§ cast ECPrivateKeyParameters)keypair.getPrivate(§ pars )))
-        (§ var #_"ECPublicKeyParameters" (§ name pubParams) (§ expr (§ cast ECPublicKeyParameters)keypair.getPublic(§ pars )))
+        (§ var #_"ECPrivateKeyParameters" (§ name privParams) (§ expr (§ cast #_"ECPrivateKeyParameters" (§ expr keypair.getPrivate(§ pars )))))
+        (§ var #_"ECPublicKeyParameters" (§ name pubParams) (§ expr (§ cast #_"ECPublicKeyParameters" (§ expr keypair.getPublic(§ pars )))))
         (§ ass (§ name priv) (§ expr privParams.getD(§ pars )))
         (§ ass (§ name pub) (§ new #_"LazyECPoint" (§ pars CURVE.getCurve(§ pars ), pubParams.getQ(§ pars ).getEncoded(§ pars true))))
         (§ ass (§ name creationTimeSeconds) (§ expr Utils.currentTimeSeconds(§ pars )))
@@ -6176,7 +6176,7 @@
     #_static
     (§ method #_"LazyECPoint" (§ fn compressPoint) [#_"LazyECPoint" (§ name point)])
     (§ block
-        (§ return (§ expr point.isCompressed(§ pars ) ? point :else new LazyECPoint(§ pars compressPoint(§ pars point.get(§ pars )))))
+        (§ return (§ quest (§ expr point.isCompressed(§ pars )) ? (§ expr point) :else (§ expr new LazyECPoint(§ pars compressPoint(§ pars point.get(§ pars ))))))
     )
 
     ;;;
@@ -6194,7 +6194,7 @@
     #_static
     (§ method #_"LazyECPoint" (§ fn decompressPoint) [#_"LazyECPoint" (§ name point)])
     (§ block
-        (§ return (§ quest (§ not point.isCompressed(§ pars )) ? point :else new LazyECPoint(§ pars decompressPoint(§ pars point.get(§ pars )))))
+        (§ return (§ quest (§ not (§ expr point.isCompressed(§ pars ))) ? (§ expr point) :else (§ expr new LazyECPoint(§ pars decompressPoint(§ pars point.get(§ pars ))))))
     )
 
     #_private
@@ -6323,7 +6323,7 @@
     #_public
     (§ method #_"ECKey" (§ fn decompress) [])
     (§ block
-        (§ return (§ expr pub.isCompressed(§ pars ) ? new ECKey(§ pars priv, decompressPoint(§ pars pub.get(§ pars ))) :else this))
+        (§ return (§ quest (§ expr pub.isCompressed(§ pars )) ? (§ expr new ECKey(§ pars priv, decompressPoint(§ pars pub.get(§ pars )))) :else (§ expr this)))
     )
 
     ;;;
@@ -6335,7 +6335,7 @@
     #_public
     (§ constructor #_"ECKey" [#_nilable #_"byte[]" (§ name privKeyBytes), #_nilable #_"byte[]" (§ name pubKey)])
     (§ block
-        (§ this (§ pars (§ expr privKeyBytes != nil) ? new BigInteger(§ pars 1, privKeyBytes) :else nil, pubKey))
+        (§ this (§ pars (§ quest (§ expr privKeyBytes != nil) ? (§ expr new BigInteger(§ pars 1, privKeyBytes)) :else (§ expr nil)), pubKey))
     )
 
     ;;;
@@ -6349,7 +6349,7 @@
     #_public
     (§ constructor #_"ECKey" [#_"EncryptedData" (§ name encryptedPrivateKey), #_"byte[]" (§ name pubKey), #_"KeyCrypter" (§ name keyCrypter)])
     (§ block
-        (§ this (§ pars (§ cast byte[])nil, pubKey))
+        (§ this (§ pars (§ cast #_"byte[]" nil), pubKey))
 
         (§ ass (§ name this.keyCrypter) (§ expr Preconditions.checkNotNull(§ pars keyCrypter)))
         (§ ass (§ name this.encryptedPrivateKey) (§ expr encryptedPrivateKey))
@@ -6653,7 +6653,7 @@
             (§ try )
             (§ block
                 (§ ass (§ name decoder) (§ new #_"ASN1InputStream" (§ pars bytes)))
-                (§ var #_"DLSequence" (§ name seq) (§ expr (§ cast DLSequence)decoder.readObject(§ pars )))
+                (§ var #_"DLSequence" (§ name seq) (§ expr (§ cast #_"DLSequence" (§ expr decoder.readObject(§ pars )))))
                 (§ if (§ expr seq == nil))
                 (§ block
                     (§ throw (§ new #_"IllegalArgumentException" (§ pars "Reached past end of ASN.1 stream.")))
@@ -6662,8 +6662,8 @@
                 (§ var ASN1Integer r, s)
                 (§ try )
                 (§ block
-                    (§ ass r = (§ cast ASN1Integer)seq.getObjectAt(§ pars 0))
-                    (§ ass s = (§ cast ASN1Integer)seq.getObjectAt(§ pars 1))
+                    (§ ass r = (§ cast #_"ASN1Integer" (§ expr seq.getObjectAt(§ pars 0))))
+                    (§ ass s = (§ cast #_"ASN1Integer" (§ expr seq.getObjectAt(§ pars 1))))
                 )
                 (§ catch #_"ClassCastException" (§ name e))
                 (§ block
@@ -6717,7 +6717,7 @@
             (§ block
                 (§ return (§ expr false))
             )
-            (§ var #_"ECDSASignature" (§ name other) (§ expr (§ cast ECDSASignature)o))
+            (§ var #_"ECDSASignature" (§ name other) (§ expr (§ cast #_"ECDSASignature" o)))
             (§ return (§ expr r.equals(§ pars other.r) && s.equals(§ pars other.s)))
         )
 
@@ -6944,20 +6944,20 @@
         (§ try )
         (§ block
             (§ var #_"ASN1InputStream" (§ name decoder) (§ new #_"ASN1InputStream" (§ pars asn1privkey)))
-            (§ var #_"DLSequence" (§ name seq) (§ expr (§ cast DLSequence)decoder.readObject(§ pars )))
+            (§ var #_"DLSequence" (§ name seq) (§ expr (§ cast #_"DLSequence" (§ expr decoder.readObject(§ pars )))))
             (§ expr Preconditions.checkArgument(§ pars decoder.readObject(§ pars ) == nil, "Input contains extra bytes"))
             (§ expr decoder.close(§ pars ))
 
             (§ expr Preconditions.checkArgument(§ pars seq.size(§ pars ) == 4, "Input does not appear to be an ASN.1 OpenSSL EC private key"))
 
-            (§ expr Preconditions.checkArgument(§ pars (§ expr (§ cast ASN1Integer)seq.getObjectAt(§ pars 0)).getValue(§ pars ).equals(§ pars BigInteger.ONE), "Input is of wrong version"))
+            (§ expr Preconditions.checkArgument(§ pars (§ expr (§ cast #_"ASN1Integer" (§ expr seq.getObjectAt(§ pars 0)))).getValue(§ pars ).equals(§ pars BigInteger.ONE), "Input is of wrong version"))
 
-            (§ var #_"byte[]" (§ name privbits) (§ expr (§ expr (§ cast ASN1OctetString)seq.getObjectAt(§ pars 1)).getOctets(§ pars )))
+            (§ var #_"byte[]" (§ name privbits) (§ expr (§ expr (§ cast #_"ASN1OctetString" (§ expr seq.getObjectAt(§ pars 1)))).getOctets(§ pars )))
             (§ var #_"BigInteger" (§ name privkey) (§ new #_"BigInteger" (§ pars 1, privbits)))
 
-            (§ var #_"ASN1TaggedObject" (§ name pubkey) (§ expr (§ cast ASN1TaggedObject)seq.getObjectAt(§ pars 3)))
+            (§ var #_"ASN1TaggedObject" (§ name pubkey) (§ expr (§ cast #_"ASN1TaggedObject" (§ expr seq.getObjectAt(§ pars 3)))))
             (§ expr Preconditions.checkArgument(§ pars pubkey.getTagNo(§ pars ) == 1, "Input has 'publicKey' with bad tag number"))
-            (§ var #_"byte[]" (§ name pubbits) (§ expr (§ expr (§ cast DERBitString)pubkey.getObject(§ pars )).getBytes(§ pars )))
+            (§ var #_"byte[]" (§ name pubbits) (§ expr (§ expr (§ cast #_"DERBitString" (§ expr pubkey.getObject(§ pars )))).getBytes(§ pars )))
             (§ expr Preconditions.checkArgument(§ pars pubbits.length == 33 || pubbits.length == 65, "Input has 'publicKey' with invalid length"))
             (§ var #_"int" (§ name encoding) (§ expr pubbits[0] & 0xff))
             ;; Only allow compressed(2,3) and uncompressed(4), not infinity(0) or hybrid(6,7).
@@ -7021,9 +7021,9 @@
         (§ block
             (§ throw (§ new #_"RuntimeException" (§ pars "Could not construct a recoverable key. This should never happen.")))
         )
-        (§ var #_"int" (§ name headerByte) (§ expr recId + 27 + (§ expr isCompressed(§ pars ) ? 4 :else 0)))
+        (§ var #_"int" (§ name headerByte) (§ expr recId + 27 + (§ quest (§ expr isCompressed(§ pars )) ? 4 :else 0)))
         (§ var #_"byte[]" (§ name sigData) (§ new byte[65])) ;; 1 header + 32 bytes for R + 32 bytes for S
-        (§ ass sigData[0] = (§ cast byte)headerByte)
+        (§ ass sigData[0] = (§ cast #_"byte" headerByte))
         (§ expr System.arraycopy(§ pars Utils.bigIntegerToBytes(§ pars sig.r, 32), 0, sigData, 1, 32))
         (§ expr System.arraycopy(§ pars Utils.bigIntegerToBytes(§ pars sig.s, 32), 0, sigData, 33, 32))
         (§ return (§ new #_"String" (§ pars Base64.encode(§ pars sigData), Charset.forName(§ pars "UTF-8"))))
@@ -7138,7 +7138,7 @@
         ;; 1.0 For j from 0 to h   (h == recId here and the loop is outside this function)
         ;;   1.1 Let x = r + jn
         (§ var #_"BigInteger" (§ name n) (§ expr CURVE.getN(§ pars ))) ;; Curve order.
-        (§ var #_"BigInteger" (§ name i) (§ expr BigInteger.valueOf(§ pars (§ cast long)recId / 2)))
+        (§ var #_"BigInteger" (§ name i) (§ expr BigInteger.valueOf(§ pars (§ cast #_"long" recId) / 2)))
         (§ var #_"BigInteger" (§ name x) (§ expr sig.r.add(§ pars i.multiply(§ pars n))))
         ;;   1.2. Convert the integer x to an octet string X of length mlen using the conversion routine
         ;;        specified in Section 2.3.7, where mlen = ⌈(log2 p)/8⌉ or mlen = ⌈m/8⌉.
@@ -7191,7 +7191,7 @@
     (§ block
         (§ var #_"X9IntegerConverter" (§ name x9) (§ new #_"X9IntegerConverter" (§ pars )))
         (§ var #_"byte[]" (§ name compEnc) (§ expr x9.integerToBytes(§ pars xBN, 1 + x9.getByteLength(§ pars CURVE.getCurve(§ pars )))))
-        (§ ass compEnc[0] = (§ cast byte)(§ expr yBit ? 0x03 :else 0x02))
+        (§ ass compEnc[0] = (§ cast #_"byte" (§ quest yBit ? 0x03 :else 0x02)))
         (§ return (§ expr CURVE.getCurve(§ pars ).decodePoint(§ pars compEnc)))
     )
 
@@ -7317,7 +7317,7 @@
     (§ method #_"ECKey" (§ fn maybeDecrypt) [#_nilable #_"KeyParameter" (§ name aesKey)])
         (§ throws #_"KeyCrypterException")
     (§ block
-        (§ return (§ expr isEncrypted(§ pars ) && aesKey != nil) ? decrypt(§ pars aesKey) :else this)
+        (§ return (§ quest (§ expr isEncrypted(§ pars ) && aesKey != nil) ? (§ expr decrypt(§ pars aesKey)) :else (§ expr this)))
     )
 
     ;;;
@@ -7370,7 +7370,7 @@
     #_public
     (§ method #_"Protos.Wallet.EncryptionType" (§ fn getEncryptionType) [])
     (§ block
-        (§ return (§ expr keyCrypter != nil) ? keyCrypter.getUnderstoodEncryptionType(§ pars ) :else Protos.Wallet.EncryptionType.UNENCRYPTED)
+        (§ return (§ quest (§ expr keyCrypter != nil) ? (§ expr keyCrypter.getUnderstoodEncryptionType(§ pars )) :else (§ expr Protos.Wallet.EncryptionType.UNENCRYPTED)))
     )
 
     ;;;
@@ -7442,7 +7442,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"ECKey" (§ name other) (§ expr (§ cast ECKey)o))
+        (§ var #_"ECKey" (§ name other) (§ expr (§ cast #_"ECKey" o)))
         (§ return (§ expr Objects.equal(§ pars this.priv, other.priv) && Objects.equal(§ pars this.pub, other.pub) && Objects.equal(§ pars this.creationTimeSeconds, other.creationTimeSeconds) && Objects.equal(§ pars this.keyCrypter, other.keyCrypter) && Objects.equal(§ pars this.encryptedPrivateKey, other.encryptedPrivateKey)))
     )
 
@@ -7502,7 +7502,7 @@
             (§ block
                 #_final
                 (§ var #_"String" (§ name message) (§ expr e.getMessage(§ pars )))
-                (§ expr helper.add(§ pars "priv EXCEPTION", e.getClass(§ pars ).getName(§ pars ) + (§ quest (§ expr message != nil) ? (§ expr ": " + message) :else "")))
+                (§ expr helper.add(§ pars "priv EXCEPTION", e.getClass(§ pars ).getName(§ pars ) + (§ quest (§ expr message != nil) ? (§ str ": " + message) :else (§ expr ""))))
             )
         )
         (§ if (§ expr 0 < creationTimeSeconds))
@@ -7683,7 +7683,7 @@
             (§ return (§ expr Collections.unmodifiableList(§ pars cachedTransactionHashes)))
         )
 
-        (§ var #_"List<Sha256Hash>" (§ name hashesMatched) (§ new LinkedList<>(§ pars )))
+        (§ var #_"List<Sha256Hash>" (§ name hashesMatched) (§ new #_"LinkedList<>" (§ pars )))
         (§ if (§ expr header.getMerkleRoot(§ pars ).equals(§ pars merkleTree.getTxnHashAndMerkleRoot(§ pars hashesMatched))))
         (§ block
             (§ ass (§ name cachedTransactionHashes) (§ expr hashesMatched))
@@ -7760,7 +7760,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"FilteredBlock" (§ name other) (§ expr (§ cast FilteredBlock)o))
+        (§ var #_"FilteredBlock" (§ name other) (§ expr (§ cast #_"FilteredBlock" o)))
         (§ return (§ expr associatedTransactions.equals(§ pars other.associatedTransactions) && header.equals(§ pars other.header) && merkleTree.equals(§ pars other.merkleTree)))
     )
 
@@ -8035,8 +8035,8 @@
 
         (§ expr blockStore.beginDatabaseBatchWrite(§ pars ))
 
-        (§ var #_"LinkedList<UTXO>" (§ name txOutsSpent) (§ new LinkedList<>(§ pars )))
-        (§ var #_"LinkedList<UTXO>" (§ name txOutsCreated) (§ new LinkedList<>(§ pars )))
+        (§ var #_"LinkedList<UTXO>" (§ name txOutsSpent) (§ new #_"LinkedList<>" (§ pars )))
+        (§ var #_"LinkedList<UTXO>" (§ name txOutsCreated) (§ new #_"LinkedList<>" (§ pars )))
         (§ var #_"long" (§ name sigOps) (§ expr 0))
 
         (§ if (§ expr scriptVerificationExecutor.isShutdown(§ pars )))
@@ -8044,7 +8044,7 @@
             (§ ass (§ name scriptVerificationExecutor) (§ expr Executors.newFixedThreadPool(§ pars Runtime.getRuntime(§ pars ).availableProcessors(§ pars ))))
         )
 
-        (§ var #_"List<Future<VerificationException>>" (§ name listScriptVerificationResults) (§ new ArrayList<>(§ pars block.transactions.size(§ pars ))))
+        (§ var #_"List<Future<VerificationException>>" (§ name listScriptVerificationResults) (§ new #_"ArrayList<>" (§ pars block.transactions.size(§ pars ))))
         (§ try )
         (§ block
             (§ if (§ expr (§ not params.isCheckpoint(§ pars height))))
@@ -8078,7 +8078,7 @@
                 (§ var #_"Coin" (§ name valueIn) (§ expr Coin.ZERO))
                 (§ var #_"Coin" (§ name valueOut) (§ expr Coin.ZERO))
                 #_final
-                (§ var #_"List<Script>" (§ name prevOutScripts) (§ new LinkedList<>(§ pars )))
+                (§ var #_"List<Script>" (§ name prevOutScripts) (§ new #_"LinkedList<>" (§ pars )))
                 #_final
                 (§ var #_"Set<VerifyFlag>" (§ name verifyFlags) (§ expr params.getTransactionVerificationFlags(§ pars block, tx, getVersionTally(§ pars ), height)))
                 (§ if (§ expr (§ not isCoinBase)))
@@ -8153,7 +8153,7 @@
                 (§ if (§ expr (§ not isCoinBase) && runScripts))
                 (§ block
                     ;; Because correctlySpends modifies transactions, this must come after we are done with tx.
-                    (§ var #_"FutureTask<VerificationException>" (§ name future) (§ new FutureTask<>(§ pars (§ new #_"Verifier" (§ pars tx, prevOutScripts, verifyFlags)))))
+                    (§ var #_"FutureTask<VerificationException>" (§ name future) (§ new #_"FutureTask<>" (§ pars (§ new #_"Verifier" (§ pars tx, prevOutScripts, verifyFlags)))))
                     (§ expr scriptVerificationExecutor.execute(§ pars future))
                     (§ expr listScriptVerificationResults.add(§ pars future))
                 )
@@ -8231,8 +8231,8 @@
             (§ var #_"List<Transaction>" (§ name transactions) (§ expr block.getTransactions(§ pars )))
             (§ if (§ expr transactions != nil))
             (§ block
-                (§ var #_"LinkedList<UTXO>" (§ name txOutsSpent) (§ new LinkedList<>(§ pars )))
-                (§ var #_"LinkedList<UTXO>" (§ name txOutsCreated) (§ new LinkedList<>(§ pars )))
+                (§ var #_"LinkedList<UTXO>" (§ name txOutsSpent) (§ new #_"LinkedList<>" (§ pars )))
+                (§ var #_"LinkedList<UTXO>" (§ name txOutsCreated) (§ new #_"LinkedList<>" (§ pars )))
                 (§ var #_"long" (§ name sigOps) (§ expr 0))
 
                 (§ if (§ expr (§ not params.isCheckpoint(§ pars newBlock.getHeight(§ pars )))))
@@ -8255,7 +8255,7 @@
                     (§ ass (§ name scriptVerificationExecutor) (§ expr Executors.newFixedThreadPool(§ pars Runtime.getRuntime(§ pars ).availableProcessors(§ pars ))))
                 )
 
-                (§ var #_"List<Future<VerificationException>>" (§ name listScriptVerificationResults) (§ new ArrayList<>(§ pars transactions.size(§ pars ))))
+                (§ var #_"List<Future<VerificationException>>" (§ name listScriptVerificationResults) (§ new #_"ArrayList<>" (§ pars transactions.size(§ pars ))))
                 (§ for (§ var #_final Transaction tx) :for (§ expr transactions))
                 (§ block
                     #_final
@@ -8264,7 +8264,7 @@
                     (§ var #_"Coin" (§ name valueIn) (§ expr Coin.ZERO))
                     (§ var #_"Coin" (§ name valueOut) (§ expr Coin.ZERO))
                     #_final
-                    (§ var #_"List<Script>" (§ name prevOutScripts) (§ new LinkedList<>(§ pars )))
+                    (§ var #_"List<Script>" (§ name prevOutScripts) (§ new #_"LinkedList<>" (§ pars )))
 
                     (§ if (§ expr (§ not isCoinBase)))
                     (§ block
@@ -8335,7 +8335,7 @@
                     (§ if (§ expr (§ not isCoinBase)))
                     (§ block
                         ;; Because correctlySpends modifies transactions, this must come after we are done with tx.
-                        (§ var #_"FutureTask<VerificationException>" (§ name future) (§ new FutureTask<>(§ pars (§ new #_"Verifier" (§ pars tx, prevOutScripts, verifyFlags)))))
+                        (§ var #_"FutureTask<VerificationException>" (§ name future) (§ new #_"FutureTask<>" (§ pars (§ new #_"Verifier" (§ pars tx, prevOutScripts, verifyFlags)))))
                         (§ expr scriptVerificationExecutor.execute(§ pars future))
                         (§ expr listScriptVerificationResults.add(§ pars future))
                     )
@@ -8536,14 +8536,14 @@
     (§ block
         (§ ass (§ name cursor) (§ expr offset))
         (§ ass (§ name version) (§ expr readUint32(§ pars )))
-        (§ var #_"int" (§ name startCount) (§ expr (§ cast int)readVarInt(§ pars )))
+        (§ var #_"int" (§ name startCount) (§ expr (§ cast #_"int" (§ expr readVarInt(§ pars )))))
         (§ if (§ expr 500 < startCount))
         (§ block
             (§ throw (§ new #_"ProtocolException" (§ pars "Number of locators cannot be > 500, received: " + startCount)))
         )
 
         (§ ass (§ name length) (§ expr cursor - offset + (§ expr (§ expr startCount + 1) * 32)))
-        (§ ass (§ name locator) (§ new ArrayList<>(§ pars startCount)))
+        (§ ass (§ name locator) (§ new #_"ArrayList<>" (§ pars startCount)))
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < startCount) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ expr locator.add(§ pars readHash(§ pars )))
@@ -8602,7 +8602,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"GetBlocksMessage" (§ name other) (§ expr (§ cast GetBlocksMessage)o))
+        (§ var #_"GetBlocksMessage" (§ name other) (§ expr (§ cast #_"GetBlocksMessage" o)))
         (§ return (§ expr version == other.version && stopHash.equals(§ pars other.stopHash) && locator.size(§ pars ) == other.locator.size(§ pars ) && locator.containsAll(§ pars other.locator))) ;; ignores locator ordering
     )
 
@@ -8610,7 +8610,7 @@
     #_public
     (§ method #_"int" (§ fn hashCode) [])
     (§ block
-        (§ var #_"int" (§ name hashCode) (§ expr (§ cast int)version :xor "getblocks".hashCode(§ pars ) :xor stopHash.hashCode(§ pars )))
+        (§ var #_"int" (§ name hashCode) (§ expr (§ cast #_"int" version) :xor "getblocks".hashCode(§ pars ) :xor stopHash.hashCode(§ pars )))
         (§ for (§ var #_"Sha256Hash" (§ name l)) :for (§ expr locator))
         (§ block
             (§ ass (§ name hashCode) (§ expr hashCode :xor l.hashCode(§ pars ))) ;; ignores locator ordering
@@ -8731,7 +8731,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"GetHeadersMessage" (§ name other) (§ expr (§ cast GetHeadersMessage)o))
+        (§ var #_"GetHeadersMessage" (§ name other) (§ expr (§ cast #_"GetHeadersMessage" o)))
         (§ return (§ expr version == other.version && stopHash.equals(§ pars other.stopHash) && locator.size(§ pars ) == other.locator.size(§ pars ) && locator.containsAll(§ pars other.locator))) ;; ignores locator ordering
     )
 
@@ -8739,7 +8739,7 @@
     #_public
     (§ method #_"int" (§ fn hashCode) [])
     (§ block
-        (§ var #_"int" (§ name hashCode) (§ expr (§ cast int)version :xor "getheaders".hashCode(§ pars ) :xor stopHash.hashCode(§ pars )))
+        (§ var #_"int" (§ name hashCode) (§ expr (§ cast #_"int" version) :xor "getheaders".hashCode(§ pars ) :xor stopHash.hashCode(§ pars )))
         (§ for (§ var #_"Sha256Hash" (§ name l)) :for (§ expr locator))
         (§ block
             (§ ass (§ name hashCode) (§ expr hashCode :xor l.hashCode(§ pars ))) ;; ignores locator ordering
@@ -8823,7 +8823,7 @@
             (§ throw (§ new #_"ProtocolException" (§ pars "Too many headers: got " + numHeaders + " which is larger than " + MAX_HEADERS)))
         )
 
-        (§ ass (§ name blockHeaders) (§ new ArrayList<>(§ pars )))
+        (§ ass (§ name blockHeaders) (§ new #_"ArrayList<>" (§ pars )))
         #_final
         (§ var #_"BitcoinSerializer" (§ name serializer) (§ expr this.params.getSerializer(§ pars true)))
 
@@ -8948,7 +8948,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"InventoryItem" (§ name other) (§ expr (§ cast InventoryItem)o))
+        (§ var #_"InventoryItem" (§ name other) (§ expr (§ cast #_"InventoryItem" o)))
         (§ return (§ expr type == other.type && hash.equals(§ pars other.hash)))
     )
 
@@ -9077,7 +9077,7 @@
     (§ block
         (§ super (§ pars params))
 
-        (§ ass (§ name items) (§ new ArrayList<>(§ pars )))
+        (§ ass (§ name items) (§ new #_"ArrayList<>" (§ pars )))
         (§ ass (§ name length) (§ expr 1)) ;; length of 0 varint
     )
 
@@ -9115,10 +9115,10 @@
         (§ block
             (§ throw (§ new #_"ProtocolException" (§ pars "Too many items in INV message: " + arrayLen)))
         )
-        (§ ass length = (§ cast int)(§ expr cursor - offset + (§ expr arrayLen * InventoryItem.MESSAGE_LENGTH)))
+        (§ ass length = (§ cast #_"int" (§ expr cursor - offset + (§ expr arrayLen * InventoryItem.MESSAGE_LENGTH))))
 
         ;; An inv is vector<CInv> where CInv is int+hash.  The int is either 1 or 2 for tx or block.
-        (§ ass (§ name items) (§ new ArrayList<>(§ pars (§ cast int)arrayLen)))
+        (§ ass (§ name items) (§ new #_"ArrayList<>" (§ pars (§ cast #_"int" arrayLen))))
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < arrayLen) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ if (§ expr payload.length < cursor + InventoryItem.MESSAGE_LENGTH))
@@ -9126,7 +9126,7 @@
                 (§ throw (§ new #_"ProtocolException" (§ pars "Ran off the end of the INV")))
             )
 
-            (§ var #_"int" (§ name typeCode) (§ expr (§ cast int)readUint32(§ pars )))
+            (§ var #_"int" (§ name typeCode) (§ expr (§ cast #_"int" (§ expr readUint32(§ pars )))))
             (§ var #_"InventoryItem.Type" (§ name type))
             ;; see ppszTypeName in net.h
             (§ switch (§ expr typeCode))
@@ -9188,7 +9188,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ return (§ expr items.equals(§ pars (§ expr (§ cast ListMessage)o).items)))
+        (§ return (§ expr items.equals(§ pars (§ expr (§ cast #_"ListMessage" o)).items)))
     )
 
     #_override
@@ -9489,7 +9489,7 @@
         )
 
         ;; No cached array available so serialize parts by stream.
-        (§ var #_"ByteArrayOutputStream" (§ name stream) (§ new #_"UnsafeByteArrayOutputStream" (§ pars length < 32 ? 32 :else length + 32)))
+        (§ var #_"ByteArrayOutputStream" (§ name stream) (§ new #_"UnsafeByteArrayOutputStream" (§ pars (§ quest (§ expr length < 32) ? 32 :else (§ expr length + 32)))))
         (§ try )
         (§ block
             (§ expr bitcoinSerializeToStream(§ pars stream))
@@ -9669,7 +9669,7 @@
         (§ throws #_"ProtocolException")
     (§ block
         (§ var #_"long" (§ name len) (§ expr readVarInt(§ pars )))
-        (§ return (§ expr readBytes(§ pars (§ cast int)len)))
+        (§ return (§ expr readBytes(§ pars (§ cast #_"int" len))))
     )
 
     #_protected
@@ -9677,7 +9677,7 @@
         (§ throws #_"ProtocolException")
     (§ block
         (§ var #_"long" (§ name length) (§ expr readVarInt(§ pars )))
-        (§ return (§ quest (§ expr length == 0) ? "" :else Utils.toString(§ pars readBytes(§ pars (§ cast int)length), "UTF-8"))) ;; optimization for empty strings
+        (§ return (§ quest (§ expr length == 0) ? (§ expr "") :else (§ expr Utils.toString(§ pars readBytes(§ pars (§ cast #_"int" length)), "UTF-8")))) ;; optimization for empty strings
     )
 
     #_protected
@@ -10163,7 +10163,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ return (§ expr getId(§ pars ).equals(§ pars (§ expr (§ cast NetworkParameters)o).getId(§ pars ))))
+        (§ return (§ expr getId(§ pars ).equals(§ pars (§ expr (§ cast #_"NetworkParameters" o)).getId(§ pars ))))
     )
 
     #_override
@@ -10614,7 +10614,7 @@
     (§ constructor #_"NotFoundMessage" [#_"NetworkParameters" (§ name params), #_"List<InventoryItem>" (§ name items)])
     (§ block
         (§ super (§ pars params))
-        (§ ass (§ name this.items) (§ new ArrayList<>(§ pars items)))
+        (§ ass (§ name this.items) (§ new #_"ArrayList<>" (§ pars items)))
     )
 )
 
@@ -10699,10 +10699,10 @@
         (§ block
             (§ ass (§ name height) (§ expr height + 1))
         )
-        (§ var #_"List<Boolean>" (§ name bitList) (§ new ArrayList<>(§ pars )))
-        (§ var #_"List<Sha256Hash>" (§ name hashes) (§ new ArrayList<>(§ pars )))
+        (§ var #_"List<Boolean>" (§ name bitList) (§ new #_"ArrayList<>" (§ pars )))
+        (§ var #_"List<Sha256Hash>" (§ name hashes) (§ new #_"ArrayList<>" (§ pars )))
         (§ expr traverseAndBuild(§ pars height, 0, allLeafHashes, includeBits, bitList, hashes))
-        (§ var #_"byte[]" (§ name bits) (§ new byte[(§ cast int)Math.ceil(§ pars bitList.size(§ pars ) / 8.0)]))
+        (§ var #_"byte[]" (§ name bits) (§ new byte[(§ cast #_"int" (§ expr Math.ceil(§ pars bitList.size(§ pars ) / 8.0)))]))
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < bitList.size(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ if (§ expr bitList.get(§ pars i)))
@@ -10735,16 +10735,16 @@
     (§ method #_"void" (§ fn parse) [])
         (§ throws #_"ProtocolException")
     (§ block
-        (§ ass transactionCount = (§ cast int)readUint32(§ pars ))
+        (§ ass transactionCount = (§ cast #_"int" (§ expr readUint32(§ pars ))))
 
-        (§ var #_"int" (§ name nHashes) (§ expr (§ cast int)readVarInt(§ pars )))
-        (§ ass (§ name hashes) (§ new ArrayList<>(§ pars nHashes)))
+        (§ var #_"int" (§ name nHashes) (§ expr (§ cast #_"int" (§ expr readVarInt(§ pars )))))
+        (§ ass (§ name hashes) (§ new #_"ArrayList<>" (§ pars nHashes)))
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < nHashes) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ expr hashes.add(§ pars readHash(§ pars )))
         )
 
-        (§ var #_"int" (§ name nFlagBytes) (§ expr (§ cast int)readVarInt(§ pars )))
+        (§ var #_"int" (§ name nFlagBytes) (§ expr (§ cast #_"int" (§ expr readVarInt(§ pars )))))
         (§ ass (§ name matchedChildBits) (§ expr readBytes(§ pars nFlagBytes)))
 
         (§ ass (§ name length) (§ expr cursor - offset))
@@ -10799,7 +10799,7 @@
         (§ var #_"int" (§ name p) (§ expr pos * 2))
         (§ var #_"Sha256Hash" (§ name left) (§ expr calcHash(§ pars h, p, hashes)))
         ;; Calculate right hash if not beyond the end of the array - copy left hash otherwise.
-        (§ var #_"Sha256Hash" (§ name right) (§ quest (§ expr p + 1 < getTreeWidth(§ pars hashes.size(§ pars ), h)) ? calcHash(§ pars h, p + 1, hashes) :else left))
+        (§ var #_"Sha256Hash" (§ name right) (§ quest (§ expr p + 1 < getTreeWidth(§ pars hashes.size(§ pars ), h)) ? (§ expr calcHash(§ pars h, p + 1, hashes)) :else (§ expr left)))
 
         (§ return (§ expr combineLeftRight(§ pars left.getBytes(§ pars ), right.getBytes(§ pars ))))
     )
@@ -10954,7 +10954,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"PartialMerkleTree" (§ name other) (§ expr (§ cast PartialMerkleTree)o))
+        (§ var #_"PartialMerkleTree" (§ name other) (§ expr (§ cast #_"PartialMerkleTree" o)))
         (§ return (§ expr transactionCount == other.transactionCount && hashes.equals(§ pars other.hashes) && Arrays.equals(§ pars matchedChildBits, other.matchedChildBits)))
     )
 
@@ -11021,25 +11021,25 @@
 
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>" (§ name blocksDownloadedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>" (§ name blocksDownloadedEventListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>" (§ name chainDownloadStartedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>" (§ name chainDownloadStartedEventListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>" (§ name connectedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>" (§ name connectedEventListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>" (§ name disconnectedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>" (§ name disconnectedEventListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>" (§ name getDataEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>" (§ name getDataEventListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>" (§ name preMessageReceivedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>" (§ name preMessageReceivedEventListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>" (§ name onTransactionEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>" (§ name onTransactionEventListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
 
     ;; Whether to try and download blocks and transactions from this peer.  Set to false by PeerGroup if not the
     ;; primary peer.  This is to avoid redundant work and concurrency problems with downloading the same chain
@@ -11114,7 +11114,7 @@
     ;; simultaneously if we were to receive a newly solved block whilst parts of the chain are streaming to us.
     #_private
     #_final
-    (§ field #_"HashSet<Sha256Hash>" (§ name pendingBlockDownloads) (§ new HashSet<>(§ pars )))
+    (§ field #_"HashSet<Sha256Hash>" (§ name pendingBlockDownloads) (§ new #_"HashSet<>" (§ pars )))
     ;; Keep references to TransactionConfidence objects for transactions that were announced by a remote peer, but
     ;; which we haven't downloaded yet.  These objects are de-duplicated by the TxConfidenceTable class.
     ;; Once the tx is downloaded (by some peer), the Transaction object that is created will have a reference to
@@ -11123,7 +11123,7 @@
     #_suppress(§ opt "MismatchedQueryAndUpdateOfCollection")
     #_private
     #_final
-    (§ field #_"HashSet<TransactionConfidence>" (§ name pendingTxDownloads) (§ new HashSet<>(§ pars )))
+    (§ field #_"HashSet<TransactionConfidence>" (§ name pendingTxDownloads) (§ new #_"HashSet<>" (§ pars )))
     ;; The lowest version number we're willing to accept.  Lower than this will result in an immediate disconnect.
     #_private
     #_volatile
@@ -11258,15 +11258,15 @@
 
         (§ ass (§ name this.params) (§ expr Preconditions.checkNotNull(§ pars params)))
         (§ ass (§ name this.versionMessage) (§ expr Preconditions.checkNotNull(§ pars ver)))
-        (§ ass this.vDownloadTxDependencyDepth = (§ expr chain != nil) ? downloadTxDependencyDepth :else 0)
+        (§ ass this.vDownloadTxDependencyDepth = (§ quest (§ expr chain != nil) ? (§ expr downloadTxDependencyDepth) :else 0))
         (§ ass (§ name this.blockChain) (§ expr chain)) ;; Allowed to be nil.
         (§ ass this.vDownloadData = (§ expr chain != nil))
-        (§ ass (§ name this.getDataFutures) (§ new CopyOnWriteArrayList<>(§ pars )))
-        (§ ass (§ name this.getAddrFutures) (§ new LinkedList<>(§ pars )))
+        (§ ass (§ name this.getDataFutures) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
+        (§ ass (§ name this.getAddrFutures) (§ new #_"LinkedList<>" (§ pars )))
         (§ ass (§ name this.fastCatchupTimeSecs) (§ expr params.getGenesisBlock(§ pars ).getTimeSeconds(§ pars )))
-        (§ ass (§ name this.pendingPings) (§ new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name this.pendingPings) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
         (§ ass (§ name this.vMinProtocolVersion) (§ expr params.getProtocolVersionNum(§ pars NetworkParameters.ProtocolVersion.PONG)))
-        (§ ass (§ name this.wallets) (§ new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name this.wallets) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
         (§ ass (§ name this.context) (§ expr Context.get(§ pars )))
 
         (§ expr this.versionHandshakeFuture.addListener(§ pars (§ new #_"Runnable" (§ pars ))
@@ -11368,7 +11368,7 @@
     #_public
     (§ method #_"void" (§ fn addGetDataEventListener) [#_"Executor" (§ name executor), #_"GetDataEventListener" (§ name listener)])
     (§ block
-        (§ expr getDataEventListeners.add(§ pars (§ new ListenerRegistration<>(§ pars listener, executor))))
+        (§ expr getDataEventListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars listener, executor))))
     )
 
     ;;; Registers a listener that is called when a transaction is broadcast across the network. ;;
@@ -11382,7 +11382,7 @@
     #_public
     (§ method #_"void" (§ fn addOnTransactionBroadcastListener) [#_"Executor" (§ name executor), #_"OnTransactionBroadcastListener" (§ name listener)])
     (§ block
-        (§ expr onTransactionEventListeners.add(§ pars (§ new ListenerRegistration<>(§ pars listener, executor))))
+        (§ expr onTransactionEventListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars listener, executor))))
     )
 
     ;;; Registers a listener that is called immediately before a message is received. ;;
@@ -11396,7 +11396,7 @@
     #_public
     (§ method #_"void" (§ fn addPreMessageReceivedEventListener) [#_"Executor" (§ name executor), #_"PreMessageReceivedEventListener" (§ name listener)])
     (§ block
-        (§ expr preMessageReceivedEventListeners.add(§ pars (§ new ListenerRegistration<>(§ pars listener, executor))))
+        (§ expr preMessageReceivedEventListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars listener, executor))))
     )
 
     #_public
@@ -11447,7 +11447,7 @@
     (§ block
         (§ var #_"PeerAddress" (§ name addr) (§ expr getAddress(§ pars )))
         ;; if null, it's a user-provided NetworkConnection object
-        (§ return (§ quest (§ expr addr == nil) ? "Peer()" :else addr.toString(§ pars )))
+        (§ return (§ quest (§ expr addr == nil) ? (§ expr "Peer()") :else (§ expr addr.toString(§ pars ))))
     )
 
     #_override
@@ -11488,7 +11488,7 @@
         ;; Announce ourselves.  This has to come first to connect to clients beyond v0.3.20.2 which wait to hear
         ;; from us until they send their version message back.
         (§ var #_"PeerAddress" (§ name address) (§ expr getAddress(§ pars )))
-        (§ expr log.info(§ pars "Announcing to {} as: {}", (§ expr address == nil) ? "Peer" :else address.toSocketAddress(§ pars ), versionMessage.subVer))
+        (§ expr log.info(§ pars "Announcing to {} as: {}", (§ quest (§ expr address != nil) ? (§ expr address.toSocketAddress(§ pars )) :else (§ expr "Peer")), versionMessage.subVer))
         (§ expr sendMessage(§ pars versionMessage))
         (§ expr connectionOpenFuture.set(§ pars this))
         ;; When connecting, the remote peer sends us a version message with various bits of
@@ -11551,60 +11551,60 @@
 
         (§ if (§ insta m #_"Ping"))
         (§ block
-            (§ expr processPing(§ pars (§ cast Ping)m))
+            (§ expr processPing(§ pars (§ cast #_"Ping" m)))
         )
         (§ elseif (§ insta m #_"Pong"))
         (§ block
-            (§ expr processPong(§ pars (§ cast Pong)m))
+            (§ expr processPong(§ pars (§ cast #_"Pong" m)))
         )
         (§ elseif (§ insta m #_"NotFoundMessage"))
         (§ block
             ;; This is sent to us when we did a getdata on some transactions that aren't in the peers memory pool.
             ;; Because NotFoundMessage is a subclass of InventoryMessage, the test for it must come before the next.
-            (§ expr processNotFoundMessage(§ pars (§ cast NotFoundMessage)m))
+            (§ expr processNotFoundMessage(§ pars (§ cast #_"NotFoundMessage" m)))
         )
         (§ elseif (§ insta m #_"InventoryMessage"))
         (§ block
-            (§ expr processInv(§ pars (§ cast InventoryMessage)m))
+            (§ expr processInv(§ pars (§ cast #_"InventoryMessage" m)))
         )
         (§ elseif (§ insta m #_"Block"))
         (§ block
-            (§ expr processBlock(§ pars (§ cast Block)m))
+            (§ expr processBlock(§ pars (§ cast #_"Block" m)))
         )
         (§ elseif (§ insta m #_"FilteredBlock"))
         (§ block
-            (§ expr startFilteredBlock(§ pars (§ cast FilteredBlock)m))
+            (§ expr startFilteredBlock(§ pars (§ cast #_"FilteredBlock" m)))
         )
         (§ elseif (§ insta m #_"Transaction"))
         (§ block
-            (§ expr processTransaction(§ pars (§ cast Transaction)m))
+            (§ expr processTransaction(§ pars (§ cast #_"Transaction" m)))
         )
         (§ elseif (§ insta m #_"GetDataMessage"))
         (§ block
-            (§ expr processGetData(§ pars (§ cast GetDataMessage)m))
+            (§ expr processGetData(§ pars (§ cast #_"GetDataMessage" m)))
         )
         (§ elseif (§ insta m #_"AddressMessage"))
         (§ block
             ;; We don't care about addresses of the network right now.  But in future,
             ;; we should save them in the wallet so we don't put too much load on the seed nodes and can
             ;; properly explore the network.
-            (§ expr processAddressMessage(§ pars (§ cast AddressMessage)m))
+            (§ expr processAddressMessage(§ pars (§ cast #_"AddressMessage" m)))
         )
         (§ elseif (§ insta m #_"HeadersMessage"))
         (§ block
-            (§ expr processHeaders(§ pars (§ cast HeadersMessage)m))
+            (§ expr processHeaders(§ pars (§ cast #_"HeadersMessage" m)))
         )
         (§ elseif (§ insta m #_"AlertMessage"))
         (§ block
-            (§ expr processAlert(§ pars (§ cast AlertMessage)m))
+            (§ expr processAlert(§ pars (§ cast #_"AlertMessage" m)))
         )
         (§ elseif (§ insta m #_"VersionMessage"))
         (§ block
-            (§ expr processVersionMessage(§ pars (§ cast VersionMessage)m))
+            (§ expr processVersionMessage(§ pars (§ cast #_"VersionMessage" m)))
         )
         (§ elseif (§ insta m #_"VersionAck"))
         (§ block
-            (§ expr processVersionAck(§ pars (§ cast VersionAck)m))
+            (§ expr processVersionAck(§ pars (§ cast #_"VersionAck" m)))
         )
         (§ elseif (§ insta m #_"RejectMessage"))
         (§ block
@@ -11890,7 +11890,7 @@
     (§ method #_"void" (§ fn processGetData) [#_"GetDataMessage" (§ name getdata)])
     (§ block
         (§ expr log.info(§ pars "{}: Received getdata message: {}", getAddress(§ pars ), getdata.toString(§ pars )))
-        (§ var #_"ArrayList<Message>" (§ name items) (§ new ArrayList<>(§ pars )))
+        (§ var #_"ArrayList<Message>" (§ name items) (§ new #_"ArrayList<>" (§ pars )))
         (§ for (§ var #_"ListenerRegistration<GetDataEventListener>" (§ name registration)) :for (§ expr getDataEventListeners))
         (§ block
             (§ if (§ expr registration.executor != Threading.SAME_THREAD))
@@ -12061,7 +12061,7 @@
         (§ expr Preconditions.checkArgument(§ pars txConfidence != TransactionConfidence.ConfidenceType.BUILDING))
         (§ expr log.info(§ pars "{}: Downloading dependencies of {}", getAddress(§ pars ), tx.getHashAsString(§ pars )))
         #_final
-        (§ var #_"LinkedList<Transaction>" (§ name results) (§ new LinkedList<>(§ pars )))
+        (§ var #_"LinkedList<Transaction>" (§ name results) (§ new #_"LinkedList<>" (§ pars )))
         ;; future will be invoked when the entire dependency tree has been walked and the results compiled.
         #_final
         (§ var #_"ListenableFuture<Object>" (§ name future) (§ expr downloadDependenciesInternal(§ pars vDownloadTxDependencyDepth, 0, tx, new Object(§ pars ), results)))
@@ -12099,7 +12099,7 @@
         ;; or depends on a no-fee transaction.
 
         ;; We may end up requesting transactions that we've already downloaded and thrown away here.
-        (§ var #_"Set<Sha256Hash>" (§ name needToRequest) (§ new CopyOnWriteArraySet<>(§ pars )))
+        (§ var #_"Set<Sha256Hash>" (§ name needToRequest) (§ new #_"CopyOnWriteArraySet<>" (§ pars )))
         (§ for (§ var #_"TransactionInput" (§ name input)) :for (§ expr tx.getInputs(§ pars )))
         (§ block
             ;; There may be multiple inputs that connect to the same transaction.
@@ -12359,7 +12359,7 @@
                     ;; that the new filter is now in use (which we have to simulate with a ping/pong), and then we can
                     ;; safely restart the chain download with the new filter that contains a new set of lookahead keys.
                     (§ expr log.info(§ pars "Bloom filter exhausted whilst processing block {}, discarding", m.getHash(§ pars )))
-                    (§ ass (§ name awaitingFreshFilter) (§ new LinkedList<>(§ pars )))
+                    (§ ass (§ name awaitingFreshFilter) (§ new #_"LinkedList<>" (§ pars )))
                     (§ expr awaitingFreshFilter.add(§ pars m.getHash(§ pars )))
                     (§ expr awaitingFreshFilter.addAll(§ pars blockChain.drainOrphanBlocks(§ pars )))
                     (§ return ) ;; Chain download process is restarted via a call to setBloomFilter.
@@ -12455,7 +12455,7 @@
         ;; since the time we first connected to the peer.  However, it's weird and unexpected to receive a callback
         ;; with negative "blocks left" in this case, so we clamp to zero so the API user doesn't have to think about it.
         #_final
-        (§ var #_"int" (§ name blocksLeft) (§ expr Math.max(§ pars 0, (§ cast int)vPeerVersionMessage.bestHeight - Preconditions.checkNotNull(§ pars blockChain).getBestChainHeight(§ pars ))))
+        (§ var #_"int" (§ name blocksLeft) (§ expr Math.max(§ pars 0, (§ cast #_"int" vPeerVersionMessage.bestHeight) - Preconditions.checkNotNull(§ pars blockChain).getBestChainHeight(§ pars ))))
         (§ for (§ var #_final ListenerRegistration<BlocksDownloadedEventListener> registration) :for (§ expr blocksDownloadedEventListeners))
         (§ block
             (§ expr registration.executor.execute(§ pars (§ new #_"Runnable" (§ pars ))
@@ -12476,8 +12476,8 @@
         (§ var #_"List<InventoryItem>" (§ name items) (§ expr inv.getItems(§ pars )))
 
         ;; Separate out the blocks and transactions, we'll handle them differently.
-        (§ var #_"List<InventoryItem>" (§ name transactions) (§ new LinkedList<>(§ pars )))
-        (§ var #_"List<InventoryItem>" (§ name blocks) (§ new LinkedList<>(§ pars )))
+        (§ var #_"List<InventoryItem>" (§ name transactions) (§ new #_"LinkedList<>" (§ pars )))
+        (§ var #_"List<InventoryItem>" (§ name blocks) (§ new #_"LinkedList<>" (§ pars )))
 
         (§ for (§ var #_"InventoryItem" (§ name item)) :for (§ expr items))
         (§ block
@@ -12627,7 +12627,7 @@
 
         (§ if (§ expr pingAfterGetData))
         (§ block
-            (§ expr sendMessage(§ pars (§ new #_"Ping" (§ pars (§ cast long)(§ expr Math.random(§ pars ) * Long.MAX_VALUE)))))
+            (§ expr sendMessage(§ pars (§ new #_"Ping" (§ pars (§ cast #_"long" (§ expr Math.random(§ pars ) * Long.MAX_VALUE))))))
         )
     )
 
@@ -12796,7 +12796,7 @@
         ;; sends us the data we requested in a "headers" message.
 
         ;; TODO: Block locators should be abstracted out rather than special cased here.
-        (§ var #_"List<Sha256Hash>" (§ name blockLocator) (§ new ArrayList<>(§ pars 51)))
+        (§ var #_"List<Sha256Hash>" (§ name blockLocator) (§ new #_"ArrayList<>" (§ pars 51)))
 
         ;; For now, we don't do the exponential thinning as suggested here:
         ;;
@@ -12978,7 +12978,7 @@
     (§ method #_"ListenableFuture<Long>" (§ fn ping) [])
         (§ throws #_"ProtocolException")
     (§ block
-        (§ return (§ expr ping(§ pars (§ cast long)(§ expr Math.random(§ pars ) * Long.MAX_VALUE))))
+        (§ return (§ expr ping(§ pars (§ cast #_"long" (§ expr Math.random(§ pars ) * Long.MAX_VALUE)))))
     )
 
     #_protected
@@ -13009,7 +13009,7 @@
         (§ expr lastPingTimesLock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ return (§ expr lastPingTimes != nil) ? lastPingTimes[lastPingTimes.length - 1] :else Long.MAX_VALUE)
+            (§ return (§ quest (§ expr lastPingTimes != nil) ? (§ expr lastPingTimes[lastPingTimes.length - 1]) :else (§ expr Long.MAX_VALUE)))
         )
         (§ finally )
         (§ block
@@ -13037,7 +13037,7 @@
             (§ block
                 (§ ass (§ name sum) (§ expr sum + i))
             )
-            (§ return (§ cast long)(§ expr (§ cast double)sum / lastPingTimes.length))
+            (§ return (§ cast #_"long" (§ expr (§ cast #_"double" sum) / lastPingTimes.length)))
         )
         (§ finally )
         (§ block
@@ -13080,7 +13080,7 @@
         (§ expr Preconditions.checkNotNull(§ pars blockChain, "No block chain configured"))
 
         ;; Chain will overflow signed int blocks in ~41,000 years.
-        (§ var #_"int" (§ name chainHeight) (§ expr (§ cast int)getBestHeight(§ pars )))
+        (§ var #_"int" (§ name chainHeight) (§ expr (§ cast #_"int" (§ expr getBestHeight(§ pars )))))
         ;; chainHeight should not be zero/negative because we shouldn't have given the user a Peer that is to another
         ;; client-mode node, nor should it be unconnected.  If that happens it means the user overrode us somewhere or
         ;; there is a bug in the peer management code.
@@ -13204,7 +13204,7 @@
         (§ if (§ expr ver != nil && ver.isBloomFilteringSupported(§ pars )))
         (§ block
             (§ ass (§ name vBloomFilter) (§ expr filter))
-            (§ expr log.debug(§ pars "{}: Sending Bloom filter{}", this, andQueryMemPool ? " and querying mempool" :else ""))
+            (§ expr log.debug(§ pars "{}: Sending Bloom filter{}", this, (§ quest andQueryMemPool ? (§ expr " and querying mempool") :else (§ expr ""))))
             (§ expr sendMessage(§ pars filter))
             (§ if (§ expr andQueryMemPool))
             (§ block
@@ -13254,7 +13254,7 @@
                     ;; TODO: This bizarre ping-after-getdata hack probably isn't necessary.
                     ;; It's to ensure we know when the end of a filtered block stream of txns is, but we should just be
                     ;; able to match txns with the merkleblock.  Ask Matt why it's written this way.
-                    (§ expr sendMessage(§ pars (§ new #_"Ping" (§ pars (§ cast long)(§ expr Math.random(§ pars ) * Long.MAX_VALUE)))))
+                    (§ expr sendMessage(§ pars (§ new #_"Ping" (§ pars (§ cast #_"long" (§ expr Math.random(§ pars ) * Long.MAX_VALUE))))))
                 )
             ), Threading.SAME_THREAD))
         )
@@ -13293,7 +13293,7 @@
     #_public
     (§ method #_"void" (§ fn setDownloadTxDependencies) [#_"boolean" (§ name enable)])
     (§ block
-        (§ ass (§ name vDownloadTxDependencyDepth) (§ expr enable ? Integer.MAX_VALUE :else 0))
+        (§ ass (§ name vDownloadTxDependencyDepth) (§ quest enable ? (§ expr Integer.MAX_VALUE) :else 0))
     )
 
     ;;;
@@ -13380,7 +13380,7 @@
         (§ ass (§ name this.protocolVersion) (§ expr protocolVersion))
         (§ ass (§ name this.services) (§ expr services))
 
-        (§ ass length = (§ expr 31402 < protocolVersion) ? MESSAGE_SIZE :else MESSAGE_SIZE - 4)
+        (§ ass length = (§ quest (§ expr 31402 < protocolVersion) ? (§ expr MESSAGE_SIZE) :else (§ expr MESSAGE_SIZE - 4)))
     )
 
     ;;;
@@ -13442,7 +13442,7 @@
             ;; TODO: This appears to be dynamic because the client only ever sends out it's own address
             ;; so assumes itself to be up.  For a fuller implementation this needs to be dynamic only if
             ;; the address refers to this client.
-            (§ var #_"int" (§ name secs) (§ expr (§ cast int)Utils.currentTimeSeconds(§ pars )))
+            (§ var #_"int" (§ name secs) (§ expr (§ cast #_"int" (§ expr Utils.currentTimeSeconds(§ pars )))))
             (§ expr uint32ToByteStreamLE(§ pars secs, stream))
         )
         (§ expr uint64ToByteStreamLE(§ pars services, stream)) ;; nServices.
@@ -13452,14 +13452,14 @@
         (§ block
             (§ var #_"byte[]" (§ name v6addr) (§ new byte[16]))
             (§ expr System.arraycopy(§ pars ipBytes, 0, v6addr, 12, 4))
-            (§ ass v6addr[10] = (§ cast byte)0xff)
-            (§ ass v6addr[11] = (§ cast byte)0xff)
+            (§ ass v6addr[10] = (§ cast #_"byte" 0xff))
+            (§ ass v6addr[11] = (§ cast #_"byte" 0xff))
             (§ ass (§ name ipBytes) (§ expr v6addr))
         )
         (§ expr stream.write(§ pars ipBytes))
         ;; And write out the port.  Unlike the rest of the protocol, address and port is in big endian byte order.
-        (§ expr stream.write(§ pars (§ cast byte)(§ expr 0xff & port >> 8)))
-        (§ expr stream.write(§ pars (§ cast byte)(§ expr 0xff & port)))
+        (§ expr stream.write(§ pars (§ cast #_"byte" (§ expr 0xff & port >> 8))))
+        (§ expr stream.write(§ pars (§ cast #_"byte" (§ expr 0xff & port))))
     )
 
     #_override
@@ -13472,7 +13472,7 @@
         ;;   uint64 services (flags determining what the node can do)
         ;;   16 bytes ip address
         ;;   2 bytes port num
-        (§ ass time = (§ expr 31402 < protocolVersion) ? readUint32(§ pars ) :else -1)
+        (§ ass time = (§ quest (§ expr 31402 < protocolVersion) ? (§ expr readUint32(§ pars )) :else (§ expr -1)))
         (§ ass (§ name services) (§ expr readUint64(§ pars )))
         (§ var #_"byte[]" (§ name addrBytes) (§ expr readBytes(§ pars 16)))
         (§ try )
@@ -13486,7 +13486,7 @@
         (§ ass port = (§ expr (§ expr (§ expr payload[cursor] & 0xff) << 8) | (§ expr payload[cursor + 1] & 0xff)))
         (§ ass (§ name cursor) (§ expr cursor + 2))
         ;; The 4 byte difference is the uint32 timestamp that was introduced in version 31402.
-        (§ ass length = (§ expr 31402 < protocolVersion) ? MESSAGE_SIZE :else MESSAGE_SIZE - 4)
+        (§ ass length = (§ quest (§ expr 31402 < protocolVersion) ? (§ expr MESSAGE_SIZE) :else (§ expr MESSAGE_SIZE - 4)))
     )
 
     #_public
@@ -13529,7 +13529,7 @@
     #_public
     (§ method #_"String" (§ fn toString) [])
     (§ block
-        (§ return (§ expr hostname != nil) ? "[" + hostname + "]:" + port :else "[" + addr.getHostAddress(§ pars ) + "]:" + port)
+        (§ return (§ quest (§ expr hostname != nil) ? (§ str "[" + hostname + "]:" + port) :else (§ str "[" + (§ expr addr.getHostAddress(§ pars )) + "]:" + port)))
     )
 
     #_override
@@ -13544,7 +13544,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"PeerAddress" (§ name other) (§ expr (§ cast PeerAddress)o))
+        (§ var #_"PeerAddress" (§ name other) (§ expr (§ cast #_"PeerAddress" o)))
         (§ return (§ expr other.addr.equals(§ pars addr) && other.port == port && other.time == time && other.services.equals(§ pars services)))
     )
 
@@ -13559,7 +13559,7 @@
     (§ method #_"InetSocketAddress" (§ fn toSocketAddress) [])
     (§ block
         ;; Reconstruct the InetSocketAddress properly.
-        (§ return (§ quest (§ expr hostname != nil) ? InetSocketAddress.createUnresolved(§ pars hostname, port) :else new InetSocketAddress(§ pars addr, port)))
+        (§ return (§ quest (§ expr hostname != nil) ? (§ expr InetSocketAddress.createUnresolved(§ pars hostname, port)) :else (§ expr new InetSocketAddress(§ pars addr, port))))
     )
 )
 
@@ -13769,32 +13769,32 @@
 
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>" (§ name peersBlocksDownloadedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>" (§ name peersBlocksDownloadedEventListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>" (§ name peersChainDownloadStartedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>" (§ name peersChainDownloadStartedEventListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     ;;; Callbacks for events related to peers connecting. ;;
     #_protected
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>" (§ name peerConnectedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>" (§ name peerConnectedEventListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     ;;; Callbacks for events related to peer connection/disconnection. ;;
     #_protected
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PeerDiscoveredEventListener>>" (§ name peerDiscoveredEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PeerDiscoveredEventListener>>" (§ name peerDiscoveredEventListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     ;;; Callbacks for events related to peers disconnecting. ;;
     #_protected
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>" (§ name peerDisconnectedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>" (§ name peerDisconnectedEventListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     ;;; Callbacks for events related to peer data being received. ;;
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>" (§ name peerGetDataEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>" (§ name peerGetDataEventListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>" (§ name peersPreMessageReceivedEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>" (§ name peersPreMessageReceivedEventListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     #_protected
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>" (§ name peersTransactionBroadastEventListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>" (§ name peersTransactionBroadastEventListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
 
     ;; Peer discovery sources, will be polled occasionally if there aren't enough inactives.
     #_private
@@ -14081,8 +14081,8 @@
         (§ ass (§ name this.params) (§ expr context.getParams(§ pars )))
         (§ ass (§ name this.chain) (§ expr chain))
         (§ ass (§ name fastCatchupTimeSecs) (§ expr params.getGenesisBlock(§ pars ).getTimeSeconds(§ pars )))
-        (§ ass (§ name wallets) (§ new CopyOnWriteArrayList<>(§ pars )))
-        (§ ass (§ name peerFilterProviders) (§ new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name wallets) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
+        (§ ass (§ name peerFilterProviders) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
 
         (§ ass (§ name executor) (§ expr createPrivateExecutor(§ pars )))
 
@@ -14091,14 +14091,14 @@
         ;;   - using connectTo() will increment it by one.
         (§ ass (§ name maxConnections) (§ expr 0))
 
-        (§ var #_"int" (§ name height) (§ quest (§ expr chain != nil) ? chain.getBestChainHeight(§ pars ) :else 0))
+        (§ var #_"int" (§ name height) (§ quest (§ expr chain != nil) ? (§ expr chain.getBestChainHeight(§ pars )) :else 0))
         (§ ass (§ name versionMessage) (§ new #_"VersionMessage" (§ pars params, height)))
         ;; We never request that the remote node wait for a bloom filter yet, as we have no wallets.
         (§ ass (§ name versionMessage.relayTxesBeforeFilter) (§ expr true))
 
         (§ ass (§ name downloadTxDependencyDepth) (§ expr Integer.MAX_VALUE))
 
-        (§ ass (§ name inactives) (§ new PriorityQueue<>(§ pars 1, new Comparator<PeerAddress>(§ pars )
+        (§ ass (§ name inactives) (§ new #_"PriorityQueue<>" (§ pars 1, new Comparator<PeerAddress>(§ pars )
         (§ anon
             #_suppress(§ opt "FieldAccessNotGuarded") ;; Only called when inactives is accessed, and lock is held then.
             #_override
@@ -14116,12 +14116,12 @@
                 (§ return (§ expr result))
             )
         ))))
-        (§ ass (§ name backoffMap) (§ new HashMap<>(§ pars )))
-        (§ ass (§ name peers) (§ new CopyOnWriteArrayList<>(§ pars )))
-        (§ ass (§ name pendingPeers) (§ new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name backoffMap) (§ new #_"HashMap<>" (§ pars )))
+        (§ ass (§ name peers) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
+        (§ ass (§ name pendingPeers) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
         (§ ass (§ name channels) (§ expr connectionManager))
-        (§ ass (§ name peerDiscoverers) (§ new CopyOnWriteArraySet<>(§ pars )))
-        (§ ass (§ name runningBroadcasts) (§ expr Collections.synchronizedSet(§ pars (§ new HashSet<TransactionBroadcast>(§ pars )))))
+        (§ ass (§ name peerDiscoverers) (§ new #_"CopyOnWriteArraySet<>" (§ pars )))
+        (§ ass (§ name runningBroadcasts) (§ expr Collections.synchronizedSet(§ pars (§ new #_"HashSet<TransactionBroadcast>" (§ pars )))))
         (§ ass (§ name bloomFilterMerger) (§ new #_"FilterMerger" (§ pars DEFAULT_BLOOM_FILTER_FP_RATE)))
         (§ ass (§ name vMinRequiredProtocolVersion) (§ expr params.getProtocolVersionNum(§ pars NetworkParameters.ProtocolVersion.BLOOM_FILTER)))
     )
@@ -14326,7 +14326,7 @@
                     (§ if (§ expr now < retryTime))
                     (§ block
                         (§ var #_"long" (§ name delay) (§ expr retryTime - now))
-                        (§ expr log.info(§ pars "Waiting {} msec before next connect attempt {}", delay, (§ expr addrToTry == nil) ? "" :else "to " + addrToTry))
+                        (§ expr log.info(§ pars "Waiting {} msec before next connect attempt {}", delay, (§ quest (§ expr addrToTry != nil) ? (§ str "to " + addrToTry) :else (§ expr ""))))
                         (§ expr inactives.add(§ pars addrToTry))
                         (§ expr executor.schedule(§ pars this, delay, TimeUnit.MILLISECONDS))
                         (§ return )
@@ -14377,8 +14377,8 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var #_"LinkedList<Message>" (§ name transactions) (§ new LinkedList<>(§ pars )))
-            (§ var #_"LinkedList<InventoryItem>" (§ name items) (§ new LinkedList<>(§ pars m.getItems(§ pars ))))
+            (§ var #_"LinkedList<Message>" (§ name transactions) (§ new #_"LinkedList<>" (§ pars )))
+            (§ var #_"LinkedList<InventoryItem>" (§ name items) (§ new #_"LinkedList<>" (§ pars m.getItems(§ pars ))))
             (§ var #_"Iterator<InventoryItem>" (§ name it) (§ expr items.iterator(§ pars )))
             (§ while (§ expr it.hasNext(§ pars )))
             (§ block
@@ -14453,7 +14453,7 @@
     (§ method #_"void" (§ fn setUserAgent) [#_"String" (§ name name), #_"String" (§ name version), #_nilable #_"String" (§ name comments)])
     (§ block
         ;; TODO: Check that height is needed here (it wasnt, but it should be, no?)
-        (§ var #_"int" (§ name height) (§ quest (§ expr chain != nil) ? chain.getBestChainHeight(§ pars ) :else 0))
+        (§ var #_"int" (§ name height) (§ quest (§ expr chain != nil) ? (§ expr chain.getBestChainHeight(§ pars )) :else 0))
         (§ var #_"VersionMessage" (§ name ver) (§ new #_"VersionMessage" (§ pars params, height)))
         (§ ass (§ name ver.relayTxesBeforeFilter) (§ expr false))
         (§ expr updateVersionMessageRelayTxesBeforeFilter(§ pars ver))
@@ -14508,7 +14508,7 @@
     #_public
     (§ method #_"void" (§ fn addBlocksDownloadedEventListener) [#_"Executor" (§ name executor), #_"BlocksDownloadedEventListener" (§ name listener)])
     (§ block
-        (§ expr peersBlocksDownloadedEventListeners.add(§ pars (§ new ListenerRegistration<>(§ pars Preconditions.checkNotNull(§ pars listener), executor))))
+        (§ expr peersBlocksDownloadedEventListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars Preconditions.checkNotNull(§ pars listener), executor))))
         (§ for (§ var #_"Peer" (§ name peer)) :for (§ expr getConnectedPeers(§ pars )))
         (§ block
             (§ expr peer.addBlocksDownloadedEventListener(§ pars executor, listener))
@@ -14533,7 +14533,7 @@
     #_public
     (§ method #_"void" (§ fn addChainDownloadStartedEventListener) [#_"Executor" (§ name executor), #_"ChainDownloadStartedEventListener" (§ name listener)])
     (§ block
-        (§ expr peersChainDownloadStartedEventListeners.add(§ pars (§ new ListenerRegistration<>(§ pars Preconditions.checkNotNull(§ pars listener), executor))))
+        (§ expr peersChainDownloadStartedEventListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars Preconditions.checkNotNull(§ pars listener), executor))))
         (§ for (§ var #_"Peer" (§ name peer)) :for (§ expr getConnectedPeers(§ pars )))
         (§ block
             (§ expr peer.addChainDownloadStartedEventListener(§ pars executor, listener))
@@ -14558,7 +14558,7 @@
     #_public
     (§ method #_"void" (§ fn addConnectedEventListener) [#_"Executor" (§ name executor), #_"PeerConnectedEventListener" (§ name listener)])
     (§ block
-        (§ expr peerConnectedEventListeners.add(§ pars (§ new ListenerRegistration<>(§ pars Preconditions.checkNotNull(§ pars listener), executor))))
+        (§ expr peerConnectedEventListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars Preconditions.checkNotNull(§ pars listener), executor))))
         (§ for (§ var #_"Peer" (§ name peer)) :for (§ expr getConnectedPeers(§ pars )))
         (§ block
             (§ expr peer.addConnectedEventListener(§ pars executor, listener))
@@ -14583,7 +14583,7 @@
     #_public
     (§ method #_"void" (§ fn addDisconnectedEventListener) [#_"Executor" (§ name executor), #_"PeerDisconnectedEventListener" (§ name listener)])
     (§ block
-        (§ expr peerDisconnectedEventListeners.add(§ pars (§ new ListenerRegistration<>(§ pars Preconditions.checkNotNull(§ pars listener), executor))))
+        (§ expr peerDisconnectedEventListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars Preconditions.checkNotNull(§ pars listener), executor))))
         (§ for (§ var #_"Peer" (§ name peer)) :for (§ expr getConnectedPeers(§ pars )))
         (§ block
             (§ expr peer.addDisconnectedEventListener(§ pars executor, listener))
@@ -14608,7 +14608,7 @@
     #_public
     (§ method #_"void" (§ fn addDiscoveredEventListener) [#_"Executor" (§ name executor), #_"PeerDiscoveredEventListener" (§ name listener)])
     (§ block
-        (§ expr peerDiscoveredEventListeners.add(§ pars (§ new ListenerRegistration<>(§ pars Preconditions.checkNotNull(§ pars listener), executor))))
+        (§ expr peerDiscoveredEventListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars Preconditions.checkNotNull(§ pars listener), executor))))
     )
 
     ;;; See {@link Peer#addGetDataEventListener(GetDataEventListener)}. ;;
@@ -14622,7 +14622,7 @@
     #_public
     (§ method #_"void" (§ fn addGetDataEventListener) [#_final #_"Executor" (§ name executor), #_final #_"GetDataEventListener" (§ name listener)])
     (§ block
-        (§ expr peerGetDataEventListeners.add(§ pars (§ new ListenerRegistration<>(§ pars Preconditions.checkNotNull(§ pars listener), executor))))
+        (§ expr peerGetDataEventListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars Preconditions.checkNotNull(§ pars listener), executor))))
         (§ for (§ var #_"Peer" (§ name peer)) :for (§ expr getConnectedPeers(§ pars )))
         (§ block
             (§ expr peer.addGetDataEventListener(§ pars executor, listener))
@@ -14644,7 +14644,7 @@
     #_public
     (§ method #_"void" (§ fn addOnTransactionBroadcastListener) [#_"Executor" (§ name executor), #_"OnTransactionBroadcastListener" (§ name listener)])
     (§ block
-        (§ expr peersTransactionBroadastEventListeners.add(§ pars (§ new ListenerRegistration<>(§ pars Preconditions.checkNotNull(§ pars listener), executor))))
+        (§ expr peersTransactionBroadastEventListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars Preconditions.checkNotNull(§ pars listener), executor))))
         (§ for (§ var #_"Peer" (§ name peer)) :for (§ expr getConnectedPeers(§ pars )))
         (§ block
             (§ expr peer.addOnTransactionBroadcastListener(§ pars executor, listener))
@@ -14666,7 +14666,7 @@
     #_public
     (§ method #_"void" (§ fn addPreMessageReceivedEventListener) [#_"Executor" (§ name executor), #_"PreMessageReceivedEventListener" (§ name listener)])
     (§ block
-        (§ expr peersPreMessageReceivedEventListeners.add(§ pars (§ new ListenerRegistration<>(§ pars Preconditions.checkNotNull(§ pars listener), executor))))
+        (§ expr peersPreMessageReceivedEventListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars Preconditions.checkNotNull(§ pars listener), executor))))
         (§ for (§ var #_"Peer" (§ name peer)) :for (§ expr getConnectedPeers(§ pars )))
         (§ block
             (§ expr peer.addPreMessageReceivedEventListener(§ pars executor, listener))
@@ -14804,7 +14804,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ return (§ new ArrayList<>(§ pars peers)))
+            (§ return (§ new #_"ArrayList<>" (§ pars peers)))
         )
         (§ finally )
         (§ block
@@ -14821,7 +14821,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ return (§ new ArrayList<>(§ pars pendingPeers)))
+            (§ return (§ new #_"ArrayList<>" (§ pars pendingPeers)))
         )
         (§ finally )
         (§ block
@@ -15503,7 +15503,7 @@
     (§ block
         (§ expr Preconditions.checkState(§ pars lock.isHeldByCurrentThread(§ pars )))
         (§ var #_"VersionMessage" (§ name ver) (§ expr getVersionMessage(§ pars ).duplicate(§ pars )))
-        (§ ass ver.bestHeight = (§ expr chain != nil) ? chain.getBestChainHeight(§ pars ) :else 0)
+        (§ ass ver.bestHeight = (§ quest (§ expr chain != nil) ? (§ expr chain.getBestChainHeight(§ pars )) :else 0))
         (§ ass (§ name ver.time) (§ expr Utils.currentTimeSeconds(§ pars )))
 
         (§ var #_"Peer" (§ name peer) (§ expr createPeer(§ pars address, ver)))
@@ -16051,7 +16051,7 @@
             (§ ass (§ name bytesInLastSecond) (§ expr bytesInLastSecond + Block.HEADER_SIZE))
             (§ var #_"List<Transaction>" (§ name blockTransactions) (§ expr block.getTransactions(§ pars )))
             ;; This whole area of the type hierarchy is a mess.
-            (§ var #_"int" (§ name txCount) (§ expr (§ quest (§ expr blockTransactions != nil) ? countAndMeasureSize(§ pars blockTransactions) :else 0) + (§ quest (§ expr filteredBlock != nil) ? countAndMeasureSize(§ pars filteredBlock.getAssociatedTransactions(§ pars ).values(§ pars )) :else 0)))
+            (§ var #_"int" (§ name txCount) (§ expr (§ quest (§ expr blockTransactions != nil) ? (§ expr countAndMeasureSize(§ pars blockTransactions)) :else 0) + (§ quest (§ expr filteredBlock != nil) ? (§ expr countAndMeasureSize(§ pars filteredBlock.getAssociatedTransactions(§ pars ).values(§ pars ))) :else 0)))
             (§ ass (§ name txnsInLastSecond) (§ expr txnsInLastSecond + txCount))
             (§ if (§ expr filteredBlock != nil))
             (§ block
@@ -16266,7 +16266,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var #_"ArrayList<Peer>" (§ name results) (§ new ArrayList<Peer>(§ pars peers.size(§ pars ))))
+            (§ var #_"ArrayList<Peer>" (§ name results) (§ new #_"ArrayList<Peer>" (§ pars peers.size(§ pars ))))
             (§ for (§ var #_"Peer" (§ name peer)) :for (§ expr peers))
             (§ block
                 (§ if (§ expr peer.getPeerVersionMessage(§ pars ).clientVersion >= protocolVersion))
@@ -16336,7 +16336,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var #_"ArrayList<Peer>" (§ name results) (§ new ArrayList<Peer>(§ pars peers.size(§ pars ))))
+            (§ var #_"ArrayList<Peer>" (§ name results) (§ new #_"ArrayList<Peer>" (§ pars peers.size(§ pars ))))
             (§ for (§ var #_"Peer" (§ name peer)) :for (§ expr peers))
             (§ block
                 (§ if (§ expr (§ expr peer.getPeerVersionMessage(§ pars ).localServices & mask) == mask))
@@ -16374,7 +16374,7 @@
                 )
                 (§ else )
                 (§ block
-                    (§ return (§ cast int)Math.round(§ pars getMaxConnections(§ pars ) * 0.8))
+                    (§ return (§ cast #_"int" (§ expr Math.round(§ pars getMaxConnections(§ pars ) * 0.8))))
                 )
             )
             (§ return (§ expr minBroadcastConnections))
@@ -16584,10 +16584,10 @@
             (§ return (§ expr 0))
         )
 
-        (§ var #_"List<Integer>" (§ name heights) (§ new ArrayList<>(§ pars peers.size(§ pars ))))
+        (§ var #_"List<Integer>" (§ name heights) (§ new #_"ArrayList<>" (§ pars peers.size(§ pars ))))
         (§ for (§ var #_"Peer" (§ name peer)) :for (§ expr peers))
         (§ block
-            (§ expr heights.add(§ pars (§ cast int)peer.getBestHeight(§ pars )))
+            (§ expr heights.add(§ pars (§ cast #_"int" (§ expr peer.getBestHeight(§ pars )))))
         )
         (§ return (§ expr Utils.maxOfMostFreq(§ pars heights)))
     )
@@ -16611,7 +16611,7 @@
 
         ;; Make sure we don't select a peer that is behind/synchronizing itself.
         (§ var #_"int" (§ name mostCommonChainHeight) (§ expr getMostCommonChainHeight(§ pars peers)))
-        (§ var #_"List<Peer>" (§ name candidates) (§ new ArrayList<>(§ pars )))
+        (§ var #_"List<Peer>" (§ name candidates) (§ new #_"ArrayList<>" (§ pars )))
         (§ for (§ var #_"Peer" (§ name peer)) :for (§ expr peers))
         (§ block
             (§ if (§ expr peer.getBestHeight(§ pars ) == mostCommonChainHeight))
@@ -16634,7 +16634,7 @@
             (§ ass (§ name highestVersion) (§ expr Math.max(§ pars peer.getPeerVersionMessage(§ pars ).clientVersion, highestVersion)))
             (§ ass (§ name preferredVersion) (§ expr Math.min(§ pars highestVersion, PREFERRED_VERSION)))
         )
-        (§ var #_"ArrayList<Peer>" (§ name candidates2) (§ new ArrayList<>(§ pars candidates.size(§ pars ))))
+        (§ var #_"ArrayList<Peer>" (§ name candidates2) (§ new #_"ArrayList<>" (§ pars candidates.size(§ pars ))))
         (§ for (§ var #_"Peer" (§ name peer)) :for (§ expr candidates))
         (§ block
             (§ if (§ expr preferredVersion <= peer.getPeerVersionMessage(§ pars ).clientVersion))
@@ -16642,7 +16642,7 @@
                 (§ expr candidates2.add(§ pars peer))
             )
         )
-        (§ var #_"int" (§ name index) (§ expr (§ cast int)(§ expr Math.random(§ pars ) * candidates2.size(§ pars ))))
+        (§ var #_"int" (§ name index) (§ expr (§ cast #_"int" (§ expr Math.random(§ pars ) * candidates2.size(§ pars )))))
         (§ return (§ expr candidates2.get(§ pars index)))
     )
 
@@ -17021,7 +17021,7 @@
     (§ method #_"void" (§ fn exceptionCaught) [#_"Exception" (§ name e)])
     (§ block
         (§ var #_"PeerAddress" (§ name addr) (§ expr getAddress(§ pars )))
-        (§ var #_"String" (§ name s) (§ quest (§ expr addr == nil) ? "?" :else addr.toString(§ pars )))
+        (§ var #_"String" (§ name s) (§ quest (§ expr addr == nil) ? (§ expr "?") :else (§ expr addr.toString(§ pars ))))
         (§ if (§ expr (§ insta e #_"ConnectException") || (§ insta e #_"IOException")))
         (§ block
             ;; Short message for network errors
@@ -17107,7 +17107,7 @@
         (§ block
             (§ ass (§ name hasNonce) (§ expr false))
         )
-        (§ ass (§ name length) (§ expr hasNonce ? 8 :else 0))
+        (§ ass (§ name length) (§ quest hasNonce ? 8 :else 0))
     )
 
     #_public
@@ -17247,33 +17247,33 @@
     #_public
     (§ enum RejectCode
         ;;; The message was not able to be parsed. ;;
-        (§ item MALFORMED(§ pars (§ cast byte)0x01))
+        (§ item MALFORMED(§ pars (§ cast #_"byte" 0x01)))
         ;;; The message described an invalid object. ;;
-        (§ item INVALID(§ pars (§ cast byte)0x10))
+        (§ item INVALID(§ pars (§ cast #_"byte" 0x10)))
         ;;; The message was obsolete or described an object which is obsolete (e.g. unsupported, old version, v1 block). ;;
-        (§ item OBSOLETE(§ pars (§ cast byte)0x11))
+        (§ item OBSOLETE(§ pars (§ cast #_"byte" 0x11)))
         ;;;
          ; The message was relayed multiple times or described an object which is in conflict with another.
          ; This message can describe errors in protocol implementation or the presence of an attempt to DOUBLE SPEND.
          ;;
-        (§ item DUPLICATE(§ pars (§ cast byte)0x12))
+        (§ item DUPLICATE(§ pars (§ cast #_"byte" 0x12)))
         ;;;
          ; The message described an object was not standard and was thus not accepted.
          ; Bitcoin Core has a concept of standard transaction forms, which describe scripts and encodings which
          ; it is willing to relay further.  Other transactions are neither relayed nor mined, though they are considered
          ; valid if they appear in a block.
          ;;
-        (§ item NONSTANDARD(§ pars (§ cast byte)0x40))
+        (§ item NONSTANDARD(§ pars (§ cast #_"byte" 0x40)))
         ;;;
          ; This refers to a specific form of NONSTANDARD transactions, which have an output smaller than some constant
          ; defining them as dust (this is no longer used).
          ;;
-        (§ item DUST(§ pars (§ cast byte)0x41))
+        (§ item DUST(§ pars (§ cast #_"byte" 0x41)))
         ;;; The messages described an object which did not have sufficient fee to be relayed further. ;;
-        (§ item INSUFFICIENTFEE(§ pars (§ cast byte)0x42))
+        (§ item INSUFFICIENTFEE(§ pars (§ cast #_"byte" 0x42)))
         ;;; The message described a block which was invalid according to hard-coded checkpoint blocks. ;;
-        (§ item CHECKPOINT(§ pars (§ cast byte)0x43))
-        (§ item OTHER(§ pars (§ cast byte)0xff))
+        (§ item CHECKPOINT(§ pars (§ cast #_"byte" 0x43)))
+        (§ item OTHER(§ pars (§ cast #_"byte" 0xff)))
 
         (§ var #_"byte" (§ name code))
 
@@ -17419,7 +17419,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"RejectMessage" (§ name other) (§ expr (§ cast RejectMessage)o))
+        (§ var #_"RejectMessage" (§ name other) (§ expr (§ cast #_"RejectMessage" o)))
         (§ return (§ expr message.equals(§ pars other.message) && code.equals(§ pars other.code) && reason.equals(§ pars other.reason) && messageHash.equals(§ pars other.messageHash)))
     )
 
@@ -17742,7 +17742,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ return (§ expr Arrays.equals(§ pars bytes, (§ expr (§ cast Sha256Hash)o).bytes)))
+        (§ return (§ expr Arrays.equals(§ pars bytes, (§ expr (§ cast #_"Sha256Hash" o)).bytes)))
     )
 
     ;;;
@@ -17911,7 +17911,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"StoredBlock" (§ name other) (§ expr (§ cast StoredBlock)o))
+        (§ var #_"StoredBlock" (§ name other) (§ expr (§ cast #_"StoredBlock" o)))
         (§ return (§ expr header.equals(§ pars other.header) && chainWork.equals(§ pars other.chainWork) && height == other.height))
     )
 
@@ -18075,7 +18075,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ return (§ expr getHash(§ pars ).equals(§ pars (§ expr (§ cast StoredUndoableBlock)o).getHash(§ pars ))))
+        (§ return (§ expr getHash(§ pars ).equals(§ pars (§ expr (§ cast #_"StoredUndoableBlock" o)).getHash(§ pars ))))
     )
 
     #_override
@@ -18129,7 +18129,7 @@
     #_public
     #_static
     #_final
-    (§ field #_"Comparator<Transaction>" (§ name SORT_TX_BY_UPDATE_TIME) (§ new Comparator<Transaction>(§ pars )
+    (§ field #_"Comparator<Transaction>" (§ name SORT_TX_BY_UPDATE_TIME) (§ new #_"Comparator<Transaction>" (§ pars )
         (§ anon
             #_override
             #_public
@@ -18142,7 +18142,7 @@
                 #_final
                 (§ var #_"int" (§ name updateTimeComparison) (§ expr (§ neg Longs.compare(§ pars time1, time2))))
                 ;; If time1 == time2, compare by tx hash to make comparator consistent with equals.
-                (§ return (§ quest (§ expr updateTimeComparison != 0) ? updateTimeComparison :else tx1.getHash(§ pars ).compareTo(§ pars tx2.getHash(§ pars ))))
+                (§ return (§ quest (§ expr updateTimeComparison != 0) ? (§ expr updateTimeComparison) :else (§ dot tx1.getHash(§ pars ).compareTo(§ pars tx2.getHash(§ pars )))))
             )
         )))
 
@@ -18150,7 +18150,7 @@
     #_public
     #_static
     #_final
-    (§ field #_"Comparator<Transaction>" (§ name SORT_TX_BY_HEIGHT) (§ new Comparator<Transaction>(§ pars )
+    (§ field #_"Comparator<Transaction>" (§ name SORT_TX_BY_HEIGHT) (§ new #_"Comparator<Transaction>" (§ pars )
         (§ anon
             #_override
             #_public
@@ -18159,15 +18159,15 @@
                 #_final
                 (§ var #_"TransactionConfidence" (§ name confidence1) (§ expr tx1.getConfidence(§ pars )))
                 #_final
-                (§ var #_"int" (§ name height1) (§ quest (§ expr confidence1.getConfidenceType(§ pars ) == ConfidenceType.BUILDING) ? confidence1.getAppearedAtChainHeight(§ pars ) :else Block.BLOCK_HEIGHT_UNKNOWN))
+                (§ var #_"int" (§ name height1) (§ quest (§ expr confidence1.getConfidenceType(§ pars ) == ConfidenceType.BUILDING) ? (§ expr confidence1.getAppearedAtChainHeight(§ pars )) :else (§ expr Block.BLOCK_HEIGHT_UNKNOWN)))
                 #_final
                 (§ var #_"TransactionConfidence" (§ name confidence2) (§ expr tx2.getConfidence(§ pars )))
                 #_final
-                (§ var #_"int" (§ name height2) (§ quest (§ expr confidence2.getConfidenceType(§ pars ) == ConfidenceType.BUILDING) ? confidence2.getAppearedAtChainHeight(§ pars ) :else Block.BLOCK_HEIGHT_UNKNOWN))
+                (§ var #_"int" (§ name height2) (§ quest (§ expr confidence2.getConfidenceType(§ pars ) == ConfidenceType.BUILDING) ? (§ expr confidence2.getAppearedAtChainHeight(§ pars )) :else (§ expr Block.BLOCK_HEIGHT_UNKNOWN)))
                 #_final
                 (§ var #_"int" (§ name heightComparison) (§ expr (§ neg Ints.compare(§ pars height1, height2))))
                 ;; If height1 == height2, compare by tx hash to make comparator consistent with equals.
-                (§ return (§ quest (§ expr heightComparison != 0) ? heightComparison :else tx1.getHash(§ pars ).compareTo(§ pars tx2.getHash(§ pars ))))
+                (§ return (§ quest (§ expr heightComparison != 0) ? (§ expr heightComparison) :else (§ dot tx1.getHash(§ pars ).compareTo(§ pars tx2.getHash(§ pars )))))
             )
         )))
 
@@ -18340,8 +18340,8 @@
         (§ super (§ pars params))
 
         (§ ass (§ name version) (§ expr 1))
-        (§ ass (§ name inputs) (§ new ArrayList<>(§ pars )))
-        (§ ass (§ name outputs) (§ new ArrayList<>(§ pars )))
+        (§ ass (§ name inputs) (§ new #_"ArrayList<>" (§ pars )))
+        (§ ass (§ name outputs) (§ new #_"ArrayList<>" (§ pars )))
         ;; We don't initialize appearsIn deliberately as it's only useful for transactions stored in the wallet.
         (§ ass (§ name length) (§ expr 8)) ;; 8 for std fields
     )
@@ -18474,7 +18474,7 @@
     #_public
     (§ method #_"Map<Sha256Hash, Integer>" (§ fn getAppearsInHashes) [])
     (§ block
-        (§ return (§ expr appearsInHashes != nil) ? ImmutableMap.copyOf(§ pars appearsInHashes) :else nil)
+        (§ return (§ quest (§ expr appearsInHashes != nil) ? (§ expr ImmutableMap.copyOf(§ pars appearsInHashes)) :else (§ expr nil)))
     )
 
     ;;;
@@ -18526,7 +18526,7 @@
         ;; TODO: This could be a lot more memory efficient as we'll typically only store one element.
         (§ if (§ expr appearsInHashes == nil))
         (§ block
-            (§ ass (§ name appearsInHashes) (§ new TreeMap<>(§ pars )))
+            (§ ass (§ name appearsInHashes) (§ new #_"TreeMap<>" (§ pars )))
         )
 
         (§ expr appearsInHashes.put(§ pars blockHash, relativityOffset))
@@ -18736,7 +18736,7 @@
         #_public
         (§ method #_"byte" (§ fn byteValue) [])
         (§ block
-            (§ return (§ cast byte)this.value)
+            (§ return (§ cast #_"byte" this.value))
         )
     )
 
@@ -18798,7 +18798,7 @@
         ;; First come the inputs.
         (§ var #_"long" (§ name numInputs) (§ expr readVarInt(§ pars )))
         (§ ass (§ name optimalEncodingMessageSize) (§ expr optimalEncodingMessageSize + VarInt.sizeOf(§ pars numInputs)))
-        (§ ass (§ name inputs) (§ new ArrayList<>(§ pars (§ cast int)numInputs)))
+        (§ ass (§ name inputs) (§ new #_"ArrayList<>" (§ pars (§ cast #_"int" numInputs))))
         (§ for (§ var #_"long" (§ name i) (§ expr 0)) :for (§ expr i < numInputs) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ var #_"TransactionInput" (§ name input) (§ new #_"TransactionInput" (§ pars params, this, payload, cursor, serializer)))
@@ -18810,7 +18810,7 @@
         ;; Now the outputs.
         (§ var #_"long" (§ name numOutputs) (§ expr readVarInt(§ pars )))
         (§ ass (§ name optimalEncodingMessageSize) (§ expr optimalEncodingMessageSize + VarInt.sizeOf(§ pars numOutputs)))
-        (§ ass (§ name outputs) (§ new ArrayList<>(§ pars (§ cast int)numOutputs)))
+        (§ ass (§ name outputs) (§ new #_"ArrayList<>" (§ pars (§ cast #_"int" numOutputs))))
         (§ for (§ var #_"long" (§ name i) (§ expr 0)) :for (§ expr i < numOutputs) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ var #_"TransactionOutput" (§ name output) (§ new #_"TransactionOutput" (§ pars params, this, payload, cursor, serializer)))
@@ -18921,7 +18921,7 @@
                 (§ expr sb.append(§ pars "block ").append(§ pars lockTime))
                 (§ if (§ expr chain != nil))
                 (§ block
-                    (§ expr sb.append(§ pars " (estimated to be reached at ").append(§ pars Utils.dateTimeFormat(§ pars chain.estimateBlockTime(§ pars (§ cast int)lockTime))).append(§ pars ")"))
+                    (§ expr sb.append(§ pars " (estimated to be reached at ").append(§ pars Utils.dateTimeFormat(§ pars chain.estimateBlockTime(§ pars (§ cast #_"int" lockTime)))).append(§ pars ")"))
                 )
             )
             (§ else )
@@ -18961,7 +18961,7 @@
                 (§ try )
                 (§ block
                     (§ var #_"String" (§ name scriptSigStr) (§ expr in.getScriptSig(§ pars ).toString(§ pars )))
-                    (§ expr sb.append(§ pars (§ not Strings.isNullOrEmpty(§ pars scriptSigStr)) ? scriptSigStr :else "<no scriptSig>"))
+                    (§ expr sb.append(§ pars (§ quest (§ not Strings.isNullOrEmpty(§ pars scriptSigStr)) ? (§ expr scriptSigStr) :else (§ expr "<no scriptSig>"))))
                     #_final
                     (§ var #_"Coin" (§ name value) (§ expr in.getValue(§ pars )))
                     (§ if (§ expr value != nil))
@@ -19009,7 +19009,7 @@
             (§ try )
             (§ block
                 (§ var #_"String" (§ name scriptPubKeyStr) (§ expr out.getScriptPubKey(§ pars ).toString(§ pars )))
-                (§ expr sb.append(§ pars (§ not Strings.isNullOrEmpty(§ pars scriptPubKeyStr)) ? scriptPubKeyStr :else "<no scriptPubKey>").append(§ pars " ").append(§ pars out.getValue(§ pars ).toFriendlyString(§ pars )))
+                (§ dot sb.append(§ pars (§ quest (§ not Strings.isNullOrEmpty(§ pars scriptPubKeyStr)) ? (§ expr scriptPubKeyStr) :else (§ expr "<no scriptPubKey>"))).append(§ pars " ").append(§ pars out.getValue(§ pars ).toFriendlyString(§ pars )))
                 (§ if (§ expr (§ not out.isAvailableForSpending(§ pars ))))
                 (§ block
                     (§ expr sb.append(§ pars " Spent"))
@@ -19319,7 +19319,7 @@
     #_public
     (§ method #_"Sha256Hash" (§ fn hashForSignature) [#_"int" (§ name inputIndex), #_"byte[]" (§ name redeemScript), #_"SigHash" (§ name type), #_"boolean" (§ name anyoneCanPay)])
     (§ block
-        (§ var #_"byte" (§ name sigHashType) (§ expr (§ cast byte)TransactionSignature.calcSigHashValue(§ pars type, anyoneCanPay)))
+        (§ var #_"byte" (§ name sigHashType) (§ expr (§ cast #_"byte" (§ expr TransactionSignature.calcSigHashValue(§ pars type, anyoneCanPay)))))
         (§ return (§ expr hashForSignature(§ pars inputIndex, redeemScript, sigHashType)))
     )
 
@@ -19341,7 +19341,7 @@
     (§ method #_"Sha256Hash" (§ fn hashForSignature) [#_"int" (§ name inputIndex), #_"Script" (§ name redeemScript), #_"SigHash" (§ name type), #_"boolean" (§ name anyoneCanPay)])
     (§ block
         (§ var #_"int" (§ name sigHash) (§ expr TransactionSignature.calcSigHashValue(§ pars type, anyoneCanPay)))
-        (§ return (§ expr hashForSignature(§ pars inputIndex, redeemScript.getProgram(§ pars ), (§ cast byte)sigHash)))
+        (§ return (§ expr hashForSignature(§ pars inputIndex, redeemScript.getProgram(§ pars ), (§ cast #_"byte" sigHash))))
     )
 
     ;;;
@@ -19387,7 +19387,7 @@
             (§ if (§ expr (§ expr sigHashType & 0x1f) == SigHash.NONE.value))
             (§ block
                 ;; SIGHASH_NONE means no outputs are signed at all - the signature is effectively for a "blank cheque".
-                (§ ass (§ name tx.outputs) (§ new ArrayList<>(§ pars 0)))
+                (§ ass (§ name tx.outputs) (§ new #_"ArrayList<>" (§ pars 0)))
                 ;; The signature isn't broken by new versions of the transaction issued by other parties.
                 (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < tx.inputs.size(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
                 (§ block
@@ -19414,7 +19414,7 @@
                 )
                 ;; In SIGHASH_SINGLE the outputs after the matching input index are deleted, and the outputs before
                 ;; that position are "nulled out".  Unintuitively, the value in a "null" transaction is set to -1.
-                (§ ass (§ name tx.outputs) (§ new ArrayList<>(§ pars tx.outputs.subList(§ pars 0, inputIndex + 1))))
+                (§ ass (§ name tx.outputs) (§ new #_"ArrayList<>" (§ pars tx.outputs.subList(§ pars 0, inputIndex + 1))))
                 (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < inputIndex) :for (§ ass (§ name i) (§ expr i + 1)))
                 (§ block
                     (§ expr tx.outputs.set(§ pars i, new TransactionOutput(§ pars tx.params, tx, Coin.NEGATIVE_SATOSHI, new byte[] (§ coll ))))
@@ -19433,11 +19433,11 @@
             (§ block
                 ;; SIGHASH_ANYONECANPAY means the signature in the input is not broken by changes/additions/removals
                 ;; of other inputs.  For example, this is useful for building assurance contracts.
-                (§ ass (§ name tx.inputs) (§ new ArrayList<TransactionInput>(§ pars )))
+                (§ ass (§ name tx.inputs) (§ new #_"ArrayList<TransactionInput>" (§ pars )))
                 (§ expr tx.inputs.add(§ pars input))
             )
 
-            (§ var #_"ByteArrayOutputStream" (§ name bos) (§ new #_"UnsafeByteArrayOutputStream" (§ pars (§ expr tx.length == UNKNOWN_LENGTH) ? 256 :else tx.length + 4)))
+            (§ var #_"ByteArrayOutputStream" (§ name bos) (§ new #_"UnsafeByteArrayOutputStream" (§ pars (§ quest (§ expr tx.length == UNKNOWN_LENGTH) ? 256 :else (§ expr tx.length + 4)))))
             (§ expr tx.bitcoinSerialize(§ pars bos))
             ;; We also have to write a hash type (sigHashType is actually an unsigned char).
             (§ expr uint32ToByteStreamLE(§ pars 0x000000ff & sigHashType, bos))
@@ -19551,7 +19551,7 @@
     #_public
     (§ method #_"List<TransactionOutput>" (§ fn getWalletOutputs) [#_"TransactionBag" (§ name transactionBag)])
     (§ block
-        (§ var #_"List<TransactionOutput>" (§ name walletOutputs) (§ new LinkedList<>(§ pars )))
+        (§ var #_"List<TransactionOutput>" (§ name walletOutputs) (§ new #_"LinkedList<>" (§ pars )))
 
         (§ for (§ var #_"TransactionOutput" (§ name o)) :for (§ expr outputs))
         (§ block
@@ -19575,14 +19575,14 @@
     #_public
     (§ method #_"TransactionInput" (§ fn getInput) [#_"long" (§ name index)])
     (§ block
-        (§ return (§ expr inputs.get(§ pars (§ cast int)index)))
+        (§ return (§ expr inputs.get(§ pars (§ cast #_"int" index))))
     )
 
     ;;; Same as getOutputs().get(index). ;;
     #_public
     (§ method #_"TransactionOutput" (§ fn getOutput) [#_"long" (§ name index)])
     (§ block
-        (§ return (§ expr outputs.get(§ pars (§ cast int)index)))
+        (§ return (§ expr outputs.get(§ pars (§ cast #_"int" index))))
     )
 
     ;;;
@@ -19637,7 +19637,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ return (§ expr getHash(§ pars ).equals(§ pars (§ expr (§ cast Transaction)o).getHash(§ pars ))))
+        (§ return (§ expr getHash(§ pars ).equals(§ pars (§ expr (§ cast #_"Transaction" o)).getHash(§ pars ))))
     )
 
     #_override
@@ -19731,7 +19731,7 @@
         )
 
         (§ var #_"Coin" (§ name valueOut) (§ expr Coin.ZERO))
-        (§ var #_"HashSet<TransactionOutPoint>" (§ name outpoints) (§ new HashSet<>(§ pars )))
+        (§ var #_"HashSet<TransactionOutPoint>" (§ name outpoints) (§ new #_"HashSet<>" (§ pars )))
         (§ for (§ var #_"TransactionInput" (§ name input)) :for (§ expr inputs))
         (§ block
             (§ if (§ expr outpoints.contains(§ pars input.getOutpoint(§ pars ))))
@@ -19837,7 +19837,7 @@
     (§ method #_"boolean" (§ fn isFinal) [#_"int" (§ name height), #_"long" (§ name blockTimeSeconds)])
     (§ block
         (§ var #_"long" (§ name time) (§ expr getLockTime(§ pars )))
-        (§ return (§ expr time < (§ expr time < LOCKTIME_THRESHOLD ? height :else blockTimeSeconds) || (§ not isTimeLocked(§ pars ))))
+        (§ return (§ expr time < (§ quest (§ expr time < LOCKTIME_THRESHOLD) ? (§ expr height) :else (§ expr blockTimeSeconds)) || (§ not isTimeLocked(§ pars ))))
     )
 
     ;;;
@@ -19847,7 +19847,7 @@
     #_public
     (§ method #_"Date" (§ fn estimateLockTime) [#_"AbstractBlockChain" (§ name chain)])
     (§ block
-        (§ return (§ quest (§ expr lockTime < LOCKTIME_THRESHOLD) ? chain.estimateBlockTime(§ pars (§ cast int)getLockTime(§ pars )) :else new Date(§ pars getLockTime(§ pars ) * 1000)))
+        (§ return (§ quest (§ expr lockTime < LOCKTIME_THRESHOLD) ? (§ expr chain.estimateBlockTime(§ pars (§ cast #_"int" (§ expr getLockTime(§ pars ))))) :else (§ expr new Date(§ pars getLockTime(§ pars ) * 1000))))
     )
 
     ;;;
@@ -19979,7 +19979,7 @@
 
     ;; Tracks which nodes sent us a reject message about this broadcast, if any.  Useful for debugging.
     #_private
-    (§ field Map<Peer, RejectMessage> rejects = Collections.synchronizedMap(§ pars (§ new HashMap<Peer, RejectMessage>(§ pars ))))
+    (§ field Map<Peer, RejectMessage> rejects = Collections.synchronizedMap(§ pars (§ new #_"HashMap<Peer, RejectMessage>" (§ pars ))))
 
     (§ constructor #_"TransactionBroadcast" [#_"PeerGroup" (§ name peerGroup), #_"Transaction" (§ name tx)])
     (§ block
@@ -20040,7 +20040,7 @@
             (§ block
                 (§ if (§ insta m #_"RejectMessage"))
                 (§ block
-                    (§ var #_"RejectMessage" (§ name rejectMessage) (§ expr (§ cast RejectMessage)m))
+                    (§ var #_"RejectMessage" (§ name rejectMessage) (§ expr (§ cast #_"RejectMessage" m)))
                     (§ if (§ expr tx.getHash(§ pars ).equals(§ pars rejectMessage.getRejectedObjectHash(§ pars ))))
                     (§ block
                         (§ expr rejects.put(§ pars peer, rejectMessage))
@@ -20097,8 +20097,8 @@
             ;; our version message, as SPV nodes cannot relay it doesn't give away any additional information
             ;; to skip the inv here - we wouldn't send invs anyway.
             (§ var #_"int" (§ name numConnected) (§ expr peers.size(§ pars )))
-            (§ var #_"int" (§ name numToBroadcastTo) (§ expr (§ cast int)Math.max(§ pars 1, Math.round(§ pars Math.ceil(§ pars peers.size(§ pars ) / 2.0)))))
-            (§ ass numWaitingFor = (§ cast int)Math.ceil(§ pars (§ expr peers.size(§ pars ) - numToBroadcastTo) / 2.0))
+            (§ var #_"int" (§ name numToBroadcastTo) (§ expr (§ cast #_"int" (§ expr Math.max(§ pars 1, Math.round(§ pars Math.ceil(§ pars peers.size(§ pars ) / 2.0)))))))
+            (§ ass numWaitingFor = (§ cast #_"int" (§ expr Math.ceil(§ pars (§ expr peers.size(§ pars ) - numToBroadcastTo) / 2.0))))
             (§ expr Collections.shuffle(§ pars peers, random))
             (§ ass (§ name peers) (§ expr peers.subList(§ pars 0, numToBroadcastTo)))
             (§ expr log.info(§ pars "broadcastTransaction: We have {} peers, adding {} to the memory pool", numConnected, tx.getHashAsString(§ pars )))
@@ -20142,7 +20142,7 @@
             ;; The number of peers that announced this tx has gone up.
             (§ var #_"int" (§ name numSeenPeers) (§ expr conf.numBroadcastPeers(§ pars ) + rejects.size(§ pars )))
             (§ var #_"boolean" (§ name mined) (§ expr tx.getAppearsInHashes(§ pars ) != nil))
-            (§ expr log.info(§ pars "broadcastTransaction: {}:  TX {} seen by {} peers{}", reason, tx.getHashAsString(§ pars ), numSeenPeers, mined ? " and mined" :else ""))
+            (§ expr log.info(§ pars "broadcastTransaction: {}:  TX {} seen by {} peers{}", reason, tx.getHashAsString(§ pars ), numSeenPeers, (§ quest mined ? (§ expr " and mined") :else (§ expr ""))))
 
             ;; Progress callback on the requested thread.
             (§ expr invokeAndRecord(§ pars numSeenPeers, mined))
@@ -20195,7 +20195,7 @@
         (§ if (§ expr callback != nil))
         (§ block
             #_final
-            (§ var #_"double" (§ name progress) (§ expr Math.min(§ pars 1.0, mined ? 1.0 :else numSeenPeers / (§ cast double)numWaitingFor)))
+            (§ var #_"double" (§ name progress) (§ expr Math.min(§ pars 1.0, (§ quest mined ? 1.0 :else (§ expr numSeenPeers / (§ cast #_"double" numWaitingFor))))))
             (§ expr Preconditions.checkState(§ pars 0.0 <= progress && progress <= 1.0, progress))
             (§ try )
             (§ block
@@ -20437,8 +20437,8 @@
     (§ constructor #_"TransactionConfidence" [#_"Sha256Hash" (§ name hash)])
     (§ block
         ;; Assume a default number of peers for our set.
-        (§ ass (§ name broadcastBy) (§ new CopyOnWriteArrayList<>(§ pars )))
-        (§ ass (§ name listeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name broadcastBy) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
+        (§ ass (§ name listeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
         (§ ass (§ name this.hash) (§ expr hash))
     )
 
@@ -20490,7 +20490,7 @@
     #_private
     #_static
     #_final
-    (§ field #_"Set<TransactionConfidence>" (§ name pinnedConfidenceObjects) (§ expr Collections.synchronizedSet(§ pars (§ new HashSet<TransactionConfidence>(§ pars )))))
+    (§ field #_"Set<TransactionConfidence>" (§ name pinnedConfidenceObjects) (§ expr Collections.synchronizedSet(§ pars (§ new #_"HashSet<TransactionConfidence>" (§ pars )))))
 
     ;;;
      ; <p>Adds an event listener that will be run when this confidence object is updated.  The listener will be locked
@@ -20506,7 +20506,7 @@
     (§ block
         (§ expr Preconditions.checkNotNull(§ pars listener))
 
-        (§ expr listeners.addIfAbsent(§ pars (§ new ListenerRegistration<>(§ pars listener, executor))))
+        (§ expr listeners.addIfAbsent(§ pars (§ new #_"ListenerRegistration<>" (§ pars listener, executor))))
         (§ expr pinnedConfidenceObjects.add(§ pars this))
     )
 
@@ -20683,7 +20683,7 @@
         (§ var #_"int" (§ name peers) (§ expr numBroadcastPeers(§ pars )))
         (§ if (§ expr 0 < peers))
         (§ block
-            (§ expr sb.append(§ pars "Seen by ").append(§ pars peers).append(§ pars (§ expr 1 < peers) ? " peers" :else " peer"))
+            (§ expr sb.append(§ pars "Seen by ").append(§ pars peers).append(§ pars (§ quest (§ expr 1 < peers) ? (§ expr " peers") :else (§ expr " peer"))))
             (§ if (§ expr lastBroadcastedAt != nil))
             (§ block
                 (§ expr sb.append(§ pars " (most recently: ").append(§ pars Utils.dateTimeFormat(§ pars lastBroadcastedAt)).append(§ pars ")"))
@@ -20981,7 +20981,7 @@
     #_public
     (§ constructor #_"TransactionInput" [#_"NetworkParameters" (§ name params), #_nilable #_"Transaction" (§ name parentTransaction), #_"byte[]" (§ name scriptBytes)])
     (§ block
-        (§ this (§ pars params, parentTransaction, scriptBytes, new TransactionOutPoint(§ pars params, UNCONNECTED, (§ cast Transaction)nil)))
+        (§ this (§ pars params, parentTransaction, scriptBytes, new TransactionOutPoint(§ pars params, UNCONNECTED, (§ cast #_"Transaction" nil))))
     )
 
     #_public
@@ -21000,7 +21000,7 @@
         (§ ass (§ name this.sequence) (§ expr NO_SEQUENCE))
         (§ ass (§ name this.value) (§ expr value))
         (§ expr setParent(§ pars parentTransaction))
-        (§ ass (§ name length) (§ expr 40 + (§ expr scriptBytes != nil ? VarInt.sizeOf(§ pars scriptBytes.length) + scriptBytes.length :else 1)))
+        (§ ass (§ name length) (§ expr 40 + (§ quest (§ expr scriptBytes != nil) ? (§ expr VarInt.sizeOf(§ pars scriptBytes.length) + scriptBytes.length) :else 1)))
     )
 
     ;;;
@@ -21063,7 +21063,7 @@
     (§ block
         (§ ass (§ name outpoint) (§ new #_"TransactionOutPoint" (§ pars params, payload, cursor, this, serializer)))
         (§ ass (§ name cursor) (§ expr cursor + outpoint.getMessageSize(§ pars )))
-        (§ var #_"int" (§ name scriptLen) (§ expr (§ cast int)readVarInt(§ pars )))
+        (§ var #_"int" (§ name scriptLen) (§ expr (§ cast #_"int" (§ expr readVarInt(§ pars )))))
         (§ ass (§ name length) (§ expr cursor - offset + scriptLen + 4))
         (§ ass (§ name scriptBytes) (§ expr readBytes(§ pars scriptLen)))
         (§ ass (§ name sequence) (§ expr readUint32(§ pars )))
@@ -21099,11 +21099,11 @@
     (§ block
         ;; Transactions that generate new coins don't actually have a script.
         ;; Instead this parameter is overloaded to be something totally different.
-        (§ var #_"Script" (§ name script) (§ quest (§ expr scriptSig != nil) ? scriptSig.get(§ pars ) :else nil))
+        (§ var #_"Script" (§ name script) (§ quest (§ expr scriptSig != nil) ? (§ expr scriptSig.get(§ pars )) :else (§ expr nil)))
         (§ if (§ expr script == nil))
         (§ block
             (§ ass (§ name script) (§ new #_"Script" (§ pars scriptBytes)))
-            (§ ass (§ name scriptSig) (§ new WeakReference<>(§ pars script)))
+            (§ ass (§ name scriptSig) (§ new #_"WeakReference<>" (§ pars script)))
         )
         (§ return (§ expr script))
     )
@@ -21112,7 +21112,7 @@
     #_public
     (§ method #_"void" (§ fn setScriptSig) [#_"Script" (§ name scriptSig)])
     (§ block
-        (§ ass (§ name this.scriptSig) (§ new WeakReference<>(§ pars Preconditions.checkNotNull(§ pars scriptSig))))
+        (§ ass (§ name this.scriptSig) (§ new #_"WeakReference<>" (§ pars Preconditions.checkNotNull(§ pars scriptSig))))
         ;; TODO: This should all be cleaned up so we have a consistent internal representation.
         (§ expr setScriptBytes(§ pars scriptSig.getProgram(§ pars )))
     )
@@ -21199,7 +21199,7 @@
         (§ var #_"int" (§ name oldLength) (§ expr length))
         (§ ass (§ name this.scriptBytes) (§ expr scriptBytes))
         ;; 40 = previous_outpoint (36) + sequence (4)
-        (§ var #_"int" (§ name newLength) (§ expr 40 + (§ expr scriptBytes != nil ? VarInt.sizeOf(§ pars scriptBytes.length) + scriptBytes.length :else 1)))
+        (§ var #_"int" (§ name newLength) (§ expr 40 + (§ quest (§ expr scriptBytes != nil) ? (§ expr VarInt.sizeOf(§ pars scriptBytes.length) + scriptBytes.length) :else 1)))
         (§ expr adjustLength(§ pars newLength - oldLength))
     )
 
@@ -21209,7 +21209,7 @@
     #_public
     (§ method #_"Transaction" (§ fn getParentTransaction) [])
     (§ block
-        (§ return (§ cast Transaction)parent)
+        (§ return (§ cast #_"Transaction" parent))
     )
 
     ;;;
@@ -21240,7 +21240,7 @@
     (§ method #_"TransactionOutput" (§ fn getConnectedOutput) [#_"Map<Sha256Hash, Transaction>" (§ name transactions)])
     (§ block
         (§ var #_"Transaction" (§ name tx) (§ expr transactions.get(§ pars outpoint.getHash(§ pars ))))
-        (§ return (§ quest (§ expr tx != nil) ? tx.getOutputs(§ pars ).get(§ pars (§ cast int)outpoint.getIndex(§ pars )) :else nil))
+        (§ return (§ quest (§ expr tx != nil) ? (§ dot tx.getOutputs(§ pars ).get(§ pars (§ cast #_"int" (§ expr outpoint.getIndex(§ pars ))))) :else (§ expr nil)))
     )
 
     ;;;
@@ -21274,7 +21274,7 @@
     (§ method #_"ConnectionResult" (§ fn connect) [#_"Map<Sha256Hash, Transaction>" (§ name transactions), #_"ConnectMode" (§ name mode)])
     (§ block
         (§ var #_"Transaction" (§ name tx) (§ expr transactions.get(§ pars outpoint.getHash(§ pars ))))
-        (§ return (§ expr tx != nil) ? connect(§ pars tx, mode) :else TransactionInput.ConnectionResult.NO_SUCH_TX)
+        (§ return (§ quest (§ expr tx != nil) ? (§ expr connect(§ pars tx, mode)) :else (§ expr TransactionInput.ConnectionResult.NO_SUCH_TX)))
     )
 
     ;;;
@@ -21294,9 +21294,9 @@
             (§ return (§ expr ConnectionResult.NO_SUCH_TX))
         )
 
-        (§ expr Preconditions.checkElementIndex(§ pars (§ cast int)outpoint.getIndex(§ pars ), transaction.getOutputs(§ pars ).size(§ pars ), "Corrupt transaction"))
+        (§ expr Preconditions.checkElementIndex(§ pars (§ cast #_"int" (§ expr outpoint.getIndex(§ pars ))), transaction.getOutputs(§ pars ).size(§ pars ), "Corrupt transaction"))
 
-        (§ var #_"TransactionOutput" (§ name out) (§ expr transaction.getOutput(§ pars (§ cast int)outpoint.getIndex(§ pars ))))
+        (§ var #_"TransactionOutput" (§ name out) (§ expr transaction.getOutput(§ pars (§ cast #_"int" (§ expr outpoint.getIndex(§ pars ))))))
         (§ if (§ expr (§ not out.isAvailableForSpending(§ pars ))))
         (§ block
             (§ if (§ expr getParentTransaction(§ pars ).equals(§ pars outpoint.fromTx)))
@@ -21340,7 +21340,7 @@
         (§ if (§ expr outpoint.fromTx != nil))
         (§ block
             ;; The outpoint is connected using a "standard" wallet, disconnect it.
-            (§ ass (§ name connectedOutput) (§ expr outpoint.fromTx.getOutput(§ pars (§ cast int)outpoint.getIndex(§ pars ))))
+            (§ ass (§ name connectedOutput) (§ expr outpoint.fromTx.getOutput(§ pars (§ cast #_"int" (§ expr outpoint.getIndex(§ pars ))))))
             (§ ass (§ name outpoint.fromTx) (§ expr nil))
         )
         (§ elseif (§ expr outpoint.connectedOutput != nil))
@@ -21400,7 +21400,7 @@
         (§ expr Preconditions.checkNotNull(§ pars fromTx, "Not connected"))
 
         #_final
-        (§ var #_"TransactionOutput" (§ name output) (§ expr fromTx.getOutput(§ pars (§ cast int)spendingIndex)))
+        (§ var #_"TransactionOutput" (§ name output) (§ expr fromTx.getOutput(§ pars (§ cast #_"int" spendingIndex))))
         (§ expr verify(§ pars output))
     )
 
@@ -21488,7 +21488,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"TransactionInput" (§ name other) (§ expr (§ cast TransactionInput)o))
+        (§ var #_"TransactionInput" (§ name other) (§ expr (§ cast #_"TransactionInput" o)))
         (§ return (§ expr sequence == other.sequence && parent == other.parent && outpoint.equals(§ pars other.outpoint) && Arrays.equals(§ pars scriptBytes, other.scriptBytes)))
     )
 
@@ -21516,7 +21516,7 @@
             (§ else )
             (§ block
                 (§ expr sb.append(§ pars " for [").append(§ pars outpoint).append(§ pars "]: ").append(§ pars getScriptSig(§ pars )))
-                (§ var #_"String" (§ name flags) (§ expr Joiner.on(§ pars ", ").skipNulls(§ pars ).join(§ pars hasSequence(§ pars ) ? "sequence: " + Long.toHexString(§ pars sequence) :else nil, isOptInFullRBF(§ pars ) ? "opts into full RBF" :else nil)))
+                (§ var #_"String" (§ name flags) (§ dot Joiner.on(§ pars ", ").skipNulls(§ pars ).join(§ pars (§ quest (§ expr hasSequence(§ pars )) ? (§ expr "sequence: " + Long.toHexString(§ pars sequence)) :else (§ expr nil)), (§ quest (§ expr isOptInFullRBF(§ pars )) ? (§ expr "opts into full RBF") :else (§ expr nil)))))
                 (§ if (§ expr (§ not flags.isEmpty(§ pars ))))
                 (§ block
                     (§ expr sb.append(§ pars " (").append(§ pars flags).append(§ pars ")"))
@@ -21651,7 +21651,7 @@
     (§ block
         (§ if (§ expr fromTx != nil))
         (§ block
-            (§ return (§ expr fromTx.getOutputs(§ pars ).get(§ pars (§ cast int)index)))
+            (§ return (§ expr fromTx.getOutputs(§ pars ).get(§ pars (§ cast #_"int" index))))
         )
         (§ if (§ expr connectedOutput != nil))
         (§ block
@@ -21787,7 +21787,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"TransactionOutPoint" (§ name other) (§ expr (§ cast TransactionOutPoint)o))
+        (§ var #_"TransactionOutPoint" (§ name other) (§ expr (§ cast #_"TransactionOutPoint" o)))
         (§ return (§ expr getIndex(§ pars ) == other.getIndex(§ pars ) && getHash(§ pars ).equals(§ pars other.getHash(§ pars ))))
     )
 
@@ -21941,7 +21941,7 @@
     (§ method #_"Address" (§ fn getAddressFromP2PKHScript) [#_"NetworkParameters" (§ name networkParameters)])
         (§ throws #_"ScriptException")
     (§ block
-        (§ return (§ expr getScriptPubKey(§ pars ).isSentToAddress(§ pars ) ? getScriptPubKey(§ pars ).getToAddress(§ pars networkParameters) :else nil))
+        (§ return (§ quest (§ dot getScriptPubKey(§ pars ).isSentToAddress(§ pars )) ? (§ dot getScriptPubKey(§ pars ).getToAddress(§ pars networkParameters)) :else (§ expr nil)))
     )
 
     ;;;
@@ -21961,7 +21961,7 @@
     (§ method #_"Address" (§ fn getAddressFromP2SH) [#_"NetworkParameters" (§ name networkParameters)])
         (§ throws #_"ScriptException")
     (§ block
-        (§ return (§ expr getScriptPubKey(§ pars ).isPayToScriptHash(§ pars ) ? getScriptPubKey(§ pars ).getToAddress(§ pars networkParameters) :else nil))
+        (§ return (§ quest (§ dot getScriptPubKey(§ pars ).isPayToScriptHash(§ pars )) ? (§ dot getScriptPubKey(§ pars ).getToAddress(§ pars networkParameters)) :else (§ expr nil)))
     )
 
     #_override
@@ -21970,7 +21970,7 @@
         (§ throws #_"ProtocolException")
     (§ block
         (§ ass (§ name value) (§ expr readInt64(§ pars )))
-        (§ ass scriptLen = (§ cast int)readVarInt(§ pars ))
+        (§ ass scriptLen = (§ cast #_"int" (§ expr readVarInt(§ pars ))))
         (§ ass (§ name length) (§ expr cursor - offset + scriptLen))
         (§ ass (§ name scriptBytes) (§ expr readBytes(§ pars scriptLen)))
     )
@@ -22043,7 +22043,7 @@
     (§ method #_"boolean" (§ fn isDust) [])
     (§ block
         ;; Transactions that are OP_RETURN can't be dust regardless of their value.
-        (§ return (§ expr getScriptPubKey(§ pars ).isOpReturn(§ pars ) ? false :else getValue(§ pars ).isLessThan(§ pars getMinNonDustValue(§ pars ))))
+        (§ return (§ quest (§ dot getScriptPubKey(§ pars ).isOpReturn(§ pars )) ? (§ expr false) :else (§ dot getValue(§ pars ).isLessThan(§ pars getMinNonDustValue(§ pars )))))
     )
 
     ;;;
@@ -22175,7 +22175,7 @@
         (§ catch #_"ScriptException" (§ name e))
         (§ block
             ;; Just means we didn't understand the output of this transaction: ignore it.
-            (§ expr log.debug(§ pars "Could not parse tx {} output script: {}", (§ expr parent != nil) ? parent.getHash(§ pars ) :else "(no parent)", e.toString(§ pars )))
+            (§ expr log.debug(§ pars "Could not parse tx {} output script: {}", (§ quest (§ expr parent != nil) ? (§ expr parent.getHash(§ pars )) :else (§ expr "(no parent)")), e.toString(§ pars )))
             (§ return (§ expr false))
         )
     )
@@ -22234,7 +22234,7 @@
     #_public
     (§ method #_"Transaction" (§ fn getParentTransaction) [])
     (§ block
-        (§ return (§ cast Transaction)parent)
+        (§ return (§ cast #_"Transaction" parent))
     )
 
     ;;;
@@ -22244,7 +22244,7 @@
     #_public
     (§ method #_"Sha256Hash" (§ fn getParentTransactionHash) [])
     (§ block
-        (§ return (§ expr parent != nil) ? parent.getHash(§ pars ) :else nil)
+        (§ return (§ quest (§ expr parent != nil) ? (§ expr parent.getHash(§ pars )) :else (§ expr nil)))
     )
 
     ;;;
@@ -22297,7 +22297,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"TransactionOutput" (§ name other) (§ expr (§ cast TransactionOutput)o))
+        (§ var #_"TransactionOutput" (§ name other) (§ expr (§ cast #_"TransactionOutput" o)))
         (§ return (§ expr value == other.value && (§ expr parent == nil || (§ expr parent == other.parent && getIndex(§ pars ) == other.getIndex(§ pars ))) && Arrays.equals(§ pars scriptBytes, other.scriptBytes)))
     )
 
@@ -22349,14 +22349,14 @@
         (§ throws #_"IOException")
     (§ block
         (§ var #_"int" (§ name nCreated) (§ expr read4x8le(§ pars is)))
-        (§ ass (§ name txOutsCreated) (§ new LinkedList<>(§ pars )))
+        (§ ass (§ name txOutsCreated) (§ new #_"LinkedList<>" (§ pars )))
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < nCreated) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ expr txOutsCreated.add(§ pars (§ new #_"UTXO" (§ pars is))))
         )
 
         (§ var #_"int" (§ name nSpent) (§ expr read4x8le(§ pars is)))
-        (§ ass (§ name txOutsSpent) (§ new LinkedList<>(§ pars )))
+        (§ ass (§ name txOutsSpent) (§ new #_"LinkedList<>" (§ pars )))
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < nSpent) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ expr txOutsSpent.add(§ pars (§ new #_"UTXO" (§ pars is))))
@@ -22454,7 +22454,7 @@
     #_public
     (§ constructor #_"TxConfidenceTable" [#_final #_"int" (§ name size)])
     (§ block
-        (§ ass (§ name table) (§ new LinkedHashMap<Sha256Hash, WeakConfidenceReference>(§ pars )
+        (§ ass (§ name table) (§ new #_"LinkedHashMap<Sha256Hash, WeakConfidenceReference>" (§ pars )
         (§ anon
             #_override
             #_protected
@@ -22465,7 +22465,7 @@
                 (§ return (§ expr size < size(§ pars )))
             )
         )))
-        (§ ass (§ name referenceQueue) (§ new ReferenceQueue<>(§ pars )))
+        (§ ass (§ name referenceQueue) (§ new #_"ReferenceQueue<>" (§ pars )))
     )
 
     ;;;
@@ -22494,7 +22494,7 @@
             (§ while (§ expr (§ ass (§ name ref) (§ expr referenceQueue.poll(§ pars ))) != nil))
             (§ block
                 ;; Find which transaction got deleted by the GC.
-                (§ var #_"WeakConfidenceReference" (§ name txRef) (§ expr (§ cast WeakConfidenceReference)ref))
+                (§ var #_"WeakConfidenceReference" (§ name txRef) (§ expr (§ cast #_"WeakConfidenceReference" ref)))
                 ;; And remove the associated map entry, so the other bits of memory can also be reclaimed.
                 (§ expr table.remove(§ pars txRef.hash))
             )
@@ -22605,7 +22605,7 @@
         (§ try )
         (§ block
             (§ var #_"WeakConfidenceReference" (§ name ref) (§ expr table.get(§ pars hash)))
-            (§ return (§ expr ref != nil) ? ref.get(§ pars ) :else nil)
+            (§ return (§ quest (§ expr ref != nil) ? (§ expr ref.get(§ pars )) :else (§ expr nil)))
         )
         (§ finally )
         (§ block
@@ -22765,7 +22765,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"UTXO" (§ name other) (§ expr (§ cast UTXO)o))
+        (§ var #_"UTXO" (§ name other) (§ expr (§ cast #_"UTXO" o)))
         (§ return (§ expr getIndex(§ pars ) == other.getIndex(§ pars ) && getHash(§ pars ).equals(§ pars other.getHash(§ pars ))))
     )
 
@@ -22795,7 +22795,7 @@
         (§ expr Utils.uint32ToByteStreamLE(§ pars index, os))
 
         (§ expr write4x8le(§ pars os, height))
-        (§ expr os.write(§ pars (§ new byte[] (§ coll (§ cast byte)(§ quest coinbase ? 1 :else 0) ))))
+        (§ expr os.write(§ pars (§ new byte[] (§ coll (§ cast #_"byte" (§ quest coinbase ? 1 :else 0)) ))))
     )
 
     #_private
@@ -22885,7 +22885,7 @@
     #_public
     (§ method #_"String" (§ fn toString) [])
     (§ block
-        (§ return (§ expr "Unknown message [" + name + "]: " + (§ expr payload != nil ? Utils.HEX.encode(§ pars payload) :else "")))
+        (§ return (§ str "Unknown message [" + name + "]: " + (§ quest (§ expr payload != nil) ? (§ expr Utils.HEX.encode(§ pars payload)) :else (§ expr ""))))
     )
 )
 
@@ -22930,7 +22930,7 @@
         (§ block
             (§ ass (§ name buf) (§ expr Utils.copyOf(§ pars buf, Math.max(§ pars buf.length << 1, n))))
         )
-        (§ ass buf[count] = (§ cast byte)b)
+        (§ ass buf[count] = (§ cast #_"byte" b))
         (§ ass (§ name count) (§ expr n))
     )
 
@@ -23006,7 +23006,7 @@
     #_public
     (§ method #_"byte[]" (§ fn toByteArray) [])
     (§ block
-        (§ return (§ quest (§ expr count == buf.length) ? buf :else Utils.copyOf(§ pars buf, count)))
+        (§ return (§ quest (§ expr count == buf.length) ? (§ expr buf) :else (§ expr Utils.copyOf(§ pars buf, count))))
     )
 
     ;;;
@@ -23087,11 +23087,11 @@
         (§ var #_"byte[]" (§ name src) (§ expr b.toByteArray(§ pars )))
         (§ var #_"byte[]" (§ name dest) (§ new byte[numBytes]))
         (§ var #_"boolean" (§ name isFirstByteOnlyForSign) (§ expr src[0] == 0))
-        (§ var #_"int" (§ name length) (§ expr isFirstByteOnlyForSign ? src.length - 1 :else src.length))
+        (§ var #_"int" (§ name length) (§ quest isFirstByteOnlyForSign ? (§ expr src.length - 1) :else (§ expr src.length)))
 
         (§ expr Preconditions.checkArgument(§ pars length <= numBytes, "The given number does not fit in " + numBytes))
 
-        (§ var #_"int" (§ name srcPos) (§ expr isFirstByteOnlyForSign ? 1 :else 0))
+        (§ var #_"int" (§ name srcPos) (§ quest isFirstByteOnlyForSign ? 1 :else 0))
         (§ var #_"int" (§ name destPos) (§ expr numBytes - length))
         (§ expr System.arraycopy(§ pars src, srcPos, dest, destPos, length))
         (§ return (§ expr dest))
@@ -23101,34 +23101,34 @@
     #_static
     (§ method #_"void" (§ fn uint32ToByteArrayBE) [#_"long" (§ name val), #_"byte[]" (§ name out), #_"int" (§ name offset)])
     (§ block
-        (§ ass out[offset] = (§ cast byte)(§ expr 0xff & (§ expr val >> 24)))
-        (§ ass out[offset + 1] = (§ cast byte)(§ expr 0xff & (§ expr val >> 16)))
-        (§ ass out[offset + 2] = (§ cast byte)(§ expr 0xff & (§ expr val >> 8)))
-        (§ ass out[offset + 3] = (§ cast byte)(§ expr 0xff & val))
+        (§ ass out[offset] = (§ cast #_"byte" (§ expr 0xff & (§ expr val >> 24))))
+        (§ ass out[offset + 1] = (§ cast #_"byte" (§ expr 0xff & (§ expr val >> 16))))
+        (§ ass out[offset + 2] = (§ cast #_"byte" (§ expr 0xff & (§ expr val >> 8))))
+        (§ ass out[offset + 3] = (§ cast #_"byte" (§ expr 0xff & val)))
     )
 
     #_public
     #_static
     (§ method #_"void" (§ fn uint32ToByteArrayLE) [#_"long" (§ name val), #_"byte[]" (§ name out), #_"int" (§ name offset)])
     (§ block
-        (§ ass out[offset] = (§ cast byte)(§ expr 0xff & val))
-        (§ ass out[offset + 1] = (§ cast byte)(§ expr 0xff & (§ expr val >> 8)))
-        (§ ass out[offset + 2] = (§ cast byte)(§ expr 0xff & (§ expr val >> 16)))
-        (§ ass out[offset + 3] = (§ cast byte)(§ expr 0xff & (§ expr val >> 24)))
+        (§ ass out[offset] = (§ cast #_"byte" (§ expr 0xff & val)))
+        (§ ass out[offset + 1] = (§ cast #_"byte" (§ expr 0xff & (§ expr val >> 8))))
+        (§ ass out[offset + 2] = (§ cast #_"byte" (§ expr 0xff & (§ expr val >> 16))))
+        (§ ass out[offset + 3] = (§ cast #_"byte" (§ expr 0xff & (§ expr val >> 24))))
     )
 
     #_public
     #_static
     (§ method #_"void" (§ fn uint64ToByteArrayLE) [#_"long" (§ name val), #_"byte[]" (§ name out), #_"int" (§ name offset)])
     (§ block
-        (§ ass out[offset] = (§ cast byte)(§ expr 0xff & val))
-        (§ ass out[offset + 1] = (§ cast byte)(§ expr 0xff & (§ expr val >> 8)))
-        (§ ass out[offset + 2] = (§ cast byte)(§ expr 0xff & (§ expr val >> 16)))
-        (§ ass out[offset + 3] = (§ cast byte)(§ expr 0xff & (§ expr val >> 24)))
-        (§ ass out[offset + 4] = (§ cast byte)(§ expr 0xff & (§ expr val >> 32)))
-        (§ ass out[offset + 5] = (§ cast byte)(§ expr 0xff & (§ expr val >> 40)))
-        (§ ass out[offset + 6] = (§ cast byte)(§ expr 0xff & (§ expr val >> 48)))
-        (§ ass out[offset + 7] = (§ cast byte)(§ expr 0xff & (§ expr val >> 56)))
+        (§ ass out[offset] = (§ cast #_"byte" (§ expr 0xff & val)))
+        (§ ass out[offset + 1] = (§ cast #_"byte" (§ expr 0xff & (§ expr val >> 8))))
+        (§ ass out[offset + 2] = (§ cast #_"byte" (§ expr 0xff & (§ expr val >> 16))))
+        (§ ass out[offset + 3] = (§ cast #_"byte" (§ expr 0xff & (§ expr val >> 24))))
+        (§ ass out[offset + 4] = (§ cast #_"byte" (§ expr 0xff & (§ expr val >> 32))))
+        (§ ass out[offset + 5] = (§ cast #_"byte" (§ expr 0xff & (§ expr val >> 40))))
+        (§ ass out[offset + 6] = (§ cast #_"byte" (§ expr 0xff & (§ expr val >> 48))))
+        (§ ass out[offset + 7] = (§ cast #_"byte" (§ expr 0xff & (§ expr val >> 56))))
     )
 
     #_public
@@ -23136,10 +23136,10 @@
     (§ method #_"void" (§ fn uint32ToByteStreamLE) [#_"long" (§ name val), #_"OutputStream" (§ name stream)])
         (§ throws #_"IOException")
     (§ block
-        (§ expr stream.write(§ pars (§ cast int)(§ expr 0xff & val)))
-        (§ expr stream.write(§ pars (§ cast int)(§ expr 0xff & (§ expr val >> 8))))
-        (§ expr stream.write(§ pars (§ cast int)(§ expr 0xff & (§ expr val >> 16))))
-        (§ expr stream.write(§ pars (§ cast int)(§ expr 0xff & (§ expr val >> 24))))
+        (§ expr stream.write(§ pars (§ cast #_"int" (§ expr 0xff & val))))
+        (§ expr stream.write(§ pars (§ cast #_"int" (§ expr 0xff & (§ expr val >> 8)))))
+        (§ expr stream.write(§ pars (§ cast #_"int" (§ expr 0xff & (§ expr val >> 16)))))
+        (§ expr stream.write(§ pars (§ cast #_"int" (§ expr 0xff & (§ expr val >> 24)))))
     )
 
     #_public
@@ -23147,14 +23147,14 @@
     (§ method #_"void" (§ fn int64ToByteStreamLE) [#_"long" (§ name val), #_"OutputStream" (§ name stream)])
         (§ throws #_"IOException")
     (§ block
-        (§ expr stream.write(§ pars (§ cast int)(§ expr 0xff & val)))
-        (§ expr stream.write(§ pars (§ cast int)(§ expr 0xff & (§ expr val >> 8))))
-        (§ expr stream.write(§ pars (§ cast int)(§ expr 0xff & (§ expr val >> 16))))
-        (§ expr stream.write(§ pars (§ cast int)(§ expr 0xff & (§ expr val >> 24))))
-        (§ expr stream.write(§ pars (§ cast int)(§ expr 0xff & (§ expr val >> 32))))
-        (§ expr stream.write(§ pars (§ cast int)(§ expr 0xff & (§ expr val >> 40))))
-        (§ expr stream.write(§ pars (§ cast int)(§ expr 0xff & (§ expr val >> 48))))
-        (§ expr stream.write(§ pars (§ cast int)(§ expr 0xff & (§ expr val >> 56))))
+        (§ expr stream.write(§ pars (§ cast #_"int" (§ expr 0xff & val))))
+        (§ expr stream.write(§ pars (§ cast #_"int" (§ expr 0xff & (§ expr val >> 8)))))
+        (§ expr stream.write(§ pars (§ cast #_"int" (§ expr 0xff & (§ expr val >> 16)))))
+        (§ expr stream.write(§ pars (§ cast #_"int" (§ expr 0xff & (§ expr val >> 24)))))
+        (§ expr stream.write(§ pars (§ cast #_"int" (§ expr 0xff & (§ expr val >> 32)))))
+        (§ expr stream.write(§ pars (§ cast #_"int" (§ expr 0xff & (§ expr val >> 40)))))
+        (§ expr stream.write(§ pars (§ cast #_"int" (§ expr 0xff & (§ expr val >> 48)))))
+        (§ expr stream.write(§ pars (§ cast #_"int" (§ expr 0xff & (§ expr val >> 56)))))
     )
 
     #_public
@@ -23237,7 +23237,7 @@
         (§ expr Preconditions.checkArgument(§ pars bytes.length % 4 == 0))
         (§ expr Preconditions.checkArgument(§ pars trimLength < 0 || trimLength % 4 == 0))
 
-        (§ var #_"byte[]" (§ name rev) (§ new byte[(§ expr 0 <= trimLength && trimLength < bytes.length) ? trimLength :else bytes.length]))
+        (§ var #_"byte[]" (§ name rev) (§ new byte[(§ quest (§ expr 0 <= trimLength && trimLength < bytes.length) ? (§ expr trimLength) :else (§ expr bytes.length))]))
 
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < rev.length) :for (§ ass (§ name i) (§ expr i + 4)))
         (§ block
@@ -23310,7 +23310,7 @@
         (§ var #_"byte[]" (§ name buf))
         (§ if (§ expr hasLength))
         (§ block
-            (§ var #_"int" (§ name length) (§ expr (§ cast int)readUint32BE(§ pars mpi, 0)))
+            (§ var #_"int" (§ name length) (§ expr (§ cast #_"int" (§ expr readUint32BE(§ pars mpi, 0)))))
             (§ ass (§ name buf) (§ new byte[length]))
             (§ expr System.arraycopy(§ pars mpi, 4, buf, 0, length))
         )
@@ -23329,7 +23329,7 @@
             (§ ass buf[0] = buf[0] & 0x7f)
         )
         (§ var #_"BigInteger" (§ name result) (§ new #_"BigInteger" (§ pars buf)))
-        (§ return (§ expr isNegative ? result.negate(§ pars ) :else result))
+        (§ return (§ quest isNegative ? (§ expr result.negate(§ pars )) :else (§ expr result)))
     )
 
     ;;;
@@ -23344,7 +23344,7 @@
     (§ block
         (§ if (§ expr value.equals(§ pars BigInteger.ZERO)))
         (§ block
-            (§ return (§ expr includeLength ? new byte[] (§ coll 0x00, 0x00, 0x00, 0x00 ) :else new byte[] (§ coll )))
+            (§ return (§ quest includeLength ? (§ expr new byte[] (§ coll 0x00, 0x00, 0x00, 0x00 )) :else (§ expr new byte[] (§ coll ))))
         )
 
         (§ var #_"boolean" (§ name isNegative) (§ expr value.signum(§ pars ) < 0))
@@ -23407,20 +23407,20 @@
     #_static
     (§ method #_"BigInteger" (§ fn decodeCompactBits) [#_"long" (§ name compact)])
     (§ block
-        (§ var #_"int" (§ name size) (§ expr (§ expr (§ cast int)(§ expr compact >> 24)) & 0xff))
+        (§ var #_"int" (§ name size) (§ expr (§ expr (§ cast #_"int" (§ expr compact >> 24))) & 0xff))
         (§ var #_"byte[]" (§ name bytes) (§ new byte[4 + size]))
-        (§ ass bytes[3] = (§ cast byte)size)
+        (§ ass bytes[3] = (§ cast #_"byte" size))
         (§ if (§ expr 1 <= size))
         (§ block
-            (§ ass bytes[4] = (§ cast byte)(§ expr (§ expr compact >> 16) & 0xff))
+            (§ ass bytes[4] = (§ cast #_"byte" (§ expr (§ expr compact >> 16) & 0xff)))
         )
         (§ if (§ expr 2 <= size))
         (§ block
-            (§ ass bytes[5] = (§ cast byte)(§ expr (§ expr compact >> 8) & 0xff))
+            (§ ass bytes[5] = (§ cast #_"byte" (§ expr (§ expr compact >> 8) & 0xff)))
         )
         (§ if (§ expr 3 <= size))
         (§ block
-            (§ ass bytes[6] = (§ cast byte)(§ expr compact & 0xff))
+            (§ ass bytes[6] = (§ cast #_"byte" (§ expr compact & 0xff)))
         )
         (§ return (§ expr decodeMPI(§ pars bytes, true)))
     )
@@ -23450,7 +23450,7 @@
             (§ ass (§ name size) (§ expr size + 1))
         )
         (§ ass (§ name result) (§ expr result | (§ expr size << 24)))
-        (§ ass (§ name result) (§ expr result | (§ expr value.signum(§ pars ) == -1 ? 0x00800000 :else 0)))
+        (§ ass (§ name result) (§ expr result | (§ quest (§ expr (§ expr value.signum(§ pars )) == -1) ? 0x00800000 :else 0)))
         (§ return (§ expr result))
     )
 
@@ -23515,7 +23515,7 @@
     #_static
     (§ method #_"Date" (§ fn now) [])
     (§ block
-        (§ return (§ quest (§ expr mockTime != nil) ? mockTime :else new Date(§ pars )))
+        (§ return (§ quest (§ expr mockTime != nil) ? (§ expr mockTime) :else (§ expr new Date(§ pars ))))
     )
 
     ;; TODO: Replace usages of this where the result is / 1000 with currentTimeSeconds.
@@ -23524,7 +23524,7 @@
     #_static
     (§ method #_"long" (§ fn currentTimeMillis) [])
     (§ block
-        (§ return (§ quest (§ expr mockTime != nil) ? mockTime.getTime(§ pars ) :else System.currentTimeMillis(§ pars )))
+        (§ return (§ quest (§ expr mockTime != nil) ? (§ expr mockTime.getTime(§ pars )) :else (§ expr System.currentTimeMillis(§ pars ))))
     )
 
     #_public
@@ -23751,7 +23751,7 @@
     (§ block
         (§ if (§ expr isEnable))
         (§ block
-            (§ ass (§ name mockSleepQueue) (§ new ArrayBlockingQueue<>(§ pars 1)))
+            (§ ass (§ name mockSleepQueue) (§ new #_"ArrayBlockingQueue<>" (§ pars 1)))
             (§ ass (§ name mockTime) (§ new #_"Date" (§ pars System.currentTimeMillis(§ pars ))))
         )
         (§ else )
@@ -23821,7 +23821,7 @@
     (§ method #_"int" (§ fn maxOfMostFreq) [#_"int..." (§ name items)])
     (§ block
         ;; Java 6 sucks.
-        (§ var #_"ArrayList<Integer>" (§ name list) (§ new ArrayList<>(§ pars items.length)))
+        (§ var #_"ArrayList<Integer>" (§ name list) (§ new #_"ArrayList<>" (§ pars items.length)))
         (§ for (§ var #_"int" (§ name item)) :for (§ expr items))
         (§ block
             (§ expr list.add(§ pars item))
@@ -24032,23 +24032,23 @@
         (§ block
             (§ case 1)
             (§ block
-                (§ return (§ new byte[] (§ coll (§ cast byte)value )))
+                (§ return (§ new byte[] (§ coll (§ cast #_"byte" value) )))
             )
             (§ case 3)
             (§ block
-                (§ return (§ new byte[] (§ coll (§ cast byte)253, (§ cast byte)value, (§ cast byte)(§ expr value >> 8) )))
+                (§ return (§ new byte[] (§ coll (§ cast #_"byte" 253), (§ cast #_"byte" value), (§ cast #_"byte" (§ expr value >> 8)) )))
             )
             (§ case 5)
             (§ block
                 (§ ass (§ name bytes) (§ new byte[5]))
-                (§ ass bytes[0] = (§ cast byte)254)
+                (§ ass bytes[0] = (§ cast #_"byte" 254))
                 (§ expr Utils.uint32ToByteArrayLE(§ pars value, bytes, 1))
                 (§ return (§ expr bytes))
             )
             (§ default )
             (§ block
                 (§ ass (§ name bytes) (§ new byte[9]))
-                (§ ass bytes[0] = (§ cast byte)255)
+                (§ ass bytes[0] = (§ cast #_"byte" 255))
                 (§ expr Utils.uint64ToByteArrayLE(§ pars value, bytes, 1))
                 (§ return (§ expr bytes))
             )
@@ -24313,7 +24313,7 @@
     (§ method #_"void" (§ fn parse) [])
         (§ throws #_"ProtocolException")
     (§ block
-        (§ ass clientVersion = (§ cast int)readUint32(§ pars ))
+        (§ ass clientVersion = (§ cast #_"int" (§ expr readUint32(§ pars ))))
         (§ ass (§ name localServices) (§ expr readUint64(§ pars ).longValue(§ pars )))
         (§ ass (§ name time) (§ expr readUint64(§ pars ).longValue(§ pars )))
         (§ ass (§ name myAddr) (§ new #_"PeerAddress" (§ pars params, payload, cursor, 0)))
@@ -24392,7 +24392,7 @@
         (§ expr buf.write(§ pars subVerBytes))
         ;; Size of known block chain.
         (§ expr Utils.uint32ToByteStreamLE(§ pars bestHeight, buf))
-        (§ expr buf.write(§ pars relayTxesBeforeFilter ? 1 :else 0))
+        (§ expr buf.write(§ pars (§ quest relayTxesBeforeFilter ? 1 :else 0)))
     )
 
     ;;;
@@ -24417,7 +24417,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"VersionMessage" (§ name other) (§ expr (§ cast VersionMessage)o))
+        (§ var #_"VersionMessage" (§ name other) (§ expr (§ cast #_"VersionMessage" o)))
         (§ return (§ expr other.bestHeight == bestHeight && other.clientVersion == clientVersion && other.localServices == localServices && other.time == time && other.subVer.equals(§ pars subVer) && other.myAddr.equals(§ pars myAddr) && other.theirAddr.equals(§ pars theirAddr) && other.relayTxesBeforeFilter == relayTxesBeforeFilter))
     )
 
@@ -24448,7 +24448,7 @@
     #_public
     (§ method #_"VersionMessage" (§ fn duplicate) [])
     (§ block
-        (§ var #_"VersionMessage" (§ name v) (§ new #_"VersionMessage" (§ pars params, (§ cast int)bestHeight)))
+        (§ var #_"VersionMessage" (§ name v) (§ new #_"VersionMessage" (§ pars params, (§ cast #_"int" bestHeight))))
         (§ ass (§ name v.clientVersion) (§ expr clientVersion))
         (§ ass (§ name v.localServices) (§ expr localServices))
         (§ ass (§ name v.time) (§ expr time))
@@ -24578,7 +24578,7 @@
     (§ block
         ;; A stringified buffer is: 1 byte version + data bytes + 4 bytes check code (a truncated hash).
         (§ var #_"byte[]" (§ name addressBytes) (§ new byte[1 + bytes.length + 4]))
-        (§ ass addressBytes[0] = (§ cast byte)version)
+        (§ ass addressBytes[0] = (§ cast #_"byte" version))
         (§ expr System.arraycopy(§ pars bytes, 0, addressBytes, 1, bytes.length))
         (§ var #_"byte[]" (§ name checksum) (§ expr Sha256Hash.hashTwice(§ pars addressBytes, 0, bytes.length + 1)))
         (§ expr System.arraycopy(§ pars checksum, 0, addressBytes, bytes.length + 1, 4))
@@ -24611,7 +24611,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"VersionedChecksummedBytes" (§ name other) (§ expr (§ cast VersionedChecksummedBytes)o))
+        (§ var #_"VersionedChecksummedBytes" (§ name other) (§ expr (§ cast #_"VersionedChecksummedBytes" o)))
         (§ return (§ expr this.version == other.version && Arrays.equals(§ pars this.bytes, other.bytes)))
     )
 
@@ -24627,7 +24627,7 @@
     (§ method #_"VersionedChecksummedBytes" (§ fn clone) [])
         (§ throws #_"CloneNotSupportedException")
     (§ block
-        (§ return (§ cast VersionedChecksummedBytes)super.clone(§ pars ))
+        (§ return (§ cast #_"VersionedChecksummedBytes" (§ expr super.clone(§ pars ))))
     )
 
     ;;;
@@ -24640,7 +24640,7 @@
     (§ method #_"int" (§ fn compareTo) [#_"VersionedChecksummedBytes" (§ name o)])
     (§ block
         (§ var #_"int" (§ name result) (§ expr Ints.compare(§ pars this.version, o.version)))
-        (§ return (§ quest (§ expr result != 0) ? result :else UnsignedBytes.lexicographicalComparator(§ pars ).compare(§ pars this.bytes, o.bytes)))
+        (§ return (§ quest (§ expr result != 0) ? (§ expr result) :else (§ dot UnsignedBytes.lexicographicalComparator(§ pars ).compare(§ pars this.bytes, o.bytes))))
     )
 
     ;;;
@@ -24849,11 +24849,11 @@
             (§ return )
         )
 
-        (§ var #_"double" (§ name pct) (§ expr 100.0 - (§ expr 100.0 * (§ expr blocksLeft / (§ cast double)originalBlocksLeft))))
-        (§ if (§ expr (§ cast int)pct != lastPercent))
+        (§ var #_"double" (§ name pct) (§ expr 100.0 - (§ expr 100.0 * (§ expr blocksLeft / (§ cast #_"double" originalBlocksLeft)))))
+        (§ if (§ expr (§ cast #_"int" pct) != lastPercent))
         (§ block
             (§ expr progress(§ pars pct, blocksLeft, new Date(§ pars block.getTimeSeconds(§ pars ) * 1000)))
-            (§ ass lastPercent = (§ cast int)pct)
+            (§ ass lastPercent = (§ cast #_"int" pct))
         )
     )
 
@@ -24866,7 +24866,7 @@
     #_protected
     (§ method #_"void" (§ fn progress) [#_"double" (§ name pct), #_"int" (§ name blocksSoFar), #_"Date" (§ name date)])
     (§ block
-        (§ expr log.info(§ pars String.format(§ pars Locale.US, "Chain download %d%% done with %d blocks to go, block date %s", (§ cast int)pct, blocksSoFar, Utils.dateTimeFormat(§ pars date))))
+        (§ expr log.info(§ pars String.format(§ pars Locale.US, "Chain download %d%% done with %d blocks to go, block date %s", (§ cast #_"int" pct), blocksSoFar, Utils.dateTimeFormat(§ pars date))))
     )
 
     ;;;
@@ -24877,7 +24877,7 @@
     #_protected
     (§ method #_"void" (§ fn startDownload) [#_"int" (§ name blocks)])
     (§ block
-        (§ expr log.info(§ pars "Downloading block chain of size " + blocks + ". " + (§ expr 1000 < blocks ? "This may take a while." :else "")))
+        (§ expr log.info(§ pars "Downloading block chain of size " + blocks + ". " + (§ quest (§ expr 1000 < blocks) ? (§ expr "This may take a while.") :else (§ expr ""))))
     )
 
     ;;;
@@ -25214,7 +25214,7 @@
             (§ throw (§ new #_"IllegalArgumentException" (§ pars "Most significant bit is reserved and shouldn't be set: " + childNumber)))
         )
 
-        (§ ass (§ name i) (§ expr isHardened ? (§ expr childNumber | HARDENED_BIT) :else childNumber))
+        (§ ass (§ name i) (§ quest isHardened ? (§ expr childNumber | HARDENED_BIT) :else (§ expr childNumber)))
     )
 
     #_public
@@ -25261,7 +25261,7 @@
     #_public
     (§ method #_"String" (§ fn toString) [])
     (§ block
-        (§ return (§ expr String.format(§ pars Locale.US, "%d%s", num(§ pars ), isHardened(§ pars ) ? "H" :else "")))
+        (§ return (§ expr String.format(§ pars Locale.US, "%d%s", num(§ pars ), (§ quest (§ expr isHardened(§ pars )) ? (§ expr "H") :else (§ expr "")))))
     )
 
     #_override
@@ -25276,7 +25276,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ return (§ expr i == (§ expr (§ cast ChildNumber)o).i))
+        (§ return (§ expr i == (§ expr (§ cast #_"ChildNumber" o)).i))
     )
 
     #_override
@@ -25376,7 +25376,7 @@
     #_public
     (§ method #_"DeterministicKey" (§ fn get) [#_"List<ChildNumber>" (§ name path), #_"boolean" (§ name relativePath), #_"boolean" (§ name create)])
     (§ block
-        (§ var #_"ImmutableList<ChildNumber>" (§ name absolutePath) (§ expr relativePath ? ImmutableList.<ChildNumber>builder(§ pars ).addAll(§ pars rootPath).addAll(§ pars path).build(§ pars ) :else ImmutableList.copyOf(§ pars path)))
+        (§ var #_"ImmutableList<ChildNumber>" (§ name absolutePath) (§ quest relativePath ? (§ dot ImmutableList.<ChildNumber>builder(§ pars ).addAll(§ pars rootPath).addAll(§ pars path).build(§ pars )) :else (§ expr ImmutableList.copyOf(§ pars path))))
         (§ if (§ expr (§ not keys.containsKey(§ pars absolutePath))))
         (§ block
             (§ if (§ expr (§ not create)))
@@ -25423,7 +25423,7 @@
     (§ method #_"ChildNumber" (§ fn getNextChildNumberToDerive) [#_"ImmutableList<ChildNumber>" (§ name path), #_"boolean" (§ name privateDerivation)])
     (§ block
         (§ var #_"ChildNumber" (§ name lastChildNumber) (§ expr lastChildNumbers.get(§ pars path)))
-        (§ var #_"ChildNumber" (§ name nextChildNumber) (§ new #_"ChildNumber" (§ pars lastChildNumber != nil ? lastChildNumber.num(§ pars ) + 1 :else 0, privateDerivation)))
+        (§ var #_"ChildNumber" (§ name nextChildNumber) (§ new #_"ChildNumber" (§ pars (§ quest (§ expr lastChildNumber != nil) ? (§ expr lastChildNumber.num(§ pars ) + 1) :else 0), privateDerivation)))
         (§ expr lastChildNumbers.put(§ pars path, nextChildNumber))
         (§ return (§ expr nextChildNumber))
     )
@@ -25434,7 +25434,7 @@
         #_final
         (§ var #_"ChildNumber" (§ name cn) (§ expr lastChildNumbers.get(§ pars path)))
         ;; Children start with zero based childnumbers.
-        (§ return (§ quest (§ expr cn == nil) ? 0 :else 1 + cn.num(§ pars )))
+        (§ return (§ quest (§ expr cn != nil) ? (§ expr 1 + cn.num(§ pars )) :else 0))
     )
 
     ;;;
@@ -25494,14 +25494,14 @@
     #_public
     #_static
     #_final
-    (§ field #_"Comparator<ECKey>" (§ name CHILDNUM_ORDER) (§ new Comparator<ECKey>(§ pars )
+    (§ field #_"Comparator<ECKey>" (§ name CHILDNUM_ORDER) (§ new #_"Comparator<ECKey>" (§ pars )
         (§ anon
             #_override
             #_public
             (§ method #_"int" (§ fn compare) [#_"ECKey" (§ name k1), #_"ECKey" (§ name k2)])
             (§ block
-                (§ var #_"ChildNumber" (§ name cn1) (§ expr (§ expr (§ cast DeterministicKey)k1).getChildNumber(§ pars )))
-                (§ var #_"ChildNumber" (§ name cn2) (§ expr (§ expr (§ cast DeterministicKey)k2).getChildNumber(§ pars )))
+                (§ var #_"ChildNumber" (§ name cn1) (§ expr (§ expr (§ cast #_"DeterministicKey" k1)).getChildNumber(§ pars )))
+                (§ var #_"ChildNumber" (§ name cn2) (§ expr (§ expr (§ cast #_"DeterministicKey" k2)).getChildNumber(§ pars )))
                 (§ return (§ expr cn1.compareTo(§ pars cn2)))
             )
         )))
@@ -25534,8 +25534,8 @@
         (§ ass (§ name this.parent) (§ expr parent))
         (§ ass (§ name this.childNumberPath) (§ expr Preconditions.checkNotNull(§ pars childNumberPath)))
         (§ ass (§ name this.chainCode) (§ expr Arrays.copyOf(§ pars chainCode, chainCode.length)))
-        (§ ass this.depth = (§ expr parent != nil) ? parent.depth + 1 :else 0)
-        (§ ass this.parentFingerprint = (§ expr parent != nil) ? parent.getFingerprint(§ pars ) :else 0)
+        (§ ass this.depth = (§ quest (§ expr parent != nil) ? (§ expr parent.depth + 1) :else 0))
+        (§ ass this.parentFingerprint = (§ quest (§ expr parent != nil) ? (§ expr parent.getFingerprint(§ pars )) :else 0))
     )
 
     #_public
@@ -25555,8 +25555,8 @@
         (§ ass (§ name this.parent) (§ expr parent))
         (§ ass (§ name this.childNumberPath) (§ expr Preconditions.checkNotNull(§ pars childNumberPath)))
         (§ ass (§ name this.chainCode) (§ expr Arrays.copyOf(§ pars chainCode, chainCode.length)))
-        (§ ass this.depth = (§ expr parent != nil) ? parent.depth + 1 :else 0)
-        (§ ass this.parentFingerprint = (§ expr parent != nil) ? parent.getFingerprint(§ pars ) :else 0)
+        (§ ass this.depth = (§ quest (§ expr parent != nil) ? (§ expr parent.depth + 1) :else 0))
+        (§ ass this.parentFingerprint = (§ quest (§ expr parent != nil) ? (§ expr parent.getFingerprint(§ pars )) :else 0))
     )
 
     ;;; Constructs a key from its components.  This is not normally something you should use. ;;
@@ -25676,7 +25676,7 @@
     #_public
     (§ method #_"ChildNumber" (§ fn getChildNumber) [])
     (§ block
-        (§ return (§ quest (§ expr childNumberPath.size(§ pars ) == 0) ? ChildNumber.ZERO :else childNumberPath.get(§ pars childNumberPath.size(§ pars ) - 1)))
+        (§ return (§ quest (§ expr childNumberPath.size(§ pars ) == 0) ? (§ expr ChildNumber.ZERO) :else (§ expr childNumberPath.get(§ pars childNumberPath.size(§ pars ) - 1))))
     )
 
     ;;;
@@ -25745,7 +25745,7 @@
     #_public
     (§ method #_"DeterministicKey" (§ fn dropPrivateBytes) [])
     (§ block
-        (§ return (§ expr isPubKeyOnly(§ pars ) ? this :else new DeterministicKey(§ pars getPath(§ pars ), getChainCode(§ pars ), pub, nil, parent)))
+        (§ return (§ quest (§ expr isPubKeyOnly(§ pars )) ? (§ expr this) :else (§ expr new DeterministicKey(§ pars getPath(§ pars ), getChainCode(§ pars ), pub, nil, parent))))
     )
 
     ;;;
@@ -25831,7 +25831,7 @@
     #_public
     (§ method #_"byte[]" (§ fn getSecretBytes) [])
     (§ block
-        (§ return (§ expr priv != nil) ? getPrivKeyBytes(§ pars ) :else nil)
+        (§ return (§ quest (§ expr priv != nil) ? (§ expr getPrivKeyBytes(§ pars )) :else (§ expr nil)))
     )
 
     ;;;
@@ -25923,7 +25923,7 @@
     (§ method #_"DeterministicKey" (§ fn decrypt) [#_"KeyParameter" (§ name aesKey)])
         (§ throws #_"KeyCrypterException")
     (§ block
-        (§ return (§ cast DeterministicKey)super.decrypt(§ pars aesKey))
+        (§ return (§ cast #_"DeterministicKey" (§ expr super.decrypt(§ pars aesKey))))
     )
 
     ;; For when a key is encrypted, either decrypt our encrypted private key bytes, or work up the tree asking parents
@@ -26048,12 +26048,12 @@
     (§ method #_"byte[]" (§ fn serialize) [#_"NetworkParameters" (§ name params), #_"boolean" (§ name pub)])
     (§ block
         (§ var #_"ByteBuffer" (§ name ser) (§ expr ByteBuffer.allocate(§ pars 78)))
-        (§ expr ser.putInt(§ pars pub ? params.getBip32HeaderPub(§ pars ) :else params.getBip32HeaderPriv(§ pars )))
-        (§ expr ser.put(§ pars (§ cast byte)getDepth(§ pars )))
+        (§ expr ser.putInt(§ pars (§ quest pub ? (§ expr params.getBip32HeaderPub(§ pars )) :else (§ expr params.getBip32HeaderPriv(§ pars )))))
+        (§ expr ser.put(§ pars (§ cast #_"byte" (§ expr getDepth(§ pars )))))
         (§ expr ser.putInt(§ pars getParentFingerprint(§ pars )))
         (§ expr ser.putInt(§ pars getChildNumber(§ pars ).i(§ pars )))
         (§ expr ser.put(§ pars getChainCode(§ pars )))
-        (§ expr ser.put(§ pars pub ? getPubKey(§ pars ) :else getPrivKeyBytes33(§ pars )))
+        (§ expr ser.put(§ pars (§ quest pub ? (§ expr getPubKey(§ pars )) :else (§ expr getPrivKeyBytes33(§ pars )))))
         (§ expr Preconditions.checkState(§ pars ser.position(§ pars ) == 78))
         (§ return (§ expr ser.array(§ pars )))
     )
@@ -26228,7 +26228,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"DeterministicKey" (§ name other) (§ expr (§ cast DeterministicKey)o))
+        (§ var #_"DeterministicKey" (§ name other) (§ expr (§ cast #_"DeterministicKey" o)))
         (§ return (§ expr super.equals(§ pars other) && Arrays.equals(§ pars this.chainCode, other.chainCode) && Objects.equal(§ pars this.childNumberPath, other.childNumberPath)))
     )
 
@@ -26341,7 +26341,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"EncryptedData" (§ name other) (§ expr (§ cast EncryptedData)o))
+        (§ var #_"EncryptedData" (§ name other) (§ expr (§ cast #_"EncryptedData" o)))
         (§ return (§ expr Arrays.equals(§ pars encryptedBytes, other.encryptedBytes) && Arrays.equals(§ pars initialisationVector, other.initialisationVector)))
     )
 
@@ -26443,10 +26443,10 @@
 
         (§ var #_"byte[]" (§ name il) (§ expr Arrays.copyOfRange(§ pars i, 0, 32)))
         (§ var #_"byte[]" (§ name ir) (§ expr Arrays.copyOfRange(§ pars i, 32, 64)))
-        (§ expr Arrays.fill(§ pars i, (§ cast byte)0))
+        (§ expr Arrays.fill(§ pars i, (§ cast #_"byte" 0)))
         (§ var #_"DeterministicKey" (§ name masterPrivKey) (§ expr createMasterPrivKeyFromBytes(§ pars il, ir)))
-        (§ expr Arrays.fill(§ pars il, (§ cast byte)0))
-        (§ expr Arrays.fill(§ pars ir, (§ cast byte)0))
+        (§ expr Arrays.fill(§ pars il, (§ cast #_"byte" 0)))
+        (§ expr Arrays.fill(§ pars ir, (§ cast #_"byte" 0)))
 
         ;; Child deterministic keys will chain up to their parents to find the keys.
         (§ expr masterPrivKey.setCreationTimeSeconds(§ pars Utils.currentTimeSeconds(§ pars )))
@@ -26545,7 +26545,7 @@
         (§ expr Preconditions.checkState(§ pars parentPublicKey.length == 33, "Parent pubkey must be 33 bytes, but is " + parentPublicKey.length))
 
         (§ var #_"ByteBuffer" (§ name data) (§ expr ByteBuffer.allocate(§ pars 37)))
-        (§ expr data.put(§ pars childNumber.isHardened(§ pars ) ? parent.getPrivKeyBytes33(§ pars ) :else parentPublicKey))
+        (§ expr data.put(§ pars (§ quest (§ expr childNumber.isHardened(§ pars )) ? (§ expr parent.getPrivKeyBytes33(§ pars )) :else (§ expr parentPublicKey))))
         (§ expr data.putInt(§ pars childNumber.i(§ pars )))
 
         (§ var #_"byte[]" (§ name i) (§ expr HDUtils.hmacSha512(§ pars parent.getChainCode(§ pars ), data.array(§ pars ))))
@@ -26767,7 +26767,7 @@
     (§ method #_"List<ChildNumber>" (§ fn parsePath) [#_non-nil #_"String" (§ name path)])
     (§ block
         (§ var #_"String[]" (§ name parsedNodes) (§ expr path.replace(§ pars "M", "").split(§ pars "/")))
-        (§ var #_"List<ChildNumber>" (§ name nodes) (§ new ArrayList<>(§ pars )))
+        (§ var #_"List<ChildNumber>" (§ name nodes) (§ new #_"ArrayList<>" (§ pars )))
 
         (§ for (§ var #_"String" (§ name n)) :for (§ expr parsedNodes))
         (§ block
@@ -27033,7 +27033,7 @@
 
             #_final
             (§ var #_"Stopwatch" (§ name watch) (§ expr Stopwatch.createStarted(§ pars )))
-            (§ var #_"byte[]" (§ name keyBytes) (§ expr SCrypt.scrypt(§ pars passwordBytes, salt, (§ cast int)scryptParameters.getN(§ pars ), scryptParameters.getR(§ pars ), scryptParameters.getP(§ pars ), KEY_LENGTH)))
+            (§ var #_"byte[]" (§ name keyBytes) (§ expr SCrypt.scrypt(§ pars passwordBytes, salt, (§ cast #_"int" (§ expr scryptParameters.getN(§ pars ))), scryptParameters.getR(§ pars ), scryptParameters.getP(§ pars ), KEY_LENGTH)))
             (§ expr watch.stop(§ pars ))
             (§ expr log.info(§ pars "Deriving key took {} for {} scrypt iterations.", watch, scryptParameters.getN(§ pars )))
             (§ return (§ new #_"KeyParameter" (§ pars keyBytes)))
@@ -27047,7 +27047,7 @@
             ;; Zero the password bytes.
             (§ if (§ expr passwordBytes != nil))
             (§ block
-                (§ expr java.util.Arrays.fill(§ pars passwordBytes, (§ cast byte)0))
+                (§ expr java.util.Arrays.fill(§ pars passwordBytes, (§ cast #_"byte" 0)))
             )
         )
     )
@@ -27142,8 +27142,8 @@
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < charSequence.length(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ var #_"int" (§ name bytePosition) (§ expr i << 1))
-            (§ ass byteArray[bytePosition] = (§ cast byte)(§ expr (§ expr charSequence.charAt(§ pars i) & 0xff00) >> 8))
-            (§ ass byteArray[bytePosition + 1] = (§ cast byte)(§ expr charSequence.charAt(§ pars i) & 0x00ff))
+            (§ ass byteArray[bytePosition] = (§ cast #_"byte" (§ expr (§ expr charSequence.charAt(§ pars i) & 0xff00) >> 8)))
+            (§ ass byteArray[bytePosition + 1] = (§ cast #_"byte" (§ expr charSequence.charAt(§ pars i) & 0x00ff)))
         )
         (§ return (§ expr byteArray))
     )
@@ -27191,7 +27191,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ return (§ expr Objects.equal(§ pars scryptParameters, (§ expr (§ cast KeyCrypterScrypt)o).scryptParameters)))
+        (§ return (§ expr Objects.equal(§ pars scryptParameters, (§ expr (§ cast #_"KeyCrypterScrypt" o)).scryptParameters)))
     )
 )
 
@@ -27449,7 +27449,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ return (§ expr Arrays.equals(§ pars getCanonicalEncoding(§ pars ), (§ expr (§ cast LazyECPoint)o).getCanonicalEncoding(§ pars ))))
+        (§ return (§ expr Arrays.equals(§ pars getCanonicalEncoding(§ pars ), (§ expr (§ cast #_"LazyECPoint" o)).getCanonicalEncoding(§ pars ))))
     )
 
     #_override
@@ -27677,7 +27677,7 @@
         (§ throws #_"IOException", #_"IllegalArgumentException")
     (§ block
         (§ var #_"BufferedReader" (§ name br) (§ new #_"BufferedReader" (§ pars (§ new #_"InputStreamReader" (§ pars wordstream, "UTF-8")))))
-        (§ ass (§ name this.wordList) (§ new ArrayList<>(§ pars 2048)))
+        (§ ass (§ name this.wordList) (§ new #_"ArrayList<>" (§ pars 2048)))
         (§ var #_"MessageDigest" (§ name md) (§ expr Sha256Hash.newDigest(§ pars )))
         (§ var #_"String" (§ name word))
         (§ while (§ expr (§ ass (§ name word) (§ expr br.readLine(§ pars ))) != nil))
@@ -27839,7 +27839,7 @@
         ;; Next we take these concatenated bits and split them into groups of 11 bits.  Each group encodes number from 0-2047
         ;; which is a position in a wordlist.  We convert numbers into words and use joined words as mnemonic sentence.
 
-        (§ var #_"ArrayList<String>" (§ name words) (§ new ArrayList<>(§ pars )))
+        (§ var #_"ArrayList<String>" (§ name words) (§ new #_"ArrayList<>" (§ pars )))
         (§ var #_"int" (§ name nwords) (§ expr concatBits.length / 11))
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < nwords) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
@@ -27982,7 +27982,7 @@
                 (§ throw (§ new #_"IllegalArgumentException" (§ pars "derived key too long")))
             )
 
-            (§ var #_"int" (§ name l) (§ expr (§ cast int)Math.ceil(§ pars (§ cast double)dkLen / (§ cast double)hLen)))
+            (§ var #_"int" (§ name l) (§ expr (§ cast #_"int" (§ expr Math.ceil(§ pars (§ cast #_"double" dkLen) / (§ cast #_"double" hLen))))))
          ;; int r = dkLen - (l - 1) * hLen;
 
             (§ for (§ var #_"int" (§ name i) (§ expr 1)) :for (§ expr i <= l) :for (§ ass (§ name i) (§ expr i + 1)))
@@ -28036,7 +28036,7 @@
 
                 (§ for (§ var #_"int" (§ name k) (§ expr 0)) :for (§ expr k < U_XOR.length) :for (§ ass (§ name k) (§ expr k + 1)))
                 (§ block
-                    (§ ass U_XOR[k] = (§ cast byte)(§ expr U_XOR[k] :xor baU[k]))
+                    (§ ass U_XOR[k] = (§ cast #_"byte" (§ expr U_XOR[k] :xor baU[k])))
                 )
 
                 (§ ass U_LAST = baU)
@@ -28710,7 +28710,7 @@
             )
             (§ else )
             (§ block
-                (§ expr vPeerGroup.addPeerDiscovery(§ pars (§ expr discovery != nil) ? discovery :else new DnsDiscovery(§ pars params)))
+                (§ expr vPeerGroup.addPeerDiscovery(§ pars (§ quest (§ expr discovery != nil) ? (§ expr discovery) :else (§ expr new DnsDiscovery(§ pars params)))))
             )
             (§ expr vChain.addWallet(§ pars vWallet))
             (§ expr vPeerGroup.addWallet(§ pars vWallet))
@@ -28737,7 +28737,7 @@
                     (§ method #_"void" (§ fn onSuccess) [#_nilable #_"Object" (§ name result)])
                     (§ block
                         #_final
-                        (§ var #_"DownloadProgressTracker" (§ name l) (§ quest (§ expr downloadListener != nil) ? downloadListener :else new DownloadProgressTracker(§ pars )))
+                        (§ var #_"DownloadProgressTracker" (§ name l) (§ quest (§ expr downloadListener != nil) ? (§ expr downloadListener) :else (§ expr new DownloadProgressTracker(§ pars ))))
                         (§ expr vPeerGroup.startBlockChainDownload(§ pars l))
                     )
 
@@ -28838,7 +28838,7 @@
         (§ block
             (§ ass (§ name kcg) (§ new #_"KeyChainGroup" (§ pars params)))
         )
-        (§ return (§ quest (§ expr walletFactory != nil) ? walletFactory.create(§ pars params, kcg) :else new Wallet(§ pars params, kcg))) ;; default
+        (§ return (§ quest (§ expr walletFactory != nil) ? (§ expr walletFactory.create(§ pars params, kcg)) :else (§ expr new Wallet(§ pars params, kcg)))) ;; default
     )
 
     #_private
@@ -29279,7 +29279,7 @@
     (§ field #_"SocketFactory" (§ name socketFactory))
     #_private
     #_final
-    (§ field #_"Set<BlockingClient>" (§ name clients) (§ expr Collections.synchronizedSet(§ pars (§ new HashSet<BlockingClient>(§ pars )))))
+    (§ field #_"Set<BlockingClient>" (§ name clients) (§ expr Collections.synchronizedSet(§ pars (§ new #_"HashSet<BlockingClient>" (§ pars )))))
 
     #_private
     (§ field #_"int" (§ name connectTimeoutMillis) (§ expr 1000))
@@ -29466,7 +29466,7 @@
     #_guarded-by(§ opt "lock")
     #_private
     #_final
-    (§ field #_"LinkedList<ByteBuffer>" (§ name bytesToWrite) (§ new LinkedList<>(§ pars )))
+    (§ field #_"LinkedList<ByteBuffer>" (§ name bytesToWrite) (§ new #_"LinkedList<>" (§ pars )))
 
     #_private
     (§ field #_"Set<ConnectionHandler>" (§ name connectedHandlers))
@@ -29475,7 +29475,7 @@
     (§ constructor #_"ConnectionHandler" [#_"StreamConnectionFactory" (§ name connectionFactory), #_"SelectionKey" (§ name key)])
         (§ throws #_"IOException")
     (§ block
-        (§ this (§ pars connectionFactory.getNewConnection(§ pars (§ expr (§ cast SocketChannel)key.channel(§ pars )).socket(§ pars ).getInetAddress(§ pars ), (§ expr (§ cast SocketChannel)key.channel(§ pars )).socket(§ pars ).getPort(§ pars )), key))
+        (§ this (§ pars connectionFactory.getNewConnection(§ pars (§ expr (§ cast #_"SocketChannel" (§ expr key.channel(§ pars )))).socket(§ pars ).getInetAddress(§ pars ), (§ expr (§ cast #_"SocketChannel" (§ expr key.channel(§ pars )))).socket(§ pars ).getPort(§ pars )), key))
         (§ if (§ expr connection == nil))
         (§ block
             (§ throw (§ new #_"IOException" (§ pars "Parser factory.getNewConnection returned nil")))
@@ -29486,7 +29486,7 @@
     (§ constructor #_"ConnectionHandler" [#_nilable #_"StreamConnection" (§ name connection), #_"SelectionKey" (§ name key)])
     (§ block
         (§ ass (§ name this.key) (§ expr key))
-        (§ ass (§ name this.channel) (§ expr Preconditions.checkNotNull(§ pars (§ expr (§ cast SocketChannel)key.channel(§ pars )))))
+        (§ ass (§ name this.channel) (§ expr Preconditions.checkNotNull(§ pars (§ expr (§ cast #_"SocketChannel" (§ expr key.channel(§ pars )))))))
         (§ if (§ expr connection == nil))
         (§ block
             (§ ass (§ name readBuff) (§ expr nil))
@@ -29663,7 +29663,7 @@
     #_static
     (§ method #_"void" (§ fn handleKey) [#_"SelectionKey" (§ name key)])
     (§ block
-        (§ var #_"ConnectionHandler" (§ name handler) (§ expr (§ cast ConnectionHandler)key.attachment(§ pars )))
+        (§ var #_"ConnectionHandler" (§ name handler) (§ expr (§ cast #_"ConnectionHandler" (§ expr key.attachment(§ pars )))))
         (§ try )
         (§ block
             (§ if (§ expr handler == nil))
@@ -29707,7 +29707,7 @@
             ;; This can happen e.g. if the channel closes while the thread is about to get killed
             ;; (ClosedByInterruptException), or if handler.connection.receiveBytes throws something.
             (§ var #_"Throwable" (§ name t) (§ expr Throwables.getRootCause(§ pars e)))
-            (§ expr log.warn(§ pars "Error handling SelectionKey: {} {}", t.getClass(§ pars ).getName(§ pars ), (§ expr t.getMessage(§ pars ) != nil) ? t.getMessage(§ pars ) :else "", e))
+            (§ expr log.warn(§ pars "Error handling SelectionKey: {} {}", t.getClass(§ pars ).getName(§ pars ), (§ quest (§ expr t.getMessage(§ pars ) != nil) ? (§ expr t.getMessage(§ pars )) :else (§ expr "")), e))
             (§ expr handler.closeConnection(§ pars ))
         )
     )
@@ -29735,7 +29735,7 @@
     ;; We use a constant tweak to avoid giving up privacy when we regenerate our filter with new keys.
     #_private
     #_final
-    (§ field #_"long" (§ name bloomFilterTweak) (§ expr (§ cast long)(§ expr Math.random(§ pars ) * Long.MAX_VALUE)))
+    (§ field #_"long" (§ name bloomFilterTweak) (§ expr (§ cast #_"long" (§ expr Math.random(§ pars ) * Long.MAX_VALUE))))
 
     #_private
     #_volatile
@@ -29793,8 +29793,8 @@
                 ;; as much as possible as that results in a loss of privacy.
                 ;; The constant 100 here is somewhat arbitrary, but makes sense for small to medium wallets -
                 ;; it will likely mean we never need to create a filter with different parameters.
-                (§ ass lastBloomFilterElementCount = (§ expr lastBloomFilterElementCount < elements) ? elements + 100 :else lastBloomFilterElementCount)
-                (§ var #_"BloomFilter.BloomUpdate" (§ name bloomFlags) (§ expr requiresUpdateAll ? BloomFilter.BloomUpdate.UPDATE_ALL :else BloomFilter.BloomUpdate.UPDATE_P2PUBKEY_ONLY))
+                (§ ass lastBloomFilterElementCount = (§ quest (§ expr lastBloomFilterElementCount < elements) ? (§ expr elements + 100) :else (§ expr lastBloomFilterElementCount)))
+                (§ var #_"BloomFilter.BloomUpdate" (§ name bloomFlags) (§ quest requiresUpdateAll ? (§ expr BloomFilter.BloomUpdate.UPDATE_ALL) :else (§ expr BloomFilter.BloomUpdate.UPDATE_P2PUBKEY_ONLY)))
                 (§ var #_"double" (§ name fpRate) (§ expr vBloomFilterFPRate))
                 (§ var #_"BloomFilter" (§ name filter) (§ new #_"BloomFilter" (§ pars lastBloomFilterElementCount, fpRate, bloomFilterTweak, bloomFlags)))
                 (§ for (§ var #_"PeerFilterProvider" (§ name p)) :for (§ expr providers))
@@ -30059,12 +30059,12 @@
         )
     )
     #_final
-    (§ field #_"Queue<PendingConnect>" (§ name newConnectionChannels) (§ new LinkedBlockingQueue<>(§ pars )))
+    (§ field #_"Queue<PendingConnect>" (§ name newConnectionChannels) (§ new #_"LinkedBlockingQueue<>" (§ pars )))
 
     ;; Added to/removed from by the individual ConnectionHandler's, thus must by synchronized on its own.
     #_private
     #_final
-    (§ field #_"Set<ConnectionHandler>" (§ name connectedHandlers) (§ expr Collections.synchronizedSet(§ pars (§ new HashSet<ConnectionHandler>(§ pars )))))
+    (§ field #_"Set<ConnectionHandler>" (§ name connectedHandlers) (§ expr Collections.synchronizedSet(§ pars (§ new #_"HashSet<ConnectionHandler>" (§ pars )))))
 
     ;; Handle a SelectionKey which was selected.
     #_private
@@ -30076,9 +30076,9 @@
         (§ if (§ expr key.isValid(§ pars ) && key.isConnectable(§ pars )))
         (§ block
             ;; Create a ConnectionHandler and hook everything together.
-            (§ var #_"PendingConnect" (§ name data) (§ expr (§ cast PendingConnect)key.attachment(§ pars )))
+            (§ var #_"PendingConnect" (§ name data) (§ expr (§ cast #_"PendingConnect" (§ expr key.attachment(§ pars )))))
             (§ var #_"StreamConnection" (§ name connection) (§ expr data.connection))
-            (§ var #_"SocketChannel" (§ name sc) (§ expr (§ cast SocketChannel)key.channel(§ pars )))
+            (§ var #_"SocketChannel" (§ name sc) (§ expr (§ cast #_"SocketChannel" (§ expr key.channel(§ pars )))))
             (§ var #_"ConnectionHandler" (§ name handler) (§ new #_"ConnectionHandler" (§ pars connection, key, connectedHandlers)))
             (§ try )
             (§ block
@@ -30509,7 +30509,7 @@
 
     #_testing
     #_final
-    (§ field #_"AtomicReference<MessageWriteTarget>" (§ name writeTarget) (§ new AtomicReference<>(§ pars )))
+    (§ field #_"AtomicReference<MessageWriteTarget>" (§ name writeTarget) (§ new #_"AtomicReference<>" (§ pars )))
 
     ;;;
      ; Creates a new protobuf handler.
@@ -30573,7 +30573,7 @@
     (§ method #_"void" (§ fn deserializeMessage) [#_"ByteBuffer" (§ name buff)])
         (§ throws #_"Exception")
     (§ block
-        (§ var #_"MessageType" (§ name msg) (§ expr (§ cast MessageType)prototype.newBuilderForType(§ pars ).mergeFrom(§ pars ByteString.copyFrom(§ pars buff)).build(§ pars )))
+        (§ var #_"MessageType" (§ name msg) (§ expr (§ cast #_"MessageType" (§ dot prototype.newBuilderForType(§ pars ).mergeFrom(§ pars ByteString.copyFrom(§ pars buff)).build(§ pars )))))
         (§ expr resetTimeout(§ pars ))
         (§ expr handler.messageReceived(§ pars this, msg))
     )
@@ -30825,7 +30825,7 @@
     #_static
     (§ method #_"List<PeerDiscovery>" (§ fn buildDiscoveries) [#_"NetworkParameters" (§ name params), #_"String[]" (§ name seeds)])
     (§ block
-        (§ var #_"List<PeerDiscovery>" (§ name discoveries) (§ new ArrayList<>(§ pars )))
+        (§ var #_"List<PeerDiscovery>" (§ name discoveries) (§ new #_"ArrayList<>" (§ pars )))
         (§ if (§ expr seeds != nil))
         (§ block
             (§ for (§ var #_"String" (§ name seed)) :for (§ expr seeds))
@@ -31242,10 +31242,10 @@
         (§ throws #_"UnknownHostException")
     (§ block
         (§ var #_"byte[]" (§ name v4addr) (§ new byte[4]))
-        (§ ass v4addr[0] = (§ cast byte)(§ expr 0xff & seed))
-        (§ ass v4addr[1] = (§ cast byte)(§ expr 0xff & (§ expr seed >> 8)))
-        (§ ass v4addr[2] = (§ cast byte)(§ expr 0xff & (§ expr seed >> 16)))
-        (§ ass v4addr[3] = (§ cast byte)(§ expr 0xff & (§ expr seed >> 24)))
+        (§ ass v4addr[0] = (§ cast #_"byte" (§ expr 0xff & seed)))
+        (§ ass v4addr[1] = (§ cast #_"byte" (§ expr 0xff & (§ expr seed >> 8))))
+        (§ ass v4addr[2] = (§ cast #_"byte" (§ expr 0xff & (§ expr seed >> 16))))
+        (§ ass v4addr[3] = (§ cast #_"byte" (§ expr 0xff & (§ expr seed >> 24))))
         (§ return (§ expr InetAddress.getByAddress(§ pars v4addr)))
     )
 
@@ -31365,7 +31365,7 @@
         )
 
         (§ var #_"Block" (§ name blockIntervalAgo) (§ expr cursor.getHeader(§ pars )))
-        (§ var #_"int" (§ name timespan) (§ expr (§ cast int)(§ expr prev.getTimeSeconds(§ pars ) - blockIntervalAgo.getTimeSeconds(§ pars ))))
+        (§ var #_"int" (§ name timespan) (§ expr (§ cast #_"int" (§ expr prev.getTimeSeconds(§ pars ) - blockIntervalAgo.getTimeSeconds(§ pars )))))
         ;; Limit the adjustment step.
         #_final
         (§ var #_"int" (§ name targetTimespan) (§ expr this.getTargetTimespan(§ pars )))
@@ -31388,7 +31388,7 @@
             (§ ass (§ name newTarget) (§ expr this.getMaxTarget(§ pars )))
         )
 
-        (§ var #_"int" (§ name accuracyBytes) (§ expr (§ cast int)(§ expr nextBlock.getDifficultyTarget(§ pars ) >>> 24) - 3))
+        (§ var #_"int" (§ name accuracyBytes) (§ expr (§ cast #_"int" (§ expr nextBlock.getDifficultyTarget(§ pars ) >>> 24)) - 3))
         (§ var #_"long" (§ name receivedTargetCompact) (§ expr nextBlock.getDifficultyTarget(§ pars )))
 
         ;; The calculated difficulty is to a higher precision than received, so reduce here.
@@ -31984,7 +31984,7 @@
     ;; Used from ScriptBuilder.
     (§ constructor #_"Script" [#_"List<ScriptChunk>" (§ name chunks)])
     (§ block
-        (§ ass (§ name this.chunks) (§ expr Collections.unmodifiableList(§ pars (§ new ArrayList<>(§ pars chunks)))))
+        (§ ass (§ name this.chunks) (§ expr Collections.unmodifiableList(§ pars (§ new #_"ArrayList<>" (§ pars chunks)))))
         (§ ass (§ name creationTimeSeconds) (§ expr Utils.currentTimeSeconds(§ pars )))
     )
 
@@ -32090,7 +32090,7 @@
     (§ method #_"void" (§ fn parse) [#_"byte[]" (§ name program)])
         (§ throws #_"ScriptException")
     (§ block
-        (§ ass (§ name chunks) (§ new ArrayList<>(§ pars 5))) ;; Common size.
+        (§ ass (§ name chunks) (§ new #_"ArrayList<>" (§ pars 5))) ;; Common size.
         (§ var #_"ByteArrayInputStream" (§ name bis) (§ new #_"ByteArrayInputStream" (§ pars program)))
         (§ var #_"int" (§ name initialSize) (§ expr bis.available(§ pars )))
         (§ while (§ expr 0 < bis.available(§ pars )))
@@ -32129,7 +32129,7 @@
                 (§ block
                     (§ throw (§ new #_"ScriptException" (§ pars ScriptError.SCRIPT_ERR_UNKNOWN_ERROR, "Unexpected end of script")))
                 )
-                (§ ass dataToRead = (§ expr (§ expr (§ cast long)bis.read(§ pars )) | (§ expr (§ expr (§ cast long)bis.read(§ pars )) << 8) | (§ expr (§ expr (§ cast long)bis.read(§ pars )) << 16) | (§ expr (§ expr (§ cast long)bis.read(§ pars )) << 24)))
+                (§ ass dataToRead = (§ expr (§ expr (§ cast #_"long" (§ expr bis.read(§ pars )))) | (§ expr (§ expr (§ cast #_"long" (§ expr bis.read(§ pars )))) << 8) | (§ expr (§ expr (§ cast #_"long" (§ expr bis.read(§ pars )))) << 16) | (§ expr (§ expr (§ cast #_"long" (§ expr bis.read(§ pars )))) << 24)))
             )
 
             (§ var #_"ScriptChunk" (§ name chunk))
@@ -32144,8 +32144,8 @@
                     (§ throw (§ new #_"ScriptException" (§ pars ScriptError.SCRIPT_ERR_BAD_OPCODE, "Push of data element that is larger than remaining data")))
                 )
 
-                (§ var #_"byte[]" (§ name data) (§ new byte[(§ cast int)dataToRead]))
-                (§ expr Preconditions.checkState(§ pars dataToRead == 0 || bis.read(§ pars data, 0, (§ cast int)dataToRead) == dataToRead))
+                (§ var #_"byte[]" (§ name data) (§ new byte[(§ cast #_"int" dataToRead)]))
+                (§ expr Preconditions.checkState(§ pars dataToRead == 0 || bis.read(§ pars data, 0, (§ cast #_"int" dataToRead)) == dataToRead))
                 (§ ass (§ name chunk) (§ new #_"ScriptChunk" (§ pars opcode, data, startLocationInProgram)))
             )
             ;; Save some memory by eliminating redundant copies of the same chunk objects.
@@ -32771,7 +32771,7 @@
         (§ block
             ;; scriptSig: <sig> <pubkey>
             (§ var #_"int" (§ name uncompressedPubKeySize) (§ expr 65))
-            (§ return (§ expr SIG_SIZE + (§ expr pubKey != nil ? pubKey.getPubKey(§ pars ).length :else uncompressedPubKeySize)))
+            (§ return (§ expr SIG_SIZE + (§ quest (§ expr pubKey != nil) ? (§ expr pubKey.getPubKey(§ pars ).length) :else (§ expr uncompressedPubKeySize))))
         )
         (§ else )
         (§ block
@@ -32948,7 +32948,7 @@
     #_static
     (§ method #_"byte[]" (§ fn removeAllInstancesOfOp) [#_"byte[]" (§ name inputScript), #_"int" (§ name opCode)])
     (§ block
-        (§ return (§ expr removeAllInstancesOf(§ pars inputScript, new byte[] {(§ cast byte)opCode})))
+        (§ return (§ expr removeAllInstancesOf(§ pars inputScript, new byte[] (§ coll (§ cast #_"byte" opCode)))))
     )
 
     #_private
@@ -33043,7 +33043,7 @@
         (§ throws #_"ScriptException")
     (§ block
         #_final
-        (§ var #_"EnumSet<VerifyFlag>" (§ name flags) (§ expr enforceNullDummy ? EnumSet.of(§ pars VerifyFlag.NULLDUMMY) :else EnumSet.noneOf(§ pars (§ klass #_"VerifyFlag"))))
+        (§ var #_"EnumSet<VerifyFlag>" (§ name flags) (§ quest enforceNullDummy ? (§ expr EnumSet.of(§ pars VerifyFlag.NULLDUMMY)) :else (§ expr EnumSet.noneOf(§ pars (§ klass #_"VerifyFlag")))))
 
         (§ expr executeScript(§ pars txContainingThis, index, script, stack, flags))
     )
@@ -33063,8 +33063,8 @@
         (§ var #_"int" (§ name opCount) (§ expr 0))
         (§ var #_"int" (§ name lastCodeSepLocation) (§ expr 0))
 
-        (§ var #_"LinkedList<byte[]>" (§ name altstack) (§ new LinkedList<>(§ pars )))
-        (§ var #_"LinkedList<Boolean>" (§ name ifStack) (§ new LinkedList<>(§ pars )))
+        (§ var #_"LinkedList<byte[]>" (§ name altstack) (§ new #_"LinkedList<>" (§ pars )))
+        (§ var #_"LinkedList<Boolean>" (§ name ifStack) (§ new #_"LinkedList<>" (§ pars )))
 
         (§ for (§ var #_"ScriptChunk" (§ name chunk)) :for (§ expr script.chunks))
         (§ block
@@ -33439,7 +33439,7 @@
                         (§ block
                             (§ throw (§ new #_"ScriptException" (§ pars ScriptError.SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_EQUAL on a stack with size < 2")))
                         )
-                        (§ expr stack.add(§ pars Arrays.equals(§ pars stack.pollLast(§ pars ), stack.pollLast(§ pars )) ? new byte[] (§ coll 1 ) :else new byte[] (§ coll )))
+                        (§ expr stack.add(§ pars (§ quest (§ expr Arrays.equals(§ pars stack.pollLast(§ pars ), stack.pollLast(§ pars ))) ? (§ expr new byte[] (§ coll 1 )) :else (§ expr new byte[] (§ coll )))))
                         (§ break )
                     )
                     (§ case OP_EQUALVERIFY)
@@ -33790,7 +33790,7 @@
                         (§ block
                             (§ throw (§ new #_"IllegalStateException" (§ pars "Script attempted signature check but no tx was provided")))
                         )
-                        (§ expr executeCheckSig(§ pars txContainingThis, (§ cast int)index, script, stack, lastCodeSepLocation, opcode, verifyFlags))
+                        (§ expr executeCheckSig(§ pars txContainingThis, (§ cast #_"int" index), script, stack, lastCodeSepLocation, opcode, verifyFlags))
                         (§ break )
                     )
                     (§ case OP_CHECKMULTISIG)
@@ -33800,7 +33800,7 @@
                         (§ block
                             (§ throw (§ new #_"IllegalStateException" (§ pars "Script attempted signature check but no tx was provided")))
                         )
-                        (§ ass (§ name opCount) (§ expr executeMultiSig(§ pars txContainingThis, (§ cast int)index, script, stack, opCount, lastCodeSepLocation, opcode, verifyFlags)))
+                        (§ ass (§ name opCount) (§ expr executeMultiSig(§ pars txContainingThis, (§ cast #_"int" index), script, stack, opCount, lastCodeSepLocation, opcode, verifyFlags)))
                         (§ break )
                     )
                     (§ case OP_CHECKLOCKTIMEVERIFY)
@@ -33814,7 +33814,7 @@
                             )
                             (§ break )
                         )
-                        (§ expr executeCheckLockTimeVerify(§ pars txContainingThis, (§ cast int)index, stack, verifyFlags))
+                        (§ expr executeCheckLockTimeVerify(§ pars txContainingThis, (§ cast #_"int" index), stack, verifyFlags))
                         (§ break )
                     )
                     (§ case OP_CHECKSEQUENCEVERIFY)
@@ -33828,7 +33828,7 @@
                             )
                             (§ break )
                         )
-                        (§ expr executeCheckSequenceVerify(§ pars txContainingThis, (§ cast int)index, stack, verifyFlags))
+                        (§ expr executeCheckSequenceVerify(§ pars txContainingThis, (§ cast #_"int" index), stack, verifyFlags))
                         (§ break )
                     )
                     (§ case OP_NOP1)
@@ -34032,7 +34032,7 @@
             (§ var #_"TransactionSignature" (§ name sig) (§ expr TransactionSignature.decodeFromBitcoin(§ pars sigBytes, requireCanonical, verifyFlags.contains(§ pars VerifyFlag.LOW_S))))
 
             ;; TODO: Should check hash type is known.
-            (§ var #_"Sha256Hash" (§ name hash) (§ expr txContainingThis.hashForSignature(§ pars index, connectedScript, (§ cast byte)sig.sighashFlags)))
+            (§ var #_"Sha256Hash" (§ name hash) (§ expr txContainingThis.hashForSignature(§ pars index, connectedScript, (§ cast #_"byte" sig.sighashFlags))))
             (§ ass (§ name sigValid) (§ expr ECKey.verify(§ pars hash.getBytes(§ pars ), sig, pubKey)))
         )
         (§ catch #_"Exception" (§ name e))
@@ -34050,7 +34050,7 @@
 
         (§ if (§ expr opcode == OP_CHECKSIG))
         (§ block
-            (§ expr stack.add(§ pars sigValid ? new byte[] (§ coll 1 ) :else new byte[] (§ coll )))
+            (§ expr stack.add(§ pars (§ quest sigValid ? (§ expr new byte[] (§ coll 1 )) :else (§ expr new byte[] (§ coll )))))
         )
         (§ elseif (§ expr opcode == OP_CHECKSIGVERIFY && (§ not sigValid)))
         (§ block
@@ -34086,7 +34086,7 @@
             (§ throw (§ new #_"ScriptException" (§ pars ScriptError.SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + 2")))
         )
 
-        (§ var #_"LinkedList<byte[]>" (§ name pubkeys) (§ new LinkedList<>(§ pars )))
+        (§ var #_"LinkedList<byte[]>" (§ name pubkeys) (§ new #_"LinkedList<>" (§ pars )))
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < pubKeyCount) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ expr pubkeys.add(§ pars stack.pollLast(§ pars )))
@@ -34102,7 +34102,7 @@
             (§ throw (§ new #_"ScriptException" (§ pars ScriptError.SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + num_of_signatures + 3")))
         )
 
-        (§ var #_"LinkedList<byte[]>" (§ name sigs) (§ new LinkedList<>(§ pars )))
+        (§ var #_"LinkedList<byte[]>" (§ name sigs) (§ new #_"LinkedList<>" (§ pars )))
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < sigCount) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ expr sigs.add(§ pars stack.pollLast(§ pars )))
@@ -34134,7 +34134,7 @@
             (§ try )
             (§ block
                 (§ var #_"TransactionSignature" (§ name sig) (§ expr TransactionSignature.decodeFromBitcoin(§ pars sigs.getFirst(§ pars ), requireCanonical)))
-                (§ var #_"Sha256Hash" (§ name hash) (§ expr txContainingThis.hashForSignature(§ pars index, connectedScript, (§ cast byte)sig.sighashFlags)))
+                (§ var #_"Sha256Hash" (§ name hash) (§ expr txContainingThis.hashForSignature(§ pars index, connectedScript, (§ cast #_"byte" sig.sighashFlags))))
                 (§ if (§ expr ECKey.verify(§ pars hash.getBytes(§ pars ), sig, pubKey)))
                 (§ block
                     (§ expr sigs.pollFirst(§ pars ))
@@ -34162,7 +34162,7 @@
 
         (§ if (§ expr opcode == OP_CHECKMULTISIG))
         (§ block
-            (§ expr stack.add(§ pars valid ? new byte[] (§ coll 1 ) :else new byte[] (§ coll )))
+            (§ expr stack.add(§ pars (§ quest valid ? (§ expr new byte[] (§ coll 1 )) :else (§ expr new byte[] (§ coll )))))
         )
         (§ elseif (§ expr opcode == OP_CHECKMULTISIGVERIFY && (§ not valid)))
         (§ block
@@ -34218,13 +34218,13 @@
             (§ throw (§ new #_"ScriptException" (§ pars ScriptError.SCRIPT_ERR_SCRIPT_SIZE, "Script larger than 10,000 bytes")))
         )
 
-        (§ var #_"LinkedList<byte[]>" (§ name stack) (§ new LinkedList<>(§ pars )))
+        (§ var #_"LinkedList<byte[]>" (§ name stack) (§ new #_"LinkedList<>" (§ pars )))
         (§ var #_"LinkedList<byte[]>" (§ name p2shStack) (§ expr nil))
 
         (§ expr executeScript(§ pars txContainingThis, scriptSigIndex, this, stack, verifyFlags))
         (§ if (§ expr verifyFlags.contains(§ pars VerifyFlag.P2SH)))
         (§ block
-            (§ ass (§ name p2shStack) (§ new LinkedList<>(§ pars stack)))
+            (§ ass (§ name p2shStack) (§ new #_"LinkedList<>" (§ pars stack)))
         )
         (§ expr executeScript(§ pars txContainingThis, scriptSigIndex, scriptPubKey, stack, verifyFlags))
 
@@ -34282,7 +34282,7 @@
     #_private
     (§ method #_"byte[]" (§ fn getQuickProgram) [])
     (§ block
-        (§ return (§ quest (§ expr program != nil) ? program :else getProgram(§ pars )))
+        (§ return (§ quest (§ expr program != nil) ? (§ expr program) :else (§ expr getProgram(§ pars ))))
     )
 
     ;;;
@@ -34320,7 +34320,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ return (§ expr Arrays.equals(§ pars getQuickProgram(§ pars ), (§ expr (§ cast Script)o).getQuickProgram(§ pars ))))
+        (§ return (§ expr Arrays.equals(§ pars getQuickProgram(§ pars ), (§ expr (§ cast #_"Script" o)).getQuickProgram(§ pars ))))
     )
 
     #_override
@@ -34361,7 +34361,7 @@
     #_public
     (§ constructor #_"ScriptBuilder" [#_"Script" (§ name template)])
     (§ block
-        (§ ass (§ name chunks) (§ new ArrayList<>(§ pars template.getChunks(§ pars ))))
+        (§ ass (§ name chunks) (§ new #_"ArrayList<>" (§ pars template.getChunks(§ pars ))))
     )
 
     ;;; Adds the given chunk to the end of the program. ;;
@@ -34398,7 +34398,7 @@
     #_public
     (§ method #_"ScriptBuilder" (§ fn data) [#_"byte[]" (§ name data)])
     (§ block
-        (§ return (§ quest (§ expr data.length == 0) ? smallNum(§ pars 0) :else data(§ pars chunks.size(§ pars ), data)))
+        (§ return (§ quest (§ expr data.length == 0) ? (§ expr smallNum(§ pars 0)) :else (§ expr data(§ pars chunks.size(§ pars ), data))))
     )
 
     ;;; Adds a copy of the given byte array as a data element (i.e. PUSHDATA) at the given index in the program. ;;
@@ -34450,7 +34450,7 @@
     #_public
     (§ method #_"ScriptBuilder" (§ fn number) [#_"long" (§ name num)])
     (§ block
-        (§ return (§ quest (§ expr 0 <= num && num <= 16) ? smallNum(§ pars (§ cast int)num) :else bigNum(§ pars num)))
+        (§ return (§ quest (§ expr 0 <= num && num <= 16) ? (§ expr smallNum(§ pars (§ cast #_"int" num))) :else (§ expr bigNum(§ pars num))))
     )
 
     ;;;
@@ -34460,7 +34460,7 @@
     #_public
     (§ method #_"ScriptBuilder" (§ fn number) [#_"int" (§ name index), #_"long" (§ name num)])
     (§ block
-        (§ return (§ quest (§ expr 0 <= num && num <= 16) ? smallNum(§ pars index, (§ cast int)num) :else bigNum(§ pars index, num)))
+        (§ return (§ quest (§ expr 0 <= num && num <= 16) ? (§ expr smallNum(§ pars index, (§ cast #_"int" num))) :else (§ expr bigNum(§ pars index, num))))
     )
 
     ;;;
@@ -34523,14 +34523,14 @@
         )
         (§ else )
         (§ block
-            (§ var #_"Stack<Byte>" (§ name result) (§ new Stack<>(§ pars )))
+            (§ var #_"Stack<Byte>" (§ name result) (§ new #_"Stack<>" (§ pars )))
             #_final
             (§ var #_"boolean" (§ name neg) (§ expr num < 0))
             (§ var #_"long" (§ name absvalue) (§ expr Math.abs(§ pars num)))
 
             (§ while (§ expr absvalue != 0))
             (§ block
-                (§ expr result.push(§ pars (§ cast byte)(§ expr absvalue & 0xff)))
+                (§ expr result.push(§ pars (§ cast #_"byte" (§ expr absvalue & 0xff))))
                 (§ ass (§ name absvalue) (§ expr absvalue >> 8))
             )
 
@@ -34538,14 +34538,14 @@
             (§ block
                 ;; The most significant byte is >= 0x80, so push an extra byte that
                 ;; contains just the sign of the value.
-                (§ expr result.push(§ pars (§ cast byte)(§ quest neg ? 0x80 :else 0)))
+                (§ expr result.push(§ pars (§ cast #_"byte" (§ quest neg ? 0x80 :else 0))))
             )
             (§ elseif (§ expr neg))
             (§ block
                 ;; The most significant byte is < 0x80 and the value is negative,
                 ;; set the sign bit so it is subtracted and interpreted as a
                 ;; negative when converting back to an integral.
-                (§ expr result.push(§ pars (§ cast byte)(§ expr result.pop(§ pars ) | 0x80)))
+                (§ expr result.push(§ pars (§ cast #_"byte" (§ expr result.pop(§ pars ) | 0x80))))
             )
 
             (§ ass (§ name data) (§ new byte[result.size(§ pars )]))
@@ -34601,7 +34601,7 @@
     (§ method #_"Script" (§ fn createInputScript) [#_nilable #_"TransactionSignature" (§ name signature), #_"ECKey" (§ name pubKey)])
     (§ block
         (§ var #_"byte[]" (§ name pubkeyBytes) (§ expr pubKey.getPubKey(§ pars )))
-        (§ var #_"byte[]" (§ name sigBytes) (§ quest (§ expr signature != nil) ? signature.encodeToBitcoin(§ pars ) :else new byte[] (§ coll )))
+        (§ var #_"byte[]" (§ name sigBytes) (§ quest (§ expr signature != nil) ? (§ expr signature.encodeToBitcoin(§ pars )) :else (§ expr new byte[] (§ coll ))))
         (§ return (§ new #_"ScriptBuilder" (§ pars )).data(§ pars sigBytes).data(§ pars pubkeyBytes).build(§ pars ))
     )
 
@@ -34613,7 +34613,7 @@
     #_static
     (§ method #_"Script" (§ fn createInputScript) [#_nilable #_"TransactionSignature" (§ name signature)])
     (§ block
-        (§ var #_"byte[]" (§ name sigBytes) (§ quest (§ expr signature != nil) ? signature.encodeToBitcoin(§ pars ) :else new byte[] (§ coll )))
+        (§ var #_"byte[]" (§ name sigBytes) (§ quest (§ expr signature != nil) ? (§ expr signature.encodeToBitcoin(§ pars )) :else (§ expr new byte[] (§ coll ))))
         (§ return (§ new #_"ScriptBuilder" (§ pars )).data(§ pars sigBytes).build(§ pars ))
     )
 
@@ -34642,7 +34642,7 @@
     #_static
     (§ method #_"Script" (§ fn createMultiSigInputScript) [#_"List<TransactionSignature>" (§ name signatures)])
     (§ block
-        (§ var #_"List<byte[]>" (§ name sigs) (§ new ArrayList<>(§ pars signatures.size(§ pars ))))
+        (§ var #_"List<byte[]>" (§ name sigs) (§ new #_"ArrayList<>" (§ pars signatures.size(§ pars ))))
         (§ for (§ var #_"TransactionSignature" (§ name signature)) :for (§ expr signatures))
         (§ block
             (§ expr sigs.add(§ pars signature.encodeToBitcoin(§ pars )))
@@ -34675,7 +34675,7 @@
     #_static
     (§ method #_"Script" (§ fn createP2SHMultiSigInputScript) [#_nilable #_"List<TransactionSignature>" (§ name signatures), #_"Script" (§ name multisigProgram)])
     (§ block
-        (§ var #_"List<byte[]>" (§ name sigs) (§ new ArrayList<>(§ pars )))
+        (§ var #_"List<byte[]>" (§ name sigs) (§ new #_"ArrayList<>" (§ pars )))
         (§ if (§ expr signatures == nil))
         (§ block
             ;; Create correct number of empty signatures.
@@ -34836,7 +34836,7 @@
     #_static
     (§ method #_"Script" (§ fn createRedeemScript) [#_"int" (§ name threshold), #_"List<ECKey>" (§ name pubkeys)])
     (§ block
-        (§ ass (§ name pubkeys) (§ new ArrayList<>(§ pars pubkeys)))
+        (§ ass (§ name pubkeys) (§ new #_"ArrayList<>" (§ pars pubkeys)))
         (§ expr Collections.sort(§ pars pubkeys, ECKey.PUBKEY_COMPARATOR))
         (§ return (§ expr ScriptBuilder.createMultiSigOutputScript(§ pars threshold, pubkeys)))
     )
@@ -35127,7 +35127,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"ScriptChunk" (§ name other) (§ expr (§ cast ScriptChunk)o))
+        (§ var #_"ScriptChunk" (§ name other) (§ expr (§ cast #_"ScriptChunk" o)))
         (§ return (§ expr opcode == other.opcode && startLocationInProgram == other.startLocationInProgram && Arrays.equals(§ pars data, other.data)))
     )
 
@@ -35218,7 +35218,7 @@
 
     #_static
     (§ block
-        (§ ass (§ name mnemonicToScriptErrorMap) (§ new HashMap<>(§ pars )))
+        (§ ass (§ name mnemonicToScriptErrorMap) (§ new #_"HashMap<>" (§ pars )))
         (§ for (§ var #_"ScriptError" (§ name err)) :for (§ expr ScriptError.values(§ pars )))
         (§ block
             (§ expr mnemonicToScriptErrorMap.put(§ pars err.getMnemonic(§ pars ), err))
@@ -35788,7 +35788,7 @@
     #_static
     (§ method #_"int" (§ fn getOpCode) [#_"String" (§ name opCodeName)])
     (§ block
-        (§ return (§ quest (§ expr opCodeNameMap.containsKey(§ pars opCodeName)) ? opCodeNameMap.get(§ pars opCodeName) :else OP_INVALIDOPCODE))
+        (§ return (§ quest (§ expr opCodeNameMap.containsKey(§ pars opCodeName)) ? (§ expr opCodeNameMap.get(§ pars opCodeName)) :else (§ expr OP_INVALIDOPCODE)))
     )
 )
 
@@ -35984,7 +35984,7 @@
             (§ var #_"ECKey" (§ name pubKey) (§ expr redeemData.keys.get(§ pars 0)))
             (§ if (§ insta pubKey #_"DeterministicKey"))
             (§ block
-                (§ expr propTx.keyPaths.put(§ pars scriptPubKey, (§ expr (§ expr (§ cast DeterministicKey)pubKey).getPath(§ pars ))))
+                (§ expr propTx.keyPaths.put(§ pars scriptPubKey, (§ expr (§ expr (§ cast #_"DeterministicKey" pubKey)).getPath(§ pars ))))
             )
 
             (§ var #_"ECKey" (§ name key))
@@ -36094,7 +36094,7 @@
             (§ var #_"Script" (§ name inputScript) (§ expr txIn.getScriptSig(§ pars )))
             (§ if (§ expr scriptPubKey.isPayToScriptHash(§ pars ) || scriptPubKey.isSentToMultiSig(§ pars )))
             (§ block
-                (§ var #_"int" (§ name sigSuffixCount) (§ expr scriptPubKey.isPayToScriptHash(§ pars ) ? 1 :else 0))
+                (§ var #_"int" (§ name sigSuffixCount) (§ quest (§ expr scriptPubKey.isPayToScriptHash(§ pars )) ? 1 :else 0))
                 ;; All chunks except the first one (OP_0) and the last (redeem script) are signatures.
                 (§ for (§ var #_"int" (§ name j) (§ expr 1)) :for (§ expr j < inputScript.getChunks(§ pars ).size(§ pars ) - sigSuffixCount) :for (§ ass (§ name j) (§ expr j + 1)))
                 (§ block
@@ -36197,7 +36197,7 @@
         (§ constructor #_"ProposedTransaction" [#_"Transaction" (§ name partialTx)])
         (§ block
             (§ ass (§ name this.partialTx) (§ expr partialTx))
-            (§ ass (§ name this.keyPaths) (§ new HashMap<>(§ pars )))
+            (§ ass (§ name this.keyPaths) (§ new #_"HashMap<>" (§ pars )))
         )
     )
 
@@ -36582,8 +36582,8 @@
         (§ ass (§ name this.schemaName) (§ expr schemaName))
         (§ ass (§ name this.username) (§ expr username))
         (§ ass (§ name this.password) (§ expr password))
-        (§ ass (§ name this.conn) (§ new ThreadLocal<>(§ pars )))
-        (§ ass (§ name this.allConnections) (§ new LinkedList<>(§ pars )))
+        (§ ass (§ name this.conn) (§ new #_"ThreadLocal<>" (§ pars )))
+        (§ ass (§ name this.allConnections) (§ new #_"LinkedList<>" (§ pars )))
 
         (§ try )
         (§ block
@@ -36684,7 +36684,7 @@
     #_protected
     (§ method #_"List<String>" (§ fn getCompatibilitySQL) [])
     (§ block
-        (§ var #_"List<String>" (§ name sql) (§ new ArrayList<>(§ pars )))
+        (§ var #_"List<String>" (§ name sql) (§ new #_"ArrayList<>" (§ pars )))
         (§ expr sql.add(§ pars SELECT_COMPATIBILITY_COINBASE_SQL))
         (§ return (§ expr sql))
     )
@@ -36706,7 +36706,7 @@
     #_protected
     (§ method #_"List<String>" (§ fn getDropTablesSQL) [])
     (§ block
-        (§ var #_"List<String>" (§ name sql) (§ new ArrayList<>(§ pars )))
+        (§ var #_"List<String>" (§ name sql) (§ new #_"ArrayList<>" (§ pars )))
         (§ expr sql.add(§ pars DROP_SETTINGS_TABLE))
         (§ expr sql.add(§ pars DROP_HEADERS_TABLE))
         (§ expr sql.add(§ pars DROP_UNDOABLE_TABLE))
@@ -37423,7 +37423,7 @@
             (§ block
                 (§ var #_"int" (§ name numTxn) (§ expr (§ expr transactions[0] & 0xff) | (§ expr (§ expr transactions[1] & 0xff) << 8) | (§ expr (§ expr transactions[2] & 0xff) << 16) | (§ expr (§ expr transactions[3] & 0xff) << 24)))
                 (§ var #_"int" (§ name offset) (§ expr 4))
-                (§ var #_"List<Transaction>" (§ name transactionList) (§ new LinkedList<>(§ pars )))
+                (§ var #_"List<Transaction>" (§ name transactionList) (§ new #_"LinkedList<>" (§ pars )))
                 (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < numTxn) :for (§ ass (§ name i) (§ expr i + 1)))
                 (§ block
                     (§ var #_"Transaction" (§ name tx) (§ expr params.getDefaultSerializer(§ pars ).makeTransaction(§ pars transactions, offset)))
@@ -37579,7 +37579,7 @@
             (§ ass (§ name ps) (§ expr conn.get(§ pars ).prepareStatement(§ pars getSelectOpenoutputsSQL(§ pars ))))
             (§ expr ps.setBytes(§ pars 1, hash.getBytes(§ pars )))
             ;; index is actually an unsigned int
-            (§ expr ps.setInt(§ pars 2, (§ cast int)index))
+            (§ expr ps.setInt(§ pars 2, (§ cast #_"int" index)))
             (§ var #_"ResultSet" (§ name results) (§ expr ps.executeQuery(§ pars )))
             (§ if (§ expr (§ not results.next(§ pars ))))
             (§ block
@@ -37626,7 +37626,7 @@
             (§ ass (§ name ps) (§ expr conn.get(§ pars ).prepareStatement(§ pars getInsertOpenoutputsSQL(§ pars ))))
             (§ expr ps.setBytes(§ pars 1, out.getHash(§ pars ).getBytes(§ pars )))
             ;; index is actually an unsigned int
-            (§ expr ps.setInt(§ pars 2, (§ cast int)out.getIndex(§ pars )))
+            (§ expr ps.setInt(§ pars 2, (§ cast #_"int" (§ expr out.getIndex(§ pars )))))
             (§ expr ps.setInt(§ pars 3, out.getHeight(§ pars )))
             (§ expr ps.setLong(§ pars 4, out.getValue(§ pars ).value))
             (§ expr ps.setBytes(§ pars 5, out.getScript(§ pars ).getProgram(§ pars )))
@@ -37676,7 +37676,7 @@
             (§ var #_"PreparedStatement" (§ name ps) (§ expr conn.get(§ pars ).prepareStatement(§ pars getDeleteOpenoutputsSQL(§ pars ))))
             (§ expr ps.setBytes(§ pars 1, out.getHash(§ pars ).getBytes(§ pars )))
             ;; index is actually an unsigned int
-            (§ expr ps.setInt(§ pars 2, (§ cast int)out.getIndex(§ pars )))
+            (§ expr ps.setInt(§ pars 2, (§ cast #_"int" (§ expr out.getIndex(§ pars )))))
             (§ expr ps.executeUpdate(§ pars ))
             (§ expr ps.close(§ pars ))
         )
@@ -37876,7 +37876,7 @@
             (§ expr ps.setString(§ pars 1, address.toString(§ pars )))
             (§ var #_"ResultSet" (§ name rs) (§ expr ps.executeQuery(§ pars )))
             (§ var #_"BigInteger" (§ name balance) (§ expr BigInteger.ZERO))
-            (§ return (§ expr rs.next(§ pars ) ? BigInteger.valueOf(§ pars rs.getLong(§ pars 1)) :else balance))
+            (§ return (§ quest (§ expr rs.next(§ pars )) ? (§ expr BigInteger.valueOf(§ pars rs.getLong(§ pars 1))) :else (§ expr balance)))
         )
         (§ catch #_"SQLException" (§ name e))
         (§ block
@@ -38191,7 +38191,7 @@
     #_protected
     (§ method #_"List<String>" (§ fn getCreateTablesSQL) [])
     (§ block
-        (§ var #_"List<String>" (§ name sql) (§ new ArrayList<>(§ pars )))
+        (§ var #_"List<String>" (§ name sql) (§ new #_"ArrayList<>" (§ pars )))
         (§ expr sql.add(§ pars CREATE_SETTINGS_TABLE))
         (§ expr sql.add(§ pars CREATE_HEADERS_TABLE))
         (§ expr sql.add(§ pars CREATE_UNDOABLE_TABLE))
@@ -38203,7 +38203,7 @@
     #_protected
     (§ method #_"List<String>" (§ fn getCreateIndexesSQL) [])
     (§ block
-        (§ var #_"List<String>" (§ name sql) (§ new ArrayList<>(§ pars )))
+        (§ var #_"List<String>" (§ name sql) (§ new #_"ArrayList<>" (§ pars )))
         (§ expr sql.add(§ pars CREATE_UNDOABLE_TABLE_INDEX))
         (§ expr sql.add(§ pars CREATE_OUTPUTS_ADDRESS_MULTI_INDEX))
         (§ expr sql.add(§ pars CREATE_OUTPUTS_ADDRESSTARGETABLE_INDEX))
@@ -38416,7 +38416,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"StoredTransactionOutPoint" (§ name other) (§ expr (§ cast StoredTransactionOutPoint)o))
+        (§ var #_"StoredTransactionOutPoint" (§ name other) (§ expr (§ cast #_"StoredTransactionOutPoint" o)))
         (§ return (§ expr getIndex(§ pars ) == other.getIndex(§ pars ) && Objects.equal(§ pars getHash(§ pars ), other.getHash(§ pars ))))
     )
 )
@@ -38436,10 +38436,10 @@
     #_public
     (§ constructor #_"TransactionalHashMap" [])
     (§ block
-        (§ ass (§ name tempMap) (§ new ThreadLocal<>(§ pars )))
-        (§ ass (§ name tempSetRemoved) (§ new ThreadLocal<>(§ pars )))
-        (§ ass (§ name inTransaction) (§ new ThreadLocal<>(§ pars )))
-        (§ ass (§ name map) (§ new HashMap<>(§ pars )))
+        (§ ass (§ name tempMap) (§ new #_"ThreadLocal<>" (§ pars )))
+        (§ ass (§ name tempSetRemoved) (§ new #_"ThreadLocal<>" (§ pars )))
+        (§ ass (§ name inTransaction) (§ new #_"ThreadLocal<>" (§ pars )))
+        (§ ass (§ name map) (§ new #_"HashMap<>" (§ pars )))
     )
 
     #_public
@@ -38501,7 +38501,7 @@
     #_public
     (§ method #_"List<ValueType>" (§ fn values) [])
     (§ block
-        (§ var #_"List<ValueType>" (§ name valueTypes) (§ new ArrayList<>(§ pars )))
+        (§ var #_"List<ValueType>" (§ name valueTypes) (§ new #_"ArrayList<>" (§ pars )))
         (§ for (§ var #_"KeyType" (§ name keyType)) :for (§ expr map.keySet(§ pars )))
         (§ block
             (§ expr valueTypes.add(§ pars get(§ pars keyType)))
@@ -38520,7 +38520,7 @@
             )
             (§ if (§ expr tempMap.get(§ pars ) == nil))
             (§ block
-                (§ expr tempMap.set(§ pars (§ new HashMap<KeyType, ValueType>(§ pars ))))
+                (§ expr tempMap.set(§ pars (§ new #_"HashMap<KeyType, ValueType>" (§ pars ))))
             )
             (§ expr tempMap.get(§ pars ).put(§ pars key, value))
         )
@@ -38541,7 +38541,7 @@
             (§ block
                 (§ if (§ expr tempSetRemoved.get(§ pars ) == nil))
                 (§ block
-                    (§ expr tempSetRemoved.set(§ pars (§ new HashSet<KeyType>(§ pars ))))
+                    (§ expr tempSetRemoved.set(§ pars (§ new #_"HashSet<KeyType>" (§ pars ))))
                 )
                 (§ expr tempSetRemoved.get(§ pars ).add(§ pars key))
             )
@@ -38575,8 +38575,8 @@
     #_public
     (§ constructor #_"TransactionalMultiKeyHashMap" [])
     (§ block
-        (§ ass (§ name mapValues) (§ new TransactionalHashMap<>(§ pars )))
-        (§ ass (§ name mapKeys) (§ new HashMap<>(§ pars )))
+        (§ ass (§ name mapValues) (§ new #_"TransactionalHashMap<>" (§ pars )))
+        (§ ass (§ name mapKeys) (§ new #_"HashMap<>" (§ pars )))
     )
 
     #_public
@@ -38611,7 +38611,7 @@
         (§ var #_"Set<UniqueKeyType>" (§ name set) (§ expr mapKeys.get(§ pars multiKey)))
         (§ if (§ expr set == nil))
         (§ block
-            (§ ass (§ name set) (§ new HashSet<>(§ pars )))
+            (§ ass (§ name set) (§ new #_"HashSet<>" (§ pars )))
             (§ expr set.add(§ pars uniqueKey))
             (§ expr mapKeys.put(§ pars multiKey, set))
         )
@@ -38686,10 +38686,10 @@
     #_public
     (§ constructor #_"MemoryFullPrunedBlockStore" [#_"NetworkParameters" (§ name params), #_"int" (§ name fullStoreDepth)])
     (§ block
-        (§ ass (§ name blockMap) (§ new TransactionalHashMap<>(§ pars )))
-        (§ ass (§ name fullBlockMap) (§ new TransactionalMultiKeyHashMap<>(§ pars )))
-        (§ ass (§ name transactionOutputMap) (§ new TransactionalHashMap<>(§ pars )))
-        (§ ass this.fullStoreDepth = (§ expr 0 < fullStoreDepth) ? fullStoreDepth :else 1)
+        (§ ass (§ name blockMap) (§ new #_"TransactionalHashMap<>" (§ pars )))
+        (§ ass (§ name fullBlockMap) (§ new #_"TransactionalMultiKeyHashMap<>" (§ pars )))
+        (§ ass (§ name transactionOutputMap) (§ new #_"TransactionalHashMap<>" (§ pars )))
+        (§ ass this.fullStoreDepth = (§ quest (§ expr 0 < fullStoreDepth) ? (§ expr fullStoreDepth) :else 1))
         ;; Insert the genesis block.
         (§ try )
         (§ block
@@ -38745,7 +38745,7 @@
     (§ block
         (§ expr Preconditions.checkNotNull(§ pars blockMap, "MemoryFullPrunedBlockStore is closed"))
         (§ var #_"StoredBlockAndWasUndoableFlag" (§ name storedBlock) (§ expr blockMap.get(§ pars hash)))
-        (§ return (§ expr storedBlock != nil) ? storedBlock.block :else nil)
+        (§ return (§ quest (§ expr storedBlock != nil) ? (§ expr storedBlock.block) :else (§ expr nil)))
     )
 
     #_override
@@ -38757,7 +38757,7 @@
     (§ block
         (§ expr Preconditions.checkNotNull(§ pars blockMap, "MemoryFullPrunedBlockStore is closed"))
         (§ var #_"StoredBlockAndWasUndoableFlag" (§ name storedBlock) (§ expr blockMap.get(§ pars hash)))
-        (§ return (§ expr storedBlock != nil && storedBlock.wasUndoable) ? storedBlock.block :else nil)
+        (§ return (§ quest (§ expr storedBlock != nil && storedBlock.wasUndoable) ? (§ expr storedBlock.block) :else (§ expr nil)))
     )
 
     #_override
@@ -39079,7 +39079,7 @@
     #_protected
     (§ method #_"List<String>" (§ fn getCreateTablesSQL) [])
     (§ block
-        (§ var #_"List<String>" (§ name sql) (§ new ArrayList<>(§ pars )))
+        (§ var #_"List<String>" (§ name sql) (§ new #_"ArrayList<>" (§ pars )))
         (§ expr sql.add(§ pars CREATE_SETTINGS_TABLE))
         (§ expr sql.add(§ pars CREATE_HEADERS_TABLE))
         (§ expr sql.add(§ pars CREATE_UNDOABLE_TABLE))
@@ -39091,7 +39091,7 @@
     #_protected
     (§ method #_"List<String>" (§ fn getCreateIndexesSQL) [])
     (§ block
-        (§ var #_"List<String>" (§ name sql) (§ new ArrayList<>(§ pars )))
+        (§ var #_"List<String>" (§ name sql) (§ new #_"ArrayList<>" (§ pars )))
         (§ expr sql.add(§ pars CREATE_UNDOABLE_TABLE_INDEX))
         (§ expr sql.add(§ pars CREATE_OUTPUTS_ADDRESS_MULTI_INDEX))
         (§ expr sql.add(§ pars CREATE_OUTPUTS_ADDRESSTARGETABLE_INDEX))
@@ -39104,7 +39104,7 @@
     #_protected
     (§ method #_"List<String>" (§ fn getCreateSchemeSQL) [])
     (§ block
-        (§ var #_"List<String>" (§ name sql) (§ new ArrayList<>(§ pars )))
+        (§ var #_"List<String>" (§ name sql) (§ new #_"ArrayList<>" (§ pars )))
         (§ expr sql.add(§ pars "CREATE SCHEMA IF NOT EXISTS " + schemaName))
         (§ expr sql.add(§ pars "set search_path to '" + schemaName +"'"))
         (§ return (§ expr sql))
@@ -39815,7 +39815,7 @@
     (§ block
         (§ expr Preconditions.checkNotNull(§ pars input))
 
-        (§ var #_"String" (§ name scheme) (§ quest (§ expr params != nil) ? params.getUriScheme(§ pars ) :else AbstractBitcoinNetParams.BITCOIN_SCHEME))
+        (§ var #_"String" (§ name scheme) (§ quest (§ expr params != nil) ? (§ expr params.getUriScheme(§ pars )) :else (§ expr AbstractBitcoinNetParams.BITCOIN_SCHEME)))
 
         ;; Attempt to form the URI (fail fast syntax checking to official standards).
         (§ var #_"URI" (§ name uri))
@@ -40005,7 +40005,7 @@
     #_public
     (§ method #_"Address" (§ fn getAddress) [])
     (§ block
-        (§ return (§ cast Address)parameterMap.get(§ pars FIELD_ADDRESS))
+        (§ return (§ cast #_"Address" (§ expr parameterMap.get(§ pars FIELD_ADDRESS))))
     )
 
     ;;;
@@ -40015,7 +40015,7 @@
     #_public
     (§ method #_"Coin" (§ fn getAmount) [])
     (§ block
-        (§ return (§ cast Coin)parameterMap.get(§ pars FIELD_AMOUNT))
+        (§ return (§ cast #_"Coin" (§ expr parameterMap.get(§ pars FIELD_AMOUNT))))
     )
 
     ;;;
@@ -40024,7 +40024,7 @@
     #_public
     (§ method #_"String" (§ fn getLabel) [])
     (§ block
-        (§ return (§ cast String)parameterMap.get(§ pars FIELD_LABEL))
+        (§ return (§ cast #_"String" (§ expr parameterMap.get(§ pars FIELD_LABEL))))
     )
 
     ;;;
@@ -40033,7 +40033,7 @@
     #_public
     (§ method #_"String" (§ fn getMessage) [])
     (§ block
-        (§ return (§ cast String)parameterMap.get(§ pars FIELD_MESSAGE))
+        (§ return (§ cast #_"String" (§ expr parameterMap.get(§ pars FIELD_MESSAGE))))
     )
 
     ;;;
@@ -40043,7 +40043,7 @@
     #_final
     (§ method #_"String" (§ fn getPaymentRequestUrl) [])
     (§ block
-        (§ return (§ cast String)parameterMap.get(§ pars FIELD_PAYMENT_REQUEST_URL))
+        (§ return (§ cast #_"String" (§ expr parameterMap.get(§ pars FIELD_PAYMENT_REQUEST_URL))))
     )
 
     ;;;
@@ -40053,12 +40053,12 @@
     #_public
     (§ method #_"List<String>" (§ fn getPaymentRequestUrls) [])
     (§ block
-        (§ var #_"ArrayList<String>" (§ name urls) (§ new ArrayList<>(§ pars )))
+        (§ var #_"ArrayList<String>" (§ name urls) (§ new #_"ArrayList<>" (§ pars )))
         (§ while (§ expr true))
         (§ block
             (§ var #_"int" (§ name i) (§ expr urls.size(§ pars )))
-            (§ var #_"String" (§ name paramName) (§ expr FIELD_PAYMENT_REQUEST_URL + (§ expr 0 < i ? Integer.toString(§ pars i) :else "")))
-            (§ var #_"String" (§ name url) (§ expr (§ cast String)parameterMap.get(§ pars paramName)))
+            (§ var #_"String" (§ name paramName) (§ str FIELD_PAYMENT_REQUEST_URL + (§ quest (§ expr 0 < i) ? (§ expr Integer.toString(§ pars i)) :else (§ expr ""))))
+            (§ var #_"String" (§ name url) (§ expr (§ cast #_"String" (§ expr parameterMap.get(§ pars paramName)))))
             (§ if (§ expr url == nil))
             (§ block
                 (§ break )
@@ -40381,7 +40381,7 @@
     #_protected
     (§ constructor #_"BtcAutoFormat" [#_"Locale" (§ name locale), #_"Style" (§ name style), #_"int" (§ name fractionPlaces)])
     (§ block
-        (§ super (§ pars (§ cast DecimalFormat)NumberFormat.getCurrencyInstance(§ pars locale), fractionPlaces, ImmutableList.<Integer>of(§ pars )))
+        (§ super (§ pars (§ cast #_"DecimalFormat" (§ expr NumberFormat.getCurrencyInstance(§ pars locale))), fractionPlaces, ImmutableList.<Integer>of(§ pars )))
 
         (§ expr style.apply(§ pars this.numberFormat))
     )
@@ -40442,7 +40442,7 @@
                     (§ var #_"BigDecimal" (§ name c) (§ expr inMicros.subtract(§ pars inMicros.setScale(§ pars 0, HALF_UP)).movePointRight(§ pars coinOffset - MICROCOIN_SCALE).abs(§ pars )))
                     (§ if (§ expr a.compareTo(§ pars b) < 0))
                     (§ block
-                        (§ ass places = (§ expr a.compareTo(§ pars c) < 0) ? COIN_SCALE :else MICROCOIN_SCALE)
+                        (§ ass places = (§ quest (§ expr a.compareTo(§ pars c) < 0) ? (§ expr COIN_SCALE) :else (§ expr MICROCOIN_SCALE)))
                     )
                     (§ elseif (§ expr b.compareTo(§ pars c) < 0))
                     (§ block
@@ -40589,7 +40589,7 @@
     #_protected
     (§ constructor #_"BtcFixedFormat" [#_"Locale" (§ name locale), #_"int" (§ name scale), #_"int" (§ name minDecimals), #_"List<Integer>" (§ name groups)])
     (§ block
-        (§ super (§ pars (§ cast DecimalFormat)NumberFormat.getInstance(§ pars locale), minDecimals, groups))
+        (§ super (§ pars (§ cast #_"DecimalFormat" (§ expr NumberFormat.getInstance(§ pars locale))), minDecimals, groups))
 
         (§ expr Preconditions.checkArgument(§ pars scale <= SMALLEST_UNIT_EXPONENT, "decimal cannot be shifted " + String.valueOf(§ pars scale) + " places"))
 
@@ -40664,7 +40664,7 @@
         (§ ass array[0] = minimumFractionDigits)
         (§ for (§ var #_"int" (§ name i) (§ expr 1)) :for (§ expr i < len) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
-            (§ ass array[i] = (§ cast Integer)boxedArray[i-1])
+            (§ ass array[i] = (§ cast #_"Integer" boxedArray[i-1]))
         )
         (§ return (§ expr array))
     )
@@ -40685,7 +40685,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"BtcFixedFormat" (§ name other) (§ expr (§ cast BtcFixedFormat)o))
+        (§ var #_"BtcFixedFormat" (§ name other) (§ expr (§ cast #_"BtcFixedFormat" o)))
         (§ return (§ expr super.equals(§ pars other) && other.scale(§ pars ) == scale(§ pars ) && other.decimalGroups.equals(§ pars decimalGroups)))
     )
 
@@ -41504,7 +41504,7 @@
                 (§ sync f.numberFormat)
                 (§ block
                     (§ var #_"DecimalFormatSymbols" (§ name defaultSigns) (§ expr f.numberFormat.getDecimalFormatSymbols(§ pars )))
-                    (§ expr setSymbolAndCode(§ pars f.numberFormat, (§ expr symbol != "") ? symbol :else defaultSigns.getCurrencySymbol(§ pars ), (§ expr code != "") ? code :else defaultSigns.getInternationalCurrencySymbol(§ pars )))
+                    (§ expr setSymbolAndCode(§ pars (§ expr f.numberFormat), (§ quest (§ expr symbol != "") ? (§ expr symbol) :else (§ expr defaultSigns.getCurrencySymbol(§ pars ))), (§ quest (§ expr code != "") ? (§ expr code) :else (§ expr defaultSigns.getInternationalCurrencySymbol(§ pars )))))
                 )
             )
             (§ if (§ expr localizedPattern != "" || pattern != ""))
@@ -41548,7 +41548,7 @@
         (§ ass (§ name this.decimalGroups) (§ expr groups))
         (§ sync this.numberFormat)
         (§ block
-            (§ expr setSymbolAndCode(§ pars this.numberFormat, (§ expr this.numberFormat.getDecimalFormatSymbols(§ pars ).getCurrencySymbol(§ pars ).contains(§ pars COIN_SYMBOL)) ? COIN_SYMBOL_ALT :else COIN_SYMBOL, COIN_CODE))
+            (§ expr setSymbolAndCode(§ pars this.numberFormat, (§ quest (§ dot this.numberFormat.getDecimalFormatSymbols(§ pars ).getCurrencySymbol(§ pars ).contains(§ pars COIN_SYMBOL)) ? (§ expr COIN_SYMBOL_ALT) :else (§ expr COIN_SYMBOL)), COIN_CODE))
         )
     )
 
@@ -41775,7 +41775,7 @@
     (§ method #_"List<Integer>" (§ fn boxAsList) [#_"int[]" (§ name elements)])
         (§ throws #_"IllegalArgumentException")
     (§ block
-        (§ var #_"List<Integer>" (§ name list) (§ new ArrayList<>(§ pars elements.length)))
+        (§ var #_"List<Integer>" (§ name list) (§ new #_"ArrayList<>" (§ pars elements.length)))
         (§ for (§ var #_"int" (§ name e)) :for (§ expr elements))
         (§ block
             (§ expr Preconditions.checkArgument(§ pars 0 < e, "Size of decimal group must be at least one."))
@@ -42197,19 +42197,19 @@
         ;; The value might be bitcoins or satoshis.
         (§ if (§ expr (§ insta qty #_"Long") || (§ insta qty #_"Integer")))
         (§ block
-            (§ return (§ expr BigInteger.valueOf(§ pars (§ expr (§ cast Number)qty).longValue(§ pars ))))
+            (§ return (§ expr BigInteger.valueOf(§ pars (§ expr (§ cast #_"Number" qty)).longValue(§ pars ))))
         )
         (§ if (§ insta qty #_"BigInteger"))
         (§ block
-            (§ return (§ cast BigInteger)qty)
+            (§ return (§ cast #_"BigInteger" qty))
         )
         (§ if (§ insta qty #_"BigDecimal"))
         (§ block
-            (§ return (§ expr (§ expr (§ cast BigDecimal)qty).movePointRight(§ pars Coin.SMALLEST_UNIT_EXPONENT).setScale(§ pars 0, BigDecimal.ROUND_HALF_UP).unscaledValue(§ pars )))
+            (§ return (§ expr (§ expr (§ cast #_"BigDecimal" qty)).movePointRight(§ pars Coin.SMALLEST_UNIT_EXPONENT).setScale(§ pars 0, BigDecimal.ROUND_HALF_UP).unscaledValue(§ pars )))
         )
         (§ if (§ insta qty #_"Coin"))
         (§ block
-            (§ return (§ expr BigInteger.valueOf(§ pars (§ expr (§ cast Coin)qty).value)))
+            (§ return (§ expr BigInteger.valueOf(§ pars (§ expr (§ cast #_"Coin" qty)).value)))
         )
 
         (§ throw (§ new #_"IllegalArgumentException" (§ pars "Cannot format a " + qty.getClass(§ pars ).getSimpleName(§ pars ) + " as a Bicoin value")))
@@ -42317,7 +42317,7 @@
         (§ expr Preconditions.checkState(§ pars Thread.holdsLock(§ pars numberFormat)))
 
         (§ var #_"DecimalFormatSymbols" (§ name fs) (§ expr numberFormat.getDecimalFormatSymbols(§ pars )))
-        (§ var #_"DecimalFormatSymbols" (§ name ante) (§ expr (§ cast DecimalFormatSymbols)fs.clone(§ pars )))
+        (§ var #_"DecimalFormatSymbols" (§ name ante) (§ expr (§ cast #_"DecimalFormatSymbols" (§ expr fs.clone(§ pars )))))
         (§ expr fs.setInternationalCurrencySymbol(§ pars code))
         (§ expr fs.setCurrencySymbol(§ pars symbol))
         (§ expr numberFormat.setDecimalFormatSymbols(§ pars fs))
@@ -42402,7 +42402,7 @@
             (§ block
                 (§ try )
                 (§ block
-                    (§ ass (§ name coin) (§ expr Coin.valueOf(§ pars (§ expr (§ cast BigDecimal)number).movePointRight(§ pars offSatoshis(§ pars parseScale)).setScale(§ pars 0, HALF_UP).longValue(§ pars ))))
+                    (§ ass (§ name coin) (§ expr Coin.valueOf(§ pars (§ expr (§ cast #_"BigDecimal" number)).movePointRight(§ pars offSatoshis(§ pars parseScale)).setScale(§ pars 0, HALF_UP).longValue(§ pars ))))
                 )
                 (§ catch #_"IllegalArgumentException" (§ name _))
                 (§ block
@@ -42437,7 +42437,7 @@
     (§ method #_"Coin" (§ fn parse) [#_"String" (§ name source)])
         (§ throws #_"ParseException")
     (§ block
-        (§ return (§ cast Coin)parseObject(§ pars source))
+        (§ return (§ cast #_"Coin" (§ expr parseObject(§ pars source))))
     )
 
     #_protected
@@ -42668,7 +42668,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"BtcFormat" (§ name other) (§ expr (§ cast BtcFormat)o))
+        (§ var #_"BtcFormat" (§ name other) (§ expr (§ cast #_"BtcFormat" o)))
         (§ return (§ expr other.pattern(§ pars ).equals(§ pars pattern(§ pars )) && other.symbols(§ pars ).equals(§ pars symbols(§ pars )) && other.minimumFractionDigits == minimumFractionDigits))
     )
 
@@ -42889,7 +42889,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"ExchangeRate" (§ name other) (§ expr (§ cast ExchangeRate)o))
+        (§ var #_"ExchangeRate" (§ name other) (§ expr (§ cast #_"ExchangeRate" o)))
         (§ return (§ expr Objects.equal(§ pars this.coin, other.coin) && Objects.equal(§ pars this.fiat, other.fiat)))
     )
 
@@ -42998,7 +42998,7 @@
     #_public
     (§ method #_"void" (§ fn trackFailure) [])
     (§ block
-        (§ ass (§ name retryTime) (§ expr Utils.currentTimeMillis(§ pars ) + (§ cast long)backoff))
+        (§ ass (§ name retryTime) (§ expr Utils.currentTimeMillis(§ pars ) + (§ cast #_"long" backoff)))
         (§ ass (§ name backoff) (§ expr Math.min(§ pars backoff * params.multiplier, params.maximum)))
     )
 
@@ -43237,7 +43237,7 @@
     #_public
     (§ method #_"int" (§ fn signum) [])
     (§ block
-        (§ return (§ expr this.value == 0) ? 0 :else (§ expr this.value < 0) ? -1 :else 1)
+        (§ return (§ quest (§ expr this.value == 0) ? 0 :else (§ quest (§ expr this.value < 0) ? (§ expr -1) :else 1)))
     )
 
     #_public
@@ -43306,7 +43306,7 @@
             (§ return (§ expr false))
         )
         #_final
-        (§ var #_"Fiat" (§ name other) (§ expr (§ cast Fiat)o))
+        (§ var #_"Fiat" (§ name other) (§ expr (§ cast #_"Fiat" o)))
         (§ return (§ expr this.value == other.value && this.currencyCode.equals(§ pars other.currencyCode)))
     )
 
@@ -43321,7 +43321,7 @@
     #_public
     (§ method #_"int" (§ fn compareTo) [#_final #_"Fiat" (§ name other)])
     (§ block
-        (§ return (§ expr this.currencyCode.equals(§ pars other.currencyCode) ? Longs.compare(§ pars this.value, other.value) :else this.currencyCode.compareTo(§ pars other.currencyCode)))
+        (§ return (§ quest (§ expr this.currencyCode.equals(§ pars other.currencyCode)) ? (§ expr Longs.compare(§ pars this.value, other.value)) :else (§ expr this.currencyCode.compareTo(§ pars other.currencyCode))))
     )
 )
 
@@ -43478,7 +43478,7 @@
         (§ expr Preconditions.checkArgument(§ pars (§ not Character.isDigit(§ pars negativeSign))))
         (§ expr Preconditions.checkArgument(§ pars 0 < negativeSign))
 
-        (§ return (§ quest (§ expr negativeSign == this.negativeSign) ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed)))
+        (§ return (§ quest (§ expr negativeSign == this.negativeSign) ? (§ expr this) :else (§ expr new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))))
     )
 
     ;;;
@@ -43490,7 +43490,7 @@
     (§ block
         (§ expr Preconditions.checkArgument(§ pars (§ not Character.isDigit(§ pars positiveSign))))
 
-        (§ return (§ quest (§ expr positiveSign == this.positiveSign) ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed)))
+        (§ return (§ quest (§ expr positiveSign == this.positiveSign) ? (§ expr this) :else (§ expr new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))))
     )
 
     ;;;
@@ -43499,7 +43499,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn digits) [#_"char" (§ name zeroDigit)])
     (§ block
-        (§ return (§ quest (§ expr zeroDigit == this.zeroDigit) ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed)))
+        (§ return (§ quest (§ expr zeroDigit == this.zeroDigit) ? (§ expr this) :else (§ expr new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))))
     )
 
     ;;;
@@ -43512,7 +43512,7 @@
         (§ expr Preconditions.checkArgument(§ pars (§ not Character.isDigit(§ pars decimalMark))))
         (§ expr Preconditions.checkArgument(§ pars 0 < decimalMark))
 
-        (§ return (§ quest (§ expr decimalMark == this.decimalMark) ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed)))
+        (§ return (§ quest (§ expr decimalMark == this.decimalMark) ? (§ expr this) :else (§ expr new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))))
     )
 
     ;;;
@@ -43523,7 +43523,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn minDecimals) [#_"int" (§ name minDecimals)])
     (§ block
-        (§ return (§ quest (§ expr minDecimals == this.minDecimals) ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed)))
+        (§ return (§ quest (§ expr minDecimals == this.minDecimals) ? (§ expr this) :else (§ expr new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))))
     )
 
     ;;;
@@ -43539,7 +43539,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn optionalDecimals) [#_"int..." (§ name groups)])
     (§ block
-        (§ var #_"List<Integer>" (§ name decimalGroups) (§ new ArrayList<>(§ pars groups.length)))
+        (§ var #_"List<Integer>" (§ name decimalGroups) (§ new #_"ArrayList<>" (§ pars groups.length)))
         (§ for (§ var #_"int" (§ name group)) :for (§ expr groups))
         (§ block
             (§ expr decimalGroups.add(§ pars group))
@@ -43563,7 +43563,7 @@
     (§ block
         (§ expr Preconditions.checkArgument(§ pars 0 <= repetitions))
 
-        (§ var #_"List<Integer>" (§ name decimalGroups) (§ new ArrayList<>(§ pars repetitions)))
+        (§ var #_"List<Integer>" (§ name decimalGroups) (§ new #_"ArrayList<>" (§ pars repetitions)))
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < repetitions) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ expr decimalGroups.add(§ pars decimals))
@@ -43578,7 +43578,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn shift) [#_"int" (§ name shift)])
     (§ block
-        (§ return (§ quest (§ expr shift == this.shift) ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed)))
+        (§ return (§ quest (§ expr shift == this.shift) ? (§ expr this) :else (§ expr new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))))
     )
 
     ;;;
@@ -43587,7 +43587,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn roundingMode) [#_"RoundingMode" (§ name roundingMode)])
     (§ block
-        (§ return (§ quest (§ expr roundingMode == this.roundingMode) ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed)))
+        (§ return (§ quest (§ expr roundingMode == this.roundingMode) ? (§ expr this) :else (§ expr new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))))
     )
 
     ;;;
@@ -43596,7 +43596,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn noCode) [])
     (§ block
-        (§ return (§ quest (§ expr codes == nil) ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, nil, codeSeparator, codePrefixed)))
+        (§ return (§ quest (§ expr codes == nil) ? (§ expr this) :else (§ expr new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, nil, codeSeparator, codePrefixed))))
     )
 
     ;;;
@@ -43611,7 +43611,7 @@
         (§ expr Preconditions.checkArgument(§ pars 0 <= codeShift))
 
         #_final
-        (§ var #_"String[]" (§ name codes) (§ quest (§ expr this.codes != nil) ? Arrays.copyOf(§ pars this.codes, this.codes.length) :else new String[MAX_DECIMALS]))
+        (§ var #_"String[]" (§ name codes) (§ quest (§ expr this.codes != nil) ? (§ expr Arrays.copyOf(§ pars this.codes, this.codes.length)) :else (§ expr new String[MAX_DECIMALS])))
 
         (§ ass codes[codeShift] = code)
         (§ return (§ new #_"MonetaryFormat" (§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed)))
@@ -43626,7 +43626,7 @@
         (§ expr Preconditions.checkArgument(§ pars (§ not Character.isDigit(§ pars codeSeparator))))
         (§ expr Preconditions.checkArgument(§ pars 0 < codeSeparator))
 
-        (§ return (§ quest (§ expr codeSeparator == this.codeSeparator) ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed)))
+        (§ return (§ quest (§ expr codeSeparator == this.codeSeparator) ? (§ expr this) :else (§ expr new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))))
     )
 
     ;;;
@@ -43635,7 +43635,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn prefixCode) [])
     (§ block
-        (§ return (§ expr codePrefixed ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, true)))
+        (§ return (§ quest codePrefixed ? (§ expr this) :else (§ expr new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, true))))
     )
 
     ;;;
@@ -43644,7 +43644,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn postfixCode) [])
     (§ block
-        (§ return (§ quest (§ not codePrefixed) ? this :else new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, false)))
+        (§ return (§ quest (§ not codePrefixed) ? (§ expr this) :else (§ expr new MonetaryFormat(§ pars negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, false))))
     )
 
     ;;;
@@ -43783,7 +43783,7 @@
                 (§ var #_"char" (§ name c) (§ expr sb.charAt(§ pars d)))
                 (§ if (§ expr Character.isDigit(§ pars c)))
                 (§ block
-                    (§ expr sb.setCharAt(§ pars d, (§ cast char)(§ expr c + offset)))
+                    (§ expr sb.setCharAt(§ pars d, (§ cast #_"char" (§ expr c + offset))))
                 )
             )
         )
@@ -43977,7 +43977,7 @@
             (§ super (§ pars "bitcoinj user thread"))
 
             (§ expr setDaemon(§ pars true))
-            (§ ass (§ name tasks) (§ new LinkedBlockingQueue<>(§ pars )))
+            (§ ass (§ name tasks) (§ new #_"LinkedBlockingQueue<>" (§ pars )))
             (§ expr start(§ pars ))
         )
 
@@ -44048,7 +44048,7 @@
     #_static
     (§ method #_"ReentrantLock" (§ fn lock) [#_"String" (§ name name)])
     (§ block
-        (§ return (§ expr Utils.isAndroidRuntime(§ pars ) ? new ReentrantLock(§ pars true) :else factory.newReentrantLock(§ pars name)))
+        (§ return (§ quest (§ expr Utils.isAndroidRuntime(§ pars )) ? (§ expr new ReentrantLock(§ pars true)) :else (§ expr factory.newReentrantLock(§ pars name))))
     )
 
     #_public
@@ -44201,7 +44201,7 @@
     (§ block
         (§ var #_"StoredBlock" (§ name versionBlock) (§ expr chainHead))
         #_final
-        (§ var #_"Stack<Long>" (§ name versions) (§ new Stack<>(§ pars )))
+        (§ var #_"Stack<Long>" (§ name versions) (§ new #_"Stack<>" (§ pars )))
 
         ;; We don't know how many blocks back we can go, so load what we can first.
         (§ expr versions.push(§ pars versionBlock.getHeader(§ pars ).getVersion(§ pars )))
@@ -44327,9 +44327,9 @@
     (§ constructor #_"BasicKeyChain" [#_nilable #_"KeyCrypter" (§ name crypter)])
     (§ block
         (§ ass (§ name this.keyCrypter) (§ expr crypter))
-        (§ ass (§ name hashToKeys) (§ new LinkedHashMap<>(§ pars )))
-        (§ ass (§ name pubkeyToKeys) (§ new LinkedHashMap<>(§ pars )))
-        (§ ass (§ name listeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+        (§ ass (§ name hashToKeys) (§ new #_"LinkedHashMap<>" (§ pars )))
+        (§ ass (§ name pubkeyToKeys) (§ new #_"LinkedHashMap<>" (§ pars )))
+        (§ ass (§ name listeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     )
 
     ;;; Returns the {@link KeyCrypter} in use or null if the key chain is not encrypted. ;;
@@ -44387,7 +44387,7 @@
             (§ block
                 (§ expr Preconditions.checkState(§ pars keyCrypter == nil))
 
-                (§ var #_"List<ECKey>" (§ name keys) (§ new ArrayList<>(§ pars )))
+                (§ var #_"List<ECKey>" (§ name keys) (§ new #_"ArrayList<>" (§ pars )))
                 (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < numberOfKeys - hashToKeys.size(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
                 (§ block
                     (§ expr keys.add(§ pars (§ new #_"ECKey" (§ pars ))))
@@ -44398,7 +44398,7 @@
                 (§ expr queueOnKeysAdded(§ pars immutableKeys))
             )
 
-            (§ var #_"List<ECKey>" (§ name keysToReturn) (§ new ArrayList<>(§ pars )))
+            (§ var #_"List<ECKey>" (§ name keysToReturn) (§ new #_"ArrayList<>" (§ pars )))
             (§ var #_"int" (§ name count) (§ expr 0))
             (§ while (§ expr hashToKeys.values(§ pars ).iterator(§ pars ).hasNext(§ pars ) && numberOfKeys != count))
             (§ block
@@ -44420,7 +44420,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ return (§ new ArrayList<>(§ pars hashToKeys.values(§ pars ))))
+            (§ return (§ new #_"ArrayList<>" (§ pars hashToKeys.values(§ pars ))))
         )
         (§ finally )
         (§ block
@@ -44449,7 +44449,7 @@
                 (§ expr checkKeyEncryptionStateMatches(§ pars key))
             )
 
-            (§ var #_"List<ECKey>" (§ name actuallyAdded) (§ new ArrayList<>(§ pars keys.size(§ pars ))))
+            (§ var #_"List<ECKey>" (§ name actuallyAdded) (§ new #_"ArrayList<>" (§ pars keys.size(§ pars ))))
             (§ for (§ var #_final ECKey key) :for (§ expr keys))
             (§ block
                 (§ if (§ expr (§ not hasKey(§ pars key))))
@@ -44603,7 +44603,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ return (§ expr hashToKeys.isEmpty(§ pars ) ? State.EMPTY :else isWatching ? State.WATCHING :else State.REGULAR))
+            (§ return (§ quest (§ expr hashToKeys.isEmpty(§ pars )) ? (§ expr State.EMPTY) :else (§ quest (§ expr isWatching) ? (§ expr State.WATCHING) :else (§ expr State.REGULAR))))
         )
         (§ finally )
         (§ block
@@ -44656,7 +44656,7 @@
     #_public
     (§ method #_"List<ListenerRegistration<KeyChainEventListener>>" (§ fn getListeners) [])
     (§ block
-        (§ return (§ new ArrayList<>(§ pars listeners)))
+        (§ return (§ new #_"ArrayList<>" (§ pars listeners)))
     )
 
     (§ method #_"Map<ECKey, Protos.Key.Builder>" (§ fn serializeToEditableProtobufs) [])
@@ -44676,7 +44676,7 @@
     (§ method #_"List<Protos.Key>" (§ fn serializeToProtobuf) [])
     (§ block
         (§ var #_"Collection<Protos.Key.Builder>" (§ name builders) (§ expr serializeToEditableProtobufs(§ pars ).values(§ pars )))
-        (§ var #_"List<Protos.Key>" (§ name result) (§ new ArrayList<>(§ pars builders.size(§ pars ))))
+        (§ var #_"List<Protos.Key>" (§ name result) (§ new #_"ArrayList<>" (§ pars builders.size(§ pars ))))
         (§ for (§ var #_"Protos.Key.Builder" (§ name builder)) :for (§ expr builders))
         (§ block
             (§ expr result.add(§ pars builder.build(§ pars )))
@@ -44761,7 +44761,7 @@
                 )
 
                 (§ var #_"boolean" (§ name encrypted) (§ expr key.getType(§ pars ) == Protos.Key.Type.ENCRYPTED_SCRYPT_AES))
-                (§ var #_"byte[]" (§ name priv) (§ expr key.hasSecretBytes(§ pars ) ? key.getSecretBytes(§ pars ).toByteArray(§ pars ) :else nil))
+                (§ var #_"byte[]" (§ name priv) (§ quest (§ expr key.hasSecretBytes(§ pars )) ? (§ dot key.getSecretBytes(§ pars ).toByteArray(§ pars )) :else (§ expr nil)))
                 (§ if (§ expr (§ not key.hasPublicKey(§ pars ))))
                 (§ block
                     (§ throw (§ new #_"UnreadableWalletException" (§ pars "Public key missing")))
@@ -44783,7 +44783,7 @@
                 )
                 (§ else )
                 (§ block
-                    (§ ass ecKey = (§ quest (§ expr priv != nil) ? ECKey.fromPrivateAndPrecalculatedPublic(§ pars priv, pub) :else ECKey.fromPublicOnly(§ pars pub)))
+                    (§ ass ecKey = (§ quest (§ expr priv != nil) ? (§ expr ECKey.fromPrivateAndPrecalculatedPublic(§ pars priv, pub)) :else (§ expr ECKey.fromPublicOnly(§ pars pub))))
                 )
                 (§ expr ecKey.setCreationTimeSeconds(§ pars key.getCreationTimestamp(§ pars ) / 1000))
                 (§ expr importKeyLocked(§ pars ecKey))
@@ -44806,7 +44806,7 @@
     #_public
     (§ method #_"void" (§ fn addEventListener) [#_"KeyChainEventListener" (§ name listener), #_"Executor" (§ name executor)])
     (§ block
-        (§ expr listeners.add(§ pars (§ new ListenerRegistration<>(§ pars listener, executor))))
+        (§ expr listeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars listener, executor))))
     )
 
     #_override
@@ -45168,7 +45168,7 @@
     #_private
     (§ method #_"RedeemData" (§ fn maybeDecrypt) [#_"RedeemData" (§ name redeemData)])
     (§ block
-        (§ var #_"List<ECKey>" (§ name decryptedKeys) (§ new ArrayList<>(§ pars )))
+        (§ var #_"List<ECKey>" (§ name decryptedKeys) (§ new #_"ArrayList<>" (§ pars )))
         (§ for (§ var #_"ECKey" (§ name key)) :for (§ expr redeemData.keys))
         (§ block
             (§ expr decryptedKeys.add(§ pars maybeDecrypt(§ pars key)))
@@ -45218,10 +45218,10 @@
     #_public
     (§ method #_"CoinSelection" (§ fn select) [#_"Coin" (§ name target), #_"List<TransactionOutput>" (§ name candidates)])
     (§ block
-        (§ var #_"ArrayList<TransactionOutput>" (§ name selected) (§ new ArrayList<>(§ pars )))
+        (§ var #_"ArrayList<TransactionOutput>" (§ name selected) (§ new #_"ArrayList<>" (§ pars )))
         ;; Sort the inputs by age * value, so we get the highest "coindays" spent.
         ;; TODO: Consider changing the wallets internal format to track just outputs and keep them ordered.
-        (§ var #_"ArrayList<TransactionOutput>" (§ name sortedOutputs) (§ new ArrayList<>(§ pars candidates)))
+        (§ var #_"ArrayList<TransactionOutput>" (§ name sortedOutputs) (§ new #_"ArrayList<>" (§ pars candidates)))
         ;; When calculating the wallet balance, we may be asked to select all possible coins, if so, avoid
         ;; sorting them in order to improve performance.
         ;; TODO: Take in network parameters when instanatiated, and then test against the current network.
@@ -45292,7 +45292,7 @@
     #_protected
     (§ method #_"boolean" (§ fn shouldSelect) [#_"Transaction" (§ name tx)])
     (§ block
-        (§ return (§ expr tx != nil) ? isSelectable(§ pars tx) :else true)
+        (§ return (§ quest (§ expr tx != nil) ? (§ expr isSelectable(§ pars tx)) :else (§ expr true)))
     )
 
     #_public
@@ -45319,7 +45319,7 @@
     #_public
     (§ method #_"DeterministicKeyChain" (§ fn makeKeyChain) [#_"Protos.Key" (§ name key), #_"Protos.Key" (§ name firstSubKey), #_"DeterministicSeed" (§ name seed), #_"KeyCrypter" (§ name crypter), #_"boolean" (§ name isMarried)])
     (§ block
-        (§ return (§ expr isMarried ? new MarriedKeyChain(§ pars seed, crypter) :else new DeterministicKeyChain(§ pars seed, crypter)))
+        (§ return (§ quest isMarried ? (§ expr new MarriedKeyChain(§ pars seed, crypter)) :else (§ expr new DeterministicKeyChain(§ pars seed, crypter))))
     )
 
     #_override
@@ -45332,7 +45332,7 @@
             (§ throw (§ new #_"UnreadableWalletException" (§ pars "Expecting account key but found key with path: " + HDUtils.formatPath(§ pars accountKey.getPath(§ pars )))))
         )
 
-        (§ return (§ expr isMarried ? new MarriedKeyChain(§ pars accountKey) :else new DeterministicKeyChain(§ pars accountKey, isFollowingKey)))
+        (§ return (§ quest isMarried ? (§ expr new MarriedKeyChain(§ pars accountKey)) :else (§ expr new DeterministicKeyChain(§ pars accountKey, isFollowingKey))))
     )
 )
 
@@ -45866,7 +45866,7 @@
         #_protected
         (§ method #_"T" (§ fn self) [])
         (§ block
-            (§ return (§ cast T)this)
+            (§ return (§ cast #_"T" this))
         )
 
         ;;;
@@ -45974,7 +45974,7 @@
         #_protected
         (§ method #_"String" (§ fn getPassphrase) [])
         (§ block
-            (§ return (§ expr passphrase != nil) ? passphrase :else DEFAULT_PASSPHRASE_FOR_MNEMONIC)
+            (§ return (§ quest (§ expr passphrase != nil) ? (§ expr passphrase) :else (§ expr DEFAULT_PASSPHRASE_FOR_MNEMONIC)))
         )
     )
 
@@ -46156,7 +46156,7 @@
         ;; anyway so there's nothing to encrypt.
         (§ for (§ var #_"ECKey" (§ name eckey)) :for (§ expr chain.basicKeyChain.getKeys(§ pars )))
         (§ block
-            (§ var #_"DeterministicKey" (§ name key) (§ expr (§ cast DeterministicKey)eckey))
+            (§ var #_"DeterministicKey" (§ name key) (§ expr (§ cast #_"DeterministicKey" eckey)))
             (§ if (§ expr key.getPath(§ pars ).size(§ pars ) != getAccountPath(§ pars ).size(§ pars ) + 2))
             (§ block
                 (§ continue ) ;; Not a leaf key.
@@ -46257,7 +46257,7 @@
             ;; and calculate the full lookahead zone there, so network requests will always use the right amount.
             (§ var #_"List<DeterministicKey>" (§ name lookahead) (§ expr maybeLookAhead(§ pars parentKey, index, 0, 0)))
             (§ expr basicKeyChain.importKeys(§ pars lookahead))
-            (§ var #_"List<DeterministicKey>" (§ name keys) (§ new ArrayList<>(§ pars numberOfKeys)))
+            (§ var #_"List<DeterministicKey>" (§ name keys) (§ new #_"ArrayList<>" (§ pars numberOfKeys)))
             (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < numberOfKeys) :for (§ ass (§ name i) (§ expr i + 1)))
             (§ block
                 (§ var #_"ImmutableList<ChildNumber>" (§ name path) (§ expr HDUtils.append(§ pars parentKey.getPath(§ pars ), new ChildNumber(§ pars index - numberOfKeys + i, false))))
@@ -46325,7 +46325,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ return (§ cast DeterministicKey)basicKeyChain.findKeyFromPubHash(§ pars pubkeyHash))
+            (§ return (§ cast #_"DeterministicKey" (§ expr basicKeyChain.findKeyFromPubHash(§ pars pubkeyHash))))
         )
         (§ finally )
         (§ block
@@ -46339,7 +46339,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ return (§ cast DeterministicKey)basicKeyChain.findKeyFromPubKey(§ pars pubkey))
+            (§ return (§ cast #_"DeterministicKey" (§ expr basicKeyChain.findKeyFromPubKey(§ pars pubkey))))
         )
         (§ finally )
         (§ block
@@ -46358,7 +46358,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var #_"DeterministicKey" (§ name k) (§ expr (§ cast DeterministicKey)basicKeyChain.findKeyFromPubHash(§ pars pubkeyHash)))
+            (§ var #_"DeterministicKey" (§ name k) (§ expr (§ cast #_"DeterministicKey" (§ expr basicKeyChain.findKeyFromPubHash(§ pars pubkeyHash)))))
             (§ if (§ expr k != nil))
             (§ block
                 (§ expr markKeyAsUsed(§ pars k))
@@ -46382,7 +46382,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var #_"DeterministicKey" (§ name k) (§ expr (§ cast DeterministicKey)basicKeyChain.findKeyFromPubKey(§ pars pubkey)))
+            (§ var #_"DeterministicKey" (§ name k) (§ expr (§ cast #_"DeterministicKey" (§ expr basicKeyChain.findKeyFromPubKey(§ pars pubkey)))))
             (§ if (§ expr k != nil))
             (§ block
                 (§ expr markKeyAsUsed(§ pars k))
@@ -46494,7 +46494,7 @@
     #_public
     (§ method #_"long" (§ fn getEarliestKeyCreationTime) [])
     (§ block
-        (§ return (§ quest (§ expr seed != nil) ? seed.getCreationTimeSeconds(§ pars ) :else getWatchingKey(§ pars ).getCreationTimeSeconds(§ pars )))
+        (§ return (§ quest (§ expr seed != nil) ? (§ expr seed.getCreationTimeSeconds(§ pars )) :else (§ dot getWatchingKey(§ pars ).getCreationTimeSeconds(§ pars ))))
     )
 
     #_override
@@ -46581,7 +46581,7 @@
         (§ var Map<ECKey, Protos.Key.Builder> keys = basicKeyChain.serializeToEditableProtobufs(§ pars ))
         (§ for (§ var Map.Entry<ECKey, Protos.Key.Builder> entry) :for (§ expr keys.entrySet(§ pars )))
         (§ block
-            (§ var #_"DeterministicKey" (§ name key) (§ expr (§ cast DeterministicKey)entry.getKey(§ pars )))
+            (§ var #_"DeterministicKey" (§ name key) (§ expr (§ cast #_"DeterministicKey" (§ expr entry.getKey(§ pars )))))
             (§ var #_"Protos.Key.Builder" (§ name proto) (§ expr entry.getValue(§ pars )))
             (§ expr proto.setType(§ pars Protos.Key.Type.DETERMINISTIC_KEY))
             #_final
@@ -46902,7 +46902,7 @@
         ;; anyway so there's nothing to decrypt.
         (§ for (§ var #_"ECKey" (§ name eckey)) :for (§ expr basicKeyChain.getKeys(§ pars )))
         (§ block
-            (§ var #_"DeterministicKey" (§ name key) (§ expr (§ cast DeterministicKey)eckey))
+            (§ var #_"DeterministicKey" (§ name key) (§ expr (§ cast #_"DeterministicKey" eckey)))
             (§ if (§ expr key.getPath(§ pars ).size(§ pars ) != getAccountPath(§ pars ).size(§ pars ) + 2))
             (§ block
                 (§ continue ) ;; Not a leaf key.
@@ -47073,7 +47073,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ return (§ expr lookaheadThreshold < lookaheadSize) ? lookaheadThreshold :else 0)
+            (§ return (§ quest (§ expr lookaheadThreshold < lookaheadSize) ? (§ expr lookaheadThreshold) :else 0))
         )
         (§ finally )
         (§ block
@@ -47136,12 +47136,12 @@
 
         (§ if (§ expr needed <= lookaheadThreshold))
         (§ block
-            (§ return (§ new ArrayList<>(§ pars )))
+            (§ return (§ new #_"ArrayList<>" (§ pars )))
         )
 
         (§ expr log.info(§ pars "{} keys needed for {} = {} issued + {} lookahead size + {} lookahead threshold - {} num children", needed, parent.getPathAsString(§ pars ), issued, lookaheadSize, lookaheadThreshold, numChildren))
 
-        (§ var #_"List<DeterministicKey>" (§ name result) (§ new ArrayList<>(§ pars needed)))
+        (§ var #_"List<DeterministicKey>" (§ name result) (§ new #_"ArrayList<>" (§ pars needed)))
         #_final
         (§ var #_"Stopwatch" (§ name watch) (§ expr Stopwatch.createStarted(§ pars )))
         (§ var #_"int" (§ name nextChild) (§ expr numChildren))
@@ -47223,10 +47223,10 @@
         (§ if (§ expr (§ not includeLookahead)))
         (§ block
             (§ var #_"int" (§ name treeSize) (§ expr internalParentKey.getPath(§ pars ).size(§ pars )))
-            (§ var #_"List<ECKey>" (§ name issuedKeys) (§ new LinkedList<>(§ pars )))
+            (§ var #_"List<ECKey>" (§ name issuedKeys) (§ new #_"LinkedList<>" (§ pars )))
             (§ for (§ var #_"ECKey" (§ name key)) :for (§ expr keys))
             (§ block
-                (§ var #_"DeterministicKey" (§ name detkey) (§ expr (§ cast DeterministicKey)key))
+                (§ var #_"DeterministicKey" (§ name detkey) (§ expr (§ cast #_"DeterministicKey" key)))
                 (§ var #_"DeterministicKey" (§ name parent) (§ expr detkey.getParent(§ pars )))
                 (§ if (§ expr (§ not includeParents) && parent == nil))
                 (§ block
@@ -47258,10 +47258,10 @@
     (§ method #_"List<ECKey>" (§ fn getIssuedReceiveKeys) [])
     (§ block
         #_final
-        (§ var #_"List<ECKey>" (§ name keys) (§ new ArrayList<>(§ pars getKeys(§ pars false, false))))
+        (§ var #_"List<ECKey>" (§ name keys) (§ new #_"ArrayList<>" (§ pars getKeys(§ pars false, false))))
         (§ for (§ var #_"Iterator<ECKey>" (§ name i) (§ expr keys.iterator(§ pars ))) :for (§ expr i.hasNext(§ pars )) :for (§ expr ))
         (§ block
-            (§ var #_"DeterministicKey" (§ name parent) (§ expr (§ expr (§ cast DeterministicKey)i.next(§ pars )).getParent(§ pars )))
+            (§ var #_"DeterministicKey" (§ name parent) (§ expr (§ expr (§ cast #_"DeterministicKey" (§ expr i.next(§ pars )))).getParent(§ pars )))
             (§ if (§ expr parent == nil || (§ not externalParentKey.equals(§ pars parent))))
             (§ block
                 (§ expr i.remove(§ pars ))
@@ -47279,7 +47279,7 @@
         (§ var #_"ImmutableList.Builder<DeterministicKey>" (§ name keys) (§ expr ImmutableList.builder(§ pars )))
         (§ for (§ var #_"ECKey" (§ name key)) :for (§ expr getKeys(§ pars true, false)))
         (§ block
-            (§ var #_"DeterministicKey" (§ name dKey) (§ expr (§ cast DeterministicKey)key))
+            (§ var #_"DeterministicKey" (§ name dKey) (§ expr (§ cast #_"DeterministicKey" key)))
             (§ if (§ expr dKey.getPath(§ pars ).size(§ pars ) == getAccountPath(§ pars ).size(§ pars ) + 2))
             (§ block
                 (§ expr keys.add(§ pars dKey))
@@ -47501,7 +47501,7 @@
     #_public
     (§ constructor #_"DeterministicSeed" [#_"List<String>" (§ name mnemonicCode), #_nilable #_"byte[]" (§ name seed), #_"String" (§ name passphrase), #_"long" (§ name creationTimeSeconds)])
     (§ block
-        (§ this (§ pars (§ expr seed != nil) ? seed :else MnemonicCode.toSeed(§ pars mnemonicCode, Preconditions.checkNotNull(§ pars passphrase)), mnemonicCode, creationTimeSeconds))
+        (§ this (§ pars (§ quest (§ expr seed != nil) ? (§ expr seed) :else (§ expr MnemonicCode.toSeed(§ pars mnemonicCode, Preconditions.checkNotNull(§ pars passphrase)))), mnemonicCode, creationTimeSeconds))
     )
 
     ;;;
@@ -47568,7 +47568,7 @@
     #_public
     (§ method #_"String" (§ fn toString) [])
     (§ block
-        (§ return (§ expr isEncrypted(§ pars ) ? "DeterministicSeed [encrypted]" :else "DeterministicSeed " + toHexString(§ pars ) + " " + Utils.SPACE_JOINER.join(§ pars mnemonicCode)))
+        (§ return (§ quest (§ expr isEncrypted(§ pars )) ? (§ expr "DeterministicSeed [encrypted]") :else (§ str "DeterministicSeed " + (§ expr toHexString(§ pars )) + " " + (§ expr Utils.SPACE_JOINER.join(§ pars mnemonicCode)))))
     )
 
     ;;; Returns the seed as hex or null if encrypted. ;;
@@ -47576,7 +47576,7 @@
     #_public
     (§ method #_"String" (§ fn toHexString) [])
     (§ block
-        (§ return (§ expr seed != nil) ? HEX.encode(§ pars seed) :else nil)
+        (§ return (§ quest (§ expr seed != nil) ? (§ expr HEX.encode(§ pars seed)) :else (§ expr nil)))
     )
 
     #_nilable
@@ -47653,7 +47653,7 @@
         (§ expr Preconditions.checkNotNull(§ pars encryptedMnemonicCode))
 
         (§ var #_"List<String>" (§ name mnemonic) (§ expr decodeMnemonicCode(§ pars crypter.decrypt(§ pars encryptedMnemonicCode, aesKey))))
-        (§ var #_"byte[]" (§ name seed) (§ quest (§ expr encryptedSeed != nil) ? crypter.decrypt(§ pars encryptedSeed, aesKey) :else nil))
+        (§ var #_"byte[]" (§ name seed) (§ quest (§ expr encryptedSeed != nil) ? (§ expr crypter.decrypt(§ pars encryptedSeed, aesKey)) :else (§ expr nil)))
         (§ return (§ new #_"DeterministicSeed" (§ pars mnemonic, seed, passphrase, creationTimeSeconds)))
     )
 
@@ -47669,7 +47669,7 @@
         (§ block
             (§ return (§ expr false))
         )
-        (§ var #_"DeterministicSeed" (§ name other) (§ expr (§ cast DeterministicSeed)o))
+        (§ var #_"DeterministicSeed" (§ name other) (§ expr (§ cast #_"DeterministicSeed" o)))
         (§ return (§ expr creationTimeSeconds == other.creationTimeSeconds && Objects.equal(§ pars encryptedMnemonicCode, other.encryptedMnemonicCode) && Objects.equal(§ pars mnemonicCode, other.mnemonicCode)))
     )
 
@@ -47805,7 +47805,7 @@
     #_protected
     (§ field #_"CoinSelector" (§ name delegate))
     #_protected
-    (§ field #_"HashSet<TransactionOutPoint>" (§ name spent) (§ new HashSet<>(§ pars )))
+    (§ field #_"HashSet<TransactionOutPoint>" (§ name spent) (§ new #_"HashSet<>" (§ pars )))
 
     #_public
     (§ constructor #_"FilteringCoinSelector" [#_"CoinSelector" (§ name delegate)])
@@ -48096,11 +48096,11 @@
     (§ constructor #_"KeyChainGroup" [#_"NetworkParameters" (§ name params), #_nilable #_"BasicKeyChain" (§ name basicKeyChain), #_"List<DeterministicKeyChain>" (§ name chains), #_nilable #_"EnumMap<KeyChain.KeyPurpose, DeterministicKey>" (§ name currentKeys), #_nilable #_"KeyCrypter" (§ name crypter)])
     (§ block
         (§ ass (§ name this.params) (§ expr params))
-        (§ ass this.basic = (§ expr basicKeyChain == nil) ? new BasicKeyChain(§ pars ) :else basicKeyChain)
-        (§ ass (§ name this.chains) (§ new LinkedList<>(§ pars Preconditions.checkNotNull(§ pars chains))))
+        (§ ass this.basic = (§ quest (§ expr basicKeyChain == nil) ? (§ expr new BasicKeyChain(§ pars )) :else (§ expr basicKeyChain)))
+        (§ ass (§ name this.chains) (§ new #_"LinkedList<>" (§ pars Preconditions.checkNotNull(§ pars chains))))
         (§ ass (§ name this.keyCrypter) (§ expr crypter))
-        (§ ass this.currentKeys = (§ expr currentKeys == nil) ? new EnumMap<KeyChain.KeyPurpose, DeterministicKey>(§ pars (§ klass #_"KeyChain.KeyPurpose")) :else currentKeys)
-        (§ ass (§ name this.currentAddresses) (§ new EnumMap<>(§ pars (§ klass #_"KeyChain.KeyPurpose"))))
+        (§ ass this.currentKeys = (§ quest (§ expr currentKeys == nil) ? (§ expr new EnumMap<KeyChain.KeyPurpose, DeterministicKey>(§ pars (§ klass #_"KeyChain.KeyPurpose"))) :else (§ expr currentKeys)))
+        (§ ass (§ name this.currentAddresses) (§ new #_"EnumMap<>" (§ pars (§ klass #_"KeyChain.KeyPurpose"))))
         (§ expr maybeLookaheadScripts(§ pars ))
 
         (§ if (§ expr isMarried(§ pars )))
@@ -48304,7 +48304,7 @@
     #_public
     (§ method #_"int" (§ fn getLookaheadSize) [])
     (§ block
-        (§ return (§ expr lookaheadSize == -1) ? getActiveKeyChain(§ pars ).getLookaheadSize(§ pars ) :else lookaheadSize)
+        (§ return (§ quest (§ expr lookaheadSize == -1) ? (§ dot getActiveKeyChain(§ pars ).getLookaheadSize(§ pars )) :else (§ expr lookaheadSize)))
     )
 
     ;;;
@@ -48327,7 +48327,7 @@
     #_public
     (§ method #_"int" (§ fn getLookaheadThreshold) [])
     (§ block
-        (§ return (§ expr lookaheadThreshold == -1) ? getActiveKeyChain(§ pars ).getLookaheadThreshold(§ pars ) :else lookaheadThreshold)
+        (§ return (§ quest (§ expr lookaheadThreshold == -1) ? (§ dot getActiveKeyChain(§ pars ).getLookaheadThreshold(§ pars )) :else (§ expr lookaheadThreshold)))
     )
 
     ;;; Imports the given keys into the basic chain, creating it if necessary. ;;
@@ -48357,7 +48357,7 @@
     (§ block
         (§ expr Preconditions.checkState(§ pars keyCrypter != nil, "Not encrypted"))
 
-        (§ return (§ quest (§ expr 0 < basic.numKeys(§ pars )) ? basic.checkAESKey(§ pars aesKey) :else getActiveKeyChain(§ pars ).checkAESKey(§ pars aesKey)))
+        (§ return (§ quest (§ expr 0 < basic.numKeys(§ pars )) ? (§ expr basic.checkAESKey(§ pars aesKey)) :else (§ expr getActiveKeyChain(§ pars ).checkAESKey(§ pars aesKey))))
     )
 
     ;;; Imports the given unencrypted keys into the basic chain, encrypting them along the way with the given key. ;;
@@ -48608,7 +48608,7 @@
 
         ;; This code must be exception safe.
         (§ var #_"BasicKeyChain" (§ name newBasic) (§ expr basic.toEncrypted(§ pars keyCrypter, aesKey)))
-        (§ var #_"List<DeterministicKeyChain>" (§ name newChains) (§ new ArrayList<>(§ pars chains.size(§ pars ))))
+        (§ var #_"List<DeterministicKeyChain>" (§ name newChains) (§ new #_"ArrayList<>" (§ pars chains.size(§ pars ))))
         (§ if (§ expr chains.isEmpty(§ pars ) && basic.numKeys(§ pars ) == 0))
         (§ block
             ;; No HD chains and no random keys: encrypting an entirely empty keychain group.
@@ -48638,7 +48638,7 @@
         (§ expr Preconditions.checkNotNull(§ pars aesKey))
 
         (§ var #_"BasicKeyChain" (§ name newBasic) (§ expr basic.toDecrypted(§ pars aesKey)))
-        (§ var #_"List<DeterministicKeyChain>" (§ name newChains) (§ new ArrayList<>(§ pars chains.size(§ pars ))))
+        (§ var #_"List<DeterministicKeyChain>" (§ name newChains) (§ new #_"ArrayList<>" (§ pars chains.size(§ pars ))))
         (§ for (§ var #_"DeterministicKeyChain" (§ name chain)) :for (§ expr chains))
         (§ block
             (§ expr newChains.add(§ pars chain.toDecrypted(§ pars aesKey)))
@@ -48669,7 +48669,7 @@
         (§ var #_"BasicKeyChain.State" (§ name activeState) (§ expr BasicKeyChain.State.EMPTY))
         (§ if (§ expr (§ not chains.isEmpty(§ pars ))))
         (§ block
-            (§ ass (§ name activeState) (§ expr getActiveKeyChain(§ pars ).isWatching(§ pars ) ? BasicKeyChain.State.WATCHING :else BasicKeyChain.State.REGULAR))
+            (§ ass (§ name activeState) (§ quest (§ dot getActiveKeyChain(§ pars ).isWatching(§ pars )) ? (§ expr BasicKeyChain.State.WATCHING) :else (§ expr BasicKeyChain.State.REGULAR)))
         )
 
         (§ var #_"BasicKeyChain.State" (§ name basicState) (§ expr basic.isWatching(§ pars )))
@@ -48795,7 +48795,7 @@
     #_public
     (§ method #_"List<Protos.Key>" (§ fn serializeToProtobuf) [])
     (§ block
-        (§ var #_"List<Protos.Key>" (§ name result) (§ quest (§ expr basic != nil) ? basic.serializeToProtobuf(§ pars ) :else Lists.newArrayList(§ pars )))
+        (§ var #_"List<Protos.Key>" (§ name result) (§ quest (§ expr basic != nil) ? (§ expr basic.serializeToProtobuf(§ pars )) :else (§ expr Lists.newArrayList(§ pars ))))
 
         (§ for (§ var #_"DeterministicKeyChain" (§ name chain)) :for (§ expr chains))
         (§ block
@@ -48992,7 +48992,7 @@
                     (§ throw (§ new #_"IllegalStateException" (§ pars )))
                 )
 
-                (§ expr (§ expr (§ cast MarriedKeyChain)chain).setFollowingKeyChains(§ pars followingChains))
+                (§ expr (§ expr (§ cast #_"MarriedKeyChain" chain)).setFollowingKeyChains(§ pars followingChains))
                 (§ ass (§ name followingChains) (§ expr Lists.newArrayList(§ pars )))
             )
         )
@@ -49023,7 +49023,7 @@
     #_public
     (§ method #_"List<DeterministicKeyChain>" (§ fn getDeterministicKeyChains) [])
     (§ block
-        (§ return (§ new ArrayList<>(§ pars chains)))
+        (§ return (§ new #_"ArrayList<>" (§ pars chains)))
     )
 
     ;;;
@@ -49539,7 +49539,7 @@
     (§ constructor #_"RedeemData" [#_"List<ECKey>" (§ name keys), #_"Script" (§ name redeemScript)])
     (§ block
         (§ ass (§ name this.redeemScript) (§ expr redeemScript))
-        (§ var #_"List<ECKey>" (§ name sortedKeys) (§ new ArrayList<>(§ pars keys)))
+        (§ var #_"List<ECKey>" (§ name sortedKeys) (§ new #_"ArrayList<>" (§ pars keys)))
         (§ expr Collections.sort(§ pars sortedKeys, ECKey.PUBKEY_COMPARATOR))
         (§ ass (§ name this.keys) (§ expr sortedKeys))
     )
@@ -49561,7 +49561,7 @@
     (§ block
         (§ expr Preconditions.checkArgument(§ pars program.isSentToAddress(§ pars ) || program.isSentToRawPubKey(§ pars )))
 
-        (§ return (§ expr key != nil) ? new RedeemData(§ pars Collections.singletonList(§ pars key), program) :else nil)
+        (§ return (§ quest (§ expr key != nil) ? (§ expr new RedeemData(§ pars Collections.singletonList(§ pars key), program)) :else (§ expr nil)))
     )
 
     ;;;
@@ -49895,7 +49895,7 @@
         (§ expr helper.add(§ pars "feePerKb", feePerKb))
         (§ expr helper.add(§ pars "ensureMinRequiredFee", ensureMinRequiredFee))
         (§ expr helper.add(§ pars "signInputs", signInputs))
-        (§ expr helper.add(§ pars "aesKey", (§ expr aesKey != nil) ? "set" :else nil)) ;; Careful to not leak the key.
+        (§ expr helper.add(§ pars "aesKey", (§ quest (§ expr aesKey != nil) ? (§ expr "set") :else (§ expr nil)))) ;; Careful to not leak the key.
         (§ expr helper.add(§ pars "coinSelector", coinSelector))
         (§ expr helper.add(§ pars "shuffleOutputs", shuffleOutputs))
         (§ expr helper.add(§ pars "recipientsPayFees", recipientsPayFees))
@@ -50123,19 +50123,19 @@
 
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<WalletChangeEventListener>>" (§ name changeListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<WalletChangeEventListener>>" (§ name changeListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<WalletCoinsReceivedEventListener>>" (§ name coinsReceivedListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<WalletCoinsReceivedEventListener>>" (§ name coinsReceivedListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<WalletCoinsSentEventListener>>" (§ name coinsSentListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<WalletCoinsSentEventListener>>" (§ name coinsSentListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<WalletReorganizeEventListener>>" (§ name reorganizeListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<WalletReorganizeEventListener>>" (§ name reorganizeListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
     #_private
     #_final
-    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<TransactionConfidenceEventListener>>" (§ name transactionConfidenceListeners) (§ new CopyOnWriteArrayList<>(§ pars )))
+    (§ field #_"CopyOnWriteArrayList<ListenerRegistration<TransactionConfidenceEventListener>>" (§ name transactionConfidenceListeners) (§ new #_"CopyOnWriteArrayList<>" (§ pars )))
 
     ;; A listener that relays confidence changes from the transaction confidence object to the wallet event listener,
     ;; as a convenience to API users so they don't have to register on every transaction themselves.
@@ -50290,14 +50290,14 @@
         (§ block
             (§ expr this.keyChainGroup.createAndActivateNewHDChain(§ pars ))
         )
-        (§ ass (§ name unspent) (§ new HashMap<>(§ pars )))
-        (§ ass (§ name spent) (§ new HashMap<>(§ pars )))
-        (§ ass (§ name pending) (§ new HashMap<>(§ pars )))
-        (§ ass (§ name dead) (§ new HashMap<>(§ pars )))
-        (§ ass (§ name transactions) (§ new HashMap<>(§ pars )))
+        (§ ass (§ name unspent) (§ new #_"HashMap<>" (§ pars )))
+        (§ ass (§ name spent) (§ new #_"HashMap<>" (§ pars )))
+        (§ ass (§ name pending) (§ new #_"HashMap<>" (§ pars )))
+        (§ ass (§ name dead) (§ new #_"HashMap<>" (§ pars )))
+        (§ ass (§ name transactions) (§ new #_"HashMap<>" (§ pars )))
         ;; Use a linked hash map to ensure ordering of event listeners is correct.
-        (§ ass (§ name confidenceChanged) (§ new LinkedHashMap<>(§ pars )))
-        (§ ass (§ name signers) (§ new ArrayList<>(§ pars )))
+        (§ ass (§ name confidenceChanged) (§ new #_"LinkedHashMap<>" (§ pars )))
+        (§ ass (§ name signers) (§ new #_"ArrayList<>" (§ pars )))
         (§ expr addTransactionSigner(§ pars (§ new #_"LocalTransactionSigner" (§ pars ))))
         (§ expr createTransientState(§ pars ))
     )
@@ -50305,7 +50305,7 @@
     #_private
     (§ method #_"void" (§ fn createTransientState) [])
     (§ block
-        (§ ass (§ name ignoreNextNewBlock) (§ new HashSet<>(§ pars )))
+        (§ ass (§ name ignoreNextNewBlock) (§ new #_"HashSet<>" (§ pars )))
         (§ ass (§ name txConfidenceListener) (§ new #_"TransactionConfidence.Listener" (§ pars )
         (§ anon
             #_override
@@ -50564,7 +50564,7 @@
     (§ block
         #_final
         (§ var #_"List<ECKey>" (§ name keys) (§ expr getIssuedReceiveKeys(§ pars )))
-        (§ var #_"List<Address>" (§ name addresses) (§ new ArrayList<>(§ pars keys.size(§ pars ))))
+        (§ var #_"List<Address>" (§ name addresses) (§ new #_"ArrayList<>" (§ pars keys.size(§ pars ))))
         (§ for (§ var #_"ECKey" (§ name key)) :for (§ expr keys))
         (§ block
             (§ expr addresses.add(§ pars key.toAddress(§ pars getParams(§ pars ))))
@@ -51274,7 +51274,7 @@
         (§ try )
         (§ block
             (§ var #_"KeyCrypter" (§ name crypter) (§ expr keyChainGroup.getKeyCrypter(§ pars )))
-            (§ return (§ expr crypter != nil) ? crypter.getUnderstoodEncryptionType(§ pars ) :else EncryptionType.UNENCRYPTED)
+            (§ return (§ quest (§ expr crypter != nil) ? (§ expr crypter.getUnderstoodEncryptionType(§ pars )) :else (§ expr EncryptionType.UNENCRYPTED)))
         )
         (§ finally )
         (§ block
@@ -51687,7 +51687,7 @@
         (§ block
             (§ var #_"Set<Transaction>" (§ name transactions) (§ expr getTransactions(§ pars true)))
 
-            (§ var #_"Set<Sha256Hash>" (§ name hashes) (§ new HashSet<>(§ pars )))
+            (§ var #_"Set<Sha256Hash>" (§ name hashes) (§ new #_"HashSet<>" (§ pars )))
             (§ for (§ var #_"Transaction" (§ name tx)) :for (§ expr transactions))
             (§ block
                 (§ expr hashes.add(§ pars tx.getHash(§ pars )))
@@ -52019,7 +52019,7 @@
         )
 
         ;; Compile a set of outpoints that are spent by tx.
-        (§ var #_"HashSet<TransactionOutPoint>" (§ name outpoints) (§ new HashSet<>(§ pars )))
+        (§ var #_"HashSet<TransactionOutPoint>" (§ name outpoints) (§ new #_"HashSet<>" (§ pars )))
         (§ for (§ var #_"TransactionInput" (§ name input)) :for (§ expr tx.getInputs(§ pars )))
         (§ block
             (§ expr outpoints.add(§ pars input.getOutpoint(§ pars )))
@@ -52143,7 +52143,7 @@
         (§ var #_"Coin" (§ name valueSentToMe) (§ expr tx.getValueSentToMe(§ pars this)))
         (§ var #_"Coin" (§ name valueDifference) (§ expr valueSentToMe.subtract(§ pars valueSentFromMe)))
 
-        (§ expr log.info(§ pars "Received tx{} for {}: {} [{}] in block {}", sideChain ? " on a side chain") :for (§ expr "", valueDifference.toFriendlyString(§ pars ), tx.getHashAsString(§ pars ), relativityOffset, (§ expr block != nil) ? block.getHeader(§ pars ).getHash(§ pars ) :else "(unit test)"))
+        (§ expr log.info(§ pars "Received tx{} for {}: {} [{}] in block {}", (§ quest (§ expr sideChain) ? (§ expr " on a side chain") :else (§ expr "")), valueDifference.toFriendlyString(§ pars ), tx.getHashAsString(§ pars ), relativityOffset, (§ quest (§ expr block != nil) ? (§ dot block.getHeader(§ pars ).getHash(§ pars )) :else (§ expr "(unit test)"))))
 
         ;; Inform the key chains that the issued keys were observed in a transaction, so they know to
         ;; calculate more keys for the next Bloom filters.
@@ -52321,7 +52321,7 @@
      ;;
     (§ method #_"List<Transaction>" (§ fn sortTxnsByDependency) [#_"Set<Transaction>" (§ name inputSet)])
     (§ block
-        (§ var #_"ArrayList<Transaction>" (§ name result) (§ new ArrayList<>(§ pars inputSet)))
+        (§ var #_"ArrayList<Transaction>" (§ name result) (§ new #_"ArrayList<>" (§ pars inputSet)))
         (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < result.size(§ pars ) - 1) :for (§ ass (§ name i) (§ expr i + 1)))
         (§ block
             (§ var #_"boolean" (§ name txAtISpendsOtherTxInTheList))
@@ -52672,12 +52672,12 @@
     #_private
     (§ method #_"void" (§ fn killTxns) [#_"Set<Transaction>" (§ name txnsToKill), #_nilable #_"Transaction" (§ name overridingTx)])
     (§ block
-        (§ var #_"LinkedList<Transaction>" (§ name work) (§ new LinkedList<>(§ pars txnsToKill)))
+        (§ var #_"LinkedList<Transaction>" (§ name work) (§ new #_"LinkedList<>" (§ pars txnsToKill)))
         (§ while (§ expr (§ not work.isEmpty(§ pars ))))
         (§ block
             #_final
             (§ var #_"Transaction" (§ name tx) (§ expr work.poll(§ pars )))
-            (§ expr log.warn(§ pars "TX {} killed{}", tx.getHashAsString(§ pars ), (§ expr overridingTx != nil) ? " by " + overridingTx.getHashAsString(§ pars ) :else ""))
+            (§ expr log.warn(§ pars "TX {} killed{}", tx.getHashAsString(§ pars ), (§ quest (§ expr overridingTx != nil) ? (§ str " by " + overridingTx.getHashAsString(§ pars )) :else (§ expr ""))))
             (§ expr log.warn(§ pars "Disconnecting each input and moving connected transactions."))
             ;; TX could be pending (finney attack), or in unspent/spent (coinbase killed by reorg).
             (§ expr pending.remove(§ pars tx.getHash(§ pars )))
@@ -52930,7 +52930,7 @@
     (§ method #_"void" (§ fn addChangeEventListener) [#_"Executor" (§ name executor), #_"WalletChangeEventListener" (§ name listener)])
     (§ block
         ;; This is thread safe, so we don't need to take the lock.
-        (§ expr changeListeners.add(§ pars (§ new ListenerRegistration<>(§ pars listener, executor))))
+        (§ expr changeListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars listener, executor))))
     )
 
     ;;;
@@ -52951,7 +52951,7 @@
     (§ method #_"void" (§ fn addCoinsReceivedEventListener) [#_"Executor" (§ name executor), #_"WalletCoinsReceivedEventListener" (§ name listener)])
     (§ block
         ;; This is thread safe, so we don't need to take the lock.
-        (§ expr coinsReceivedListeners.add(§ pars (§ new ListenerRegistration<>(§ pars listener, executor))))
+        (§ expr coinsReceivedListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars listener, executor))))
     )
 
     ;;;
@@ -52972,7 +52972,7 @@
     (§ method #_"void" (§ fn addCoinsSentEventListener) [#_"Executor" (§ name executor), #_"WalletCoinsSentEventListener" (§ name listener)])
     (§ block
         ;; This is thread safe, so we don't need to take the lock.
-        (§ expr coinsSentListeners.add(§ pars (§ new ListenerRegistration<>(§ pars listener, executor))))
+        (§ expr coinsSentListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars listener, executor))))
     )
 
     ;;;
@@ -53013,7 +53013,7 @@
     (§ method #_"void" (§ fn addReorganizeEventListener) [#_"Executor" (§ name executor), #_"WalletReorganizeEventListener" (§ name listener)])
     (§ block
         ;; This is thread safe, so we don't need to take the lock.
-        (§ expr reorganizeListeners.add(§ pars (§ new ListenerRegistration<>(§ pars listener, executor))))
+        (§ expr reorganizeListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars listener, executor))))
     )
 
     ;;;
@@ -53034,7 +53034,7 @@
     (§ method #_"void" (§ fn addTransactionConfidenceEventListener) [#_"Executor" (§ name executor), #_"TransactionConfidenceEventListener" (§ name listener)])
     (§ block
         ;; This is thread safe, so we don't need to take the lock.
-        (§ expr transactionConfidenceListeners.add(§ pars (§ new ListenerRegistration<>(§ pars listener, executor))))
+        (§ expr transactionConfidenceListeners.add(§ pars (§ new #_"ListenerRegistration<>" (§ pars listener, executor))))
     )
 
     ;;;
@@ -53218,7 +53218,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var #_"Set<Transaction>" (§ name all) (§ new HashSet<>(§ pars )))
+            (§ var #_"Set<Transaction>" (§ name all) (§ new #_"HashSet<>" (§ pars )))
             (§ expr all.addAll(§ pars unspent.values(§ pars )))
             (§ expr all.addAll(§ pars spent.values(§ pars )))
             (§ expr all.addAll(§ pars pending.values(§ pars )))
@@ -53243,7 +53243,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var #_"Set<WalletTransaction>" (§ name all) (§ new HashSet<>(§ pars )))
+            (§ var #_"Set<WalletTransaction>" (§ name all) (§ new #_"HashSet<>" (§ pars )))
             (§ expr addWalletTransactionsToSet(§ pars all, Pool.UNSPENT, unspent.values(§ pars )))
             (§ expr addWalletTransactionsToSet(§ pars all, Pool.SPENT, spent.values(§ pars )))
             (§ expr addWalletTransactionsToSet(§ pars all, Pool.DEAD, dead.values(§ pars )))
@@ -53369,7 +53369,7 @@
                 (§ ass (§ name numTransactions) (§ expr size))
             )
 
-            (§ var #_"ArrayList<Transaction>" (§ name all) (§ new ArrayList<>(§ pars getTransactions(§ pars includeDead))))
+            (§ var #_"ArrayList<Transaction>" (§ name all) (§ new #_"ArrayList<>" (§ pars getTransactions(§ pars includeDead))))
             ;; Order by update time.
             (§ expr Collections.sort(§ pars all, Transaction.SORT_TX_BY_UPDATE_TIME))
             (§ if (§ expr numTransactions == all.size(§ pars )))
@@ -53674,7 +53674,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ return (§ new ArrayList<>(§ pars myUnspents)))
+            (§ return (§ new #_"ArrayList<>" (§ pars myUnspents)))
         )
         (§ finally )
         (§ block
@@ -53713,7 +53713,7 @@
             (§ expr sb.append(§ pars "  ").append(§ pars dead.size(§ pars )).append(§ pars " dead transactions\n"))
             #_final
             (§ var #_"Date" (§ name lastBlockSeenTime) (§ expr getLastBlockSeenTime(§ pars )))
-            (§ expr sb.append(§ pars "Last seen best block: ").append(§ pars getLastBlockSeenHeight(§ pars )).append(§ pars " (").append(§ pars (§ expr lastBlockSeenTime == nil) ? "time unknown" :else Utils.dateTimeFormat(§ pars lastBlockSeenTime)).append(§ pars "): ").append(§ pars getLastBlockSeenHash(§ pars )).append(§ pars "\n"))
+            (§ expr sb.append(§ pars "Last seen best block: ").append(§ pars getLastBlockSeenHeight(§ pars )).append(§ pars " (").append(§ pars (§ quest (§ expr lastBlockSeenTime == nil) ? (§ expr "time unknown") :else (§ expr Utils.dateTimeFormat(§ pars lastBlockSeenTime)))).append(§ pars "): ").append(§ pars getLastBlockSeenHash(§ pars )).append(§ pars "\n"))
             #_final
             (§ var #_"KeyCrypter" (§ name crypter) (§ expr keyChainGroup.getKeyCrypter(§ pars )))
             (§ if (§ expr crypter != nil))
@@ -53778,7 +53778,7 @@
         (§ var #_"Collection<Transaction>" (§ name txns))
         (§ if (§ expr sortOrder != nil))
         (§ block
-            (§ ass (§ name txns) (§ new TreeSet<>(§ pars sortOrder)))
+            (§ ass (§ name txns) (§ new #_"TreeSet<>" (§ pars sortOrder)))
             (§ expr txns.addAll(§ pars transactionMap.values(§ pars )))
         )
         (§ else )
@@ -53846,7 +53846,7 @@
         (§ try )
         (§ block
             (§ var #_"long" (§ name earliestTime) (§ expr keyChainGroup.getEarliestKeyCreationTime(§ pars )))
-            (§ return (§ expr earliestTime == Long.MAX_VALUE) ? Utils.currentTimeSeconds(§ pars ) :else earliestTime)
+            (§ return (§ quest (§ expr earliestTime == Long.MAX_VALUE) ? (§ expr Utils.currentTimeSeconds(§ pars )) :else (§ expr earliestTime)))
         )
         (§ finally )
         (§ block
@@ -53946,7 +53946,7 @@
     (§ block
         #_final
         (§ var #_"long" (§ name secs) (§ expr getLastBlockSeenTimeSecs(§ pars )))
-        (§ return (§ quest (§ expr secs == 0) ? nil :else new Date(§ pars secs * 1000)))
+        (§ return (§ quest (§ expr secs == 0) ? (§ expr nil) :else (§ expr new Date(§ pars secs * 1000))))
     )
 
     ;;;
@@ -54616,7 +54616,7 @@
             )
             (§ ass (§ name value) (§ expr value.subtract(§ pars totalInput)))
 
-            (§ var #_"List<TransactionInput>" (§ name originalInputs) (§ new ArrayList<>(§ pars req.tx.getInputs(§ pars ))))
+            (§ var #_"List<TransactionInput>" (§ name originalInputs) (§ new #_"ArrayList<>" (§ pars req.tx.getInputs(§ pars ))))
 
             ;; Check for dusty sends and the OP_RETURN limit.
             (§ if (§ expr req.ensureMinRequiredFee && (§ not (§ expr req.emptyWallet)))) ;; Min fee checking is handled later for emptyWallet.
@@ -54662,7 +54662,7 @@
                 ;; of the total value we can currently spend as determined by the selector, and then subtracting the fee.
                 (§ expr Preconditions.checkState(§ pars req.tx.getOutputs(§ pars ).size(§ pars ) == 1, "Empty wallet TX must have a single output only."))
 
-                (§ var #_"CoinSelector" (§ name selector) (§ quest (§ expr req.coinSelector == nil) ? coinSelector :else req.coinSelector))
+                (§ var #_"CoinSelector" (§ name selector) (§ quest (§ expr req.coinSelector == nil) ? (§ expr coinSelector) :else (§ expr req.coinSelector)))
                 (§ ass (§ name bestCoinSelection) (§ expr selector.select(§ pars params.getMaxMoney(§ pars ), candidates)))
                 (§ ass (§ name candidates) (§ expr nil)) ;; Selector took ownership and might have changed candidates.  Don't access again.
                 (§ expr req.tx.getOutput(§ pars 0).setValue(§ pars bestCoinSelection.valueGathered))
@@ -54677,7 +54677,7 @@
             (§ if (§ expr req.emptyWallet))
             (§ block
                 #_final
-                (§ var #_"Coin" (§ name feePerKb) (§ quest (§ expr req.feePerKb == nil) ? Coin.ZERO :else req.feePerKb))
+                (§ var #_"Coin" (§ name feePerKb) (§ quest (§ expr req.feePerKb == nil) ? (§ expr Coin.ZERO) :else (§ expr req.feePerKb)))
                 (§ if (§ expr (§ not adjustOutputDownwardsForFee(§ pars req.tx, bestCoinSelection, feePerKb, req.ensureMinRequiredFee))))
                 (§ block
                     (§ throw (§ new #_"CouldNotAdjustDownwards" (§ pars )))
@@ -54845,7 +54845,7 @@
         (§ expr lock.lock(§ pars ))
         (§ try )
         (§ block
-            (§ var #_"List<TransactionOutput>" (§ name candidates) (§ new ArrayList<>(§ pars myUnspents.size(§ pars ))))
+            (§ var #_"List<TransactionOutput>" (§ name candidates) (§ new #_"ArrayList<>" (§ pars myUnspents.size(§ pars ))))
             (§ for (§ var #_"TransactionOutput" (§ name output)) :for (§ expr myUnspents))
             (§ block
                 (§ if (§ expr excludeUnsignable && (§ not canSignFor(§ pars output.getScriptPubKey(§ pars )))))
@@ -55022,7 +55022,7 @@
         #_public
         (§ method #_"int" (§ fn getIndex) [])
         (§ block
-            (§ return (§ expr (§ cast int)output.getIndex(§ pars )))
+            (§ return (§ expr (§ cast #_"int" (§ expr output.getIndex(§ pars )))))
         )
 
         #_override
@@ -55116,7 +55116,7 @@
                 (§ expr Collections.sort(§ pars mapBlockTx.get(§ pars blockHash)))
             )
 
-            (§ var #_"List<Sha256Hash>" (§ name oldBlockHashes) (§ new ArrayList<>(§ pars oldBlocks.size(§ pars ))))
+            (§ var #_"List<Sha256Hash>" (§ name oldBlockHashes) (§ new #_"ArrayList<>" (§ pars oldBlocks.size(§ pars ))))
             (§ expr log.info(§ pars "Old part of chain (top to bottom):"))
             (§ for (§ var #_"StoredBlock" (§ name b)) :for (§ expr oldBlocks))
             (§ block
@@ -55295,7 +55295,7 @@
     (§ block
         ;; TODO: This could be done once and then kept up to date.
         (§ expr bloomOutPoints.clear(§ pars ))
-        (§ var #_"Set<Transaction>" (§ name all) (§ new HashSet<>(§ pars )))
+        (§ var #_"Set<Transaction>" (§ name all) (§ new #_"HashSet<>" (§ pars )))
         (§ expr all.addAll(§ pars unspent.values(§ pars )))
         (§ expr all.addAll(§ pars spent.values(§ pars )))
         (§ expr all.addAll(§ pars pending.values(§ pars )))
@@ -55364,7 +55364,7 @@
         (§ expr beginBloomFilterCalculation(§ pars ))
         (§ try )
         (§ block
-            (§ return (§ expr getBloomFilter(§ pars getBloomFilterElementCount(§ pars ), falsePositiveRate, (§ cast long)(§ expr Math.random(§ pars ) * Long.MAX_VALUE))))
+            (§ return (§ expr getBloomFilter(§ pars getBloomFilterElementCount(§ pars ), falsePositiveRate, (§ cast #_"long" (§ expr Math.random(§ pars ) * Long.MAX_VALUE)))))
         )
         (§ finally )
         (§ block
@@ -55476,7 +55476,7 @@
             )
             (§ if (§ expr req.recipientsPayFees))
             (§ block
-                (§ ass (§ name result.updatedOutputValues) (§ new ArrayList<Coin>(§ pars )))
+                (§ ass (§ name result.updatedOutputValues) (§ new #_"ArrayList<Coin>" (§ pars )))
             )
 
             (§ for (§ var #_"int" (§ name i) (§ expr 0)) :for (§ expr i < req.tx.getOutputs(§ pars ).size(§ pars )) :for (§ ass (§ name i) (§ expr i + 1)))
@@ -55501,7 +55501,7 @@
                 (§ expr tx.addOutput(§ pars output))
             )
 
-            (§ var #_"CoinSelector" (§ name selector) (§ quest (§ expr req.coinSelector == nil) ? coinSelector :else req.coinSelector))
+            (§ var #_"CoinSelector" (§ name selector) (§ quest (§ expr req.coinSelector == nil) ? (§ expr coinSelector) :else (§ expr req.coinSelector)))
             ;; selector is allowed to modify candidates list.
             (§ var #_"CoinSelection" (§ name selection) (§ expr selector.select(§ pars valueNeeded, new LinkedList<>(§ pars candidates))))
             (§ ass (§ name result.bestCoinSelection) (§ expr selection))
@@ -55710,7 +55710,7 @@
     (§ block
         #_final
         (§ var #_"long" (§ name keyRotationTimestamp) (§ expr vKeyRotationTimestamp))
-        (§ return (§ expr keyRotationTimestamp != 0) ? new Date(§ pars keyRotationTimestamp * 1000) :else nil)
+        (§ return (§ quest (§ expr keyRotationTimestamp != 0) ? (§ expr new Date(§ pars keyRotationTimestamp * 1000)) :else (§ expr nil)))
     )
 
     ;;;
@@ -55774,7 +55774,7 @@
             (§ expr lock.unlock(§ pars ))
         )
         (§ expr Preconditions.checkState(§ pars (§ not lock.isHeldByCurrentThread(§ pars ))))
-        (§ var #_"ArrayList<ListenableFuture<Transaction>>" (§ name futures) (§ new ArrayList<>(§ pars txns.size(§ pars ))))
+        (§ var #_"ArrayList<ListenableFuture<Transaction>>" (§ name futures) (§ new #_"ArrayList<>" (§ pars txns.size(§ pars ))))
         (§ var #_"TransactionBroadcaster" (§ name broadcaster) (§ expr vTransactionBroadcaster))
         (§ for (§ var #_"Transaction" (§ name tx)) :for (§ expr txns))
         (§ block
@@ -55912,7 +55912,7 @@
                 (§ expr rekeyTx.addInput(§ pars output))
             )
             ;; When not signing, don't waste addresses.
-            (§ expr rekeyTx.addOutput(§ pars toMove.valueGathered, sign ? freshReceiveAddress(§ pars ) :else currentReceiveAddress(§ pars )))
+            (§ expr rekeyTx.addOutput(§ pars toMove.valueGathered, (§ quest sign ? (§ expr freshReceiveAddress(§ pars )) :else (§ expr currentReceiveAddress(§ pars )))))
             (§ if (§ expr (§ not adjustOutputDownwardsForFee(§ pars rekeyTx, toMove, Transaction.DEFAULT_TX_FEE, true))))
             (§ block
                 (§ expr log.error(§ pars "Failed to adjust rekey tx for fees."))
@@ -56028,7 +56028,7 @@
         (§ ass (§ name this.delay) (§ expr delay))
         (§ ass (§ name this.delayTimeUnit) (§ expr Preconditions.checkNotNull(§ pars delayTimeUnit)))
 
-        (§ ass (§ name this.saver) (§ new Callable<Void>(§ pars )
+        (§ ass (§ name this.saver) (§ new #_"Callable<Void>" (§ pars )
         (§ anon
             #_override
             #_public
@@ -56042,7 +56042,7 @@
                     (§ return (§ expr nil))
                 )
                 (§ var #_"Date" (§ name lastBlockSeenTime) (§ expr wallet.getLastBlockSeenTime(§ pars )))
-                (§ expr log.info(§ pars "Background saving wallet; last seen block is height {}, date {}, hash {}", wallet.getLastBlockSeenHeight(§ pars ), (§ expr lastBlockSeenTime != nil) ? Utils.dateTimeFormat(§ pars lastBlockSeenTime) :else "unknown", wallet.getLastBlockSeenHash(§ pars )))
+                (§ expr log.info(§ pars "Background saving wallet; last seen block is height {}, date {}, hash {}", wallet.getLastBlockSeenHeight(§ pars ), (§ quest (§ expr lastBlockSeenTime != nil) ? (§ expr Utils.dateTimeFormat(§ pars lastBlockSeenTime)) :else (§ expr "unknown")), wallet.getLastBlockSeenHash(§ pars )))
                 (§ expr saveNowInternal(§ pars ))
                 (§ return (§ expr nil))
             )
@@ -56066,7 +56066,7 @@
         ;; Can be called by any thread. However the wallet is locked whilst saving, so we can have two saves
         ;; in flight, but they will serialize (using different temp files).
         (§ var #_"Date" (§ name lastBlockSeenTime) (§ expr wallet.getLastBlockSeenTime(§ pars )))
-        (§ expr log.info(§ pars "Saving wallet; last seen block is height {}, date {}, hash {}", wallet.getLastBlockSeenHeight(§ pars ), (§ expr lastBlockSeenTime != nil) ? Utils.dateTimeFormat(§ pars lastBlockSeenTime) :else "unknown", wallet.getLastBlockSeenHash(§ pars )))
+        (§ expr log.info(§ pars "Saving wallet; last seen block is height {}, date {}, hash {}", wallet.getLastBlockSeenHeight(§ pars ), (§ quest (§ expr lastBlockSeenTime != nil) ? (§ expr Utils.dateTimeFormat(§ pars lastBlockSeenTime)) :else (§ expr "unknown")), wallet.getLastBlockSeenHash(§ pars )))
         (§ expr saveNowInternal(§ pars ))
     )
 
@@ -56210,7 +56210,7 @@
     #_public
     (§ constructor #_"WalletProtobufSerializer" [#_"WalletFactory" (§ name factory)])
     (§ block
-        (§ ass (§ name txMap) (§ new HashMap<>(§ pars )))
+        (§ ass (§ name txMap) (§ new #_"HashMap<>" (§ pars )))
         (§ ass (§ name this.factory) (§ expr factory))
         (§ ass (§ name this.keyChainFactory) (§ new #_"DefaultKeyChainFactory" (§ pars )))
     )
@@ -56309,7 +56309,7 @@
             (§ expr walletBuilder.setEncryptionType(§ pars keyCrypter.getUnderstoodEncryptionType(§ pars )))
             (§ if (§ insta keyCrypter #_"KeyCrypterScrypt"))
             (§ block
-                (§ var #_"KeyCrypterScrypt" (§ name keyCrypterScrypt) (§ expr (§ cast KeyCrypterScrypt)keyCrypter))
+                (§ var #_"KeyCrypterScrypt" (§ name keyCrypterScrypt) (§ expr (§ cast #_"KeyCrypterScrypt" keyCrypter)))
                 (§ expr walletBuilder.setEncryptionParameters(§ pars keyCrypterScrypt.getScryptParameters(§ pars )))
             )
             (§ else )
@@ -56352,7 +56352,7 @@
         (§ var #_"Transaction" (§ name tx) (§ expr wtx.getTransaction(§ pars )))
         (§ var #_"Protos.Transaction.Builder" (§ name txBuilder) (§ expr Protos.Transaction.newBuilder(§ pars )))
 
-        (§ expr txBuilder.setPool(§ pars getProtoPool(§ pars wtx)).setHash(§ pars hashToByteString(§ pars tx.getHash(§ pars ))).setVersion(§ pars (§ cast int)tx.getVersion(§ pars )))
+        (§ expr txBuilder.setPool(§ pars getProtoPool(§ pars wtx)).setHash(§ pars hashToByteString(§ pars tx.getHash(§ pars ))).setVersion(§ pars (§ cast #_"int" (§ expr tx.getVersion(§ pars )))))
 
         (§ if (§ expr tx.getUpdateTime(§ pars ) != nil))
         (§ block
@@ -56361,16 +56361,16 @@
 
         (§ if (§ expr 0 < tx.getLockTime(§ pars )))
         (§ block
-            (§ expr txBuilder.setLockTime(§ pars (§ cast int)tx.getLockTime(§ pars )))
+            (§ expr txBuilder.setLockTime(§ pars (§ cast #_"int" (§ expr tx.getLockTime(§ pars )))))
         )
 
         ;; Handle inputs.
         (§ for (§ var #_"TransactionInput" (§ name input)) :for (§ expr tx.getInputs(§ pars )))
         (§ block
-            (§ var #_"Protos.TransactionInput.Builder" (§ name inputBuilder) (§ expr Protos.TransactionInput.newBuilder(§ pars ).setScriptBytes(§ pars ByteString.copyFrom(§ pars input.getScriptBytes(§ pars ))).setTransactionOutPointHash(§ pars hashToByteString(§ pars input.getOutpoint(§ pars ).getHash(§ pars ))).setTransactionOutPointIndex(§ pars (§ cast int)input.getOutpoint(§ pars ).getIndex(§ pars ))))
+            (§ var #_"Protos.TransactionInput.Builder" (§ name inputBuilder) (§ expr Protos.TransactionInput.newBuilder(§ pars ).setScriptBytes(§ pars ByteString.copyFrom(§ pars input.getScriptBytes(§ pars ))).setTransactionOutPointHash(§ pars hashToByteString(§ pars input.getOutpoint(§ pars ).getHash(§ pars ))).setTransactionOutPointIndex(§ pars (§ cast #_"int" (§ dot input.getOutpoint(§ pars ).getIndex(§ pars ))))))
             (§ if (§ expr input.hasSequence(§ pars )))
             (§ block
-                (§ expr inputBuilder.setSequence(§ pars (§ cast int)input.getSequenceNumber(§ pars )))
+                (§ expr inputBuilder.setSequence(§ pars (§ cast #_"int" (§ expr input.getSequenceNumber(§ pars )))))
             )
             (§ if (§ expr input.getValue(§ pars ) != nil))
             (§ block
@@ -56765,7 +56765,7 @@
             (§ try )
             (§ block
                 (§ var #_"Class" (§ name signerClass) (§ expr Class.forName(§ pars signerProto.getClassName(§ pars ))))
-                (§ var #_"TransactionSigner" (§ name signer) (§ expr (§ cast TransactionSigner)signerClass.newInstance(§ pars )))
+                (§ var #_"TransactionSigner" (§ name signer) (§ expr (§ cast #_"TransactionSigner" (§ expr signerClass.newInstance(§ pars )))))
                 (§ expr signer.deserialize(§ pars signerProto.getData(§ pars ).toByteArray(§ pars )))
                 (§ expr wallet.addTransactionSigner(§ pars signer))
             )
@@ -56826,7 +56826,7 @@
         (§ block
             (§ var #_"byte[]" (§ name scriptBytes) (§ expr inputProto.getScriptBytes(§ pars ).toByteArray(§ pars )))
             (§ var #_"TransactionOutPoint" (§ name outpoint) (§ new #_"TransactionOutPoint" (§ pars params, inputProto.getTransactionOutPointIndex(§ pars ) & 0xffffffff, byteStringToHash(§ pars inputProto.getTransactionOutPointHash(§ pars )))))
-            (§ var #_"Coin" (§ name value) (§ expr inputProto.hasValue(§ pars ) ? Coin.valueOf(§ pars inputProto.getValue(§ pars )) :else nil))
+            (§ var #_"Coin" (§ name value) (§ quest (§ expr inputProto.hasValue(§ pars )) ? (§ expr Coin.valueOf(§ pars inputProto.getValue(§ pars ))) :else (§ expr nil)))
             (§ var #_"TransactionInput" (§ name input) (§ new #_"TransactionInput" (§ pars params, tx, scriptBytes, outpoint, value)))
             (§ if (§ expr inputProto.hasSequence(§ pars )))
             (§ block
