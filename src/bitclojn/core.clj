@@ -76,16 +76,13 @@
 (§ class #_"AbstractBlockChain"
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"AbstractBlockChain")))
 
     #_protected
-    #_final
     (§ field #_"ReentrantLock" (§ name lock) (Threading/lock "blockchain"))
 
     ;;; Keeps a map of block hashes to StoredBlocks. ;;
     #_private
-    #_final
     (§ field- #_"BlockStore" (§ name blockStore))
 
     ;;;
@@ -105,34 +102,25 @@
     ;; clients quickly access the chain head even whilst the block chain is downloading and thus the BlockChain is
     ;; locked most of the time.
     #_private
-    #_final
     (§ field- #_"Object" (§ name chainHeadLock) (§ new #_"Object"))
 
     #_protected
-    #_final
     (§ field #_"NetworkParameters" (§ name params))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<NewBestBlockListener>>" (§ name newBestBlockListeners))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<ReorganizeListener>>" (§ name reorganizeListeners))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<TransactionReceivedInBlockListener>>" (§ name transactionReceivedListeners))
 
     ;; Holds a block header and, optionally, a list of tx hashes or block's transactions.
     (§ class #_"OrphanBlock"
-        #_final
         (§ field #_"Block" (§ name block))
-        #_final
         (§ field #_"List<Sha256Hash>" (§ name filteredTxHashes))
-        #_final
         (§ field #_"Map<Sha256Hash, Transaction>" (§ name filteredTxn))
 
         (§ constructor #_"OrphanBlock" [#_"Block" (§ name block), #_nilable #_"List<Sha256Hash>" (§ name filteredTxHashes), #_nilable #_"Map<Sha256Hash, Transaction>" (§ name filteredTxn)])
         (§ block
-            #_final
             (§ var #_"boolean" (§ name filtered) (§ expr filteredTxHashes != nil && filteredTxn != nil))
             (Preconditions/checkArgument (§ expr (§ expr (.. block transactions) == nil && filtered) || (§ expr (.. block transactions) != nil && (§ not filtered))))
             (§ ass (§ name (.. this block)) block)
@@ -144,18 +132,15 @@
     ;; Holds blocks that we have received but can't plug into the chain yet, e.g. because they were created whilst we
     ;; were downloading the block chain.
     #_private
-    #_final
     (§ field- #_"LinkedHashMap<Sha256Hash, OrphanBlock>" (§ name orphanBlocks) (§ new #_"LinkedHashMap<>"))
 
     ;;; False positive estimation uses a double exponential moving average. ;;
     #_public
     #_static
-    #_final
     (§ def #_"double" (§ name FP_ESTIMATOR_ALPHA) 0.0001)
     ;;; False positive estimation uses a double exponential moving average. ;;
     #_public
     #_static
-    #_final
     (§ def #_"double" (§ name FP_ESTIMATOR_BETA) 0.01)
 
     #_private
@@ -166,7 +151,6 @@
     (§ field- #_"double" (§ name previousFalsePositiveRate))
 
     #_private
-    #_final
     (§ field- #_"VersionTally" (§ name versionTally))
 
     ;;; See {@link #AbstractBlockChain(Context, List, BlockStore)} ;;
@@ -218,7 +202,6 @@
      ; multiple wallets is not well tested!
      ;;
     #_public
-    #_final
     (§ method #_"void" (§ fn addWallet) [#_"Wallet" (§ name wallet)])
     (§ block
         (addNewBestBlockListener Threading/SAME_THREAD, wallet)
@@ -306,7 +289,6 @@
      ; Adds a {@link NewBestBlockListener} listener to the chain.
      ;;
     #_public
-    #_final
     (§ method #_"void" (§ fn addNewBestBlockListener) [#_"Executor" (§ name executor), #_"NewBestBlockListener" (§ name listener)])
     (§ block
         (.. newBestBlockListeners (add (§ new #_"ListenerRegistration<>" listener, executor)))
@@ -327,7 +309,6 @@
      ; Adds a generic {@link ReorganizeListener} listener to the chain.
      ;;
     #_public
-    #_final
     (§ method #_"void" (§ fn addReorganizeListener) [#_"Executor" (§ name executor), #_"ReorganizeListener" (§ name listener)])
     (§ block
         (.. reorganizeListeners (add (§ new #_"ListenerRegistration<>" listener, executor)))
@@ -348,7 +329,6 @@
      ; Adds a generic {@link TransactionReceivedInBlockListener} listener to the chain.
      ;;
     #_public
-    #_final
     (§ method #_"void" (§ fn addTransactionReceivedListener) [#_"Executor" (§ name executor), #_"TransactionReceivedInBlockListener" (§ name listener)])
     (§ block
         (.. transactionReceivedListeners (add (§ new #_"ListenerRegistration<>" listener, executor)))
@@ -602,11 +582,8 @@
                 (§ return true)
             )
 
-            #_final
             (§ var #_"StoredBlock" (§ name storedPrev))
-            #_final
             (§ var #_"int" (§ name height))
-            #_final
             (§ var #_"EnumSet<Block.VerifyFlag>" (§ name flags))
 
             ;; Prove the block is internally valid: hash is lower than target, etc.  This only checks the block contents
@@ -617,7 +594,7 @@
             (§ block
                 (.. block (verifyHeader))
                 (§ ass (§ name storedPrev) (getStoredBlockInCurrentScope (.. block (getPrevBlockHash))))
-                (§ if (§ expr storedPrev != nil))
+                (§ if (some? storedPrev))
                 (§ block
                     (§ ass (§ name height) (+ (.. storedPrev (getHeight)) 1))
                 )
@@ -640,7 +617,7 @@
 
             ;; Try linking it to a place in the currently known blocks.
 
-            (§ if (§ expr storedPrev == nil))
+            (§ if (nil? storedPrev))
             (§ block
                 ;; We can't find the previous block.  Probably we are still in the process of downloading the chain and
                 ;; a block was solved whilst we were doing it.  We put it to one side and try to connect it later when we
@@ -694,7 +671,7 @@
     ;; than the previous one when connecting (e.g. median timestamp check)
     ;; It could be exposed, but for now we just set it to shouldVerifyTransactions()
     #_private
-    (§ method- #_"void" (§ fn connectBlock) [#_final #_"Block" (§ name block), #_"StoredBlock" (§ name storedPrev), #_"boolean" (§ name expensiveChecks), #_nilable #_final #_"List<Sha256Hash>" (§ name filteredTxHashList), #_nilable #_final #_"Map<Sha256Hash, Transaction>" (§ name filteredTxn)])
+    (§ method- #_"void" (§ fn connectBlock) [#_"Block" (§ name block), #_"StoredBlock" (§ name storedPrev), #_"boolean" (§ name expensiveChecks), #_nilable #_"List<Sha256Hash>" (§ name filteredTxHashList), #_nilable #_"Map<Sha256Hash, Transaction>" (§ name filteredTxn)])
         (§ throws #_"BlockStoreException", #_"VerificationException", #_"PrunedException")
     (§ block
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
@@ -737,7 +714,6 @@
             ;; It is also limited to stopping addition of new v2/3 blocks to the tip of the chain.
             (§ if (§ expr (.. block (getVersion)) == Block/BLOCK_VERSION_BIP34 || (.. block (getVersion)) == Block/BLOCK_VERSION_BIP66))
             (§ block
-                #_final
                 (§ var #_"Integer" (§ name count) (.. versionTally (getCountAtOrAbove (+ (.. block (getVersion)) 1))))
                 (§ if (§ expr count != nil && (.. params (getMajorityRejectBlockOutdated)) <= count))
                 (§ block
@@ -751,7 +727,7 @@
             (§ block
                 (§ ass (§ name txOutChanges) (connectTransactions (§ expr (.. storedPrev (getHeight)) + 1), block))
             )
-            (§ var #_"StoredBlock" (§ name newStoredBlock) (addToBlockStore storedPrev, (§ expr (§ quest (== (.. block transactions) nil) ? block :else (.. block (cloneAsHeader)))), txOutChanges))
+            (§ var #_"StoredBlock" (§ name newStoredBlock) (addToBlockStore storedPrev, (if (nil? (.. block transactions)) block (.. block (cloneAsHeader))), txOutChanges))
             (.. versionTally (add (.. block (getVersion))))
             (setChainHead newStoredBlock)
             (.. log (debug "Chain is now {} blocks high, running listeners", (.. newStoredBlock (getHeight))))
@@ -781,7 +757,7 @@
                     (§ return nil)
                 )
 
-                (§ if (§ expr splitPoint == nil))
+                (§ if (nil? splitPoint))
                 (§ block
                     ;; This should absolutely never happen.
                     ;; (lets not write the full block to disk to keep any bugs which allow this to happen from writing unreasonable amounts of data to disk)
@@ -814,7 +790,7 @@
     )
 
     #_private
-    (§ method- #_"void" (§ fn informListenersForNewBlock) [#_final #_"Block" (§ name block), #_final #_"NewBlockType" (§ name newBlockType), #_nilable #_final #_"List<Sha256Hash>" (§ name filteredTxHashList), #_nilable #_final #_"Map<Sha256Hash, Transaction>" (§ name filteredTxn), #_final #_"StoredBlock" (§ name newStoredBlock)])
+    (§ method- #_"void" (§ fn informListenersForNewBlock) [#_"Block" (§ name block), #_"NewBlockType" (§ name newBlockType), #_nilable #_"List<Sha256Hash>" (§ name filteredTxHashList), #_nilable #_"Map<Sha256Hash, Transaction>" (§ name filteredTxn), #_"StoredBlock" (§ name newStoredBlock)])
         (§ throws #_"VerificationException")
     (§ block
         ;; Notify the listeners of the new block, so the depth and workDone of stored transactions can be updated
@@ -822,12 +798,12 @@
         ;; coinbases aren't used before maturity.
         (§ var #_"boolean" (§ name first) true)
         (§ var #_"Set<Sha256Hash>" (§ name falsePositives) (Sets/newHashSet))
-        (§ if (§ expr filteredTxHashList != nil))
+        (§ if (some? filteredTxHashList))
         (§ block
             (.. falsePositives (addAll filteredTxHashList))
         )
 
-        (§ for (§ var #_final ListenerRegistration<TransactionReceivedInBlockListener> registration) :for transactionReceivedListeners)
+        (§ for (§ var ListenerRegistration<TransactionReceivedInBlockListener> registration) :for transactionReceivedListeners)
         (§ block
             (§ if (== (.. registration executor) Threading/SAME_THREAD))
             (§ block
@@ -836,7 +812,6 @@
             (§ else )
             (§ block
                 ;; Listener wants to be run on some other thread, so marshal it across here.
-                #_final
                 (§ var #_"boolean" (§ name notFirst) (§ not first))
                 (.. registration executor (execute (§ new #_"Runnable")
                 (§ anon
@@ -863,7 +838,7 @@
             (§ ass (§ name first) false)
         )
 
-        (§ for (§ var #_final ListenerRegistration<NewBestBlockListener> registration) :for newBestBlockListeners)
+        (§ for (§ var ListenerRegistration<NewBestBlockListener> registration) :for newBestBlockListeners)
         (§ block
             (§ if (== (.. registration executor) Threading/SAME_THREAD))
             (§ block
@@ -919,7 +894,7 @@
             ;; the case of multiple wallets to avoid an unnecessary efficiency hit in the common case.
             (sendTransactionsToListener newStoredBlock, newBlockType, listener, 0, (.. block transactions), (§ not first), falsePositives)
         )
-        (§ elseif (§ expr filteredTxHashList != nil))
+        (§ elseif (some? filteredTxHashList))
         (§ block
             (Preconditions/checkNotNull filteredTxn)
             ;; We must send transactions to listeners in the order they appeared in the block - thus we iterate over the
@@ -929,7 +904,7 @@
             (§ for (§ var #_"Sha256Hash" (§ name hash)) :for filteredTxHashList)
             (§ block
                 (§ var #_"Transaction" (§ name tx) (.. filteredTxn (get hash)))
-                (§ if (§ expr tx != nil))
+                (§ if (some? tx))
                 (§ block
                     (sendTransactionsToListener newStoredBlock, newBlockType, listener, relativityOffset, (Collections/singletonList tx), (§ not first), falsePositives)
                 )
@@ -992,7 +967,6 @@
         ;; chain from beyond this block to find differences.
 
         (§ var #_"StoredBlock" (§ name head) (getChainHead))
-        #_final
         (§ var #_"StoredBlock" (§ name splitPoint) (findSplit newChainHead, head, blockStore))
         (.. log (info "Re-organize after split at height {}", (.. splitPoint (getHeight))))
         (.. log (info "Old chain head: {}", (.. head (getHeader) (getHashAsString))))
@@ -1000,9 +974,7 @@
         (.. log (info "Split at block: {}", (.. splitPoint (getHeader) (getHashAsString))))
 
         ;; Then build a list of all blocks in the old part of the chain and the new part.
-        #_final
         (§ var #_"LinkedList<StoredBlock>" (§ name oldBlocks) (getPartialChain head, splitPoint, blockStore))
-        #_final
         (§ var #_"LinkedList<StoredBlock>" (§ name newBlocks) (getPartialChain newChainHead, splitPoint, blockStore))
 
         ;; Disconnect each transaction in the previous main chain that is no longer in the new main chain.
@@ -1056,7 +1028,7 @@
         ;; Now inform the listeners.  This is necessary so the set of currently active transactions (that we can spend)
         ;; can be updated to take into account the re-organize.  We might also have received new coins we didn't have
         ;; before and our previous spends might have been undone.
-        (§ for (§ var #_final ListenerRegistration<ReorganizeListener> registration) :for reorganizeListeners)
+        (§ for (§ var ListenerRegistration<ReorganizeListener> registration) :for reorganizeListeners)
         (§ block
             (§ if (== (.. registration executor) Threading/SAME_THREAD))
             (§ block
@@ -1152,7 +1124,6 @@
      ; @return the height of the best known chain, convenience for <tt>getChainHead().getHeight()</tt>
      ;;
     #_public
-    #_final
     (§ method #_"int" (§ fn getBestChainHeight) [])
     (§ block
         (.. (getChainHead) (getHeight))
@@ -1234,7 +1205,7 @@
                 (§ var #_"OrphanBlock" (§ name orphanBlock) (.. iter (next)))
                 ;; Look up the blocks previous.
                 (§ var #_"StoredBlock" (§ name prev) (getStoredBlockInCurrentScope (.. orphanBlock block (getPrevBlockHash))))
-                (§ if (§ expr prev == nil))
+                (§ if (nil? prev))
                 (§ block
                     ;; This is still an unconnected/orphan block.
                     (.. log (debug "Orphan block {} is not connectable right now", (.. orphanBlock block (getHash))))
@@ -1285,7 +1256,7 @@
         (§ try )
         (§ block
             (§ var #_"OrphanBlock" (§ name cursor) (.. orphanBlocks (get from)))
-            (§ if (§ expr cursor == nil))
+            (§ if (nil? cursor))
             (§ block
                 (§ return nil)
             )
@@ -1340,9 +1311,8 @@
      ; {@link StoredBlock} of the block that reaches that height first.  The future completes on a peer thread.
      ;;
     #_public
-    (§ method #_"ListenableFuture<StoredBlock>" (§ fn getHeightFuture) [#_final #_"int" (§ name height)])
+    (§ method #_"ListenableFuture<StoredBlock>" (§ fn getHeightFuture) [#_"int" (§ name height)])
     (§ block
-        #_final
         (§ var #_"SettableFuture<StoredBlock>" (§ name result) (SettableFuture/create))
         (addNewBestBlockListener Threading/SAME_THREAD, (§ new #_"NewBestBlockListener")
         (§ anon
@@ -1461,7 +1431,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name LENGTH) 20)
 
     #_private
@@ -1555,7 +1524,7 @@
     (§ block
         (§ super address)
 
-        (§ if (§ expr params != nil))
+        (§ if (some? params))
         (§ block
             (§ if (§ not (isAcceptableVersion params, version)))
             (§ block
@@ -1574,7 +1543,7 @@
                     (§ break )
                 )
             )
-            (§ if (§ expr paramsFound == nil))
+            (§ if (nil? paramsFound))
             (§ block
                 (§ throw (§ new #_"AddressFormatException" (§ expr "No network found for " + address)))
             )
@@ -1598,7 +1567,6 @@
     #_public
     (§ method #_"boolean" (§ fn isP2SHAddress) [])
     (§ block
-        #_final
         (§ var #_"NetworkParameters" (§ name parameters) (getParameters))
         (§ expr parameters != nil && (.. this version) == (.. parameters p2shHeader))
     )
@@ -1722,7 +1690,6 @@
 (§ class #_"AddressMessage" (§ extends #_"Message")
     #_private
     #_static
-    #_final
     (§ def- #_"long" (§ name MAX_ADDRESSES) 1024)
 
     #_private
@@ -1795,7 +1762,7 @@
         )
         (§ ass (§ name length) (.. (§ new #_"VarInt" (.. addresses (size))) (getSizeInBytes)))
         ;; The 4 byte difference is the uint32 timestamp that was introduced in version 31402.
-        (§ ass (§ name length) (+ length (* (.. addresses (size)) (§ quest (< 31402 protocolVersion) ? PeerAddress/MESSAGE_SIZE :else (- PeerAddress/MESSAGE_SIZE 4)))))
+        (§ ass (§ name length) (+ length (* (.. addresses (size)) (if (< 31402 protocolVersion) PeerAddress/MESSAGE_SIZE (- PeerAddress/MESSAGE_SIZE 4)))))
         nil
     )
 
@@ -1804,7 +1771,7 @@
     (§ method #_"void" (§ fn bitcoinSerializeToStream) [#_"OutputStream" (§ name stream)])
         (§ throws #_"IOException")
     (§ block
-        (§ if (§ expr addresses != nil))
+        (§ if (some? addresses))
         (§ block
             (.. stream (write (.. (§ new #_"VarInt" (.. addresses (size))) (encode))))
             (§ for (§ var #_"PeerAddress" (§ name addr)) :for addresses)
@@ -1919,7 +1886,6 @@
     ;; Chosen arbitrarily to avoid memory blowups.
     #_private
     #_static
-    #_final
     (§ def- #_"long" (§ name MAX_SET_SIZE) 100)
 
     #_public
@@ -2214,15 +2180,12 @@
 (§ class #_"Base58"
     #_public
     #_static
-    #_final
     (§ def #_"char[]" (§ name ALPHABET) (.. "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" (toCharArray)))
     #_private
     #_static
-    #_final
     (§ def- #_"char" (§ name ENCODED_ZERO) (§ ai ALPHABET 0))
     #_private
     #_static
-    #_final
     (§ def- #_"int[]" (§ name INDEXES) (§ new #_"int[]" (§ count 128)))
     #_static
     (§ block
@@ -2305,7 +2268,7 @@
         (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. input (length))) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ var #_"char" (§ name c) (.. input (charAt i)))
-            (§ var #_"int" (§ name digit) (§ quest (< c 128) ? (§ ai INDEXES c) :else -1))
+            (§ var #_"int" (§ name digit) (if (< c 128) (§ ai INDEXES c) -1))
             (§ if (< digit 0))
             (§ block
                 (§ throw (§ new #_"AddressFormatException" (§ expr "Illegal character " + c + " at position " + i)))
@@ -2428,16 +2391,13 @@
 (§ class #_"BitcoinSerializer" (§ extends #_"MessageSerializer")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"BitcoinSerializer")))
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name COMMAND_LEN) 12)
 
     #_private
     #_static
-    #_final
     (§ def- #_"Map<Class<? extends Message>, String>" (§ name names) (§ new #_"HashMap<>"))
     #_static
     (§ block
@@ -2462,10 +2422,8 @@
     )
 
     #_private
-    #_final
     (§ field- #_"NetworkParameters" (§ name params))
     #_private
-    #_final
     (§ field- #_"boolean" (§ name parseRetain))
 
     ;;;
@@ -2523,7 +2481,7 @@
         (§ throws #_"IOException")
     (§ block
         (§ var #_"String" (§ name name) (.. names (get (.. message (getClass)))))
-        (§ if (§ expr name == nil))
+        (§ if (nil? name))
         (§ block
             (§ throw (§ new #_"Error" (§ expr "BitcoinSerializer doesn't currently know how to serialize " + (.. message (getClass)))))
         )
@@ -2724,7 +2682,7 @@
      ;;
     #_override
     #_public
-    (§ method #_"Block" (§ fn makeBlock) [#_final #_"byte[]" (§ name payloadBytes), #_final #_"int" (§ name offset), #_final #_"int" (§ name length)])
+    (§ method #_"Block" (§ fn makeBlock) [#_"byte[]" (§ name payloadBytes), #_"int" (§ name offset), #_"int" (§ name length)])
         (§ throws #_"ProtocolException")
     (§ block
         (§ new #_"Block" params, payloadBytes, offset, this, length)
@@ -2772,7 +2730,7 @@
         (§ throws #_"ProtocolException")
     (§ block
         (§ var #_"Transaction" (§ name tx) (§ new #_"Transaction" params, payloadBytes, offset, nil, this, length))
-        (§ if (§ expr hash != nil))
+        (§ if (some? hash))
         (§ block
             (.. tx (setHash (Sha256Hash/wrapReversed hash)))
         )
@@ -2823,20 +2781,15 @@
         ;;; The largest number of bytes that a header can represent. ;;
         #_public
         #_static
-        #_final
         (§ def #_"int" (§ name HEADER_LENGTH) (§ expr COMMAND_LEN + 4 + 4))
 
         #_public
-        #_final
         (§ field #_"byte[]" (§ name header))
         #_public
-        #_final
         (§ field #_"String" (§ name command))
         #_public
-        #_final
         (§ field #_"int" (§ name size))
         #_public
-        #_final
         (§ field #_"byte[]" (§ name checksum))
 
         #_public
@@ -2913,17 +2866,14 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"Block")))
 
     ;;; How many bytes are required to represent a block header WITHOUT the trailing 00 length byte. ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name HEADER_SIZE) 80)
 
     #_static
-    #_final
     (§ def #_"long" (§ name ALLOWED_TIME_DRIFT) (§ expr 2 * 60 * 60)) ;; Same value as Bitcoin Core.
 
     ;;;
@@ -2933,7 +2883,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MAX_BLOCK_SIZE) (§ expr 1 * 1000 * 1000))
     ;;;
      ; A "sigop" is a signature verification operation.  Because they're expensive, we also impose a separate limit on
@@ -2942,44 +2891,36 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MAX_BLOCK_SIGOPS) (/ MAX_BLOCK_SIZE 50))
 
     ;;; A value for difficultyTarget (nBits) that allows half of all possible hash solutions.  Used in unit testing. ;;
     #_public
     #_static
-    #_final
     (§ def #_"long" (§ name EASIEST_DIFFICULTY_TARGET) 0x207fffff)
 
     ;;; Value to use if the block height is unknown. ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name BLOCK_HEIGHT_UNKNOWN) -1)
     ;;; Height of the first block. ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name BLOCK_HEIGHT_GENESIS) 0)
 
     #_public
     #_static
-    #_final
     (§ def #_"long" (§ name BLOCK_VERSION_GENESIS) 1)
     ;;; Block version introduced in BIP 34: Height in coinbase. ;;
     #_public
     #_static
-    #_final
     (§ def #_"long" (§ name BLOCK_VERSION_BIP34) 2)
     ;;; Block version introduced in BIP 66: Strict DER signatures. ;;
     #_public
     #_static
-    #_final
     (§ def #_"long" (§ name BLOCK_VERSION_BIP66) 3)
     ;;; Block version introduced in BIP 65: OP_CHECKLOCKTIMEVERIFY ;;
     #_public
     #_static
-    #_final
     (§ def #_"long" (§ name BLOCK_VERSION_BIP65) 4)
 
     ;; Fields defined as part of the protocol format.
@@ -3149,7 +3090,7 @@
      ; Useful for non-Bitcoin chains where the block header may not be a fixed size.
      ;;
     #_protected
-    (§ method #_"void" (§ fn parseTransactions) [#_final #_"int" (§ name transactionsOffset)])
+    (§ method #_"void" (§ fn parseTransactions) [#_"int" (§ name transactionsOffset)])
         (§ throws #_"ProtocolException")
     (§ block
         (§ ass (§ name cursor) transactionsOffset)
@@ -3236,7 +3177,7 @@
         (§ throws #_"IOException")
     (§ block
         ;; check for no transaction conditions first
-        (§ if (§ expr transactions == nil))
+        (§ if (nil? transactions))
         (§ block
             (§ return nil)
         )
@@ -3248,7 +3189,7 @@
             (§ return nil)
         )
 
-        (§ if (§ expr transactions != nil))
+        (§ if (some? transactions))
         (§ block
             (.. stream (write (.. (§ new #_"VarInt" (.. transactions (size))) (encode))))
             (§ for (§ var #_"Transaction" (§ name tx)) :for transactions)
@@ -3284,7 +3225,7 @@
         )
 
         ;; At least one of the two cacheable components is invalid, so fall back to stream write since we can't be sure of the length.
-        (§ var #_"ByteArrayOutputStream" (§ name stream) (§ new #_"UnsafeByteArrayOutputStream" (§ quest (§ expr length == UNKNOWN_LENGTH) ? (+ HEADER_SIZE (guessTransactionsLength)) :else length)))
+        (§ var #_"ByteArrayOutputStream" (§ name stream) (§ new #_"UnsafeByteArrayOutputStream" (if (== length UNKNOWN_LENGTH) (+ HEADER_SIZE (guessTransactionsLength)) length)))
         (§ try )
         (§ block
             (writeHeader stream)
@@ -3322,7 +3263,7 @@
         (§ block
             (§ return (- (.. payload length) HEADER_SIZE))
         )
-        (§ if (§ expr transactions == nil))
+        (§ if (nil? transactions))
         (§ block
             (§ return 0)
         )
@@ -3330,7 +3271,7 @@
         (§ for (§ var #_"Transaction" (§ name tx)) :for transactions)
         (§ block
             ;; 255 is just a guess at an average tx length
-            (§ ass (§ name len) (§ expr len + (§ quest (== (.. tx length) UNKNOWN_LENGTH) ? 255 :else (.. tx length))))
+            (§ ass (§ name len) (+ len (if (== (.. tx length) UNKNOWN_LENGTH) 255 (.. tx length))))
         )
         len
     )
@@ -3410,7 +3351,7 @@
     #_public
     (§ method #_"Sha256Hash" (§ fn getHash) [])
     (§ block
-        (§ if (§ expr hash == nil))
+        (§ if (nil? hash))
         (§ block
             (§ ass (§ name hash) (calculateHash))
         )
@@ -3451,8 +3392,7 @@
 
     ;;; Copy the block without transactions into the provided empty block. ;;
     #_protected
-    #_final
-    (§ method #_"void" (§ fn copyBitcoinHeaderTo) [#_final #_"Block" (§ name block)])
+    (§ method #_"void" (§ fn copyBitcoinHeaderTo) [#_"Block" (§ name block)])
     (§ block
         (§ ass (§ name (.. block nonce)) nonce)
         (§ ass (§ name (.. block prevBlockHash)) prevBlockHash)
@@ -3477,7 +3417,7 @@
         (.. sb (append " block: \n"))
         (.. sb (append "   hash: ") (append (getHashAsString)) (append "\n"))
         (.. sb (append "   version: ") (append version))
-        (§ var #_"String" (§ name bips) (.. (Joiner/on ", ") (skipNulls) (join (§ quest (isBIP34) ? "BIP34" :else nil), (§ quest (isBIP66) ? "BIP66" :else nil), (§ quest (isBIP65) ? "BIP65" :else nil))))
+        (§ var #_"String" (§ name bips) (.. (Joiner/on ", ") (skipNulls) (join (when (isBIP34) "BIP34"), (when (isBIP66) "BIP66"), (when (isBIP65) "BIP65"))))
         (§ if (§ not (.. bips (isEmpty))))
         (§ block
             (.. sb (append " (") (append bips) (append ")"))
@@ -3581,7 +3521,6 @@
     (§ method- #_"void" (§ fn checkTimestamp) [])
         (§ throws #_"VerificationException")
     (§ block
-        #_final
         (§ var #_"long" (§ name allowedTime) (+ (Utils/currentTimeSeconds) ALLOWED_TIME_DRIFT))
         (§ if (< allowedTime time))
         (§ block
@@ -3696,7 +3635,7 @@
      ; @throws VerificationException if there was an error verifying the block.
      ;;
     #_private
-    (§ method- #_"void" (§ fn checkTransactions) [#_final #_"int" (§ name height), #_final #_"EnumSet<VerifyFlag>" (§ name flags)])
+    (§ method- #_"void" (§ fn checkTransactions) [#_"int" (§ name height), #_"EnumSet<VerifyFlag>" (§ name flags)])
         (§ throws #_"VerificationException")
     (§ block
         ;; The first transaction in a block must always be a coinbase transaction.
@@ -3752,7 +3691,7 @@
      ; @throws VerificationException if there was an error verifying the block.
      ;;
     #_public
-    (§ method #_"void" (§ fn verifyTransactions) [#_final #_"int" (§ name height), #_final #_"EnumSet<VerifyFlag>" (§ name flags)])
+    (§ method #_"void" (§ fn verifyTransactions) [#_"int" (§ name height), #_"EnumSet<VerifyFlag>" (§ name flags)])
         (§ throws #_"VerificationException")
     (§ block
         ;; Now we need to check that the body of the block actually matches the headers.  The network won't generate
@@ -3785,7 +3724,7 @@
      ; @throws VerificationException if there was an error verifying the block.
      ;;
     #_public
-    (§ method #_"void" (§ fn verify) [#_final #_"int" (§ name height), #_final #_"EnumSet<VerifyFlag>" (§ name flags)])
+    (§ method #_"void" (§ fn verify) [#_"int" (§ name height), #_"EnumSet<VerifyFlag>" (§ name flags)])
         (§ throws #_"VerificationException")
     (§ block
         (verifyHeader)
@@ -3821,7 +3760,7 @@
     #_public
     (§ method #_"Sha256Hash" (§ fn getMerkleRoot) [])
     (§ block
-        (§ if (§ expr merkleRoot == nil))
+        (§ if (nil? merkleRoot))
         (§ block
             ;; TODO: Check if this is really necessary.
             (unCacheHeader)
@@ -3851,7 +3790,7 @@
     (§ method #_"void" (§ fn addTransaction) [#_"Transaction" (§ name t), #_"boolean" (§ name runSanityChecks)])
     (§ block
         (unCacheTransactions)
-        (§ if (§ expr transactions == nil))
+        (§ if (nil? transactions))
         (§ block
             (§ ass (§ name transactions) (§ new #_"ArrayList<>"))
         )
@@ -3976,7 +3915,7 @@
     #_public
     (§ method #_"List<Transaction>" (§ fn getTransactions) [])
     (§ block
-        (§ quest (§ expr transactions == nil) ? nil :else (ImmutableList/copyOf transactions))
+        (when (some? transactions) (ImmutableList/copyOf transactions))
     )
 
     ;; Used to make transactions unique.
@@ -3989,12 +3928,11 @@
      ; @param height Block height, if known, or -1 otherwise.
      ;;
     #_testing
-    (§ method #_"void" (§ fn addCoinbaseTransaction) [#_"byte[]" (§ name pubKeyTo), #_"Coin" (§ name value), #_final #_"int" (§ name height)])
+    (§ method #_"void" (§ fn addCoinbaseTransaction) [#_"byte[]" (§ name pubKeyTo), #_"Coin" (§ name value), #_"int" (§ name height)])
     (§ block
         (unCacheTransactions)
         (§ ass (§ name transactions) (§ new #_"ArrayList<>"))
         (§ var #_"Transaction" (§ name coinbase) (§ new #_"Transaction" params))
-        #_final
         (§ var #_"ScriptBuilder" (§ name inputBuilder) (§ new #_"ScriptBuilder"))
 
         (§ if (<= Block/BLOCK_HEIGHT_GENESIS height))
@@ -4019,13 +3957,11 @@
     )
 
     #_static
-    #_final
     (§ def #_"byte[]" (§ name EMPTY_BYTES) (§ new #_"byte[]" (§ count 32)))
 
     ;; It's pretty weak to have this around at runtime: fix later.
     #_private
     #_static
-    #_final
     (§ def- #_"byte[]" (§ name pubkeyForTesting) (.. (§ new #_"ECKey") (getPubKey)))
 
     ;;;
@@ -4044,20 +3980,20 @@
      ;
      ; @param height Block height, if known, or -1 otherwise.
      ;;
-    (§ method #_"Block" (§ fn createNextBlock) [#_nilable #_final #_"Address" (§ name to), #_final #_"long" (§ name version), #_nilable #_"TransactionOutPoint" (§ name prevOut), #_final #_"long" (§ name time), #_final #_"byte[]" (§ name pubKey), #_final #_"Coin" (§ name coinbaseValue), #_final #_"int" (§ name height)])
+    (§ method #_"Block" (§ fn createNextBlock) [#_nilable #_"Address" (§ name to), #_"long" (§ name version), #_nilable #_"TransactionOutPoint" (§ name prevOut), #_"long" (§ name time), #_"byte[]" (§ name pubKey), #_"Coin" (§ name coinbaseValue), #_"int" (§ name height)])
     (§ block
         (§ var #_"Block" (§ name b) (§ new #_"Block" params, version))
         (.. b (setDifficultyTarget difficultyTarget))
         (.. b (addCoinbaseTransaction pubKey, coinbaseValue, height))
 
-        (§ if (§ expr to != nil))
+        (§ if (some? to))
         (§ block
             ;; Add a transaction paying 50 coins to the "to" address.
             (§ var #_"Transaction" (§ name t) (§ new #_"Transaction" params))
             (.. t (addOutput (§ new #_"TransactionOutput" params, t, FIFTY_COINS, to)))
             ;; The input does not really need to be a valid signature, as long as it has the right general form.
             (§ var #_"TransactionInput" (§ name input))
-            (§ if (§ expr prevOut == nil))
+            (§ if (nil? prevOut))
             (§ block
                 (§ ass (§ name input) (§ new #_"TransactionInput" params, t, (Script/createInputScript EMPTY_BYTES, EMPTY_BYTES)))
                 ;; Importantly, the outpoint hash cannot be zero as that's how we detect a coinbase transaction in isolation,
@@ -4125,7 +4061,7 @@
 
     #_testing
     #_public
-    (§ method #_"Block" (§ fn createNextBlockWithCoinbase) [#_"long" (§ name version), #_"byte[]" (§ name pubKey), #_"Coin" (§ name coinbaseValue), #_final #_"int" (§ name height)])
+    (§ method #_"Block" (§ fn createNextBlockWithCoinbase) [#_"long" (§ name version), #_"byte[]" (§ name pubKey), #_"Coin" (§ name coinbaseValue), #_"int" (§ name height)])
     (§ block
         (createNextBlock nil, version, (§ cast #_"TransactionOutPoint" nil), (Utils/currentTimeSeconds), pubKey, coinbaseValue, height)
     )
@@ -4135,7 +4071,7 @@
      ; This method is intended for test use only.
      ;;
     #_testing
-    (§ method #_"Block" (§ fn createNextBlockWithCoinbase) [#_"long" (§ name version), #_"byte[]" (§ name pubKey), #_final #_"int" (§ name height)])
+    (§ method #_"Block" (§ fn createNextBlockWithCoinbase) [#_"long" (§ name version), #_"byte[]" (§ name pubKey), #_"int" (§ name height)])
     (§ block
         (createNextBlock nil, version, (§ cast #_"TransactionOutPoint" nil), (Utils/currentTimeSeconds), pubKey, FIFTY_COINS, height)
     )
@@ -4211,7 +4147,6 @@
 (§ class #_"BlockChain" (§ extends #_"AbstractBlockChain")
     ;;; Keeps a map of block hashes to StoredBlocks. ;;
     #_protected
-    #_final
     (§ field #_"BlockStore" (§ name blockStore))
 
     ;;;
@@ -4322,7 +4257,7 @@
             (§ while (§ expr height < (.. newChainHead (getHeight))))
             (§ block
                 (§ ass (§ name newChainHead) (.. newChainHead (getPrev blockStore)))
-                (§ if (§ expr newChainHead == nil))
+                (§ if (nil? newChainHead))
                 (§ block
                     (§ throw (§ new #_"BlockStoreException" "Unreachable height"))
                 )
@@ -4457,12 +4392,10 @@
     ;; A filter of 20,000 items and a false positive rate of 0.1% or one of 10,000 items and 0.0001% is just under 36,000 bytes.
     #_private
     #_static
-    #_final
     (§ def- #_"long" (§ name MAX_FILTER_SIZE) 36000)
     ;; There is little reason to ever have more hash functions than 50 given a limit of 36,000 bytes.
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name MAX_HASH_FUNCS) 50)
 
     ;;;
@@ -4599,9 +4532,7 @@
     (§ defn #_"int" (§ fn murmurHash3) [#_"byte[]" (§ name data), #_"long" (§ name nTweak), #_"int" (§ name hashNum), #_"byte[]" (§ name object)])
     (§ block
         (§ var #_"int" (§ name h1) (§ cast #_"int" (§ expr hashNum * 0xfba4c795 + nTweak)))
-        #_final
         (§ var #_"int" (§ name c1) 0xcc9e2d51)
-        #_final
         (§ var #_"int" (§ name c2) 0x1b873593)
 
         (§ var #_"int" (§ name numBlocks) (* (/ (.. object length) 4) 4))
@@ -4926,37 +4857,29 @@
 (§ class #_"CheckpointManager"
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"CheckpointManager")))
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name BINARY_MAGIC) "CHECKPOINTS 1")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name TEXTUAL_MAGIC) "TXT CHECKPOINTS 1")
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name MAX_SIGNATURES) 256)
 
     ;; Map of block header time to data.
     #_protected
-    #_final
     (§ field #_"TreeMap<Long, StoredBlock>" (§ name checkpoints) (§ new #_"TreeMap<>"))
 
     #_protected
-    #_final
     (§ field #_"NetworkParameters" (§ name params))
     #_protected
-    #_final
     (§ field #_"Sha256Hash" (§ name dataHash))
 
     #_public
     #_static
-    #_final
     (§ def #_"BaseEncoding" (§ name BASE64) (.. (BaseEncoding/base64) (omitPadding)))
 
     ;;; Loads the default checkpoints bundled with bitcoinj. ;;
@@ -4974,7 +4897,7 @@
         (§ throws #_"IOException")
     (§ block
         (§ ass (§ name (.. this params)) (Preconditions/checkNotNull params))
-        (§ if (§ expr inputStream == nil))
+        (§ if (nil? inputStream))
         (§ block
             (§ ass (§ name inputStream) (openStream params))
         )
@@ -5033,7 +4956,6 @@
             (.. digestInputStream (on true))
             (§ var #_"int" (§ name numCheckpoints) (.. dis (readInt)))
             (Preconditions/checkState (< 0 numCheckpoints))
-            #_final
             (§ var #_"int" (§ name size) StoredBlock/COMPACT_SERIALIZED_SIZE)
             (§ var #_"ByteBuffer" (§ name buffer) (ByteBuffer/allocate size))
             (§ for (§ var #_"int" (§ name i) 0) :for (< i numCheckpoints) :for (§ ass (§ name i) (+ i 1)))
@@ -5056,7 +4978,7 @@
         )
         (§ finally )
         (§ block
-            (§ if (§ expr dis != nil))
+            (§ if (some? dis))
             (§ block
                 (.. dis (close))
             )
@@ -5087,7 +5009,6 @@
             (Preconditions/checkState (< 0 numCheckpoints))
             ;; Hash numCheckpoints in a way compatible to the binary format.
             (.. hasher (putBytes (.. (ByteBuffer/allocate 4) (order ByteOrder/BIG_ENDIAN) (putInt numCheckpoints) (array))))
-            #_final
             (§ var #_"int" (§ name size) StoredBlock/COMPACT_SERIALIZED_SIZE)
             (§ var #_"ByteBuffer" (§ name buffer) (ByteBuffer/allocate size))
             (§ for (§ var #_"int" (§ name i) 0) :for (< i numCheckpoints) :for (§ ass (§ name i) (+ i 1)))
@@ -5106,7 +5027,7 @@
         )
         (§ finally )
         (§ block
-            (§ if (§ expr reader != nil))
+            (§ if (some? reader))
             (§ block
                 (.. reader (close))
             )
@@ -5125,7 +5046,7 @@
             (Preconditions/checkArgument (< (.. params (getGenesisBlock) (getTimeSeconds)) time))
             ;; This is thread safe because the map never changes after creation.
             (§ var #_"Map.Entry<Long, StoredBlock>" (§ name entry) (.. checkpoints (floorEntry time)))
-            (§ if (§ expr entry != nil))
+            (§ if (some? entry))
             (§ block
                 (§ return (.. entry (getValue)))
             )
@@ -5239,7 +5160,6 @@
     )
 
     #_public
-    #_final
     (§ method #_"void" (§ fn setParent) [#_nilable #_"Message" (§ name parent)])
     (§ block
         (§ if (§ expr (.. this parent) != nil && (.. this parent) != parent && parent != nil))
@@ -5257,7 +5177,7 @@
     (§ method #_"void" (§ fn unCache) [])
     (§ block
         (.. super (unCache))
-        (§ if (§ expr parent != nil))
+        (§ if (some? parent))
         (§ block
             (.. parent (unCache))
         )
@@ -5276,7 +5196,7 @@
     (§ method #_"void" (§ fn adjustLength) [#_"int" (§ name newArraySize), #_"int" (§ name adjustment)])
     (§ block
         (.. super (adjustLength newArraySize, adjustment))
-        (§ if (§ expr parent != nil))
+        (§ if (some? parent))
         (§ block
             (.. parent (adjustLength newArraySize, adjustment))
         )
@@ -5296,7 +5216,6 @@
  ; Represents a monetary Bitcoin value.  This class is immutable.
  ;;
 #_public
-#_final
 (§ class #_"Coin" (§ implements #_"Monetary", #_"Comparable<Coin>", #_"Serializable")
     ;;;
      ; Number of decimals for one Bitcoin.  This constant is useful for quick adapting to other coins because a lot of
@@ -5304,7 +5223,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name SMALLEST_UNIT_EXPONENT) 8)
 
     ;;;
@@ -5312,7 +5230,6 @@
      ;;
     #_private
     #_static
-    #_final
     (§ def- #_"long" (§ name COIN_VALUE) (LongMath/pow 10, SMALLEST_UNIT_EXPONENT))
 
     ;;;
@@ -5320,7 +5237,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"Coin" (§ name ZERO) (Coin/valueOf 0))
 
     ;;;
@@ -5328,7 +5244,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"Coin" (§ name COIN) (Coin/valueOf COIN_VALUE))
 
     ;;;
@@ -5336,7 +5251,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"Coin" (§ name CENT) (.. COIN (divide 100)))
 
     ;;;
@@ -5344,7 +5258,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"Coin" (§ name MILLICOIN) (.. COIN (divide 1000)))
 
     ;;;
@@ -5352,7 +5265,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"Coin" (§ name MICROCOIN) (.. MILLICOIN (divide 1000)))
 
     ;;;
@@ -5360,12 +5272,10 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"Coin" (§ name SATOSHI) (Coin/valueOf 1))
 
     #_public
     #_static
-    #_final
     (§ def #_"Coin" (§ name FIFTY_COINS) (.. COIN (multiply 50)))
 
     ;;;
@@ -5373,18 +5283,16 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"Coin" (§ name NEGATIVE_SATOSHI) (Coin/valueOf -1))
 
     ;;;
      ; The number of satoshis of this monetary value.
      ;;
     #_public
-    #_final
     (§ field #_"long" (§ name value))
 
     #_private
-    (§ constructor- #_"Coin" [#_final #_"long" (§ name satoshis)])
+    (§ constructor- #_"Coin" [#_"long" (§ name satoshis)])
     (§ block
         (§ ass (§ name (.. this value)) satoshis)
         this
@@ -5392,7 +5300,7 @@
 
     #_public
     #_static
-    (§ defn #_"Coin" (§ fn valueOf) [#_final #_"long" (§ name satoshis)])
+    (§ defn #_"Coin" (§ fn valueOf) [#_"long" (§ name satoshis)])
     (§ block
         (§ new #_"Coin" satoshis)
     )
@@ -5419,7 +5327,7 @@
      ;;
     #_public
     #_static
-    (§ defn #_"Coin" (§ fn valueOf) [#_final #_"int" (§ name coins), #_final #_"int" (§ name cents)])
+    (§ defn #_"Coin" (§ fn valueOf) [#_"int" (§ name coins), #_"int" (§ name cents)])
     (§ block
         (Preconditions/checkArgument (§ expr 0 <= coins && 0 <= cents && cents < 100))
 
@@ -5436,7 +5344,7 @@
      ;;
     #_public
     #_static
-    (§ defn #_"Coin" (§ fn parseCoin) [#_final #_"String" (§ name str)])
+    (§ defn #_"Coin" (§ fn parseCoin) [#_"String" (§ name str)])
     (§ block
         (§ try )
         (§ block
@@ -5459,7 +5367,7 @@
      ;;
     #_public
     #_static
-    (§ defn #_"Coin" (§ fn parseCoinInexact) [#_final #_"String" (§ name str)])
+    (§ defn #_"Coin" (§ fn parseCoinInexact) [#_"String" (§ name str)])
     (§ block
         (§ try )
         (§ block
@@ -5473,79 +5381,79 @@
     )
 
     #_public
-    (§ method #_"Coin" (§ fn add) [#_final #_"Coin" (§ name value)])
+    (§ method #_"Coin" (§ fn add) [#_"Coin" (§ name value)])
     (§ block
         (§ new #_"Coin" (LongMath/checkedAdd (.. this value), (.. value value)))
     )
 
     ;;; Alias for add. ;;
     #_public
-    (§ method #_"Coin" (§ fn plus) [#_final #_"Coin" (§ name value)])
+    (§ method #_"Coin" (§ fn plus) [#_"Coin" (§ name value)])
     (§ block
         (add value)
     )
 
     #_public
-    (§ method #_"Coin" (§ fn subtract) [#_final #_"Coin" (§ name value)])
+    (§ method #_"Coin" (§ fn subtract) [#_"Coin" (§ name value)])
     (§ block
         (§ new #_"Coin" (LongMath/checkedSubtract (.. this value), (.. value value)))
     )
 
     ;;; Alias for subtract. ;;
     #_public
-    (§ method #_"Coin" (§ fn minus) [#_final #_"Coin" (§ name value)])
+    (§ method #_"Coin" (§ fn minus) [#_"Coin" (§ name value)])
     (§ block
         (subtract value)
     )
 
     #_public
-    (§ method #_"Coin" (§ fn multiply) [#_final #_"long" (§ name factor)])
+    (§ method #_"Coin" (§ fn multiply) [#_"long" (§ name factor)])
     (§ block
         (§ new #_"Coin" (LongMath/checkedMultiply (.. this value), factor))
     )
 
     ;;; Alias for multiply. ;;
     #_public
-    (§ method #_"Coin" (§ fn times) [#_final #_"long" (§ name factor)])
+    (§ method #_"Coin" (§ fn times) [#_"long" (§ name factor)])
     (§ block
         (multiply factor)
     )
 
     ;;; Alias for multiply. ;;
     #_public
-    (§ method #_"Coin" (§ fn times) [#_final #_"int" (§ name factor)])
+    (§ method #_"Coin" (§ fn times) [#_"int" (§ name factor)])
     (§ block
         (multiply factor)
     )
 
     #_public
-    (§ method #_"Coin" (§ fn divide) [#_final #_"long" (§ name divisor)])
+    (§ method #_"Coin" (§ fn divide) [#_"long" (§ name divisor)])
     (§ block
         (§ new #_"Coin" (/ (.. this value) divisor))
     )
 
     ;;; Alias for divide. ;;
     #_public
-    (§ method #_"Coin" (§ fn div) [#_final #_"long" (§ name divisor)])
+    (§ method #_"Coin" (§ fn div) [#_"long" (§ name divisor)])
     (§ block
         (divide divisor)
     )
 
     ;;; Alias for divide. ;;
     #_public
-    (§ method #_"Coin" (§ fn div) [#_final #_"int" (§ name divisor)])
+    (§ method #_"Coin" (§ fn div) [#_"int" (§ name divisor)])
     (§ block
         (divide divisor)
     )
 
     #_public
-    (§ method #_"Coin[]" (§ fn divideAndRemainder) [#_final #_"long" (§ name divisor)])
+    (§ method #_"Coin[]" (§ fn divideAndRemainder) [#_"long" (§ name divisor)])
     (§ block
         (§ new #_"Coin[]" (§ coll (§ new #_"Coin" (/ (.. this value) divisor)), (§ new #_"Coin" (§ expr (.. this value) % divisor)) ))
     )
 
     #_public
-    (§ method #_"long" (§ fn divide) [#_final #_"Coin" (§ name divisor)])
+    (§ method #_"long" (§ fn divide) [#_"Coin" (§ name divisor)])
     (§ block
         (/ (.. this value) (.. divisor value))
     )
@@ -5601,13 +5509,13 @@
     )
 
     #_public
-    (§ method #_"Coin" (§ fn shiftLeft) [#_final #_"int" (§ name n)])
+    (§ method #_"Coin" (§ fn shiftLeft) [#_"int" (§ name n)])
     (§ block
         (§ new #_"Coin" (<< (.. this value) n))
     )
 
     #_public
-    (§ method #_"Coin" (§ fn shiftRight) [#_final #_"int" (§ name n)])
+    (§ method #_"Coin" (§ fn shiftRight) [#_"int" (§ name n)])
     (§ block
         (§ new #_"Coin" (>> (.. this value) n))
     )
@@ -5620,7 +5528,7 @@
         (§ block
             (§ return 0)
         )
-        (§ quest (< (.. this value) 0) ? -1 :else 1)
+        (if (< (.. this value) 0) -1 1)
     )
 
     #_public
@@ -5640,7 +5548,6 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"MonetaryFormat" (§ name FRIENDLY_FORMAT) (.. MonetaryFormat/BTC (minDecimals 2) (repeatOptionalDecimals 1, 6) (postfixCode)))
 
     ;;;
@@ -5655,7 +5562,6 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"MonetaryFormat" (§ name PLAIN_FORMAT) (.. MonetaryFormat/BTC (minDecimals 0) (repeatOptionalDecimals 1, 8) (noCode)))
 
     ;;;
@@ -5678,7 +5584,7 @@
 
     #_override
     #_public
-    (§ method #_"boolean" (§ fn equals) [#_final #_"Object" (§ name o)])
+    (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
         (§ if (§ expr this == o))
         (§ block
@@ -5700,7 +5606,7 @@
 
     #_override
     #_public
-    (§ method #_"int" (§ fn compareTo) [#_final #_"Coin" (§ name other)])
+    (§ method #_"int" (§ fn compareTo) [#_"Coin" (§ name other)])
     (§ block
         (Longs/compare (.. this value), (.. other value))
     )
@@ -5735,27 +5641,20 @@
 (§ class #_"Context"
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"Context")))
 
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name DEFAULT_EVENT_HORIZON) 100)
 
-    #_final
     #_private
     (§ field- #_"TxConfidenceTable" (§ name confidenceTable))
-    #_final
     #_private
     (§ field- #_"NetworkParameters" (§ name params))
-    #_final
     #_private
     (§ field- #_"int" (§ name eventHorizon))
-    #_final
     #_private
     (§ field- #_"boolean" (§ name ensureMinRequiredFee))
-    #_final
     #_private
     (§ field- #_"Coin" (§ name feePerKb))
 
@@ -5803,7 +5702,6 @@
     (§ def- #_"boolean" (§ name isStrictMode))
     #_private
     #_static
-    #_final
     (§ def- #_"ThreadLocal<Context>" (§ name slot) (§ new #_"ThreadLocal<>"))
 
     ;;;
@@ -5821,7 +5719,7 @@
     (§ defn #_"Context" (§ fn get) [])
     (§ block
         (§ var #_"Context" (§ name tls) (.. slot (get)))
-        (§ if (§ expr tls == nil))
+        (§ if (nil? tls))
         (§ block
             (§ if isStrictMode)
             (§ block
@@ -5829,7 +5727,7 @@
                 (.. log (error "You should use Context/propagate() or a ContextPropagatingThreadFactory."))
                 (§ throw (§ new #_"IllegalStateException" "missing context"))
             )
-            (§ if (§ expr lastConstructed == nil))
+            (§ if (nil? lastConstructed))
             (§ block
                 (§ throw (§ new #_"IllegalStateException" "You must construct a Context object before using bitcoinj!"))
             )
@@ -5958,12 +5856,10 @@
 (§ class #_"DummySerializer" (§ extends #_"MessageSerializer")
     #_public
     #_static
-    #_final
     (§ def #_"DummySerializer" (§ name DEFAULT) (§ new #_"DummySerializer"))
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name DEFAULT_EXCEPTION_MESSAGE) "Dummy serializer cannot serialize/deserialize objects as it does not know which network they belong to.")
 
     #_public
@@ -6143,13 +6039,11 @@
 (§ class #_"ECKey" (§ implements #_"EncryptableItem")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"ECKey")))
 
     ;;; Sorts oldest keys first, newest last. ;;
     #_public
     #_static
-    #_final
     (§ def #_"Comparator<ECKey>" (§ name AGE_COMPARATOR) (§ new #_"Comparator<ECKey>"
         (§ anon
             #_override
@@ -6161,14 +6055,13 @@
                     (§ return 0)
                 )
 
-                (§ quest (< (.. k1 creationTimeSeconds) (.. k2 creationTimeSeconds)) ? -1 :else 1)
+                (if (< (.. k1 creationTimeSeconds) (.. k2 creationTimeSeconds)) -1 1)
             )
         )))
 
     ;;; Compares pub key bytes using {@link com.google.common.primitives.UnsignedBytes#lexicographicalComparator()}. ;;
     #_public
     #_static
-    #_final
     (§ def #_"Comparator<ECKey>" (§ name PUBKEY_COMPARATOR) (§ new #_"Comparator<ECKey>"
         (§ anon
             #_private
@@ -6185,13 +6078,11 @@
     ;; The parameters of the secp256k1 curve that Bitcoin uses.
     #_private
     #_static
-    #_final
     (§ def- #_"X9ECParameters" (§ name CURVE_PARAMS) (CustomNamedCurves/getByName "secp256k1"))
 
     ;;; The parameters of the secp256k1 curve that Bitcoin uses. ;;
     #_public
     #_static
-    #_final
     (§ def #_"ECDomainParameters" (§ name CURVE))
 
     ;;;
@@ -6200,12 +6091,10 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"BigInteger" (§ name HALF_CURVE_ORDER))
 
     #_private
     #_static
-    #_final
     (§ def- #_"SecureRandom" (§ name secureRandom))
 
     #_static
@@ -6228,10 +6117,8 @@
     ;; The two parts of the key.  If "priv" is set, "pub" can always be calculated.  If "pub" is set but not "priv", we
     ;; can only verify signatures not make them.
     #_protected
-    #_final
     (§ field #_"BigInteger" (§ name priv)) ;; A field element.
     #_protected
-    #_final
     (§ field #_"LazyECPoint" (§ name pub))
 
     ;; Creation time of the key in seconds since the epoch, or zero if the key was deserialized from a version that did
@@ -6287,7 +6174,7 @@
     #_protected
     (§ constructor #_"ECKey" [#_nilable #_"BigInteger" (§ name priv), #_"LazyECPoint" (§ name pub)])
     (§ block
-        (§ if (§ expr priv != nil))
+        (§ if (some? priv))
         (§ block
             (Preconditions/checkArgument (<= (.. priv (bitLength)) (<< 32 3)), "private key exceeds 32 bytes: {} bits", (.. priv (bitLength)))
             ;; Try and catch buggy callers or bad key imports, etc.  Zero and one are special because these are often
@@ -6316,7 +6203,7 @@
     #_static
     (§ defn #_"LazyECPoint" (§ fn compressPoint) [#_"LazyECPoint" (§ name point)])
     (§ block
-        (§ quest (.. point (isCompressed)) ? point :else (§ new #_"LazyECPoint" (compressPoint (.. point (get)))))
+        (if (.. point (isCompressed)) point (§ new #_"LazyECPoint" (compressPoint (.. point (get)))))
     )
 
     ;;;
@@ -6334,7 +6221,7 @@
     #_static
     (§ defn #_"LazyECPoint" (§ fn decompressPoint) [#_"LazyECPoint" (§ name point)])
     (§ block
-        (§ quest (§ not (.. point (isCompressed))) ? point :else (§ new #_"LazyECPoint" (decompressPoint (.. point (get)))))
+        (if (§ not (.. point (isCompressed))) point (§ new #_"LazyECPoint" (decompressPoint (.. point (get)))))
     )
 
     #_private
@@ -6463,7 +6350,7 @@
     #_public
     (§ method #_"ECKey" (§ fn decompress) [])
     (§ block
-        (§ quest (.. pub (isCompressed)) ? (§ new #_"ECKey" priv, (decompressPoint (.. pub (get)))) :else this)
+        (if (.. pub (isCompressed)) (§ new #_"ECKey" priv, (decompressPoint (.. pub (get)))) this)
     )
 
     ;;;
@@ -6475,7 +6362,7 @@
     #_public
     (§ constructor #_"ECKey" [#_nilable #_"byte[]" (§ name privKeyBytes), #_nilable #_"byte[]" (§ name pubKey)])
     (§ block
-        (§ this (§ quest (§ expr privKeyBytes != nil) ? (§ new #_"BigInteger" 1, privKeyBytes) :else nil), pubKey)
+        (§ this (when (some? privKeyBytes) (§ new #_"BigInteger" 1, privKeyBytes)), pubKey)
         this
     )
 
@@ -6528,7 +6415,7 @@
             (§ throw (§ new #_"IllegalArgumentException" "ECKey requires at least private or public key"))
         )
         (§ ass (§ name (.. this priv)) privKey)
-        (§ if (§ expr pubKey == nil))
+        (§ if (nil? pubKey))
         (§ block
             ;; Derive public from private.
             (§ var #_"ECPoint" (§ name point) (publicPointFromPrivate privKey))
@@ -6567,7 +6454,7 @@
     #_public
     (§ method #_"boolean" (§ fn isPubKeyOnly) [])
     (§ block
-        (§ expr priv == nil)
+        (nil? priv)
     )
 
     ;;;
@@ -6577,7 +6464,7 @@
     #_public
     (§ method #_"boolean" (§ fn hasPrivKey) [])
     (§ block
-        (§ expr priv != nil)
+        (some? priv)
     )
 
     ;;; Returns true if this key is watch only, meaning it has a public key but no private key. ;;
@@ -6653,7 +6540,7 @@
     #_public
     (§ method #_"byte[]" (§ fn getPubKeyHash) [])
     (§ block
-        (§ if (§ expr pubKeyHash == nil))
+        (§ if (nil? pubKeyHash))
         (§ block
             (§ ass (§ name pubKeyHash) (Utils/sha256hash160 (.. this pub (getEncoded))))
         )
@@ -6687,7 +6574,7 @@
     #_public
     (§ method #_"BigInteger" (§ fn getPrivKey) [])
     (§ block
-        (§ if (§ expr priv == nil))
+        (§ if (nil? priv))
         (§ block
             (§ throw (§ new #_"MissingPrivateKeyException"))
         )
@@ -6724,10 +6611,8 @@
     (§ class #_"ECDSASignature"
         ;;; The two components of the signature. ;;
         #_public
-        #_final
         (§ field #_"BigInteger" (§ name r))
         #_public
-        #_final
         (§ field #_"BigInteger" (§ name s))
 
         ;;;
@@ -6802,7 +6687,7 @@
             (§ block
                 (§ ass (§ name decoder) (§ new #_"ASN1InputStream" bytes))
                 (§ var #_"DLSequence" (§ name seq) (§ cast #_"DLSequence" (.. decoder (readObject))))
-                (§ if (§ expr seq == nil))
+                (§ if (nil? seq))
                 (§ block
                     (§ throw (§ new #_"IllegalArgumentException" "Reached past end of ASN.1 stream."))
                 )
@@ -6828,7 +6713,7 @@
             )
             (§ finally )
             (§ block
-                (§ if (§ expr decoder != nil))
+                (§ if (some? decoder))
                 (§ block
                     (§ try )
                     (§ block
@@ -6917,9 +6802,9 @@
         (§ throws #_"KeyCrypterException")
     (§ block
         (§ var #_"KeyCrypter" (§ name crypter) (getKeyCrypter))
-        (§ if (§ expr crypter != nil))
+        (§ if (some? crypter))
         (§ block
-            (§ if (§ expr aesKey == nil))
+            (§ if (nil? aesKey))
             (§ block
                 (§ throw (§ new #_"KeyIsEncryptedException"))
             )
@@ -6928,7 +6813,7 @@
         (§ else )
         (§ block
             ;; No decryption of private key required.
-            (§ if (§ expr priv == nil))
+            (§ if (nil? priv))
             (§ block
                 (§ throw (§ new #_"MissingPrivateKeyException"))
             )
@@ -7172,7 +7057,7 @@
         (§ block
             (§ throw (§ new #_"RuntimeException" "Could not construct a recoverable key. This should never happen."))
         )
-        (§ var #_"int" (§ name headerByte) (§ expr recId + 27 + (§ quest (isCompressed) ? 4 :else 0)))
+        (§ var #_"int" (§ name headerByte) (+ recId 27 (if (isCompressed) 4 0)))
         (§ var #_"byte[]" (§ name sigData) (§ new #_"byte[]" (§ count 65))) ;; 1 header + 32 bytes for R + 32 bytes for S
         (§ ass (§ name (§ ai sigData 0)) (§ cast #_"byte" headerByte))
         (System/arraycopy (Utils/bigIntegerToBytes (.. sig r), 32), 0, sigData, 1, 32)
@@ -7234,7 +7119,7 @@
         )
         (§ var #_"int" (§ name recId) (- header 27))
         (§ var #_"ECKey" (§ name key) (ECKey/recoverFromSignature recId, sig, messageHash, compressed))
-        (§ if (§ expr key == nil))
+        (§ if (nil? key))
         (§ block
             (§ throw (§ new #_"SignatureException" "Could not recover public key from signature"))
         )
@@ -7343,7 +7228,7 @@
     (§ block
         (§ var #_"X9IntegerConverter" (§ name x9) (§ new #_"X9IntegerConverter"))
         (§ var #_"byte[]" (§ name compEnc) (.. x9 (integerToBytes xBN, (§ expr 1 + (.. x9 (getByteLength (.. CURVE (getCurve))))))))
-        (§ ass (§ name (§ ai compEnc 0)) (§ cast #_"byte" (§ quest yBit ? 0x03 :else 0x02)))
+        (§ ass (§ name (§ ai compEnc 0)) (§ cast #_"byte" (if yBit 0x03 0x02)))
         (.. CURVE (getCurve) (decodePoint compEnc))
     )
 
@@ -7397,7 +7282,6 @@
     (§ block
         (Preconditions/checkNotNull keyCrypter)
 
-        #_final
         (§ var #_"byte[]" (§ name privKeyBytes) (getPrivKeyBytes))
         (§ var #_"EncryptedData" (§ name encryptedPrivateKey) (.. keyCrypter (encrypt privKeyBytes, aesKey)))
         (§ var #_"ECKey" (§ name result) (ECKey/fromEncrypted encryptedPrivateKey, keyCrypter, (getPubKey)))
@@ -7425,7 +7309,7 @@
             (§ throw (§ new #_"KeyCrypterException" "The keyCrypter being used to decrypt the key is different to the one that was used to encrypt it"))
         )
 
-        (Preconditions/checkState (§ expr encryptedPrivateKey != nil), "This key is not encrypted")
+        (Preconditions/checkState (some? encryptedPrivateKey), "This key is not encrypted")
 
         (§ var #_"byte[]" (§ name unencryptedPrivateKey) (.. keyCrypter (decrypt encryptedPrivateKey, aesKey)))
         (§ var #_"ECKey" (§ name key) (ECKey/fromPrivate unencryptedPrivateKey))
@@ -7453,9 +7337,8 @@
     (§ method #_"ECKey" (§ fn decrypt) [#_"KeyParameter" (§ name aesKey)])
         (§ throws #_"KeyCrypterException")
     (§ block
-        #_final
         (§ var #_"KeyCrypter" (§ name crypter) (getKeyCrypter))
-        (§ if (§ expr crypter == nil))
+        (§ if (nil? crypter))
         (§ block
             (§ throw (§ new #_"KeyCrypterException" "No key crypter available"))
         )
@@ -7470,7 +7353,7 @@
     (§ method #_"ECKey" (§ fn maybeDecrypt) [#_nilable #_"KeyParameter" (§ name aesKey)])
         (§ throws #_"KeyCrypterException")
     (§ block
-        (§ quest (§ expr (isEncrypted) && aesKey != nil) ? (decrypt aesKey) :else this)
+        (if (§ expr (isEncrypted) && aesKey != nil) (decrypt aesKey) this)
     )
 
     ;;;
@@ -7523,7 +7406,7 @@
     #_public
     (§ method #_"Protos.Wallet.EncryptionType" (§ fn getEncryptionType) [])
     (§ block
-        (§ quest (§ expr keyCrypter != nil) ? (.. keyCrypter (getUnderstoodEncryptionType)) :else Protos/Wallet/EncryptionType/UNENCRYPTED)
+        (if (some? keyCrypter) (.. keyCrypter (getUnderstoodEncryptionType)) Protos/Wallet/EncryptionType/UNENCRYPTED)
     )
 
     ;;;
@@ -7638,7 +7521,6 @@
     #_private
     (§ method- #_"String" (§ fn toString) [#_"boolean" (§ name includePrivate), #_"NetworkParameters" (§ name params)])
     (§ block
-        #_final
         (§ var #_"MoreObjects.ToStringHelper" (§ name helper) (.. (MoreObjects/toStringHelper this) (omitNullValues)))
         (.. helper (add "pub HEX", (getPublicKeyAsHex)))
         (§ if includePrivate)
@@ -7653,9 +7535,8 @@
             )
             (§ catch #_"Exception" (§ name e))
             (§ block
-                #_final
                 (§ var #_"String" (§ name message) (.. e (getMessage)))
-                (.. helper (add "priv EXCEPTION", (§ expr (.. e (getClass) (getName)) + (§ quest (§ expr message != nil) ? (§ str ": " + message) :else ""))))
+                (.. helper (add "priv EXCEPTION", (§ str (.. e (getClass) (getName)) + (if (some? message) (§ str ": " + message) ""))))
             )
         )
         (§ if (< 0 creationTimeSeconds))
@@ -7675,7 +7556,6 @@
     #_public
     (§ method #_"void" (§ fn formatKeyWithAddress) [#_"boolean" (§ name includePrivateKeys), #_"StringBuilder" (§ name sb), #_"NetworkParameters" (§ name params)])
     (§ block
-        #_final
         (§ var #_"Address" (§ name address) (toAddress params))
         (.. sb (append "  addr:"))
         (.. sb (append (.. address (toString))))
@@ -7734,7 +7614,6 @@
 
     #_override
     #_protected
-    #_final
     (§ method #_"void" (§ fn bitcoinSerializeToStream) [#_"OutputStream" (§ name stream)])
         (§ throws #_"IOException")
     (§ block
@@ -7841,7 +7720,7 @@
     (§ method #_"List<Sha256Hash>" (§ fn getTransactionHashes) [])
         (§ throws #_"VerificationException")
     (§ block
-        (§ if (§ expr cachedTransactionHashes != nil))
+        (§ if (some? cachedTransactionHashes))
         (§ block
             (§ return (Collections/unmodifiableList cachedTransactionHashes))
         )
@@ -7965,14 +7844,12 @@
 (§ class #_"FullPrunedBlockChain" (§ extends #_"AbstractBlockChain")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"FullPrunedBlockChain")))
 
     ;;;
      ; Keeps a map of block hashes to StoredBlocks.
      ;;
     #_protected
-    #_final
     (§ field #_"FullPrunedBlockStore" (§ name blockStore))
 
     ;; Whether or not to execute scriptPubKeys before accepting a transaction (i.e. check signatures).
@@ -8111,15 +7988,12 @@
     #_private
     #_static
     (§ class #_"Verifier" (§ implements #_"Callable<VerificationException>")
-        #_final
         (§ field #_"Transaction" (§ name tx))
-        #_final
         (§ field #_"List<Script>" (§ name prevOutScripts))
-        #_final
         (§ field #_"Set<VerifyFlag>" (§ name verifyFlags))
 
         #_public
-        (§ constructor #_"Verifier" [#_final #_"Transaction" (§ name tx), #_final #_"List<Script>" (§ name prevOutScripts), #_final #_"Set<VerifyFlag>" (§ name verifyFlags)])
+        (§ constructor #_"Verifier" [#_"Transaction" (§ name tx), #_"List<Script>" (§ name prevOutScripts), #_"Set<VerifyFlag>" (§ name verifyFlags)])
         (§ block
             (§ ass (§ name (.. this tx)) tx)
             (§ ass (§ name (.. this prevOutScripts)) prevOutScripts)
@@ -8177,7 +8051,7 @@
         (§ var #_"String" (§ name address) "")
         (§ try )
         (§ block
-            (§ if (§ expr script != nil))
+            (§ if (some? script))
             (§ block
                 (§ ass (§ name address) (.. script (getToAddress params, true) (toString)))
             )
@@ -8225,7 +8099,6 @@
                 ;; for more details on this: https://github.com/bitcoin/bips/blob/master/bip-0030.mediawiki
                 (§ for (§ var #_"Transaction" (§ name tx)) :for (.. block transactions))
                 (§ block
-                    #_final
                     (§ var #_"Set<VerifyFlag>" (§ name verifyFlags) (.. params (getTransactionVerificationFlags block, tx, (getVersionTally), height)))
                     (§ var #_"Sha256Hash" (§ name hash) (.. tx (getHash)))
                     ;; If we already have unspent outputs for this hash, we saw the tx already.
@@ -8243,14 +8116,12 @@
             )
             (§ var #_"Coin" (§ name totalFees) Coin/ZERO)
             (§ var #_"Coin" (§ name coinbaseValue) nil)
-            (§ for (§ var #_final Transaction tx) :for (.. block transactions))
+            (§ for (§ var Transaction tx) :for (.. block transactions))
             (§ block
                 (§ var #_"boolean" (§ name isCoinBase) (.. tx (isCoinBase)))
                 (§ var #_"Coin" (§ name valueIn) Coin/ZERO)
                 (§ var #_"Coin" (§ name valueOut) Coin/ZERO)
-                #_final
                 (§ var #_"List<Script>" (§ name prevOutScripts) (§ new #_"LinkedList<>"))
-                #_final
                 (§ var #_"Set<VerifyFlag>" (§ name verifyFlags) (.. params (getTransactionVerificationFlags block, tx, (getVersionTally), height)))
                 (§ if (§ not isCoinBase))
                 (§ block
@@ -8259,7 +8130,7 @@
                     (§ block
                         (§ var #_"TransactionInput" (§ name in) (.. tx (getInputs) (get index)))
                         (§ var #_"UTXO" (§ name prevOut) (.. blockStore (getTransactionOutput (.. in (getOutpoint) (getHash)), (.. in (getOutpoint) (getIndex)))))
-                        (§ if (§ expr prevOut == nil))
+                        (§ if (nil? prevOut))
                         (§ block
                             (§ throw (§ new #_"VerificationException" "Attempted to spend a non-existent or already spent output!"))
                         )
@@ -8350,7 +8221,7 @@
                     (.. log (error (§ expr "Script.correctlySpends threw a non-normal exception: " + (.. ee (getCause)))))
                     (§ throw (§ new #_"VerificationException" "Bug in Script.correctlySpends, likely script malformed in some new and interesting way.", ee))
                 )
-                (§ if (§ expr e != nil))
+                (§ if (some? e))
                 (§ block
                     (§ throw e)
                 )
@@ -8389,7 +8260,7 @@
 
         (.. blockStore (beginDatabaseBatchWrite))
         (§ var #_"StoredUndoableBlock" (§ name block) (.. blockStore (getUndoBlock (.. newBlock (getHeader) (getHash)))))
-        (§ if (§ expr block == nil))
+        (§ if (nil? block))
         (§ block
             ;; We're trying to re-org too deep and the data needed has been deleted.
             (.. blockStore (abortDatabaseBatchWrite))
@@ -8400,7 +8271,7 @@
         (§ try )
         (§ block
             (§ var #_"List<Transaction>" (§ name transactions) (.. block (getTransactions)))
-            (§ if (§ expr transactions != nil))
+            (§ if (some? transactions))
             (§ block
                 (§ var #_"LinkedList<UTXO>" (§ name txOutsSpent) (§ new #_"LinkedList<>"))
                 (§ var #_"LinkedList<UTXO>" (§ name txOutsCreated) (§ new #_"LinkedList<>"))
@@ -8427,25 +8298,21 @@
                 )
 
                 (§ var #_"List<Future<VerificationException>>" (§ name listScriptVerificationResults) (§ new #_"ArrayList<>" (.. transactions (size))))
-                (§ for (§ var #_final Transaction tx) :for transactions)
+                (§ for (§ var Transaction tx) :for transactions)
                 (§ block
-                    #_final
                     (§ var #_"Set<VerifyFlag>" (§ name verifyFlags) (.. params (getTransactionVerificationFlags (.. newBlock (getHeader)), tx, (getVersionTally), Integer/SIZE)))
                     (§ var #_"boolean" (§ name isCoinBase) (.. tx (isCoinBase)))
                     (§ var #_"Coin" (§ name valueIn) Coin/ZERO)
                     (§ var #_"Coin" (§ name valueOut) Coin/ZERO)
-                    #_final
                     (§ var #_"List<Script>" (§ name prevOutScripts) (§ new #_"LinkedList<>"))
 
                     (§ if (§ not isCoinBase))
                     (§ block
                         (§ for (§ var #_"int" (§ name index) 0) :for (§ expr index < (.. tx (getInputs) (size))) :for (§ ass (§ name index) (+ index 1)))
                         (§ block
-                            #_final
                             (§ var #_"TransactionInput" (§ name in) (.. tx (getInputs) (get index)))
-                            #_final
                             (§ var #_"UTXO" (§ name prevOut) (.. blockStore (getTransactionOutput (.. in (getOutpoint) (getHash)), (.. in (getOutpoint) (getIndex)))))
-                            (§ if (§ expr prevOut == nil))
+                            (§ if (nil? prevOut))
                             (§ block
                                 (§ throw (§ new #_"VerificationException" "Attempted spend of a non-existent or already spent output!"))
                             )
@@ -8533,7 +8400,7 @@
                         (.. log (error (§ expr "Script.correctlySpends threw a non-normal exception: " + (.. ee (getCause)))))
                         (§ throw (§ new #_"VerificationException" "Bug in Script.correctlySpends, likely script malformed in some new and interesting way.", ee))
                     )
-                    (§ if (§ expr e != nil))
+                    (§ if (some? e))
                     (§ block
                         (§ throw e)
                     )
@@ -8592,7 +8459,7 @@
         (§ try )
         (§ block
             (§ var #_"StoredUndoableBlock" (§ name undoBlock) (.. blockStore (getUndoBlock (.. oldBlock (getHeader) (getHash)))))
-            (§ if (§ expr undoBlock == nil))
+            (§ if (nil? undoBlock))
             (§ block
                 (§ throw (§ new #_"PrunedException" (.. oldBlock (getHeader) (getHash))))
             )
@@ -8951,13 +8818,11 @@
 (§ class #_"HeadersMessage" (§ extends #_"Message")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"HeadersMessage")))
 
     ;; The main client will never send us more than this number of headers.
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MAX_HEADERS) 2000)
 
     #_private
@@ -9015,12 +8880,10 @@
         )
 
         (§ ass (§ name blockHeaders) (§ new #_"ArrayList<>"))
-        #_final
         (§ var #_"BitcoinSerializer" (§ name serializer) (.. this params (getSerializer true)))
 
         (§ for (§ var #_"int" (§ name i) 0) :for (< i numHeaders) :for (§ ass (§ name i) (+ i 1)))
         (§ block
-            #_final
             (§ var #_"Block" (§ name newBlockHeader) (.. serializer (makeBlock payload, cursor, UNKNOWN_LENGTH)))
             (§ if (.. newBlockHeader (hasTransactions)))
             (§ block
@@ -9064,7 +8927,6 @@
     ;;; Contains the number of satoshis that would have been required to complete the operation. ;;
     #_nilable
     #_public
-    #_final
     (§ field #_"Coin" (§ name missing))
 
     #_protected
@@ -9099,7 +8961,6 @@
      ; 4 byte uint32 type field + 32 byte hash
      ;;
     #_static
-    #_final
     (§ def #_"int" (§ name MESSAGE_LENGTH) 36)
 
     #_public
@@ -9111,10 +8972,8 @@
     )
 
     #_public
-    #_final
     (§ field #_"Type" (§ name type))
     #_public
-    #_final
     (§ field #_"Sha256Hash" (§ name hash))
 
     #_public
@@ -9172,7 +9031,6 @@
     ;;; A hard coded constant in the protocol. ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MAX_INV_SIZE) 50000)
 
     #_public
@@ -9250,7 +9108,6 @@
 (§ class #_"ListMessage" (§ extends #_"Message")
     #_public
     #_static
-    #_final
     (§ def #_"long" (§ name MAX_INVENTORY_ITEMS) 50000)
 
     #_private
@@ -9456,23 +9313,19 @@
 (§ class #_"Message"
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"Message")))
 
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MAX_SIZE) 0x02000000) ;; 32MB
 
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name UNKNOWN_LENGTH) Integer/MIN_VALUE)
 
     ;; Useful to ensure serialize/deserialize are consistent with each other.
     #_private
     #_static
-    #_final
     (§ def- #_"boolean" (§ name SELF_CHECK) false)
 
     ;; The offset is how many bytes into the provided byte array this message payload starts at.
@@ -9649,7 +9502,7 @@
     #_public
     (§ method #_"boolean" (§ fn isCached) [])
     (§ block
-        (§ expr payload != nil)
+        (some? payload)
     )
 
     #_public
@@ -9675,7 +9528,7 @@
 
     ;;;
      ; Serialize this message to a byte array that conforms to the bitcoin wire protocol.
-     ; <br/>
+     ;
      ; This method may return the original byte array used to construct this message if the
      ; following conditions are met:
      ; <ol>
@@ -9694,7 +9547,7 @@
     (§ method #_"byte[]" (§ fn unsafeBitcoinSerialize) [])
     (§ block
         ;; 1st attempt to use a cached array.
-        (§ if (§ expr payload != nil))
+        (§ if (some? payload))
         (§ block
             ;; Cached byte array is the entire message with no extras so we can return as is and avoid an array copy.
             (§ if (§ expr offset == 0 && length == (.. payload length)))
@@ -9708,7 +9561,7 @@
         )
 
         ;; No cached array available so serialize parts by stream.
-        (§ var #_"ByteArrayOutputStream" (§ name stream) (§ new #_"UnsafeByteArrayOutputStream" (§ quest (< length 32) ? 32 :else (+ length 32))))
+        (§ var #_"ByteArrayOutputStream" (§ name stream) (§ new #_"UnsafeByteArrayOutputStream" (if (< length 32) 32 (+ length 32))))
         (§ try )
         (§ block
             (bitcoinSerializeToStream stream)
@@ -9750,7 +9603,6 @@
      ; @throws IOException
      ;;
     #_public
-    #_final
     (§ method #_"void" (§ fn bitcoinSerialize) [#_"OutputStream" (§ name stream)])
         (§ throws #_"IOException")
     (§ block
@@ -9790,7 +9642,6 @@
      ; This returns a correct value by parsing the message.
      ;;
     #_public
-    #_final
     (§ method #_"int" (§ fn getMessageSize) [])
     (§ block
         (§ if (§ expr length == UNKNOWN_LENGTH))
@@ -9898,7 +9749,7 @@
         (§ throws #_"ProtocolException")
     (§ block
         (§ var #_"long" (§ name length) (readVarInt))
-        (§ quest (§ expr length == 0) ? "" :else (Utils/toString (readBytes (§ cast #_"int" length)), "UTF-8")) ;; optimization for empty strings
+        (if (== length 0) "" (Utils/toString (readBytes (§ cast #_"int" length)), "UTF-8")) ;; optimization for empty strings
     )
 
     #_protected
@@ -9931,7 +9782,7 @@
         (§ throws #_"IOException", #_"ClassNotFoundException")
     (§ block
         (.. in (defaultReadObject))
-        (§ if (§ expr params != nil))
+        (§ if (some? params))
         (§ block
             (§ ass (§ name (.. this serializer)) (.. params (getDefaultSerializer)))
         )
@@ -10006,7 +9857,6 @@
      ; length as block length.
      ;;
     #_public
-    #_final
     (§ method #_"Block" (§ fn makeBlock) [#_"byte[]" (§ name payloadBytes)])
         (§ throws #_"ProtocolException")
     (§ block
@@ -10018,7 +9868,6 @@
      ; length as block length.
      ;;
     #_public
-    #_final
     (§ method #_"Block" (§ fn makeBlock) [#_"byte[]" (§ name payloadBytes), #_"int" (§ name length)])
         (§ throws #_"ProtocolException")
     (§ block
@@ -10032,7 +9881,7 @@
      ;;
     #_public
     #_abstract
-    (§ method #_"Block" (§ fn makeBlock) [#_final #_"byte[]" (§ name payloadBytes), #_final #_"int" (§ name offset), #_final #_"int" (§ name length)])
+    (§ method #_"Block" (§ fn makeBlock) [#_"byte[]" (§ name payloadBytes), #_"int" (§ name offset), #_"int" (§ name length)])
         (§ throws #_"ProtocolException", #_"UnsupportedOperationException")
 
     ;;;
@@ -10086,7 +9935,6 @@
      ; it does not support deserializing transactions.
      ;;
     #_public
-    #_final
     (§ method #_"Transaction" (§ fn makeTransaction) [#_"byte[]" (§ name payloadBytes)])
         (§ throws #_"ProtocolException", #_"UnsupportedOperationException")
     (§ block
@@ -10103,7 +9951,6 @@
      ; it does not support deserializing transactions.
      ;;
     #_public
-    #_final
     (§ method #_"Transaction" (§ fn makeTransaction) [#_"byte[]" (§ name payloadBytes), #_"int" (§ name offset)])
         (§ throws #_"ProtocolException")
     (§ block
@@ -10195,39 +10042,32 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"byte[]" (§ name SATOSHI_KEY) (.. Utils/HEX (decode "04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284")))
 
     ;;; The string returned by getId() for the main, production network where people trade things. ;;
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name ID_MAINNET) "org.bitcoin.production")
     ;;; The string returned by getId() for the testnet. ;;
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name ID_TESTNET) "org.bitcoin.test")
     ;;; Unit test network. ;;
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name ID_UNITTESTNET) "org.bitcoinj.unittest")
 
     ;;; The string used by the payment protocol to represent the main net. ;;
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name PAYMENT_PROTOCOL_ID_MAINNET) "main")
     ;;; The string used by the payment protocol to represent the test net. ;;
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name PAYMENT_PROTOCOL_ID_TESTNET) "test")
     ;;; The string used by the payment protocol to represent unit testing (note that this is non-standard). ;;
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name PAYMENT_PROTOCOL_ID_UNIT_TESTS) "unittest")
 
     ;; TODO: Seed nodes should be here as well.
@@ -10324,15 +10164,12 @@
 
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name TARGET_TIMESPAN) (§ expr 14 * 24 * 60 * 60)) ;; 2 weeks per difficulty cycle, on average.
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name TARGET_SPACING) (* 10 60)) ;; 10 minutes per block.
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name INTERVAL) (/ TARGET_TIMESPAN TARGET_SPACING))
 
     ;;;
@@ -10342,7 +10179,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name BIP16_ENFORCE_TIME) 1333238400)
 
     ;;;
@@ -10350,7 +10186,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"long" (§ name MAX_COINS) 21000000)
 
     ;;;
@@ -10358,7 +10193,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"Coin" (§ name MAX_MONEY) (.. COIN (multiply MAX_COINS)))
 
     ;;;
@@ -10451,7 +10285,7 @@
      ;;
     #_public
     #_abstract
-    (§ method #_"void" (§ fn checkDifficultyTransitions) [#_"StoredBlock" (§ name storedPrev), #_"Block" (§ name next), #_final #_"BlockStore" (§ name blockStore)])
+    (§ method #_"void" (§ fn checkDifficultyTransitions) [#_"StoredBlock" (§ name storedPrev), #_"Block" (§ name next), #_"BlockStore" (§ name blockStore)])
         (§ throws #_"VerificationException", #_"BlockStoreException")
 
     ;;;
@@ -10471,7 +10305,7 @@
     (§ method #_"boolean" (§ fn isCheckpoint) [#_"int" (§ name height)])
     (§ block
         (§ var #_"Sha256Hash" (§ name checkpointHash) (.. checkpoints (get height)))
-        (§ expr checkpointHash != nil)
+        (some? checkpointHash)
     )
 
     #_public
@@ -10657,7 +10491,6 @@
      ; Return the default serializer for this network.  This is a shared serializer.
      ;;
     #_public
-    #_final
     (§ method #_"MessageSerializer" (§ fn getDefaultSerializer) [])
     (§ block
         ;; Construct a default serializer if we don't have one.
@@ -10728,14 +10561,12 @@
      ; tests should be a safe subset if block height is unknown.
      ;;
     #_public
-    (§ method #_"EnumSet<Block.VerifyFlag>" (§ fn getBlockVerificationFlags) [#_final #_"Block" (§ name block), #_final #_"VersionTally" (§ name tally), #_final #_"Integer" (§ name height)])
+    (§ method #_"EnumSet<Block.VerifyFlag>" (§ fn getBlockVerificationFlags) [#_"Block" (§ name block), #_"VersionTally" (§ name tally), #_"Integer" (§ name height)])
     (§ block
-        #_final
         (§ var #_"EnumSet<Block.VerifyFlag>" (§ name flags) (EnumSet/noneOf (§ klass #_"Block.VerifyFlag")))
 
         (§ if (.. block (isBIP34)))
         (§ block
-            #_final
             (§ var #_"Integer" (§ name count) (.. tally (getCountAtOrAbove Block/BLOCK_VERSION_BIP34)))
             (§ if (§ expr count != nil && (getMajorityEnforceBlockUpgrade) <= count))
             (§ block
@@ -10757,9 +10588,8 @@
      ; tests should be a safe subset if block height is unknown.
      ;;
     #_public
-    (§ method #_"EnumSet<Script.VerifyFlag>" (§ fn getTransactionVerificationFlags) [#_final #_"Block" (§ name block), #_final #_"Transaction" (§ name transaction), #_final #_"VersionTally" (§ name tally), #_final #_"Integer" (§ name height)])
+    (§ method #_"EnumSet<Script.VerifyFlag>" (§ fn getTransactionVerificationFlags) [#_"Block" (§ name block), #_"Transaction" (§ name transaction), #_"VersionTally" (§ name tally), #_"Integer" (§ name height)])
     (§ block
-        #_final
         (§ var #_"EnumSet<Script.VerifyFlag>" (§ name verifyFlags) (EnumSet/noneOf (§ klass #_"Script.VerifyFlag")))
         (§ if (§ expr NetworkParameters/BIP16_ENFORCE_TIME <= (.. block (getTimeSeconds))))
         (§ block
@@ -10778,7 +10608,7 @@
 
     #_public
     #_abstract
-    (§ method #_"int" (§ fn getProtocolVersionNum) [#_final #_"ProtocolVersion" (§ name version)])
+    (§ method #_"int" (§ fn getProtocolVersionNum) [#_"ProtocolVersion" (§ name version)])
 
     #_public
     #_static
@@ -10789,10 +10619,9 @@
         (§ item (CURRENT 70001))
 
         #_private
-        #_final
         (§ field- #_"int" (§ name bitcoinProtocol))
 
-        (§ constructor #_"ProtocolVersion" [#_final #_"int" (§ name bitcoinProtocol)])
+        (§ constructor #_"ProtocolVersion" [#_"int" (§ name bitcoinProtocol)])
         (§ block
             (§ ass (§ name (.. this bitcoinProtocol)) bitcoinProtocol)
             this
@@ -10864,7 +10693,7 @@
  ; <tt>SIZE &lt;= 10 + ceil(32.25 * N)</tt> where N represents the number of leaf nodes of the partial tree.
  ; N itself is bounded by:</p>
  ;
- ; N &lt;= total_transactions<br>
+ ; N &lt;= total_transactions
  ; N &lt;= 1 + matched_transactions * tree_height
  ;
  ; <p><pre>The serialization format:
@@ -11031,7 +10860,7 @@
         (§ var #_"int" (§ name p) (* pos 2))
         (§ var #_"Sha256Hash" (§ name left) (calcHash h, p, hashes))
         ;; Calculate right hash if not beyond the end of the array - copy left hash otherwise.
-        (§ var #_"Sha256Hash" (§ name right) (§ quest (§ expr p + 1 < (getTreeWidth (.. hashes (size)), h)) ? (calcHash h, (§ expr p + 1), hashes) :else left))
+        (§ var #_"Sha256Hash" (§ name right) (if (< (+ p 1) (getTreeWidth (.. hashes (size)), h)) (calcHash h, (+ p 1), hashes) left))
 
         (combineLeftRight (.. left (getBytes)), (.. right (getBytes)))
     )
@@ -11236,43 +11065,31 @@
 (§ class #_"Peer" (§ extends #_"PeerSocketHandler")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"Peer")))
 
     #_protected
-    #_final
     (§ field #_"ReentrantLock" (§ name lock) (Threading/lock "peer"))
 
     #_private
-    #_final
     (§ field- #_"NetworkParameters" (§ name params))
     #_private
-    #_final
     (§ field- #_"AbstractBlockChain" (§ name blockChain))
     #_private
-    #_final
     (§ field- #_"Context" (§ name context))
 
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>" (§ name blocksDownloadedEventListeners) (§ new #_"CopyOnWriteArrayList<>"))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>" (§ name chainDownloadStartedEventListeners) (§ new #_"CopyOnWriteArrayList<>"))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>" (§ name connectedEventListeners) (§ new #_"CopyOnWriteArrayList<>"))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>" (§ name disconnectedEventListeners) (§ new #_"CopyOnWriteArrayList<>"))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>" (§ name getDataEventListeners) (§ new #_"CopyOnWriteArrayList<>"))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>" (§ name preMessageReceivedEventListeners) (§ new #_"CopyOnWriteArrayList<>"))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>" (§ name onTransactionEventListeners) (§ new #_"CopyOnWriteArrayList<>"))
 
     ;; Whether to try and download blocks and transactions from this peer.  Set to false by PeerGroup if not the
@@ -11284,7 +11101,6 @@
     ;; The version data to announce to the other side of the connections we make: useful for setting our "user agent"
     ;; equivalent and other things.
     #_private
-    #_final
     (§ field- #_"VersionMessage" (§ name versionMessage))
     ;; Maximum depth up to which pending transaction dependencies are downloaded, or 0 for disabled.
     #_private
@@ -11294,11 +11110,9 @@
     ;; so we can use this to calculate the height of the peers chain, by adding it to the initial height in the version
     ;; message.  This method can go wrong if the peer re-orgs onto a shorter (but harder) chain, however, this is rare.
     #_private
-    #_final
     (§ field- #_"AtomicInteger" (§ name blocksAnnounced) (§ new #_"AtomicInteger"))
     ;; Each wallet added to the peer will be notified of downloaded transaction data.
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<Wallet>" (§ name wallets))
     ;; A time before which we only download block headers, after that point we download block bodies.
     #_guarded-by(§ opt "lock")
@@ -11338,7 +11152,6 @@
     ;; actual false positive rate.  For now a good value was determined empirically around January 2013.
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name RESEND_BLOOM_FILTER_BLOCK_COUNT) 25000)
     ;; Keeps track of things we requested internally with getdata but didn't receive yet, so we can avoid re-requests.
     ;; It's not quite the same as getDataFutures, as this is used only for getdatas done as part of downloading
@@ -11347,7 +11160,6 @@
     ;; It is important to avoid a nasty edge case where we can end up with parallel chain downloads proceeding
     ;; simultaneously if we were to receive a newly solved block whilst parts of the chain are streaming to us.
     #_private
-    #_final
     (§ field- #_"HashSet<Sha256Hash>" (§ name pendingBlockDownloads) (§ new #_"HashSet<>"))
     ;; Keep references to TransactionConfidence objects for transactions that were announced by a remote peer, but
     ;; which we haven't downloaded yet.  These objects are de-duplicated by the TxConfidenceTable class.
@@ -11356,7 +11168,6 @@
     ;; to keep it pinned to the root set if they care about this data.
     #_suppress(§ opt "MismatchedQueryAndUpdateOfCollection")
     #_private
-    #_final
     (§ field- #_"HashSet<TransactionConfidence>" (§ name pendingTxDownloads) (§ new #_"HashSet<>"))
     ;; The lowest version number we're willing to accept.  Lower than this will result in an immediate disconnect.
     #_private
@@ -11367,9 +11178,7 @@
     #_private
     #_static
     (§ class #_"GetDataRequest"
-        #_final
         (§ field #_"Sha256Hash" (§ name hash))
-        #_final
         (§ field #_"SettableFuture" (§ name future))
 
         #_public
@@ -11382,27 +11191,22 @@
     )
     ;; TODO: The types/locking should be rationalised a bit.
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<GetDataRequest>" (§ name getDataFutures))
     #_guarded-by(§ opt "getAddrFutures")
     #_private
-    #_final
     (§ field- #_"LinkedList<SettableFuture<AddressMessage>>" (§ name getAddrFutures))
 
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name PING_MOVING_AVERAGE_WINDOW) 20)
 
     ;; Outstanding pings against this peer and how long the last one took to complete.
     #_private
-    #_final
     (§ field- #_"ReentrantLock" (§ name lastPingTimesLock) (§ new #_"ReentrantLock"))
     #_guarded-by(§ opt "lastPingTimesLock")
     #_private
     (§ field- #_"long[]" (§ name lastPingTimes))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<PendingPing>" (§ name pendingPings))
 
     #_private
@@ -11411,16 +11215,12 @@
 
     ;; A settable future which completes (with this) when the connection is open.
     #_private
-    #_final
     (§ field- #_"SettableFuture<Peer>" (§ name connectionOpenFuture) (SettableFuture/create))
     #_private
-    #_final
     (§ field- #_"SettableFuture<Peer>" (§ name outgoingVersionHandshakeFuture) (SettableFuture/create))
     #_private
-    #_final
     (§ field- #_"SettableFuture<Peer>" (§ name incomingVersionHandshakeFuture) (SettableFuture/create))
     #_private
-    #_final
     (§ field- #_"ListenableFuture<Peer>" (§ name versionHandshakeFuture) (Futures/transform (Futures/allAsList outgoingVersionHandshakeFuture, incomingVersionHandshakeFuture), (§ new #_"Function<List<Peer>, Peer>")
         (§ anon
             #_override
@@ -11495,9 +11295,9 @@
 
         (§ ass (§ name (.. this params)) (Preconditions/checkNotNull params))
         (§ ass (§ name (.. this versionMessage)) (Preconditions/checkNotNull ver))
-        (§ ass (§ name (.. this vDownloadTxDependencyDepth)) (§ quest (§ expr chain != nil) ? downloadTxDependencyDepth :else 0))
+        (§ ass (§ name (.. this vDownloadTxDependencyDepth)) (if (some? chain) downloadTxDependencyDepth 0))
         (§ ass (§ name (.. this blockChain)) chain) ;; Allowed to be nil.
-        (§ ass (§ name (.. this vDownloadData)) (§ expr chain != nil))
+        (§ ass (§ name (.. this vDownloadData)) (some? chain))
         (§ ass (§ name (.. this getDataFutures)) (§ new #_"CopyOnWriteArrayList<>"))
         (§ ass (§ name (.. this getAddrFutures)) (§ new #_"LinkedList<>"))
         (§ ass (§ name (.. this fastCatchupTimeSecs)) (.. params (getGenesisBlock) (getTimeSeconds)))
@@ -11701,7 +11501,7 @@
     (§ block
         (§ var #_"PeerAddress" (§ name addr) (getAddress))
         ;; if null, it's a user-provided NetworkConnection object
-        (§ quest (§ expr addr == nil) ? "Peer()" :else (.. addr (toString)))
+        (if (some? addr) (.. addr (toString)) "Peer()")
     )
 
     #_override
@@ -11722,7 +11522,7 @@
     #_public
     (§ method #_"void" (§ fn connectionClosed) [])
     (§ block
-        (§ for (§ var #_final ListenerRegistration<PeerDisconnectedEventListener> registration) :for disconnectedEventListeners)
+        (§ for (§ var ListenerRegistration<PeerDisconnectedEventListener> registration) :for disconnectedEventListeners)
         (§ block
             (.. registration executor (execute (§ new #_"Runnable")
             (§ anon
@@ -11745,7 +11545,7 @@
         ;; Announce ourselves.  This has to come first to connect to clients beyond v0.3.20.2 which wait to hear
         ;; from us until they send their version message back.
         (§ var #_"PeerAddress" (§ name address) (getAddress))
-        (.. log (info "Announcing to {} as: {}", (§ quest (§ expr address != nil) ? (.. address (toSocketAddress)) :else "Peer"), (.. versionMessage subVer)))
+        (.. log (info "Announcing to {} as: {}", (if (some? address) (.. address (toSocketAddress)) "Peer"), (.. versionMessage subVer)))
         (sendMessage versionMessage)
         (.. connectionOpenFuture (set this))
         ;; When connecting, the remote peer sends us a version message with various bits of
@@ -11782,13 +11582,13 @@
             (§ if (== (.. registration executor) Threading/SAME_THREAD))
             (§ block
                 (§ ass (§ name m) (.. registration listener (onPreMessageReceived this, m)))
-                (§ if (§ expr m == nil))
+                (§ if (nil? m))
                 (§ block
                     (§ break )
                 )
             )
         )
-        (§ if (§ expr m == nil))
+        (§ if (nil? m))
         (§ block
             (§ return nil)
         )
@@ -11882,7 +11682,7 @@
         (§ sync getAddrFutures)
         (§ block
             (§ ass (§ name future) (.. getAddrFutures (poll)))
-            (§ if (§ expr future == nil)) ;; Not an addr message we are waiting for.
+            (§ if (nil? future)) ;; Not an addr message we are waiting for.
             (§ block
                 (§ return nil)
             )
@@ -11895,7 +11695,7 @@
     (§ method- #_"void" (§ fn processVersionMessage) [#_"VersionMessage" (§ name m)])
         (§ throws #_"ProtocolException")
     (§ block
-        (§ if (§ expr vPeerVersionMessage != nil))
+        (§ if (some? vPeerVersionMessage))
         (§ block
             (§ throw (§ new #_"ProtocolException" "Got two version messages from peer"))
         )
@@ -11933,7 +11733,7 @@
     (§ method- #_"void" (§ fn processVersionAck) [#_"VersionAck" (§ name m)])
         (§ throws #_"ProtocolException")
     (§ block
-        (§ if (§ expr vPeerVersionMessage == nil))
+        (§ if (nil? vPeerVersionMessage))
         (§ block
             (§ throw (§ new #_"ProtocolException" "got a version ack before version"))
         )
@@ -11953,7 +11753,7 @@
     (§ block
         (.. log (debug "{}: Handshake complete.", this))
         (setTimeoutEnabled false)
-        (§ for (§ var #_final ListenerRegistration<PeerConnectedEventListener> registration) :for connectedEventListeners)
+        (§ for (§ var ListenerRegistration<PeerConnectedEventListener> registration) :for connectedEventListeners)
         (§ block
             (.. registration executor (execute (§ new #_"Runnable")
             (§ anon
@@ -11968,7 +11768,6 @@
         )
         ;; We check min version after onPeerConnected as channel.close() will
         ;; call onPeerDisconnected, and we should probably call onPeerConnected first.
-        #_final
         (§ var #_"int" (§ name version) vMinProtocolVersion)
         (§ if (< (.. vPeerVersionMessage clientVersion) version))
         (§ block
@@ -12062,7 +11861,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr blockChain == nil))
+            (§ if (nil? blockChain))
             (§ block
                 ;; Can happen if we are receiving unrequested data, or due to programmer error.
                 (.. log (warn "Received headers when Peer is not configured with a chain."))
@@ -12166,7 +11965,7 @@
                 (§ continue )
             )
             (§ var #_"List<Message>" (§ name listenerItems) (.. registration listener (getData this, getdata)))
-            (§ if (§ expr listenerItems == nil))
+            (§ if (nil? listenerItems))
             (§ block
                 (§ continue )
             )
@@ -12184,7 +11983,7 @@
     )
 
     #_protected
-    (§ method #_"void" (§ fn processTransaction) [#_final #_"Transaction" (§ name tx)])
+    (§ method #_"void" (§ fn processTransaction) [#_"Transaction" (§ name tx)])
         (§ throws #_"VerificationException")
     (§ block
         ;; Check a few basic syntax issues to ensure the received TX isn't nonsense.
@@ -12208,7 +12007,7 @@
                 (§ return nil)
             )
 
-            (§ if (§ expr currentFilteredBlock != nil))
+            (§ if (some? currentFilteredBlock))
             (§ block
                 (§ if (§ not (.. currentFilteredBlock (provideTransaction tx))))
                 (§ block
@@ -12222,7 +12021,7 @@
             )
 
             ;; It's a broadcast transaction.  Tell all wallets about this tx so they can check if it's relevant or not.
-            (§ for (§ var #_final Wallet wallet) :for wallets)
+            (§ for (§ var Wallet wallet) :for wallets)
             (§ block
                 (§ try )
                 (§ block
@@ -12295,7 +12094,7 @@
         )
         ;; Tell all listeners about this tx so they can decide whether to keep it or not.  If no listener keeps a
         ;; reference around then the memory pool will forget about it after a while too because it uses weak references.
-        (§ for (§ var #_final ListenerRegistration<OnTransactionBroadcastListener> registration) :for onTransactionEventListeners)
+        (§ for (§ var ListenerRegistration<OnTransactionBroadcastListener> registration) :for onTransactionEventListeners)
         (§ block
             (.. registration executor (execute (§ new #_"Runnable")
             (§ anon
@@ -12333,12 +12132,9 @@
         (§ var #_"TransactionConfidence.ConfidenceType" (§ name txConfidence) (.. tx (getConfidence) (getConfidenceType)))
         (Preconditions/checkArgument (§ expr txConfidence != TransactionConfidence/ConfidenceType/BUILDING))
         (.. log (info "{}: Downloading dependencies of {}", (getAddress), (.. tx (getHashAsString))))
-        #_final
         (§ var #_"LinkedList<Transaction>" (§ name results) (§ new #_"LinkedList<>"))
         ;; future will be invoked when the entire dependency tree has been walked and the results compiled.
-        #_final
         (§ var #_"ListenableFuture<Object>" (§ name future) (downloadDependenciesInternal vDownloadTxDependencyDepth, 0, tx, (§ new #_"Object"), results))
-        #_final
         (§ var #_"SettableFuture<List<Transaction>>" (§ name resultFuture) (SettableFuture/create))
         (Futures/addCallback future, (§ new #_"FutureCallback<Object>")
         (§ anon
@@ -12363,11 +12159,9 @@
 
     ;; The marker object in the future returned is the same as the parameter.  It is arbitrary and can be anything.
     #_protected
-    (§ method #_"ListenableFuture<Object>" (§ fn downloadDependenciesInternal) [#_final #_"int" (§ name maxDepth), #_final #_"int" (§ name depth), #_final #_"Transaction" (§ name tx), #_final #_"Object" (§ name marker), #_final #_"List<Transaction>" (§ name results)])
+    (§ method #_"ListenableFuture<Object>" (§ fn downloadDependenciesInternal) [#_"int" (§ name maxDepth), #_"int" (§ name depth), #_"Transaction" (§ name tx), #_"Object" (§ name marker), #_"List<Transaction>" (§ name results)])
     (§ block
-        #_final
         (§ var #_"SettableFuture<Object>" (§ name resultFuture) (SettableFuture/create))
-        #_final
         (§ var #_"Sha256Hash" (§ name rootTxHash) (.. tx (getHash)))
         ;; We want to recursively grab its dependencies.  This is so listeners can learn important information like
         ;; whether a transaction is dependent on a timelocked transaction or has an unexpectedly deep dependency tree
@@ -12413,7 +12207,7 @@
                     (§ var #_"List<ListenableFuture<Object>>" (§ name childFutures) (Lists/newLinkedList))
                     (§ for (§ var #_"Transaction" (§ name tx)) :for transactions)
                     (§ block
-                        (§ if (§ expr tx == nil))
+                        (§ if (nil? tx))
                         (§ block
                             (§ continue )
                         )
@@ -12495,7 +12289,7 @@
             (§ return nil)
         )
 
-        (§ if (§ expr blockChain == nil))
+        (§ if (nil? blockChain))
         (§ block
             (.. log (debug "Received block but was not configured with an AbstractBlockChain"))
             (§ return nil)
@@ -12543,7 +12337,6 @@
                 (§ block
                     (§ if downloadBlockBodies)
                     (§ block
-                        #_final
                         (§ var #_"Block" (§ name orphanRoot) (Preconditions/checkNotNull (.. blockChain (getOrphanRoot (.. m (getHash))))))
                         (blockChainDownloadLocked (.. orphanRoot (getHash)))
                     )
@@ -12586,7 +12379,7 @@
             (§ return nil)
         )
 
-        (§ if (§ expr blockChain == nil))
+        (§ if (nil? blockChain))
         (§ block
             (.. log (debug "Received filtered block but was not configured with an AbstractBlockChain"))
             (§ return nil)
@@ -12622,7 +12415,7 @@
             (.. lock (lock))
             (§ try )
             (§ block
-                (§ if (§ expr awaitingFreshFilter != nil))
+                (§ if (some? awaitingFreshFilter))
                 (§ block
                     (.. log (info "Discarding block {} because we're still waiting for a fresh filter", (.. m (getHash))))
                     ;; We must record the hashes of blocks we discard because you cannot do getblocks twice on the same
@@ -12675,7 +12468,6 @@
                 (.. lock (lock))
                 (§ try )
                 (§ block
-                    #_final
                     (§ var #_"Block" (§ name orphanRoot) (Preconditions/checkNotNull (.. blockChain (getOrphanRoot (.. m (getHash))))))
                     (blockChainDownloadLocked (.. orphanRoot (getHash)))
                 )
@@ -12730,14 +12522,13 @@
     )
 
     #_private
-    (§ method- #_"void" (§ fn invokeOnBlocksDownloaded) [#_final #_"Block" (§ name block), #_nilable #_final #_"FilteredBlock" (§ name fb)])
+    (§ method- #_"void" (§ fn invokeOnBlocksDownloaded) [#_"Block" (§ name block), #_nilable #_"FilteredBlock" (§ name fb)])
     (§ block
         ;; It is possible for the peer block height difference to be negative when blocks have been solved and broadcast
         ;; since the time we first connected to the peer.  However, it's weird and unexpected to receive a callback
         ;; with negative "blocks left" in this case, so we clamp to zero so the API user doesn't have to think about it.
-        #_final
         (§ var #_"int" (§ name blocksLeft) (Math/max 0, (§ expr (§ cast #_"int" (.. vPeerVersionMessage bestHeight)) - (.. (Preconditions/checkNotNull blockChain) (getBestChainHeight)))))
-        (§ for (§ var #_final ListenerRegistration<BlocksDownloadedEventListener> registration) :for blocksDownloadedEventListeners)
+        (§ for (§ var ListenerRegistration<BlocksDownloadedEventListener> registration) :for blocksDownloadedEventListeners)
         (§ block
             (.. registration executor (execute (§ new #_"Runnable")
             (§ anon
@@ -12783,7 +12574,6 @@
             )
         )
 
-        #_final
         (§ var #_"boolean" (§ name downloadData) (.. this vDownloadData))
 
         (§ if (§ expr (.. transactions (size)) == 0 && (.. blocks (size)) == 1))
@@ -12857,7 +12647,6 @@
                     (§ block
                         ;; If an orphan was re-advertised, ask for more blocks unless we are not currently downloading
                         ;; full block data because we have a getheaders outstanding.
-                        #_final
                         (§ var #_"Block" (§ name orphanRoot) (Preconditions/checkNotNull (.. blockChain (getOrphanRoot (.. item hash)))))
                         (blockChainDownloadLocked (.. orphanRoot (getHash)))
                     )
@@ -13133,7 +12922,7 @@
         )
 
         ;; Only add the locator if we didn't already do so.  If the chain is < 50 blocks we already reached it.
-        (§ if (§ expr cursor != nil))
+        (§ if (some? cursor))
         (§ block
             (.. blockLocator (add (.. params (getGenesisBlock) (getHash))))
         )
@@ -13167,11 +12956,10 @@
         (setDownloadData true)
         ;; TODO: Peer might still have blocks that we don't have, and even have a heavier
         ;; chain even if the chain block count is lower.
-        #_final
         (§ var #_"int" (§ name blocksLeft) (getPeerBlockHeightDifference))
         (§ if (<= 0 blocksLeft))
         (§ block
-            (§ for (§ var #_final ListenerRegistration<ChainDownloadStartedEventListener> registration) :for chainDownloadStartedEventListeners)
+            (§ for (§ var ListenerRegistration<ChainDownloadStartedEventListener> registration) :for chainDownloadStartedEventListeners)
             (§ block
                 (.. registration executor (execute (§ new #_"Runnable")
                 (§ anon
@@ -13205,11 +12993,9 @@
         (§ field #_"SettableFuture<Long>" (§ name future))
         ;; The random nonce that lets us tell apart overlapping pings/pongs.
         #_public
-        #_final
         (§ field #_"long" (§ name nonce))
         ;; Measurement of the time elapsed.
         #_public
-        #_final
         (§ field #_"long" (§ name startTimeMsec))
 
         #_public
@@ -13242,7 +13028,7 @@
         (.. lastPingTimesLock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr lastPingTimes == nil))
+            (§ if (nil? lastPingTimes))
             (§ block
                 (§ ass (§ name lastPingTimes) (§ new #_"long[]" (§ count PING_MOVING_AVERAGE_WINDOW)))
                 ;; Initialize the averaging window to the first sample.
@@ -13281,7 +13067,6 @@
     (§ method #_"ListenableFuture<Long>" (§ fn ping) [#_"long" (§ name nonce)])
         (§ throws #_"ProtocolException")
     (§ block
-        #_final
         (§ var #_"VersionMessage" (§ name ver) vPeerVersionMessage)
         (§ if (§ not (.. ver (isPingPongSupported))))
         (§ block
@@ -13305,7 +13090,7 @@
         (.. lastPingTimesLock (lock))
         (§ try )
         (§ block
-            (§ return (§ quest (§ expr lastPingTimes != nil) ? (§ ai lastPingTimes (- (.. lastPingTimes length) 1)) :else Long/MAX_VALUE))
+            (§ return (if (some? lastPingTimes) (§ ai lastPingTimes (- (.. lastPingTimes length) 1)) Long/MAX_VALUE))
         )
         (§ finally )
         (§ block
@@ -13324,7 +13109,7 @@
         (.. lastPingTimesLock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr lastPingTimes == nil))
+            (§ if (nil? lastPingTimes))
             (§ block
                 (§ return Long/MAX_VALUE)
             )
@@ -13499,12 +13284,11 @@
     (§ block
         (Preconditions/checkNotNull filter, "Clearing filters is not currently supported")
 
-        #_final
         (§ var #_"VersionMessage" (§ name ver) vPeerVersionMessage)
         (§ if (§ expr ver != nil && (.. ver (isBloomFilteringSupported))))
         (§ block
             (§ ass (§ name vBloomFilter) filter)
-            (.. log (debug "{}: Sending Bloom filter{}", this, (§ quest andQueryMemPool ? " and querying mempool" :else "")))
+            (.. log (debug "{}: Sending Bloom filter{}", this, (if andQueryMemPool " and querying mempool" "")))
             (sendMessage filter)
             (§ if andQueryMemPool)
             (§ block
@@ -13521,7 +13305,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr awaitingFreshFilter == nil))
+            (§ if (nil? awaitingFreshFilter))
             (§ block
                 (§ return nil)
             )
@@ -13596,7 +13380,7 @@
     #_public
     (§ method #_"void" (§ fn setDownloadTxDependencies) [#_"boolean" (§ name enable)])
     (§ block
-        (§ ass (§ name vDownloadTxDependencyDepth) (§ quest enable ? Integer/MAX_VALUE :else 0))
+        (§ ass (§ name vDownloadTxDependencyDepth) (if enable Integer/MAX_VALUE 0))
         nil
     )
 
@@ -13632,7 +13416,6 @@
 #_public
 (§ class #_"PeerAddress" (§ extends #_"ChildMessage")
     #_static
-    #_final
     (§ def #_"int" (§ name MESSAGE_SIZE) 30)
 
     #_private
@@ -13687,7 +13470,7 @@
         (§ ass (§ name (.. this protocolVersion)) protocolVersion)
         (§ ass (§ name (.. this services)) services)
 
-        (§ ass (§ name length) (§ quest (< 31402 protocolVersion) ? MESSAGE_SIZE :else (- MESSAGE_SIZE 4)))
+        (§ ass (§ name length) (if (< 31402 protocolVersion) MESSAGE_SIZE (- MESSAGE_SIZE 4)))
         this
     )
 
@@ -13785,7 +13568,7 @@
         ;;   uint64 services (flags determining what the node can do)
         ;;   16 bytes ip address
         ;;   2 bytes port num
-        (§ ass (§ name time) (§ quest (< 31402 protocolVersion) ? (readUint32) :else -1))
+        (§ ass (§ name time) (if (< 31402 protocolVersion) (readUint32) -1))
         (§ ass (§ name services) (readUint64))
         (§ var #_"byte[]" (§ name addrBytes) (readBytes 16))
         (§ try )
@@ -13799,7 +13582,7 @@
         (§ ass (§ name port) (| (<< (§ expr (§ ai payload cursor) & 0xff) 8) (§ expr (§ ai payload (§ expr cursor + 1)) & 0xff)))
         (§ ass (§ name cursor) (+ cursor 2))
         ;; The 4 byte difference is the uint32 timestamp that was introduced in version 31402.
-        (§ ass (§ name length) (§ quest (< 31402 protocolVersion) ? MESSAGE_SIZE :else (- MESSAGE_SIZE 4)))
+        (§ ass (§ name length) (if (< 31402 protocolVersion) MESSAGE_SIZE (- MESSAGE_SIZE 4)))
         nil
     )
 
@@ -13843,7 +13626,7 @@
     #_public
     (§ method #_"String" (§ fn toString) [])
     (§ block
-        (§ quest (§ expr hostname != nil) ? (§ str "[" + hostname + "]:" + port) :else (§ str "[" + (.. addr (getHostAddress)) + "]:" + port))
+        (if (some? hostname) (§ str "[" + hostname + "]:" + port) (§ str "[" + (.. addr (getHostAddress)) + "]:" + port))
     )
 
     #_override
@@ -13873,7 +13656,7 @@
     (§ method #_"InetSocketAddress" (§ fn toSocketAddress) [])
     (§ block
         ;; Reconstruct the InetSocketAddress properly.
-        (§ quest (§ expr hostname != nil) ? (InetSocketAddress/createUnresolved hostname, port) :else (§ new #_"InetSocketAddress" addr, port))
+        (if (some? hostname) (InetSocketAddress/createUnresolved hostname, port) (§ new #_"InetSocketAddress" addr, port))
     )
 )
 
@@ -13993,7 +13776,6 @@
 (§ class #_"PeerGroup" (§ implements #_"TransactionBroadcaster")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"PeerGroup")))
 
     ;; All members in this class should be marked with final, volatile, @GuardedBy or a mix as appropriate to define
@@ -14011,36 +13793,30 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name DEFAULT_CONNECTIONS) 12)
     #_private
     #_volatile
     (§ field- #_"int" (§ name vMaxPeersToDiscoverCount) 100)
     #_private
     #_static
-    #_final
     (§ def- #_"long" (§ name DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS) 5000)
     #_private
     #_volatile
     (§ field- #_"long" (§ name vPeerDiscoveryTimeoutMillis) DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS)
 
     #_protected
-    #_final
     (§ field #_"ReentrantLock" (§ name lock) (Threading/lock "peergroup"))
 
     #_protected
-    #_final
     (§ field #_"NetworkParameters" (§ name params))
     #_nilable
     #_protected
-    #_final
     (§ field #_"AbstractBlockChain" (§ name chain))
 
     ;; This executor is used to queue up jobs: it's used when we don't want to use locks for mutual exclusion,
     ;; typically because the job might call in to user provided code that needs/wants the freedom to use the API
     ;; however it wants, or because a job needs to be ordered relative to other jobs like that.
     #_protected
-    #_final
     (§ field #_"ListeningScheduledExecutorService" (§ name executor))
 
     ;; Whether the peer group is currently running.  Once shut down it cannot be restarted.
@@ -14055,23 +13831,18 @@
     ;; Addresses to try to connect to, excluding active peers.
     #_guarded-by(§ opt "lock")
     #_private
-    #_final
     (§ field- #_"PriorityQueue<PeerAddress>" (§ name inactives))
     #_guarded-by(§ opt "lock")
     #_private
-    #_final
     (§ field- #_"Map<PeerAddress, ExponentialBackoff>" (§ name backoffMap))
 
     ;; Currently active peers.  This is an ordered list rather than a set to make unit tests predictable.
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<Peer>" (§ name peers))
     ;; Currently connecting peers.
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<Peer>" (§ name pendingPeers))
     #_private
-    #_final
     (§ field- #_"ClientConnectionManager" (§ name channels))
 
     ;; The peer that has been selected for the purposes of downloading announced data.
@@ -14085,37 +13856,28 @@
     (§ field- #_"PeerDataEventListener" (§ name downloadListener))
 
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>" (§ name peersBlocksDownloadedEventListeners) (§ new #_"CopyOnWriteArrayList<>"))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>" (§ name peersChainDownloadStartedEventListeners) (§ new #_"CopyOnWriteArrayList<>"))
     ;;; Callbacks for events related to peers connecting. ;;
     #_protected
-    #_final
     (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>" (§ name peerConnectedEventListeners) (§ new #_"CopyOnWriteArrayList<>"))
     ;;; Callbacks for events related to peer connection/disconnection. ;;
     #_protected
-    #_final
     (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PeerDiscoveredEventListener>>" (§ name peerDiscoveredEventListeners) (§ new #_"CopyOnWriteArrayList<>"))
     ;;; Callbacks for events related to peers disconnecting. ;;
     #_protected
-    #_final
     (§ field #_"CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>" (§ name peerDisconnectedEventListeners) (§ new #_"CopyOnWriteArrayList<>"))
     ;;; Callbacks for events related to peer data being received. ;;
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>" (§ name peerGetDataEventListeners) (§ new #_"CopyOnWriteArrayList<>"))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>" (§ name peersPreMessageReceivedEventListeners) (§ new #_"CopyOnWriteArrayList<>"))
     #_protected
-    #_final
     (§ field #_"CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>" (§ name peersTransactionBroadastEventListeners) (§ new #_"CopyOnWriteArrayList<>"))
 
     ;; Peer discovery sources, will be polled occasionally if there aren't enough inactives.
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArraySet<PeerDiscovery>" (§ name peerDiscoverers))
     ;; The version message to use for new connections.
     #_guarded-by(§ opt "lock")
@@ -14138,7 +13900,6 @@
     ;;; How many milliseconds to wait after receiving a pong before sending another ping. ;;
     #_public
     #_static
-    #_final
     (§ def #_"long" (§ name DEFAULT_PING_INTERVAL_MSEC) 2000)
     #_guarded-by(§ opt "lock")
     #_private
@@ -14155,23 +13916,19 @@
     #_private
     (§ field- #_"long" (§ name fastCatchupTimeSecs))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<Wallet>" (§ name wallets))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<PeerFilterProvider>" (§ name peerFilterProviders))
 
     ;; This event listener is added to every peer.  It's here so when we announce transactions via an "inv",
     ;; every peer can fetch them.
     #_private
-    #_final
     (§ field- #_"PeerListener" (§ name peerListener) (§ new #_"PeerListener"))
 
     #_private
     (§ field- #_"int" (§ name minBroadcastConnections) 0)
 
     #_private
-    #_final
     (§ field- #_"KeyChainEventListener" (§ name walletKeyEventListener) (§ new #_"KeyChainEventListener"
         (§ anon
             #_override
@@ -14184,7 +13941,6 @@
         )))
 
     #_private
-    #_final
     (§ field- #_"WalletCoinsReceivedEventListener" (§ name walletCoinsReceivedEventListener) (§ new #_"WalletCoinsReceivedEventListener"
         (§ anon
             #_override
@@ -14235,7 +13991,6 @@
 
     ;; Exponential backoff for peers starts at 1 second and maxes at 10 minutes.
     #_private
-    #_final
     (§ field- #_"ExponentialBackoff.Params" (§ name peerBackoffParams) (§ new #_"ExponentialBackoff.Params" 1000, 1.5, (§ expr 10 * 60 * 1000)))
     ;; Tracks failures globally in case of a network failure.
     #_guarded-by(§ opt "lock")
@@ -14246,7 +14001,6 @@
     ;; being garbage collected if nothing in the apps code holds on to them transitively.  See the discussion
     ;; in broadcastTransaction.
     #_private
-    #_final
     (§ field- #_"Set<TransactionBroadcast>" (§ name runningBroadcasts))
 
     #_private
@@ -14268,11 +14022,9 @@
         #_public
         (§ method #_"void" (§ fn onBlocksDownloaded) [#_"Peer" (§ name peer), #_"Block" (§ name block), #_nilable #_"FilteredBlock" (§ name filteredBlock), #_"int" (§ name blocksLeft)])
         (§ block
-            (§ if (§ expr chain != nil))
+            (§ if (some? chain))
             (§ block
-                #_final
                 (§ var #_"double" (§ name rate) (.. chain (getFalsePositiveRate)))
-                #_final
                 (§ var #_"double" (§ name target) (* (.. bloomFilterMerger (getBloomFilterFPRate)) MAX_FP_RATE_INCREASE))
                 (§ if (< target rate))
                 (§ block
@@ -14310,7 +14062,6 @@
     )
 
     #_private
-    #_final
     (§ field- #_"PeerStartupListener" (§ name startupListener) (§ new #_"PeerStartupListener"))
 
     ;;;
@@ -14323,23 +14074,19 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"double" (§ name DEFAULT_BLOOM_FILTER_FP_RATE) 0.00001)
     ;;; Maximum increase in FP rate before forced refresh of the bloom filter. ;;
     #_public
     #_static
-    #_final
     (§ def #_"double" (§ name MAX_FP_RATE_INCREASE) 10.0)
     ;; An object that calculates bloom filters given a list of filter providers, whilst tracking some state useful
     ;; for privacy purposes.
     #_private
-    #_final
     (§ field- #_"FilterMerger" (§ name bloomFilterMerger))
 
     ;;; The default timeout between when a connection attempt begins and version message exchange completes. ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name DEFAULT_CONNECT_TIMEOUT_MILLIS) 5000)
     #_private
     #_volatile
@@ -14419,7 +14166,7 @@
         ;;   - using connectTo() will increment it by one.
         (§ ass (§ name maxConnections) 0)
 
-        (§ var #_"int" (§ name height) (§ quest (§ expr chain != nil) ? (.. chain (getBestChainHeight)) :else 0))
+        (§ var #_"int" (§ name height) (if (some? chain) (.. chain (getBestChainHeight)) 0))
         (§ ass (§ name versionMessage) (§ new #_"VersionMessage" params, height))
         ;; We never request that the remote node wait for a bloom filter yet, as we have no wallets.
         (§ ass (§ name (.. versionMessage relayTxesBeforeFilter)) true)
@@ -14547,7 +14294,6 @@
             #_private
             (§ field- #_"boolean" (§ name firstRun) true)
             #_private
-            #_final
             #_static
             (§ def- #_"long" (§ name MIN_PEER_DISCOVERY_INTERVAL) 1000)
 
@@ -14660,7 +14406,7 @@
                     (§ if (< now retryTime))
                     (§ block
                         (§ var #_"long" (§ name delay) (- retryTime now))
-                        (.. log (info "Waiting {} msec before next connect attempt {}", delay, (§ expr (§ quest (§ expr addrToTry != nil) ? (§ str "to " + addrToTry) :else ""))))
+                        (.. log (info "Waiting {} msec before next connect attempt {}", delay, (if (some? addrToTry) (§ str "to " + addrToTry) "")))
                         (.. inactives (add addrToTry))
                         (.. executor (schedule this, delay, TimeUnit/MILLISECONDS))
                         (§ return nil)
@@ -14723,7 +14469,7 @@
                 (§ for (§ var #_"Wallet" (§ name w)) :for wallets)
                 (§ block
                     (§ var #_"Transaction" (§ name tx) (.. w (getTransaction (.. item hash))))
-                    (§ if (§ expr tx != nil))
+                    (§ if (some? tx))
                     (§ block
                         (.. transactions (add tx))
                         (.. it (remove))
@@ -14790,7 +14536,7 @@
     (§ method #_"void" (§ fn setUserAgent) [#_"String" (§ name name), #_"String" (§ name version), #_nilable #_"String" (§ name comments)])
     (§ block
         ;; TODO: Check that height is needed here (it wasnt, but it should be, no?)
-        (§ var #_"int" (§ name height) (§ quest (§ expr chain != nil) ? (.. chain (getBestChainHeight)) :else 0))
+        (§ var #_"int" (§ name height) (if (some? chain) (.. chain (getBestChainHeight)) 0))
         (§ var #_"VersionMessage" (§ name ver) (§ new #_"VersionMessage" params, height))
         (§ ass (§ name (.. ver relayTxesBeforeFilter)) false)
         (updateVersionMessageRelayTxesBeforeFilter ver)
@@ -14971,7 +14717,7 @@
 
     ;;; See {@link Peer#addGetDataEventListener(Executor, GetDataEventListener)}. ;;
     #_public
-    (§ method #_"void" (§ fn addGetDataEventListener) [#_final #_"Executor" (§ name executor), #_final #_"GetDataEventListener" (§ name listener)])
+    (§ method #_"void" (§ fn addGetDataEventListener) [#_"Executor" (§ name executor), #_"GetDataEventListener" (§ name listener)])
     (§ block
         (.. peerGetDataEventListeners (add (§ new #_"ListenerRegistration<>" (Preconditions/checkNotNull listener), executor)))
         (§ for (§ var #_"Peer" (§ name peer)) :for (getConnectedPeers))
@@ -15293,9 +15039,7 @@
 
         (§ var #_"int" (§ name maxPeersToDiscoverCount) (.. this vMaxPeersToDiscoverCount))
         (§ var #_"long" (§ name peerDiscoveryTimeoutMillis) (.. this vPeerDiscoveryTimeoutMillis))
-        #_final
         (§ var #_"Stopwatch" (§ name watch) (Stopwatch/createStarted))
-        #_final
         (§ var #_"List<PeerAddress>" (§ name addressList) (Lists/newLinkedList))
 
         (§ for (§ var #_"PeerDiscovery" (§ name peerDiscovery)) :for peerDiscoverers) ;; COW
@@ -15318,9 +15062,8 @@
                 (addInactive address)
             )
 
-            #_final
             (§ var #_"ImmutableSet<PeerAddress>" (§ name peersDiscoveredSet) (ImmutableSet/copyOf addressList))
-            (§ for (§ var #_final ListenerRegistration<PeerDiscoveredEventListener> registration) :for peerDiscoveredEventListeners) ;; COW
+            (§ for (§ var ListenerRegistration<PeerDiscoveredEventListener> registration) :for peerDiscoveredEventListeners) ;; COW
             (§ block
                 (.. registration executor (execute (§ new #_"Runnable")
                 (§ anon
@@ -15393,7 +15136,7 @@
             )
             (§ finally )
             (§ block
-                (§ if (§ expr socket != nil))
+                (§ if (some? socket))
                 (§ block
                     (§ try )
                     (§ block
@@ -15417,7 +15160,7 @@
     (§ method #_"ListenableFuture" (§ fn startAsync) [])
     (§ block
         ;; This is run in a background thread by the Service implementation.
-        (§ if (§ expr chain == nil))
+        (§ if (nil? chain))
         (§ block
             ;; Just try to help catch what might be a programming error.
             (.. log (warn "Starting up with no attached block chain. Did you forget to pass one to the constructor?"))
@@ -15667,7 +15410,6 @@
     )
 
     #_private
-    #_final
     (§ field- #_"Map<FilterRecalculateMode, SettableFuture<BloomFilter>>" (§ name inFlightRecalculations) (Maps/newHashMap))
 
     ;;;
@@ -15679,9 +15421,8 @@
      ; @return A future that completes once the filter has been calculated (note: this does not mean acknowledged by remote peers).
      ;;
     #_public
-    (§ method #_"ListenableFuture<BloomFilter>" (§ fn recalculateFastCatchupAndFilter) [#_final #_"FilterRecalculateMode" (§ name mode)])
+    (§ method #_"ListenableFuture<BloomFilter>" (§ fn recalculateFastCatchupAndFilter) [#_"FilterRecalculateMode" (§ name mode)])
     (§ block
-        #_final
         (§ var #_"SettableFuture<BloomFilter>" (§ name future) (SettableFuture/create))
         (§ sync inFlightRecalculations)
         (§ block
@@ -15755,7 +15496,7 @@
                     )
                     ;; Reset the false positive estimate so that we don't send a flood of filter updates
                     ;; if the estimate temporarily overshoots our threshold.
-                    (§ if (§ expr chain != nil))
+                    (§ if (some? chain))
                     (§ block
                         (.. chain (resetFalsePositiveEstimate))
                     )
@@ -15853,7 +15594,6 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            #_final
             (§ var #_"PeerAddress" (§ name localhost) (PeerAddress/localhost params))
             (.. backoffMap (put localhost, (§ new #_"ExponentialBackoff" peerBackoffParams)))
             (§ return (connectTo localhost, true, vConnectTimeoutMillis))
@@ -15878,7 +15618,7 @@
     (§ block
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
         (§ var #_"VersionMessage" (§ name ver) (.. (getVersionMessage) (duplicate)))
-        (§ ass (§ name (.. ver bestHeight)) (§ quest (§ expr chain != nil) ? (.. chain (getBestChainHeight)) :else 0))
+        (§ ass (§ name (.. ver bestHeight)) (if (some? chain) (.. chain (getBestChainHeight)) 0))
         (§ ass (§ name (.. ver time)) (Utils/currentTimeSeconds))
 
         (§ var #_"Peer" (§ name peer) (createPeer address, ver))
@@ -15948,13 +15688,13 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr downloadPeer != nil))
+            (§ if (some? downloadPeer))
             (§ block
                 (§ if (!= (.. this downloadListener) nil))
                 (§ block
                     (removeDataEventListenerFromPeer downloadPeer, (.. this downloadListener))
                 )
-                (§ if (§ expr listener != nil))
+                (§ if (some? listener))
                 (§ block
                     (addDataEventListenerToPeer Threading/USER_THREAD, downloadPeer, listener)
                 )
@@ -16028,7 +15768,7 @@
     )
 
     #_protected
-    (§ method #_"void" (§ fn handleNewPeer) [#_final #_"Peer" (§ name peer)])
+    (§ method #_"void" (§ fn handleNewPeer) [#_"Peer" (§ name peer)])
     (§ block
         (§ var #_"int" (§ name newSize) -1)
         (.. lock (lock))
@@ -16055,7 +15795,7 @@
             (§ block
                 (.. peer (addWallet wallet))
             )
-            (§ if (§ expr downloadPeer == nil))
+            (§ if (nil? downloadPeer))
             (§ block
                 ;; Kick off chain download if we aren't already doing it.
                 (setDownloadPeer (selectDownloadPeer peers))
@@ -16102,9 +15842,8 @@
             (.. lock (unlock))
         )
 
-        #_final
         (§ var #_"int" (§ name fNewSize) newSize)
-        (§ for (§ var #_final ListenerRegistration<PeerConnectedEventListener> registration) :for peerConnectedEventListeners)
+        (§ for (§ var ListenerRegistration<PeerConnectedEventListener> registration) :for peerConnectedEventListeners)
         (§ block
             (.. registration executor (execute (§ new #_"Runnable")
             (§ anon
@@ -16145,7 +15884,7 @@
                     (§ if (<= (getPingIntervalMsec) 0))
                     (§ block
                         (§ var #_"ListenableScheduledFuture<?>" (§ name task) vPingTask)
-                        (§ if (§ expr task != nil))
+                        (§ if (some? task))
                         (§ block
                             (.. task (cancel false))
                             (§ ass (§ name vPingTask) nil)
@@ -16181,25 +15920,25 @@
             (§ block
                 (§ return nil)
             )
-            (§ if (§ expr downloadPeer != nil))
+            (§ if (some? downloadPeer))
             (§ block
                 (.. log (info "Unsetting download peer: {}", downloadPeer))
-                (§ if (§ expr downloadListener != nil))
+                (§ if (some? downloadListener))
                 (§ block
                     (removeDataEventListenerFromPeer downloadPeer, downloadListener)
                 )
                 (.. downloadPeer (setDownloadData false))
             )
             (§ ass (§ name downloadPeer) peer)
-            (§ if (§ expr downloadPeer != nil))
+            (§ if (some? downloadPeer))
             (§ block
                 (.. log (info "Setting download peer: {}", downloadPeer))
-                (§ if (§ expr downloadListener != nil))
+                (§ if (some? downloadListener))
                 (§ block
                     (addDataEventListenerToPeer Threading/SAME_THREAD, peer, downloadListener)
                 )
                 (.. downloadPeer (setDownloadData true))
-                (§ if (§ expr chain != nil))
+                (§ if (some? chain))
                 (§ block
                     (.. downloadPeer (setDownloadParameters fastCatchupTimeSecs, (§ expr (.. bloomFilterMerger (getLastFilter)) != nil)))
                 )
@@ -16226,7 +15965,7 @@
             (Preconditions/checkState (§ expr chain == nil || (§ not (.. chain (shouldVerifyTransactions)))), "Fast catchup is incompatible with fully verifying")
 
             (§ ass (§ name fastCatchupTimeSecs) secondsSinceEpoch)
-            (§ if (§ expr downloadPeer != nil))
+            (§ if (some? downloadPeer))
             (§ block
                 (.. downloadPeer (setDownloadParameters secondsSinceEpoch, (§ expr (.. bloomFilterMerger (getLastFilter)) != nil)))
             )
@@ -16259,7 +15998,7 @@
     )
 
     #_protected
-    (§ method #_"void" (§ fn handlePeerDeath) [#_final #_"Peer" (§ name peer), #_nilable #_"Throwable" (§ name exception)])
+    (§ method #_"void" (§ fn handlePeerDeath) [#_"Peer" (§ name peer), #_nilable #_"Throwable" (§ name exception)])
     (§ block
         ;; Peer deaths can occur during startup if a connect attempt after peer discovery aborts immediately.
         (§ if (§ not (isRunning)))
@@ -16283,12 +16022,11 @@
                 (.. log (info "Download peer died. Picking a new one."))
                 (setDownloadPeer nil)
                 ;; Pick a new one and possibly tell it to download the chain.
-                #_final
                 (§ var #_"Peer" (§ name newDownloadPeer) (selectDownloadPeer peers))
-                (§ if (§ expr newDownloadPeer != nil))
+                (§ if (some? newDownloadPeer))
                 (§ block
                     (setDownloadPeer newDownloadPeer)
-                    (§ if (§ expr downloadListener != nil))
+                    (§ if (some? downloadListener))
                     (§ block
                         (startBlockChainDownloadFromPeer newDownloadPeer)
                     )
@@ -16331,7 +16069,6 @@
             (.. peer (removeWallet wallet))
         )
 
-        #_final
         (§ var #_"int" (§ name fNumConnectedPeers) numConnectedPeers)
 
         (§ for (§ var #_"ListenerRegistration<BlocksDownloadedEventListener>" (§ name registration)) :for peersBlocksDownloadedEventListeners)
@@ -16355,7 +16092,7 @@
             (.. peer (removeOnTransactionBroadcastListener (.. registration listener)))
         )
 
-        (§ for (§ var #_final ListenerRegistration<PeerDisconnectedEventListener> registration) :for peerDisconnectedEventListeners)
+        (§ for (§ var ListenerRegistration<PeerDisconnectedEventListener> registration) :for peerDisconnectedEventListeners)
         (§ block
             (.. registration executor (execute (§ new #_"Runnable")
             (§ anon
@@ -16444,9 +16181,9 @@
             (§ ass (§ name bytesInLastSecond) (+ bytesInLastSecond Block/HEADER_SIZE))
             (§ var #_"List<Transaction>" (§ name blockTransactions) (.. block (getTransactions)))
             ;; This whole area of the type hierarchy is a mess.
-            (§ var #_"int" (§ name txCount) (§ expr (§ quest (§ expr blockTransactions != nil) ? (countAndMeasureSize blockTransactions) :else 0) + (§ quest (§ expr filteredBlock != nil) ? (countAndMeasureSize (.. filteredBlock (getAssociatedTransactions) (values))) :else 0)))
+            (§ var #_"int" (§ name txCount) (§ expr (if (some? blockTransactions) (countAndMeasureSize blockTransactions) 0) + (if (some? filteredBlock) (countAndMeasureSize (.. filteredBlock (getAssociatedTransactions) (values))) 0)))
             (§ ass (§ name txnsInLastSecond) (+ txnsInLastSecond txCount))
-            (§ if (§ expr filteredBlock != nil))
+            (§ if (some? filteredBlock))
             (§ block
                 (§ ass (§ name origTxnsInLastSecond) (§ expr origTxnsInLastSecond + (.. filteredBlock (getTransactionCount))))
             )
@@ -16584,7 +16321,7 @@
         (§ block
             (setDownloadPeer peer)
 
-            (§ if (§ expr chainDownloadSpeedCalculator == nil))
+            (§ if (nil? chainDownloadSpeedCalculator))
             (§ block
                 ;; Every second, run the calculator which will log how fast we are downloading the chain.
                 (§ ass (§ name chainDownloadSpeedCalculator) (§ new #_"ChainDownloadSpeedCalculator"))
@@ -16612,7 +16349,7 @@
      ; @return a future that will be triggered when the number of connected peers >= numPeers.
      ;;
     #_public
-    (§ method #_"ListenableFuture<List<Peer>>" (§ fn waitForPeers) [#_final #_"int" (§ name numPeers)])
+    (§ method #_"ListenableFuture<List<Peer>>" (§ fn waitForPeers) [#_"int" (§ name numPeers)])
     (§ block
         (waitForPeersOfVersion numPeers, 0)
     )
@@ -16626,7 +16363,7 @@
      ; @return a future that will be triggered when the number of connected peers implementing protocolVersion or higher >= numPeers.
      ;;
     #_public
-    (§ method #_"ListenableFuture<List<Peer>>" (§ fn waitForPeersOfVersion) [#_final #_"int" (§ name numPeers), #_final #_"long" (§ name protocolVersion)])
+    (§ method #_"ListenableFuture<List<Peer>>" (§ fn waitForPeersOfVersion) [#_"int" (§ name numPeers), #_"long" (§ name protocolVersion)])
     (§ block
         (§ var #_"List<Peer>" (§ name foundPeers) (findPeersOfAtLeastVersion protocolVersion))
         (§ if (§ expr numPeers <= (.. foundPeers (size))))
@@ -16634,7 +16371,6 @@
             (§ return (Futures/immediateFuture foundPeers))
         )
 
-        #_final
         (§ var #_"SettableFuture<List<Peer>>" (§ name future) (SettableFuture/create))
         (addConnectedEventListener (§ new #_"PeerConnectedEventListener")
         (§ anon
@@ -16642,7 +16378,6 @@
             #_public
             (§ method #_"void" (§ fn onPeerConnected) [#_"Peer" (§ name peer), #_"int" (§ name peerCount)])
             (§ block
-                #_final
                 (§ var #_"List<Peer>" (§ name peers) (findPeersOfAtLeastVersion protocolVersion))
                 (§ if (§ expr numPeers <= (.. peers (size))))
                 (§ block
@@ -16689,7 +16424,7 @@
      ; @return a future that will be triggered when the number of connected peers implementing protocolVersion or higher >= numPeers.
      ;;
     #_public
-    (§ method #_"ListenableFuture<List<Peer>>" (§ fn waitForPeersWithServiceMask) [#_final #_"int" (§ name numPeers), #_final #_"int" (§ name mask)])
+    (§ method #_"ListenableFuture<List<Peer>>" (§ fn waitForPeersWithServiceMask) [#_"int" (§ name numPeers), #_"int" (§ name mask)])
     (§ block
         (.. lock (lock))
         (§ try )
@@ -16700,7 +16435,6 @@
                 (§ return (Futures/immediateFuture foundPeers))
             )
 
-            #_final
             (§ var #_"SettableFuture<List<Peer>>" (§ name future) (SettableFuture/create))
             (addConnectedEventListener (§ new #_"PeerConnectedEventListener")
             (§ anon
@@ -16708,7 +16442,6 @@
                 #_public
                 (§ method #_"void" (§ fn onPeerConnected) [#_"Peer" (§ name peer), #_"int" (§ name peerCount)])
                 (§ block
-                    #_final
                     (§ var #_"List<Peer>" (§ name peers) (findPeersWithServiceMask mask))
                     (§ if (§ expr numPeers <= (.. peers (size))))
                     (§ block
@@ -16808,7 +16541,7 @@
      ;;
     #_override
     #_public
-    (§ method #_"TransactionBroadcast" (§ fn broadcastTransaction) [#_final #_"Transaction" (§ name tx)])
+    (§ method #_"TransactionBroadcast" (§ fn broadcastTransaction) [#_"Transaction" (§ name tx)])
     (§ block
         (broadcastTransaction tx, (Math/max 1, (getMinBroadcastConnections)))
     )
@@ -16832,7 +16565,7 @@
      ; which is calculated by watching the transaction propagate across the network and be announced by peers.</p>
      ;;
     #_public
-    (§ method #_"TransactionBroadcast" (§ fn broadcastTransaction) [#_final #_"Transaction" (§ name tx), #_final #_"int" (§ name minConnections)])
+    (§ method #_"TransactionBroadcast" (§ fn broadcastTransaction) [#_"Transaction" (§ name tx), #_"int" (§ name minConnections)])
     (§ block
         ;; If we don't have a record of where this tx came from already, set it to be ourselves so Peer doesn't end up
         ;; redownloading it from the network redundantly.
@@ -16841,7 +16574,6 @@
             (.. log (info "Transaction source unknown, setting to SELF: {}", (.. tx (getHashAsString))))
             (.. tx (getConfidence) (setSource TransactionConfidence/Source/SELF))
         )
-        #_final
         (§ var #_"TransactionBroadcast" (§ name broadcast) (§ new #_"TransactionBroadcast" this, tx))
         (.. broadcast (setMinConnections minConnections))
         ;; Send the TX to the wallet once we have a successful broadcast.
@@ -16926,7 +16658,7 @@
         (§ block
             (§ ass (§ name (.. this pingIntervalMsec)) pingIntervalMsec)
             (§ var #_"ListenableScheduledFuture<?>" (§ name task) vPingTask)
-            (§ if (§ expr task != nil))
+            (§ if (some? task))
             (§ block
                 (.. task (cancel false))
             )
@@ -16981,7 +16713,7 @@
      ;;
     #_public
     #_static
-    (§ defn #_"int" (§ fn getMostCommonChainHeight) [#_final #_"List<Peer>" (§ name peers)])
+    (§ defn #_"int" (§ fn getMostCommonChainHeight) [#_"List<Peer>" (§ name peers)])
     (§ block
         (§ if (.. peers (isEmpty)))
         (§ block
@@ -17032,7 +16764,6 @@
         (§ var #_"int" (§ name preferredVersion) 0)
 
         ;; if/when PREFERRED_VERSION is not equal to vMinRequiredProtocolVersion, reenable the last test in PeerGroupTest.downloadPeerSelection
-        #_final
         (§ var #_"int" (§ name PREFERRED_VERSION) (.. params (getProtocolVersionNum NetworkParameters/ProtocolVersion/BLOOM_FILTER)))
         (§ for (§ var #_"Peer" (§ name peer)) :for candidates)
         (§ block
@@ -17174,11 +16905,9 @@
 (§ class #_"PeerSocketHandler" (§ extends #_"AbstractTimeoutHandler") (§ implements #_"StreamConnection")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"PeerSocketHandler")))
 
     #_private
-    #_final
     (§ field- #_"MessageSerializer" (§ name serializer))
     #_protected
     (§ field #_"PeerAddress" (§ name peerAddress))
@@ -17233,7 +16962,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr writeTarget == nil))
+            (§ if (nil? writeTarget))
             (§ block
                 (§ throw (§ new #_"NotYetConnectedException"))
             )
@@ -17265,7 +16994,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr writeTarget == nil))
+            (§ if (nil? writeTarget))
             (§ block
                 (§ ass (§ name closePending) true)
                 (§ return nil)
@@ -17308,7 +17037,7 @@
             (§ while true)
             (§ block
                 ;; If we are in the middle of reading a message, try to fill that one first, before we expect another.
-                (§ if (§ expr largeReadBuffer != nil))
+                (§ if (some? largeReadBuffer))
                 (§ block
                     ;; This can only happen in the first iteration.
                     (Preconditions/checkState firstMessage)
@@ -17392,7 +17121,7 @@
     #_public
     (§ method #_"void" (§ fn setWriteTarget) [#_"MessageWriteTarget" (§ name writeTarget)])
     (§ block
-        (Preconditions/checkArgument (§ expr writeTarget != nil))
+        (Preconditions/checkArgument (some? writeTarget))
 
         (.. lock (lock))
         (§ var #_"boolean" (§ name closeNow) false)
@@ -17435,7 +17164,7 @@
     (§ method- #_"void" (§ fn exceptionCaught) [#_"Exception" (§ name e)])
     (§ block
         (§ var #_"PeerAddress" (§ name addr) (getAddress))
-        (§ var #_"String" (§ name s) (§ quest (§ expr addr == nil) ? "?" :else (.. addr (toString))))
+        (§ var #_"String" (§ name s) (if (some? addr) (.. addr (toString)) "?"))
         (§ if (§ expr (§ insta e #_"ConnectException") || (§ insta e #_"IOException")))
         (§ block
             ;; Short message for network errors
@@ -17445,7 +17174,7 @@
         (§ block
             (.. log (warn (§ expr s + " - "), e))
             (§ var #_"Thread.UncaughtExceptionHandler" (§ name handler) Threading/uncaughtExceptionHandler)
-            (§ if (§ expr handler != nil))
+            (§ if (some? handler))
             (§ block
                 (.. handler (uncaughtException (Thread/currentThread), e))
             )
@@ -17526,7 +17255,7 @@
         (§ block
             (§ ass (§ name hasNonce) false)
         )
-        (§ ass (§ name length) (§ quest hasNonce ? 8 :else 0))
+        (§ ass (§ name length) (if hasNonce 8 0))
         nil
     )
 
@@ -17839,7 +17568,7 @@
     (§ method #_"String" (§ fn toString) [])
     (§ block
         (§ var #_"Sha256Hash" (§ name hash) (getRejectedObjectHash))
-        (String/format Locale/US, "Reject: %s %s for reason '%s' (%d)", (getRejectedMessage), (§ quest (§ expr hash != nil) ? hash :else ""), (getReasonString), (.. (getReasonCode) code))
+        (String/format Locale/US, "Reject: %s %s for reason '%s' (%d)", (getRejectedMessage), (or hash ""), (getReasonString), (.. (getReasonCode) code))
     )
 
     #_override
@@ -17912,7 +17641,6 @@
 #_public
 (§ class #_"ScriptException" (§ extends #_"VerificationException")
     #_private
-    #_final
     (§ field- #_"ScriptError" (§ name err))
 
     #_public
@@ -17956,15 +17684,12 @@
 (§ class #_"Sha256Hash" (§ implements #_"Serializable", #_"Comparable<Sha256Hash>")
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name LENGTH) 32) ;; bytes
     #_public
     #_static
-    #_final
     (§ def #_"Sha256Hash" (§ name ZERO_HASH) (wrap (§ new #_"byte[]" (§ count LENGTH))))
 
     #_private
-    #_final
     (§ field- #_"byte[]" (§ name bytes))
 
     ;;;
@@ -18233,13 +17958,11 @@
 
     #_override
     #_public
-    (§ method #_"int" (§ fn compareTo) [#_final #_"Sha256Hash" (§ name other)])
+    (§ method #_"int" (§ fn compareTo) [#_"Sha256Hash" (§ name other)])
     (§ block
         (§ for (§ var #_"int" (§ name i) (- LENGTH 1)) :for (<= 0 i) :for (§ ass (§ name i) (- i 1)))
         (§ block
-            #_final
             (§ var #_"int" (§ name thisByte) (§ expr this.bytes[i] & 0xff))
-            #_final
             (§ var #_"int" (§ name otherByte) (§ expr other.bytes[i] & 0xff))
             (§ if (> thisByte otherByte))
             (§ block
@@ -18276,15 +17999,12 @@
     ;; 8 bytes to represent this field, so 12 bytes should be plenty for now.
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name CHAIN_WORK_BYTES) 12)
     #_public
     #_static
-    #_final
     (§ def #_"byte[]" (§ name EMPTY_BYTES) (§ new #_"byte[]" (§ count CHAIN_WORK_BYTES)))
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name COMPACT_SERIALIZED_SIZE) (§ expr Block/HEADER_SIZE + CHAIN_WORK_BYTES + 4)) ;; for height
 
     #_private
@@ -18571,69 +18291,55 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"Comparator<Transaction>" (§ name SORT_TX_BY_UPDATE_TIME) (§ new #_"Comparator<Transaction>"
         (§ anon
             #_override
             #_public
-            (§ method #_"int" (§ fn compare) [#_final #_"Transaction" (§ name tx1), #_final #_"Transaction" (§ name tx2)])
+            (§ method #_"int" (§ fn compare) [#_"Transaction" (§ name tx1), #_"Transaction" (§ name tx2)])
             (§ block
-                #_final
                 (§ var #_"long" (§ name time1) (.. tx1 (getUpdateTime) (getTime)))
-                #_final
                 (§ var #_"long" (§ name time2) (.. tx2 (getUpdateTime) (getTime)))
-                #_final
                 (§ var #_"int" (§ name updateTimeComparison) (§ neg (Longs/compare time1, time2)))
                 ;; If time1 == time2, compare by tx hash to make comparator consistent with equals.
-                (§ quest (§ expr updateTimeComparison != 0) ? updateTimeComparison :else (.. tx1 (getHash) (compareTo (.. tx2 (getHash)))))
+                (if (!= updateTimeComparison 0) updateTimeComparison (.. tx1 (getHash) (compareTo (.. tx2 (getHash)))))
             )
         )))
 
     ;;; A comparator that can be used to sort transactions by their chain height. ;;
     #_public
     #_static
-    #_final
     (§ def #_"Comparator<Transaction>" (§ name SORT_TX_BY_HEIGHT) (§ new #_"Comparator<Transaction>"
         (§ anon
             #_override
             #_public
-            (§ method #_"int" (§ fn compare) [#_final #_"Transaction" (§ name tx1), #_final #_"Transaction" (§ name tx2)])
+            (§ method #_"int" (§ fn compare) [#_"Transaction" (§ name tx1), #_"Transaction" (§ name tx2)])
             (§ block
-                #_final
                 (§ var #_"TransactionConfidence" (§ name confidence1) (.. tx1 (getConfidence)))
-                #_final
-                (§ var #_"int" (§ name height1) (§ quest (== (.. confidence1 (getConfidenceType)) ConfidenceType/BUILDING) ? (.. confidence1 (getAppearedAtChainHeight)) :else Block/BLOCK_HEIGHT_UNKNOWN))
-                #_final
+                (§ var #_"int" (§ name height1) (if (== (.. confidence1 (getConfidenceType)) ConfidenceType/BUILDING) (.. confidence1 (getAppearedAtChainHeight)) Block/BLOCK_HEIGHT_UNKNOWN))
                 (§ var #_"TransactionConfidence" (§ name confidence2) (.. tx2 (getConfidence)))
-                #_final
-                (§ var #_"int" (§ name height2) (§ quest (== (.. confidence2 (getConfidenceType)) ConfidenceType/BUILDING) ? (.. confidence2 (getAppearedAtChainHeight)) :else Block/BLOCK_HEIGHT_UNKNOWN))
-                #_final
+                (§ var #_"int" (§ name height2) (if (== (.. confidence2 (getConfidenceType)) ConfidenceType/BUILDING) (.. confidence2 (getAppearedAtChainHeight)) Block/BLOCK_HEIGHT_UNKNOWN))
                 (§ var #_"int" (§ name heightComparison) (§ neg (Ints/compare height1, height2)))
                 ;; If height1 == height2, compare by tx hash to make comparator consistent with equals.
-                (§ quest (§ expr heightComparison != 0) ? heightComparison :else (.. tx1 (getHash) (compareTo (.. tx2 (getHash)))))
+                (if (!= heightComparison 0) heightComparison (.. tx1 (getHash) (compareTo (.. tx2 (getHash)))))
             )
         )))
 
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"Transaction")))
 
     ;;; Threshold for lockTime: below this value it is interpreted as block number, otherwise as timestamp. ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name LOCKTIME_THRESHOLD) 500000000) ;; Tue Nov  5 00:53:20 1985 UTC
     ;;; Same, but as a BigInteger for CHECKLOCKTIMEVERIFY. ;;
     #_public
     #_static
-    #_final
     (§ def #_"BigInteger" (§ name LOCKTIME_THRESHOLD_BIG) (BigInteger/valueOf LOCKTIME_THRESHOLD))
 
     ;;; How many bytes a transaction can be before it won't be relayed anymore.  Currently 100kb. ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MAX_STANDARD_TX_SIZE) 100000)
 
     ;;;
@@ -18641,7 +18347,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"Coin" (§ name REFERENCE_DEFAULT_MIN_TX_FEE) (Coin/valueOf 5000)) ;; 0.05 mBTC
 
     ;;;
@@ -18650,7 +18355,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"Coin" (§ name DEFAULT_TX_FEE) (Coin/valueOf 100000)) ;; 1 mBTC
 
     ;;;
@@ -18660,7 +18364,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"Coin" (§ name MIN_NONDUST_OUTPUT) (Coin/valueOf 2730)) ;; satoshis
 
     ;; These are bitcoin serialized.
@@ -18757,7 +18460,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"long" (§ name SEQUENCE_LOCKTIME_DISABLE_FLAG) (<< 1 31))
 
     ;; If CTxIn::nSequence encodes a relative lock-time and this flag
@@ -18766,7 +18468,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"long" (§ name SEQUENCE_LOCKTIME_TYPE_FLAG) (<< 1 22))
 
     ;; If CTxIn::nSequence encodes a relative lock-time, this mask is
@@ -18774,7 +18475,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"long" (§ name SEQUENCE_LOCKTIME_MASK) 0x0000ffff)
 
     #_public
@@ -18851,7 +18551,7 @@
     #_public
     (§ method #_"Sha256Hash" (§ fn getHash) [])
     (§ block
-        (§ if (§ expr hash == nil))
+        (§ if (nil? hash))
         (§ block
             (§ ass (§ name hash) (Sha256Hash/wrapReversed (Sha256Hash/hashTwice (unsafeBitcoinSerialize))))
         )
@@ -18887,7 +18587,7 @@
         (§ for (§ var #_"TransactionInput" (§ name input)) :for inputs)
         (§ block
             (§ var #_"Coin" (§ name inputValue) (.. input (getValue)))
-            (§ if (§ expr inputValue != nil))
+            (§ if (some? inputValue))
             (§ block
                 (§ ass (§ name inputTotal) (.. inputTotal (add inputValue)))
             )
@@ -18923,7 +18623,7 @@
     #_public
     (§ method #_"Map<Sha256Hash, Integer>" (§ fn getAppearsInHashes) [])
     (§ block
-        (§ quest (§ expr appearsInHashes != nil) ? (ImmutableMap/copyOf appearsInHashes) :else nil)
+        (when (some? appearsInHashes) (ImmutableMap/copyOf appearsInHashes))
     )
 
     ;;;
@@ -18971,10 +18671,10 @@
     )
 
     #_public
-    (§ method #_"void" (§ fn addBlockAppearance) [#_final #_"Sha256Hash" (§ name blockHash), #_"int" (§ name relativityOffset)])
+    (§ method #_"void" (§ fn addBlockAppearance) [#_"Sha256Hash" (§ name blockHash), #_"int" (§ name relativityOffset)])
     (§ block
         ;; TODO: This could be a lot more memory efficient as we'll typically only store one element.
-        (§ if (§ expr appearsInHashes == nil))
+        (§ if (nil? appearsInHashes))
         (§ block
             (§ ass (§ name appearsInHashes) (§ new #_"TreeMap<>"))
         )
@@ -19001,11 +18701,11 @@
             ;; This input is taking value from a transaction in our wallet.  To discover the value,
             ;; we must find the connected transaction.
             (§ var #_"TransactionOutput" (§ name connected) (.. input (getConnectedOutput (.. wallet (getTransactionPool Pool/UNSPENT)))))
-            (§ if (§ expr connected == nil))
+            (§ if (nil? connected))
             (§ block
                 (§ ass (§ name connected) (.. input (getConnectedOutput (.. wallet (getTransactionPool Pool/SPENT)))))
             )
-            (§ if (§ expr connected == nil))
+            (§ if (nil? connected))
             (§ block
                 (§ ass (§ name connected) (.. input (getConnectedOutput (.. wallet (getTransactionPool Pool/PENDING)))))
             )
@@ -19140,7 +18840,7 @@
     (§ method #_"Date" (§ fn getUpdateTime) [])
     (§ block
         ;; Older wallets did not store this field.  Set to the epoch.
-        (§ if (§ expr updatedAt == nil))
+        (§ if (nil? updatedAt))
         (§ block
             (§ ass (§ name updatedAt) (§ new #_"Date" 0))
         )
@@ -19170,14 +18870,13 @@
         (§ item (UNSET 0)) ;; Caution: Using this type in isolation is non-standard.  Treated similar to ALL.
 
         #_public
-        #_final
         (§ field #_"int" (§ name value))
 
         ;;;
          ; @param value
          ;;
         #_private
-        (§ constructor- #_"SigHash" [#_final #_"int" (§ name value)])
+        (§ constructor- #_"SigHash" [#_"int" (§ name value)])
         (§ block
             (§ ass (§ name (.. this value)) value)
             this
@@ -19360,7 +19059,7 @@
     (§ block
         (§ var #_"StringBuilder" (§ name sb) (§ new #_"StringBuilder"))
         (.. sb (append "  ") (append (getHashAsString)) (append "\n"))
-        (§ if (§ expr updatedAt != nil))
+        (§ if (some? updatedAt))
         (§ block
             (.. sb (append "  updated: ") (append (Utils/dateTimeFormat updatedAt)) (append "\n"))
         )
@@ -19374,7 +19073,7 @@
             (§ if (< lockTime LOCKTIME_THRESHOLD))
             (§ block
                 (.. sb (append "block ") (append lockTime))
-                (§ if (§ expr chain != nil))
+                (§ if (some? chain))
                 (§ block
                     (.. sb (append " (estimated to be reached at ") (append (Utils/dateTimeFormat (.. chain (estimateBlockTime (§ cast #_"int" lockTime))))) (append ")"))
                 )
@@ -19416,20 +19115,17 @@
                 (§ try )
                 (§ block
                     (§ var #_"String" (§ name scriptSigStr) (.. in (getScriptSig) (toString)))
-                    (.. sb (append (§ quest (§ not (Strings/isNullOrEmpty scriptSigStr)) ? scriptSigStr :else "<no scriptSig>")))
-                    #_final
+                    (.. sb (append (if (§ not (Strings/isNullOrEmpty scriptSigStr)) scriptSigStr "<no scriptSig>")))
                     (§ var #_"Coin" (§ name value) (.. in (getValue)))
-                    (§ if (§ expr value != nil))
+                    (§ if (some? value))
                     (§ block
                         (.. sb (append " ") (append (.. value (toFriendlyString))))
                     )
                     (.. sb (append "\n          outpoint:"))
-                    #_final
                     (§ var #_"TransactionOutPoint" (§ name outpoint) (.. in (getOutpoint)))
                     (.. sb (append (.. outpoint (toString))))
-                    #_final
                     (§ var #_"TransactionOutput" (§ name connectedOutput) (.. outpoint (getConnectedOutput)))
-                    (§ if (§ expr connectedOutput != nil))
+                    (§ if (some? connectedOutput))
                     (§ block
                         (§ var #_"Script" (§ name scriptPubKey) (.. connectedOutput (getScriptPubKey)))
                         (§ if (§ expr (.. scriptPubKey (isSentToAddress)) || (.. scriptPubKey (isPayToScriptHash))))
@@ -19464,14 +19160,13 @@
             (§ try )
             (§ block
                 (§ var #_"String" (§ name scriptPubKeyStr) (.. out (getScriptPubKey) (toString)))
-                (.. sb (append (§ quest (§ not (Strings/isNullOrEmpty scriptPubKeyStr)) ? scriptPubKeyStr :else "<no scriptPubKey>")) (append " ") (append (.. out (getValue) (toFriendlyString))))
+                (.. sb (append (if (§ not (Strings/isNullOrEmpty scriptPubKeyStr)) scriptPubKeyStr "<no scriptPubKey>")) (append " ") (append (.. out (getValue) (toFriendlyString))))
                 (§ if (§ not (.. out (isAvailableForSpending))))
                 (§ block
                     (.. sb (append " Spent"))
                 )
-                #_final
                 (§ var #_"TransactionInput" (§ name spentBy) (.. out (getSpentBy)))
-                (§ if (§ expr spentBy != nil))
+                (§ if (some? spentBy))
                 (§ block
                     (.. sb (append " by ") (append (.. spentBy (getParentTransaction) (getHashAsString))))
                 )
@@ -19483,15 +19178,13 @@
             (.. sb (append "\n"))
         )
 
-        #_final
         (§ var #_"Coin" (§ name fee) (getFee))
-        (§ if (§ expr fee != nil))
+        (§ if (some? fee))
         (§ block
-            #_final
             (§ var #_"int" (§ name size) (.. (unsafeBitcoinSerialize) length))
             (.. sb (append "     fee  ") (append (.. fee (multiply 1000) (divide size) (toFriendlyString))) (append "/kB, ") (append (.. fee (toFriendlyString))) (append " for ") (append size) (append " bytes\n"))
         )
-        (§ if (§ expr purpose != nil))
+        (§ if (some? purpose))
         (§ block
             (.. sb (append "     prps ") (append purpose) (append "\n"))
         )
@@ -19568,7 +19261,7 @@
         ;; Verify the API user didn't try to do operations out of order.
         (Preconditions/checkState (§ not (.. outputs (isEmpty))), "Attempting to sign tx without outputs.")
 
-        (§ var #_"TransactionInput" (§ name input) (§ new #_"TransactionInput" params, this, (§ expr (§ new #_"byte[]" (§ coll ))), prevOut))
+        (§ var #_"TransactionInput" (§ name input) (§ new #_"TransactionInput" params, this, (§ expr (§ new #_"byte[]")), prevOut))
         (addInput input)
         (§ var #_"Sha256Hash" (§ name hash) (hashForSignature (§ expr (.. inputs (size)) - 1), scriptPubKey, sigHash, anyoneCanPay))
         (§ var #_"ECKey.ECDSASignature" (§ name ecSig) (.. sigKey (sign hash)))
@@ -19874,7 +19567,7 @@
                 (§ ass (§ name (.. tx outputs)) (§ new #_"ArrayList<>" (.. tx outputs (subList 0, (§ expr inputIndex + 1)))))
                 (§ for (§ var #_"int" (§ name i) 0) :for (< i inputIndex) :for (§ ass (§ name i) (+ i 1)))
                 (§ block
-                    (.. tx outputs (set i, (§ new #_"TransactionOutput" (.. tx params), tx, Coin/NEGATIVE_SATOSHI, (§ new #_"byte[]" (§ coll )))))
+                    (.. tx outputs (set i, (§ new #_"TransactionOutput" (.. tx params), tx, Coin/NEGATIVE_SATOSHI, (§ new #_"byte[]"))))
                 )
                 ;; The signature isn't broken by new versions of the transaction issued by other parties.
                 (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. tx inputs (size))) :for (§ ass (§ name i) (+ i 1)))
@@ -19894,7 +19587,7 @@
                 (.. tx inputs (add input))
             )
 
-            (§ var #_"ByteArrayOutputStream" (§ name bos) (§ new #_"UnsafeByteArrayOutputStream" (§ quest (== (.. tx length) UNKNOWN_LENGTH) ? 256 :else (+ (.. tx length) 4))))
+            (§ var #_"ByteArrayOutputStream" (§ name bos) (§ new #_"UnsafeByteArrayOutputStream" (if (== (.. tx length) UNKNOWN_LENGTH) 256 (+ (.. tx length) 4))))
             (.. tx (bitcoinSerialize bos))
             ;; We also have to write a hash type (sigHashType is actually an unsigned char).
             (uint32ToByteStreamLE (§ expr 0x000000ff & sigHashType), bos)
@@ -20072,7 +19765,7 @@
     #_public
     (§ method #_"TransactionConfidence" (§ fn getConfidence) [#_"TxConfidenceTable" (§ name table)])
     (§ block
-        (§ if (§ expr confidence == nil))
+        (§ if (nil? confidence))
         (§ block
             (§ ass (§ name confidence) (.. table (getOrCreate (getHash))))
         )
@@ -20132,21 +19825,17 @@
      ; enforcement is enabled.
      ;;
     #_public
-    (§ method #_"void" (§ fn checkCoinBaseHeight) [#_final #_"int" (§ name height)])
+    (§ method #_"void" (§ fn checkCoinBaseHeight) [#_"int" (§ name height)])
         (§ throws #_"VerificationException")
     (§ block
         (Preconditions/checkArgument (<= Block/BLOCK_HEIGHT_GENESIS height))
         (Preconditions/checkState (isCoinBase))
 
         ;; Check block height is in coinbase input script.
-        #_final
         (§ var #_"TransactionInput" (§ name in) (.. this (getInputs) (get 0)))
-        #_final
         (§ var #_"ScriptBuilder" (§ name builder) (§ new #_"ScriptBuilder"))
         (.. builder (number height))
-        #_final
         (§ var #_"byte[]" (§ name expected) (.. builder (build) (getProgram)))
-        #_final
         (§ var #_"byte[]" (§ name actual) (.. in (getScriptBytes)))
         (§ if (< (.. actual length) (.. expected length)))
         (§ block
@@ -20300,7 +19989,7 @@
     (§ method #_"boolean" (§ fn isFinal) [#_"int" (§ name height), #_"long" (§ name blockTimeSeconds)])
     (§ block
         (§ var #_"long" (§ name time) (getLockTime))
-        (§ expr time < (§ quest (< time LOCKTIME_THRESHOLD) ? height :else blockTimeSeconds) || (§ not (isTimeLocked)))
+        (§ or (< time (if (< time LOCKTIME_THRESHOLD) height blockTimeSeconds)) || (§ not (isTimeLocked)))
     )
 
     ;;;
@@ -20310,7 +19999,7 @@
     #_public
     (§ method #_"Date" (§ fn estimateLockTime) [#_"AbstractBlockChain" (§ name chain)])
     (§ block
-        (§ quest (< lockTime LOCKTIME_THRESHOLD) ? (.. chain (estimateBlockTime (§ cast #_"int" (getLockTime)))) :else (§ new #_"Date" (* (getLockTime) 1000)))
+        (if (< lockTime LOCKTIME_THRESHOLD) (.. chain (estimateBlockTime (§ cast #_"int" (getLockTime)))) (§ new #_"Date" (* (getLockTime) 1000)))
     )
 
     ;;;
@@ -20420,17 +20109,13 @@
 (§ class #_"TransactionBroadcast"
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"TransactionBroadcast")))
 
     #_private
-    #_final
     (§ field- #_"SettableFuture<Transaction>" (§ name future) (SettableFuture/create))
     #_private
-    #_final
     (§ field- #_"PeerGroup" (§ name peerGroup))
     #_private
-    #_final
     (§ field- #_"Transaction" (§ name tx))
     #_private
     (§ field- #_"int" (§ name minConnections))
@@ -20467,7 +20152,7 @@
     #_testing
     #_public
     #_static
-    (§ defn #_"TransactionBroadcast" (§ fn createMockBroadcast) [#_"Transaction" (§ name tx), #_final #_"SettableFuture<Transaction>" (§ name future)])
+    (§ defn #_"TransactionBroadcast" (§ fn createMockBroadcast) [#_"Transaction" (§ name tx), #_"SettableFuture<Transaction>" (§ name future)])
     (§ block
         (§ return (§ new #_"TransactionBroadcast" tx)
         (§ anon
@@ -20612,7 +20297,7 @@
             ;; The number of peers that announced this tx has gone up.
             (§ var #_"int" (§ name numSeenPeers) (+ (.. conf (numBroadcastPeers)) (.. rejects (size))))
             (§ var #_"boolean" (§ name mined) (!= (.. tx (getAppearsInHashes)) nil))
-            (.. log (info "broadcastTransaction: {}:  TX {} seen by {} peers{}", reason, (.. tx (getHashAsString)), numSeenPeers, (§ quest mined ? " and mined" :else "")))
+            (.. log (info "broadcastTransaction: {}:  TX {} seen by {} peers{}", reason, (.. tx (getHashAsString)), numSeenPeers, (if mined " and mined" "")))
 
             ;; Progress callback on the requested thread.
             (invokeAndRecord numSeenPeers, mined)
@@ -20656,7 +20341,6 @@
     #_private
     (§ method- #_"void" (§ fn invokeProgressCallback) [#_"int" (§ name numSeenPeers), #_"boolean" (§ name mined)])
     (§ block
-        #_final
         (§ var #_"ProgressCallback" (§ name callback))
         (§ var #_"Executor" (§ name executor))
         (§ sync this)
@@ -20664,14 +20348,13 @@
             (§ ass (§ name callback) (.. this callback))
             (§ ass (§ name executor) (.. this progressCallbackExecutor))
         )
-        (§ if (§ expr callback != nil))
+        (§ if (some? callback))
         (§ block
-            #_final
-            (§ var #_"double" (§ name progress) (Math/min 1.0, (§ expr (§ quest mined ? 1.0 :else (§ expr numSeenPeers / (§ cast #_"double" numWaitingFor))))))
-            (Preconditions/checkState (§ expr 0.0 <= progress && progress <= 1.0), progress)
+            (§ var #_"double" (§ name progress) (Math/min 1.0, (if mined 1.0 (/ numSeenPeers (§ cast #_"double" numWaitingFor)))))
+            (Preconditions/checkState (<= 0.0 progress 1.0), progress)
             (§ try )
             (§ block
-                (§ if (§ expr executor == nil))
+                (§ if (nil? executor))
                 (§ block
                     (.. callback (onBroadcastProgress progress))
                 )
@@ -20765,7 +20448,7 @@
 #_public
 (§ interface #_"TransactionBroadcaster"
     ;;; Broadcast the given transaction on the network. ;;
-    (§ method #_"TransactionBroadcast" (§ fn broadcastTransaction) [#_final #_"Transaction" (§ name tx)])
+    (§ method #_"TransactionBroadcast" (§ fn broadcastTransaction) [#_"Transaction" (§ name tx)])
 )
 
 #_(ns org.bitcoinj.core #_"TransactionConfidence"
@@ -20821,7 +20504,6 @@
     (§ field- #_"Date" (§ name lastBroadcastedAt))
     ;;; The Transaction that this confidence object is associated with. ;;
     #_private
-    #_final
     (§ field- #_"Sha256Hash" (§ name hash))
     ;; Lazily created listeners array.
     #_private
@@ -20967,7 +20649,6 @@
     ;; We add ourselves to this set when a listener is added and remove ourselves when the listener list is empty.
     #_private
     #_static
-    #_final
     (§ def- #_"Set<TransactionConfidence>" (§ name pinnedConfidenceObjects) (Collections/synchronizedSet (§ new #_"HashSet<TransactionConfidence>")))
 
     ;;;
@@ -21166,8 +20847,8 @@
         (§ var #_"int" (§ name peers) (numBroadcastPeers))
         (§ if (< 0 peers))
         (§ block
-            (.. sb (append "Seen by ") (append peers) (append (§ quest (< 1 peers) ? " peers" :else " peer")))
-            (§ if (§ expr lastBroadcastedAt != nil))
+            (.. sb (append "Seen by ") (append peers) (append (if (< 1 peers) " peers" " peer")))
+            (§ if (some? lastBroadcastedAt))
             (§ block
                 (.. sb (append " (most recently: ") (append (Utils/dateTimeFormat lastBroadcastedAt)) (append ")"))
             )
@@ -21320,9 +21001,9 @@
      ; explicitly, more precise control is available.  Note that this will run the listeners on the user code thread.
      ;;
     #_public
-    (§ method #_"void" (§ fn queueListeners) [#_final #_"Listener.ChangeReason" (§ name reason)])
+    (§ method #_"void" (§ fn queueListeners) [#_"Listener.ChangeReason" (§ name reason)])
     (§ block
-        (§ for (§ var #_final ListenerRegistration<Listener> registration) :for listeners)
+        (§ for (§ var ListenerRegistration<Listener> registration) :for listeners)
         (§ block
             (.. registration executor (execute (§ new #_"Runnable")
             (§ anon
@@ -21372,9 +21053,8 @@
      ;;
     #_public
     #_synchronized
-    (§ method #_"ListenableFuture<TransactionConfidence>" (§ fn getDepthFuture) [#_final #_"int" (§ name depth), #_"Executor" (§ name executor)])
+    (§ method #_"ListenableFuture<TransactionConfidence>" (§ fn getDepthFuture) [#_"int" (§ name depth), #_"Executor" (§ name executor)])
     (§ block
-        #_final
         (§ var #_"SettableFuture<TransactionConfidence>" (§ name result) (SettableFuture/create))
         (§ if (<= depth (getDepthInBlocks)))
         (§ block
@@ -21400,7 +21080,7 @@
 
     #_public
     #_synchronized
-    (§ method #_"ListenableFuture<TransactionConfidence>" (§ fn getDepthFuture) [#_final #_"int" (§ name depth)])
+    (§ method #_"ListenableFuture<TransactionConfidence>" (§ fn getDepthFuture) [#_"int" (§ name depth)])
     (§ block
         (getDepthFuture depth, Threading/USER_THREAD)
     )
@@ -21433,16 +21113,13 @@
     ;;; Magic sequence number that indicates there is no sequence number. ;;
     #_public
     #_static
-    #_final
     (§ def #_"long" (§ name NO_SEQUENCE) 0xffffffff)
     #_private
     #_static
-    #_final
     (§ def- #_"byte[]" (§ name EMPTY_ARRAY) (§ new #_"byte[]" (§ count 0)))
     ;; Magic outpoint index that indicates the input is in fact unconnected.
     #_private
     #_static
-    #_final
     (§ def- #_"long" (§ name UNCONNECTED) 0xffffffff)
 
     ;; Allows for altering transactions after they were broadcast.  Values below NO_SEQUENCE-1 mean it can be altered.
@@ -21492,7 +21169,7 @@
         (§ ass (§ name (.. this sequence)) NO_SEQUENCE)
         (§ ass (§ name (.. this value)) value)
         (setParent parentTransaction)
-        (§ ass (§ name length) (§ expr 40 + (§ quest (§ expr scriptBytes != nil) ? (+ (VarInt/sizeOf (.. scriptBytes length)) (.. scriptBytes length)) :else 1)))
+        (§ ass (§ name length) (+ 40 (if (some? scriptBytes) (+ (VarInt/sizeOf (.. scriptBytes length)) (.. scriptBytes length)) 1)))
         this
     )
 
@@ -21597,8 +21274,8 @@
     (§ block
         ;; Transactions that generate new coins don't actually have a script.
         ;; Instead this parameter is overloaded to be something totally different.
-        (§ var #_"Script" (§ name script) (§ quest (§ expr scriptSig != nil) ? (.. scriptSig (get)) :else nil))
-        (§ if (§ expr script == nil))
+        (§ var #_"Script" (§ name script) (when (some? scriptSig) (.. scriptSig (get))))
+        (§ if (nil? script))
         (§ block
             (§ ass (§ name script) (§ new #_"Script" scriptBytes))
             (§ ass (§ name scriptSig) (§ new #_"WeakReference<>" script))
@@ -21700,7 +21377,7 @@
         (§ var #_"int" (§ name oldLength) length)
         (§ ass (§ name (.. this scriptBytes)) scriptBytes)
         ;; 40 = previous_outpoint (36) + sequence (4)
-        (§ var #_"int" (§ name newLength) (§ expr 40 + (§ quest (§ expr scriptBytes != nil) ? (+ (VarInt/sizeOf (.. scriptBytes length)) (.. scriptBytes length)) :else 1)))
+        (§ var #_"int" (§ name newLength) (+ 40 (if (some? scriptBytes) (+ (VarInt/sizeOf (.. scriptBytes length)) (.. scriptBytes length)) 1)))
         (adjustLength (- newLength oldLength))
         nil
     )
@@ -21742,7 +21419,7 @@
     (§ method #_"TransactionOutput" (§ fn getConnectedOutput) [#_"Map<Sha256Hash, Transaction>" (§ name transactions)])
     (§ block
         (§ var #_"Transaction" (§ name tx) (.. transactions (get (.. outpoint (getHash)))))
-        (§ quest (§ expr tx != nil) ? (.. tx (getOutputs) (get (§ cast #_"int" (.. outpoint (getIndex))))) :else nil)
+        (when (some? tx) (.. tx (getOutputs) (get (§ cast #_"int" (.. outpoint (getIndex))))))
     )
 
     ;;;
@@ -21776,7 +21453,7 @@
     (§ method #_"ConnectionResult" (§ fn connect) [#_"Map<Sha256Hash, Transaction>" (§ name transactions), #_"ConnectMode" (§ name mode)])
     (§ block
         (§ var #_"Transaction" (§ name tx) (.. transactions (get (.. outpoint (getHash)))))
-        (§ quest (§ expr tx != nil) ? (connect tx, mode) :else TransactionInput/ConnectionResult/NO_SUCH_TX)
+        (if (some? tx) (connect tx, mode) TransactionInput/ConnectionResult/NO_SUCH_TX)
     )
 
     ;;;
@@ -21896,13 +21573,11 @@
     (§ method #_"void" (§ fn verify) [])
         (§ throws #_"VerificationException")
     (§ block
-        #_final
         (§ var #_"Transaction" (§ name fromTx) (.. (getOutpoint) fromTx))
         (§ var #_"long" (§ name spendingIndex) (.. (getOutpoint) (getIndex)))
 
         (Preconditions/checkNotNull fromTx, "Not connected")
 
-        #_final
         (§ var #_"TransactionOutput" (§ name output) (.. fromTx (getOutput (§ cast #_"int" spendingIndex))))
         (verify output)
         nil
@@ -22021,7 +21696,7 @@
             (§ else )
             (§ block
                 (.. sb (append " for [") (append outpoint) (append "]: ") (append (getScriptSig)))
-                (§ var #_"String" (§ name flags) (.. (Joiner/on ", ") (skipNulls) (join (§ quest (hasSequence) ? (§ expr "sequence: " + (Long/toHexString sequence)) :else nil), (§ quest (isOptInFullRBF) ? "opts into full RBF" :else nil))))
+                (§ var #_"String" (§ name flags) (.. (Joiner/on ", ") (skipNulls) (join (when (hasSequence) (§ expr "sequence: " + (Long/toHexString sequence))), (when (isOptInFullRBF) "opts into full RBF"))))
                 (§ if (§ not (.. flags (isEmpty))))
                 (§ block
                     (.. sb (append " (") (append flags) (append ")"))
@@ -22050,7 +21725,6 @@
 #_public
 (§ class #_"TransactionOutPoint" (§ extends #_"ChildMessage")
     #_static
-    #_final
     (§ def #_"int" (§ name MESSAGE_LENGTH) 36)
 
     ;;; Hash of the transaction to which we refer. ;;
@@ -22072,7 +21746,7 @@
         (§ super params)
 
         (§ ass (§ name (.. this index)) index)
-        (§ if (§ expr fromTx != nil))
+        (§ if (some? fromTx))
         (§ block
             (§ ass (§ name (.. this hash)) (.. fromTx (getHash)))
             (§ ass (§ name (.. this fromTx)) fromTx)
@@ -22161,11 +21835,11 @@
     #_public
     (§ method #_"TransactionOutput" (§ fn getConnectedOutput) [])
     (§ block
-        (§ if (§ expr fromTx != nil))
+        (§ if (some? fromTx))
         (§ block
             (§ return (.. fromTx (getOutputs) (get (§ cast #_"int" index))))
         )
-        (§ if (§ expr connectedOutput != nil))
+        (§ if (some? connectedOutput))
         (§ block
             (§ return connectedOutput)
         )
@@ -22331,7 +22005,6 @@
 (§ class #_"TransactionOutput" (§ extends #_"ChildMessage")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"TransactionOutput")))
 
     ;; The output's value is kept as a native type in order to save class instances.
@@ -22439,7 +22112,7 @@
     (§ method #_"Script" (§ fn getScriptPubKey) [])
         (§ throws #_"ScriptException")
     (§ block
-        (§ if (§ expr scriptPubKey == nil))
+        (§ if (nil? scriptPubKey))
         (§ block
             (§ ass (§ name scriptPubKey) (§ new #_"Script" scriptBytes))
         )
@@ -22460,7 +22133,7 @@
     (§ method #_"Address" (§ fn getAddressFromP2PKHScript) [#_"NetworkParameters" (§ name networkParameters)])
         (§ throws #_"ScriptException")
     (§ block
-        (§ quest (.. (getScriptPubKey) (isSentToAddress)) ? (.. (getScriptPubKey) (getToAddress networkParameters)) :else nil)
+        (when (.. (getScriptPubKey) (isSentToAddress)) (.. (getScriptPubKey) (getToAddress networkParameters)))
     )
 
     ;;;
@@ -22480,7 +22153,7 @@
     (§ method #_"Address" (§ fn getAddressFromP2SH) [#_"NetworkParameters" (§ name networkParameters)])
         (§ throws #_"ScriptException")
     (§ block
-        (§ quest (.. (getScriptPubKey) (isPayToScriptHash)) ? (.. (getScriptPubKey) (getToAddress networkParameters)) :else nil)
+        (when (.. (getScriptPubKey) (isPayToScriptHash)) (.. (getScriptPubKey) (getToAddress networkParameters)))
     )
 
     #_override
@@ -22565,7 +22238,7 @@
     (§ method #_"boolean" (§ fn isDust) [])
     (§ block
         ;; Transactions that are OP_RETURN can't be dust regardless of their value.
-        (§ quest (.. (getScriptPubKey) (isOpReturn)) ? false :else (.. (getValue) (isLessThan (getMinNonDustValue))))
+        (if (.. (getScriptPubKey) (isOpReturn)) false (.. (getValue) (isLessThan (getMinNonDustValue))))
     )
 
     ;;;
@@ -22588,7 +22261,6 @@
         ;; formula is wrong for anything that's not a pay-to-address output, unfortunately, we must follow Bitcoin Core's
         ;; wrongness in order to ensure we're considered standard.  A better formula would either estimate the
         ;; size of data needed to satisfy all different script types, or just hard code 33 below.
-        #_final
         (§ var #_"long" (§ name size) (+ (.. this (unsafeBitcoinSerialize) length) 148))
         (.. feePerKb (multiply size) (divide 1000))
     )
@@ -22619,7 +22291,7 @@
 
         (§ if (.. log (isDebugEnabled)))
         (§ block
-            (§ if (§ expr parent != nil))
+            (§ if (some? parent))
             (§ block
                 (.. log (debug "Marked {}:{} as spent by {}", (getParentTransactionHash), (getIndex), input))
             )
@@ -22639,7 +22311,7 @@
     (§ block
         (§ if (.. log (isDebugEnabled)))
         (§ block
-            (§ if (§ expr parent != nil))
+            (§ if (some? parent))
             (§ block
                 (.. log (debug "Un-marked {}:{} as spent by {}", (getParentTransactionHash), (getIndex), spentBy))
             )
@@ -22699,7 +22371,7 @@
         (§ catch #_"ScriptException" (§ name e))
         (§ block
             ;; Just means we didn't understand the output of this transaction: ignore it.
-            (.. log (debug "Could not parse tx {} output script: {}", (§ quest (§ expr parent != nil) ? (.. parent (getHash)) :else "(no parent)"), (.. e (toString))))
+            (.. log (debug "Could not parse tx {} output script: {}", (if (some? parent) (.. parent (getHash)) "(no parent)"), (.. e (toString))))
             (§ return false)
         )
     )
@@ -22768,7 +22440,7 @@
     #_public
     (§ method #_"Sha256Hash" (§ fn getParentTransactionHash) [])
     (§ block
-        (§ quest (§ expr parent != nil) ? (.. parent (getHash)) :else nil)
+        (when (some? parent) (.. parent (getHash)))
     )
 
     ;;;
@@ -22846,10 +22518,8 @@
 #_public
 (§ class #_"TransactionOutputChanges"
     #_public
-    #_final
     (§ field #_"List<UTXO>" (§ name txOutsCreated))
     #_public
-    #_final
     (§ field #_"List<UTXO>" (§ name txOutsSpent))
 
     #_public
@@ -22862,7 +22532,6 @@
 
     #_private
     #_static
-    #_final
     (§ defn- #_"int" (§ fn read4x8le) [#_"InputStream" (§ name is)])
         (§ throws #_"IOException")
     (§ block
@@ -22891,7 +22560,6 @@
 
     #_private
     #_static
-    #_final
     (§ defn- #_"void" (§ fn write4x8le) [#_"OutputStream" (§ name os), #_"int" (§ name n)])
         (§ throws #_"IOException")
     (§ block
@@ -22973,7 +22641,6 @@
     ;;; The max size of a table created with the no-args constructor. ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MAX_SIZE) 1000)
 
     ;;;
@@ -22981,7 +22648,7 @@
      ; @param size Max number of transactions to track.  The table will fill up to this size then stop growing.
      ;;
     #_public
-    (§ constructor #_"TxConfidenceTable" [#_final #_"int" (§ name size)])
+    (§ constructor #_"TxConfidenceTable" [#_"int" (§ name size)])
     (§ block
         (§ ass (§ name table) (§ new #_"LinkedHashMap<Sha256Hash, WeakConfidenceReference>"
         (§ anon
@@ -23048,13 +22715,13 @@
         (§ block
             (cleanTable)
             (§ var #_"WeakConfidenceReference" (§ name entry) (.. table (get txHash)))
-            (§ if (§ expr entry == nil))
+            (§ if (nil? entry))
             (§ block
                 (§ return 0) ;; No such TX known.
             )
 
             (§ var #_"TransactionConfidence" (§ name confidence) (.. entry (get)))
-            (§ if (§ expr confidence == nil))
+            (§ if (nil? confidence))
             (§ block
                 ;; Such a TX hash was seen, but nothing seemed to care, so we ended up throwing away the data.
                 (.. table (remove txHash))
@@ -23107,10 +22774,10 @@
         (§ try )
         (§ block
             (§ var #_"WeakConfidenceReference" (§ name reference) (.. table (get hash)))
-            (§ if (§ expr reference != nil))
+            (§ if (some? reference))
             (§ block
                 (§ var #_"TransactionConfidence" (§ name confidence) (.. reference (get)))
-                (§ if (§ expr confidence != nil))
+                (§ if (some? confidence))
                 (§ block
                     (§ return confidence)
                 )
@@ -23137,7 +22804,7 @@
         (§ try )
         (§ block
             (§ var #_"WeakConfidenceReference" (§ name ref) (.. table (get hash)))
-            (§ return (§ quest (§ expr ref != nil) ? (.. ref (get)) :else nil))
+            (§ return (when (some? ref) (.. ref (get))))
         )
         (§ finally )
         (§ block
@@ -23306,7 +22973,6 @@
 
     #_private
     #_static
-    #_final
     (§ defn- #_"void" (§ fn write4x8le) [#_"OutputStream" (§ name os), #_"int" (§ name n)])
         (§ throws #_"IOException")
     (§ block
@@ -23331,13 +22997,12 @@
         (Utils/uint32ToByteStreamLE index, os)
 
         (write4x8le os, height)
-        (.. os (write (§ new #_"byte[]" (§ coll (§ cast #_"byte" (§ quest coinbase ? 1 :else 0)) ))))
+        (.. os (write (§ new #_"byte[]" (§ coll (§ cast #_"byte" (if coinbase 1 0)) ))))
         nil
     )
 
     #_private
     #_static
-    #_final
     (§ defn- #_"int" (§ fn read4x8le) [#_"InputStream" (§ name is)])
         (§ throws #_"IOException")
     (§ block
@@ -23426,7 +23091,7 @@
     #_public
     (§ method #_"String" (§ fn toString) [])
     (§ block
-        (§ str "Unknown message [" + name + "]: " + (§ quest (§ expr payload != nil) ? (.. Utils/HEX (encode payload)) :else ""))
+        (§ str "Unknown message [" + name + "]: " + (if (some? payload) (.. Utils/HEX (encode payload)) ""))
     )
 )
 
@@ -23553,7 +23218,7 @@
     #_public
     (§ method #_"byte[]" (§ fn toByteArray) [])
     (§ block
-        (§ quest (§ expr count == (.. buf length)) ? buf :else (Utils/copyOf buf, count))
+        (if (== count (.. buf length)) buf (Utils/copyOf buf, count))
     )
 
     ;;;
@@ -23594,16 +23259,13 @@
     ;;; The string that prefixes all text messages signed using Bitcoin keys. ;;
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name BITCOIN_SIGNED_MESSAGE_HEADER) "Bitcoin Signed Message:\n")
     #_public
     #_static
-    #_final
     (§ def #_"byte[]" (§ name BITCOIN_SIGNED_MESSAGE_HEADER_BYTES) (.. BITCOIN_SIGNED_MESSAGE_HEADER (getBytes Charsets/UTF_8)))
 
     #_public
     #_static
-    #_final
     (§ def #_"Joiner" (§ name SPACE_JOINER) (Joiner/on " "))
 
     #_private
@@ -23634,11 +23296,11 @@
         (§ var #_"byte[]" (§ name src) (.. b (toByteArray)))
         (§ var #_"byte[]" (§ name dest) (§ new #_"byte[]" (§ count numBytes)))
         (§ var #_"boolean" (§ name isFirstByteOnlyForSign) (§ expr (§ ai src 0) == 0))
-        (§ var #_"int" (§ name length) (§ quest isFirstByteOnlyForSign ? (- (.. src length) 1) :else (.. src length)))
+        (§ var #_"int" (§ name length) (if isFirstByteOnlyForSign (- (.. src length) 1) (.. src length)))
 
         (Preconditions/checkArgument (<= length numBytes), (§ str "The given number does not fit in " + numBytes))
 
-        (§ var #_"int" (§ name srcPos) (§ quest isFirstByteOnlyForSign ? 1 :else 0))
+        (§ var #_"int" (§ name srcPos) (if isFirstByteOnlyForSign 1 0))
         (§ var #_"int" (§ name destPos) (- numBytes length))
         (System/arraycopy src, srcPos, dest, destPos, length)
         dest
@@ -23757,7 +23419,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"BaseEncoding" (§ name HEX) (.. (BaseEncoding/base16) (lowerCase)))
 
     ;;;
@@ -23790,7 +23451,7 @@
         (Preconditions/checkArgument (§ expr (.. bytes length) % 4 == 0))
         (Preconditions/checkArgument (§ expr trimLength < 0 || trimLength % 4 == 0))
 
-        (§ var #_"byte[]" (§ name rev) (§ new #_"byte[]" (§ count (§ quest (§ expr 0 <= trimLength && trimLength < (.. bytes length)) ? trimLength :else (.. bytes length)))))
+        (§ var #_"byte[]" (§ name rev) (§ new #_"byte[]" (§ count (if (< -1 trimLength (.. bytes length)) trimLength (.. bytes length)))))
 
         (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. rev length)) :for (§ ass (§ name i) (+ i 4)))
         (§ block
@@ -23882,7 +23543,7 @@
             (§ ass (§ name (§ ai buf 0)) (§ expr (§ ai buf 0) & 0x7f))
         )
         (§ var #_"BigInteger" (§ name result) (§ new #_"BigInteger" buf))
-        (§ quest isNegative ? (.. result (negate)) :else result)
+        (if isNegative (.. result (negate)) result)
     )
 
     ;;;
@@ -23897,7 +23558,7 @@
     (§ block
         (§ if (.. value (equals BigInteger/ZERO)))
         (§ block
-            (§ return (§ quest includeLength ? (§ new #_"byte[]" (§ coll 0x00, 0x00, 0x00, 0x00 )) :else (§ new #_"byte[]" (§ coll ))))
+            (§ return (if includeLength (§ new #_"byte[]" (§ coll 0x00, 0x00, 0x00, 0x00 )) (§ new #_"byte[]")))
         )
 
         (§ var #_"boolean" (§ name isNegative) (< (.. value (signum)) 0))
@@ -24003,7 +23664,7 @@
             (§ ass (§ name size) (+ size 1))
         )
         (§ ass (§ name result) (§ expr result | (<< size 24)))
-        (§ ass (§ name result) (§ expr result | (§ quest (== (.. value (signum)) -1) ? 0x00800000 :else 0)))
+        (§ ass (§ name result) (§ expr result | (if (== (.. value (signum)) -1) 0x00800000 0)))
         result
     )
 
@@ -24032,7 +23693,7 @@
     #_static
     (§ defn #_"Date" (§ fn rollMockClockMillis) [#_"long" (§ name millis)])
     (§ block
-        (§ if (§ expr mockTime == nil))
+        (§ if (nil? mockTime))
         (§ block
             (§ throw (§ new #_"IllegalStateException" "You need to use setMockClock() first."))
         )
@@ -24070,7 +23731,7 @@
     #_static
     (§ defn #_"Date" (§ fn now) [])
     (§ block
-        (§ quest (§ expr mockTime != nil) ? mockTime :else (§ new #_"Date"))
+        (or mockTime (§ new #_"Date"))
     )
 
     ;; TODO: Replace usages of this where the result is / 1000 with currentTimeSeconds.
@@ -24079,7 +23740,7 @@
     #_static
     (§ defn #_"long" (§ fn currentTimeMillis) [])
     (§ block
-        (§ quest (§ expr mockTime != nil) ? (.. mockTime (getTime)) :else (System/currentTimeMillis))
+        (if (some? mockTime) (.. mockTime (getTime)) (System/currentTimeMillis))
     )
 
     #_public
@@ -24091,7 +23752,6 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"TimeZone" (§ name UTC) (TimeZone/getTimeZone "UTC"))
 
     ;;;
@@ -24253,7 +23913,6 @@
     ;; 00000001, 00000010, 00000100, 00001000, ...
     #_private
     #_static
-    #_final
     (§ def- #_"int[]" (§ name bitMask) (§ coll 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 ))
 
     ;;; Checks if the given bit is set in data, using little endian (not the same as Java native big endian). ;;
@@ -24278,7 +23937,7 @@
     #_static
     (§ defn #_"void" (§ fn sleep) [#_"long" (§ name millis)])
     (§ block
-        (§ if (§ expr mockSleepQueue == nil))
+        (§ if (nil? mockSleepQueue))
         (§ block
             (sleepUninterruptibly millis, TimeUnit/MILLISECONDS)
         )
@@ -24332,7 +23991,7 @@
     #_static
     (§ defn #_"void" (§ fn finishMockSleep) [])
     (§ block
-        (§ if (§ expr mockSleepQueue != nil))
+        (§ if (some? mockSleepQueue))
         (§ block
             (.. mockSleepQueue (offer true))
         )
@@ -24348,9 +24007,8 @@
     (§ block
         (§ if (§ expr isAndroid == -1))
         (§ block
-            #_final
             (§ var #_"String" (§ name runtime) (System/getProperty "java.runtime.name"))
-            (§ ass (§ name isAndroid) (§ quest (§ expr runtime != nil && (.. runtime (equals "Android Runtime"))) ? 1 :else 0))
+            (§ ass (§ name isAndroid) (if (§ and (some? runtime) && (.. runtime (equals "Android Runtime"))) 1 0))
         )
         (§ expr isAndroid == 1)
     )
@@ -24482,10 +24140,8 @@
 #_public
 (§ class #_"VarInt"
     #_public
-    #_final
     (§ field #_"long" (§ name value))
     #_private
-    #_final
     (§ field- #_"int" (§ name originallyEncodedSize))
 
     ;;;
@@ -24548,7 +24204,6 @@
      ; Returns the minimum encoded size of the value.
      ;;
     #_public
-    #_final
     (§ method #_"int" (§ fn getSizeInBytes) [])
     (§ block
         (sizeOf value)
@@ -24715,7 +24370,7 @@
     #_static
     (§ class #_"BlockVersionOutOfDate" (§ extends #_"VerificationException")
         #_public
-        (§ constructor #_"BlockVersionOutOfDate" [#_final #_"long" (§ name version)])
+        (§ constructor #_"BlockVersionOutOfDate" [#_"long" (§ name version)])
         (§ block
             (§ super (§ expr "Block version #" + version + " is outdated."))
             this
@@ -24737,7 +24392,7 @@
     #_static
     (§ class #_"CoinbaseHeightMismatch" (§ extends #_"VerificationException")
         #_public
-        (§ constructor #_"CoinbaseHeightMismatch" [#_final #_"String" (§ name message)])
+        (§ constructor #_"CoinbaseHeightMismatch" [#_"String" (§ name message)])
         (§ block
             (§ super message)
             this
@@ -24793,18 +24448,15 @@
     ;;; The version of this library release, as a string. ;;
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name BITCOINJ_VERSION) "0.15-SNAPSHOT")
     ;;; The value that is prepended to the subVer field of this application. ;;
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name LIBRARY_SUBVER) (§ expr "/bitcoinj:" + BITCOINJ_VERSION + "/"))
 
     ;;; A services flag that denotes whether the peer has a copy of the block chain or not. ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name NODE_NETWORK) 1)
 
     ;;;
@@ -24973,7 +24625,7 @@
         (.. buf (write subVerBytes))
         ;; Size of known block chain.
         (Utils/uint32ToByteStreamLE bestHeight, buf)
-        (.. buf (write (§ quest relayTxesBeforeFilter ? 1 :else 0)))
+        (.. buf (write (if relayTxesBeforeFilter 1 0)))
         nil
     )
 
@@ -25067,7 +24719,7 @@
         (checkSubVerComponent name)
         (checkSubVerComponent version)
 
-        (§ if (§ expr comments != nil))
+        (§ if (some? comments))
         (§ block
             (checkSubVerComponent comments)
             (§ ass (§ name subVer) (.. subVer (concat (String/format Locale/US, "%s:%s(%s)/", name, version, comments))))
@@ -25127,7 +24779,6 @@
 #_public
 (§ class #_"VersionedChecksummedBytes" (§ implements #_"Serializable", #_"Cloneable", #_"Comparable<VersionedChecksummedBytes>")
     #_protected
-    #_final
     (§ field #_"int" (§ name version))
     #_protected
     (§ field #_"byte[]" (§ name bytes))
@@ -25159,7 +24810,6 @@
      ; including version and checksum bytes.
      ;;
     #_public
-    #_final
     (§ method #_"String" (§ fn toBase58) [])
     (§ block
         ;; A stringified buffer is: 1 byte version + data bytes + 4 bytes check code (a truncated hash).
@@ -25226,7 +24876,7 @@
     (§ method #_"int" (§ fn compareTo) [#_"VersionedChecksummedBytes" (§ name o)])
     (§ block
         (§ var #_"int" (§ name result) (Ints/compare (.. this version), (.. o version)))
-        (§ quest (§ expr result != 0) ? result :else (.. (UnsignedBytes/lexicographicalComparator) (compare (.. this bytes), (.. o bytes))))
+        (if (!= result 0) result (.. (UnsignedBytes/lexicographicalComparator) (compare (.. this bytes), (.. o bytes))))
     )
 
     ;;;
@@ -25380,7 +25030,6 @@
 (§ class #_"DownloadProgressTracker" (§ extends #_"AbstractPeerDataEventListener")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"DownloadProgressTracker")))
 
     #_private
@@ -25469,7 +25118,7 @@
     #_protected
     (§ method #_"void" (§ fn startDownload) [#_"int" (§ name blocks)])
     (§ block
-        (.. log (info (§ expr "Downloading block chain of size " + blocks + ". " + (§ quest (< 1000 blocks) ? "This may take a while." :else ""))))
+        (.. log (info (§ str "Downloading block chain of size " + blocks + ". " + (if (< 1000 blocks) "This may take a while." ""))))
         nil
     )
 
@@ -25551,7 +25200,7 @@
      ; implementation is expected to do whatever would normally be done do for a
      ; new best block in this case.
      ;;
-    (§ method #_"void" (§ fn notifyNewBestBlock) [#_final #_"StoredBlock" (§ name block)])
+    (§ method #_"void" (§ fn notifyNewBestBlock) [#_"StoredBlock" (§ name block)])
         (§ throws #_"VerificationException")
 )
 
@@ -25780,25 +25429,20 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name HARDENED_BIT) 0x80000000)
 
     #_public
     #_static
-    #_final
     (§ def #_"ChildNumber" (§ name ZERO) (§ new #_"ChildNumber" 0))
     #_public
     #_static
-    #_final
     (§ def #_"ChildNumber" (§ name ONE) (§ new #_"ChildNumber" 1))
     #_public
     #_static
-    #_final
     (§ def #_"ChildNumber" (§ name ZERO_HARDENED) (§ new #_"ChildNumber" 0, true))
 
     ;;; Integer i as per BIP 32 spec, including the MSB denoting derivation type (0 = public, 1 = private). ;;
     #_private
-    #_final
     (§ field- #_"int" (§ name i))
 
     #_public
@@ -25809,7 +25453,7 @@
             (§ throw (§ new #_"IllegalArgumentException" (§ expr "Most significant bit is reserved and shouldn't be set: " + childNumber)))
         )
 
-        (§ ass (§ name i) (§ quest isHardened ? (| childNumber HARDENED_BIT) :else childNumber))
+        (§ ass (§ name i) (if isHardened (| childNumber HARDENED_BIT) childNumber))
         this
     )
 
@@ -25858,7 +25502,7 @@
     #_public
     (§ method #_"String" (§ fn toString) [])
     (§ block
-        (String/format Locale/US, "%d%s", (num), (§ quest (isHardened) ? "H" :else ""))
+        (String/format Locale/US, "%d%s", (num), (if (isHardened) "H" ""))
     )
 
     #_override
@@ -25915,19 +25559,15 @@
 #_public
 (§ class #_"DeterministicHierarchy"
     #_private
-    #_final
     (§ field- #_"Map<ImmutableList<ChildNumber>, DeterministicKey>" (§ name keys) (Maps/newHashMap))
     #_private
-    #_final
     (§ field- #_"ImmutableList<ChildNumber>" (§ name rootPath))
     ;; Keep track of how many child keys each node has.  This is kind of weak.
     #_private
-    #_final
     (§ field- #_"Map<ImmutableList<ChildNumber>, ChildNumber>" (§ name lastChildNumbers) (Maps/newHashMap))
 
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name BIP32_STANDARDISATION_TIME_SECS) 1369267200)
 
     ;;;
@@ -25947,15 +25587,13 @@
      ; inserted in order.
      ;;
     #_public
-    #_final
     (§ method #_"void" (§ fn putKey) [#_"DeterministicKey" (§ name key)])
     (§ block
         (§ var #_"ImmutableList<ChildNumber>" (§ name path) (.. key (getPath)))
         ;; Update our tracking of what the next child in each branch of the tree should be.  Just assume that keys
         ;; are inserted in order here.
-        #_final
         (§ var #_"DeterministicKey" (§ name parent) (.. key (getParent)))
-        (§ if (§ expr parent != nil))
+        (§ if (some? parent))
         (§ block
             (.. lastChildNumbers (put (.. parent (getPath)), (.. key (getChildNumber))))
         )
@@ -25975,12 +25613,12 @@
     #_public
     (§ method #_"DeterministicKey" (§ fn get) [#_"List<ChildNumber>" (§ name path), #_"boolean" (§ name relativePath), #_"boolean" (§ name create)])
     (§ block
-        (§ var #_"ImmutableList<ChildNumber>" (§ name absolutePath) (§ quest relativePath ? (.. (ImmutableList/<ChildNumber>builder) (addAll rootPath) (addAll path) (build)) :else (ImmutableList/copyOf path)))
+        (§ var #_"ImmutableList<ChildNumber>" (§ name absolutePath) (if relativePath (.. (ImmutableList/builder #_"ImmutableList<ChildNumber>") (addAll rootPath) (addAll path) (build)) (ImmutableList/copyOf path)))
         (§ if (§ not (.. keys (containsKey absolutePath))))
         (§ block
             (§ if (§ not create))
             (§ block
-                (§ throw (§ new #_"IllegalArgumentException" (String/format Locale/US, "No key found for %s path %s.", (§ quest relativePath ? "relative" :else "absolute"), (HDUtils/formatPath path))))
+                (§ throw (§ new #_"IllegalArgumentException" (String/format Locale/US, "No key found for %s path %s.", (if relativePath "relative" "absolute"), (HDUtils/formatPath path))))
             )
             (Preconditions/checkArgument (§ expr 0 < (.. absolutePath (size))), "Can't derive the master key: nothing to derive from.")
             (§ var #_"DeterministicKey" (§ name parent) (get (.. absolutePath (subList 0, (§ expr (.. absolutePath (size)) - 1))), false, true))
@@ -26022,7 +25660,7 @@
     (§ method- #_"ChildNumber" (§ fn getNextChildNumberToDerive) [#_"ImmutableList<ChildNumber>" (§ name path), #_"boolean" (§ name privateDerivation)])
     (§ block
         (§ var #_"ChildNumber" (§ name lastChildNumber) (.. lastChildNumbers (get path)))
-        (§ var #_"ChildNumber" (§ name nextChildNumber) (§ new #_"ChildNumber" (§ quest (§ expr lastChildNumber != nil) ? (+ (.. lastChildNumber (num)) 1) :else 0), privateDerivation))
+        (§ var #_"ChildNumber" (§ name nextChildNumber) (§ new #_"ChildNumber" (if (some? lastChildNumber) (+ (.. lastChildNumber (num)) 1) 0), privateDerivation))
         (.. lastChildNumbers (put path, nextChildNumber))
         nextChildNumber
     )
@@ -26030,10 +25668,9 @@
     #_public
     (§ method #_"int" (§ fn getNumChildren) [#_"ImmutableList<ChildNumber>" (§ name path)])
     (§ block
-        #_final
         (§ var #_"ChildNumber" (§ name cn) (.. lastChildNumbers (get path)))
         ;; Children start with zero based childnumbers.
-        (§ quest (§ expr cn != nil) ? (§ expr 1 + (.. cn (num))) :else 0)
+        (if (some? cn) (+ 1 (.. cn (num))) 0)
     )
 
     ;;;
@@ -26092,7 +25729,6 @@
     ;;; Sorts deterministic keys in the order of their child number.  That's <i>usually</i> the order used to derive them. ;;
     #_public
     #_static
-    #_final
     (§ def #_"Comparator<ECKey>" (§ name CHILDNUM_ORDER) (§ new #_"Comparator<ECKey>"
         (§ anon
             #_override
@@ -26106,20 +25742,16 @@
         )))
 
     #_private
-    #_final
     (§ field- #_"DeterministicKey" (§ name parent))
     #_private
-    #_final
     (§ field- #_"ImmutableList<ChildNumber>" (§ name childNumberPath))
     #_private
-    #_final
     (§ field- #_"int" (§ name depth))
     #_private
     (§ field- #_"int" (§ name parentFingerprint)) ;; 0 if this key is root node of key hierarchy
 
     ;;; 32 bytes ;;
     #_private
-    #_final
     (§ field- #_"byte[]" (§ name chainCode))
 
     ;;; Constructs a key from its components.  This is not normally something you should use. ;;
@@ -26133,8 +25765,8 @@
         (§ ass (§ name (.. this parent)) parent)
         (§ ass (§ name (.. this childNumberPath)) (Preconditions/checkNotNull childNumberPath))
         (§ ass (§ name (.. this chainCode)) (Arrays/copyOf chainCode, (.. chainCode length)))
-        (§ ass (§ name (.. this depth)) (§ quest (§ expr parent != nil) ? (+ (.. parent depth) 1) :else 0))
-        (§ ass (§ name (.. this parentFingerprint)) (§ quest (§ expr parent != nil) ? (.. parent (getFingerprint)) :else 0))
+        (§ ass (§ name (.. this depth)) (if (some? parent) (+ (.. parent depth) 1) 0))
+        (§ ass (§ name (.. this parentFingerprint)) (if (some? parent) (.. parent (getFingerprint)) 0))
         this
     )
 
@@ -26156,8 +25788,8 @@
         (§ ass (§ name (.. this parent)) parent)
         (§ ass (§ name (.. this childNumberPath)) (Preconditions/checkNotNull childNumberPath))
         (§ ass (§ name (.. this chainCode)) (Arrays/copyOf chainCode, (.. chainCode length)))
-        (§ ass (§ name (.. this depth)) (§ quest (§ expr parent != nil) ? (+ (.. parent depth) 1) :else 0))
-        (§ ass (§ name (.. this parentFingerprint)) (§ quest (§ expr parent != nil) ? (.. parent (getFingerprint)) :else 0))
+        (§ ass (§ name (.. this depth)) (if (some? parent) (+ (.. parent depth) 1) 0))
+        (§ ass (§ name (.. this parentFingerprint)) (if (some? parent) (.. parent (getFingerprint)) 0))
         this
     )
 
@@ -26182,7 +25814,7 @@
     (§ block
         (§ if (§ expr parentFingerprint != 0))
         (§ block
-            (§ if (§ expr parent != nil))
+            (§ if (some? parent))
             (§ block
                 (Preconditions/checkArgument (== (.. parent (getFingerprint)) parentFingerprint), "parent fingerprint mismatch", (Integer/toHexString (.. parent (getFingerprint))), (Integer/toHexString parentFingerprint))
             )
@@ -26282,7 +25914,7 @@
     #_public
     (§ method #_"ChildNumber" (§ fn getChildNumber) [])
     (§ block
-        (§ quest (== (.. childNumberPath (size)) 0) ? ChildNumber/ZERO :else (.. childNumberPath (get (- (.. childNumberPath (size)) 1))))
+        (if (== (.. childNumberPath (size)) 0) ChildNumber/ZERO (.. childNumberPath (get (- (.. childNumberPath (size)) 1))))
     )
 
     ;;;
@@ -26351,7 +25983,7 @@
     #_public
     (§ method #_"DeterministicKey" (§ fn dropPrivateBytes) [])
     (§ block
-        (§ quest (isPubKeyOnly) ? this :else (§ new #_"DeterministicKey" (getPath), (getChainCode), pub, nil, parent))
+        (if (isPubKeyOnly) this (§ new #_"DeterministicKey" (getPath), (getChainCode), pub, nil, parent))
     )
 
     ;;;
@@ -26395,18 +26027,17 @@
     (§ block
         ;; Same as the parent code, except we construct a DeterministicKey instead of an ECKey.
         (Preconditions/checkNotNull keyCrypter)
-        (§ if (§ expr newParent != nil))
+        (§ if (some? newParent))
         (§ block
             (Preconditions/checkArgument (.. newParent (isEncrypted)))
         )
 
-        #_final
         (§ var #_"byte[]" (§ name privKeyBytes) (getPrivKeyBytes))
-        (Preconditions/checkState (§ expr privKeyBytes != nil), "Private key is not available")
+        (Preconditions/checkState (some? privKeyBytes), "Private key is not available")
 
         (§ var #_"EncryptedData" (§ name encryptedPrivateKey) (.. keyCrypter (encrypt privKeyBytes, aesKey)))
         (§ var #_"DeterministicKey" (§ name key) (§ new #_"DeterministicKey" childNumberPath, chainCode, keyCrypter, pub, encryptedPrivateKey, newParent))
-        (§ if (§ expr newParent == nil))
+        (§ if (nil? newParent))
         (§ block
             (.. key (setCreationTimeSeconds (getCreationTimeSeconds)))
         )
@@ -26429,7 +26060,7 @@
     #_public
     (§ method #_"boolean" (§ fn hasPrivKey) [])
     (§ block
-        (!= (findParentWithPrivKey) nil)
+        (some? (findParentWithPrivKey))
     )
 
     #_nilable
@@ -26437,7 +26068,7 @@
     #_public
     (§ method #_"byte[]" (§ fn getSecretBytes) [])
     (§ block
-        (§ quest (§ expr priv != nil) ? (getPrivKeyBytes) :else nil)
+        (when (some? priv) (getPrivKeyBytes))
     )
 
     ;;;
@@ -26460,11 +26091,11 @@
     #_public
     (§ method #_"KeyCrypter" (§ fn getKeyCrypter) [])
     (§ block
-        (§ if (§ expr keyCrypter != nil))
+        (§ if (some? keyCrypter))
         (§ block
             (§ return keyCrypter)
         )
-        (§ if (§ expr parent != nil))
+        (§ if (some? parent))
         (§ block
             (§ return (.. parent (getKeyCrypter)))
         )
@@ -26486,10 +26117,9 @@
         (§ else )
         (§ block
             ;; If it's not encrypted, derive the private via the parents.
-            #_final
             (§ var #_"BigInteger" (§ name privateKey) (findOrDerivePrivateKey))
             ;; This key is a part of a public-key only heirarchy and cannot be used for signing.
-            (§ if (§ expr privateKey == nil))
+            (§ if (nil? privateKey))
             (§ block
                 (§ throw (§ new #_"MissingPrivateKeyException"))
             )
@@ -26517,7 +26147,7 @@
             (§ throw (§ new #_"KeyCrypterException" "Provided AES key is wrong"))
         )
 
-        (§ if (§ expr parent == nil))
+        (§ if (nil? parent))
         (§ block
             (.. key (setCreationTimeSeconds (getCreationTimeSeconds)))
         )
@@ -26537,7 +26167,7 @@
     #_private
     (§ method- #_"BigInteger" (§ fn findOrDeriveEncryptedPrivateKey) [#_"KeyCrypter" (§ name keyCrypter), #_"KeyParameter" (§ name aesKey)])
     (§ block
-        (§ if (§ expr encryptedPrivateKey != nil))
+        (§ if (some? encryptedPrivateKey))
         (§ block
             (§ return (§ new #_"BigInteger" 1, (.. keyCrypter (decrypt encryptedPrivateKey, aesKey))))
         )
@@ -26545,7 +26175,7 @@
         ;; Otherwise we don't have it, but maybe we can figure it out from our parents.  Walk up the tree looking for
         ;; the first key that has some encrypted private key data.
         (§ var #_"DeterministicKey" (§ name cursor) parent)
-        (§ while (§ expr cursor != nil))
+        (§ while (some? cursor))
         (§ block
             (§ if (!= (.. cursor encryptedPrivateKey) nil))
             (§ block
@@ -26553,7 +26183,7 @@
             )
             (§ ass (§ name cursor) (.. cursor parent))
         )
-        (§ if (§ expr cursor == nil))
+        (§ if (nil? cursor))
         (§ block
             (§ throw (§ new #_"KeyCrypterException" "Neither this key nor its parents have an encrypted private key"))
         )
@@ -26566,7 +26196,7 @@
     (§ method- #_"DeterministicKey" (§ fn findParentWithPrivKey) [])
     (§ block
         (§ var #_"DeterministicKey" (§ name cursor) this)
-        (§ while (§ expr cursor != nil))
+        (§ while (some? cursor))
         (§ block
             (§ if (!= (.. cursor priv) nil))
             (§ block
@@ -26582,7 +26212,7 @@
     (§ method- #_"BigInteger" (§ fn findOrDerivePrivateKey) [])
     (§ block
         (§ var #_"DeterministicKey" (§ name cursor) (findParentWithPrivKey))
-        (§ if (§ expr cursor == nil))
+        (§ if (nil? cursor))
         (§ block
             (§ return nil)
         )
@@ -26632,9 +26262,8 @@
     #_public
     (§ method #_"BigInteger" (§ fn getPrivKey) [])
     (§ block
-        #_final
         (§ var #_"BigInteger" (§ name key) (findOrDerivePrivateKey))
-        (Preconditions/checkState (§ expr key != nil), "Private key bytes not available")
+        (Preconditions/checkState (some? key), "Private key bytes not available")
         key
     )
 
@@ -26654,12 +26283,12 @@
     (§ method- #_"byte[]" (§ fn serialize) [#_"NetworkParameters" (§ name params), #_"boolean" (§ name pub)])
     (§ block
         (§ var #_"ByteBuffer" (§ name ser) (ByteBuffer/allocate 78))
-        (.. ser (putInt (§ quest pub ? (.. params (getBip32HeaderPub)) :else (.. params (getBip32HeaderPriv)))))
+        (.. ser (putInt (if pub (.. params (getBip32HeaderPub)) (.. params (getBip32HeaderPriv)))))
         (.. ser (put (§ cast #_"byte" (getDepth))))
         (.. ser (putInt (getParentFingerprint)))
         (.. ser (putInt (.. (getChildNumber) (i))))
         (.. ser (put (getChainCode)))
-        (.. ser (put (§ quest pub ? (getPubKey) :else (getPrivKeyBytes33))))
+        (.. ser (put (if pub (getPubKey) (getPrivKeyBytes33))))
         (Preconditions/checkState (== (.. ser (position)) 78))
         (.. ser (array))
     )
@@ -26729,14 +26358,11 @@
 
         (§ var #_"boolean" (§ name pub) (§ expr header == (.. params (getBip32HeaderPub))))
         (§ var #_"int" (§ name depth) (& (.. buffer (get)) 0xff)) ;; convert signed byte to positive int since depth cannot be negative
-        #_final
         (§ var #_"int" (§ name parentFingerprint) (.. buffer (getInt)))
-        #_final
         (§ var #_"int" (§ name i) (.. buffer (getInt)))
-        #_final
         (§ var #_"ChildNumber" (§ name childNumber) (§ new #_"ChildNumber" i))
         (§ var #_"ImmutableList<ChildNumber>" (§ name path))
-        (§ if (§ expr parent != nil))
+        (§ if (some? parent))
         (§ block
             (§ if (§ expr parentFingerprint == 0))
             (§ block
@@ -26790,7 +26416,7 @@
     #_public
     (§ method #_"long" (§ fn getCreationTimeSeconds) [])
     (§ block
-        (§ if (§ expr parent != nil))
+        (§ if (some? parent))
         (§ block
             (§ return (.. parent (getCreationTimeSeconds)))
         )
@@ -26808,7 +26434,7 @@
     #_public
     (§ method #_"void" (§ fn setCreationTimeSeconds) [#_"long" (§ name newCreationTimeSeconds)])
     (§ block
-        (§ if (§ expr parent != nil))
+        (§ if (some? parent))
         (§ block
             (§ throw (§ new #_"IllegalStateException" "Creation time can only be set on root keys."))
         )
@@ -26850,7 +26476,6 @@
     #_public
     (§ method #_"String" (§ fn toString) [])
     (§ block
-        #_final
         (§ var #_"MoreObjects.ToStringHelper" (§ name helper) (.. (MoreObjects/toStringHelper this) (omitNullValues)))
         (.. helper (add "pub", (.. Utils/HEX (encode (.. pub (getEncoded))))))
         (.. helper (add "chainCode", (.. HEX (encode chainCode))))
@@ -26868,7 +26493,6 @@
     #_public
     (§ method #_"void" (§ fn formatKeyWithAddress) [#_"boolean" (§ name includePrivateKeys), #_"StringBuilder" (§ name sb), #_"NetworkParameters" (§ name params)])
     (§ block
-        #_final
         (§ var #_"Address" (§ name address) (toAddress params))
         (.. sb (append "  addr:") (append address))
         (.. sb (append "  hash160:") (append (.. Utils/HEX (encode (getPubKeyHash)))))
@@ -26921,13 +26545,10 @@
  ; the private key bytes were encrypted.  You need these for decryption.</p>
  ;;
 #_public
-#_final
 (§ class #_"EncryptedData"
     #_public
-    #_final
     (§ field #_"byte[]" (§ name initialisationVector))
     #_public
-    #_final
     (§ field #_"byte[]" (§ name encryptedBytes))
 
     #_public
@@ -26996,7 +26617,6 @@
  ; deterministic wallet child key generation algorithm.
  ;;
 #_public
-#_final
 (§ class #_"HDKeyDerivation"
     #_static
     (§ block
@@ -27012,7 +26632,6 @@
     ;; Some arbitrary random number.  Doesn't matter what it is.
     #_private
     #_static
-    #_final
     (§ def- #_"BigInteger" (§ name RAND_INT))
 
     #_private
@@ -27027,7 +26646,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MAX_CHILD_DERIVATION_ATTEMPTS) 100)
 
     ;;;
@@ -27075,14 +26693,14 @@
         (§ var #_"BigInteger" (§ name priv) (§ new #_"BigInteger" 1, privKeyBytes))
         (assertNonZero priv, "Generated master key is invalid.")
         (assertLessThanN priv, "Generated master key is invalid.")
-        (§ new #_"DeterministicKey" (§ expr (ImmutableList/<ChildNumber>of)), chainCode, priv, nil)
+        (§ new #_"DeterministicKey" (ImmutableList/of #_"ImmutableList<ChildNumber>"), chainCode, priv, nil)
     )
 
     #_public
     #_static
     (§ defn #_"DeterministicKey" (§ fn createMasterPubKeyFromBytes) [#_"byte[]" (§ name pubKeyBytes), #_"byte[]" (§ name chainCode)])
     (§ block
-        (§ new #_"DeterministicKey" (ImmutableList/<ChildNumber>of), chainCode, (§ new #_"LazyECPoint" (.. ECKey/CURVE (getCurve)), pubKeyBytes), nil, nil)
+        (§ new #_"DeterministicKey" (ImmutableList/of #_"ImmutableList<ChildNumber>"), chainCode, (§ new #_"LazyECPoint" (.. ECKey/CURVE (getCurve)), pubKeyBytes), nil, nil)
     )
 
     ;;;
@@ -27156,7 +26774,7 @@
         (Preconditions/checkState (== (.. parentPublicKey length) 33), (§ str "Parent pubkey must be 33 bytes, but is " + (.. parentPublicKey length)))
 
         (§ var #_"ByteBuffer" (§ name data) (ByteBuffer/allocate 37))
-        (.. data (put (§ quest (.. childNumber (isHardened)) ? (.. parent (getPrivKeyBytes33)) :else parentPublicKey)))
+        (.. data (put (if (.. childNumber (isHardened)) (.. parent (getPrivKeyBytes33)) parentPublicKey)))
         (.. data (putInt (.. childNumber (i))))
 
         (§ var #_"byte[]" (§ name i) (HDUtils/hmacSha512 (.. parent (getChainCode)), (.. data (array))))
@@ -27167,7 +26785,6 @@
         (§ var #_"BigInteger" (§ name ilInt) (§ new #_"BigInteger" 1, il))
         (assertLessThanN ilInt, "Illegal derived key: I_L >= n")
 
-        #_final
         (§ var #_"BigInteger" (§ name priv) (.. parent (getPrivKey)))
         (§ var #_"BigInteger" (§ name ki) (.. priv (add ilInt) (mod (.. ECKey/CURVE (getN)))))
         (assertNonZero ki, "Illegal derived key: derived private key equals 0.")
@@ -27203,7 +26820,6 @@
         (§ var #_"BigInteger" (§ name ilInt) (§ new #_"BigInteger" 1, il))
         (assertLessThanN ilInt, "Illegal derived key: I_L >= n")
 
-        #_final
         (§ var #_"BigInteger" (§ name N) (.. ECKey/CURVE (getN)))
         (§ var #_"ECPoint" (§ name Ki))
         (§ switch mode)
@@ -27272,10 +26888,8 @@
     #_static
     (§ class #_"RawKeyBytes"
         #_public
-        #_final
         (§ field #_"byte[]" (§ name keyBytes))
         #_public
-        #_final
         (§ field #_"byte[]" (§ name chainCode))
 
         #_public
@@ -27302,11 +26916,9 @@
  ; Static utilities used in BIP 32 Hierarchical Deterministic Wallets (HDW).
  ;;
 #_public
-#_final
 (§ class #_"HDUtils"
     #_private
     #_static
-    #_final
     (§ def- #_"Joiner" (§ name PATH_JOINER) (Joiner/on "/"))
 
     #_static
@@ -27354,7 +26966,7 @@
     #_static
     (§ defn #_"ImmutableList<ChildNumber>" (§ fn append) [#_"List<ChildNumber>" (§ name path), #_"ChildNumber" (§ name childNumber)])
     (§ block
-        (.. (ImmutableList/<ChildNumber>builder) (addAll path) (add childNumber) (build))
+        (.. (ImmutableList/builder #_"ImmutableList<ChildNumber>") (addAll path) (add childNumber) (build))
     )
 
     ;;; Concatenate two derivation paths. ;;
@@ -27362,7 +26974,7 @@
     #_static
     (§ defn #_"ImmutableList<ChildNumber>" (§ fn concat) [#_"List<ChildNumber>" (§ name path), #_"List<ChildNumber>" (§ name path2)])
     (§ block
-        (.. (ImmutableList/<ChildNumber>builder) (addAll path) (addAll path2) (build))
+        (.. (ImmutableList/builder #_"ImmutableList<ChildNumber>") (addAll path) (addAll path2) (build))
     )
 
     ;;; Convert to a string path, starting with "M/". ;;
@@ -27522,7 +27134,6 @@
 (§ class #_"KeyCrypterScrypt" (§ implements #_"KeyCrypter")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"KeyCrypterScrypt")))
 
     ;;;
@@ -27530,7 +27141,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name KEY_LENGTH) 32) ;; = 256 bits.
 
     ;;;
@@ -27539,7 +27149,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name BLOCK_LENGTH) 16) ;; = 128 bits.
 
     ;;;
@@ -27547,7 +27156,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name SALT_LENGTH) 8)
 
     #_static
@@ -27563,7 +27171,6 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"SecureRandom" (§ name secureRandom))
 
     ;;; Returns SALT_LENGTH (8) bytes of random data. ;;
@@ -27578,7 +27185,6 @@
 
     ;; Scrypt parameters.
     #_private
-    #_final
     (§ field- #_"ScryptParameters" (§ name scryptParameters))
 
     ;;;
@@ -27654,7 +27260,6 @@
                 (.. log (warn "You are using a ScryptParameters with no salt. Your encryption may be vulnerable to a dictionary attack."))
             )
 
-            #_final
             (§ var #_"Stopwatch" (§ name watch) (Stopwatch/createStarted))
             (§ var #_"byte[]" (§ name keyBytes) (SCrypt/scrypt passwordBytes, salt, (§ cast #_"int" (.. scryptParameters (getN))), (.. scryptParameters (getR)), (.. scryptParameters (getP)), KEY_LENGTH))
             (.. watch (stop))
@@ -27668,7 +27273,7 @@
         (§ finally )
         (§ block
             ;; Zero the password bytes.
-            (§ if (§ expr passwordBytes != nil))
+            (§ if (some? passwordBytes))
             (§ block
                 (java.util.Arrays/fill passwordBytes, (§ cast #_"byte" 0))
             )
@@ -27698,9 +27303,7 @@
             (§ var #_"BufferedBlockCipher" (§ name cipher) (§ new #_"PaddedBufferedBlockCipher" (§ new #_"CBCBlockCipher" (§ new #_"AESFastEngine"))))
             (.. cipher (init true, keyWithIv))
             (§ var #_"byte[]" (§ name encryptedBytes) (§ new #_"byte[]" (§ count (.. cipher (getOutputSize (.. plainBytes length))))))
-            #_final
             (§ var #_"int" (§ name length1) (.. cipher (processBytes plainBytes, 0, (.. plainBytes length), encryptedBytes, 0)))
-            #_final
             (§ var #_"int" (§ name length2) (.. cipher (doFinal encryptedBytes, length1)))
 
             (§ return (§ new #_"EncryptedData" iv, (Arrays/copyOf encryptedBytes, (§ expr length1 + length2))))
@@ -27737,9 +27340,7 @@
 
             (§ var #_"byte[]" (§ name cipherBytes) (.. dataToDecrypt encryptedBytes))
             (§ var #_"byte[]" (§ name decryptedBytes) (§ new #_"byte[]" (§ count (.. cipher (getOutputSize (.. cipherBytes length))))))
-            #_final
             (§ var #_"int" (§ name length1) (.. cipher (processBytes cipherBytes, 0, (.. cipherBytes length), decryptedBytes, 0)))
-            #_final
             (§ var #_"int" (§ name length2) (.. cipher (doFinal decryptedBytes, length1)))
 
             (§ return (Arrays/copyOf decryptedBytes, (§ expr length1 + length2)))
@@ -27833,10 +27434,8 @@
     ;; If curve is set, bits is also set.  If curve is unset, point is set and bits is unset.  Point can be set along
     ;; with curve and bits when the cached form has been accessed and thus must have been converted.
     #_private
-    #_final
     (§ field- #_"ECCurve" (§ name curve))
     #_private
-    #_final
     (§ field- #_"byte[]" (§ name bits))
 
     ;; This field is effectively final - once set it won't change again.  However it can be set after construction.
@@ -27864,7 +27463,7 @@
     #_public
     (§ method #_"ECPoint" (§ fn get) [])
     (§ block
-        (§ if (§ expr point == nil))
+        (§ if (nil? point))
         (§ block
             (§ ass (§ name point) (.. curve (decodePoint bits)))
         )
@@ -27882,7 +27481,7 @@
     #_public
     (§ method #_"byte[]" (§ fn getEncoded) [])
     (§ block
-        (§ if (§ expr bits != nil))
+        (§ if (some? bits))
         (§ block
             (§ return (Arrays/copyOf bits, (.. bits length)))
         )
@@ -27925,7 +27524,7 @@
     #_public
     (§ method #_"boolean" (§ fn isCompressed) [])
     (§ block
-        (§ if (§ expr bits != nil))
+        (§ if (some? bits))
         (§ block
             (§ return (§ expr (§ ai bits 0) == 2 || (§ ai bits 0) == 3))
         )
@@ -28106,7 +27705,6 @@
 (§ class #_"LinuxSecureRandom" (§ extends #_"SecureRandomSpi")
     #_private
     #_static
-    #_final
     (§ def- #_"FileInputStream" (§ name urandom))
 
     #_private
@@ -28124,7 +27722,6 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"LinuxSecureRandom")))
 
     #_static
@@ -28165,7 +27762,6 @@
     )
 
     #_private
-    #_final
     (§ field- #_"DataInputStream" (§ name dis))
 
     #_public
@@ -28227,7 +27823,6 @@
 (§ class #_"MnemonicCode"
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"MnemonicCode")))
 
     #_private
@@ -28235,11 +27830,9 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name BIP39_ENGLISH_RESOURCE_NAME) "mnemonic/wordlist/english.txt")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name BIP39_ENGLISH_SHA256) "ad90bf3beb7b0eb7e5acd74727dc0da96e0a280a258354e7293fb7e211ac03db")
 
     ;;; UNIX time for when the BIP39 standard was finalised.  This can be used as a default seed birthday. ;;
@@ -28249,7 +27842,6 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name PBKDF2_ROUNDS) 2048)
 
     #_public
@@ -28291,7 +27883,7 @@
         (§ throws #_"IOException")
     (§ block
         (§ var #_"InputStream" (§ name stream) (.. (§ klass #_"MnemonicCode") (getResourceAsStream BIP39_ENGLISH_RESOURCE_NAME)))
-        (§ if (§ expr stream == nil))
+        (§ if (nil? stream))
         (§ block
             (§ throw (§ new #_"FileNotFoundException" BIP39_ENGLISH_RESOURCE_NAME))
         )
@@ -28323,7 +27915,7 @@
         )
 
         ;; If a wordListDigest is supplied, check to make sure it matches.
-        (§ if (§ expr wordListDigest != nil))
+        (§ if (some? wordListDigest))
         (§ block
             (§ var #_"byte[]" (§ name digest) (.. md (digest)))
             (§ var #_"String" (§ name hexdigest) (.. HEX (encode digest)))
@@ -28358,7 +27950,6 @@
         (§ var #_"String" (§ name pass) (.. Utils/SPACE_JOINER (join words)))
         (§ var #_"String" (§ name salt) (§ expr "mnemonic" + passphrase))
 
-        #_final
         (§ var #_"Stopwatch" (§ name watch) (Stopwatch/createStarted))
         (§ var #_"byte[]" (§ name seed) (PBKDF2SHA512/derive pass, salt, PBKDF2_ROUNDS, 64))
         (.. watch (stop))
@@ -28573,7 +28164,6 @@
     (§ class #_"MnemonicWordException" (§ extends #_"MnemonicException")
         ;;; Contains the word that was not found in the word list. ;;
         #_public
-        #_final
         (§ field #_"String" (§ name badWord))
 
         #_public
@@ -28593,14 +28183,14 @@
              [javax.crypto.spec SecretKeySpec]))
 
 ;;;
- ; <p>This is a clean-room implementation of PBKDF2 using RFC 2898 as a reference.</p>
+ ; This is a clean-room implementation of PBKDF2 using RFC 2898 as a reference.
  ;
- ; <p>RFC 2898: http://tools.ietf.org/html/rfc2898#section-5.2</p>
+ ; RFC 2898: http://tools.ietf.org/html/rfc2898#section-5.2
  ;
- ; <p>This code passes all RFC 6070 test vectors: http://tools.ietf.org/html/rfc6070</p>
+ ; This code passes all RFC 6070 test vectors: http://tools.ietf.org/html/rfc6070
  ;
- ; <p>http://cryptofreek.org/2012/11/29/pbkdf2-pure-java-implementation/<br>
- ; Modified to use SHA-512 - Ken Sedgwick ken@bonsai.com</p>
+ ; http://cryptofreek.org/2012/11/29/pbkdf2-pure-java-implementation/
+ ; Modified to use SHA-512 - Ken Sedgwick ken@bonsai.com
  ;;
 #_public
 (§ class #_"PBKDF2SHA512"
@@ -28715,7 +28305,6 @@
      ; otherwise we'll fail to verify signature hashes.
      ;;
     #_public
-    #_final
     (§ field #_"int" (§ name sighashFlags))
 
     ;;; Constructs a signature with the given components and SIGHASH_ALL. ;;
@@ -28851,7 +28440,6 @@
     #_public
     (§ method #_"Transaction.SigHash" (§ fn sigHashMode) [])
     (§ block
-        #_final
         (§ var #_"int" (§ name mode) (& sighashFlags 0x1f))
 
         (§ if (§ expr mode == (.. Transaction/SigHash/NONE value)))
@@ -28989,14 +28577,11 @@
 (§ class #_"WalletAppKit" (§ extends #_"AbstractIdleService")
     #_protected
     #_static
-    #_final
     (§ def #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"WalletAppKit")))
 
     #_protected
-    #_final
     (§ field #_"String" (§ name filePrefix))
     #_protected
-    #_final
     (§ field #_"NetworkParameters" (§ name params))
     #_protected
     #_volatile
@@ -29012,7 +28597,6 @@
     (§ field #_"PeerGroup" (§ name vPeerGroup))
 
     #_protected
-    #_final
     (§ field #_"File" (§ name directory))
     #_protected
     #_volatile
@@ -29085,7 +28669,6 @@
     (§ block
         (§ try )
         (§ block
-            #_final
             (§ var #_"InetAddress" (§ name localHost) (InetAddress/getLocalHost))
             (§ return (setPeerNodes (§ new #_"PeerAddress" params, localHost, (.. params (getPort)))))
         )
@@ -29245,7 +28828,7 @@
             )
             (§ ass (§ name file2) (§ new #_"RandomAccessFile" file, "rw"))
             (§ var #_"FileLock" (§ name lock) (.. file2 (getChannel) (tryLock)))
-            (§ if (§ expr lock == nil))
+            (§ if (nil? lock))
             (§ block
                 (§ return true)
             )
@@ -29254,7 +28837,7 @@
         )
         (§ finally )
         (§ block
-            (§ if (§ expr file2 != nil))
+            (§ if (some? file2))
             (§ block
                 (.. file2 (close))
             )
@@ -29291,11 +28874,11 @@
                     (§ ass (§ name checkpoints) (CheckpointManager/openStream params))
                 )
 
-                (§ if (§ expr checkpoints != nil))
+                (§ if (some? checkpoints))
                 (§ block
                     ;; Initialize the chain file with a checkpoint to speed up first-run sync.
                     (§ var #_"long" (§ name time))
-                    (§ if (§ expr restoreFromSeed != nil))
+                    (§ if (some? restoreFromSeed))
                     (§ block
                         (§ ass (§ name time) (.. restoreFromSeed (getCreationTimeSeconds)))
                         (§ if chainFileExists)
@@ -29344,7 +28927,7 @@
 
             ;; Set up peer addresses or discovery first, so if wallet extensions try to broadcast a transaction
             ;; before we're actually connected the broadcast waits for an appropriate number of connections.
-            (§ if (§ expr peerAddresses != nil))
+            (§ if (some? peerAddresses))
             (§ block
                 (§ for (§ var #_"PeerAddress" (§ name addr)) :for peerAddresses)
                 (§ block
@@ -29355,7 +28938,7 @@
             )
             (§ else )
             (§ block
-                (.. vPeerGroup (addPeerDiscovery (§ quest (§ expr discovery != nil) ? discovery :else (§ new #_"DnsDiscovery" params))))
+                (.. vPeerGroup (addPeerDiscovery (or discovery (§ new #_"DnsDiscovery" params))))
             )
             (.. vChain (addWallet vWallet))
             (.. vPeerGroup (addWallet vWallet))
@@ -29368,7 +28951,6 @@
                 (installShutdownHook)
 
                 ;; TODO: Be able to use the provided download listener when doing a blocking startup.
-                #_final
                 (§ var #_"DownloadProgressTracker" (§ name listener) (§ new #_"DownloadProgressTracker"))
                 (.. vPeerGroup (startBlockChainDownload listener))
                 (.. listener (await))
@@ -29381,8 +28963,7 @@
                     #_public
                     (§ method #_"void" (§ fn onSuccess) [#_nilable #_"Object" (§ name result)])
                     (§ block
-                        #_final
-                        (§ var #_"DownloadProgressTracker" (§ name l) (§ quest (§ expr downloadListener != nil) ? downloadListener :else (§ new #_"DownloadProgressTracker")))
+                        (§ var #_"DownloadProgressTracker" (§ name l) (or downloadListener (§ new #_"DownloadProgressTracker")))
                         (.. vPeerGroup (startBlockChainDownload l))
                         nil
                     )
@@ -29451,9 +29032,8 @@
         (§ try )
         (§ block
             (§ var #_"Protos.Wallet" (§ name proto) (WalletProtobufSerializer/parseToProto walletStream))
-            #_final
             (§ var #_"WalletProtobufSerializer" (§ name serializer))
-            (§ if (§ expr walletFactory != nil))
+            (§ if (some? walletFactory))
             (§ block
                 (§ ass (§ name serializer) (§ new #_"WalletProtobufSerializer" walletFactory))
             )
@@ -29478,7 +29058,7 @@
     (§ method #_"Wallet" (§ fn createWallet) [])
     (§ block
         (§ var #_"KeyChainGroup" (§ name kcg))
-        (§ if (§ expr restoreFromSeed != nil))
+        (§ if (some? restoreFromSeed))
         (§ block
             (§ ass (§ name kcg) (§ new #_"KeyChainGroup" params, restoreFromSeed))
         )
@@ -29486,13 +29066,13 @@
         (§ block
             (§ ass (§ name kcg) (§ new #_"KeyChainGroup" params))
         )
-        (§ quest (§ expr walletFactory != nil) ? (.. walletFactory (create params, kcg)) :else (§ new #_"Wallet" params, kcg)) ;; default
+        (if (some? walletFactory) (.. walletFactory (create params, kcg)) (§ new #_"Wallet" params, kcg)) ;; default
     )
 
     #_private
     (§ method- #_"void" (§ fn maybeMoveOldWalletOutOfTheWay) [])
     (§ block
-        (§ if (§ expr restoreFromSeed == nil))
+        (§ if (nil? restoreFromSeed))
         (§ block
             (§ return nil)
         )
@@ -29642,7 +29222,6 @@
     ;; A timer which manages expiring channels as their timeouts occur (if configured).
     #_private
     #_static
-    #_final
     (§ def- #_"Timer" (§ name timeoutTimer) (§ new #_"Timer" "AbstractTimeoutHandler timeouts", true))
 
     ;;;
@@ -29655,7 +29234,6 @@
      ;;
     #_public
     #_synchronized
-    #_final
     (§ method #_"void" (§ fn setTimeoutEnabled) [#_"boolean" (§ name timeoutEnabled)])
     (§ block
         (§ ass (§ name (.. this timeoutEnabled)) timeoutEnabled)
@@ -29675,7 +29253,6 @@
      ;;
     #_public
     #_synchronized
-    #_final
     (§ method #_"void" (§ fn setSocketTimeout) [#_"int" (§ name timeoutMillis)])
     (§ block
         (§ ass (§ name (.. this timeoutMillis)) timeoutMillis)
@@ -29690,7 +29267,7 @@
     #_synchronized
     (§ method #_"void" (§ fn resetTimeout) [])
     (§ block
-        (§ if (§ expr timeoutTask != nil))
+        (§ if (some? timeoutTask))
         (§ block
             (.. timeoutTask (cancel))
         )
@@ -29740,16 +29317,13 @@
 (§ class #_"BlockingClient" (§ implements #_"MessageWriteTarget")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"BlockingClient")))
 
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name BUFFER_SIZE_LOWER_BOUND) 4096)
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name BUFFER_SIZE_UPPER_BOUND) 65536)
 
     #_private
@@ -29773,7 +29347,7 @@
      ; @param clientSet A set which this object will add itself to after initialization, and then remove itself from.
      ;;
     #_public
-    (§ constructor #_"BlockingClient" [#_final #_"SocketAddress" (§ name serverAddress), #_final #_"StreamConnection" (§ name connection), #_final #_"int" (§ name connectTimeoutMillis), #_final #_"SocketFactory" (§ name socketFactory), #_nilable #_final #_"Set<BlockingClient>" (§ name clientSet)])
+    (§ constructor #_"BlockingClient" [#_"SocketAddress" (§ name serverAddress), #_"StreamConnection" (§ name connection), #_"int" (§ name connectTimeoutMillis), #_"SocketFactory" (§ name socketFactory), #_nilable #_"Set<BlockingClient>" (§ name clientSet)])
         (§ throws #_"IOException")
     (§ block
         (§ ass (§ name connectFuture) (SettableFuture/create))
@@ -29781,7 +29355,6 @@
         ;; sure it doesnt get too large or have to call read too often.
         (.. connection (setWriteTarget this))
         (§ ass (§ name socket) (.. socketFactory (createSocket)))
-        #_final
         (§ var #_"Context" (§ name context) (Context/get))
         (§ var #_"Thread" (§ name t) (§ new #_"Thread"
         (§ anon
@@ -29790,7 +29363,7 @@
             (§ method #_"void" (§ fn run) [])
             (§ block
                 (Context/propagate context)
-                (§ if (§ expr clientSet != nil))
+                (§ if (some? clientSet))
                 (§ block
                     (.. clientSet (add (§ dhis BlockingClient)))
                 )
@@ -29820,7 +29393,7 @@
                     (§ block
                         ;; At this point there isn't much we can do, and we can probably assume the channel is closed.
                     )
-                    (§ if (§ expr clientSet != nil))
+                    (§ if (some? clientSet))
                     (§ block
                         (.. clientSet (remove (§ dhis BlockingClient)))
                     )
@@ -29936,10 +29509,8 @@
 #_public
 (§ class #_"BlockingClientManager" (§ extends #_"AbstractIdleService") (§ implements #_"ClientConnectionManager")
     #_private
-    #_final
     (§ field- #_"SocketFactory" (§ name socketFactory))
     #_private
-    #_final
     (§ field- #_"Set<BlockingClient>" (§ name clients) (Collections/synchronizedSet (§ new #_"HashSet<BlockingClient>")))
 
     #_private
@@ -30087,39 +29658,31 @@
 (§ class #_"ConnectionHandler" (§ implements #_"MessageWriteTarget")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"ConnectionHandler")))
 
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name BUFFER_SIZE_LOWER_BOUND) 4096)
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name BUFFER_SIZE_UPPER_BOUND) 65536)
 
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name OUTBOUND_BUFFER_BYTE_COUNT) (+ Message/MAX_SIZE 24)) ;; 24 byte message header
 
     ;; We lock when touching local flags and when writing data, but NEVER when calling any methods which leave
     ;; this class into non-Java classes.
     #_private
-    #_final
     (§ field- #_"ReentrantLock" (§ name lock) (Threading/lock "nioConnectionHandler"))
     #_guarded-by(§ opt "lock")
     #_private
-    #_final
     (§ field- #_"ByteBuffer" (§ name readBuff))
     #_guarded-by(§ opt "lock")
     #_private
-    #_final
     (§ field- #_"SocketChannel" (§ name channel))
     #_guarded-by(§ opt "lock")
     #_private
-    #_final
     (§ field- #_"SelectionKey" (§ name key))
     #_guarded-by(§ opt "lock")
     (§ field #_"StreamConnection" (§ name connection))
@@ -30132,7 +29695,6 @@
     (§ field- #_"long" (§ name bytesToWriteRemaining) 0)
     #_guarded-by(§ opt "lock")
     #_private
-    #_final
     (§ field- #_"LinkedList<ByteBuffer>" (§ name bytesToWrite) (§ new #_"LinkedList<>"))
 
     #_private
@@ -30143,7 +29705,7 @@
         (§ throws #_"IOException")
     (§ block
         (§ this (.. connectionFactory (getNewConnection (.. (§ cast #_"SocketChannel" (.. key (channel))) (socket) (getInetAddress)), (.. (§ cast #_"SocketChannel" (.. key (channel))) (socket) (getPort)))), key)
-        (§ if (§ expr connection == nil))
+        (§ if (nil? connection))
         (§ block
             (§ throw (§ new #_"IOException" "Parser factory.getNewConnection returned nil"))
         )
@@ -30155,7 +29717,7 @@
     (§ block
         (§ ass (§ name (.. this key)) key)
         (§ ass (§ name (.. this channel)) (Preconditions/checkNotNull (§ cast #_"SocketChannel" (.. key (channel)))))
-        (§ if (§ expr connection == nil))
+        (§ if (nil? connection))
         (§ block
             (§ ass (§ name readBuff) nil)
             (§ return nil)
@@ -30341,7 +29903,7 @@
         (§ var #_"ConnectionHandler" (§ name handler) (§ cast #_"ConnectionHandler" (.. key (attachment))))
         (§ try )
         (§ block
-            (§ if (§ expr handler == nil))
+            (§ if (nil? handler))
             (§ block
                 (§ return nil)
             )
@@ -30382,7 +29944,7 @@
             ;; This can happen e.g. if the channel closes while the thread is about to get killed
             ;; (ClosedByInterruptException), or if handler.connection.receiveBytes throws something.
             (§ var #_"Throwable" (§ name t) (Throwables/getRootCause e))
-            (.. log (warn "Error handling SelectionKey: {} {}", (.. t (getClass) (getName)), (§ quest (!= (.. t (getMessage)) nil) ? (.. t (getMessage)) :else ""), e))
+            (.. log (warn "Error handling SelectionKey: {} {}", (.. t (getClass) (getName)), (if (some? (.. t (getMessage))) (.. t (getMessage)) ""), e))
             (.. handler (closeConnection))
         )
         nil
@@ -30410,7 +29972,6 @@
 (§ class #_"FilterMerger"
     ;; We use a constant tweak to avoid giving up privacy when we regenerate our filter with new keys.
     #_private
-    #_final
     (§ field- #_"long" (§ name bloomFilterTweak) (§ cast #_"long" (* (Math/random) Long/MAX_VALUE)))
 
     #_private
@@ -30470,8 +30031,8 @@
                 ;; as much as possible as that results in a loss of privacy.
                 ;; The constant 100 here is somewhat arbitrary, but makes sense for small to medium wallets -
                 ;; it will likely mean we never need to create a filter with different parameters.
-                (§ ass (§ name lastBloomFilterElementCount) (§ quest (< lastBloomFilterElementCount elements) ? (+ elements 100) :else lastBloomFilterElementCount))
-                (§ var #_"BloomFilter.BloomUpdate" (§ name bloomFlags) (§ quest requiresUpdateAll ? BloomFilter/BloomUpdate/UPDATE_ALL :else BloomFilter/BloomUpdate/UPDATE_P2PUBKEY_ONLY))
+                (§ ass (§ name lastBloomFilterElementCount) (if (< lastBloomFilterElementCount elements) (+ elements 100) lastBloomFilterElementCount))
+                (§ var #_"BloomFilter.BloomUpdate" (§ name bloomFlags) (if requiresUpdateAll BloomFilter/BloomUpdate/UPDATE_ALL BloomFilter/BloomUpdate/UPDATE_P2PUBKEY_ONLY))
                 (§ var #_"double" (§ name fpRate) vBloomFilterFPRate)
                 (§ var #_"BloomFilter" (§ name filter) (§ new #_"BloomFilter" lastBloomFilterElementCount, fpRate, bloomFilterTweak, bloomFlags))
                 (§ for (§ var #_"PeerFilterProvider" (§ name p)) :for providers)
@@ -30552,19 +30113,15 @@
 (§ class #_"NioClient" (§ implements #_"MessageWriteTarget")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"NioClient")))
 
     #_private
-    #_final
     (§ field- #_"Handler" (§ name handler))
     #_private
-    #_final
     (§ field- #_"NioClientManager" (§ name manager) (§ new #_"NioClientManager"))
 
     (§ class #_"Handler" (§ extends #_"AbstractTimeoutHandler") (§ implements #_"StreamConnection")
         #_private
-        #_final
         (§ field- #_"StreamConnection" (§ name upstreamConnection))
         #_private
         (§ field- #_"MessageWriteTarget" (§ name writeTarget))
@@ -30661,7 +30218,7 @@
      ;                             0 is interpreted as no timeout.
      ;;
     #_public
-    (§ constructor #_"NioClient" [#_final #_"SocketAddress" (§ name serverAddress), #_final #_"StreamConnection" (§ name parser), #_final #_"int" (§ name connectTimeoutMillis)])
+    (§ constructor #_"NioClient" [#_"SocketAddress" (§ name serverAddress), #_"StreamConnection" (§ name parser), #_"int" (§ name connectTimeoutMillis)])
         (§ throws #_"IOException")
     (§ block
         (.. manager (startAsync))
@@ -30726,11 +30283,9 @@
 (§ class #_"NioClientManager" (§ extends #_"AbstractExecutionThreadService") (§ implements #_"ClientConnectionManager")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"NioClientManager")))
 
     #_private
-    #_final
     (§ field- #_"Selector" (§ name selector))
 
     (§ class #_"PendingConnect"
@@ -30747,12 +30302,10 @@
             this
         )
     )
-    #_final
     (§ field #_"Queue<PendingConnect>" (§ name newConnectionChannels) (§ new #_"LinkedBlockingQueue<>"))
 
     ;; Added to/removed from by the individual ConnectionHandler's, thus must by synchronized on its own.
     #_private
-    #_final
     (§ field- #_"Set<ConnectionHandler>" (§ name connectedHandlers) (Collections/synchronizedSet (§ new #_"HashSet<ConnectionHandler>")))
 
     ;; Handle a SelectionKey which was selected.
@@ -30944,7 +30497,7 @@
             (§ block
                 (§ ass (§ name handler) (.. connectedHandlers (iterator) (next)))
             )
-            (§ if (§ expr handler != nil))
+            (§ if (some? handler))
             (§ block
                 (.. handler (closeConnection)) ;; Removes handler from connectedHandlers before returning.
             )
@@ -30988,18 +30541,14 @@
 (§ class #_"NioServer" (§ extends #_"AbstractExecutionThreadService")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"NioServer")))
 
     #_private
-    #_final
     (§ field- #_"StreamConnectionFactory" (§ name connectionFactory))
 
     #_private
-    #_final
     (§ field- #_"ServerSocketChannel" (§ name sc))
     #_testing
-    #_final
     (§ field #_"Selector" (§ name selector))
 
     ;; Handle a SelectionKey which was selected.
@@ -31040,7 +30589,7 @@
      ; @throws IOException if there is an issue opening the server socket or binding fails for some reason.
      ;;
     #_public
-    (§ constructor #_"NioServer" [#_final #_"StreamConnectionFactory" (§ name connectionFactory), #_"InetSocketAddress" (§ name bindAddress)])
+    (§ constructor #_"NioServer" [#_"StreamConnectionFactory" (§ name connectionFactory), #_"InetSocketAddress" (§ name bindAddress)])
         (§ throws #_"IOException")
     (§ block
         (§ ass (§ name (.. this connectionFactory)) connectionFactory)
@@ -31160,7 +30709,6 @@
 (§ class #_"ProtobufConnection<MessageType extends MessageLite>" (§ extends #_"AbstractTimeoutHandler") (§ implements #_"StreamConnection")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"ProtobufConnection")))
 
     ;;;
@@ -31180,15 +30728,12 @@
 
     ;; The callback listener.
     #_private
-    #_final
     (§ field- #_"Listener<MessageType>" (§ name handler))
     ;; The prototype which is used to deserialize messages.
     #_private
-    #_final
     (§ field- #_"MessageLite" (§ name prototype))
 
     ;; The maximum message size (NOT INCLUDING LENGTH PREFIX).
-    #_final
     (§ field #_"int" (§ name maxMessageSize))
 
     ;; A temporary buffer used when the message size is larger than the buffer being used by the network code.
@@ -31203,11 +30748,9 @@
     #_private
     (§ field- #_"byte[]" (§ name messageBytes))
     #_private
-    #_final
     (§ field- #_"ReentrantLock" (§ name lock) (Threading/lock "ProtobufConnection"))
 
     #_testing
-    #_final
     (§ field #_"AtomicReference<MessageWriteTarget>" (§ name writeTarget) (§ new #_"AtomicReference<>"))
 
     ;;;
@@ -31290,7 +30833,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr messageBytes != nil))
+            (§ if (some? messageBytes))
             (§ block
                 ;; Just keep filling up the currently being worked on message.
                 (§ var #_"int" (§ name bytesToGet) (Math/min (§ expr (.. messageBytes length) - messageBytesOffset), (.. buff (remaining))))
@@ -31317,7 +30860,6 @@
 
             ;; Read one integer in big endian.
             (.. buff (order ByteOrder/BIG_ENDIAN))
-            #_final
             (§ var #_"int" (§ name len) (.. buff (getInt)))
 
             ;; If length is larger than the maximum message size (or is negative/overflows) throw an exception and close
@@ -31535,7 +31077,7 @@
     (§ defn- #_"List<PeerDiscovery>" (§ fn buildDiscoveries) [#_"NetworkParameters" (§ name params), #_"String[]" (§ name seeds)])
     (§ block
         (§ var #_"List<PeerDiscovery>" (§ name discoveries) (§ new #_"ArrayList<>"))
-        (§ if (§ expr seeds != nil))
+        (§ if (some? seeds))
         (§ block
             (§ for (§ var #_"String" (§ name seed)) :for seeds)
             (§ block
@@ -31566,10 +31108,8 @@
     #_static
     (§ class #_"DnsSeedDiscovery" (§ implements #_"PeerDiscovery")
         #_private
-        #_final
         (§ field- #_"String" (§ name hostname))
         #_private
-        #_final
         (§ field- #_"NetworkParameters" (§ name params))
 
         #_public
@@ -31642,14 +31182,11 @@
 (§ class #_"MultiplexingDiscovery" (§ implements #_"PeerDiscovery")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"MultiplexingDiscovery")))
 
     #_protected
-    #_final
     (§ field #_"List<PeerDiscovery>" (§ name seeds))
     #_protected
-    #_final
     (§ field #_"NetworkParameters" (§ name netParams))
     #_private
     #_volatile
@@ -31670,7 +31207,7 @@
         (§ if (§ expr services == 0))
         (§ block
             (§ var #_"String[]" (§ name dnsSeeds) (.. params (getDnsSeeds)))
-            (§ if (§ expr dnsSeeds != nil))
+            (§ if (some? dnsSeeds))
             (§ block
                 (§ for (§ var #_"String" (§ name dnsSeed)) :for dnsSeeds)
                 (§ block
@@ -31696,14 +31233,14 @@
 
     #_override
     #_public
-    (§ method #_"InetSocketAddress[]" (§ fn getPeers) [#_final #_"long" (§ name services), #_final #_"long" (§ name timeoutValue), #_final #_"TimeUnit" (§ name timeoutUnit)])
+    (§ method #_"InetSocketAddress[]" (§ fn getPeers) [#_"long" (§ name services), #_"long" (§ name timeoutValue), #_"TimeUnit" (§ name timeoutUnit)])
         (§ throws #_"PeerDiscoveryException")
     (§ block
         (§ ass (§ name vThreadPool) (createExecutor))
         (§ try )
         (§ block
             (§ var #_"List<Callable<InetSocketAddress[]>>" (§ name tasks) (Lists/newArrayList))
-            (§ for (§ var #_final PeerDiscovery seed) :for seeds)
+            (§ for (§ var PeerDiscovery seed) :for seeds)
             (§ block
                 (.. tasks (add (§ new #_"Callable<InetSocketAddress[]>"
                 (§ anon
@@ -31716,7 +31253,6 @@
                     )
                 ))))
             )
-            #_final
             (§ var #_"List<Future<InetSocketAddress[]>>" (§ name futures) (.. vThreadPool (invokeAll tasks, timeoutValue, timeoutUnit)))
             (§ var #_"ArrayList<InetSocketAddress>" (§ name addrs) (Lists/newArrayList))
             (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. futures (size))) :for (§ ass (§ name i) (+ i 1)))
@@ -31727,7 +31263,6 @@
                     (.. log (warn "Seed {}: timed out", (.. seeds (get i))))
                     (§ continue ) ;; Timed out.
                 )
-                #_final
                 (§ var #_"InetSocketAddress[]" (§ name inetAddresses))
                 (§ try )
                 (§ block
@@ -31770,7 +31305,7 @@
     (§ method #_"void" (§ fn shutdown) [])
     (§ block
         (§ var #_"ExecutorService" (§ name tp) vThreadPool)
-        (§ if (§ expr tp != nil))
+        (§ if (some? tp))
         (§ block
             (.. tp (shutdown))
         )
@@ -31996,16 +31531,13 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name BITCOIN_SCHEME) "bitcoin")
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name REWARD_HALVING_INTERVAL) 210000)
 
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"AbstractBitcoinNetParams")))
 
     #_public
@@ -32021,8 +31553,7 @@
      ; @return if this is a reward halving point.
      ;;
     #_public
-    #_final
-    (§ method #_"boolean" (§ fn isRewardHalvingPoint) [#_final #_"int" (§ name height)])
+    (§ method #_"boolean" (§ fn isRewardHalvingPoint) [#_"int" (§ name height)])
     (§ block
         (== (§ expr (+ height 1) % REWARD_HALVING_INTERVAL) 0)
     )
@@ -32033,18 +31564,16 @@
      ; @return if this is a difficulty transition point.
      ;;
     #_public
-    #_final
-    (§ method #_"boolean" (§ fn isDifficultyTransitionPoint) [#_final #_"int" (§ name height)])
+    (§ method #_"boolean" (§ fn isDifficultyTransitionPoint) [#_"int" (§ name height)])
     (§ block
         (== (§ expr (+ height 1) % (.. this (getInterval))) 0)
     )
 
     #_override
     #_public
-    (§ method #_"void" (§ fn checkDifficultyTransitions) [#_final #_"StoredBlock" (§ name storedPrev), #_final #_"Block" (§ name nextBlock), #_final #_"BlockStore" (§ name blockStore)])
+    (§ method #_"void" (§ fn checkDifficultyTransitions) [#_"StoredBlock" (§ name storedPrev), #_"Block" (§ name nextBlock), #_"BlockStore" (§ name blockStore)])
         (§ throws #_"VerificationException", #_"BlockStoreException")
     (§ block
-        #_final
         (§ var #_"Block" (§ name prev) (.. storedPrev (getHeader)))
 
         ;; Is this supposed to be a difficulty transition point?
@@ -32060,17 +31589,15 @@
 
         ;; We need to find a block far back in the chain.  It's OK that this is expensive because it only occurs every
         ;; two weeks after the initial block chain download.
-        #_final
         (§ var #_"Stopwatch" (§ name watch) (Stopwatch/createStarted))
 
         (§ var #_"Sha256Hash" (§ name hash) (.. prev (getHash)))
         (§ var #_"StoredBlock" (§ name cursor) nil)
-        #_final
         (§ var #_"int" (§ name interval) (.. this (getInterval)))
         (§ for (§ var #_"int" (§ name i) 0) :for (< i interval) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ ass (§ name cursor) (.. blockStore (get hash)))
-            (§ if (§ expr cursor == nil))
+            (§ if (nil? cursor))
             (§ block
                 ;; This should never happen.  If it does, it means we are following an incorrect or busted chain.
                 (§ throw (§ new #_"VerificationException" (§ expr "Difficulty transition point but we did not find a way back to the last transition point. Not found: " + hash)))
@@ -32088,7 +31615,6 @@
         (§ var #_"Block" (§ name blockIntervalAgo) (.. cursor (getHeader)))
         (§ var #_"int" (§ name timespan) (§ cast #_"int" (- (.. prev (getTimeSeconds)) (.. blockIntervalAgo (getTimeSeconds)))))
         ;; Limit the adjustment step.
-        #_final
         (§ var #_"int" (§ name targetTimespan) (.. this (getTargetTimespan)))
         (§ if (§ expr timespan < targetTimespan / 4))
         (§ block
@@ -32147,7 +31673,7 @@
 
     #_override
     #_public
-    (§ method #_"int" (§ fn getProtocolVersionNum) [#_final #_"ProtocolVersion" (§ name version)])
+    (§ method #_"int" (§ fn getProtocolVersionNum) [#_"ProtocolVersion" (§ name version)])
     (§ block
         (.. version (getBitcoinProtocolVersion))
     )
@@ -32187,15 +31713,12 @@
 (§ class #_"MainNetParams" (§ extends #_"AbstractBitcoinNetParams")
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MAINNET_MAJORITY_WINDOW) 1000)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MAINNET_MAJORITY_REJECT_BLOCK_OUTDATED) 950)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MAINNET_MAJORITY_ENFORCE_BLOCK_UPGRADE) 750)
 
     #_public
@@ -32303,7 +31826,7 @@
     #_synchronized
     (§ defn #_"MainNetParams" (§ fn get) [])
     (§ block
-        (§ if (§ expr instance == nil))
+        (§ if (nil? instance))
         (§ block
             (§ ass (§ name instance) (§ new #_"MainNetParams"))
         )
@@ -32398,15 +31921,12 @@
 (§ class #_"TestNet3Params" (§ extends #_"AbstractBitcoinNetParams")
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name TESTNET_MAJORITY_WINDOW) 100)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name TESTNET_MAJORITY_REJECT_BLOCK_OUTDATED) 75)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name TESTNET_MAJORITY_ENFORCE_BLOCK_UPGRADE) 51)
 
     #_public
@@ -32458,7 +31978,7 @@
     #_synchronized
     (§ defn #_"TestNet3Params" (§ fn get) [])
     (§ block
-        (§ if (§ expr instance == nil))
+        (§ if (nil? instance))
         (§ block
             (§ ass (§ name instance) (§ new #_"TestNet3Params"))
         )
@@ -32475,12 +31995,11 @@
     ;; February 16th 2012
     #_private
     #_static
-    #_final
     (§ def- #_"Date" (§ name testnetDiffDate) (§ new #_"Date" 1329264000000))
 
     #_override
     #_public
-    (§ method #_"void" (§ fn checkDifficultyTransitions) [#_final #_"StoredBlock" (§ name storedPrev), #_final #_"Block" (§ name nextBlock), #_final #_"BlockStore" (§ name blockStore)])
+    (§ method #_"void" (§ fn checkDifficultyTransitions) [#_"StoredBlock" (§ name storedPrev), #_"Block" (§ name nextBlock), #_"BlockStore" (§ name blockStore)])
         (§ throws #_"VerificationException", #_"BlockStoreException")
     (§ block
         (§ if (§ expr (§ not (isDifficultyTransitionPoint (.. storedPrev (getHeight)))) && (.. nextBlock (getTime) (after testnetDiffDate))))
@@ -32490,7 +32009,6 @@
             ;; After 15th February 2012 the rules on the testnet change to avoid people running up the difficulty
             ;; and then leaving, making it too hard to mine a block.  On non-difficulty transition points, easy
             ;; blocks are allowed if there has been a span of 20 minutes without one.
-            #_final
             (§ var #_"long" (§ name timeDelta) (- (.. nextBlock (getTimeSeconds)) (.. prev (getTimeSeconds))))
             ;; There is an integer underflow bug in bitcoin-qt that means mindiff blocks are accepted when time
             ;; goes backwards.
@@ -32531,15 +32049,12 @@
 (§ class #_"UnitTestParams" (§ extends #_"AbstractBitcoinNetParams")
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name UNITNET_MAJORITY_WINDOW) 8)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name TESTNET_MAJORITY_REJECT_BLOCK_OUTDATED) 6)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name TESTNET_MAJORITY_ENFORCE_BLOCK_UPGRADE) 4)
 
     #_public
@@ -32581,7 +32096,7 @@
     #_synchronized
     (§ defn #_"UnitTestParams" (§ fn get) [])
     (§ block
-        (§ if (§ expr instance == nil))
+        (§ if (nil? instance))
         (§ block
             (§ ass (§ name instance) (§ new #_"UnitTestParams"))
         )
@@ -32653,42 +32168,33 @@
     )
     #_public
     #_static
-    #_final
     (§ def #_"EnumSet<VerifyFlag>" (§ name ALL_VERIFY_FLAGS) (EnumSet/allOf (§ klass #_"VerifyFlag")))
 
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"Script")))
 
     #_public
     #_static
-    #_final
     (§ def #_"long" (§ name MAX_SCRIPT_ELEMENT_SIZE) 520) ;; bytes
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name MAX_OPS_PER_SCRIPT) 201)
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name MAX_STACK_SIZE) 1000)
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name MAX_PUBKEYS_PER_MULTISIG) 20)
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name MAX_SCRIPT_SIZE) 10000)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name SIG_SIZE) 75)
     ;;; Max number of sigops allowed in a standard p2sh redeem script. ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MAX_P2SH_SIGOPS) 15)
 
     ;; The program is a set of chunks where each element is either [opcode] or [data, data, data ...].
@@ -32774,7 +32280,7 @@
         (§ try )
         (§ block
             ;; Don't round-trip as Bitcoin Core doesn't and it would introduce a mismatch.
-            (§ if (§ expr program != nil))
+            (§ if (some? program))
             (§ block
                 (§ return (Arrays/copyOf program, (.. program length)))
             )
@@ -32802,7 +32308,6 @@
 
     #_private
     #_static
-    #_final
     (§ var #_"ScriptChunk[]" (§ name STANDARD_TRANSACTION_SCRIPT_CHUNKS)
     (§ coll
         (§ new #_"ScriptChunk" ScriptOpCodes/OP_DUP, nil, 0)
@@ -32964,13 +32469,9 @@
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_UNKNOWN_ERROR, (§ str "Script not of right size, expecting 2 but got " + (.. chunks (size)))))
         )
 
-        #_final
         (§ var #_"ScriptChunk" (§ name chunk0) (.. chunks (get 0)))
-        #_final
         (§ var #_"byte[]" (§ name chunk0data) (.. chunk0 data))
-        #_final
         (§ var #_"ScriptChunk" (§ name chunk1) (.. chunks (get 1)))
-        #_final
         (§ var #_"byte[]" (§ name chunk1data) (.. chunk1 data))
 
         ;; If we have two large constants assume the input to a pay-to-address output.
@@ -33194,7 +32695,7 @@
     (§ block
         (§ if (isSentToAddress))
         (§ block
-            (Preconditions/checkArgument (§ expr key != nil), "Key required to create pay-to-address input script")
+            (Preconditions/checkArgument (some? key), "Key required to create pay-to-address input script")
             (§ return (ScriptBuilder/createInputScript nil, key))
         )
 
@@ -33205,7 +32706,7 @@
 
         (§ if (isPayToScriptHash))
         (§ block
-            (Preconditions/checkArgument (§ expr redeemScript != nil), "Redeem script required to create P2SH input script")
+            (Preconditions/checkArgument (some? redeemScript), "Redeem script required to create P2SH input script")
             (§ return (ScriptBuilder/createP2SHMultiSigInputScript nil, redeemScript))
         )
 
@@ -33490,7 +32991,7 @@
         (§ if (isPayToScriptHash))
         (§ block
             ;; scriptSig: <sig> [sig] [sig...] <redeemscript>
-            (Preconditions/checkArgument (§ expr redeemScript != nil), "P2SH script requires redeemScript to be spent")
+            (Preconditions/checkArgument (some? redeemScript), "P2SH script requires redeemScript to be spent")
             (§ return (§ expr (.. redeemScript (getNumberOfSignaturesRequiredToSpend)) * SIG_SIZE + (.. redeemScript (getProgram) length)))
         )
         (§ elseif (isSentToMultiSig))
@@ -33507,7 +33008,7 @@
         (§ block
             ;; scriptSig: <sig> <pubkey>
             (§ var #_"int" (§ name uncompressedPubKeySize) 65)
-            (§ return (§ expr SIG_SIZE + (§ quest (§ expr pubKey != nil) ? (.. pubKey (getPubKey) length) :else uncompressedPubKeySize)))
+            (§ return (+ SIG_SIZE (if (some? pubKey) (.. pubKey (getPubKey) length) uncompressedPubKeySize)))
         )
         (§ else )
         (§ block
@@ -33710,7 +33211,7 @@
      ;;
     #_private
     #_static
-    (§ defn- #_"BigInteger" (§ fn castToBigInteger) [#_"byte[]" (§ name chunk), #_final #_"boolean" (§ name requireMinimal)])
+    (§ defn- #_"BigInteger" (§ fn castToBigInteger) [#_"byte[]" (§ name chunk), #_"boolean" (§ name requireMinimal)])
         (§ throws #_"ScriptException")
     (§ block
         (castToBigInteger chunk, 4, requireMinimal)
@@ -33726,7 +33227,7 @@
      ;;
     #_private
     #_static
-    (§ defn- #_"BigInteger" (§ fn castToBigInteger) [#_final #_"byte[]" (§ name chunk), #_final #_"int" (§ name maxLength), #_final #_"boolean" (§ name requireMinimal)])
+    (§ defn- #_"BigInteger" (§ fn castToBigInteger) [#_"byte[]" (§ name chunk), #_"int" (§ name maxLength), #_"boolean" (§ name requireMinimal)])
         (§ throws #_"ScriptException")
     (§ block
         (§ if (§ expr maxLength < (.. chunk length)))
@@ -33778,8 +33279,7 @@
     (§ defn #_"void" (§ fn executeScript) [#_nilable #_"Transaction" (§ name txContainingThis), #_"long" (§ name index), #_"Script" (§ name script), #_"LinkedList<byte[]>" (§ name stack), #_"boolean" (§ name enforceNullDummy)])
         (§ throws #_"ScriptException")
     (§ block
-        #_final
-        (§ var #_"EnumSet<VerifyFlag>" (§ name flags) (§ quest enforceNullDummy ? (EnumSet/of VerifyFlag/NULLDUMMY) :else (EnumSet/noneOf (§ klass #_"VerifyFlag"))))
+        (§ var #_"EnumSet<VerifyFlag>" (§ name flags) (if enforceNullDummy (EnumSet/of VerifyFlag/NULLDUMMY) (EnumSet/noneOf (§ klass #_"VerifyFlag"))))
 
         (executeScript txContainingThis, index, script, stack, flags)
         nil
@@ -33840,7 +33340,7 @@
 
                 (§ if (§ expr opcode == OP_0))
                 (§ block
-                    (.. stack (add (§ new #_"byte[]" (§ coll ))))
+                    (.. stack (add (§ new #_"byte[]")))
                 )
                 (§ else )
                 (§ block
@@ -34176,7 +33676,7 @@
                         (§ block
                             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_EQUAL on a stack with size < 2"))
                         )
-                        (.. stack (add (§ quest (Arrays/equals (.. stack (pollLast)), (.. stack (pollLast))) ? (§ new #_"byte[]" (§ coll 1 )) :else (§ new #_"byte[]" (§ coll )))))
+                        (.. stack (add (if (Arrays/equals (.. stack (pollLast)), (.. stack (pollLast))) (§ new #_"byte[]" (§ coll 1 )) (§ new #_"byte[]"))))
                         (§ break )
                     )
                     (§ case OP_EQUALVERIFY)
@@ -34523,7 +34023,7 @@
                     (§ case OP_CHECKSIG)
                     (§ case OP_CHECKSIGVERIFY)
                     (§ block
-                        (§ if (§ expr txContainingThis == nil))
+                        (§ if (nil? txContainingThis))
                         (§ block
                             (§ throw (§ new #_"IllegalStateException" "Script attempted signature check but no tx was provided"))
                         )
@@ -34533,7 +34033,7 @@
                     (§ case OP_CHECKMULTISIG)
                     (§ case OP_CHECKMULTISIGVERIFY)
                     (§ block
-                        (§ if (§ expr txContainingThis == nil))
+                        (§ if (nil? txContainingThis))
                         (§ block
                             (§ throw (§ new #_"IllegalStateException" "Script attempted signature check but no tx was provided"))
                         )
@@ -34616,7 +34116,6 @@
         )
 
         ;; Thus as a special case we tell CScriptNum to accept up to 5-byte bignums to avoid year 2038 issue.
-        #_final
         (§ var #_"BigInteger" (§ name nLockTime) (castToBigInteger (.. stack (getLast)), 5, (.. verifyFlags (contains VerifyFlag/MINIMALDATA))))
 
         (§ if (< (.. nLockTime (compareTo BigInteger/ZERO)) 0))
@@ -34665,7 +34164,6 @@
         ;;
         ;; Thus as a special case we tell CScriptNum to accept up to 5-byte bignums, which are good until 2**39-1,
         ;; well beyond the 2**32-1 limit of the nSequence field itself.
-        #_final
         (§ var #_"long" (§ name nSequence) (.. (castToBigInteger (.. stack (getLast)), 5, (.. verifyFlags (contains VerifyFlag/MINIMALDATA))) (longValue)))
 
         ;; In the rare event that the argument may be < 0 due to some arithmetic being done first, you can always
@@ -34741,7 +34239,6 @@
     (§ defn- #_"void" (§ fn executeCheckSig) [#_"Transaction" (§ name txContainingThis), #_"int" (§ name index), #_"Script" (§ name script), #_"LinkedList<byte[]>" (§ name stack), #_"int" (§ name lastCodeSepLocation), #_"int" (§ name opcode), #_"Set<VerifyFlag>" (§ name verifyFlags)])
         (§ throws #_"ScriptException")
     (§ block
-        #_final
         (§ var #_"boolean" (§ name requireCanonical) (§ expr (.. verifyFlags (contains VerifyFlag/STRICTENC)) || (.. verifyFlags (contains VerifyFlag/DERSIG)) || (.. verifyFlags (contains VerifyFlag/LOW_S))))
         (§ if (< (.. stack (size)) 2))
         (§ block
@@ -34790,7 +34287,7 @@
 
         (§ if (§ expr opcode == OP_CHECKSIG))
         (§ block
-            (.. stack (add (§ quest sigValid ? (§ new #_"byte[]" (§ coll 1 )) :else (§ new #_"byte[]" (§ coll )))))
+            (.. stack (add (if sigValid (§ new #_"byte[]" (§ coll 1 )) (§ new #_"byte[]"))))
         )
         (§ elseif (§ expr opcode == OP_CHECKSIGVERIFY && (§ not sigValid)))
         (§ block
@@ -34804,7 +34301,6 @@
     (§ defn- #_"int" (§ fn executeMultiSig) [#_"Transaction" (§ name txContainingThis), #_"int" (§ name index), #_"Script" (§ name script), #_"LinkedList<byte[]>" (§ name stack), #_"int" (§ name opCount), #_"int" (§ name lastCodeSepLocation), #_"int" (§ name opcode), #_"Set<VerifyFlag>" (§ name verifyFlags)])
         (§ throws #_"ScriptException")
     (§ block
-        #_final
         (§ var #_"boolean" (§ name requireCanonical) (§ expr (.. verifyFlags (contains VerifyFlag/STRICTENC)) || (.. verifyFlags (contains VerifyFlag/DERSIG)) || (.. verifyFlags (contains VerifyFlag/LOW_S))))
         (§ if (< (.. stack (size)) 1))
         (§ block
@@ -34903,7 +34399,7 @@
 
         (§ if (§ expr opcode == OP_CHECKMULTISIG))
         (§ block
-            (.. stack (add (§ quest valid ? (§ new #_"byte[]" (§ coll 1 )) :else (§ new #_"byte[]" (§ coll )))))
+            (.. stack (add (if valid (§ new #_"byte[]" (§ coll 1 )) (§ new #_"byte[]"))))
         )
         (§ elseif (§ expr opcode == OP_CHECKMULTISIGVERIFY && (§ not valid)))
         (§ block
@@ -35025,7 +34521,7 @@
     #_private
     (§ method- #_"byte[]" (§ fn getQuickProgram) [])
     (§ block
-        (§ quest (§ expr program != nil) ? program :else (getProgram))
+        (or program (getProgram))
     )
 
     ;;;
@@ -35143,7 +34639,7 @@
     #_public
     (§ method #_"ScriptBuilder" (§ fn data) [#_"byte[]" (§ name data)])
     (§ block
-        (§ quest (== (.. data length) 0) ? (smallNum 0) :else (data (.. chunks (size)), data))
+        (if (== (.. data length) 0) (smallNum 0) (data (.. chunks (size)), data))
     )
 
     ;;; Adds a copy of the given byte array as a data element (i.e. PUSHDATA) at the given index in the program. ;;
@@ -35195,7 +34691,7 @@
     #_public
     (§ method #_"ScriptBuilder" (§ fn number) [#_"long" (§ name num)])
     (§ block
-        (§ quest (§ expr 0 <= num && num <= 16) ? (smallNum (§ cast #_"int" num)) :else (bigNum num))
+        (if (<= 0 num 16) (smallNum (§ cast #_"int" num)) (bigNum num))
     )
 
     ;;;
@@ -35205,7 +34701,7 @@
     #_public
     (§ method #_"ScriptBuilder" (§ fn number) [#_"int" (§ name index), #_"long" (§ name num)])
     (§ block
-        (§ quest (§ expr 0 <= num && num <= 16) ? (smallNum index, (§ cast #_"int" num)) :else (bigNum index, num))
+        (if (<= 0 num 16) (smallNum index, (§ cast #_"int" num)) (bigNum index, num))
     )
 
     ;;;
@@ -35259,7 +34755,6 @@
     #_protected
     (§ method #_"ScriptBuilder" (§ fn bigNum) [#_"int" (§ name index), #_"long" (§ name num)])
     (§ block
-        #_final
         (§ var #_"byte[]" (§ name data))
 
         (§ if (§ expr num == 0))
@@ -35269,7 +34764,6 @@
         (§ else )
         (§ block
             (§ var #_"Stack<Byte>" (§ name result) (§ new #_"Stack<>"))
-            #_final
             (§ var #_"boolean" (§ name neg) (< num 0))
             (§ var #_"long" (§ name absvalue) (Math/abs num))
 
@@ -35283,7 +34777,7 @@
             (§ block
                 ;; The most significant byte is >= 0x80, so push an extra byte that
                 ;; contains just the sign of the value.
-                (.. result (push (§ cast #_"byte" (§ quest neg ? 0x80 :else 0))))
+                (.. result (push (§ cast #_"byte" (if neg 0x80 0))))
             )
             (§ elseif neg)
             (§ block
@@ -35346,7 +34840,7 @@
     (§ defn #_"Script" (§ fn createInputScript) [#_nilable #_"TransactionSignature" (§ name signature), #_"ECKey" (§ name pubKey)])
     (§ block
         (§ var #_"byte[]" (§ name pubkeyBytes) (.. pubKey (getPubKey)))
-        (§ var #_"byte[]" (§ name sigBytes) (§ quest (§ expr signature != nil) ? (.. signature (encodeToBitcoin)) :else (§ new #_"byte[]" (§ coll ))))
+        (§ var #_"byte[]" (§ name sigBytes) (if (some? signature) (.. signature (encodeToBitcoin)) (§ new #_"byte[]")))
         (.. (§ new #_"ScriptBuilder") (data sigBytes) (data pubkeyBytes) (build))
     )
 
@@ -35358,7 +34852,7 @@
     #_static
     (§ defn #_"Script" (§ fn createInputScript) [#_nilable #_"TransactionSignature" (§ name signature)])
     (§ block
-        (§ var #_"byte[]" (§ name sigBytes) (§ quest (§ expr signature != nil) ? (.. signature (encodeToBitcoin)) :else (§ new #_"byte[]" (§ coll ))))
+        (§ var #_"byte[]" (§ name sigBytes) (if (some? signature) (.. signature (encodeToBitcoin)) (§ new #_"byte[]")))
         (.. (§ new #_"ScriptBuilder") (data sigBytes) (build))
     )
 
@@ -35421,13 +34915,13 @@
     (§ defn #_"Script" (§ fn createP2SHMultiSigInputScript) [#_nilable #_"List<TransactionSignature>" (§ name signatures), #_"Script" (§ name multisigProgram)])
     (§ block
         (§ var #_"List<byte[]>" (§ name sigs) (§ new #_"ArrayList<>"))
-        (§ if (§ expr signatures == nil))
+        (§ if (nil? signatures))
         (§ block
             ;; Create correct number of empty signatures.
             (§ var #_"int" (§ name numSigs) (.. multisigProgram (getNumberOfSignaturesRequiredToSpend)))
             (§ for (§ var #_"int" (§ name i) 0) :for (< i numSigs) :for (§ ass (§ name i) (+ i 1)))
             (§ block
-                (.. sigs (add (§ new #_"byte[]" (§ coll ))))
+                (.. sigs (add (§ new #_"byte[]")))
             )
         )
         (§ else )
@@ -35679,7 +35173,6 @@
 (§ class #_"ScriptChunk"
     ;;; Operation to be executed.  Opcodes are defined in {@link ScriptOpCodes}. ;;
     #_public
-    #_final
     (§ field #_"int" (§ name opcode))
     ;;;
      ; For push operations, this is the vector to be pushed on the stack.
@@ -35688,7 +35181,6 @@
      ;;
     #_nilable
     #_public
-    #_final
     (§ field #_"byte[]" (§ name data))
     #_private
     (§ field- #_"int" (§ name startLocationInProgram))
@@ -35758,7 +35250,7 @@
     (§ block
         (Preconditions/checkState (isPushData))
 
-        (§ if (§ expr data == nil))
+        (§ if (nil? data))
         (§ block
             (§ return true) ;; OP_N
         )
@@ -35801,10 +35293,10 @@
     (§ block
         (§ if (isOpCode))
         (§ block
-            (Preconditions/checkState (§ expr data == nil))
+            (Preconditions/checkState (nil? data))
             (.. stream (write opcode))
         )
-        (§ elseif (§ expr data != nil))
+        (§ elseif (some? data))
         (§ block
             (§ if (< opcode OP_PUSHDATA1))
             (§ block
@@ -35852,7 +35344,7 @@
         (§ block
             (.. sb (append (getOpCodeName opcode)))
         )
-        (§ elseif (§ expr data != nil)) ;; Data chunk.
+        (§ elseif (some? data)) ;; Data chunk.
         (§ block
             (.. sb (append (getPushDataName opcode)) (append "[") (append (.. Utils/HEX (encode data))) (append "]"))
         )
@@ -35951,11 +35443,9 @@
     (§ item (SCRIPT_ERR_ERROR_COUNT "ERROR_COUNT"))
 
     #_private
-    #_final
     (§ field- #_"String" (§ name mnemonic))
     #_private
     #_static
-    #_final
     (§ def- #_"Map<String, ScriptError>" (§ name mnemonicToScriptErrorMap))
 
     #_private
@@ -35985,7 +35475,7 @@
     (§ defn #_"ScriptError" (§ fn fromMnemonic) [#_"String" (§ name name)])
     (§ block
         (§ var #_"ScriptError" (§ name err) (.. mnemonicToScriptErrorMap (get name)))
-        (§ if (§ expr err == nil))
+        (§ if (nil? err))
         (§ block
             (§ throw (§ new #_"IllegalArgumentException" (§ expr name + " is not a valid name")))
         )
@@ -36006,499 +35496,381 @@
     ;; push value
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_0) 0x00) ;; push empty vector
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_FALSE) OP_0)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_PUSHDATA1) 0x4c)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_PUSHDATA2) 0x4d)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_PUSHDATA4) 0x4e)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_1NEGATE) 0x4f)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_RESERVED) 0x50)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_1) 0x51)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_TRUE) OP_1)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_2) 0x52)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_3) 0x53)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_4) 0x54)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_5) 0x55)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_6) 0x56)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_7) 0x57)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_8) 0x58)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_9) 0x59)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_10) 0x5a)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_11) 0x5b)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_12) 0x5c)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_13) 0x5d)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_14) 0x5e)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_15) 0x5f)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_16) 0x60)
 
     ;; control
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NOP) 0x61)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_VER) 0x62)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_IF) 0x63)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NOTIF) 0x64)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_VERIF) 0x65)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_VERNOTIF) 0x66)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_ELSE) 0x67)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_ENDIF) 0x68)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_VERIFY) 0x69)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_RETURN) 0x6a)
 
     ;; stack ops
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_TOALTSTACK) 0x6b)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_FROMALTSTACK) 0x6c)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_2DROP) 0x6d)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_2DUP) 0x6e)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_3DUP) 0x6f)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_2OVER) 0x70)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_2ROT) 0x71)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_2SWAP) 0x72)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_IFDUP) 0x73)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_DEPTH) 0x74)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_DROP) 0x75)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_DUP) 0x76)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NIP) 0x77)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_OVER) 0x78)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_PICK) 0x79)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_ROLL) 0x7a)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_ROT) 0x7b)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_SWAP) 0x7c)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_TUCK) 0x7d)
 
     ;; splice ops
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_CAT) 0x7e)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_SUBSTR) 0x7f)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_LEFT) 0x80)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_RIGHT) 0x81)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_SIZE) 0x82)
 
     ;; bit logic
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_INVERT) 0x83)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_AND) 0x84)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_OR) 0x85)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_XOR) 0x86)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_EQUAL) 0x87)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_EQUALVERIFY) 0x88)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_RESERVED1) 0x89)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_RESERVED2) 0x8a)
 
     ;; numeric
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_1ADD) 0x8b)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_1SUB) 0x8c)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_2MUL) 0x8d)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_2DIV) 0x8e)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NEGATE) 0x8f)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_ABS) 0x90)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NOT) 0x91)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_0NOTEQUAL) 0x92)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_ADD) 0x93)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_SUB) 0x94)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_MUL) 0x95)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_DIV) 0x96)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_MOD) 0x97)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_LSHIFT) 0x98)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_RSHIFT) 0x99)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_BOOLAND) 0x9a)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_BOOLOR) 0x9b)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NUMEQUAL) 0x9c)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NUMEQUALVERIFY) 0x9d)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NUMNOTEQUAL) 0x9e)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_LESSTHAN) 0x9f)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_GREATERTHAN) 0xa0)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_LESSTHANOREQUAL) 0xa1)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_GREATERTHANOREQUAL) 0xa2)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_MIN) 0xa3)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_MAX) 0xa4)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_WITHIN) 0xa5)
 
     ;; crypto
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_RIPEMD160) 0xa6)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_SHA1) 0xa7)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_SHA256) 0xa8)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_HASH160) 0xa9)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_HASH256) 0xaa)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_CODESEPARATOR) 0xab)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_CHECKSIG) 0xac)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_CHECKSIGVERIFY) 0xad)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_CHECKMULTISIG) 0xae)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_CHECKMULTISIGVERIFY) 0xaf)
 
     ;; block state
     ;;; Check lock time of the block.  Introduced in BIP 65, replacing OP_NOP2 ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_CHECKLOCKTIMEVERIFY) 0xb1)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_CHECKSEQUENCEVERIFY) 0xb2)
 
     ;; expansion
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NOP1) 0xb0)
     ;;; Deprecated by BIP 65 ;;
     #_deprecated
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NOP2) OP_CHECKLOCKTIMEVERIFY)
     ;;; Deprecated by BIP 112 ;;
     #_deprecated
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NOP3) OP_CHECKSEQUENCEVERIFY)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NOP4) 0xb3)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NOP5) 0xb4)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NOP6) 0xb5)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NOP7) 0xb6)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NOP8) 0xb7)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NOP9) 0xb8)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_NOP10) 0xb9)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name OP_INVALIDOPCODE) 0xff)
 
     #_private
     #_static
-    #_final
-    (§ var #_"Map<Integer, String>" (§ name opCodeMap) (§ expr ImmutableMap/<Integer, (.. (String>builder) (put OP_0, "0") (put OP_PUSHDATA1, "PUSHDATA1") (put OP_PUSHDATA2, "PUSHDATA2") (put OP_PUSHDATA4, "PUSHDATA4") (put OP_1NEGATE, "1NEGATE") (put OP_RESERVED, "RESERVED") (put OP_1, "1") (put OP_2, "2") (put OP_3, "3") (put OP_4, "4") (put OP_5, "5") (put OP_6, "6") (put OP_7, "7") (put OP_8, "8") (put OP_9, "9") (put OP_10, "10") (put OP_11, "11") (put OP_12, "12") (put OP_13, "13") (put OP_14, "14") (put OP_15, "15") (put OP_16, "16") (put OP_NOP, "NOP") (put OP_VER, "VER") (put OP_IF, "IF") (put OP_NOTIF, "NOTIF") (put OP_VERIF, "VERIF") (put OP_VERNOTIF, "VERNOTIF") (put OP_ELSE, "ELSE") (put OP_ENDIF, "ENDIF") (put OP_VERIFY, "VERIFY") (put OP_RETURN, "RETURN") (put OP_TOALTSTACK, "TOALTSTACK") (put OP_FROMALTSTACK, "FROMALTSTACK") (put OP_2DROP, "2DROP") (put OP_2DUP, "2DUP") (put OP_3DUP, "3DUP") (put OP_2OVER, "2OVER") (put OP_2ROT, "2ROT") (put OP_2SWAP, "2SWAP") (put OP_IFDUP, "IFDUP") (put OP_DEPTH, "DEPTH") (put OP_DROP, "DROP") (put OP_DUP, "DUP") (put OP_NIP, "NIP") (put OP_OVER, "OVER") (put OP_PICK, "PICK") (put OP_ROLL, "ROLL") (put OP_ROT, "ROT") (put OP_SWAP, "SWAP") (put OP_TUCK, "TUCK") (put OP_CAT, "CAT") (put OP_SUBSTR, "SUBSTR") (put OP_LEFT, "LEFT") (put OP_RIGHT, "RIGHT") (put OP_SIZE, "SIZE") (put OP_INVERT, "INVERT") (put OP_AND, "AND") (put OP_OR, "OR") (put OP_XOR, "XOR") (put OP_EQUAL, "EQUAL") (put OP_EQUALVERIFY, "EQUALVERIFY") (put OP_RESERVED1, "RESERVED1") (put OP_RESERVED2, "RESERVED2") (put OP_1ADD, "1ADD") (put OP_1SUB, "1SUB") (put OP_2MUL, "2MUL") (put OP_2DIV, "2DIV") (put OP_NEGATE, "NEGATE") (put OP_ABS, "ABS") (put OP_NOT, "NOT") (put OP_0NOTEQUAL, "0NOTEQUAL") (put OP_ADD, "ADD") (put OP_SUB, "SUB") (put OP_MUL, "MUL") (put OP_DIV, "DIV") (put OP_MOD, "MOD") (put OP_LSHIFT, "LSHIFT") (put OP_RSHIFT, "RSHIFT") (put OP_BOOLAND, "BOOLAND") (put OP_BOOLOR, "BOOLOR") (put OP_NUMEQUAL, "NUMEQUAL") (put OP_NUMEQUALVERIFY, "NUMEQUALVERIFY") (put OP_NUMNOTEQUAL, "NUMNOTEQUAL") (put OP_LESSTHAN, "LESSTHAN") (put OP_GREATERTHAN, "GREATERTHAN") (put OP_LESSTHANOREQUAL, "LESSTHANOREQUAL") (put OP_GREATERTHANOREQUAL, "GREATERTHANOREQUAL") (put OP_MIN, "MIN") (put OP_MAX, "MAX") (put OP_WITHIN, "WITHIN") (put OP_RIPEMD160, "RIPEMD160") (put OP_SHA1, "SHA1") (put OP_SHA256, "SHA256") (put OP_HASH160, "HASH160") (put OP_HASH256, "HASH256") (put OP_CODESEPARATOR, "CODESEPARATOR") (put OP_CHECKSIG, "CHECKSIG") (put OP_CHECKSIGVERIFY, "CHECKSIGVERIFY") (put OP_CHECKMULTISIG, "CHECKMULTISIG") (put OP_CHECKMULTISIGVERIFY, "CHECKMULTISIGVERIFY") (put OP_NOP1, "NOP1") (put OP_CHECKLOCKTIMEVERIFY, "CHECKLOCKTIMEVERIFY") (put OP_CHECKSEQUENCEVERIFY, "CHECKSEQUENCEVERIFY") (put OP_NOP4, "NOP4") (put OP_NOP5, "NOP5") (put OP_NOP6, "NOP6") (put OP_NOP7, "NOP7") (put OP_NOP8, "NOP8") (put OP_NOP9, "NOP9") (put OP_NOP10, "NOP10") (build))))
+    (§ var #_"Map<Integer, String>" (§ name opCodeMap) (.. (ImmutableMap/builder #_"ImmutableMap<Integer, String>") (put OP_0, "0") (put OP_PUSHDATA1, "PUSHDATA1") (put OP_PUSHDATA2, "PUSHDATA2") (put OP_PUSHDATA4, "PUSHDATA4") (put OP_1NEGATE, "1NEGATE") (put OP_RESERVED, "RESERVED") (put OP_1, "1") (put OP_2, "2") (put OP_3, "3") (put OP_4, "4") (put OP_5, "5") (put OP_6, "6") (put OP_7, "7") (put OP_8, "8") (put OP_9, "9") (put OP_10, "10") (put OP_11, "11") (put OP_12, "12") (put OP_13, "13") (put OP_14, "14") (put OP_15, "15") (put OP_16, "16") (put OP_NOP, "NOP") (put OP_VER, "VER") (put OP_IF, "IF") (put OP_NOTIF, "NOTIF") (put OP_VERIF, "VERIF") (put OP_VERNOTIF, "VERNOTIF") (put OP_ELSE, "ELSE") (put OP_ENDIF, "ENDIF") (put OP_VERIFY, "VERIFY") (put OP_RETURN, "RETURN") (put OP_TOALTSTACK, "TOALTSTACK") (put OP_FROMALTSTACK, "FROMALTSTACK") (put OP_2DROP, "2DROP") (put OP_2DUP, "2DUP") (put OP_3DUP, "3DUP") (put OP_2OVER, "2OVER") (put OP_2ROT, "2ROT") (put OP_2SWAP, "2SWAP") (put OP_IFDUP, "IFDUP") (put OP_DEPTH, "DEPTH") (put OP_DROP, "DROP") (put OP_DUP, "DUP") (put OP_NIP, "NIP") (put OP_OVER, "OVER") (put OP_PICK, "PICK") (put OP_ROLL, "ROLL") (put OP_ROT, "ROT") (put OP_SWAP, "SWAP") (put OP_TUCK, "TUCK") (put OP_CAT, "CAT") (put OP_SUBSTR, "SUBSTR") (put OP_LEFT, "LEFT") (put OP_RIGHT, "RIGHT") (put OP_SIZE, "SIZE") (put OP_INVERT, "INVERT") (put OP_AND, "AND") (put OP_OR, "OR") (put OP_XOR, "XOR") (put OP_EQUAL, "EQUAL") (put OP_EQUALVERIFY, "EQUALVERIFY") (put OP_RESERVED1, "RESERVED1") (put OP_RESERVED2, "RESERVED2") (put OP_1ADD, "1ADD") (put OP_1SUB, "1SUB") (put OP_2MUL, "2MUL") (put OP_2DIV, "2DIV") (put OP_NEGATE, "NEGATE") (put OP_ABS, "ABS") (put OP_NOT, "NOT") (put OP_0NOTEQUAL, "0NOTEQUAL") (put OP_ADD, "ADD") (put OP_SUB, "SUB") (put OP_MUL, "MUL") (put OP_DIV, "DIV") (put OP_MOD, "MOD") (put OP_LSHIFT, "LSHIFT") (put OP_RSHIFT, "RSHIFT") (put OP_BOOLAND, "BOOLAND") (put OP_BOOLOR, "BOOLOR") (put OP_NUMEQUAL, "NUMEQUAL") (put OP_NUMEQUALVERIFY, "NUMEQUALVERIFY") (put OP_NUMNOTEQUAL, "NUMNOTEQUAL") (put OP_LESSTHAN, "LESSTHAN") (put OP_GREATERTHAN, "GREATERTHAN") (put OP_LESSTHANOREQUAL, "LESSTHANOREQUAL") (put OP_GREATERTHANOREQUAL, "GREATERTHANOREQUAL") (put OP_MIN, "MIN") (put OP_MAX, "MAX") (put OP_WITHIN, "WITHIN") (put OP_RIPEMD160, "RIPEMD160") (put OP_SHA1, "SHA1") (put OP_SHA256, "SHA256") (put OP_HASH160, "HASH160") (put OP_HASH256, "HASH256") (put OP_CODESEPARATOR, "CODESEPARATOR") (put OP_CHECKSIG, "CHECKSIG") (put OP_CHECKSIGVERIFY, "CHECKSIGVERIFY") (put OP_CHECKMULTISIG, "CHECKMULTISIG") (put OP_CHECKMULTISIGVERIFY, "CHECKMULTISIGVERIFY") (put OP_NOP1, "NOP1") (put OP_CHECKLOCKTIMEVERIFY, "CHECKLOCKTIMEVERIFY") (put OP_CHECKSEQUENCEVERIFY, "CHECKSEQUENCEVERIFY") (put OP_NOP4, "NOP4") (put OP_NOP5, "NOP5") (put OP_NOP6, "NOP6") (put OP_NOP7, "NOP7") (put OP_NOP8, "NOP8") (put OP_NOP9, "NOP9") (put OP_NOP10, "NOP10") (build)))
 
     #_private
     #_static
-    #_final
-    (§ var #_"Map<String, Integer>" (§ name opCodeNameMap) (§ expr ImmutableMap/<String, (.. (Integer>builder) (put "0", OP_0) (put "PUSHDATA1", OP_PUSHDATA1) (put "PUSHDATA2", OP_PUSHDATA2) (put "PUSHDATA4", OP_PUSHDATA4) (put "1NEGATE", OP_1NEGATE) (put "RESERVED", OP_RESERVED) (put "1", OP_1) (put "2", OP_2) (put "3", OP_3) (put "4", OP_4) (put "5", OP_5) (put "6", OP_6) (put "7", OP_7) (put "8", OP_8) (put "9", OP_9) (put "10", OP_10) (put "11", OP_11) (put "12", OP_12) (put "13", OP_13) (put "14", OP_14) (put "15", OP_15) (put "16", OP_16) (put "NOP", OP_NOP) (put "VER", OP_VER) (put "IF", OP_IF) (put "NOTIF", OP_NOTIF) (put "VERIF", OP_VERIF) (put "VERNOTIF", OP_VERNOTIF) (put "ELSE", OP_ELSE) (put "ENDIF", OP_ENDIF) (put "VERIFY", OP_VERIFY) (put "RETURN", OP_RETURN) (put "TOALTSTACK", OP_TOALTSTACK) (put "FROMALTSTACK", OP_FROMALTSTACK) (put "2DROP", OP_2DROP) (put "2DUP", OP_2DUP) (put "3DUP", OP_3DUP) (put "2OVER", OP_2OVER) (put "2ROT", OP_2ROT) (put "2SWAP", OP_2SWAP) (put "IFDUP", OP_IFDUP) (put "DEPTH", OP_DEPTH) (put "DROP", OP_DROP) (put "DUP", OP_DUP) (put "NIP", OP_NIP) (put "OVER", OP_OVER) (put "PICK", OP_PICK) (put "ROLL", OP_ROLL) (put "ROT", OP_ROT) (put "SWAP", OP_SWAP) (put "TUCK", OP_TUCK) (put "CAT", OP_CAT) (put "SUBSTR", OP_SUBSTR) (put "LEFT", OP_LEFT) (put "RIGHT", OP_RIGHT) (put "SIZE", OP_SIZE) (put "INVERT", OP_INVERT) (put "AND", OP_AND) (put "OR", OP_OR) (put "XOR", OP_XOR) (put "EQUAL", OP_EQUAL) (put "EQUALVERIFY", OP_EQUALVERIFY) (put "RESERVED1", OP_RESERVED1) (put "RESERVED2", OP_RESERVED2) (put "1ADD", OP_1ADD) (put "1SUB", OP_1SUB) (put "2MUL", OP_2MUL) (put "2DIV", OP_2DIV) (put "NEGATE", OP_NEGATE) (put "ABS", OP_ABS) (put "NOT", OP_NOT) (put "0NOTEQUAL", OP_0NOTEQUAL) (put "ADD", OP_ADD) (put "SUB", OP_SUB) (put "MUL", OP_MUL) (put "DIV", OP_DIV) (put "MOD", OP_MOD) (put "LSHIFT", OP_LSHIFT) (put "RSHIFT", OP_RSHIFT) (put "BOOLAND", OP_BOOLAND) (put "BOOLOR", OP_BOOLOR) (put "NUMEQUAL", OP_NUMEQUAL) (put "NUMEQUALVERIFY", OP_NUMEQUALVERIFY) (put "NUMNOTEQUAL", OP_NUMNOTEQUAL) (put "LESSTHAN", OP_LESSTHAN) (put "GREATERTHAN", OP_GREATERTHAN) (put "LESSTHANOREQUAL", OP_LESSTHANOREQUAL) (put "GREATERTHANOREQUAL", OP_GREATERTHANOREQUAL) (put "MIN", OP_MIN) (put "MAX", OP_MAX) (put "WITHIN", OP_WITHIN) (put "RIPEMD160", OP_RIPEMD160) (put "SHA1", OP_SHA1) (put "SHA256", OP_SHA256) (put "HASH160", OP_HASH160) (put "HASH256", OP_HASH256) (put "CODESEPARATOR", OP_CODESEPARATOR) (put "CHECKSIG", OP_CHECKSIG) (put "CHECKSIGVERIFY", OP_CHECKSIGVERIFY) (put "CHECKMULTISIG", OP_CHECKMULTISIG) (put "CHECKMULTISIGVERIFY", OP_CHECKMULTISIGVERIFY) (put "NOP1", OP_NOP1) (put "CHECKLOCKTIMEVERIFY", OP_CHECKLOCKTIMEVERIFY) (put "CHECKSEQUENCEVERIFY", OP_CHECKSEQUENCEVERIFY) (put "NOP2", OP_NOP2) (put "NOP3", OP_NOP3) (put "NOP4", OP_NOP4) (put "NOP5", OP_NOP5) (put "NOP6", OP_NOP6) (put "NOP7", OP_NOP7) (put "NOP8", OP_NOP8) (put "NOP9", OP_NOP9) (put "NOP10", OP_NOP10) (build))))
+    (§ var #_"Map<String, Integer>" (§ name opCodeNameMap) (.. (ImmutableMap/builder #_"ImmutableMap<String, Integer>") (put "0", OP_0) (put "PUSHDATA1", OP_PUSHDATA1) (put "PUSHDATA2", OP_PUSHDATA2) (put "PUSHDATA4", OP_PUSHDATA4) (put "1NEGATE", OP_1NEGATE) (put "RESERVED", OP_RESERVED) (put "1", OP_1) (put "2", OP_2) (put "3", OP_3) (put "4", OP_4) (put "5", OP_5) (put "6", OP_6) (put "7", OP_7) (put "8", OP_8) (put "9", OP_9) (put "10", OP_10) (put "11", OP_11) (put "12", OP_12) (put "13", OP_13) (put "14", OP_14) (put "15", OP_15) (put "16", OP_16) (put "NOP", OP_NOP) (put "VER", OP_VER) (put "IF", OP_IF) (put "NOTIF", OP_NOTIF) (put "VERIF", OP_VERIF) (put "VERNOTIF", OP_VERNOTIF) (put "ELSE", OP_ELSE) (put "ENDIF", OP_ENDIF) (put "VERIFY", OP_VERIFY) (put "RETURN", OP_RETURN) (put "TOALTSTACK", OP_TOALTSTACK) (put "FROMALTSTACK", OP_FROMALTSTACK) (put "2DROP", OP_2DROP) (put "2DUP", OP_2DUP) (put "3DUP", OP_3DUP) (put "2OVER", OP_2OVER) (put "2ROT", OP_2ROT) (put "2SWAP", OP_2SWAP) (put "IFDUP", OP_IFDUP) (put "DEPTH", OP_DEPTH) (put "DROP", OP_DROP) (put "DUP", OP_DUP) (put "NIP", OP_NIP) (put "OVER", OP_OVER) (put "PICK", OP_PICK) (put "ROLL", OP_ROLL) (put "ROT", OP_ROT) (put "SWAP", OP_SWAP) (put "TUCK", OP_TUCK) (put "CAT", OP_CAT) (put "SUBSTR", OP_SUBSTR) (put "LEFT", OP_LEFT) (put "RIGHT", OP_RIGHT) (put "SIZE", OP_SIZE) (put "INVERT", OP_INVERT) (put "AND", OP_AND) (put "OR", OP_OR) (put "XOR", OP_XOR) (put "EQUAL", OP_EQUAL) (put "EQUALVERIFY", OP_EQUALVERIFY) (put "RESERVED1", OP_RESERVED1) (put "RESERVED2", OP_RESERVED2) (put "1ADD", OP_1ADD) (put "1SUB", OP_1SUB) (put "2MUL", OP_2MUL) (put "2DIV", OP_2DIV) (put "NEGATE", OP_NEGATE) (put "ABS", OP_ABS) (put "NOT", OP_NOT) (put "0NOTEQUAL", OP_0NOTEQUAL) (put "ADD", OP_ADD) (put "SUB", OP_SUB) (put "MUL", OP_MUL) (put "DIV", OP_DIV) (put "MOD", OP_MOD) (put "LSHIFT", OP_LSHIFT) (put "RSHIFT", OP_RSHIFT) (put "BOOLAND", OP_BOOLAND) (put "BOOLOR", OP_BOOLOR) (put "NUMEQUAL", OP_NUMEQUAL) (put "NUMEQUALVERIFY", OP_NUMEQUALVERIFY) (put "NUMNOTEQUAL", OP_NUMNOTEQUAL) (put "LESSTHAN", OP_LESSTHAN) (put "GREATERTHAN", OP_GREATERTHAN) (put "LESSTHANOREQUAL", OP_LESSTHANOREQUAL) (put "GREATERTHANOREQUAL", OP_GREATERTHANOREQUAL) (put "MIN", OP_MIN) (put "MAX", OP_MAX) (put "WITHIN", OP_WITHIN) (put "RIPEMD160", OP_RIPEMD160) (put "SHA1", OP_SHA1) (put "SHA256", OP_SHA256) (put "HASH160", OP_HASH160) (put "HASH256", OP_HASH256) (put "CODESEPARATOR", OP_CODESEPARATOR) (put "CHECKSIG", OP_CHECKSIG) (put "CHECKSIGVERIFY", OP_CHECKSIGVERIFY) (put "CHECKMULTISIG", OP_CHECKMULTISIG) (put "CHECKMULTISIGVERIFY", OP_CHECKMULTISIGVERIFY) (put "NOP1", OP_NOP1) (put "CHECKLOCKTIMEVERIFY", OP_CHECKLOCKTIMEVERIFY) (put "CHECKSEQUENCEVERIFY", OP_CHECKSEQUENCEVERIFY) (put "NOP2", OP_NOP2) (put "NOP3", OP_NOP3) (put "NOP4", OP_NOP4) (put "NOP5", OP_NOP5) (put "NOP6", OP_NOP6) (put "NOP7", OP_NOP7) (put "NOP8", OP_NOP8) (put "NOP9", OP_NOP9) (put "NOP10", OP_NOP10) (build)))
 
     ;;;
      ; Converts the given OpCode into a string (e.g. "0", "PUSHDATA", or "NON_OP(10)")
@@ -36537,7 +35909,7 @@
     #_static
     (§ defn #_"int" (§ fn getOpCode) [#_"String" (§ name opCodeName)])
     (§ block
-        (§ quest (.. opCodeNameMap (containsKey opCodeName)) ? (.. opCodeNameMap (get opCodeName)) :else OP_INVALIDOPCODE)
+        (if (.. opCodeNameMap (containsKey opCodeName)) (.. opCodeNameMap (get opCodeName)) OP_INVALIDOPCODE)
     )
 )
 
@@ -36564,7 +35936,6 @@
 (§ class #_"CustomTransactionSigner" (§ extends #_"StatelessTransactionSigner")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"CustomTransactionSigner")))
 
     #_override
@@ -36584,7 +35955,7 @@
         (§ block
             (§ var #_"TransactionInput" (§ name txIn) (.. tx (getInput i)))
             (§ var #_"TransactionOutput" (§ name txOut) (.. txIn (getConnectedOutput)))
-            (§ if (§ expr txOut == nil))
+            (§ if (nil? txOut))
             (§ block
                 (§ continue )
             )
@@ -36613,7 +35984,7 @@
             )
 
             (§ var #_"RedeemData" (§ name redeemData) (.. txIn (getConnectedRedeemData keyBag)))
-            (§ if (§ expr redeemData == nil))
+            (§ if (nil? redeemData))
             (§ block
                 (.. log (warn "No redeem data found for input {}", i))
                 (§ continue )
@@ -36636,10 +36007,8 @@
     #_public
     (§ class #_"SignatureAndKey"
         #_public
-        #_final
         (§ field #_"ECKey.ECDSASignature" (§ name sig))
         #_public
-        #_final
         (§ field #_"ECKey" (§ name pubKey))
 
         #_public
@@ -36677,7 +36046,6 @@
 (§ class #_"LocalTransactionSigner" (§ extends #_"StatelessTransactionSigner")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"LocalTransactionSigner")))
 
     ;;;
@@ -36685,7 +36053,6 @@
      ;;
     #_private
     #_static
-    #_final
     (§ def- #_"EnumSet<VerifyFlag>" (§ name MINIMUM_VERIFY_FLAGS) (EnumSet/of VerifyFlag/P2SH, VerifyFlag/NULLDUMMY))
 
     #_override
@@ -36796,7 +36163,6 @@
 (§ class #_"MissingSigResolutionSigner" (§ extends #_"StatelessTransactionSigner")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"MissingSigResolutionSigner")))
 
     #_public
@@ -36846,7 +36212,7 @@
             (§ var #_"Script" (§ name inputScript) (.. txIn (getScriptSig)))
             (§ if (§ expr (.. scriptPubKey (isPayToScriptHash)) || (.. scriptPubKey (isSentToMultiSig))))
             (§ block
-                (§ var #_"int" (§ name sigSuffixCount) (§ quest (.. scriptPubKey (isPayToScriptHash)) ? 1 :else 0))
+                (§ var #_"int" (§ name sigSuffixCount) (if (.. scriptPubKey (isPayToScriptHash)) 1 0))
                 ;; All chunks except the first one (OP_0) and the last (redeem script) are signatures.
                 (§ for (§ var #_"int" (§ name j) 1) :for (§ expr j < (.. inputScript (getChunks) (size)) - sigSuffixCount) :for (§ ass (§ name j) (+ j 1)))
                 (§ block
@@ -36932,7 +36298,6 @@
      ;;
     (§ class #_"ProposedTransaction"
         #_public
-        #_final
         (§ field #_"Transaction" (§ name partialTx))
 
         ;;;
@@ -36943,7 +36308,6 @@
          ; are identified by their scriptPubKeys (keys in this map).
          ;;
         #_public
-        #_final
         (§ field #_"Map<Script, List<ChildNumber>>" (§ name keyPaths))
 
         #_public
@@ -37105,7 +36469,7 @@
  ;
  ; <p>The following are the tables and field names/types that are assumed:</p>
  ;
- ; <p><br/>
+ ; <p>
  ; <b>setting</b> table
  ; <table>
  ;     <tr><th>Field Name</th><th>Type (generic)</th></tr>
@@ -37114,7 +36478,7 @@
  ; </table>
  ; </p>
  ;
- ; <p><br/>
+ ; <p>
  ; <b>headers</b> table
  ; <table>
  ;     <tr><th>Field Name</th><th>Type (generic)</th></tr>
@@ -37126,7 +36490,7 @@
  ; </table>
  ; </p>
  ;
- ; <p><br/>
+ ; <p>
  ; <b>undoableblocks</b> table
  ; <table>
  ;     <tr><th>Field Name</th><th>Type (generic)</th></tr>
@@ -37137,7 +36501,7 @@
  ; </table>
  ; </p>
  ;
- ; <p><br/>
+ ; <p>
  ; <b>openoutputs</b> table
  ; <table>
  ;     <tr><th>Field Name</th><th>Type (generic)</th></tr>
@@ -37158,140 +36522,110 @@
 (§ class #_"DatabaseFullPrunedBlockStore" (§ implements #_"FullPrunedBlockStore")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"DatabaseFullPrunedBlockStore")))
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CHAIN_HEAD_SETTING) "chainhead")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name VERIFIED_CHAIN_HEAD_SETTING) "verifiedchainhead")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name VERSION_SETTING) "version")
 
     ;; Drop table SQL.
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name DROP_SETTINGS_TABLE) "DROP TABLE settings")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name DROP_HEADERS_TABLE) "DROP TABLE headers")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name DROP_UNDOABLE_TABLE) "DROP TABLE undoableblocks")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name DROP_OPEN_OUTPUT_TABLE) "DROP TABLE openoutputs")
 
     ;; Queries SQL.
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name SELECT_SETTINGS_SQL) "SELECT value FROM settings WHERE name = ?")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name INSERT_SETTINGS_SQL) "INSERT INTO settings(name, value) VALUES(?, ?)")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name UPDATE_SETTINGS_SQL) "UPDATE settings SET value = ? WHERE name = ?")
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name SELECT_HEADERS_SQL) "SELECT chainwork, height, header, wasundoable FROM headers WHERE hash = ?")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name INSERT_HEADERS_SQL) "INSERT INTO headers(hash, chainwork, height, header, wasundoable) VALUES(?, ?, ?, ?, ?)")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name UPDATE_HEADERS_SQL) "UPDATE headers SET wasundoable=? WHERE hash=?")
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name SELECT_UNDOABLEBLOCKS_SQL) "SELECT txoutchanges, transactions FROM undoableblocks WHERE hash = ?")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name INSERT_UNDOABLEBLOCKS_SQL) "INSERT INTO undoableblocks(hash, height, txoutchanges, transactions) VALUES(?, ?, ?, ?)")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name UPDATE_UNDOABLEBLOCKS_SQL) "UPDATE undoableblocks SET txoutchanges=?, transactions=? WHERE hash = ?")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name DELETE_UNDOABLEBLOCKS_SQL) "DELETE FROM undoableblocks WHERE height <= ?")
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name SELECT_OPENOUTPUTS_SQL) "SELECT height, value, scriptbytes, coinbase, toaddress, addresstargetable FROM openoutputs WHERE hash = ? AND index = ?")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name SELECT_OPENOUTPUTS_COUNT_SQL) "SELECT COUNT(*) FROM openoutputs WHERE hash = ?")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name INSERT_OPENOUTPUTS_SQL) "INSERT INTO openoutputs (hash, index, height, value, scriptbytes, toaddress, addresstargetable, coinbase) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name DELETE_OPENOUTPUTS_SQL) "DELETE FROM openoutputs WHERE hash = ? AND index = ?")
 
     ;; Dump table SQL (this is just for data sizing statistics).
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name SELECT_DUMP_SETTINGS_SQL) "SELECT name, value FROM settings")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name SELECT_DUMP_HEADERS_SQL) "SELECT chainwork, header FROM headers")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name SELECT_DUMP_UNDOABLEBLOCKS_SQL) "SELECT txoutchanges, transactions FROM undoableblocks")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name SELECT_DUMP_OPENOUTPUTS_SQL) "SELECT value, scriptbytes FROM openoutputs")
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name SELECT_TRANSACTION_OUTPUTS_SQL) "SELECT hash, value, scriptbytes, height, index, coinbase, toaddress, addresstargetable FROM openoutputs where toaddress = ?")
 
     ;; Select the balance of an address SQL.
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name SELECT_BALANCE_SQL) "select sum(value) from openoutputs where toaddress = ?")
 
     ;; Tables exist SQL.
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name SELECT_CHECK_TABLES_EXIST_SQL) "SELECT * FROM settings WHERE 1 = 2")
 
     ;; Compatibility SQL.
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name SELECT_COMPATIBILITY_COINBASE_SQL) "SELECT coinbase FROM openoutputs WHERE 1 = 2")
 
     #_protected
@@ -37661,7 +36995,6 @@
      ;;
     #_protected
     #_synchronized
-    #_final
     (§ method #_"void" (§ fn maybeConnect) [])
         (§ throws #_"BlockStoreException")
     (§ block
@@ -37686,7 +37019,7 @@
             (.. allConnections (add (.. conn (get))))
             (§ var #_"Connection" (§ name connection) (.. conn (get)))
             ;; Set the schema if one is needed.
-            (§ if (§ expr schemaName != nil))
+            (§ if (some? schemaName))
             (§ block
                 (§ var #_"Statement" (§ name s) (.. connection (createStatement)))
                 (§ for (§ var #_"String" (§ name sql)) :for (getCreateSchemeSQL))
@@ -38022,7 +37355,7 @@
                 (§ var #_"PreparedStatement" (§ name ps) (.. conn (get) (prepareStatement (getInsertUndoableBlocksSQL))))
                 (.. ps (setBytes 1, hashBytes))
                 (.. ps (setInt 2, height))
-                (§ if (§ expr transactions == nil))
+                (§ if (nil? transactions))
                 (§ block
                     (.. ps (setBytes 3, txOutChanges))
                     (.. ps (setNull 4, Types/BINARY))
@@ -38053,7 +37386,7 @@
                 ;; There is probably an update-or-insert statement, but it wasn't obvious from the docs.
                 (§ var #_"PreparedStatement" (§ name ps) (.. conn (get) (prepareStatement (getUpdateUndoableBlocksSQL))))
                 (.. ps (setBytes 3, hashBytes))
-                (§ if (§ expr transactions == nil))
+                (§ if (nil? transactions))
                 (§ block
                     (.. ps (setBytes 1, txOutChanges))
                     (.. ps (setNull 2, Types/BINARY))
@@ -38133,7 +37466,7 @@
         )
         (§ finally )
         (§ block
-            (§ if (§ expr ps != nil))
+            (§ if (some? ps))
             (§ block
                 (§ try )
                 (§ block
@@ -38188,7 +37521,7 @@
             (§ var #_"byte[]" (§ name txOutChanges) (.. results (getBytes 1)))
             (§ var #_"byte[]" (§ name transactions) (.. results (getBytes 2)))
             (§ var #_"StoredUndoableBlock" (§ name block))
-            (§ if (§ expr txOutChanges == nil))
+            (§ if (nil? txOutChanges))
             (§ block
                 (§ var #_"int" (§ name numTxn) (§ expr (§ expr (§ ai transactions 0) & 0xff) | (<< (§ expr (§ ai transactions 1) & 0xff) 8) | (<< (§ expr (§ ai transactions 2) & 0xff) 16) | (<< (§ expr (§ ai transactions 3) & 0xff) 24)))
                 (§ var #_"int" (§ name offset) 4)
@@ -38234,7 +37567,7 @@
         )
         (§ finally )
         (§ block
-            (§ if (§ expr ps != nil))
+            (§ if (some? ps))
             (§ block
                 (§ try )
                 (§ block
@@ -38372,7 +37705,7 @@
         )
         (§ finally )
         (§ block
-            (§ if (§ expr ps != nil))
+            (§ if (some? ps))
             (§ block
                 (§ try )
                 (§ block
@@ -38417,7 +37750,7 @@
         )
         (§ finally )
         (§ block
-            (§ if (§ expr ps != nil))
+            (§ if (some? ps))
             (§ block
                 (§ try )
                 (§ block
@@ -38561,7 +37894,7 @@
         )
         (§ finally )
         (§ block
-            (§ if (§ expr ps != nil))
+            (§ if (some? ps))
             (§ block
                 (§ try )
                 (§ block
@@ -38655,7 +37988,7 @@
             (.. ps (setString 1, (.. address (toString))))
             (§ var #_"ResultSet" (§ name rs) (.. ps (executeQuery)))
             (§ var #_"BigInteger" (§ name balance) BigInteger/ZERO)
-            (§ return (§ quest (.. rs (next)) ? (BigInteger/valueOf (.. rs (getLong 1))) :else balance))
+            (§ return (if (.. rs (next)) (BigInteger/valueOf (.. rs (getLong 1))) balance))
         )
         (§ catch #_"SQLException" (§ name e))
         (§ block
@@ -38663,7 +37996,7 @@
         )
         (§ finally )
         (§ block
-            (§ if (§ expr ps != nil))
+            (§ if (some? ps))
             (§ block
                 (§ try )
                 (§ block
@@ -38823,21 +38156,17 @@
 (§ class #_"H2FullPrunedBlockStore" (§ extends #_"DatabaseFullPrunedBlockStore")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name H2_DUPLICATE_KEY_ERROR_CODE) "23505")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name DATABASE_DRIVER_CLASS) "org.h2.Driver")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name DATABASE_CONNECTION_URL_PREFIX) "jdbc:h2:")
 
     ;; create table SQL
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_SETTINGS_TABLE) (§ expr "CREATE TABLE settings ( "
             + "name VARCHAR(32) NOT NULL CONSTRAINT settings_pk PRIMARY KEY,"
             + "value BLOB"
@@ -38845,7 +38174,6 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_HEADERS_TABLE) (§ expr "CREATE TABLE headers ( "
             + "hash BINARY(28) NOT NULL CONSTRAINT headers_pk PRIMARY KEY,"
             + "chainwork BLOB NOT NULL,"
@@ -38856,7 +38184,6 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_UNDOABLE_TABLE) (§ expr "CREATE TABLE undoableblocks ( "
             + "hash BINARY(28) NOT NULL CONSTRAINT undoableblocks_pk PRIMARY KEY,"
             + "height INT NOT NULL,"
@@ -38866,7 +38193,6 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_OPEN_OUTPUT_TABLE) (§ expr "CREATE TABLE openoutputs ("
             + "hash BINARY(32) NOT NULL,"
             + "index INT NOT NULL,"
@@ -38882,23 +38208,18 @@
     ;; Some indexes to speed up inserts.
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_OUTPUTS_ADDRESS_MULTI_INDEX) "CREATE INDEX openoutputs_hash_index_height_toaddress_idx ON openoutputs (hash, index, height, toaddress)")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_OUTPUTS_TOADDRESS_INDEX) "CREATE INDEX openoutputs_toaddress_idx ON openoutputs (toaddress)")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_OUTPUTS_ADDRESSTARGETABLE_INDEX) "CREATE INDEX openoutputs_addresstargetable_idx ON openoutputs (addresstargetable)")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_OUTPUTS_HASH_INDEX) "CREATE INDEX openoutputs_hash_idx ON openoutputs (hash)")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_UNDOABLE_TABLE_INDEX) "CREATE INDEX undoableblocks_height_idx ON undoableblocks (height)")
 
     ;;;
@@ -39060,11 +38381,10 @@
     #_override
     #_public
     #_synchronized
-    #_final
     (§ method #_"void" (§ fn put) [#_"StoredBlock" (§ name block)])
         (§ throws #_"BlockStoreException")
     (§ block
-        (§ if (§ expr blockMap == nil))
+        (§ if (nil? blockMap))
         (§ block
             (§ throw (§ new #_"BlockStoreException" "MemoryBlockStore is closed"))
         )
@@ -39080,7 +38400,7 @@
     (§ method #_"StoredBlock" (§ fn get) [#_"Sha256Hash" (§ name hash)])
         (§ throws #_"BlockStoreException")
     (§ block
-        (§ if (§ expr blockMap == nil))
+        (§ if (nil? blockMap))
         (§ block
             (§ throw (§ new #_"BlockStoreException" "MemoryBlockStore is closed"))
         )
@@ -39093,7 +38413,7 @@
     (§ method #_"StoredBlock" (§ fn getChainHead) [])
         (§ throws #_"BlockStoreException")
     (§ block
-        (§ if (§ expr blockMap == nil))
+        (§ if (nil? blockMap))
         (§ block
             (§ throw (§ new #_"BlockStoreException" "MemoryBlockStore is closed"))
         )
@@ -39103,11 +38423,10 @@
 
     #_override
     #_public
-    #_final
     (§ method #_"void" (§ fn setChainHead) [#_"StoredBlock" (§ name chainHead)])
         (§ throws #_"BlockStoreException")
     (§ block
-        (§ if (§ expr blockMap == nil))
+        (§ if (nil? blockMap))
         (§ block
             (§ throw (§ new #_"BlockStoreException" "MemoryBlockStore is closed"))
         )
@@ -39277,7 +38596,7 @@
             (§ if (!= (.. tempMap (get)) nil))
             (§ block
                 (§ var #_"ValueType" (§ name value) (.. tempMap (get) (get key)))
-                (§ if (§ expr value != nil))
+                (§ if (some? value))
                 (§ block
                     (§ return value)
                 )
@@ -39330,7 +38649,7 @@
         (§ if (.. Boolean/TRUE (equals (.. inTransaction (get)))))
         (§ block
             (§ var #_"ValueType" (§ name retVal) (.. map (get key)))
-            (§ if (§ expr retVal != nil))
+            (§ if (some? retVal))
             (§ block
                 (§ if (== (.. tempSetRemoved (get)) nil))
                 (§ block
@@ -39341,7 +38660,7 @@
             (§ if (!= (.. tempMap (get)) nil))
             (§ block
                 (§ var #_"ValueType" (§ name tempVal) (.. tempMap (get) (remove key)))
-                (§ if (§ expr tempVal != nil))
+                (§ if (some? tempVal))
                 (§ block
                     (§ return tempVal)
                 )
@@ -39406,7 +38725,7 @@
     (§ block
         (.. mapValues (put uniqueKey, value))
         (§ var #_"Set<UniqueKeyType>" (§ name set) (.. mapKeys (get multiKey)))
-        (§ if (§ expr set == nil))
+        (§ if (nil? set))
         (§ block
             (§ ass (§ name set) (§ new #_"HashSet<>"))
             (.. set (add uniqueKey))
@@ -39430,7 +38749,7 @@
     (§ method #_"void" (§ fn removeByMultiKey) [#_"MultiKeyType" (§ name key)])
     (§ block
         (§ var #_"Set<UniqueKeyType>" (§ name set) (.. mapKeys (remove key)))
-        (§ if (§ expr set != nil))
+        (§ if (some? set))
         (§ block
             (§ for (§ var #_"UniqueKeyType" (§ name uniqueKey)) :for set)
             (§ block
@@ -39489,7 +38808,7 @@
         (§ ass (§ name blockMap) (§ new #_"TransactionalHashMap<>"))
         (§ ass (§ name fullBlockMap) (§ new #_"TransactionalMultiKeyHashMap<>"))
         (§ ass (§ name transactionOutputMap) (§ new #_"TransactionalHashMap<>"))
-        (§ ass (§ name (.. this fullStoreDepth)) (§ quest (< 0 fullStoreDepth) ? fullStoreDepth :else 1))
+        (§ ass (§ name (.. this fullStoreDepth)) (if (< 0 fullStoreDepth) fullStoreDepth 1))
         ;; Insert the genesis block.
         (§ try )
         (§ block
@@ -39528,7 +38847,6 @@
     #_override
     #_public
     #_synchronized
-    #_final
     (§ method #_"void" (§ fn put) [#_"StoredBlock" (§ name storedBlock), #_"StoredUndoableBlock" (§ name undoableBlock)])
         (§ throws #_"BlockStoreException")
     (§ block
@@ -39548,7 +38866,7 @@
     (§ block
         (Preconditions/checkNotNull blockMap, "MemoryFullPrunedBlockStore is closed")
         (§ var #_"StoredBlockAndWasUndoableFlag" (§ name storedBlock) (.. blockMap (get hash)))
-        (§ quest (§ expr storedBlock != nil) ? (.. storedBlock block) :else nil)
+        (when (some? storedBlock) (.. storedBlock block))
     )
 
     #_override
@@ -39560,7 +38878,7 @@
     (§ block
         (Preconditions/checkNotNull blockMap, "MemoryFullPrunedBlockStore is closed")
         (§ var #_"StoredBlockAndWasUndoableFlag" (§ name storedBlock) (.. blockMap (get hash)))
-        (§ quest (§ expr storedBlock != nil && (.. storedBlock wasUndoable)) ? (.. storedBlock block) :else nil)
+        (when (§ expr storedBlock != nil && (.. storedBlock wasUndoable)) (.. storedBlock block))
     )
 
     #_override
@@ -39587,7 +38905,6 @@
     #_override
     #_public
     #_synchronized
-    #_final
     (§ method #_"void" (§ fn setChainHead) [#_"StoredBlock" (§ name chainHead)])
         (§ throws #_"BlockStoreException")
     (§ block
@@ -39609,7 +38926,6 @@
     #_override
     #_public
     #_synchronized
-    #_final
     (§ method #_"void" (§ fn setVerifiedChainHead) [#_"StoredBlock" (§ name chainHead)])
         (§ throws #_"BlockStoreException")
     (§ block
@@ -39747,26 +39063,21 @@
 (§ class #_"PostgresFullPrunedBlockStore" (§ extends #_"DatabaseFullPrunedBlockStore")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"PostgresFullPrunedBlockStore")))
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name POSTGRES_DUPLICATE_KEY_ERROR_CODE) "23505")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name DATABASE_DRIVER_CLASS) "org.postgresql.Driver")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name DATABASE_CONNECTION_URL_PREFIX) "jdbc:postgresql://")
 
     ;; create table SQL
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_SETTINGS_TABLE) (§ expr "CREATE TABLE settings ("
           + "name character varying(32) NOT NULL, "
           + "value bytea, "
@@ -39775,7 +39086,6 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_HEADERS_TABLE) (§ expr "CREATE TABLE headers ("
           + "hash bytea NOT NULL, "
           + "chainwork bytea NOT NULL, "
@@ -39787,7 +39097,6 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_UNDOABLE_TABLE) (§ expr "CREATE TABLE undoableblocks ("
           + "hash bytea NOT NULL, "
           + "height integer NOT NULL, "
@@ -39798,7 +39107,6 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_OPEN_OUTPUT_TABLE) (§ expr "CREATE TABLE openoutputs ("
           + "hash bytea NOT NULL, "
           + "index integer NOT NULL, "
@@ -39814,28 +39122,22 @@
     ;; Some indexes to speed up inserts.
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_OUTPUTS_ADDRESS_MULTI_INDEX) "CREATE INDEX openoutputs_hash_index_num_height_toaddress_idx ON openoutputs USING btree (hash, index, height, toaddress)")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_OUTPUTS_TOADDRESS_INDEX) "CREATE INDEX openoutputs_toaddress_idx ON openoutputs USING btree (toaddress)")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_OUTPUTS_ADDRESSTARGETABLE_INDEX) "CREATE INDEX openoutputs_addresstargetable_idx ON openoutputs USING btree (addresstargetable)")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_OUTPUTS_HASH_INDEX) "CREATE INDEX openoutputs_hash_idx ON openoutputs USING btree (hash)")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name CREATE_UNDOABLE_TABLE_INDEX) "CREATE INDEX undoableblocks_height_idx ON undoableBlocks USING btree (height)")
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name SELECT_UNDOABLEBLOCKS_EXISTS_SQL) "select 1 from undoableblocks where hash = ?")
 
     ;;;
@@ -39996,7 +39298,7 @@
                     (.. log (debug (§ expr "Updating undoable block with hash: " + (.. Utils/HEX (encode hashBytes)))))
                 )
 
-                (§ if (§ expr transactions == nil))
+                (§ if (nil? transactions))
                 (§ block
                     (.. ps (setBytes 1, txOutChanges))
                     (.. ps (setNull 2, Types/BINARY))
@@ -40021,7 +39323,7 @@
                 (.. log (debug (§ expr "Inserting undoable block with hash: " + (.. Utils/HEX (encode hashBytes))  + " at height " + height)))
             )
 
-            (§ if (§ expr transactions == nil))
+            (§ if (nil? transactions))
             (§ block
                 (.. ps (setBytes 3, txOutChanges))
                 (.. ps (setNull 4, Types/BINARY))
@@ -40075,27 +39377,22 @@
 (§ class #_"SPVBlockStore" (§ implements #_"BlockStore")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"SPVBlockStore")))
 
     ;;; The default number of headers that will be stored in the ring buffer. ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name DEFAULT_CAPACITY) 5000)
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name HEADER_MAGIC) "SPVB")
 
     #_protected
     #_volatile
     (§ field #_"MappedByteBuffer" (§ name buffer))
     #_protected
-    #_final
     (§ field #_"int" (§ name capacity))
     #_protected
-    #_final
     (§ field #_"NetworkParameters" (§ name params))
 
     #_protected
@@ -40127,7 +39424,6 @@
     ;; not provide the removeEldestEntry control.
     #_private
     #_static
-    #_final
     (§ def- #_"Object" (§ name NOT_FOUND_MARKER) (§ new #_"Object"))
     #_protected
     (§ field #_"LinkedHashMap<Sha256Hash, Object>" (§ name notFoundCache) (§ new #_"LinkedHashMap<Sha256Hash, Object>"
@@ -40194,7 +39490,7 @@
 
             (§ var #_"FileChannel" (§ name channel) (.. randomAccessFile (getChannel)))
             (§ ass (§ name fileLock) (.. channel (tryLock)))
-            (§ if (§ expr fileLock == nil))
+            (§ if (nil? fileLock))
             (§ block
                 (§ throw (§ new #_"ChainFileLockedException" "Store file is already locked by another process"))
             )
@@ -40226,7 +39522,7 @@
         (§ block
             (§ try )
             (§ block
-                (§ if (§ expr randomAccessFile != nil))
+                (§ if (some? randomAccessFile))
                 (§ block
                     (.. randomAccessFile (close))
                 )
@@ -40266,7 +39562,6 @@
     ;;; Returns the size in bytes of the file that is used to store the chain with the current parameters. ;;
     #_public
     #_static
-    #_final
     (§ defn #_"int" (§ fn getFileSize) [#_"int" (§ name capacity)])
     (§ block
         (§ expr RECORD_SIZE * capacity + FILE_PROLOGUE_BYTES) ;; extra kilobyte for stuff
@@ -40277,9 +39572,8 @@
     (§ method #_"void" (§ fn put) [#_"StoredBlock" (§ name block)])
         (§ throws #_"BlockStoreException")
     (§ block
-        #_final
         (§ var #_"MappedByteBuffer" (§ name buffer) (.. this buffer))
-        (§ if (§ expr buffer == nil))
+        (§ if (nil? buffer))
         (§ block
             (§ throw (§ new #_"BlockStoreException" "Store closed"))
         )
@@ -40314,9 +39608,8 @@
     (§ method #_"StoredBlock" (§ fn get) [#_"Sha256Hash" (§ name hash)])
         (§ throws #_"BlockStoreException")
     (§ block
-        #_final
         (§ var #_"MappedByteBuffer" (§ name buffer) (.. this buffer))
-        (§ if (§ expr buffer == nil))
+        (§ if (nil? buffer))
         (§ block
             (§ throw (§ new #_"BlockStoreException" "Store closed"))
         )
@@ -40325,7 +39618,7 @@
         (§ try )
         (§ block
             (§ var #_"StoredBlock" (§ name cacheHit) (.. blockCache (get hash)))
-            (§ if (§ expr cacheHit != nil))
+            (§ if (some? cacheHit))
             (§ block
                 (§ return cacheHit)
             )
@@ -40337,11 +39630,8 @@
             ;; Starting from the current tip of the ring work backwards until we have either
             ;; found the block or wrapped around.
             (§ var #_"int" (§ name cursor) (getRingCursor buffer))
-            #_final
             (§ var #_"int" (§ name startingPoint) cursor)
-            #_final
             (§ var #_"int" (§ name fileSize) (getFileSize capacity))
-            #_final
             (§ var #_"byte[]" (§ name targetHashBytes) (.. hash (getBytes)))
             (§ var #_"byte[]" (§ name scratch) (§ new #_"byte[]" (§ count 32)))
             (§ do )
@@ -40387,9 +39677,8 @@
     (§ method #_"StoredBlock" (§ fn getChainHead) [])
         (§ throws #_"BlockStoreException")
     (§ block
-        #_final
         (§ var #_"MappedByteBuffer" (§ name buffer) (.. this buffer))
-        (§ if (§ expr buffer == nil))
+        (§ if (nil? buffer))
         (§ block
             (§ throw (§ new #_"BlockStoreException" "Store closed"))
         )
@@ -40397,14 +39686,14 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr lastChainHead == nil))
+            (§ if (nil? lastChainHead))
             (§ block
                 (§ var #_"byte[]" (§ name headHash) (§ new #_"byte[]" (§ count 32)))
                 (.. buffer (position 8))
                 (.. buffer (get headHash))
                 (§ var #_"Sha256Hash" (§ name hash) (Sha256Hash/wrap headHash))
                 (§ var #_"StoredBlock" (§ name block) (get hash))
-                (§ if (§ expr block == nil))
+                (§ if (nil? block))
                 (§ block
                     (§ throw (§ new #_"BlockStoreException" (§ expr "Corrupted block store: could not find chain head: " + hash)))
                 )
@@ -40424,9 +39713,8 @@
     (§ method #_"void" (§ fn setChainHead) [#_"StoredBlock" (§ name chainHead)])
         (§ throws #_"BlockStoreException")
     (§ block
-        #_final
         (§ var #_"MappedByteBuffer" (§ name buffer) (.. this buffer))
-        (§ if (§ expr buffer == nil))
+        (§ if (nil? buffer))
         (§ block
             (§ throw (§ new #_"BlockStoreException" "Store closed"))
         )
@@ -40473,7 +39761,6 @@
 
     #_protected
     #_static
-    #_final
     (§ def #_"int" (§ name RECORD_SIZE) (+ 32 StoredBlock/COMPACT_SERIALIZED_SIZE)) ;; hash
 
     ;; File format:
@@ -40488,7 +39775,6 @@
     ;;   80 bytes of block header data
     #_protected
     #_static
-    #_final
     (§ def #_"int" (§ name FILE_PROLOGUE_BYTES) 1024)
 
     ;;; Returns the offset from the file start where the latest block should be written (end of prev block). ;;
@@ -40559,23 +39845,18 @@
     ;; Not worth turning into an enum.
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name FIELD_MESSAGE) "message")
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name FIELD_LABEL) "label")
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name FIELD_AMOUNT) "amount")
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name FIELD_ADDRESS) "address")
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name FIELD_PAYMENT_REQUEST_URL) "r")
 
     ;;;
@@ -40586,26 +39867,21 @@
     #_deprecated
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name BITCOIN_SCHEME) "bitcoin")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name ENCODED_SPACE_CHARACTER) "%20")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name AMPERSAND_SEPARATOR) "&")
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name QUESTION_MARK_SEPARATOR) "?")
 
     ;;;
      ; Contains all the parameters in the order in which they were processed.
      ;;
     #_private
-    #_final
     (§ field- #_"Map<String, Object>" (§ name parameterMap) (§ new #_"LinkedHashMap<>"))
 
     ;;;
@@ -40637,7 +39913,7 @@
     (§ block
         (Preconditions/checkNotNull input)
 
-        (§ var #_"String" (§ name scheme) (§ quest (§ expr params != nil) ? (.. params (getUriScheme)) :else AbstractBitcoinNetParams/BITCOIN_SCHEME))
+        (§ var #_"String" (§ name scheme) (if (some? params) (.. params (getUriScheme)) AbstractBitcoinNetParams/BITCOIN_SCHEME))
 
         ;; Attempt to form the URI (fail fast syntax checking to official standards).
         (§ var #_"URI" (§ name uri))
@@ -40688,7 +39964,7 @@
         (§ if (== (.. addressSplitTokens length) 1))
         (§ block
             ;; Only an address is specified - use an empty '<name>=<value>' token array.
-            (§ ass (§ name nameValuePairTokens) (§ new #_"String[]" (§ coll )))
+            (§ ass (§ name nameValuePairTokens) (§ new #_"String[]"))
         )
         (§ else )
         (§ block
@@ -40707,7 +39983,7 @@
                 (§ var #_"Address" (§ name address) (Address/fromBase58 params, addressToken))
                 (putWithValidation FIELD_ADDRESS, address)
             )
-            (§ catch [#_final #_"AddressFormatException" (§ name e)])
+            (§ catch [#_"AddressFormatException" (§ name e)])
             (§ block
                 (§ throw (§ new #_"BitcoinURIParseException" "Bad address", e))
             )
@@ -40731,7 +40007,6 @@
         ;; Attempt to decode the rest of the tokens into a parameter map.
         (§ for (§ var #_"String" (§ name nameValuePairToken)) :for nameValuePairTokens)
         (§ block
-            #_final
             (§ var #_"int" (§ name sepIndex) (.. nameValuePairToken (indexOf "=")))
             (§ if (§ expr sepIndex == -1))
             (§ block
@@ -40742,9 +40017,7 @@
                 (§ throw (§ new #_"BitcoinURIParseException" (§ expr "Malformed Bitcoin URI - empty name '" + nameValuePairToken + "'")))
             )
 
-            #_final
             (§ var #_"String" (§ name nameToken) (.. nameValuePairToken (substring 0, sepIndex) (toLowerCase Locale/ENGLISH)))
-            #_final
             (§ var #_"String" (§ name valueToken) (.. nameValuePairToken (substring (+ sepIndex 1))))
 
             ;; Parse the amount.
@@ -40865,7 +40138,6 @@
      ; @return the URL where a payment request (as specified in BIP 70) may be fetched.
      ;;
     #_public
-    #_final
     (§ method #_"String" (§ fn getPaymentRequestUrl) [])
     (§ block
         (§ cast #_"String" (.. parameterMap (get FIELD_PAYMENT_REQUEST_URL)))
@@ -40882,9 +40154,9 @@
         (§ while true)
         (§ block
             (§ var #_"int" (§ name i) (.. urls (size)))
-            (§ var #_"String" (§ name paramName) (§ str FIELD_PAYMENT_REQUEST_URL + (§ quest (< 0 i) ? (Integer/toString i) :else "")))
+            (§ var #_"String" (§ name paramName) (§ str FIELD_PAYMENT_REQUEST_URL + (if (< 0 i) (Integer/toString i) "")))
             (§ var #_"String" (§ name url) (§ cast #_"String" (.. parameterMap (get paramName))))
-            (§ if (§ expr url == nil))
+            (§ if (nil? url))
             (§ block
                 (§ break )
             )
@@ -40970,7 +40242,7 @@
 
         (§ var #_"boolean" (§ name questionMarkHasBeenOutput) false)
 
-        (§ if (§ expr amount != nil))
+        (§ if (some? amount))
         (§ block
             (.. sb (append QUESTION_MARK_SEPARATOR) (append FIELD_AMOUNT) (append "="))
             (.. sb (append (.. amount (toPlainString))))
@@ -41153,7 +40425,6 @@
  ;;
 
 #_public
-#_final
 (§ class #_"BtcAutoFormat" (§ extends #_"BtcFormat")
     ;;;
      ; Enum for specifying the style of currency indicators thas are used
@@ -41214,7 +40485,7 @@
     #_protected
     (§ constructor #_"BtcAutoFormat" [#_"Locale" (§ name locale), #_"Style" (§ name style), #_"int" (§ name fractionPlaces)])
     (§ block
-        (§ super (§ cast #_"DecimalFormat" (NumberFormat/getCurrencyInstance locale)), fractionPlaces, (ImmutableList/<Integer>of))
+        (§ super (§ cast #_"DecimalFormat" (NumberFormat/getCurrencyInstance locale)), fractionPlaces, (ImmutableList/of #_"ImmutableList<Integer>"))
 
         (.. style (apply (.. this numberFormat)))
         this
@@ -41276,7 +40547,7 @@
                     (§ var #_"BigDecimal" (§ name c) (.. inMicros (subtract (.. inMicros (setScale 0, HALF_UP))) (movePointRight (- coinOffset MICROCOIN_SCALE)) (abs)))
                     (§ if (< (.. a (compareTo b)) 0))
                     (§ block
-                        (§ ass (§ name places) (§ quest (< (.. a (compareTo c)) 0) ? COIN_SCALE :else MICROCOIN_SCALE))
+                        (§ ass (§ name places) (if (< (.. a (compareTo c)) 0) COIN_SCALE MICROCOIN_SCALE))
                     )
                     (§ elseif (< (.. b (compareTo c)) 0))
                     (§ block
@@ -41377,7 +40648,6 @@
  ;;
 
 #_public
-#_final
 (§ class #_"BtcFixedFormat" (§ extends #_"BtcFormat")
     ;;;
      ; A constant specifying the use of as many optional decimal places in the fraction part
@@ -41386,7 +40656,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int[]" (§ name REPEATING_PLACES) (§ coll 1,1,1,1,1,1,1,1,1,1,1,1,1,1 ))
 
     ;;;
@@ -41397,7 +40666,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int[]" (§ name REPEATING_DOUBLETS) (§ coll 2,2,2,2,2,2,2 ))
 
     ;;;
@@ -41408,7 +40676,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int[]" (§ name REPEATING_TRIPLETS) (§ coll 3,3,3,3,3 ))
 
     ;;;
@@ -41416,7 +40683,6 @@
      ; thet same value expressed in bitcoins.
      ;;
     #_private
-    #_final
     (§ field- #_"int" (§ name scale))
 
     ;;; Constructor. ;;
@@ -41999,27 +41265,21 @@
     ;;; The conventional international currency code for bitcoins: "BTC" ;;
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name COIN_CODE) "BTC")
     ;;; The default currency symbols for bitcoins. ;;
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name COIN_SYMBOL) "฿")
     ;;; An alternative currency symbol to use in locales where the default symbol is used for the national currency. ;;
     #_protected
     #_static
-    #_final
     (§ def #_"String" (§ name COIN_SYMBOL_ALT) "Ƀ")
 
     #_protected
-    #_final
     (§ field #_"DecimalFormat" (§ name numberFormat)) ;; warning: mutable
     #_protected
-    #_final
     (§ field #_"int" (§ name minimumFractionDigits))
     #_protected
-    #_final
     (§ field #_"List<Integer>" (§ name decimalGroups))
 
     ;; Scale is the number of decimal-places difference from same value in bitcoins.
@@ -42029,7 +41289,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name COIN_SCALE) 0)
 
     ;;;
@@ -42037,7 +41296,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MILLICOIN_SCALE) 3)
 
     ;;;
@@ -42045,7 +41303,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MICROCOIN_SCALE) 6)
 
     ;;;
@@ -42108,7 +41365,7 @@
         #_private
         (§ field- #_"int" (§ name minimumFractionDigits) 2)
         #_private
-        (§ field- #_"int[]" (§ name fractionGroups) (§ coll ))
+        (§ field- #_"int[]" (§ name fractionGroups) (§ new #_"int[]"))
         #_private
         (§ field- #_"Style" (§ name style) BtcAutoFormat/Style/CODE)
         #_private
@@ -42346,7 +41603,7 @@
                 (§ sync (.. f numberFormat))
                 (§ block
                     (§ var #_"DecimalFormatSymbols" (§ name defaultSigns) (.. f numberFormat (getDecimalFormatSymbols)))
-                    (setSymbolAndCode (.. f numberFormat), (§ quest (§ expr symbol != "") ? symbol :else (.. defaultSigns (getCurrencySymbol))), (§ quest (§ expr code != "") ? code :else (.. defaultSigns (getInternationalCurrencySymbol))))
+                    (setSymbolAndCode (.. f numberFormat), (if (!= symbol "") symbol (.. defaultSigns (getCurrencySymbol))), (if (!= code "") code (.. defaultSigns (getInternationalCurrencySymbol))))
                 )
             )
             (§ if (§ expr localizedPattern != "" || pattern != ""))
@@ -42390,7 +41647,7 @@
         (§ ass (§ name (.. this decimalGroups)) groups)
         (§ sync (.. this numberFormat))
         (§ block
-            (setSymbolAndCode (.. this numberFormat), (§ quest (.. this numberFormat (getDecimalFormatSymbols) (getCurrencySymbol) (contains COIN_SYMBOL)) ? COIN_SYMBOL_ALT :else COIN_SYMBOL), COIN_CODE)
+            (setSymbolAndCode (.. this numberFormat), (if (.. this numberFormat (getDecimalFormatSymbols) (getCurrencySymbol) (contains COIN_SYMBOL)) COIN_SYMBOL_ALT COIN_SYMBOL), COIN_CODE)
         )
         this
     )
@@ -43065,7 +42322,6 @@
      ;;
     #_override
     #_public
-    #_final
     (§ method #_"Object" (§ fn parseObject) [#_"String" (§ name source), #_"ParsePosition" (§ name pos)])
     (§ block
         (parse source, pos)
@@ -43099,12 +42355,12 @@
     (§ method #_"ScaleMatcher[]" (§ fn denomMatchers) [])
     (§ block
         (§ var #_"ScaleMatcher[]" (§ name result) denoms)
-        (§ if (§ expr result == nil))
+        (§ if (nil? result))
         (§ block
             (§ sync this)
             (§ block
                 (§ ass (§ name result) denoms)
-                (§ if (§ expr result == nil))
+                (§ if (nil? result))
                 (§ block
                     (§ if (§ not (.. (coinSymbol) (matches ci))))
                     (§ block
@@ -43243,7 +42499,7 @@
             )
 
             (§ var #_"Number" (§ name number) (.. numberFormat (parse source, pos)))
-            (§ if (§ expr number != nil))
+            (§ if (some? number))
             (§ block
                 (§ try )
                 (§ block
@@ -43254,7 +42510,7 @@
                     (.. pos (setIndex 0))
                 )
             )
-            (§ if (§ expr anteSigns != nil))
+            (§ if (some? anteSigns))
             (§ block
                 (.. numberFormat (setDecimalFormatSymbols anteSigns))
             )
@@ -43543,14 +42799,11 @@
 (§ class #_"ContextPropagatingThreadFactory" (§ implements #_"ThreadFactory")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"ContextPropagatingThreadFactory")))
 
     #_private
-    #_final
     (§ field- #_"String" (§ name name))
     #_private
-    #_final
     (§ field- #_"int" (§ name priority))
 
     #_public
@@ -43570,9 +42823,8 @@
 
     #_override
     #_public
-    (§ method #_"Thread" (§ fn newThread) [#_final #_"Runnable" (§ name r)])
+    (§ method #_"Thread" (§ fn newThread) [#_"Runnable" (§ name r)])
     (§ block
-        #_final
         (§ var #_"Context" (§ name context) (Context/get))
         (§ var #_"Thread" (§ name thread) (§ new #_"Thread" (§ new #_"Runnable")
         (§ anon
@@ -43596,7 +42848,7 @@
         (.. thread (setPriority priority))
         (.. thread (setDaemon true))
         (§ var #_"Thread.UncaughtExceptionHandler" (§ name handler) Threading/uncaughtExceptionHandler)
-        (§ if (§ expr handler != nil))
+        (§ if (some? handler))
         (§ block
             (.. thread (setUncaughtExceptionHandler handler))
         )
@@ -43612,7 +42864,6 @@
 (§ class #_"DaemonThreadFactory" (§ implements #_"ThreadFactory")
     #_nilable
     #_private
-    #_final
     (§ field- #_"String" (§ name name))
 
     #_public
@@ -43635,7 +42886,7 @@
     (§ block
         (§ var #_"Thread" (§ name thread) (.. (Executors/defaultThreadFactory) (newThread runnable)))
         (.. thread (setDaemon true))
-        (§ if (§ expr name != nil))
+        (§ if (some? name))
         (§ block
             (.. thread (setName name))
         )
@@ -43655,10 +42906,8 @@
 #_public
 (§ class #_"ExchangeRate" (§ implements #_"Serializable")
     #_public
-    #_final
     (§ field #_"Coin" (§ name coin))
     #_public
-    #_final
     (§ field #_"Fiat" (§ name fiat))
 
     ;;; Construct exchange rate.  This amount of coin is worth that amount of fiat. ;;
@@ -43667,7 +42916,7 @@
     (§ block
         (Preconditions/checkArgument (.. coin (isPositive)))
         (Preconditions/checkArgument (.. fiat (isPositive)))
-        (Preconditions/checkArgument (§ expr (.. fiat currencyCode) != nil), "currency code required")
+        (Preconditions/checkArgument (some? (.. fiat currencyCode)), "currency code required")
 
         (§ ass (§ name (.. this coin)) coin)
         (§ ass (§ name (.. this fiat)) fiat)
@@ -43690,7 +42939,6 @@
     (§ method #_"Fiat" (§ fn coinToFiat) [#_"Coin" (§ name convertCoin)])
     (§ block
         ;; Use BigInteger because it's much easier to maintain full precision without overflowing.
-        #_final
         (§ var #_"BigInteger" (§ name converted) (.. (BigInteger/valueOf (.. convertCoin value)) (multiply (BigInteger/valueOf (.. fiat value))) (divide (BigInteger/valueOf (.. coin value)))))
 
         (§ if (§ expr 0 < (.. converted (compareTo (BigInteger/valueOf Long/MAX_VALUE))) || (.. converted (compareTo (BigInteger/valueOf Long/MIN_VALUE))) < 0))
@@ -43711,7 +42959,6 @@
         (Preconditions/checkArgument (.. convertFiat currencyCode (equals (.. fiat currencyCode))), "Currency mismatch: %s vs %s", (.. convertFiat currencyCode), (.. fiat currencyCode))
 
         ;; Use BigInteger because it's much easier to maintain full precision without overflowing.
-        #_final
         (§ var #_"BigInteger" (§ name converted) (.. (BigInteger/valueOf (.. convertFiat value)) (multiply (BigInteger/valueOf (.. coin value))) (divide (BigInteger/valueOf (.. fiat value)))))
 
         (§ if (§ expr 0 < (.. converted (compareTo (BigInteger/valueOf Long/MAX_VALUE))) || (.. converted (compareTo (BigInteger/valueOf Long/MIN_VALUE))) < 0))
@@ -43767,15 +43014,12 @@
 (§ class #_"ExponentialBackoff" (§ implements #_"Comparable<ExponentialBackoff>")
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name DEFAULT_INITIAL_MILLIS) 100)
     #_public
     #_static
-    #_final
     (§ def #_"float" (§ name DEFAULT_MULTIPLIER) 1.1)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name DEFAULT_MAXIMUM_MILLIS) (* 30 1000))
 
     #_private
@@ -43783,7 +43027,6 @@
     #_private
     (§ field- #_"long" (§ name retryTime))
     #_private
-    #_final
     (§ field- #_"Params" (§ name params))
 
     ;;;
@@ -43793,13 +43036,10 @@
     #_static
     (§ class #_"Params"
         #_private
-        #_final
         (§ field- #_"float" (§ name initial))
         #_private
-        #_final
         (§ field- #_"float" (§ name multiplier))
         #_private
-        #_final
         (§ field- #_"float" (§ name maximum))
 
         ;;;
@@ -43842,7 +43082,6 @@
 
     ;;; Track a success - reset back off interval to the initial value. ;;
     #_public
-    #_final
     (§ method #_"void" (§ fn trackSuccess) [])
     (§ block
         (§ ass (§ name backoff) (.. params initial))
@@ -43897,7 +43136,6 @@
  ; This class is immutable.
  ;;
 #_public
-#_final
 (§ class #_"Fiat" (§ implements #_"Monetary", #_"Comparable<Fiat>", #_"Serializable")
     ;;;
      ; The absolute value of exponent of the value of a "smallest unit" in scientific notation.
@@ -43905,21 +43143,18 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name SMALLEST_UNIT_EXPONENT) 4)
 
     ;;;
      ; The number of smallest units of this monetary value.
      ;;
     #_public
-    #_final
     (§ field #_"long" (§ name value))
     #_public
-    #_final
     (§ field #_"String" (§ name currencyCode))
 
     #_private
-    (§ constructor- #_"Fiat" [#_final #_"String" (§ name currencyCode), #_final #_"long" (§ name value)])
+    (§ constructor- #_"Fiat" [#_"String" (§ name currencyCode), #_"long" (§ name value)])
     (§ block
         (§ ass (§ name (.. this value)) value)
         (§ ass (§ name (.. this currencyCode)) currencyCode)
@@ -43928,7 +43163,7 @@
 
     #_public
     #_static
-    (§ defn #_"Fiat" (§ fn valueOf) [#_final #_"String" (§ name currencyCode), #_final #_"long" (§ name value)])
+    (§ defn #_"Fiat" (§ fn valueOf) [#_"String" (§ name currencyCode), #_"long" (§ name value)])
     (§ block
         (§ new #_"Fiat" currencyCode, value)
     )
@@ -43966,7 +43201,7 @@
      ;;
     #_public
     #_static
-    (§ defn #_"Fiat" (§ fn parseFiat) [#_final #_"String" (§ name currencyCode), #_final #_"String" (§ name str)])
+    (§ defn #_"Fiat" (§ fn parseFiat) [#_"String" (§ name currencyCode), #_"String" (§ name str)])
     (§ block
         (§ try )
         (§ block
@@ -43989,7 +43224,7 @@
      ;;
     #_public
     #_static
-    (§ defn #_"Fiat" (§ fn parseFiatInexact) [#_final #_"String" (§ name currencyCode), #_final #_"String" (§ name str)])
+    (§ defn #_"Fiat" (§ fn parseFiatInexact) [#_"String" (§ name currencyCode), #_"String" (§ name str)])
     (§ block
         (§ try )
         (§ block
@@ -44003,7 +43238,7 @@
     )
 
     #_public
-    (§ method #_"Fiat" (§ fn add) [#_final #_"Fiat" (§ name value)])
+    (§ method #_"Fiat" (§ fn add) [#_"Fiat" (§ name value)])
     (§ block
         (Preconditions/checkArgument (.. value currencyCode (equals currencyCode)))
 
@@ -44011,7 +43246,7 @@
     )
 
     #_public
-    (§ method #_"Fiat" (§ fn subtract) [#_final #_"Fiat" (§ name value)])
+    (§ method #_"Fiat" (§ fn subtract) [#_"Fiat" (§ name value)])
     (§ block
         (Preconditions/checkArgument (.. value currencyCode (equals currencyCode)))
 
@@ -44019,25 +43254,25 @@
     )
 
     #_public
-    (§ method #_"Fiat" (§ fn multiply) [#_final #_"long" (§ name factor)])
+    (§ method #_"Fiat" (§ fn multiply) [#_"long" (§ name factor)])
     (§ block
         (§ new #_"Fiat" currencyCode, (LongMath/checkedMultiply (.. this value), factor))
     )
 
     #_public
-    (§ method #_"Fiat" (§ fn divide) [#_final #_"long" (§ name divisor)])
+    (§ method #_"Fiat" (§ fn divide) [#_"long" (§ name divisor)])
     (§ block
         (§ new #_"Fiat" currencyCode, (§ expr (.. this value) / divisor))
     )
 
     #_public
-    (§ method #_"Fiat[]" (§ fn divideAndRemainder) [#_final #_"long" (§ name divisor)])
+    (§ method #_"Fiat[]" (§ fn divideAndRemainder) [#_"long" (§ name divisor)])
     (§ block
         (§ new #_"Fiat[]" (§ coll (§ new #_"Fiat" currencyCode, (§ expr (.. this value) / divisor)), (§ new #_"Fiat" currencyCode, (§ expr (.. this value) % divisor)) ))
     )
 
     #_public
-    (§ method #_"long" (§ fn divide) [#_final #_"Fiat" (§ name divisor)])
+    (§ method #_"long" (§ fn divide) [#_"Fiat" (§ name divisor)])
     (§ block
         (Preconditions/checkArgument (.. divisor currencyCode (equals currencyCode)))
 
@@ -44095,7 +43330,7 @@
     #_public
     (§ method #_"int" (§ fn signum) [])
     (§ block
-        (§ quest (== (.. this value) 0) ? 0 :else (§ quest (< (.. this value) 0) ? -1 :else 1))
+        (if (== (.. this value) 0) 0 (if (< (.. this value) 0) -1 1))
     )
 
     #_public
@@ -44116,7 +43351,6 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"MonetaryFormat" (§ name FRIENDLY_FORMAT) (.. MonetaryFormat/FIAT (postfixCode)))
 
     ;;;
@@ -44131,7 +43365,6 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"MonetaryFormat" (§ name PLAIN_FORMAT) (.. MonetaryFormat/FIAT (minDecimals 0) (repeatOptionalDecimals 1, 4) (noCode)))
 
     ;;;
@@ -44153,7 +43386,7 @@
 
     #_override
     #_public
-    (§ method #_"boolean" (§ fn equals) [#_final #_"Object" (§ name o)])
+    (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
         (§ if (§ expr o == this))
         (§ block
@@ -44163,7 +43396,6 @@
         (§ block
             (§ return false)
         )
-        #_final
         (§ var #_"Fiat" (§ name other) (§ cast #_"Fiat" o))
         (§ expr (.. this value) == (.. other value) && (.. this currencyCode (equals (.. other currencyCode))))
     )
@@ -44177,9 +43409,9 @@
 
     #_override
     #_public
-    (§ method #_"int" (§ fn compareTo) [#_final #_"Fiat" (§ name other)])
+    (§ method #_"int" (§ fn compareTo) [#_"Fiat" (§ name other)])
     (§ block
-        (§ quest (.. this currencyCode (equals (.. other currencyCode))) ? (Longs/compare (.. this value), (.. other value)) :else (.. this currencyCode (compareTo (.. other currencyCode))))
+        (if (.. this currencyCode (equals (.. other currencyCode))) (Longs/compare (.. this value), (.. other value)) (.. this currencyCode (compareTo (.. other currencyCode))))
     )
 )
 
@@ -44194,10 +43426,8 @@
 #_public
 (§ class #_"ListenerRegistration<T>"
     #_public
-    #_final
     (§ field #_"T" (§ name listener))
     #_public
-    #_final
     (§ field #_"Executor" (§ name executor))
 
     #_public
@@ -44246,86 +43476,65 @@
  ; as static constants.
  ;;
 #_public
-#_final
 (§ class #_"MonetaryFormat"
     ;;; Standard format for the BTC denomination. ;;
     #_public
     #_static
-    #_final
     (§ def #_"MonetaryFormat" (§ name BTC) (.. (§ new #_"MonetaryFormat") (shift 0) (minDecimals 2) (repeatOptionalDecimals 2, 3)))
     ;;; Standard format for the mBTC denomination. ;;
     #_public
     #_static
-    #_final
     (§ def #_"MonetaryFormat" (§ name MBTC) (.. (§ new #_"MonetaryFormat") (shift 3) (minDecimals 2) (optionalDecimals 2)))
     ;;; Standard format for the µBTC denomination. ;;
     #_public
     #_static
-    #_final
     (§ def #_"MonetaryFormat" (§ name UBTC) (.. (§ new #_"MonetaryFormat") (shift 6) (minDecimals 0) (optionalDecimals 2)))
     ;;; Standard format for fiat amounts. ;;
     #_public
     #_static
-    #_final
     (§ def #_"MonetaryFormat" (§ name FIAT) (.. (§ new #_"MonetaryFormat") (shift 0) (minDecimals 2) (repeatOptionalDecimals 2, 1)))
     ;;; Currency code for base 1 Bitcoin. ;;
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name CODE_BTC) "BTC")
     ;;; Currency code for base 1/1000 Bitcoin. ;;
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name CODE_MBTC) "mBTC")
     ;;; Currency code for base 1/1000000 Bitcoin. ;;
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name CODE_UBTC) "µBTC")
 
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MAX_DECIMALS) 8)
 
     #_private
-    #_final
     (§ field- #_"char" (§ name negativeSign))
     #_private
-    #_final
     (§ field- #_"char" (§ name positiveSign))
     #_private
-    #_final
     (§ field- #_"char" (§ name zeroDigit))
     #_private
-    #_final
     (§ field- #_"char" (§ name decimalMark))
     #_private
-    #_final
     (§ field- #_"int" (§ name minDecimals))
     #_private
-    #_final
     (§ field- #_"List<Integer>" (§ name decimalGroups))
     #_private
-    #_final
     (§ field- #_"int" (§ name shift))
     #_private
-    #_final
     (§ field- #_"RoundingMode" (§ name roundingMode))
     #_private
-    #_final
     (§ field- #_"String[]" (§ name codes))
     #_private
-    #_final
     (§ field- #_"char" (§ name codeSeparator))
     #_private
-    #_final
     (§ field- #_"boolean" (§ name codePrefixed))
 
     #_private
     #_static
-    #_final
     (§ def- #_"String" (§ name DECIMALS_PADDING) "0000000000000000") ;; a few more than necessary for Bitcoin
 
     ;;;
@@ -44337,7 +43546,7 @@
         (Preconditions/checkArgument (§ not (Character/isDigit negativeSign)))
         (Preconditions/checkArgument (< 0 negativeSign))
 
-        (§ quest (§ expr negativeSign == (.. this negativeSign)) ? this :else (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
+        (if (== negativeSign (.. this negativeSign)) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
     )
 
     ;;;
@@ -44349,7 +43558,7 @@
     (§ block
         (Preconditions/checkArgument (§ not (Character/isDigit positiveSign)))
 
-        (§ quest (§ expr positiveSign == (.. this positiveSign)) ? this :else (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
+        (if (== positiveSign (.. this positiveSign)) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
     )
 
     ;;;
@@ -44358,7 +43567,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn digits) [#_"char" (§ name zeroDigit)])
     (§ block
-        (§ quest (§ expr zeroDigit == (.. this zeroDigit)) ? this :else (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
+        (if (== zeroDigit (.. this zeroDigit)) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
     )
 
     ;;;
@@ -44371,7 +43580,7 @@
         (Preconditions/checkArgument (§ not (Character/isDigit decimalMark)))
         (Preconditions/checkArgument (< 0 decimalMark))
 
-        (§ quest (§ expr decimalMark == (.. this decimalMark)) ? this :else (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
+        (if (== decimalMark (.. this decimalMark)) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
     )
 
     ;;;
@@ -44382,7 +43591,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn minDecimals) [#_"int" (§ name minDecimals)])
     (§ block
-        (§ quest (§ expr minDecimals == (.. this minDecimals)) ? this :else (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
+        (if (== minDecimals (.. this minDecimals)) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
     )
 
     ;;;
@@ -44437,7 +43646,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn shift) [#_"int" (§ name shift)])
     (§ block
-        (§ quest (§ expr shift == (.. this shift)) ? this :else (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
+        (if (== shift (.. this shift)) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
     )
 
     ;;;
@@ -44446,7 +43655,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn roundingMode) [#_"RoundingMode" (§ name roundingMode)])
     (§ block
-        (§ quest (§ expr roundingMode == (.. this roundingMode)) ? this :else (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
+        (if (== roundingMode (.. this roundingMode)) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
     )
 
     ;;;
@@ -44455,7 +43664,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn noCode) [])
     (§ block
-        (§ quest (§ expr codes == nil) ? this :else (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, nil, codeSeparator, codePrefixed))
+        (if (nil? codes) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, nil, codeSeparator, codePrefixed))
     )
 
     ;;;
@@ -44469,8 +43678,7 @@
     (§ block
         (Preconditions/checkArgument (<= 0 codeShift))
 
-        #_final
-        (§ var #_"String[]" (§ name codes) (§ quest (!= (.. this codes) nil) ? (Arrays/copyOf (.. this codes), (.. this codes length)) :else (§ new #_"String[]" (§ count MAX_DECIMALS))))
+        (§ var #_"String[]" (§ name codes) (if (some? (.. this codes)) (Arrays/copyOf (.. this codes), (.. this codes length)) (§ new #_"String[]" (§ count MAX_DECIMALS))))
 
         (§ ass (§ name (§ ai codes codeShift)) code)
         (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed)
@@ -44485,7 +43693,7 @@
         (Preconditions/checkArgument (§ not (Character/isDigit codeSeparator)))
         (Preconditions/checkArgument (< 0 codeSeparator))
 
-        (§ quest (§ expr codeSeparator == (.. this codeSeparator)) ? this :else (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
+        (if (== codeSeparator (.. this codeSeparator)) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
     )
 
     ;;;
@@ -44494,7 +43702,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn prefixCode) [])
     (§ block
-        (§ quest codePrefixed ? this :else (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, true))
+        (if codePrefixed this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, true))
     )
 
     ;;;
@@ -44503,7 +43711,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn postfixCode) [])
     (§ block
-        (§ quest (§ not codePrefixed) ? this :else (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, false))
+        (if (§ not codePrefixed) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, false))
     )
 
     ;;;
@@ -44565,7 +43773,7 @@
     (§ block
         ;; preparation
         (§ var #_"int" (§ name maxDecimals) minDecimals)
-        (§ if (§ expr decimalGroups != nil))
+        (§ if (some? decimalGroups))
         (§ block
             (§ for (§ var #_"int" (§ name group)) :for decimalGroups)
             (§ block
@@ -44593,7 +43801,7 @@
             (.. sb (setLength (- (.. sb (length)) 1))) ;; trim trailing zero
         )
         (§ var #_"int" (§ name i) minDecimals)
-        (§ if (§ expr decimalGroups != nil))
+        (§ if (some? decimalGroups))
         (§ block
             (§ for (§ var #_"int" (§ name group)) :for decimalGroups)
             (§ block
@@ -44621,7 +43829,7 @@
         (§ block
             (.. sb (insert 0, positiveSign))
         )
-        (§ if (§ expr codes != nil))
+        (§ if (some? codes))
         (§ block
             (§ if codePrefixed)
             (§ block
@@ -44732,11 +43940,11 @@
     #_public
     (§ method #_"String" (§ fn code) [])
     (§ block
-        (§ if (§ expr codes == nil))
+        (§ if (nil? codes))
         (§ block
             (§ return nil)
         )
-        (§ if (§ expr (§ ai codes shift) == nil))
+        (§ if (nil? (§ ai codes shift)))
         (§ block
             (§ throw (§ new #_"NumberFormatException" (§ expr "missing code for shift: " + shift)))
         )
@@ -44775,7 +43983,6 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"Executor" (§ name SAME_THREAD))
 
     ;;;
@@ -44789,7 +43996,6 @@
     #_static
     (§ defn #_"void" (§ fn waitForUserCode) [])
     (§ block
-        #_final
         (§ var #_"CountDownLatch" (§ name latch) (§ new #_"CountDownLatch" 1))
         (.. USER_THREAD (execute (§ new #_"Runnable")
         (§ anon
@@ -44823,7 +44029,6 @@
     (§ class #_"UserThread" (§ extends #_"Thread") (§ implements #_"Executor")
         #_private
         #_static
-        #_final
         (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"UserThread")))
 
         ;; 10,000 pending tasks is entirely arbitrary and may or may not be appropriate for the device we're running on.
@@ -44861,7 +44066,7 @@
                 (§ block
                     (.. log (warn "Exception in user thread", t))
                     (§ var #_"Thread.UncaughtExceptionHandler" (§ name handler) uncaughtExceptionHandler)
-                    (§ if (§ expr handler != nil))
+                    (§ if (some? handler))
                     (§ block
                         (.. handler (uncaughtException this, t))
                     )
@@ -44874,7 +44079,6 @@
         #_public
         (§ method #_"void" (§ fn execute) [#_"Runnable" (§ name command)])
         (§ block
-            #_final
             (§ var #_"int" (§ name size) (.. tasks (size)))
             (§ if (§ expr size == WARNING_THRESHOLD))
             (§ block
@@ -44915,7 +44119,7 @@
     #_static
     (§ defn #_"ReentrantLock" (§ fn lock) [#_"String" (§ name name)])
     (§ block
-        (§ quest (Utils/isAndroidRuntime) ? (§ new #_"ReentrantLock" true) :else (.. factory (newReentrantLock name)))
+        (if (Utils/isAndroidRuntime) (§ new #_"ReentrantLock" true) (.. factory (newReentrantLock name)))
     )
 
     #_public
@@ -44994,7 +44198,6 @@
      ; Cache of version numbers.
      ;;
     #_private
-    #_final
     (§ field- #_"long[]" (§ name versionWindow))
 
     ;;;
@@ -45011,7 +44214,7 @@
     (§ field- #_"int" (§ name versionsStored) 0)
 
     #_public
-    (§ constructor #_"VersionTally" [#_final #_"NetworkParameters" (§ name params)])
+    (§ constructor #_"VersionTally" [#_"NetworkParameters" (§ name params)])
     (§ block
         (§ ass (§ name versionWindow) (§ new #_"long[]" (§ count (.. params (getMajorityWindow)))))
         this
@@ -45023,7 +44226,7 @@
      ; @param version The block version to add.
      ;;
     #_public
-    (§ method #_"void" (§ fn add) [#_final #_"long" (§ name version)])
+    (§ method #_"void" (§ fn add) [#_"long" (§ name version)])
     (§ block
         (§ ass (§ name (§ ai versionWindow versionWriteHead)) version)
         (§ ass (§ name versionWriteHead) (+ versionWriteHead 1))
@@ -45042,7 +44245,7 @@
      ; @return the count for the block version, or null if the window is not yet full.
      ;;
     #_public
-    (§ method #_"Integer" (§ fn getCountAtOrAbove) [#_final #_"long" (§ name version)])
+    (§ method #_"Integer" (§ fn getCountAtOrAbove) [#_"long" (§ name version)])
     (§ block
         (§ if (§ expr versionsStored < (.. versionWindow length)))
         (§ block
@@ -45069,11 +44272,10 @@
      ; @param chainHead Current chain tip.
      ;;
     #_public
-    (§ method #_"void" (§ fn initialize) [#_final #_"BlockStore" (§ name blockStore), #_final #_"StoredBlock" (§ name chainHead)])
+    (§ method #_"void" (§ fn initialize) [#_"BlockStore" (§ name blockStore), #_"StoredBlock" (§ name chainHead)])
         (§ throws #_"BlockStoreException")
     (§ block
         (§ var #_"StoredBlock" (§ name versionBlock) chainHead)
-        #_final
         (§ var #_"Stack<Long>" (§ name versions) (§ new #_"Stack<>"))
 
         ;; We don't know how many blocks back we can go, so load what we can first.
@@ -45081,7 +44283,7 @@
         (§ for (§ var #_"int" (§ name headOffset) 0) :for (§ expr headOffset < (.. versionWindow length)) :for (§ ass (§ name headOffset) (+ headOffset 1)))
         (§ block
             (§ ass (§ name versionBlock) (.. versionBlock (getPrev blockStore)))
-            (§ if (§ expr versionBlock == nil))
+            (§ if (nil? versionBlock))
             (§ block
                 (§ break )
             )
@@ -45141,7 +44343,7 @@
     (§ defn #_"AllowUnconfirmedCoinSelector" (§ fn get) [])
     (§ block
         ;; This doesn't have to be thread safe as the object has no state, so discarded duplicates are harmless.
-        (§ if (§ expr instance == nil))
+        (§ if (nil? instance))
         (§ block
             (§ ass (§ name instance) (§ new #_"AllowUnconfirmedCoinSelector"))
         )
@@ -45170,25 +44372,20 @@
 #_public
 (§ class #_"BasicKeyChain" (§ implements #_"EncryptableKeyChain")
     #_private
-    #_final
     (§ field- #_"ReentrantLock" (§ name lock) (Threading/lock "BasicKeyChain"))
 
     ;; Maps used to let us quickly look up a key given data we find in transcations or the block chain.
     #_private
-    #_final
     (§ field- #_"LinkedHashMap<ByteString, ECKey>" (§ name hashToKeys))
     #_private
-    #_final
     (§ field- #_"LinkedHashMap<ByteString, ECKey>" (§ name pubkeyToKeys))
     #_nilable
     #_private
-    #_final
     (§ field- #_"KeyCrypter" (§ name keyCrypter))
     #_private
     (§ field- #_"boolean" (§ name isWatching))
 
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<KeyChainEventListener>>" (§ name listeners))
 
     #_public
@@ -45235,9 +44432,8 @@
             (§ if (.. hashToKeys (isEmpty)))
             (§ block
                 ;; We will refuse to encrypt an empty key chain.
-                (Preconditions/checkState (§ expr keyCrypter == nil))
+                (Preconditions/checkState (nil? keyCrypter))
 
-                #_final
                 (§ var #_"ECKey" (§ name key) (§ new #_"ECKey"))
                 (importKeyLocked key)
                 (queueOnKeysAdded (ImmutableList/of key))
@@ -45261,7 +44457,7 @@
         (§ block
             (§ if (< (.. hashToKeys (size)) numberOfKeys))
             (§ block
-                (Preconditions/checkState (§ expr keyCrypter == nil))
+                (Preconditions/checkState (nil? keyCrypter))
 
                 (§ var #_"List<ECKey>" (§ name keys) (§ new #_"ArrayList<>"))
                 (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < numberOfKeys - (.. hashToKeys (size))) :for (§ ass (§ name i) (+ i 1)))
@@ -45326,7 +44522,7 @@
             )
 
             (§ var #_"List<ECKey>" (§ name actuallyAdded) (§ new #_"ArrayList<>" (.. keys (size))))
-            (§ for (§ var #_final ECKey key) :for keys)
+            (§ for (§ var ECKey key) :for keys)
             (§ block
                 (§ if (§ not (hasKey key)))
                 (§ block
@@ -45384,7 +44580,7 @@
         )
         (§ var #_"ECKey" (§ name previousKey) (.. pubkeyToKeys (put (ByteString/copyFrom (.. key (getPubKey))), key)))
         (.. hashToKeys (put (ByteString/copyFrom (.. key (getPubKeyHash))), key))
-        (Preconditions/checkState (§ expr previousKey == nil))
+        (Preconditions/checkState (nil? previousKey))
         nil
     )
 
@@ -45483,7 +44679,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ return (§ quest (.. hashToKeys (isEmpty)) ? State/EMPTY :else (§ quest isWatching ? State/WATCHING :else State/REGULAR)))
+            (§ return (if (.. hashToKeys (isEmpty)) State/EMPTY (if isWatching State/WATCHING State/REGULAR)))
         )
         (§ finally )
         (§ block
@@ -45582,11 +44778,10 @@
         )
         (§ else )
         (§ block
-            #_final
             (§ var #_"byte[]" (§ name secret) (.. item (getSecretBytes)))
             ;; The secret might be missing in the case of a watching wallet, or a key for which the private key
             ;; is expected to be rederived on the fly from its parent.
-            (§ if (§ expr secret != nil))
+            (§ if (some? secret))
             (§ block
                 (.. proto (setSecretBytes (ByteString/copyFrom secret)))
             )
@@ -45641,7 +44836,7 @@
                 )
 
                 (§ var #_"boolean" (§ name encrypted) (== (.. key (getType)) Protos/Key/Type/ENCRYPTED_SCRYPT_AES))
-                (§ var #_"byte[]" (§ name priv) (§ quest (.. key (hasSecretBytes)) ? (.. key (getSecretBytes) (toByteArray)) :else nil))
+                (§ var #_"byte[]" (§ name priv) (when (.. key (hasSecretBytes)) (.. key (getSecretBytes) (toByteArray))))
                 (§ if (§ not (.. key (hasPublicKey))))
                 (§ block
                     (§ throw (§ new #_"UnreadableWalletException" "Public key missing"))
@@ -45651,7 +44846,7 @@
                 (§ var #_"ECKey" (§ name ecKey))
                 (§ if encrypted)
                 (§ block
-                    (Preconditions/checkState (§ expr keyCrypter != nil), "This wallet is encrypted but encrypt() was not called prior to deserialization")
+                    (Preconditions/checkState (some? keyCrypter), "This wallet is encrypted but encrypt() was not called prior to deserialization")
                     (§ if (§ not (.. key (hasEncryptedData))))
                     (§ block
                         (§ throw (§ new #_"UnreadableWalletException" "Encrypted private key data missing"))
@@ -45663,7 +44858,7 @@
                 )
                 (§ else )
                 (§ block
-                    (§ ass (§ name ecKey) (§ quest (§ expr priv != nil) ? (ECKey/fromPrivateAndPrecalculatedPublic priv, pub) :else (ECKey/fromPublicOnly pub)))
+                    (§ ass (§ name ecKey) (if (some? priv) (ECKey/fromPrivateAndPrecalculatedPublic priv, pub) (ECKey/fromPublicOnly pub)))
                 )
                 (.. ecKey (setCreationTimeSeconds (/ (.. key (getCreationTimestamp)) 1000)))
                 (importKeyLocked ecKey)
@@ -45700,11 +44895,11 @@
     )
 
     #_private
-    (§ method- #_"void" (§ fn queueOnKeysAdded) [#_final #_"List<ECKey>" (§ name keys)])
+    (§ method- #_"void" (§ fn queueOnKeysAdded) [#_"List<ECKey>" (§ name keys)])
     (§ block
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
 
-        (§ for (§ var #_final ListenerRegistration<KeyChainEventListener> registration) :for listeners)
+        (§ for (§ var ListenerRegistration<KeyChainEventListener> registration) :for listeners)
         (§ block
             (.. registration executor (execute (§ new #_"Runnable")
             (§ anon
@@ -45754,7 +44949,7 @@
         (§ try )
         (§ block
             (Preconditions/checkNotNull keyCrypter)
-            (Preconditions/checkState (§ expr (.. this keyCrypter) == nil), "Key chain is already encrypted")
+            (Preconditions/checkState (nil? (.. this keyCrypter)), "Key chain is already encrypted")
 
             (§ var #_"BasicKeyChain" (§ name encrypted) (§ new #_"BasicKeyChain" keyCrypter))
             (§ for (§ var #_"ECKey" (§ name key)) :for (.. hashToKeys (values)))
@@ -45795,7 +44990,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (Preconditions/checkState (§ expr keyCrypter != nil), "Wallet is already decrypted")
+            (Preconditions/checkState (some? keyCrypter), "Wallet is already decrypted")
 
             ;; Do an up-front check.
             (§ if (§ expr 0 < (numKeys) && (§ not (checkAESKey aesKey))))
@@ -45825,7 +45020,7 @@
     (§ method #_"boolean" (§ fn checkPassword) [#_"CharSequence" (§ name password)])
     (§ block
         (Preconditions/checkNotNull password)
-        (Preconditions/checkState (§ expr keyCrypter != nil), "Key chain not encrypted")
+        (Preconditions/checkState (some? keyCrypter), "Key chain not encrypted")
 
         (checkAESKey (.. keyCrypter (deriveKey password)))
     )
@@ -45848,7 +45043,7 @@
                 (§ return false)
             )
 
-            (Preconditions/checkState (§ expr keyCrypter != nil), "Key chain is not encrypted")
+            (Preconditions/checkState (some? keyCrypter), "Key chain is not encrypted")
 
             ;; Find the first encrypted key in the wallet.
             (§ var #_"ECKey" (§ name first) nil)
@@ -45860,7 +45055,7 @@
                     (§ break )
                 )
             )
-            (Preconditions/checkState (§ expr first != nil), "No encrypted keys in the wallet")
+            (Preconditions/checkState (some? first), "No encrypted keys in the wallet")
 
             (§ try )
             (§ block
@@ -45917,7 +45112,6 @@
             (§ var #_"ECKey" (§ name oldest) nil)
             (§ for (§ var #_"ECKey" (§ name key)) :for (.. hashToKeys (values)))
             (§ block
-                #_final
                 (§ var #_"long" (§ name keyTime) (.. key (getCreationTimeSeconds)))
                 (§ if (§ expr timeSecs < keyTime && (§ expr oldest == nil || keyTime < (.. oldest (getCreationTimeSeconds)))))
                 (§ block
@@ -45942,7 +45136,6 @@
             (§ var #_"List<ECKey>" (§ name results) (Lists/newLinkedList))
             (§ for (§ var #_"ECKey" (§ name key)) :for (.. hashToKeys (values)))
             (§ block
-                #_final
                 (§ var #_"long" (§ name keyTime) (.. key (getCreationTimeSeconds)))
                 (§ if (< keyTime timeSecs))
                 (§ block
@@ -46017,10 +45210,8 @@
 #_public
 (§ class #_"DecryptingKeyBag" (§ implements #_"KeyBag")
     #_protected
-    #_final
     (§ field #_"KeyBag" (§ name target))
     #_protected
-    #_final
     (§ field #_"KeyParameter" (§ name aesKey))
 
     #_public
@@ -46035,14 +45226,14 @@
     #_private
     (§ method- #_"ECKey" (§ fn maybeDecrypt) [#_"ECKey" (§ name key)])
     (§ block
-        (§ if (§ expr key == nil))
+        (§ if (nil? key))
         (§ block
             (§ return nil)
         )
 
         (§ if (.. key (isEncrypted)))
         (§ block
-            (§ if (§ expr aesKey == nil))
+            (§ if (nil? aesKey))
             (§ block
                 (§ throw (§ new #_"ECKey.KeyIsEncryptedException"))
             )
@@ -46180,7 +45371,7 @@
     #_protected
     (§ method #_"boolean" (§ fn shouldSelect) [#_"Transaction" (§ name tx)])
     (§ block
-        (§ quest (§ expr tx != nil) ? (isSelectable tx) :else true)
+        (if (some? tx) (isSelectable tx) true)
     )
 
     #_public
@@ -46207,7 +45398,7 @@
     #_public
     (§ method #_"DeterministicKeyChain" (§ fn makeKeyChain) [#_"Protos.Key" (§ name key), #_"Protos.Key" (§ name firstSubKey), #_"DeterministicSeed" (§ name seed), #_"KeyCrypter" (§ name crypter), #_"boolean" (§ name isMarried)])
     (§ block
-        (§ quest isMarried ? (§ new #_"MarriedKeyChain" seed, crypter) :else (§ new #_"DeterministicKeyChain" seed, crypter))
+        (if isMarried (§ new #_"MarriedKeyChain" seed, crypter) (§ new #_"DeterministicKeyChain" seed, crypter))
     )
 
     #_override
@@ -46220,7 +45411,7 @@
             (§ throw (§ new #_"UnreadableWalletException" (§ expr "Expecting account key but found key with path: " + (HDUtils/formatPath (.. accountKey (getPath))))))
         )
 
-        (§ quest isMarried ? (§ new #_"MarriedKeyChain" accountKey) :else (§ new #_"DeterministicKeyChain" accountKey, isFollowingKey))
+        (if isMarried (§ new #_"MarriedKeyChain" accountKey) (§ new #_"DeterministicKeyChain" accountKey, isFollowingKey))
     )
 )
 
@@ -46243,7 +45434,6 @@
 (§ class #_"DefaultRiskAnalysis" (§ implements #_"RiskAnalysis")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"DefaultRiskAnalysis")))
 
     ;;;
@@ -46253,18 +45443,14 @@
      ;;
     #_public
     #_static
-    #_final
     (§ def #_"Coin" (§ name MIN_ANALYSIS_NONDUST_OUTPUT) Transaction/MIN_NONDUST_OUTPUT)
 
     #_protected
-    #_final
     (§ field #_"Transaction" (§ name tx))
     #_protected
-    #_final
     (§ field #_"List<Transaction>" (§ name dependencies))
     #_nilable
     #_protected
-    #_final
     (§ field #_"Wallet" (§ name wallet))
 
     #_private
@@ -46316,18 +45502,15 @@
             (§ return Result/NON_FINAL)
         )
 
-        (§ if (§ expr wallet == nil))
+        (§ if (nil? wallet))
         (§ block
             (§ return nil)
         )
 
-        #_final
         (§ var #_"int" (§ name height) (.. wallet (getLastBlockSeenHeight)))
-        #_final
         (§ var #_"long" (§ name time) (.. wallet (getLastBlockSeenTimeSecs)))
         ;; If the transaction has a lock time specified in blocks, we consider that if the tx would become final
         ;; in the next block, it is not risky (as it would confirm normally).
-        #_final
         (§ var #_"int" (§ name adjustedHeight) (+ height 1))
 
         (§ if (§ not (.. tx (isFinal adjustedHeight, time))))
@@ -46377,7 +45560,6 @@
             (§ return RuleViolation/VERSION)
         )
 
-        #_final
         (§ var #_"List<TransactionOutput>" (§ name outputs) (.. tx (getOutputs)))
         (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. outputs (size))) :for (§ ass (§ name i) (+ i 1)))
         (§ block
@@ -46390,7 +45572,6 @@
             )
         )
 
-        #_final
         (§ var #_"List<TransactionInput>" (§ name inputs) (.. tx (getInputs)))
         (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. inputs (size))) :for (§ ass (§ name i) (+ i 1)))
         (§ block
@@ -46453,7 +45634,7 @@
                     ;; Doesn't look like a signature.
                     (§ ass (§ name signature) nil)
                 )
-                (§ if (§ expr signature != nil))
+                (§ if (some? signature))
                 (§ block
                     (§ if (§ not (TransactionSignature/isEncodingCanonical (.. chunk data))))
                     (§ block
@@ -46523,11 +45704,11 @@
         (§ block
             (§ return (§ expr "Pending risk analysis for " + (.. tx (getHashAsString))))
         )
-        (§ if (§ expr nonFinal != nil))
+        (§ if (some? nonFinal))
         (§ block
             (§ return (§ expr "Risky due to non-finality of " + (.. nonFinal (getHashAsString))))
         )
-        (§ if (§ expr nonStandard != nil))
+        (§ if (some? nonStandard))
         (§ block
             (§ return (§ expr "Risky due to non-standard tx " + (.. nonStandard (getHashAsString))))
         )
@@ -46624,15 +45805,12 @@
 (§ class #_"DeterministicKeyChain" (§ implements #_"EncryptableKeyChain")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"DeterministicKeyChain")))
     #_public
     #_static
-    #_final
     (§ def #_"String" (§ name DEFAULT_PASSPHRASE_FOR_MNEMONIC) "")
 
     #_protected
-    #_final
     (§ field #_"ReentrantLock" (§ name lock) (Threading/lock "DeterministicKeyChain"))
 
     #_private
@@ -46652,28 +45830,22 @@
     ;; The account path may be overridden by subclasses.
     #_public
     #_static
-    #_final
     (§ def #_"ImmutableList<ChildNumber>" (§ name ACCOUNT_ZERO_PATH) (ImmutableList/of ChildNumber/ZERO_HARDENED))
     #_public
     #_static
-    #_final
     (§ def #_"ImmutableList<ChildNumber>" (§ name EXTERNAL_SUBPATH) (ImmutableList/of ChildNumber/ZERO))
     #_public
     #_static
-    #_final
     (§ def #_"ImmutableList<ChildNumber>" (§ name INTERNAL_SUBPATH) (ImmutableList/of ChildNumber/ONE))
     #_public
     #_static
-    #_final
     (§ def #_"ImmutableList<ChildNumber>" (§ name EXTERNAL_PATH) (HDUtils/concat ACCOUNT_ZERO_PATH, EXTERNAL_SUBPATH))
     #_public
     #_static
-    #_final
     (§ def #_"ImmutableList<ChildNumber>" (§ name INTERNAL_PATH) (HDUtils/concat ACCOUNT_ZERO_PATH, INTERNAL_SUBPATH))
     ;; m / 44' / 0' / 0'
     #_public
     #_static
-    #_final
     (§ def #_"ImmutableList<ChildNumber>" (§ name BIP44_ACCOUNT_ZERO_PATH) (ImmutableList/of (§ new #_"ChildNumber" 44, true), ChildNumber/ZERO_HARDENED, ChildNumber/ZERO_HARDENED))
 
     ;; We try to ensure we have at least this many keys ready and waiting to be handed out via getKey().  See docs
@@ -46682,7 +45854,6 @@
     ;; chains, it will be calculated on demand from the number of loaded keys.
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name LAZY_CALCULATE_LOOKAHEAD) -1)
     #_protected
     (§ field #_"int" (§ name lookaheadSize) 100)
@@ -46720,7 +45891,6 @@
     ;; listeners "for free".  All keys in the key tree appear here, even if they aren't meant to be used for
     ;; receiving money.
     #_private
-    #_final
     (§ field- #_"BasicKeyChain" (§ name basicKeyChain))
 
     ;; If set this chain is following another chain in a married KeyChainGroup.
@@ -46845,17 +46015,17 @@
             (Preconditions/checkState (§ expr passphrase == nil || seed == nil), "Passphrase must not be specified with seed")
 
             ;; Default passphrase to "" if not specified.
-            (§ if (§ expr random != nil))
+            (§ if (some? random))
             (§ block
                 (§ return (§ new #_"DeterministicKeyChain" random, bits, (getPassphrase), seedCreationTimeSecs))
             )
 
-            (§ if (§ expr entropy != nil))
+            (§ if (some? entropy))
             (§ block
                 (§ return (§ new #_"DeterministicKeyChain" entropy, (getPassphrase), seedCreationTimeSecs))
             )
 
-            (§ if (§ expr seed != nil))
+            (§ if (some? seed))
             (§ block
                 (.. seed (setCreationTimeSeconds seedCreationTimeSecs))
                 (§ return (§ new #_"DeterministicKeyChain" seed))
@@ -46868,7 +46038,7 @@
         #_protected
         (§ method #_"String" (§ fn getPassphrase) [])
         (§ block
-            (§ quest (§ expr passphrase != nil) ? passphrase :else DEFAULT_PASSPHRASE_FOR_MNEMONIC)
+            (or passphrase DEFAULT_PASSPHRASE_FOR_MNEMONIC)
         )
     )
 
@@ -47264,7 +46434,7 @@
         (§ try )
         (§ block
             (§ var #_"DeterministicKey" (§ name k) (§ cast #_"DeterministicKey" (.. basicKeyChain (findKeyFromPubHash pubkeyHash))))
-            (§ if (§ expr k != nil))
+            (§ if (some? k))
             (§ block
                 (markKeyAsUsed k)
             )
@@ -47288,7 +46458,7 @@
         (§ try )
         (§ block
             (§ var #_"DeterministicKey" (§ name k) (§ cast #_"DeterministicKey" (.. basicKeyChain (findKeyFromPubKey pubkey))))
-            (§ if (§ expr k != nil))
+            (§ if (some? k))
             (§ block
                 (markKeyAsUsed k)
             )
@@ -47399,7 +46569,7 @@
     #_public
     (§ method #_"long" (§ fn getEarliestKeyCreationTime) [])
     (§ block
-        (§ quest (§ expr seed != nil) ? (.. seed (getCreationTimeSeconds)) :else (.. (getWatchingKey) (getCreationTimeSeconds)))
+        (if (some? seed) (.. seed (getCreationTimeSeconds)) (.. (getWatchingKey) (getCreationTimeSeconds)))
     )
 
     #_override
@@ -47430,7 +46600,7 @@
     #_public
     (§ method #_"List<String>" (§ fn getMnemonicCode) [])
     (§ block
-        (§ if (§ expr seed == nil))
+        (§ if (nil? seed))
         (§ block
             (§ return nil)
         )
@@ -47478,7 +46648,7 @@
         ;; Most of the serialization work is delegated to the basic key chain, which will serialize the bulk of the
         ;; data (handling encryption along the way), and letting us patch it up with the extra data we care about.
         (§ var #_"LinkedList<Protos.Key>" (§ name entries) (newLinkedList))
-        (§ if (§ expr seed != nil))
+        (§ if (some? seed))
         (§ block
             (§ var #_"Protos.Key.Builder" (§ name mnemonicEntry) (BasicKeyChain/serializeEncryptableItem seed))
             (.. mnemonicEntry (setType Protos/Key/Type/DETERMINISTIC_MNEMONIC))
@@ -47491,7 +46661,6 @@
             (§ var #_"DeterministicKey" (§ name key) (§ cast #_"DeterministicKey" (.. entry (getKey))))
             (§ var #_"Protos.Key.Builder" (§ name proto) (.. entry (getValue)))
             (.. proto (setType Protos/Key/Type/DETERMINISTIC_KEY))
-            #_final
             (§ var #_"Protos.DeterministicKey.Builder" (§ name detKey) (.. proto (getDeterministicKeyBuilder)))
             (.. detKey (setChainCode (ByteString/copyFrom (.. key (getChainCode)))))
             (§ for (§ var #_"ChildNumber" (§ name num)) :for (.. key (getPath)))
@@ -47552,11 +46721,10 @@
         (§ while (.. iter (hasNext)))
         (§ block
             (§ var #_"Protos.Key" (§ name key) (.. iter (next)))
-            #_final
             (§ var #_"Protos.Key.Type" (§ name t) (.. key (getType)))
             (§ if (§ expr t == Protos/Key/Type/DETERMINISTIC_MNEMONIC))
             (§ block
-                (§ if (§ expr chain != nil))
+                (§ if (some? chain))
                 (§ block
                     (Preconditions/checkState (<= 0 lookaheadSize))
 
@@ -47625,7 +46793,6 @@
 
                 ;; Deserialize the public key and path.
                 (§ var #_"LazyECPoint" (§ name pubkey) (§ new #_"LazyECPoint" (.. ECKey/CURVE (getCurve)), (.. key (getPublicKey) (toByteArray))))
-                #_final
                 (§ var #_"ImmutableList<ChildNumber>" (§ name immutablePath) (ImmutableList/copyOf path))
                 ;; Possibly create the chain, if we didn't already do so yet.
                 (§ var #_"boolean" (§ name isWatchingAccountKey) false)
@@ -47634,7 +46801,7 @@
                 ;; are to be placed in new following key chain.
                 (§ if (.. key (getDeterministicKey) (getIsFollowing)))
                 (§ block
-                    (§ if (§ expr chain != nil))
+                    (§ if (some? chain))
                     (§ block
                         (Preconditions/checkState (<= 0 lookaheadSize))
 
@@ -47648,11 +46815,11 @@
                     (§ ass (§ name isFollowingKey) true)
                 )
 
-                (§ if (§ expr chain == nil))
+                (§ if (nil? chain))
                 (§ block
                     ;; If this is not a following chain and previous was, this must be married.
                     (§ var #_"boolean" (§ name isMarried) (§ expr (§ not isFollowingKey) && (§ not (.. chains (isEmpty))) && (.. chains (get (- (.. chains (size)) 1)) (isFollowing))))
-                    (§ if (§ expr seed == nil))
+                    (§ if (nil? seed))
                     (§ block
                         (§ var #_"DeterministicKey" (§ name accountKey) (§ new #_"DeterministicKey" immutablePath, chainCode, pubkey, nil, nil))
                         (.. accountKey (setCreationTimeSeconds (/ (.. key (getCreationTimestamp)) 1000)))
@@ -47680,7 +46847,6 @@
                 (§ if (.. key (hasSecretBytes)))
                 (§ block
                     ;; Not encrypted: private key is available.
-                    #_final
                     (§ var #_"BigInteger" (§ name priv) (§ new #_"BigInteger" 1, (.. key (getSecretBytes) (toByteArray))))
                     (§ ass (§ name detkey) (§ new #_"DeterministicKey" immutablePath, chainCode, pubkey, priv, parent))
                 )
@@ -47742,7 +46908,7 @@
                 (.. chain basicKeyChain (importKey detkey))
             )
         )
-        (§ if (§ expr chain != nil))
+        (§ if (some? chain))
         (§ block
             (Preconditions/checkState (>= lookaheadSize 0))
             (.. chain (setLookaheadSize lookaheadSize))
@@ -47759,7 +46925,7 @@
     (§ block
         (Preconditions/checkNotNull password)
         (Preconditions/checkArgument (§ expr 0 < (.. password (length))))
-        (Preconditions/checkState (§ expr seed != nil), "Attempt to encrypt a watching chain.")
+        (Preconditions/checkState (some? seed), "Attempt to encrypt a watching chain.")
         (Preconditions/checkState (§ not (.. seed (isEncrypted))))
 
         (§ var #_"KeyCrypter" (§ name scrypt) (§ new #_"KeyCrypterScrypt"))
@@ -47782,7 +46948,7 @@
         (Preconditions/checkArgument (§ expr 0 < (.. password (length))))
 
         (§ var #_"KeyCrypter" (§ name crypter) (getKeyCrypter))
-        (Preconditions/checkState (§ expr crypter != nil), "Chain not encrypted")
+        (Preconditions/checkState (some? crypter), "Chain not encrypted")
         (§ var #_"KeyParameter" (§ name derivedKey) (.. crypter (deriveKey password)))
         (toDecrypted derivedKey)
     )
@@ -47791,8 +46957,8 @@
     #_public
     (§ method #_"DeterministicKeyChain" (§ fn toDecrypted) [#_"KeyParameter" (§ name aesKey)])
     (§ block
-        (Preconditions/checkState (§ expr (getKeyCrypter) != nil), "Key chain not encrypted")
-        (Preconditions/checkState (§ expr seed != nil), "Can't decrypt a watching chain")
+        (Preconditions/checkState (some? (getKeyCrypter)), "Key chain not encrypted")
+        (Preconditions/checkState (some? seed), "Can't decrypt a watching chain")
         (Preconditions/checkState (.. seed (isEncrypted)))
 
         (§ var #_"String" (§ name passphrase) DEFAULT_PASSPHRASE_FOR_MNEMONIC) ;; FIXME allow non-empty passphrase
@@ -47843,7 +47009,7 @@
     (§ method #_"boolean" (§ fn checkPassword) [#_"CharSequence" (§ name password)])
     (§ block
         (Preconditions/checkNotNull password)
-        (Preconditions/checkState (§ expr (getKeyCrypter) != nil), "Key chain not encrypted")
+        (Preconditions/checkState (some? (getKeyCrypter)), "Key chain not encrypted")
 
         (checkAESKey (.. (getKeyCrypter) (deriveKey password)))
     )
@@ -47852,9 +47018,9 @@
     #_public
     (§ method #_"boolean" (§ fn checkAESKey) [#_"KeyParameter" (§ name aesKey)])
     (§ block
-        (Preconditions/checkState (§ expr rootKey != nil), "Can't check password for a watching chain")
+        (Preconditions/checkState (some? rootKey), "Can't check password for a watching chain")
         (Preconditions/checkNotNull aesKey)
-        (Preconditions/checkState (§ expr (getKeyCrypter) != nil), "Key chain not encrypted")
+        (Preconditions/checkState (some? (getKeyCrypter)), "Key chain not encrypted")
 
         (§ try )
         (§ block
@@ -47982,7 +47148,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ return (§ quest (< lookaheadThreshold lookaheadSize) ? lookaheadThreshold :else 0))
+            (§ return (if (< lookaheadThreshold lookaheadSize) lookaheadThreshold 0))
         )
         (§ finally )
         (§ block
@@ -48039,9 +47205,7 @@
     (§ block
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
 
-        #_final
         (§ var #_"int" (§ name numChildren) (.. hierarchy (getNumChildren (.. parent (getPath)))))
-        #_final
         (§ var #_"int" (§ name needed) (§ expr issued + lookaheadSize + lookaheadThreshold - numChildren))
 
         (§ if (<= needed lookaheadThreshold))
@@ -48052,7 +47216,6 @@
         (.. log (info "{} keys needed for {} = {} issued + {} lookahead size + {} lookahead threshold - {} num children", needed, (.. parent (getPathAsString)), issued, lookaheadSize, lookaheadThreshold, numChildren))
 
         (§ var #_"List<DeterministicKey>" (§ name result) (§ new #_"ArrayList<>" needed))
-        #_final
         (§ var #_"Stopwatch" (§ name watch) (Stopwatch/createStarted))
         (§ var #_"int" (§ name nextChild) numChildren)
         (§ for (§ var #_"int" (§ name i) 0) :for (< i needed) :for (§ ass (§ name i) (+ i 1)))
@@ -48168,7 +47331,6 @@
     #_public
     (§ method #_"List<ECKey>" (§ fn getIssuedReceiveKeys) [])
     (§ block
-        #_final
         (§ var #_"List<ECKey>" (§ name keys) (§ new #_"ArrayList<>" (getKeys false, false)))
         (§ for (§ var #_"Iterator<ECKey>" (§ name i) (.. keys (iterator))) :for (.. i (hasNext)) :for (§ expr ))
         (§ block
@@ -48213,9 +47375,8 @@
         )
         (§ else )
         (§ block
-            #_final
             (§ var #_"byte[]" (§ name secret) (.. seed (getSeedBytes)))
-            (§ if (§ expr secret != nil))
+            (§ if (some? secret))
             (§ block
                 (.. proto (setDeterministicSeed (ByteString/copyFrom secret)))
             )
@@ -48270,11 +47431,9 @@
     #_public
     (§ method #_"String" (§ fn toString) [#_"boolean" (§ name includePrivateKeys), #_"NetworkParameters" (§ name params)])
     (§ block
-        #_final
         (§ var #_"DeterministicKey" (§ name watchingKey) (getWatchingKey))
-        #_final
         (§ var #_"StringBuilder" (§ name sb) (§ new #_"StringBuilder"))
-        (§ if (§ expr seed != nil))
+        (§ if (some? seed))
         (§ block
             (§ if (.. seed (isEncrypted)))
             (§ block
@@ -48282,7 +47441,6 @@
             )
             (§ elseif includePrivateKeys)
             (§ block
-                #_final
                 (§ var #_"List<String>" (§ name words) (.. seed (getMnemonicCode)))
                 (.. sb (append "Seed as words: ") (append (.. Utils/SPACE_JOINER (join words))) (append "\n"))
                 (.. sb (append "Seed as hex:   ") (append (.. seed (toHexString))) (append "\n"))
@@ -48353,24 +47511,19 @@
     ;; It would take more than 10^12 years to brute-force a 128 bit seed using $1B worth of computing equipment.
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name DEFAULT_SEED_ENTROPY_BITS) 128)
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MAX_SEED_ENTROPY_BITS) 512)
 
     #_nilable
     #_private
-    #_final
     (§ field- #_"byte[]" (§ name seed))
     #_nilable
     #_private
-    #_final
     (§ field- #_"List<String>" (§ name mnemonicCode)) ;; only one of mnemonicCode/encryptedMnemonicCode will be set
     #_nilable
     #_private
-    #_final
     (§ field- #_"EncryptedData" (§ name encryptedMnemonicCode))
     #_nilable
     #_private
@@ -48418,7 +47571,7 @@
     #_public
     (§ constructor #_"DeterministicSeed" [#_"List<String>" (§ name mnemonicCode), #_nilable #_"byte[]" (§ name seed), #_"String" (§ name passphrase), #_"long" (§ name creationTimeSeconds)])
     (§ block
-        (§ this (§ quest (§ expr seed != nil) ? seed :else (MnemonicCode/toSeed mnemonicCode, (Preconditions/checkNotNull passphrase))), mnemonicCode, creationTimeSeconds)
+        (§ this (or seed (MnemonicCode/toSeed mnemonicCode, (Preconditions/checkNotNull passphrase))), mnemonicCode, creationTimeSeconds)
         this
     )
 
@@ -48481,14 +47634,14 @@
     (§ method #_"boolean" (§ fn isEncrypted) [])
     (§ block
         (Preconditions/checkState (§ expr mnemonicCode != nil || encryptedMnemonicCode != nil))
-        (§ expr encryptedMnemonicCode != nil)
+        (some? encryptedMnemonicCode)
     )
 
     #_override
     #_public
     (§ method #_"String" (§ fn toString) [])
     (§ block
-        (§ quest (isEncrypted) ? "DeterministicSeed [encrypted]" :else (§ str "DeterministicSeed " + (toHexString) + " " + (.. Utils/SPACE_JOINER (join mnemonicCode))))
+        (if (isEncrypted) "DeterministicSeed [encrypted]" (§ str "DeterministicSeed " + (toHexString) + " " + (.. Utils/SPACE_JOINER (join mnemonicCode))))
     )
 
     ;;; Returns the seed as hex or null if encrypted. ;;
@@ -48496,7 +47649,7 @@
     #_public
     (§ method #_"String" (§ fn toHexString) [])
     (§ block
-        (§ quest (§ expr seed != nil) ? (.. HEX (encode seed)) :else nil)
+        (when (some? seed) (.. HEX (encode seed)))
     )
 
     #_nilable
@@ -48553,8 +47706,8 @@
     #_public
     (§ method #_"DeterministicSeed" (§ fn encrypt) [#_"KeyCrypter" (§ name keyCrypter), #_"KeyParameter" (§ name aesKey)])
     (§ block
-        (Preconditions/checkState (§ expr encryptedMnemonicCode == nil), "Trying to encrypt seed twice")
-        (Preconditions/checkState (§ expr mnemonicCode != nil), "Mnemonic missing so cannot encrypt")
+        (Preconditions/checkState (nil? encryptedMnemonicCode), "Trying to encrypt seed twice")
+        (Preconditions/checkState (some? mnemonicCode), "Mnemonic missing so cannot encrypt")
 
         (§ var #_"EncryptedData" (§ name encryptedMnemonic) (.. keyCrypter (encrypt (getMnemonicAsBytes), aesKey)))
         (§ var #_"EncryptedData" (§ name encryptedSeed) (.. keyCrypter (encrypt seed, aesKey)))
@@ -48574,7 +47727,7 @@
         (Preconditions/checkNotNull encryptedMnemonicCode)
 
         (§ var #_"List<String>" (§ name mnemonic) (decodeMnemonicCode (.. crypter (decrypt encryptedMnemonicCode, aesKey))))
-        (§ var #_"byte[]" (§ name seed) (§ quest (§ expr encryptedSeed != nil) ? (.. crypter (decrypt encryptedSeed, aesKey)) :else nil))
+        (§ var #_"byte[]" (§ name seed) (when (some? encryptedSeed) (.. crypter (decrypt encryptedSeed, aesKey))))
         (§ new #_"DeterministicSeed" mnemonic, seed, passphrase, creationTimeSeconds)
     )
 
@@ -48611,7 +47764,7 @@
     (§ method #_"void" (§ fn check) [])
         (§ throws #_"MnemonicException")
     (§ block
-        (§ if (§ expr mnemonicCode != nil))
+        (§ if (some? mnemonicCode))
         (§ block
             (.. MnemonicCode/INSTANCE (check mnemonicCode))
         )
@@ -48963,7 +48116,6 @@
 
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"KeyChainGroup")))
 
     #_private
@@ -48971,16 +48123,13 @@
     #_private
     (§ field- #_"NetworkParameters" (§ name params))
     #_protected
-    #_final
     (§ field #_"LinkedList<DeterministicKeyChain>" (§ name chains))
     ;; currentKeys is used for normal, non-multisig/married wallets.
     ;; currentAddresses is used when we're handing out P2SH addresses.
     ;; They're mutually exclusive.
     #_private
-    #_final
     (§ field- #_"EnumMap<KeyChain.KeyPurpose, DeterministicKey>" (§ name currentKeys))
     #_private
-    #_final
     (§ field- #_"EnumMap<KeyChain.KeyPurpose, Address>" (§ name currentAddresses))
 
     #_nilable
@@ -49023,10 +48172,10 @@
     (§ constructor- #_"KeyChainGroup" [#_"NetworkParameters" (§ name params), #_nilable #_"BasicKeyChain" (§ name basicKeyChain), #_"List<DeterministicKeyChain>" (§ name chains), #_nilable #_"EnumMap<KeyChain.KeyPurpose, DeterministicKey>" (§ name currentKeys), #_nilable #_"KeyCrypter" (§ name crypter)])
     (§ block
         (§ ass (§ name (.. this params)) params)
-        (§ ass (§ name (.. this basic)) (§ quest (§ expr basicKeyChain == nil) ? (§ new #_"BasicKeyChain") :else basicKeyChain))
+        (§ ass (§ name (.. this basic)) (or basicKeyChain (§ new #_"BasicKeyChain")))
         (§ ass (§ name (.. this chains)) (§ new #_"LinkedList<>" (Preconditions/checkNotNull chains)))
         (§ ass (§ name (.. this keyCrypter)) crypter)
-        (§ ass (§ name (.. this currentKeys)) (§ quest (§ expr currentKeys == nil) ? (§ new #_"EnumMap<KeyChain.KeyPurpose, DeterministicKey>" (§ klass #_"KeyChain.KeyPurpose")) :else currentKeys))
+        (§ ass (§ name (.. this currentKeys)) (or currentKeys (§ new #_"EnumMap<KeyChain.KeyPurpose, DeterministicKey>" (§ klass #_"KeyChain.KeyPurpose"))))
         (§ ass (§ name (.. this currentAddresses)) (§ new #_"EnumMap<>" (§ klass #_"KeyChain.KeyPurpose")))
         (maybeLookaheadScripts)
 
@@ -49057,7 +48206,6 @@
     (§ method #_"void" (§ fn createAndActivateNewHDChain) [])
     (§ block
         ;; We can't do auto upgrade here because we don't know the rotation time, if any.
-        #_final
         (§ var #_"DeterministicKeyChain" (§ name chain) (§ new #_"DeterministicKeyChain" (§ new #_"SecureRandom")))
         (addAndActivateHDChain chain)
         nil
@@ -49108,7 +48256,7 @@
         )
 
         (§ var #_"DeterministicKey" (§ name current) (.. currentKeys (get purpose)))
-        (§ if (§ expr current == nil))
+        (§ if (nil? current))
         (§ block
             (§ ass (§ name current) (freshKey purpose))
             (.. currentKeys (put purpose, current))
@@ -49126,7 +48274,7 @@
         (§ if (.. chain (isMarried)))
         (§ block
             (§ var #_"Address" (§ name current) (.. currentAddresses (get purpose)))
-            (§ if (§ expr current == nil))
+            (§ if (nil? current))
             (§ block
                 (§ ass (§ name current) (freshAddress purpose))
                 (.. currentAddresses (put purpose, current))
@@ -49197,7 +48345,6 @@
 
     ;;; Returns the key chain that's used for generation of fresh/current keys.  This is always the newest HD chain. ;;
     #_public
-    #_final
     (§ method #_"DeterministicKeyChain" (§ fn getActiveKeyChain) [])
     (§ block
         (§ if (.. chains (isEmpty)))
@@ -49236,7 +48383,7 @@
     #_public
     (§ method #_"int" (§ fn getLookaheadSize) [])
     (§ block
-        (§ quest (§ expr lookaheadSize == -1) ? (.. (getActiveKeyChain) (getLookaheadSize)) :else lookaheadSize)
+        (if (== lookaheadSize -1) (.. (getActiveKeyChain) (getLookaheadSize)) lookaheadSize)
     )
 
     ;;;
@@ -49260,7 +48407,7 @@
     #_public
     (§ method #_"int" (§ fn getLookaheadThreshold) [])
     (§ block
-        (§ quest (§ expr lookaheadThreshold == -1) ? (.. (getActiveKeyChain) (getLookaheadThreshold)) :else lookaheadThreshold)
+        (if (== lookaheadThreshold -1) (.. (getActiveKeyChain) (getLookaheadThreshold)) lookaheadThreshold)
     )
 
     ;;; Imports the given keys into the basic chain, creating it if necessary. ;;
@@ -49280,7 +48427,7 @@
     #_public
     (§ method #_"boolean" (§ fn checkPassword) [#_"CharSequence" (§ name password)])
     (§ block
-        (Preconditions/checkState (§ expr keyCrypter != nil), "Not encrypted")
+        (Preconditions/checkState (some? keyCrypter), "Not encrypted")
 
         (checkAESKey (.. keyCrypter (deriveKey password)))
     )
@@ -49288,17 +48435,17 @@
     #_public
     (§ method #_"boolean" (§ fn checkAESKey) [#_"KeyParameter" (§ name aesKey)])
     (§ block
-        (Preconditions/checkState (§ expr keyCrypter != nil), "Not encrypted")
+        (Preconditions/checkState (some? keyCrypter), "Not encrypted")
 
-        (§ quest (§ expr 0 < (.. basic (numKeys))) ? (.. basic (checkAESKey aesKey)) :else (.. (getActiveKeyChain) (checkAESKey aesKey)))
+        (if (< 0 (.. basic (numKeys))) (.. basic (checkAESKey aesKey)) (.. (getActiveKeyChain) (checkAESKey aesKey)))
     )
 
     ;;; Imports the given unencrypted keys into the basic chain, encrypting them along the way with the given key. ;;
     #_public
-    (§ method #_"int" (§ fn importKeysAndEncrypt) [#_final #_"List<ECKey>" (§ name keys), #_"KeyParameter" (§ name aesKey)])
+    (§ method #_"int" (§ fn importKeysAndEncrypt) [#_"List<ECKey>" (§ name keys), #_"KeyParameter" (§ name aesKey)])
     (§ block
         ;; TODO: Firstly check if the aes key can decrypt any of the existing keys successfully.
-        (Preconditions/checkState (§ expr keyCrypter != nil), "Not encrypted")
+        (Preconditions/checkState (some? keyCrypter), "Not encrypted")
 
         (§ var #_"LinkedList<ECKey>" (§ name encryptedKeys) (Lists/newLinkedList))
         (§ for (§ var #_"ECKey" (§ name key)) :for keys)
@@ -49323,7 +48470,7 @@
         (§ block
             (§ var #_"DeterministicKeyChain" (§ name chain) (.. iter (next)))
             (§ var #_"RedeemData" (§ name redeemData) (.. chain (findRedeemDataByScriptHash (ByteString/copyFrom scriptHash))))
-            (§ if (§ expr redeemData != nil))
+            (§ if (some? redeemData))
             (§ block
                 (§ return redeemData)
             )
@@ -49337,7 +48484,7 @@
         (Preconditions/checkArgument (.. address (isP2SHAddress)))
 
         (§ var #_"RedeemData" (§ name data) (findRedeemDataFromScriptHash (.. address (getHash160))))
-        (§ if (§ expr data == nil))
+        (§ if (nil? data))
         (§ block
             (§ return nil) ;; Not our P2SH address.
         )
@@ -49347,7 +48494,7 @@
             (§ for (§ var #_"DeterministicKeyChain" (§ name chain)) :for chains)
             (§ block
                 (§ var #_"DeterministicKey" (§ name k) (.. chain (findKeyFromPubKey (.. key (getPubKey)))))
-                (§ if (§ expr k != nil))
+                (§ if (some? k))
                 (§ block
                     (.. chain (markKeyAsUsed k))
                     (maybeMarkCurrentAddressAsUsed address)
@@ -49363,7 +48510,7 @@
     (§ method #_"ECKey" (§ fn findKeyFromPubHash) [#_"byte[]" (§ name pubkeyHash)])
     (§ block
         (§ var #_"ECKey" (§ name result) (.. basic (findKeyFromPubHash pubkeyHash)))
-        (§ if (§ expr result != nil))
+        (§ if (some? result))
         (§ block
             (§ return result)
         )
@@ -49371,7 +48518,7 @@
         (§ for (§ var #_"DeterministicKeyChain" (§ name chain)) :for chains)
         (§ block
             (§ ass (§ name result) (.. chain (findKeyFromPubHash pubkeyHash)))
-            (§ if (§ expr result != nil))
+            (§ if (some? result))
             (§ block
                 (§ return result)
             )
@@ -49390,7 +48537,7 @@
         (§ for (§ var #_"DeterministicKeyChain" (§ name chain)) :for chains)
         (§ block
             (§ var #_"DeterministicKey" (§ name key) (.. chain (markPubHashAsUsed pubkeyHash)))
-            (§ if (§ expr key != nil))
+            (§ if (some? key))
             (§ block
                 (maybeMarkCurrentKeyAsUsed key)
                 (§ return nil)
@@ -49457,7 +48604,7 @@
     (§ method #_"ECKey" (§ fn findKeyFromPubKey) [#_"byte[]" (§ name pubkey)])
     (§ block
         (§ var #_"ECKey" (§ name result) (.. basic (findKeyFromPubKey pubkey)))
-        (§ if (§ expr result != nil))
+        (§ if (some? result))
         (§ block
             (§ return result)
         )
@@ -49465,7 +48612,7 @@
         (§ for (§ var #_"DeterministicKeyChain" (§ name chain)) :for chains)
         (§ block
             (§ ass (§ name result) (.. chain (findKeyFromPubKey pubkey)))
-            (§ if (§ expr result != nil))
+            (§ if (some? result))
             (§ block
                 (§ return result)
             )
@@ -49484,7 +48631,7 @@
         (§ for (§ var #_"DeterministicKeyChain" (§ name chain)) :for chains)
         (§ block
             (§ var #_"DeterministicKey" (§ name key) (.. chain (markPubKeyAsUsed pubkey)))
-            (§ if (§ expr key != nil))
+            (§ if (some? key))
             (§ block
                 (maybeMarkCurrentKeyAsUsed key)
                 (§ return nil)
@@ -49524,7 +48671,6 @@
      ; @see org.bitcoinj.wallet.MarriedKeyChain
      ;;
     #_public
-    #_final
     (§ method #_"boolean" (§ fn isMarried) [])
     (§ block
         (§ expr (§ not (.. chains (isEmpty))) && (.. (getActiveKeyChain) (isMarried)))
@@ -49594,7 +48740,7 @@
     #_public
     (§ method #_"boolean" (§ fn isEncrypted) [])
     (§ block
-        (§ expr keyCrypter != nil)
+        (some? keyCrypter)
     )
 
     ;;;
@@ -49609,7 +48755,7 @@
         (§ var #_"BasicKeyChain.State" (§ name activeState) BasicKeyChain/State/EMPTY)
         (§ if (§ not (.. chains (isEmpty))))
         (§ block
-            (§ ass (§ name activeState) (§ quest (.. (getActiveKeyChain) (isWatching)) ? BasicKeyChain/State/WATCHING :else BasicKeyChain/State/REGULAR))
+            (§ ass (§ name activeState) (if (.. (getActiveKeyChain) (isWatching)) BasicKeyChain/State/WATCHING BasicKeyChain/State/REGULAR))
         )
 
         (§ var #_"BasicKeyChain.State" (§ name basicState) (.. basic (isWatching)))
@@ -49737,7 +48883,7 @@
     #_public
     (§ method #_"List<Protos.Key>" (§ fn serializeToProtobuf) [])
     (§ block
-        (§ var #_"List<Protos.Key>" (§ name result) (§ quest (§ expr basic != nil) ? (.. basic (serializeToProtobuf)) :else (Lists/newArrayList)))
+        (§ var #_"List<Protos.Key>" (§ name result) (if (some? basic) (.. basic (serializeToProtobuf)) (Lists/newArrayList)))
 
         (§ for (§ var #_"DeterministicKeyChain" (§ name chain)) :for chains)
         (§ block
@@ -49822,14 +48968,14 @@
         ;; Subtract one because the key rotation time might have been set to the creation time of the first known
         ;; good key, in which case, that's the one we want to find.
         (§ var #_"ECKey" (§ name keyToUse) (.. basic (findOldestKeyAfter (- keyRotationTimeSecs 1))))
-        (§ if (§ expr keyToUse == nil))
+        (§ if (nil? keyToUse))
         (§ block
             (§ throw (§ new #_"AllRandomKeysRotating"))
         )
 
         (§ if (.. keyToUse (isEncrypted)))
         (§ block
-            (§ if (§ expr aesKey == nil))
+            (§ if (nil? aesKey))
             (§ block
                 ;; We can't auto upgrade because we don't know the users password at this point.  We throw an exception
                 ;; so the calling code knows to abort the load and ask the user for their password, they can then try
@@ -49847,7 +48993,7 @@
             )
             (§ ass (§ name keyToUse) (.. keyToUse (decrypt aesKey)))
         )
-        (§ elseif (§ expr aesKey != nil))
+        (§ elseif (some? aesKey))
         (§ block
             (§ throw (§ new #_"IllegalStateException" "AES Key was provided but wallet is not encrypted."))
         )
@@ -49872,7 +49018,7 @@
         (Preconditions/checkState (§ expr (.. entropy length) == DeterministicSeed/DEFAULT_SEED_ENTROPY_BITS / 8))
         (§ var #_"String" (§ name passphrase) "") ;; FIXME allow non-empty passphrase
         (§ var #_"DeterministicKeyChain" (§ name chain) (§ new #_"DeterministicKeyChain" entropy, passphrase, (.. keyToUse (getCreationTimeSeconds))))
-        (§ if (§ expr aesKey != nil))
+        (§ if (some? aesKey))
         (§ block
             (§ ass (§ name chain) (.. chain (toEncrypted (Preconditions/checkNotNull (.. basic (getKeyCrypter))), aesKey)))
         )
@@ -49944,9 +49090,8 @@
     #_public
     (§ method #_"String" (§ fn toString) [#_"boolean" (§ name includePrivateKeys)])
     (§ block
-        #_final
         (§ var #_"StringBuilder" (§ name sb) (§ new #_"StringBuilder"))
-        (§ if (§ expr basic != nil))
+        (§ if (some? basic))
         (§ block
             (§ var #_"List<ECKey>" (§ name keys) (.. basic (getKeys)))
             (Collections/sort keys, ECKey/AGE_COMPARATOR)
@@ -50001,23 +49146,18 @@
 (§ class #_"KeyTimeCoinSelector" (§ implements #_"CoinSelector")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"KeyTimeCoinSelector")))
 
     ;;; A number of inputs chosen to avoid hitting {@link org.bitcoinj.core.Transaction#MAX_STANDARD_TX_SIZE}. ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name MAX_SIMULTANEOUS_INPUTS) 600)
 
     #_private
-    #_final
     (§ field- #_"long" (§ name unixTimeSeconds))
     #_private
-    #_final
     (§ field- #_"Wallet" (§ name wallet))
     #_private
-    #_final
     (§ field- #_"boolean" (§ name ignorePending))
 
     #_public
@@ -50046,7 +49186,6 @@
 
                 ;; Find the key that controls output, assuming it's a regular pay-to-pubkey or pay-to-address output.
                 ;; We ignore any other kind of exotic output on the assumption we can't spend it ourselves.
-                #_final
                 (§ var #_"Script" (§ name scriptPubKey) (.. output (getScriptPubKey)))
                 (§ var #_"ECKey" (§ name controllingKey))
                 (§ if (.. scriptPubKey (isSentToRawPubKey)))
@@ -50182,15 +49321,15 @@
                 (§ ass (§ name threshold) (§ expr (+ (.. followingKeys (size)) 1) / 2 + 1))
             )
 
-            (§ if (§ expr random != nil))
+            (§ if (some? random))
             (§ block
                 (§ ass (§ name chain) (§ new #_"MarriedKeyChain" random, bits, (getPassphrase), seedCreationTimeSecs))
             )
-            (§ elseif (§ expr entropy != nil))
+            (§ elseif (some? entropy))
             (§ block
                 (§ ass (§ name chain) (§ new #_"MarriedKeyChain" entropy, (getPassphrase), seedCreationTimeSecs))
             )
-            (§ elseif (§ expr seed != nil))
+            (§ elseif (some? seed))
             (§ block
                 (.. seed (setCreationTimeSeconds seedCreationTimeSecs))
                 (§ ass (§ name chain) (§ new #_"MarriedKeyChain" seed))
@@ -50268,7 +49407,7 @@
     (§ method #_"Script" (§ fn freshOutputScript) [#_"KeyPurpose" (§ name purpose)])
     (§ block
         (§ var #_"DeterministicKey" (§ name followedKey) (getKey purpose))
-        (§ var #_"ImmutableList.Builder<ECKey>" (§ name keys) (.. (ImmutableList/<ECKey>builder) (add followedKey)))
+        (§ var #_"ImmutableList.Builder<ECKey>" (§ name keys) (.. (ImmutableList/builder #_"ImmutableList<ECKey>") (add followedKey)))
         (§ for (§ var #_"DeterministicKeyChain" (§ name keyChain)) :for followingKeyChains)
         (§ block
             (§ var #_"DeterministicKey" (§ name followingKey) (.. keyChain (getKey purpose)))
@@ -50308,7 +49447,7 @@
     (§ block
         (Preconditions/checkArgument (§ expr sigsRequiredToSpend <= (.. followingAccountKeys (size)) + 1), "Multisig threshold can't exceed total number of keys")
         (Preconditions/checkState (§ expr (numLeafKeysIssued) == 0), "Active keychain already has keys in use")
-        (Preconditions/checkState (§ expr followingKeyChains == nil))
+        (Preconditions/checkState (nil? followingKeyChains))
 
         (§ var #_"List<DeterministicKeyChain>" (§ name followingKeyChains) (Lists/newArrayList))
 
@@ -50342,7 +49481,7 @@
         (§ block
             (.. super (setLookaheadSize lookaheadSize))
 
-            (§ if (§ expr followingKeyChains != nil))
+            (§ if (some? followingKeyChains))
             (§ block
                 (§ for (§ var #_"DeterministicKeyChain" (§ name followingChain)) :for followingKeyChains)
                 (§ block
@@ -50485,10 +49624,8 @@
 #_public
 (§ class #_"RedeemData"
     #_public
-    #_final
     (§ field #_"Script" (§ name redeemScript))
     #_public
-    #_final
     (§ field #_"List<ECKey>" (§ name keys))
 
     #_private
@@ -50518,7 +49655,7 @@
     (§ block
         (Preconditions/checkArgument (§ expr (.. program (isSentToAddress)) || (.. program (isSentToRawPubKey))))
 
-        (§ quest (§ expr key != nil) ? (§ new #_"RedeemData" (Collections/singletonList key), program) :else nil)
+        (when (some? key) (§ new #_"RedeemData" (Collections/singletonList key), program))
     )
 
     ;;;
@@ -50725,7 +49862,6 @@
     (§ defn #_"SendRequest" (§ fn to) [#_"Address" (§ name destination), #_"Coin" (§ name value)])
     (§ block
         (§ var #_"SendRequest" (§ name req) (§ new #_"SendRequest"))
-        #_final
         (§ var #_"NetworkParameters" (§ name parameters) (.. destination (getParameters)))
 
         (Preconditions/checkNotNull parameters, "Address is for an unknown network")
@@ -50768,7 +49904,6 @@
     (§ defn #_"SendRequest" (§ fn emptyWallet) [#_"Address" (§ name destination)])
     (§ block
         (§ var #_"SendRequest" (§ name req) (§ new #_"SendRequest"))
-        #_final
         (§ var #_"NetworkParameters" (§ name parameters) (.. destination (getParameters)))
 
         (Preconditions/checkNotNull parameters, "Address is for an unknown network")
@@ -50789,7 +49924,7 @@
     (§ defn #_"SendRequest" (§ fn childPaysForParent) [#_"Wallet" (§ name wallet), #_"Transaction" (§ name parentTransaction), #_"Coin" (§ name feeRaise)])
     (§ block
         (§ var #_"TransactionOutput" (§ name outputToSpend) nil)
-        (§ for (§ var #_final TransactionOutput output) :for (.. parentTransaction (getOutputs)))
+        (§ for (§ var TransactionOutput output) :for (.. parentTransaction (getOutputs)))
         (§ block
             (§ if (§ expr (.. output (isMine wallet)) && (.. output (isAvailableForSpending)) && (.. output (getValue) (isGreaterThan feeRaise))))
             (§ block
@@ -50800,12 +49935,10 @@
         ;; TODO: Spend another confirmed output of own wallet if needed.
         (Preconditions/checkNotNull outputToSpend, "Can't find adequately sized output that spends to us")
 
-        #_final
         (§ var #_"Transaction" (§ name tx) (§ new #_"Transaction" (.. parentTransaction (getParams))))
         (.. tx (addInput outputToSpend))
         (.. tx (addOutput (.. outputToSpend (getValue) (subtract feeRaise)), (.. wallet (freshAddress KeyPurpose/CHANGE))))
         (.. tx (setPurpose Transaction/Purpose/RAISE_FEE))
-        #_final
         (§ var #_"SendRequest" (§ name req) (forTx tx))
         (§ ass (§ name (.. req completed)) true)
         req
@@ -50853,7 +49986,7 @@
         (.. helper (add "feePerKb", feePerKb))
         (.. helper (add "ensureMinRequiredFee", ensureMinRequiredFee))
         (.. helper (add "signInputs", signInputs))
-        (.. helper (add "aesKey", (§ expr (§ quest (§ expr aesKey != nil) ? "set" :else nil)))) ;; Careful to not leak the key.
+        (.. helper (add "aesKey", (when (some? aesKey) "set"))) ;; Careful to not leak the key.
         (.. helper (add "coinSelector", coinSelector))
         (.. helper (add "shuffleOutputs", shuffleOutputs))
         (.. helper (add "recipientsPayFees", recipientsPayFees))
@@ -50985,20 +50118,16 @@
 (§ class #_"Wallet" (§ implements #_"NewBestBlockListener", #_"TransactionReceivedInBlockListener", #_"PeerFilterProvider", #_"KeyBag", #_"TransactionBag", #_"ReorganizeListener")
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"Wallet")))
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name MINIMUM_BLOOM_DATA_LENGTH) 8)
 
     ;; Ordering: lock > keyChainGroupLock.  KeyChainGroup is protected separately to allow fast querying of current receive
     ;; address even if the wallet itself is busy e.g. saving or processing a big reorg.  Useful for reducing UI latency.
     #_protected
-    #_final
     (§ field #_"ReentrantLock" (§ name lock) (Threading/lock "wallet"))
     #_protected
-    #_final
     (§ field #_"ReentrantLock" (§ name keyChainGroupLock) (Threading/lock "wallet-keychaingroup"))
 
     ;; The various pools below give quick access to wallet-relevant transactions by the state they're in:
@@ -51021,27 +50150,21 @@
     ;;           is a re-org to a chain that doesn't include the double spend.
 
     #_private
-    #_final
     (§ field- #_"Map<Sha256Hash, Transaction>" (§ name pending))
     #_private
-    #_final
     (§ field- #_"Map<Sha256Hash, Transaction>" (§ name unspent))
     #_private
-    #_final
     (§ field- #_"Map<Sha256Hash, Transaction>" (§ name spent))
     #_private
-    #_final
     (§ field- #_"Map<Sha256Hash, Transaction>" (§ name dead))
 
     ;; All transactions together.
     #_protected
-    #_final
     (§ field #_"Map<Sha256Hash, Transaction>" (§ name transactions))
 
     ;; All the TransactionOutput objects that we could spend (ignoring whether we have the private key or not).
     ;; Used to speed up various calculations.
     #_protected
-    #_final
     (§ field #_"HashSet<TransactionOutput>" (§ name myUnspents) (Sets/newHashSet))
 
     ;; Transactions that were dropped by the risk analysis system.  These are not in any pools and not serialized
@@ -51052,7 +50175,6 @@
     ;; connections then the remote peers will forget that we were sent the tx data previously and send it again
     ;; when relaying a filtered merkleblock.
     #_private
-    #_final
     (§ field- #_"LinkedHashMap<Sha256Hash, Transaction>" (§ name riskDropped) (§ new #_"LinkedHashMap<Sha256Hash, Transaction>"
         (§ anon
             #_override
@@ -51070,10 +50192,8 @@
     (§ field- #_"KeyChainGroup" (§ name keyChainGroup))
 
     #_protected
-    #_final
     (§ field #_"Context" (§ name context))
     #_protected
-    #_final
     (§ field #_"NetworkParameters" (§ name params))
 
     #_nilable
@@ -51085,19 +50205,14 @@
     (§ field- #_"long" (§ name lastBlockSeenTimeSecs))
 
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<WalletChangeEventListener>>" (§ name changeListeners) (§ new #_"CopyOnWriteArrayList<>"))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<WalletCoinsReceivedEventListener>>" (§ name coinsReceivedListeners) (§ new #_"CopyOnWriteArrayList<>"))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<WalletCoinsSentEventListener>>" (§ name coinsSentListeners) (§ new #_"CopyOnWriteArrayList<>"))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<WalletReorganizeEventListener>>" (§ name reorganizeListeners) (§ new #_"CopyOnWriteArrayList<>"))
     #_private
-    #_final
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<TransactionConfidenceEventListener>>" (§ name transactionConfidenceListeners) (§ new #_"CopyOnWriteArrayList<>"))
 
     ;; A listener that relays confidence changes from the transaction confidence object to the wallet event listener,
@@ -51209,7 +50324,6 @@
     #_static
     (§ defn #_"Wallet" (§ fn fromWatchingKeyB58) [#_"NetworkParameters" (§ name params), #_"String" (§ name watchKeyB58), #_"long" (§ name creationTimeSeconds)])
     (§ block
-        #_final
         (§ var #_"DeterministicKey" (§ name watchKey) (DeterministicKey/deserializeB58 nil, watchKeyB58, params))
         (.. watchKey (setCreationTimeSeconds creationTimeSeconds))
         (fromWatchingKey params, watchKey)
@@ -51329,7 +50443,6 @@
      ; {@link IllegalStateException} will be thrown</p>
      ;;
     #_public
-    #_final
     (§ method #_"void" (§ fn addTransactionSigner) [#_"TransactionSigner" (§ name signer)])
     (§ block
         (.. lock (lock))
@@ -51532,7 +50645,6 @@
     #_public
     (§ method #_"List<Address>" (§ fn getIssuedReceiveAddresses) [])
     (§ block
-        #_final
         (§ var #_"List<ECKey>" (§ name keys) (getIssuedReceiveKeys))
         (§ var #_"List<Address>" (§ name addresses) (§ new #_"ArrayList<>" (.. keys (size))))
         (§ for (§ var #_"ECKey" (§ name key)) :for keys)
@@ -51709,7 +50821,7 @@
      ; for each key in the list that was not already present.
      ;;
     #_public
-    (§ method #_"int" (§ fn importKeys) [#_final #_"List<ECKey>" (§ name keys)])
+    (§ method #_"int" (§ fn importKeys) [#_"List<ECKey>" (§ name keys)])
     (§ block
         ;; API usage check.
         (checkNoDeterministicKeys keys)
@@ -51743,7 +50855,7 @@
 
     ;;; Takes a list of keys and a password, then encrypts and imports them in one step using the current keycrypter. ;;
     #_public
-    (§ method #_"int" (§ fn importKeysAndEncrypt) [#_final #_"List<ECKey>" (§ name keys), #_"CharSequence" (§ name password)])
+    (§ method #_"int" (§ fn importKeysAndEncrypt) [#_"List<ECKey>" (§ name keys), #_"CharSequence" (§ name password)])
     (§ block
         (.. keyChainGroupLock (lock))
         (§ try )
@@ -51759,7 +50871,7 @@
 
     ;;; Takes a list of keys and an AES key, then encrypts and imports them in one step using the current keycrypter. ;;
     #_public
-    (§ method #_"int" (§ fn importKeysAndEncrypt) [#_final #_"List<ECKey>" (§ name keys), #_"KeyParameter" (§ name aesKey)])
+    (§ method #_"int" (§ fn importKeysAndEncrypt) [#_"List<ECKey>" (§ name keys), #_"KeyParameter" (§ name aesKey)])
     (§ block
         (.. keyChainGroupLock (lock))
         (§ try )
@@ -52062,7 +51174,7 @@
         (§ try )
         (§ block
             (§ var #_"DeterministicSeed" (§ name seed) (.. keyChainGroup (getActiveKeyChain) (getSeed)))
-            (§ if (§ expr seed == nil))
+            (§ if (nil? seed))
             (§ block
                 (§ throw (§ new #_"ECKey.MissingPrivateKeyException"))
             )
@@ -52104,7 +51216,6 @@
         (.. keyChainGroupLock (lock))
         (§ try )
         (§ block
-            #_final
             (§ var #_"KeyCrypterScrypt" (§ name scrypt) (§ new #_"KeyCrypterScrypt"))
             (.. keyChainGroup (encrypt scrypt, (.. scrypt (deriveKey password))))
         )
@@ -52150,9 +51261,8 @@
         (.. keyChainGroupLock (lock))
         (§ try )
         (§ block
-            #_final
             (§ var #_"KeyCrypter" (§ name crypter) (.. keyChainGroup (getKeyCrypter)))
-            (Preconditions/checkState (§ expr crypter != nil), "Not encrypted")
+            (Preconditions/checkState (some? crypter), "Not encrypted")
             (.. keyChainGroup (decrypt (.. crypter (deriveKey password))))
         )
         (§ finally )
@@ -52256,7 +51366,7 @@
         (§ try )
         (§ block
             (§ var #_"KeyCrypter" (§ name crypter) (.. keyChainGroup (getKeyCrypter)))
-            (§ return (§ quest (§ expr crypter != nil) ? (.. crypter (getUnderstoodEncryptionType)) :else EncryptionType/UNENCRYPTED))
+            (§ return (if (some? crypter) (.. crypter (getUnderstoodEncryptionType)) EncryptionType/UNENCRYPTED))
         )
         (§ finally )
         (§ block
@@ -52365,7 +51475,7 @@
         (§ finally )
         (§ block
             (.. lock (unlock))
-            (§ if (§ expr stream != nil))
+            (§ if (some? stream))
             (§ block
                 (.. stream (close))
             )
@@ -52498,9 +51608,9 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (Preconditions/checkState (§ expr vFileManager == nil), "Already auto saving this wallet.")
+            (Preconditions/checkState (nil? vFileManager), "Already auto saving this wallet.")
             (§ var #_"WalletFiles" (§ name manager) (§ new #_"WalletFiles" this, f, delayTime, timeUnit))
-            (§ if (§ expr eventListener != nil))
+            (§ if (some? eventListener))
             (§ block
                 (.. manager (setListener eventListener))
             )
@@ -52526,7 +51636,7 @@
         (§ block
             (§ var #_"WalletFiles" (§ name files) vFileManager)
             (§ ass (§ name vFileManager) nil)
-            (Preconditions/checkState (§ expr files != nil), "Auto saving not enabled.")
+            (Preconditions/checkState (some? files), "Auto saving not enabled.")
             (.. files (shutdownAndWait))
         )
         (§ finally )
@@ -52541,7 +51651,7 @@
     (§ method #_"void" (§ fn saveLater) [])
     (§ block
         (§ var #_"WalletFiles" (§ name files) vFileManager)
-        (§ if (§ expr files != nil))
+        (§ if (some? files))
         (§ block
             (.. files (saveLater))
         )
@@ -52553,7 +51663,7 @@
     (§ method #_"void" (§ fn saveNow) [])
     (§ block
         (§ var #_"WalletFiles" (§ name files) vFileManager)
-        (§ if (§ expr files != nil))
+        (§ if (some? files))
         (§ block
             (§ try )
             (§ block
@@ -52564,7 +51674,7 @@
                 ;; Can't really do much at this point, just let the API user know.
                 (.. log (error "Failed to save wallet to disk!", e))
                 (§ var #_"Thread.UncaughtExceptionHandler" (§ name handler) Threading/uncaughtExceptionHandler)
-                (§ if (§ expr handler != nil))
+                (§ if (some? handler))
                 (§ block
                     (.. handler (uncaughtException (Thread/currentThread), e))
                 )
@@ -52627,7 +51737,7 @@
             )
             (§ finally )
             (§ block
-                (§ if (§ expr stream != nil))
+                (§ if (some? stream))
                 (§ block
                     (.. stream (close))
                 )
@@ -52722,7 +51832,7 @@
 
     ;; If isSpent, check that all my outputs spent, otherwise check that there at least one unspent.
     #_testing
-    (§ method #_"boolean" (§ fn isTxConsistent) [#_final #_"Transaction" (§ name tx), #_final #_"boolean" (§ name isSpent)])
+    (§ method #_"boolean" (§ fn isTxConsistent) [#_"Transaction" (§ name tx), #_"boolean" (§ name isSpent)])
     (§ block
         (§ var #_"boolean" (§ name isActuallySpent) true)
         (§ for (§ var #_"TransactionOutput" (§ name o)) :for (.. tx (getOutputs)))
@@ -52792,10 +51902,10 @@
         (§ try )
         (§ block
             (§ var #_"Transaction" (§ name tx) (.. transactions (get txHash)))
-            (§ if (§ expr tx == nil))
+            (§ if (nil? tx))
             (§ block
                 (§ ass (§ name tx) (.. riskDropped (get txHash)))
-                (§ if (§ expr tx != nil))
+                (§ if (some? tx))
                 (§ block
                     ;; If this happens our risk analysis is probably wrong and should be improved.
                     (.. log (info "Risk analysis dropped tx {} but was included in block anyway", (.. tx (getHash))))
@@ -52899,7 +52009,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr dependencies == nil))
+            (§ if (nil? dependencies))
             (§ block
                 (§ ass (§ name dependencies) (ImmutableList/of))
             )
@@ -53140,7 +52250,7 @@
         (§ var #_"Coin" (§ name valueSentToMe) (.. tx (getValueSentToMe this)))
         (§ var #_"Coin" (§ name valueDifference) (.. valueSentToMe (subtract valueSentFromMe)))
 
-        (.. log (info "Received tx{} for {}: {} [{}] in block {}", (§ quest sideChain ? " on a side chain" :else ""), (.. valueDifference (toFriendlyString)), (.. tx (getHashAsString)), relativityOffset, (§ quest (§ expr block != nil) ? (.. block (getHeader) (getHash)) :else "(unit test)")))
+        (.. log (info "Received tx{} for {}: {} [{}] in block {}", (if sideChain " on a side chain" ""), (.. valueDifference (toFriendlyString)), (.. tx (getHashAsString)), relativityOffset, (if (some? block) (.. block (getHeader) (getHash)) "(unit test)")))
 
         ;; Inform the key chains that the issued keys were observed in a transaction, so they know to
         ;; calculate more keys for the next Bloom filters.
@@ -53152,7 +52262,7 @@
         ;; At the very least we need to ensure we're manipulating the canonical object rather than a duplicate.
         (§ block
             (§ var #_"Transaction" (§ name tmp) (.. transactions (get (.. tx (getHash)))))
-            (§ if (§ expr tmp != nil))
+            (§ if (some? tmp))
             (§ block
                 (§ ass (§ name tx) tmp)
             )
@@ -53177,9 +52287,8 @@
                 ;; they will be re-connected by processTxFromBestChain below.
                 (§ for (§ var #_"TransactionOutput" (§ name output)) :for (.. tx (getOutputs)))
                 (§ block
-                    #_final
                     (§ var #_"TransactionInput" (§ name spentBy) (.. output (getSpentBy)))
-                    (§ if (§ expr spentBy != nil))
+                    (§ if (some? spentBy))
                     (§ block
                         (Preconditions/checkState (.. myUnspents (add output)))
                         (.. spentBy (disconnect))
@@ -53214,7 +52323,7 @@
             )
         )
 
-        (§ if (§ expr block != nil))
+        (§ if (some? block))
         (§ block
             ;; Mark the tx as appearing in this block so we can find it later after a re-org.  This also tells
             ;; the tx confidence object about the block and sets its depth appropriately.
@@ -53366,7 +52475,6 @@
 
         (§ for (§ var #_"Map.Entry<Transaction, TransactionConfidence.Listener.ChangeReason>" (§ name entry)) :for (.. confidenceChanged (entrySet)))
         (§ block
-            #_final
             (§ var #_"Transaction" (§ name tx) (.. entry (getKey)))
             (.. tx (getConfidence) (queueListeners (.. entry (getValue))))
             (queueOnTransactionConfidenceChanged tx)
@@ -53677,9 +52785,8 @@
         (§ var #_"LinkedList<Transaction>" (§ name work) (§ new #_"LinkedList<>" txnsToKill))
         (§ while (§ not (.. work (isEmpty))))
         (§ block
-            #_final
             (§ var #_"Transaction" (§ name tx) (.. work (poll)))
-            (.. log (warn "TX {} killed{}", (.. tx (getHashAsString)), (§ quest (§ expr overridingTx != nil) ? (§ str " by " + (.. overridingTx (getHashAsString))) :else "")))
+            (.. log (warn "TX {} killed{}", (.. tx (getHashAsString)), (if (some? overridingTx) (§ str " by " + (.. overridingTx (getHashAsString))) "")))
             (.. log (warn "Disconnecting each input and moving connected transactions."))
             ;; TX could be pending (finney attack), or in unspent/spent (coinbase killed by reorg).
             (.. pending (remove (.. tx (getHash))))
@@ -53689,7 +52796,7 @@
             (§ for (§ var #_"TransactionInput" (§ name deadInput)) :for (.. tx (getInputs)))
             (§ block
                 (§ var #_"Transaction" (§ name connected) (.. deadInput (getConnectedTransaction)))
-                (§ if (§ expr connected == nil))
+                (§ if (nil? connected))
                 (§ block
                     (§ continue )
                 )
@@ -53711,17 +52818,16 @@
                     (.. log (info "XX Removed from UNSPENTS: {}", deadOutput))
                 )
                 (§ var #_"TransactionInput" (§ name connected) (.. deadOutput (getSpentBy)))
-                (§ if (§ expr connected == nil))
+                (§ if (nil? connected))
                 (§ block
                     (§ continue )
                 )
-                #_final
                 (§ var #_"Transaction" (§ name parentTransaction) (.. connected (getParentTransaction)))
                 (.. log (info "This death invalidated dependent tx {}", (.. parentTransaction (getHash))))
                 (.. work (push parentTransaction))
             )
         )
-        (§ if (§ expr overridingTx == nil))
+        (§ if (nil? overridingTx))
         (§ block
             (§ return nil)
         )
@@ -54115,11 +53221,11 @@
     )
 
     #_private
-    (§ method- #_"void" (§ fn queueOnTransactionConfidenceChanged) [#_final #_"Transaction" (§ name tx)])
+    (§ method- #_"void" (§ fn queueOnTransactionConfidenceChanged) [#_"Transaction" (§ name tx)])
     (§ block
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
 
-        (§ for (§ var #_final ListenerRegistration<TransactionConfidenceEventListener> registration) :for transactionConfidenceListeners)
+        (§ for (§ var ListenerRegistration<TransactionConfidenceEventListener> registration) :for transactionConfidenceListeners)
         (§ block
             (§ if (== (.. registration executor) Threading/SAME_THREAD))
             (§ block
@@ -54155,7 +53261,7 @@
             (§ return nil)
         )
 
-        (§ for (§ var #_final ListenerRegistration<WalletChangeEventListener> registration) :for changeListeners)
+        (§ for (§ var ListenerRegistration<WalletChangeEventListener> registration) :for changeListeners)
         (§ block
             (.. registration executor (execute (§ new #_"Runnable")
             (§ anon
@@ -54172,11 +53278,11 @@
     )
 
     #_protected
-    (§ method #_"void" (§ fn queueOnCoinsReceived) [#_final #_"Transaction" (§ name tx), #_final #_"Coin" (§ name balance), #_final #_"Coin" (§ name newBalance)])
+    (§ method #_"void" (§ fn queueOnCoinsReceived) [#_"Transaction" (§ name tx), #_"Coin" (§ name balance), #_"Coin" (§ name newBalance)])
     (§ block
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
 
-        (§ for (§ var #_final ListenerRegistration<WalletCoinsReceivedEventListener> registration) :for coinsReceivedListeners)
+        (§ for (§ var ListenerRegistration<WalletCoinsReceivedEventListener> registration) :for coinsReceivedListeners)
         (§ block
             (.. registration executor (execute (§ new #_"Runnable")
             (§ anon
@@ -54193,11 +53299,11 @@
     )
 
     #_protected
-    (§ method #_"void" (§ fn queueOnCoinsSent) [#_final #_"Transaction" (§ name tx), #_final #_"Coin" (§ name prevBalance), #_final #_"Coin" (§ name newBalance)])
+    (§ method #_"void" (§ fn queueOnCoinsSent) [#_"Transaction" (§ name tx), #_"Coin" (§ name prevBalance), #_"Coin" (§ name newBalance)])
     (§ block
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
 
-        (§ for (§ var #_final ListenerRegistration<WalletCoinsSentEventListener> registration) :for coinsSentListeners)
+        (§ for (§ var ListenerRegistration<WalletCoinsSentEventListener> registration) :for coinsSentListeners)
         (§ block
             (.. registration executor (execute (§ new #_"Runnable")
             (§ anon
@@ -54219,7 +53325,7 @@
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
         (Preconditions/checkState insideReorg)
 
-        (§ for (§ var #_final ListenerRegistration<WalletReorganizeEventListener> registration) :for reorganizeListeners)
+        (§ for (§ var ListenerRegistration<WalletReorganizeEventListener> registration) :for reorganizeListeners)
         (§ block
             (.. registration executor (execute (§ new #_"Runnable")
             (§ anon
@@ -54559,7 +53665,7 @@
                         (§ for (§ var #_"TransactionInput" (§ name input)) :for (.. tx (getInputs)))
                         (§ block
                             (§ var #_"TransactionOutput" (§ name output) (.. input (getConnectedOutput)))
-                            (§ if (§ expr output == nil))
+                            (§ if (nil? output))
                             (§ block
                                 (§ continue )
                             )
@@ -54669,7 +53775,7 @@
 
     #_testing
     #_public
-    (§ method #_"boolean" (§ fn poolContainsTxHash) [#_final #_"WalletTransaction.Pool" (§ name pool), #_final #_"Sha256Hash" (§ name txHash)])
+    (§ method #_"boolean" (§ fn poolContainsTxHash) [#_"WalletTransaction.Pool" (§ name pool), #_"Sha256Hash" (§ name txHash)])
     (§ block
         (.. lock (lock))
         (§ try )
@@ -54745,12 +53851,10 @@
             (.. sb (append "  ") (append (.. unspent (size))) (append " unspent transactions\n"))
             (.. sb (append "  ") (append (.. spent (size))) (append " spent transactions\n"))
             (.. sb (append "  ") (append (.. dead (size))) (append " dead transactions\n"))
-            #_final
             (§ var #_"Date" (§ name lastBlockSeenTime) (getLastBlockSeenTime))
-            (.. sb (append "Last seen best block: ") (append (getLastBlockSeenHeight)) (append " (") (append (§ quest (§ expr lastBlockSeenTime == nil) ? "time unknown" :else (Utils/dateTimeFormat lastBlockSeenTime))) (append "): ") (append (getLastBlockSeenHash)) (append "\n"))
-            #_final
+            (.. sb (append "Last seen best block: ") (append (getLastBlockSeenHeight)) (append " (") (append (if (some? lastBlockSeenTime) (Utils/dateTimeFormat lastBlockSeenTime) "time unknown")) (append "): ") (append (getLastBlockSeenHash)) (append "\n"))
             (§ var #_"KeyCrypter" (§ name crypter) (.. keyChainGroup (getKeyCrypter)))
-            (§ if (§ expr crypter != nil))
+            (§ if (some? crypter))
             (§ block
                 (.. sb (append "Encryption: ") (append crypter) (append "\n"))
             )
@@ -54762,9 +53866,8 @@
             ;; Do the keys.
             (.. sb (append "\nKeys:\n"))
             (.. sb (append "Earliest creation time: ") (append (Utils/dateTimeFormat (* (getEarliestKeyCreationTime) 1000))) (append "\n"))
-            #_final
             (§ var #_"Date" (§ name keyRotationTime) (getKeyRotationTime))
-            (§ if (§ expr keyRotationTime != nil))
+            (§ if (some? keyRotationTime))
             (§ block
                 (.. sb (append "Key rotation time:      ") (append (Utils/dateTimeFormat keyRotationTime)) (append "\n"))
             )
@@ -54808,9 +53911,8 @@
     (§ block
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
 
-        #_final
         (§ var #_"Collection<Transaction>" (§ name txns))
-        (§ if (§ expr sortOrder != nil))
+        (§ if (some? sortOrder))
         (§ block
             (§ ass (§ name txns) (§ new #_"TreeSet<>" sortOrder))
             (.. txns (addAll (.. transactionMap (values))))
@@ -54881,7 +53983,7 @@
         (§ try )
         (§ block
             (§ var #_"long" (§ name earliestTime) (.. keyChainGroup (getEarliestKeyCreationTime)))
-            (§ return (§ quest (§ expr earliestTime == Long/MAX_VALUE) ? (Utils/currentTimeSeconds) :else earliestTime))
+            (§ return (if (== earliestTime Long/MAX_VALUE) (Utils/currentTimeSeconds) earliestTime))
         )
         (§ finally )
         (§ block
@@ -54982,9 +54084,8 @@
     #_public
     (§ method #_"Date" (§ fn getLastBlockSeenTime) [])
     (§ block
-        #_final
         (§ var #_"long" (§ name secs) (getLastBlockSeenTimeSecs))
-        (§ quest (§ expr secs == 0) ? nil :else (§ new #_"Date" (* secs 1000)))
+        (if (== secs 0) nil (§ new #_"Date" (* secs 1000)))
     )
 
     ;;;
@@ -55179,14 +54280,12 @@
      ; chance to be updated.</p>
      ;;
     #_public
-    (§ method #_"ListenableFuture<Coin>" (§ fn getBalanceFuture) [#_final #_"Coin" (§ name value), #_final #_"BalanceType" (§ name type)])
+    (§ method #_"ListenableFuture<Coin>" (§ fn getBalanceFuture) [#_"Coin" (§ name value), #_"BalanceType" (§ name type)])
     (§ block
         (.. lock (lock))
         (§ try )
         (§ block
-            #_final
             (§ var #_"SettableFuture<Coin>" (§ name future) (SettableFuture/create))
-            #_final
             (§ var #_"Coin" (§ name current) (getBalance type))
             (§ if (§ expr 0 <= (.. current (compareTo value))))
             (§ block
@@ -55219,11 +54318,9 @@
     (§ block
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
 
-        #_final
         (§ var #_"ListIterator<BalanceFutureRequest>" (§ name it) (.. balanceFutureRequests (listIterator)))
         (§ while (.. it (hasNext)))
         (§ block
-            #_final
             (§ var #_"BalanceFutureRequest" (§ name req) (.. it (next)))
             (§ var #_"Coin" (§ name val) (getBalance (.. req type))) ;; This could be slow for lots of futures.
             (§ if (< (.. val (compareTo (.. req value))) 0))
@@ -55232,7 +54329,6 @@
             )
             ;; Found one that's finished.
             (.. it (remove))
-            #_final
             (§ var #_"Coin" (§ name v) val)
             ;; Don't run any user-provided future listeners with our lock held.
             (.. Threading/USER_THREAD (execute (§ new #_"Runnable")
@@ -55549,7 +54645,7 @@
         (§ throws #_"InsufficientMoneyException")
     (§ block
         (§ var #_"TransactionBroadcaster" (§ name broadcaster) vTransactionBroadcaster)
-        (Preconditions/checkState (§ expr broadcaster != nil), "No transaction broadcaster is configured")
+        (Preconditions/checkState (some? broadcaster), "No transaction broadcaster is configured")
         (sendCoins broadcaster, request)
     )
 
@@ -55704,7 +54800,7 @@
                 ;; of the total value we can currently spend as determined by the selector, and then subtracting the fee.
                 (Preconditions/checkState (§ expr (.. req tx (getOutputs) (size)) == 1), "Empty wallet TX must have a single output only.")
 
-                (§ var #_"CoinSelector" (§ name selector) (§ quest (== (.. req coinSelector) nil) ? coinSelector :else (.. req coinSelector)))
+                (§ var #_"CoinSelector" (§ name selector) (or (.. req coinSelector) coinSelector))
                 (§ ass (§ name bestCoinSelection) (.. selector (select (.. params (getMaxMoney)), candidates)))
                 (§ ass (§ name candidates) nil) ;; Selector took ownership and might have changed candidates.  Don't access again.
                 (.. req tx (getOutput 0) (setValue (.. bestCoinSelection valueGathered)))
@@ -55718,15 +54814,14 @@
 
             (§ if (.. req emptyWallet))
             (§ block
-                #_final
-                (§ var #_"Coin" (§ name feePerKb) (§ quest (== (.. req feePerKb) nil) ? Coin/ZERO :else (.. req feePerKb)))
+                (§ var #_"Coin" (§ name feePerKb) (or (.. req feePerKb) Coin/ZERO))
                 (§ if (§ not (adjustOutputDownwardsForFee (.. req tx), bestCoinSelection, feePerKb, (.. req ensureMinRequiredFee))))
                 (§ block
                     (§ throw (§ new #_"CouldNotAdjustDownwards"))
                 )
             )
 
-            (§ if (§ expr updatedOutputValues != nil))
+            (§ if (some? updatedOutputValues))
             (§ block
                 (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. updatedOutputValues (size))) :for (§ ass (§ name i) (+ i 1)))
                 (§ block
@@ -55734,7 +54829,7 @@
                 )
             )
 
-            (§ if (§ expr bestChangeOutput != nil))
+            (§ if (some? bestChangeOutput))
             (§ block
                 (.. req tx (addOutput bestChangeOutput))
                 (.. log (info "  with {} change", (.. bestChangeOutput (getValue) (toFriendlyString))))
@@ -55753,7 +54848,6 @@
             )
 
             ;; Check size.
-            #_final
             (§ var #_"int" (§ name size) (.. req tx (unsafeBitcoinSerialize) length))
             (§ if (< Transaction/MAX_STANDARD_TX_SIZE size))
             (§ block
@@ -55855,7 +54949,6 @@
     #_private
     (§ method- #_"boolean" (§ fn adjustOutputDownwardsForFee) [#_"Transaction" (§ name tx), #_"CoinSelection" (§ name coinSelection), #_"Coin" (§ name feePerKb), #_"boolean" (§ name ensureMinRequiredFee)])
     (§ block
-        #_final
         (§ var #_"int" (§ name size) (+ (.. tx (unsafeBitcoinSerialize) length) (estimateBytesForSigning coinSelection)))
         (§ var #_"Coin" (§ name fee) (.. feePerKb (multiply size) (divide 1000)))
         (§ if (§ expr ensureMinRequiredFee && (.. fee (compareTo Transaction/REFERENCE_DEFAULT_MIN_TX_FEE)) < 0))
@@ -56084,10 +55177,8 @@
     #_static
     (§ class #_"TxOffsetPair" (§ implements #_"Comparable<TxOffsetPair>")
         #_public
-        #_final
         (§ field #_"Transaction" (§ name tx))
         #_public
-        #_final
         (§ field #_"int" (§ name offset))
 
         #_public
@@ -56150,7 +55241,7 @@
             (§ for (§ var #_"Transaction" (§ name tx)) :for (getTransactions true))
             (§ block
                 (§ var #_"Map<Sha256Hash, Integer>" (§ name appearsIn) (.. tx (getAppearsInHashes)))
-                (§ if (§ expr appearsIn == nil))
+                (§ if (nil? appearsIn))
                 (§ block
                     (§ continue ) ;; Pending.
                 )
@@ -56186,7 +55277,6 @@
                 (§ for (§ var #_"TxOffsetPair" (§ name pair)) :for (.. mapBlockTx (get blockHash)))
                 (§ block
                     (§ var #_"Transaction" (§ name tx) (.. pair tx))
-                    #_final
                     (§ var #_"Sha256Hash" (§ name txHash) (.. tx (getHash)))
                     (§ if (.. tx (isCoinBase)))
                     (§ block
@@ -56206,7 +55296,7 @@
                         (§ for (§ var #_"TransactionOutput" (§ name output)) :for (.. tx (getOutputs)))
                         (§ block
                             (§ var #_"TransactionInput" (§ name input) (.. output (getSpentBy)))
-                            (§ if (§ expr input != nil))
+                            (§ if (some? input))
                             (§ block
                                 (§ if (.. output (isMine this)))
                                 (§ block
@@ -56281,7 +55371,6 @@
                 (notifyNewBestBlock block)
             )
             (isConsistentOrThrow)
-            #_final
             (§ var #_"Coin" (§ name balance) (getBalance))
             (.. log (info "post-reorg balance is {}", (.. balance (toFriendlyString))))
             ;; Inform event listeners that a re-org took place.
@@ -56318,11 +55407,9 @@
     )
 
     #_private
-    #_final
     (§ field- #_"ArrayList<TransactionOutPoint>" (§ name bloomOutPoints) (Lists/newArrayList))
     ;; Used to track whether we must automatically begin/end a filter calculation and calc outpoints/take the locks.
     #_private
-    #_final
     (§ field- #_"AtomicInteger" (§ name bloomFilterGuard) (§ new #_"AtomicInteger" 0))
 
     #_override
@@ -56554,7 +55641,7 @@
                 (.. tx (addOutput output))
             )
 
-            (§ var #_"CoinSelector" (§ name selector) (§ quest (== (.. req coinSelector) nil) ? coinSelector :else (.. req coinSelector)))
+            (§ var #_"CoinSelector" (§ name selector) (or (.. req coinSelector) coinSelector))
             ;; selector is allowed to modify candidates list.
             (§ var #_"CoinSelection" (§ name selection) (.. selector (select valueNeeded, (§ new #_"LinkedList<>" candidates))))
             (§ ass (§ name (.. result bestCoinSelection)) selection)
@@ -56572,7 +55659,7 @@
                 ;; we need to take back some coins ... this is called "change".  Add another output that sends the change
                 ;; back to us.  The address comes either from the request or currentChangeAddress() as a default.
                 (§ var #_"Address" (§ name changeAddress) (.. req changeAddress))
-                (§ if (§ expr changeAddress == nil))
+                (§ if (nil? changeAddress))
                 (§ block
                     (§ ass (§ name changeAddress) (currentChangeAddress))
                 )
@@ -56705,7 +55792,7 @@
     #_public
     (§ method #_"void" (§ fn setTransactionBroadcaster) [#_nilable #_"org.bitcoinj.core.TransactionBroadcaster" (§ name broadcaster)])
     (§ block
-        (§ var #_"Transaction[]" (§ name toBroadcast) (§ coll ))
+        (§ var #_"Transaction[]" (§ name toBroadcast) (§ new #_"Transaction[]"))
         (.. lock (lock))
         (§ try )
         (§ block
@@ -56714,7 +55801,7 @@
                 (§ return nil)
             )
             (§ ass (§ name vTransactionBroadcaster) broadcaster)
-            (§ if (§ expr broadcaster == nil))
+            (§ if (nil? broadcaster))
             (§ block
                 (§ return nil)
             )
@@ -56764,9 +55851,8 @@
     #_nilable
     (§ method #_"Date" (§ fn getKeyRotationTime) [])
     (§ block
-        #_final
         (§ var #_"long" (§ name keyRotationTimestamp) vKeyRotationTimestamp)
-        (§ quest (§ expr keyRotationTimestamp != 0) ? (§ new #_"Date" (* keyRotationTimestamp 1000)) :else nil)
+        (when (§ expr keyRotationTimestamp != 0) (§ new #_"Date" (* keyRotationTimestamp 1000)))
     )
 
     ;;;
@@ -56837,7 +55923,6 @@
         (§ block
             (§ try )
             (§ block
-                #_final
                 (§ var #_"ListenableFuture<Transaction>" (§ name future) (.. broadcaster (broadcastTransaction tx) (future)))
                 (.. futures (add future))
                 (Futures/addCallback future, (§ new #_"FutureCallback<Transaction>")
@@ -56878,7 +55963,6 @@
 
         (§ var #_"List<Transaction>" (§ name results) (Lists/newLinkedList))
         ;; TODO: Handle chain replays here.
-        #_final
         (§ var #_"long" (§ name keyRotationTimestamp) vKeyRotationTimestamp)
         (§ if (§ expr keyRotationTimestamp == 0))
         (§ block
@@ -56926,7 +56010,7 @@
         (§ do )
         (§ block
             (§ ass (§ name tx) (rekeyOneBatch keyRotationTimestamp, aesKey, results, sign))
-            (§ if (§ expr tx != nil))
+            (§ if (some? tx))
             (§ block
                 (.. results (add tx))
             )
@@ -56971,7 +56055,7 @@
                 (.. rekeyTx (addInput output))
             )
             ;; When not signing, don't waste addresses.
-            (.. rekeyTx (addOutput (.. toMove valueGathered), (§ quest sign ? (freshReceiveAddress) :else (currentReceiveAddress))))
+            (.. rekeyTx (addOutput (.. toMove valueGathered), (if sign (freshReceiveAddress) (currentReceiveAddress))))
             (§ if (§ not (adjustOutputDownwardsForFee rekeyTx, toMove, Transaction/DEFAULT_TX_FEE, true)))
             (§ block
                 (.. log (error "Failed to adjust rekey tx for fees."))
@@ -57021,29 +56105,21 @@
 (§ class #_"WalletFiles"
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"WalletFiles")))
 
     #_private
-    #_final
     (§ field- #_"Wallet" (§ name wallet))
     #_private
-    #_final
     (§ field- #_"ScheduledThreadPoolExecutor" (§ name executor))
     #_private
-    #_final
     (§ field- #_"File" (§ name file))
     #_private
-    #_final
     (§ field- #_"AtomicBoolean" (§ name savePending))
     #_private
-    #_final
     (§ field- #_"long" (§ name delay))
     #_private
-    #_final
     (§ field- #_"TimeUnit" (§ name delayTimeUnit))
     #_private
-    #_final
     (§ field- #_"Callable<Void>" (§ name saver))
 
     #_private
@@ -57073,7 +56149,7 @@
      ; depending on the urgency of the changes.
      ;;
     #_public
-    (§ constructor #_"WalletFiles" [#_final #_"Wallet" (§ name wallet), #_"File" (§ name file), #_"long" (§ name delay), #_"TimeUnit" (§ name delayTimeUnit)])
+    (§ constructor #_"WalletFiles" [#_"Wallet" (§ name wallet), #_"File" (§ name file), #_"long" (§ name delay), #_"TimeUnit" (§ name delayTimeUnit)])
     (§ block
         ;; An executor that starts up threads when needed and shuts them down later.
         (§ ass (§ name (.. this executor)) (§ new #_"ScheduledThreadPoolExecutor" 1, (§ new #_"ContextPropagatingThreadFactory" "Wallet autosave thread", Thread/MIN_PRIORITY)))
@@ -57101,7 +56177,7 @@
                     (§ return nil)
                 )
                 (§ var #_"Date" (§ name lastBlockSeenTime) (.. wallet (getLastBlockSeenTime)))
-                (.. log (info "Background saving wallet; last seen block is height {}, date {}, hash {}", (.. wallet (getLastBlockSeenHeight)), (§ quest (§ expr lastBlockSeenTime != nil) ? (Utils/dateTimeFormat lastBlockSeenTime) :else "unknown"), (.. wallet (getLastBlockSeenHash))))
+                (.. log (info "Background saving wallet; last seen block is height {}, date {}, hash {}", (.. wallet (getLastBlockSeenHeight)), (if (some? lastBlockSeenTime) (Utils/dateTimeFormat lastBlockSeenTime) "unknown"), (.. wallet (getLastBlockSeenHash))))
                 (saveNowInternal)
                 nil
             )
@@ -57127,7 +56203,7 @@
         ;; Can be called by any thread. However the wallet is locked whilst saving, so we can have two saves
         ;; in flight, but they will serialize (using different temp files).
         (§ var #_"Date" (§ name lastBlockSeenTime) (.. wallet (getLastBlockSeenTime)))
-        (.. log (info "Saving wallet; last seen block is height {}, date {}, hash {}", (.. wallet (getLastBlockSeenHeight)), (§ quest (§ expr lastBlockSeenTime != nil) ? (Utils/dateTimeFormat lastBlockSeenTime) :else "unknown"), (.. wallet (getLastBlockSeenHash))))
+        (.. log (info "Saving wallet; last seen block is height {}, date {}, hash {}", (.. wallet (getLastBlockSeenHeight)), (if (some? lastBlockSeenTime) (Utils/dateTimeFormat lastBlockSeenTime) "unknown"), (.. wallet (getLastBlockSeenHash))))
         (saveNowInternal)
         nil
     )
@@ -57136,18 +56212,16 @@
     (§ method- #_"void" (§ fn saveNowInternal) [])
         (§ throws #_"IOException")
     (§ block
-        #_final
         (§ var #_"Stopwatch" (§ name watch) (Stopwatch/createStarted))
         (§ var #_"File" (§ name directory) (.. file (getAbsoluteFile) (getParentFile)))
         (§ var #_"File" (§ name temp) (File/createTempFile "wallet", nil, directory))
-        #_final
         (§ var #_"Listener" (§ name listener) vListener)
-        (§ if (§ expr listener != nil))
+        (§ if (some? listener))
         (§ block
             (.. listener (onBeforeAutoSave temp))
         )
         (.. wallet (saveToFile temp, file))
-        (§ if (§ expr listener != nil))
+        (§ if (some? listener))
         (§ block
             (.. listener (onAfterAutoSave file))
         )
@@ -57227,18 +56301,15 @@
 (§ class #_"WalletProtobufSerializer"
     #_private
     #_static
-    #_final
     (§ def- #_"Logger" (§ name log) (LoggerFactory/getLogger (§ klass #_"WalletProtobufSerializer")))
 
     ;;; Current version used for serializing wallets.  A version higher than this is considered from the future. ;;
     #_public
     #_static
-    #_final
     (§ def #_"int" (§ name CURRENT_WALLET_VERSION) (.. (Protos/Wallet/getDefaultInstance) (getVersion)))
     ;; 512 MB
     #_private
     #_static
-    #_final
     (§ def- #_"int" (§ name WALLET_SIZE_LIMIT) (§ expr 512 * 1024 * 1024))
     ;; Used for de-serialization.
     #_protected
@@ -57253,7 +56324,6 @@
     )
 
     #_private
-    #_final
     (§ field- #_"WalletFactory" (§ name factory))
     #_private
     (§ field- #_"KeyChainFactory" (§ name keyChainFactory))
@@ -57311,7 +56381,6 @@
         (§ throws #_"IOException")
     (§ block
         (§ var #_"Protos.Wallet" (§ name walletProto) (walletToProto wallet))
-        #_final
         (§ var #_"CodedOutputStream" (§ name codedOutput) (CodedOutputStream/newInstance output, (.. this walletWriteBufferSize)))
         (.. walletProto (writeTo codedOutput))
         (.. codedOutput (flush))
@@ -57356,7 +56425,7 @@
 
         ;; Populate the lastSeenBlockHash field.
         (§ var #_"Sha256Hash" (§ name lastSeenBlockHash) (.. wallet (getLastBlockSeenHash)))
-        (§ if (§ expr lastSeenBlockHash != nil))
+        (§ if (some? lastSeenBlockHash))
         (§ block
             (.. walletBuilder (setLastSeenBlockHash (hashToByteString lastSeenBlockHash)))
             (.. walletBuilder (setLastSeenBlockHeight (.. wallet (getLastBlockSeenHeight))))
@@ -57368,7 +56437,7 @@
 
         ;; Populate the scrypt parameters.
         (§ var #_"KeyCrypter" (§ name keyCrypter) (.. wallet (getKeyCrypter)))
-        (§ if (§ expr keyCrypter == nil))
+        (§ if (nil? keyCrypter))
         (§ block
             ;; The wallet is unencrypted.
             (.. walletBuilder (setEncryptionType EncryptionType/UNENCRYPTED))
@@ -57453,9 +56522,8 @@
         (§ for (§ var #_"TransactionOutput" (§ name output)) :for (.. tx (getOutputs)))
         (§ block
             (§ var #_"Protos.TransactionOutput.Builder" (§ name outputBuilder) (.. (Protos/TransactionOutput/newBuilder) (setScriptBytes (ByteString/copyFrom (.. output (getScriptBytes)))) (setValue (.. output (getValue) value))))
-            #_final
             (§ var #_"TransactionInput" (§ name spentBy) (.. output (getSpentBy)))
-            (§ if (§ expr spentBy != nil))
+            (§ if (some? spentBy))
             (§ block
                 (§ var #_"Sha256Hash" (§ name spendingHash) (.. spentBy (getParentTransaction) (getHash)))
                 (§ var #_"int" (§ name spentByTransactionIndex) (.. spentBy (getParentTransaction) (getInputs) (indexOf spentBy)))
@@ -57465,9 +56533,8 @@
         )
 
         ;; Handle which blocks tx was seen in.
-        #_final
         (§ var #_"Map<Sha256Hash, Integer>" (§ name appearsInHashes) (.. tx (getAppearsInHashes)))
-        (§ if (§ expr appearsInHashes != nil))
+        (§ if (some? appearsInHashes))
         (§ block
             (§ for (§ var #_"Map.Entry<Sha256Hash, Integer>" (§ name entry)) :for (.. appearsInHashes (entrySet)))
             (§ block
@@ -57529,7 +56596,7 @@
         (.. txBuilder (setPurpose purpose))
 
         (§ var #_"ExchangeRate" (§ name exchangeRate) (.. tx (getExchangeRate)))
-        (§ if (§ expr exchangeRate != nil))
+        (§ if (some? exchangeRate))
         (§ block
             (§ var #_"Protos.ExchangeRate.Builder" (§ name exchangeRateBuilder) (.. (Protos/ExchangeRate/newBuilder) (setCoinValue (.. exchangeRate coin value)) (setFiatValue (.. exchangeRate fiat value)) (setFiatCurrencyCode (.. exchangeRate fiat currencyCode))))
             (.. txBuilder (setExchangeRate exchangeRateBuilder))
@@ -57625,7 +56692,7 @@
             (.. confidenceBuilder (addBroadcastBy proto))
         )
         (§ var #_"Date" (§ name lastBroadcastedAt) (.. confidence (getLastBroadcastedAt)))
-        (§ if (§ expr lastBroadcastedAt != nil))
+        (§ if (some? lastBroadcastedAt))
         (§ block
             (.. confidenceBuilder (setLastBroadcastedAt (.. lastBroadcastedAt (getTime))))
         )
@@ -57689,10 +56756,9 @@
         (§ try )
         (§ block
             (§ var #_"Protos.Wallet" (§ name walletProto) (parseToProto input))
-            #_final
             (§ var #_"String" (§ name paramsID) (.. walletProto (getNetworkIdentifier)))
             (§ var #_"NetworkParameters" (§ name params) (NetworkParameters/fromID paramsID))
-            (§ if (§ expr params == nil))
+            (§ if (nil? params))
             (§ block
                 (§ throw (§ new #_"UnreadableWalletException" (§ expr "Unknown network parameters ID " + paramsID)))
             )
@@ -57766,7 +56832,6 @@
         (§ if (.. walletProto (hasEncryptionParameters)))
         (§ block
             (§ var #_"Protos.ScryptParameters" (§ name encryptionParameters) (.. walletProto (getEncryptionParameters)))
-            #_final
             (§ var #_"KeyCrypterScrypt" (§ name keyCrypter) (§ new #_"KeyCrypterScrypt" encryptionParameters))
             (§ ass (§ name keyChainGroup) (KeyChainGroup/fromProtobufEncrypted params, (.. walletProto (getKeyList)), keyCrypter, keyChainFactory))
         )
@@ -57897,7 +56962,7 @@
         (§ block
             (§ var #_"byte[]" (§ name scriptBytes) (.. inputProto (getScriptBytes) (toByteArray)))
             (§ var #_"TransactionOutPoint" (§ name outpoint) (§ new #_"TransactionOutPoint" params, (§ expr (.. inputProto (getTransactionOutPointIndex)) & 0xffffffff), (byteStringToHash (.. inputProto (getTransactionOutPointHash)))))
-            (§ var #_"Coin" (§ name value) (§ quest (.. inputProto (hasValue)) ? (Coin/valueOf (.. inputProto (getValue))) :else nil))
+            (§ var #_"Coin" (§ name value) (when (.. inputProto (hasValue)) (Coin/valueOf (.. inputProto (getValue)))))
             (§ var #_"TransactionInput" (§ name input) (§ new #_"TransactionInput" params, tx, scriptBytes, outpoint, value))
             (§ if (.. inputProto (hasSequence)))
             (§ block
@@ -57999,11 +57064,10 @@
     )
 
     #_private
-    (§ method- #_"WalletTransaction" (§ fn connectTransactionOutputs) [#_final #_"NetworkParameters" (§ name params), #_final #_"org.bitcoinj.wallet.Protos.Transaction" (§ name txProto)])
+    (§ method- #_"WalletTransaction" (§ fn connectTransactionOutputs) [#_"NetworkParameters" (§ name params), #_"org.bitcoinj.wallet.Protos.Transaction" (§ name txProto)])
         (§ throws #_"UnreadableWalletException")
     (§ block
         (§ var #_"Transaction" (§ name tx) (.. txMap (get (.. txProto (getHash)))))
-        #_final
         (§ var #_"WalletTransaction.Pool" (§ name pool))
         (§ switch (.. txProto (getPool)))
         (§ block
@@ -58045,19 +57109,16 @@
         (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. tx (getOutputs) (size))) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ var #_"TransactionOutput" (§ name output) (.. tx (getOutputs) (get i)))
-            #_final
             (§ var #_"Protos.TransactionOutput" (§ name transactionOutput) (.. txProto (getTransactionOutput i)))
             (§ if (.. transactionOutput (hasSpentByTransactionHash)))
             (§ block
-                #_final
                 (§ var #_"ByteString" (§ name spentByTransactionHash) (.. transactionOutput (getSpentByTransactionHash)))
                 (§ var #_"Transaction" (§ name spendingTx) (.. txMap (get spentByTransactionHash)))
-                (§ if (§ expr spendingTx == nil))
+                (§ if (nil? spendingTx))
                 (§ block
                     (§ throw (§ new #_"UnreadableWalletException" (String/format Locale/US, "Could not connect %s to %s", (.. tx (getHashAsString)), (byteStringToHash spentByTransactionHash))))
                 )
 
-                #_final
                 (§ var #_"int" (§ name spendingIndex) (.. transactionOutput (getSpentByTransactionIndex)))
                 (§ var #_"TransactionInput" (§ name input) (Preconditions/checkNotNull (.. spendingTx (getInput spendingIndex))))
                 (.. input (connect output))
@@ -58075,7 +57136,7 @@
     )
 
     #_private
-    (§ method- #_"void" (§ fn readConfidence) [#_final #_"NetworkParameters" (§ name params), #_final #_"Transaction" (§ name tx), #_final #_"Protos.TransactionConfidence" (§ name confidenceProto), #_final #_"TransactionConfidence" (§ name confidence)])
+    (§ method- #_"void" (§ fn readConfidence) [#_"NetworkParameters" (§ name params), #_"Transaction" (§ name tx), #_"Protos.TransactionConfidence" (§ name confidenceProto), #_"TransactionConfidence" (§ name confidence)])
         (§ throws #_"UnreadableWalletException")
     (§ block
         ;; We are lenient here because tx confidence is not an essential part of the wallet.
@@ -58154,7 +57215,7 @@
                 (§ return nil)
             )
             (§ var #_"Transaction" (§ name overridingTransaction) (.. txMap (get (.. confidenceProto (getOverridingTransaction)))))
-            (§ if (§ expr overridingTransaction == nil))
+            (§ if (nil? overridingTransaction))
             (§ block
                 (.. log (warn "Have overridingTransaction that is not in wallet for tx {}", (.. tx (getHashAsString))))
                 (§ return nil)
@@ -58223,18 +57284,14 @@
     (§ block
         (§ try )
         (§ block
-            #_final
             (§ var #_"CodedInputStream" (§ name cis) (CodedInputStream/newInstance is))
-            #_final
             (§ var #_"int" (§ name tag) (.. cis (readTag)))
-            #_final
             (§ var #_"int" (§ name field) (WireFormat/getTagFieldNumber tag))
             (§ if (§ expr field != 1)) ;; network_identifier
             (§ block
                 (§ return false)
             )
 
-            #_final
             (§ var #_"String" (§ name network) (.. cis (readString)))
             (§ return (!= (NetworkParameters/fromID network) nil))
         )
@@ -58262,10 +57319,8 @@
         (§ item PENDING) ;; a pending tx we would like to go into the best chain
     )
     #_private
-    #_final
     (§ field- #_"Transaction" (§ name transaction))
     #_private
-    #_final
     (§ field- #_"Pool" (§ name pool))
 
     #_public
