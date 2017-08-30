@@ -12,6 +12,17 @@
     (let [[_ & w] (if (= '=> (first w)) (rest w) (cons nil w))]
         `(let [~@x] (if ~y (do ~@w) ~_))))
 
+(def- / quot)
+(def- % rem)
+
+(def- & bit-and)
+(def- | bit-or)
+(def- << bit-shift-left)
+(def- >> bit-shift-right)
+(def- >>> unsigned-bit-shift-right)
+
+(defmacro != [x y] `(not (== ~x ~y)))
+
 (defn -main [& args]
     )
 
@@ -121,8 +132,8 @@
 
         (§ constructor #_"OrphanBlock" [#_"Block" (§ name block), #_nilable #_"List<Sha256Hash>" (§ name filteredTxHashes), #_nilable #_"Map<Sha256Hash, Transaction>" (§ name filteredTxn)])
         (§ block
-            (§ var #_"boolean" (§ name filtered) (§ expr filteredTxHashes != nil && filteredTxn != nil))
-            (Preconditions/checkArgument (§ expr (§ expr (.. block transactions) == nil && filtered) || (§ expr (.. block transactions) != nil && (§ not filtered))))
+            (§ var #_"boolean" (§ name filtered) (and (some? filteredTxHashes) (some? filteredTxn)))
+            (Preconditions/checkArgument (or (and (nil? (.. block transactions)) filtered) (and (some? (.. block transactions)) (not filtered))))
             (§ ass (§ name (.. this block)) block)
             (§ ass (§ name (.. this filteredTxHashes)) filteredTxHashes)
             (§ ass (§ name (.. this filteredTxn)) filteredTxn)
@@ -210,7 +221,7 @@
 
         (§ var #_"int" (§ name walletHeight) (.. wallet (getLastBlockSeenHeight)))
         (§ var #_"int" (§ name chainHeight) (getBestChainHeight))
-        (§ if (§ expr walletHeight != chainHeight))
+        (§ if (!= walletHeight chainHeight))
         (§ block
             (.. log (warn "Wallet/chain height mismatch: {} vs {}", walletHeight, chainHeight))
             (.. log (warn "Hashes: {} vs {}", (.. wallet (getLastBlockSeenHash)), (.. (getChainHead) (getHeader) (getHash))))
@@ -218,7 +229,7 @@
             ;; This special case happens when the VM crashes because of a transaction received.  It causes the updated
             ;; block store to persist, but not the wallet.  In order to fix the issue, we roll back the block store to
             ;; the wallet height to make it look like as if the block has never been received.
-            (§ if (§ expr 0 < walletHeight && walletHeight < chainHeight))
+            (§ if (< 0 walletHeight chainHeight))
             (§ block
                 (§ try )
                 (§ block
@@ -564,20 +575,20 @@
             (§ block
                 (§ return true)
             )
-            (§ if (§ expr tryConnecting && (.. orphanBlocks (containsKey (.. block (getHash))))))
+            (§ if (and tryConnecting (.. orphanBlocks (containsKey (.. block (getHash))))))
             (§ block
                 (§ return false)
             )
 
             ;; If we want to verify transactions (i.e. we are running with full blocks), verify that block has transactions.
-            (§ if (§ expr (shouldVerifyTransactions) && (.. block transactions) == nil))
+            (§ if (and (shouldVerifyTransactions) (nil? (.. block transactions))))
             (§ block
                 (§ throw (§ new #_"VerificationException" "Got a block header while running in full-block mode"))
             )
 
             ;; Check for already-seen block, but only for full pruned mode, where the DB is
             ;; more likely able to handle these queries quickly.
-            (§ if (§ expr (shouldVerifyTransactions) && (.. blockStore (get (.. block (getHash)))) != nil))
+            (§ if (and (shouldVerifyTransactions) (some? (.. blockStore (get (.. block (getHash)))))))
             (§ block
                 (§ return true)
             )
@@ -675,9 +686,9 @@
         (§ throws #_"BlockStoreException", #_"VerificationException", #_"PrunedException")
     (§ block
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
-        (§ var #_"boolean" (§ name filtered) (§ expr filteredTxHashList != nil && filteredTxn != nil))
+        (§ var #_"boolean" (§ name filtered) (and (some? filteredTxHashList) (some? filteredTxn)))
         ;; Check that we aren't connecting a block that fails a checkpoint check.
-        (§ if (§ not (.. params (passesCheckpoint (§ expr (.. storedPrev (getHeight)) + 1), (.. block (getHash))))))
+        (§ if (not (.. params (passesCheckpoint (+ (.. storedPrev (getHeight)) 1), (.. block (getHash))))))
         (§ block
             (§ throw (§ new #_"VerificationException" (str "Block failed checkpoint lockin at " (+ (.. storedPrev (getHeight)) 1))))
         )
@@ -686,7 +697,7 @@
             (Preconditions/checkNotNull (.. block transactions))
             (§ for (§ var #_"Transaction" (§ name tx)) :for (.. block transactions))
             (§ block
-                (§ if (§ not (.. tx (isFinal (§ expr (.. storedPrev (getHeight)) + 1), (.. block (getTimeSeconds))))))
+                (§ if (not (.. tx (isFinal (+ (.. storedPrev (getHeight)) 1), (.. block (getTimeSeconds))))))
                 (§ block
                     (§ throw (§ new #_"VerificationException" "Block contains non-final transaction"))
                 )
@@ -696,7 +707,7 @@
         (§ var #_"StoredBlock" (§ name head) (getChainHead))
         (§ if (.. storedPrev (equals head)))
         (§ block
-            (§ if (§ expr filtered && 0 < (.. filteredTxn (size))))
+            (§ if (and filtered (< 0 (.. filteredTxn (size)))))
             (§ block
                 (.. log (debug "Block {} connects to top of best chain with {} transaction(s) of which we were sent {}", (.. block (getHashAsString)), (.. filteredTxHashList (size)), (.. filteredTxn (size))))
                 (§ for (§ var #_"Sha256Hash" (§ name hash)) :for filteredTxHashList)
@@ -704,7 +715,7 @@
                     (.. log (debug "  matched tx {}", hash))
                 )
             )
-            (§ if (§ expr expensiveChecks && (.. block (getTimeSeconds)) <= (getMedianTimestampOfRecentBlocks head, blockStore)))
+            (§ if (and expensiveChecks (<= (.. block (getTimeSeconds)) (getMedianTimestampOfRecentBlocks head, blockStore))))
             (§ block
                 (§ throw (§ new #_"VerificationException" "Block's timestamp is too early"))
             )
@@ -712,10 +723,10 @@
             ;; BIP 66 & 65: Enforce block version 3/4 once they are a supermajority of blocks.
             ;; NOTE: This requires 1,000 blocks since the last checkpoint (on main net, less on test) in order to be applied.
             ;; It is also limited to stopping addition of new v2/3 blocks to the tip of the chain.
-            (§ if (§ expr (.. block (getVersion)) == Block/BLOCK_VERSION_BIP34 || (.. block (getVersion)) == Block/BLOCK_VERSION_BIP66))
+            (§ if (or (== (.. block (getVersion)) Block/BLOCK_VERSION_BIP34) (== (.. block (getVersion)) Block/BLOCK_VERSION_BIP66)))
             (§ block
                 (§ var #_"Integer" (§ name count) (.. versionTally (getCountAtOrAbove (+ (.. block (getVersion)) 1))))
-                (§ if (§ expr count != nil && (.. params (getMajorityRejectBlockOutdated)) <= count))
+                (§ if (and (some? count) (<= (.. params (getMajorityRejectBlockOutdated)) count)))
                 (§ block
                     (§ throw (§ new #_"VerificationException.BlockVersionOutOfDate" (.. block (getVersion))))
                 )
@@ -725,7 +736,7 @@
             (§ var #_"TransactionOutputChanges" (§ name txOutChanges) nil)
             (§ if (shouldVerifyTransactions))
             (§ block
-                (§ ass (§ name txOutChanges) (connectTransactions (§ expr (.. storedPrev (getHeight)) + 1), block))
+                (§ ass (§ name txOutChanges) (connectTransactions (+ (.. storedPrev (getHeight)) 1), block))
             )
             (§ var #_"StoredBlock" (§ name newStoredBlock) (addToBlockStore storedPrev, (if (nil? (.. block transactions)) block (.. block (cloneAsHeader))), txOutChanges))
             (.. versionTally (add (.. block (getVersion))))
@@ -748,7 +759,7 @@
             (§ else )
             (§ block
                 (§ var #_"StoredBlock" (§ name splitPoint) (findSplit newBlock, head, blockStore))
-                (§ if (§ expr splitPoint != nil && (.. splitPoint (equals newBlock))))
+                (§ if (and (some? splitPoint) (.. splitPoint (equals newBlock))))
                 (§ block
                     ;; newStoredBlock is a part of the same chain, there's no fork.  This happens when we receive a block
                     ;; that we already saw and linked into the chain previously, which isn't the chain head.
@@ -776,7 +787,7 @@
             ;; We may not have any transactions if we received only a header, which can happen during fast catchup.
             ;; If we do, send them to the wallet but state that they are on a side chain so it knows not to try and
             ;; spend them until they become activated.
-            (§ if (§ expr (.. block transactions) != nil || filtered))
+            (§ if (or (some? (.. block transactions)) filtered))
             (§ block
                 (informListenersForNewBlock block, NewBlockType/SIDE_CHAIN, filteredTxHashList, filteredTxn, newBlock)
             )
@@ -812,7 +823,7 @@
             (§ else )
             (§ block
                 ;; Listener wants to be run on some other thread, so marshal it across here.
-                (§ var #_"boolean" (§ name notFirst) (§ not first))
+                (§ var #_"boolean" (§ name notFirst) (not first))
                 (.. registration executor (execute (§ new #_"Runnable")
                 (§ anon
                     #_override
@@ -842,7 +853,7 @@
         (§ block
             (§ if (== (.. registration executor) Threading/SAME_THREAD))
             (§ block
-                (§ if (§ expr newBlockType == NewBlockType/BEST_CHAIN))
+                (§ if (== newBlockType NewBlockType/BEST_CHAIN))
                 (§ block
                     (.. registration listener (notifyNewBestBlock newStoredBlock))
                 )
@@ -858,7 +869,7 @@
                     (§ block
                         (§ try )
                         (§ block
-                            (§ if (§ expr newBlockType == NewBlockType/BEST_CHAIN))
+                            (§ if (== newBlockType NewBlockType/BEST_CHAIN))
                             (§ block
                                 (.. registration listener (notifyNewBestBlock newStoredBlock))
                             )
@@ -892,7 +903,7 @@
             ;; is relevant to both of them, they don't end up accidentally sharing the same object (which can
             ;; result in temporary in-memory corruption during re-orgs).  See bug 257.  We only duplicate in
             ;; the case of multiple wallets to avoid an unnecessary efficiency hit in the common case.
-            (sendTransactionsToListener newStoredBlock, newBlockType, listener, 0, (.. block transactions), (§ not first), falsePositives)
+            (sendTransactionsToListener newStoredBlock, newBlockType, listener, 0, (.. block transactions), (not first), falsePositives)
         )
         (§ elseif (some? filteredTxHashList))
         (§ block
@@ -906,7 +917,7 @@
                 (§ var #_"Transaction" (§ name tx) (.. filteredTxn (get hash)))
                 (§ if (some? tx))
                 (§ block
-                    (sendTransactionsToListener newStoredBlock, newBlockType, listener, relativityOffset, (Collections/singletonList tx), (§ not first), falsePositives)
+                    (sendTransactionsToListener newStoredBlock, newBlockType, listener, relativityOffset, (Collections/singletonList tx), (not first), falsePositives)
                 )
                 (§ elseif (.. listener (notifyTransactionIsInBlock hash, newStoredBlock, newBlockType, relativityOffset)))
                 (§ block
@@ -929,13 +940,13 @@
         (§ var #_"long[]" (§ name timestamps) (§ new #_"long[]" (§ count 11)))
         (§ var #_"int" (§ name unused) 9)
         (§ ass (§ name (§ ai timestamps 10)) (.. storedBlock (getHeader) (getTimeSeconds)))
-        (§ for (§ var ) :for (§ expr 0 <= unused && (§ ass (§ name storedBlock) (.. storedBlock (getPrev store))) != nil) :for (§ ass (§ name unused) (- unused 1)))
+        (§ for (§ var ) :for (and (<= 0 unused) (some? (§ ass (§ name storedBlock) (.. storedBlock (getPrev store))))) :for (§ ass (§ name unused) (- unused 1)))
         (§ block
             (§ ass (§ name (§ ai timestamps unused)) (.. storedBlock (getHeader) (getTimeSeconds)))
         )
 
-        (Arrays/sort timestamps, (§ expr unused + 1), 11)
-        (§ ai timestamps (§ expr unused + (- 11 unused) / 2))
+        (Arrays/sort timestamps, (+ unused 1), 11)
+        (§ ai timestamps (+ unused (/ (- 11 unused) 2)))
     )
 
     ;;;
@@ -1003,12 +1014,12 @@
             (§ block
                 (§ ass (§ name cursor) (.. it (next)))
                 (§ var #_"Block" (§ name cursorBlock) (.. cursor (getHeader)))
-                (§ if (§ expr expensiveChecks && (.. cursorBlock (getTimeSeconds)) <= (getMedianTimestampOfRecentBlocks (.. cursor (getPrev blockStore)), blockStore)))
+                (§ if (and expensiveChecks (<= (.. cursorBlock (getTimeSeconds)) (getMedianTimestampOfRecentBlocks (.. cursor (getPrev blockStore)), blockStore))))
                 (§ block
                     (§ throw (§ new #_"VerificationException" "Block's timestamp is too early during reorg"))
                 )
                 (§ var #_"TransactionOutputChanges" (§ name txOutChanges))
-                (§ if (§ expr cursor != newChainHead || block == nil))
+                (§ if (or (!= cursor newChainHead) (nil? block)))
                 (§ block
                     (§ ass (§ name txOutChanges) (connectTransactions cursor))
                 )
@@ -1071,7 +1082,7 @@
     (§ defn- #_"LinkedList<StoredBlock>" (§ fn getPartialChain) [#_"StoredBlock" (§ name higher), #_"StoredBlock" (§ name lower), #_"BlockStore" (§ name store)])
         (§ throws #_"BlockStoreException")
     (§ block
-        (Preconditions/checkArgument (§ expr (.. lower (getHeight)) < (.. higher (getHeight))), "higher and lower are reversed")
+        (Preconditions/checkArgument (< (.. lower (getHeight)) (.. higher (getHeight))), "higher and lower are reversed")
         (§ var #_"LinkedList<StoredBlock>" (§ name results) (§ new #_"LinkedList<>"))
         (§ var #_"StoredBlock" (§ name cursor) higher)
         (§ while true)
@@ -1104,7 +1115,7 @@
         ;;         \--> E -> F -> G
         ;;
         ;; findSplit will return block B.  oldChainHead = D and newChainHead = G.
-        (§ while (§ not (.. currentChainCursor (equals newChainCursor))))
+        (§ while (not (.. currentChainCursor (equals newChainCursor))))
         (§ block
             (§ if (< (.. newChainCursor (getHeight)) (.. currentChainCursor (getHeight))))
             (§ block
@@ -1299,7 +1310,7 @@
     (§ block
         (§ sync chainHeadLock)
         (§ block
-            (§ var #_"long" (§ name offset) (§ expr height - (.. chainHead (getHeight))))
+            (§ var #_"long" (§ name offset) (- height (.. chainHead (getHeight))))
             (§ var #_"long" (§ name headTime) (.. chainHead (getHeader) (getTimeSeconds)))
             (§ var #_"long" (§ name estimated) (+ (* headTime 1000) (* 1000 60 10 offset)))
             (§ return (§ new #_"Date" estimated))
@@ -1321,7 +1332,7 @@
             (§ method #_"void" (§ fn notifyNewBestBlock) [#_"StoredBlock" (§ name block)])
                 (§ throws #_"VerificationException")
             (§ block
-                (§ if (§ expr height <= (.. block (getHeight))))
+                (§ if (<= height (.. block (getHeight))))
                 (§ block
                     (removeNewBestBlockListener this)
                     (.. result (set block))
@@ -1359,18 +1370,18 @@
         ;; This is slightly off because we are applying false positive tracking before non-FP tracking,
         ;; which counts FP as if they came at the beginning of the block.  Assuming uniform FP
         ;; spread in a block, this will somewhat underestimate the FP rate (5% for 1000 tx block).
-        (§ var #_"double" (§ name alphaDecay) (Math/pow (§ expr 1 - FP_ESTIMATOR_ALPHA), count))
+        (§ var #_"double" (§ name alphaDecay) (Math/pow (- 1 FP_ESTIMATOR_ALPHA), count))
 
         ;; new_rate = alpha_decay * new_rate
         (§ ass (§ name falsePositiveRate) (* alphaDecay falsePositiveRate))
 
-        (§ var #_"double" (§ name betaDecay) (Math/pow (§ expr 1 - FP_ESTIMATOR_BETA), count))
+        (§ var #_"double" (§ name betaDecay) (Math/pow (- 1 FP_ESTIMATOR_BETA), count))
 
         ;; trend = beta * (new_rate - old_rate) + beta_decay * trend
-        (§ ass (§ name falsePositiveTrend) (§ expr FP_ESTIMATOR_BETA * count * (- falsePositiveRate previousFalsePositiveRate) + betaDecay * falsePositiveTrend))
+        (§ ass (§ name falsePositiveTrend) (+ (* FP_ESTIMATOR_BETA count (- falsePositiveRate previousFalsePositiveRate)) (* betaDecay falsePositiveTrend)))
 
         ;; new_rate += alpha_decay * trend
-        (§ ass (§ name falsePositiveRate) (§ expr falsePositiveRate + (* alphaDecay falsePositiveTrend)))
+        (§ ass (§ name falsePositiveRate) (+ falsePositiveRate (* alphaDecay falsePositiveTrend)))
 
         ;; stash new_rate in old_rate
         (§ ass (§ name previousFalsePositiveRate) falsePositiveRate)
@@ -1382,7 +1393,7 @@
     (§ block
         ;; Track false positives in batch by adding alpha to the false positive estimate once per count.
         ;; Each false positive counts as 1.0 towards the estimate.
-        (§ ass (§ name falsePositiveRate) (§ expr falsePositiveRate + (* FP_ESTIMATOR_ALPHA count)))
+        (§ ass (§ name falsePositiveRate) (+ falsePositiveRate (* FP_ESTIMATOR_ALPHA count)))
         (§ if (< 0 count))
         (§ block
             (.. log (debug "{} false positives, current rate = {} trend = {}", count, falsePositiveRate, falsePositiveTrend))
@@ -1450,7 +1461,7 @@
 
         (Preconditions/checkNotNull params)
         (Preconditions/checkArgument (== (.. hash160 length) 20), "Addresses are 160-bit hashes, so you must provide 20 bytes")
-        (§ if (§ not (isAcceptableVersion params, version)))
+        (§ if (not (isAcceptableVersion params, version)))
         (§ block
             (§ throw (§ new #_"WrongNetworkException" version, (.. params (getAcceptableAddressCodes))))
         )
@@ -1526,7 +1537,7 @@
 
         (§ if (some? params))
         (§ block
-            (§ if (§ not (isAcceptableVersion params, version)))
+            (§ if (not (isAcceptableVersion params, version)))
             (§ block
                 (§ throw (§ new #_"WrongNetworkException" version, (.. params (getAcceptableAddressCodes))))
             )
@@ -1568,7 +1579,7 @@
     (§ method #_"boolean" (§ fn isP2SHAddress) [])
     (§ block
         (§ var #_"NetworkParameters" (§ name parameters) (getParameters))
-        (§ expr parameters != nil && (.. this version) == (.. parameters p2shHeader))
+        (and (some? parameters) (== (.. this version) (.. parameters p2shHeader)))
     )
 
     ;;;
@@ -1616,7 +1627,7 @@
     (§ block
         (§ for (§ var #_"int" (§ name v)) :for (.. params (getAcceptableAddressCodes)))
         (§ block
-            (§ if (§ expr version == v))
+            (§ if (== version v))
             (§ block
                 (§ return true)
             )
@@ -1758,7 +1769,7 @@
         (§ block
             (§ var #_"PeerAddress" (§ name addr) (§ new #_"PeerAddress" params, payload, cursor, protocolVersion, this, serializer))
             (.. addresses (add addr))
-            (§ ass (§ name cursor) (§ expr cursor + (.. addr (getMessageSize))))
+            (§ ass (§ name cursor) (+ cursor (.. addr (getMessageSize))))
         )
         (§ ass (§ name length) (.. (§ new #_"VarInt" (.. addresses (size))) (getSizeInBytes)))
         ;; The 4 byte difference is the uint32 timestamp that was introduced in version 31402.
@@ -1797,13 +1808,13 @@
         (unCache)
         (.. address (setParent this))
         (.. addresses (add address))
-        (§ if (§ expr length == UNKNOWN_LENGTH))
+        (§ if (== length UNKNOWN_LENGTH))
         (§ block
             (getMessageSize)
         )
         (§ else )
         (§ block
-            (§ ass (§ name length) (§ expr length + (.. address (getMessageSize))))
+            (§ ass (§ name length) (+ length (.. address (getMessageSize))))
         )
         nil
     )
@@ -1814,13 +1825,13 @@
         (unCache)
         (§ var #_"PeerAddress" (§ name address) (.. addresses (remove index)))
         (.. address (setParent nil))
-        (§ if (§ expr length == UNKNOWN_LENGTH))
+        (§ if (== length UNKNOWN_LENGTH))
         (§ block
             (getMessageSize)
         )
         (§ else )
         (§ block
-            (§ ass (§ name length) (§ expr length - (.. address (getMessageSize))))
+            (§ ass (§ name length) (- length (.. address (getMessageSize))))
         )
         nil
     )
@@ -1925,7 +1936,7 @@
         (§ ass (§ name cancel) (readUint32))
         ;; Sets are serialized as <len><item><item><item>....
         (§ var #_"long" (§ name cancelSetSize) (readVarInt))
-        (§ if (§ expr cancelSetSize < 0 || MAX_SET_SIZE < cancelSetSize))
+        (§ if (or (< cancelSetSize 0) (< MAX_SET_SIZE cancelSetSize)))
         (§ block
             (§ throw (§ new #_"ProtocolException" (str "Bad cancel set size: " cancelSetSize)))
         )
@@ -1940,7 +1951,7 @@
         (§ ass (§ name maxVer) (readUint32))
         ;; Read the subver matching set.
         (§ var #_"long" (§ name subverSetSize) (readVarInt))
-        (§ if (§ expr subverSetSize < 0 || MAX_SET_SIZE < subverSetSize))
+        (§ if (or (< subverSetSize 0) (< MAX_SET_SIZE subverSetSize)))
         (§ block
             (§ throw (§ new #_"ProtocolException" (str "Bad subver set size: " subverSetSize)))
         )
@@ -2190,7 +2201,7 @@
     #_static
     (§ block
         (Arrays/fill INDEXES, -1)
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. ALPHABET length)) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. ALPHABET length)) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ ass (§ name INDEXES[ALPHABET[i]]) i)
         )
@@ -2213,7 +2224,7 @@
 
         ;; Count leading zeros.
         (§ var #_"int" (§ name zeros) 0)
-        (§ while (§ expr zeros < (.. input length) && (§ ai input zeros) == 0))
+        (§ while (and (< zeros (.. input length)) (== (§ ai input zeros) 0)))
         (§ block
             (§ ass (§ name zeros) (+ zeros 1))
         )
@@ -2222,17 +2233,17 @@
         (§ ass (§ name input) (Arrays/copyOf input, (.. input length))) ;; since we modify it in-place
         (§ var #_"char[]" (§ name encoded) (§ new #_"char[]" (§ count (.. input length) * 2))) ;; upper bound
         (§ var #_"int" (§ name outputStart) (.. encoded length))
-        (§ for (§ var #_"int" (§ name inputStart) zeros) :for (§ expr inputStart < (.. input length)) :for (§ expr ))
+        (§ for (§ var #_"int" (§ name inputStart) zeros) :for (< inputStart (.. input length)) :for (§ expr ))
         (§ block
             (§ ass (§ name outputStart) (- outputStart 1))
             (§ ass (§ name (§ ai encoded outputStart)) (§ ai ALPHABET (divmod input, inputStart, 256, 58)))
-            (§ if (§ expr (§ ai input inputStart) == 0))
+            (§ if (== (§ ai input inputStart) 0))
             (§ block
                 (§ ass (§ name inputStart) (+ inputStart 1)) ;; optimization - skip leading zeros
             )
         )
         ;; Preserve exactly as many leading encoded zeros in output as there were leading zeros in input.
-        (§ while (§ expr outputStart < (.. encoded length) && (§ ai encoded outputStart) == ENCODED_ZERO))
+        (§ while (and (< outputStart (.. encoded length)) (== (§ ai encoded outputStart) ENCODED_ZERO)))
         (§ block
             (§ ass (§ name outputStart) (+ outputStart 1))
         )
@@ -2243,7 +2254,7 @@
         )
 
         ;; Return encoded string (including encoded leading zeros).
-        (§ new #_"String" encoded, outputStart, (§ expr (.. encoded length) - outputStart))
+        (§ new #_"String" encoded, outputStart, (- (.. encoded length) outputStart))
     )
 
     ;;;
@@ -2265,7 +2276,7 @@
 
         ;; Convert the base58-encoded ASCII chars to a base58 byte sequence (base58 digits).
         (§ var #_"byte[]" (§ name input58) (§ new #_"byte[]" (§ count (.. input (length)))))
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. input (length))) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. input (length))) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ var #_"char" (§ name c) (.. input (charAt i)))
             (§ var #_"int" (§ name digit) (if (< c 128) (§ ai INDEXES c) -1))
@@ -2277,30 +2288,30 @@
         )
         ;; Count leading zeros.
         (§ var #_"int" (§ name zeros) 0)
-        (§ while (§ expr zeros < (.. input58 length) && (§ ai input58 zeros) == 0))
+        (§ while (and (< zeros (.. input58 length)) (== (§ ai input58 zeros) 0)))
         (§ block
             (§ ass (§ name zeros) (+ zeros 1))
         )
         ;; Convert base-58 digits to base-256 digits.
         (§ var #_"byte[]" (§ name decoded) (§ new #_"byte[]" (§ count (.. input (length)))))
         (§ var #_"int" (§ name outputStart) (.. decoded length))
-        (§ for (§ var #_"int" (§ name inputStart) zeros) :for (§ expr inputStart < (.. input58 length)) :for (§ expr ))
+        (§ for (§ var #_"int" (§ name inputStart) zeros) :for (< inputStart (.. input58 length)) :for (§ expr ))
         (§ block
             (§ ass (§ name outputStart) (- outputStart 1))
             (§ ass (§ name (§ ai decoded outputStart)) (divmod input58, inputStart, 58, 256))
-            (§ if (§ expr (§ ai input58 inputStart) == 0))
+            (§ if (== (§ ai input58 inputStart) 0))
             (§ block
                 (§ ass (§ name inputStart) (+ inputStart 1)) ;; optimization - skip leading zeros
             )
         )
         ;; Ignore extra leading zeroes that were added during the calculation.
-        (§ while (§ expr outputStart < (.. decoded length) && (§ ai decoded outputStart) == 0))
+        (§ while (and (< outputStart (.. decoded length)) (== (§ ai decoded outputStart) 0)))
         (§ block
             (§ ass (§ name outputStart) (+ outputStart 1))
         )
 
         ;; Return decoded data (including original number of leading zeros).
-        (Arrays/copyOfRange decoded, (§ expr outputStart - zeros), (.. decoded length))
+        (Arrays/copyOfRange decoded, (- outputStart zeros), (.. decoded length))
     )
 
     #_public
@@ -2329,10 +2340,10 @@
         (§ block
             (§ throw (§ new #_"AddressFormatException" "Input too short"))
         )
-        (§ var #_"byte[]" (§ name data) (Arrays/copyOfRange decoded, 0, (§ expr (.. decoded length) - 4)))
-        (§ var #_"byte[]" (§ name checksum) (Arrays/copyOfRange decoded, (§ expr (.. decoded length) - 4), (.. decoded length)))
+        (§ var #_"byte[]" (§ name data) (Arrays/copyOfRange decoded, 0, (- (.. decoded length) 4)))
+        (§ var #_"byte[]" (§ name checksum) (Arrays/copyOfRange decoded, (- (.. decoded length) 4), (.. decoded length)))
         (§ var #_"byte[]" (§ name actualChecksum) (Arrays/copyOfRange (Sha256Hash/hashTwice data), 0, 4))
-        (§ if (§ not (Arrays/equals checksum, actualChecksum)))
+        (§ if (not (Arrays/equals checksum, actualChecksum)))
         (§ block
             (§ throw (§ new #_"AddressFormatException" "Checksum does not validate"))
         )
@@ -2357,12 +2368,12 @@
     (§ block
         ;; This is just long division which accounts for the base of the input digits.
         (§ var #_"int" (§ name remainder) 0)
-        (§ for (§ var #_"int" (§ name i) firstDigit) :for (§ expr i < (.. number length)) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) firstDigit) :for (< i (.. number length)) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ var #_"int" (§ name digit) (& (§ cast #_"int" (§ ai number i)) 0xff))
-            (§ var #_"int" (§ name temp) (§ expr remainder * base + digit))
+            (§ var #_"int" (§ name temp) (+ (* remainder base) digit))
             (§ ass (§ name (§ ai number i)) (§ cast #_"byte" (/ temp divisor)))
-            (§ ass (§ name remainder) (§ expr temp % divisor))
+            (§ ass (§ name remainder) (% temp divisor))
         )
         (§ cast #_"byte" remainder)
     )
@@ -2453,21 +2464,21 @@
 
         ;; The header array is initialized to zero by Java so we don't have to worry
         ;; about NULL terminating the string here.
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. name (length)) && i < COMMAND_LEN) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (and (< i (.. name (length))) (< i COMMAND_LEN)) :for (§ ass (§ name i) (+ i 1)))
         (§ block
-            (§ ass (§ name (§ ai header (§ expr 4 + i))) (§ cast #_"byte" (& (.. name (codePointAt i)) 0xff)))
+            (§ ass (§ name (§ ai header (+ 4 i))) (§ cast #_"byte" (& (.. name (codePointAt i)) 0xff)))
         )
 
         (Utils/uint32ToByteArrayLE (.. message length), header, (+ 4 COMMAND_LEN))
 
         (§ var #_"byte[]" (§ name hash) (Sha256Hash/hashTwice message))
-        (System/arraycopy hash, 0, header, (§ expr 4 + COMMAND_LEN + 4), 4)
+        (System/arraycopy hash, 0, header, (+ 4 COMMAND_LEN 4), 4)
         (.. out (write header))
         (.. out (write message))
 
         (§ if (.. log (isDebugEnabled)))
         (§ block
-            (.. log (debug "Sending {} message: {}", name, (§ expr (.. HEX (encode header)) + (.. HEX (encode message)))))
+            (.. log (debug "Sending {} message: {}", name, (+ (.. HEX (encode header)) (.. HEX (encode message)))))
         )
         nil
     )
@@ -2545,7 +2556,7 @@
         ;; Verify the checksum.
         (§ var #_"byte[]" (§ name hash))
         (§ ass (§ name hash) (Sha256Hash/hashTwice payloadBytes))
-        (§ if (§ expr header.checksum[0] != (§ ai hash 0) || header.checksum[1] != (§ ai hash 1) || header.checksum[2] != (§ ai hash 2) || header.checksum[3] != (§ ai hash 3)))
+        (§ if (or (!= (§ ai (.. header checksum) 0) (§ ai hash 0)) (!= (§ ai (.. header checksum) 1) (§ ai hash 1)) (!= (§ ai (.. header checksum) 2) (§ ai hash 2)) (!= (§ ai (.. header checksum) 3) (§ ai hash 3))))
         (§ block
             (§ throw (§ new #_"ProtocolException" (str "Checksum failed to verify, actual " (.. HEX (encode hash)) " vs " (.. HEX (encode (.. header checksum))))))
         )
@@ -2748,8 +2759,8 @@
             (§ var #_"byte" (§ name b) (.. in (get)))
             ;; We're looking for a run of bytes that is the same as the packet magic but we want to ignore partial
             ;; magics that aren't complete.  So we keep track of where we're up to with magicCursor.
-            (§ var #_"byte" (§ name expectedByte) (§ cast #_"byte" (§ expr 0xff & (.. params (getPacketMagic)) >>> (<< magicCursor 3))))
-            (§ if (§ expr b == expectedByte))
+            (§ var #_"byte" (§ name expectedByte) (§ cast #_"byte" (& 0xff (>>> (.. params (getPacketMagic)) (<< magicCursor 3)))))
+            (§ if (== b expectedByte))
             (§ block
                 (§ ass (§ name magicCursor) (- magicCursor 1))
                 (§ if (< magicCursor 0))
@@ -2781,7 +2792,7 @@
         ;;; The largest number of bytes that a header can represent. ;;
         #_public
         #_static
-        (§ def #_"int" (§ name HEADER_LENGTH) (§ expr COMMAND_LEN + 4 + 4))
+        (§ def #_"int" (§ name HEADER_LENGTH) (+ COMMAND_LEN 4 4))
 
         #_public
         (§ field #_"byte[]" (§ name header))
@@ -2803,7 +2814,7 @@
 
             ;; The command is a NULL terminated string, unless the command fills all twelve bytes
             ;; in which case the termination is implicit.
-            (§ while (§ expr (§ ai header cursor) != 0 && cursor < COMMAND_LEN))
+            (§ while (and (!= (§ ai header cursor) 0) (< cursor COMMAND_LEN)))
             (§ block
                 (§ ass (§ name cursor) (+ cursor 1))
             )
@@ -2815,7 +2826,7 @@
             (§ ass (§ name size) (§ cast #_"int" (readUint32 header, cursor)))
             (§ ass (§ name cursor) (+ cursor 4))
 
-            (§ if (§ expr Message/MAX_SIZE < size || size < 0))
+            (§ if (or (< Message/MAX_SIZE size) (< size 0)))
             (§ block
                 (§ throw (§ new #_"ProtocolException" (str "Message size too large: " size)))
             )
@@ -2874,7 +2885,7 @@
     (§ def #_"int" (§ name HEADER_SIZE) 80)
 
     #_static
-    (§ def #_"long" (§ name ALLOWED_TIME_DRIFT) (§ expr 2 * 60 * 60)) ;; Same value as Bitcoin Core.
+    (§ def #_"long" (§ name ALLOWED_TIME_DRIFT) (* 2 60 60)) ;; Same value as Bitcoin Core.
 
     ;;;
      ; A constant shared by the entire network: how large in bytes a block is allowed to be.  One day we may have to
@@ -2883,7 +2894,7 @@
      ;;
     #_public
     #_static
-    (§ def #_"int" (§ name MAX_BLOCK_SIZE) (§ expr 1 * 1000 * 1000))
+    (§ def #_"int" (§ name MAX_BLOCK_SIZE) (* 1 1000 1000))
     ;;;
      ; A "sigop" is a signature verification operation.  Because they're expensive, we also impose a separate limit on
      ; the number in a block to prevent somebody mining a huge block that has way more sigops than normal, so is very
@@ -3080,7 +3091,7 @@
     #_public
     (§ method #_"Coin" (§ fn getBlockInflation) [#_"int" (§ name height)])
     (§ block
-        (.. FIFTY_COINS (shiftRight (§ expr height / (.. params (getSubsidyDecreaseBlockCount)))))
+        (.. FIFTY_COINS (shiftRight (/ height (.. params (getSubsidyDecreaseBlockCount)))))
     )
 
     ;;;
@@ -3103,7 +3114,7 @@
         )
 
         (§ var #_"int" (§ name numTransactions) (§ cast #_"int" (readVarInt)))
-        (§ ass (§ name optimalEncodingMessageSize) (§ expr optimalEncodingMessageSize + (VarInt/sizeOf numTransactions)))
+        (§ ass (§ name optimalEncodingMessageSize) (+ optimalEncodingMessageSize (VarInt/sizeOf numTransactions)))
         (§ ass (§ name transactions) (§ new #_"ArrayList<>" numTransactions))
         (§ for (§ var #_"int" (§ name i) 0) :for (< i numTransactions) :for (§ ass (§ name i) (+ i 1)))
         (§ block
@@ -3111,8 +3122,8 @@
             ;; Label the transaction as coming from the P2P network, so code that cares where we first saw it knows.
             (.. tx (getConfidence) (setSource TransactionConfidence/Source/NETWORK))
             (.. transactions (add tx))
-            (§ ass (§ name cursor) (§ expr cursor + (.. tx (getMessageSize))))
-            (§ ass (§ name optimalEncodingMessageSize) (§ expr optimalEncodingMessageSize + (.. tx (getOptimalEncodingMessageSize))))
+            (§ ass (§ name cursor) (+ cursor (.. tx (getMessageSize))))
+            (§ ass (§ name optimalEncodingMessageSize) (+ optimalEncodingMessageSize (.. tx (getOptimalEncodingMessageSize))))
         )
         (§ ass (§ name transactionBytesValid) (.. serializer (isParseRetainMode)))
         nil
@@ -3131,7 +3142,7 @@
         (§ ass (§ name time) (readUint32))
         (§ ass (§ name difficultyTarget) (readUint32))
         (§ ass (§ name nonce) (readUint32))
-        (§ ass (§ name hash) (Sha256Hash/wrapReversed (Sha256Hash/hashTwice payload, offset, (§ expr cursor - offset))))
+        (§ ass (§ name hash) (Sha256Hash/wrapReversed (Sha256Hash/hashTwice payload, offset, (- cursor offset))))
         (§ ass (§ name headerBytesValid) (.. serializer (isParseRetainMode)))
 
         ;; transactions
@@ -3143,7 +3154,7 @@
     #_public
     (§ method #_"int" (§ fn getOptimalEncodingMessageSize) [])
     (§ block
-        (§ if (§ expr optimalEncodingMessageSize != 0))
+        (§ if (!= optimalEncodingMessageSize 0))
         (§ block
             (§ return optimalEncodingMessageSize)
         )
@@ -3156,7 +3167,7 @@
         (§ throws #_"IOException")
     (§ block
         ;; try for cached write first
-        (§ if (§ expr headerBytesValid && payload != nil && offset + HEADER_SIZE <= (.. payload length)))
+        (§ if (and headerBytesValid (some? payload) (<= (+ offset HEADER_SIZE) (.. payload length))))
         (§ block
             (.. stream (write payload, offset, HEADER_SIZE))
             (§ return nil)
@@ -3183,9 +3194,9 @@
         )
 
         ;; confirmed we must have transactions either cached or as objects
-        (§ if (§ expr transactionBytesValid && payload != nil && offset + length <= (.. payload length)))
+        (§ if (and transactionBytesValid (some? payload) (<= (+ offset length) (.. payload length))))
         (§ block
-            (.. stream (write payload, (§ expr offset + HEADER_SIZE), (§ expr length - HEADER_SIZE)))
+            (.. stream (write payload, (+ offset HEADER_SIZE), (- length HEADER_SIZE)))
             (§ return nil)
         )
 
@@ -3210,10 +3221,10 @@
     (§ method #_"byte[]" (§ fn bitcoinSerialize) [])
     (§ block
         ;; we have completely cached byte array
-        (§ if (§ expr headerBytesValid && transactionBytesValid))
+        (§ if (and headerBytesValid transactionBytesValid))
         (§ block
             (Preconditions/checkNotNull payload, "Bytes should never be nil if headerBytesValid && transactionBytesValid")
-            (§ if (§ expr length == (.. payload length)))
+            (§ if (== length (.. payload length)))
             (§ block
                 (§ return payload)
             )
@@ -3290,7 +3301,7 @@
     (§ method- #_"void" (§ fn unCacheHeader) [])
     (§ block
         (§ ass (§ name headerBytesValid) false)
-        (§ if (§ not transactionBytesValid))
+        (§ if (not transactionBytesValid))
         (§ block
             (§ ass (§ name payload) nil)
         )
@@ -3302,7 +3313,7 @@
     (§ method- #_"void" (§ fn unCacheTransactions) [])
     (§ block
         (§ ass (§ name transactionBytesValid) false)
-        (§ if (§ not headerBytesValid))
+        (§ if (not headerBytesValid))
         (§ block
             (§ ass (§ name payload) nil)
         )
@@ -3418,7 +3429,7 @@
         (.. sb (append "   hash: ") (append (getHashAsString)) (append "\n"))
         (.. sb (append "   version: ") (append version))
         (§ var #_"String" (§ name bips) (.. (Joiner/on ", ") (skipNulls) (join (when (isBIP34) "BIP34"), (when (isBIP66) "BIP66"), (when (isBIP65) "BIP65"))))
-        (§ if (§ not (.. bips (isEmpty))))
+        (§ if (not (.. bips (isEmpty))))
         (§ block
             (.. sb (append " (") (append bips) (append ")"))
         )
@@ -3428,7 +3439,7 @@
         (.. sb (append "   time: ") (append time) (append " (") (append (Utils/dateTimeFormat (* time 1000))) (append ")\n"))
         (.. sb (append "   difficulty target (nBits): ") (append difficultyTarget) (append "\n"))
         (.. sb (append "   nonce: ") (append nonce) (append "\n"))
-        (§ if (§ expr transactions != nil && 0 < (.. transactions (size))))
+        (§ if (and (some? transactions) (< 0 (.. transactions (size)))))
         (§ block
             (.. sb (append "   with ") (append (.. transactions (size))) (append " transaction(s):\n"))
             (§ for (§ var #_"Transaction" (§ name tx)) :for transactions)
@@ -3479,7 +3490,7 @@
         (§ throws #_"VerificationException")
     (§ block
         (§ var #_"BigInteger" (§ name target) (Utils/decodeCompactBits difficultyTarget))
-        (§ if (§ expr (.. target (signum)) <= 0 || 0 < (.. target (compareTo (.. params maxTarget)))))
+        (§ if (or (<= (.. target (signum)) 0) (< 0 (.. target (compareTo (.. params maxTarget))))))
         (§ block
             (§ throw (§ new #_"VerificationException" (str "Difficulty target is bad: " target)))
         )
@@ -3502,7 +3513,7 @@
         (§ var #_"BigInteger" (§ name target) (getDifficultyTargetAsInteger))
 
         (§ var #_"BigInteger" (§ name h) (.. (getHash) (toBigInteger)))
-        (§ if (§ expr 0 < (.. h (compareTo target))))
+        (§ if (< 0 (.. h (compareTo target))))
         (§ block
             ;; Proof of work check failed!
             (§ if throwException)
@@ -3538,7 +3549,7 @@
         (§ var #_"int" (§ name sigOps) 0)
         (§ for (§ var #_"Transaction" (§ name tx)) :for transactions)
         (§ block
-            (§ ass (§ name sigOps) (§ expr sigOps + (.. tx (getSigOpCount))))
+            (§ ass (§ name sigOps) (+ sigOps (.. tx (getSigOpCount))))
         )
 
         (§ if (< MAX_BLOCK_SIGOPS sigOps))
@@ -3553,7 +3564,7 @@
         (§ throws #_"VerificationException")
     (§ block
         (§ var #_"Sha256Hash" (§ name calculatedRoot) (calculateMerkleRoot))
-        (§ if (§ not (.. calculatedRoot (equals merkleRoot))))
+        (§ if (not (.. calculatedRoot (equals merkleRoot))))
         (§ block
             (.. log (error "Merkle tree did not verify"))
             (§ throw (§ new #_"VerificationException" (str "Merkle hashes do not match: " calculatedRoot " vs " merkleRoot)))
@@ -3616,7 +3627,7 @@
             (§ for (§ var #_"int" (§ name left) 0) :for (< left levelSize) :for (§ ass (§ name left) (+ left 2)))
             (§ block
                 ;; The right hand node can be the same as the left hand, in the case where we don't have enough transactions.
-                (§ var #_"int" (§ name right) (Math/min (§ expr left + 1), (§ expr levelSize - 1)))
+                (§ var #_"int" (§ name right) (Math/min (+ left 1), (- levelSize 1)))
                 (§ var #_"byte[]" (§ name leftBytes) (Utils/reverseBytes (.. tree (get (+ levelOffset left)))))
                 (§ var #_"byte[]" (§ name rightBytes) (Utils/reverseBytes (.. tree (get (+ levelOffset right)))))
                 (.. tree (add (Utils/reverseBytes (hashTwice leftBytes, 0, 32, rightBytes, 0, 32))))
@@ -3639,18 +3650,18 @@
         (§ throws #_"VerificationException")
     (§ block
         ;; The first transaction in a block must always be a coinbase transaction.
-        (§ if (§ not (.. transactions (get 0) (isCoinBase))))
+        (§ if (not (.. transactions (get 0) (isCoinBase))))
         (§ block
             (§ throw (§ new #_"VerificationException" "First tx is not coinbase"))
         )
 
-        (§ if (§ expr (.. flags (contains Block/VerifyFlag/HEIGHT_IN_COINBASE)) && BLOCK_HEIGHT_GENESIS <= height))
+        (§ if (and (.. flags (contains Block/VerifyFlag/HEIGHT_IN_COINBASE)) (<= BLOCK_HEIGHT_GENESIS height)))
         (§ block
             (.. transactions (get 0) (checkCoinBaseHeight height))
         )
 
         ;; The rest must not be.
-        (§ for (§ var #_"int" (§ name i) 1) :for (§ expr i < (.. transactions (size))) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 1) :for (< i (.. transactions (size))) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ if (.. transactions (get i) (isCoinBase)))
             (§ block
@@ -3702,7 +3713,7 @@
         (§ block
             (§ throw (§ new #_"VerificationException" "Block had no transactions"))
         )
-        (§ if (§ expr MAX_BLOCK_SIZE < (.. this (getOptimalEncodingMessageSize))))
+        (§ if (< MAX_BLOCK_SIZE (.. this (getOptimalEncodingMessageSize))))
         (§ block
             (§ throw (§ new #_"VerificationException" "Block larger than MAX_BLOCK_SIZE"))
         )
@@ -3736,11 +3747,11 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
@@ -3795,11 +3806,11 @@
             (§ ass (§ name transactions) (§ new #_"ArrayList<>"))
         )
         (.. t (setParent this))
-        (§ if (§ expr runSanityChecks && (.. transactions (size)) == 0 && (§ not (.. t (isCoinBase)))))
+        (§ if (and runSanityChecks (== (.. transactions (size)) 0) (not (.. t (isCoinBase)))))
         (§ block
             (§ throw (§ new #_"RuntimeException" (str "Attempted to add a non-coinbase transaction as the first transaction: " t)))
         )
-        (§ if (§ expr runSanityChecks && 0 < (.. transactions (size)) && (.. t (isCoinBase))))
+        (§ if (and runSanityChecks (< 0 (.. transactions (size))) (.. t (isCoinBase))))
         (§ block
             (§ throw (§ new #_"RuntimeException" (str "Attempted to add a coinbase transaction when there already is one: " t)))
         )
@@ -3948,7 +3959,7 @@
         ;; Here we will do things a bit differently so a new address isn't needed every time.
         ;; We'll put a simple counter in the scriptSig, so every transaction has a different hash.
         (.. coinbase (addInput (§ new #_"TransactionInput" params, coinbase, (.. inputBuilder (build) (getProgram)))))
-        (.. coinbase (addOutput (§ new #_"TransactionOutput" params, coinbase, value, (§ expr (.. (ScriptBuilder/createOutputScript (ECKey/fromPublicOnly pubKeyTo)) (getProgram))))))
+        (.. coinbase (addOutput (§ new #_"TransactionOutput" params, coinbase, value, (.. (ScriptBuilder/createOutputScript (ECKey/fromPublicOnly pubKeyTo)) (getProgram)))))
         (.. transactions (add coinbase))
         (.. coinbase (setParent this))
         (§ ass (§ name (.. coinbase length)) (.. coinbase (unsafeBitcoinSerialize) length))
@@ -4042,14 +4053,14 @@
     #_public
     (§ method #_"Block" (§ fn createNextBlock) [#_nilable #_"Address" (§ name to), #_"TransactionOutPoint" (§ name prevOut)])
     (§ block
-        (createNextBlock to, BLOCK_VERSION_GENESIS, prevOut, (§ expr (getTimeSeconds) + 5), pubkeyForTesting, FIFTY_COINS, BLOCK_HEIGHT_UNKNOWN)
+        (createNextBlock to, BLOCK_VERSION_GENESIS, prevOut, (+ (getTimeSeconds) 5), pubkeyForTesting, FIFTY_COINS, BLOCK_HEIGHT_UNKNOWN)
     )
 
     #_testing
     #_public
     (§ method #_"Block" (§ fn createNextBlock) [#_nilable #_"Address" (§ name to), #_"Coin" (§ name value)])
     (§ block
-        (createNextBlock to, BLOCK_VERSION_GENESIS, nil, (§ expr (getTimeSeconds) + 5), pubkeyForTesting, value, BLOCK_HEIGHT_UNKNOWN)
+        (createNextBlock to, BLOCK_VERSION_GENESIS, nil, (+ (getTimeSeconds) 5), pubkeyForTesting, value, BLOCK_HEIGHT_UNKNOWN)
     )
 
     #_testing
@@ -4096,7 +4107,7 @@
     #_public
     (§ method #_"boolean" (§ fn hasTransactions) [])
     (§ block
-        (§ not (.. this transactions (isEmpty)))
+        (not (.. this transactions (isEmpty)))
     )
 
     ;;;
@@ -4246,15 +4257,15 @@
         (§ try )
         (§ block
             (§ var #_"int" (§ name currentHeight) (getBestChainHeight))
-            (Preconditions/checkArgument (§ expr 0 <= height && height <= currentHeight), "Bad height: %s", height)
-            (§ if (§ expr height == currentHeight))
+            (Preconditions/checkArgument (<= 0 height currentHeight), "Bad height: %s", height)
+            (§ if (== height currentHeight))
             (§ block
                 (§ return nil) ;; nothing to do
             )
 
             ;; Look for the block we want to be the new chain head.
             (§ var #_"StoredBlock" (§ name newChainHead) (.. blockStore (getChainHead)))
-            (§ while (§ expr height < (.. newChainHead (getHeight))))
+            (§ while (< height (.. newChainHead (getHeight))))
             (§ block
                 (§ ass (§ name newChainHead) (.. newChainHead (getPrev blockStore)))
                 (§ if (nil? newChainHead))
@@ -4452,14 +4463,14 @@
     (§ block
         ;; The following formulas were stolen from Wikipedia's page on Bloom Filters (with the addition of min(..., MAX_...)).
         ;; Size required for a given number of elements and false-positive rate.
-        (§ var #_"int" (§ name size) (§ cast #_"int" (§ expr -1 / (pow (log 2), 2) * elements * (log falsePositiveRate))))
+        (§ var #_"int" (§ name size) (§ cast #_"int" (* (/ -1 (pow (log 2), 2)) elements (log falsePositiveRate))))
         (§ ass (§ name size) (max 1, (/ (min size, (* (§ cast #_"int" MAX_FILTER_SIZE) 8)) 8)))
         (§ ass (§ name data) (§ new #_"byte[]" (§ count size)))
         ;; Optimal number of hash functions for a given filter size and element count.
-        (§ ass (§ name hashFuncs) (§ cast #_"int" (§ expr (.. data length) * 8 / (§ cast #_"double" elements) * (log 2))))
+        (§ ass (§ name hashFuncs) (§ cast #_"int" (* (/ (* (.. data length) 8) (§ cast #_"double" elements)) (log 2))))
         (§ ass (§ name hashFuncs) (max 1, (min hashFuncs, MAX_HASH_FUNCS)))
         (§ ass (§ name (.. this nTweak)) randomNonce)
-        (§ ass (§ name (.. this nFlags)) (§ cast #_"byte" (§ expr 0xff & (.. updateFlag (ordinal)))))
+        (§ ass (§ name (.. this nFlags)) (§ cast #_"byte" (& 0xff (.. updateFlag (ordinal)))))
         this
     )
 
@@ -4469,7 +4480,7 @@
     #_public
     (§ method #_"double" (§ fn getFalsePositiveRate) [#_"int" (§ name elements)])
     (§ block
-        (pow (- 1 (pow E, (§ expr -1.0 * (* hashFuncs elements) / (* (.. data length) 8)))), hashFuncs)
+        (pow (- 1 (pow E, (/ (* -1.0 hashFuncs elements) (* (.. data length) 8)))), hashFuncs)
     )
 
     #_override
@@ -4485,7 +4496,7 @@
         (§ throws #_"ProtocolException")
     (§ block
         (§ ass (§ name data) (readByteArray))
-        (§ if (§ expr MAX_FILTER_SIZE < (.. data length)))
+        (§ if (< MAX_FILTER_SIZE (.. data length)))
         (§ block
             (§ throw (§ new #_"ProtocolException" "Bloom filter out of size range."))
         )
@@ -4495,7 +4506,7 @@
             (§ throw (§ new #_"ProtocolException" "Bloom filter hash function count out of range"))
         )
         (§ ass (§ name nTweak) (readUint32))
-        (§ ass (§ name nFlags) (§ expr (readBytes 1)[0]))
+        (§ ass (§ name nFlags) (§ ai (readBytes 1) 0))
         (§ ass (§ name length) (- cursor offset))
         nil
     )
@@ -4531,7 +4542,7 @@
     #_static
     (§ defn #_"int" (§ fn murmurHash3) [#_"byte[]" (§ name data), #_"long" (§ name nTweak), #_"int" (§ name hashNum), #_"byte[]" (§ name object)])
     (§ block
-        (§ var #_"int" (§ name h1) (§ cast #_"int" (§ expr hashNum * 0xfba4c795 + nTweak)))
+        (§ var #_"int" (§ name h1) (§ cast #_"int" (+ (* hashNum 0xfba4c795) nTweak)))
         (§ var #_"int" (§ name c1) 0xcc9e2d51)
         (§ var #_"int" (§ name c2) 0x1b873593)
 
@@ -4540,15 +4551,15 @@
         ;; body
         (§ for (§ var #_"int" (§ name i) 0) :for (< i numBlocks) :for (§ ass (§ name i) (+ i 4)))
         (§ block
-            (§ var #_"int" (§ name k1) (§ expr (§ expr (§ ai object i) & 0xff) | (<< (§ expr (§ ai object (§ expr i + 1)) & 0xff) 8) | (<< (§ expr (§ ai object (§ expr i + 2)) & 0xff) 16) | (<< (§ expr (§ ai object (§ expr i + 3)) & 0xff) 24)))
+            (§ var #_"int" (§ name k1) (| (& 0xff (§ ai object i)) (<< (& 0xff (§ ai object (+ i 1))) 8) (<< (& 0xff (§ ai object (+ i 2))) 16) (<< (& 0xff (§ ai object (+ i 3))) 24)))
 
             (§ ass (§ name k1) (* k1 c1))
             (§ ass (§ name k1) (rotateLeft32 k1, 15))
             (§ ass (§ name k1) (* k1 c2))
 
-            (§ ass (§ name h1) (§ expr h1 :xor k1))
+            (§ ass (§ name h1) (bit-xor h1 k1))
             (§ ass (§ name h1) (rotateLeft32 h1, 13))
-            (§ ass (§ name h1) (§ expr h1 * 5 + 0xe6546b64))
+            (§ ass (§ name h1) (+ (* h1 5) 0xe6546b64))
         )
 
         (§ var #_"int" (§ name k1) 0)
@@ -4556,21 +4567,21 @@
         (§ block
             (§ case 3)
             (§ block
-                (§ ass (§ name k1) (§ expr k1 :xor (<< (§ expr (§ ai object (§ expr numBlocks + 2)) & 0xff) 16)))
+                (§ ass (§ name k1) (bit-xor k1 (<< (& 0xff (§ ai object (+ numBlocks 2))) 16)))
                 ;; Fall through.
             )
             (§ case 2)
             (§ block
-                (§ ass (§ name k1) (§ expr k1 :xor (<< (§ expr (§ ai object (§ expr numBlocks + 1)) & 0xff) 8)))
+                (§ ass (§ name k1) (bit-xor k1 (<< (& 0xff (§ ai object (+ numBlocks 1))) 8)))
                 ;; Fall through.
             )
             (§ case 1)
             (§ block
-                (§ ass (§ name k1) (§ expr k1 :xor (§ expr (§ ai object numBlocks) & 0xff)))
+                (§ ass (§ name k1) (bit-xor k1 (& 0xff (§ ai object numBlocks))))
                 (§ ass (§ name k1) (* k1 c1))
                 (§ ass (§ name k1) (rotateLeft32 k1, 15))
                 (§ ass (§ name k1) (* k1 c2))
-                (§ ass (§ name h1) (§ expr h1 :xor k1))
+                (§ ass (§ name h1) (bit-xor h1 k1))
                 ;; Fall through.
             )
             (§ default )
@@ -4581,14 +4592,14 @@
         )
 
         ;; finalization
-        (§ ass (§ name h1) (§ expr h1 :xor (.. object length)))
-        (§ ass (§ name h1) (§ expr h1 :xor (>>> h1 16)))
+        (§ ass (§ name h1) (bit-xor h1 (.. object length)))
+        (§ ass (§ name h1) (bit-xor h1 (>>> h1 16)))
         (§ ass (§ name h1) (* h1 0x85ebca6b))
-        (§ ass (§ name h1) (§ expr h1 :xor (>>> h1 13)))
+        (§ ass (§ name h1) (bit-xor h1 (>>> h1 13)))
         (§ ass (§ name h1) (* h1 0xc2b2ae35))
-        (§ ass (§ name h1) (§ expr h1 :xor (>>> h1 16)))
+        (§ ass (§ name h1) (bit-xor h1 (>>> h1 16)))
 
-        (§ cast #_"int" (§ expr (& h1 0xffffffff) % (* (.. data length) 8)))
+        (§ cast #_"int" (% (& h1 0xffffffff) (* (.. data length) 8)))
     )
 
     ;;;
@@ -4600,7 +4611,7 @@
     (§ block
         (§ for (§ var #_"int" (§ name i) 0) :for (< i hashFuncs) :for (§ ass (§ name i) (+ i 1)))
         (§ block
-            (§ if (§ not (Utils/checkBitLE data, (murmurHash3 data, nTweak, i, object))))
+            (§ if (not (Utils/checkBitLE data, (murmurHash3 data, nTweak, i, object))))
             (§ block
                 (§ return false)
             )
@@ -4654,13 +4665,13 @@
     #_synchronized
     (§ method #_"void" (§ fn merge) [#_"BloomFilter" (§ name filter)])
     (§ block
-        (§ if (§ expr (§ not (.. this (matchesAll))) && (§ not (.. filter (matchesAll)))))
+        (§ if (and (not (.. this (matchesAll))) (not (.. filter (matchesAll)))))
         (§ block
-            (Preconditions/checkArgument (§ expr (.. filter data length) == (.. this data length) && (.. filter hashFuncs) == (.. this hashFuncs) && (.. filter nTweak) == (.. this nTweak)))
+            (Preconditions/checkArgument (and (== (.. filter data length) (.. this data length)) (== (.. filter hashFuncs) (.. this hashFuncs)) (== (.. filter nTweak) (.. this nTweak))))
 
-            (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. data length)) :for (§ ass (§ name i) (+ i 1)))
+            (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. data length)) :for (§ ass (§ name i) (+ i 1)))
             (§ block
-                (§ ass (§ name this.data[i]) (§ expr this.data[i] | filter.data[i]))
+                (§ ass (§ name this.data[i]) (| (§ ai (.. this data) i) (§ ai (.. filter data) i)))
             )
         )
         (§ else )
@@ -4680,7 +4691,7 @@
     (§ block
         (§ for (§ var #_"byte" (§ name b)) :for data)
         (§ block
-            (§ if (§ expr b != (§ cast #_"byte" 0xff)))
+            (§ if (!= b (§ cast #_"byte" 0xff)))
             (§ block
                 (§ return false)
             )
@@ -4696,15 +4707,15 @@
     #_synchronized
     (§ method #_"BloomUpdate" (§ fn getUpdateFlag) [])
     (§ block
-        (§ if (§ expr nFlags == 0))
+        (§ if (== nFlags 0))
         (§ block
             (§ return BloomUpdate/UPDATE_NONE)
         )
-        (§ if (§ expr nFlags == 1))
+        (§ if (== nFlags 1))
         (§ block
             (§ return BloomUpdate/UPDATE_ALL)
         )
-        (§ if (§ expr nFlags == 2))
+        (§ if (== nFlags 2))
         (§ block
             (§ return BloomUpdate/UPDATE_P2PUBKEY_ONLY)
         )
@@ -4726,7 +4737,7 @@
         (§ var #_"List<Sha256Hash>" (§ name txHashes) (§ new #_"ArrayList<>" (.. txns (size))))
         (§ var #_"List<Transaction>" (§ name matched) (Lists/newArrayList))
         (§ var #_"byte[]" (§ name bits) (§ new #_"byte[]" (§ count (§ cast #_"int" (Math/ceil (/ (.. txns (size)) 8.0))))))
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. txns (size))) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. txns (size))) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ var #_"Transaction" (§ name tx) (.. txns (get i)))
             (.. txHashes (add (.. tx (getHash))))
@@ -4760,10 +4771,10 @@
             (§ var #_"Script" (§ name script) (.. output (getScriptPubKey)))
             (§ for (§ var #_"ScriptChunk" (§ name chunk)) :for (.. script (getChunks)))
             (§ block
-                (§ if (§ expr (.. chunk (isPushData)) && (contains (.. chunk data))))
+                (§ if (and (.. chunk (isPushData)) (contains (.. chunk data))))
                 (§ block
-                    (§ var #_"boolean" (§ name isSendingToPubKeys) (§ expr (.. script (isSentToRawPubKey)) || (.. script (isSentToMultiSig))))
-                    (§ if (§ expr flag == BloomUpdate/UPDATE_ALL || (§ expr flag == BloomUpdate/UPDATE_P2PUBKEY_ONLY && isSendingToPubKeys)))
+                    (§ var #_"boolean" (§ name isSendingToPubKeys) (or (.. script (isSentToRawPubKey)) (.. script (isSentToMultiSig))))
+                    (§ if (or (== flag BloomUpdate/UPDATE_ALL) (and (== flag BloomUpdate/UPDATE_P2PUBKEY_ONLY) isSendingToPubKeys)))
                     (§ block
                         (insert (.. output (getOutPointFor) (unsafeBitcoinSerialize)))
                     )
@@ -4784,7 +4795,7 @@
 
             (§ for (§ var #_"ScriptChunk" (§ name chunk)) :for (.. input (getScriptSig) (getChunks)))
             (§ block
-                (§ if (§ expr (.. chunk (isPushData)) && (contains (.. chunk data))))
+                (§ if (and (.. chunk (isPushData)) (contains (.. chunk data))))
                 (§ block
                     (§ return true)
                 )
@@ -4798,16 +4809,16 @@
     #_synchronized
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"BloomFilter" (§ name other) (§ cast #_"BloomFilter" o))
-        (§ expr hashFuncs == (.. other hashFuncs) && nTweak == (.. other nTweak) && (Arrays/equals data, (.. other data)))
+        (and (== hashFuncs (.. other hashFuncs)) (== nTweak (.. other nTweak)) (Arrays/equals data, (.. other data)))
     )
 
     #_override
@@ -4906,11 +4917,11 @@
         (.. inputStream (mark 1))
         (§ var #_"int" (§ name first) (.. inputStream (read)))
         (.. inputStream (reset))
-        (§ if (§ expr first == (.. BINARY_MAGIC (charAt 0))))
+        (§ if (== first (.. BINARY_MAGIC (charAt 0))))
         (§ block
             (§ ass (§ name dataHash) (readBinary inputStream))
         )
-        (§ elseif (§ expr first == (.. TEXTUAL_MAGIC (charAt 0))))
+        (§ elseif (== first (.. TEXTUAL_MAGIC (charAt 0))))
         (§ block
             (§ ass (§ name dataHash) (readTextual inputStream))
         )
@@ -4942,7 +4953,7 @@
             (.. digestInputStream (on false))
             (§ var #_"byte[]" (§ name header) (§ new #_"byte[]" (§ count (.. BINARY_MAGIC (length)))))
             (.. dis (readFully header))
-            (§ if (§ not (Arrays/equals header, (.. BINARY_MAGIC (getBytes "US-ASCII")))))
+            (§ if (not (Arrays/equals header, (.. BINARY_MAGIC (getBytes "US-ASCII")))))
             (§ block
                 (§ throw (§ new #_"IOException" "Header bytes did not match expected version"))
             )
@@ -4996,7 +5007,7 @@
         (§ block
             (§ ass (§ name reader) (§ new #_"BufferedReader" (§ new #_"InputStreamReader" inputStream, Charsets/US_ASCII)))
             (§ var #_"String" (§ name magic) (.. reader (readLine)))
-            (§ if (§ not (.. TEXTUAL_MAGIC (equals magic))))
+            (§ if (not (.. TEXTUAL_MAGIC (equals magic))))
             (§ block
                 (§ throw (§ new #_"IOException" (str "unexpected magic: " magic)))
             )
@@ -5087,12 +5098,12 @@
     (§ block
         (Preconditions/checkNotNull params)
         (Preconditions/checkNotNull store)
-        (Preconditions/checkArgument (§ not (§ insta store #_"FullPrunedBlockStore")), "You cannot use checkpointing with a full store.")
+        (Preconditions/checkArgument (not (§ insta store #_"FullPrunedBlockStore")), "You cannot use checkpointing with a full store.")
 
-        (§ ass (§ name time) (§ expr time - (* 86400 7)))
+        (§ ass (§ name time) (- time (* 86400 7)))
 
         (Preconditions/checkArgument (< 0 time))
-        (.. log (info "Attempting to initialize a new block store with a checkpoint for time {} ({})", time, (§ expr (Utils/dateTimeFormat (* time 1000)))))
+        (.. log (info "Attempting to initialize a new block store with a checkpoint for time {} ({})", time, (Utils/dateTimeFormat (* time 1000))))
 
         (§ var #_"BufferedInputStream" (§ name stream) (§ new #_"BufferedInputStream" checkpoints))
         (§ var #_"CheckpointManager" (§ name manager) (§ new #_"CheckpointManager" params, stream))
@@ -5162,7 +5173,7 @@
     #_public
     (§ method #_"void" (§ fn setParent) [#_nilable #_"Message" (§ name parent)])
     (§ block
-        (§ if (§ expr (.. this parent) != nil && (.. this parent) != parent && parent != nil))
+        (§ if (and (some? (.. this parent)) (!= (.. this parent) parent) (some? parent)))
         (§ block
             ;; After old parent is unlinked it won't be able to receive notice if this ChildMessage changes internally.
             ;; To be safe we invalidate the parent cache to ensure it rebuilds manually on serialization.
@@ -5329,7 +5340,7 @@
     #_static
     (§ defn #_"Coin" (§ fn valueOf) [#_"int" (§ name coins), #_"int" (§ name cents)])
     (§ block
-        (Preconditions/checkArgument (§ expr 0 <= coins && 0 <= cents && cents < 100))
+        (Preconditions/checkArgument (and (<= 0 coins) (<= 0 cents) (< cents 100)))
 
         (.. COIN (multiply coins) (add (.. CENT (multiply cents))))
     )
@@ -5449,7 +5460,7 @@
     #_public
     (§ method #_"Coin[]" (§ fn divideAndRemainder) [#_"long" (§ name divisor)])
     (§ block
-        (§ new #_"Coin[]" (§ coll (§ new #_"Coin" (/ (.. this value) divisor)), (§ new #_"Coin" (§ expr (.. this value) % divisor)) ))
+        (§ new #_"Coin[]" (§ coll (§ new #_"Coin" (/ (.. this value) divisor)), (§ new #_"Coin" (% (.. this value) divisor)) ))
     )
 
     #_public
@@ -5495,7 +5506,7 @@
     #_public
     (§ method #_"boolean" (§ fn isGreaterThan) [#_"Coin" (§ name other)])
     (§ block
-        (§ expr 0 < (compareTo other))
+        (< 0 (compareTo other))
     )
 
     ;;;
@@ -5586,11 +5597,11 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
@@ -5736,7 +5747,7 @@
             (.. log (error "This error has been corrected for, but doing this makes your app less robust."))
             (.. log (error "You should use Context/propagate() or a ContextPropagatingThreadFactory."))
             (.. log (error "Please refer to the user guide for more information about this."))
-            (.. log (error "Thread name is {}.", (§ expr (.. (Thread/currentThread) (getName)))))
+            (.. log (error "Thread name is {}.", (.. (Thread/currentThread) (getName))))
             ;; TODO: Actually write the user guide section about this.
             (§ return lastConstructed)
         )
@@ -6167,7 +6178,7 @@
     #_protected
     (§ constructor #_"ECKey" [#_nilable #_"BigInteger" (§ name priv), #_"ECPoint" (§ name pub)])
     (§ block
-        (§ this priv, (§ expr (§ new #_"LazyECPoint" (Preconditions/checkNotNull pub))))
+        (§ this priv, (§ new #_"LazyECPoint" (Preconditions/checkNotNull pub)))
         this
     )
 
@@ -6180,8 +6191,8 @@
             ;; Try and catch buggy callers or bad key imports, etc.  Zero and one are special because these are often
             ;; used as sentinel values and because scripting languages have a habit of auto-casting true and false to
             ;; 1 and 0 or vice-versa.  Type confusion bugs could therefore result in private keys with these values.
-            (Preconditions/checkArgument (§ not (.. priv (equals BigInteger/ZERO))))
-            (Preconditions/checkArgument (§ not (.. priv (equals BigInteger/ONE))))
+            (Preconditions/checkArgument (not (.. priv (equals BigInteger/ZERO))))
+            (Preconditions/checkArgument (not (.. priv (equals BigInteger/ONE))))
         )
         (§ ass (§ name (.. this priv)) priv)
         (§ ass (§ name (.. this pub)) (Preconditions/checkNotNull pub))
@@ -6221,7 +6232,7 @@
     #_static
     (§ defn #_"LazyECPoint" (§ fn decompressPoint) [#_"LazyECPoint" (§ name point)])
     (§ block
-        (if (§ not (.. point (isCompressed))) point (§ new #_"LazyECPoint" (decompressPoint (.. point (get)))))
+        (if (not (.. point (isCompressed))) point (§ new #_"LazyECPoint" (decompressPoint (.. point (get)))))
     )
 
     #_private
@@ -6410,7 +6421,7 @@
     #_public
     (§ constructor #_"ECKey" [#_nilable #_"BigInteger" (§ name privKey), #_nilable #_"byte[]" (§ name pubKey), #_"boolean" (§ name compressed)])
     (§ block
-        (§ if (§ expr privKey == nil && pubKey == nil))
+        (§ if (and (nil? privKey) (nil? pubKey)))
         (§ block
             (§ throw (§ new #_"IllegalArgumentException" "ECKey requires at least private or public key"))
         )
@@ -6471,7 +6482,7 @@
     #_public
     (§ method #_"boolean" (§ fn isWatching) [])
     (§ block
-        (§ expr (isPubKeyOnly) && (§ not (isEncrypted)))
+        (and (isPubKeyOnly) (not (isEncrypted)))
     )
 
     ;;;
@@ -6497,7 +6508,7 @@
             (.. seq (addObject (§ new #_"ASN1Integer" 1))) ;; version
             (.. seq (addObject (§ new #_"DEROctetString" privKeyBytes)))
             (.. seq (addObject (§ new #_"DERTaggedObject" 0, (.. CURVE_PARAMS (toASN1Primitive)))))
-            (.. seq (addObject (§ new #_"DERTaggedObject" 1, (§ expr (§ new #_"DERBitString" (getPubKey))))))
+            (.. seq (addObject (§ new #_"DERTaggedObject" 1, (§ new #_"DERBitString" (getPubKey)))))
             (.. seq (close))
             (§ return (.. baos (toByteArray)))
         )
@@ -6646,7 +6657,7 @@
         #_public
         (§ method #_"ECDSASignature" (§ fn toCanonicalised) [])
         (§ block
-            (§ if (§ not (isCanonical)))
+            (§ if (not (isCanonical)))
             (§ block
                 ;; The order of the curve is the number of valid points that exist on that curve.  If S is in the upper
                 ;; half of the number of valid points, then bring it back to the lower half.  Otherwise, imagine that
@@ -6743,16 +6754,16 @@
         #_public
         (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
         (§ block
-            (§ if (§ expr this == o))
+            (§ if (== this o))
             (§ block
                 (§ return true)
             )
-            (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+            (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
             (§ block
                 (§ return false)
             )
             (§ var #_"ECDSASignature" (§ name other) (§ cast #_"ECDSASignature" o))
-            (§ expr (.. r (equals (.. other r))) && (.. s (equals (.. other s))))
+            (and (.. r (equals (.. other r))) (.. s (equals (.. other s))))
         )
 
         #_override
@@ -6917,7 +6928,7 @@
     (§ method #_"void" (§ fn verifyOrThrow) [#_"byte[]" (§ name hash), #_"byte[]" (§ name signature)])
         (§ throws #_"SignatureException")
     (§ block
-        (§ if (§ not (verify hash, signature)))
+        (§ if (not (verify hash, signature)))
         (§ block
             (§ throw (§ new #_"SignatureException"))
         )
@@ -6933,7 +6944,7 @@
     (§ method #_"void" (§ fn verifyOrThrow) [#_"Sha256Hash" (§ name sigHash), #_"ECDSASignature" (§ name signature)])
         (§ throws #_"SignatureException")
     (§ block
-        (§ if (§ not (ECKey/verify (.. sigHash (getBytes)), signature, (getPubKey))))
+        (§ if (not (ECKey/verify (.. sigHash (getBytes)), signature, (getPubKey))))
         (§ block
             (§ throw (§ new #_"SignatureException"))
         )
@@ -6952,12 +6963,12 @@
             (§ return false)
         )
         ;; Uncompressed pubkey.
-        (§ if (§ expr (§ ai pubkey 0) == 0x04))
+        (§ if (== (§ ai pubkey 0) 0x04))
         (§ block
             (§ return (== (.. pubkey length) 65))
         )
         ;; Compressed pubkey.
-        (§ if (§ expr (§ ai pubkey 0) == 0x02 || (§ ai pubkey 0) == 0x03))
+        (§ if (or (== (§ ai pubkey 0) 0x02) (== (§ ai pubkey 0) 0x03)))
         (§ block
             (§ return (== (.. pubkey length) 33))
         )
@@ -6981,10 +6992,10 @@
         (§ block
             (§ var #_"ASN1InputStream" (§ name decoder) (§ new #_"ASN1InputStream" asn1privkey))
             (§ var #_"DLSequence" (§ name seq) (§ cast #_"DLSequence" (.. decoder (readObject))))
-            (Preconditions/checkArgument (§ expr (.. decoder (readObject)) == nil), "Input contains extra bytes")
+            (Preconditions/checkArgument (nil? (.. decoder (readObject))), "Input contains extra bytes")
             (.. decoder (close))
 
-            (Preconditions/checkArgument (§ expr (.. seq (size)) == 4), "Input does not appear to be an ASN.1 OpenSSL EC private key")
+            (Preconditions/checkArgument (== (.. seq (size)) 4), "Input does not appear to be an ASN.1 OpenSSL EC private key")
 
             (Preconditions/checkArgument (.. (§ cast #_"ASN1Integer" (.. seq (getObjectAt 0))) (getValue) (equals BigInteger/ONE)), "Input is of wrong version")
 
@@ -6992,17 +7003,17 @@
             (§ var #_"BigInteger" (§ name privkey) (§ new #_"BigInteger" 1, privbits))
 
             (§ var #_"ASN1TaggedObject" (§ name pubkey) (§ cast #_"ASN1TaggedObject" (.. seq (getObjectAt 3))))
-            (Preconditions/checkArgument (§ expr (.. pubkey (getTagNo)) == 1), "Input has 'publicKey' with bad tag number")
+            (Preconditions/checkArgument (== (.. pubkey (getTagNo)) 1), "Input has 'publicKey' with bad tag number")
             (§ var #_"byte[]" (§ name pubbits) (.. (§ cast #_"DERBitString" (.. pubkey (getObject))) (getBytes)))
-            (Preconditions/checkArgument (§ expr (.. pubbits length) == 33 || (.. pubbits length) == 65), "Input has 'publicKey' with invalid length")
-            (§ var #_"int" (§ name encoding) (§ expr (§ ai pubbits 0) & 0xff))
+            (Preconditions/checkArgument (or (== (.. pubbits length) 33) (== (.. pubbits length) 65)), "Input has 'publicKey' with invalid length")
+            (§ var #_"int" (§ name encoding) (& 0xff (§ ai pubbits 0)))
             ;; Only allow compressed(2,3) and uncompressed(4), not infinity(0) or hybrid(6,7).
-            (Preconditions/checkArgument (§ expr 2 <= encoding && encoding <= 4), "Input has 'publicKey' with invalid encoding")
+            (Preconditions/checkArgument (<= 2 encoding 4), "Input has 'publicKey' with invalid encoding")
 
             ;; Now sanity check to ensure the pubkey bytes match the privkey.
             (§ var #_"boolean" (§ name compressed) (== (.. pubbits length) 33))
             (§ var #_"ECKey" (§ name key) (§ new #_"ECKey" privkey, nil, compressed))
-            (§ if (§ not (Arrays/equals (.. key (getPubKey)), pubbits)))
+            (§ if (not (Arrays/equals (.. key (getPubKey)), pubbits)))
             (§ block
                 (§ throw (§ new #_"IllegalArgumentException" "Public key in ASN.1 structure does not match private key."))
             )
@@ -7047,13 +7058,13 @@
         (§ for (§ var #_"int" (§ name i) 0) :for (< i 4) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ var #_"ECKey" (§ name k) (ECKey/recoverFromSignature i, sig, hash, (isCompressed)))
-            (§ if (§ expr k != nil && (.. k pub (equals pub))))
+            (§ if (and (some? k) (.. k pub (equals pub))))
             (§ block
                 (§ ass (§ name recId) i)
                 (§ break )
             )
         )
-        (§ if (§ expr recId == -1))
+        (§ if (== recId -1))
         (§ block
             (§ throw (§ new #_"RuntimeException" "Could not construct a recoverable key. This should never happen."))
         )
@@ -7097,10 +7108,10 @@
             (§ throw (§ new #_"SignatureException" (str "Signature truncated, expected 65 bytes and got " (.. signatureEncoded length))))
         )
 
-        (§ var #_"int" (§ name header) (§ expr (§ ai signatureEncoded 0) & 0xff))
+        (§ var #_"int" (§ name header) (& 0xff (§ ai signatureEncoded 0)))
         ;; The header byte: 0x1B = first key with even y, 0x1C = first key with odd y,
         ;;                  0x1D = second key with even y, 0x1E = second key with odd y.
-        (§ if (§ expr header < 27 || 34 < header))
+        (§ if (not (<= 27 header 34)))
         (§ block
             (§ throw (§ new #_"SignatureException" (str "Header byte out of range: " header)))
         )
@@ -7135,7 +7146,7 @@
         (§ throws #_"SignatureException")
     (§ block
         (§ var #_"ECKey" (§ name key) (ECKey/signedMessageToKey message, signatureBase64))
-        (§ if (§ not (.. key pub (equals pub))))
+        (§ if (not (.. key pub (equals pub))))
         (§ block
             (§ throw (§ new #_"SignatureException" "Signature did not match for message"))
         )
@@ -7167,9 +7178,9 @@
     #_static
     (§ defn #_"ECKey" (§ fn recoverFromSignature) [#_"int" (§ name recId), #_"ECDSASignature" (§ name sig), #_"Sha256Hash" (§ name message), #_"boolean" (§ name compressed)])
     (§ block
-        (Preconditions/checkArgument (§ expr 0 <= recId), "recId must be positive")
-        (Preconditions/checkArgument (§ expr 0 <= (.. sig r (signum))), "r must be positive")
-        (Preconditions/checkArgument (§ expr 0 <= (.. sig s (signum))), "s must be positive")
+        (Preconditions/checkArgument (<= 0 recId), "recId must be positive")
+        (Preconditions/checkArgument (<= 0 (.. sig r (signum))), "r must be positive")
+        (Preconditions/checkArgument (<= 0 (.. sig s (signum))), "s must be positive")
         (Preconditions/checkNotNull message)
 
         ;; 1.0 For j from 0 to h   (h == recId here and the loop is outside this function)
@@ -7186,16 +7197,16 @@
         ;; More concisely, what these points mean is to use X as a compressed public key.
         (§ var #_"BigInteger" (§ name prime) SecP256K1Curve/q)
         ;; Cannot have point co-ordinates larger than this as everything takes place modulo Q.
-        (§ if (§ expr 0 <= (.. x (compareTo prime))))
+        (§ if (<= 0 (.. x (compareTo prime))))
         (§ block
             (§ return nil)
         )
 
         ;; Compressed keys require you to know an extra bit of data about the y-coord as there are two possibilities.
         ;; So it's encoded in the recId.
-        (§ var #_"ECPoint" (§ name R) (decompressKey x, (§ expr (& recId 1) == 1)))
+        (§ var #_"ECPoint" (§ name R) (decompressKey x, (== (& recId 1) 1)))
         ;;   1.4. If nR != point at infinity, then do another iteration of Step 1 (callers responsibility).
-        (§ if (§ not (.. R (multiply n) (isInfinity))))
+        (§ if (not (.. R (multiply n) (isInfinity))))
         (§ block
             (§ return nil)
         )
@@ -7227,7 +7238,7 @@
     (§ defn- #_"ECPoint" (§ fn decompressKey) [#_"BigInteger" (§ name xBN), #_"boolean" (§ name yBit)])
     (§ block
         (§ var #_"X9IntegerConverter" (§ name x9) (§ new #_"X9IntegerConverter"))
-        (§ var #_"byte[]" (§ name compEnc) (.. x9 (integerToBytes xBN, (§ expr 1 + (.. x9 (getByteLength (.. CURVE (getCurve))))))))
+        (§ var #_"byte[]" (§ name compEnc) (.. x9 (integerToBytes xBN, (+ 1 (.. x9 (getByteLength (.. CURVE (getCurve))))))))
         (§ ass (§ name (§ ai compEnc 0)) (§ cast #_"byte" (if yBit 0x03 0x02)))
         (.. CURVE (getCurve) (decodePoint compEnc))
     )
@@ -7304,7 +7315,7 @@
         (Preconditions/checkNotNull keyCrypter)
 
         ;; Check that the keyCrypter matches the one used to encrypt the keys, if set.
-        (§ if (§ expr (.. this keyCrypter) != nil && (§ not (.. this keyCrypter (equals keyCrypter)))))
+        (§ if (and (some? (.. this keyCrypter)) (not (.. this keyCrypter (equals keyCrypter)))))
         (§ block
             (§ throw (§ new #_"KeyCrypterException" "The keyCrypter being used to decrypt the key is different to the one that was used to encrypt it"))
         )
@@ -7313,11 +7324,11 @@
 
         (§ var #_"byte[]" (§ name unencryptedPrivateKey) (.. keyCrypter (decrypt encryptedPrivateKey, aesKey)))
         (§ var #_"ECKey" (§ name key) (ECKey/fromPrivate unencryptedPrivateKey))
-        (§ if (§ not (isCompressed)))
+        (§ if (not (isCompressed)))
         (§ block
             (§ ass (§ name key) (.. key (decompress)))
         )
-        (§ if (§ not (Arrays/equals (.. key (getPubKey)), (getPubKey))))
+        (§ if (not (Arrays/equals (.. key (getPubKey)), (getPubKey))))
         (§ block
             (§ throw (§ new #_"KeyCrypterException" "Provided AES key is wrong"))
         )
@@ -7353,7 +7364,7 @@
     (§ method #_"ECKey" (§ fn maybeDecrypt) [#_nilable #_"KeyParameter" (§ name aesKey)])
         (§ throws #_"KeyCrypterException")
     (§ block
-        (if (§ expr (isEncrypted) && aesKey != nil) (decrypt aesKey) this)
+        (if (and (isEncrypted) (some? aesKey)) (decrypt aesKey) this)
     )
 
     ;;;
@@ -7376,7 +7387,7 @@
             (§ var #_"ECKey" (§ name rebornUnencryptedKey) (.. encryptedKey (decrypt keyCrypter, aesKey)))
             (§ var #_"byte[]" (§ name originalPrivateKeyBytes) (.. originalKey (getPrivKeyBytes)))
             (§ var #_"byte[]" (§ name rebornKeyBytes) (.. rebornUnencryptedKey (getPrivKeyBytes)))
-            (§ if (§ not (Arrays/equals originalPrivateKeyBytes, rebornKeyBytes)))
+            (§ if (not (Arrays/equals originalPrivateKeyBytes, rebornKeyBytes)))
             (§ block
                 (.. log (error "The check that encryption could be reversed failed for {}", originalKey))
                 (§ return false)
@@ -7398,7 +7409,7 @@
     #_public
     (§ method #_"boolean" (§ fn isEncrypted) [])
     (§ block
-        (§ expr keyCrypter != nil && encryptedPrivateKey != nil && 0 < (.. encryptedPrivateKey encryptedBytes length))
+        (and (some? keyCrypter) (some? encryptedPrivateKey) (< 0 (.. encryptedPrivateKey encryptedBytes length)))
     )
 
     #_nilable
@@ -7470,16 +7481,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (§ not (§ insta o #_"ECKey"))))
+        (§ if (or (nil? o) (not (§ insta o #_"ECKey"))))
         (§ block
             (§ return false)
         )
         (§ var #_"ECKey" (§ name other) (§ cast #_"ECKey" o))
-        (§ expr (Objects/equal (.. this priv), (.. other priv)) && (Objects/equal (.. this pub), (.. other pub)) && (Objects/equal (.. this creationTimeSeconds), (.. other creationTimeSeconds)) && (Objects/equal (.. this keyCrypter), (.. other keyCrypter)) && (Objects/equal (.. this encryptedPrivateKey), (.. other encryptedPrivateKey)))
+        (and (Objects/equal (.. this priv), (.. other priv)) (Objects/equal (.. this pub), (.. other pub)) (Objects/equal (.. this creationTimeSeconds), (.. other creationTimeSeconds)) (Objects/equal (.. this keyCrypter), (.. other keyCrypter)) (Objects/equal (.. this encryptedPrivateKey), (.. other encryptedPrivateKey)))
     )
 
     #_override
@@ -7707,7 +7718,7 @@
 
         (§ ass (§ name merkleTree) (§ new #_"PartialMerkleTree" params, payload, Block/HEADER_SIZE))
 
-        (§ ass (§ name length) (§ expr Block/HEADER_SIZE + (.. merkleTree (getMessageSize))))
+        (§ ass (§ name length) (+ Block/HEADER_SIZE (.. merkleTree (getMessageSize))))
         nil
     )
 
@@ -7794,16 +7805,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"FilteredBlock" (§ name other) (§ cast #_"FilteredBlock" o))
-        (§ expr (.. associatedTransactions (equals (.. other associatedTransactions))) && (.. header (equals (.. other header))) && (.. merkleTree (equals (.. other merkleTree))))
+        (and (.. associatedTransactions (equals (.. other associatedTransactions))) (.. header (equals (.. other header))) (.. merkleTree (equals (.. other merkleTree))))
     )
 
     #_override
@@ -8010,7 +8021,7 @@
             (§ try )
             (§ block
                 (§ var #_"ListIterator<Script>" (§ name prevOutIt) (.. prevOutScripts (listIterator)))
-                (§ for (§ var #_"int" (§ name index) 0) :for (§ expr index < (.. tx (getInputs) (size))) :for (§ ass (§ name index) (+ index 1)))
+                (§ for (§ var #_"int" (§ name index) 0) :for (< index (.. tx (getInputs) (size))) :for (§ ass (§ name index) (+ index 1)))
                 (§ block
                     (.. tx (getInputs) (get index) (getScriptSig) (correctlySpends tx, index, (.. prevOutIt (next)), verifyFlags))
                 )
@@ -8073,7 +8084,7 @@
         (§ block
             (§ throw (§ new #_"RuntimeException" "connectTransactions called with Block that didn't have transactions!"))
         )
-        (§ if (§ not (.. params (passesCheckpoint height, (.. block (getHash))))))
+        (§ if (not (.. params (passesCheckpoint height, (.. block (getHash))))))
         (§ block
             (§ throw (§ new #_"VerificationException" (str "Block failed checkpoint lockin at " height)))
         )
@@ -8092,7 +8103,7 @@
         (§ var #_"List<Future<VerificationException>>" (§ name listScriptVerificationResults) (§ new #_"ArrayList<>" (.. block transactions (size))))
         (§ try )
         (§ block
-            (§ if (§ not (.. params (isCheckpoint height))))
+            (§ if (not (.. params (isCheckpoint height))))
             (§ block
                 ;; BIP30 violator blocks are ones that contain a duplicated transaction.  They are all in the checkpoints list
                 ;; and we therefore only check non-checkpoints for duplicated transactions here.  See the BIP30 document
@@ -8110,7 +8121,7 @@
                     ;; We already check non-BIP16 sigops in Block.verifyTransactions(true).
                     (§ if (.. verifyFlags (contains VerifyFlag/P2SH)))
                     (§ block
-                        (§ ass (§ name sigOps) (§ expr sigOps + (.. tx (getSigOpCount))))
+                        (§ ass (§ name sigOps) (+ sigOps (.. tx (getSigOpCount))))
                     )
                 )
             )
@@ -8123,10 +8134,10 @@
                 (§ var #_"Coin" (§ name valueOut) Coin/ZERO)
                 (§ var #_"List<Script>" (§ name prevOutScripts) (§ new #_"LinkedList<>"))
                 (§ var #_"Set<VerifyFlag>" (§ name verifyFlags) (.. params (getTransactionVerificationFlags block, tx, (getVersionTally), height)))
-                (§ if (§ not isCoinBase))
+                (§ if (not isCoinBase))
                 (§ block
                     ;; For each input of the transaction remove the corresponding output from the set of unspent outputs.
-                    (§ for (§ var #_"int" (§ name index) 0) :for (§ expr index < (.. tx (getInputs) (size))) :for (§ ass (§ name index) (+ index 1)))
+                    (§ for (§ var #_"int" (§ name index) 0) :for (< index (.. tx (getInputs) (size))) :for (§ ass (§ name index) (+ index 1)))
                     (§ block
                         (§ var #_"TransactionInput" (§ name in) (.. tx (getInputs) (get index)))
                         (§ var #_"UTXO" (§ name prevOut) (.. blockStore (getTransactionOutput (.. in (getOutpoint) (getHash)), (.. in (getOutpoint) (getIndex)))))
@@ -8174,7 +8185,7 @@
                 )
                 ;; All values were already checked for being non-negative (as it is verified in Transaction.verify()),
                 ;; but we check again here just for defence in depth.  Transactions with zero output value are OK.
-                (§ if (§ expr (.. valueOut (signum)) < 0 || 0 < (.. valueOut (compareTo (.. params (getMaxMoney))))))
+                (§ if (or (< (.. valueOut (signum)) 0) (< 0 (.. valueOut (compareTo (.. params (getMaxMoney)))))))
                 (§ block
                     (§ throw (§ new #_"VerificationException" "Transaction output value out of range"))
                 )
@@ -8185,14 +8196,14 @@
                 )
                 (§ else )
                 (§ block
-                    (§ if (§ expr (.. valueIn (compareTo valueOut)) < 0 || 0 < (.. valueIn (compareTo (.. params (getMaxMoney))))))
+                    (§ if (or (< (.. valueIn (compareTo valueOut)) 0) (< 0 (.. valueIn (compareTo (.. params (getMaxMoney)))))))
                     (§ block
                         (§ throw (§ new #_"VerificationException" "Transaction input value out of range"))
                     )
                     (§ ass (§ name totalFees) (.. totalFees (add (.. valueIn (subtract valueOut)))))
                 )
 
-                (§ if (§ expr (§ not isCoinBase) && runScripts))
+                (§ if (and (not isCoinBase) runScripts))
                 (§ block
                     ;; Because correctlySpends modifies transactions, this must come after we are done with tx.
                     (§ var #_"FutureTask<VerificationException>" (§ name future) (§ new #_"FutureTask<>" (§ new #_"Verifier" tx, prevOutScripts, verifyFlags)))
@@ -8200,7 +8211,7 @@
                     (.. listScriptVerificationResults (add future))
                 )
             )
-            (§ if (§ expr 0 < (.. totalFees (compareTo (.. params (getMaxMoney)))) || (.. block (getBlockInflation height) (add totalFees) (compareTo coinbaseValue)) < 0))
+            (§ if (or (< 0 (.. totalFees (compareTo (.. params (getMaxMoney))))) (< (.. block (getBlockInflation height) (add totalFees) (compareTo coinbaseValue)) 0)))
             (§ block
                 (§ throw (§ new #_"VerificationException" "Transaction fees out of range"))
             )
@@ -8253,7 +8264,7 @@
         (§ throws #_"VerificationException", #_"BlockStoreException", #_"PrunedException")
     (§ block
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
-        (§ if (§ not (.. params (passesCheckpoint (.. newBlock (getHeight)), (.. newBlock (getHeader) (getHash))))))
+        (§ if (not (.. params (passesCheckpoint (.. newBlock (getHeight)), (.. newBlock (getHeader) (getHash))))))
         (§ block
             (§ throw (§ new #_"VerificationException" (str "Block failed checkpoint lockin at " (.. newBlock (getHeight)))))
         )
@@ -8277,7 +8288,7 @@
                 (§ var #_"LinkedList<UTXO>" (§ name txOutsCreated) (§ new #_"LinkedList<>"))
                 (§ var #_"long" (§ name sigOps) 0)
 
-                (§ if (§ not (.. params (isCheckpoint (.. newBlock (getHeight))))))
+                (§ if (not (.. params (isCheckpoint (.. newBlock (getHeight))))))
                 (§ block
                     (§ for (§ var #_"Transaction" (§ name tx)) :for transactions)
                     (§ block
@@ -8306,9 +8317,9 @@
                     (§ var #_"Coin" (§ name valueOut) Coin/ZERO)
                     (§ var #_"List<Script>" (§ name prevOutScripts) (§ new #_"LinkedList<>"))
 
-                    (§ if (§ not isCoinBase))
+                    (§ if (not isCoinBase))
                     (§ block
-                        (§ for (§ var #_"int" (§ name index) 0) :for (§ expr index < (.. tx (getInputs) (size))) :for (§ ass (§ name index) (+ index 1)))
+                        (§ for (§ var #_"int" (§ name index) 0) :for (< index (.. tx (getInputs) (size))) :for (§ ass (§ name index) (+ index 1)))
                         (§ block
                             (§ var #_"TransactionInput" (§ name in) (.. tx (getInputs) (get index)))
                             (§ var #_"UTXO" (§ name prevOut) (.. blockStore (getTransactionOutput (.. in (getOutpoint) (getHash)), (.. in (getOutpoint) (getIndex)))))
@@ -8316,7 +8327,7 @@
                             (§ block
                                 (§ throw (§ new #_"VerificationException" "Attempted spend of a non-existent or already spent output!"))
                             )
-                            (§ if (§ expr (.. prevOut (isCoinbase)) && (.. newBlock (getHeight)) - (.. prevOut (getHeight)) < (.. params (getSpendableCoinbaseDepth))))
+                            (§ if (and (.. prevOut (isCoinbase)) (< (- (.. newBlock (getHeight)) (.. prevOut (getHeight))) (.. params (getSpendableCoinbaseDepth)))))
                             (§ block
                                 (§ throw (§ new #_"VerificationException" (str "Tried to spend coinbase at depth " (- (.. newBlock (getHeight)) (.. prevOut (getHeight))))))
                             )
@@ -8352,7 +8363,7 @@
                     )
                     ;; All values were already checked for being non-negative (as it is verified in Transaction.verify())
                     ;; but we check again here just for defence in depth.  Transactions with zero output value are OK.
-                    (§ if (§ expr (.. valueOut (signum)) < 0 || 0 < (.. valueOut (compareTo (.. params (getMaxMoney))))))
+                    (§ if (or (< (.. valueOut (signum)) 0) (< 0 (.. valueOut (compareTo (.. params (getMaxMoney)))))))
                     (§ block
                         (§ throw (§ new #_"VerificationException" "Transaction output value out of range"))
                     )
@@ -8363,14 +8374,14 @@
                     )
                     (§ else )
                     (§ block
-                        (§ if (§ expr (.. valueIn (compareTo valueOut)) < 0 || 0 < (.. valueIn (compareTo (.. params (getMaxMoney))))))
+                        (§ if (or (< (.. valueIn (compareTo valueOut)) 0) (< 0 (.. valueIn (compareTo (.. params (getMaxMoney)))))))
                         (§ block
                             (§ throw (§ new #_"VerificationException" "Transaction input value out of range"))
                         )
                         (§ ass (§ name totalFees) (.. totalFees (add (.. valueIn (subtract valueOut)))))
                     )
 
-                    (§ if (§ not isCoinBase))
+                    (§ if (not isCoinBase))
                     (§ block
                         ;; Because correctlySpends modifies transactions, this must come after we are done with tx.
                         (§ var #_"FutureTask<VerificationException>" (§ name future) (§ new #_"FutureTask<>" (§ new #_"Verifier" tx, prevOutScripts, verifyFlags)))
@@ -8378,7 +8389,7 @@
                         (.. listScriptVerificationResults (add future))
                     )
                 )
-                (§ if (§ expr 0 < (.. totalFees (compareTo (.. params (getMaxMoney)))) || (.. newBlock (getHeader) (getBlockInflation (.. newBlock (getHeight))) (add totalFees) (compareTo coinbaseValue)) < 0))
+                (§ if (or (< 0 (.. totalFees (compareTo (.. params (getMaxMoney))))) (< (.. newBlock (getHeader) (getBlockInflation (.. newBlock (getHeight))) (add totalFees) (compareTo coinbaseValue)) 0)))
                 (§ block
                     (§ throw (§ new #_"VerificationException" "Transaction fees out of range"))
                 )
@@ -8409,7 +8420,7 @@
             (§ else )
             (§ block
                 (§ ass (§ name txOutChanges) (.. block (getTxOutChanges)))
-                (§ if (§ not (.. params (isCheckpoint (.. newBlock (getHeight))))))
+                (§ if (not (.. params (isCheckpoint (.. newBlock (getHeight))))))
                 (§ block
                     (§ for (§ var #_"UTXO" (§ name out)) :for (.. txOutChanges txOutsCreated))
                     (§ block
@@ -8586,7 +8597,7 @@
             (§ throw (§ new #_"ProtocolException" (str "Number of locators cannot be > 500, received: " startCount)))
         )
 
-        (§ ass (§ name length) (§ expr cursor - offset + (* (+ startCount 1) 32)))
+        (§ ass (§ name length) (+ (- cursor offset) (* (+ startCount 1) 32)))
         (§ ass (§ name locator) (§ new #_"ArrayList<>" startCount))
         (§ for (§ var #_"int" (§ name i) 0) :for (< i startCount) :for (§ ass (§ name i) (+ i 1)))
         (§ block
@@ -8640,26 +8651,26 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"GetBlocksMessage" (§ name other) (§ cast #_"GetBlocksMessage" o))
-        (§ expr version == (.. other version) && (.. stopHash (equals (.. other stopHash))) && (.. locator (size)) == (.. other locator (size)) && (.. locator (containsAll (.. other locator)))) ;; ignores locator ordering
+        (and (== version (.. other version)) (.. stopHash (equals (.. other stopHash))) (== (.. locator (size)) (.. other locator (size))) (.. locator (containsAll (.. other locator)))) ;; ignores locator ordering
     )
 
     #_override
     #_public
     (§ method #_"int" (§ fn hashCode) [])
     (§ block
-        (§ var #_"int" (§ name hashCode) (§ expr (§ cast #_"int" version) :xor (.. "getblocks" (hashCode)) :xor (.. stopHash (hashCode))))
+        (§ var #_"int" (§ name hashCode) (bit-xor (§ cast #_"int" version) (.. "getblocks" (hashCode)) (.. stopHash (hashCode))))
         (§ for (§ var #_"Sha256Hash" (§ name l)) :for locator)
         (§ block
-            (§ ass (§ name hashCode) (§ expr hashCode :xor (.. l (hashCode)))) ;; ignores locator ordering
+            (§ ass (§ name hashCode) (bit-xor hashCode (.. l (hashCode)))) ;; ignores locator ordering
         )
         hashCode
     )
@@ -8777,26 +8788,26 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"GetHeadersMessage" (§ name other) (§ cast #_"GetHeadersMessage" o))
-        (§ expr version == (.. other version) && (.. stopHash (equals (.. other stopHash))) && (.. locator (size)) == (.. other locator (size)) && (.. locator (containsAll (.. other locator)))) ;; ignores locator ordering
+        (and (== version (.. other version)) (.. stopHash (equals (.. other stopHash))) (== (.. locator (size)) (.. other locator (size))) (.. locator (containsAll (.. other locator)))) ;; ignores locator ordering
     )
 
     #_override
     #_public
     (§ method #_"int" (§ fn hashCode) [])
     (§ block
-        (§ var #_"int" (§ name hashCode) (§ expr (§ cast #_"int" version) :xor (.. "getheaders" (hashCode)) :xor (.. stopHash (hashCode))))
+        (§ var #_"int" (§ name hashCode) (bit-xor (§ cast #_"int" version) (.. "getheaders" (hashCode)) (.. stopHash (hashCode))))
         (§ for (§ var #_"Sha256Hash" (§ name l)) :for locator)
         (§ block
-            (§ ass (§ name hashCode) (§ expr hashCode :xor (.. l (hashCode)))) ;; ignores locator ordering
+            (§ ass (§ name hashCode) (bit-xor hashCode (.. l (hashCode)))) ;; ignores locator ordering
         )
         hashCode
     )
@@ -8890,11 +8901,11 @@
                 (§ throw (§ new #_"ProtocolException" "Block header does not end with a nil byte"))
             )
 
-            (§ ass (§ name cursor) (§ expr cursor + (.. newBlockHeader optimalEncodingMessageSize)))
+            (§ ass (§ name cursor) (+ cursor (.. newBlockHeader optimalEncodingMessageSize)))
             (.. blockHeaders (add newBlockHeader))
         )
 
-        (§ if (§ expr length == UNKNOWN_LENGTH))
+        (§ if (== length UNKNOWN_LENGTH))
         (§ block
             (§ ass (§ name length) (- cursor offset))
         )
@@ -8988,23 +8999,23 @@
     #_public
     (§ method #_"String" (§ fn toString) [])
     (§ block
-        (§ expr type + ": " + hash)
+        (str type ": " hash)
     )
 
     #_override
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"InventoryItem" (§ name other) (§ cast #_"InventoryItem" o))
-        (§ expr type == (.. other type) && (.. hash (equals (.. other hash))))
+        (and (== type (.. other type)) (.. hash (equals (.. other hash))))
     )
 
     #_override
@@ -9084,7 +9095,7 @@
     #_static
     (§ defn #_"InventoryMessage" (§ fn with) [#_"Transaction..." (§ name txs)])
     (§ block
-        (Preconditions/checkArgument (§ expr 0 < (.. txs length)))
+        (Preconditions/checkArgument (< 0 (.. txs length)))
         (§ var #_"InventoryMessage" (§ name result) (§ new #_"InventoryMessage" (.. (§ ai txs 0) (getParams))))
         (§ for (§ var #_"Transaction" (§ name tx)) :for txs)
         (§ block
@@ -9152,9 +9163,9 @@
     (§ method #_"void" (§ fn addItem) [#_"InventoryItem" (§ name item)])
     (§ block
         (unCache)
-        (§ ass (§ name length) (§ expr length - (VarInt/sizeOf (.. items (size)))))
+        (§ ass (§ name length) (- length (VarInt/sizeOf (.. items (size)))))
         (.. items (add item))
-        (§ ass (§ name length) (§ expr length + (VarInt/sizeOf (.. items (size))) + InventoryItem/MESSAGE_LENGTH))
+        (§ ass (§ name length) (+ length (VarInt/sizeOf (.. items (size))) InventoryItem/MESSAGE_LENGTH))
         nil
     )
 
@@ -9162,9 +9173,9 @@
     (§ method #_"void" (§ fn removeItem) [#_"int" (§ name index)])
     (§ block
         (unCache)
-        (§ ass (§ name length) (§ expr length - (VarInt/sizeOf (.. items (size)))))
+        (§ ass (§ name length) (- length (VarInt/sizeOf (.. items (size)))))
         (.. items (remove index))
-        (§ ass (§ name length) (§ expr length + (VarInt/sizeOf (.. items (size))) - InventoryItem/MESSAGE_LENGTH))
+        (§ ass (§ name length) (+ length (VarInt/sizeOf (.. items (size))) (- InventoryItem/MESSAGE_LENGTH)))
         nil
     )
 
@@ -9178,13 +9189,13 @@
         (§ block
             (§ throw (§ new #_"ProtocolException" (str "Too many items in INV message: " arrayLen)))
         )
-        (§ ass (§ name length) (§ cast #_"int" (§ expr cursor - offset + (* arrayLen InventoryItem/MESSAGE_LENGTH))))
+        (§ ass (§ name length) (§ cast #_"int" (+ (- cursor offset) (* arrayLen InventoryItem/MESSAGE_LENGTH))))
 
         ;; An inv is vector<CInv> where CInv is int+hash.  The int is either 1 or 2 for tx or block.
         (§ ass (§ name items) (§ new #_"ArrayList<>" (§ cast #_"int" arrayLen)))
         (§ for (§ var #_"int" (§ name i) 0) :for (< i arrayLen) :for (§ ass (§ name i) (+ i 1)))
         (§ block
-            (§ if (§ expr (.. payload length) < cursor + InventoryItem/MESSAGE_LENGTH))
+            (§ if (< (.. payload length) (+ cursor InventoryItem/MESSAGE_LENGTH)))
             (§ block
                 (§ throw (§ new #_"ProtocolException" "Ran off the end of the INV"))
             )
@@ -9245,11 +9256,11 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
@@ -9402,7 +9413,7 @@
 
         (§ if (== (.. this length) UNKNOWN_LENGTH))
         (§ block
-            (Preconditions/checkState false, "Length field has not been set in constructor for %s after parse.", (§ expr (.. (getClass) (getSimpleName))))
+            (Preconditions/checkState false, "Length field has not been set in constructor for %s after parse.", (.. (getClass) (getSimpleName)))
         )
 
         (§ if SELF_CHECK)
@@ -9410,7 +9421,7 @@
             (selfCheck payload, offset)
         )
 
-        (§ if (§ not (.. serializer (isParseRetainMode))))
+        (§ if (not (.. serializer (isParseRetainMode))))
         (§ block
             (§ ass (§ name (.. this payload)) nil)
         )
@@ -9420,12 +9431,12 @@
     #_private
     (§ method- #_"void" (§ fn selfCheck) [#_"byte[]" (§ name payload), #_"int" (§ name offset)])
     (§ block
-        (§ if (§ not (§ insta this #_"VersionMessage")))
+        (§ if (not (§ insta this #_"VersionMessage")))
         (§ block
             (§ var #_"byte[]" (§ name payloadBytes) (§ new #_"byte[]" (§ count cursor - offset)))
-            (System/arraycopy payload, offset, payloadBytes, 0, (§ expr cursor - offset))
+            (System/arraycopy payload, offset, payloadBytes, 0, (- cursor offset))
             (§ var #_"byte[]" (§ name reserialized) (bitcoinSerialize))
-            (§ if (§ not (Arrays/equals reserialized, payloadBytes)))
+            (§ if (not (Arrays/equals reserialized, payloadBytes)))
             (§ block
                 (§ throw (§ new #_"RuntimeException" (str "Serialization is wrong: \n" (.. Utils/HEX (encode reserialized)) " vs \n" (.. Utils/HEX (encode payloadBytes)))))
             )
@@ -9473,25 +9484,25 @@
     #_protected
     (§ method #_"void" (§ fn adjustLength) [#_"int" (§ name newArraySize), #_"int" (§ name adjustment)])
     (§ block
-        (§ if (§ expr length == UNKNOWN_LENGTH))
+        (§ if (== length UNKNOWN_LENGTH))
         (§ block
             (§ return nil)
         )
         ;; Our own length is now unknown if we have an unknown length adjustment.
-        (§ if (§ expr adjustment == UNKNOWN_LENGTH))
+        (§ if (== adjustment UNKNOWN_LENGTH))
         (§ block
             (§ ass (§ name length) UNKNOWN_LENGTH)
             (§ return nil)
         )
         (§ ass (§ name length) (+ length adjustment))
         ;; Check if we will need more bytes to encode the length prefix.
-        (§ if (§ expr newArraySize == 1))
+        (§ if (== newArraySize 1))
         (§ block
             (§ ass (§ name length) (+ length 1)) ;; The assumption here is we never call adjustLength with the same arraySize as before.
         )
-        (§ elseif (§ expr newArraySize != 0))
+        (§ elseif (!= newArraySize 0))
         (§ block
-            (§ ass (§ name length) (§ expr length + (VarInt/sizeOf newArraySize) - (VarInt/sizeOf (- newArraySize 1))))
+            (§ ass (§ name length) (+ length (- (VarInt/sizeOf newArraySize) (VarInt/sizeOf (- newArraySize 1)))))
         )
         nil
     )
@@ -9550,7 +9561,7 @@
         (§ if (some? payload))
         (§ block
             ;; Cached byte array is the entire message with no extras so we can return as is and avoid an array copy.
-            (§ if (§ expr offset == 0 && length == (.. payload length)))
+            (§ if (and (== offset 0) (== length (.. payload length))))
             (§ block
                 (§ return payload)
             )
@@ -9607,7 +9618,7 @@
         (§ throws #_"IOException")
     (§ block
         ;; 1st check for cached bytes.
-        (§ if (§ expr payload != nil && length != UNKNOWN_LENGTH))
+        (§ if (and (some? payload) (!= length UNKNOWN_LENGTH)))
         (§ block
             (.. stream (write payload, offset, length))
             (§ return nil)
@@ -9644,9 +9655,9 @@
     #_public
     (§ method #_"int" (§ fn getMessageSize) [])
     (§ block
-        (§ if (§ expr length == UNKNOWN_LENGTH))
+        (§ if (== length UNKNOWN_LENGTH))
         (§ block
-            (Preconditions/checkState false, "Length field has not been set in %s.", (§ expr (.. (getClass) (getSimpleName))))
+            (Preconditions/checkState false, "Length field has not been set in %s.", (.. (getClass) (getSimpleName)))
         )
         length
     )
@@ -9704,8 +9715,8 @@
     (§ block
         (§ try )
         (§ block
-            (§ var #_"VarInt" (§ name varint) (§ new #_"VarInt" payload, (§ expr cursor + offset)))
-            (§ ass (§ name cursor) (§ expr cursor + offset + (.. varint (getOriginalSizeInBytes))))
+            (§ var #_"VarInt" (§ name varint) (§ new #_"VarInt" payload, (+ cursor offset)))
+            (§ ass (§ name cursor) (+ cursor offset (.. varint (getOriginalSizeInBytes))))
             (§ return (.. varint value))
         )
         (§ catch #_"ArrayIndexOutOfBoundsException" (§ name e))
@@ -9764,7 +9775,7 @@
     #_protected
     (§ method #_"boolean" (§ fn hasMoreBytes) [])
     (§ block
-        (§ expr cursor < (.. payload length))
+        (< cursor (.. payload length))
     )
 
     ;;; Network parameters this message was created with. ;;
@@ -10164,7 +10175,7 @@
 
     #_public
     #_static
-    (§ def #_"int" (§ name TARGET_TIMESPAN) (§ expr 14 * 24 * 60 * 60)) ;; 2 weeks per difficulty cycle, on average.
+    (§ def #_"int" (§ name TARGET_TIMESPAN) (* 14 24 60 60)) ;; 2 weeks per difficulty cycle, on average.
     #_public
     #_static
     (§ def #_"int" (§ name TARGET_SPACING) (* 10 60)) ;; 10 minutes per block.
@@ -10212,11 +10223,11 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
@@ -10295,7 +10306,7 @@
     (§ method #_"boolean" (§ fn passesCheckpoint) [#_"int" (§ name height), #_"Sha256Hash" (§ name hash)])
     (§ block
         (§ var #_"Sha256Hash" (§ name checkpointHash) (.. checkpoints (get height)))
-        (§ expr checkpointHash == nil || (.. checkpointHash (equals hash)))
+        (or (nil? checkpointHash) (.. checkpointHash (equals hash)))
     )
 
     ;;;
@@ -10568,7 +10579,7 @@
         (§ if (.. block (isBIP34)))
         (§ block
             (§ var #_"Integer" (§ name count) (.. tally (getCountAtOrAbove Block/BLOCK_VERSION_BIP34)))
-            (§ if (§ expr count != nil && (getMajorityEnforceBlockUpgrade) <= count))
+            (§ if (and (some? count) (<= (getMajorityEnforceBlockUpgrade) count)))
             (§ block
                 (.. flags (add Block/VerifyFlag/HEIGHT_IN_COINBASE))
             )
@@ -10591,14 +10602,14 @@
     (§ method #_"EnumSet<Script.VerifyFlag>" (§ fn getTransactionVerificationFlags) [#_"Block" (§ name block), #_"Transaction" (§ name transaction), #_"VersionTally" (§ name tally), #_"Integer" (§ name height)])
     (§ block
         (§ var #_"EnumSet<Script.VerifyFlag>" (§ name verifyFlags) (EnumSet/noneOf (§ klass #_"Script.VerifyFlag")))
-        (§ if (§ expr NetworkParameters/BIP16_ENFORCE_TIME <= (.. block (getTimeSeconds))))
+        (§ if (<= NetworkParameters/BIP16_ENFORCE_TIME (.. block (getTimeSeconds))))
         (§ block
             (.. verifyFlags (add Script/VerifyFlag/P2SH))
         )
 
         ;; Start enforcing CHECKLOCKTIMEVERIFY (BIP65) for block.nVersion=4 blocks,
         ;; when 75% of the network has been upgraded:
-        (§ if (§ expr Block/BLOCK_VERSION_BIP65 <= (.. block (getVersion)) && (.. this (getMajorityEnforceBlockUpgrade)) < (.. tally (getCountAtOrAbove Block/BLOCK_VERSION_BIP65))))
+        (§ if (and (<= Block/BLOCK_VERSION_BIP65 (.. block (getVersion))) (< (.. this (getMajorityEnforceBlockUpgrade)) (.. tally (getCountAtOrAbove Block/BLOCK_VERSION_BIP65)))))
         (§ block
             (.. verifyFlags (add Script/VerifyFlag/CHECKLOCKTIMEVERIFY))
         )
@@ -10753,7 +10764,7 @@
     (§ block
         ;; Calculate height of the tree.
         (§ var #_"int" (§ name height) 0)
-        (§ while (§ expr 1 < (getTreeWidth (.. allLeafHashes (size)), height)))
+        (§ while (< 1 (getTreeWidth (.. allLeafHashes (size)), height)))
         (§ block
             (§ ass (§ name height) (+ height 1))
         )
@@ -10761,7 +10772,7 @@
         (§ var #_"List<Sha256Hash>" (§ name hashes) (§ new #_"ArrayList<>"))
         (traverseAndBuild height, 0, allLeafHashes, includeBits, bitList, hashes)
         (§ var #_"byte[]" (§ name bits) (§ new #_"byte[]" (§ count (§ cast #_"int" (Math/ceil (/ (.. bitList (size)) 8.0))))))
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. bitList (size))) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. bitList (size))) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ if (.. bitList (get i)))
             (§ block
@@ -10817,7 +10828,7 @@
     (§ block
         (§ var #_"boolean" (§ name parentOfMatch) false)
         ;; Is this node a parent of at least one matched hash?
-        (§ for (§ var #_"int" (§ name p) (<< pos height)) :for (§ expr p < (+ pos 1) << height && p < (.. allLeafHashes (size))) :for (§ ass (§ name p) (+ p 1)))
+        (§ for (§ var #_"int" (§ name p) (<< pos height)) :for (and (< p (<< (+ pos 1) height)) (< p (.. allLeafHashes (size)))) :for (§ ass (§ name p) (+ p 1)))
         (§ block
             (§ if (Utils/checkBitLE includeBits, p))
             (§ block
@@ -10827,7 +10838,7 @@
         )
         ;; Store as a flag bit.
         (.. matchedChildBits (add parentOfMatch))
-        (§ if (§ expr height == 0 || (§ not parentOfMatch)))
+        (§ if (or (== height 0) (not parentOfMatch)))
         (§ block
             ;; If at height 0, or nothing interesting below, store hash and stop.
             (.. resultHashes (add (calcHash height, pos, allLeafHashes)))
@@ -10838,9 +10849,9 @@
             (§ var #_"int" (§ name h) (- height 1))
             (§ var #_"int" (§ name p) (* pos 2))
             (traverseAndBuild h, p, allLeafHashes, includeBits, matchedChildBits, resultHashes)
-            (§ if (§ expr p + 1 < (getTreeWidth (.. allLeafHashes (size)), h)))
+            (§ if (< (+ p 1) (getTreeWidth (.. allLeafHashes (size)), h)))
             (§ block
-                (traverseAndBuild h, (§ expr p + 1), allLeafHashes, includeBits, matchedChildBits, resultHashes)
+                (traverseAndBuild h, (+ p 1), allLeafHashes, includeBits, matchedChildBits, resultHashes)
             )
         )
         nil
@@ -10851,7 +10862,7 @@
     (§ defn- #_"Sha256Hash" (§ fn calcHash) [#_"int" (§ name height), #_"int" (§ name pos), #_"List<Sha256Hash>" (§ name hashes)])
     (§ block
         ;; Hash at height 0 is just the regular tx hash itself.
-        (§ if (§ expr height == 0))
+        (§ if (== height 0))
         (§ block
             (§ return (.. hashes (get pos)))
         )
@@ -10888,7 +10899,7 @@
         (§ throws #_"VerificationException")
     (§ block
         ;; overflowed bits array - failure
-        (§ if (§ expr (.. matchedChildBits length) * 8 <= (.. used bitsUsed)))
+        (§ if (<= (* (.. matchedChildBits length) 8) (.. used bitsUsed)))
         (§ block
             (§ throw (§ new #_"VerificationException" "PartialMerkleTree overflowed its bits array"))
         )
@@ -10897,7 +10908,7 @@
         (§ ass (§ name (.. used bitsUsed)) (+ (.. used bitsUsed) 1))
 
         ;; if at height 0, or nothing interesting below, use stored hash and do not descend
-        (§ if (§ expr height == 0 || (§ not parentOfMatch)))
+        (§ if (or (== height 0) (not parentOfMatch)))
         (§ block
             ;; overflowed hash array - failure
             (§ if (<= (.. hashes (size)) (.. used hashesUsed)))
@@ -10908,7 +10919,7 @@
             (§ var #_"Sha256Hash" (§ name hash) (.. hashes (get (.. used hashesUsed))))
             (§ ass (§ name (.. used hashesUsed)) (+ (.. used hashesUsed) 1))
             ;; in case of height 0, we have a matched txid
-            (§ if (§ expr height == 0 && parentOfMatch))
+            (§ if (and (== height 0) parentOfMatch))
             (§ block
                 (.. matchedHashes (add hash))
             )
@@ -10918,11 +10929,11 @@
         (§ else )
         (§ block
             ;; otherwise, descend into the subtrees to extract matched txids and hashes
-            (§ var #_"byte[]" (§ name left) (.. (recursiveExtractHashes (§ expr height - 1), (§ expr pos * 2), used, matchedHashes) (getBytes)))
+            (§ var #_"byte[]" (§ name left) (.. (recursiveExtractHashes (- height 1), (* pos 2), used, matchedHashes) (getBytes)))
             (§ var #_"byte[]" (§ name right))
-            (§ if (§ expr pos * 2 + 1 < (getTreeWidth transactionCount, (§ expr height - 1))))
+            (§ if (< (+ (* pos 2) 1) (getTreeWidth transactionCount, (- height 1))))
             (§ block
-                (§ ass (§ name right) (.. (recursiveExtractHashes (§ expr height - 1), (§ expr pos * 2 + 1), used, matchedHashes) (getBytes)))
+                (§ ass (§ name right) (.. (recursiveExtractHashes (- height 1), (+ (* pos 2) 1), used, matchedHashes) (getBytes)))
                 (§ if (Arrays/equals right, left))
                 (§ block
                     (§ throw (§ new #_"VerificationException" "Invalid merkle tree with duplicated left/right branches"))
@@ -10960,29 +10971,29 @@
         (.. matchedHashesOut (clear))
 
         ;; an empty set will not work
-        (§ if (§ expr transactionCount == 0))
+        (§ if (== transactionCount 0))
         (§ block
             (§ throw (§ new #_"VerificationException" "Got a CPartialMerkleTree with 0 transactions"))
         )
         ;; check for excessively high numbers of transactions
-        (§ if (§ expr Block/MAX_BLOCK_SIZE / 60 < transactionCount)) ;; 60 is the lower bound for the size of a serialized CTransaction
+        (§ if (< (/ Block/MAX_BLOCK_SIZE 60) transactionCount)) ;; 60 is the lower bound for the size of a serialized CTransaction
         (§ block
             (§ throw (§ new #_"VerificationException" "Got a CPartialMerkleTree with more transactions than is possible"))
         )
         ;; there can never be more hashes provided than one for every txid
-        (§ if (§ expr transactionCount < (.. hashes (size))))
+        (§ if (< transactionCount (.. hashes (size))))
         (§ block
             (§ throw (§ new #_"VerificationException" "Got a CPartialMerkleTree with more hashes than transactions"))
         )
         ;; there must be at least one bit per node in the partial tree, and at least one node per hash
-        (§ if (§ expr (.. matchedChildBits length) * 8 < (.. hashes (size))))
+        (§ if (< (* (.. matchedChildBits length) 8) (.. hashes (size))))
         (§ block
             (§ throw (§ new #_"VerificationException" "Got a CPartialMerkleTree with fewer matched bits than hashes"))
         )
 
         ;; calculate height of tree
         (§ var #_"int" (§ name height) 0)
-        (§ while (§ expr 1 < (getTreeWidth transactionCount, height)))
+        (§ while (< 1 (getTreeWidth transactionCount, height)))
         (§ block
             (§ ass (§ name height) (+ height 1))
         )
@@ -10991,7 +11002,7 @@
         (§ var #_"Sha256Hash" (§ name merkleRoot) (recursiveExtractHashes height, 0, used, matchedHashesOut))
         ;; verify that all bits were consumed (except for the padding caused by serializing it as a byte sequence)
         ;; verify that all hashes were consumed
-        (§ if (§ expr (+ (.. used bitsUsed) 7) / 8 != (.. matchedChildBits length) || (.. used hashesUsed) != (.. hashes (size))))
+        (§ if (or (!= (/ (+ (.. used bitsUsed) 7) 8) (.. matchedChildBits length)) (!= (.. used hashesUsed) (.. hashes (size)))))
         (§ block
             (§ throw (§ new #_"VerificationException" "Got a CPartialMerkleTree that didn't need all the data it provided"))
         )
@@ -11009,16 +11020,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"PartialMerkleTree" (§ name other) (§ cast #_"PartialMerkleTree" o))
-        (§ expr transactionCount == (.. other transactionCount) && (.. hashes (equals (.. other hashes))) && (Arrays/equals matchedChildBits, (.. other matchedChildBits)))
+        (and (== transactionCount (.. other transactionCount)) (.. hashes (equals (.. other hashes))) (Arrays/equals matchedChildBits, (.. other matchedChildBits)))
     )
 
     #_override
@@ -11229,7 +11240,7 @@
             (§ method #_"Peer" (§ fn apply) [#_nilable #_"List<Peer>" (§ name peers)])
             (§ block
                 (Preconditions/checkNotNull peers)
-                (Preconditions/checkState (§ expr (.. peers (size)) == 2 && (.. peers (get 0)) == (.. peers (get 1))))
+                (Preconditions/checkState (and (== (.. peers (size)) 2) (== (.. peers (get 0)) (.. peers (get 1)))))
                 (.. peers (get 0))
             )
         )))
@@ -11510,7 +11521,7 @@
     (§ block
         (.. super (timeoutOccurred))
 
-        (§ if (§ not (.. connectionOpenFuture (isDone))))
+        (§ if (not (.. connectionOpenFuture (isDone))))
         (§ block
             ;; Invoke the event handlers to tell listeners e.g. PeerGroup that we never managed to connect.
             (connectionClosed)
@@ -11595,14 +11606,14 @@
 
         ;; If we are in the middle of receiving transactions as part of a filtered block push from the remote node,
         ;; and we receive something that's not a transaction, then we're done.
-        (§ if (§ expr currentFilteredBlock != nil && (§ not (§ insta m #_"Transaction"))))
+        (§ if (and (some? currentFilteredBlock) (not (§ insta m #_"Transaction"))))
         (§ block
             (endFilteredBlock currentFilteredBlock)
             (§ ass (§ name currentFilteredBlock) nil)
         )
 
         ;; No further communication is possible until version handshake is complete.
-        (§ if (§ not (§ expr (§ insta m #_"VersionMessage") || (§ insta m #_"VersionAck") || (§ expr (.. versionHandshakeFuture (isDone)) && (§ not (.. versionHandshakeFuture (isCancelled)))))))
+        (§ if (not (or (§ insta m #_"VersionMessage") (§ insta m #_"VersionAck") (and (.. versionHandshakeFuture (isDone)) (not (.. versionHandshakeFuture (isCancelled)))))))
         (§ block
             (§ throw (§ new #_"ProtocolException" (str "Received " (.. m (getClass) (getSimpleName)) " before version handshake is complete.")))
         )
@@ -11666,7 +11677,7 @@
         )
         (§ elseif (§ insta m #_"RejectMessage"))
         (§ block
-            (.. log (error "{} {}: Received {}", this, (§ expr (.. (getPeerVersionMessage) subVer)), m))
+            (.. log (error "{} {}: Received {}", this, (.. (getPeerVersionMessage) subVer), m))
         )
         (§ else )
         (§ block
@@ -11708,7 +11719,7 @@
         ;; mode nodes because we can't download the data from them we need to find/verify transactions.  Some bogus
         ;; implementations claim to have a block chain in their services field but then report a height of zero, filter
         ;; them out here.
-        (§ if (§ expr (§ not (.. vPeerVersionMessage (hasBlockChain))) || (§ expr (§ not (.. params (allowEmptyPeerChain))) && (.. vPeerVersionMessage bestHeight) == 0)))
+        (§ if (or (not (.. vPeerVersionMessage (hasBlockChain))) (and (not (.. params (allowEmptyPeerChain))) (== (.. vPeerVersionMessage bestHeight) 0))))
         (§ block
             ;; Shut down the channel gracefully.
             (.. log (info "{}: Peer does not have a copy of the block chain.", this))
@@ -11789,7 +11800,7 @@
         ;; to save round-tripping back through us, the filter degrades over time as false positives get added,
         ;; triggering yet more false positives.  We refresh it every so often to get the FP rate back down.
         (§ ass (§ name filteredBlocksReceived) (+ filteredBlocksReceived 1))
-        (§ if (§ expr filteredBlocksReceived % RESEND_BLOOM_FILTER_BLOCK_COUNT == RESEND_BLOOM_FILTER_BLOCK_COUNT - 1))
+        (§ if (== (% filteredBlocksReceived RESEND_BLOOM_FILTER_BLOCK_COUNT) (- RESEND_BLOOM_FILTER_BLOCK_COUNT 1)))
         (§ block
             (sendMessage vBloomFilter)
         )
@@ -11877,19 +11888,19 @@
 
         (§ try )
         (§ block
-            (Preconditions/checkState (§ not downloadBlockBodies), (toString))
+            (Preconditions/checkState (not downloadBlockBodies), (toString))
 
-            (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. m (getBlockHeaders) (size))) :for (§ ass (§ name i) (+ i 1)))
+            (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. m (getBlockHeaders) (size))) :for (§ ass (§ name i) (+ i 1)))
             (§ block
                 (§ var #_"Block" (§ name header) (.. m (getBlockHeaders) (get i)))
                 ;; Process headers until we pass the fast catchup time, or are about to catch up with the head
                 ;; of the chain - always process the last block as a full/filtered block to kick us out of the
                 ;; fast catchup mode (in which we ignore new blocks).
-                (§ var #_"boolean" (§ name passedTime) (§ expr fastCatchupTimeSecs <= (.. header (getTimeSeconds))))
+                (§ var #_"boolean" (§ name passedTime) (<= fastCatchupTimeSecs (.. header (getTimeSeconds))))
                 (§ var #_"boolean" (§ name reachedTop) (<= (.. vPeerVersionMessage bestHeight) (.. blockChain (getBestChainHeight))))
-                (§ if (§ expr (§ not passedTime) && (§ not reachedTop)))
+                (§ if (and (not passedTime) (not reachedTop)))
                 (§ block
-                    (§ if (§ not vDownloadData))
+                    (§ if (not vDownloadData))
                     (§ block
                         ;; Not download peer anymore, some other peer probably became better.
                         (.. log (info "Lost download peer status, throwing away downloaded headers."))
@@ -11928,7 +11939,7 @@
             )
             ;; We added all headers in the message to the chain.
             ;; Request some more if we got up to the limit, otherwise we are at the end of the chain.
-            (§ if (§ expr HeadersMessage/MAX_HEADERS <= (.. m (getBlockHeaders) (size))))
+            (§ if (<= HeadersMessage/MAX_HEADERS (.. m (getBlockHeaders) (size))))
             (§ block
                 (.. lock (lock))
                 (§ try )
@@ -11971,7 +11982,7 @@
             )
             (.. items (addAll listenerItems))
         )
-        (§ if (§ not (.. items (isEmpty))))
+        (§ if (not (.. items (isEmpty))))
         (§ block
             (.. log (info "{}: Sending {} items gathered from listeners to peer", (getAddress), (.. items (size))))
             (§ for (§ var #_"Message" (§ name item)) :for items)
@@ -12009,7 +12020,7 @@
 
             (§ if (some? currentFilteredBlock))
             (§ block
-                (§ if (§ not (.. currentFilteredBlock (provideTransaction tx))))
+                (§ if (not (.. currentFilteredBlock (provideTransaction tx))))
                 (§ block
                     ;; Got a tx that didn't fit into the filtered block, so we must have received everything.
                     (endFilteredBlock currentFilteredBlock)
@@ -12130,7 +12141,7 @@
     (§ method #_"ListenableFuture<List<Transaction>>" (§ fn downloadDependencies) [#_"Transaction" (§ name tx)])
     (§ block
         (§ var #_"TransactionConfidence.ConfidenceType" (§ name txConfidence) (.. tx (getConfidence) (getConfidenceType)))
-        (Preconditions/checkArgument (§ expr txConfidence != TransactionConfidence/ConfidenceType/BUILDING))
+        (Preconditions/checkArgument (!= txConfidence TransactionConfidence/ConfidenceType/BUILDING))
         (.. log (info "{}: Downloading dependencies of {}", (getAddress), (.. tx (getHashAsString))))
         (§ var #_"LinkedList<Transaction>" (§ name results) (§ new #_"LinkedList<>"))
         ;; future will be invoked when the entire dependency tree has been walked and the results compiled.
@@ -12182,7 +12193,7 @@
             (§ var #_"List<ListenableFuture<Transaction>>" (§ name futures) (Lists/newArrayList))
             (§ var #_"GetDataMessage" (§ name getdata) (§ new #_"GetDataMessage" params))
 
-            (§ if (§ expr 1 < (.. needToRequest (size))))
+            (§ if (< 1 (.. needToRequest (size))))
             (§ block
                 (.. log (info "{}: Requesting {} transactions for depth {} dep resolution", (getAddress), (.. needToRequest (size)), (+ depth 1)))
             )
@@ -12214,9 +12225,9 @@
                         (.. log (info "{}: Downloaded dependency of {}: {}", (getAddress), rootTxHash, (.. tx (getHashAsString))))
                         (.. results (add tx))
                         ;; Now recurse into the dependencies of this transaction too.
-                        (§ if (§ expr depth + 1 < maxDepth))
+                        (§ if (< (+ depth 1) maxDepth))
                         (§ block
-                            (.. childFutures (add (downloadDependenciesInternal maxDepth, (§ expr depth + 1), tx, marker, results)))
+                            (.. childFutures (add (downloadDependenciesInternal maxDepth, (+ depth 1), tx, marker, results)))
                         )
                     )
                     (§ if (== (.. childFutures (size)) 0))
@@ -12296,7 +12307,7 @@
         )
 
         ;; Did we lose download peer status after requesting block data?
-        (§ if (§ not vDownloadData))
+        (§ if (not vDownloadData))
         (§ block
             (.. log (debug "{}: Received block we did not ask for: {}", (getAddress), (.. m (getHashAsString))))
             (§ return nil)
@@ -12373,7 +12384,7 @@
             (.. log (debug "{}: Received broadcast filtered block {}", (getAddress), (.. m (getHash) (toString))))
         )
 
-        (§ if (§ not vDownloadData))
+        (§ if (not vDownloadData))
         (§ block
             (.. log (debug "{}: Received block we did not ask for: {}", (getAddress), (.. m (getHash) (toString))))
             (§ return nil)
@@ -12498,7 +12509,7 @@
         (§ var #_"boolean" (§ name exhausted) false)
         (§ for (§ var #_"Wallet" (§ name wallet)) :for wallets)
         (§ block
-            (§ ass (§ name exhausted) (§ expr exhausted | (.. wallet (checkForFilterExhaustion m))))
+            (§ ass (§ name exhausted) (| exhausted (.. wallet (checkForFilterExhaustion m))))
         )
         exhausted
     )
@@ -12527,7 +12538,7 @@
         ;; It is possible for the peer block height difference to be negative when blocks have been solved and broadcast
         ;; since the time we first connected to the peer.  However, it's weird and unexpected to receive a callback
         ;; with negative "blocks left" in this case, so we clamp to zero so the API user doesn't have to think about it.
-        (§ var #_"int" (§ name blocksLeft) (Math/max 0, (§ expr (§ cast #_"int" (.. vPeerVersionMessage bestHeight)) - (.. (Preconditions/checkNotNull blockChain) (getBestChainHeight)))))
+        (§ var #_"int" (§ name blocksLeft) (Math/max 0, (- (§ cast #_"int" (.. vPeerVersionMessage bestHeight)) (.. (Preconditions/checkNotNull blockChain) (getBestChainHeight)))))
         (§ for (§ var ListenerRegistration<BlocksDownloadedEventListener> registration) :for blocksDownloadedEventListeners)
         (§ block
             (.. registration executor (execute (§ new #_"Runnable")
@@ -12576,15 +12587,15 @@
 
         (§ var #_"boolean" (§ name downloadData) (.. this vDownloadData))
 
-        (§ if (§ expr (.. transactions (size)) == 0 && (.. blocks (size)) == 1))
+        (§ if (and (== (.. transactions (size)) 0) (== (.. blocks (size)) 1)))
         (§ block
             ;; Single block announcement.  If we're downloading the chain this is just a tickle to make us continue
             ;; (the block chain download protocol is very implicit and not well thought out).  If we're not downloading
             ;; the chain then this probably means a new block was solved and the peer believes it connects to the best
             ;; chain, so count it.  This way getBestChainHeight() can be accurate.
-            (§ if (§ expr downloadData && blockChain != nil))
+            (§ if (and downloadData (some? blockChain)))
             (§ block
-                (§ if (§ not (.. blockChain (isOrphan (.. blocks (get 0) hash)))))
+                (§ if (not (.. blockChain (isOrphan (.. blocks (get 0) hash)))))
                 (§ block
                     (.. blocksAnnounced (incrementAndGet))
                 )
@@ -12610,7 +12621,7 @@
             ;;
             ;; The line below can trigger confidence listeners.
             (§ var #_"TransactionConfidence" (§ name conf) (.. context (getConfidenceTable) (seen (.. item hash), (.. this (getAddress)))))
-            (§ if (§ expr 1 < (.. conf (numBroadcastPeers))))
+            (§ if (< 1 (.. conf (numBroadcastPeers))))
             (§ block
                 ;; Some other peer already announced this so don't download.
                 (.. it (remove))
@@ -12636,14 +12647,14 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr 0 < (.. blocks (size)) && downloadData && blockChain != nil))
+            (§ if (and (< 0 (.. blocks (size))) downloadData (some? blockChain)))
             (§ block
                 ;; Ideally, we'd only ask for the data here if we actually needed it.  However that can imply a lot of
                 ;; disk IO to figure out what we've got.  Normally peers will not send us inv for things we already have
                 ;; so we just re-request it here, and if we get duplicates the block chain / wallet will filter them out.
                 (§ for (§ var #_"InventoryItem" (§ name item)) :for blocks)
                 (§ block
-                    (§ if (§ expr (.. blockChain (isOrphan (.. item hash))) && downloadBlockBodies))
+                    (§ if (and (.. blockChain (isOrphan (.. item hash))) downloadBlockBodies))
                     (§ block
                         ;; If an orphan was re-advertised, ask for more blocks unless we are not currently downloading
                         ;; full block data because we have a getheaders outstanding.
@@ -12664,9 +12675,9 @@
                         ;; part of chain download with newly announced blocks, so it should always be taken care of by
                         ;; the duplicate check in blockChainDownloadLocked().  But Bitcoin Core may change in future so
                         ;; it's better to be safe here.
-                        (§ if (§ not (.. pendingBlockDownloads (contains (.. item hash)))))
+                        (§ if (not (.. pendingBlockDownloads (contains (.. item hash)))))
                         (§ block
-                            (§ if (§ expr (.. vPeerVersionMessage (isBloomFilteringSupported)) && useFilteredBlocks))
+                            (§ if (and (.. vPeerVersionMessage (isBloomFilteringSupported)) useFilteredBlocks))
                             (§ block
                                 (.. getdata (addFilteredBlock (.. item hash)))
                                 (§ ass (§ name pingAfterGetData) true)
@@ -12691,7 +12702,7 @@
             (.. lock (unlock))
         )
 
-        (§ if (§ not (.. getdata (getItems) (isEmpty))))
+        (§ if (not (.. getdata (getItems) (isEmpty))))
         (§ block
             ;; This will cause us to receive a bunch of block or tx messages.
             (sendMessage getdata)
@@ -12782,7 +12793,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr secondsSinceEpoch == 0))
+            (§ if (== secondsSinceEpoch 0))
             (§ block
                 (§ ass (§ name fastCatchupTimeSecs) (.. params (getGenesisBlock) (getTimeSeconds)))
                 (§ ass (§ name downloadBlockBodies) true)
@@ -12792,7 +12803,7 @@
                 (§ ass (§ name fastCatchupTimeSecs) secondsSinceEpoch)
                 ;; If the given time is before the current chains head block time, then this has no effect (we already
                 ;; downloaded everything we need).
-                (§ if (§ expr blockChain != nil && (.. blockChain (getChainHead) (getHeader) (getTimeSeconds)) < fastCatchupTimeSecs))
+                (§ if (and (some? blockChain) (< (.. blockChain (getChainHead) (getHeader) (getTimeSeconds)) fastCatchupTimeSecs)))
                 (§ block
                     (§ ass (§ name downloadBlockBodies) false)
                 )
@@ -12890,7 +12901,7 @@
         (§ var #_"Sha256Hash" (§ name chainHeadHash) (.. chainHead (getHeader) (getHash)))
 
         ;; Did we already make this request?  If so, don't do it again.
-        (§ if (§ expr (Objects/equal lastGetBlocksBegin, chainHeadHash) && (Objects/equal lastGetBlocksEnd, toHash)))
+        (§ if (and (Objects/equal lastGetBlocksBegin, chainHeadHash) (Objects/equal lastGetBlocksEnd, toHash)))
         (§ block
             (.. log (info "blockChainDownloadLocked({}): ignoring duplicated request: {}", toHash, chainHeadHash))
             (§ for (§ var #_"Sha256Hash" (§ name hash)) :for pendingBlockDownloads)
@@ -12907,7 +12918,7 @@
         )
 
         (§ var #_"StoredBlock" (§ name cursor) chainHead)
-        (§ for (§ var #_"int" (§ name i) 100) :for (§ expr cursor != nil && 0 < i) :for (§ ass (§ name i) (- i 1)))
+        (§ for (§ var #_"int" (§ name i) 100) :for (and (some? cursor) (< 0 i)) :for (§ ass (§ name i) (- i 1)))
         (§ block
             (.. blockLocator (add (.. cursor (getHeader) (getHash))))
             (§ try )
@@ -13010,11 +13021,11 @@
         #_public
         (§ method #_"void" (§ fn complete) [])
         (§ block
-            (§ if (§ not (.. future (isDone))))
+            (§ if (not (.. future (isDone))))
             (§ block
                 (§ var #_"Long" (§ name elapsed) (- (Utils/currentTimeMillis) startTimeMsec))
                 (.. (§ dhis Peer) (addPingTimeData elapsed))
-                (.. log (debug "{}: ping time is {} msec", (§ expr (.. (§ dhis Peer) (toString))), elapsed))
+                (.. log (debug "{}: ping time is {} msec", (.. (§ dhis Peer) (toString)), elapsed))
                 (.. future (set elapsed))
             )
             nil
@@ -13037,9 +13048,9 @@
             (§ else )
             (§ block
                 ;; Shift all elements backwards by one.
-                (System/arraycopy lastPingTimes, 1, lastPingTimes, 0, (§ expr (.. lastPingTimes length) - 1))
+                (System/arraycopy lastPingTimes, 1, lastPingTimes, 0, (- (.. lastPingTimes length) 1))
                 ;; And append the new sample to the end.
-                (§ ass (§ name (§ ai lastPingTimes (§ expr lastPingTimes.length - 1))) sample)
+                (§ ass (§ name (§ ai lastPingTimes (- (.. lastPingTimes length) 1))) sample)
             )
         )
         (§ finally )
@@ -13068,7 +13079,7 @@
         (§ throws #_"ProtocolException")
     (§ block
         (§ var #_"VersionMessage" (§ name ver) vPeerVersionMessage)
-        (§ if (§ not (.. ver (isPingPongSupported))))
+        (§ if (not (.. ver (isPingPongSupported))))
         (§ block
             (§ throw (§ new #_"ProtocolException" (str "Peer version is too low for measurable pings: " ver)))
         )
@@ -13167,14 +13178,14 @@
         ;; chainHeight should not be zero/negative because we shouldn't have given the user a Peer that is to another
         ;; client-mode node, nor should it be unconnected.  If that happens it means the user overrode us somewhere or
         ;; there is a bug in the peer management code.
-        (Preconditions/checkState (§ expr (.. params (allowEmptyPeerChain)) || 0 < chainHeight), "Connected to peer with zero/negative chain height", chainHeight)
-        (§ expr chainHeight - (.. blockChain (getBestChainHeight)))
+        (Preconditions/checkState (or (.. params (allowEmptyPeerChain)) (< 0 chainHeight)), "Connected to peer with zero/negative chain height", chainHeight)
+        (- chainHeight (.. blockChain (getBestChainHeight)))
     )
 
     #_private
     (§ method- #_"boolean" (§ fn isNotFoundMessageSupported) [])
     (§ block
-        (§ expr NotFoundMessage/MIN_PROTOCOL_VERSION <= (.. vPeerVersionMessage clientVersion))
+        (<= NotFoundMessage/MIN_PROTOCOL_VERSION (.. vPeerVersionMessage clientVersion))
     )
 
     ;;;
@@ -13233,7 +13244,7 @@
         (§ ass (§ name (.. this vMinProtocolVersion)) minProtocolVersion)
 
         (§ var #_"VersionMessage" (§ name ver) (getPeerVersionMessage))
-        (§ if (§ expr ver != nil && (.. ver clientVersion) < minProtocolVersion))
+        (§ if (and (some? ver) (< (.. ver clientVersion) minProtocolVersion)))
         (§ block
             (.. log (warn "{}: Disconnecting due to new min protocol version {}, got: {}", this, minProtocolVersion, (.. ver clientVersion)))
             (close)
@@ -13285,7 +13296,7 @@
         (Preconditions/checkNotNull filter, "Clearing filters is not currently supported")
 
         (§ var #_"VersionMessage" (§ name ver) vPeerVersionMessage)
-        (§ if (§ expr ver != nil && (.. ver (isBloomFilteringSupported))))
+        (§ if (and (some? ver) (.. ver (isBloomFilteringSupported))))
         (§ block
             (§ ass (§ name vBloomFilter) filter)
             (.. log (debug "{}: Sending Bloom filter{}", this, (if andQueryMemPool " and querying mempool" "")))
@@ -13310,7 +13321,7 @@
                 (§ return nil)
             )
 
-            (§ if (§ not vDownloadData))
+            (§ if (not vDownloadData))
             (§ block
                 ;; This branch should be harmless but I want to know how often it happens in reality.
                 (.. log (warn "Lost download peer status whilst awaiting fresh filter."))
@@ -13553,7 +13564,7 @@
         )
         (.. stream (write ipBytes))
         ;; And write out the port.  Unlike the rest of the protocol, address and port is in big endian byte order.
-        (.. stream (write (§ cast #_"byte" (§ expr 0xff & port >> 8))))
+        (.. stream (write (§ cast #_"byte" (& 0xff (>> port 8)))))
         (.. stream (write (§ cast #_"byte" (& 0xff port))))
         nil
     )
@@ -13579,7 +13590,7 @@
         (§ block
             (§ throw (§ new #_"RuntimeException" e)) ;; Cannot happen.
         )
-        (§ ass (§ name port) (| (<< (§ expr (§ ai payload cursor) & 0xff) 8) (§ expr (§ ai payload (§ expr cursor + 1)) & 0xff)))
+        (§ ass (§ name port) (| (<< (& 0xff (§ ai payload cursor)) 8) (& 0xff (§ ai payload (+ cursor 1)))))
         (§ ass (§ name cursor) (+ cursor 2))
         ;; The 4 byte difference is the uint32 timestamp that was introduced in version 31402.
         (§ ass (§ name length) (if (< 31402 protocolVersion) MESSAGE_SIZE (- MESSAGE_SIZE 4)))
@@ -13633,16 +13644,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"PeerAddress" (§ name other) (§ cast #_"PeerAddress" o))
-        (§ expr (.. other addr (equals addr)) && (.. other port) == port && (.. other time) == time && (.. other services (equals services)))
+        (and (.. other addr (equals addr)) (== (.. other port) port) (== (.. other time) time) (.. other services (equals services)))
     )
 
     #_override
@@ -13972,7 +13983,7 @@
 
                 (§ for (§ var #_"TransactionOutput" (§ name output)) :for (.. tx (getOutputs)))
                 (§ block
-                    (§ if (§ expr (.. output (getScriptPubKey) (isSentToRawPubKey)) && (.. output (isMine wallet))))
+                    (§ if (and (.. output (getScriptPubKey) (isSentToRawPubKey)) (.. output (isMine wallet))))
                     (§ block
                         (§ if (== (.. tx (getConfidence) (getConfidenceType)) TransactionConfidence/ConfidenceType/BUILDING))
                         (§ block
@@ -13991,11 +14002,11 @@
 
     ;; Exponential backoff for peers starts at 1 second and maxes at 10 minutes.
     #_private
-    (§ field- #_"ExponentialBackoff.Params" (§ name peerBackoffParams) (§ new #_"ExponentialBackoff.Params" 1000, 1.5, (§ expr 10 * 60 * 1000)))
+    (§ field- #_"ExponentialBackoff.Params" (§ name peerBackoffParams) (§ new #_"ExponentialBackoff.Params" 1000, 1.5, (* 10 60 1000)))
     ;; Tracks failures globally in case of a network failure.
     #_guarded-by(§ opt "lock")
     #_private
-    (§ field- #_"ExponentialBackoff" (§ name groupBackoff) (§ new #_"ExponentialBackoff" (§ new #_"ExponentialBackoff.Params" 1000, 1.5, (§ expr 10 * 1000))))
+    (§ field- #_"ExponentialBackoff" (§ name groupBackoff) (§ new #_"ExponentialBackoff" (§ new #_"ExponentialBackoff.Params" 1000, 1.5, (* 10 1000))))
 
     ;; This is a synchronized set, so it locks on itself.  We use it to prevent TransactionBroadcast objects from
     ;; being garbage collected if nothing in the apps code holds on to them transitively.  See the discussion
@@ -14184,7 +14195,7 @@
 
                 (§ var #_"int" (§ name result) (.. backoffMap (get a) (compareTo (.. backoffMap (get b)))))
                 ;; Sort by port if otherwise equals - for testing.
-                (§ if (§ expr result == 0))
+                (§ if (== result 0))
                 (§ block
                     (§ ass (§ name result) (Ints/compare (.. a (getPort)), (.. b (getPort))))
                 )
@@ -14246,7 +14257,7 @@
         (§ try )
         (§ block
             (§ ass (§ name (.. this maxConnections)) maxConnections)
-            (§ if (§ not (isRunning)))
+            (§ if (not (isRunning)))
             (§ block
                 (§ return nil)
             )
@@ -14257,7 +14268,7 @@
         )
 
         ;; We may now have too many or too few open connections.  Add more or drop some to get to the right amount.
-        (§ var #_"int" (§ name adjustment) (§ expr maxConnections - (.. channels (getConnectedClientCount))))
+        (§ var #_"int" (§ name adjustment) (- maxConnections (.. channels (getConnectedClientCount))))
         (§ if (< 0 adjustment))
         (§ block
             (triggerConnections)
@@ -14315,7 +14326,7 @@
             #_public
             (§ method #_"void" (§ fn go) [])
             (§ block
-                (§ if (§ not vRunning))
+                (§ if (not vRunning))
                 (§ block
                     (§ return nil)
                 )
@@ -14328,7 +14339,7 @@
                     ;; First run: try and use a local node if there is one, for the additional security it can provide.
                     ;; But, not on Android as there are none for this platform: it could only be a malicious app trying
                     ;; to hijack our traffic.
-                    (§ if (§ expr (§ not (Utils/isAndroidRuntime)) && useLocalhostPeerWhenPossible && (maybeCheckForLocalhostPeer) && firstRun))
+                    (§ if (and (not (Utils/isAndroidRuntime)) useLocalhostPeerWhenPossible (maybeCheckForLocalhostPeer) firstRun))
                     (§ block
                         (.. log (info "Localhost peer detected, trying to use it instead of P2P discovery"))
                         (§ ass (§ name maxConnections) 0)
@@ -14336,8 +14347,8 @@
                         (§ return nil)
                     )
 
-                    (§ var #_"boolean" (§ name havePeerWeCanTry) (§ expr (§ not (.. inactives (isEmpty))) && (.. backoffMap (get (.. inactives (peek))) (getRetryTime)) <= now))
-                    (§ ass (§ name doDiscovery) (§ not havePeerWeCanTry))
+                    (§ var #_"boolean" (§ name havePeerWeCanTry) (and (not (.. inactives (isEmpty))) (<= (.. backoffMap (get (.. inactives (peek))) (getRetryTime)) now)))
+                    (§ ass (§ name doDiscovery) (not havePeerWeCanTry))
                 )
                 (§ finally )
                 (§ block
@@ -14368,7 +14379,7 @@
                     (§ block
                         ;; Require that we have enough connections, to consider this a success,
                         ;; or we just constantly test for new peers.
-                        (§ if (§ expr discoverySuccess && (getMaxConnections) <= (countConnectedAndPendingPeers)))
+                        (§ if (and discoverySuccess (<= (getMaxConnections) (countConnectedAndPendingPeers))))
                         (§ block
                             (.. groupBackoff (trackSuccess))
                         )
@@ -14382,7 +14393,7 @@
                     (§ block
                         (§ if (< (countConnectedAndPendingPeers) (getMaxConnections)))
                         (§ block
-                            (§ var #_"long" (§ name interval) (Math/max (§ expr (.. groupBackoff (getRetryTime)) - now), MIN_PEER_DISCOVERY_INTERVAL))
+                            (§ var #_"long" (§ name interval) (Math/max (- (.. groupBackoff (getRetryTime)) now), MIN_PEER_DISCOVERY_INTERVAL))
                             (.. log (info (str "Peer discovery didn't provide us any more peers, will try again in " interval "ms.")))
                             (.. executor (schedule this, interval, TimeUnit/MILLISECONDS))
                         )
@@ -14399,7 +14410,7 @@
                         (§ block
                             (§ ass (§ name addrToTry) (.. inactives (poll)))
                         )
-                        (§ again (§ expr ipv6Unreachable && (§ insta (.. addrToTry (getAddr)) #_"Inet6Address")))
+                        (§ again (and ipv6Unreachable (§ insta (.. addrToTry (getAddr)) #_"Inet6Address")))
                         (§ ass (§ name retryTime) (.. backoffMap (get addrToTry) (getRetryTime)))
                     )
                     (§ ass (§ name retryTime) (Math/max retryTime, (.. groupBackoff (getRetryTime))))
@@ -14429,7 +14440,7 @@
     (§ method- #_"void" (§ fn triggerConnections) [])
     (§ block
         ;; Run on a background thread due to the need to potentially retry and back off in the background.
-        (§ if (§ not (.. executor (isShutdown))))
+        (§ if (not (.. executor (isShutdown))))
         (§ block
             (.. executor (execute triggerConnectionsJob))
         )
@@ -14555,9 +14566,9 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ var #_"boolean" (§ name spvMode) (§ expr chain != nil && (§ not (.. chain (shouldVerifyTransactions)))))
-            (§ var #_"boolean" (§ name willSendFilter) (§ expr spvMode && 0 < (.. peerFilterProviders (size)) && vBloomFilteringEnabled))
-            (§ ass (§ name (.. ver relayTxesBeforeFilter)) (§ not willSendFilter))
+            (§ var #_"boolean" (§ name spvMode) (and (some? chain) (not (.. chain (shouldVerifyTransactions)))))
+            (§ var #_"boolean" (§ name willSendFilter) (and spvMode (< 0 (.. peerFilterProviders (size))) vBloomFilteringEnabled))
+            (§ ass (§ name (.. ver relayTxesBeforeFilter)) (not willSendFilter))
         )
         (§ finally )
         (§ block
@@ -15035,7 +15046,7 @@
         (§ throws #_"PeerDiscoveryException")
     (§ block
         ;; Don't hold the lock whilst doing peer discovery: it can take a long time and cause high API latency.
-        (Preconditions/checkState (§ not (.. lock (isHeldByCurrentThread))))
+        (Preconditions/checkState (not (.. lock (isHeldByCurrentThread))))
 
         (§ var #_"int" (§ name maxPeersToDiscoverCount) (.. this vMaxPeersToDiscoverCount))
         (§ var #_"long" (§ name peerDiscoveryTimeoutMillis) (.. this vPeerDiscoveryTimeoutMillis))
@@ -15049,13 +15060,13 @@
             (§ block
                 (.. addressList (add (§ new #_"PeerAddress" params, address)))
             )
-            (§ if (§ expr maxPeersToDiscoverCount <= (.. addressList (size))))
+            (§ if (<= maxPeersToDiscoverCount (.. addressList (size))))
             (§ block
                 (§ break )
             )
         )
 
-        (§ if (§ not (.. addressList (isEmpty))))
+        (§ if (not (.. addressList (isEmpty))))
         (§ block
             (§ for (§ var #_"PeerAddress" (§ name address)) :for addressList)
             (§ block
@@ -15118,7 +15129,7 @@
     (§ block
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
 
-        (§ if (§ expr localhostCheckState == LocalhostCheckState/NOT_TRIED))
+        (§ if (== localhostCheckState LocalhostCheckState/NOT_TRIED))
         (§ block
             ;; Do a fast blocking connect to see if anything is listening.
             (§ var #_"Socket" (§ name socket) nil)
@@ -15165,7 +15176,7 @@
             ;; Just try to help catch what might be a programming error.
             (.. log (warn "Starting up with no attached block chain. Did you forget to pass one to the constructor?"))
         )
-        (Preconditions/checkState (§ not vUsedUp), "Cannot start a peer group twice")
+        (Preconditions/checkState (not vUsedUp), "Cannot start a peer group twice")
 
         (§ ass (§ name vRunning) true)
         (§ ass (§ name vUsedUp) true)
@@ -15302,7 +15313,7 @@
         (§ try )
         (§ block
             (Preconditions/checkNotNull wallet)
-            (Preconditions/checkState (§ not (.. wallets (contains wallet))))
+            (Preconditions/checkState (not (.. wallets (contains wallet))))
             (.. wallets (add wallet))
             (.. wallet (setTransactionBroadcaster this))
             (.. wallet (addCoinsReceivedEventListener Threading/SAME_THREAD, walletCoinsReceivedEventListener))
@@ -15339,7 +15350,7 @@
         (§ try )
         (§ block
             (Preconditions/checkNotNull provider)
-            (Preconditions/checkState (§ not (.. peerFilterProviders (contains provider))))
+            (Preconditions/checkState (not (.. peerFilterProviders (contains provider))))
             ;; Insert provider at the start.  This avoids various concurrency problems that could occur because we need
             ;; all providers to be in a consistent, unchanging state whilst the filter is built.  Providers can give
             ;; this guarantee by taking a lock in their begin method, but if we add to the end of the list here, it
@@ -15453,9 +15464,9 @@
             #_public
             (§ method #_"void" (§ fn go) [])
             (§ block
-                (Preconditions/checkState (§ not (.. lock (isHeldByCurrentThread))))
+                (Preconditions/checkState (not (.. lock (isHeldByCurrentThread))))
                 ;; Fully verifying mode doesn't use this optimization (it can't as it needs to see all transactions).
-                (§ if (§ expr (§ expr chain != nil && (.. chain (shouldVerifyTransactions))) || (§ not vBloomFilteringEnabled)))
+                (§ if (or (and (some? chain) (.. chain (shouldVerifyTransactions))) (not vBloomFilteringEnabled)))
                 (§ block
                     (§ return nil)
                 )
@@ -15703,7 +15714,7 @@
             ;; TODO: Be more nuanced about which peer to download from.  We can also try
             ;; downloading from multiple peers and handle the case when a new peer comes along
             ;; with a longer chain after we thought we were done.
-            (§ if (§ not (.. peers (isEmpty))))
+            (§ if (not (.. peers (isEmpty))))
             (§ block
                 (startBlockChainDownloadFromPeer (.. peers (iterator) (next))) ;; Will add the new download listener.
             )
@@ -15799,7 +15810,7 @@
             (§ block
                 ;; Kick off chain download if we aren't already doing it.
                 (setDownloadPeer (selectDownloadPeer peers))
-                (§ var #_"boolean" (§ name shouldDownloadChain) (§ expr downloadListener != nil && chain != nil))
+                (§ var #_"boolean" (§ name shouldDownloadChain) (and (some? downloadListener) (some? chain)))
                 (§ if shouldDownloadChain)
                 (§ block
                     (startBlockChainDownloadFromPeer downloadPeer)
@@ -15916,7 +15927,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr downloadPeer == peer))
+            (§ if (== downloadPeer peer))
             (§ block
                 (§ return nil)
             )
@@ -15940,7 +15951,7 @@
                 (.. downloadPeer (setDownloadData true))
                 (§ if (some? chain))
                 (§ block
-                    (.. downloadPeer (setDownloadParameters fastCatchupTimeSecs, (§ expr (.. bloomFilterMerger (getLastFilter)) != nil)))
+                    (.. downloadPeer (setDownloadParameters fastCatchupTimeSecs, (some? (.. bloomFilterMerger (getLastFilter)))))
                 )
             )
         )
@@ -15962,12 +15973,12 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (Preconditions/checkState (§ expr chain == nil || (§ not (.. chain (shouldVerifyTransactions)))), "Fast catchup is incompatible with fully verifying")
+            (Preconditions/checkState (or (nil? chain) (not (.. chain (shouldVerifyTransactions)))), "Fast catchup is incompatible with fully verifying")
 
             (§ ass (§ name fastCatchupTimeSecs) secondsSinceEpoch)
             (§ if (some? downloadPeer))
             (§ block
-                (.. downloadPeer (setDownloadParameters secondsSinceEpoch, (§ expr (.. bloomFilterMerger (getLastFilter)) != nil)))
+                (.. downloadPeer (setDownloadParameters secondsSinceEpoch, (some? (.. bloomFilterMerger (getLastFilter)))))
             )
         )
         (§ finally )
@@ -16001,7 +16012,7 @@
     (§ method #_"void" (§ fn handlePeerDeath) [#_"Peer" (§ name peer), #_nilable #_"Throwable" (§ name exception)])
     (§ block
         ;; Peer deaths can occur during startup if a connect attempt after peer discovery aborts immediately.
-        (§ if (§ not (isRunning)))
+        (§ if (not (isRunning)))
         (§ block
             (§ return nil)
         )
@@ -16017,7 +16028,7 @@
             (§ var #_"PeerAddress" (§ name address) (.. peer (getAddress)))
 
             (.. log (info "{}: Peer died      ({} connected, {} pending, {} max)", address, (.. peers (size)), (.. pendingPeers (size)), maxConnections))
-            (§ if (§ expr peer == downloadPeer))
+            (§ if (== peer downloadPeer))
             (§ block
                 (.. log (info "Download peer died. Picking a new one."))
                 (setDownloadPeer nil)
@@ -16039,7 +16050,7 @@
 
             (§ if (§ insta exception #_"NoRouteToHostException"))
             (§ block
-                (§ if (§ expr (§ insta (.. address (getAddr)) #_"Inet6Address") && (§ not ipv6Unreachable)))
+                (§ if (and (§ insta (.. address (getAddr)) #_"Inet6Address") (not ipv6Unreachable)))
                 (§ block
                     (§ ass (§ name ipv6Unreachable) true)
                     (.. log (warn "IPv6 peer connect failed due to routing failure, ignoring IPv6 addresses from now on"))
@@ -16181,11 +16192,11 @@
             (§ ass (§ name bytesInLastSecond) (+ bytesInLastSecond Block/HEADER_SIZE))
             (§ var #_"List<Transaction>" (§ name blockTransactions) (.. block (getTransactions)))
             ;; This whole area of the type hierarchy is a mess.
-            (§ var #_"int" (§ name txCount) (§ expr (if (some? blockTransactions) (countAndMeasureSize blockTransactions) 0) + (if (some? filteredBlock) (countAndMeasureSize (.. filteredBlock (getAssociatedTransactions) (values))) 0)))
+            (§ var #_"int" (§ name txCount) (+ (if (some? blockTransactions) (countAndMeasureSize blockTransactions) 0) (if (some? filteredBlock) (countAndMeasureSize (.. filteredBlock (getAssociatedTransactions) (values))) 0)))
             (§ ass (§ name txnsInLastSecond) (+ txnsInLastSecond txCount))
             (§ if (some? filteredBlock))
             (§ block
-                (§ ass (§ name origTxnsInLastSecond) (§ expr origTxnsInLastSecond + (.. filteredBlock (getTransactionCount))))
+                (§ ass (§ name origTxnsInLastSecond) (+ origTxnsInLastSecond (.. filteredBlock (getTransactionCount))))
             )
             nil
         )
@@ -16195,7 +16206,7 @@
         (§ block
             (§ for (§ var #_"Transaction" (§ name transaction)) :for transactions)
             (§ block
-                (§ ass (§ name bytesInLastSecond) (§ expr bytesInLastSecond + (.. transaction (getMessageSize))))
+                (§ ass (§ name bytesInLastSecond) (+ bytesInLastSecond (.. transaction (getMessageSize))))
             )
             (.. transactions (size))
         )
@@ -16234,27 +16245,27 @@
 
             (§ sync this)
             (§ block
-                (§ if (§ expr samples == nil || (.. samples length) != period))
+                (§ if (or (nil? samples) (!= (.. samples length) period)))
                 (§ block
                     (§ ass (§ name samples) (§ new #_"long[]" (§ count period)))
                     ;; *2 because otherwise a single low sample could cause an immediate disconnect which is too harsh.
-                    (Arrays/fill samples, (§ expr minSpeedBytesPerSec * 2))
+                    (Arrays/fill samples, (* minSpeedBytesPerSec 2))
                     (§ ass (§ name warmupSeconds) 15)
                 )
 
-                (§ var #_"boolean" (§ name behindPeers) (§ expr chain != nil && (.. chain (getBestChainHeight)) < (getMostCommonChainHeight)))
-                (§ if (§ not behindPeers))
+                (§ var #_"boolean" (§ name behindPeers) (and (some? chain) (< (.. chain (getBestChainHeight)) (getMostCommonChainHeight))))
+                (§ if (not behindPeers))
                 (§ block
                     (§ ass (§ name syncDone) true)
                 )
-                (§ if (§ not syncDone))
+                (§ if (not syncDone))
                 (§ block
                     (§ if (< warmupSeconds 0))
                     (§ block
                         ;; Calculate the moving average.
                         (§ ass (§ name (§ ai samples cursor)) bytesInLastSecond)
                         (§ ass (§ name cursor) (+ cursor 1))
-                        (§ if (§ expr cursor == (.. samples length)))
+                        (§ if (== cursor (.. samples length)))
                         (§ block
                             (§ ass (§ name cursor) 0)
                         )
@@ -16263,14 +16274,14 @@
                         (§ block
                             (§ ass (§ name average) (+ average sample))
                         )
-                        (§ ass (§ name average) (§ expr average / (.. samples length)))
+                        (§ ass (§ name average) (/ average (.. samples length)))
 
                         (.. log (info (String/format Locale/US, "%d blocks/sec, %d tx/sec, %d pre-filtered tx/sec, avg/last %.2f/%.2f kilobytes per sec (stall threshold <%.2f KB/sec for %d seconds)", blocksInLastSecond, txnsInLastSecond, origTxnsInLastSecond, (/ average 1024.0), (/ bytesInLastSecond 1024.0), (/ minSpeedBytesPerSec 1024.0), (.. samples length))))
 
-                        (§ if (§ expr average < minSpeedBytesPerSec && 0 < maxStalls))
+                        (§ if (and (< average minSpeedBytesPerSec) (< 0 maxStalls)))
                         (§ block
                             (§ ass (§ name maxStalls) (- maxStalls 1))
-                            (§ if (§ expr maxStalls == 0))
+                            (§ if (== maxStalls 0))
                             (§ block
                                 ;; We could consider starting to drop the Bloom filtering FP rate at this point, because
                                 ;; we tried a bunch of peers and no matter what we don't seem to be able to go any faster.
@@ -16366,7 +16377,7 @@
     (§ method #_"ListenableFuture<List<Peer>>" (§ fn waitForPeersOfVersion) [#_"int" (§ name numPeers), #_"long" (§ name protocolVersion)])
     (§ block
         (§ var #_"List<Peer>" (§ name foundPeers) (findPeersOfAtLeastVersion protocolVersion))
-        (§ if (§ expr numPeers <= (.. foundPeers (size))))
+        (§ if (<= numPeers (.. foundPeers (size))))
         (§ block
             (§ return (Futures/immediateFuture foundPeers))
         )
@@ -16379,7 +16390,7 @@
             (§ method #_"void" (§ fn onPeerConnected) [#_"Peer" (§ name peer), #_"int" (§ name peerCount)])
             (§ block
                 (§ var #_"List<Peer>" (§ name peers) (findPeersOfAtLeastVersion protocolVersion))
-                (§ if (§ expr numPeers <= (.. peers (size))))
+                (§ if (<= numPeers (.. peers (size))))
                 (§ block
                     (.. future (set peers))
                     (removeConnectedEventListener this)
@@ -16402,7 +16413,7 @@
             (§ var #_"ArrayList<Peer>" (§ name results) (§ new #_"ArrayList<Peer>" (.. peers (size))))
             (§ for (§ var #_"Peer" (§ name peer)) :for peers)
             (§ block
-                (§ if (§ expr protocolVersion <= (.. peer (getPeerVersionMessage) clientVersion)))
+                (§ if (<= protocolVersion (.. peer (getPeerVersionMessage) clientVersion)))
                 (§ block
                     (.. results (add peer))
                 )
@@ -16430,7 +16441,7 @@
         (§ try )
         (§ block
             (§ var #_"List<Peer>" (§ name foundPeers) (findPeersWithServiceMask mask))
-            (§ if (§ expr numPeers <= (.. foundPeers (size))))
+            (§ if (<= numPeers (.. foundPeers (size))))
             (§ block
                 (§ return (Futures/immediateFuture foundPeers))
             )
@@ -16443,7 +16454,7 @@
                 (§ method #_"void" (§ fn onPeerConnected) [#_"Peer" (§ name peer), #_"int" (§ name peerCount)])
                 (§ block
                     (§ var #_"List<Peer>" (§ name peers) (findPeersWithServiceMask mask))
-                    (§ if (§ expr numPeers <= (.. peers (size))))
+                    (§ if (<= numPeers (.. peers (size))))
                     (§ block
                         (.. future (set peers))
                         (removeConnectedEventListener this)
@@ -16497,7 +16508,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr minBroadcastConnections == 0))
+            (§ if (== minBroadcastConnections 0))
             (§ block
                 (§ var #_"int" (§ name max) (getMaxConnections))
                 (§ if (<= max 1))
@@ -16773,7 +16784,7 @@
         (§ var #_"ArrayList<Peer>" (§ name candidates2) (§ new #_"ArrayList<>" (.. candidates (size))))
         (§ for (§ var #_"Peer" (§ name peer)) :for candidates)
         (§ block
-            (§ if (§ expr preferredVersion <= (.. peer (getPeerVersionMessage) clientVersion)))
+            (§ if (<= preferredVersion (.. peer (getPeerVersionMessage) clientVersion)))
             (§ block
                 (.. candidates2 (add peer))
             )
@@ -17029,7 +17040,7 @@
     #_public
     (§ method #_"int" (§ fn receiveBytes) [#_"ByteBuffer" (§ name buff)])
     (§ block
-        (Preconditions/checkArgument (§ expr (.. buff (position)) == 0 && BitcoinSerializer/BitcoinPacketHeader/HEADER_LENGTH + 4 <= (.. buff (capacity))))
+        (Preconditions/checkArgument (and (== (.. buff (position)) 0) (<= (+ BitcoinSerializer/BitcoinPacketHeader/HEADER_LENGTH 4) (.. buff (capacity)))))
         (§ try )
         (§ block
             ;; Repeatedly try to deserialize messages until we hit a BufferUnderflowException.
@@ -17046,7 +17057,7 @@
                     (.. buff (get largeReadBuffer, largeReadBufferPos, bytesToGet))
                     (§ ass (§ name largeReadBufferPos) (+ largeReadBufferPos bytesToGet))
                     ;; Check the largeReadBuffer's status.
-                    (§ if (§ expr largeReadBufferPos == (.. largeReadBuffer length)))
+                    (§ if (== largeReadBufferPos (.. largeReadBuffer length)))
                     (§ block
                         ;; ...processing a message if one is available.
                         (processMessage (.. serializer (deserializePayload header, (ByteBuffer/wrap largeReadBuffer))))
@@ -17069,7 +17080,7 @@
                 (§ catch #_"BufferUnderflowException" (§ name e))
                 (§ block
                     ;; If we went through the whole buffer without a full message, we need to use the largeReadBuffer.
-                    (§ if (§ expr firstMessage && (.. buff (limit)) == (.. buff (capacity))))
+                    (§ if (and firstMessage (== (.. buff (limit)) (.. buff (capacity)))))
                     (§ block
                         ;; ...so reposition the buffer to 0 and read the next message header.
                         (.. buff (position 0))
@@ -17165,14 +17176,14 @@
     (§ block
         (§ var #_"PeerAddress" (§ name addr) (getAddress))
         (§ var #_"String" (§ name s) (if (some? addr) (.. addr (toString)) "?"))
-        (§ if (§ expr (§ insta e #_"ConnectException") || (§ insta e #_"IOException")))
+        (§ if (or (§ insta e #_"ConnectException") (§ insta e #_"IOException")))
         (§ block
             ;; Short message for network errors
-            (.. log (info (§ expr s + " - " + (.. e (getMessage)))))
+            (.. log (info (str s " - " (.. e (getMessage)))))
         )
         (§ else )
         (§ block
-            (.. log (warn (§ expr s + " - "), e))
+            (.. log (warn (str s " - "), e))
             (§ var #_"Thread.UncaughtExceptionHandler" (§ name handler) Threading/uncaughtExceptionHandler)
             (§ if (some? handler))
             (§ block
@@ -17490,9 +17501,9 @@
         (§ throws #_"ProtocolException")
     (§ block
         (§ ass (§ name message) (readStr))
-        (§ ass (§ name code) (RejectCode/fromCode (§ expr (readBytes 1)[0])))
+        (§ ass (§ name code) (RejectCode/fromCode (§ ai (readBytes 1) 0)))
         (§ ass (§ name reason) (readStr))
-        (§ if (§ expr (.. message (equals "block")) || (.. message (equals "tx"))))
+        (§ if (or (.. message (equals "block")) (.. message (equals "tx"))))
         (§ block
             (§ ass (§ name messageHash) (readHash))
         )
@@ -17512,7 +17523,7 @@
         (§ var #_"byte[]" (§ name reasonBytes) (.. reason (getBytes "UTF-8")))
         (.. stream (write (.. (§ new #_"VarInt" (.. reasonBytes length)) (encode))))
         (.. stream (write reasonBytes))
-        (§ if (§ expr (.. "block" (equals message)) || (.. "tx" (equals message))))
+        (§ if (or (.. "block" (equals message)) (.. "tx" (equals message))))
         (§ block
             (.. stream (write (.. messageHash (getReversedBytes))))
         )
@@ -17575,16 +17586,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"RejectMessage" (§ name other) (§ cast #_"RejectMessage" o))
-        (§ expr (.. message (equals (.. other message))) && (.. code (equals (.. other code))) && (.. reason (equals (.. other reason))) && (.. messageHash (equals (.. other messageHash))))
+        (and (.. message (equals (.. other message))) (.. code (equals (.. other code))) (.. reason (equals (.. other reason))) (.. messageHash (equals (.. other messageHash))))
     )
 
     #_override
@@ -17898,15 +17909,15 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
-        (Arrays/equals bytes, (§ expr (.. (§ cast #_"Sha256Hash" o) bytes)))
+        (Arrays/equals bytes, (.. (§ cast #_"Sha256Hash" o) bytes))
     )
 
     ;;;
@@ -17919,7 +17930,7 @@
     (§ method #_"int" (§ fn hashCode) [])
     (§ block
         ;; Use the last 4 bytes, not the first 4 which are often zeros in Bitcoin.
-        (Ints/fromBytes (§ ai bytes (§ expr LENGTH - 4)), (§ ai bytes (§ expr LENGTH - 3)), (§ ai bytes (§ expr LENGTH - 2)), (§ ai bytes (§ expr LENGTH - 1)))
+        (Ints/fromBytes (§ ai bytes (- LENGTH 4)), (§ ai bytes (- LENGTH 3)), (§ ai bytes (- LENGTH 2)), (§ ai bytes (- LENGTH 1)))
     )
 
     #_override
@@ -17962,8 +17973,8 @@
     (§ block
         (§ for (§ var #_"int" (§ name i) (- LENGTH 1)) :for (<= 0 i) :for (§ ass (§ name i) (- i 1)))
         (§ block
-            (§ var #_"int" (§ name thisByte) (§ expr this.bytes[i] & 0xff))
-            (§ var #_"int" (§ name otherByte) (§ expr other.bytes[i] & 0xff))
+            (§ var #_"int" (§ name thisByte) (& 0xff (§ ai (.. this bytes) i)))
+            (§ var #_"int" (§ name otherByte) (& 0xff (§ ai (.. other bytes) i)))
             (§ if (> thisByte otherByte))
             (§ block
                 (§ return 1)
@@ -18005,7 +18016,7 @@
     (§ def #_"byte[]" (§ name EMPTY_BYTES) (§ new #_"byte[]" (§ count CHAIN_WORK_BYTES)))
     #_public
     #_static
-    (§ def #_"int" (§ name COMPACT_SERIALIZED_SIZE) (§ expr Block/HEADER_SIZE + CHAIN_WORK_BYTES + 4)) ;; for height
+    (§ def #_"int" (§ name COMPACT_SERIALIZED_SIZE) (+ Block/HEADER_SIZE CHAIN_WORK_BYTES 4)) ;; for height
 
     #_private
     (§ field- #_"Block" (§ name header))
@@ -18056,23 +18067,23 @@
     #_public
     (§ method #_"boolean" (§ fn moreWorkThan) [#_"StoredBlock" (§ name other)])
     (§ block
-        (§ expr 0 < (.. chainWork (compareTo (.. other chainWork))))
+        (< 0 (.. chainWork (compareTo (.. other chainWork))))
     )
 
     #_override
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"StoredBlock" (§ name other) (§ cast #_"StoredBlock" o))
-        (§ expr (.. header (equals (.. other header))) && (.. chainWork (equals (.. other chainWork))) && height == (.. other height))
+        (and (.. header (equals (.. other header))) (.. chainWork (equals (.. other chainWork))) (== height (.. other height)))
     )
 
     #_override
@@ -18114,11 +18125,11 @@
     (§ method #_"void" (§ fn serializeCompact) [#_"ByteBuffer" (§ name buffer)])
     (§ block
         (§ var #_"byte[]" (§ name chainWorkBytes) (.. (getChainWork) (toByteArray)))
-        (Preconditions/checkState (§ expr (.. chainWorkBytes length) <= CHAIN_WORK_BYTES), "Ran out of space to store chain work!")
+        (Preconditions/checkState (<= (.. chainWorkBytes length) CHAIN_WORK_BYTES), "Ran out of space to store chain work!")
         (§ if (< (.. chainWorkBytes length) CHAIN_WORK_BYTES))
         (§ block
             ;; Pad to the right size.
-            (.. buffer (put EMPTY_BYTES, 0, (§ expr CHAIN_WORK_BYTES - (.. chainWorkBytes length))))
+            (.. buffer (put EMPTY_BYTES, 0, (- CHAIN_WORK_BYTES (.. chainWorkBytes length))))
         )
         (.. buffer (put chainWorkBytes))
         (.. buffer (putInt (getHeight)))
@@ -18230,11 +18241,11 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
@@ -18654,7 +18665,7 @@
     (§ method #_"void" (§ fn setBlockAppearance) [#_"StoredBlock" (§ name block), #_"boolean" (§ name bestChain), #_"int" (§ name relativityOffset)])
     (§ block
         (§ var #_"long" (§ name blockTime) (* (.. block (getHeader) (getTimeSeconds)) 1000))
-        (§ if (§ expr bestChain && (§ expr updatedAt == nil || (.. updatedAt (getTime)) == 0 || blockTime < (.. updatedAt (getTime)))))
+        (§ if (and bestChain (or (nil? updatedAt) (== (.. updatedAt (getTime)) 0) (< blockTime (.. updatedAt (getTime))))))
         (§ block
             (§ ass (§ name updatedAt) (§ new #_"Date" blockTime))
         )
@@ -18712,7 +18723,7 @@
 
             ;; The connected output may be the change to the sender of a previous input sent to this wallet.
             ;; In this case we ignore it.
-            (§ if (§ expr connected != nil && (.. connected (isMine wallet))))
+            (§ if (and (some? connected) (.. connected (isMine wallet))))
             (§ block
                 (§ ass (§ name v) (.. v (add (.. connected (getValue)))))
             )
@@ -18753,7 +18764,7 @@
     (§ block
         ;; FIXME: TEMP PERF HACK FOR ANDROID - this crap can go away once we have a real payments API.
         (§ var #_"boolean" (§ name isAndroid) (Utils/isAndroidRuntime))
-        (§ if (§ expr isAndroid && cachedValue != nil && cachedForBag == wallet))
+        (§ if (and isAndroid (some? cachedValue) (== cachedForBag wallet)))
         (§ block
             (§ return cachedValue)
         )
@@ -18777,7 +18788,7 @@
     (§ method #_"Coin" (§ fn getFee) [])
     (§ block
         (§ var #_"Coin" (§ name fee) Coin/ZERO)
-        (§ if (§ expr (.. inputs (isEmpty)) || (.. outputs (isEmpty)))) ;; Incomplete transaction.
+        (§ if (or (.. inputs (isEmpty)) (.. outputs (isEmpty)))) ;; Incomplete transaction.
         (§ block
             (§ return nil)
         )
@@ -18805,7 +18816,7 @@
     (§ block
         (§ for (§ var #_"TransactionOutput" (§ name output)) :for outputs)
         (§ block
-            (§ if (§ not (.. output (isAvailableForSpending))))
+            (§ if (not (.. output (isAvailableForSpending))))
             (§ block
                 (§ return true)
             )
@@ -18823,7 +18834,7 @@
     (§ block
         (§ for (§ var #_"TransactionOutput" (§ name output)) :for outputs)
         (§ block
-            (§ if (§ expr (.. output (isAvailableForSpending)) && (.. output (isMine transactionBag))))
+            (§ if (and (.. output (isAvailableForSpending)) (.. output (isMine transactionBag))))
             (§ block
                 (§ return false)
             )
@@ -18910,7 +18921,7 @@
 
         (§ var #_"VarInt" (§ name varint) (§ new #_"VarInt" buf, cursor))
         (§ var #_"long" (§ name txInCount) (.. varint value))
-        (§ ass (§ name cursor) (§ expr cursor + (.. varint (getOriginalSizeInBytes))))
+        (§ ass (§ name cursor) (+ cursor (.. varint (getOriginalSizeInBytes))))
 
         (§ for (§ var #_"int" (§ name i) 0) :for (< i txInCount) :for (§ ass (§ name i) (+ i 1)))
         (§ block
@@ -18919,12 +18930,12 @@
             (§ ass (§ name varint) (§ new #_"VarInt" buf, cursor))
             (§ var #_"long" (§ name scriptLen) (.. varint value))
             ;; 4 = length of sequence field (unint32)
-            (§ ass (§ name cursor) (§ expr cursor + scriptLen + 4 + (.. varint (getOriginalSizeInBytes))))
+            (§ ass (§ name cursor) (+ cursor scriptLen 4 (.. varint (getOriginalSizeInBytes))))
         )
 
         (§ ass (§ name varint) (§ new #_"VarInt" buf, cursor))
         (§ var #_"long" (§ name txOutCount) (.. varint value))
-        (§ ass (§ name cursor) (§ expr cursor + (.. varint (getOriginalSizeInBytes))))
+        (§ ass (§ name cursor) (+ cursor (.. varint (getOriginalSizeInBytes))))
 
         (§ for (§ var #_"int" (§ name i) 0) :for (< i txOutCount) :for (§ ass (§ name i) (+ i 1)))
         (§ block
@@ -18932,10 +18943,10 @@
             (§ ass (§ name cursor) (+ cursor 8))
             (§ ass (§ name varint) (§ new #_"VarInt" buf, cursor))
             (§ var #_"long" (§ name scriptLen) (.. varint value))
-            (§ ass (§ name cursor) (§ expr cursor + scriptLen + (.. varint (getOriginalSizeInBytes))))
+            (§ ass (§ name cursor) (+ cursor scriptLen (.. varint (getOriginalSizeInBytes))))
         )
         ;; 4 = length of lock_time field (uint32)
-        (§ expr cursor - offset + 4)
+        (+ (- cursor offset) 4)
     )
 
     #_override
@@ -18950,26 +18961,26 @@
 
         ;; First come the inputs.
         (§ var #_"long" (§ name numInputs) (readVarInt))
-        (§ ass (§ name optimalEncodingMessageSize) (§ expr optimalEncodingMessageSize + (VarInt/sizeOf numInputs)))
+        (§ ass (§ name optimalEncodingMessageSize) (+ optimalEncodingMessageSize (VarInt/sizeOf numInputs)))
         (§ ass (§ name inputs) (§ new #_"ArrayList<>" (§ cast #_"int" numInputs)))
         (§ for (§ var #_"long" (§ name i) 0) :for (< i numInputs) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ var #_"TransactionInput" (§ name input) (§ new #_"TransactionInput" params, this, payload, cursor, serializer))
             (.. inputs (add input))
             (§ var #_"long" (§ name scriptLen) (readVarInt TransactionOutPoint/MESSAGE_LENGTH))
-            (§ ass (§ name optimalEncodingMessageSize) (§ expr optimalEncodingMessageSize + TransactionOutPoint/MESSAGE_LENGTH + (VarInt/sizeOf scriptLen) + scriptLen + 4))
-            (§ ass (§ name cursor) (§ expr cursor + scriptLen + 4))
+            (§ ass (§ name optimalEncodingMessageSize) (+ optimalEncodingMessageSize TransactionOutPoint/MESSAGE_LENGTH (VarInt/sizeOf scriptLen) scriptLen 4))
+            (§ ass (§ name cursor) (+ cursor scriptLen 4))
         )
         ;; Now the outputs.
         (§ var #_"long" (§ name numOutputs) (readVarInt))
-        (§ ass (§ name optimalEncodingMessageSize) (§ expr optimalEncodingMessageSize + (VarInt/sizeOf numOutputs)))
+        (§ ass (§ name optimalEncodingMessageSize) (+ optimalEncodingMessageSize (VarInt/sizeOf numOutputs)))
         (§ ass (§ name outputs) (§ new #_"ArrayList<>" (§ cast #_"int" numOutputs)))
         (§ for (§ var #_"long" (§ name i) 0) :for (< i numOutputs) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ var #_"TransactionOutput" (§ name output) (§ new #_"TransactionOutput" params, this, payload, cursor, serializer))
             (.. outputs (add output))
             (§ var #_"long" (§ name scriptLen) (readVarInt 8))
-            (§ ass (§ name optimalEncodingMessageSize) (§ expr optimalEncodingMessageSize + 8 + (VarInt/sizeOf scriptLen) + scriptLen))
+            (§ ass (§ name optimalEncodingMessageSize) (+ optimalEncodingMessageSize 8 (VarInt/sizeOf scriptLen) scriptLen))
             (§ ass (§ name cursor) (+ cursor scriptLen))
         )
         (§ ass (§ name lockTime) (readUint32))
@@ -18981,7 +18992,7 @@
     #_public
     (§ method #_"int" (§ fn getOptimalEncodingMessageSize) [])
     (§ block
-        (§ if (§ expr optimalEncodingMessageSize != 0))
+        (§ if (!= optimalEncodingMessageSize 0))
         (§ block
             (§ return optimalEncodingMessageSize)
         )
@@ -19003,7 +19014,7 @@
         (§ block
             ;; 41: min size of an input
             ;; 110: enough to cover a compressed pubkey p2sh redemption (somewhat arbitrary)
-            (§ var #_"int" (§ name benefit) (§ expr 41 + (Math/min 110, (.. input (getScriptSig) (getProgram) length))))
+            (§ var #_"int" (§ name benefit) (+ 41 (Math/min 110, (.. input (getScriptSig) (getProgram) length))))
             (§ if (< benefit size))
             (§ block
                 (§ ass (§ name size) (- size benefit))
@@ -19021,7 +19032,7 @@
     #_public
     (§ method #_"boolean" (§ fn isCoinBase) [])
     (§ block
-        (§ expr (.. inputs (size)) == 1 && (.. inputs (get 0) (isCoinBase)))
+        (and (== (.. inputs (size)) 1) (.. inputs (get 0) (isCoinBase)))
     )
 
     ;;;
@@ -19030,7 +19041,7 @@
     #_public
     (§ method #_"boolean" (§ fn isMature) [])
     (§ block
-        (§ if (§ not (isCoinBase)))
+        (§ if (not (isCoinBase)))
         (§ block
             (§ return true)
         )
@@ -19063,7 +19074,7 @@
         (§ block
             (.. sb (append "  updated: ") (append (Utils/dateTimeFormat updatedAt)) (append "\n"))
         )
-        (§ if (§ expr version != 1))
+        (§ if (!= version 1))
         (§ block
             (.. sb (append "  version ") (append version) (append "\n"))
         )
@@ -19106,7 +19117,7 @@
             (§ return (.. sb (toString)))
         )
 
-        (§ if (§ not (.. inputs (isEmpty))))
+        (§ if (not (.. inputs (isEmpty))))
         (§ block
             (§ for (§ var #_"TransactionInput" (§ name in)) :for inputs)
             (§ block
@@ -19115,7 +19126,7 @@
                 (§ try )
                 (§ block
                     (§ var #_"String" (§ name scriptSigStr) (.. in (getScriptSig) (toString)))
-                    (.. sb (append (if (§ not (Strings/isNullOrEmpty scriptSigStr)) scriptSigStr "<no scriptSig>")))
+                    (.. sb (append (if (not (Strings/isNullOrEmpty scriptSigStr)) scriptSigStr "<no scriptSig>")))
                     (§ var #_"Coin" (§ name value) (.. in (getValue)))
                     (§ if (some? value))
                     (§ block
@@ -19128,7 +19139,7 @@
                     (§ if (some? connectedOutput))
                     (§ block
                         (§ var #_"Script" (§ name scriptPubKey) (.. connectedOutput (getScriptPubKey)))
-                        (§ if (§ expr (.. scriptPubKey (isSentToAddress)) || (.. scriptPubKey (isPayToScriptHash))))
+                        (§ if (or (.. scriptPubKey (isSentToAddress)) (.. scriptPubKey (isPayToScriptHash))))
                         (§ block
                             (.. sb (append " hash160:") (append (.. Utils/HEX (encode (.. scriptPubKey (getPubKeyHash))))))
                         )
@@ -19160,8 +19171,8 @@
             (§ try )
             (§ block
                 (§ var #_"String" (§ name scriptPubKeyStr) (.. out (getScriptPubKey) (toString)))
-                (.. sb (append (if (§ not (Strings/isNullOrEmpty scriptPubKeyStr)) scriptPubKeyStr "<no scriptPubKey>")) (append " ") (append (.. out (getValue) (toFriendlyString))))
-                (§ if (§ not (.. out (isAvailableForSpending))))
+                (.. sb (append (if (not (Strings/isNullOrEmpty scriptPubKeyStr)) scriptPubKeyStr "<no scriptPubKey>")) (append " ") (append (.. out (getValue) (toFriendlyString))))
+                (§ if (not (.. out (isAvailableForSpending))))
                 (§ block
                     (.. sb (append " Spent"))
                 )
@@ -19259,11 +19270,11 @@
         (§ throws #_"ScriptException")
     (§ block
         ;; Verify the API user didn't try to do operations out of order.
-        (Preconditions/checkState (§ not (.. outputs (isEmpty))), "Attempting to sign tx without outputs.")
+        (Preconditions/checkState (not (.. outputs (isEmpty))), "Attempting to sign tx without outputs.")
 
-        (§ var #_"TransactionInput" (§ name input) (§ new #_"TransactionInput" params, this, (§ expr (§ new #_"byte[]")), prevOut))
+        (§ var #_"TransactionInput" (§ name input) (§ new #_"TransactionInput" params, this, (§ new #_"byte[]"), prevOut))
         (addInput input)
-        (§ var #_"Sha256Hash" (§ name hash) (hashForSignature (§ expr (.. inputs (size)) - 1), scriptPubKey, sigHash, anyoneCanPay))
+        (§ var #_"Sha256Hash" (§ name hash) (hashForSignature (- (.. inputs (size)) 1), scriptPubKey, sigHash, anyoneCanPay))
         (§ var #_"ECKey.ECDSASignature" (§ name ecSig) (.. sigKey (sign hash)))
         (§ var #_"TransactionSignature" (§ name txSig) (§ new #_"TransactionSignature" ecSig, sigHash, anyoneCanPay))
         (§ if (.. scriptPubKey (isSentToRawPubKey)))
@@ -19514,7 +19525,7 @@
 
             ;; Clear input scripts in preparation for signing.  If we're signing a fresh transaction that step isn't very
             ;; helpful, but it doesn't add much cost relative to the actual EC math so we'll do it anyway.
-            (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. tx inputs (size))) :for (§ ass (§ name i) (+ i 1)))
+            (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. tx inputs (size))) :for (§ ass (§ name i) (+ i 1)))
             (§ block
                 (.. tx inputs (get i) (clearScriptBytes))
             )
@@ -19539,9 +19550,9 @@
                 ;; SIGHASH_NONE means no outputs are signed at all - the signature is effectively for a "blank cheque".
                 (§ ass (§ name (.. tx outputs)) (§ new #_"ArrayList<>" 0))
                 ;; The signature isn't broken by new versions of the transaction issued by other parties.
-                (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. tx inputs (size))) :for (§ ass (§ name i) (+ i 1)))
+                (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. tx inputs (size))) :for (§ ass (§ name i) (+ i 1)))
                 (§ block
-                    (§ if (§ expr i != inputIndex))
+                    (§ if (!= i inputIndex))
                     (§ block
                         (.. tx inputs (get i) (setSequenceNumber 0))
                     )
@@ -19564,22 +19575,22 @@
                 )
                 ;; In SIGHASH_SINGLE the outputs after the matching input index are deleted, and the outputs before
                 ;; that position are "nulled out".  Unintuitively, the value in a "null" transaction is set to -1.
-                (§ ass (§ name (.. tx outputs)) (§ new #_"ArrayList<>" (.. tx outputs (subList 0, (§ expr inputIndex + 1)))))
+                (§ ass (§ name (.. tx outputs)) (§ new #_"ArrayList<>" (.. tx outputs (subList 0, (+ inputIndex 1)))))
                 (§ for (§ var #_"int" (§ name i) 0) :for (< i inputIndex) :for (§ ass (§ name i) (+ i 1)))
                 (§ block
                     (.. tx outputs (set i, (§ new #_"TransactionOutput" (.. tx params), tx, Coin/NEGATIVE_SATOSHI, (§ new #_"byte[]"))))
                 )
                 ;; The signature isn't broken by new versions of the transaction issued by other parties.
-                (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. tx inputs (size))) :for (§ ass (§ name i) (+ i 1)))
+                (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. tx inputs (size))) :for (§ ass (§ name i) (+ i 1)))
                 (§ block
-                    (§ if (§ expr i != inputIndex))
+                    (§ if (!= i inputIndex))
                     (§ block
                         (.. tx inputs (get i) (setSequenceNumber 0))
                     )
                 )
             )
 
-            (§ if (== (§ expr sigHashType & (.. SigHash/ANYONECANPAY value)) (.. SigHash/ANYONECANPAY value)))
+            (§ if (== (& sigHashType (.. SigHash/ANYONECANPAY value)) (.. SigHash/ANYONECANPAY value)))
             (§ block
                 ;; SIGHASH_ANYONECANPAY means the signature in the input is not broken by changes/additions/removals
                 ;; of other inputs.  For example, this is useful for building assurance contracts.
@@ -19590,7 +19601,7 @@
             (§ var #_"ByteArrayOutputStream" (§ name bos) (§ new #_"UnsafeByteArrayOutputStream" (if (== (.. tx length) UNKNOWN_LENGTH) 256 (+ (.. tx length) 4))))
             (.. tx (bitcoinSerialize bos))
             ;; We also have to write a hash type (sigHashType is actually an unsigned char).
-            (uint32ToByteStreamLE (§ expr 0x000000ff & sigHashType), bos)
+            (uint32ToByteStreamLE (& 0x000000ff sigHashType), bos)
             ;; Note that this is NOT reversed to ensure it will be signed correctly.  If it were to be printed out
             ;; however then we would expect that it is IS reversed.
             (§ var #_"Sha256Hash" (§ name hash) (Sha256Hash/twiceOf (.. bos (toByteArray))))
@@ -19655,7 +19666,7 @@
                 (§ break )
             )
         )
-        (§ if (§ expr lockTime != 0 && (§ expr (§ not seqNumSet) || (.. inputs (isEmpty)))))
+        (§ if (and (!= lockTime 0) (or (not seqNumSet) (.. inputs (isEmpty)))))
         (§ block
             ;; At least one input must have a non-default sequence number for lock times to have any effect.
             ;; For instance one of them can be set to zero to make this feature work.
@@ -19783,11 +19794,11 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
@@ -19811,11 +19822,11 @@
         (§ var #_"int" (§ name sigOps) 0)
         (§ for (§ var #_"TransactionInput" (§ name input)) :for inputs)
         (§ block
-            (§ ass (§ name sigOps) (§ expr sigOps + (Script/getSigOpCount (.. input (getScriptBytes)))))
+            (§ ass (§ name sigOps) (+ sigOps (Script/getSigOpCount (.. input (getScriptBytes)))))
         )
         (§ for (§ var #_"TransactionOutput" (§ name output)) :for outputs)
         (§ block
-            (§ ass (§ name sigOps) (§ expr sigOps + (Script/getSigOpCount (.. output (getScriptBytes)))))
+            (§ ass (§ name sigOps) (+ sigOps (Script/getSigOpCount (.. output (getScriptBytes)))))
         )
         sigOps
     )
@@ -19842,9 +19853,9 @@
             (§ throw (§ new #_"VerificationException.CoinbaseHeightMismatch" "Block height mismatch in coinbase."))
         )
 
-        (§ for (§ var #_"int" (§ name scriptIdx) 0) :for (§ expr scriptIdx < (.. expected length)) :for (§ ass (§ name scriptIdx) (+ scriptIdx 1)))
+        (§ for (§ var #_"int" (§ name scriptIdx) 0) :for (< scriptIdx (.. expected length)) :for (§ ass (§ name scriptIdx) (+ scriptIdx 1)))
         (§ block
-            (§ if (§ expr (§ ai actual scriptIdx) != (§ ai expected scriptIdx)))
+            (§ if (!= (§ ai actual scriptIdx) (§ ai expected scriptIdx)))
             (§ block
                 (§ throw (§ new #_"VerificationException.CoinbaseHeightMismatch" "Block height mismatch in coinbase."))
             )
@@ -19872,11 +19883,11 @@
     (§ method #_"void" (§ fn verify) [])
         (§ throws #_"VerificationException")
     (§ block
-        (§ if (§ expr (.. inputs (size)) == 0 || (.. outputs (size)) == 0))
+        (§ if (or (== (.. inputs (size)) 0) (== (.. outputs (size)) 0)))
         (§ block
             (§ throw (§ new #_"VerificationException.EmptyInputsOrOutputs"))
         )
-        (§ if (§ expr Block/MAX_BLOCK_SIZE < (.. this (getMessageSize))))
+        (§ if (< Block/MAX_BLOCK_SIZE (.. this (getMessageSize))))
         (§ block
             (§ throw (§ new #_"VerificationException.LargerThanMaxBlockSize"))
         )
@@ -19901,7 +19912,7 @@
                 )
 
                 (§ ass (§ name valueOut) (.. valueOut (add (.. output (getValue)))))
-                (§ if (§ expr (.. params (hasMaxMoney)) && 0 < (.. valueOut (compareTo (.. params (getMaxMoney))))))
+                (§ if (and (.. params (hasMaxMoney)) (< 0 (.. valueOut (compareTo (.. params (getMaxMoney)))))))
                 (§ block
                     (§ throw (§ new #_"IllegalArgumentException"))
                 )
@@ -19919,7 +19930,7 @@
         (§ if (isCoinBase))
         (§ block
             (§ var #_"int" (§ name n) (.. inputs (get 0) (getScriptBytes) length))
-            (§ if (§ expr n < 2 || 100 < n))
+            (§ if (not (<= 2 n 100)))
             (§ block
                 (§ throw (§ new #_"VerificationException.CoinbaseScriptSizeOutOfRange"))
             )
@@ -19989,7 +20000,7 @@
     (§ method #_"boolean" (§ fn isFinal) [#_"int" (§ name height), #_"long" (§ name blockTimeSeconds)])
     (§ block
         (§ var #_"long" (§ name time) (getLockTime))
-        (§ or (< time (if (< time LOCKTIME_THRESHOLD) height blockTimeSeconds)) || (§ not (isTimeLocked)))
+        (or (< time (if (< time LOCKTIME_THRESHOLD) height blockTimeSeconds)) (not (isTimeLocked)))
     )
 
     ;;;
@@ -20251,7 +20262,7 @@
             ;; our version message, as SPV nodes cannot relay it doesn't give away any additional information
             ;; to skip the inv here - we wouldn't send invs anyway.
             (§ var #_"int" (§ name numConnected) (.. peers (size)))
-            (§ var #_"int" (§ name numToBroadcastTo) (§ cast #_"int" (Math/max 1, (§ expr (Math/round (Math/ceil (/ (.. peers (size)) 2.0)))))))
+            (§ var #_"int" (§ name numToBroadcastTo) (§ cast #_"int" (Math/max 1, (Math/round (Math/ceil (/ (.. peers (size)) 2.0))))))
             (§ ass (§ name numWaitingFor) (§ cast #_"int" (Math/ceil (/ (- (.. peers (size)) numToBroadcastTo) 2.0))))
             (Collections/shuffle peers, random)
             (§ ass (§ name peers) (.. peers (subList 0, numToBroadcastTo)))
@@ -20274,7 +20285,7 @@
             ;; remote peer won't tell us about transactions we just announced to it for obvious reasons.
             ;; So we just have to assume we're done, at that point.  This happens when we're not given
             ;; any peer discovery source and the user just calls connectTo() once.
-            (§ if (§ expr minConnections == 1))
+            (§ if (== minConnections 1))
             (§ block
                 (.. peerGroup (removePreMessageReceivedEventListener rejectionListener))
                 (.. future (set tx))
@@ -20302,7 +20313,7 @@
             ;; Progress callback on the requested thread.
             (invokeAndRecord numSeenPeers, mined)
 
-            (§ if (§ expr numWaitingFor <= numSeenPeers || mined))
+            (§ if (or (<= numWaitingFor numSeenPeers) mined))
             (§ block
                 ;; We've seen the min required number of peers announce the transaction, or it was included
                 ;; in a block.  Normally we'd expect to see it fully propagate before it gets mined, but
@@ -20752,17 +20763,17 @@
     #_synchronized
     (§ method #_"void" (§ fn setConfidenceType) [#_"ConfidenceType" (§ name confidenceType)])
     (§ block
-        (§ if (§ expr confidenceType == (.. this confidenceType)))
+        (§ if (== confidenceType (.. this confidenceType)))
         (§ block
             (§ return nil)
         )
 
         (§ ass (§ name (.. this confidenceType)) confidenceType)
-        (§ if (§ expr confidenceType != ConfidenceType/DEAD))
+        (§ if (!= confidenceType ConfidenceType/DEAD))
         (§ block
             (§ ass (§ name overridingTransaction) nil)
         )
-        (§ if (§ expr confidenceType == ConfidenceType/PENDING || confidenceType == ConfidenceType/IN_CONFLICT))
+        (§ if (or (== confidenceType ConfidenceType/PENDING) (== confidenceType ConfidenceType/IN_CONFLICT)))
         (§ block
             (§ ass (§ name depth) 0)
             (§ ass (§ name appearedAtChainHeight) -1)
@@ -20782,7 +20793,7 @@
     (§ method #_"boolean" (§ fn markBroadcastBy) [#_"PeerAddress" (§ name address)])
     (§ block
         (§ ass (§ name lastBroadcastedAt) (Utils/now))
-        (§ if (§ not (.. broadcastBy (addIfAbsent address))))
+        (§ if (not (.. broadcastBy (addIfAbsent address))))
         (§ block
             (§ return false) ;; Duplicate.
         )
@@ -20882,7 +20893,7 @@
                 (§ break )
             )
         )
-        (§ if (§ expr source != Source/UNKNOWN))
+        (§ if (!= source Source/UNKNOWN))
         (§ block
             (.. sb (append " Source: ") (append source))
         )
@@ -21181,7 +21192,7 @@
         (§ super params)
 
         (§ var #_"long" (§ name outputIndex) (.. output (getIndex)))
-        (§ if (§ expr (.. output (getParentTransaction)) != nil ))
+        (§ if (some? (.. output (getParentTransaction))))
         (§ block
             (§ ass (§ name outpoint) (§ new #_"TransactionOutPoint" params, outputIndex, (.. output (getParentTransaction))))
         )
@@ -21235,9 +21246,9 @@
         (§ throws #_"ProtocolException")
     (§ block
         (§ ass (§ name outpoint) (§ new #_"TransactionOutPoint" params, payload, cursor, this, serializer))
-        (§ ass (§ name cursor) (§ expr cursor + (.. outpoint (getMessageSize))))
+        (§ ass (§ name cursor) (+ cursor (.. outpoint (getMessageSize))))
         (§ var #_"int" (§ name scriptLen) (§ cast #_"int" (readVarInt)))
-        (§ ass (§ name length) (§ expr cursor - offset + scriptLen + 4))
+        (§ ass (§ name length) (+ (- cursor offset) scriptLen 4))
         (§ ass (§ name scriptBytes) (readBytes scriptLen))
         (§ ass (§ name sequence) (readUint32))
         nil
@@ -21261,7 +21272,7 @@
     #_public
     (§ method #_"boolean" (§ fn isCoinBase) [])
     (§ block
-        (§ expr (.. outpoint (getHash) (equals Sha256Hash/ZERO_HASH)) && (& (.. outpoint (getIndex)) 0xffffffff) == 0xffffffff) ;; -1 but all is serialized to the wire as unsigned int.
+        (and (.. outpoint (getHash) (equals Sha256Hash/ZERO_HASH)) (== (& (.. outpoint (getIndex)) 0xffffffff) 0xffffffff)) ;; -1 but all is serialized to the wire as unsigned int.
     )
 
     ;;;
@@ -21468,7 +21479,7 @@
     #_public
     (§ method #_"ConnectionResult" (§ fn connect) [#_"Transaction" (§ name transaction), #_"ConnectMode" (§ name mode)])
     (§ block
-        (§ if (§ not (.. transaction (getHash) (equals (.. outpoint (getHash))))))
+        (§ if (not (.. transaction (getHash) (equals (.. outpoint (getHash))))))
         (§ block
             (§ return ConnectionResult/NO_SUCH_TX)
         )
@@ -21476,18 +21487,18 @@
         (Preconditions/checkElementIndex (§ cast #_"int" (.. outpoint (getIndex))), (.. transaction (getOutputs) (size)), "Corrupt transaction")
 
         (§ var #_"TransactionOutput" (§ name out) (.. transaction (getOutput (§ cast #_"int" (.. outpoint (getIndex))))))
-        (§ if (§ not (.. out (isAvailableForSpending))))
+        (§ if (not (.. out (isAvailableForSpending))))
         (§ block
             (§ if (.. (getParentTransaction) (equals (.. outpoint fromTx))))
             (§ block
                 ;; Already connected.
                 (§ return ConnectionResult/SUCCESS)
             )
-            (§ elseif (§ expr mode == ConnectMode/DISCONNECT_ON_CONFLICT))
+            (§ elseif (== mode ConnectMode/DISCONNECT_ON_CONFLICT))
             (§ block
                 (.. out (markAsUnspent))
             )
-            (§ elseif (§ expr mode == ConnectMode/ABORT_ON_CONFLICT))
+            (§ elseif (== mode ConnectMode/ABORT_ON_CONFLICT))
             (§ block
                 (§ ass (§ name (.. outpoint fromTx)) (.. out (getParentTransaction)))
                 (§ return TransactionInput/ConnectionResult/ALREADY_SPENT)
@@ -21535,7 +21546,7 @@
             (§ return false)
         )
 
-        (§ if (§ expr connectedOutput != nil && (.. connectedOutput (getSpentBy)) == this))
+        (§ if (and (some? connectedOutput) (== (.. connectedOutput (getSpentBy)) this)))
         (§ block
             ;; The outpoint was connected to an output, disconnect the output.
             (.. connectedOutput (markAsUnspent))
@@ -21551,7 +21562,7 @@
     #_public
     (§ method #_"boolean" (§ fn hasSequence) [])
     (§ block
-        (§ expr sequence != NO_SEQUENCE)
+        (!= sequence NO_SEQUENCE)
     )
 
     ;;;
@@ -21561,7 +21572,7 @@
     #_public
     (§ method #_"boolean" (§ fn isOptInFullRBF) [])
     (§ block
-        (§ expr sequence < NO_SEQUENCE - 1)
+        (< sequence (- NO_SEQUENCE 1))
     )
 
     ;;;
@@ -21597,7 +21608,7 @@
     (§ block
         (§ if (!= (.. output parent) nil))
         (§ block
-            (§ if (§ not (.. (getOutpoint) (getHash) (equals (.. output (getParentTransaction) (getHash))))))
+            (§ if (not (.. (getOutpoint) (getHash) (equals (.. output (getParentTransaction) (getHash))))))
             (§ block
                 (§ throw (§ new #_"VerificationException" "This input does not refer to the tx containing the output."))
             )
@@ -21660,16 +21671,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"TransactionInput" (§ name other) (§ cast #_"TransactionInput" o))
-        (§ expr sequence == (.. other sequence) && parent == (.. other parent) && (.. outpoint (equals (.. other outpoint))) && (Arrays/equals scriptBytes, (.. other scriptBytes)))
+        (and (== sequence (.. other sequence)) (== parent (.. other parent)) (.. outpoint (equals (.. other outpoint))) (Arrays/equals scriptBytes, (.. other scriptBytes)))
     )
 
     #_override
@@ -21697,7 +21708,7 @@
             (§ block
                 (.. sb (append " for [") (append outpoint) (append "]: ") (append (getScriptSig)))
                 (§ var #_"String" (§ name flags) (.. (Joiner/on ", ") (skipNulls) (join (when (hasSequence) (str "sequence: " (Long/toHexString sequence))), (when (isOptInFullRBF) "opts into full RBF"))))
-                (§ if (§ not (.. flags (isEmpty))))
+                (§ if (not (.. flags (isEmpty))))
                 (§ block
                     (.. sb (append " (") (append flags) (append ")"))
                 )
@@ -21854,7 +21865,7 @@
     (§ method #_"byte[]" (§ fn getConnectedPubKeyScript) [])
     (§ block
         (§ var #_"byte[]" (§ name result) (.. (Preconditions/checkNotNull (getConnectedOutput)) (getScriptBytes)))
-        (Preconditions/checkState (§ expr 0 < (.. result length)))
+        (Preconditions/checkState (< 0 (.. result length)))
         result
     )
 
@@ -21931,7 +21942,7 @@
     #_public
     (§ method #_"String" (§ fn toString) [])
     (§ block
-        (§ expr hash + ":" + index)
+        (str hash ":" index)
     )
 
     ;;;
@@ -21967,16 +21978,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"TransactionOutPoint" (§ name other) (§ cast #_"TransactionOutPoint" o))
-        (§ expr (getIndex) == (.. other (getIndex)) && (.. (getHash) (equals (.. other (getHash)))))
+        (and (== (getIndex) (.. other (getIndex))) (.. (getHash) (equals (.. other (getHash)))))
     )
 
     #_override
@@ -22074,7 +22085,7 @@
     #_public
     (§ constructor #_"TransactionOutput" [#_"NetworkParameters" (§ name params), #_nilable #_"Transaction" (§ name parent), #_"Coin" (§ name value), #_"Address" (§ name to)])
     (§ block
-        (§ this params, parent, value, (§ expr (.. (ScriptBuilder/createOutputScript to) (getProgram))))
+        (§ this params, parent, value, (.. (ScriptBuilder/createOutputScript to) (getProgram)))
         this
     )
 
@@ -22086,7 +22097,7 @@
     #_public
     (§ constructor #_"TransactionOutput" [#_"NetworkParameters" (§ name params), #_nilable #_"Transaction" (§ name parent), #_"Coin" (§ name value), #_"ECKey" (§ name to)])
     (§ block
-        (§ this params, parent, value, (§ expr (.. (ScriptBuilder/createOutputScript to) (getProgram))))
+        (§ this params, parent, value, (.. (ScriptBuilder/createOutputScript to) (getProgram)))
         this
     )
 
@@ -22097,14 +22108,14 @@
 
         ;; Negative values obviously make no sense, except for -1 which is used as a sentinel value when calculating
         ;; SIGHASH_SINGLE signatures, so unfortunately we have to allow that here.
-        (Preconditions/checkArgument (§ expr 0 <= (.. value (signum)) || (.. value (equals Coin/NEGATIVE_SATOSHI))), "Negative values not allowed")
-        (Preconditions/checkArgument (§ expr (§ not (.. params (hasMaxMoney))) || (.. value (compareTo (.. params (getMaxMoney)))) <= 0), "Values larger than MAX_MONEY not allowed")
+        (Preconditions/checkArgument (or (<= 0 (.. value (signum))) (.. value (equals Coin/NEGATIVE_SATOSHI))), "Negative values not allowed")
+        (Preconditions/checkArgument (or (not (.. params (hasMaxMoney))) (<= (.. value (compareTo (.. params (getMaxMoney)))) 0)), "Values larger than MAX_MONEY not allowed")
 
         (§ ass (§ name (.. this value)) (.. value value))
         (§ ass (§ name (.. this scriptBytes)) scriptBytes)
         (setParent parent)
         (§ ass (§ name availableForSpending) true)
-        (§ ass (§ name length) (§ expr 8 + (VarInt/sizeOf (.. scriptBytes length)) + (.. scriptBytes length)))
+        (§ ass (§ name length) (+ 8 (VarInt/sizeOf (.. scriptBytes length)) (.. scriptBytes length)))
         this
     )
 
@@ -22163,7 +22174,7 @@
     (§ block
         (§ ass (§ name value) (readInt64))
         (§ ass (§ name scriptLen) (§ cast #_"int" (readVarInt)))
-        (§ ass (§ name length) (§ expr cursor - offset + scriptLen))
+        (§ ass (§ name length) (+ (- cursor offset) scriptLen))
         (§ ass (§ name scriptBytes) (readBytes scriptLen))
         nil
     )
@@ -22220,7 +22231,7 @@
     (§ method #_"int" (§ fn getIndex) [])
     (§ block
         (§ var #_"List<TransactionOutput>" (§ name outputs) (.. (getParentTransaction) (getOutputs)))
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. outputs (size))) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. outputs (size))) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ if (== (.. outputs (get i)) this))
             (§ block
@@ -22388,7 +22399,7 @@
             (§ var #_"Script" (§ name script) (getScriptPubKey))
             (§ var #_"StringBuilder" (§ name sb) (§ new #_"StringBuilder" "TxOut of "))
             (.. sb (append (.. (Coin/valueOf value) (toFriendlyString))))
-            (§ if (§ expr (.. script (isSentToAddress)) || (.. script (isPayToScriptHash))))
+            (§ if (or (.. script (isSentToAddress)) (.. script (isPayToScriptHash))))
             (§ block
                 (.. sb (append " to ") (append (.. script (getToAddress params))))
             )
@@ -22485,16 +22496,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"TransactionOutput" (§ name other) (§ cast #_"TransactionOutput" o))
-        (§ expr value == (.. other value) && (§ expr parent == nil || (§ expr parent == (.. other parent) && (getIndex) == (.. other (getIndex)))) && (Arrays/equals scriptBytes, (.. other scriptBytes)))
+        (and (== value (.. other value)) (or (nil? parent) (and (== parent (.. other parent)) (== (getIndex) (.. other (getIndex))))) (Arrays/equals scriptBytes, (.. other scriptBytes)))
     )
 
     #_override
@@ -22535,7 +22546,7 @@
     (§ defn- #_"int" (§ fn read4x8le) [#_"InputStream" (§ name is)])
         (§ throws #_"IOException")
     (§ block
-        (§ expr (& (.. is (read)) 0xff) | (<< (& (.. is (read)) 0xff) 8) | (<< (& (.. is (read)) 0xff) 16) | (<< (& (.. is (read)) 0xff) 24))
+        (| (& 0xff (.. is (read))) (<< (& 0xff (.. is (read))) 8) (<< (& 0xff (.. is (read))) 16) (<< (& 0xff (.. is (read))) 24))
     )
 
     #_public
@@ -22564,9 +22575,9 @@
         (§ throws #_"IOException")
     (§ block
         (.. os (write (& 0xff n)))
-        (.. os (write (§ expr 0xff & (>> n 8))))
-        (.. os (write (§ expr 0xff & (>> n 16))))
-        (.. os (write (§ expr 0xff & (>> n 24))))
+        (.. os (write (& 0xff (>> n 8))))
+        (.. os (write (& 0xff (>> n 16))))
+        (.. os (write (& 0xff (>> n 24))))
         nil
     )
 
@@ -22959,16 +22970,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"UTXO" (§ name other) (§ cast #_"UTXO" o))
-        (§ expr (getIndex) == (.. other (getIndex)) && (.. (getHash) (equals (.. other (getHash)))))
+        (and (== (getIndex) (.. other (getIndex))) (.. (getHash) (equals (.. other (getHash)))))
     )
 
     #_private
@@ -22977,9 +22988,9 @@
         (§ throws #_"IOException")
     (§ block
         (.. os (write (& 0xff n)))
-        (.. os (write (§ expr 0xff & (>> n 8))))
-        (.. os (write (§ expr 0xff & (>> n 16))))
-        (.. os (write (§ expr 0xff & (>> n 24))))
+        (.. os (write (& 0xff (>> n 8))))
+        (.. os (write (& 0xff (>> n 16))))
+        (.. os (write (& 0xff (>> n 24))))
         nil
     )
 
@@ -23006,7 +23017,7 @@
     (§ defn- #_"int" (§ fn read4x8le) [#_"InputStream" (§ name is)])
         (§ throws #_"IOException")
     (§ block
-        (§ expr (& (.. is (read)) 0xff) | (<< (& (.. is (read)) 0xff) 8) | (<< (& (.. is (read)) 0xff) 16) | (<< (& (.. is (read)) 0xff) 24))
+        (| (& 0xff (.. is (read))) (<< (& 0xff (.. is (read))) 8) (<< (& 0xff (.. is (read))) 16) (<< (& 0xff (.. is (read))) 24))
     )
 
     #_public
@@ -23046,7 +23057,7 @@
 
         (§ var #_"byte[]" (§ name coinbaseByte) (§ new #_"byte[]" (§ count 1)))
         (.. is (read coinbaseByte))
-        (§ ass (§ name coinbase) (§ expr (§ ai coinbaseByte 0) == 1))
+        (§ ass (§ name coinbase) (== (§ ai coinbaseByte 0) 1))
         nil
     )
 
@@ -23136,7 +23147,7 @@
         (§ var #_"int" (§ name n) (+ count 1))
         (§ if (< (.. buf length) n))
         (§ block
-            (§ ass (§ name buf) (Utils/copyOf buf, (Math/max (§ expr (.. buf length) << 1), n)))
+            (§ ass (§ name buf) (Utils/copyOf buf, (Math/max (<< (.. buf length) 1), n)))
         )
         (§ ass (§ name (§ ai buf count)) (§ cast #_"byte" b))
         (§ ass (§ name count) n)
@@ -23155,17 +23166,17 @@
     #_public
     (§ method #_"void" (§ fn write) [#_"byte[]" (§ name b), #_"int" (§ name off), #_"int" (§ name len)])
     (§ block
-        (§ if (§ expr off < 0 || (.. b length) < off || len < 0 || (.. b length) < off + len || off + len < 0))
+        (§ if (or (< off 0) (< (.. b length) off) (< len 0) (< (.. b length) (+ off len)) (< (+ off len) 0)))
         (§ block
             (§ throw (§ new #_"IndexOutOfBoundsException"))
         )
 
-        (§ if (§ expr len != 0))
+        (§ if (!= len 0))
         (§ block
             (§ var #_"int" (§ name n) (+ count len))
             (§ if (< (.. buf length) n))
             (§ block
-                (§ ass (§ name buf) (Utils/copyOf buf, (Math/max (§ expr (.. buf length) << 1), n)))
+                (§ ass (§ name buf) (Utils/copyOf buf, (Math/max (<< (.. buf length) 1), n)))
             )
             (System/arraycopy b, off, buf, count, len)
             (§ ass (§ name count) n)
@@ -23290,12 +23301,12 @@
     #_static
     (§ defn #_"byte[]" (§ fn bigIntegerToBytes) [#_"BigInteger" (§ name b), #_"int" (§ name numBytes)])
     (§ block
-        (Preconditions/checkArgument (§ expr 0 <= (.. b (signum))), "b must be positive or zero")
-        (Preconditions/checkArgument (§ expr 0 < numBytes), "numBytes must be positive")
+        (Preconditions/checkArgument (<= 0 (.. b (signum))), "b must be positive or zero")
+        (Preconditions/checkArgument (< 0 numBytes), "numBytes must be positive")
 
         (§ var #_"byte[]" (§ name src) (.. b (toByteArray)))
         (§ var #_"byte[]" (§ name dest) (§ new #_"byte[]" (§ count numBytes)))
-        (§ var #_"boolean" (§ name isFirstByteOnlyForSign) (§ expr (§ ai src 0) == 0))
+        (§ var #_"boolean" (§ name isFirstByteOnlyForSign) (== (§ ai src 0) 0))
         (§ var #_"int" (§ name length) (if isFirstByteOnlyForSign (- (.. src length) 1) (.. src length)))
 
         (Preconditions/checkArgument (<= length numBytes), (str "The given number does not fit in " numBytes))
@@ -23310,10 +23321,10 @@
     #_static
     (§ defn #_"void" (§ fn uint32ToByteArrayBE) [#_"long" (§ name val), #_"byte[]" (§ name out), #_"int" (§ name offset)])
     (§ block
-        (§ ass (§ name (§ ai out offset)) (§ cast #_"byte" (§ expr 0xff & (>> val 24))))
-        (§ ass (§ name (§ ai out (§ expr offset + 1))) (§ cast #_"byte" (§ expr 0xff & (>> val 16))))
-        (§ ass (§ name (§ ai out (§ expr offset + 2))) (§ cast #_"byte" (§ expr 0xff & (>> val 8))))
-        (§ ass (§ name (§ ai out (§ expr offset + 3))) (§ cast #_"byte" (& 0xff val)))
+        (§ ass (§ name (§ ai out offset)) (§ cast #_"byte" (& 0xff (>> val 24))))
+        (§ ass (§ name (§ ai out (+ offset 1))) (§ cast #_"byte" (& 0xff (>> val 16))))
+        (§ ass (§ name (§ ai out (+ offset 2))) (§ cast #_"byte" (& 0xff (>> val 8))))
+        (§ ass (§ name (§ ai out (+ offset 3))) (§ cast #_"byte" (& 0xff val)))
         nil
     )
 
@@ -23322,9 +23333,9 @@
     (§ defn #_"void" (§ fn uint32ToByteArrayLE) [#_"long" (§ name val), #_"byte[]" (§ name out), #_"int" (§ name offset)])
     (§ block
         (§ ass (§ name (§ ai out offset)) (§ cast #_"byte" (& 0xff val)))
-        (§ ass (§ name (§ ai out (§ expr offset + 1))) (§ cast #_"byte" (§ expr 0xff & (>> val 8))))
-        (§ ass (§ name (§ ai out (§ expr offset + 2))) (§ cast #_"byte" (§ expr 0xff & (>> val 16))))
-        (§ ass (§ name (§ ai out (§ expr offset + 3))) (§ cast #_"byte" (§ expr 0xff & (>> val 24))))
+        (§ ass (§ name (§ ai out (+ offset 1))) (§ cast #_"byte" (& 0xff (>> val 8))))
+        (§ ass (§ name (§ ai out (+ offset 2))) (§ cast #_"byte" (& 0xff (>> val 16))))
+        (§ ass (§ name (§ ai out (+ offset 3))) (§ cast #_"byte" (& 0xff (>> val 24))))
         nil
     )
 
@@ -23333,13 +23344,13 @@
     (§ defn #_"void" (§ fn uint64ToByteArrayLE) [#_"long" (§ name val), #_"byte[]" (§ name out), #_"int" (§ name offset)])
     (§ block
         (§ ass (§ name (§ ai out offset)) (§ cast #_"byte" (& 0xff val)))
-        (§ ass (§ name (§ ai out (§ expr offset + 1))) (§ cast #_"byte" (§ expr 0xff & (>> val 8))))
-        (§ ass (§ name (§ ai out (§ expr offset + 2))) (§ cast #_"byte" (§ expr 0xff & (>> val 16))))
-        (§ ass (§ name (§ ai out (§ expr offset + 3))) (§ cast #_"byte" (§ expr 0xff & (>> val 24))))
-        (§ ass (§ name (§ ai out (§ expr offset + 4))) (§ cast #_"byte" (§ expr 0xff & (>> val 32))))
-        (§ ass (§ name (§ ai out (§ expr offset + 5))) (§ cast #_"byte" (§ expr 0xff & (>> val 40))))
-        (§ ass (§ name (§ ai out (§ expr offset + 6))) (§ cast #_"byte" (§ expr 0xff & (>> val 48))))
-        (§ ass (§ name (§ ai out (§ expr offset + 7))) (§ cast #_"byte" (§ expr 0xff & (>> val 56))))
+        (§ ass (§ name (§ ai out (+ offset 1))) (§ cast #_"byte" (& 0xff (>> val 8))))
+        (§ ass (§ name (§ ai out (+ offset 2))) (§ cast #_"byte" (& 0xff (>> val 16))))
+        (§ ass (§ name (§ ai out (+ offset 3))) (§ cast #_"byte" (& 0xff (>> val 24))))
+        (§ ass (§ name (§ ai out (+ offset 4))) (§ cast #_"byte" (& 0xff (>> val 32))))
+        (§ ass (§ name (§ ai out (+ offset 5))) (§ cast #_"byte" (& 0xff (>> val 40))))
+        (§ ass (§ name (§ ai out (+ offset 6))) (§ cast #_"byte" (& 0xff (>> val 48))))
+        (§ ass (§ name (§ ai out (+ offset 7))) (§ cast #_"byte" (& 0xff (>> val 56))))
         nil
     )
 
@@ -23349,9 +23360,9 @@
         (§ throws #_"IOException")
     (§ block
         (.. stream (write (§ cast #_"int" (& 0xff val))))
-        (.. stream (write (§ cast #_"int" (§ expr 0xff & (>> val 8)))))
-        (.. stream (write (§ cast #_"int" (§ expr 0xff & (>> val 16)))))
-        (.. stream (write (§ cast #_"int" (§ expr 0xff & (>> val 24)))))
+        (.. stream (write (§ cast #_"int" (& 0xff (>> val 8)))))
+        (.. stream (write (§ cast #_"int" (& 0xff (>> val 16)))))
+        (.. stream (write (§ cast #_"int" (& 0xff (>> val 24)))))
         nil
     )
 
@@ -23361,13 +23372,13 @@
         (§ throws #_"IOException")
     (§ block
         (.. stream (write (§ cast #_"int" (& 0xff val))))
-        (.. stream (write (§ cast #_"int" (§ expr 0xff & (>> val 8)))))
-        (.. stream (write (§ cast #_"int" (§ expr 0xff & (>> val 16)))))
-        (.. stream (write (§ cast #_"int" (§ expr 0xff & (>> val 24)))))
-        (.. stream (write (§ cast #_"int" (§ expr 0xff & (>> val 32)))))
-        (.. stream (write (§ cast #_"int" (§ expr 0xff & (>> val 40)))))
-        (.. stream (write (§ cast #_"int" (§ expr 0xff & (>> val 48)))))
-        (.. stream (write (§ cast #_"int" (§ expr 0xff & (>> val 56)))))
+        (.. stream (write (§ cast #_"int" (& 0xff (>> val 8)))))
+        (.. stream (write (§ cast #_"int" (& 0xff (>> val 16)))))
+        (.. stream (write (§ cast #_"int" (& 0xff (>> val 24)))))
+        (.. stream (write (§ cast #_"int" (& 0xff (>> val 32)))))
+        (.. stream (write (§ cast #_"int" (& 0xff (>> val 40)))))
+        (.. stream (write (§ cast #_"int" (& 0xff (>> val 48)))))
+        (.. stream (write (§ cast #_"int" (& 0xff (>> val 56)))))
         nil
     )
 
@@ -23377,7 +23388,7 @@
         (§ throws #_"IOException")
     (§ block
         (§ var #_"byte[]" (§ name bytes) (.. val (toByteArray)))
-        (§ if (§ expr 8 < (.. bytes length)))
+        (§ if (< 8 (.. bytes length)))
         (§ block
             (§ throw (§ new #_"RuntimeException" "Input too large to encode into a uint64"))
         )
@@ -23386,7 +23397,7 @@
         (.. stream (write bytes))
         (§ if (< (.. bytes length) 8))
         (§ block
-            (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < 8 - (.. bytes length)) :for (§ ass (§ name i) (+ i 1)))
+            (§ for (§ var #_"int" (§ name i) 0) :for (< i (- 8 (.. bytes length))) :for (§ ass (§ name i) (+ i 1)))
             (§ block
                 (.. stream (write 0))
             )
@@ -23431,7 +23442,7 @@
         ;; We could use the XOR trick here, but it's easier to understand if we don't.
         ;; If we find this is really a performance issue, the matter can be revisited.
         (§ var #_"byte[]" (§ name buf) (§ new #_"byte[]" (§ count (.. bytes length))))
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. bytes length)) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. bytes length)) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ ass (§ name (§ ai buf i)) (§ ai bytes (- (.. bytes length) 1 i)))
         )
@@ -23448,17 +23459,17 @@
     #_static
     (§ defn #_"byte[]" (§ fn reverseDwordBytes) [#_"byte[]" (§ name bytes), #_"int" (§ name trimLength)])
     (§ block
-        (Preconditions/checkArgument (§ expr (.. bytes length) % 4 == 0))
-        (Preconditions/checkArgument (§ expr trimLength < 0 || trimLength % 4 == 0))
+        (Preconditions/checkArgument (== (% (.. bytes length) 4) 0))
+        (Preconditions/checkArgument (or (< trimLength 0) (== (% trimLength 4) 0)))
 
         (§ var #_"byte[]" (§ name rev) (§ new #_"byte[]" (§ count (if (< -1 trimLength (.. bytes length)) trimLength (.. bytes length)))))
 
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. rev length)) :for (§ ass (§ name i) (+ i 4)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. rev length)) :for (§ ass (§ name i) (+ i 4)))
         (§ block
-            (System/arraycopy bytes, i, rev, (§ expr i ), 4)
+            (System/arraycopy bytes, i, rev, i, 4)
             (§ for (§ var #_"int" (§ name j) 0) :for (< j 4) :for (§ ass (§ name j) (+ j 1)))
             (§ block
-                (§ ass (§ name (§ ai rev (§ expr i + j))) (§ ai bytes (§ expr i + 3 - j)))
+                (§ ass (§ name (§ ai rev (+ i j))) (§ ai bytes (- (+ i 3) j)))
             )
         )
         rev
@@ -23469,7 +23480,7 @@
     #_static
     (§ defn #_"long" (§ fn readUint32) [#_"byte[]" (§ name bytes), #_"int" (§ name offset)])
     (§ block
-        (§ expr (§ expr (§ ai bytes offset) & 0xff) | (<< (§ expr (§ ai bytes (§ expr offset + 1)) & 0xff) 8) | (<< (§ expr (§ ai bytes (§ expr offset + 2)) & 0xff) 16) | (<< (§ expr (§ ai bytes (§ expr offset + 3)) & 0xff) 24))
+        (| (& 0xff (§ ai bytes offset)) (<< (& 0xff (§ ai bytes (+ offset 1))) 8) (<< (& 0xff (§ ai bytes (+ offset 2))) 16) (<< (& 0xff (§ ai bytes (+ offset 3))) 24))
     )
 
     ;;; Parse 8 bytes from the byte array (starting at the offset) as signed 64-bit integer in little endian format. ;;
@@ -23477,7 +23488,7 @@
     #_static
     (§ defn #_"long" (§ fn readInt64) [#_"byte[]" (§ name bytes), #_"int" (§ name offset)])
     (§ block
-        (§ expr (§ expr (§ ai bytes offset) & 0xff) | (<< (§ expr (§ ai bytes (§ expr offset + 1)) & 0xff) 8) | (<< (§ expr (§ ai bytes (§ expr offset + 2)) & 0xff) 16) | (<< (§ expr (§ ai bytes (§ expr offset + 3)) & 0xff) 24) | (<< (§ expr (§ ai bytes (§ expr offset + 4)) & 0xff) 32) | (<< (§ expr (§ ai bytes (§ expr offset + 5)) & 0xff) 40) | (<< (§ expr (§ ai bytes (§ expr offset + 6)) & 0xff) 48) | (<< (§ expr (§ ai bytes (§ expr offset + 7)) & 0xff) 56))
+        (| (& 0xff (§ ai bytes offset)) (<< (& 0xff (§ ai bytes (+ offset 1))) 8) (<< (& 0xff (§ ai bytes (+ offset 2))) 16) (<< (& 0xff (§ ai bytes (+ offset 3))) 24) (<< (& 0xff (§ ai bytes (+ offset 4))) 32) (<< (& 0xff (§ ai bytes (+ offset 5))) 40) (<< (& 0xff (§ ai bytes (+ offset 6))) 48) (<< (& 0xff (§ ai bytes (+ offset 7))) 56))
     )
 
     ;;; Parse 4 bytes from the byte array (starting at the offset) as unsigned 32-bit integer in big endian format. ;;
@@ -23485,7 +23496,7 @@
     #_static
     (§ defn #_"long" (§ fn readUint32BE) [#_"byte[]" (§ name bytes), #_"int" (§ name offset)])
     (§ block
-        (§ expr (<< (§ expr (§ ai bytes offset) & 0xff) 24) |  (<< (§ expr (§ ai bytes (§ expr offset + 1)) & 0xff) 16) |  (<< (§ expr (§ ai bytes (§ expr offset + 2)) & 0xff) 8) |   (§ expr (§ ai bytes (§ expr offset + 3)) & 0xff))
+        (| (<< (& 0xff (§ ai bytes offset)) 24) (<< (& 0xff (§ ai bytes (+ offset 1))) 16) (<< (& 0xff (§ ai bytes (+ offset 2))) 8) (& 0xff (§ ai bytes (+ offset 3))))
     )
 
     ;;; Parse 2 bytes from the byte array (starting at the offset) as unsigned 16-bit integer in big endian format. ;;
@@ -23493,7 +23504,7 @@
     #_static
     (§ defn #_"int" (§ fn readUint16BE) [#_"byte[]" (§ name bytes), #_"int" (§ name offset)])
     (§ block
-        (§ expr (<< (§ expr (§ ai bytes offset) & 0xff) 8) |   (§ expr (§ ai bytes (§ expr offset + 1)) & 0xff))
+        (| (<< (& 0xff (§ ai bytes offset)) 8) (& 0xff (§ ai bytes (+ offset 1))))
     )
 
     ;;;
@@ -23537,10 +23548,10 @@
             (§ return BigInteger/ZERO)
         )
 
-        (§ var #_"boolean" (§ name isNegative) (== (§ expr (§ ai buf 0) & 0x80) 0x80))
+        (§ var #_"boolean" (§ name isNegative) (== (& (§ ai buf 0) 0x80) 0x80))
         (§ if isNegative)
         (§ block
-            (§ ass (§ name (§ ai buf 0)) (§ expr (§ ai buf 0) & 0x7f))
+            (§ ass (§ name (§ ai buf 0)) (& (§ ai buf 0) 0x7f))
         )
         (§ var #_"BigInteger" (§ name result) (§ new #_"BigInteger" buf))
         (if isNegative (.. result (negate)) result)
@@ -23568,7 +23579,7 @@
         )
         (§ var #_"byte[]" (§ name array) (.. value (toByteArray)))
         (§ var #_"int" (§ name length) (.. array length))
-        (§ if (== (§ expr (§ ai array 0) & 0x80) 0x80))
+        (§ if (== (& (§ ai array 0) 0x80) 0x80))
         (§ block
             (§ ass (§ name length) (+ length 1))
         )
@@ -23576,18 +23587,18 @@
         (§ if includeLength)
         (§ block
             (§ var #_"byte[]" (§ name result) (§ new #_"byte[]" (§ count length + 4)))
-            (System/arraycopy array, 0, result, (§ expr length - (.. array length) + 3), (.. array length))
+            (System/arraycopy array, 0, result, (+ (- length (.. array length)) 3), (.. array length))
             (uint32ToByteArrayBE length, result, 0)
             (§ if isNegative)
             (§ block
-                (§ ass (§ name (§ ai result 4)) (§ expr (§ ai result 4) | 0x80))
+                (§ ass (§ name (§ ai result 4)) (| (§ ai result 4) 0x80))
             )
             (§ return result)
         )
         (§ else )
         (§ block
             (§ var #_"byte[]" (§ name result))
-            (§ if (§ expr length != (.. array length)))
+            (§ if (!= length (.. array length)))
             (§ block
                 (§ ass (§ name result) (§ new #_"byte[]" (§ count length)))
                 (System/arraycopy array, 0, result, 1, (.. array length))
@@ -23598,7 +23609,7 @@
             )
             (§ if isNegative)
             (§ block
-                (§ ass (§ name (§ ai result 0)) (§ expr (§ ai result 0) | 0x80))
+                (§ ass (§ name (§ ai result 0)) (| (§ ai result 0) 0x80))
             )
             (§ return result)
         )
@@ -23650,11 +23661,11 @@
         (§ var #_"int" (§ name size) (.. value (toByteArray) length))
         (§ if (<= size 3))
         (§ block
-            (§ ass (§ name result) (§ expr (.. value (longValue)) << 8 * (- 3 size)))
+            (§ ass (§ name result) (<< (.. value (longValue)) (* 8 (- 3 size))))
         )
         (§ else )
         (§ block
-            (§ ass (§ name result) (.. value (shiftRight (§ expr 8 * (- size 3))) (longValue)))
+            (§ ass (§ name result) (.. value (shiftRight (* 8 (- size 3))) (longValue)))
         )
         ;; The 0x00800000 bit denotes the sign.
         ;; Thus, if it is already set, divide the mantissa by 256 and increase the exponent.
@@ -23663,8 +23674,8 @@
             (§ ass (§ name result) (>> result 8))
             (§ ass (§ name size) (+ size 1))
         )
-        (§ ass (§ name result) (§ expr result | (<< size 24)))
-        (§ ass (§ name result) (§ expr result | (if (== (.. value (signum)) -1) 0x00800000 0)))
+        (§ ass (§ name result) (| result (<< size 24)))
+        (§ ass (§ name result) (| result (if (== (.. value (signum)) -1) 0x00800000 0)))
         result
     )
 
@@ -23796,8 +23807,8 @@
     #_static
     (§ defn #_"byte[]" (§ fn appendByte) [#_"byte[]" (§ name bytes), #_"byte" (§ name b)])
     (§ block
-        (§ var #_"byte[]" (§ name result) (Arrays/copyOf bytes, (§ expr (.. bytes length) + 1)))
-        (§ ass (§ name (§ ai result (§ expr result.length - 1))) b)
+        (§ var #_"byte[]" (§ name result) (Arrays/copyOf bytes, (+ (.. bytes length) 1)))
+        (§ ass (§ name (§ ai result (- (.. result length) 1))) b)
         result
     )
 
@@ -23920,7 +23931,7 @@
     #_static
     (§ defn #_"boolean" (§ fn checkBitLE) [#_"byte[]" (§ name data), #_"int" (§ name index)])
     (§ block
-        (!= (§ expr (§ ai data (§ expr index >>> 3)) & (§ ai bitMask (§ expr 7 & index))) 0)
+        (!= (& (§ ai data (>>> index 3)) (§ ai bitMask (& 7 index))) 0)
     )
 
     ;;; Sets the given bit in data to one, using little endian (not the same as Java native big endian). ;;
@@ -23928,7 +23939,7 @@
     #_static
     (§ defn #_"void" (§ fn setBitLE) [#_"byte[]" (§ name data), #_"int" (§ name index)])
     (§ block
-        (§ ass (§ name (§ ai data (§ expr index >>> 3))) (§ expr (§ ai data (§ expr index >>> 3)) | (§ ai bitMask (§ expr 7 & index))))
+        (§ ass (§ name (§ ai data (>>> index 3))) (| (§ ai data (>>> index 3)) (§ ai bitMask (& 7 index))))
         nil
     )
 
@@ -24005,12 +24016,12 @@
     #_static
     (§ defn #_"boolean" (§ fn isAndroidRuntime) [])
     (§ block
-        (§ if (§ expr isAndroid == -1))
+        (§ if (== isAndroid -1))
         (§ block
             (§ var #_"String" (§ name runtime) (System/getProperty "java.runtime.name"))
-            (§ ass (§ name isAndroid) (if (§ and (some? runtime) && (.. runtime (equals "Android Runtime"))) 1 0))
+            (§ ass (§ name isAndroid) (if (and (some? runtime) (.. runtime (equals "Android Runtime"))) 1 0))
         )
-        (§ expr isAndroid == 1)
+        (== isAndroid 1)
     )
 
     #_private
@@ -24166,25 +24177,25 @@
     #_public
     (§ constructor #_"VarInt" [#_"byte[]" (§ name buf), #_"int" (§ name offset)])
     (§ block
-        (§ var #_"int" (§ name first) (§ expr 0xff & (§ ai buf offset)))
+        (§ var #_"int" (§ name first) (& 0xff (§ ai buf offset)))
         (§ if (< first 253))
         (§ block
             (§ ass (§ name value) first)
             (§ ass (§ name originallyEncodedSize) 1) ;; 1 data byte (8 bits)
         )
-        (§ elseif (§ expr first == 253))
+        (§ elseif (== first 253))
         (§ block
-            (§ ass (§ name value) (| (§ expr 0xff & (§ ai buf (§ expr offset + 1))) (<< (§ expr 0xff & (§ ai buf (§ expr offset + 2))) 8)))
+            (§ ass (§ name value) (| (& 0xff (§ ai buf (+ offset 1))) (<< (& 0xff (§ ai buf (+ offset 2))) 8)))
             (§ ass (§ name originallyEncodedSize) 3) ;; 1 marker + 2 data bytes (16 bits)
         )
-        (§ elseif (§ expr first == 254))
+        (§ elseif (== first 254))
         (§ block
-            (§ ass (§ name value) (Utils/readUint32 buf, (§ expr offset + 1)))
+            (§ ass (§ name value) (Utils/readUint32 buf, (+ offset 1)))
             (§ ass (§ name originallyEncodedSize) 5) ;; 1 marker + 4 data bytes (32 bits)
         )
         (§ else )
         (§ block
-            (§ ass (§ name value) (Utils/readInt64 buf, (§ expr offset + 1)))
+            (§ ass (§ name value) (Utils/readInt64 buf, (+ offset 1)))
             (§ ass (§ name originallyEncodedSize) 9) ;; 1 marker + 8 data bytes (64 bits)
         )
         this
@@ -24536,7 +24547,7 @@
         (§ block
             (§ ass (§ name length) (+ length 8))
         )
-        (§ ass (§ name length) (§ expr length + (VarInt/sizeOf (.. subVer (length))) + (.. subVer (length))))
+        (§ ass (§ name length) (+ length (VarInt/sizeOf (.. subVer (length))) (.. subVer (length))))
         this
     )
 
@@ -24549,9 +24560,9 @@
         (§ ass (§ name localServices) (.. (readUint64) (longValue)))
         (§ ass (§ name time) (.. (readUint64) (longValue)))
         (§ ass (§ name myAddr) (§ new #_"PeerAddress" params, payload, cursor, 0))
-        (§ ass (§ name cursor) (§ expr cursor + (.. myAddr (getMessageSize))))
+        (§ ass (§ name cursor) (+ cursor (.. myAddr (getMessageSize))))
         (§ ass (§ name theirAddr) (§ new #_"PeerAddress" params, payload, cursor, 0))
-        (§ ass (§ name cursor) (§ expr cursor + (.. theirAddr (getMessageSize))))
+        (§ ass (§ name cursor) (+ cursor (.. theirAddr (getMessageSize))))
         ;; uint64 localHostNonce (random data)
         ;; We don't care about the localhost nonce.  It's used to detect connecting back to yourself in cases where
         ;; there are NATs and proxies in the way.  However we don't listen for inbound connections so it's irrelevant.
@@ -24562,26 +24573,26 @@
             (§ ass (§ name subVer) "")
             (§ ass (§ name bestHeight) 0)
             (§ ass (§ name relayTxesBeforeFilter) true)
-            (§ if (§ not (hasMoreBytes)))
+            (§ if (not (hasMoreBytes)))
             (§ block
                 (§ return nil)
             )
 
             ;; string subVer (currently "")
             (§ ass (§ name subVer) (readStr))
-            (§ if (§ not (hasMoreBytes)))
+            (§ if (not (hasMoreBytes)))
             (§ block
                 (§ return nil)
             )
 
             ;; int bestHeight (size of known block chain)
             (§ ass (§ name bestHeight) (readUint32))
-            (§ if (§ not (hasMoreBytes)))
+            (§ if (not (hasMoreBytes)))
             (§ block
                 (§ return nil)
             )
 
-            (§ ass (§ name relayTxesBeforeFilter) (§ expr (readBytes 1)[0] != 0))
+            (§ ass (§ name relayTxesBeforeFilter) (!= (§ ai (readBytes 1) 0) 0))
         )
         (§ finally )
         (§ block
@@ -24597,9 +24608,9 @@
     (§ block
         (Utils/uint32ToByteStreamLE clientVersion, buf)
         (Utils/uint32ToByteStreamLE localServices, buf)
-        (Utils/uint32ToByteStreamLE (§ expr localServices >> 32), buf)
+        (Utils/uint32ToByteStreamLE (>> localServices 32), buf)
         (Utils/uint32ToByteStreamLE time, buf)
-        (Utils/uint32ToByteStreamLE (§ expr time >> 32), buf)
+        (Utils/uint32ToByteStreamLE (>> time 32), buf)
         (§ try )
         (§ block
             ;; My address.
@@ -24643,16 +24654,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"VersionMessage" (§ name other) (§ cast #_"VersionMessage" o))
-        (§ expr (.. other bestHeight) == bestHeight && (.. other clientVersion) == clientVersion && (.. other localServices) == localServices && (.. other time) == time && (.. other subVer (equals subVer)) && (.. other myAddr (equals myAddr)) && (.. other theirAddr (equals theirAddr)) && (.. other relayTxesBeforeFilter) == relayTxesBeforeFilter)
+        (and (== (.. other bestHeight) bestHeight) (== (.. other clientVersion) clientVersion) (== (.. other localServices) localServices) (== (.. other time) time) (.. other subVer (equals subVer)) (.. other myAddr (equals myAddr)) (.. other theirAddr (equals theirAddr)) (== (.. other relayTxesBeforeFilter) relayTxesBeforeFilter))
     )
 
     #_override
@@ -24675,7 +24686,7 @@
         (.. sb (append "their addr:     ") (append theirAddr) (append "\n"))
         (.. sb (append "sub version:    ") (append subVer) (append "\n"))
         (.. sb (append "best height:    ") (append bestHeight) (append "\n"))
-        (.. sb (append "delay tx relay: ") (append (§ not relayTxesBeforeFilter)) (append "\n"))
+        (.. sb (append "delay tx relay: ") (append (not relayTxesBeforeFilter)) (append "\n"))
         (.. sb (toString))
     )
 
@@ -24735,7 +24746,7 @@
     #_static
     (§ defn- #_"void" (§ fn checkSubVerComponent) [#_"String" (§ name component)])
     (§ block
-        (§ if (§ expr (.. component (contains "/")) || (.. component (contains "(")) || (.. component (contains ")"))))
+        (§ if (or (.. component (contains "/")) (.. component (contains "(")) (.. component (contains ")"))))
         (§ block
             (§ throw (§ new #_"IllegalArgumentException" "name contains invalid characters"))
         )
@@ -24790,15 +24801,15 @@
         (§ var #_"byte[]" (§ name versionAndDataBytes) (Base58/decodeChecked encoded))
         (§ var #_"byte" (§ name versionByte) (§ ai versionAndDataBytes 0))
         (§ ass (§ name version) (& versionByte 0xff))
-        (§ ass (§ name bytes) (§ new #_"byte[]" (§ count (.. versionAndDataBytes length) - 1)))
-        (System/arraycopy versionAndDataBytes, 1, bytes, 0, (§ expr (.. versionAndDataBytes length) - 1))
+        (§ ass (§ name bytes) (§ new #_"byte[]" (§ count (- (.. versionAndDataBytes length) 1))))
+        (System/arraycopy versionAndDataBytes, 1, bytes, 0, (- (.. versionAndDataBytes length) 1))
         this
     )
 
     #_protected
     (§ constructor #_"VersionedChecksummedBytes" [#_"int" (§ name version), #_"byte[]" (§ name bytes)])
     (§ block
-        (Preconditions/checkArgument (§ expr 0 <= version && version < 256))
+        (Preconditions/checkArgument (< -1 version 256))
 
         (§ ass (§ name (.. this version)) version)
         (§ ass (§ name (.. this bytes)) bytes)
@@ -24813,11 +24824,11 @@
     (§ method #_"String" (§ fn toBase58) [])
     (§ block
         ;; A stringified buffer is: 1 byte version + data bytes + 4 bytes check code (a truncated hash).
-        (§ var #_"byte[]" (§ name addressBytes) (§ new #_"byte[]" (§ count 1 + (.. bytes length) + 4)))
+        (§ var #_"byte[]" (§ name addressBytes) (§ new #_"byte[]" (§ count (+ 1 (.. bytes length) 4))))
         (§ ass (§ name (§ ai addressBytes 0)) (§ cast #_"byte" version))
         (System/arraycopy bytes, 0, addressBytes, 1, (.. bytes length))
-        (§ var #_"byte[]" (§ name checksum) (Sha256Hash/hashTwice addressBytes, 0, (§ expr (.. bytes length) + 1)))
-        (System/arraycopy checksum, 0, addressBytes, (§ expr (.. bytes length) + 1), 4)
+        (§ var #_"byte[]" (§ name checksum) (Sha256Hash/hashTwice addressBytes, 0, (+ (.. bytes length) 1)))
+        (System/arraycopy checksum, 0, addressBytes, (+ (.. bytes length) 1), 4)
         (Base58/encode addressBytes)
     )
 
@@ -24839,16 +24850,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"VersionedChecksummedBytes" (§ name other) (§ cast #_"VersionedChecksummedBytes" o))
-        (§ expr (.. this version) == (.. other version) && (Arrays/equals (.. this bytes), (.. other bytes)))
+        (and (== (.. this version) (.. other version)) (Arrays/equals (.. this bytes), (.. other bytes)))
     )
 
     ;;;
@@ -25045,13 +25056,13 @@
     #_public
     (§ method #_"void" (§ fn onChainDownloadStarted) [#_"Peer" (§ name peer), #_"int" (§ name blocksLeft)])
     (§ block
-        (§ if (§ expr 0 < blocksLeft && originalBlocksLeft == -1))
+        (§ if (and (< 0 blocksLeft) (== originalBlocksLeft -1)))
         (§ block
             (startDownload blocksLeft)
         )
         ;; Only mark this the first time, because this method can be called more than once during a chain download
         ;; if we switch peers during it.
-        (§ if (§ expr originalBlocksLeft == -1))
+        (§ if (== originalBlocksLeft -1))
         (§ block
             (§ ass (§ name originalBlocksLeft) blocksLeft)
         )
@@ -25059,7 +25070,7 @@
         (§ block
             (.. log (info "Chain download switched to {}", peer))
         )
-        (§ if (§ expr blocksLeft == 0))
+        (§ if (== blocksLeft 0))
         (§ block
             (doneDownload)
             (.. future (set (.. peer (getBestHeight))))
@@ -25076,22 +25087,22 @@
             (§ return nil)
         )
 
-        (§ if (§ expr blocksLeft == 0))
+        (§ if (== blocksLeft 0))
         (§ block
             (§ ass (§ name caughtUp) true)
             (doneDownload)
             (.. future (set (.. peer (getBestHeight))))
         )
 
-        (§ if (§ expr blocksLeft < 0 || originalBlocksLeft <= 0))
+        (§ if (or (< blocksLeft 0) (<= originalBlocksLeft 0)))
         (§ block
             (§ return nil)
         )
 
-        (§ var #_"double" (§ name pct) (§ expr 100.0 - (§ expr 100.0 * (§ expr blocksLeft / (§ cast #_"double" originalBlocksLeft)))))
+        (§ var #_"double" (§ name pct) (- 100.0 (* 100.0 (/ blocksLeft (§ cast #_"double" originalBlocksLeft)))))
         (§ if (!= (§ cast #_"int" pct) lastPercent))
         (§ block
-            (progress pct, blocksLeft, (§ expr (§ new #_"Date" (* (.. block (getTimeSeconds)) 1000))))
+            (progress pct, blocksLeft, (§ new #_"Date" (* (.. block (getTimeSeconds)) 1000)))
             (§ ass (§ name lastPercent) (§ cast #_"int" pct))
         )
         nil
@@ -25495,7 +25506,7 @@
     #_public
     (§ method #_"int" (§ fn num) [])
     (§ block
-        (§ expr i & (§ flip HARDENED_BIT))
+        (& i (bit-not HARDENED_BIT))
     )
 
     #_override
@@ -25509,15 +25520,15 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
-        (§ expr i == (.. (§ cast #_"ChildNumber" o) i))
+        (== i (.. (§ cast #_"ChildNumber" o) i))
     )
 
     #_override
@@ -25614,15 +25625,15 @@
     (§ method #_"DeterministicKey" (§ fn get) [#_"List<ChildNumber>" (§ name path), #_"boolean" (§ name relativePath), #_"boolean" (§ name create)])
     (§ block
         (§ var #_"ImmutableList<ChildNumber>" (§ name absolutePath) (if relativePath (.. (ImmutableList/builder #_"ImmutableList<ChildNumber>") (addAll rootPath) (addAll path) (build)) (ImmutableList/copyOf path)))
-        (§ if (§ not (.. keys (containsKey absolutePath))))
+        (§ if (not (.. keys (containsKey absolutePath))))
         (§ block
-            (§ if (§ not create))
+            (§ if (not create))
             (§ block
                 (§ throw (§ new #_"IllegalArgumentException" (String/format Locale/US, "No key found for %s path %s.", (if relativePath "relative" "absolute"), (HDUtils/formatPath path))))
             )
-            (Preconditions/checkArgument (§ expr 0 < (.. absolutePath (size))), "Can't derive the master key: nothing to derive from.")
-            (§ var #_"DeterministicKey" (§ name parent) (get (.. absolutePath (subList 0, (§ expr (.. absolutePath (size)) - 1))), false, true))
-            (putKey (HDKeyDerivation/deriveChildKey parent, (§ expr (.. absolutePath (get (- (.. absolutePath (size)) 1))))))
+            (Preconditions/checkArgument (< 0 (.. absolutePath (size))), "Can't derive the master key: nothing to derive from.")
+            (§ var #_"DeterministicKey" (§ name parent) (get (.. absolutePath (subList 0, (- (.. absolutePath (size)) 1))), false, true))
+            (putKey (HDKeyDerivation/deriveChildKey parent, (.. absolutePath (get (- (.. absolutePath (size)) 1)))))
         )
         (.. keys (get absolutePath))
     )
@@ -25812,7 +25823,7 @@
     (§ method- #_"int" (§ fn ascertainParentFingerprint) [#_"DeterministicKey" (§ name parentKey), #_"int" (§ name parentFingerprint)])
         (§ throws #_"IllegalArgumentException")
     (§ block
-        (§ if (§ expr parentFingerprint != 0))
+        (§ if (!= parentFingerprint 0))
         (§ block
             (§ if (some? parent))
             (§ block
@@ -25969,7 +25980,7 @@
     (§ block
         (§ var #_"byte[]" (§ name bytes33) (§ new #_"byte[]" (§ count 33)))
         (§ var #_"byte[]" (§ name priv) (getPrivKeyBytes))
-        (System/arraycopy priv, 0, bytes33, (§ expr 33 - (.. priv length)), (.. priv length))
+        (System/arraycopy priv, 0, bytes33, (- 33 (.. priv length)), (.. priv length))
         bytes33
     )
 
@@ -26052,7 +26063,7 @@
     #_public
     (§ method #_"boolean" (§ fn isPubKeyOnly) [])
     (§ block
-        (§ expr (.. super (isPubKeyOnly)) && (§ expr parent == nil || (.. parent (isPubKeyOnly))))
+        (and (.. super (isPubKeyOnly)) (or (nil? parent) (.. parent (isPubKeyOnly))))
     )
 
     ;;; {@inheritDoc} ;;
@@ -26080,7 +26091,7 @@
     #_public
     (§ method #_"boolean" (§ fn isEncrypted) [])
     (§ block
-        (§ expr priv == nil && (§ expr (.. super (isEncrypted)) || (§ expr parent != nil && (.. parent (isEncrypted)))))
+        (and (nil? priv) (or (.. super (isEncrypted)) (and (some? parent) (.. parent (isEncrypted)))))
     )
 
     ;;;
@@ -26135,14 +26146,14 @@
     (§ block
         (Preconditions/checkNotNull keyCrypter)
         ;; Check that the keyCrypter matches the one used to encrypt the keys, if set.
-        (§ if (§ expr (.. this keyCrypter) != nil && (§ not (.. this keyCrypter (equals keyCrypter)))))
+        (§ if (and (some? (.. this keyCrypter)) (not (.. this keyCrypter (equals keyCrypter)))))
         (§ block
             (§ throw (§ new #_"KeyCrypterException" "The keyCrypter being used to decrypt the key is different to the one that was used to encrypt it"))
         )
 
         (§ var #_"BigInteger" (§ name privKey) (findOrDeriveEncryptedPrivateKey keyCrypter, aesKey))
         (§ var #_"DeterministicKey" (§ name key) (§ new #_"DeterministicKey" childNumberPath, chainCode, privKey, parent))
-        (§ if (§ not (Arrays/equals (.. key (getPubKey)), (getPubKey))))
+        (§ if (not (Arrays/equals (.. key (getPubKey)), (getPubKey))))
         (§ block
             (§ throw (§ new #_"KeyCrypterException" "Provided AES key is wrong"))
         )
@@ -26234,7 +26245,7 @@
         ;; downCursor is now the same key as us, but with private key bytes.
         ;; If it's not, it means we tried decrypting with an invalid password and earlier checks e.g. for padding didn't
         ;; catch it.
-        (§ if (§ not (.. downCursor pub (equals pub))))
+        (§ if (not (.. downCursor pub (equals pub))))
         (§ block
             (§ throw (§ new #_"KeyCrypterException" "Could not decrypt bytes"))
         )
@@ -26351,12 +26362,12 @@
     (§ block
         (§ var #_"ByteBuffer" (§ name buffer) (ByteBuffer/wrap serializedKey))
         (§ var #_"int" (§ name header) (.. buffer (getInt)))
-        (§ if (§ expr header != (.. params (getBip32HeaderPriv)) && header != (.. params (getBip32HeaderPub))))
+        (§ if (and (!= header (.. params (getBip32HeaderPriv))) (!= header (.. params (getBip32HeaderPub)))))
         (§ block
             (§ throw (§ new #_"IllegalArgumentException" (str "Unknown header bytes: " (.. (toBase58 serializedKey) (substring 0, 4)))))
         )
 
-        (§ var #_"boolean" (§ name pub) (§ expr header == (.. params (getBip32HeaderPub))))
+        (§ var #_"boolean" (§ name pub) (== header (.. params (getBip32HeaderPub))))
         (§ var #_"int" (§ name depth) (& (.. buffer (get)) 0xff)) ;; convert signed byte to positive int since depth cannot be negative
         (§ var #_"int" (§ name parentFingerprint) (.. buffer (getInt)))
         (§ var #_"int" (§ name i) (.. buffer (getInt)))
@@ -26364,7 +26375,7 @@
         (§ var #_"ImmutableList<ChildNumber>" (§ name path))
         (§ if (some? parent))
         (§ block
-            (§ if (§ expr parentFingerprint == 0))
+            (§ if (== parentFingerprint 0))
             (§ block
                 (§ throw (§ new #_"IllegalArgumentException" "Parent was provided but this key doesn't have one"))
             )
@@ -26397,7 +26408,7 @@
         (.. buffer (get chainCode))
         (§ var #_"byte[]" (§ name data) (§ new #_"byte[]" (§ count 33)))
         (.. buffer (get data))
-        (Preconditions/checkArgument (§ not (.. buffer (hasRemaining))), "Found unexpected data in key")
+        (Preconditions/checkArgument (not (.. buffer (hasRemaining))), "Found unexpected data in key")
         (§ if pub)
         (§ block
             (§ return (§ new #_"DeterministicKey" path, chainCode, (§ new #_"LazyECPoint" (.. ECKey/CURVE (getCurve)), data), parent, depth, parentFingerprint))
@@ -26453,16 +26464,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"DeterministicKey" (§ name other) (§ cast #_"DeterministicKey" o))
-        (§ expr (.. super (equals other)) && (Arrays/equals (.. this chainCode), (.. other chainCode)) && (Objects/equal (.. this childNumberPath), (.. other childNumberPath)))
+        (and (.. super (equals other)) (Arrays/equals (.. this chainCode), (.. other chainCode)) (Objects/equal (.. this childNumberPath), (.. other childNumberPath)))
     )
 
     #_override
@@ -26563,16 +26574,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"EncryptedData" (§ name other) (§ cast #_"EncryptedData" o))
-        (§ expr (Arrays/equals encryptedBytes, (.. other encryptedBytes)) && (Arrays/equals initialisationVector, (.. other initialisationVector)))
+        (and (Arrays/equals encryptedBytes, (.. other encryptedBytes)) (Arrays/equals initialisationVector, (.. other initialisationVector)))
     )
 
     #_override
@@ -26662,13 +26673,13 @@
     (§ defn #_"DeterministicKey" (§ fn createMasterPrivateKey) [#_"byte[]" (§ name seed)])
         (§ throws #_"HDDerivationException")
     (§ block
-        (Preconditions/checkArgument (§ expr 8 < (.. seed length)), "Seed is too short and could be brute forced")
+        (Preconditions/checkArgument (< 8 (.. seed length)), "Seed is too short and could be brute forced")
 
         ;; Calculate I = HMAC-SHA512(key="Bitcoin seed", msg=S).
-        (§ var #_"byte[]" (§ name i) (HDUtils/hmacSha512 (§ expr (HDUtils/createHmacSha512Digest (.. "Bitcoin seed" (getBytes)))), seed))
+        (§ var #_"byte[]" (§ name i) (HDUtils/hmacSha512 (HDUtils/createHmacSha512Digest (.. "Bitcoin seed" (getBytes))), seed))
         ;; Split I into two 32-byte sequences, Il and Ir.
         ;; Use Il as master secret key, and Ir as master chain code.
-        (Preconditions/checkState (§ expr (.. i length) == 64), (.. i length))
+        (Preconditions/checkState (== (.. i length) 64), (.. i length))
 
         (§ var #_"byte[]" (§ name il) (Arrays/copyOfRange i, 0, 32))
         (§ var #_"byte[]" (§ name ir) (Arrays/copyOfRange i, 32, 64))
@@ -26732,7 +26743,7 @@
         (§ block
             (§ try )
             (§ block
-                (§ ass (§ name child) (§ new #_"ChildNumber" (§ expr (.. child (num)) + i), isHardened))
+                (§ ass (§ name child) (§ new #_"ChildNumber" (+ (.. child (num)) i), isHardened))
                 (§ return (deriveChildKey parent, child))
             )
             (§ catch #_"HDDerivationException" (§ name _))
@@ -26751,7 +26762,7 @@
     (§ defn #_"DeterministicKey" (§ fn deriveChildKey) [#_"DeterministicKey" (§ name parent), #_"ChildNumber" (§ name childNumber)])
         (§ throws #_"HDDerivationException")
     (§ block
-        (§ if (§ not (.. parent (hasPrivKey))))
+        (§ if (not (.. parent (hasPrivKey))))
         (§ block
             (§ var #_"RawKeyBytes" (§ name rawKey) (deriveChildKeyBytesFromPublic parent, childNumber, PublicDeriveMode/NORMAL))
             (§ return (§ new #_"DeterministicKey" (HDUtils/append (.. parent (getPath)), childNumber), (.. rawKey chainCode), (§ new #_"LazyECPoint" (.. ECKey/CURVE (getCurve)), (.. rawKey keyBytes)), nil, parent))
@@ -26778,7 +26789,7 @@
         (.. data (putInt (.. childNumber (i))))
 
         (§ var #_"byte[]" (§ name i) (HDUtils/hmacSha512 (.. parent (getChainCode)), (.. data (array))))
-        (Preconditions/checkState (§ expr (.. i length) == 64), (.. i length))
+        (Preconditions/checkState (== (.. i length) 64), (.. i length))
 
         (§ var #_"byte[]" (§ name il) (Arrays/copyOfRange i, 0, 32))
         (§ var #_"byte[]" (§ name chainCode) (Arrays/copyOfRange i, 32, 64))
@@ -26803,7 +26814,7 @@
     (§ defn #_"RawKeyBytes" (§ fn deriveChildKeyBytesFromPublic) [#_"DeterministicKey" (§ name parent), #_"ChildNumber" (§ name childNumber), #_"PublicDeriveMode" (§ name mode)])
         (§ throws #_"HDDerivationException")
     (§ block
-        (Preconditions/checkArgument (§ not (.. childNumber (isHardened))), "Can't use private derivation with public keys only.")
+        (Preconditions/checkArgument (not (.. childNumber (isHardened))), "Can't use private derivation with public keys only.")
 
         (§ var #_"byte[]" (§ name parentPublicKey) (.. parent (getPubKeyPoint) (getEncoded true)))
         (Preconditions/checkState (== (.. parentPublicKey length) 33), (str "Parent pubkey must be 33 bytes, but is " (.. parentPublicKey length)))
@@ -26813,7 +26824,7 @@
         (.. data (putInt (.. childNumber (i))))
 
         (§ var #_"byte[]" (§ name i) (HDUtils/hmacSha512 (.. parent (getChainCode)), (.. data (array))))
-        (Preconditions/checkState (§ expr (.. i length) == 64), (.. i length))
+        (Preconditions/checkState (== (.. i length) 64), (.. i length))
 
         (§ var #_"byte[]" (§ name il) (Arrays/copyOfRange i, 0, 32))
         (§ var #_"byte[]" (§ name chainCode) (Arrays/copyOfRange i, 32, 64))
@@ -27007,7 +27018,7 @@
                 (§ var #_"boolean" (§ name isHard) (.. n (endsWith "H")))
                 (§ if isHard)
                 (§ block
-                    (§ ass (§ name n) (.. n (substring 0, (§ expr (.. n (length)) - 1))))
+                    (§ ass (§ name n) (.. n (substring 0, (- (.. n (length)) 1))))
                 )
                 (§ var #_"int" (§ name nodeNumber) (Integer/parseInt n))
                 (.. nodes (add (§ new #_"ChildNumber" nodeNumber, isHard)))
@@ -27224,7 +27235,7 @@
         (§ ass (§ name (.. this scryptParameters)) (Preconditions/checkNotNull scryptParameters))
 
         ;; Check there is a non-empty salt.  Some early MultiBit wallets has a missing salt, so it is not a hard fail.
-        (§ if (§ expr (.. scryptParameters (getSalt)) == nil || (.. scryptParameters (getSalt) (toByteArray)) == nil || (.. scryptParameters (getSalt) (toByteArray) length) == 0))
+        (§ if (or (nil? (.. scryptParameters (getSalt))) (nil? (.. scryptParameters (getSalt) (toByteArray))) (== (.. scryptParameters (getSalt) (toByteArray) length) 0)))
         (§ block
             (.. log (warn "You are using a ScryptParameters with no salt. Your encryption may be vulnerable to a dictionary attack."))
         )
@@ -27306,7 +27317,7 @@
             (§ var #_"int" (§ name length1) (.. cipher (processBytes plainBytes, 0, (.. plainBytes length), encryptedBytes, 0)))
             (§ var #_"int" (§ name length2) (.. cipher (doFinal encryptedBytes, length1)))
 
-            (§ return (§ new #_"EncryptedData" iv, (Arrays/copyOf encryptedBytes, (§ expr length1 + length2))))
+            (§ return (§ new #_"EncryptedData" iv, (Arrays/copyOf encryptedBytes, (+ length1 length2))))
         )
         (§ catch #_"Exception" (§ name e))
         (§ block
@@ -27343,7 +27354,7 @@
             (§ var #_"int" (§ name length1) (.. cipher (processBytes cipherBytes, 0, (.. cipherBytes length), decryptedBytes, 0)))
             (§ var #_"int" (§ name length2) (.. cipher (doFinal decryptedBytes, length1)))
 
-            (§ return (Arrays/copyOf decryptedBytes, (§ expr length1 + length2)))
+            (§ return (Arrays/copyOf decryptedBytes, (+ length1 length2)))
         )
         (§ catch #_"Exception" (§ name e))
         (§ block
@@ -27363,11 +27374,11 @@
         (Preconditions/checkNotNull charSequence)
 
         (§ var #_"byte[]" (§ name byteArray) (§ new #_"byte[]" (§ count (.. charSequence (length)) << 1)))
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. charSequence (length))) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. charSequence (length))) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ var #_"int" (§ name bytePosition) (<< i 1))
             (§ ass (§ name (§ ai byteArray bytePosition)) (§ cast #_"byte" (>> (& (.. charSequence (charAt i)) 0xff00) 8)))
-            (§ ass (§ name (§ ai byteArray (§ expr bytePosition + 1))) (§ cast #_"byte" (& (.. charSequence (charAt i)) 0x00ff)))
+            (§ ass (§ name (§ ai byteArray (+ bytePosition 1))) (§ cast #_"byte" (& (.. charSequence (charAt i)) 0x00ff)))
         )
         byteArray
     )
@@ -27407,15 +27418,15 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
-        (Objects/equal scryptParameters, (§ expr (.. (§ cast #_"KeyCrypterScrypt" o) scryptParameters)))
+        (Objects/equal scryptParameters, (.. (§ cast #_"KeyCrypterScrypt" o) scryptParameters))
     )
 )
 
@@ -27526,7 +27537,7 @@
     (§ block
         (§ if (some? bits))
         (§ block
-            (§ return (§ expr (§ ai bits 0) == 2 || (§ ai bits 0) == 3))
+            (§ return (or (== (§ ai bits 0) 2) (== (§ ai bits 0) 3)))
         )
         (§ else )
         (§ block
@@ -27597,7 +27608,7 @@
     #_public
     (§ method #_"byte[]" (§ fn getEncoded) [#_"boolean" (§ name compressed)])
     (§ block
-        (§ if (§ expr compressed == (isCompressed) && bits != nil))
+        (§ if (and (== compressed (isCompressed)) (some? bits)))
         (§ block
             (§ return (Arrays/copyOf bits, (.. bits length)))
         )
@@ -27665,11 +27676,11 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
@@ -27715,7 +27726,7 @@
         (§ block
             (§ super "LinuxSecureRandom", 1.0, "A Linux specific random number provider that uses /dev/urandom")
 
-            (put "SecureRandom.LinuxSecureRandom", (§ expr (.. (§ klass #_"LinuxSecureRandom") (getName))))
+            (put "SecureRandom.LinuxSecureRandom", (.. (§ klass #_"LinuxSecureRandom") (getName)))
             this
         )
     )
@@ -27739,7 +27750,7 @@
             ;; Now override the default SecureRandom implementation with this one.
             (§ var #_"int" (§ name position) (Security/insertProviderAt (§ new #_"LinuxSecureRandomProvider"), 1))
 
-            (§ if (§ expr position != -1))
+            (§ if (!= position -1))
             (§ block
                 (.. log (info "Secure randomness will be read from {} only.", file))
             )
@@ -27857,7 +27868,7 @@
         (§ catch #_"FileNotFoundException" (§ name e))
         (§ block
             ;; We expect failure on Android.  The developer has to set INSTANCE themselves.
-            (§ if (§ not (Utils/isAndroidRuntime)))
+            (§ if (not (Utils/isAndroidRuntime)))
             (§ block
                 (.. log (error "Could not find word list", e))
             )
@@ -27919,7 +27930,7 @@
         (§ block
             (§ var #_"byte[]" (§ name digest) (.. md (digest)))
             (§ var #_"String" (§ name hexdigest) (.. HEX (encode digest)))
-            (§ if (§ not (.. hexdigest (equals wordListDigest))))
+            (§ if (not (.. hexdigest (equals wordListDigest))))
             (§ block
                 (§ throw (§ new #_"IllegalArgumentException" "wordlist digest mismatch"))
             )
@@ -27964,7 +27975,7 @@
     (§ method #_"byte[]" (§ fn toEntropy) [#_"List<String>" (§ name words)])
         (§ throws #_"MnemonicException.MnemonicLengthException", #_"MnemonicException.MnemonicWordException", #_"MnemonicException.MnemonicChecksumException")
     (§ block
-        (§ if (§ expr 0 < (.. words (size)) % 3))
+        (§ if (< 0 (% (.. words (size)) 3)))
         (§ block
             (§ throw (§ new #_"MnemonicException.MnemonicLengthException" "Word list size must be multiple of three words."))
         )
@@ -27991,7 +28002,7 @@
             ;; Set the next 11 bits to the value of the index.
             (§ for (§ var #_"int" (§ name i) 0) :for (< i 11) :for (§ ass (§ name i) (+ i 1)))
             (§ block
-                (§ ass (§ name (§ ai concatBits (§ expr (* wordindex 11) + i))) (!= (§ expr ndx & (§ expr 1 << (- 10 i))) 0))
+                (§ ass (§ name (§ ai concatBits (+ (* wordindex 11) i))) (!= (& ndx (<< 1 (- 10 i))) 0))
             )
             (§ ass (§ name wordindex) (+ wordindex 1))
         )
@@ -28001,13 +28012,13 @@
 
         ;; Extract original entropy as bytes.
         (§ var #_"byte[]" (§ name entropy) (§ new #_"byte[]" (§ count entropyLengthBits / 8)))
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. entropy length)) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. entropy length)) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ for (§ var #_"int" (§ name j) 0) :for (< j 8) :for (§ ass (§ name j) (+ j 1)))
             (§ block
-                (§ if (§ ai concatBits (§ expr (* i 8) + j)))
+                (§ if (§ ai concatBits (+ (* i 8) j)))
                 (§ block
-                    (§ ass (§ name (§ ai entropy i)) (§ expr (§ ai entropy i) | (§ expr 1 << (- 7 j))))
+                    (§ ass (§ name (§ ai entropy i)) (| (§ ai entropy i) (<< 1 (- 7 j))))
                 )
             )
         )
@@ -28019,7 +28030,7 @@
         ;; Check all the checksum bits.
         (§ for (§ var #_"int" (§ name i) 0) :for (< i checksumLengthBits) :for (§ ass (§ name i) (+ i 1)))
         (§ block
-            (§ if (§ expr (§ ai concatBits (§ expr entropyLengthBits + i)) != (§ ai hashBits i)))
+            (§ if (!= (§ ai concatBits (+ entropyLengthBits i)) (§ ai hashBits i)))
             (§ block
                 (§ throw (§ new #_"MnemonicException.MnemonicChecksumException"))
             )
@@ -28035,7 +28046,7 @@
     (§ method #_"List<String>" (§ fn toMnemonic) [#_"byte[]" (§ name entropy)])
         (§ throws #_"MnemonicException.MnemonicLengthException")
     (§ block
-        (§ if (§ expr 0 < (.. entropy length) % 4))
+        (§ if (< 0 (% (.. entropy length) 4)))
         (§ block
             (§ throw (§ new #_"MnemonicException.MnemonicLengthException" "Entropy length not multiple of 32 bits."))
         )
@@ -28069,7 +28080,7 @@
             (§ for (§ var #_"int" (§ name j) 0) :for (< j 11) :for (§ ass (§ name j) (+ j 1)))
             (§ block
                 (§ ass (§ name index) (<< index 1))
-                (§ if (§ ai concatBits (§ expr (* i 11) + j)))
+                (§ if (§ ai concatBits (+ (* i 11) j)))
                 (§ block
                     (§ ass (§ name index) (| index 0x1))
                 )
@@ -28096,11 +28107,11 @@
     (§ defn- #_"boolean[]" (§ fn bytesToBits) [#_"byte[]" (§ name data)])
     (§ block
         (§ var #_"boolean[]" (§ name bits) (§ new #_"boolean[]" (§ count (.. data length) * 8)))
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. data length)) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. data length)) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ for (§ var #_"int" (§ name j) 0) :for (< j 8) :for (§ ass (§ name j) (+ j 1)))
             (§ block
-                (§ ass (§ name (§ ai bits (§ expr (* i 8) + j))) (!= (§ expr (§ ai data i) & (§ expr 1 << (- 7 j))) 0))
+                (§ ass (§ name (§ ai bits (+ (* i 8) j))) (!= (& (§ ai data i) (<< 1 (- 7 j))) 0))
             )
         )
         bits
@@ -28204,7 +28215,7 @@
         (§ block
             (§ var #_"int" (§ name hLen) 20)
 
-            (§ if (§ expr (- (Math/pow 2, 32) 1) * hLen < dkLen))
+            (§ if (< (* (- (Math/pow 2, 32) 1) hLen) dkLen))
             (§ block
                 (§ throw (§ new #_"IllegalArgumentException" "derived key too long"))
             )
@@ -28243,7 +28254,7 @@
 
         (§ for (§ var #_"int" (§ name j) 0) :for (< j c) :for (§ ass (§ name j) (+ j 1)))
         (§ block
-            (§ if (§ expr j == 0))
+            (§ if (== j 0))
             (§ block
                 (§ var #_"byte[]" (§ name baS) (.. S (getBytes "UTF-8")))
                 (§ var #_"byte[]" (§ name baI) (INT i))
@@ -28261,9 +28272,9 @@
                 (§ var #_"byte[]" (§ name baU) (.. mac (doFinal U_LAST)))
                 (.. mac (reset))
 
-                (§ for (§ var #_"int" (§ name k) 0) :for (§ expr k < (.. U_XOR length)) :for (§ ass (§ name k) (+ k 1)))
+                (§ for (§ var #_"int" (§ name k) 0) :for (< k (.. U_XOR length)) :for (§ ass (§ name k) (+ k 1)))
                 (§ block
-                    (§ ass (§ name (§ ai U_XOR k)) (§ cast #_"byte" (§ expr (§ ai U_XOR k) :xor (§ ai baU k))))
+                    (§ ass (§ name (§ ai U_XOR k)) (§ cast #_"byte" (bit-xor (§ ai U_XOR k) (§ ai baU k))))
                 )
 
                 (§ ass (§ name U_LAST) baU)
@@ -28353,12 +28364,12 @@
     (§ defn #_"int" (§ fn calcSigHashValue) [#_"Transaction.SigHash" (§ name mode), #_"boolean" (§ name anyoneCanPay)])
     (§ block
         ;; Enforce compatibility since this code was made before the SigHash enum was updated.
-        (Preconditions/checkArgument (§ expr SigHash/ALL == mode || SigHash/NONE == mode || SigHash/SINGLE == mode))
+        (Preconditions/checkArgument (or (== mode SigHash/ALL) (== mode SigHash/NONE) (== mode SigHash/SINGLE)))
 
         (§ var #_"int" (§ name sighashFlags) (.. mode value))
         (§ if anyoneCanPay)
         (§ block
-            (§ ass (§ name sighashFlags) (§ expr sighashFlags | (.. Transaction/SigHash/ANYONECANPAY value)))
+            (§ ass (§ name sighashFlags) (| sighashFlags (.. Transaction/SigHash/ANYONECANPAY value)))
         )
         sighashFlags
     )
@@ -28380,50 +28391,50 @@
         ;; Where R and S are not negative (their first byte has its highest bit not set), and not
         ;; excessively padded (do not start with a 0 byte, unless an otherwise negative number follows,
         ;; in which case a single 0 byte is necessary and even required).
-        (§ if (§ expr (.. signature length) < 9 || 73 < (.. signature length)))
+        (§ if (not (<= 9 (.. signature length) 73)))
         (§ block
             (§ return false)
         )
 
-        (§ var #_"int" (§ name hashType) (& (& (§ ai signature (- (.. signature length) 1)) 0xff) (§ flip (.. Transaction/SigHash/ANYONECANPAY value)))) ;; mask the byte to prevent sign-extension hurting us
-        (§ if (§ expr hashType < (.. Transaction/SigHash/ALL value) || (.. Transaction/SigHash/SINGLE value) < hashType))
+        (§ var #_"int" (§ name hashType) (& (& (§ ai signature (- (.. signature length) 1)) 0xff) (bit-not (.. Transaction/SigHash/ANYONECANPAY value)))) ;; mask the byte to prevent sign-extension hurting us
+        (§ if (not (<= (.. Transaction/SigHash/ALL value) hashType (.. Transaction/SigHash/SINGLE value))))
         (§ block
             (§ return false)
         )
 
         ;;                   "wrong type"                  "wrong length marker"
-        (§ if (§ expr (§ expr (§ ai signature 0) & 0xff) != 0x30 || (§ expr (§ ai signature 1) & 0xff) != (.. signature length) - 3))
+        (§ if (or (!= (& 0xff (§ ai signature 0)) 0x30) (!= (& 0xff (§ ai signature 1)) (- (.. signature length) 3))))
         (§ block
             (§ return false)
         )
 
-        (§ var #_"int" (§ name lenR) (§ expr (§ ai signature 3) & 0xff))
-        (§ if (§ expr (.. signature length) <= 5 + lenR || lenR == 0))
+        (§ var #_"int" (§ name lenR) (& 0xff (§ ai signature 3)))
+        (§ if (or (<= (.. signature length) (+ 5 lenR)) (== lenR 0)))
         (§ block
             (§ return false)
         )
-        (§ var #_"int" (§ name lenS) (§ expr (§ ai signature (§ expr 5 + lenR)) & 0xff))
-        (§ if (§ expr lenR + lenS + 7 != (.. signature length) || lenS == 0))
+        (§ var #_"int" (§ name lenS) (& 0xff (§ ai signature (+ 5 lenR))))
+        (§ if (or (!= (+ lenR lenS 7) (.. signature length)) (== lenS 0)))
         (§ block
             (§ return false)
         )
 
         ;;    R value type mismatch          R value negative
-        (§ if (§ expr (§ ai signature (§ expr 4 - 2)) != 0x02 || (§ expr (§ ai signature 4) & 0x80) == 0x80))
+        (§ if (or (!= (§ ai signature (- 4 2)) 0x02) (== (& 0x80 (§ ai signature 4)) 0x80)))
         (§ block
             (§ return false)
         )
-        (§ if (§ expr 1 < lenR && (§ ai signature 4) == 0x00 && (§ expr (§ ai signature (§ expr 4 + 1)) & 0x80) != 0x80))
+        (§ if (and (< 1 lenR) (== (§ ai signature 4) 0x00) (!= (& 0x80 (§ ai signature (+ 4 1))) 0x80)))
         (§ block
             (§ return false) ;; R value excessively padded
         )
 
         ;;       S value type mismatch                    S value negative
-        (§ if (§ expr (§ ai signature (§ expr 6 + lenR - 2)) != 0x02 || (§ expr (§ ai signature (§ expr 6 + lenR)) & 0x80) == 0x80))
+        (§ if (or (!= (§ ai signature (+ 6 lenR -2)) 0x02) (== (& 0x80 (§ ai signature (+ 6 lenR))) 0x80)))
         (§ block
             (§ return false)
         )
-        (§ if (§ expr 1 < lenS && (§ ai signature (§ expr 6 + lenR)) == 0x00 && (§ expr (§ ai signature (§ expr 6 + lenR + 1)) & 0x80) != 0x80))
+        (§ if (and (< 1 lenS) (== (§ ai signature (+ 6 lenR)) 0x00) (!= (& 0x80 (§ ai signature (+ 6 lenR 1))) 0x80)))
         (§ block
             (§ return false) ;; S value excessively padded
         )
@@ -28434,7 +28445,7 @@
     #_public
     (§ method #_"boolean" (§ fn anyoneCanPay) [])
     (§ block
-        (!= (§ expr sighashFlags & (.. Transaction/SigHash/ANYONECANPAY value)) 0)
+        (!= (& sighashFlags (.. Transaction/SigHash/ANYONECANPAY value)) 0)
     )
 
     #_public
@@ -28442,11 +28453,11 @@
     (§ block
         (§ var #_"int" (§ name mode) (& sighashFlags 0x1f))
 
-        (§ if (§ expr mode == (.. Transaction/SigHash/NONE value)))
+        (§ if (== mode (.. Transaction/SigHash/NONE value)))
         (§ block
             (§ return Transaction/SigHash/NONE)
         )
-        (§ if (§ expr mode == (.. Transaction/SigHash/SINGLE value)))
+        (§ if (== mode (.. Transaction/SigHash/SINGLE value)))
         (§ block
             (§ return Transaction/SigHash/SINGLE)
         )
@@ -28510,7 +28521,7 @@
         (§ throws #_"VerificationException")
     (§ block
         ;; Bitcoin encoding is DER signature + sighash byte.
-        (§ if (§ expr requireCanonicalEncoding && (§ not (isEncodingCanonical bytes))))
+        (§ if (and requireCanonicalEncoding (not (isEncodingCanonical bytes))))
         (§ block
             (§ throw (§ new #_"VerificationException" "Signature encoding is not canonical."))
         )
@@ -28524,7 +28535,7 @@
         (§ block
             (§ throw (§ new #_"VerificationException" "Could not decode DER", e))
         )
-        (§ if (§ expr requireCanonicalSValue && (§ not (.. sig (isCanonical)))))
+        (§ if (and requireCanonicalSValue (not (.. sig (isCanonical)))))
         (§ block
             (§ throw (§ new #_"VerificationException" "S-value is not canonical."))
         )
@@ -28658,7 +28669,7 @@
     #_public
     (§ method #_"WalletAppKit" (§ fn setPeerNodes) [#_"PeerAddress..." (§ name addresses)])
     (§ block
-        (Preconditions/checkState (§ expr (state) == State/NEW), "Cannot call after startup")
+        (Preconditions/checkState (== (state) State/NEW), "Cannot call after startup")
         (§ ass (§ name (.. this peerAddresses)) addresses)
         this
     )
@@ -28683,7 +28694,7 @@
     #_public
     (§ method #_"WalletAppKit" (§ fn setAutoSave) [#_"boolean" (§ name value)])
     (§ block
-        (Preconditions/checkState (§ expr (state) == State/NEW), "Cannot call after startup")
+        (Preconditions/checkState (== (state) State/NEW), "Cannot call after startup")
         (§ ass (§ name useAutoSave) value)
         this
     )
@@ -28817,8 +28828,8 @@
         (§ var #_"RandomAccessFile" (§ name file2) nil)
         (§ try )
         (§ block
-            (§ var #_"File" (§ name file) (§ new #_"File" directory, (§ expr filePrefix + ".spvchain")))
-            (§ if (§ not (.. file (exists))))
+            (§ var #_"File" (§ name file) (§ new #_"File" directory, (str filePrefix ".spvchain")))
+            (§ if (not (.. file (exists))))
             (§ block
                 (§ return false)
             )
@@ -28851,7 +28862,7 @@
     (§ block
         ;; Runs in a separate thread.
         (Context/propagate context)
-        (§ if (§ expr (§ not (.. directory (exists))) && (§ not (.. directory (mkdirs)))))
+        (§ if (and (not (.. directory (exists))) (not (.. directory (mkdirs)))))
         (§ block
             (§ throw (§ new #_"IOException" (str "Could not create directory " (.. directory (getAbsolutePath)))))
         )
@@ -28859,17 +28870,17 @@
         (.. log (info "Starting up with directory = {}", directory))
         (§ try )
         (§ block
-            (§ var #_"File" (§ name chainFile) (§ new #_"File" directory, (§ expr filePrefix + ".spvchain")))
+            (§ var #_"File" (§ name chainFile) (§ new #_"File" directory, (str filePrefix ".spvchain")))
             (§ var #_"boolean" (§ name chainFileExists) (.. chainFile (exists)))
-            (§ ass (§ name vWalletFile) (§ new #_"File" directory, (§ expr filePrefix + ".wallet")))
-            (§ var #_"boolean" (§ name shouldReplayWallet) (§ expr (§ expr (.. vWalletFile (exists)) && (§ not chainFileExists)) || restoreFromSeed != nil))
+            (§ ass (§ name vWalletFile) (§ new #_"File" directory, (str filePrefix ".wallet")))
+            (§ var #_"boolean" (§ name shouldReplayWallet) (or (and (.. vWalletFile (exists)) (not chainFileExists)) (some? restoreFromSeed)))
             (§ ass (§ name vWallet) (createOrLoadWallet shouldReplayWallet))
 
             ;; Initiate Bitcoin network objects (block store, blockchain and peer group).
             (§ ass (§ name vStore) (provideBlockStore chainFile))
-            (§ if (§ expr (§ not chainFileExists) || restoreFromSeed != nil))
+            (§ if (or (not chainFileExists) (some? restoreFromSeed)))
             (§ block
-                (§ if (§ expr checkpoints == nil && (§ not (Utils/isAndroidRuntime))))
+                (§ if (and (nil? checkpoints) (not (Utils/isAndroidRuntime))))
                 (§ block
                     (§ ass (§ name checkpoints) (CheckpointManager/openStream params))
                 )
@@ -28885,7 +28896,7 @@
                         (§ block
                             (.. log (info "Deleting the chain file in preparation from restore."))
                             (.. vStore (close))
-                            (§ if (§ not (.. chainFile (delete))))
+                            (§ if (not (.. chainFile (delete))))
                             (§ block
                                 (§ throw (§ new #_"IOException" "Failed to delete chain file in preparation for restore."))
                             )
@@ -28910,7 +28921,7 @@
                 (§ block
                     (.. log (info "Deleting the chain file in preparation from restore."))
                     (.. vStore (close))
-                    (§ if (§ not (.. chainFile (delete))))
+                    (§ if (not (.. chainFile (delete))))
                     (§ block
                         (§ throw (§ new #_"IOException" "Failed to delete chain file in preparation for restore."))
                     )
@@ -29076,7 +29087,7 @@
         (§ block
             (§ return nil)
         )
-        (§ if (§ not (.. vWalletFile (exists))))
+        (§ if (not (.. vWalletFile (exists))))
         (§ block
             (§ return nil)
         )
@@ -29093,7 +29104,7 @@
         (.. log (info "Renaming old wallet file {} to {}", vWalletFile, newName))
 
         ;; This should not happen unless something is really messed up.
-        (§ if (§ not (.. vWalletFile (renameTo newName))))
+        (§ if (not (.. vWalletFile (renameTo newName))))
         (§ block
             (§ throw (§ new #_"RuntimeException" "Failed to rename wallet for restore"))
         )
@@ -29168,28 +29179,28 @@
     #_public
     (§ method #_"BlockChain" (§ fn chain) [])
     (§ block
-        (Preconditions/checkState (§ expr (state) == State/STARTING || (state) == State/RUNNING), "Cannot call until startup is complete")
+        (Preconditions/checkState (or (== (state) State/STARTING) (== (state) State/RUNNING)), "Cannot call until startup is complete")
         vChain
     )
 
     #_public
     (§ method #_"BlockStore" (§ fn store) [])
     (§ block
-        (Preconditions/checkState (§ expr (state) == State/STARTING || (state) == State/RUNNING), "Cannot call until startup is complete")
+        (Preconditions/checkState (or (== (state) State/STARTING) (== (state) State/RUNNING)), "Cannot call until startup is complete")
         vStore
     )
 
     #_public
     (§ method #_"Wallet" (§ fn wallet) [])
     (§ block
-        (Preconditions/checkState (§ expr (state) == State/STARTING || (state) == State/RUNNING), "Cannot call until startup is complete")
+        (Preconditions/checkState (or (== (state) State/STARTING) (== (state) State/RUNNING)), "Cannot call until startup is complete")
         vWallet
     )
 
     #_public
     (§ method #_"PeerGroup" (§ fn peerGroup) [])
     (§ block
-        (Preconditions/checkState (§ expr (state) == State/STARTING || (state) == State/RUNNING), "Cannot call until startup is complete")
+        (Preconditions/checkState (or (== (state) State/STARTING) (== (state) State/RUNNING)), "Cannot call until startup is complete")
         vPeerGroup
     )
 
@@ -29271,7 +29282,7 @@
         (§ block
             (.. timeoutTask (cancel))
         )
-        (§ if (§ expr timeoutMillis == 0 || (§ not timeoutEnabled)))
+        (§ if (or (== timeoutMillis 0) (not timeoutEnabled)))
         (§ block
             (§ return nil)
         )
@@ -29377,7 +29388,7 @@
                 )
                 (§ catch #_"Exception" (§ name e))
                 (§ block
-                    (§ if (§ not vCloseRequested))
+                    (§ if (not vCloseRequested))
                     (§ block
                         (.. log (error "Error trying to open/read from connection: {}: {}", serverAddress, (.. e (getMessage))))
                         (.. connectFuture (setException e))
@@ -29422,9 +29433,9 @@
         (§ while true)
         (§ block
             ;; TODO: Kill the message duplication here.
-            (Preconditions/checkState (§ expr 0 < (.. dbuf (remaining)) && (.. dbuf (remaining)) <= (.. readBuff length)))
+            (Preconditions/checkState (and (< 0 (.. dbuf (remaining))) (<= (.. dbuf (remaining)) (.. readBuff length))))
             (§ var #_"int" (§ name read) (.. stream (read readBuff, 0, (Math/max 1, (Math/min (.. dbuf (remaining)), (.. stream (available)))))))
-            (§ if (§ expr read == -1))
+            (§ if (== read -1))
             (§ block
                 (§ return nil)
             )
@@ -29540,7 +29551,7 @@
     (§ block
         (§ try )
         (§ block
-            (§ if (§ not (isRunning)))
+            (§ if (not (isRunning)))
             (§ block
                 (§ throw (§ new #_"IllegalStateException"))
             )
@@ -29595,14 +29606,14 @@
     #_public
     (§ method #_"void" (§ fn closeConnections) [#_"int" (§ name n)])
     (§ block
-        (§ if (§ not (isRunning)))
+        (§ if (not (isRunning)))
         (§ block
             (§ throw (§ new #_"IllegalStateException"))
         )
 
         (§ sync clients)
         (§ block
-            (§ for (§ var #_"Iterator<BlockingClient>" (§ name it) (.. clients (iterator))) :for (§ expr 0 < n && (.. it (hasNext))) :for (§ ass (§ name n) (- n 1)))
+            (§ for (§ var #_"Iterator<BlockingClient>" (§ name it) (.. clients (iterator))) :for (and (< 0 n) (.. it (hasNext))) :for (§ ass (§ name n) (- n 1)))
             (§ block
                 (.. it (next) (closeConnection))
             )
@@ -29742,7 +29753,7 @@
         (§ try )
         (§ block
             (§ ass (§ name (.. this connectedHandlers)) connectedHandlers)
-            (§ if (§ not closeCalled))
+            (§ if (not closeCalled))
             (§ block
                 (Preconditions/checkState (.. this connectedHandlers (add this)))
             )
@@ -29778,8 +29789,8 @@
             (§ while (.. bytesIterator (hasNext)))
             (§ block
                 (§ var #_"ByteBuffer" (§ name buff) (.. bytesIterator (next)))
-                (§ ass (§ name bytesToWriteRemaining) (§ expr bytesToWriteRemaining - (.. channel (write buff))))
-                (§ if (§ not (.. buff (hasRemaining))))
+                (§ ass (§ name bytesToWriteRemaining) (- bytesToWriteRemaining (.. channel (write buff))))
+                (§ if (not (.. buff (hasRemaining))))
                 (§ block
                     (.. bytesIterator (remove))
                 )
@@ -29792,7 +29803,7 @@
             ;; If we are done writing, clear the OP_WRITE interestOps.
             (§ if (.. bytesToWrite (isEmpty)))
             (§ block
-                (.. key (interestOps (& (.. key (interestOps)) (§ flip SelectionKey/OP_WRITE))))
+                (.. key (interestOps (& (.. key (interestOps)) (bit-not SelectionKey/OP_WRITE))))
             )
             ;; Don't bother waking up the selector here, since we're just removing an op, not adding.
         )
@@ -29816,7 +29827,7 @@
             ;; thus we have to buffer outbound messages sometimes.  To do this, we use a queue of ByteBuffers and just
             ;; append to it when we want to send a message.  We then let tryWriteBytes() either send the message or
             ;; register our SelectionKey to wakeup when we have free outbound buffer space available.
-            (§ if (§ expr OUTBOUND_BUFFER_BYTE_COUNT < bytesToWriteRemaining + (.. message length)))
+            (§ if (< OUTBOUND_BUFFER_BYTE_COUNT (+ bytesToWriteRemaining (.. message length))))
             (§ block
                 (§ throw (§ new #_"IOException" "Outbound buffer overflowed"))
             )
@@ -29824,7 +29835,7 @@
             ;; Just dump the message onto the write buffer and call tryWriteBytes.
             ;; TODO: Kill the needless message duplication when the write completes right away.
             (.. bytesToWrite (offer (ByteBuffer/wrap (Arrays/copyOf message, (.. message length)))))
-            (§ ass (§ name bytesToWriteRemaining) (§ expr bytesToWriteRemaining + (.. message length)))
+            (§ ass (§ name bytesToWriteRemaining) (+ bytesToWriteRemaining (.. message length)))
             (setWriteOps)
         )
         (§ catch #_"IOException" (§ name e))
@@ -29858,7 +29869,7 @@
     #_public
     (§ method #_"void" (§ fn closeConnection) [])
     (§ block
-        (Preconditions/checkState (§ not (.. lock (isHeldByCurrentThread))))
+        (Preconditions/checkState (not (.. lock (isHeldByCurrentThread))))
         (§ try )
         (§ block
             (.. channel (close))
@@ -29878,7 +29889,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ ass (§ name callClosed) (§ not closeCalled))
+            (§ ass (§ name callClosed) (not closeCalled))
             (§ ass (§ name closeCalled) true)
         )
         (§ finally )
@@ -29887,7 +29898,7 @@
         )
         (§ if callClosed)
         (§ block
-            (Preconditions/checkState (§ expr connectedHandlers == nil || (.. connectedHandlers (remove this))))
+            (Preconditions/checkState (or (nil? connectedHandlers) (.. connectedHandlers (remove this))))
             (.. connection (connectionClosed))
         )
         nil
@@ -29907,7 +29918,7 @@
             (§ block
                 (§ return nil)
             )
-            (§ if (§ not (.. key (isValid))))
+            (§ if (not (.. key (isValid))))
             (§ block
                 (.. handler (closeConnection)) ;; Key has been cancelled, make sure the socket gets closed.
                 (§ return nil)
@@ -29916,11 +29927,11 @@
             (§ block
                 ;; Do a socket read and invoke the connection's receiveBytes message.
                 (§ var #_"int" (§ name read) (.. handler channel (read (.. handler readBuff))))
-                (§ if (§ expr read == 0))
+                (§ if (== read 0))
                 (§ block
                     (§ return nil) ;; Was probably waiting on a write.
                 )
-                (§ elseif (§ expr read == -1)) ;; Socket was closed.
+                (§ elseif (== read -1)) ;; Socket was closed.
                 (§ block
                     (.. key (cancel))
                     (.. handler (closeConnection))
@@ -30022,7 +30033,7 @@
             (§ for (§ var #_"PeerFilterProvider" (§ name p)) :for providers)
             (§ block
                 (§ ass (§ name (.. result earliestKeyTimeSecs)) (Math/min (.. result earliestKeyTimeSecs), (.. p (getEarliestKeyCreationTime))))
-                (§ ass (§ name elements) (§ expr elements + (.. p (getBloomFilterElementCount))))
+                (§ ass (§ name elements) (+ elements (.. p (getBloomFilterElementCount))))
             )
 
             (§ if (< 0 elements))
@@ -30040,13 +30051,13 @@
                     (.. filter (merge (.. p (getBloomFilter lastBloomFilterElementCount, fpRate, bloomFilterTweak))))
                 )
 
-                (§ ass (§ name (.. result changed)) (§ not (.. filter (equals lastFilter))))
+                (§ ass (§ name (.. result changed)) (not (.. filter (equals lastFilter))))
                 (§ ass (§ name (.. result filter)) (§ ass (§ name lastFilter) filter))
             )
             ;; Now adjust the earliest key time backwards by a week to handle the case of clock drift.  This can occur
             ;; both in block header timestamps and if the users clock was out of sync when the key was first created
             ;; (to within a small amount of tolerance).
-            (§ ass (§ name (.. result earliestKeyTimeSecs)) (§ expr earliestKeyTimeSecs - (* 86400 7)))
+            (§ ass (§ name (.. result earliestKeyTimeSecs)) (- earliestKeyTimeSecs (* 86400 7)))
             (§ return result)
         )
         (§ finally )
@@ -30154,7 +30165,7 @@
         (§ method #_"void" (§ fn connectionClosed) [])
         (§ block
             (.. manager (stopAsync))
-            (§ if (§ not closeCalled))
+            (§ if (not closeCalled))
             (§ block
                 (§ ass (§ name closeCalled) true)
                 (.. upstreamConnection (connectionClosed))
@@ -30167,7 +30178,7 @@
         #_synchronized
         (§ method #_"void" (§ fn connectionOpened) [])
         (§ block
-            (§ if (§ not closeOnOpen))
+            (§ if (not closeOnOpen))
             (§ block
                 (.. upstreamConnection (connectionOpened))
             )
@@ -30315,7 +30326,7 @@
     (§ block
         ;; We could have a !isValid() key here if the connection is already closed at this point,
         ;; i.e. a client connection which has finished the initial connect process.
-        (§ if (§ expr (.. key (isValid)) && (.. key (isConnectable))))
+        (§ if (and (.. key (isValid)) (.. key (isConnectable))))
         (§ block
             ;; Create a ConnectionHandler and hook everything together.
             (§ var #_"PendingConnect" (§ name data) (§ cast #_"PendingConnect" (.. key (attachment))))
@@ -30327,7 +30338,7 @@
                 (§ if (.. sc (finishConnect)))
                 (§ block
                     (.. log (info "Connected to {}", (.. sc (socket) (getRemoteSocketAddress))))
-                    (.. key (interestOps (& (| (.. key (interestOps)) SelectionKey/OP_READ) (§ flip SelectionKey/OP_CONNECT))) (attach handler))
+                    (.. key (interestOps (& (| (.. key (interestOps)) SelectionKey/OP_READ) (bit-not SelectionKey/OP_CONNECT))) (attach handler))
                     (.. connection (connectionOpened))
                     (.. data future (set (.. data address)))
                 )
@@ -30449,7 +30460,7 @@
     #_public
     (§ method #_"ListenableFuture<SocketAddress>" (§ fn openConnection) [#_"SocketAddress" (§ name serverAddress), #_"StreamConnection" (§ name connection)])
     (§ block
-        (§ if (§ not (isRunning)))
+        (§ if (not (isRunning)))
         (§ block
             (§ throw (§ new #_"IllegalStateException"))
         )
@@ -30556,7 +30567,7 @@
     (§ method- #_"void" (§ fn handleKey) [#_"Selector" (§ name selector), #_"SelectionKey" (§ name key)])
         (§ throws #_"IOException")
     (§ block
-        (§ if (§ expr (.. key (isValid)) && (.. key (isAcceptable))))
+        (§ if (and (.. key (isValid)) (.. key (isAcceptable))))
         (§ block
             ;; Accept a new connection, give it a stream connection as an attachment.
             (§ var #_"SocketChannel" (§ name newChannel) (.. sc (accept)))
@@ -30571,7 +30582,7 @@
             (§ catch #_"IOException" (§ name e))
             (§ block
                 ;; This can happen if ConnectionHandler's call to get a new handler returned null.
-                (.. log (error "Error handling new connection", (§ expr (.. (Throwables/getRootCause e) (getMessage)))))
+                (.. log (error "Error handling new connection", (.. (Throwables/getRootCause e) (getMessage))))
                 (.. newKey (channel) (close))
             )
         )
@@ -30769,7 +30780,7 @@
     (§ block
         (§ ass (§ name (.. this handler)) handler)
         (§ ass (§ name (.. this prototype)) prototype)
-        (§ ass (§ name (.. this maxMessageSize)) (Math/min maxMessageSize, (§ expr Integer/MAX_VALUE - 4)))
+        (§ ass (§ name (.. this maxMessageSize)) (Math/min maxMessageSize, (- Integer/MAX_VALUE 4)))
         (setTimeoutEnabled false)
         (setSocketTimeout timeoutMillis)
         this
@@ -30836,17 +30847,17 @@
             (§ if (some? messageBytes))
             (§ block
                 ;; Just keep filling up the currently being worked on message.
-                (§ var #_"int" (§ name bytesToGet) (Math/min (§ expr (.. messageBytes length) - messageBytesOffset), (.. buff (remaining))))
+                (§ var #_"int" (§ name bytesToGet) (Math/min (- (.. messageBytes length) messageBytesOffset), (.. buff (remaining))))
                 (.. buff (get messageBytes, messageBytesOffset, bytesToGet))
                 (§ ass (§ name messageBytesOffset) (+ messageBytesOffset bytesToGet))
-                (§ if (§ expr messageBytesOffset == (.. messageBytes length)))
+                (§ if (== messageBytesOffset (.. messageBytes length)))
                 (§ block
                     ;; Filled up our buffer, decode the message.
                     (deserializeMessage (ByteBuffer/wrap messageBytes))
                     (§ ass (§ name messageBytes) nil)
                     (§ if (.. buff (hasRemaining)))
                     (§ block
-                        (§ return (§ expr bytesToGet + (receiveBytes buff)))
+                        (§ return (+ bytesToGet (receiveBytes buff)))
                     )
                 )
                 (§ return bytesToGet)
@@ -30864,14 +30875,14 @@
 
             ;; If length is larger than the maximum message size (or is negative/overflows) throw an exception and close
             ;; the connection.
-            (§ if (§ expr maxMessageSize < len || len + 4 < 4))
+            (§ if (or (< maxMessageSize len) (< (+ len 4) 4)))
             (§ block
                 (§ throw (§ new #_"IllegalStateException" "Message too large or length underflowed"))
             )
 
             ;; If the buffer's capacity is less than the next messages length + 4 (length prefix), we must use messageBytes
             ;; as a temporary buffer to store the message.
-            (§ if (§ expr (.. buff (capacity)) < len + 4))
+            (§ if (< (.. buff (capacity)) (+ len 4)))
             (§ block
                 (§ ass (§ name messageBytes) (§ new #_"byte[]" (§ count len)))
                 ;; Now copy all remaining bytes into the new buffer, set messageBytesOffset and tell the caller how many
@@ -30901,7 +30912,7 @@
             ;; If there are still bytes remaining, see if we can pull out another message since we won't get called again.
             (§ if (.. buff (hasRemaining)))
             (§ block
-                (§ return (§ expr len + 4 + (receiveBytes buff)))
+                (§ return (+ len 4 (receiveBytes buff)))
             )
             (§ else )
             (§ block
@@ -31125,7 +31136,7 @@
         (§ method #_"InetSocketAddress[]" (§ fn getPeers) [#_"long" (§ name services), #_"long" (§ name timeoutValue), #_"TimeUnit" (§ name timeoutUnit)])
             (§ throws #_"PeerDiscoveryException")
         (§ block
-            (§ if (§ expr services != 0))
+            (§ if (!= services 0))
             (§ block
                 (§ throw (§ new #_"PeerDiscoveryException" (str "DNS seeds cannot filter by services: " services)))
             )
@@ -31134,7 +31145,7 @@
             (§ block
                 (§ var #_"InetAddress[]" (§ name response) (InetAddress/getAllByName hostname))
                 (§ var #_"InetSocketAddress[]" (§ name result) (§ new #_"InetSocketAddress[]" (§ count (.. response length))))
-                (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. response length)) :for (§ ass (§ name i) (+ i 1)))
+                (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. response length)) :for (§ ass (§ name i) (+ i 1)))
                 (§ block
                     (§ ass (§ name (§ ai result i)) (§ new #_"InetSocketAddress" (§ ai response i), (.. params (getPort))))
                 )
@@ -31204,7 +31215,7 @@
     (§ block
         (§ var #_"List<PeerDiscovery>" (§ name discoveries) (Lists/newArrayList))
         ;; Also use DNS seeds if there is no specific service requirement.
-        (§ if (§ expr services == 0))
+        (§ if (== services 0))
         (§ block
             (§ var #_"String[]" (§ name dnsSeeds) (.. params (getDnsSeeds)))
             (§ if (some? dnsSeeds))
@@ -31224,7 +31235,7 @@
     #_public
     (§ constructor #_"MultiplexingDiscovery" [#_"NetworkParameters" (§ name params), #_"List<PeerDiscovery>" (§ name seeds)])
     (§ block
-        (Preconditions/checkArgument (§ not (.. seeds (isEmpty))))
+        (Preconditions/checkArgument (not (.. seeds (isEmpty))))
 
         (§ ass (§ name (.. this netParams)) params)
         (§ ass (§ name (.. this seeds)) seeds)
@@ -31249,13 +31260,13 @@
                     (§ method #_"InetSocketAddress[]" (§ fn call) [])
                         (§ throws #_"Exception")
                     (§ block
-                        (.. seed (getPeers services, timeoutValue, (§ expr  timeoutUnit)))
+                        (.. seed (getPeers services, timeoutValue, timeoutUnit))
                     )
                 ))))
             )
             (§ var #_"List<Future<InetSocketAddress[]>>" (§ name futures) (.. vThreadPool (invokeAll tasks, timeoutValue, timeoutUnit)))
             (§ var #_"ArrayList<InetSocketAddress>" (§ name addrs) (Lists/newArrayList))
-            (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. futures (size))) :for (§ ass (§ name i) (+ i 1)))
+            (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. futures (size))) :for (§ ass (§ name i) (+ i 1)))
             (§ block
                 (§ var #_"Future<InetSocketAddress[]>" (§ name future) (.. futures (get i)))
                 (§ if (.. future (isCancelled)))
@@ -31441,7 +31452,7 @@
     (§ method- #_"InetSocketAddress" (§ fn nextPeer) [])
         (§ throws #_"UnknownHostException", #_"PeerDiscoveryException")
     (§ block
-        (§ if (§ expr seedAddrs == nil || (.. seedAddrs length) == 0))
+        (§ if (or (nil? seedAddrs) (== (.. seedAddrs length) 0)))
         (§ block
             (§ throw (§ new #_"PeerDiscoveryException" "No IP address seeds configured; unable to find any peers"))
         )
@@ -31464,7 +31475,7 @@
     (§ method #_"InetSocketAddress[]" (§ fn getPeers) [#_"long" (§ name services), #_"long" (§ name timeoutValue), #_"TimeUnit" (§ name timeoutUnit)])
         (§ throws #_"PeerDiscoveryException")
     (§ block
-        (§ if (§ expr services != 0))
+        (§ if (!= services 0))
         (§ block
             (§ throw (§ new #_"PeerDiscoveryException" (str "Pre-determined peers cannot be filtered by services: " services)))
         )
@@ -31484,7 +31495,7 @@
         (§ throws #_"UnknownHostException")
     (§ block
         (§ var #_"InetSocketAddress[]" (§ name addresses) (§ new #_"InetSocketAddress[]" (§ count (.. seedAddrs length))))
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. seedAddrs length)) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. seedAddrs length)) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ ass (§ name (§ ai addresses i)) (§ new #_"InetSocketAddress" (convertAddress (§ ai seedAddrs i)), (.. params (getPort))))
         )
@@ -31497,9 +31508,9 @@
     (§ block
         (§ var #_"byte[]" (§ name v4addr) (§ new #_"byte[]" (§ count 4)))
         (§ ass (§ name (§ ai v4addr 0)) (§ cast #_"byte" (& 0xff seed)))
-        (§ ass (§ name (§ ai v4addr 1)) (§ cast #_"byte" (§ expr 0xff & (>> seed 8))))
-        (§ ass (§ name (§ ai v4addr 2)) (§ cast #_"byte" (§ expr 0xff & (>> seed 16))))
-        (§ ass (§ name (§ ai v4addr 3)) (§ cast #_"byte" (§ expr 0xff & (>> seed 24))))
+        (§ ass (§ name (§ ai v4addr 1)) (§ cast #_"byte" (& 0xff (>> seed 8))))
+        (§ ass (§ name (§ ai v4addr 2)) (§ cast #_"byte" (& 0xff (>> seed 16))))
+        (§ ass (§ name (§ ai v4addr 3)) (§ cast #_"byte" (& 0xff (>> seed 24))))
         (InetAddress/getByAddress v4addr)
     )
 
@@ -31555,7 +31566,7 @@
     #_public
     (§ method #_"boolean" (§ fn isRewardHalvingPoint) [#_"int" (§ name height)])
     (§ block
-        (== (§ expr (+ height 1) % REWARD_HALVING_INTERVAL) 0)
+        (== (% (+ height 1) REWARD_HALVING_INTERVAL) 0)
     )
 
     ;;;
@@ -31566,7 +31577,7 @@
     #_public
     (§ method #_"boolean" (§ fn isDifficultyTransitionPoint) [#_"int" (§ name height)])
     (§ block
-        (== (§ expr (+ height 1) % (.. this (getInterval))) 0)
+        (== (% (+ height 1) (.. this (getInterval))) 0)
     )
 
     #_override
@@ -31577,7 +31588,7 @@
         (§ var #_"Block" (§ name prev) (.. storedPrev (getHeader)))
 
         ;; Is this supposed to be a difficulty transition point?
-        (§ if (§ not (isDifficultyTransitionPoint (.. storedPrev (getHeight)))))
+        (§ if (not (isDifficultyTransitionPoint (.. storedPrev (getHeight)))))
         (§ block
             ;; No ... so check the difficulty didn't actually change.
             (§ if (!= (.. nextBlock (getDifficultyTarget)) (.. prev (getDifficultyTarget))))
@@ -31604,10 +31615,10 @@
             )
             (§ ass (§ name hash) (.. cursor (getHeader) (getPrevBlockHash)))
         )
-        (Preconditions/checkState (§ expr cursor != nil && (isDifficultyTransitionPoint (- (.. cursor (getHeight)) 1))), "Didn't arrive at a transition point.")
+        (Preconditions/checkState (and (some? cursor) (isDifficultyTransitionPoint (- (.. cursor (getHeight)) 1))), "Didn't arrive at a transition point.")
 
         (.. watch (stop))
-        (§ if (§ expr 50 < (.. watch (elapsed TimeUnit/MILLISECONDS))))
+        (§ if (< 50 (.. watch (elapsed TimeUnit/MILLISECONDS))))
         (§ block
             (.. log (info "Difficulty transition traversal took {}", watch))
         )
@@ -31616,11 +31627,11 @@
         (§ var #_"int" (§ name timespan) (§ cast #_"int" (- (.. prev (getTimeSeconds)) (.. blockIntervalAgo (getTimeSeconds)))))
         ;; Limit the adjustment step.
         (§ var #_"int" (§ name targetTimespan) (.. this (getTargetTimespan)))
-        (§ if (§ expr timespan < targetTimespan / 4))
+        (§ if (< timespan (/ targetTimespan 4)))
         (§ block
             (§ ass (§ name timespan) (/ targetTimespan 4))
         )
-        (§ if (§ expr timespan > targetTimespan * 4))
+        (§ if (> timespan (* targetTimespan 4)))
         (§ block
             (§ ass (§ name timespan) (* targetTimespan 4))
         )
@@ -31629,7 +31640,7 @@
         (§ ass (§ name newTarget) (.. newTarget (multiply (BigInteger/valueOf timespan))))
         (§ ass (§ name newTarget) (.. newTarget (divide (BigInteger/valueOf targetTimespan))))
 
-        (§ if (§ expr 0 < (.. newTarget (compareTo (.. this (getMaxTarget))))))
+        (§ if (< 0 (.. newTarget (compareTo (.. this (getMaxTarget))))))
         (§ block
             (.. log (info "Difficulty hit proof of work limit: {}", (.. newTarget (toString 16))))
             (§ ass (§ name newTarget) (.. this (getMaxTarget)))
@@ -31643,7 +31654,7 @@
         (§ ass (§ name newTarget) (.. newTarget (and mask)))
         (§ var #_"long" (§ name newTargetCompact) (Utils/encodeCompactBits newTarget))
 
-        (§ if (§ expr newTargetCompact != receivedTargetCompact))
+        (§ if (!= newTargetCompact receivedTargetCompact))
         (§ block
             (§ throw (§ new #_"VerificationException" (str "Network provided difficulty bits do not match what was calculated: " (Long/toHexString newTargetCompact) " vs " (Long/toHexString receivedTargetCompact))))
         )
@@ -31894,7 +31905,7 @@
 
             (§ for (§ var #_"NetworkParameters" (§ name parameters)) :for networks)
             (§ block
-                (§ if (§ not (.. parameters (equals network))))
+                (§ if (not (.. parameters (equals network))))
                 (§ block
                     (.. builder (add parameters))
                 )
@@ -32002,7 +32013,7 @@
     (§ method #_"void" (§ fn checkDifficultyTransitions) [#_"StoredBlock" (§ name storedPrev), #_"Block" (§ name nextBlock), #_"BlockStore" (§ name blockStore)])
         (§ throws #_"VerificationException", #_"BlockStoreException")
     (§ block
-        (§ if (§ expr (§ not (isDifficultyTransitionPoint (.. storedPrev (getHeight)))) && (.. nextBlock (getTime) (after testnetDiffDate))))
+        (§ if (and (not (isDifficultyTransitionPoint (.. storedPrev (getHeight)))) (.. nextBlock (getTime) (after testnetDiffDate))))
         (§ block
             (§ var #_"Block" (§ name prev) (.. storedPrev (getHeader)))
 
@@ -32012,18 +32023,18 @@
             (§ var #_"long" (§ name timeDelta) (- (.. nextBlock (getTimeSeconds)) (.. prev (getTimeSeconds))))
             ;; There is an integer underflow bug in bitcoin-qt that means mindiff blocks are accepted when time
             ;; goes backwards.
-            (§ if (§ expr 0 <= timeDelta && timeDelta <= NetworkParameters/TARGET_SPACING * 2))
+            (§ if (and (<= 0 timeDelta) (<= timeDelta (* 2 NetworkParameters/TARGET_SPACING))))
             (§ block
                 ;; Walk backwards until we find a block that doesn't have the easiest proof of work, then check
                 ;; that difficulty is equal to that one.
                 (§ var #_"StoredBlock" (§ name cursor) storedPrev)
-                (§ while (§ expr (§ not (.. cursor (getHeader) (equals (getGenesisBlock)))) && (.. cursor (getHeight)) % (getInterval) != 0 && (.. cursor (getHeader) (getDifficultyTargetAsInteger) (equals (getMaxTarget)))))
+                (§ while (and (not (.. cursor (getHeader) (equals (getGenesisBlock)))) (!= (% (.. cursor (getHeight)) (getInterval)) 0) (.. cursor (getHeader) (getDifficultyTargetAsInteger) (equals (getMaxTarget)))))
                 (§ block
                     (§ ass (§ name cursor) (.. cursor (getPrev blockStore)))
                 )
                 (§ var #_"BigInteger" (§ name cursorTarget) (.. cursor (getHeader) (getDifficultyTargetAsInteger)))
                 (§ var #_"BigInteger" (§ name newTarget) (.. nextBlock (getDifficultyTargetAsInteger)))
-                (§ if (§ not (.. cursorTarget (equals newTarget))))
+                (§ if (not (.. cursorTarget (equals newTarget))))
                 (§ block
                     (§ throw (§ new #_"VerificationException" (str "Testnet block transition that is not allowed: " (Long/toHexString (.. cursor (getHeader) (getDifficultyTarget))) " vs " (Long/toHexString (.. nextBlock (getDifficultyTarget))))))
                 )
@@ -32332,18 +32343,18 @@
         (§ ass (§ name chunks) (§ new #_"ArrayList<>" 5)) ;; Common size.
         (§ var #_"ByteArrayInputStream" (§ name bis) (§ new #_"ByteArrayInputStream" program))
         (§ var #_"int" (§ name initialSize) (.. bis (available)))
-        (§ while (§ expr 0 < (.. bis (available))))
+        (§ while (< 0 (.. bis (available))))
         (§ block
-            (§ var #_"int" (§ name startLocationInProgram) (§ expr initialSize - (.. bis (available))))
+            (§ var #_"int" (§ name startLocationInProgram) (- initialSize (.. bis (available))))
             (§ var #_"int" (§ name opcode) (.. bis (read)))
 
             (§ var #_"long" (§ name dataToRead) -1)
-            (§ if (§ expr 0 <= opcode && opcode < OP_PUSHDATA1))
+            (§ if (< -1 opcode OP_PUSHDATA1))
             (§ block
                 ;; Read some bytes of data, where how many is the opcode value itself.
                 (§ ass (§ name dataToRead) opcode)
             )
-            (§ elseif (§ expr opcode == OP_PUSHDATA1))
+            (§ elseif (== opcode OP_PUSHDATA1))
             (§ block
                 (§ if (< (.. bis (available)) 1))
                 (§ block
@@ -32351,7 +32362,7 @@
                 )
                 (§ ass (§ name dataToRead) (.. bis (read)))
             )
-            (§ elseif (§ expr opcode == OP_PUSHDATA2))
+            (§ elseif (== opcode OP_PUSHDATA2))
             (§ block
                 ;; Read a short, then read that many bytes of data.
                 (§ if (< (.. bis (available)) 2))
@@ -32360,7 +32371,7 @@
                 )
                 (§ ass (§ name dataToRead) (| (.. bis (read)) (<< (.. bis (read)) 8)))
             )
-            (§ elseif (§ expr opcode == OP_PUSHDATA4))
+            (§ elseif (== opcode OP_PUSHDATA4))
             (§ block
                 ;; Read a uint32, then read that many bytes of data.
                 ;; Though this is allowed, because its value cannot be > 520, it should never actually be used.
@@ -32368,11 +32379,11 @@
                 (§ block
                     (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_UNKNOWN_ERROR, "Unexpected end of script"))
                 )
-                (§ ass (§ name dataToRead) (§ expr (§ cast #_"long" (.. bis (read))) | (<< (§ cast #_"long" (.. bis (read))) 8) | (<< (§ cast #_"long" (.. bis (read))) 16) | (<< (§ cast #_"long" (.. bis (read))) 24)))
+                (§ ass (§ name dataToRead) (| (§ cast #_"long" (.. bis (read))) (<< (§ cast #_"long" (.. bis (read))) 8) (<< (§ cast #_"long" (.. bis (read))) 16) (<< (§ cast #_"long" (.. bis (read))) 24)))
             )
 
             (§ var #_"ScriptChunk" (§ name chunk))
-            (§ if (§ expr dataToRead == -1))
+            (§ if (== dataToRead -1))
             (§ block
                 (§ ass (§ name chunk) (§ new #_"ScriptChunk" opcode, nil, startLocationInProgram))
             )
@@ -32384,7 +32395,7 @@
                 )
 
                 (§ var #_"byte[]" (§ name data) (§ new #_"byte[]" (§ count (§ cast #_"int" dataToRead))))
-                (Preconditions/checkState (§ or (== dataToRead 0) || (== (.. bis (read data, 0, (§ cast #_"int" dataToRead))) dataToRead)))
+                (Preconditions/checkState (or (== dataToRead 0) (== (.. bis (read data, 0, (§ cast #_"int" dataToRead))) dataToRead)))
                 (§ ass (§ name chunk) (§ new #_"ScriptChunk" opcode, data, startLocationInProgram))
             )
             ;; Save some memory by eliminating redundant copies of the same chunk objects.
@@ -32409,7 +32420,7 @@
     #_public
     (§ method #_"boolean" (§ fn isSentToRawPubKey) [])
     (§ block
-        (§ expr (.. chunks (size)) == 2 && (.. chunks (get 1) (equalsOpCode OP_CHECKSIG)) && (§ not (.. chunks (get 0) (isOpCode))) && 1 < (.. chunks (get 0) data length))
+        (and (== (.. chunks (size)) 2) (.. chunks (get 1) (equalsOpCode OP_CHECKSIG)) (not (.. chunks (get 0) (isOpCode))) (< 1 (.. chunks (get 0) data length)))
     )
 
     ;;;
@@ -32421,7 +32432,7 @@
     #_public
     (§ method #_"boolean" (§ fn isSentToAddress) [])
     (§ block
-        (§ expr (.. chunks (size)) == 5 && (.. chunks (get 0) (equalsOpCode OP_DUP)) && (.. chunks (get 1) (equalsOpCode OP_HASH160)) && (.. chunks (get 2) data length) == Address/LENGTH && (.. chunks (get 3) (equalsOpCode OP_EQUALVERIFY)) && (.. chunks (get 4) (equalsOpCode OP_CHECKSIG)))
+        (and (== (.. chunks (size)) 5) (.. chunks (get 0) (equalsOpCode OP_DUP)) (.. chunks (get 1) (equalsOpCode OP_HASH160)) (== (.. chunks (get 2) data length) Address/LENGTH) (.. chunks (get 3) (equalsOpCode OP_EQUALVERIFY)) (.. chunks (get 4) (equalsOpCode OP_CHECKSIG)))
     )
 
     ;;;
@@ -32475,13 +32486,13 @@
         (§ var #_"byte[]" (§ name chunk1data) (.. chunk1 data))
 
         ;; If we have two large constants assume the input to a pay-to-address output.
-        (§ if (§ expr chunk0data != nil && 2 < (.. chunk0data length) && chunk1data != nil && 2 < (.. chunk1data length)))
+        (§ if (and (some? chunk0data) (< 2 (.. chunk0data length)) (some? chunk1data) (< 2 (.. chunk1data length))))
         (§ block
             (§ return chunk1data)
         )
 
         ;; A large constant followed by an OP_CHECKSIG is the key.
-        (§ if (§ expr (.. chunk1 (equalsOpCode OP_CHECKSIG)) && chunk0data != nil && 2 < (.. chunk0data length)))
+        (§ if (and (.. chunk1 (equalsOpCode OP_CHECKSIG)) (some? chunk0data) (< 2 (.. chunk0data length))))
         (§ block
             (§ return chunk0data)
         )
@@ -32575,7 +32586,7 @@
         (§ block
             (§ return (Address/fromP2SHScript params, this))
         )
-        (§ if (§ expr forcePayToPubKey && (isSentToRawPubKey)))
+        (§ if (and forcePayToPubKey (isSentToRawPubKey)))
         (§ block
             (§ return (.. (ECKey/fromPublicOnly (getPubKey)) (toAddress params)))
         )
@@ -32606,8 +32617,8 @@
         (§ elseif (< (.. buf length) 65536))
         (§ block
             (.. os (write OP_PUSHDATA2))
-            (.. os (write (§ expr 0xff & (.. buf length))))
-            (.. os (write (§ expr 0xff & (>> (.. buf length) 8))))
+            (.. os (write (& 0xff (.. buf length))))
+            (.. os (write (& 0xff (>> (.. buf length) 8))))
             (.. os (write buf))
         )
         (§ else )
@@ -32623,10 +32634,10 @@
     (§ defn #_"byte[]" (§ fn createMultiSigOutputScript) [#_"int" (§ name threshold), #_"List<ECKey>" (§ name pubkeys)])
     (§ block
         (Preconditions/checkArgument (< 0 threshold))
-        (Preconditions/checkArgument (§ expr threshold <= (.. pubkeys (size))))
+        (Preconditions/checkArgument (<= threshold (.. pubkeys (size))))
         (Preconditions/checkArgument (<= (.. pubkeys (size)) 16)) ;; That's the max we can represent with a single opcode.
 
-        (§ if (§ expr 3 < (.. pubkeys (size))))
+        (§ if (< 3 (.. pubkeys (size))))
         (§ block
             (.. log (warn "Creating a multi-signature output that is non-standard: {} pubkeys, should be <= 3", (.. pubkeys (size))))
         )
@@ -32656,7 +32667,7 @@
         (§ try )
         (§ block
             ;; TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
-            (§ var #_"ByteArrayOutputStream" (§ name bits) (§ new #_"UnsafeByteArrayOutputStream" (§ expr (.. signature length) + (.. pubkey length) + 2)))
+            (§ var #_"ByteArrayOutputStream" (§ name bits) (§ new #_"UnsafeByteArrayOutputStream" (+ (.. signature length) (.. pubkey length) 2)))
             (writeBytes bits, signature)
             (writeBytes bits, pubkey)
             (§ return (.. bits (toByteArray)))
@@ -32746,7 +32757,7 @@
     (§ block
         ;; Iterate over existing signatures, skipping the initial OP_0, the final redeem script
         ;; and any placeholder OP_0 sigs.
-        (§ var #_"List<ScriptChunk>" (§ name existingChunks) (.. chunks (subList 1, (§ expr (.. chunks (size)) - 1))))
+        (§ var #_"List<ScriptChunk>" (§ name existingChunks) (.. chunks (subList 1, (- (.. chunks (size)) 1))))
         (§ var #_"ScriptChunk" (§ name redeemScriptChunk) (.. chunks (get (- (.. chunks (size)) 1))))
         (Preconditions/checkNotNull (.. redeemScriptChunk data))
         (§ var #_"Script" (§ name redeemScript) (§ new #_"Script" (.. redeemScriptChunk data)))
@@ -32762,7 +32773,7 @@
             (§ else )
             (§ block
                 (Preconditions/checkNotNull (.. chunk data))
-                (§ if (§ expr myIndex < (.. redeemScript (findSigInRedeem (.. chunk data), hash))))
+                (§ if (< myIndex (.. redeemScript (findSigInRedeem (.. chunk data), hash))))
                 (§ block
                     (§ return sigCount)
                 )
@@ -32797,7 +32808,7 @@
     #_public
     (§ method #_"List<ECKey>" (§ fn getPubKeys) [])
     (§ block
-        (§ if (§ not (isSentToMultiSig)))
+        (§ if (not (isSentToMultiSig)))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_UNKNOWN_ERROR, "Only usable for multisig scripts."))
         )
@@ -32851,9 +32862,9 @@
                     (§ case OP_CHECKMULTISIG)
                     (§ case OP_CHECKMULTISIGVERIFY)
                     (§ block
-                        (§ if (§ expr accurate && OP_1 <= lastOpCode && lastOpCode <= OP_16))
+                        (§ if (and accurate (<= OP_1 lastOpCode OP_16)))
                         (§ block
-                            (§ ass (§ name sigOps) (§ expr sigOps + (decodeFromOpN lastOpCode)))
+                            (§ ass (§ name sigOps) (+ sigOps (decodeFromOpN lastOpCode)))
                         )
                         (§ else )
                         (§ block
@@ -32875,18 +32886,18 @@
     #_static
     (§ defn #_"int" (§ fn decodeFromOpN) [#_"int" (§ name opcode)])
     (§ block
-        (Preconditions/checkArgument (§ or (== opcode OP_0) || (== opcode OP_1NEGATE) || (<= OP_1 opcode OP_16)), "decodeFromOpN called on non OP_N opcode")
+        (Preconditions/checkArgument (or (== opcode OP_0) (== opcode OP_1NEGATE) (<= OP_1 opcode OP_16)), "decodeFromOpN called on non OP_N opcode")
 
-        (§ if (§ expr opcode == OP_0))
+        (§ if (== opcode OP_0))
         (§ block
             (§ return 0)
         )
-        (§ if (§ expr opcode == OP_1NEGATE))
+        (§ if (== opcode OP_1NEGATE))
         (§ block
             (§ return -1)
         )
 
-        (§ expr opcode + 1 - OP_1)
+        (- (+ opcode 1) OP_1)
     )
 
     #_static
@@ -32894,16 +32905,16 @@
     (§ block
         (Preconditions/checkArgument (<= -1 value 16), (str "encodeToOpN called for " value " which we cannot encode in an opcode."))
 
-        (§ if (§ expr value == 0))
+        (§ if (== value 0))
         (§ block
             (§ return OP_0)
         )
-        (§ if (§ expr value == -1))
+        (§ if (== value -1))
         (§ block
             (§ return OP_1NEGATE)
         )
 
-        (§ expr value - 1 + OP_1)
+        (+ (- value 1) OP_1)
     )
 
     ;;;
@@ -32945,7 +32956,7 @@
         )
         (§ for (§ var #_"int" (§ name i) (- (.. script chunks (size)) 1)) :for (<= 0 i) :for (§ ass (§ name i) (- i 1)))
         (§ block
-            (§ if (§ not (.. script chunks (get i) (isOpCode))))
+            (§ if (not (.. script chunks (get i) (isOpCode))))
             (§ block
                 (§ var #_"Script" (§ name subScript) (§ new #_"Script"))
                 (.. subScript (parse (.. script chunks (get i) data)))
@@ -32968,7 +32979,7 @@
         )
 
         ;; pay-to-address and pay-to-pubkey require single sig
-        (§ if (§ expr (isSentToAddress) || (isSentToRawPubKey)))
+        (§ if (or (isSentToAddress) (isSentToRawPubKey)))
         (§ block
             (§ return 1)
         )
@@ -32992,12 +33003,12 @@
         (§ block
             ;; scriptSig: <sig> [sig] [sig...] <redeemscript>
             (Preconditions/checkArgument (some? redeemScript), "P2SH script requires redeemScript to be spent")
-            (§ return (§ expr (.. redeemScript (getNumberOfSignaturesRequiredToSpend)) * SIG_SIZE + (.. redeemScript (getProgram) length)))
+            (§ return (+ (* (.. redeemScript (getNumberOfSignaturesRequiredToSpend)) SIG_SIZE) (.. redeemScript (getProgram) length)))
         )
         (§ elseif (isSentToMultiSig))
         (§ block
             ;; scriptSig: OP_0 <sig> [sig] [sig...]
-            (§ return (§ expr (getNumberOfSignaturesRequiredToSpend) * SIG_SIZE + 1))
+            (§ return (+ (* (getNumberOfSignaturesRequiredToSpend) SIG_SIZE) 1))
         )
         (§ elseif (isSentToRawPubKey))
         (§ block
@@ -33036,7 +33047,7 @@
         ;; template, not the logical program structure.  Thus you can have two programs that look identical when
         ;; printed out but one is a P2SH script and the other isn't! :( ;; )
         (§ var #_"byte[]" (§ name program) (getProgram))
-        (§ expr (.. program length) == 23 && (§ expr (§ ai program 0) & 0xff) == OP_HASH160 && (§ expr (§ ai program 1) & 0xff) == 0x14 && (§ expr (§ ai program 22) & 0xff) == OP_EQUAL)
+        (and (== (.. program length) 23) (== (& 0xff (§ ai program 0)) OP_HASH160) (== (& 0xff (§ ai program 1)) 0x14) (== (& 0xff (§ ai program 22)) OP_EQUAL))
     )
 
     ;;;
@@ -33052,11 +33063,11 @@
 
         (§ var #_"ScriptChunk" (§ name chunk) (.. chunks (get (- (.. chunks (size)) 1))))
         ;; Must end in OP_CHECKMULTISIG[VERIFY].
-        (§ if (§ not (.. chunk (isOpCode))))
+        (§ if (not (.. chunk (isOpCode))))
         (§ block
             (§ return false)
         )
-        (§ if (§ not (§ expr (.. chunk (equalsOpCode OP_CHECKMULTISIG)) || (.. chunk (equalsOpCode OP_CHECKMULTISIGVERIFY)))))
+        (§ if (not (or (.. chunk (equalsOpCode OP_CHECKMULTISIG)) (.. chunk (equalsOpCode OP_CHECKMULTISIGVERIFY)))))
         (§ block
             (§ return false)
         )
@@ -33065,18 +33076,18 @@
         (§ block
             ;; Second to last chunk must be an OP_N opcode and there should be that many data chunks (keys).
             (§ var #_"ScriptChunk" (§ name m) (.. chunks (get (- (.. chunks (size)) 2))))
-            (§ if (§ not (.. m (isOpCode))))
+            (§ if (not (.. m (isOpCode))))
             (§ block
                 (§ return false)
             )
 
             (§ var #_"int" (§ name numKeys) (decodeFromOpN (.. m opcode)))
-            (§ if (§ expr numKeys < 1 || (.. chunks (size)) != 3 + numKeys))
+            (§ if (or (< numKeys 1) (!= (.. chunks (size)) (+ 3 numKeys))))
             (§ block
                 (§ return false)
             )
 
-            (§ for (§ var #_"int" (§ name i) 1) :for (§ expr i < (.. chunks (size)) - 2) :for (§ ass (§ name i) (+ i 1)))
+            (§ for (§ var #_"int" (§ name i) 1) :for (< i (- (.. chunks (size)) 2)) :for (§ ass (§ name i) (+ i 1)))
             (§ block
                 (§ if (.. chunks (get i) (isOpCode)))
                 (§ block
@@ -33104,21 +33115,21 @@
         ;; chunk[1] = recipient pubkey
         ;; chunk[4] = locktime
         ;; chunk[8] = sender pubkey
-        (§ expr (== (.. chunks (size)) 10) && (.. chunks (get 0) (equalsOpCode OP_IF)) && (.. chunks (get 2) (equalsOpCode OP_CHECKSIGVERIFY)) && (.. chunks (get 3) (equalsOpCode OP_ELSE)) && (.. chunks (get 5) (equalsOpCode OP_CHECKLOCKTIMEVERIFY)) && (.. chunks (get 6) (equalsOpCode OP_DROP)) && (.. chunks (get 7) (equalsOpCode OP_ENDIF)) && (.. chunks (get 9) (equalsOpCode OP_CHECKSIG)))
+        (and (== (.. chunks (size)) 10) (.. chunks (get 0) (equalsOpCode OP_IF)) (.. chunks (get 2) (equalsOpCode OP_CHECKSIGVERIFY)) (.. chunks (get 3) (equalsOpCode OP_ELSE)) (.. chunks (get 5) (equalsOpCode OP_CHECKLOCKTIMEVERIFY)) (.. chunks (get 6) (equalsOpCode OP_DROP)) (.. chunks (get 7) (equalsOpCode OP_ENDIF)) (.. chunks (get 9) (equalsOpCode OP_CHECKSIG)))
     )
 
     #_private
     #_static
     (§ defn- #_"boolean" (§ fn equalsRange) [#_"byte[]" (§ name a), #_"int" (§ name start), #_"byte[]" (§ name b)])
     (§ block
-        (§ if (§ expr (.. a length) < start + (.. b length)))
+        (§ if (< (.. a length) (+ start (.. b length))))
         (§ block
             (§ return false)
         )
 
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. b length)) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. b length)) :for (§ ass (§ name i) (+ i 1)))
         (§ block
-            (§ if (§ expr (§ ai a (§ expr i + start)) != (§ ai b i)))
+            (§ if (!= (§ ai a (+ i start)) (§ ai b i)))
             (§ block
                 (§ return false)
             )
@@ -33138,35 +33149,35 @@
         (§ var #_"UnsafeByteArrayOutputStream" (§ name bos) (§ new #_"UnsafeByteArrayOutputStream" (.. inputScript length)))
 
         (§ var #_"int" (§ name cursor) 0)
-        (§ while (§ expr cursor < (.. inputScript length)))
+        (§ while (< cursor (.. inputScript length)))
         (§ block
             (§ var #_"boolean" (§ name skip) (equalsRange inputScript, cursor, chunkToRemove))
 
-            (§ var #_"int" (§ name opcode) (§ expr (§ ai inputScript cursor) & 0xff))
+            (§ var #_"int" (§ name opcode) (& 0xff (§ ai inputScript cursor)))
             (§ ass (§ name cursor) (+ cursor 1))
             (§ var #_"int" (§ name additionalBytes) 0)
-            (§ if (§ expr 0 <= opcode && opcode < OP_PUSHDATA1))
+            (§ if (< -1 opcode OP_PUSHDATA1))
             (§ block
                 (§ ass (§ name additionalBytes) opcode)
             )
-            (§ elseif (§ expr opcode == OP_PUSHDATA1))
+            (§ elseif (== opcode OP_PUSHDATA1))
             (§ block
-                (§ ass (§ name additionalBytes) (+ (§ expr 0xff & (§ ai inputScript cursor)) 1))
+                (§ ass (§ name additionalBytes) (+ (& 0xff (§ ai inputScript cursor)) 1))
             )
-            (§ elseif (§ expr opcode == OP_PUSHDATA2))
+            (§ elseif (== opcode OP_PUSHDATA2))
             (§ block
-                (§ ass (§ name additionalBytes) (+ (| (§ expr 0xff & (§ ai inputScript cursor)) (<< (§ expr 0xff & (§ ai inputScript (§ expr cursor + 1))) 8)) 2))
+                (§ ass (§ name additionalBytes) (+ (| (& 0xff (§ ai inputScript cursor)) (<< (& 0xff (§ ai inputScript (+ cursor 1))) 8)) 2))
             )
-            (§ elseif (§ expr opcode == OP_PUSHDATA4))
+            (§ elseif (== opcode OP_PUSHDATA4))
             (§ block
-                (§ ass (§ name additionalBytes) (+ (§ expr (§ expr 0xff & (§ ai inputScript cursor)) | (<< (§ expr 0xff & (§ ai inputScript (§ expr cursor + 1))) 8) | (<< (§ expr 0xff & (§ ai inputScript (§ expr cursor + 1))) 16) | (<< (§ expr 0xff & (§ ai inputScript (§ expr cursor + 1))) 24)) 4))
+                (§ ass (§ name additionalBytes) (+ (| (& 0xff (§ ai inputScript cursor)) (<< (& 0xff (§ ai inputScript (+ cursor 1))) 8) (<< (& 0xff (§ ai inputScript (+ cursor 1))) 16) (<< (& 0xff (§ ai inputScript (+ cursor 1))) 24)) 4))
             )
-            (§ if (§ not skip))
+            (§ if (not skip))
             (§ block
                 (§ try )
                 (§ block
                     (.. bos (write opcode))
-                    (.. bos (write (Arrays/copyOfRange inputScript, cursor, (§ expr cursor + additionalBytes))))
+                    (.. bos (write (Arrays/copyOfRange inputScript, cursor, (+ cursor additionalBytes))))
                 )
                 (§ catch #_"IOException" (§ name e))
                 (§ block
@@ -33185,19 +33196,19 @@
     #_static
     (§ defn #_"byte[]" (§ fn removeAllInstancesOfOp) [#_"byte[]" (§ name inputScript), #_"int" (§ name opCode)])
     (§ block
-        (removeAllInstancesOf inputScript, (§ expr (§ new #_"byte[]" (§ coll (§ cast #_"byte" opCode)))))
+        (removeAllInstancesOf inputScript, (§ new #_"byte[]" (§ coll (§ cast #_"byte" opCode))))
     )
 
     #_private
     #_static
     (§ defn- #_"boolean" (§ fn castToBool) [#_"byte[]" (§ name data)])
     (§ block
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. data length)) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. data length)) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             ;; "Can be negative zero" - Bitcoin Core (see OpenSSL's BN_bn2mpi)
-            (§ if (§ expr (§ ai data i) != 0))
+            (§ if (!= (§ ai data i) 0))
             (§ block
-                (§ return (§ expr i != (.. data length) - 1 || (§ expr (§ ai data i) & 0xff) != 0x80))
+                (§ return (or (!= i (- (.. data length) 1)) (!= (& 0xff (§ ai data i)) 0x80)))
             )
         )
         false
@@ -33230,26 +33241,26 @@
     (§ defn- #_"BigInteger" (§ fn castToBigInteger) [#_"byte[]" (§ name chunk), #_"int" (§ name maxLength), #_"boolean" (§ name requireMinimal)])
         (§ throws #_"ScriptException")
     (§ block
-        (§ if (§ expr maxLength < (.. chunk length)))
+        (§ if (< maxLength (.. chunk length)))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_UNKNOWN_ERROR, (str "Script attempted to use an integer larger than " maxLength " bytes")))
         )
 
-        (§ if (§ expr requireMinimal && 0 < (.. chunk length)))
+        (§ if (and requireMinimal (< 0 (.. chunk length))))
         (§ block
             ;; Check that the number is encoded with the minimum possible number of bytes.
             ;;
             ;; If the most-significant-byte - excluding the sign bit - is zero, then we're not minimal.
             ;; Note how this test also rejects the negative-zero encoding, 0x80.
-            (§ if (== (§ expr (§ ai chunk (§ expr chunk.length - 1)) & 0x7f) 0))
+            (§ if (== (& 0x7f (§ ai chunk (- (.. chunk length) 1))) 0))
             (§ block
                 ;; One exception: if there's more than one byte and the most significant bit
                 ;; of the second-most-significant-byte is set, it would conflict with the sign bit.
                 ;; An example of this case is +-255, which encode to 0xff00 and 0xff80 respectively.
                 ;; (big-endian)
-                (§ if (§ expr (.. chunk length) <= 1 || (§ expr (§ ai chunk (§ expr chunk.length - 2)) & 0x80) == 0))
+                (§ if (or (<= (.. chunk length) 1) (== (& 0x80 (§ ai chunk (- (.. chunk length) 2))) 0)))
                 (§ block
-                    (§ throw  new (ScriptException ScriptError/SCRIPT_ERR_UNKNOWN_ERROR, "non-minimally encoded script number"))
+                    (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_UNKNOWN_ERROR, "non-minimally encoded script number"))
                 )
             )
         )
@@ -33260,7 +33271,7 @@
     #_public
     (§ method #_"boolean" (§ fn isOpReturn) [])
     (§ block
-        (§ expr 0 < (.. chunks (size)) && (.. chunks (get 0) (equalsOpCode OP_RETURN)))
+        (and (< 0 (.. chunks (size))) (.. chunks (get 0) (equalsOpCode OP_RETURN)))
     )
 
     ;;;
@@ -33305,11 +33316,11 @@
 
         (§ for (§ var #_"ScriptChunk" (§ name chunk)) :for (.. script chunks))
         (§ block
-            (§ var #_"boolean" (§ name shouldExecute) (§ not (.. ifStack (contains false))))
+            (§ var #_"boolean" (§ name shouldExecute) (not (.. ifStack (contains false))))
             (§ var #_"int" (§ name opcode) (.. chunk opcode))
 
             ;; Check stack element size.
-            (§ if (§ expr (.. chunk data) != nil && MAX_SCRIPT_ELEMENT_SIZE < (.. chunk data length)))
+            (§ if (and (some? (.. chunk data)) (< MAX_SCRIPT_ELEMENT_SIZE (.. chunk data length))))
             (§ block
                 (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_PUSH_SIZE, "Attempted to push a data string larger than 520 bytes"))
             )
@@ -33325,20 +33336,20 @@
             )
 
             ;; Disabled opcodes.
-            (§ if (§ expr opcode == OP_CAT || opcode == OP_SUBSTR || opcode == OP_LEFT || opcode == OP_RIGHT || opcode == OP_INVERT || opcode == OP_AND || opcode == OP_OR || opcode == OP_XOR || opcode == OP_2MUL || opcode == OP_2DIV || opcode == OP_MUL || opcode == OP_DIV || opcode == OP_MOD || opcode == OP_LSHIFT || opcode == OP_RSHIFT))
+            (§ if (or (== opcode OP_CAT) (== opcode OP_SUBSTR) (== opcode OP_LEFT) (== opcode OP_RIGHT) (== opcode OP_INVERT) (== opcode OP_AND) (== opcode OP_OR) (== opcode OP_XOR) (== opcode OP_2MUL) (== opcode OP_2DIV) (== opcode OP_MUL) (== opcode OP_DIV) (== opcode OP_MOD) (== opcode OP_LSHIFT) (== opcode OP_RSHIFT)))
             (§ block
                 (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_DISABLED_OPCODE, "Script included a disabled Script Op."))
             )
 
-            (§ if (§ expr shouldExecute && OP_0 <= opcode && opcode <= OP_PUSHDATA4))
+            (§ if (and shouldExecute (<= OP_0 opcode OP_PUSHDATA4)))
             (§ block
                 ;; Check minimal push.
-                (§ if (§ expr (.. verifyFlags (contains VerifyFlag/MINIMALDATA)) && (§ not (.. chunk (isShortestPossiblePushData)))))
+                (§ if (and (.. verifyFlags (contains VerifyFlag/MINIMALDATA)) (not (.. chunk (isShortestPossiblePushData)))))
                 (§ block
                     (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_MINIMALDATA, "Script included a not minimal push operation."))
                 )
 
-                (§ if (§ expr opcode == OP_0))
+                (§ if (== opcode OP_0))
                 (§ block
                     (.. stack (add (§ new #_"byte[]")))
                 )
@@ -33347,13 +33358,13 @@
                     (.. stack (add (.. chunk data)))
                 )
             )
-            (§ elseif (§ expr shouldExecute || (§ expr OP_IF <= opcode && opcode <= OP_ENDIF)))
+            (§ elseif (or shouldExecute (<= OP_IF opcode OP_ENDIF)))
             (§ block
                 (§ switch opcode)
                 (§ block
                     (§ case OP_IF)
                     (§ block
-                        (§ if (§ not shouldExecute))
+                        (§ if (not shouldExecute))
                         (§ block
                             (.. ifStack (add false))
                             (§ continue )
@@ -33367,7 +33378,7 @@
                     )
                     (§ case OP_NOTIF)
                     (§ block
-                        (§ if (§ not shouldExecute))
+                        (§ if (not shouldExecute))
                         (§ block
                             (.. ifStack (add false))
                             (§ continue )
@@ -33376,7 +33387,7 @@
                         (§ block
                             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_UNBALANCED_CONDITIONAL, "Attempted OP_NOTIF on an empty stack"))
                         )
-                        (.. ifStack (add (§ not (castToBool (.. stack (pollLast))))))
+                        (.. ifStack (add (not (castToBool (.. stack (pollLast))))))
                         (§ continue )
                     )
                     (§ case OP_ELSE)
@@ -33385,7 +33396,7 @@
                         (§ block
                             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_UNBALANCED_CONDITIONAL, "Attempted OP_ELSE without OP_IF/NOTIF"))
                         )
-                        (.. ifStack (add (§ not (.. ifStack (pollLast)))))
+                        (.. ifStack (add (not (.. ifStack (pollLast)))))
                         (§ continue )
                     )
                     (§ case OP_ENDIF)
@@ -33434,7 +33445,7 @@
                         (§ block
                             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_VERIFY on an empty stack"))
                         )
-                        (§ if (§ not (castToBool (.. stack (pollLast)))))
+                        (§ if (not (castToBool (.. stack (pollLast)))))
                         (§ block
                             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_VERIFY, "OP_VERIFY failed"))
                         )
@@ -33613,7 +33624,7 @@
                             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_PICK/OP_ROLL on an empty stack"))
                         )
                         (§ var #_"long" (§ name val) (.. (castToBigInteger (.. stack (pollLast)), (.. verifyFlags (contains VerifyFlag/MINIMALDATA))) (longValue)))
-                        (§ if (§ expr val < 0 || (.. stack (size)) <= val))
+                        (§ if (not (< -1 val (.. stack (size)))))
                         (§ block
                             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "OP_PICK/OP_ROLL attempted to get data deeper than stack size"))
                         )
@@ -33623,7 +33634,7 @@
                             (.. itPICK (next))
                         )
                         (§ var #_"byte[]" (§ name OPROLLtmpChunk) (.. itPICK (next)))
-                        (§ if (§ expr opcode == OP_ROLL))
+                        (§ if (== opcode OP_ROLL))
                         (§ block
                             (.. itPICK (remove))
                         )
@@ -33655,7 +33666,7 @@
                         (§ var #_"byte[]" (§ name OPSWAPtmpChunk1) (.. stack (pollLast)))
                         (.. stack (add OPSWAPtmpChunk2))
                         (.. stack (add OPSWAPtmpChunk1))
-                        (§ if (§ expr opcode == OP_TUCK))
+                        (§ if (== opcode OP_TUCK))
                         (§ block
                             (.. stack (add OPSWAPtmpChunk2))
                         )
@@ -33685,7 +33696,7 @@
                         (§ block
                             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_EQUALVERIFY on a stack with size < 2"))
                         )
-                        (§ if (§ not (Arrays/equals (.. stack (pollLast)), (.. stack (pollLast)))))
+                        (§ if (not (Arrays/equals (.. stack (pollLast)), (.. stack (pollLast)))))
                         (§ block
                             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_EQUALVERIFY, "OP_EQUALVERIFY: non-equal data"))
                         )
@@ -33797,7 +33808,7 @@
                             )
                             (§ case OP_BOOLAND)
                             (§ block
-                                (§ if (§ expr (§ not (.. numericOPnum1 (equals BigInteger/ZERO))) && (§ not (.. numericOPnum2 (equals BigInteger/ZERO)))))
+                                (§ if (and (not (.. numericOPnum1 (equals BigInteger/ZERO))) (not (.. numericOPnum2 (equals BigInteger/ZERO)))))
                                 (§ block
                                     (§ ass (§ name numericOPresult) BigInteger/ONE)
                                 )
@@ -33809,7 +33820,7 @@
                             )
                             (§ case OP_BOOLOR)
                             (§ block
-                                (§ if (§ expr (§ not (.. numericOPnum1 (equals BigInteger/ZERO))) || (§ not (.. numericOPnum2 (equals BigInteger/ZERO)))))
+                                (§ if (or (not (.. numericOPnum1 (equals BigInteger/ZERO))) (not (.. numericOPnum2 (equals BigInteger/ZERO)))))
                                 (§ block
                                     (§ ass (§ name numericOPresult) BigInteger/ONE)
                                 )
@@ -33833,7 +33844,7 @@
                             )
                             (§ case OP_NUMNOTEQUAL)
                             (§ block
-                                (§ if (§ not (.. numericOPnum1 (equals numericOPnum2))))
+                                (§ if (not (.. numericOPnum1 (equals numericOPnum2))))
                                 (§ block
                                     (§ ass (§ name numericOPresult) BigInteger/ONE)
                                 )
@@ -33933,7 +33944,7 @@
                         (§ var #_"BigInteger" (§ name OPNUMEQUALVERIFYnum2) (castToBigInteger (.. stack (pollLast)), (.. verifyFlags (contains VerifyFlag/MINIMALDATA))))
                         (§ var #_"BigInteger" (§ name OPNUMEQUALVERIFYnum1) (castToBigInteger (.. stack (pollLast)), (.. verifyFlags (contains VerifyFlag/MINIMALDATA))))
 
-                        (§ if (§ not (.. OPNUMEQUALVERIFYnum1 (equals OPNUMEQUALVERIFYnum2))))
+                        (§ if (not (.. OPNUMEQUALVERIFYnum1 (equals OPNUMEQUALVERIFYnum2))))
                         (§ block
                             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_NUMEQUALVERIFY, "OP_NUMEQUALVERIFY failed"))
                         )
@@ -33948,7 +33959,7 @@
                         (§ var #_"BigInteger" (§ name OPWITHINnum3) (castToBigInteger (.. stack (pollLast)), (.. verifyFlags (contains VerifyFlag/MINIMALDATA))))
                         (§ var #_"BigInteger" (§ name OPWITHINnum2) (castToBigInteger (.. stack (pollLast)), (.. verifyFlags (contains VerifyFlag/MINIMALDATA))))
                         (§ var #_"BigInteger" (§ name OPWITHINnum1) (castToBigInteger (.. stack (pollLast)), (.. verifyFlags (contains VerifyFlag/MINIMALDATA))))
-                        (§ if (§ expr (.. OPWITHINnum2 (compareTo OPWITHINnum1)) <= 0 && (.. OPWITHINnum1 (compareTo OPWITHINnum3)) < 0))
+                        (§ if (and (<= (.. OPWITHINnum2 (compareTo OPWITHINnum1)) 0) (< (.. OPWITHINnum1 (compareTo OPWITHINnum3)) 0)))
                         (§ block
                             (.. stack (add (Utils/reverseBytes (Utils/encodeMPI BigInteger/ONE, false))))
                         )
@@ -34042,7 +34053,7 @@
                     )
                     (§ case OP_CHECKLOCKTIMEVERIFY)
                     (§ block
-                        (§ if (§ not (.. verifyFlags (contains VerifyFlag/CHECKLOCKTIMEVERIFY))))
+                        (§ if (not (.. verifyFlags (contains VerifyFlag/CHECKLOCKTIMEVERIFY))))
                         (§ block
                             ;; not enabled; treat as a NOP2
                             (§ if (.. verifyFlags (contains VerifyFlag/DISCOURAGE_UPGRADABLE_NOPS)))
@@ -34056,7 +34067,7 @@
                     )
                     (§ case OP_CHECKSEQUENCEVERIFY)
                     (§ block
-                        (§ if (§ not (.. verifyFlags (contains VerifyFlag/CHECKSEQUENCEVERIFY))))
+                        (§ if (not (.. verifyFlags (contains VerifyFlag/CHECKSEQUENCEVERIFY))))
                         (§ block
                             ;; not enabled; treat as a NOP3
                             (§ if (.. verifyFlags (contains VerifyFlag/DISCOURAGE_UPGRADABLE_NOPS)))
@@ -34091,13 +34102,13 @@
                 )
             )
 
-            (§ if (§ expr MAX_STACK_SIZE < (.. stack (size)) + (.. altstack (size)) || (.. stack (size)) + (.. altstack (size)) < 0))
+            (§ if (not (<= 0 (+ (.. stack (size)) (.. altstack (size))) MAX_STACK_SIZE)))
             (§ block
                 (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_STACK_SIZE, "Stack size exceeded range"))
             )
         )
 
-        (§ if (§ not (.. ifStack (isEmpty))))
+        (§ if (not (.. ifStack (isEmpty))))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_UNBALANCED_CONDITIONAL, "OP_IF/OP_NOTIF without OP_ENDIF"))
         )
@@ -34124,13 +34135,13 @@
         )
 
         ;; There are two kinds of nLockTime, need to ensure we're comparing apples-to-apples.
-        (§ if (§ not (§ expr (§ expr (§ expr (.. txContainingThis (getLockTime)) <  Transaction/LOCKTIME_THRESHOLD) && (.. nLockTime (compareTo Transaction/LOCKTIME_THRESHOLD_BIG)) <  0) || (§ expr (>= (.. txContainingThis (getLockTime)) Transaction/LOCKTIME_THRESHOLD) && (.. nLockTime (compareTo Transaction/LOCKTIME_THRESHOLD_BIG)) >= 0))))
+        (§ if (not (or (and (< (.. txContainingThis (getLockTime)) Transaction/LOCKTIME_THRESHOLD) (< (.. nLockTime (compareTo Transaction/LOCKTIME_THRESHOLD_BIG)) 0)) (and (<= Transaction/LOCKTIME_THRESHOLD (.. txContainingThis (getLockTime))) (<= 0 (.. nLockTime (compareTo Transaction/LOCKTIME_THRESHOLD_BIG)))))))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_UNSATISFIED_LOCKTIME, "Locktime requirement type mismatch"))
         )
 
         ;; Now that we know we're comparing apples-to-apples, the comparison is a simple numeric one.
-        (§ if (§ expr 0 < (.. nLockTime (compareTo (BigInteger/valueOf (.. txContainingThis (getLockTime)))))))
+        (§ if (< 0 (.. nLockTime (compareTo (BigInteger/valueOf (.. txContainingThis (getLockTime)))))))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_UNSATISFIED_LOCKTIME, "Locktime requirement not satisfied"))
         )
@@ -34141,7 +34152,7 @@
         ;;
         ;; Testing if this vin is not final is sufficient to prevent this condition.  Alternatively we could test all
         ;; inputs, but testing just this input minimizes the data required to prove correct CHECKLOCKTIMEVERIFY execution.
-        (§ if (§ not (.. txContainingThis (getInput index) (hasSequence))))
+        (§ if (not (.. txContainingThis (getInput index) (hasSequence))))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_UNSATISFIED_LOCKTIME, "Transaction contains a final transaction input for a CHECKLOCKTIMEVERIFY script."))
         )
@@ -34181,7 +34192,7 @@
         )
 
         ;; Compare the specified sequence number with the input.
-        (§ if (§ not (checkSequence nSequence, txContainingThis, index)))
+        (§ if (not (checkSequence nSequence, txContainingThis, index)))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_UNSATISFIED_LOCKTIME, "Unsatisfied CHECKLOCKTIMEVERIFY lock time"))
         )
@@ -34211,7 +34222,7 @@
         )
 
         ;; Mask off any bits that do not have consensus-enforced meaning before doing the integer comparisons.
-        (§ var #_"long" (§ name nLockTimeMask) (§ expr  Transaction/SEQUENCE_LOCKTIME_TYPE_FLAG | Transaction/SEQUENCE_LOCKTIME_MASK))
+        (§ var #_"long" (§ name nLockTimeMask) (| Transaction/SEQUENCE_LOCKTIME_TYPE_FLAG Transaction/SEQUENCE_LOCKTIME_MASK))
         (§ var #_"long" (§ name txToSequenceMasked) (& txToSequence nLockTimeMask))
         (§ var #_"long" (§ name nSequenceMasked) (& nSequence nLockTimeMask))
 
@@ -34220,7 +34231,7 @@
         ;;
         ;; We want to compare apples to apples, so fail the script unless the type of nSequenceMasked
         ;; being tested is the same as the nSequenceMasked in the transaction.
-        (§ if (§ not (§ expr (§ expr txToSequenceMasked <  Transaction/SEQUENCE_LOCKTIME_TYPE_FLAG && nSequenceMasked <  Transaction/SEQUENCE_LOCKTIME_TYPE_FLAG) || (§ expr txToSequenceMasked >= Transaction/SEQUENCE_LOCKTIME_TYPE_FLAG && nSequenceMasked >= Transaction/SEQUENCE_LOCKTIME_TYPE_FLAG))))
+        (§ if (not (or (and (< txToSequenceMasked Transaction/SEQUENCE_LOCKTIME_TYPE_FLAG) (< nSequenceMasked Transaction/SEQUENCE_LOCKTIME_TYPE_FLAG)) (and (<= Transaction/SEQUENCE_LOCKTIME_TYPE_FLAG txToSequenceMasked) (<= Transaction/SEQUENCE_LOCKTIME_TYPE_FLAG nSequenceMasked)))))
         (§ block
             (§ return false)
         )
@@ -34239,7 +34250,7 @@
     (§ defn- #_"void" (§ fn executeCheckSig) [#_"Transaction" (§ name txContainingThis), #_"int" (§ name index), #_"Script" (§ name script), #_"LinkedList<byte[]>" (§ name stack), #_"int" (§ name lastCodeSepLocation), #_"int" (§ name opcode), #_"Set<VerifyFlag>" (§ name verifyFlags)])
         (§ throws #_"ScriptException")
     (§ block
-        (§ var #_"boolean" (§ name requireCanonical) (§ expr (.. verifyFlags (contains VerifyFlag/STRICTENC)) || (.. verifyFlags (contains VerifyFlag/DERSIG)) || (.. verifyFlags (contains VerifyFlag/LOW_S))))
+        (§ var #_"boolean" (§ name requireCanonical) (or (.. verifyFlags (contains VerifyFlag/STRICTENC)) (.. verifyFlags (contains VerifyFlag/DERSIG)) (.. verifyFlags (contains VerifyFlag/LOW_S))))
         (§ if (< (.. stack (size)) 2))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_CHECKSIG(VERIFY) on a stack with size < 2"))
@@ -34279,17 +34290,17 @@
 
             ;; This RuntimeException occurs when signing as we run partial/invalid scripts to see if they need more
             ;; signing work to be done inside LocalTransactionSigner.signInputs.
-            (§ if (§ not (.. e (getMessage) (contains "Reached past end of ASN.1 stream"))))
+            (§ if (not (.. e (getMessage) (contains "Reached past end of ASN.1 stream"))))
             (§ block
                 (.. log (warn "Signature checking failed!", e))
             )
         )
 
-        (§ if (§ expr opcode == OP_CHECKSIG))
+        (§ if (== opcode OP_CHECKSIG))
         (§ block
             (.. stack (add (if sigValid (§ new #_"byte[]" (§ coll 1 )) (§ new #_"byte[]"))))
         )
-        (§ elseif (§ expr opcode == OP_CHECKSIGVERIFY && (§ not sigValid)))
+        (§ elseif (and (== opcode OP_CHECKSIGVERIFY) (not sigValid)))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_CHECKSIGVERIFY, "Script failed OP_CHECKSIGVERIFY"))
         )
@@ -34301,14 +34312,14 @@
     (§ defn- #_"int" (§ fn executeMultiSig) [#_"Transaction" (§ name txContainingThis), #_"int" (§ name index), #_"Script" (§ name script), #_"LinkedList<byte[]>" (§ name stack), #_"int" (§ name opCount), #_"int" (§ name lastCodeSepLocation), #_"int" (§ name opcode), #_"Set<VerifyFlag>" (§ name verifyFlags)])
         (§ throws #_"ScriptException")
     (§ block
-        (§ var #_"boolean" (§ name requireCanonical) (§ expr (.. verifyFlags (contains VerifyFlag/STRICTENC)) || (.. verifyFlags (contains VerifyFlag/DERSIG)) || (.. verifyFlags (contains VerifyFlag/LOW_S))))
+        (§ var #_"boolean" (§ name requireCanonical) (or (.. verifyFlags (contains VerifyFlag/STRICTENC)) (.. verifyFlags (contains VerifyFlag/DERSIG)) (.. verifyFlags (contains VerifyFlag/LOW_S))))
         (§ if (< (.. stack (size)) 1))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < 2"))
         )
 
         (§ var #_"int" (§ name pubKeyCount) (.. (castToBigInteger (.. stack (pollLast)), (.. verifyFlags (contains VerifyFlag/MINIMALDATA))) (intValue)))
-        (§ if (§ expr pubKeyCount < 0 || MAX_PUBKEYS_PER_MULTISIG < pubKeyCount))
+        (§ if (or (< pubKeyCount 0) (< MAX_PUBKEYS_PER_MULTISIG pubKeyCount)))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_PUBKEY_COUNT, "OP_CHECKMULTISIG(VERIFY) with pubkey count out of range"))
         )
@@ -34318,7 +34329,7 @@
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_OP_COUNT, "Total op count > 201 during OP_CHECKMULTISIG(VERIFY)"))
         )
-        (§ if (§ expr (.. stack (size)) < pubKeyCount + 1))
+        (§ if (< (.. stack (size)) (+ pubKeyCount 1)))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + 2"))
         )
@@ -34330,11 +34341,11 @@
         )
 
         (§ var #_"int" (§ name sigCount) (.. (castToBigInteger (.. stack (pollLast)), (.. verifyFlags (contains VerifyFlag/MINIMALDATA))) (intValue)))
-        (§ if (§ expr sigCount < 0 || pubKeyCount < sigCount))
+        (§ if (or (< sigCount 0) (< pubKeyCount sigCount)))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_SIG_COUNT, "OP_CHECKMULTISIG(VERIFY) with sig count out of range"))
         )
-        (§ if (§ expr (.. stack (size)) < sigCount + 1))
+        (§ if (< (.. stack (size)) (+ sigCount 1)))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + num_of_signatures + 3"))
         )
@@ -34363,7 +34374,7 @@
         )
 
         (§ var #_"boolean" (§ name valid) true)
-        (§ while (§ expr 0 < (.. sigs (size))))
+        (§ while (< 0 (.. sigs (size))))
         (§ block
             (§ var #_"byte[]" (§ name pubKey) (.. pubkeys (pollFirst)))
             ;; We could reasonably move this out of the loop, but because signature verification is significantly
@@ -34392,16 +34403,16 @@
 
         ;; We uselessly remove a stack object to emulate a Bitcoin Core bug.
         (§ var #_"byte[]" (§ name nullDummy) (.. stack (pollLast)))
-        (§ if (§ expr (.. verifyFlags (contains VerifyFlag/NULLDUMMY)) && 0 < (.. nullDummy length)))
+        (§ if (and (.. verifyFlags (contains VerifyFlag/NULLDUMMY)) (< 0 (.. nullDummy length))))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_SIG_NULLFAIL, (str "OP_CHECKMULTISIG(VERIFY) with non-null nulldummy: " (Arrays/toString nullDummy))))
         )
 
-        (§ if (§ expr opcode == OP_CHECKMULTISIG))
+        (§ if (== opcode OP_CHECKMULTISIG))
         (§ block
             (.. stack (add (if valid (§ new #_"byte[]" (§ coll 1 )) (§ new #_"byte[]"))))
         )
-        (§ elseif (§ expr opcode == OP_CHECKMULTISIGVERIFY && (§ not valid)))
+        (§ elseif (and (== opcode OP_CHECKMULTISIGVERIFY) (not valid)))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_SIG_NULLFAIL, "Script failed OP_CHECKMULTISIGVERIFY"))
         )
@@ -34451,7 +34462,7 @@
             (§ throw (§ new #_"RuntimeException" e)) ;; Should not happen unless we were given a totally broken transaction.
         )
 
-        (§ if (§ expr MAX_SCRIPT_SIZE < (.. (getProgram) length) || MAX_SCRIPT_SIZE < (.. scriptPubKey (getProgram) length)))
+        (§ if (or (< MAX_SCRIPT_SIZE (.. (getProgram) length)) (< MAX_SCRIPT_SIZE (.. scriptPubKey (getProgram) length))))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_SCRIPT_SIZE, "Script larger than 10,000 bytes"))
         )
@@ -34471,7 +34482,7 @@
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_EVAL_FALSE, "Stack empty at end of script execution."))
         )
 
-        (§ if (§ not (castToBool (.. stack (pollLast)))))
+        (§ if (not (castToBool (.. stack (pollLast)))))
         (§ block
             (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_EVAL_FALSE, (str "Script resulted in a non-true stack: " stack)))
         )
@@ -34489,11 +34500,11 @@
         ;;     overall scalability and performance.
 
         ;; TODO: Check if we can take out enforceP2SH if there's a checkpoint at the enforcement block.
-        (§ if (§ expr (.. verifyFlags (contains VerifyFlag/P2SH)) && (.. scriptPubKey (isPayToScriptHash))))
+        (§ if (and (.. verifyFlags (contains VerifyFlag/P2SH)) (.. scriptPubKey (isPayToScriptHash))))
         (§ block
             (§ for (§ var #_"ScriptChunk" (§ name chunk)) :for chunks)
             (§ block
-                (§ if (§ expr (.. chunk (isOpCode)) && OP_16 < (.. chunk opcode)))
+                (§ if (and (.. chunk (isOpCode)) (< OP_16 (.. chunk opcode))))
                 (§ block
                     (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_SIG_PUSHONLY, "Attempted to spend a P2SH scriptPubKey with a script that contained script ops"))
                 )
@@ -34509,7 +34520,7 @@
                 (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_EVAL_FALSE, "P2SH stack empty at end of script execution."))
             )
 
-            (§ if (§ not (castToBool (.. p2shStack (pollLast)))))
+            (§ if (not (castToBool (.. p2shStack (pollLast)))))
             (§ block
                 (§ throw (§ new #_"ScriptException" ScriptError/SCRIPT_ERR_EVAL_FALSE, "P2SH script execution resulted in a non-true stack"))
             )
@@ -34551,11 +34562,11 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
@@ -34656,7 +34667,7 @@
         (§ elseif (== (.. data length) 1))
         (§ block
             (§ var #_"byte" (§ name b) (§ ai data 0))
-            (§ if (§ expr 1 <= b && b <= 16))
+            (§ if (<= 1 b 16))
             (§ block
                 (§ ass (§ name opcode) (Script/encodeToOpN b))
             )
@@ -34738,8 +34749,8 @@
     #_public
     (§ method #_"ScriptBuilder" (§ fn smallNum) [#_"int" (§ name index), #_"int" (§ name num)])
     (§ block
-        (Preconditions/checkArgument (§ expr 0 <= num), "Cannot encode negative numbers with smallNum")
-        (Preconditions/checkArgument (§ expr num <= 16), "Cannot encode numbers larger than 16 with smallNum")
+        (Preconditions/checkArgument (<= 0 num), "Cannot encode negative numbers with smallNum")
+        (Preconditions/checkArgument (<= num 16), "Cannot encode numbers larger than 16 with smallNum")
 
         (addChunk index, (§ new #_"ScriptChunk" (Script/encodeToOpN num), nil))
     )
@@ -34757,7 +34768,7 @@
     (§ block
         (§ var #_"byte[]" (§ name data))
 
-        (§ if (§ expr num == 0))
+        (§ if (== num 0))
         (§ block
             (§ ass (§ name data) (§ new #_"byte[]" (§ count 0)))
         )
@@ -34767,7 +34778,7 @@
             (§ var #_"boolean" (§ name neg) (< num 0))
             (§ var #_"long" (§ name absvalue) (Math/abs num))
 
-            (§ while (§ expr absvalue != 0))
+            (§ while (!= absvalue 0))
             (§ block
                 (.. result (push (§ cast #_"byte" (& absvalue 0xff))))
                 (§ ass (§ name absvalue) (>> absvalue 8))
@@ -34788,7 +34799,7 @@
             )
 
             (§ ass (§ name data) (§ new #_"byte[]" (§ count (.. result (size)))))
-            (§ for (§ var #_"int" (§ name byteIdx) 0) :for (§ expr byteIdx < (.. data length)) :for (§ ass (§ name byteIdx) (+ byteIdx 1)))
+            (§ for (§ var #_"int" (§ name byteIdx) 0) :for (< byteIdx (.. data length)) :for (§ ass (§ name byteIdx) (+ byteIdx 1)))
             (§ block
                 (§ ass (§ name (§ ai data byteIdx)) (.. result (get byteIdx)))
             )
@@ -34862,7 +34873,7 @@
     (§ defn #_"Script" (§ fn createMultiSigOutputScript) [#_"int" (§ name threshold), #_"List<ECKey>" (§ name pubkeys)])
     (§ block
         (Preconditions/checkArgument (< 0 threshold))
-        (Preconditions/checkArgument (§ expr threshold <= (.. pubkeys (size))))
+        (Preconditions/checkArgument (<= threshold (.. pubkeys (size))))
         (Preconditions/checkArgument (<= (.. pubkeys (size)) 16)) ;; That's the max we can represent with a single opcode.
 
         (§ var #_"ScriptBuilder" (§ name builder) (§ new #_"ScriptBuilder"))
@@ -34950,7 +34961,7 @@
         (§ block
             (.. builder (data signature))
         )
-        (§ if (§ expr multisigProgramBytes!= nil))
+        (§ if (some? multisigProgramBytes))
         (§ block
             (.. builder (data multisigProgramBytes))
         )
@@ -34977,7 +34988,7 @@
         ;; Check if we have a place to insert, otherwise just return given scriptSig unchanged.
         ;; We assume here that OP_0 placeholders always go after the sigs, so
         ;; to find if we have sigs missing, we can just check the chunk in latest sig position.
-        (§ var #_"boolean" (§ name hasMissingSigs) (.. inputChunks (get (§ expr totalChunks - sigsSuffixCount - 1)) (equalsOpCode OP_0)))
+        (§ var #_"boolean" (§ name hasMissingSigs) (.. inputChunks (get (- totalChunks sigsSuffixCount 1)) (equalsOpCode OP_0)))
         (Preconditions/checkArgument hasMissingSigs, "ScriptSig is already filled with signatures")
 
         ;; copy the prefix
@@ -34990,15 +35001,15 @@
         ;; Copy the sigs.
         (§ var #_"int" (§ name pos) 0)
         (§ var #_"boolean" (§ name inserted) false)
-        (§ for (§ var #_"ScriptChunk" (§ name chunk)) :for (.. inputChunks (subList sigsPrefixCount, (§ expr totalChunks - sigsSuffixCount))))
+        (§ for (§ var #_"ScriptChunk" (§ name chunk)) :for (.. inputChunks (subList sigsPrefixCount, (- totalChunks sigsSuffixCount))))
         (§ block
-            (§ if (§ expr pos == targetIndex))
+            (§ if (== pos targetIndex))
             (§ block
                 (§ ass (§ name inserted) true)
                 (.. builder (data signature))
                 (§ ass (§ name pos) (+ pos 1))
             )
-            (§ if (§ not (.. chunk (equalsOpCode OP_0))))
+            (§ if (not (.. chunk (equalsOpCode OP_0))))
             (§ block
                 (.. builder (addChunk chunk))
                 (§ ass (§ name pos) (+ pos 1))
@@ -35006,9 +35017,9 @@
         )
 
         ;; Add OP_0's if needed, since we skipped them in the previous loop.
-        (§ while (§ expr pos < totalChunks - sigsPrefixCount - sigsSuffixCount))
+        (§ while (< pos (- totalChunks sigsPrefixCount sigsSuffixCount)))
         (§ block
-            (§ if (§ expr pos == targetIndex))
+            (§ if (== pos targetIndex))
             (§ block
                 (§ ass (§ name inserted) true)
                 (.. builder (data signature))
@@ -35021,7 +35032,7 @@
         )
 
         ;; Copy the suffix.
-        (§ for (§ var #_"ScriptChunk" (§ name chunk)) :for (.. inputChunks (subList (§ expr totalChunks - sigsSuffixCount), totalChunks)))
+        (§ for (§ var #_"ScriptChunk" (§ name chunk)) :for (.. inputChunks (subList (- totalChunks sigsSuffixCount), totalChunks)))
         (§ block
             (.. builder (addChunk chunk))
         )
@@ -35099,7 +35110,7 @@
     (§ defn #_"Script" (§ fn createCLTVPaymentChannelOutput) [#_"BigInteger" (§ name time), #_"ECKey" (§ name from), #_"ECKey" (§ name to)])
     (§ block
         (§ var #_"byte[]" (§ name timeBytes) (Utils/reverseBytes (Utils/encodeMPI time, false)))
-        (§ if (§ expr 5 < (.. timeBytes length)))
+        (§ if (< 5 (.. timeBytes length)))
         (§ block
             (§ throw (§ new #_"RuntimeException" "Time too large to encode as 5-byte int"))
         )
@@ -35204,7 +35215,7 @@
     #_public
     (§ method #_"boolean" (§ fn equalsOpCode) [#_"int" (§ name opcode)])
     (§ block
-        (§ expr opcode == (.. this opcode))
+        (== opcode (.. this opcode))
     )
 
     ;;;
@@ -35256,35 +35267,35 @@
         )
         (§ if (== (.. data length) 0))
         (§ block
-            (§ return (§ expr opcode == OP_0))
+            (§ return (== opcode OP_0))
         )
         (§ if (== (.. data length) 1))
         (§ block
             (§ var #_"byte" (§ name b) (§ ai data 0))
-            (§ if (§ expr 0x01 <= b && b <= 0x10))
+            (§ if (<= 0x01 b 0x10))
             (§ block
-                (§ return (§ expr opcode == OP_1 + b - 1))
+                (§ return (== opcode (- (+ OP_1 b) 1)))
             )
             (§ if (== (& b 0xff) 0x81))
             (§ block
-                (§ return (§ expr opcode == OP_1NEGATE))
+                (§ return (== opcode OP_1NEGATE))
             )
         )
         (§ if (< (.. data length) OP_PUSHDATA1))
         (§ block
-            (§ return (§ expr opcode == (.. data length)))
+            (§ return (== opcode (.. data length)))
         )
         (§ if (< (.. data length) 256))
         (§ block
-            (§ return (§ expr opcode == OP_PUSHDATA1))
+            (§ return (== opcode OP_PUSHDATA1))
         )
         (§ if (< (.. data length) 65536))
         (§ block
-            (§ return (§ expr opcode == OP_PUSHDATA2))
+            (§ return (== opcode OP_PUSHDATA2))
         )
 
         ;; Can never be used, but implemented for completeness.
-        (§ expr opcode == OP_PUSHDATA4)
+        (== opcode OP_PUSHDATA4)
     )
 
     #_public
@@ -35303,20 +35314,20 @@
                 (Preconditions/checkState (== (.. data length) opcode))
                 (.. stream (write opcode))
             )
-            (§ elseif (§ expr opcode == OP_PUSHDATA1))
+            (§ elseif (== opcode OP_PUSHDATA1))
             (§ block
                 (Preconditions/checkState (<= (.. data length) 0xff))
                 (.. stream (write OP_PUSHDATA1))
                 (.. stream (write (.. data length)))
             )
-            (§ elseif (§ expr opcode == OP_PUSHDATA2))
+            (§ elseif (== opcode OP_PUSHDATA2))
             (§ block
                 (Preconditions/checkState (<= (.. data length) 0xffff))
                 (.. stream (write OP_PUSHDATA2))
-                (.. stream (write (§ expr 0xff & (.. data length))))
-                (.. stream (write (§ expr 0xff & (>> (.. data length) 8))))
+                (.. stream (write (& 0xff (.. data length))))
+                (.. stream (write (& 0xff (>> (.. data length) 8))))
             )
-            (§ elseif (§ expr opcode == OP_PUSHDATA4))
+            (§ elseif (== opcode OP_PUSHDATA4))
             (§ block
                 (Preconditions/checkState (<= (.. data length) Script/MAX_SCRIPT_ELEMENT_SIZE))
                 (.. stream (write OP_PUSHDATA4))
@@ -35359,16 +35370,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"ScriptChunk" (§ name other) (§ cast #_"ScriptChunk" o))
-        (§ expr opcode == (.. other opcode) && startLocationInProgram == (.. other startLocationInProgram) && (Arrays/equals data, (.. other data)))
+        (and (== opcode (.. other opcode)) (== startLocationInProgram (.. other startLocationInProgram)) (Arrays/equals data, (.. other data)))
     )
 
     #_override
@@ -35477,7 +35488,7 @@
         (§ var #_"ScriptError" (§ name err) (.. mnemonicToScriptErrorMap (get name)))
         (§ if (nil? err))
         (§ block
-            (§ throw (§ new #_"IllegalArgumentException" (§ expr name + " is not a valid name")))
+            (§ throw (§ new #_"IllegalArgumentException" (str name " is not a valid name")))
         )
         err
     )
@@ -35961,7 +35972,7 @@
             )
 
             (§ var #_"Script" (§ name scriptPubKey) (.. txOut (getScriptPubKey)))
-            (§ if (§ not (.. scriptPubKey (isPayToScriptHash))))
+            (§ if (not (.. scriptPubKey (isPayToScriptHash))))
             (§ block
                 (.. log (warn "CustomTransactionSigner works only with P2SH transactions"))
                 (§ return false)
@@ -36101,7 +36112,7 @@
             (§ var #_"ECKey" (§ name pubKey) (.. redeemData keys (get 0)))
             (§ if (§ insta pubKey #_"DeterministicKey"))
             (§ block
-                (.. propTx keyPaths (put scriptPubKey, (§ expr (.. (§ cast #_"DeterministicKey" pubKey) (getPath)))))
+                (.. propTx keyPaths (put scriptPubKey, (.. (§ cast #_"DeterministicKey" pubKey) (getPath))))
             )
 
             (§ var #_"ECKey" (§ name key))
@@ -36192,7 +36203,7 @@
     #_public
     (§ method #_"boolean" (§ fn signInputs) [#_"ProposedTransaction" (§ name propTx), #_"KeyBag" (§ name keyBag)])
     (§ block
-        (§ if (§ expr missingSigsMode == Wallet/MissingSigsMode/USE_OP_ZERO))
+        (§ if (== missingSigsMode Wallet/MissingSigsMode/USE_OP_ZERO))
         (§ block
             (§ return true)
         )
@@ -36210,23 +36221,23 @@
 
             (§ var #_"Script" (§ name scriptPubKey) (.. txIn (getConnectedOutput) (getScriptPubKey)))
             (§ var #_"Script" (§ name inputScript) (.. txIn (getScriptSig)))
-            (§ if (§ expr (.. scriptPubKey (isPayToScriptHash)) || (.. scriptPubKey (isSentToMultiSig))))
+            (§ if (or (.. scriptPubKey (isPayToScriptHash)) (.. scriptPubKey (isSentToMultiSig))))
             (§ block
                 (§ var #_"int" (§ name sigSuffixCount) (if (.. scriptPubKey (isPayToScriptHash)) 1 0))
                 ;; All chunks except the first one (OP_0) and the last (redeem script) are signatures.
-                (§ for (§ var #_"int" (§ name j) 1) :for (§ expr j < (.. inputScript (getChunks) (size)) - sigSuffixCount) :for (§ ass (§ name j) (+ j 1)))
+                (§ for (§ var #_"int" (§ name j) 1) :for (< j (- (.. inputScript (getChunks) (size)) sigSuffixCount)) :for (§ ass (§ name j) (+ j 1)))
                 (§ block
                     (§ var #_"ScriptChunk" (§ name scriptChunk) (.. inputScript (getChunks) (get j)))
                     (§ if (.. scriptChunk (equalsOpCode 0)))
                     (§ block
-                        (§ if (§ expr missingSigsMode == Wallet/MissingSigsMode/THROW))
+                        (§ if (== missingSigsMode Wallet/MissingSigsMode/THROW))
                         (§ block
                             (§ throw (§ new #_"MissingSignatureException"))
                         )
 
-                        (§ if (§ expr missingSigsMode == Wallet/MissingSigsMode/USE_DUMMY_SIG))
+                        (§ if (== missingSigsMode Wallet/MissingSigsMode/USE_DUMMY_SIG))
                         (§ block
-                            (.. txIn (setScriptSig (.. scriptPubKey (getScriptSigWithSignature inputScript, dummySig, (§ expr j - 1)))))
+                            (.. txIn (setScriptSig (.. scriptPubKey (getScriptSigWithSignature inputScript, dummySig, (- j 1)))))
                         )
                     )
                 )
@@ -36235,12 +36246,12 @@
             (§ block
                 (§ if (.. inputScript (getChunks) (get 0) (equalsOpCode 0)))
                 (§ block
-                    (§ if (§ expr missingSigsMode == Wallet/MissingSigsMode/THROW))
+                    (§ if (== missingSigsMode Wallet/MissingSigsMode/THROW))
                     (§ block
                         (§ throw (§ new #_"ECKey.MissingPrivateKeyException"))
                     )
 
-                    (§ if (§ expr missingSigsMode == Wallet/MissingSigsMode/USE_DUMMY_SIG))
+                    (§ if (== missingSigsMode Wallet/MissingSigsMode/USE_DUMMY_SIG))
                     (§ block
                         (.. txIn (setScriptSig (.. scriptPubKey (getScriptSigWithSignature inputScript, dummySig, 0))))
                     )
@@ -36681,7 +36692,7 @@
         (§ try )
         (§ block
             (Class/forName (getDatabaseDriverClass))
-            (.. log (info (§ expr (getDatabaseDriverClass) + " loaded. ")))
+            (.. log (info (str (getDatabaseDriverClass) " loaded. ")))
         )
         (§ catch #_"ClassNotFoundException" (§ name e))
         (§ block
@@ -36693,7 +36704,7 @@
         (§ try )
         (§ block
             ;; Create tables if needed.
-            (§ if (§ not (tablesExist)))
+            (§ if (not (tablesExist)))
             (§ block
                 (createTables)
             )
@@ -37000,12 +37011,12 @@
     (§ block
         (§ try )
         (§ block
-            (§ if (§ expr (.. conn (get)) != nil && (§ not (.. conn (get) (isClosed)))))
+            (§ if (and (some? (.. conn (get))) (not (.. conn (get) (isClosed)))))
             (§ block
                 (§ return nil)
             )
 
-            (§ if (§ expr username == nil || password == nil))
+            (§ if (or (nil? username) (nil? password)))
             (§ block
                 (.. conn (set (DriverManager/getConnection connectionURL)))
             )
@@ -37045,12 +37056,12 @@
         (§ block
             (§ try )
             (§ block
-                (§ if (§ not (.. conn (getAutoCommit))))
+                (§ if (not (.. conn (getAutoCommit))))
                 (§ block
                     (.. conn (rollback))
                 )
                 (.. conn (close))
-                (§ if (§ expr conn == (.. this conn (get))))
+                (§ if (== conn (.. this conn (get))))
                 (§ block
                     (.. this conn (set nil))
                 )
@@ -37092,7 +37103,7 @@
         )
         (§ finally )
         (§ block
-            (§ if (§ expr ps != nil && (§ not (.. ps (isClosed)))))
+            (§ if (and (some? ps) (not (.. ps (isClosed)))))
             (§ block
                 (.. ps (close))
             )
@@ -37122,7 +37133,7 @@
             )
             (§ finally )
             (§ block
-                (§ if (§ expr ps != nil && (§ not (.. ps (isClosed)))))
+                (§ if (and (some? ps) (not (.. ps (isClosed)))))
                 (§ block
                     (.. ps (close))
                 )
@@ -37170,7 +37181,7 @@
         (.. ps (setNull 2, Types/BINARY))
         (.. ps (execute))
         (.. ps (setString 1, VERSION_SETTING))
-        (.. ps (setBytes 2, (§ expr (.. "03" (getBytes)))))
+        (.. ps (setBytes 2, (.. "03" (getBytes))))
         (.. ps (execute))
         (.. ps (close))
 
@@ -37219,7 +37230,7 @@
         (§ var #_"ResultSet" (§ name rs))
         (.. ps (setString 1, CHAIN_HEAD_SETTING))
         (§ ass (§ name rs) (.. ps (executeQuery)))
-        (§ if (§ not (.. rs (next))))
+        (§ if (not (.. rs (next))))
         (§ block
             (§ throw (§ new #_"BlockStoreException" "corrupt database block store - no chain head pointer"))
         )
@@ -37235,7 +37246,7 @@
 
         (.. ps (setString 1, VERIFIED_CHAIN_HEAD_SETTING))
         (§ ass (§ name rs) (.. ps (executeQuery)))
-        (§ if (§ not (.. rs (next))))
+        (§ if (not (.. rs (next))))
         (§ block
             (§ throw (§ new #_"BlockStoreException" "corrupt database block store - no verified chain head pointer"))
         )
@@ -37274,7 +37285,7 @@
         (§ block
             ;; It is possible we try to add a duplicate StoredBlock if we upgraded.
             ;; In that case, we just update the entry to mark it wasUndoable.
-            (§ if (§ expr (§ not (.. e (getSQLState) (equals (getDuplicateKeyErrorCode)))) || (§ not wasUndoable)))
+            (§ if (or (not (.. e (getSQLState) (equals (getDuplicateKeyErrorCode)))) (not wasUndoable)))
             (§ block
                 (§ throw e)
             )
@@ -37332,9 +37343,9 @@
             (§ block
                 (§ var #_"int" (§ name numTxn) (.. undoableBlock (getTransactions) (size)))
                 (.. bos (write (& 0xff numTxn)))
-                (.. bos (write (§ expr 0xff & (>> numTxn 8))))
-                (.. bos (write (§ expr 0xff & (>> numTxn 16))))
-                (.. bos (write (§ expr 0xff & (>> numTxn 24))))
+                (.. bos (write (& 0xff (>> numTxn 8))))
+                (.. bos (write (& 0xff (>> numTxn 16))))
+                (.. bos (write (& 0xff (>> numTxn 24))))
                 (§ for (§ var #_"Transaction" (§ name tx)) :for (.. undoableBlock (getTransactions)))
                 (§ block
                     (.. tx (bitcoinSerialize bos))
@@ -37378,7 +37389,7 @@
             )
             (§ catch #_"SQLException" (§ name e))
             (§ block
-                (§ if (§ not (.. e (getSQLState) (equals (getDuplicateKeyErrorCode)))))
+                (§ if (not (.. e (getSQLState) (equals (getDuplicateKeyErrorCode)))))
                 (§ block
                     (§ throw (§ new #_"BlockStoreException" e))
                 )
@@ -37412,12 +37423,12 @@
         (§ throws #_"BlockStoreException")
     (§ block
         ;; Optimize for chain head.
-        (§ if (§ expr chainHeadHash != nil && (.. chainHeadHash (equals hash))))
+        (§ if (and (some? chainHeadHash) (.. chainHeadHash (equals hash))))
         (§ block
             (§ return chainHeadBlock)
         )
 
-        (§ if (§ expr verifiedChainHeadHash != nil && (.. verifiedChainHeadHash (equals hash))))
+        (§ if (and (some? verifiedChainHeadHash) (.. verifiedChainHeadHash (equals hash))))
         (§ block
             (§ return verifiedChainHeadBlock)
         )
@@ -37432,13 +37443,13 @@
             (System/arraycopy (.. hash (getBytes)), 4, hashBytes, 0, 28)
             (.. ps (setBytes 1, hashBytes))
             (§ var #_"ResultSet" (§ name results) (.. ps (executeQuery)))
-            (§ if (§ not (.. results (next))))
+            (§ if (not (.. results (next))))
             (§ block
                 (§ return nil)
             )
 
             ;; Parse it.
-            (§ if (§ expr wasUndoableOnly && (§ not (.. results (getBoolean 4)))))
+            (§ if (and wasUndoableOnly (not (.. results (getBoolean 4)))))
             (§ block
                 (§ return nil)
             )
@@ -37512,7 +37523,7 @@
             (System/arraycopy (.. hash (getBytes)), 4, hashBytes, 0, 28)
             (.. ps (setBytes 1, hashBytes))
             (§ var #_"ResultSet" (§ name results) (.. ps (executeQuery)))
-            (§ if (§ not (.. results (next))))
+            (§ if (not (.. results (next))))
             (§ block
                 (§ return nil)
             )
@@ -37523,14 +37534,14 @@
             (§ var #_"StoredUndoableBlock" (§ name block))
             (§ if (nil? txOutChanges))
             (§ block
-                (§ var #_"int" (§ name numTxn) (§ expr (§ expr (§ ai transactions 0) & 0xff) | (<< (§ expr (§ ai transactions 1) & 0xff) 8) | (<< (§ expr (§ ai transactions 2) & 0xff) 16) | (<< (§ expr (§ ai transactions 3) & 0xff) 24)))
+                (§ var #_"int" (§ name numTxn) (| (& 0xff (§ ai transactions 0)) (<< (& 0xff (§ ai transactions 1)) 8) (<< (& 0xff (§ ai transactions 2)) 16) (<< (& 0xff (§ ai transactions 3)) 24)))
                 (§ var #_"int" (§ name offset) 4)
                 (§ var #_"List<Transaction>" (§ name transactionList) (§ new #_"LinkedList<>"))
                 (§ for (§ var #_"int" (§ name i) 0) :for (< i numTxn) :for (§ ass (§ name i) (+ i 1)))
                 (§ block
                     (§ var #_"Transaction" (§ name tx) (.. params (getDefaultSerializer) (makeTransaction transactions, offset)))
                     (.. transactionList (add tx))
-                    (§ ass (§ name offset) (§ expr offset + (.. tx (getMessageSize))))
+                    (§ ass (§ name offset) (+ offset (.. tx (getMessageSize))))
                 )
                 (§ ass (§ name block) (§ new #_"StoredUndoableBlock" hash, transactionList))
             )
@@ -37686,7 +37697,7 @@
             ;; index is actually an unsigned int
             (.. ps (setInt 2, (§ cast #_"int" index)))
             (§ var #_"ResultSet" (§ name results) (.. ps (executeQuery)))
-            (§ if (§ not (.. results (next))))
+            (§ if (not (.. results (next))))
             (§ block
                 (§ return nil)
             )
@@ -37731,7 +37742,7 @@
             (§ ass (§ name ps) (.. conn (get) (prepareStatement (getInsertOpenoutputsSQL))))
             (.. ps (setBytes 1, (.. out (getHash) (getBytes))))
             ;; index is actually an unsigned int
-            (.. ps (setInt 2, (§ expr (§ cast #_"int" (.. out (getIndex))))))
+            (.. ps (setInt 2, (§ cast #_"int" (.. out (getIndex)))))
             (.. ps (setInt 3, (.. out (getHeight))))
             (.. ps (setLong 4, (.. out (getValue) value)))
             (.. ps (setBytes 5, (.. out (getScript) (getProgram))))
@@ -37743,7 +37754,7 @@
         )
         (§ catch #_"SQLException" (§ name e))
         (§ block
-            (§ if (§ not (.. e (getSQLState) (equals (getDuplicateKeyErrorCode)))))
+            (§ if (not (.. e (getSQLState) (equals (getDuplicateKeyErrorCode)))))
             (§ block
                 (§ throw (§ new #_"BlockStoreException" e))
             )
@@ -37782,7 +37793,7 @@
             (§ var #_"PreparedStatement" (§ name ps) (.. conn (get) (prepareStatement (getDeleteOpenoutputsSQL))))
             (.. ps (setBytes 1, (.. out (getHash) (getBytes))))
             ;; index is actually an unsigned int
-            (.. ps (setInt 2, (§ expr (§ cast #_"int" (.. out (getIndex))))))
+            (.. ps (setInt 2, (§ cast #_"int" (.. out (getIndex)))))
             (.. ps (executeUpdate))
             (.. ps (close))
         )
@@ -37851,7 +37862,7 @@
 
         (§ try )
         (§ block
-            (§ if (§ not (.. conn (get) (getAutoCommit))))
+            (§ if (not (.. conn (get) (getAutoCommit))))
             (§ block
                 (.. conn (get) (rollback))
                 (.. conn (get) (setAutoCommit true))
@@ -37880,13 +37891,13 @@
             (§ ass (§ name ps) (.. conn (get) (prepareStatement (getSelectOpenoutputsCountSQL))))
             (.. ps (setBytes 1, (.. hash (getBytes))))
             (§ var #_"ResultSet" (§ name results) (.. ps (executeQuery)))
-            (§ if (§ not (.. results (next))))
+            (§ if (not (.. results (next))))
             (§ block
                 (§ throw (§ new #_"BlockStoreException" "Got no results from a COUNT(*) query"))
             )
 
             (§ var #_"int" (§ name count) (.. results (getInt 1)))
-            (§ return (§ expr count != 0))
+            (§ return (!= count 0))
         )
         (§ catch #_"SQLException" (§ name e))
         (§ block
@@ -38167,43 +38178,43 @@
     ;; create table SQL
     #_private
     #_static
-    (§ def- #_"String" (§ name CREATE_SETTINGS_TABLE) (§ expr "CREATE TABLE settings ( "
-            + "name VARCHAR(32) NOT NULL CONSTRAINT settings_pk PRIMARY KEY,"
-            + "value BLOB"
-            + ")"))
+    (§ def- #_"String" (§ name CREATE_SETTINGS_TABLE) (str "CREATE TABLE settings ("
+              "name VARCHAR(32) NOT NULL CONSTRAINT settings_pk PRIMARY KEY, "
+              "value BLOB"
+              ")"))
 
     #_private
     #_static
-    (§ def- #_"String" (§ name CREATE_HEADERS_TABLE) (§ expr "CREATE TABLE headers ( "
-            + "hash BINARY(28) NOT NULL CONSTRAINT headers_pk PRIMARY KEY,"
-            + "chainwork BLOB NOT NULL,"
-            + "height INT NOT NULL,"
-            + "header BLOB NOT NULL,"
-            + "wasundoable BOOL NOT NULL"
-            + ")"))
+    (§ def- #_"String" (§ name CREATE_HEADERS_TABLE) (str "CREATE TABLE headers ("
+              "hash BINARY(28) NOT NULL CONSTRAINT headers_pk PRIMARY KEY, "
+              "chainwork BLOB NOT NULL, "
+              "height INT NOT NULL, "
+              "header BLOB NOT NULL, "
+              "wasundoable BOOL NOT NULL"
+              ")"))
 
     #_private
     #_static
-    (§ def- #_"String" (§ name CREATE_UNDOABLE_TABLE) (§ expr "CREATE TABLE undoableblocks ( "
-            + "hash BINARY(28) NOT NULL CONSTRAINT undoableblocks_pk PRIMARY KEY,"
-            + "height INT NOT NULL,"
-            + "txoutchanges BLOB,"
-            + "transactions BLOB"
-            + ")"))
+    (§ def- #_"String" (§ name CREATE_UNDOABLE_TABLE) (str "CREATE TABLE undoableblocks ("
+              "hash BINARY(28) NOT NULL CONSTRAINT undoableblocks_pk PRIMARY KEY, "
+              "height INT NOT NULL, "
+              "txoutchanges BLOB, "
+              "transactions BLOB"
+              ")"))
 
     #_private
     #_static
-    (§ def- #_"String" (§ name CREATE_OPEN_OUTPUT_TABLE) (§ expr "CREATE TABLE openoutputs ("
-            + "hash BINARY(32) NOT NULL,"
-            + "index INT NOT NULL,"
-            + "height INT NOT NULL,"
-            + "value BIGINT NOT NULL,"
-            + "scriptbytes BLOB NOT NULL,"
-            + "toaddress VARCHAR(35),"
-            + "addresstargetable TINYINT,"
-            + "coinbase BOOLEAN,"
-            + "PRIMARY KEY (hash, index),"
-            + ")"))
+    (§ def- #_"String" (§ name CREATE_OPEN_OUTPUT_TABLE) (str "CREATE TABLE openoutputs ("
+              "hash BINARY(32) NOT NULL, "
+              "index INT NOT NULL, "
+              "height INT NOT NULL, "
+              "value BIGINT NOT NULL, "
+              "scriptbytes BLOB NOT NULL, "
+              "toaddress VARCHAR(35), "
+              "addresstargetable TINYINT, "
+              "coinbase BOOLEAN, "
+              "PRIMARY KEY (hash, index)"
+              ")"))
 
     ;; Some indexes to speed up inserts.
     #_private
@@ -38235,7 +38246,7 @@
     (§ constructor #_"H2FullPrunedBlockStore" [#_"NetworkParameters" (§ name params), #_"String" (§ name dbName), #_"String" (§ name username), #_"String" (§ name password), #_"int" (§ name fullStoreDepth)])
         (§ throws #_"BlockStoreException")
     (§ block
-        (§ super params, (§ expr DATABASE_CONNECTION_URL_PREFIX + dbName + ";create=true;LOCK_TIMEOUT=60000;DB_CLOSE_ON_EXIT=FALSE"), fullStoreDepth, username, password, nil)
+        (§ super params, (str DATABASE_CONNECTION_URL_PREFIX dbName ";create=true;LOCK_TIMEOUT=60000;DB_CLOSE_ON_EXIT=FALSE"), fullStoreDepth, username, password, nil)
         this
     )
 
@@ -38347,7 +38358,7 @@
             #_protected
             (§ method #_"boolean" (§ fn removeEldestEntry) [#_"Map.Entry<Sha256Hash, StoredBlock>" (§ name eldest)])
             (§ block
-                (§ expr 5000 < (.. blockMap (size)))
+                (< 5000 (.. blockMap (size)))
             )
         )))
     #_private
@@ -38515,16 +38526,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"StoredTransactionOutPoint" (§ name other) (§ cast #_"StoredTransactionOutPoint" o))
-        (§ expr (getIndex) == (.. other (getIndex)) && (Objects/equal (getHash), (.. other (getHash))))
+        (and (== (getIndex) (.. other (getIndex))) (Objects/equal (getHash), (.. other (getHash))))
     )
 )
 
@@ -38601,7 +38612,7 @@
                     (§ return value)
                 )
             )
-            (§ if (§ expr (.. tempSetRemoved (get)) != nil && (.. tempSetRemoved (get) (contains key))))
+            (§ if (and (some? (.. tempSetRemoved (get))) (.. tempSetRemoved (get) (contains key))))
             (§ block
                 (§ return nil)
             )
@@ -38878,7 +38889,7 @@
     (§ block
         (Preconditions/checkNotNull blockMap, "MemoryFullPrunedBlockStore is closed")
         (§ var #_"StoredBlockAndWasUndoableFlag" (§ name storedBlock) (.. blockMap (get hash)))
-        (when (§ expr storedBlock != nil && (.. storedBlock wasUndoable)) (.. storedBlock block))
+        (when (and (some? storedBlock) (.. storedBlock wasUndoable)) (.. storedBlock block))
     )
 
     #_override
@@ -39078,46 +39089,46 @@
     ;; create table SQL
     #_private
     #_static
-    (§ def- #_"String" (§ name CREATE_SETTINGS_TABLE) (§ expr "CREATE TABLE settings ("
-          + "name character varying(32) NOT NULL, "
-          + "value bytea, "
-          + "CONSTRAINT setting_pk PRIMARY KEY (name)"
-          + ")"))
+    (§ def- #_"String" (§ name CREATE_SETTINGS_TABLE) (str "CREATE TABLE settings ("
+            "name character varying(32) NOT NULL, "
+            "value bytea, "
+            "CONSTRAINT setting_pk PRIMARY KEY (name)"
+            ")"))
 
     #_private
     #_static
-    (§ def- #_"String" (§ name CREATE_HEADERS_TABLE) (§ expr "CREATE TABLE headers ("
-          + "hash bytea NOT NULL, "
-          + "chainwork bytea NOT NULL, "
-          + "height integer NOT NULL, "
-          + "header bytea NOT NULL, "
-          + "wasundoable boolean NOT NULL, "
-          + "CONSTRAINT headers_pk PRIMARY KEY (hash)"
-          + ")"))
+    (§ def- #_"String" (§ name CREATE_HEADERS_TABLE) (str "CREATE TABLE headers ("
+            "hash bytea NOT NULL, "
+            "chainwork bytea NOT NULL, "
+            "height integer NOT NULL, "
+            "header bytea NOT NULL, "
+            "wasundoable boolean NOT NULL, "
+            "CONSTRAINT headers_pk PRIMARY KEY (hash)"
+            ")"))
 
     #_private
     #_static
-    (§ def- #_"String" (§ name CREATE_UNDOABLE_TABLE) (§ expr "CREATE TABLE undoableblocks ("
-          + "hash bytea NOT NULL, "
-          + "height integer NOT NULL, "
-          + "txoutchanges bytea, "
-          + "transactions bytea, "
-          + "CONSTRAINT undoableblocks_pk PRIMARY KEY (hash)"
-          + ")"))
+    (§ def- #_"String" (§ name CREATE_UNDOABLE_TABLE) (str "CREATE TABLE undoableblocks ("
+            "hash bytea NOT NULL, "
+            "height integer NOT NULL, "
+            "txoutchanges bytea, "
+            "transactions bytea, "
+            "CONSTRAINT undoableblocks_pk PRIMARY KEY (hash)"
+            ")"))
 
     #_private
     #_static
-    (§ def- #_"String" (§ name CREATE_OPEN_OUTPUT_TABLE) (§ expr "CREATE TABLE openoutputs ("
-          + "hash bytea NOT NULL, "
-          + "index integer NOT NULL, "
-          + "height integer NOT NULL, "
-          + "value bigint NOT NULL, "
-          + "scriptbytes bytea NOT NULL, "
-          + "toaddress character varying(35), "
-          + "addresstargetable smallint, "
-          + "coinbase boolean, "
-          + "CONSTRAINT openoutputs_pk PRIMARY KEY (hash,index)"
-          + ")"))
+    (§ def- #_"String" (§ name CREATE_OPEN_OUTPUT_TABLE) (str "CREATE TABLE openoutputs ("
+            "hash bytea NOT NULL, "
+            "index integer NOT NULL, "
+            "height integer NOT NULL, "
+            "value bigint NOT NULL, "
+            "scriptbytes bytea NOT NULL, "
+            "toaddress character varying(35), "
+            "addresstargetable smallint, "
+            "coinbase boolean, "
+            "CONSTRAINT openoutputs_pk PRIMARY KEY (hash,index)"
+            ")"))
 
     ;; Some indexes to speed up inserts.
     #_private
@@ -39155,7 +39166,7 @@
     (§ constructor #_"PostgresFullPrunedBlockStore" [#_"NetworkParameters" (§ name params), #_"int" (§ name fullStoreDepth), #_"String" (§ name hostname), #_"String" (§ name dbName), #_"String" (§ name username), #_"String" (§ name password)])
         (§ throws #_"BlockStoreException")
     (§ block
-        (§ super params, (§ expr DATABASE_CONNECTION_URL_PREFIX + hostname + "/" + dbName), fullStoreDepth, username, password, nil)
+        (§ super params, (str DATABASE_CONNECTION_URL_PREFIX hostname "/" dbName), fullStoreDepth, username, password, nil)
         this
     )
 
@@ -39179,7 +39190,7 @@
     (§ constructor #_"PostgresFullPrunedBlockStore" [#_"NetworkParameters" (§ name params), #_"int" (§ name fullStoreDepth), #_"String" (§ name hostname), #_"String" (§ name dbName), #_"String" (§ name username), #_"String" (§ name password), #_nilable #_"String" (§ name schemaName)])
         (§ throws #_"BlockStoreException")
     (§ block
-        (§ super params, (§ expr DATABASE_CONNECTION_URL_PREFIX + hostname + "/" + dbName), fullStoreDepth, username, password, schemaName)
+        (§ super params, (str DATABASE_CONNECTION_URL_PREFIX hostname "/" dbName), fullStoreDepth, username, password, schemaName)
         this
     )
 
@@ -39256,9 +39267,9 @@
             (§ block
                 (§ var #_"int" (§ name numTxn) (.. undoableBlock (getTransactions) (size)))
                 (.. bos (write (& 0xff numTxn)))
-                (.. bos (write (§ expr 0xff & (>> numTxn 8))))
-                (.. bos (write (§ expr 0xff & (>> numTxn 16))))
-                (.. bos (write (§ expr 0xff & (>> numTxn 24))))
+                (.. bos (write (& 0xff (>> numTxn 8))))
+                (.. bos (write (& 0xff (>> numTxn 16))))
+                (.. bos (write (& 0xff (>> numTxn 24))))
                 (§ for (§ var #_"Transaction" (§ name tx)) :for (.. undoableBlock (getTransactions)))
                 (§ block
                     (.. tx (bitcoinSerialize bos))
@@ -39346,7 +39357,7 @@
         )
         (§ catch #_"SQLException" (§ name e))
         (§ block
-            (§ if (§ not (.. e (getSQLState) (equals POSTGRES_DUPLICATE_KEY_ERROR_CODE))))
+            (§ if (not (.. e (getSQLState) (equals POSTGRES_DUPLICATE_KEY_ERROR_CODE))))
             (§ block
                 (§ throw (§ new #_"BlockStoreException" e))
             )
@@ -39478,7 +39489,7 @@
             ;; Set up the backing file.
             (§ ass (§ name randomAccessFile) (§ new #_"RandomAccessFile" file, "rw"))
             (§ var #_"long" (§ name fileSize) (getFileSize capacity))
-            (§ if (§ not exists))
+            (§ if (not exists))
             (§ block
                 (.. log (info (str "Creating new SPV block chain file " file)))
                 (.. randomAccessFile (setLength fileSize))
@@ -39508,7 +39519,7 @@
             (§ block
                 (§ ass (§ name header) (§ new #_"byte[]" (§ count 4)))
                 (.. buffer (get header))
-                (§ if (§ not (.. (§ new #_"String" header, Charsets/US_ASCII) (equals HEADER_MAGIC))))
+                (§ if (not (.. (§ new #_"String" header, Charsets/US_ASCII) (equals HEADER_MAGIC))))
                 (§ block
                     (§ throw (§ new #_"BlockStoreException" (str "Header bytes do not equal " HEADER_MAGIC)))
                 )
@@ -39564,7 +39575,7 @@
     #_static
     (§ defn #_"int" (§ fn getFileSize) [#_"int" (§ name capacity)])
     (§ block
-        (§ expr RECORD_SIZE * capacity + FILE_PROLOGUE_BYTES) ;; extra kilobyte for stuff
+        (+ (* RECORD_SIZE capacity) FILE_PROLOGUE_BYTES) ;; extra kilobyte for stuff
     )
 
     #_override
@@ -39583,7 +39594,7 @@
         (§ block
             (§ var #_"int" (§ name cursor) (getRingCursor buffer))
             ;; Wrapped around.
-            (§ if (§ expr cursor == (getFileSize capacity)))
+            (§ if (== cursor (getFileSize capacity)))
             (§ block
                 (§ ass (§ name cursor) FILE_PROLOGUE_BYTES)
             )
@@ -39653,7 +39664,7 @@
                     (§ return storedBlock)
                 )
             )
-            (§ again (§ expr cursor != startingPoint))
+            (§ again (!= cursor startingPoint))
 
             ;; Not found.
             (.. notFoundCache (put hash, NOT_FOUND_MARKER))
@@ -39782,7 +39793,7 @@
     (§ method- #_"int" (§ fn getRingCursor) [#_"ByteBuffer" (§ name buffer)])
     (§ block
         (§ var #_"int" (§ name c) (.. buffer (getInt 4)))
-        (Preconditions/checkState (§ expr FILE_PROLOGUE_BYTES <= c), "Integer overflow")
+        (Preconditions/checkState (<= FILE_PROLOGUE_BYTES c), "Integer overflow")
         c
     )
 
@@ -39935,8 +39946,8 @@
         ;; For instance with  bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=0.06&label=Tom%20%26%20Jerry
         ;; the & (%26) in Tom and Jerry gets interpreted as a separator and the label then gets parsed
         ;; as 'Tom ' instead of 'Tom & Jerry'.)
-        (§ var #_"String" (§ name blockchainInfoScheme) (§ expr scheme + "://"))
-        (§ var #_"String" (§ name correctScheme) (§ expr scheme + ":"))
+        (§ var #_"String" (§ name blockchainInfoScheme) (str scheme "://"))
+        (§ var #_"String" (§ name correctScheme) (str scheme ":"))
         (§ var #_"String" (§ name schemeSpecificPart))
         (§ if (.. input (startsWith blockchainInfoScheme)))
         (§ block
@@ -39975,7 +39986,7 @@
         ;; Attempt to parse the rest of the URI parameters.
         (parseParameters params, addressToken, nameValuePairTokens)
 
-        (§ if (§ not (.. addressToken (isEmpty))))
+        (§ if (not (.. addressToken (isEmpty))))
         (§ block
             ;; Attempt to parse the addressToken as a Bitcoin address for this network.
             (§ try )
@@ -39989,7 +40000,7 @@
             )
         )
 
-        (§ if (§ expr (.. addressToken (isEmpty)) && (getPaymentRequestUrl) == nil))
+        (§ if (and (.. addressToken (isEmpty)) (nil? (getPaymentRequestUrl))))
         (§ block
             (§ throw (§ new #_"BitcoinURIParseException" "No address and no r= parameter found"))
         )
@@ -40008,11 +40019,11 @@
         (§ for (§ var #_"String" (§ name nameValuePairToken)) :for nameValuePairTokens)
         (§ block
             (§ var #_"int" (§ name sepIndex) (.. nameValuePairToken (indexOf "=")))
-            (§ if (§ expr sepIndex == -1))
+            (§ if (== sepIndex -1))
             (§ block
                 (§ throw (§ new #_"BitcoinURIParseException" (str "Malformed Bitcoin URI - no separator in '" nameValuePairToken "'")))
             )
-            (§ if (§ expr sepIndex == 0))
+            (§ if (== sepIndex 0))
             (§ block
                 (§ throw (§ new #_"BitcoinURIParseException" (str "Malformed Bitcoin URI - empty name '" nameValuePairToken "'")))
             )
@@ -40027,7 +40038,7 @@
                 (§ try )
                 (§ block
                     (§ var #_"Coin" (§ name amount) (Coin/parseCoin valueToken))
-                    (§ if (§ expr params != nil && (.. amount (isGreaterThan (.. params (getMaxMoney))))))
+                    (§ if (and (some? params) (.. amount (isGreaterThan (.. params (getMaxMoney))))))
                     (§ block
                         (§ throw (§ new #_"BitcoinURIParseException" "Max number of coins exceeded"))
                     )
@@ -40058,7 +40069,7 @@
                 ;; Known fields and unknown parameters that are optional.
                 (§ try )
                 (§ block
-                    (§ if (§ expr 0 < (.. valueToken (length))))
+                    (§ if (< 0 (.. valueToken (length))))
                     (§ block
                         (putWithValidation nameToken, (URLDecoder/decode valueToken, "UTF-8"))
                     )
@@ -40231,7 +40242,7 @@
         (Preconditions/checkNotNull params)
         (Preconditions/checkNotNull address)
 
-        (§ if (§ expr amount != nil && (.. amount (signum)) < 0))
+        (§ if (and (some? amount) (< (.. amount (signum)) 0)))
         (§ block
             (§ throw (§ new #_"IllegalArgumentException" "Coin must be positive"))
         )
@@ -40249,7 +40260,7 @@
             (§ ass (§ name questionMarkHasBeenOutput) true)
         )
 
-        (§ if (§ expr label != nil && (§ not (.. "" (equals label)))))
+        (§ if (and (some? label) (not (.. "" (equals label)))))
         (§ block
             (§ if questionMarkHasBeenOutput)
             (§ block
@@ -40263,7 +40274,7 @@
             (.. sb (append FIELD_LABEL) (append "=") (append (encodeURLString label)))
         )
 
-        (§ if (§ expr message != nil && (§ not (.. "" (equals message)))))
+        (§ if (and (some? message) (not (.. "" (equals message)))))
         (§ block
             (§ if questionMarkHasBeenOutput)
             (§ block
@@ -40519,7 +40530,7 @@
          ;   use the smaller denomination.
          ;;
         (§ var #_"int" (§ name places))
-        (§ var #_"int" (§ name coinOffset) (Math/max (§ expr SMALLEST_UNIT_EXPONENT - fractionPlaces), 0))
+        (§ var #_"int" (§ name coinOffset) (Math/max (- SMALLEST_UNIT_EXPONENT fractionPlaces), 0))
         (§ var #_"BigDecimal" (§ name inCoins) (.. (§ new #_"BigDecimal" satoshis) (movePointLeft coinOffset)))
         (§ if (== (.. inCoins (remainder ONE) (compareTo ZERO)) 0))
         (§ block
@@ -40595,11 +40606,11 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ not (§ insta o #_"BtcAutoFormat")))
+        (§ if (not (§ insta o #_"BtcAutoFormat")))
         (§ block
             (§ return false)
         )
@@ -40765,7 +40776,7 @@
         (§ ass (§ name (§ ai array 0)) minimumFractionDigits)
         (§ for (§ var #_"int" (§ name i) 1) :for (< i len) :for (§ ass (§ name i) (+ i 1)))
         (§ block
-            (§ ass (§ name (§ ai array i)) (§ cast #_"Integer" (§ ai boxedArray (§ expr i - 1))))
+            (§ ass (§ name (§ ai array i)) (§ cast #_"Integer" (§ ai boxedArray (- i 1))))
         )
         array
     )
@@ -40778,16 +40789,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr o == this))
+        (§ if (== o this))
         (§ block
             (§ return true)
         )
-        (§ if (§ not (§ insta o #_"BtcFixedFormat")))
+        (§ if (not (§ insta o #_"BtcFixedFormat")))
         (§ block
             (§ return false)
         )
         (§ var #_"BtcFixedFormat" (§ name other) (§ cast #_"BtcFixedFormat" o))
-        (§ expr (.. super (equals other)) && (.. other (scale)) == (scale) && (.. other decimalGroups (equals decimalGroups)))
+        (and (.. super (equals other)) (== (.. other (scale)) (scale)) (.. other decimalGroups (equals decimalGroups)))
     )
 
     ;;; Return a hash code value for this instance.
@@ -40858,7 +40869,7 @@
     #_public
     (§ method #_"String" (§ fn toString) [])
     (§ block
-        (§ expr (prefixLabel scale) + "format " + (pattern))
+        (str (prefixLabel scale) "format " (pattern))
     )
 )
 
@@ -41398,7 +41409,7 @@
         #_public
         (§ method #_"Builder" (§ fn style) [#_"BtcAutoFormat.Style" (§ name val)])
         (§ block
-            (§ if (§ expr variant == Variant/FIXED))
+            (§ if (== variant Variant/FIXED))
             (§ block
                 (§ throw (§ new #_"IllegalStateException" "You cannot invoke both style() and scale()"))
             )
@@ -41439,7 +41450,7 @@
         #_public
         (§ method #_"Builder" (§ fn scale) [#_"int" (§ name val)])
         (§ block
-            (§ if (§ expr variant == Variant/AUTO))
+            (§ if (== variant Variant/AUTO))
             (§ block
                 (§ throw (§ new #_"IllegalStateException" "You cannot invoke both scale() and style()"))
             )
@@ -41545,7 +41556,7 @@
         #_public
         (§ method #_"Builder" (§ fn pattern) [#_"String" (§ name val)])
         (§ block
-            (§ if (§ expr localizedPattern != ""))
+            (§ if (!= localizedPattern ""))
             (§ block
                 (§ throw (§ new #_"IllegalStateException" "You cannot invoke both pattern() and localizedPattern()"))
             )
@@ -41581,7 +41592,7 @@
         #_public
         (§ method #_"Builder" (§ fn localizedPattern) [#_"String" (§ name val)])
         (§ block
-            (§ if (§ expr pattern != ""))
+            (§ if (!= pattern ""))
             (§ block
                 (§ throw (§ new #_"IllegalStateException" "You cannot invoke both pattern() and localizedPattern()"))
             )
@@ -41598,7 +41609,7 @@
         (§ method #_"BtcFormat" (§ fn build) [])
         (§ block
             (§ var #_"BtcFormat" (§ name f) (.. variant (newInstance this)))
-            (§ if (§ expr symbol != "" || code != ""))
+            (§ if (or (!= symbol "") (!= code "")))
             (§ block
                 (§ sync (.. f numberFormat))
                 (§ block
@@ -41606,10 +41617,10 @@
                     (setSymbolAndCode (.. f numberFormat), (if (!= symbol "") symbol (.. defaultSigns (getCurrencySymbol))), (if (!= code "") code (.. defaultSigns (getInternationalCurrencySymbol))))
                 )
             )
-            (§ if (§ expr localizedPattern != "" || pattern != ""))
+            (§ if (or (!= localizedPattern "") (!= pattern "")))
             (§ block
                 (§ var #_"int" (§ name places) (.. f numberFormat (getMinimumFractionDigits)))
-                (§ if (§ expr localizedPattern != ""))
+                (§ if (!= localizedPattern ""))
                 (§ block
                     (.. f numberFormat (applyLocalizedPattern (negify localizedPattern)))
                 )
@@ -41636,7 +41647,7 @@
     #_protected
     (§ constructor #_"BtcFormat" [#_"DecimalFormat" (§ name numberFormat), #_"int" (§ name minDecimals), #_"List<Integer>" (§ name groups)])
     (§ block
-        (Preconditions/checkArgument (§ expr 0 <= minDecimals), "There can be no fewer than zero fractional decimal places")
+        (Preconditions/checkArgument (<= 0 minDecimals), "There can be no fewer than zero fractional decimal places")
 
         (§ ass (§ name (.. this numberFormat)) numberFormat)
         (.. this numberFormat (setParseBigDecimal true))
@@ -41878,7 +41889,7 @@
         (§ var #_"List<Integer>" (§ name list) (§ new #_"ArrayList<>" (.. elements length)))
         (§ for (§ var #_"int" (§ name e)) :for elements)
         (§ block
-            (Preconditions/checkArgument (§ expr 0 < e), "Size of decimal group must be at least one.")
+            (Preconditions/checkArgument (< 0 e), "Size of decimal group must be at least one.")
             (.. list (add e))
         )
         list
@@ -42177,7 +42188,7 @@
     #_private
     (§ method- #_"StringBuffer" (§ fn format) [#_"Object" (§ name qty), #_"StringBuffer" (§ name toAppendTo), #_"FieldPosition" (§ name pos), #_"int" (§ name minDecimals), #_"List<Integer>" (§ name fractionGroups)])
     (§ block
-        (Preconditions/checkArgument (§ expr 0 <= minDecimals), "There can be no fewer than zero fractional decimal places")
+        (Preconditions/checkArgument (<= 0 minDecimals), "There can be no fewer than zero fractional decimal places")
 
         (§ sync numberFormat)
         (§ block
@@ -42295,7 +42306,7 @@
     (§ defn- #_"BigInteger" (§ fn inSatoshis) [#_"Object" (§ name qty)])
     (§ block
         ;; The value might be bitcoins or satoshis.
-        (§ if (§ expr (§ insta qty #_"Long") || (§ insta qty #_"Integer")))
+        (§ if (or (§ insta qty #_"Long") (§ insta qty #_"Integer")))
         (§ block
             (§ return (BigInteger/valueOf (.. (§ cast #_"Number" qty) (longValue))))
         )
@@ -42362,24 +42373,24 @@
                 (§ ass (§ name result) denoms)
                 (§ if (nil? result))
                 (§ block
-                    (§ if (§ not (.. (coinSymbol) (matches ci))))
+                    (§ if (not (.. (coinSymbol) (matches ci))))
                     (§ block
                         (§ ass (§ name ci) (.. ci (replaceFirst "\\(", (str "(" (coinSymbol) "|"))))
                     )
-                    (§ if (§ not (.. (coinCode) (matches ci))))
+                    (§ if (not (.. (coinCode) (matches ci))))
                     (§ block
                         (§ ass (§ name ci) (.. ci (replaceFirst "\\)", (str "|" (coinCode) ")"))))
                     )
-                    (§ ass (§ name coinPattern) (Pattern/compile (§ expr ci + "?")))
+                    (§ ass (§ name coinPattern) (Pattern/compile (str ci "?")))
                     (§ ass (§ name result) (§ ass (§ name denoms) (§ new #_"ScaleMatcher[]"
                     (§ coll
                         (§ new #_"ScaleMatcher" (Pattern/compile (str "¢" ci "?|c" ci)), 2) ;; centi
                         (§ new #_"ScaleMatcher" (Pattern/compile (str "₥" ci "?|m" ci)), MILLICOIN_SCALE)
-                        (§ new #_"ScaleMatcher" (§ expr (Pattern/compile (str "([µu]" ci ")")),    MICROCOIN_SCALE))
-                        (§ new #_"ScaleMatcher" (§ expr (Pattern/compile (str "(da" ci ")")),     -1)) ;; deka
-                        (§ new #_"ScaleMatcher" (§ expr (Pattern/compile (str "(h" ci ")")),      -2)) ;; hekto
-                        (§ new #_"ScaleMatcher" (§ expr (Pattern/compile (str "(k" ci ")")),      -3)) ;; kilo
-                        (§ new #_"ScaleMatcher" (§ expr (Pattern/compile (str "(M" ci ")")),      -6)) ;; mega
+                        (§ new #_"ScaleMatcher" (Pattern/compile (str "([µu]" ci ")")),  MICROCOIN_SCALE)
+                        (§ new #_"ScaleMatcher" (Pattern/compile (str "(da" ci ")")),   -1) ;; deka
+                        (§ new #_"ScaleMatcher" (Pattern/compile (str "(h" ci ")")),    -2) ;; hekto
+                        (§ new #_"ScaleMatcher" (Pattern/compile (str "(k" ci ")")),    -3) ;; kilo
+                        (§ new #_"ScaleMatcher" (Pattern/compile (str "(M" ci ")")),    -6) ;; mega
                     ))))
                 )
             )
@@ -42388,12 +42399,12 @@
     )
 
     ;;;
-     ; Set both the currency symbol and international code of the underlying {@link java.text.NumberFormat} object
-     ; to the value of the given <code>String</code>.
+     ; Set both the currency symbol and international code of the underlying {@link java.text.NumberFormat}
+     ; object to the value of the given <code>String</code>.
      ; This method is invoked in the process of parsing, not formatting.
      ;
-     ; Only invoke this from code synchronized on the value of the first argument, and don't forget
-     ; to put the symbols back otherwise equals(), hashCode() and immutability will break.
+     ; Only invoke this from code synchronized on the value of the first argument, and don't forget to put
+     ; the symbols back otherwise equals(), hashCode() and immutability will break.
      ;;
     #_private
     #_static
@@ -42486,7 +42497,7 @@
                         (§ break )
                     )
                 )
-                (§ if (§ expr parseScale == COIN_SCALE))
+                (§ if (== parseScale COIN_SCALE))
                 (§ block
                     (§ var #_"Matcher" (§ name matcher) (.. coinPattern (matcher source)))
                     (.. matcher (find))
@@ -42669,7 +42680,7 @@
         )
 
         ;; The regex matches everything until the first non-quoted number character.
-        (§ expr pattern + ";" + (.. pattern (replaceFirst "^([^#0,.']*('[^']*')?)*", "$0-")))
+        (str pattern ";" (.. pattern (replaceFirst "^([^#0,.']*('[^']*')?)*", "$0-")))
     )
 
     ;;;
@@ -42761,16 +42772,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr o == this))
+        (§ if (== o this))
         (§ block
             (§ return true)
         )
-        (§ if (§ not (§ insta o #_"BtcFormat")))
+        (§ if (not (§ insta o #_"BtcFormat")))
         (§ block
             (§ return false)
         )
         (§ var #_"BtcFormat" (§ name other) (§ cast #_"BtcFormat" o))
-        (§ expr (.. other (pattern) (equals (pattern))) && (.. other (symbols) (equals (symbols))) && (== (.. other minimumFractionDigits) minimumFractionDigits))
+        (and (.. other (pattern) (equals (pattern))) (.. other (symbols) (equals (symbols))) (== (.. other minimumFractionDigits) minimumFractionDigits))
     )
 
     ;;;
@@ -42941,7 +42952,7 @@
         ;; Use BigInteger because it's much easier to maintain full precision without overflowing.
         (§ var #_"BigInteger" (§ name converted) (.. (BigInteger/valueOf (.. convertCoin value)) (multiply (BigInteger/valueOf (.. fiat value))) (divide (BigInteger/valueOf (.. coin value)))))
 
-        (§ if (§ expr 0 < (.. converted (compareTo (BigInteger/valueOf Long/MAX_VALUE))) || (.. converted (compareTo (BigInteger/valueOf Long/MIN_VALUE))) < 0))
+        (§ if (or (< 0 (.. converted (compareTo (BigInteger/valueOf Long/MAX_VALUE)))) (< (.. converted (compareTo (BigInteger/valueOf Long/MIN_VALUE))) 0)))
         (§ block
             (§ throw (§ new #_"ArithmeticException" "Overflow"))
         )
@@ -42961,7 +42972,7 @@
         ;; Use BigInteger because it's much easier to maintain full precision without overflowing.
         (§ var #_"BigInteger" (§ name converted) (.. (BigInteger/valueOf (.. convertFiat value)) (multiply (BigInteger/valueOf (.. coin value))) (divide (BigInteger/valueOf (.. fiat value)))))
 
-        (§ if (§ expr 0 < (.. converted (compareTo (BigInteger/valueOf Long/MAX_VALUE))) || (.. converted (compareTo (BigInteger/valueOf Long/MIN_VALUE))) < 0))
+        (§ if (or (< 0 (.. converted (compareTo (BigInteger/valueOf Long/MAX_VALUE)))) (< (.. converted (compareTo (BigInteger/valueOf Long/MIN_VALUE))) 0)))
         (§ block
             (§ throw (§ new #_"ArithmeticException" "Overflow"))
         )
@@ -42980,16 +42991,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"ExchangeRate" (§ name other) (§ cast #_"ExchangeRate" o))
-        (§ expr (Objects/equal (.. this coin), (.. other coin)) && (Objects/equal (.. this fiat), (.. other fiat)))
+        (and (Objects/equal (.. this coin), (.. other coin)) (Objects/equal (.. this fiat), (.. other fiat)))
     )
 
     #_override
@@ -43050,8 +43061,8 @@
         #_public
         (§ constructor #_"Params" [#_"long" (§ name initialMillis), #_"float" (§ name multiplier), #_"long" (§ name maximumMillis)])
         (§ block
-            (Preconditions/checkArgument (§ expr 1.0 < multiplier), "multiplier must be greater than 1.0")
-            (Preconditions/checkArgument (§ expr initialMillis <= maximumMillis), "maximum must not be less than initial")
+            (Preconditions/checkArgument (< 1.0 multiplier), "multiplier must be greater than 1.0")
+            (Preconditions/checkArgument (<= initialMillis maximumMillis), "maximum must not be less than initial")
 
             (§ ass (§ name (.. this initial)) initialMillis)
             (§ ass (§ name (.. this multiplier)) multiplier)
@@ -43094,7 +43105,7 @@
     (§ method #_"void" (§ fn trackFailure) [])
     (§ block
         (§ ass (§ name retryTime) (+ (Utils/currentTimeMillis) (§ cast #_"long" backoff)))
-        (§ ass (§ name backoff) (Math/min (§ expr backoff * (.. params multiplier)), (.. params maximum)))
+        (§ ass (§ name backoff) (Math/min (* backoff (.. params multiplier)), (.. params maximum)))
         nil
     )
 
@@ -43262,13 +43273,13 @@
     #_public
     (§ method #_"Fiat" (§ fn divide) [#_"long" (§ name divisor)])
     (§ block
-        (§ new #_"Fiat" currencyCode, (§ expr (.. this value) / divisor))
+        (§ new #_"Fiat" currencyCode, (/ (.. this value) divisor))
     )
 
     #_public
     (§ method #_"Fiat[]" (§ fn divideAndRemainder) [#_"long" (§ name divisor)])
     (§ block
-        (§ new #_"Fiat[]" (§ coll (§ new #_"Fiat" currencyCode, (§ expr (.. this value) / divisor)), (§ new #_"Fiat" currencyCode, (§ expr (.. this value) % divisor)) ))
+        (§ new #_"Fiat[]" (§ coll (§ new #_"Fiat" currencyCode, (/ (.. this value) divisor)), (§ new #_"Fiat" currencyCode, (% (.. this value) divisor)) ))
     )
 
     #_public
@@ -43388,16 +43399,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr o == this))
+        (§ if (== o this))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (.. o (getClass)) != (getClass)))
+        (§ if (or (nil? o) (!= (.. o (getClass)) (getClass))))
         (§ block
             (§ return false)
         )
         (§ var #_"Fiat" (§ name other) (§ cast #_"Fiat" o))
-        (§ expr (.. this value) == (.. other value) && (.. this currencyCode (equals (.. other currencyCode))))
+        (and (== (.. this value) (.. other value)) (.. this currencyCode (equals (.. other currencyCode))))
     )
 
     #_override
@@ -43454,7 +43465,7 @@
                 (§ break )
             )
         )
-        (§ expr item != nil && (.. list (remove item)))
+        (and (some? item) (.. list (remove item)))
     )
 )
 
@@ -43543,7 +43554,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn negativeSign) [#_"char" (§ name negativeSign)])
     (§ block
-        (Preconditions/checkArgument (§ not (Character/isDigit negativeSign)))
+        (Preconditions/checkArgument (not (Character/isDigit negativeSign)))
         (Preconditions/checkArgument (< 0 negativeSign))
 
         (if (== negativeSign (.. this negativeSign)) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
@@ -43556,7 +43567,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn positiveSign) [#_"char" (§ name positiveSign)])
     (§ block
-        (Preconditions/checkArgument (§ not (Character/isDigit positiveSign)))
+        (Preconditions/checkArgument (not (Character/isDigit positiveSign)))
 
         (if (== positiveSign (.. this positiveSign)) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
     )
@@ -43577,7 +43588,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn decimalMark) [#_"char" (§ name decimalMark)])
     (§ block
-        (Preconditions/checkArgument (§ not (Character/isDigit decimalMark)))
+        (Preconditions/checkArgument (not (Character/isDigit decimalMark)))
         (Preconditions/checkArgument (< 0 decimalMark))
 
         (if (== decimalMark (.. this decimalMark)) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
@@ -43690,7 +43701,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn codeSeparator) [#_"char" (§ name codeSeparator)])
     (§ block
-        (Preconditions/checkArgument (§ not (Character/isDigit codeSeparator)))
+        (Preconditions/checkArgument (not (Character/isDigit codeSeparator)))
         (Preconditions/checkArgument (< 0 codeSeparator))
 
         (if (== codeSeparator (.. this codeSeparator)) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, codePrefixed))
@@ -43711,7 +43722,7 @@
     #_public
     (§ method #_"MonetaryFormat" (§ fn postfixCode) [])
     (§ block
-        (if (§ not codePrefixed) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, false))
+        (if (not codePrefixed) this (§ new #_"MonetaryFormat" negativeSign, positiveSign, zeroDigit, decimalMark, minDecimals, decimalGroups, shift, roundingMode, codes, codeSeparator, false))
     )
 
     ;;;
@@ -43731,10 +43742,10 @@
     (§ constructor #_"MonetaryFormat" [])
     (§ block
         ;; defaults
-        (§ ass (§ name (.. this negativeSign)) (§ expr \-))
+        (§ ass (§ name (.. this negativeSign)) \-)
         (§ ass (§ name (.. this positiveSign)) 0) ;; none
-        (§ ass (§ name (.. this zeroDigit)) (§ expr \0))
-        (§ ass (§ name (.. this decimalMark)) (§ expr \.))
+        (§ ass (§ name (.. this zeroDigit)) \0)
+        (§ ass (§ name (.. this decimalMark)) \.)
         (§ ass (§ name (.. this minDecimals)) 2)
         (§ ass (§ name (.. this decimalGroups)) nil)
         (§ ass (§ name (.. this shift)) 0)
@@ -43743,7 +43754,7 @@
         (§ ass (§ name this.codes[0]) CODE_BTC)
         (§ ass (§ name this.codes[3]) CODE_MBTC)
         (§ ass (§ name this.codes[6]) CODE_UBTC)
-        (§ ass (§ name (.. this codeSeparator)) (§ expr \space))
+        (§ ass (§ name (.. this codeSeparator)) \space)
         (§ ass (§ name (.. this codePrefixed)) true)
         this
     )
@@ -43781,22 +43792,22 @@
             )
         )
         (§ var #_"int" (§ name smallestUnitExponent) (.. monetary (smallestUnitExponent)))
-        (Preconditions/checkState (§ expr maxDecimals <= smallestUnitExponent), "The maximum possible number of decimals (%s) cannot exceed %s.", maxDecimals, smallestUnitExponent)
+        (Preconditions/checkState (<= maxDecimals smallestUnitExponent), "The maximum possible number of decimals (%s) cannot exceed %s.", maxDecimals, smallestUnitExponent)
 
         ;; rounding
         (§ var #_"long" (§ name satoshis) (Math/abs (.. monetary (getValue))))
-        (§ var #_"long" (§ name precisionDivisor) (checkedPow 10, (§ expr smallestUnitExponent - shift - maxDecimals)))
+        (§ var #_"long" (§ name precisionDivisor) (checkedPow 10, (- smallestUnitExponent shift maxDecimals)))
         (§ ass (§ name satoshis) (checkedMultiply (divide satoshis, precisionDivisor, roundingMode), precisionDivisor))
 
         ;; shifting
-        (§ var #_"long" (§ name shiftDivisor) (checkedPow 10, (§ expr smallestUnitExponent - shift)))
+        (§ var #_"long" (§ name shiftDivisor) (checkedPow 10, (- smallestUnitExponent shift)))
         (§ var #_"long" (§ name numbers) (/ satoshis shiftDivisor))
-        (§ var #_"long" (§ name decimals) (§ expr satoshis % shiftDivisor))
+        (§ var #_"long" (§ name decimals) (% satoshis shiftDivisor))
 
         ;; formatting
         (§ var #_"String" (§ name decimalsStr) (String/format Locale/US, (str "%0" (- smallestUnitExponent shift) "d"), decimals))
         (§ var #_"StringBuilder" (§ name sb) (§ new #_"StringBuilder" decimalsStr))
-        (§ while (§ expr minDecimals < (.. sb (length)) && (.. sb (charAt (- (.. sb (length)) 1))) == \0))
+        (§ while (and (< minDecimals (.. sb (length))) (== (.. sb (charAt (- (.. sb (length)) 1))) \0)))
         (§ block
             (.. sb (setLength (- (.. sb (length)) 1))) ;; trim trailing zero
         )
@@ -43805,9 +43816,9 @@
         (§ block
             (§ for (§ var #_"int" (§ name group)) :for decimalGroups)
             (§ block
-                (§ if (§ expr i < (.. sb (length)) && (.. sb (length)) < i + group))
+                (§ if (and (< i (.. sb (length))) (< (.. sb (length)) (+ i group))))
                 (§ block
-                    (§ while (§ expr (.. sb (length)) < i + group))
+                    (§ while (< (.. sb (length)) (+ i group)))
                     (§ block
                         (.. sb (append "0"))
                     )
@@ -43816,7 +43827,7 @@
                 (§ ass (§ name i) (+ i group))
             )
         )
-        (§ if (§ expr 0 < (.. sb (length))))
+        (§ if (< 0 (.. sb (length))))
         (§ block
             (.. sb (insert 0, decimalMark))
         )
@@ -43825,7 +43836,7 @@
         (§ block
             (.. sb (insert 0, negativeSign))
         )
-        (§ elseif (§ expr positiveSign != 0))
+        (§ elseif (!= positiveSign 0))
         (§ block
             (.. sb (insert 0, positiveSign))
         )
@@ -43833,26 +43844,24 @@
         (§ block
             (§ if codePrefixed)
             (§ block
-                (.. sb (insert 0, codeSeparator))
-                (.. sb (insert 0, (code)))
+                (.. sb (insert 0, codeSeparator) (insert 0, (code)))
             )
             (§ else )
             (§ block
-                (.. sb (append codeSeparator))
-                (.. sb (append (code)))
+                (.. sb (append codeSeparator) (append (code)))
             )
         )
 
         ;; Convert to non-arabic digits.
-        (§ if (§ expr zeroDigit != \0))
+        (§ if (!= zeroDigit \0))
         (§ block
-            (§ var #_"int" (§ name offset) (§ expr zeroDigit - \0))
-            (§ for (§ var #_"int" (§ name d) 0) :for (§ expr d < (.. sb (length))) :for (§ ass (§ name d) (+ d 1)))
+            (§ var #_"int" (§ name offset) (- zeroDigit \0))
+            (§ for (§ var #_"int" (§ name d) 0) :for (< d (.. sb (length))) :for (§ ass (§ name d) (+ d 1)))
             (§ block
                 (§ var #_"char" (§ name c) (.. sb (charAt d)))
                 (§ if (Character/isDigit c))
                 (§ block
-                    (.. sb (setCharAt d, (§ expr (§ cast #_"char" (+ c offset)))))
+                    (.. sb (setCharAt d, (§ cast #_"char" (+ c offset))))
                 )
             )
         )
@@ -43886,7 +43895,7 @@
     #_private
     (§ method- #_"long" (§ fn parseValue) [#_"String" (§ name str), #_"int" (§ name smallestUnitExponent)])
     (§ block
-        (Preconditions/checkState (§ expr smallestUnitExponent <= (.. DECIMALS_PADDING (length))))
+        (Preconditions/checkState (<= smallestUnitExponent (.. DECIMALS_PADDING (length))))
 
         (§ if (.. str (isEmpty)))
         (§ block
@@ -43894,14 +43903,14 @@
         )
 
         (§ var #_"char" (§ name first) (.. str (charAt 0)))
-        (§ if (§ expr first == negativeSign || first == positiveSign))
+        (§ if (or (== first negativeSign) (== first positiveSign)))
         (§ block
             (§ ass (§ name str) (.. str (substring 1)))
         )
         (§ var #_"String" (§ name numbers))
         (§ var #_"String" (§ name decimals))
         (§ var #_"int" (§ name decimalMarkIndex) (.. str (indexOf decimalMark)))
-        (§ if (§ expr decimalMarkIndex != -1))
+        (§ if (!= decimalMarkIndex -1))
         (§ block
             (§ ass (§ name numbers) (.. str (substring 0, decimalMarkIndex)))
             (§ ass (§ name decimals) (.. (str str DECIMALS_PADDING) (substring (+ decimalMarkIndex 1))))
@@ -43916,10 +43925,10 @@
             (§ ass (§ name decimals) DECIMALS_PADDING)
         )
 
-        (§ var #_"String" (§ name satoshis) (§ expr numbers + (.. decimals (substring 0, (§ expr smallestUnitExponent - shift)))))
+        (§ var #_"String" (§ name satoshis) (+ numbers (.. decimals (substring 0, (- smallestUnitExponent shift)))))
         (§ for (§ var #_"char" (§ name c)) :for (.. satoshis (toCharArray)))
         (§ block
-            (§ if (§ not (Character/isDigit c)))
+            (§ if (not (Character/isDigit c)))
             (§ block
                 (§ throw (§ new #_"NumberFormatException" (str "illegal character: " c)))
             )
@@ -43927,7 +43936,7 @@
 
         ;; Non-arabic digits allowed here.
         (§ var #_"long" (§ name value) (Long/parseLong satoshis))
-        (§ if (§ expr first == negativeSign))
+        (§ if (== first negativeSign))
         (§ block
             (§ ass (§ name value) (§ neg value))
         )
@@ -44080,7 +44089,7 @@
         (§ method #_"void" (§ fn execute) [#_"Runnable" (§ name command)])
         (§ block
             (§ var #_"int" (§ name size) (.. tasks (size)))
-            (§ if (§ expr size == WARNING_THRESHOLD))
+            (§ if (== size WARNING_THRESHOLD))
             (§ block
                 (.. log (warn (str "User thread has {} pending tasks, memory exhaustion may occur.\n" "If you see this message, check your memory consumption and see if it's problematic or excessively spikey.\n" "If it is, check for deadlocked or slow event handlers. If it isn't, try adjusting the constant \n" "Threading.UserThread.WARNING_THRESHOLD upwards until it's a suitable level for your app, or Integer.MAX_VALUE to disable."), size))
             )
@@ -44230,7 +44239,7 @@
     (§ block
         (§ ass (§ name (§ ai versionWindow versionWriteHead)) version)
         (§ ass (§ name versionWriteHead) (+ versionWriteHead 1))
-        (§ if (§ expr versionWriteHead == (.. versionWindow length)))
+        (§ if (== versionWriteHead (.. versionWindow length)))
         (§ block
             (§ ass (§ name versionWriteHead) 0)
         )
@@ -44247,15 +44256,15 @@
     #_public
     (§ method #_"Integer" (§ fn getCountAtOrAbove) [#_"long" (§ name version)])
     (§ block
-        (§ if (§ expr versionsStored < (.. versionWindow length)))
+        (§ if (< versionsStored (.. versionWindow length)))
         (§ block
             (§ return nil)
         )
 
         (§ var #_"int" (§ name count) 0)
-        (§ for (§ var #_"int" (§ name versionIdx) 0) :for (§ expr versionIdx < (.. versionWindow length)) :for (§ ass (§ name versionIdx) (+ versionIdx 1)))
+        (§ for (§ var #_"int" (§ name versionIdx) 0) :for (< versionIdx (.. versionWindow length)) :for (§ ass (§ name versionIdx) (+ versionIdx 1)))
         (§ block
-            (§ if (§ expr version <= (§ ai versionWindow versionIdx)))
+            (§ if (<= version (§ ai versionWindow versionIdx)))
             (§ block
                 (§ ass (§ name count) (+ count 1))
             )
@@ -44280,7 +44289,7 @@
 
         ;; We don't know how many blocks back we can go, so load what we can first.
         (.. versions (push (.. versionBlock (getHeader) (getVersion))))
-        (§ for (§ var #_"int" (§ name headOffset) 0) :for (§ expr headOffset < (.. versionWindow length)) :for (§ ass (§ name headOffset) (+ headOffset 1)))
+        (§ for (§ var #_"int" (§ name headOffset) 0) :for (< headOffset (.. versionWindow length)) :for (§ ass (§ name headOffset) (+ headOffset 1)))
         (§ block
             (§ ass (§ name versionBlock) (.. versionBlock (getPrev blockStore)))
             (§ if (nil? versionBlock))
@@ -44291,7 +44300,7 @@
         )
 
         ;; Replay the versions into the tally.
-        (§ while (§ not (.. versions (isEmpty))))
+        (§ while (not (.. versions (isEmpty))))
         (§ block
             (add (.. versions (pop)))
         )
@@ -44460,7 +44469,7 @@
                 (Preconditions/checkState (nil? keyCrypter))
 
                 (§ var #_"List<ECKey>" (§ name keys) (§ new #_"ArrayList<>"))
-                (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < numberOfKeys - (.. hashToKeys (size))) :for (§ ass (§ name i) (+ i 1)))
+                (§ for (§ var #_"int" (§ name i) 0) :for (< i (- numberOfKeys (.. hashToKeys (size)))) :for (§ ass (§ name i) (+ i 1)))
                 (§ block
                     (.. keys (add (§ new #_"ECKey")))
                 )
@@ -44472,7 +44481,7 @@
 
             (§ var #_"List<ECKey>" (§ name keysToReturn) (§ new #_"ArrayList<>"))
             (§ var #_"int" (§ name count) 0)
-            (§ while (§ expr (.. hashToKeys (values) (iterator) (hasNext)) && numberOfKeys != count))
+            (§ while (and (.. hashToKeys (values) (iterator) (hasNext)) (!= numberOfKeys count)))
             (§ block
                 (.. keysToReturn (add (.. hashToKeys (values) (iterator) (next))))
                 (§ ass (§ name count) (+ count 1))
@@ -44524,13 +44533,13 @@
             (§ var #_"List<ECKey>" (§ name actuallyAdded) (§ new #_"ArrayList<>" (.. keys (size))))
             (§ for (§ var ECKey key) :for keys)
             (§ block
-                (§ if (§ not (hasKey key)))
+                (§ if (not (hasKey key)))
                 (§ block
                     (.. actuallyAdded (add key))
                     (importKeyLocked key)
                 )
             )
-            (§ if (§ expr 0 < (.. actuallyAdded (size))))
+            (§ if (< 0 (.. actuallyAdded (size))))
             (§ block
                 (queueOnKeysAdded actuallyAdded)
             )
@@ -44545,15 +44554,15 @@
     #_private
     (§ method- #_"void" (§ fn checkKeyEncryptionStateMatches) [#_"ECKey" (§ name key)])
     (§ block
-        (§ if (§ expr keyCrypter == nil && (.. key (isEncrypted))))
+        (§ if (and (nil? keyCrypter) (.. key (isEncrypted))))
         (§ block
             (§ throw (§ new #_"KeyCrypterException" "Key is encrypted but chain is not"))
         )
-        (§ if (§ expr keyCrypter != nil && (§ not (.. key (isEncrypted)))))
+        (§ if (and (some? keyCrypter) (not (.. key (isEncrypted)))))
         (§ block
             (§ throw (§ new #_"KeyCrypterException" "Key is not encrypted but chain is"))
         )
-        (§ if (§ expr keyCrypter != nil && (.. key (getKeyCrypter)) != nil && (§ not (.. key (getKeyCrypter) (equals keyCrypter)))))
+        (§ if (and (some? keyCrypter) (some? (.. key (getKeyCrypter))) (not (.. key (getKeyCrypter) (equals keyCrypter)))))
         (§ block
             (§ throw (§ new #_"KeyCrypterException" "Key encrypted under different parameters to chain"))
         )
@@ -44569,11 +44578,11 @@
         )
         (§ else )
         (§ block
-            (§ if (§ expr (.. key (isWatching)) && (§ not isWatching)))
+            (§ if (and (.. key (isWatching)) (not isWatching)))
             (§ block
                 (§ throw (§ new #_"IllegalArgumentException" "Key is watching but chain is not"))
             )
-            (§ if (§ expr (§ not (.. key (isWatching))) && isWatching))
+            (§ if (and (not (.. key (isWatching))) isWatching))
             (§ block
                 (§ throw (§ new #_"IllegalArgumentException" "Key is not watching but chain is"))
             )
@@ -44700,7 +44709,7 @@
         (§ block
             (§ var #_"boolean" (§ name a) (!= (.. hashToKeys (remove (ByteString/copyFrom (.. key (getPubKeyHash))))) nil))
             (§ var #_"boolean" (§ name b) (!= (.. pubkeyToKeys (remove (ByteString/copyFrom (.. key (getPubKey))))) nil))
-            (Preconditions/checkState (§ expr a == b)) ;; Should be in both maps or neither.
+            (Preconditions/checkState (== a b)) ;; Should be in both maps or neither.
             (§ return a)
         )
         (§ finally )
@@ -44765,7 +44774,7 @@
     (§ block
         (§ var #_"Protos.Key.Builder" (§ name proto) (.. Protos/Key (newBuilder)))
         (.. proto (setCreationTimestamp (* (.. item (getCreationTimeSeconds)) 1000)))
-        (§ if (§ expr (.. item (isEncrypted)) && (.. item (getEncryptedData)) != nil))
+        (§ if (and (.. item (isEncrypted)) (some? (.. item (getEncryptedData)))))
         (§ block
             ;; The encrypted data can be missing for an "encrypted" key in the case of a deterministic wallet
             ;; for which the leaf keys chain to an encrypted parent and rederive their private keys on the fly.
@@ -44830,14 +44839,14 @@
             (Preconditions/checkState (.. hashToKeys (isEmpty)), "Tried to deserialize into a non-empty chain")
             (§ for (§ var #_"Protos.Key" (§ name key)) :for keys)
             (§ block
-                (§ if (§ expr (.. key (getType)) != Protos/Key/Type/ORIGINAL && (.. key (getType)) != Protos/Key/Type/ENCRYPTED_SCRYPT_AES))
+                (§ if (and (!= (.. key (getType)) Protos/Key/Type/ORIGINAL) (!= (.. key (getType)) Protos/Key/Type/ENCRYPTED_SCRYPT_AES)))
                 (§ block
                     (§ continue )
                 )
 
                 (§ var #_"boolean" (§ name encrypted) (== (.. key (getType)) Protos/Key/Type/ENCRYPTED_SCRYPT_AES))
                 (§ var #_"byte[]" (§ name priv) (when (.. key (hasSecretBytes)) (.. key (getSecretBytes) (toByteArray))))
-                (§ if (§ not (.. key (hasPublicKey))))
+                (§ if (not (.. key (hasPublicKey))))
                 (§ block
                     (§ throw (§ new #_"UnreadableWalletException" "Public key missing"))
                 )
@@ -44847,7 +44856,7 @@
                 (§ if encrypted)
                 (§ block
                     (Preconditions/checkState (some? keyCrypter), "This wallet is encrypted but encrypt() was not called prior to deserialization")
-                    (§ if (§ not (.. key (hasEncryptedData))))
+                    (§ if (not (.. key (hasEncryptedData))))
                     (§ block
                         (§ throw (§ new #_"UnreadableWalletException" "Encrypted private key data missing"))
                     )
@@ -44925,7 +44934,7 @@
     (§ method #_"BasicKeyChain" (§ fn toEncrypted) [#_"CharSequence" (§ name password)])
     (§ block
         (Preconditions/checkNotNull password)
-        (Preconditions/checkArgument (§ expr 0 < (.. password (length))))
+        (Preconditions/checkArgument (< 0 (.. password (length))))
 
         (§ var #_"KeyCrypter" (§ name scrypt) (§ new #_"KeyCrypterScrypt"))
         (§ var #_"KeyParameter" (§ name derivedKey) (.. scrypt (deriveKey password)))
@@ -44960,7 +44969,7 @@
                 ;; (all bitcoin controlled by that private key is lost forever).
                 ;; For a correctly constructed keyCrypter the encryption should always be reversible so it is just
                 ;; being as cautious as possible.
-                (§ if (§ not (ECKey/encryptionIsReversible key, encryptedKey, keyCrypter, aesKey)))
+                (§ if (not (ECKey/encryptionIsReversible key, encryptedKey, keyCrypter, aesKey)))
                 (§ block
                     (§ throw (§ new #_"KeyCrypterException" (str "The key " key " cannot be successfully decrypted after encryption so aborting wallet encryption.")))
                 )
@@ -44993,7 +45002,7 @@
             (Preconditions/checkState (some? keyCrypter), "Wallet is already decrypted")
 
             ;; Do an up-front check.
-            (§ if (§ expr 0 < (numKeys) && (§ not (checkAESKey aesKey))))
+            (§ if (and (< 0 (numKeys)) (not (checkAESKey aesKey))))
             (§ block
                 (§ throw (§ new #_"KeyCrypterException" "Password/key was incorrect."))
             )
@@ -45113,7 +45122,7 @@
             (§ for (§ var #_"ECKey" (§ name key)) :for (.. hashToKeys (values)))
             (§ block
                 (§ var #_"long" (§ name keyTime) (.. key (getCreationTimeSeconds)))
-                (§ if (§ expr timeSecs < keyTime && (§ expr oldest == nil || keyTime < (.. oldest (getCreationTimeSeconds)))))
+                (§ if (and (< timeSecs keyTime) (or (nil? oldest) (< keyTime (.. oldest (getCreationTimeSeconds))))))
                 (§ block
                     (§ ass (§ name oldest) key)
                 )
@@ -45304,7 +45313,7 @@
         ;; sorting them in order to improve performance.
         ;; TODO: Take in network parameters when instanatiated, and then test against the current network.
         ;; Or just have a boolean parameter for "give me everything".
-        (§ if (§ not (.. target (equals NetworkParameters/MAX_MONEY))))
+        (§ if (not (.. target (equals NetworkParameters/MAX_MONEY))))
         (§ block
             (sortOutputs sortedOutputs)
         )
@@ -45321,7 +45330,7 @@
             (§ if (shouldSelect (.. output (getParentTransaction))))
             (§ block
                 (.. selected (add output))
-                (§ ass (§ name total) (§ expr total + (.. output (getValue) value)))
+                (§ ass (§ name total) (+ total (.. output (getValue) value)))
             )
         )
         ;; Total may be lower than the target here if the given candidates were insufficient to create
@@ -45346,14 +45355,14 @@
                 (§ var #_"BigInteger" (§ name aCoinDepth) (.. (BigInteger/valueOf (.. aValue value)) (multiply (BigInteger/valueOf depth1))))
                 (§ var #_"BigInteger" (§ name bCoinDepth) (.. (BigInteger/valueOf (.. bValue value)) (multiply (BigInteger/valueOf depth2))))
                 (§ var #_"int" (§ name c1) (.. bCoinDepth (compareTo aCoinDepth)))
-                (§ if (§ expr c1 != 0))
+                (§ if (!= c1 0))
                 (§ block
                     (§ return c1)
                 )
 
                 ;; The "coin * days" destroyed are equal, sort by value alone to get the lowest transaction size.
                 (§ var #_"int" (§ name c2) (.. bValue (compareTo aValue)))
-                (§ if (§ expr c2 != 0))
+                (§ if (!= c2 0))
                 (§ block
                     (§ return c2)
                 )
@@ -45382,7 +45391,7 @@
         (§ var #_"TransactionConfidence" (§ name confidence) (.. tx (getConfidence)))
         (§ var #_"TransactionConfidence.ConfidenceType" (§ name type) (.. confidence (getConfidenceType)))
         ;; TODO: The value 1 below dates from a time when transactions we broadcast *to* were counted, set to 0.
-        (§ expr (.. type (equals TransactionConfidence/ConfidenceType/BUILDING)) || (§ expr (.. type (equals TransactionConfidence/ConfidenceType/PENDING)) && (.. confidence (getSource) (equals TransactionConfidence/Source/SELF)) && 1 < (.. confidence (numBroadcastPeers))))
+        (or (.. type (equals TransactionConfidence/ConfidenceType/BUILDING)) (and (.. type (equals TransactionConfidence/ConfidenceType/PENDING)) (.. confidence (getSource) (equals TransactionConfidence/Source/SELF)) (< 1 (.. confidence (numBroadcastPeers)))))
     )
 )
 
@@ -45406,7 +45415,7 @@
     (§ method #_"DeterministicKeyChain" (§ fn makeWatchingKeyChain) [#_"Protos.Key" (§ name key), #_"Protos.Key" (§ name firstSubKey), #_"DeterministicKey" (§ name accountKey), #_"boolean" (§ name isFollowingKey), #_"boolean" (§ name isMarried)])
         (§ throws #_"UnreadableWalletException")
     (§ block
-        (§ if (§ not (.. accountKey (getPath) (equals DeterministicKeyChain/ACCOUNT_ZERO_PATH))))
+        (§ if (not (.. accountKey (getPath) (equals DeterministicKeyChain/ACCOUNT_ZERO_PATH))))
         (§ block
             (§ throw (§ new #_"UnreadableWalletException" (str "Expecting account key but found key with path: " (HDUtils/formatPath (.. accountKey (getPath))))))
         )
@@ -45473,11 +45482,11 @@
     #_public
     (§ method #_"Result" (§ fn analyze) [])
     (§ block
-        (Preconditions/checkState (§ not analyzed))
+        (Preconditions/checkState (not analyzed))
         (§ ass (§ name analyzed) true)
 
         (§ var #_"Result" (§ name result) (analyzeIsFinal))
-        (§ if (§ expr result != nil && result != Result/OK))
+        (§ if (and (some? result) (!= result Result/OK)))
         (§ block
             (§ return result)
         )
@@ -45513,7 +45522,7 @@
         ;; in the next block, it is not risky (as it would confirm normally).
         (§ var #_"int" (§ name adjustedHeight) (+ height 1))
 
-        (§ if (§ not (.. tx (isFinal adjustedHeight, time))))
+        (§ if (not (.. tx (isFinal adjustedHeight, time))))
         (§ block
             (§ ass (§ name nonFinal) tx)
             (§ return Result/NON_FINAL)
@@ -45521,7 +45530,7 @@
 
         (§ for (§ var #_"Transaction" (§ name dep)) :for dependencies)
         (§ block
-            (§ if (§ not (.. dep (isFinal adjustedHeight, time))))
+            (§ if (not (.. dep (isFinal adjustedHeight, time))))
             (§ block
                 (§ ass (§ name nonFinal) dep)
                 (§ return Result/NON_FINAL)
@@ -45554,18 +45563,18 @@
     (§ defn #_"RuleViolation" (§ fn isStandard) [#_"Transaction" (§ name tx)])
     (§ block
         ;; TODO: Finish this function off.
-        (§ if (§ expr 1 < (.. tx (getVersion)) || (.. tx (getVersion)) < 1))
+        (§ if (or (< 1 (.. tx (getVersion))) (< (.. tx (getVersion)) 1)))
         (§ block
             (.. log (warn "TX considered non-standard due to unknown version number {}", (.. tx (getVersion))))
             (§ return RuleViolation/VERSION)
         )
 
         (§ var #_"List<TransactionOutput>" (§ name outputs) (.. tx (getOutputs)))
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. outputs (size))) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. outputs (size))) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ var #_"TransactionOutput" (§ name output) (.. outputs (get i)))
             (§ var #_"RuleViolation" (§ name violation) (isOutputStandard output))
-            (§ if (§ expr violation != RuleViolation/NONE))
+            (§ if (!= violation RuleViolation/NONE))
             (§ block
                 (.. log (warn "TX considered non-standard due to output {} violating rule {}", i, violation))
                 (§ return violation)
@@ -45573,11 +45582,11 @@
         )
 
         (§ var #_"List<TransactionInput>" (§ name inputs) (.. tx (getInputs)))
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. inputs (size))) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. inputs (size))) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ var #_"TransactionInput" (§ name input) (.. inputs (get i)))
             (§ var #_"RuleViolation" (§ name violation) (isInputStandard input))
-            (§ if (§ expr violation != RuleViolation/NONE))
+            (§ if (!= violation RuleViolation/NONE))
             (§ block
                 (.. log (warn "TX considered non-standard due to input {} violating rule {}", i, violation))
                 (§ return violation)
@@ -45601,7 +45610,7 @@
 
         (§ for (§ var #_"ScriptChunk" (§ name chunk)) :for (.. output (getScriptPubKey) (getChunks)))
         (§ block
-            (§ if (§ expr (.. chunk (isPushData)) && (§ not (.. chunk (isShortestPossiblePushData)))))
+            (§ if (and (.. chunk (isPushData)) (not (.. chunk (isShortestPossiblePushData)))))
             (§ block
                 (§ return RuleViolation/SHORTEST_POSSIBLE_PUSHDATA)
             )
@@ -45617,7 +45626,7 @@
     (§ block
         (§ for (§ var #_"ScriptChunk" (§ name chunk)) :for (.. input (getScriptSig) (getChunks)))
         (§ block
-            (§ if (§ expr (.. chunk data) != nil && (§ not (.. chunk (isShortestPossiblePushData)))))
+            (§ if (and (some? (.. chunk data)) (not (.. chunk (isShortestPossiblePushData)))))
             (§ block
                 (§ return RuleViolation/SHORTEST_POSSIBLE_PUSHDATA)
             )
@@ -45636,11 +45645,11 @@
                 )
                 (§ if (some? signature))
                 (§ block
-                    (§ if (§ not (TransactionSignature/isEncodingCanonical (.. chunk data))))
+                    (§ if (not (TransactionSignature/isEncodingCanonical (.. chunk data))))
                     (§ block
                         (§ return RuleViolation/SIGNATURE_CANONICAL_ENCODING)
                     )
-                    (§ if (§ not (.. signature (isCanonical))))
+                    (§ if (not (.. signature (isCanonical))))
                     (§ block
                         (§ return RuleViolation/SIGNATURE_CANONICAL_ENCODING)
                     )
@@ -45655,13 +45664,13 @@
     (§ block
         ;; The IsStandard rules don't apply on testnet, because they're just a safety mechanism and we don't
         ;; want to crush innovation with valueless test coins.
-        (§ if (§ expr wallet != nil && (§ not (.. wallet (getNetworkParameters) (getId) (equals NetworkParameters/ID_MAINNET)))))
+        (§ if (and (some? wallet) (not (.. wallet (getNetworkParameters) (getId) (equals NetworkParameters/ID_MAINNET)))))
         (§ block
             (§ return Result/OK)
         )
 
         (§ var #_"RuleViolation" (§ name ruleViolation) (isStandard tx))
-        (§ if (§ expr ruleViolation != RuleViolation/NONE))
+        (§ if (!= ruleViolation RuleViolation/NONE))
         (§ block
             (§ ass (§ name nonStandard) tx)
             (§ return Result/NON_STANDARD)
@@ -45670,7 +45679,7 @@
         (§ for (§ var #_"Transaction" (§ name dep)) :for dependencies)
         (§ block
             (§ ass (§ name ruleViolation) (isStandard dep))
-            (§ if (§ expr ruleViolation != RuleViolation/NONE))
+            (§ if (!= ruleViolation RuleViolation/NONE))
             (§ block
                 (§ ass (§ name nonStandard) dep)
                 (§ return Result/NON_STANDARD)
@@ -45700,7 +45709,7 @@
     #_public
     (§ method #_"String" (§ fn toString) [])
     (§ block
-        (§ if (§ not analyzed))
+        (§ if (not analyzed))
         (§ block
             (§ return (str "Pending risk analysis for " (.. tx (getHashAsString))))
         )
@@ -46011,8 +46020,8 @@
         #_public
         (§ method #_"DeterministicKeyChain" (§ fn build) [])
         (§ block
-            (Preconditions/checkState (§ expr random != nil || entropy != nil || seed != nil || watchingKey!= nil), "Must provide either entropy or random or seed or watchingKey")
-            (Preconditions/checkState (§ expr passphrase == nil || seed == nil), "Passphrase must not be specified with seed")
+            (Preconditions/checkState (or (some? random) (some? entropy) (some? seed) (some? watchingKey)), "Must provide either entropy or random or seed or watchingKey")
+            (Preconditions/checkState (or (nil? passphrase) (nil? seed)), "Passphrase must not be specified with seed")
 
             ;; Default passphrase to "" if not specified.
             (§ if (some? random))
@@ -46115,7 +46124,7 @@
     (§ constructor #_"DeterministicKeyChain" [#_"DeterministicKey" (§ name watchingKey)])
     (§ block
         (Preconditions/checkArgument (.. watchingKey (isPubKeyOnly)), "Private subtrees not currently supported: if you got this key from DKC.getWatchingKey() then use .dropPrivate().dropParent() on it first.")
-        (Preconditions/checkArgument (§ expr (.. watchingKey (getPath) (size)) == (.. (getAccountPath) (size))), "You can only watch an account key currently")
+        (Preconditions/checkArgument (== (.. watchingKey (getPath) (size)) (.. (getAccountPath) (size))), "You can only watch an account key currently")
 
         (§ ass (§ name basicKeyChain) (§ new #_"BasicKeyChain"))
         (§ ass (§ name (.. this seed)) nil)
@@ -46169,13 +46178,13 @@
     (§ block
         (§ ass (§ name (.. this seed)) seed)
         (§ ass (§ name basicKeyChain) (§ new #_"BasicKeyChain" crypter))
-        (§ if (§ not (.. seed (isEncrypted))))
+        (§ if (not (.. seed (isEncrypted))))
         (§ block
             (§ ass (§ name rootKey) (HDKeyDerivation/createMasterPrivateKey (Preconditions/checkNotNull (.. seed (getSeedBytes)))))
             (.. rootKey (setCreationTimeSeconds (.. seed (getCreationTimeSeconds))))
             (.. basicKeyChain (importKey rootKey))
             (§ ass (§ name hierarchy) (§ new #_"DeterministicHierarchy" rootKey))
-            (§ for (§ var #_"int" (§ name i) 1) :for (§ expr i <= (.. (getAccountPath) (size))) :for (§ ass (§ name i) (+ i 1)))
+            (§ for (§ var #_"int" (§ name i) 1) :for (<= i (.. (getAccountPath) (size))) :for (§ ass (§ name i) (+ i 1)))
             (§ block
                 (.. basicKeyChain (importKey (.. hierarchy (get (.. (getAccountPath) (subList 0, i)), false, true))))
             )
@@ -46200,7 +46209,7 @@
         (Preconditions/checkNotNull (.. chain rootKey))
         (Preconditions/checkNotNull (.. chain seed))
 
-        (Preconditions/checkArgument (§ not (.. chain rootKey (isEncrypted))), "Chain already encrypted")
+        (Preconditions/checkArgument (not (.. chain rootKey (isEncrypted))), "Chain already encrypted")
 
         (§ ass (§ name (.. this issuedExternalKeys)) (.. chain issuedExternalKeys))
         (§ ass (§ name (.. this issuedInternalKeys)) (.. chain issuedInternalKeys))
@@ -46215,7 +46224,7 @@
         (§ ass (§ name hierarchy) (§ new #_"DeterministicHierarchy" rootKey))
         (.. basicKeyChain (importKey rootKey))
 
-        (§ for (§ var #_"int" (§ name i) 1) :for (§ expr i < (.. (getAccountPath) (size))) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 1) :for (< i (.. (getAccountPath) (size))) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (encryptNonLeaf aesKey, chain, rootKey, (.. (getAccountPath) (subList 0, i)))
         )
@@ -46334,7 +46343,7 @@
             (§ var #_"List<DeterministicKey>" (§ name keys) (§ new #_"ArrayList<>" numberOfKeys))
             (§ for (§ var #_"int" (§ name i) 0) :for (< i numberOfKeys) :for (§ ass (§ name i) (+ i 1)))
             (§ block
-                (§ var #_"ImmutableList<ChildNumber>" (§ name path) (HDUtils/append (.. parentKey (getPath)), (§ new #_"ChildNumber" (§ expr index - numberOfKeys + i), false)))
+                (§ var #_"ImmutableList<ChildNumber>" (§ name path) (HDUtils/append (.. parentKey (getPath)), (§ new #_"ChildNumber" (+ (- index numberOfKeys) i), false)))
                 (§ var #_"DeterministicKey" (§ name k) (.. hierarchy (get path, false, false)))
                 ;; Just a last minute sanity check before we hand the key out to the app for usage.  This isn't
                 ;; inspired by any real problem reports from bitcoinj users, but I've heard of cases via the grapevine
@@ -46358,7 +46367,7 @@
         (§ var #_"DeterministicKey" (§ name parent) (Preconditions/checkNotNull (.. k (getParent))))
         (§ var #_"byte[]" (§ name rederived) (.. (HDKeyDerivation/deriveChildKeyBytesFromPublic parent, (.. k (getChildNumber)), HDKeyDerivation/PublicDeriveMode/WITH_INVERSION) keyBytes))
         (§ var #_"byte[]" (§ name actual) (.. k (getPubKey)))
-        (§ if (§ not (Arrays/equals rederived, actual)))
+        (§ if (not (Arrays/equals rederived, actual)))
         (§ block
             (§ throw (§ new #_"IllegalStateException" (String/format Locale/US, "Bit-flip check failed: %s vs %s", (Arrays/toString rederived), (Arrays/toString actual))))
         )
@@ -46680,7 +46689,7 @@
                 (.. detKey (setSigsRequiredToSpend (getSigsRequiredToSpend)))
             )
             ;; Flag the very first key of following keychain.
-            (§ if (§ expr (.. entries (isEmpty)) && (isFollowing)))
+            (§ if (and (.. entries (isEmpty)) (isFollowing)))
             (§ block
                 (.. detKey (setIsFollowing true))
             )
@@ -46722,7 +46731,7 @@
         (§ block
             (§ var #_"Protos.Key" (§ name key) (.. iter (next)))
             (§ var #_"Protos.Key.Type" (§ name t) (.. key (getType)))
-            (§ if (§ expr t == Protos/Key/Type/DETERMINISTIC_MNEMONIC))
+            (§ if (== t Protos/Key/Type/DETERMINISTIC_MNEMONIC))
             (§ block
                 (§ if (some? chain))
                 (§ block
@@ -46776,9 +46785,9 @@
                     (.. log (debug "Deserializing: DETERMINISTIC_MNEMONIC: {}", seed))
                 )
             )
-            (§ elseif (§ expr t == Protos/Key/Type/DETERMINISTIC_KEY))
+            (§ elseif (== t Protos/Key/Type/DETERMINISTIC_KEY))
             (§ block
-                (§ if (§ not (.. key (hasDeterministicKey))))
+                (§ if (not (.. key (hasDeterministicKey))))
                 (§ block
                     (§ throw (§ new #_"UnreadableWalletException" (str "Deterministic key missing extra data: " key)))
                 )
@@ -46818,7 +46827,7 @@
                 (§ if (nil? chain))
                 (§ block
                     ;; If this is not a following chain and previous was, this must be married.
-                    (§ var #_"boolean" (§ name isMarried) (§ expr (§ not isFollowingKey) && (§ not (.. chains (isEmpty))) && (.. chains (get (- (.. chains (size)) 1)) (isFollowing))))
+                    (§ var #_"boolean" (§ name isMarried) (and (not isFollowingKey) (not (.. chains (isEmpty))) (.. chains (get (- (.. chains (size)) 1)) (isFollowing))))
                     (§ if (nil? seed))
                     (§ block
                         (§ var #_"DeterministicKey" (§ name accountKey) (§ new #_"DeterministicKey" immutablePath, chainCode, pubkey, nil, nil))
@@ -46837,7 +46846,7 @@
                 )
                 ;; Find the parent key assuming this is not the root key, and not an account key for a watching chain.
                 (§ var #_"DeterministicKey" (§ name parent) nil)
-                (§ if (§ expr (§ not (.. path (isEmpty))) && (§ not isWatchingAccountKey)))
+                (§ if (and (not (.. path (isEmpty))) (not isWatchingAccountKey)))
                 (§ block
                     (§ var #_"ChildNumber" (§ name index) (.. path (removeLast)))
                     (§ ass (§ name parent) (.. chain hierarchy (get path, false, false)))
@@ -46874,7 +46883,7 @@
                 (§ block
                     (.. log (debug "Deserializing: DETERMINISTIC_KEY: {}", detkey))
                 )
-                (§ if (§ not isWatchingAccountKey))
+                (§ if (not isWatchingAccountKey))
                 (§ block
                     ;; If the non-encrypted case, the non-leaf keys (account, internal, external) have already
                     ;; been rederived and inserted at this point.  In the encrypted case though, we can't
@@ -46888,7 +46897,7 @@
                             (§ ass (§ name (.. chain hierarchy)) (§ new #_"DeterministicHierarchy" detkey))
                         )
                     )
-                    (§ elseif (§ expr (.. path (size)) == (.. chain (getAccountPath) (size)) + 1))
+                    (§ elseif (== (.. path (size)) (+ (.. chain (getAccountPath) (size)) 1)))
                     (§ block
                         (§ if (== (.. detkey (getChildNumber) (num)) 0))
                         (§ block
@@ -46924,9 +46933,9 @@
     (§ method #_"DeterministicKeyChain" (§ fn toEncrypted) [#_"CharSequence" (§ name password)])
     (§ block
         (Preconditions/checkNotNull password)
-        (Preconditions/checkArgument (§ expr 0 < (.. password (length))))
+        (Preconditions/checkArgument (< 0 (.. password (length))))
         (Preconditions/checkState (some? seed), "Attempt to encrypt a watching chain.")
-        (Preconditions/checkState (§ not (.. seed (isEncrypted))))
+        (Preconditions/checkState (not (.. seed (isEncrypted))))
 
         (§ var #_"KeyCrypter" (§ name scrypt) (§ new #_"KeyCrypterScrypt"))
         (§ var #_"KeyParameter" (§ name derivedKey) (.. scrypt (deriveKey password)))
@@ -46945,7 +46954,7 @@
     (§ method #_"DeterministicKeyChain" (§ fn toDecrypted) [#_"CharSequence" (§ name password)])
     (§ block
         (Preconditions/checkNotNull password)
-        (Preconditions/checkArgument (§ expr 0 < (.. password (length))))
+        (Preconditions/checkArgument (< 0 (.. password (length))))
 
         (§ var #_"KeyCrypter" (§ name crypter) (getKeyCrypter))
         (Preconditions/checkState (some? crypter), "Chain not encrypted")
@@ -46965,7 +46974,7 @@
         (§ var #_"DeterministicSeed" (§ name decSeed) (.. seed (decrypt (getKeyCrypter), passphrase, aesKey)))
         (§ var #_"DeterministicKeyChain" (§ name chain) (makeKeyChainFromSeed decSeed))
         ;; Now double check that the keys match to catch the case where the key is wrong but padding didn't catch it.
-        (§ if (§ not (.. chain (getWatchingKey) (getPubKeyPoint) (equals (.. (getWatchingKey) (getPubKeyPoint))))))
+        (§ if (not (.. chain (getWatchingKey) (getPubKeyPoint) (equals (.. (getWatchingKey) (getPubKeyPoint))))))
         (§ block
             (§ throw (§ new #_"KeyCrypterException" "Provided AES key is wrong"))
         )
@@ -46976,7 +46985,7 @@
         (§ for (§ var #_"ECKey" (§ name eckey)) :for (.. basicKeyChain (getKeys)))
         (§ block
             (§ var #_"DeterministicKey" (§ name key) (§ cast #_"DeterministicKey" eckey))
-            (§ if (§ expr (.. key (getPath) (size)) != (.. (getAccountPath) (size)) + 2))
+            (§ if (!= (.. key (getPath) (size)) (+ (.. (getAccountPath) (size)) 2)))
             (§ block
                 (§ continue ) ;; Not a leaf key.
             )
@@ -47206,7 +47215,7 @@
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
 
         (§ var #_"int" (§ name numChildren) (.. hierarchy (getNumChildren (.. parent (getPath)))))
-        (§ var #_"int" (§ name needed) (§ expr issued + lookaheadSize + lookaheadThreshold - numChildren))
+        (§ var #_"int" (§ name needed) (- (+ issued lookaheadSize lookaheadThreshold) numChildren))
 
         (§ if (<= needed lookaheadThreshold))
         (§ block
@@ -47294,7 +47303,7 @@
     (§ method #_"List<ECKey>" (§ fn getKeys) [#_"boolean" (§ name includeLookahead), #_"boolean" (§ name includeParents)])
     (§ block
         (§ var #_"List<ECKey>" (§ name keys) (.. basicKeyChain (getKeys)))
-        (§ if (§ not includeLookahead))
+        (§ if (not includeLookahead))
         (§ block
             (§ var #_"int" (§ name treeSize) (.. internalParentKey (getPath) (size)))
             (§ var #_"List<ECKey>" (§ name issuedKeys) (§ new #_"LinkedList<>"))
@@ -47302,19 +47311,19 @@
             (§ block
                 (§ var #_"DeterministicKey" (§ name detkey) (§ cast #_"DeterministicKey" key))
                 (§ var #_"DeterministicKey" (§ name parent) (.. detkey (getParent)))
-                (§ if (§ expr (§ not includeParents) && parent == nil))
+                (§ if (and (not includeParents) (nil? parent)))
                 (§ block
                     (§ continue )
                 )
-                (§ if (§ expr (§ not includeParents) && (.. detkey (getPath) (size)) <= treeSize))
+                (§ if (and (not includeParents) (<= (.. detkey (getPath) (size)) treeSize)))
                 (§ block
                     (§ continue )
                 )
-                (§ if (§ expr (.. internalParentKey (equals parent)) && issuedInternalKeys <= (.. detkey (getChildNumber) (i))))
+                (§ if (and (.. internalParentKey (equals parent)) (<= issuedInternalKeys (.. detkey (getChildNumber) (i)))))
                 (§ block
                     (§ continue )
                 )
-                (§ if (§ expr (.. externalParentKey (equals parent)) && issuedExternalKeys <= (.. detkey (getChildNumber) (i))))
+                (§ if (and (.. externalParentKey (equals parent)) (<= issuedExternalKeys (.. detkey (getChildNumber) (i)))))
                 (§ block
                     (§ continue )
                 )
@@ -47335,7 +47344,7 @@
         (§ for (§ var #_"Iterator<ECKey>" (§ name i) (.. keys (iterator))) :for (.. i (hasNext)) :for (§ expr ))
         (§ block
             (§ var #_"DeterministicKey" (§ name parent) (.. (§ cast #_"DeterministicKey" (.. i (next))) (getParent)))
-            (§ if (§ expr parent == nil || (§ not (.. externalParentKey (equals parent)))))
+            (§ if (or (nil? parent) (not (.. externalParentKey (equals parent)))))
             (§ block
                 (.. i (remove))
             )
@@ -47353,7 +47362,7 @@
         (§ for (§ var #_"ECKey" (§ name key)) :for (getKeys true, false))
         (§ block
             (§ var #_"DeterministicKey" (§ name dKey) (§ cast #_"DeterministicKey" key))
-            (§ if (§ expr (.. dKey (getPath) (size)) == (.. (getAccountPath) (size)) + 2))
+            (§ if (== (.. dKey (getPath) (size)) (+ (.. (getAccountPath) (size)) 2)))
             (§ block
                 (.. keys (add dKey))
             )
@@ -47366,7 +47375,7 @@
     (§ block
         ;; The seed can be missing if we have not derived it yet from the mnemonic.
         ;; This will not normally happen once all the wallets are on the latest code that caches the seed.
-        (§ if (§ expr (.. seed (isEncrypted)) && (.. seed (getEncryptedSeedData)) != nil))
+        (§ if (and (.. seed (isEncrypted)) (some? (.. seed (getEncryptedSeedData)))))
         (§ block
             (§ var #_"EncryptedData" (§ name data) (.. seed (getEncryptedSeedData)))
             (.. proto (getEncryptedDeterministicSeedBuilder) (setEncryptedPrivateKey (ByteString/copyFrom (.. data encryptedBytes))) (setInitialisationVector (ByteString/copyFrom (.. data initialisationVector))))
@@ -47600,8 +47609,8 @@
     #_public
     (§ constructor #_"DeterministicSeed" [#_"byte[]" (§ name entropy), #_"String" (§ name passphrase), #_"long" (§ name creationTimeSeconds)])
     (§ block
-        (Preconditions/checkArgument (§ expr (.. entropy length) % 4 == 0), "entropy size in bits not divisible by 32")
-        (Preconditions/checkArgument (§ expr DEFAULT_SEED_ENTROPY_BITS <= (.. entropy length) * 8), "entropy size too small")
+        (Preconditions/checkArgument (== (% (.. entropy length) 4) 0), "entropy size in bits not divisible by 32")
+        (Preconditions/checkArgument (<= DEFAULT_SEED_ENTROPY_BITS (* (.. entropy length) 8)), "entropy size too small")
         (Preconditions/checkNotNull passphrase)
 
         (§ try )
@@ -47622,7 +47631,7 @@
     #_static
     (§ defn- #_"byte[]" (§ fn getEntropy) [#_"SecureRandom" (§ name random), #_"int" (§ name bits)])
     (§ block
-        (Preconditions/checkArgument (§ expr bits <= MAX_SEED_ENTROPY_BITS), "requested entropy size too large")
+        (Preconditions/checkArgument (<= bits MAX_SEED_ENTROPY_BITS), "requested entropy size too large")
 
         (§ var #_"byte[]" (§ name seed) (§ new #_"byte[]" (§ count bits / 8)))
         (.. random (nextBytes seed))
@@ -47633,7 +47642,7 @@
     #_public
     (§ method #_"boolean" (§ fn isEncrypted) [])
     (§ block
-        (Preconditions/checkState (§ expr mnemonicCode != nil || encryptedMnemonicCode != nil))
+        (Preconditions/checkState (or (some? mnemonicCode) (some? encryptedMnemonicCode)))
         (some? encryptedMnemonicCode)
     )
 
@@ -47735,16 +47744,16 @@
     #_public
     (§ method #_"boolean" (§ fn equals) [#_"Object" (§ name o)])
     (§ block
-        (§ if (§ expr this == o))
+        (§ if (== this o))
         (§ block
             (§ return true)
         )
-        (§ if (§ expr o == nil || (getClass) != (.. o (getClass))))
+        (§ if (or (nil? o) (!= (getClass) (.. o (getClass)))))
         (§ block
             (§ return false)
         )
         (§ var #_"DeterministicSeed" (§ name other) (§ cast #_"DeterministicSeed" o))
-        (§ expr creationTimeSeconds == (.. other creationTimeSeconds) && (Objects/equal encryptedMnemonicCode, (.. other encryptedMnemonicCode)) && (Objects/equal mnemonicCode, (.. other mnemonicCode)))
+        (and (== creationTimeSeconds (.. other creationTimeSeconds)) (Objects/equal encryptedMnemonicCode, (.. other encryptedMnemonicCode)) (Objects/equal mnemonicCode, (.. other mnemonicCode)))
     )
 
     #_override
@@ -48349,7 +48358,7 @@
     (§ block
         (§ if (.. chains (isEmpty)))
         (§ block
-            (§ if (§ expr 0 < (.. basic (numKeys))))
+            (§ if (< 0 (.. basic (numKeys))))
             (§ block
                 (.. log (warn "No HD chain present but random keys are: you probably deserialized an old wallet."))
                 ;; If called from the wallet (most likely) it'll try to upgrade us, as it knows the rotation time but not the password.
@@ -48554,7 +48563,7 @@
 
         (§ for (§ var #_"Map.Entry<KeyChain.KeyPurpose, Address>" (§ name entry)) :for (.. currentAddresses (entrySet)))
         (§ block
-            (§ if (§ expr (.. entry (getValue)) != nil && (.. entry (getValue) (equals address))))
+            (§ if (and (some? (.. entry (getValue))) (.. entry (getValue) (equals address))))
             (§ block
                 (.. log (info "Marking P2SH address as used: {}", address))
                 (.. currentAddresses (put (.. entry (getKey)), (freshAddress (.. entry (getKey)))))
@@ -48571,7 +48580,7 @@
         ;; It's OK for currentKeys to be empty here: it means we're a married wallet and the key may be a part of a rotating chain.
         (§ for (§ var #_"Map.Entry<KeyChain.KeyPurpose, DeterministicKey>" (§ name entry)) :for (.. currentKeys (entrySet)))
         (§ block
-            (§ if (§ expr (.. entry (getValue)) != nil && (.. entry (getValue) (equals key))))
+            (§ if (and (some? (.. entry (getValue))) (.. entry (getValue) (equals key))))
             (§ block
                 (.. log (info "Marking key as used: {}", key))
                 (.. currentKeys (put (.. entry (getKey)), (freshKey (.. entry (getKey)))))
@@ -48647,7 +48656,7 @@
         (§ var #_"int" (§ name result) (.. basic (numKeys)))
         (§ for (§ var #_"DeterministicKeyChain" (§ name chain)) :for chains)
         (§ block
-            (§ ass (§ name result) (§ expr result + (.. chain (numKeys))))
+            (§ ass (§ name result) (+ result (.. chain (numKeys))))
         )
         result
     )
@@ -48660,7 +48669,7 @@
     (§ method #_"boolean" (§ fn removeImportedKey) [#_"ECKey" (§ name key)])
     (§ block
         (Preconditions/checkNotNull key)
-        (Preconditions/checkArgument (§ not (§ insta key #_"DeterministicKey")))
+        (Preconditions/checkArgument (not (§ insta key #_"DeterministicKey")))
 
         (.. basic (removeKey key))
     )
@@ -48673,7 +48682,7 @@
     #_public
     (§ method #_"boolean" (§ fn isMarried) [])
     (§ block
-        (§ expr (§ not (.. chains (isEmpty))) && (.. (getActiveKeyChain) (isMarried)))
+        (and (not (.. chains (isEmpty))) (.. (getActiveKeyChain) (isMarried)))
     )
 
     ;;;
@@ -48693,7 +48702,7 @@
         ;; This code must be exception safe.
         (§ var #_"BasicKeyChain" (§ name newBasic) (.. basic (toEncrypted keyCrypter, aesKey)))
         (§ var #_"List<DeterministicKeyChain>" (§ name newChains) (§ new #_"ArrayList<>" (.. chains (size))))
-        (§ if (§ expr (.. chains (isEmpty)) && (.. basic (numKeys)) == 0))
+        (§ if (and (.. chains (isEmpty)) (== (.. basic (numKeys)) 0)))
         (§ block
             ;; No HD chains and no random keys: encrypting an entirely empty keychain group.
             ;; But we can't do that, we must have something to encrypt: so instantiate a new HD chain here.
@@ -48753,33 +48762,33 @@
     (§ method #_"boolean" (§ fn isWatching) [])
     (§ block
         (§ var #_"BasicKeyChain.State" (§ name activeState) BasicKeyChain/State/EMPTY)
-        (§ if (§ not (.. chains (isEmpty))))
+        (§ if (not (.. chains (isEmpty))))
         (§ block
             (§ ass (§ name activeState) (if (.. (getActiveKeyChain) (isWatching)) BasicKeyChain/State/WATCHING BasicKeyChain/State/REGULAR))
         )
 
         (§ var #_"BasicKeyChain.State" (§ name basicState) (.. basic (isWatching)))
-        (§ if (§ expr basicState == BasicKeyChain/State/EMPTY))
+        (§ if (== basicState BasicKeyChain/State/EMPTY))
         (§ block
-            (§ if (§ expr activeState == BasicKeyChain/State/EMPTY))
+            (§ if (== activeState BasicKeyChain/State/EMPTY))
             (§ block
                 (§ throw (§ new #_"IllegalStateException" "Empty key chain group: cannot answer isWatching() query"))
             )
 
-            (§ return (§ expr activeState == BasicKeyChain/State/WATCHING))
+            (§ return (== activeState BasicKeyChain/State/WATCHING))
         )
 
-        (§ if (§ expr activeState == BasicKeyChain/State/EMPTY))
+        (§ if (== activeState BasicKeyChain/State/EMPTY))
         (§ block
-            (§ return (§ expr basicState == BasicKeyChain/State/WATCHING))
+            (§ return (== basicState BasicKeyChain/State/WATCHING))
         )
 
-        (§ if (§ expr activeState != basicState))
+        (§ if (!= activeState basicState))
         (§ block
             (§ throw (§ new #_"IllegalStateException" "Mix of watching and non-watching keys in wallet"))
         )
 
-        (§ expr activeState == BasicKeyChain/State/WATCHING)
+        (== activeState BasicKeyChain/State/WATCHING)
     )
 
     ;;; Returns the key crypter or null if the group is not encrypted. ;;
@@ -48816,7 +48825,7 @@
         (§ var #_"int" (§ name result) (.. basic (numBloomFilterEntries)))
         (§ for (§ var #_"DeterministicKeyChain" (§ name chain)) :for chains)
         (§ block
-            (§ ass (§ name result) (§ expr result + (.. chain (numBloomFilterEntries))))
+            (§ ass (§ name result) (+ result (.. chain (numBloomFilterEntries))))
         )
         result
     )
@@ -48825,7 +48834,7 @@
     (§ method #_"BloomFilter" (§ fn getBloomFilter) [#_"int" (§ name size), #_"double" (§ name falsePositiveRate), #_"long" (§ name nTweak)])
     (§ block
         (§ var #_"BloomFilter" (§ name filter) (§ new #_"BloomFilter" size, falsePositiveRate, nTweak))
-        (§ if (§ expr 0 < (.. basic (numKeys))))
+        (§ if (< 0 (.. basic (numKeys))))
         (§ block
             (.. filter (merge (.. basic (getFilter size, falsePositiveRate, nTweak))))
         )
@@ -48908,7 +48917,7 @@
         (§ var #_"BasicKeyChain" (§ name basicKeyChain) (BasicKeyChain/fromProtobufUnencrypted keys))
         (§ var #_"List<DeterministicKeyChain>" (§ name chains) (DeterministicKeyChain/fromProtobuf keys, nil, factory))
         (§ var #_"EnumMap<KeyChain.KeyPurpose, DeterministicKey>" (§ name currentKeys) nil)
-        (§ if (§ not (.. chains (isEmpty))))
+        (§ if (not (.. chains (isEmpty))))
         (§ block
             (§ ass (§ name currentKeys) (createCurrentKeysMap chains))
         )
@@ -48933,7 +48942,7 @@
         (§ var #_"BasicKeyChain" (§ name basicKeyChain) (BasicKeyChain/fromProtobufEncrypted keys, crypter))
         (§ var #_"List<DeterministicKeyChain>" (§ name chains) (DeterministicKeyChain/fromProtobuf keys, crypter, factory))
         (§ var #_"EnumMap<KeyChain.KeyPurpose, DeterministicKey>" (§ name currentKeys) nil)
-        (§ if (§ not (.. chains (isEmpty))))
+        (§ if (not (.. chains (isEmpty))))
         (§ block
             (§ ass (§ name currentKeys) (createCurrentKeysMap chains))
         )
@@ -48962,7 +48971,7 @@
     (§ method #_"DeterministicKeyChain" (§ fn upgradeToDeterministic) [#_"long" (§ name keyRotationTimeSecs), #_nilable #_"KeyParameter" (§ name aesKey)])
         (§ throws #_"DeterministicUpgradeRequiresPassword", #_"AllRandomKeysRotating")
     (§ block
-        (Preconditions/checkState (§ expr 0 < (.. basic (numKeys))))
+        (Preconditions/checkState (< 0 (.. basic (numKeys))))
         (Preconditions/checkArgument (<= 0 keyRotationTimeSecs))
 
         ;; Subtract one because the key rotation time might have been set to the creation time of the first known
@@ -49010,12 +49019,12 @@
         (.. log (info "Instantiating new HD chain using oldest non-rotating private key (address: {})", (.. keyToUse (toAddress params))))
         (§ var #_"byte[]" (§ name entropy) (Preconditions/checkNotNull (.. keyToUse (getSecretBytes))))
         ;; Private keys should be at least 128 bits long.
-        (Preconditions/checkState (§ expr DeterministicSeed/DEFAULT_SEED_ENTROPY_BITS / 8 <= (.. entropy length)))
+        (Preconditions/checkState (<= (/ DeterministicSeed/DEFAULT_SEED_ENTROPY_BITS 8) (.. entropy length)))
         ;; We reduce the entropy here to 128 bits because people like to write their seeds down on paper,
         ;; and 128 bits should be sufficient forever unless the laws of the universe change or ECC is broken;
         ;; in either case we all have bigger problems.
-        (§ ass (§ name entropy) (Arrays/copyOfRange entropy, 0, (§ expr DeterministicSeed/DEFAULT_SEED_ENTROPY_BITS / 8))) ;; Final argument is exclusive range.
-        (Preconditions/checkState (§ expr (.. entropy length) == DeterministicSeed/DEFAULT_SEED_ENTROPY_BITS / 8))
+        (§ ass (§ name entropy) (Arrays/copyOfRange entropy, 0, (/ DeterministicSeed/DEFAULT_SEED_ENTROPY_BITS 8))) ;; Final argument is exclusive range.
+        (Preconditions/checkState (== (.. entropy length) (/ DeterministicSeed/DEFAULT_SEED_ENTROPY_BITS 8)))
         (§ var #_"String" (§ name passphrase) "") ;; FIXME allow non-empty passphrase
         (§ var #_"DeterministicKeyChain" (§ name chain) (§ new #_"DeterministicKeyChain" entropy, passphrase, (.. keyToUse (getCreationTimeSeconds))))
         (§ if (some? aesKey))
@@ -49030,7 +49039,7 @@
     #_public
     (§ method #_"boolean" (§ fn isDeterministicUpgradeRequired) [])
     (§ block
-        (§ expr 0 < (.. basic (numKeys)) && (.. chains (isEmpty)))
+        (and (< 0 (.. basic (numKeys))) (.. chains (isEmpty)))
     )
 
     #_private
@@ -49044,13 +49053,13 @@
         ;; Assuming that only RECEIVE and CHANGE keys are being used at the moment, we will treat the latest issued
         ;; external key as current RECEIVE key and latest issued internal key as CHANGE key.  This should be changed
         ;; as soon as other kinds of KeyPurpose are introduced.
-        (§ if (§ expr 0 < (.. activeChain (getIssuedExternalKeys))))
+        (§ if (< 0 (.. activeChain (getIssuedExternalKeys))))
         (§ block
             (§ var #_"DeterministicKey" (§ name currentExternalKey) (.. activeChain (getKeyByPath (HDUtils/append (HDUtils/concat (.. activeChain (getAccountPath)), DeterministicKeyChain/EXTERNAL_SUBPATH), (§ new #_"ChildNumber" (- (.. activeChain (getIssuedExternalKeys)) 1))))))
             (.. currentKeys (put KeyChain/KeyPurpose/RECEIVE_FUNDS, currentExternalKey))
         )
 
-        (§ if (§ expr 0 < (.. activeChain (getIssuedInternalKeys))))
+        (§ if (< 0 (.. activeChain (getIssuedInternalKeys))))
         (§ block
             (§ var #_"DeterministicKey" (§ name currentInternalKey) (.. activeChain (getKeyByPath (HDUtils/append (HDUtils/concat (.. activeChain (getAccountPath)), DeterministicKeyChain/INTERNAL_SUBPATH), (§ new #_"ChildNumber" (- (.. activeChain (getIssuedInternalKeys)) 1))))))
             (.. currentKeys (put KeyChain/KeyPurpose/CHANGE, currentInternalKey))
@@ -49073,9 +49082,9 @@
                 (.. followingChains (add chain))
                 (.. it (remove))
             )
-            (§ elseif (§ not (.. followingChains (isEmpty))))
+            (§ elseif (not (.. followingChains (isEmpty))))
             (§ block
-                (§ if (§ not (§ insta chain #_"MarriedKeyChain")))
+                (§ if (not (§ insta chain #_"MarriedKeyChain")))
                 (§ block
                     (§ throw (§ new #_"IllegalStateException"))
                 )
@@ -49124,7 +49133,7 @@
         (§ var #_"int" (§ name epoch) 0)
         (§ for (§ var #_"DeterministicKeyChain" (§ name chain)) :for chains)
         (§ block
-            (§ ass (§ name epoch) (§ expr epoch + (.. chain (getKeyLookaheadEpoch))))
+            (§ ass (§ name epoch) (+ epoch (.. chain (getKeyLookaheadEpoch))))
         )
         epoch
     )
@@ -49179,7 +49188,7 @@
             (§ var #_"Coin" (§ name valueGathered) Coin/ZERO)
             (§ for (§ var #_"TransactionOutput" (§ name output)) :for candidates)
             (§ block
-                (§ if (§ expr ignorePending && (§ not (isConfirmed output))))
+                (§ if (and ignorePending (not (isConfirmed output))))
                 (§ block
                     (§ continue )
                 )
@@ -49203,7 +49212,7 @@
                 )
 
                 (Preconditions/checkNotNull controllingKey, "Coin selector given output as candidate for which we lack the key")
-                (§ if (§ expr unixTimeSeconds <= (.. controllingKey (getCreationTimeSeconds))))
+                (§ if (<= unixTimeSeconds (.. controllingKey (getCreationTimeSeconds))))
                 (§ block
                     (§ continue )
                 )
@@ -49211,7 +49220,7 @@
                 ;; It's older than the cutoff time so select.
                 (§ ass (§ name valueGathered) (.. valueGathered (add (.. output (getValue)))))
                 (.. gathered (push output))
-                (§ if (§ expr MAX_SIMULTANEOUS_INPUTS <= (.. gathered (size))))
+                (§ if (<= MAX_SIMULTANEOUS_INPUTS (.. gathered (size))))
                 (§ block
                     (.. log (warn "Reached {} inputs, going further would yield a tx that is too large, stopping here.", (.. gathered (size))))
                     (§ break )
@@ -49312,13 +49321,13 @@
         #_public
         (§ method #_"MarriedKeyChain" (§ fn build) [])
         (§ block
-            (Preconditions/checkState (§ expr random != nil || entropy != nil || seed != nil || watchingKey!= nil), "Must provide either entropy or random or seed or watchingKey")
+            (Preconditions/checkState (or (some? random) (some? entropy) (some? seed) (some? watchingKey)), "Must provide either entropy or random or seed or watchingKey")
             (Preconditions/checkNotNull followingKeys, "followingKeys must be provided")
 
             (§ var #_"MarriedKeyChain" (§ name chain))
-            (§ if (§ expr threshold == 0))
+            (§ if (== threshold 0))
             (§ block
-                (§ ass (§ name threshold) (§ expr (+ (.. followingKeys (size)) 1) / 2 + 1))
+                (§ ass (§ name threshold) (+ (/ (+ (.. followingKeys (size)) 1) 2) 1))
             )
 
             (§ if (some? random))
@@ -49389,7 +49398,7 @@
 
     (§ method #_"void" (§ fn setFollowingKeyChains) [#_"List<DeterministicKeyChain>" (§ name followingKeyChains)])
     (§ block
-        (Preconditions/checkArgument (§ not (.. followingKeyChains (isEmpty))))
+        (Preconditions/checkArgument (not (.. followingKeyChains (isEmpty))))
         (§ ass (§ name (.. this followingKeyChains)) followingKeyChains)
         nil
     )
@@ -49445,15 +49454,15 @@
     #_private
     (§ method- #_"void" (§ fn addFollowingAccountKeys) [#_"List<DeterministicKey>" (§ name followingAccountKeys), #_"int" (§ name sigsRequiredToSpend)])
     (§ block
-        (Preconditions/checkArgument (§ expr sigsRequiredToSpend <= (.. followingAccountKeys (size)) + 1), "Multisig threshold can't exceed total number of keys")
-        (Preconditions/checkState (§ expr (numLeafKeysIssued) == 0), "Active keychain already has keys in use")
+        (Preconditions/checkArgument (<= sigsRequiredToSpend (+ (.. followingAccountKeys (size)) 1)), "Multisig threshold can't exceed total number of keys")
+        (Preconditions/checkState (== (numLeafKeysIssued) 0), "Active keychain already has keys in use")
         (Preconditions/checkState (nil? followingKeyChains))
 
         (§ var #_"List<DeterministicKeyChain>" (§ name followingKeyChains) (Lists/newArrayList))
 
         (§ for (§ var #_"DeterministicKey" (§ name key)) :for followingAccountKeys)
         (§ block
-            (Preconditions/checkArgument (§ expr (.. key (getPath) (size)) == (.. (getAccountPath) (size))), "Following keys have to be account keys")
+            (Preconditions/checkArgument (== (.. key (getPath) (size)) (.. (getAccountPath) (size))), "Following keys have to be account keys")
 
             (§ var #_"DeterministicKeyChain" (§ name chain) (DeterministicKeyChain/watchAndFollow key))
             (§ if (<= 0 lookaheadSize))
@@ -49538,7 +49547,7 @@
     (§ block
         (.. sb (append "  addr:") (append (.. script (getToAddress params))))
         (.. sb (append "  hash160:") (append (.. Utils/HEX (encode (.. script (getPubKeyHash))))))
-        (§ if (§ expr 0 < (.. script (getCreationTimeSeconds))))
+        (§ if (< 0 (.. script (getCreationTimeSeconds))))
         (§ block
             (.. sb (append "  creationTimeSeconds:") (append (.. script (getCreationTimeSeconds))))
         )
@@ -49553,7 +49562,7 @@
         (.. super (maybeLookAheadScripts))
 
         (§ var #_"int" (§ name numLeafKeys) (.. (getLeafKeys) (size)))
-        (Preconditions/checkState (§ expr (.. marriedKeysRedeemData (size)) <= numLeafKeys), "Number of scripts is greater than number of leaf keys")
+        (Preconditions/checkState (<= (.. marriedKeysRedeemData (size)) numLeafKeys), "Number of scripts is greater than number of leaf keys")
 
         (§ if (!= (.. marriedKeysRedeemData (size)) numLeafKeys))
         (§ block
@@ -49653,7 +49662,7 @@
     #_static
     (§ defn #_"RedeemData" (§ fn of) [#_"ECKey" (§ name key), #_"Script" (§ name program)])
     (§ block
-        (Preconditions/checkArgument (§ expr (.. program (isSentToAddress)) || (.. program (isSentToRawPubKey))))
+        (Preconditions/checkArgument (or (.. program (isSentToAddress)) (.. program (isSentToRawPubKey))))
 
         (when (some? key) (§ new #_"RedeemData" (Collections/singletonList key), program))
     )
@@ -49926,7 +49935,7 @@
         (§ var #_"TransactionOutput" (§ name outputToSpend) nil)
         (§ for (§ var TransactionOutput output) :for (.. parentTransaction (getOutputs)))
         (§ block
-            (§ if (§ expr (.. output (isMine wallet)) && (.. output (isAvailableForSpending)) && (.. output (getValue) (isGreaterThan feeRaise))))
+            (§ if (and (.. output (isMine wallet)) (.. output (isAvailableForSpending)) (.. output (getValue) (isGreaterThan feeRaise))))
             (§ block
                 (§ ass (§ name outputToSpend) output)
                 (§ break )
@@ -49950,7 +49959,7 @@
     (§ block
         (§ var #_"long" (§ name time) (/ (.. releaseTime (getTime)) 1000))
 
-        (Preconditions/checkArgument (§ expr Transaction/LOCKTIME_THRESHOLD <= time), "Release time was too small")
+        (Preconditions/checkArgument (<= Transaction/LOCKTIME_THRESHOLD time), "Release time was too small")
 
         (toCLTVPaymentChannel params, (BigInteger/valueOf time), from, to, value)
     )
@@ -49959,7 +49968,7 @@
     #_static
     (§ defn #_"SendRequest" (§ fn toCLTVPaymentChannel) [#_"NetworkParameters" (§ name params), #_"int" (§ name releaseBlock), #_"ECKey" (§ name from), #_"ECKey" (§ name to), #_"Coin" (§ name value)])
     (§ block
-        (Preconditions/checkArgument (§ expr 0 <= releaseBlock && releaseBlock < Transaction/LOCKTIME_THRESHOLD), "Block number was too large")
+        (Preconditions/checkArgument (< -1 releaseBlock Transaction/LOCKTIME_THRESHOLD), "Block number was too large")
 
         (toCLTVPaymentChannel params, (BigInteger/valueOf releaseBlock), from, to, value)
     )
@@ -50292,7 +50301,7 @@
     #_public
     (§ constructor #_"Wallet" [#_"Context" (§ name context)])
     (§ block
-        (§ this context, (§ expr (§ new #_"KeyChainGroup" (.. context (getParams)))))
+        (§ this context, (§ new #_"KeyChainGroup" (.. context (getParams))))
         this
     )
 
@@ -50338,7 +50347,7 @@
     (§ block
         (§ for (§ var #_"ECKey" (§ name key)) :for keys)
         (§ block
-            (Preconditions/checkArgument (§ not (§ insta key #_"DeterministicKey")))
+            (Preconditions/checkArgument (not (§ insta key #_"DeterministicKey")))
         )
 
         (§ var #_"KeyChainGroup" (§ name group) (§ new #_"KeyChainGroup" params))
@@ -50399,7 +50408,7 @@
                 ;; doesn't necessarily know at that point which wallets contain which transactions, so it's up
                 ;; to us to listen for that.  Other types of confidence changes (type, etc.) are triggered by us,
                 ;; so we'll queue up a wallet change event in other parts of the code.
-                (§ if (§ expr reason == ChangeReason/SEEN_PEERS))
+                (§ if (== reason ChangeReason/SEEN_PEERS))
                 (§ block
                     (.. lock (lock))
                     (§ try )
@@ -50861,7 +50870,7 @@
         (§ try )
         (§ block
             (Preconditions/checkNotNull (getKeyCrypter), "Wallet is not encrypted")
-            (§ return (importKeysAndEncrypt keys, (§ expr (.. (getKeyCrypter) (deriveKey password)))))
+            (§ return (importKeysAndEncrypt keys, (.. (getKeyCrypter) (deriveKey password))))
         )
         (§ finally )
         (§ block
@@ -51452,7 +51461,7 @@
             (§ block
                 ;; Work around an issue on Windows whereby you can't rename over existing files.
                 (§ var #_"File" (§ name canonical) (.. destFile (getCanonicalFile)))
-                (§ if (§ expr (.. canonical (exists)) && (§ not (.. canonical (delete)))))
+                (§ if (and (.. canonical (exists)) (not (.. canonical (delete)))))
                 (§ block
                     (§ throw (§ new #_"IOException" "Failed to delete canonical wallet file for replacement with autosave"))
                 )
@@ -51462,7 +51471,7 @@
                 )
                 (§ throw (§ new #_"IOException" (str "Failed to rename " temp " to " canonical)))
             )
-            (§ elseif (§ not (.. temp (renameTo destFile))))
+            (§ elseif (not (.. temp (renameTo destFile))))
             (§ block
                 (§ throw (§ new #_"IOException" (str "Failed to rename " temp " to " destFile)))
             )
@@ -51796,20 +51805,20 @@
             )
 
             (§ var #_"int" (§ name size1) (.. transactions (size)))
-            (§ if (§ expr size1 != (.. hashes (size))))
+            (§ if (!= size1 (.. hashes (size))))
             (§ block
                 (§ throw (§ new #_"IllegalStateException" "Two transactions with same hash"))
             )
 
             (§ var #_"int" (§ name size2) (+ (.. unspent (size)) (.. spent (size)) (.. pending (size)) (.. dead (size))))
-            (§ if (§ expr size1 != size2))
+            (§ if (!= size1 size2))
             (§ block
                 (§ throw (§ new #_"IllegalStateException" (str "Inconsistent wallet sizes: " size1 ", " size2)))
             )
 
             (§ for (§ var #_"Transaction" (§ name tx)) :for (.. unspent (values)))
             (§ block
-                (§ if (§ not (isTxConsistent tx, false)))
+                (§ if (not (isTxConsistent tx, false)))
                 (§ block
                     (§ throw (§ new #_"IllegalStateException" (str "Inconsistent unspent tx: " (.. tx (getHashAsString)))))
                 )
@@ -51817,7 +51826,7 @@
 
             (§ for (§ var #_"Transaction" (§ name tx)) :for (.. spent (values)))
             (§ block
-                (§ if (§ not (isTxConsistent tx, true)))
+                (§ if (not (isTxConsistent tx, true)))
                 (§ block
                     (§ throw (§ new #_"IllegalStateException" (str "Inconsistent spent tx: " (.. tx (getHashAsString)))))
                 )
@@ -51858,7 +51867,7 @@
                 )
             )
         )
-        (§ expr isActuallySpent == isSpent)
+        (== isActuallySpent isSpent)
     )
 
     ;;; Returns a wallet deserialized from the given input stream. ;;
@@ -51868,7 +51877,7 @@
         (§ throws #_"UnreadableWalletException")
     (§ block
         (§ var #_"Wallet" (§ name wallet) (.. (§ new #_"WalletProtobufSerializer") (readWallet stream)))
-        (§ if (§ not (.. wallet (isConsistent))))
+        (§ if (not (.. wallet (isConsistent))))
         (§ block
             (.. log (error "Loaded an inconsistent wallet"))
         )
@@ -51952,19 +51961,19 @@
             ;; Ignore it if we already know about this transaction.  Receiving a pending transaction never moves it
             ;; between pools.
             (§ var #_"EnumSet<Pool>" (§ name containingPools) (getContainingPools tx))
-            (§ if (§ not (.. containingPools (equals (EnumSet/noneOf (§ klass #_"Pool"))))))
+            (§ if (not (.. containingPools (equals (EnumSet/noneOf (§ klass #_"Pool"))))))
             (§ block
                 (.. log (debug (str "Received tx we already saw in a block or created ourselves: " (.. tx (getHashAsString)))))
                 (§ return nil)
             )
             ;; Repeat the check of relevancy here, even though the caller may have already done so - this is to avoid
             ;; race conditions where receivePending may be being called in parallel.
-            (§ if (§ expr (§ not overrideIsRelevant) && (§ not (isPendingTransactionRelevant tx))))
+            (§ if (and (not overrideIsRelevant) (not (isPendingTransactionRelevant tx))))
             (§ block
                 (§ return nil)
             )
 
-            (§ if (§ expr (isTransactionRisky tx, dependencies) && (§ not acceptRiskyTransactions)))
+            (§ if (and (isTransactionRisky tx, dependencies) (not acceptRiskyTransactions)))
             (§ block
                 ;; isTransactionRisky already logged the reason.
                 (.. riskDropped (put (.. tx (getHash)), tx))
@@ -52015,7 +52024,7 @@
             )
             (§ var #_"RiskAnalysis" (§ name analysis) (.. riskAnalyzer (create this, tx, dependencies)))
             (§ var #_"RiskAnalysis.Result" (§ name result) (.. analysis (analyze)))
-            (§ if (§ expr result != RiskAnalysis/Result/OK))
+            (§ if (!= result RiskAnalysis/Result/OK))
             (§ block
                 (.. log (warn "Pending transaction was considered risky: {}\n{}", analysis, tx))
                 (§ return true)
@@ -52063,7 +52072,7 @@
             ;; Ignore it if we already know about this transaction.  Receiving a pending transaction never moves it
             ;; between pools.
             (§ var #_"EnumSet<Pool>" (§ name containingPools) (getContainingPools tx))
-            (§ if (§ not (.. containingPools (equals (EnumSet/noneOf (§ klass #_"Pool"))))))
+            (§ if (not (.. containingPools (equals (EnumSet/noneOf (§ klass #_"Pool"))))))
             (§ block
                 (.. log (debug (str "Received tx we already saw in a block or created ourselves: " (.. tx (getHashAsString)))))
                 (§ return false)
@@ -52073,7 +52082,7 @@
             ;;   - Send us coins.
             ;;   - Spend our coins.
             ;;   - Double spend a tx in our wallet.
-            (§ if (§ not (isTransactionRelevant tx)))
+            (§ if (not (isTransactionRelevant tx)))
             (§ block
                 (.. log (debug "Received tx that isn't relevant to this wallet, discarding."))
                 (§ return false)
@@ -52101,7 +52110,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ return (§ expr 0 < (.. tx (getValueSentFromMe this) (signum)) || 0 < (.. tx (getValueSentToMe this) (signum)) || (§ not (.. (findDoubleSpendsAgainst tx, transactions) (isEmpty)))))
+            (§ return (or (< 0 (.. tx (getValueSentFromMe this) (signum))) (< 0 (.. tx (getValueSentToMe this) (signum))) (not (.. (findDoubleSpendsAgainst tx, transactions) (isEmpty)))))
         )
         (§ finally )
         (§ block
@@ -52166,7 +52175,7 @@
             (.. txQueue (put (.. tx (getHash)), tx))
         )
 
-        (§ while (§ not (.. txQueue (isEmpty))))
+        (§ while (not (.. txQueue (isEmpty))))
         (§ block
             (§ var #_"Transaction" (§ name tx) (.. txQueue (remove (.. txQueue (keySet) (iterator) (next)))))
             (§ for (§ var #_"Transaction" (§ name anotherTx)) :for txPool)
@@ -52243,8 +52252,8 @@
 
         (§ var #_"Coin" (§ name prevBalance) (getBalance))
         (§ var #_"Sha256Hash" (§ name txHash) (.. tx (getHash)))
-        (§ var #_"boolean" (§ name bestChain) (§ expr blockType == BlockChain/NewBlockType/BEST_CHAIN))
-        (§ var #_"boolean" (§ name sideChain) (§ expr blockType == BlockChain/NewBlockType/SIDE_CHAIN))
+        (§ var #_"boolean" (§ name bestChain) (== blockType BlockChain/NewBlockType/BEST_CHAIN))
+        (§ var #_"boolean" (§ name sideChain) (== blockType BlockChain/NewBlockType/SIDE_CHAIN))
 
         (§ var #_"Coin" (§ name valueSentFromMe) (.. tx (getValueSentFromMe this)))
         (§ var #_"Coin" (§ name valueSentToMe) (.. tx (getValueSentToMe this)))
@@ -52295,7 +52304,7 @@
                     )
                 )
             )
-            (processTxFromBestChain tx, (§ expr wasPending || wasDead))
+            (processTxFromBestChain tx, (or wasPending wasDead))
         )
         (§ else )
         (§ block
@@ -52314,7 +52323,7 @@
                 ;; Ignore the case where a tx appears on a side chain at the same time as the best chain
                 ;; (this is quite normal and expected).
                 (§ var #_"Sha256Hash" (§ name hash) (.. tx (getHash)))
-                (§ if (§ expr (§ not (.. unspent (containsKey hash))) && (§ not (.. spent (containsKey hash))) && (§ not (.. dead (containsKey hash)))))
+                (§ if (and (not (.. unspent (containsKey hash))) (not (.. spent (containsKey hash))) (not (.. dead (containsKey hash)))))
                 (§ block
                     ;; Otherwise put it (possibly back) into pending.
                     ;; Committing it updates the spent flags and inserts into the pool as well.
@@ -52376,11 +52385,11 @@
         ;;  - We have not already informed the user about the coins when we received the tx broadcast,
         ;;    or for our own spends.  If users want to know when a broadcast tx becomes confirmed,
         ;;    they need to use tx confidence listeners.
-        (§ if (§ expr (§ not insideReorg) && bestChain))
+        (§ if (and (not insideReorg) bestChain))
         (§ block
             (§ var #_"Coin" (§ name newBalance) (getBalance)) ;; This is slow.
             (.. log (info (str "Balance is now: " (.. newBalance (toFriendlyString)))))
-            (§ if (§ not wasPending))
+            (§ if (not wasPending))
             (§ block
                 (§ var #_"int" (§ name diff) (.. valueDifference (signum)))
                 ;; We pick one callback based on the value difference, though a tx can of course both
@@ -52412,7 +52421,7 @@
         (§ for (§ var #_"TransactionInput" (§ name txInput)) :for (.. tx (getInputs)))
         (§ block
             (§ var #_"Transaction" (§ name connectedTx) (.. this (getTransaction (.. txInput (getOutpoint) (getHash)))))
-            (§ if (§ expr connectedTx != nil && (.. connectedTx (getConfidence) (getConfidenceType) (equals confidenceType))))
+            (§ if (and (some? connectedTx) (.. connectedTx (getConfidence) (getConfidenceType) (equals confidenceType))))
             (§ block
                 (§ return false)
             )
@@ -52429,13 +52438,13 @@
     (§ method #_"List<Transaction>" (§ fn sortTxnsByDependency) [#_"Set<Transaction>" (§ name inputSet)])
     (§ block
         (§ var #_"ArrayList<Transaction>" (§ name result) (§ new #_"ArrayList<>" inputSet))
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. result (size)) - 1) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (- (.. result (size)) 1)) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ var #_"boolean" (§ name txAtISpendsOtherTxInTheList))
             (§ do )
             (§ block
                 (§ ass (§ name txAtISpendsOtherTxInTheList) false)
-                (§ for (§ var #_"int" (§ name j) (+ i 1)) :for (§ expr j < (.. result (size))) :for (§ ass (§ name j) (+ j 1)))
+                (§ for (§ var #_"int" (§ name j) (+ i 1)) :for (< j (.. result (size))) :for (§ ass (§ name j) (+ j 1)))
                 (§ block
                     (§ if (spends (.. result (get i)), (.. result (get j))))
                     (§ block
@@ -52573,12 +52582,12 @@
         (§ throws #_"VerificationException")
     (§ block
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
-        (Preconditions/checkState (§ not (.. pending (containsKey (.. tx (getHash))))))
+        (Preconditions/checkState (not (.. pending (containsKey (.. tx (getHash))))))
 
         ;; This TX may spend our existing outputs even though it was not pending.  This can happen in unit tests,
         ;; if keys are moved between wallets, if we're catching up to the chain given only a set of keys,
         ;; or if a dead coinbase transaction has moved back onto the main chain.
-        (§ var #_"boolean" (§ name isDeadCoinbase) (§ expr (.. tx (isCoinBase)) && (.. dead (containsKey (.. tx (getHash))))))
+        (§ var #_"boolean" (§ name isDeadCoinbase) (and (.. tx (isCoinBase)) (.. dead (containsKey (.. tx (getHash))))))
         (§ if isDeadCoinbase)
         (§ block
             ;; There is a dead coinbase tx being received on the best chain.  A coinbase tx is made dead when it moves
@@ -52598,7 +52607,7 @@
         ;; Now make sure it ends up in the right pool.  Also, handle the case where this TX is double-spending
         ;; against our pending transactions.  Note that a tx may double spend our pending transactions and also
         ;; send us money/spend our money.
-        (§ var #_"boolean" (§ name hasOutputsToMe) (§ expr 0 < (.. tx (getValueSentToMe this) (signum))))
+        (§ var #_"boolean" (§ name hasOutputsToMe) (< 0 (.. tx (getValueSentToMe this) (signum))))
         (§ var #_"boolean" (§ name hasOutputsFromMe) false)
         (§ if hasOutputsToMe)
         (§ block
@@ -52614,7 +52623,7 @@
                 (addWalletTransaction Pool/UNSPENT, tx)
             )
         )
-        (§ elseif (§ expr 0 < (.. tx (getValueSentFromMe this) (signum))))
+        (§ elseif (< 0 (.. tx (getValueSentFromMe this) (signum))))
         (§ block
             (§ ass (§ name hasOutputsFromMe) true)
             ;; Didn't send us any money, but did spend some.  Keep it around for record keeping purposes.
@@ -52630,18 +52639,18 @@
 
         ;; Kill txns in conflict with this tx.
         (§ var #_"Set<Transaction>" (§ name doubleSpendTxns) (findDoubleSpendsAgainst tx, pending))
-        (§ if (§ not (.. doubleSpendTxns (isEmpty))))
+        (§ if (not (.. doubleSpendTxns (isEmpty))))
         (§ block
             ;; No need to addTransactionsDependingOn(doubleSpendTxns), because killTxns() already kills dependencies.
             (killTxns doubleSpendTxns, tx)
         )
-        (§ if (§ expr (§ not hasOutputsToMe) && (§ not hasOutputsFromMe) && (§ not forceAddToPool) && (§ not (.. (findDoubleSpendsAgainst tx, transactions) (isEmpty)))))
+        (§ if (and (not hasOutputsToMe) (not hasOutputsFromMe) (not forceAddToPool) (not (.. (findDoubleSpendsAgainst tx, transactions) (isEmpty)))))
         (§ block
             ;; Disconnect irrelevant inputs (otherwise might cause protobuf serialization issue).
             (§ for (§ var #_"TransactionInput" (§ name input)) :for (.. tx (getInputs)))
             (§ block
                 (§ var #_"TransactionOutput" (§ name output) (.. input (getConnectedOutput)))
-                (§ if (§ expr output != nil && (§ not (.. output (isMine this)))))
+                (§ if (and (some? output) (not (.. output (isMine this)))))
                 (§ block
                     (.. input (disconnect))
                 )
@@ -52675,21 +52684,21 @@
         (Preconditions/checkState (.. lock (isHeldByCurrentThread)))
         (§ if fromChain)
         (§ block
-            (Preconditions/checkState (§ not (.. pending (containsKey (.. tx (getHash))))))
+            (Preconditions/checkState (not (.. pending (containsKey (.. tx (getHash))))))
         )
 
         (§ for (§ var #_"TransactionInput" (§ name input)) :for (.. tx (getInputs)))
         (§ block
             (§ var #_"TransactionInput.ConnectionResult" (§ name result) (.. input (connect unspent, TransactionInput/ConnectMode/ABORT_ON_CONFLICT)))
-            (§ if (§ expr result == TransactionInput/ConnectionResult/NO_SUCH_TX))
+            (§ if (== result TransactionInput/ConnectionResult/NO_SUCH_TX))
             (§ block
                 ;; Not found in the unspent map.  Try again with the spent map.
                 (§ ass (§ name result) (.. input (connect spent, TransactionInput/ConnectMode/ABORT_ON_CONFLICT)))
-                (§ if (§ expr result == TransactionInput/ConnectionResult/NO_SUCH_TX))
+                (§ if (== result TransactionInput/ConnectionResult/NO_SUCH_TX))
                 (§ block
                     ;; Not found in the unspent and spent maps.  Try again with the pending map.
                     (§ ass (§ name result) (.. input (connect pending, TransactionInput/ConnectMode/ABORT_ON_CONFLICT)))
-                    (§ if (§ expr result == TransactionInput/ConnectionResult/NO_SUCH_TX))
+                    (§ if (== result TransactionInput/ConnectionResult/NO_SUCH_TX))
                     (§ block
                         ;; Doesn't spend any of our outputs or is coinbase.
                         (§ continue )
@@ -52698,7 +52707,7 @@
             )
 
             (§ var #_"TransactionOutput" (§ name output) (Preconditions/checkNotNull (.. input (getConnectedOutput))))
-            (§ if (§ expr result == TransactionInput/ConnectionResult/ALREADY_SPENT))
+            (§ if (== result TransactionInput/ConnectionResult/ALREADY_SPENT))
             (§ block
                 (§ if fromChain)
                 (§ block
@@ -52721,7 +52730,7 @@
                     (.. log (warn "{}: {}", (.. other (getHash)), (.. Utils/HEX (encode (.. other (unsafeBitcoinSerialize))))))
                 )
             )
-            (§ elseif (§ expr result == TransactionInput/ConnectionResult/SUCCESS))
+            (§ elseif (== result TransactionInput/ConnectionResult/SUCCESS))
             (§ block
                 ;; Otherwise we saw a transaction spend our coins, but we didn't try and spend them ourselves yet.
                 ;; The outputs are already marked as spent by the connect call above, so check if there are any more for
@@ -52752,9 +52761,9 @@
                 (§ block
                     ;; This TX is supposed to have just appeared on the best chain, so its outputs should not be marked
                     ;; as spent yet.  If they are, it means something is happening out of order.
-                    (Preconditions/checkState (§ expr result != TransactionInput/ConnectionResult/ALREADY_SPENT))
+                    (Preconditions/checkState (!= result TransactionInput/ConnectionResult/ALREADY_SPENT))
                 )
-                (§ if (§ expr result == TransactionInput/ConnectionResult/SUCCESS))
+                (§ if (== result TransactionInput/ConnectionResult/SUCCESS))
                 (§ block
                     (.. log (info "Connected pending tx input {}:{}", (.. pendingTx (getHashAsString)), (.. pendingTx (getInputs) (indexOf input))))
                     ;; The unspents map might not have it if we never saw this tx until it was included in the chain
@@ -52766,7 +52775,7 @@
                 )
             )
         )
-        (§ if (§ not fromChain))
+        (§ if (not fromChain))
         (§ block
             (maybeMovePool tx, "pendingtx")
         )
@@ -52783,7 +52792,7 @@
     (§ method- #_"void" (§ fn killTxns) [#_"Set<Transaction>" (§ name txnsToKill), #_nilable #_"Transaction" (§ name overridingTx)])
     (§ block
         (§ var #_"LinkedList<Transaction>" (§ name work) (§ new #_"LinkedList<>" txnsToKill))
-        (§ while (§ not (.. work (isEmpty))))
+        (§ while (not (.. work (isEmpty))))
         (§ block
             (§ var #_"Transaction" (§ name tx) (.. work (poll)))
             (.. log (warn "TX {} killed{}", (.. tx (getHashAsString)), (if (some? overridingTx) (str " by " (.. overridingTx (getHashAsString))) "")))
@@ -52800,7 +52809,7 @@
                 (§ block
                     (§ continue )
                 )
-                (§ if (§ expr (.. connected (getConfidence) (getConfidenceType)) != ConfidenceType/DEAD && (.. deadInput (getConnectedOutput) (getSpentBy)) != nil && (.. deadInput (getConnectedOutput) (getSpentBy) (equals deadInput))))
+                (§ if (and (!= (.. connected (getConfidence) (getConfidenceType)) ConfidenceType/DEAD) (some? (.. deadInput (getConnectedOutput) (getSpentBy))) (.. deadInput (getConnectedOutput) (getSpentBy) (equals deadInput))))
                 (§ block
                     (Preconditions/checkState (.. myUnspents (add (.. deadInput (getConnectedOutput)))))
                     (.. log (info "Added to UNSPENTS: {} in {}", (.. deadInput (getConnectedOutput)), (.. deadInput (getConnectedOutput) (getParentTransaction) (getHash))))
@@ -52836,7 +52845,7 @@
         (§ for (§ var #_"TransactionInput" (§ name input)) :for (.. overridingTx (getInputs)))
         (§ block
             (§ var #_"TransactionInput.ConnectionResult" (§ name result) (.. input (connect unspent, TransactionInput/ConnectMode/DISCONNECT_ON_CONFLICT)))
-            (§ if (§ expr result == TransactionInput/ConnectionResult/SUCCESS))
+            (§ if (== result TransactionInput/ConnectionResult/SUCCESS))
             (§ block
                 (maybeMovePool (.. input (getConnectedTransaction)), "kill")
                 (.. myUnspents (remove (.. input (getConnectedOutput))))
@@ -52845,7 +52854,7 @@
             (§ else )
             (§ block
                 (§ ass (§ name result) (.. input (connect spent, TransactionInput/ConnectMode/DISCONNECT_ON_CONFLICT)))
-                (§ if (§ expr result == TransactionInput/ConnectionResult/SUCCESS))
+                (§ if (== result TransactionInput/ConnectionResult/SUCCESS))
                 (§ block
                     (maybeMovePool (.. input (getConnectedTransaction)), "kill")
                     (.. myUnspents (remove (.. input (getConnectedOutput))))
@@ -52930,7 +52939,7 @@
             (§ var #_"Set<Transaction>" (§ name doubleSpendUnspentTxns) (findDoubleSpendsAgainst tx, unspent))
             (§ var #_"Set<Transaction>" (§ name doubleSpendSpentTxns) (findDoubleSpendsAgainst tx, spent))
 
-            (§ if (§ expr (§ not (.. doubleSpendUnspentTxns (isEmpty))) || (§ not (.. doubleSpendSpentTxns (isEmpty))) || (§ not (isNotSpendingTxnsInConfidenceType tx, ConfidenceType/DEAD))))
+            (§ if (or (not (.. doubleSpendUnspentTxns (isEmpty))) (not (.. doubleSpendSpentTxns (isEmpty))) (not (isNotSpendingTxnsInConfidenceType tx, ConfidenceType/DEAD))))
             (§ block
                 ;; tx is a double spend against a tx already in the best chain or spends outputs of a DEAD tx.
                 ;; Add tx to the dead pool and schedule confidence listener notifications.
@@ -52939,7 +52948,7 @@
                 (.. confidenceChanged (put tx, TransactionConfidence/Listener/ChangeReason/TYPE))
                 (addWalletTransaction Pool/DEAD, tx)
             )
-            (§ elseif (§ expr (§ not (.. doubleSpendPendingTxns (isEmpty))) || (§ not (isNotSpendingTxnsInConfidenceType tx, ConfidenceType/IN_CONFLICT))))
+            (§ elseif (or (not (.. doubleSpendPendingTxns (isEmpty))) (not (isNotSpendingTxnsInConfidenceType tx, ConfidenceType/IN_CONFLICT))))
             (§ block
                 ;; tx is a double spend against a pending tx or spends outputs of a tx already IN_CONFLICT.
                 ;; Add tx to the pending pool.  Update the confidence type of tx, the txns in conflict with tx
@@ -52965,7 +52974,7 @@
             )
             (§ if (.. log (isInfoEnabled)))
             (§ block
-                (.. log (info "Estimated balance is now: {}", (§ expr (.. (getBalance BalanceType/ESTIMATED) (toFriendlyString)))))
+                (.. log (info "Estimated balance is now: {}", (.. (getBalance BalanceType/ESTIMATED) (toFriendlyString))))
             )
 
             ;; Mark any keys used in the outputs as "used", this allows wallet UI's to auto-advance the current key
@@ -52975,12 +52984,12 @@
             (§ block
                 (§ var #_"Coin" (§ name valueSentFromMe) (.. tx (getValueSentFromMe this)))
                 (§ var #_"Coin" (§ name newBalance) (.. balance (add valueSentToMe) (subtract valueSentFromMe)))
-                (§ if (§ expr 0 < (.. valueSentToMe (signum))))
+                (§ if (< 0 (.. valueSentToMe (signum))))
                 (§ block
                     (checkBalanceFuturesLocked nil)
                     (queueOnCoinsReceived tx, balance, newBalance)
                 )
-                (§ if (§ expr 0 < (.. valueSentFromMe (signum))))
+                (§ if (< 0 (.. valueSentFromMe (signum))))
                 (§ block
                     (queueOnCoinsSent tx, balance, newBalance)
                 )
@@ -53457,11 +53466,11 @@
             )
         )
 
-        (§ if (§ expr pool == Pool/UNSPENT || pool == Pool/PENDING))
+        (§ if (or (== pool Pool/UNSPENT) (== pool Pool/PENDING)))
         (§ block
             (§ for (§ var #_"TransactionOutput" (§ name output)) :for (.. tx (getOutputs)))
             (§ block
-                (§ if (§ expr (.. output (isAvailableForSpending)) && (.. output (isMine this))))
+                (§ if (and (.. output (isAvailableForSpending)) (.. output (isMine this))))
                 (§ block
                     (.. myUnspents (add output))
                 )
@@ -53499,8 +53508,8 @@
             (Preconditions/checkArgument (<= 0 numTransactions))
 
             ;; Firstly, put all transactions into an array.
-            (§ var #_"int" (§ name size) (§ expr (.. unspent (size)) + (.. spent (size)) + (.. pending (size))))
-            (§ if (§ expr size < numTransactions || numTransactions == 0))
+            (§ var #_"int" (§ name size) (+ (.. unspent (size)) (.. spent (size)) (.. pending (size))))
+            (§ if (or (< size numTransactions) (== numTransactions 0)))
             (§ block
                 (§ ass (§ name numTransactions) size)
             )
@@ -53508,7 +53517,7 @@
             (§ var #_"ArrayList<Transaction>" (§ name all) (§ new #_"ArrayList<>" (getTransactions includeDead)))
             ;; Order by update time.
             (Collections/sort all, Transaction/SORT_TX_BY_UPDATE_TIME)
-            (§ if (§ expr numTransactions == (.. all (size))))
+            (§ if (== numTransactions (.. all (size))))
             (§ block
                 (§ return all)
             )
@@ -53613,7 +53622,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr fromHeight == 0))
+            (§ if (== fromHeight 0))
             (§ block
                 (clearTransactions)
                 (saveLater)
@@ -53656,10 +53665,10 @@
             (§ for (§ var #_"Iterator<Transaction>" (§ name i) (.. pending (values) (iterator))) :for (.. i (hasNext)) :for (§ expr ))
             (§ block
                 (§ var #_"Transaction" (§ name tx) (.. i (next)))
-                (§ if (§ expr (isTransactionRisky tx, nil) && (§ not acceptRiskyTransactions)))
+                (§ if (and (isTransactionRisky tx, nil) (not acceptRiskyTransactions)))
                 (§ block
                     (.. log (debug "Found risky transaction {} in wallet during cleanup.", (.. tx (getHashAsString))))
-                    (§ if (§ not (.. tx (isAnyOutputSpent))))
+                    (§ if (not (.. tx (isAnyOutputSpent))))
                     (§ block
                         ;; Sync myUnspents with the change.
                         (§ for (§ var #_"TransactionInput" (§ name input)) :for (.. tx (getInputs)))
@@ -53697,7 +53706,7 @@
                 (saveLater)
                 (§ if (.. log (isInfoEnabled)))
                 (§ block
-                    (.. log (info "Estimated balance is now: {}", (§ expr (.. (getBalance BalanceType/ESTIMATED) (toFriendlyString)))))
+                    (.. log (info "Estimated balance is now: {}", (.. (getBalance BalanceType/ESTIMATED) (toFriendlyString))))
                 )
             )
         )
@@ -53876,22 +53885,22 @@
             (§ if includeTransactions)
             (§ block
                 ;; Print the transactions themselves.
-                (§ if (§ expr 0 < (.. pending (size))))
+                (§ if (< 0 (.. pending (size))))
                 (§ block
                     (.. sb (append "\n>>> PENDING:\n"))
                     (toStringHelper sb, pending, chain, Transaction/SORT_TX_BY_UPDATE_TIME)
                 )
-                (§ if (§ expr 0 < (.. unspent (size))))
+                (§ if (< 0 (.. unspent (size))))
                 (§ block
                     (.. sb (append "\n>>> UNSPENT:\n"))
                     (toStringHelper sb, unspent, chain, Transaction/SORT_TX_BY_HEIGHT)
                 )
-                (§ if (§ expr 0 < (.. spent (size))))
+                (§ if (< 0 (.. spent (size))))
                 (§ block
                     (.. sb (append "\n>>> SPENT:\n"))
                     (toStringHelper sb, spent, chain, Transaction/SORT_TX_BY_HEIGHT)
                 )
-                (§ if (§ expr 0 < (.. dead (size))))
+                (§ if (< 0 (.. dead (size))))
                 (§ block
                     (.. sb (append "\n>>> DEAD:\n"))
                     (toStringHelper sb, dead, chain, Transaction/SORT_TX_BY_UPDATE_TIME)
@@ -54201,15 +54210,15 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr balanceType == BalanceType/AVAILABLE || balanceType == BalanceType/AVAILABLE_SPENDABLE))
+            (§ if (or (== balanceType BalanceType/AVAILABLE) (== balanceType BalanceType/AVAILABLE_SPENDABLE)))
             (§ block
-                (§ var #_"List<TransactionOutput>" (§ name candidates) (calculateAllSpendCandidates true, (§ expr balanceType == BalanceType/AVAILABLE_SPENDABLE)))
+                (§ var #_"List<TransactionOutput>" (§ name candidates) (calculateAllSpendCandidates true, (== balanceType BalanceType/AVAILABLE_SPENDABLE)))
                 (§ var #_"CoinSelection" (§ name selection) (.. coinSelector (select NetworkParameters/MAX_MONEY, candidates)))
                 (§ return (.. selection valueGathered))
             )
-            (§ elseif (§ expr balanceType == BalanceType/ESTIMATED || balanceType == BalanceType/ESTIMATED_SPENDABLE))
+            (§ elseif (or (== balanceType BalanceType/ESTIMATED) (== balanceType BalanceType/ESTIMATED_SPENDABLE)))
             (§ block
-                (§ var #_"List<TransactionOutput>" (§ name all) (calculateAllSpendCandidates false, (§ expr balanceType == BalanceType/ESTIMATED_SPENDABLE)))
+                (§ var #_"List<TransactionOutput>" (§ name all) (calculateAllSpendCandidates false, (== balanceType BalanceType/ESTIMATED_SPENDABLE)))
                 (§ var #_"Coin" (§ name value) Coin/ZERO)
                 (§ for (§ var #_"TransactionOutput" (§ name out)) :for all)
                 (§ block
@@ -54287,7 +54296,7 @@
         (§ block
             (§ var #_"SettableFuture<Coin>" (§ name future) (SettableFuture/create))
             (§ var #_"Coin" (§ name current) (getBalance type))
-            (§ if (§ expr 0 <= (.. current (compareTo value))))
+            (§ if (<= 0 (.. current (compareTo value))))
             (§ block
                 ;; Already have enough.
                 (.. future (set current))
@@ -54372,7 +54381,7 @@
             (§ for (§ var #_"TransactionInput" (§ name in)) :for (.. tx (getInputs)))
             (§ block
                 (§ var #_"TransactionOutput" (§ name prevOut) (.. in (getConnectedOutput)))
-                (§ if (§ expr prevOut != nil && (.. prevOut (isMine this))))
+                (§ if (and (some? prevOut) (.. prevOut (isMine this))))
                 (§ block
                     (§ ass (§ name txTotal) (.. txTotal (subtract (.. prevOut (getValue)))))
                 )
@@ -54404,7 +54413,7 @@
             (§ var #_"Coin" (§ name txOutputTotal) Coin/ZERO)
             (§ for (§ var #_"TransactionOutput" (§ name out)) :for (.. tx (getOutputs)))
             (§ block
-                (§ if (§ not (.. out (isMine this))))
+                (§ if (not (.. out (isMine this))))
                 (§ block
                     (§ ass (§ name txOutputTotal) (.. txOutputTotal (add (.. out (getValue)))))
                 )
@@ -54415,7 +54424,7 @@
             (§ for (§ var #_"TransactionInput" (§ name in)) :for (.. tx (getInputs)))
             (§ block
                 (§ var #_"TransactionOutput" (§ name prevOut) (.. in (getConnectedOutput)))
-                (§ if (§ expr prevOut != nil && (.. prevOut (isMine this))))
+                (§ if (and (some? prevOut) (.. prevOut (isMine this))))
                 (§ block
                     (§ ass (§ name txOwnedInputsTotal) (.. txOwnedInputsTotal (add (.. prevOut (getValue)))))
                 )
@@ -54423,7 +54432,7 @@
 
             ;; If there is an input that isn't from us, i.e. this is a shared transaction.
             (§ var #_"Coin" (§ name txInputsTotal) (.. tx (getInputSum)))
-            (§ if (§ expr txOwnedInputsTotal != txInputsTotal))
+            (§ if (!= txOwnedInputsTotal txInputsTotal))
             (§ block
                 ;; Multiply our output total by the appropriate proportion to account for the inputs that we don't own.
                 (§ var #_"BigInteger" (§ name txOutputTotalNum) (§ new #_"BigInteger" (.. txOutputTotal (toString))))
@@ -54609,7 +54618,7 @@
     (§ block
         ;; Should not be locked here, as we're going to call into the broadcaster and that might want to hold its
         ;; own lock.  sendCoinsOffline handles everything that needs to be locked.
-        (Preconditions/checkState (§ not (.. lock (isHeldByCurrentThread))))
+        (Preconditions/checkState (not (.. lock (isHeldByCurrentThread))))
 
         ;; Commit the TX to the wallet immediately so the spent coins won't be reused.
         ;; TODO: We should probably allow the request to specify tx commit only after the network has accepted it.
@@ -54728,7 +54737,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (Preconditions/checkArgument (§ not (.. req completed)), "Given SendRequest has already been completed.")
+            (Preconditions/checkArgument (not (.. req completed)), "Given SendRequest has already been completed.")
 
             ;; Calculate the amount of value we need to import.
             (§ var #_"Coin" (§ name value) Coin/ZERO)
@@ -54757,7 +54766,7 @@
             (§ var #_"List<TransactionInput>" (§ name originalInputs) (§ new #_"ArrayList<>" (.. req tx (getInputs))))
 
             ;; Check for dusty sends and the OP_RETURN limit.
-            (§ if (§ expr (.. req ensureMinRequiredFee) && (§ not (.. req emptyWallet)))) ;; Min fee checking is handled later for emptyWallet.
+            (§ if (and (.. req ensureMinRequiredFee) (not (.. req emptyWallet)))) ;; Min fee checking is handled later for emptyWallet.
             (§ block
                 (§ var #_"int" (§ name opReturnCount) 0)
                 (§ for (§ var #_"TransactionOutput" (§ name output)) :for (.. req tx (getOutputs)))
@@ -54781,12 +54790,12 @@
             ;; with the actual outputs that'll be used to gather the required amount of value.  In this way, users
             ;; can customize coin selection policies.  The call below will ignore immature coinbases and outputs
             ;; we don't have the keys for.
-            (§ var #_"List<TransactionOutput>" (§ name candidates) (calculateAllSpendCandidates true, (§ expr (.. req missingSigsMode) == MissingSigsMode/THROW)))
+            (§ var #_"List<TransactionOutput>" (§ name candidates) (calculateAllSpendCandidates true, (== (.. req missingSigsMode) MissingSigsMode/THROW)))
 
             (§ var #_"CoinSelection" (§ name bestCoinSelection))
             (§ var #_"TransactionOutput" (§ name bestChangeOutput) nil)
             (§ var #_"List<Coin>" (§ name updatedOutputValues) nil)
-            (§ if (§ not (.. req emptyWallet)))
+            (§ if (not (.. req emptyWallet)))
             (§ block
                 ;; This can throw InsufficientMoneyException.
                 (§ var #_"FeeCalculation" (§ name feeCalculation) (calculateFee req, value, originalInputs, (.. req ensureMinRequiredFee), candidates))
@@ -54798,7 +54807,7 @@
             (§ block
                 ;; We're being asked to empty the wallet.  What this means is ensuring "tx" has only a single output
                 ;; of the total value we can currently spend as determined by the selector, and then subtracting the fee.
-                (Preconditions/checkState (§ expr (.. req tx (getOutputs) (size)) == 1), "Empty wallet TX must have a single output only.")
+                (Preconditions/checkState (== (.. req tx (getOutputs) (size)) 1), "Empty wallet TX must have a single output only.")
 
                 (§ var #_"CoinSelector" (§ name selector) (or (.. req coinSelector) coinSelector))
                 (§ ass (§ name bestCoinSelection) (.. selector (select (.. params (getMaxMoney)), candidates)))
@@ -54815,7 +54824,7 @@
             (§ if (.. req emptyWallet))
             (§ block
                 (§ var #_"Coin" (§ name feePerKb) (or (.. req feePerKb) Coin/ZERO))
-                (§ if (§ not (adjustOutputDownwardsForFee (.. req tx), bestCoinSelection, feePerKb, (.. req ensureMinRequiredFee))))
+                (§ if (not (adjustOutputDownwardsForFee (.. req tx), bestCoinSelection, feePerKb, (.. req ensureMinRequiredFee))))
                 (§ block
                     (§ throw (§ new #_"CouldNotAdjustDownwards"))
                 )
@@ -54823,7 +54832,7 @@
 
             (§ if (some? updatedOutputValues))
             (§ block
-                (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. updatedOutputValues (size))) :for (§ ass (§ name i) (+ i 1)))
+                (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. updatedOutputValues (size))) :for (§ ass (§ name i) (+ i 1)))
                 (§ block
                     (.. req tx (getOutput i) (setValue (.. updatedOutputValues (get i))))
                 )
@@ -54890,8 +54899,8 @@
             (§ var #_"Transaction" (§ name tx) (.. req tx))
             (§ var #_"List<TransactionInput>" (§ name inputs) (.. tx (getInputs)))
             (§ var #_"List<TransactionOutput>" (§ name outputs) (.. tx (getOutputs)))
-            (Preconditions/checkState (§ expr 0 < (.. inputs (size))))
-            (Preconditions/checkState (§ expr 0 < (.. outputs (size))))
+            (Preconditions/checkState (< 0 (.. inputs (size))))
+            (Preconditions/checkState (< 0 (.. outputs (size))))
 
             (§ var #_"KeyBag" (§ name maybeDecryptingKeyBag) (§ new #_"DecryptingKeyBag" this, (.. req aesKey)))
 
@@ -54929,7 +54938,7 @@
             (§ var #_"TransactionSigner.ProposedTransaction" (§ name proposal) (§ new #_"TransactionSigner.ProposedTransaction" tx))
             (§ for (§ var #_"TransactionSigner" (§ name signer)) :for signers)
             (§ block
-                (§ if (§ not (.. signer (signInputs proposal, maybeDecryptingKeyBag))))
+                (§ if (not (.. signer (signInputs proposal, maybeDecryptingKeyBag))))
                 (§ block
                     (.. log (info "{} returned false for the tx", (.. signer (getClass) (getName))))
                 )
@@ -54951,13 +54960,13 @@
     (§ block
         (§ var #_"int" (§ name size) (+ (.. tx (unsafeBitcoinSerialize) length) (estimateBytesForSigning coinSelection)))
         (§ var #_"Coin" (§ name fee) (.. feePerKb (multiply size) (divide 1000)))
-        (§ if (§ expr ensureMinRequiredFee && (.. fee (compareTo Transaction/REFERENCE_DEFAULT_MIN_TX_FEE)) < 0))
+        (§ if (and ensureMinRequiredFee (< (.. fee (compareTo Transaction/REFERENCE_DEFAULT_MIN_TX_FEE)) 0)))
         (§ block
             (§ ass (§ name fee) Transaction/REFERENCE_DEFAULT_MIN_TX_FEE)
         )
         (§ var #_"TransactionOutput" (§ name output) (.. tx (getOutput 0)))
         (.. output (setValue (.. output (getValue) (subtract fee))))
-        (§ not (.. output (isDust)))
+        (not (.. output (isDust)))
     )
 
     ;;;
@@ -54985,12 +54994,12 @@
             (§ var #_"List<TransactionOutput>" (§ name candidates) (§ new #_"ArrayList<>" (.. myUnspents (size))))
             (§ for (§ var #_"TransactionOutput" (§ name output)) :for myUnspents)
             (§ block
-                (§ if (§ expr excludeUnsignable && (§ not (canSignFor (.. output (getScriptPubKey))))))
+                (§ if (and excludeUnsignable (not (canSignFor (.. output (getScriptPubKey))))))
                 (§ block
                     (§ continue )
                 )
                 (§ var #_"Transaction" (§ name transaction) (Preconditions/checkNotNull (.. output (getParentTransaction))))
-                (§ if (§ expr excludeImmatureCoinbases && (§ not (.. transaction (isMature)))))
+                (§ if (and excludeImmatureCoinbases (not (.. transaction (isMature)))))
                 (§ block
                     (§ continue )
                 )
@@ -55015,19 +55024,19 @@
         (§ block
             (§ var #_"byte[]" (§ name pubkey) (.. script (getPubKey)))
             (§ var #_"ECKey" (§ name key) (findKeyFromPubKey pubkey))
-            (§ return (§ expr key != nil && (§ expr (.. key (isEncrypted)) || (.. key (hasPrivKey)))))
+            (§ return (and (some? key) (or (.. key (isEncrypted)) (.. key (hasPrivKey)))))
         )
 
         (§ if (.. script (isPayToScriptHash)))
         (§ block
             (§ var #_"RedeemData" (§ name data) (findRedeemDataFromScriptHash (.. script (getPubKeyHash))))
-            (§ return (§ expr data != nil && (canSignFor (.. data redeemScript))))
+            (§ return (and (some? data) (canSignFor (.. data redeemScript))))
         )
 
         (§ if (.. script (isSentToAddress)))
         (§ block
             (§ var #_"ECKey" (§ name key) (findKeyFromPubHash (.. script (getPubKeyHash))))
-            (§ return (§ expr key != nil && (§ expr (.. key (isEncrypted)) || (.. key (hasPrivKey)))))
+            (§ return (and (some? key) (or (.. key (isEncrypted)) (.. key (hasPrivKey)))))
         )
 
         (§ if (.. script (isSentToMultiSig)))
@@ -55035,7 +55044,7 @@
             (§ for (§ var #_"ECKey" (§ name pubkey)) :for (.. script (getPubKeys)))
             (§ block
                 (§ var #_"ECKey" (§ name key) (findKeyFromPubKey (.. pubkey (getPubKey))))
-                (§ if (§ expr key != nil && (§ expr (.. key (isEncrypted)) || (.. key (hasPrivKey)))))
+                (§ if (and (some? key) (or (.. key (isEncrypted)) (.. key (hasPrivKey)))))
                 (§ block
                     (§ return true)
                 )
@@ -55046,14 +55055,14 @@
             ;; Any script for which we are the recipient or sender counts.
             (§ var #_"byte[]" (§ name sender) (.. script (getCLTVPaymentChannelSenderPubKey)))
             (§ var #_"ECKey" (§ name senderKey) (findKeyFromPubKey sender))
-            (§ if (§ expr senderKey != nil && (§ expr (.. senderKey (isEncrypted)) || (.. senderKey (hasPrivKey)))))
+            (§ if (and (some? senderKey) (or (.. senderKey (isEncrypted)) (.. senderKey (hasPrivKey)))))
             (§ block
                 (§ return true)
             )
 
             (§ var #_"byte[]" (§ name recipient) (.. script (getCLTVPaymentChannelRecipientPubKey)))
             (§ var #_"ECKey" (§ name recipientKey) (findKeyFromPubKey sender))
-            (§ if (§ expr recipientKey != nil && (§ expr (.. recipientKey (isEncrypted)) || (.. recipientKey (hasPrivKey)))))
+            (§ if (and (some? recipientKey) (or (.. recipientKey (isEncrypted)) (.. recipientKey (hasPrivKey)))))
             (§ block
                 (§ return true)
             )
@@ -55155,7 +55164,7 @@
         #_public
         (§ method #_"int" (§ fn getParentTransactionDepthInBlocks) [])
         (§ block
-            (§ expr chainHeight - (.. output (getHeight)) + 1)
+            (+ (- chainHeight (.. output (getHeight))) 1)
         )
 
         #_override
@@ -55230,9 +55239,9 @@
 
             ;; Avoid spuriously informing the user of wallet/tx confidence changes whilst we're re-organizing.
             (Preconditions/checkState (== (.. confidenceChanged (size)) 0))
-            (Preconditions/checkState (§ not insideReorg))
+            (Preconditions/checkState (not insideReorg))
             (§ ass (§ name insideReorg) true)
-            (Preconditions/checkState (§ expr onWalletChangedSuppressions == 0))
+            (Preconditions/checkState (== onWalletChangedSuppressions 0))
             (§ ass (§ name onWalletChangedSuppressions) (+ onWalletChangedSuppressions 1))
 
             ;; Map block hash to transactions that appear in it.  We ensure that the map values are sorted according
@@ -55308,8 +55317,8 @@
                         (.. oldChainTxns (add tx))
                         (.. unspent (remove txHash))
                         (.. spent (remove txHash))
-                        (Preconditions/checkState (§ not (.. pending (containsKey txHash))))
-                        (Preconditions/checkState (§ not (.. dead (containsKey txHash))))
+                        (Preconditions/checkState (not (.. pending (containsKey txHash))))
+                        (Preconditions/checkState (not (.. dead (containsKey txHash))))
                     )
                 )
             )
@@ -55416,7 +55425,7 @@
     #_public
     (§ method #_"void" (§ fn beginBloomFilterCalculation) [])
     (§ block
-        (§ if (§ expr 1 < (.. bloomFilterGuard (incrementAndGet))))
+        (§ if (< 1 (.. bloomFilterGuard (incrementAndGet))))
         (§ block
             (§ return nil)
         )
@@ -55464,7 +55473,7 @@
     #_public
     (§ method #_"void" (§ fn endBloomFilterCalculation) [])
     (§ block
-        (§ if (§ expr 0 < (.. bloomFilterGuard (decrementAndGet))))
+        (§ if (< 0 (.. bloomFilterGuard (decrementAndGet))))
         (§ block
             (§ return nil)
         )
@@ -55549,8 +55558,8 @@
     (§ method- #_"boolean" (§ fn isTxOutputBloomFilterable) [#_"TransactionOutput" (§ name out)])
     (§ block
         (§ var #_"Script" (§ name script) (.. out (getScriptPubKey)))
-        (§ var #_"boolean" (§ name isScriptTypeSupported) (§ expr (.. script (isSentToRawPubKey)) || (.. script (isPayToScriptHash))))
-        (§ expr isScriptTypeSupported && (.. myUnspents (contains out)))
+        (§ var #_"boolean" (§ name isScriptTypeSupported) (or (.. script (isSentToRawPubKey)) (.. script (isPayToScriptHash))))
+        (and isScriptTypeSupported (.. myUnspents (contains out)))
     )
 
     ;;;
@@ -55610,7 +55619,7 @@
             (addSuppliedInputs tx, (.. req tx (getInputs)))
 
             (§ var #_"Coin" (§ name valueNeeded) value)
-            (§ if (§ not (.. req recipientsPayFees)))
+            (§ if (not (.. req recipientsPayFees)))
             (§ block
                 (§ ass (§ name valueNeeded) (.. valueNeeded (add fee)))
             )
@@ -55619,7 +55628,7 @@
                 (§ ass (§ name (.. result updatedOutputValues)) (§ new #_"ArrayList<Coin>"))
             )
 
-            (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. req tx (getOutputs) (size))) :for (§ ass (§ name i) (+ i 1)))
+            (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. req tx (getOutputs) (size))) :for (§ ass (§ name i) (+ i 1)))
             (§ block
                 (§ var #_"TransactionOutput" (§ name output) (§ new #_"TransactionOutput" params, tx, (.. req tx (getOutputs) (get i) (bitcoinSerialize)), 0))
                 (§ if (.. req recipientsPayFees))
@@ -55627,10 +55636,10 @@
                     ;; Subtract fee equally from each selected recipient.
                     (.. output (setValue (.. output (getValue) (subtract (.. fee (divide (.. req tx (getOutputs) (size))))))))
                     ;; First receiver pays the remainder not divisible by output count.
-                    (§ if (§ expr i == 0))
+                    (§ if (== i 0))
                     (§ block
                         ;; Subtract fee equally from each selected recipient.
-                        (.. output (setValue (.. output (getValue) (subtract (§ expr (.. fee (divideAndRemainder (.. req tx (getOutputs) (size))))[1])))))
+                        (.. output (setValue (.. output (getValue) (subtract (§ ai (.. fee (divideAndRemainder (.. req tx (getOutputs) (size)))) 1)))))
                     )
                     (.. result updatedOutputValues (add (.. output (getValue))))
                     (§ if (.. output (getMinNonDustValue) (isGreaterThan (.. output (getValue)))))
@@ -55665,7 +55674,7 @@
                 )
 
                 (§ var #_"TransactionOutput" (§ name changeOutput) (§ new #_"TransactionOutput" params, tx, change, changeAddress))
-                (§ if (§ expr (.. req recipientsPayFees) && (.. changeOutput (isDust))))
+                (§ if (and (.. req recipientsPayFees) (.. changeOutput (isDust))))
                 (§ block
                     ;; We do not move dust-change to fees, because the sender would end up paying more than requested.
                     ;; This would be against the purpose of the all-inclusive feature.
@@ -55704,17 +55713,17 @@
             )
 
             (§ var #_"int" (§ name size) (.. tx (unsafeBitcoinSerialize) length))
-            (§ ass (§ name size) (§ expr size + (estimateBytesForSigning selection)))
+            (§ ass (§ name size) (+ size (estimateBytesForSigning selection)))
 
             (§ var #_"Coin" (§ name feePerKb) (.. req feePerKb))
-            (§ if (§ expr needAtLeastReferenceFee && (.. feePerKb (compareTo Transaction/REFERENCE_DEFAULT_MIN_TX_FEE)) < 0))
+            (§ if (and needAtLeastReferenceFee (< (.. feePerKb (compareTo Transaction/REFERENCE_DEFAULT_MIN_TX_FEE)) 0)))
             (§ block
                 (§ ass (§ name feePerKb) Transaction/REFERENCE_DEFAULT_MIN_TX_FEE)
             )
 
             (§ var #_"Coin" (§ name feeNeeded) (.. feePerKb (multiply size) (divide 1000)))
 
-            (§ if (§ not (.. fee (isLessThan feeNeeded))))
+            (§ if (not (.. fee (isLessThan feeNeeded))))
             (§ block
                 ;; Done, enough fee included.
                 (§ break )
@@ -55757,7 +55766,7 @@
                     (§ ass (§ name redeemScript) (.. (findRedeemDataFromScriptHash (.. script (getPubKeyHash))) redeemScript))
                     (Preconditions/checkNotNull redeemScript, "Coin selection includes unspendable outputs")
                 )
-                (§ ass (§ name size) (§ expr size + (.. script (getNumberOfBytesRequiredToSpend key, redeemScript))))
+                (§ ass (§ name size) (+ size (.. script (getNumberOfBytesRequiredToSpend key, redeemScript))))
             )
             (§ catch #_"ScriptException" (§ name e))
             (§ block
@@ -55796,7 +55805,7 @@
         (.. lock (lock))
         (§ try )
         (§ block
-            (§ if (§ expr vTransactionBroadcaster == broadcaster))
+            (§ if (== vTransactionBroadcaster broadcaster))
             (§ block
                 (§ return nil)
             )
@@ -55817,7 +55826,7 @@
         (§ for (§ var #_"Transaction" (§ name tx)) :for toBroadcast)
         (§ block
             (§ var #_"ConfidenceType" (§ name confidenceType) (.. tx (getConfidence) (getConfidenceType)))
-            (Preconditions/checkState (§ or (== confidenceType ConfidenceType/PENDING) || (== confidenceType ConfidenceType/IN_CONFLICT)), "Expected PENDING or IN_CONFLICT, was %s.", confidenceType)
+            (Preconditions/checkState (or (== confidenceType ConfidenceType/PENDING) (== confidenceType ConfidenceType/IN_CONFLICT)), "Expected PENDING or IN_CONFLICT, was %s.", confidenceType)
             ;; Re-broadcast even if it's marked as already seen for two reasons:
             ;; 1. Old wallets may have transactions marked as broadcast by 1 peer when
             ;;    in reality the network never saw it, due to bugs.
@@ -55852,7 +55861,7 @@
     (§ method #_"Date" (§ fn getKeyRotationTime) [])
     (§ block
         (§ var #_"long" (§ name keyRotationTimestamp) vKeyRotationTimestamp)
-        (when (§ expr keyRotationTimestamp != 0) (§ new #_"Date" (* keyRotationTimestamp 1000)))
+        (when (!= keyRotationTimestamp 0) (§ new #_"Date" (* keyRotationTimestamp 1000)))
     )
 
     ;;;
@@ -55879,7 +55888,7 @@
     (§ method #_"boolean" (§ fn isKeyRotating) [#_"ECKey" (§ name key)])
     (§ block
         (§ var #_"long" (§ name time) vKeyRotationTimestamp)
-        (§ expr time != 0 && (.. key (getCreationTimeSeconds)) < time)
+        (and (!= time 0) (< (.. key (getCreationTimeSeconds)) time))
     )
 
     ;;;
@@ -55906,7 +55915,7 @@
         (§ try )
         (§ block
             (§ ass (§ name txns) (maybeRotateKeys aesKey, signAndSend))
-            (§ if (§ not signAndSend))
+            (§ if (not signAndSend))
             (§ block
                 (§ return (Futures/immediateFuture txns))
             )
@@ -55916,7 +55925,7 @@
             (.. keyChainGroupLock (unlock))
             (.. lock (unlock))
         )
-        (Preconditions/checkState (§ not (.. lock (isHeldByCurrentThread))))
+        (Preconditions/checkState (not (.. lock (isHeldByCurrentThread))))
         (§ var #_"ArrayList<ListenableFuture<Transaction>>" (§ name futures) (§ new #_"ArrayList<>" (.. txns (size))))
         (§ var #_"TransactionBroadcaster" (§ name broadcaster) vTransactionBroadcaster)
         (§ for (§ var #_"Transaction" (§ name tx)) :for txns)
@@ -55964,7 +55973,7 @@
         (§ var #_"List<Transaction>" (§ name results) (Lists/newLinkedList))
         ;; TODO: Handle chain replays here.
         (§ var #_"long" (§ name keyRotationTimestamp) vKeyRotationTimestamp)
-        (§ if (§ expr keyRotationTimestamp == 0))
+        (§ if (== keyRotationTimestamp 0))
         (§ block
             (§ return results) ;; Nothing to do.
         )
@@ -55973,7 +55982,7 @@
         (§ var #_"boolean" (§ name allChainsRotating) true)
         (§ for (§ var #_"DeterministicKeyChain" (§ name chain)) :for (.. keyChainGroup (getDeterministicKeyChains)))
         (§ block
-            (§ if (§ expr keyRotationTimestamp <= (.. chain (getEarliestKeyCreationTime))))
+            (§ if (<= keyRotationTimestamp (.. chain (getEarliestKeyCreationTime))))
             (§ block
                 (§ ass (§ name allChainsRotating) false)
                 (§ break )
@@ -56015,7 +56024,7 @@
                 (.. results (add tx))
             )
         )
-        (§ again (§ expr tx != nil && (.. tx (getInputs) (size)) == KeyTimeCoinSelector/MAX_SIMULTANEOUS_INPUTS))
+        (§ again (and (some? tx) (== (.. tx (getInputs) (size)) KeyTimeCoinSelector/MAX_SIMULTANEOUS_INPUTS)))
 
         results
     )
@@ -56056,7 +56065,7 @@
             )
             ;; When not signing, don't waste addresses.
             (.. rekeyTx (addOutput (.. toMove valueGathered), (if sign (freshReceiveAddress) (currentReceiveAddress))))
-            (§ if (§ not (adjustOutputDownwardsForFee rekeyTx, toMove, Transaction/DEFAULT_TX_FEE, true)))
+            (§ if (not (adjustOutputDownwardsForFee rekeyTx, toMove, Transaction/DEFAULT_TX_FEE, true)))
             (§ block
                 (.. log (error "Failed to adjust rekey tx for fees."))
                 (§ return nil)
@@ -56171,7 +56180,7 @@
                 (§ throws #_"Exception")
             (§ block
                 ;; Runs in an auto save thread.
-                (§ if (§ not (.. savePending (getAndSet false))))
+                (§ if (not (.. savePending (getAndSet false))))
                 (§ block
                     ;; Some other scheduled request already beat us to it.
                     (§ return nil)
@@ -56310,7 +56319,7 @@
     ;; 512 MB
     #_private
     #_static
-    (§ def- #_"int" (§ name WALLET_SIZE_LIMIT) (§ expr 512 * 1024 * 1024))
+    (§ def- #_"int" (§ name WALLET_SIZE_LIMIT) (* 512 1024 1024))
     ;; Used for de-serialization.
     #_protected
     (§ field #_"Map<ByteString, Transaction>" (§ name txMap))
@@ -56430,7 +56439,7 @@
             (.. walletBuilder (setLastSeenBlockHash (hashToByteString lastSeenBlockHash)))
             (.. walletBuilder (setLastSeenBlockHeight (.. wallet (getLastBlockSeenHeight))))
         )
-        (§ if (§ expr 0 < (.. wallet (getLastBlockSeenTimeSecs))))
+        (§ if (< 0 (.. wallet (getLastBlockSeenTimeSecs))))
         (§ block
             (.. walletBuilder (setLastSeenBlockTimeSecs (.. wallet (getLastBlockSeenTimeSecs))))
         )
@@ -56498,7 +56507,7 @@
             (.. txBuilder (setUpdatedAt (.. tx (getUpdateTime) (getTime))))
         )
 
-        (§ if (§ expr 0 < (.. tx (getLockTime))))
+        (§ if (< 0 (.. tx (getLockTime))))
         (§ block
             (.. txBuilder (setLockTime (§ cast #_"int" (.. tx (getLockTime)))))
         )
@@ -56818,11 +56827,11 @@
     (§ method #_"Wallet" (§ fn readWallet) [#_"NetworkParameters" (§ name params), #_"Protos.Wallet" (§ name walletProto), #_"boolean" (§ name forceReset)])
         (§ throws #_"UnreadableWalletException")
     (§ block
-        (§ if (§ expr CURRENT_WALLET_VERSION < (.. walletProto (getVersion))))
+        (§ if (< CURRENT_WALLET_VERSION (.. walletProto (getVersion))))
         (§ block
             (§ throw (§ new #_"UnreadableWalletException.FutureVersion"))
         )
-        (§ if (§ not (.. walletProto (getNetworkIdentifier) (equals (.. params (getId))))))
+        (§ if (not (.. walletProto (getNetworkIdentifier) (equals (.. params (getId))))))
         (§ block
             (§ throw (§ new #_"UnreadableWalletException.WrongNetwork"))
         )
@@ -56869,7 +56878,7 @@
             )
 
             ;; Update the lastBlockSeenHash.
-            (§ if (§ not (.. walletProto (hasLastSeenBlockHash))))
+            (§ if (not (.. walletProto (hasLastSeenBlockHash))))
             (§ block
                 (.. wallet (setLastBlockSeenHash nil))
             )
@@ -56878,7 +56887,7 @@
                 (.. wallet (setLastBlockSeenHash (byteStringToHash (.. walletProto (getLastSeenBlockHash)))))
             )
 
-            (§ if (§ not (.. walletProto (hasLastSeenBlockHeight))))
+            (§ if (not (.. walletProto (hasLastSeenBlockHeight))))
             (§ block
                 (.. wallet (setLastBlockSeenHeight -1))
             )
@@ -56961,21 +56970,21 @@
         (§ for (§ var #_"Protos.TransactionInput" (§ name inputProto)) :for (.. txProto (getTransactionInputList)))
         (§ block
             (§ var #_"byte[]" (§ name scriptBytes) (.. inputProto (getScriptBytes) (toByteArray)))
-            (§ var #_"TransactionOutPoint" (§ name outpoint) (§ new #_"TransactionOutPoint" params, (§ expr (.. inputProto (getTransactionOutPointIndex)) & 0xffffffff), (byteStringToHash (.. inputProto (getTransactionOutPointHash)))))
+            (§ var #_"TransactionOutPoint" (§ name outpoint) (§ new #_"TransactionOutPoint" params, (& 0xffffffff (.. inputProto (getTransactionOutPointIndex))), (byteStringToHash (.. inputProto (getTransactionOutPointHash)))))
             (§ var #_"Coin" (§ name value) (when (.. inputProto (hasValue)) (Coin/valueOf (.. inputProto (getValue)))))
             (§ var #_"TransactionInput" (§ name input) (§ new #_"TransactionInput" params, tx, scriptBytes, outpoint, value))
             (§ if (.. inputProto (hasSequence)))
             (§ block
-                (.. input (setSequenceNumber (§ expr 0xffffffff & (.. inputProto (getSequence)))))
+                (.. input (setSequenceNumber (& 0xffffffff (.. inputProto (getSequence)))))
             )
             (.. tx (addInput input))
         )
 
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. txProto (getBlockHashCount))) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. txProto (getBlockHashCount))) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ var #_"ByteString" (§ name blockHash) (.. txProto (getBlockHash i)))
             (§ var #_"int" (§ name relativityOffset) 0)
-            (§ if (§ expr 0 < (.. txProto (getBlockRelativityOffsetsCount))))
+            (§ if (< 0 (.. txProto (getBlockRelativityOffsetsCount))))
             (§ block
                 (§ ass (§ name relativityOffset) (.. txProto (getBlockRelativityOffsets i)))
             )
@@ -56984,7 +56993,7 @@
 
         (§ if (.. txProto (hasLockTime)))
         (§ block
-            (.. tx (setLockTime (§ expr 0xffffffff & (.. txProto (getLockTime)))))
+            (.. tx (setLockTime (& 0xffffffff (.. txProto (getLockTime)))))
         )
 
         (§ if (.. txProto (hasPurpose)))
@@ -57051,7 +57060,7 @@
 
         ;; Transaction should now be complete.
         (§ var #_"Sha256Hash" (§ name protoHash) (byteStringToHash (.. txProto (getHash))))
-        (§ if (§ not (.. tx (getHash) (equals protoHash))))
+        (§ if (not (.. tx (getHash) (equals protoHash))))
         (§ block
             (§ throw (§ new #_"UnreadableWalletException" (String/format Locale/US, "Transaction did not deserialize completely: %s vs %s", (.. tx (getHash)), protoHash)))
         )
@@ -57106,7 +57115,7 @@
             )
         )
 
-        (§ for (§ var #_"int" (§ name i) 0) :for (§ expr i < (.. tx (getOutputs) (size))) :for (§ ass (§ name i) (+ i 1)))
+        (§ for (§ var #_"int" (§ name i) 0) :for (< i (.. tx (getOutputs) (size))) :for (§ ass (§ name i) (+ i 1)))
         (§ block
             (§ var #_"TransactionOutput" (§ name output) (.. tx (getOutputs) (get i)))
             (§ var #_"Protos.TransactionOutput" (§ name transactionOutput) (.. txProto (getTransactionOutput i)))
@@ -57141,7 +57150,7 @@
     (§ block
         ;; We are lenient here because tx confidence is not an essential part of the wallet.
         ;; If the tx has an unknown type of confidence, ignore.
-        (§ if (§ not (.. confidenceProto (hasType))))
+        (§ if (not (.. confidenceProto (hasType))))
         (§ block
             (.. log (warn "Unknown confidence type for tx {}", (.. tx (getHashAsString))))
             (§ return nil)
@@ -57287,13 +57296,13 @@
             (§ var #_"CodedInputStream" (§ name cis) (CodedInputStream/newInstance is))
             (§ var #_"int" (§ name tag) (.. cis (readTag)))
             (§ var #_"int" (§ name field) (WireFormat/getTagFieldNumber tag))
-            (§ if (§ expr field != 1)) ;; network_identifier
+            (§ if (!= field 1)) ;; network_identifier
             (§ block
                 (§ return false)
             )
 
             (§ var #_"String" (§ name network) (.. cis (readString)))
-            (§ return (!= (NetworkParameters/fromID network) nil))
+            (§ return (some? (NetworkParameters/fromID network)))
         )
         (§ catch #_"IOException" (§ name _))
         (§ block
