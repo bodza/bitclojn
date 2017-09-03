@@ -84,7 +84,7 @@
  ;;
 #_public
 #_abstract
-(§ class #_"AbstractBlockChain"
+(§ class AbstractBlockChain
     #_private
     #_static
     (§ def- #_"Logger" AbstractBlockChain/log (LoggerFactory/getLogger (§ klass #_"AbstractBlockChain")))
@@ -125,12 +125,12 @@
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<TransactionReceivedInBlockListener>>" transactionReceivedListeners)
 
     ;; Holds a block header and, optionally, a list of tx hashes or block's transactions.
-    (§ class #_"AbstractBlockChain.OrphanBlock"
+    (§ class AbstractBlockChain/OrphanBlock
         (§ field #_"Block" block)
         (§ field #_"List<Sha256Hash>" filteredTxHashes)
         (§ field #_"Map<Sha256Hash, Transaction>" filteredTxn)
 
-        (§ constructor #_"AbstractBlockChain.OrphanBlock" [#_"Block" __block, #_nilable #_"List<Sha256Hash>" __filteredTxHashes, #_nilable #_"Map<Sha256Hash, Transaction>" __filteredTxn]
+        (§ constructor AbstractBlockChain/OrphanBlock [#_"Block" __block, #_nilable #_"List<Sha256Hash>" __filteredTxHashes, #_nilable #_"Map<Sha256Hash, Transaction>" __filteredTxn]
             (let [#_"boolean" __filtered (and (some? __filteredTxHashes) (some? __filteredTxn))]
                 (Preconditions/checkArgument (or (and (nil? (.. __block transactions)) __filtered) (and (some? (.. __block transactions)) (not __filtered))))
                 (§ ass (.. this block) __block)
@@ -167,7 +167,7 @@
     ;;; See {@link #AbstractBlockChain(Context, List, BlockStore)} ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"AbstractBlockChain" [#_"NetworkParameters" __params, #_"List<? extends Wallet>" __transactionReceivedListeners, #_"BlockStore" __blockStore]
+    (§ constructor AbstractBlockChain [#_"NetworkParameters" __params, #_"List<? extends Wallet>" __transactionReceivedListeners, #_"BlockStore" __blockStore]
         (§ this (Context/getOrCreate __params), __transactionReceivedListeners, __blockStore)
         this
     )
@@ -177,7 +177,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"AbstractBlockChain" [#_"Context" __context, #_"List<? extends Wallet>" __wallets, #_"BlockStore" __blockStore]
+    (§ constructor AbstractBlockChain [#_"Context" __context, #_"List<? extends Wallet>" __wallets, #_"BlockStore" __blockStore]
         (§ ass (.. this blockStore) __blockStore)
         (§ ass (.. this chainHead) (.. __blockStore (getChainHead)))
         (.. AbstractBlockChain/log (info "chain head is at height {}:\n{}", (.. this chainHead (getHeight)), (.. this chainHead (getHeader))))
@@ -1034,7 +1034,7 @@
     )
 
     #_public
-    (§ enum #_"AbstractBlockChain.NewBlockType"
+    (§ enum AbstractBlockChain/NewBlockType
         (§ item BEST_CHAIN)
         (§ item SIDE_CHAIN)
     )
@@ -1303,7 +1303,7 @@
  ; type) can contain a hash of a script instead.</p>
  ;;
 #_public
-(§ class #_"Address" (§ extends #_"VersionedChecksummedBytes")
+(§ class Address (§ extends VersionedChecksummedBytes)
     ;;;
      ; An address is a RIPEMD160 hash of a public key, therefore is always 160 bits or 20 bytes.
      ;;
@@ -1322,11 +1322,11 @@
      ;;
     #_public
     #_throws #_[ "WrongNetworkException" ]
-    (§ constructor #_"Address" [#_"NetworkParameters" __params, #_"int" __version, #_"byte[]" __hash160]
+    (§ constructor Address [#_"NetworkParameters" __params, #_"int" __version, #_"byte[]" __hash160]
         (§ super __version, __hash160)
 
         (Preconditions/checkNotNull __params)
-        (Preconditions/checkArgument (== (.. __hash160 length) 20), "Addresses are 160-bit hashes, so you must provide 20 bytes")
+        (Preconditions/checkArgument (== (.. __hash160 (alength)) 20), "Addresses are 160-bit hashes, so you must provide 20 bytes")
         (§ when (not (Address/isAcceptableVersion __params, __version))
             (throw (WrongNetworkException. __version, (.. __params (getAcceptableAddressCodes))))
         )
@@ -1378,10 +1378,10 @@
      ; <pre>new Address(MainNetParams.get(), Hex.decode("4a22c3c4cbb31e4d03b15550636762bda0baf85a"));</pre>
      ;;
     #_public
-    (§ constructor #_"Address" [#_"NetworkParameters" __params, #_"byte[]" __hash160]
+    (§ constructor Address [#_"NetworkParameters" __params, #_"byte[]" __hash160]
         (§ super (.. __params (getAddressHeader)), __hash160)
 
-        (Preconditions/checkArgument (== (.. __hash160 length) 20), "Addresses are 160-bit hashes, so you must provide 20 bytes")
+        (Preconditions/checkArgument (== (.. __hash160 (alength)) 20), "Addresses are 160-bit hashes, so you must provide 20 bytes")
         (§ ass (.. this params) __params)
         this
     )
@@ -1390,7 +1390,7 @@
     #_deprecated
     #_public
     #_throws #_[ "AddressFormatException" ]
-    (§ constructor #_"Address" [#_nilable #_"NetworkParameters" __params, #_"String" __address]
+    (§ constructor Address [#_nilable #_"NetworkParameters" __params, #_"String" __address]
         (§ super __address)
 
         (§ when (some? __params)
@@ -1512,15 +1512,15 @@
 #_(ns org.bitcoinj.core #_"AddressFormatException")
 
 #_public
-(§ class #_"AddressFormatException" (§ extends #_"IllegalArgumentException")
+(§ class AddressFormatException (§ extends IllegalArgumentException)
     #_public
-    (§ constructor #_"AddressFormatException" []
+    (§ constructor AddressFormatException []
         (§ super )
         this
     )
 
     #_public
-    (§ constructor #_"AddressFormatException" [#_"String" __message]
+    (§ constructor AddressFormatException [#_"String" __message]
         (§ super __message)
         this
     )
@@ -1538,7 +1538,7 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"AddressMessage" (§ extends #_"Message")
+(§ class AddressMessage (§ extends Message)
     #_private
     #_static
     (§ def- #_"long" AddressMessage/MAX_ADDRESSES 1024)
@@ -1558,7 +1558,7 @@
      ; @throws ProtocolException
      ;;
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"AddressMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"MessageSerializer" __setSerializer, #_"int" __length]
+    (§ constructor AddressMessage [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"MessageSerializer" __setSerializer, #_"int" __length]
         (§ super __params, __payload, __offset, __setSerializer, __length)
         this
     )
@@ -1572,19 +1572,19 @@
      ; @throws ProtocolException
      ;;
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"AddressMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"MessageSerializer" __serializer, #_"int" __length]
+    (§ constructor AddressMessage [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"MessageSerializer" __serializer, #_"int" __length]
         (§ super __params, __payload, 0, __serializer, __length)
         this
     )
 
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"AddressMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset]
+    (§ constructor AddressMessage [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset]
         (§ super __params, __payload, __offset, (.. __params (getDefaultSerializer)), Message/UNKNOWN_LENGTH)
         this
     )
 
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"AddressMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload]
+    (§ constructor AddressMessage [#_"NetworkParameters" __params, #_"byte[]" __payload]
         (§ super __params, __payload, 0, (.. __params (getDefaultSerializer)), Message/UNKNOWN_LENGTH)
         this
     )
@@ -1689,7 +1689,7 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"AlertMessage" (§ extends #_"Message")
+(§ class AlertMessage (§ extends Message)
     #_private
     (§ field- #_"byte[]" content)
     #_private
@@ -1726,7 +1726,7 @@
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"AlertMessage" [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
+    (§ constructor AlertMessage [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
         (§ super __params, __payloadBytes, 0)
         this
     )
@@ -1989,7 +1989,7 @@
  ; numbers), and finally represent the resulting base-58 digits as alphanumeric ASCII characters.
  ;;
 #_public
-(§ class #_"Base58"
+(§ class Base58
     #_public
     #_static
     (§ def #_"char[]" Base58/ALPHABET (.. "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" (toCharArray)))
@@ -2002,7 +2002,7 @@
     #_static
     (§ block
         (Arrays/fill Base58/INDEXES, -1)
-        (§ for [#_"int" __i 0] (< __i (.. Base58/ALPHABET length)) [(inc __i)]
+        (§ for [#_"int" __i 0] (< __i (.. Base58/ALPHABET (alength))) [(inc __i)]
             (§ ass Base58/INDEXES[Base58/ALPHABET[__i]] __i)
         )
     )
@@ -2016,21 +2016,21 @@
     #_public
     #_static
     (§ defn #_"String" Base58/encode [#_"byte[]" __input]
-        (§ when (== (.. __input length) 0)
+        (§ when (== (.. __input (alength)) 0)
             (§ return "")
         )
 
         ;; Count leading zeros.
         (let [#_"int" __zeros 0]
-            (§ for [] (and (< __zeros (.. __input length)) (== (aget __input __zeros) 0)) []
+            (§ for [] (and (< __zeros (.. __input (alength))) (== (aget __input __zeros) 0)) []
                 (§ ass __zeros (inc __zeros))
             )
 
             ;; Convert base-256 digits to base-58 digits (plus conversion to ASCII characters).
-            (§ ass __input (Arrays/copyOf __input, (.. __input length))) ;; since we modify it in-place
-            (let [#_"char[]" __encoded (char-array (* (.. __input length) 2))] ;; upper bound
-                (let [#_"int" __outputStart (.. __encoded length)]
-                    (§ for [#_"int" __inputStart __zeros] (< __inputStart (.. __input length)) []
+            (§ ass __input (Arrays/copyOf __input, (.. __input (alength)))) ;; since we modify it in-place
+            (let [#_"char[]" __encoded (char-array (* (.. __input (alength)) 2))] ;; upper bound
+                (let [#_"int" __outputStart (.. __encoded (alength))]
+                    (§ for [#_"int" __inputStart __zeros] (< __inputStart (.. __input (alength))) []
                         (§ ass __outputStart (dec __outputStart))
                         (aset __encoded __outputStart (aget Base58/ALPHABET (Base58/divmod __input, __inputStart, 256, 58)))
                         (§ when (== (aget __input __inputStart) 0)
@@ -2038,7 +2038,7 @@
                         )
                     )
                     ;; Preserve exactly as many leading encoded zeros in output as there were leading zeros in input.
-                    (§ for [] (and (< __outputStart (.. __encoded length)) (== (aget __encoded __outputStart) Base58/ENCODED_ZERO)) []
+                    (§ for [] (and (< __outputStart (.. __encoded (alength))) (== (aget __encoded __outputStart) Base58/ENCODED_ZERO)) []
                         (§ ass __outputStart (inc __outputStart))
                     )
                     (§ for [] (< 0 __zeros) [(§ ass __zeros (dec __zeros))]
@@ -2047,7 +2047,7 @@
                     )
 
                     ;; Return encoded string (including encoded leading zeros).
-                    (String. __encoded, __outputStart, (- (.. __encoded length) __outputStart))
+                    (String. __encoded, __outputStart, (- (.. __encoded (alength)) __outputStart))
                 )
             )
         )
@@ -2080,12 +2080,12 @@
             )
             ;; Count leading zeros.
             (let [#_"int" __zeros 0]
-                (§ for [] (and (< __zeros (.. __input58 length)) (== (aget __input58 __zeros) 0)) []
+                (§ for [] (and (< __zeros (.. __input58 (alength))) (== (aget __input58 __zeros) 0)) []
                     (§ ass __zeros (inc __zeros))
                 )
                 ;; Convert base-58 digits to base-256 digits.
-                (let [#_"byte[]" __decoded (byte-array (.. __input (length)))][#_"int" __outputStart (.. __decoded length)]
-                    (§ for [#_"int" __inputStart __zeros] (< __inputStart (.. __input58 length)) []
+                (let [#_"byte[]" __decoded (byte-array (.. __input (length)))][#_"int" __outputStart (.. __decoded (alength))]
+                    (§ for [#_"int" __inputStart __zeros] (< __inputStart (.. __input58 (alength))) []
                         (§ ass __outputStart (dec __outputStart))
                         (aset __decoded __outputStart (Base58/divmod __input58, __inputStart, 58, 256))
                         (§ when (== (aget __input58 __inputStart) 0)
@@ -2093,12 +2093,12 @@
                         )
                     )
                     ;; Ignore extra leading zeroes that were added during the calculation.
-                    (§ for [] (and (< __outputStart (.. __decoded length)) (== (aget __decoded __outputStart) 0)) []
+                    (§ for [] (and (< __outputStart (.. __decoded (alength))) (== (aget __decoded __outputStart) 0)) []
                         (§ ass __outputStart (inc __outputStart))
                     )
 
                     ;; Return decoded data (including original number of leading zeros).
-                    (Arrays/copyOfRange __decoded, (- __outputStart __zeros), (.. __decoded length))
+                    (Arrays/copyOfRange __decoded, (- __outputStart __zeros), (.. __decoded (alength)))
                 )
             )
         )
@@ -2124,10 +2124,10 @@
     #_throws #_[ "AddressFormatException" ]
     (§ defn #_"byte[]" Base58/decodeChecked [#_"String" __input]
         (let [#_"byte[]" __decoded (Base58/decode __input)]
-            (§ when (< (.. __decoded length) 4)
+            (§ when (< (.. __decoded (alength)) 4)
                 (throw (AddressFormatException. "Input too short"))
             )
-            (let [#_"byte[]" __data (Arrays/copyOfRange __decoded, 0, (- (.. __decoded length) 4))][#_"byte[]" __checksum (Arrays/copyOfRange __decoded, (- (.. __decoded length) 4), (.. __decoded length))][#_"byte[]" __actualChecksum (Arrays/copyOfRange (Sha256Hash/hashTwice __data), 0, 4)]
+            (let [#_"byte[]" __data (Arrays/copyOfRange __decoded, 0, (- (.. __decoded (alength)) 4))][#_"byte[]" __checksum (Arrays/copyOfRange __decoded, (- (.. __decoded (alength)) 4), (.. __decoded (alength)))][#_"byte[]" __actualChecksum (Arrays/copyOfRange (Sha256Hash/hashTwice __data), 0, 4)]
                 (§ when (not (Arrays/equals __checksum, __actualChecksum))
                     (throw (AddressFormatException. "Checksum does not validate"))
                 )
@@ -2153,7 +2153,7 @@
     (§ defn- #_"byte" Base58/divmod [#_"byte[]" __number, #_"int" __firstDigit, #_"int" __base, #_"int" __divisor]
         ;; This is just long division which accounts for the base of the input digits.
         (let [#_"int" __remainder 0]
-            (§ for [#_"int" __i __firstDigit] (< __i (.. __number length)) [(inc __i)]
+            (§ for [#_"int" __i __firstDigit] (< __i (.. __number (alength))) [(inc __i)]
                 (let [#_"int" __digit (& (int (aget __number __i)) 0xff)][#_"int" __temp (+ (* __remainder __base) __digit)]
                     (aset __number __i (byte (/ __temp __divisor)))
                     (§ ass __remainder (% __temp __divisor))
@@ -2184,7 +2184,7 @@
  ; </ul>
  ;;
 #_public
-(§ class #_"BitcoinSerializer" (§ extends #_"MessageSerializer")
+(§ class BitcoinSerializer (§ extends MessageSerializer)
     #_private
     #_static
     (§ def- #_"Logger" BitcoinSerializer/log (LoggerFactory/getLogger (§ klass #_"BitcoinSerializer")))
@@ -2229,7 +2229,7 @@
      ; @param parseRetain      retain the backing byte array of a message for fast reserialization
      ;;
     #_public
-    (§ constructor #_"BitcoinSerializer" [#_"NetworkParameters" __params, #_"boolean" __parseRetain]
+    (§ constructor BitcoinSerializer [#_"NetworkParameters" __params, #_"boolean" __parseRetain]
         (§ ass (.. this params) __params)
         (§ ass (.. this parseRetain) __parseRetain)
         this
@@ -2251,7 +2251,7 @@
                 (aset __header (+ 4 __i) (byte (& (.. __name (codePointAt __i)) 0xff)))
             )
 
-            (Utils/uint32ToByteArrayLE (.. __message length), __header, (+ 4 BitcoinSerializer/COMMAND_LEN))
+            (Utils/uint32ToByteArrayLE (.. __message (alength)), __header, (+ 4 BitcoinSerializer/COMMAND_LEN))
 
             (let [#_"byte[]" __hash (Sha256Hash/hashTwice __message)]
                 (System/arraycopy __hash, 0, __header, (+ 4 BitcoinSerializer/COMMAND_LEN 4), 4)
@@ -2536,7 +2536,7 @@
 
     #_public
     #_static
-    (§ class #_"BitcoinSerializer.BitcoinPacketHeader"
+    (§ class BitcoinSerializer/BitcoinPacketHeader
         ;;; The largest number of bytes that a header can represent. ;;
         #_public
         #_static
@@ -2553,9 +2553,9 @@
 
         #_public
         #_throws #_[ "ProtocolException", "BufferUnderflowException" ]
-        (§ constructor #_"BitcoinSerializer.BitcoinPacketHeader" [#_"ByteBuffer" __in]
+        (§ constructor BitcoinSerializer/BitcoinPacketHeader [#_"ByteBuffer" __in]
             (§ ass (.. this header) (byte-array BitcoinSerializer/BitcoinPacketHeader/HEADER_LENGTH))
-            (.. __in (get (.. this header), 0, (.. this header length)))
+            (.. __in (get (.. this header), 0, (.. this header (alength))))
 
             (let [#_"int" __cursor 0]
 
@@ -2611,12 +2611,12 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"Block" (§ extends #_"Message")
+(§ class Block (§ extends Message)
     ;;;
      ; Flags used to control which elements of block validation are done on received blocks.
      ;;
     #_public
-    (§ enum #_"Block.VerifyFlag"
+    (§ enum Block/VerifyFlag
         ;;; Check that block height is in coinbase transaction (BIP 34). ;;
         (§ item HEIGHT_IN_COINBASE)
     )
@@ -2715,7 +2715,7 @@
     (§ field #_"int" optimalEncodingMessageSize)
 
     ;;; Special case constructor, used for the genesis node, cloneAsHeader and unit tests. ;;
-    (§ constructor #_"Block" [#_"NetworkParameters" __params, #_"long" __setVersion]
+    (§ constructor Block [#_"NetworkParameters" __params, #_"long" __setVersion]
         (§ super __params)
 
         ;; Set up a few basic things.  We are not complete after this though.
@@ -2735,8 +2735,8 @@
     #_deprecated
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"Block" [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
-        (§ super __params, __payloadBytes, 0, (.. __params (getDefaultSerializer)), (.. __payloadBytes length))
+    (§ constructor Block [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
+        (§ super __params, __payloadBytes, 0, (.. __params (getDefaultSerializer)), (.. __payloadBytes (alength)))
         this
     )
 
@@ -2751,7 +2751,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"Block" [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes, #_"MessageSerializer" __serializer, #_"int" __length]
+    (§ constructor Block [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes, #_"MessageSerializer" __serializer, #_"int" __length]
         (§ super __params, __payloadBytes, 0, __serializer, __length)
         this
     )
@@ -2768,7 +2768,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"Block" [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes, #_"int" __offset, #_"MessageSerializer" __serializer, #_"int" __length]
+    (§ constructor Block [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes, #_"int" __offset, #_"MessageSerializer" __serializer, #_"int" __length]
         (§ super __params, __payloadBytes, __offset, __serializer, __length)
         this
     )
@@ -2788,7 +2788,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"Block" [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes, #_"int" __offset, #_nilable #_"Message" __parent, #_"MessageSerializer" __serializer, #_"int" __length]
+    (§ constructor Block [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes, #_"int" __offset, #_nilable #_"Message" __parent, #_"MessageSerializer" __serializer, #_"int" __length]
         ;; TODO: Keep the parent.
         (§ super __params, __payloadBytes, __offset, __serializer, __length)
         this
@@ -2806,7 +2806,7 @@
      ; @param transactions List of transactions including the coinbase.
      ;;
     #_public
-    (§ constructor #_"Block" [#_"NetworkParameters" __params, #_"long" __version, #_"Sha256Hash" __prevBlockHash, #_"Sha256Hash" __merkleRoot, #_"long" __time, #_"long" __difficultyTarget, #_"long" __nonce, #_"List<Transaction>" __transactions]
+    (§ constructor Block [#_"NetworkParameters" __params, #_"long" __version, #_"Sha256Hash" __prevBlockHash, #_"Sha256Hash" __merkleRoot, #_"long" __time, #_"long" __difficultyTarget, #_"long" __nonce, #_"List<Transaction>" __transactions]
         (§ super __params)
 
         (§ ass (.. this version) __version)
@@ -2844,7 +2844,7 @@
     (§ method #_"void" parseTransactions [#_"int" __transactionsOffset]
         (§ ass (.. this cursor) __transactionsOffset)
         (§ ass (.. this optimalEncodingMessageSize) Block/HEADER_SIZE)
-        (§ when (== (.. this payload length) (.. this cursor))
+        (§ when (== (.. this payload (alength)) (.. this cursor))
             ;; This message is just a header, it has no transactions.
             (§ ass (.. this transactionBytesValid) false)
             (§ return nil)
@@ -2893,7 +2893,7 @@
         (§ when (!= (.. this optimalEncodingMessageSize) 0)
             (§ return (.. this optimalEncodingMessageSize))
         )
-        (§ ass (.. this optimalEncodingMessageSize) (.. this (bitcoinSerialize) length))
+        (§ ass (.. this optimalEncodingMessageSize) (.. this (bitcoinSerialize) (alength)))
         (.. this optimalEncodingMessageSize)
     )
 
@@ -2901,7 +2901,7 @@
     #_throws #_[ "IOException" ]
     (§ method #_"void" writeHeader [#_"OutputStream" __stream]
         ;; try for cached write first
-        (§ when (and (.. this headerBytesValid) (some? (.. this payload)) (<= (+ (.. this offset) Block/HEADER_SIZE) (.. this payload length)))
+        (§ when (and (.. this headerBytesValid) (some? (.. this payload)) (<= (+ (.. this offset) Block/HEADER_SIZE) (.. this payload (alength))))
             (.. __stream (write (.. this payload), (.. this offset), Block/HEADER_SIZE))
             (§ return nil)
         )
@@ -2925,7 +2925,7 @@
         )
 
         ;; confirmed we must have transactions either cached or as objects
-        (§ when (and (.. this transactionBytesValid) (some? (.. this payload)) (<= (+ (.. this offset) (.. this length)) (.. this payload length)))
+        (§ when (and (.. this transactionBytesValid) (some? (.. this payload)) (<= (+ (.. this offset) (.. this length)) (.. this payload (alength))))
             (.. __stream (write (.. this payload), (+ (.. this offset) Block/HEADER_SIZE), (- (.. this length) Block/HEADER_SIZE)))
             (§ return nil)
         )
@@ -2950,7 +2950,7 @@
         ;; we have completely cached byte array
         (§ when (and (.. this headerBytesValid) (.. this transactionBytesValid))
             (Preconditions/checkNotNull (.. this payload), "Bytes should never be nil if headerBytesValid && transactionBytesValid")
-            (§ when (== (.. this length) (.. this payload length))
+            (§ when (== (.. this length) (.. this payload (alength)))
                 (§ return (.. this payload))
             )
 
@@ -2994,7 +2994,7 @@
     #_private
     (§ method- #_"int" guessTransactionsLength []
         (§ when (.. this transactionBytesValid)
-            (§ return (- (.. this payload length) Block/HEADER_SIZE))
+            (§ return (- (.. this payload (alength)) Block/HEADER_SIZE))
         )
         (§ when (nil? (.. this transactions))
             (§ return 0)
@@ -3618,7 +3618,7 @@
             (.. __coinbase (addOutput (TransactionOutput. (.. this params), __coinbase, __value, (.. (ScriptBuilder/createOutputScript (ECKey/fromPublicOnly __pubKeyTo)) (getProgram)))))
             (.. this transactions (add __coinbase))
             (.. __coinbase (setParent this))
-            (§ ass (.. __coinbase length) (.. __coinbase (unsafeBitcoinSerialize) length))
+            (§ ass (.. __coinbase length) (.. __coinbase (unsafeBitcoinSerialize) (alength)))
             (.. this (adjustLength (.. this transactions (size)), (.. __coinbase length)))
             nil
         )
@@ -3795,7 +3795,7 @@
  ; all of the block chain.  Really, this class should be called SPVBlockChain but for backwards compatibility it is not.
  ;;
 #_public
-(§ class #_"BlockChain" (§ extends #_"AbstractBlockChain")
+(§ class BlockChain (§ extends AbstractBlockChain)
     ;;; Keeps a map of block hashes to StoredBlocks. ;;
     #_protected
     (§ field #_"BlockStore" blockStore)
@@ -3810,7 +3810,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"BlockChain" [#_"Context" __context, #_"Wallet" __wallet, #_"BlockStore" __blockStore]
+    (§ constructor BlockChain [#_"Context" __context, #_"Wallet" __wallet, #_"BlockStore" __blockStore]
         (§ this __context, (ArrayList. #_"<Wallet>"), __blockStore)
         (.. this (addWallet __wallet))
         this
@@ -3819,7 +3819,7 @@
     ;;; See {@link #BlockChain(Context, Wallet, BlockStore)}}. ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"BlockChain" [#_"NetworkParameters" __params, #_"Wallet" __wallet, #_"BlockStore" __blockStore]
+    (§ constructor BlockChain [#_"NetworkParameters" __params, #_"Wallet" __wallet, #_"BlockStore" __blockStore]
         (§ this (Context/getOrCreate __params), __wallet, __blockStore)
         this
     )
@@ -3830,7 +3830,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"BlockChain" [#_"Context" __context, #_"BlockStore" __blockStore]
+    (§ constructor BlockChain [#_"Context" __context, #_"BlockStore" __blockStore]
         (§ this __context, (ArrayList. #_"<Wallet>"), __blockStore)
         this
     )
@@ -3838,7 +3838,7 @@
     ;;; See {@link #BlockChain(Context, BlockStore)}. ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"BlockChain" [#_"NetworkParameters" __params, #_"BlockStore" __blockStore]
+    (§ constructor BlockChain [#_"NetworkParameters" __params, #_"BlockStore" __blockStore]
         (§ this __params, (ArrayList. #_"<Wallet>"), __blockStore)
         this
     )
@@ -3848,7 +3848,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"BlockChain" [#_"Context" __params, #_"List<? extends Wallet>" __wallets, #_"BlockStore" __blockStore]
+    (§ constructor BlockChain [#_"Context" __params, #_"List<? extends Wallet>" __wallets, #_"BlockStore" __blockStore]
         (§ super __params, __wallets, __blockStore)
         (§ ass (.. this blockStore) __blockStore)
         this
@@ -3857,7 +3857,7 @@
     ;;; See {@link #BlockChain(Context, List, BlockStore)}. ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"BlockChain" [#_"NetworkParameters" __params, #_"List<? extends Wallet>" __wallets, #_"BlockStore" __blockStore]
+    (§ constructor BlockChain [#_"NetworkParameters" __params, #_"List<? extends Wallet>" __wallets, #_"BlockStore" __blockStore]
         (§ this (Context/getOrCreate __params), __wallets, __blockStore)
         this
     )
@@ -3999,13 +3999,13 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"BloomFilter" (§ extends #_"Message")
+(§ class BloomFilter (§ extends Message)
     ;;;
      ; The BLOOM_UPDATE_* constants control when the bloom filter is auto-updated by the peer using
      ; it as a filter, either never, for all outputs or only for pay-2-pubkey outputs (default).
      ;;
     #_public
-    (§ enum #_"BloomFilter.BloomUpdate"
+    (§ enum BloomFilter/BloomUpdate
         (§ item UPDATE_NONE) ;; 0
         (§ item UPDATE_ALL) ;; 1
         ;;; Only adds outpoints to the filter if the output is a pay-to-pubkey/pay-to-multisig script. ;;
@@ -4036,7 +4036,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"BloomFilter" [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
+    (§ constructor BloomFilter [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
         (§ super __params, __payloadBytes, 0)
         this
     )
@@ -4045,7 +4045,7 @@
      ; Constructs a filter with the given parameters which is updated on pay2pubkey outputs only.
      ;;
     #_public
-    (§ constructor #_"BloomFilter" [#_"int" __elements, #_"double" __falsePositiveRate, #_"long" __randomNonce]
+    (§ constructor BloomFilter [#_"int" __elements, #_"double" __falsePositiveRate, #_"long" __randomNonce]
         (§ this __elements, __falsePositiveRate, __randomNonce, BloomFilter/BloomUpdate/UPDATE_P2PUBKEY_ONLY)
         this
     )
@@ -4079,14 +4079,14 @@
      ; wallet configurations.</p>
      ;;
     #_public
-    (§ constructor #_"BloomFilter" [#_"int" __elements, #_"double" __falsePositiveRate, #_"long" __randomNonce, #_"BloomFilter.BloomUpdate" __updateFlag]
+    (§ constructor BloomFilter [#_"int" __elements, #_"double" __falsePositiveRate, #_"long" __randomNonce, #_"BloomFilter.BloomUpdate" __updateFlag]
         ;; The following formulas were stolen from Wikipedia's page on Bloom Filters (with the addition of min(..., MAX_...)).
         ;; Size required for a given number of elements and false-positive rate.
         (let [#_"int" __size (int (* (/ -1 (pow (log 2), 2)) __elements (log __falsePositiveRate)))]
             (§ ass __size (max 1, (/ (min __size, (* (int BloomFilter/MAX_FILTER_SIZE) 8)) 8)))
             (§ ass (.. this data) (byte-array __size))
             ;; Optimal number of hash functions for a given filter size and element count.
-            (§ ass (.. this hashFuncs) (int (* (/ (* (.. this data length) 8) (double __elements)) (log 2))))
+            (§ ass (.. this hashFuncs) (int (* (/ (* (.. this data (alength)) 8) (double __elements)) (log 2))))
             (§ ass (.. this hashFuncs) (max 1, (min (.. this hashFuncs), BloomFilter/MAX_HASH_FUNCS)))
             (§ ass (.. this nTweak) __randomNonce)
             (§ ass (.. this nFlags) (byte (& 0xff (.. __updateFlag (ordinal)))))
@@ -4099,13 +4099,13 @@
      ;;
     #_public
     (§ method #_"double" getFalsePositiveRate [#_"int" __elements]
-        (pow (- 1 (pow E, (/ (* -1.0 (.. this hashFuncs) __elements) (* (.. this data length) 8)))), (.. this hashFuncs))
+        (pow (- 1 (pow E, (/ (* -1.0 (.. this hashFuncs) __elements) (* (.. this data (alength)) 8)))), (.. this hashFuncs))
     )
 
     #_override
     #_public
     (§ method #_"String" toString []
-        (str "Bloom Filter of size " (.. this data length) " with " (.. this hashFuncs) " hash functions.")
+        (str "Bloom Filter of size " (.. this data (alength)) " with " (.. this hashFuncs) " hash functions.")
     )
 
     #_override
@@ -4113,7 +4113,7 @@
     #_throws #_[ "ProtocolException" ]
     (§ method #_"void" parse []
         (§ ass (.. this data) (.. this (readByteArray)))
-        (§ when (< BloomFilter/MAX_FILTER_SIZE (.. this data length))
+        (§ when (< BloomFilter/MAX_FILTER_SIZE (.. this data (alength)))
             (throw (ProtocolException. "Bloom filter out of size range."))
         )
         (§ ass (.. this hashFuncs) (.. this (readUint32)))
@@ -4133,7 +4133,7 @@
     #_protected
     #_throws #_[ "IOException" ]
     (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" __stream]
-        (.. __stream (write (.. (VarInt. (.. this data length)) (encode))))
+        (.. __stream (write (.. (VarInt. (.. this data (alength))) (encode))))
         (.. __stream (write (.. this data)))
         (Utils/uint32ToByteStreamLE (.. this hashFuncs), __stream)
         (Utils/uint32ToByteStreamLE (.. this nTweak), __stream)
@@ -4156,7 +4156,7 @@
     (§ defn #_"int" BloomFilter/murmurHash3 [#_"byte[]" __data, #_"long" __nTweak, #_"int" __hashNum, #_"byte[]" __object]
         (let [#_"int" __h1 (int (+ (* __hashNum 0xfba4c795) __nTweak))][#_"int" __c1 0xcc9e2d51][#_"int" __c2 0x1b873593]
 
-            (let [#_"int" __numBlocks (* (/ (.. __object length) 4) 4)]
+            (let [#_"int" __numBlocks (* (/ (.. __object (alength)) 4) 4)]
 
                 ;; body
                 (§ for [#_"int" __i 0] (< __i __numBlocks) [(+ __i 4)]
@@ -4173,7 +4173,7 @@
                 )
 
                 (let [#_"int" __k1 0]
-                    (§ switch (& (.. __object length) 3)
+                    (§ switch (& (.. __object (alength)) 3)
                         (§ case 3
                             (§ ass __k1 (bit-xor __k1 (<< (& 0xff (aget __object (+ __numBlocks 2))) 16)))
                             ;; Fall through.
@@ -4197,14 +4197,14 @@
                     )
 
                     ;; finalization
-                    (§ ass __h1 (bit-xor __h1 (.. __object length)))
+                    (§ ass __h1 (bit-xor __h1 (.. __object (alength))))
                     (§ ass __h1 (bit-xor __h1 (>>> __h1 16)))
                     (§ ass __h1 (* __h1 0x85ebca6b))
                     (§ ass __h1 (bit-xor __h1 (>>> __h1 13)))
                     (§ ass __h1 (* __h1 0xc2b2ae35))
                     (§ ass __h1 (bit-xor __h1 (>>> __h1 16)))
 
-                    (int (% (& __h1 0xffffffff) (* (.. __data length) 8)))
+                    (int (% (& __h1 0xffffffff) (* (.. __data (alength)) 8)))
                 )
             )
         )
@@ -4266,9 +4266,9 @@
     #_synchronized
     (§ method #_"void" merge [#_"BloomFilter" __filter]
         (§ when (and (not (.. this (matchesAll))) (not (.. __filter (matchesAll))))
-            (Preconditions/checkArgument (and (== (.. __filter data length) (.. this data length)) (== (.. __filter hashFuncs) (.. this hashFuncs)) (== (.. __filter nTweak) (.. this nTweak))))
+            (Preconditions/checkArgument (and (== (.. __filter data (alength)) (.. this data (alength))) (== (.. __filter hashFuncs) (.. this hashFuncs)) (== (.. __filter nTweak) (.. this nTweak))))
 
-            (§ for [#_"int" __i 0] (< __i (.. this data length)) [(inc __i)]
+            (§ for [#_"int" __i 0] (< __i (.. this data (alength))) [(inc __i)]
                 (aset (.. this data) __i (| (aget (.. this data) __i) (aget (.. __filter data) __i)))
             )
         )
@@ -4438,7 +4438,7 @@
  ; for the block header and then 1 zero byte at the end (i.e. number of transactions in the block: always zero).</p>
  ;;
 #_public
-(§ class #_"CheckpointManager"
+(§ class CheckpointManager
     #_private
     #_static
     (§ def- #_"Logger" CheckpointManager/log (LoggerFactory/getLogger (§ klass #_"CheckpointManager")))
@@ -4469,7 +4469,7 @@
     ;;; Loads the default checkpoints bundled with bitcoinj. ;;
     #_public
     #_throws #_[ "IOException" ]
-    (§ constructor #_"CheckpointManager" [#_"Context" __context]
+    (§ constructor CheckpointManager [#_"Context" __context]
         (§ this (.. __context (getParams)), nil)
         this
     )
@@ -4477,7 +4477,7 @@
     ;;; Loads the checkpoints from the given stream. ;;
     #_public
     #_throws #_[ "IOException" ]
-    (§ constructor #_"CheckpointManager" [#_"NetworkParameters" __params, #_nilable #_"InputStream" __inputStream]
+    (§ constructor CheckpointManager [#_"NetworkParameters" __params, #_nilable #_"InputStream" __inputStream]
         (§ ass (.. this params) (Preconditions/checkNotNull __params))
         (§ when (nil? __inputStream)
             (§ ass __inputStream (CheckpointManager/openStream __params))
@@ -4682,27 +4682,27 @@
  ;;
 #_public
 #_abstract
-(§ class #_"ChildMessage" (§ extends #_"Message")
+(§ class ChildMessage (§ extends Message)
     #_nilable
     #_protected
     (§ field #_"Message" parent)
 
     #_public
-    (§ constructor #_"ChildMessage" [#_"NetworkParameters" __params]
+    (§ constructor ChildMessage [#_"NetworkParameters" __params]
         (§ super __params)
         this
     )
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"ChildMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"int" __protocolVersion]
+    (§ constructor ChildMessage [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"int" __protocolVersion]
         (§ super __params, __payload, __offset, __protocolVersion)
         this
     )
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"ChildMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"int" __protocolVersion, #_"Message" __parent, #_"MessageSerializer" __setSerializer, #_"int" __length]
+    (§ constructor ChildMessage [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"int" __protocolVersion, #_"Message" __parent, #_"MessageSerializer" __setSerializer, #_"int" __length]
         (§ super __params, __payload, __offset, __protocolVersion, __setSerializer, __length)
         (§ ass (.. this parent) __parent)
         this
@@ -4710,14 +4710,14 @@
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"ChildMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset]
+    (§ constructor ChildMessage [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset]
         (§ super __params, __payload, __offset)
         this
     )
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"ChildMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_nilable #_"Message" __parent, #_"MessageSerializer" __setSerializer, #_"int" __length]
+    (§ constructor ChildMessage [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_nilable #_"Message" __parent, #_"MessageSerializer" __setSerializer, #_"int" __length]
         (§ super __params, __payload, __offset, __setSerializer, __length)
         (§ ass (.. this parent) __parent)
         this
@@ -4773,7 +4773,7 @@
  ; Represents a monetary Bitcoin value.  This class is immutable.
  ;;
 #_public
-(§ class #_"Coin" (§ implements #_"Monetary", #_"Comparable<Coin>", #_"Serializable")
+(§ class Coin (§ implements Monetary, Comparable #_"<Coin>", Serializable)
     ;;;
      ; Number of decimals for one Bitcoin.  This constant is useful for quick adapting to other coins because a lot of
      ; constants derive from it.
@@ -5155,7 +5155,7 @@
  ; in the case where multiple instances of the library are in use simultaneously.</p>
  ;;
 #_public
-(§ class #_"Context"
+(§ class Context
     #_private
     #_static
     (§ def- #_"Logger" Context/log (LoggerFactory/getLogger (§ klass #_"Context")))
@@ -5182,7 +5182,7 @@
      ; @param params The network parameters that will be associated with this context.
      ;;
     #_public
-    (§ constructor #_"Context" [#_"NetworkParameters" __params]
+    (§ constructor Context [#_"NetworkParameters" __params]
         (§ this __params, Context/DEFAULT_EVENT_HORIZON, Transaction/DEFAULT_TX_FEE, true)
         this
     )
@@ -5196,7 +5196,7 @@
      ; @param ensureMinRequiredFee Whether to ensure the minimum required fee by default when completing transactions.  For details, see {@link SendRequest#ensureMinRequiredFee}.
      ;;
     #_public
-    (§ constructor #_"Context" [#_"NetworkParameters" __params, #_"int" __eventHorizon, #_"Coin" __feePerKb, #_"boolean" __ensureMinRequiredFee]
+    (§ constructor Context [#_"NetworkParameters" __params, #_"int" __eventHorizon, #_"Coin" __feePerKb, #_"boolean" __ensureMinRequiredFee]
         (.. Context/log (info "Creating bitcoinj {} context.", VersionMessage/BITCOINJ_VERSION))
         (§ ass (.. this confidenceTable) (TxConfidenceTable.))
         (§ ass (.. this params) __params)
@@ -5355,7 +5355,7 @@
 ;;;
  ; Dummy serializer used ONLY for objects which do not have network parameters set.
  ;;
-(§ class #_"DummySerializer" (§ extends #_"MessageSerializer")
+(§ class DummySerializer (§ extends MessageSerializer)
     #_public
     #_static
     (§ def #_"DummySerializer" DummySerializer/DEFAULT (DummySerializer.))
@@ -5365,7 +5365,7 @@
     (§ def- #_"String" DummySerializer/DEFAULT_EXCEPTION_MESSAGE "Dummy serializer cannot serialize/deserialize objects as it does not know which network they belong to.")
 
     #_public
-    (§ constructor #_"DummySerializer" []
+    (§ constructor DummySerializer []
         this
     )
 
@@ -5523,7 +5523,7 @@
  ; can usually ignore the compressed/uncompressed distinction.</p>
  ;;
 #_public
-(§ class #_"ECKey" (§ implements #_"EncryptableItem")
+(§ class ECKey (§ implements EncryptableItem)
     #_private
     #_static
     (§ def- #_"Logger" ECKey/log (LoggerFactory/getLogger (§ klass #_"ECKey")))
@@ -5622,7 +5622,7 @@
      ; (32 for the co-ordinate and 1 byte to represent the y bit).
      ;;
     #_public
-    (§ constructor #_"ECKey" []
+    (§ constructor ECKey []
         (§ this ECKey/SECURE_RANDOM)
         this
     )
@@ -5632,7 +5632,7 @@
      ; resulting public key will be 33 bytes (32 for the co-ordinate and 1 byte to represent the y bit).
      ;;
     #_public
-    (§ constructor #_"ECKey" [#_"SecureRandom" __secureRandom]
+    (§ constructor ECKey [#_"SecureRandom" __secureRandom]
         (let [#_"ECKeyPairGenerator" __generator (ECKeyPairGenerator.)][#_"ECKeyGenerationParameters" __keygenParams (ECKeyGenerationParameters. ECKey/CURVE, __secureRandom)]
             (.. __generator (init __keygenParams))
             (let [#_"AsymmetricCipherKeyPair" __keypair (.. __generator (generateKeyPair))][#_"ECPrivateKeyParameters" __privParams (cast ECPrivateKeyParameters (.. __keypair (getPrivate)))][#_"ECPublicKeyParameters" __pubParams (cast ECPublicKeyParameters (.. __keypair (getPublic)))]
@@ -5645,13 +5645,13 @@
     )
 
     #_protected
-    (§ constructor #_"ECKey" [#_nilable #_"BigInteger" __priv, #_"ECPoint" __pub]
+    (§ constructor ECKey [#_nilable #_"BigInteger" __priv, #_"ECPoint" __pub]
         (§ this __priv, (LazyECPoint. (Preconditions/checkNotNull __pub)))
         this
     )
 
     #_protected
-    (§ constructor #_"ECKey" [#_nilable #_"BigInteger" __priv, #_"LazyECPoint" __pub]
+    (§ constructor ECKey [#_nilable #_"BigInteger" __priv, #_"LazyECPoint" __pub]
         (§ when (some? __priv)
             (Preconditions/checkArgument (<= (.. __priv (bitLength)) (<< 32 3)), "private key exceeds 32 bytes: {} bits", (.. __priv (bitLength)))
             ;; Try and catch buggy callers or bad key imports, etc.  Zero and one are special because these are often
@@ -5822,7 +5822,7 @@
      ;;
     #_deprecated
     #_public
-    (§ constructor #_"ECKey" [#_nilable #_"byte[]" __privKeyBytes, #_nilable #_"byte[]" __pubKey]
+    (§ constructor ECKey [#_nilable #_"byte[]" __privKeyBytes, #_nilable #_"byte[]" __pubKey]
         (§ this (when (some? __privKeyBytes) (BigInteger. 1, __privKeyBytes)), __pubKey)
         this
     )
@@ -5836,7 +5836,7 @@
      ;;
     #_deprecated
     #_public
-    (§ constructor #_"ECKey" [#_"EncryptedData" __encryptedPrivateKey, #_"byte[]" __pubKey, #_"KeyCrypter" __keyCrypter]
+    (§ constructor ECKey [#_"EncryptedData" __encryptedPrivateKey, #_"byte[]" __pubKey, #_"KeyCrypter" __keyCrypter]
         (§ this (§ cast #_"byte[]" nil), __pubKey)
 
         (§ ass (.. this keyCrypter) (Preconditions/checkNotNull __keyCrypter))
@@ -5868,7 +5868,7 @@
      ;;
     #_deprecated
     #_public
-    (§ constructor #_"ECKey" [#_nilable #_"BigInteger" __privKey, #_nilable #_"byte[]" __pubKey, #_"boolean" __compressed]
+    (§ constructor ECKey [#_nilable #_"BigInteger" __privKey, #_nilable #_"byte[]" __pubKey, #_"boolean" __compressed]
         (§ when (and (nil? __privKey) (nil? __pubKey))
             (throw (IllegalArgumentException. "ECKey requires at least private or public key"))
         )
@@ -6048,7 +6048,7 @@
      ;;
     #_public
     #_static
-    (§ class #_"ECKey.ECDSASignature"
+    (§ class ECKey/ECDSASignature
         ;;; The two components of the signature. ;;
         #_public
         (§ field #_"BigInteger" r)
@@ -6059,7 +6059,7 @@
          ; Constructs a signature with the given components.  Does NOT automatically canonicalise the signature.
          ;;
         #_public
-        (§ constructor #_"ECKey.ECDSASignature" [#_"BigInteger" __r, #_"BigInteger" __s]
+        (§ constructor ECKey/ECDSASignature [#_"BigInteger" __r, #_"BigInteger" __s]
             (§ ass (.. this r) __r)
             (§ ass (.. this s) __s)
             this
@@ -6350,16 +6350,16 @@
     #_public
     #_static
     (§ defn #_"boolean" ECKey/isPubKeyCanonical [#_"byte[]" __pubkey]
-        (§ when (< (.. __pubkey length) 33)
+        (§ when (< (.. __pubkey (alength)) 33)
             (§ return false)
         )
         ;; Uncompressed pubkey.
         (§ when (== (aget __pubkey 0) 0x04)
-            (§ return (== (.. __pubkey length) 65))
+            (§ return (== (.. __pubkey (alength)) 65))
         )
         ;; Compressed pubkey.
         (§ when (or (== (aget __pubkey 0) 0x02) (== (aget __pubkey 0) 0x03))
-            (§ return (== (.. __pubkey length) 33))
+            (§ return (== (.. __pubkey (alength)) 33))
         )
         false
     )
@@ -6390,13 +6390,13 @@
                     (let [#_"ASN1TaggedObject" __pubkey (cast ASN1TaggedObject (.. __seq (getObjectAt 3)))]
                         (Preconditions/checkArgument (== (.. __pubkey (getTagNo)) 1), "Input has 'publicKey' with bad tag number")
                         (let [#_"byte[]" __pubbits (.. (cast DERBitString (.. __pubkey (getObject))) (getBytes))]
-                            (Preconditions/checkArgument (or (== (.. __pubbits length) 33) (== (.. __pubbits length) 65)), "Input has 'publicKey' with invalid length")
+                            (Preconditions/checkArgument (or (== (.. __pubbits (alength)) 33) (== (.. __pubbits (alength)) 65)), "Input has 'publicKey' with invalid length")
                             (let [#_"int" __encoding (& 0xff (aget __pubbits 0))]
                                 ;; Only allow compressed(2,3) and uncompressed(4), not infinity(0) or hybrid(6,7).
                                 (Preconditions/checkArgument (<= 2 __encoding 4), "Input has 'publicKey' with invalid encoding")
 
                                 ;; Now sanity check to ensure the pubkey bytes match the privkey.
-                                (let [#_"boolean" __compressed (== (.. __pubbits length) 33)][#_"ECKey" __key (ECKey. __privkey, nil, __compressed)]
+                                (let [#_"boolean" __compressed (== (.. __pubbits (alength)) 33)][#_"ECKey" __key (ECKey. __privkey, nil, __compressed)]
                                     (§ when (not (Arrays/equals (.. __key (getPubKey)), __pubbits))
                                         (throw (IllegalArgumentException. "Public key in ASN.1 structure does not match private key."))
                                     )
@@ -6484,8 +6484,8 @@
                 )
             )
             ;; Parse the signature bytes into r/s and the selector value.
-            (§ when (< (.. __signatureEncoded length) 65)
-                (throw (SignatureException. (str "Signature truncated, expected 65 bytes and got " (.. __signatureEncoded length))))
+            (§ when (< (.. __signatureEncoded (alength)) 65)
+                (throw (SignatureException. (str "Signature truncated, expected 65 bytes and got " (.. __signatureEncoded (alength)))))
             )
 
             (let [#_"int" __header (& 0xff (aget __signatureEncoded 0))]
@@ -6764,7 +6764,7 @@
     #_override
     #_public
     (§ method #_"boolean" isEncrypted []
-        (and (some? (.. this keyCrypter)) (some? (.. this encryptedPrivateKey)) (< 0 (.. this encryptedPrivateKey encryptedBytes length)))
+        (and (some? (.. this keyCrypter)) (some? (.. this encryptedPrivateKey)) (< 0 (.. this encryptedPrivateKey encryptedBytes (alength))))
     )
 
     #_nilable
@@ -6818,12 +6818,12 @@
 
     #_public
     #_static
-    (§ class #_"ECKey.MissingPrivateKeyException" (§ extends #_"RuntimeException")
+    (§ class ECKey/MissingPrivateKeyException (§ extends RuntimeException)
     )
 
     #_public
     #_static
-    (§ class #_"ECKey.KeyIsEncryptedException" (§ extends #_"ECKey.MissingPrivateKeyException")
+    (§ class ECKey/KeyIsEncryptedException (§ extends ECKey/MissingPrivateKeyException)
     )
 
     #_override
@@ -6933,15 +6933,15 @@
  ;;
 #_public
 #_abstract
-(§ class #_"EmptyMessage" (§ extends #_"Message")
+(§ class EmptyMessage (§ extends Message)
     #_public
-    (§ constructor #_"EmptyMessage" []
+    (§ constructor EmptyMessage []
         (§ ass (.. this length) 0)
         this
     )
 
     #_public
-    (§ constructor #_"EmptyMessage" [#_"NetworkParameters" __params]
+    (§ constructor EmptyMessage [#_"NetworkParameters" __params]
         (§ super __params)
         (§ ass (.. this length) 0)
         this
@@ -6949,7 +6949,7 @@
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"EmptyMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset]
+    (§ constructor EmptyMessage [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset]
         (§ super __params, __payload, __offset)
         (§ ass (.. this length) 0)
         this
@@ -6988,7 +6988,7 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"FilteredBlock" (§ extends #_"Message")
+(§ class FilteredBlock (§ extends Message)
     #_private
     (§ field- #_"Block" header)
 
@@ -7004,13 +7004,13 @@
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"FilteredBlock" [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
+    (§ constructor FilteredBlock [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
         (§ super __params, __payloadBytes, 0)
         this
     )
 
     #_public
-    (§ constructor #_"FilteredBlock" [#_"NetworkParameters" __params, #_"Block" __header, #_"PartialMerkleTree" __pmt]
+    (§ constructor FilteredBlock [#_"NetworkParameters" __params, #_"Block" __header, #_"PartialMerkleTree" __pmt]
         (§ super __params)
         (§ ass (.. this header) __header)
         (§ ass (.. this merkleTree) __pmt)
@@ -7163,7 +7163,7 @@
  ; Core does.</p>
  ;;
 #_public
-(§ class #_"FullPrunedBlockChain" (§ extends #_"AbstractBlockChain")
+(§ class FullPrunedBlockChain (§ extends AbstractBlockChain)
     #_private
     #_static
     (§ def- #_"Logger" FullPrunedBlockChain/log (LoggerFactory/getLogger (§ klass #_"FullPrunedBlockChain")))
@@ -7184,7 +7184,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"FullPrunedBlockChain" [#_"Context" __context, #_"Wallet" __wallet, #_"FullPrunedBlockStore" __blockStore]
+    (§ constructor FullPrunedBlockChain [#_"Context" __context, #_"Wallet" __wallet, #_"FullPrunedBlockStore" __blockStore]
         (§ this __context, (ArrayList. #_"<Wallet>"), __blockStore)
         (.. this (addWallet __wallet))
         this
@@ -7196,7 +7196,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"FullPrunedBlockChain" [#_"NetworkParameters" __params, #_"Wallet" __wallet, #_"FullPrunedBlockStore" __blockStore]
+    (§ constructor FullPrunedBlockChain [#_"NetworkParameters" __params, #_"Wallet" __wallet, #_"FullPrunedBlockStore" __blockStore]
         (§ this (Context/getOrCreate __params), __wallet, __blockStore)
         this
     )
@@ -7206,7 +7206,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"FullPrunedBlockChain" [#_"Context" __context, #_"FullPrunedBlockStore" __blockStore]
+    (§ constructor FullPrunedBlockChain [#_"Context" __context, #_"FullPrunedBlockStore" __blockStore]
         (§ this __context, (ArrayList. #_"<Wallet>"), __blockStore)
         this
     )
@@ -7216,7 +7216,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"FullPrunedBlockChain" [#_"NetworkParameters" __params, #_"FullPrunedBlockStore" __blockStore]
+    (§ constructor FullPrunedBlockChain [#_"NetworkParameters" __params, #_"FullPrunedBlockStore" __blockStore]
         (§ this (Context/getOrCreate __params), __blockStore)
         this
     )
@@ -7226,7 +7226,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"FullPrunedBlockChain" [#_"Context" __context, #_"List<Wallet>" __listeners, #_"FullPrunedBlockStore" __blockStore]
+    (§ constructor FullPrunedBlockChain [#_"Context" __context, #_"List<Wallet>" __listeners, #_"FullPrunedBlockStore" __blockStore]
         (§ super __context, __listeners, __blockStore)
         (§ ass (.. this blockStore) __blockStore)
         ;; Ignore upgrading for now.
@@ -7239,7 +7239,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"FullPrunedBlockChain" [#_"NetworkParameters" __params, #_"List<Wallet>" __listeners, #_"FullPrunedBlockStore" __blockStore]
+    (§ constructor FullPrunedBlockChain [#_"NetworkParameters" __params, #_"List<Wallet>" __listeners, #_"FullPrunedBlockStore" __blockStore]
         (§ this (Context/getOrCreate __params), __listeners, __blockStore)
         this
     )
@@ -7300,13 +7300,13 @@
      ;;
     #_private
     #_static
-    (§ class #_"FullPrunedBlockChain.Verifier" (§ implements #_"Callable<VerificationException>")
+    (§ class FullPrunedBlockChain/Verifier (§ implements Callable #_"<VerificationException>")
         (§ field #_"Transaction" tx)
         (§ field #_"List<Script>" prevOutScripts)
         (§ field #_"Set<Script.VerifyFlag>" verifyFlags)
 
         #_public
-        (§ constructor #_"FullPrunedBlockChain.Verifier" [#_"Transaction" __tx, #_"List<Script>" __prevOutScripts, #_"Set<Script.VerifyFlag>" __verifyFlags]
+        (§ constructor FullPrunedBlockChain/Verifier [#_"Transaction" __tx, #_"List<Script>" __prevOutScripts, #_"Set<Script.VerifyFlag>" __verifyFlags]
             (§ ass (.. this tx) __tx)
             (§ ass (.. this prevOutScripts) __prevOutScripts)
             (§ ass (.. this verifyFlags) __verifyFlags)
@@ -7757,9 +7757,9 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"GetAddrMessage" (§ extends #_"EmptyMessage")
+(§ class GetAddrMessage (§ extends EmptyMessage)
     #_public
-    (§ constructor #_"GetAddrMessage" [#_"NetworkParameters" __params]
+    (§ constructor GetAddrMessage [#_"NetworkParameters" __params]
         (§ super __params)
         this
     )
@@ -7776,7 +7776,7 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"GetBlocksMessage" (§ extends #_"Message")
+(§ class GetBlocksMessage (§ extends Message)
     #_protected
     (§ field #_"long" version)
     #_protected
@@ -7785,7 +7785,7 @@
     (§ field #_"Sha256Hash" stopHash)
 
     #_public
-    (§ constructor #_"GetBlocksMessage" [#_"NetworkParameters" __params, #_"List<Sha256Hash>" __locator, #_"Sha256Hash" __stopHash]
+    (§ constructor GetBlocksMessage [#_"NetworkParameters" __params, #_"List<Sha256Hash>" __locator, #_"Sha256Hash" __stopHash]
         (§ super __params)
 
         (§ ass (.. this version) (.. this protocolVersion))
@@ -7796,7 +7796,7 @@
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"GetBlocksMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload]
+    (§ constructor GetBlocksMessage [#_"NetworkParameters" __params, #_"byte[]" __payload]
         (§ super __params, __payload, 0)
         this
     )
@@ -7891,10 +7891,10 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"GetDataMessage" (§ extends #_"ListMessage")
+(§ class GetDataMessage (§ extends ListMessage)
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"GetDataMessage" [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
+    (§ constructor GetDataMessage [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
         (§ super __params, __payloadBytes)
         this
     )
@@ -7910,13 +7910,13 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"GetDataMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"MessageSerializer" __serializer, #_"int" __length]
+    (§ constructor GetDataMessage [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"MessageSerializer" __serializer, #_"int" __length]
         (§ super __params, __payload, __serializer, __length)
         this
     )
 
     #_public
-    (§ constructor #_"GetDataMessage" [#_"NetworkParameters" __params]
+    (§ constructor GetDataMessage [#_"NetworkParameters" __params]
         (§ super __params)
         this
     )
@@ -7957,16 +7957,16 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"GetHeadersMessage" (§ extends #_"GetBlocksMessage")
+(§ class GetHeadersMessage (§ extends GetBlocksMessage)
     #_public
-    (§ constructor #_"GetHeadersMessage" [#_"NetworkParameters" __params, #_"List<Sha256Hash>" __locator, #_"Sha256Hash" __stopHash]
+    (§ constructor GetHeadersMessage [#_"NetworkParameters" __params, #_"List<Sha256Hash>" __locator, #_"Sha256Hash" __stopHash]
         (§ super __params, __locator, __stopHash)
         this
     )
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"GetHeadersMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload]
+    (§ constructor GetHeadersMessage [#_"NetworkParameters" __params, #_"byte[]" __payload]
         (§ super __params, __payload)
         this
     )
@@ -8020,7 +8020,7 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"HeadersMessage" (§ extends #_"Message")
+(§ class HeadersMessage (§ extends Message)
     #_private
     #_static
     (§ def- #_"Logger" HeadersMessage/log (LoggerFactory/getLogger (§ klass #_"HeadersMessage")))
@@ -8035,14 +8035,14 @@
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"HeadersMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload]
+    (§ constructor HeadersMessage [#_"NetworkParameters" __params, #_"byte[]" __payload]
         (§ super __params, __payload, 0)
         this
     )
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"HeadersMessage" [#_"NetworkParameters" __params, #_"Block..." __headers]
+    (§ constructor HeadersMessage [#_"NetworkParameters" __params, #_"Block..." __headers]
         (§ super __params)
         (§ ass (.. this blockHeaders) (Arrays/asList __headers))
         this
@@ -8050,7 +8050,7 @@
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"HeadersMessage" [#_"NetworkParameters" __params, #_"List<Block>" __headers]
+    (§ constructor HeadersMessage [#_"NetworkParameters" __params, #_"List<Block>" __headers]
         (§ super __params)
         (§ ass (.. this blockHeaders) __headers)
         this
@@ -8118,26 +8118,26 @@
  ; Thrown to indicate that you don't have enough money available to perform the requested operation.
  ;;
 #_public
-(§ class #_"InsufficientMoneyException" (§ extends #_"Exception")
+(§ class InsufficientMoneyException (§ extends Exception)
     ;;; Contains the number of satoshis that would have been required to complete the operation. ;;
     #_nilable
     #_public
     (§ field #_"Coin" missing)
 
     #_protected
-    (§ constructor #_"InsufficientMoneyException" []
+    (§ constructor InsufficientMoneyException []
         (§ ass (.. this missing) nil)
         this
     )
 
     #_public
-    (§ constructor #_"InsufficientMoneyException" [#_"Coin" __missing]
+    (§ constructor InsufficientMoneyException [#_"Coin" __missing]
         (§ this __missing, (str "Insufficient money, missing " (.. __missing (toFriendlyString))))
         this
     )
 
     #_public
-    (§ constructor #_"InsufficientMoneyException" [#_"Coin" __missing, #_"String" __message]
+    (§ constructor InsufficientMoneyException [#_"Coin" __missing, #_"String" __message]
         (§ super __message)
         (§ ass (.. this missing) (Preconditions/checkNotNull __missing))
         this
@@ -8148,7 +8148,7 @@
     (:import [com.google.common.base Objects]))
 
 #_public
-(§ class #_"InventoryItem"
+(§ class InventoryItem
     ;;;
      ; 4 byte uint32 type field + 32 byte hash
      ;;
@@ -8156,7 +8156,7 @@
     (§ def #_"int" InventoryItem/MESSAGE_LENGTH 36)
 
     #_public
-    (§ enum #_"InventoryItem.Type"
+    (§ enum InventoryItem/Type
         (§ item Error)
         (§ item Transaction)
         (§ item Block)
@@ -8169,7 +8169,7 @@
     (§ field #_"Sha256Hash" hash)
 
     #_public
-    (§ constructor #_"InventoryItem" [#_"InventoryItem.Type" __type, #_"Sha256Hash" __hash]
+    (§ constructor InventoryItem [#_"InventoryItem.Type" __type, #_"Sha256Hash" __hash]
         (§ ass (.. this type) __type)
         (§ ass (.. this hash) __hash)
         this
@@ -8214,7 +8214,7 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"InventoryMessage" (§ extends #_"ListMessage")
+(§ class InventoryMessage (§ extends ListMessage)
     ;;; A hard coded constant in the protocol. ;;
     #_public
     #_static
@@ -8222,7 +8222,7 @@
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"InventoryMessage" [#_"NetworkParameters" __params, #_"byte[]" __bytes]
+    (§ constructor InventoryMessage [#_"NetworkParameters" __params, #_"byte[]" __bytes]
         (§ super __params, __bytes)
         this
     )
@@ -8238,13 +8238,13 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"InventoryMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"MessageSerializer" __serializer, #_"int" __length]
+    (§ constructor InventoryMessage [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"MessageSerializer" __serializer, #_"int" __length]
         (§ super __params, __payload, __serializer, __length)
         this
     )
 
     #_public
-    (§ constructor #_"InventoryMessage" [#_"NetworkParameters" __params]
+    (§ constructor InventoryMessage [#_"NetworkParameters" __params]
         (§ super __params)
         this
     )
@@ -8265,7 +8265,7 @@
     #_public
     #_static
     (§ defn #_"InventoryMessage" InventoryMessage/with [#_"Transaction..." __txs]
-        (Preconditions/checkArgument (< 0 (.. __txs length)))
+        (Preconditions/checkArgument (< 0 (.. __txs (alength))))
         (let [#_"InventoryMessage" __result (InventoryMessage. (.. (aget __txs 0) (getParams)))]
             (§ forin [#_"Transaction" __tx] __txs
                 (.. __result (addTransaction __tx))
@@ -8286,7 +8286,7 @@
  ;;
 #_public
 #_abstract
-(§ class #_"ListMessage" (§ extends #_"Message")
+(§ class ListMessage (§ extends Message)
     #_public
     #_static
     (§ def #_"long" ListMessage/MAX_INVENTORY_ITEMS 50000)
@@ -8299,20 +8299,20 @@
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"ListMessage" [#_"NetworkParameters" __params, #_"byte[]" __bytes]
+    (§ constructor ListMessage [#_"NetworkParameters" __params, #_"byte[]" __bytes]
         (§ super __params, __bytes, 0)
         this
     )
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"ListMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"MessageSerializer" __serializer, #_"int" __length]
+    (§ constructor ListMessage [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"MessageSerializer" __serializer, #_"int" __length]
         (§ super __params, __payload, 0, __serializer, __length)
         this
     )
 
     #_public
-    (§ constructor #_"ListMessage" [#_"NetworkParameters" __params]
+    (§ constructor ListMessage [#_"NetworkParameters" __params]
         (§ super __params)
 
         (§ ass (.. this items) (ArrayList. #_"<>"))
@@ -8356,7 +8356,7 @@
         ;; An inv is vector<CInv> where CInv is int+hash.  The int is either 1 or 2 for tx or block.
         (§ ass (.. this items) (ArrayList. #_"<>" (int (.. this arrayLen))))
         (§ for [#_"int" __i 0] (< __i (.. this arrayLen)) [(inc __i)]
-            (§ when (< (.. this payload length) (+ (.. this cursor) InventoryItem/MESSAGE_LENGTH))
+            (§ when (< (.. this payload (alength)) (+ (.. this cursor) InventoryItem/MESSAGE_LENGTH))
                 (throw (ProtocolException. "Ran off the end of the INV"))
             )
 
@@ -8436,7 +8436,7 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"MemoryPoolMessage" (§ extends #_"Message")
+(§ class MemoryPoolMessage (§ extends Message)
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
@@ -8467,7 +8467,7 @@
  ;;
 #_public
 #_abstract
-(§ class #_"Message"
+(§ class Message
     #_private
     #_static
     (§ def- #_"Logger" Message/log (LoggerFactory/getLogger (§ klass #_"Message")))
@@ -8512,13 +8512,13 @@
     (§ field #_"NetworkParameters" params)
 
     #_protected
-    (§ constructor #_"Message" []
+    (§ constructor Message []
         (§ ass (.. this serializer) DummySerializer/DEFAULT)
         this
     )
 
     #_protected
-    (§ constructor #_"Message" [#_"NetworkParameters" __params]
+    (§ constructor Message [#_"NetworkParameters" __params]
         (§ ass (.. this params) __params)
         (§ ass (.. this serializer) (.. __params (getDefaultSerializer)))
         this
@@ -8526,7 +8526,7 @@
 
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"Message" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"int" __protocolVersion]
+    (§ constructor Message [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"int" __protocolVersion]
         (§ this __params, __payload, __offset, __protocolVersion, (.. __params (getDefaultSerializer)), Message/UNKNOWN_LENGTH)
         this
     )
@@ -8543,7 +8543,7 @@
      ;;
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"Message" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"int" __protocolVersion, #_"MessageSerializer" __serializer, #_"int" __length]
+    (§ constructor Message [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"int" __protocolVersion, #_"MessageSerializer" __serializer, #_"int" __length]
         (§ ass (.. this serializer) __serializer)
         (§ ass (.. this protocolVersion) __protocolVersion)
         (§ ass (.. this params) __params)
@@ -8584,14 +8584,14 @@
 
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"Message" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset]
+    (§ constructor Message [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset]
         (§ this __params, __payload, __offset, (.. __params (getProtocolVersionNum NetworkParameters/ProtocolVersion/CURRENT)), (.. __params (getDefaultSerializer)), Message/UNKNOWN_LENGTH)
         this
     )
 
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"Message" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"MessageSerializer" __serializer, #_"int" __length]
+    (§ constructor Message [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"MessageSerializer" __serializer, #_"int" __length]
         (§ this __params, __payload, __offset, (.. __params (getProtocolVersionNum NetworkParameters/ProtocolVersion/CURRENT)), __serializer, __length)
         this
     )
@@ -8658,8 +8658,8 @@
      ;;
     #_public
     (§ method #_"byte[]" bitcoinSerialize []
-        (let [#_"byte[]" __bytes (.. this (unsafeBitcoinSerialize))][#_"byte[]" __copy (byte-array (.. __bytes length))]
-            (System/arraycopy __bytes, 0, __copy, 0, (.. __bytes length))
+        (let [#_"byte[]" __bytes (.. this (unsafeBitcoinSerialize))][#_"byte[]" __copy (byte-array (.. __bytes (alength)))]
+            (System/arraycopy __bytes, 0, __copy, 0, (.. __bytes (alength)))
             __copy
         )
     )
@@ -8686,7 +8686,7 @@
         ;; 1st attempt to use a cached array.
         (§ when (some? (.. this payload))
             ;; Cached byte array is the entire message with no extras so we can return as is and avoid an array copy.
-            (§ when (and (== (.. this offset) 0) (== (.. this length) (.. this payload length)))
+            (§ when (and (== (.. this offset) 0) (== (.. this length) (.. this payload (alength))))
                 (§ return (.. this payload))
             )
 
@@ -8718,14 +8718,14 @@
                 (§ ass (.. this cursor) (- (.. this cursor) (.. this offset)))
                 (§ ass (.. this offset) 0)
                 (§ ass (.. this recached) true)
-                (§ ass (.. this length) (.. this payload length))
+                (§ ass (.. this length) (.. this payload (alength)))
                 (§ return (.. this payload))
             )
             ;; Record length.  If this Message wasn't parsed from a byte stream it won't have length field
             ;; set (except for static length message types).  Setting it makes future streaming more efficient
             ;; because we can preallocate the ByteArrayOutputStream buffer and avoid resizing.
             (let [#_"byte[]" __buf (.. __stream (toByteArray))]
-                (§ ass (.. this length) (.. __buf length))
+                (§ ass (.. this length) (.. __buf (alength)))
                 __buf
             )
         )
@@ -8880,7 +8880,7 @@
 
     #_protected
     (§ method #_"boolean" hasMoreBytes []
-        (< (.. this cursor) (.. this payload length))
+        (< (.. this cursor) (.. this payload (alength)))
     )
 
     ;;; Network parameters this message was created with. ;;
@@ -8913,7 +8913,7 @@
  ;;
 #_public
 #_abstract
-(§ class #_"MessageSerializer"
+(§ class MessageSerializer
     ;;;
      ; Reads a message from the given ByteBuffer and returns it.
      ;;
@@ -8972,7 +8972,7 @@
     #_public
     #_throws #_[ "ProtocolException" ]
     (§ method #_"Block" makeBlock [#_"byte[]" __payloadBytes]
-        (.. this (makeBlock __payloadBytes, 0, (.. __payloadBytes length)))
+        (.. this (makeBlock __payloadBytes, 0, (.. __payloadBytes (alength))))
     )
 
     ;;;
@@ -9063,7 +9063,7 @@
     #_public
     #_throws #_[ "ProtocolException" ]
     (§ method #_"Transaction" makeTransaction [#_"byte[]" __payloadBytes, #_"int" __offset]
-        (.. this (makeTransaction __payloadBytes, __offset, (.. __payloadBytes length), nil))
+        (.. this (makeTransaction __payloadBytes, __offset, (.. __payloadBytes (alength)), nil))
     )
 
     #_public
@@ -9105,7 +9105,7 @@
  ; Classes implementing this interface represent a monetary value, such as a Bitcoin or fiat amount.
  ;;
 #_public
-(§ interface #_"Monetary" (§ extends #_"Serializable")
+(§ interface Monetary (§ extends Serializable)
     ;;;
      ; Returns the absolute value of exponent of the value of a "smallest unit" in scientific notation.
      ; For Bitcoin, a satoshi is worth 1E-8 so this would be 8.
@@ -9143,7 +9143,7 @@
  ;;
 #_public
 #_abstract
-(§ class #_"NetworkParameters"
+(§ class NetworkParameters
     ;;;
      ; The alert signing key originally owned by Satoshi, and now passed on to Gavin along with a few others.
      ;;
@@ -9238,7 +9238,7 @@
     (§ field #_"MessageSerializer" defaultSerializer)
 
     #_protected
-    (§ constructor #_"NetworkParameters" []
+    (§ constructor NetworkParameters []
         (§ ass (.. this alertSigningKey) NetworkParameters/SATOSHI_KEY)
         (§ ass (.. this genesisBlock) (NetworkParameters/createGenesis this))
         this
@@ -9677,7 +9677,7 @@
 
     #_public
     #_static
-    (§ enum #_"NetworkParameters.ProtocolVersion"
+    (§ enum NetworkParameters/ProtocolVersion
         (§ item (MINIMUM 70000))
         (§ item (PONG 60001))
         (§ item (BLOOM_FILTER 70000))
@@ -9686,7 +9686,7 @@
         #_private
         (§ field- #_"int" bitcoinProtocol)
 
-        (§ constructor #_"NetworkParameters.ProtocolVersion" [#_"int" __bitcoinProtocol]
+        (§ constructor NetworkParameters/ProtocolVersion [#_"int" __bitcoinProtocol]
             (§ ass (.. this bitcoinProtocol) __bitcoinProtocol)
             this
         )
@@ -9708,26 +9708,26 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"NotFoundMessage" (§ extends #_"InventoryMessage")
+(§ class NotFoundMessage (§ extends InventoryMessage)
     #_public
     #_static
     (§ def #_"int" NotFoundMessage/MIN_PROTOCOL_VERSION 70001)
 
     #_public
-    (§ constructor #_"NotFoundMessage" [#_"NetworkParameters" __params]
+    (§ constructor NotFoundMessage [#_"NetworkParameters" __params]
         (§ super __params)
         this
     )
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"NotFoundMessage" [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
+    (§ constructor NotFoundMessage [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
         (§ super __params, __payloadBytes)
         this
     )
 
     #_public
-    (§ constructor #_"NotFoundMessage" [#_"NetworkParameters" __params, #_"List<InventoryItem>" __items]
+    (§ constructor NotFoundMessage [#_"NetworkParameters" __params, #_"List<InventoryItem>" __items]
         (§ super __params)
         (§ ass (.. this items) (ArrayList. #_"<>" __items))
         this
@@ -9767,7 +9767,7 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"PartialMerkleTree" (§ extends #_"Message")
+(§ class PartialMerkleTree (§ extends Message)
     ;; the total number of transactions in the block
     #_private
     (§ field- #_"int" transactionCount)
@@ -9782,7 +9782,7 @@
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"PartialMerkleTree" [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes, #_"int" __offset]
+    (§ constructor PartialMerkleTree [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes, #_"int" __offset]
         (§ super __params, __payloadBytes, __offset)
         this
     )
@@ -9792,7 +9792,7 @@
      ; taking ownership of the list.
      ;;
     #_public
-    (§ constructor #_"PartialMerkleTree" [#_"NetworkParameters" __params, #_"byte[]" __bits, #_"List<Sha256Hash>" __hashes, #_"int" __origTxCount]
+    (§ constructor PartialMerkleTree [#_"NetworkParameters" __params, #_"byte[]" __bits, #_"List<Sha256Hash>" __hashes, #_"int" __origTxCount]
         (§ super __params)
 
         (§ ass (.. this matchedChildBits) __bits)
@@ -9838,7 +9838,7 @@
             (.. __stream (write (.. __hash (getReversedBytes))))
         )
 
-        (.. __stream (write (.. (VarInt. (.. this matchedChildBits length)) (encode))))
+        (.. __stream (write (.. (VarInt. (.. this matchedChildBits (alength))) (encode))))
         (.. __stream (write (.. this matchedChildBits)))
         nil
     )
@@ -9921,7 +9921,7 @@
 
     #_private
     #_static
-    (§ class #_"PartialMerkleTree.ValuesUsed"
+    (§ class PartialMerkleTree/ValuesUsed
         #_public
         (§ field #_"int" bitsUsed 0)
         (§ field #_"int" hashesUsed 0)
@@ -9933,7 +9933,7 @@
     #_throws #_[ "VerificationException" ]
     (§ method- #_"Sha256Hash" recursiveExtractHashes [#_"int" __height, #_"int" __pos, #_"PartialMerkleTree.ValuesUsed" __used, #_"List<Sha256Hash>" __matchedHashes]
         ;; overflowed bits array - failure
-        (§ when (<= (* (.. this matchedChildBits length) 8) (.. __used bitsUsed))
+        (§ when (<= (* (.. this matchedChildBits (alength)) 8) (.. __used bitsUsed))
             (throw (VerificationException. "PartialMerkleTree overflowed its bits array"))
         )
 
@@ -10009,7 +10009,7 @@
             (throw (VerificationException. "Got a CPartialMerkleTree with more hashes than transactions"))
         )
         ;; there must be at least one bit per node in the partial tree, and at least one node per hash
-        (§ when (< (* (.. this matchedChildBits length) 8) (.. this hashes (size)))
+        (§ when (< (* (.. this matchedChildBits (alength)) 8) (.. this hashes (size)))
             (throw (VerificationException. "Got a CPartialMerkleTree with fewer matched bits than hashes"))
         )
 
@@ -10022,7 +10022,7 @@
             (let [#_"PartialMerkleTree.ValuesUsed" __used (PartialMerkleTree/ValuesUsed.)][#_"Sha256Hash" __merkleRoot (.. this (recursiveExtractHashes __height, 0, __used, __matchedHashesOut))]
                 ;; verify that all bits were consumed (except for the padding caused by serializing it as a byte sequence)
                 ;; verify that all hashes were consumed
-                (§ when (or (!= (/ (+ (.. __used bitsUsed) 7) 8) (.. this matchedChildBits length)) (!= (.. __used hashesUsed) (.. this hashes (size))))
+                (§ when (or (!= (/ (+ (.. __used bitsUsed) 7) 8) (.. this matchedChildBits (alength))) (!= (.. __used hashesUsed) (.. this hashes (size))))
                     (throw (VerificationException. "Got a CPartialMerkleTree that didn't need all the data it provided"))
                 )
 
@@ -10089,7 +10089,7 @@
  ; handshake completes.</p>
  ;;
 #_public
-(§ class #_"Peer" (§ extends #_"PeerSocketHandler")
+(§ class Peer (§ extends PeerSocketHandler)
     #_private
     #_static
     (§ def- #_"Logger" Peer/log (LoggerFactory/getLogger (§ klass #_"Peer")))
@@ -10204,12 +10204,12 @@
     ;; whilst waiting for the response.  Is not used for downloads Peer generates itself.
     #_private
     #_static
-    (§ class #_"Peer.GetDataRequest"
+    (§ class Peer/GetDataRequest
         (§ field #_"Sha256Hash" hash)
         (§ field #_"SettableFuture" future)
 
         #_public
-        (§ constructor #_"Peer.GetDataRequest" [#_"Sha256Hash" __hash, #_"SettableFuture" __future]
+        (§ constructor Peer/GetDataRequest [#_"Sha256Hash" __hash, #_"SettableFuture" __future]
             (§ ass (.. this hash) __hash)
             (§ ass (.. this future) __future)
             this
@@ -10272,7 +10272,7 @@
      ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.</p>
      ;;
     #_public
-    (§ constructor #_"Peer" [#_"NetworkParameters" __params, #_"VersionMessage" __ver, #_nilable #_"AbstractBlockChain" __chain, #_"PeerAddress" __remoteAddress]
+    (§ constructor Peer [#_"NetworkParameters" __params, #_"VersionMessage" __ver, #_nilable #_"AbstractBlockChain" __chain, #_"PeerAddress" __remoteAddress]
         (§ this __params, __ver, __remoteAddress, __chain)
         this
     )
@@ -10292,7 +10292,7 @@
      ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.</p>
      ;;
     #_public
-    (§ constructor #_"Peer" [#_"NetworkParameters" __params, #_"VersionMessage" __ver, #_"PeerAddress" __remoteAddress, #_nilable #_"AbstractBlockChain" __chain]
+    (§ constructor Peer [#_"NetworkParameters" __params, #_"VersionMessage" __ver, #_"PeerAddress" __remoteAddress, #_nilable #_"AbstractBlockChain" __chain]
         (§ this __params, __ver, __remoteAddress, __chain, Integer/MAX_VALUE)
         this
     )
@@ -10312,7 +10312,7 @@
      ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.</p>
      ;;
     #_public
-    (§ constructor #_"Peer" [#_"NetworkParameters" __params, #_"VersionMessage" __ver, #_"PeerAddress" __remoteAddress, #_nilable #_"AbstractBlockChain" __chain, #_"int" __downloadTxDependencyDepth]
+    (§ constructor Peer [#_"NetworkParameters" __params, #_"VersionMessage" __ver, #_"PeerAddress" __remoteAddress, #_nilable #_"AbstractBlockChain" __chain, #_"int" __downloadTxDependencyDepth]
         (§ super __params, __remoteAddress)
 
         (§ ass (.. this params) (Preconditions/checkNotNull __params))
@@ -10355,7 +10355,7 @@
      ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.</p>
      ;;
     #_public
-    (§ constructor #_"Peer" [#_"NetworkParameters" __params, #_"AbstractBlockChain" __blockChain, #_"PeerAddress" __peerAddress, #_"String" __thisSoftwareName, #_"String" __thisSoftwareVersion]
+    (§ constructor Peer [#_"NetworkParameters" __params, #_"AbstractBlockChain" __blockChain, #_"PeerAddress" __peerAddress, #_"String" __thisSoftwareName, #_"String" __thisSoftwareVersion]
         (§ this __params, (VersionMessage. __params, (.. __blockChain (getBestChainHeight))), __blockChain, __peerAddress)
         (.. this versionMessage (appendToSubVer __thisSoftwareName, __thisSoftwareVersion, nil))
         this
@@ -11813,7 +11813,7 @@
     )
 
     #_private
-    (§ class #_"Peer.PendingPing"
+    (§ class Peer/PendingPing
         ;; The future that will be invoked when the pong is heard back.
         #_public
         (§ field #_"SettableFuture<Long>" future)
@@ -11825,7 +11825,7 @@
         (§ field #_"long" startTimeMsec)
 
         #_public
-        (§ constructor #_"Peer.PendingPing" [#_"long" __nonce]
+        (§ constructor Peer/PendingPing [#_"long" __nonce]
             (§ ass (.. this future) (SettableFuture/create))
             (§ ass (.. this nonce) __nonce)
             (§ ass (.. this startTimeMsec) (Utils/currentTimeMillis))
@@ -11857,9 +11857,9 @@
             )
             (§ else 
                 ;; Shift all elements backwards by one.
-                (System/arraycopy (.. this lastPingTimes), 1, (.. this lastPingTimes), 0, (dec (.. this lastPingTimes length)))
+                (System/arraycopy (.. this lastPingTimes), 1, (.. this lastPingTimes), 0, (dec (.. this lastPingTimes (alength))))
                 ;; And append the new sample to the end.
-                (aset (.. this lastPingTimes) (dec (.. this lastPingTimes length)) __sample)
+                (aset (.. this lastPingTimes) (dec (.. this lastPingTimes (alength))) __sample)
             )
             (finally
                 (.. this lastPingTimesLock (unlock))
@@ -11906,7 +11906,7 @@
     (§ method #_"long" getLastPingTime []
         (.. this lastPingTimesLock (lock))
         (try
-            (§ return (if (some? (.. this lastPingTimes)) (aget (.. this lastPingTimes) (dec (.. this lastPingTimes length))) Long/MAX_VALUE))
+            (§ return (if (some? (.. this lastPingTimes)) (aget (.. this lastPingTimes) (dec (.. this lastPingTimes (alength)))) Long/MAX_VALUE))
             (finally
                 (.. this lastPingTimesLock (unlock))
             )
@@ -11929,7 +11929,7 @@
                 (§ forin [#_"long" __i] (.. this lastPingTimes)
                     (§ ass __sum (+ __sum __i))
                 )
-                (§ return (long (/ (double __sum) (.. this lastPingTimes length))))
+                (§ return (long (/ (double __sum) (.. this lastPingTimes (alength)))))
             )
             (finally
                 (.. this lastPingTimesLock (unlock))
@@ -12199,7 +12199,7 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"PeerAddress" (§ extends #_"ChildMessage")
+(§ class PeerAddress (§ extends ChildMessage)
     #_static
     (§ def #_"int" PeerAddress/MESSAGE_SIZE 30)
 
@@ -12219,7 +12219,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"PeerAddress" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"int" __protocolVersion]
+    (§ constructor PeerAddress [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"int" __protocolVersion]
         (§ super __params, __payload, __offset, __protocolVersion)
         this
     )
@@ -12235,7 +12235,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"PeerAddress" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"int" __protocolVersion, #_"Message" __parent, #_"MessageSerializer" __serializer]
+    (§ constructor PeerAddress [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"int" __protocolVersion, #_"Message" __parent, #_"MessageSerializer" __serializer]
         (§ super __params, __payload, __offset, __protocolVersion, __parent, __serializer, Message/UNKNOWN_LENGTH)
         this
     )
@@ -12244,7 +12244,7 @@
      ; Construct a peer address from a memorized or hardcoded address.
      ;;
     #_public
-    (§ constructor #_"PeerAddress" [#_"NetworkParameters" __params, #_"InetAddress" __addr, #_"int" __port, #_"int" __protocolVersion, #_"BigInteger" __services]
+    (§ constructor PeerAddress [#_"NetworkParameters" __params, #_"InetAddress" __addr, #_"int" __port, #_"int" __protocolVersion, #_"BigInteger" __services]
         (§ super __params)
 
         (§ ass (.. this addr) (Preconditions/checkNotNull __addr))
@@ -12260,7 +12260,7 @@
      ; Constructs a peer address from the given IP address and port.  Version number is default for the given parameters.
      ;;
     #_public
-    (§ constructor #_"PeerAddress" [#_"NetworkParameters" __params, #_"InetAddress" __addr, #_"int" __port]
+    (§ constructor PeerAddress [#_"NetworkParameters" __params, #_"InetAddress" __addr, #_"int" __port]
         (§ this __params, __addr, __port, (.. __params (getProtocolVersionNum NetworkParameters/ProtocolVersion/CURRENT)), BigInteger/ZERO)
         this
     )
@@ -12269,7 +12269,7 @@
      ; Constructs a peer address from the given IP address.  Port and version number are default for the given parameters.
      ;;
     #_public
-    (§ constructor #_"PeerAddress" [#_"NetworkParameters" __params, #_"InetAddress" __addr]
+    (§ constructor PeerAddress [#_"NetworkParameters" __params, #_"InetAddress" __addr]
         (§ this __params, __addr, (.. __params (getPort)))
         this
     )
@@ -12279,7 +12279,7 @@
      ; InetAddress or a String hostname.  If you want to connect to a .onion, set the hostname to the .onion address.
      ;;
     #_public
-    (§ constructor #_"PeerAddress" [#_"NetworkParameters" __params, #_"InetSocketAddress" __addr]
+    (§ constructor PeerAddress [#_"NetworkParameters" __params, #_"InetSocketAddress" __addr]
         (§ this __params, (.. __addr (getAddress)), (.. __addr (getPort)))
         this
     )
@@ -12288,7 +12288,7 @@
      ; Constructs a peer address from a stringified hostname+port.  Use this if you want to connect to a Tor .onion address.
      ;;
     #_public
-    (§ constructor #_"PeerAddress" [#_"NetworkParameters" __params, #_"String" __hostname, #_"int" __port]
+    (§ constructor PeerAddress [#_"NetworkParameters" __params, #_"String" __hostname, #_"int" __port]
         (§ super __params)
 
         (§ ass (.. this hostname) __hostname)
@@ -12319,7 +12319,7 @@
         (Utils/uint64ToByteStreamLE (.. this services), __stream) ;; nServices.
         ;; Java does not provide any utility to map an IPv4 address into IPv6 space, so we have to do it by hand.
         (let [#_"byte[]" __ipBytes (.. this addr (getAddress))]
-            (§ when (== (.. __ipBytes length) 4)
+            (§ when (== (.. __ipBytes (alength)) 4)
                 (let [#_"byte[]" __v6addr (byte-array 16)]
                     (System/arraycopy __ipBytes, 0, __v6addr, 12, 4)
                     (aset __v6addr 10 (byte 0xff))
@@ -12430,21 +12430,21 @@
  ; Thrown when a problem occurs in communicating with a peer, and we should retry.
  ;;
 #_public
-(§ class #_"PeerException" (§ extends #_"Exception")
+(§ class PeerException (§ extends Exception)
     #_public
-    (§ constructor #_"PeerException" [#_"String" __msg]
+    (§ constructor PeerException [#_"String" __msg]
         (§ super __msg)
         this
     )
 
     #_public
-    (§ constructor #_"PeerException" [#_"Exception" __e]
+    (§ constructor PeerException [#_"Exception" __e]
         (§ super __e)
         this
     )
 
     #_public
-    (§ constructor #_"PeerException" [#_"String" __msg, #_"Exception" __e]
+    (§ constructor PeerException [#_"String" __msg, #_"Exception" __e]
         (§ super __msg, __e)
         this
     )
@@ -12458,7 +12458,7 @@
  ; whenever a change occurs which effects the data provided via this interface.
  ;;
 #_public
-(§ interface #_"PeerFilterProvider"
+(§ interface PeerFilterProvider
     ;;;
      ; Returns the earliest timestamp (seconds since epoch) for which full/bloom-filtered blocks must be downloaded.
      ; Blocks with timestamps before this time will only have headers downloaded.  0 requires that all blocks be
@@ -12534,7 +12534,7 @@
  ; but starting and stopping the service should be fine.</p>
  ;;
 #_public
-(§ class #_"PeerGroup" (§ implements #_"TransactionBroadcaster")
+(§ class PeerGroup (§ implements TransactionBroadcaster)
     #_private
     #_static
     (§ def- #_"Logger" PeerGroup/log (LoggerFactory/getLogger (§ klass #_"PeerGroup")))
@@ -12759,9 +12759,9 @@
     (§ field- #_"Set<TransactionBroadcast>" runningBroadcasts)
 
     #_private
-    (§ class #_"PeerGroup.PeerListener" (§ implements #_"GetDataEventListener", #_"BlocksDownloadedEventListener")
+    (§ class PeerGroup/PeerListener (§ implements GetDataEventListener, BlocksDownloadedEventListener)
         #_public
-        (§ constructor #_"PeerGroup.PeerListener" []
+        (§ constructor PeerGroup/PeerListener []
             this
         )
 
@@ -12791,7 +12791,7 @@
     )
 
     #_private
-    (§ class #_"PeerGroup.PeerStartupListener" (§ implements #_"PeerConnectedEventListener", #_"PeerDisconnectedEventListener")
+    (§ class PeerGroup/PeerStartupListener (§ implements PeerConnectedEventListener, PeerDisconnectedEventListener)
         #_override
         #_public
         (§ method #_"void" onPeerConnected [#_"Peer" __peer, #_"int" __peerCount]
@@ -12846,7 +12846,7 @@
 
     ;;; See {@link #PeerGroup(Context)}. ;;
     #_public
-    (§ constructor #_"PeerGroup" [#_"NetworkParameters" __params]
+    (§ constructor PeerGroup [#_"NetworkParameters" __params]
         (§ this __params, nil)
         this
     )
@@ -12857,14 +12857,14 @@
      ; in downloading block data.
      ;;
     #_public
-    (§ constructor #_"PeerGroup" [#_"Context" __context]
+    (§ constructor PeerGroup [#_"Context" __context]
         (§ this __context, nil)
         this
     )
 
     ;;; See {@link #PeerGroup(Context, AbstractBlockChain)}. ;;
     #_public
-    (§ constructor #_"PeerGroup" [#_"NetworkParameters" __params, #_nilable #_"AbstractBlockChain" __chain]
+    (§ constructor PeerGroup [#_"NetworkParameters" __params, #_nilable #_"AbstractBlockChain" __chain]
         (§ this (Context/getOrCreate __params), __chain, (NioClientManager.))
         this
     )
@@ -12874,14 +12874,14 @@
      ; and downloaded.  This is probably the constructor you want to use.
      ;;
     #_public
-    (§ constructor #_"PeerGroup" [#_"Context" __context, #_nilable #_"AbstractBlockChain" __chain]
+    (§ constructor PeerGroup [#_"Context" __context, #_nilable #_"AbstractBlockChain" __chain]
         (§ this __context, __chain, (NioClientManager.))
         this
     )
 
     ;;; See {@link #PeerGroup(Context, AbstractBlockChain, ClientConnectionManager)}. ;;
     #_public
-    (§ constructor #_"PeerGroup" [#_"NetworkParameters" __params, #_nilable #_"AbstractBlockChain" __chain, #_"ClientConnectionManager" __connectionManager]
+    (§ constructor PeerGroup [#_"NetworkParameters" __params, #_nilable #_"AbstractBlockChain" __chain, #_"ClientConnectionManager" __connectionManager]
         (§ this (Context/getOrCreate __params), __chain, __connectionManager)
         this
     )
@@ -13719,7 +13719,7 @@
     )
 
     #_private
-    (§ enum #_"PeerGroup.LocalhostCheckState"
+    (§ enum PeerGroup/LocalhostCheckState
         (§ item NOT_TRIED)
         (§ item FOUND)
         (§ item FOUND_AND_CONNECTED)
@@ -13983,7 +13983,7 @@
     )
 
     #_public
-    (§ enum #_"PeerGroup.FilterRecalculateMode"
+    (§ enum PeerGroup/FilterRecalculateMode
         (§ item SEND_IF_CHANGED)
         (§ item FORCE_SEND_FOR_REFRESH)
         (§ item DONT_SEND)
@@ -14632,7 +14632,7 @@
     )
 
     #_private
-    (§ class #_"PeerGroup.ChainDownloadSpeedCalculator" (§ implements #_"BlocksDownloadedEventListener", #_"Runnable")
+    (§ class PeerGroup/ChainDownloadSpeedCalculator (§ implements BlocksDownloadedEventListener, Runnable)
         #_private
         (§ field- #_"int" blocksInLastSecond)
         #_private
@@ -14712,7 +14712,7 @@
                 )
 
                 (§ sync this
-                    (§ when (or (nil? (.. this samples)) (!= (.. this samples length) __period))
+                    (§ when (or (nil? (.. this samples)) (!= (.. this samples (alength)) __period))
                         (§ ass (.. this samples) (long-array __period))
                         ;; *2 because otherwise a single low sample could cause an immediate disconnect which is too harsh.
                         (Arrays/fill (.. this samples), (* __minSpeedBytesPerSec 2))
@@ -14728,16 +14728,16 @@
                                 ;; Calculate the moving average.
                                 (aset (.. this samples) (.. this cursor) (.. this bytesInLastSecond))
                                 (§ ass (.. this cursor) (inc (.. this cursor)))
-                                (§ when (== (.. this cursor) (.. this samples length))
+                                (§ when (== (.. this cursor) (.. this samples (alength)))
                                     (§ ass (.. this cursor) 0)
                                 )
                                 (let [#_"long" __average 0]
                                     (§ forin [#_"long" __sample] (.. this samples)
                                         (§ ass __average (+ __average __sample))
                                     )
-                                    (§ ass __average (/ __average (.. this samples length)))
+                                    (§ ass __average (/ __average (.. this samples (alength))))
 
-                                    (.. PeerGroup/log (info (String/format Locale/US, "%d blocks/sec, %d tx/sec, %d pre-filtered tx/sec, avg/last %.2f/%.2f kilobytes per sec (stall threshold <%.2f KB/sec for %d seconds)", (.. this blocksInLastSecond), (.. this txnsInLastSecond), (.. this origTxnsInLastSecond), (/ __average 1024.0), (/ (.. this bytesInLastSecond) 1024.0), (/ __minSpeedBytesPerSec 1024.0), (.. this samples length))))
+                                    (.. PeerGroup/log (info (String/format Locale/US, "%d blocks/sec, %d tx/sec, %d pre-filtered tx/sec, avg/last %.2f/%.2f kilobytes per sec (stall threshold <%.2f KB/sec for %d seconds)", (.. this blocksInLastSecond), (.. this txnsInLastSecond), (.. this origTxnsInLastSecond), (/ __average 1024.0), (/ (.. this bytesInLastSecond) 1024.0), (/ __minSpeedBytesPerSec 1024.0), (.. this samples (alength)))))
 
                                     (§ when (and (< __average __minSpeedBytesPerSec) (< 0 (.. this maxStalls)))
                                         (§ ass (.. this maxStalls) (dec (.. this maxStalls)))
@@ -14753,7 +14753,7 @@
                                         )
                                         (§ else 
                                             (let [#_"Peer" __peer (.. this (getDownloadPeer))]
-                                                (.. PeerGroup/log (warn (String/format Locale/US, "Chain download stalled: received %.2f KB/sec for %d seconds, require average of %.2f KB/sec, disconnecting %s", (/ __average 1024.0), (.. this samples length), (/ __minSpeedBytesPerSec 1024.0), __peer)))
+                                                (.. PeerGroup/log (warn (String/format Locale/US, "Chain download stalled: received %.2f KB/sec for %d seconds, require average of %.2f KB/sec, disconnecting %s", (/ __average 1024.0), (.. this samples (alength)), (/ __minSpeedBytesPerSec 1024.0), __peer)))
                                                 (.. __peer (close))
                                                 ;; Reset the sample buffer and give the next peer time to get going.
                                                 (§ ass (.. this samples) nil)
@@ -15310,7 +15310,7 @@
  ;;
 #_public
 #_abstract
-(§ class #_"PeerSocketHandler" (§ extends #_"AbstractTimeoutHandler") (§ implements #_"StreamConnection")
+(§ class PeerSocketHandler (§ extends AbstractTimeoutHandler) (§ implements StreamConnection)
     #_private
     #_static
     (§ def- #_"Logger" PeerSocketHandler/log (LoggerFactory/getLogger (§ klass #_"PeerSocketHandler")))
@@ -15341,7 +15341,7 @@
     (§ field- #_"Lock" lock (Threading/lock "PeerSocketHandler"))
 
     #_public
-    (§ constructor #_"PeerSocketHandler" [#_"NetworkParameters" __params, #_"InetSocketAddress" __remoteIp]
+    (§ constructor PeerSocketHandler [#_"NetworkParameters" __params, #_"InetSocketAddress" __remoteIp]
         (Preconditions/checkNotNull __params)
         (§ ass (.. this serializer) (.. __params (getDefaultSerializer)))
         (§ ass (.. this peerAddress) (PeerAddress. __params, __remoteIp))
@@ -15349,7 +15349,7 @@
     )
 
     #_public
-    (§ constructor #_"PeerSocketHandler" [#_"NetworkParameters" __params, #_"PeerAddress" __peerAddress]
+    (§ constructor PeerSocketHandler [#_"NetworkParameters" __params, #_"PeerAddress" __peerAddress]
         (Preconditions/checkNotNull __params)
         (§ ass (.. this serializer) (.. __params (getDefaultSerializer)))
         (§ ass (.. this peerAddress) (Preconditions/checkNotNull __peerAddress))
@@ -15434,11 +15434,11 @@
                         ;; This can only happen in the first iteration.
                         (Preconditions/checkState __firstMessage)
                         ;; Read new bytes into the largeReadBuffer.
-                        (let [#_"int" __bytesToGet (Math/min (.. __buff (remaining)), (- (.. this largeReadBuffer length) (.. this largeReadBufferPos)))]
+                        (let [#_"int" __bytesToGet (Math/min (.. __buff (remaining)), (- (.. this largeReadBuffer (alength)) (.. this largeReadBufferPos)))]
                             (.. __buff (get (.. this largeReadBuffer), (.. this largeReadBufferPos), __bytesToGet))
                             (§ ass (.. this largeReadBufferPos) (+ (.. this largeReadBufferPos) __bytesToGet))
                             ;; Check the largeReadBuffer's status.
-                            (§ when (== (.. this largeReadBufferPos) (.. this largeReadBuffer length))
+                            (§ when (== (.. this largeReadBufferPos) (.. this largeReadBuffer (alength)))
                                 ;; ...processing a message if one is available.
                                 (.. this (processMessage (.. this serializer (deserializePayload (.. this header), (ByteBuffer/wrap (.. this largeReadBuffer))))))
                                 (§ ass (.. this largeReadBuffer) nil)
@@ -15569,7 +15569,7 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"Ping" (§ extends #_"Message")
+(§ class Ping (§ extends Message)
     #_private
     (§ field- #_"long" nonce)
     #_private
@@ -15577,7 +15577,7 @@
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"Ping" [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
+    (§ constructor Ping [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
         (§ super __params, __payloadBytes, 0)
         this
     )
@@ -15587,7 +15587,7 @@
      ; Only use this if the remote node has a protocol version > 60000.
      ;;
     #_public
-    (§ constructor #_"Ping" [#_"long" __nonce]
+    (§ constructor Ping [#_"long" __nonce]
         (§ ass (.. this nonce) __nonce)
         (§ ass (.. this hasNonce) true)
         this
@@ -15598,7 +15598,7 @@
      ; Only use this if the remote node has a protocol version <= 60000.
      ;;
     #_public
-    (§ constructor #_"Ping" []
+    (§ constructor Ping []
         (§ ass (.. this hasNonce) false)
         this
     )
@@ -15646,13 +15646,13 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"Pong" (§ extends #_"Message")
+(§ class Pong (§ extends Message)
     #_private
     (§ field- #_"long" nonce)
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"Pong" [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
+    (§ constructor Pong [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
         (§ super __params, __payloadBytes, 0)
         this
     )
@@ -15662,7 +15662,7 @@
      ; Only use this if the remote node has a protocol version > 60000.
      ;;
     #_public
-    (§ constructor #_"Pong" [#_"long" __nonce]
+    (§ constructor Pong [#_"long" __nonce]
         (§ ass (.. this nonce) __nonce)
         this
     )
@@ -15694,21 +15694,21 @@
 #_(ns org.bitcoinj.core #_"ProtocolException")
 
 #_public
-(§ class #_"ProtocolException" (§ extends #_"VerificationException")
+(§ class ProtocolException (§ extends VerificationException)
     #_public
-    (§ constructor #_"ProtocolException" [#_"String" __msg]
+    (§ constructor ProtocolException [#_"String" __msg]
         (§ super __msg)
         this
     )
 
     #_public
-    (§ constructor #_"ProtocolException" [#_"Exception" __e]
+    (§ constructor ProtocolException [#_"Exception" __e]
         (§ super __e)
         this
     )
 
     #_public
-    (§ constructor #_"ProtocolException" [#_"String" __msg, #_"Exception" __e]
+    (§ constructor ProtocolException [#_"String" __msg, #_"Exception" __e]
         (§ super __msg, __e)
         this
     )
@@ -15725,12 +15725,12 @@
  ; required to trigger it.
  ;;
 #_public
-(§ class #_"PrunedException" (§ extends #_"Exception")
+(§ class PrunedException (§ extends Exception)
     #_private
     (§ field- #_"Sha256Hash" hash)
 
     #_public
-    (§ constructor #_"PrunedException" [#_"Sha256Hash" __hash]
+    (§ constructor PrunedException [#_"Sha256Hash" __hash]
         (§ super (.. __hash (toString)))
 
         (§ ass (.. this hash) __hash)
@@ -15754,14 +15754,14 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"RejectMessage" (§ extends #_"Message")
+(§ class RejectMessage (§ extends Message)
     #_private
     (§ field- #_"String" message)
     #_private
     (§ field- #_"String" reason)
 
     #_public
-    (§ enum #_"RejectMessage.RejectCode"
+    (§ enum RejectMessage/RejectCode
         ;;; The message was not able to be parsed. ;;
         (§ item (MALFORMED (byte 0x01)))
         ;;; The message described an invalid object. ;;
@@ -15793,7 +15793,7 @@
 
         (let [#_"byte" __code]
 
-            (§ constructor #_"RejectMessage.RejectCode" [#_"byte" __code]
+            (§ constructor RejectMessage/RejectCode [#_"byte" __code]
                 (§ ass (.. this code) __code)
                 this
             )
@@ -15818,7 +15818,7 @@
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"RejectMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload]
+    (§ constructor RejectMessage [#_"NetworkParameters" __params, #_"byte[]" __payload]
         (§ super __params, __payload, 0)
         this
     )
@@ -15826,7 +15826,7 @@
     ;;; Constructs a reject message that fingers the object with the given hash as rejected for the given reason. ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"RejectMessage" [#_"NetworkParameters" __params, #_"RejectMessage.RejectCode" __code, #_"Sha256Hash" __hash, #_"String" __message, #_"String" __reason]
+    (§ constructor RejectMessage [#_"NetworkParameters" __params, #_"RejectMessage.RejectCode" __code, #_"Sha256Hash" __hash, #_"String" __message, #_"String" __reason]
         (§ super __params)
 
         (§ ass (.. this code) __code)
@@ -15855,11 +15855,11 @@
     #_throws #_[ "IOException" ]
     (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" __stream]
         (let [#_"byte[]" __messageBytes (.. this message (getBytes "UTF-8"))]
-            (.. __stream (write (.. (VarInt. (.. __messageBytes length)) (encode))))
+            (.. __stream (write (.. (VarInt. (.. __messageBytes (alength))) (encode))))
             (.. __stream (write __messageBytes))
             (.. __stream (write (.. this code code)))
             (let [#_"byte[]" __reasonBytes (.. this reason (getBytes "UTF-8"))]
-                (.. __stream (write (.. (VarInt. (.. __reasonBytes length)) (encode))))
+                (.. __stream (write (.. (VarInt. (.. __reasonBytes (alength))) (encode))))
                 (.. __stream (write __reasonBytes))
                 (§ when (or (.. "block" (equals (.. this message))) (.. "tx" (equals (.. this message))))
                     (.. __stream (write (.. this messageHash (getReversedBytes))))
@@ -15947,14 +15947,14 @@
  ; some peers may never do so.
  ;;
 #_public
-(§ class #_"RejectedTransactionException" (§ extends #_"Exception")
+(§ class RejectedTransactionException (§ extends Exception)
     #_private
     (§ field- #_"Transaction" tx)
     #_private
     (§ field- #_"RejectMessage" rejectMessage)
 
     #_public
-    (§ constructor #_"RejectedTransactionException" [#_"Transaction" __tx, #_"RejectMessage" __rejectMessage]
+    (§ constructor RejectedTransactionException [#_"Transaction" __tx, #_"RejectMessage" __rejectMessage]
         (§ super (.. __rejectMessage (toString)))
 
         (§ ass (.. this tx) __tx)
@@ -15979,19 +15979,19 @@
    (:require [org.bitcoinj.script ScriptError]))
 
 #_public
-(§ class #_"ScriptException" (§ extends #_"VerificationException")
+(§ class ScriptException (§ extends VerificationException)
     #_private
     (§ field- #_"ScriptError" err)
 
     #_public
-    (§ constructor #_"ScriptException" [#_"ScriptError" __err, #_"String" __msg]
+    (§ constructor ScriptException [#_"ScriptError" __err, #_"String" __msg]
         (§ super __msg)
         (§ ass (.. this err) __err)
         this
     )
 
     #_public
-    (§ constructor #_"ScriptException" [#_"ScriptError" __err, #_"String" __msg, #_"Exception" __e]
+    (§ constructor ScriptException [#_"ScriptError" __err, #_"String" __msg, #_"Exception" __e]
         (§ super __msg, __e)
         (§ ass (.. this err) __err)
         this
@@ -16018,7 +16018,7 @@
  ; It also checks that the length is correct and provides a bit more type safety.
  ;;
 #_public
-(§ class #_"Sha256Hash" (§ implements #_"Serializable", #_"Comparable<Sha256Hash>")
+(§ class Sha256Hash (§ implements Serializable, Comparable #_"<Sha256Hash>")
     #_public
     #_static
     (§ def #_"int" Sha256Hash/LENGTH 32) ;; bytes
@@ -16033,8 +16033,8 @@
      ; Use {@link #wrap(byte[])} instead.
      ;;
     #_protected
-    (§ constructor #_"Sha256Hash" [#_"byte[]" __rawHashBytes]
-        (Preconditions/checkArgument (== (.. __rawHashBytes length) Sha256Hash/LENGTH))
+    (§ constructor Sha256Hash [#_"byte[]" __rawHashBytes]
+        (Preconditions/checkArgument (== (.. __rawHashBytes (alength)) Sha256Hash/LENGTH))
         (§ ass (.. this bytes) __rawHashBytes)
         this
     )
@@ -16153,7 +16153,7 @@
     #_public
     #_static
     (§ defn #_"byte[]" Sha256Hash/hash [#_"byte[]" __input]
-        (Sha256Hash/hash __input, 0, (.. __input length))
+        (Sha256Hash/hash __input, 0, (.. __input (alength)))
     )
 
     ;;;
@@ -16183,7 +16183,7 @@
     #_public
     #_static
     (§ defn #_"byte[]" Sha256Hash/hashTwice [#_"byte[]" __input]
-        (Sha256Hash/hashTwice __input, 0, (.. __input length))
+        (Sha256Hash/hashTwice __input, 0, (.. __input (alength)))
     )
 
     ;;;
@@ -16306,7 +16306,7 @@
  ; StoredBlocks are put inside a {@link BlockStore} which saves them to memory or disk.
  ;;
 #_public
-(§ class #_"StoredBlock"
+(§ class StoredBlock
     ;; A BigInteger representing the total amount of work done so far on this chain.  As of May 2011 it takes
     ;; 8 bytes to represent this field, so 12 bytes should be plenty for now.
     #_public
@@ -16327,7 +16327,7 @@
     (§ field- #_"int" height)
 
     #_public
-    (§ constructor #_"StoredBlock" [#_"Block" __header, #_"BigInteger" __chainWork, #_"int" __height]
+    (§ constructor StoredBlock [#_"Block" __header, #_"BigInteger" __chainWork, #_"int" __height]
         (§ ass (.. this header) __header)
         (§ ass (.. this chainWork) __chainWork)
         (§ ass (.. this height) __height)
@@ -16415,10 +16415,10 @@
     #_public
     (§ method #_"void" serializeCompact [#_"ByteBuffer" __buffer]
         (let [#_"byte[]" __chainWorkBytes (.. this (getChainWork) (toByteArray))]
-            (Preconditions/checkState (<= (.. __chainWorkBytes length) StoredBlock/CHAIN_WORK_BYTES), "Ran out of space to store chain work!")
-            (§ when (< (.. __chainWorkBytes length) StoredBlock/CHAIN_WORK_BYTES)
+            (Preconditions/checkState (<= (.. __chainWorkBytes (alength)) StoredBlock/CHAIN_WORK_BYTES), "Ran out of space to store chain work!")
+            (§ when (< (.. __chainWorkBytes (alength)) StoredBlock/CHAIN_WORK_BYTES)
                 ;; Pad to the right size.
-                (.. __buffer (put StoredBlock/EMPTY_BYTES, 0, (- StoredBlock/CHAIN_WORK_BYTES (.. __chainWorkBytes length))))
+                (.. __buffer (put StoredBlock/EMPTY_BYTES, 0, (- StoredBlock/CHAIN_WORK_BYTES (.. __chainWorkBytes (alength)))))
             )
             (.. __buffer (put __chainWorkBytes))
             (.. __buffer (putInt (.. this (getHeight))))
@@ -16465,7 +16465,7 @@
  ; connected.
  ;;
 #_public
-(§ class #_"StoredUndoableBlock"
+(§ class StoredUndoableBlock
     (§ field #_"Sha256Hash" blockHash)
 
     ;; Only one of either txOutChanges or transactions will be set.
@@ -16475,7 +16475,7 @@
     (§ field- #_"List<Transaction>" transactions)
 
     #_public
-    (§ constructor #_"StoredUndoableBlock" [#_"Sha256Hash" __hash, #_"TransactionOutputChanges" __txOutChanges]
+    (§ constructor StoredUndoableBlock [#_"Sha256Hash" __hash, #_"TransactionOutputChanges" __txOutChanges]
         (§ ass (.. this blockHash) __hash)
         (§ ass (.. this transactions) nil)
         (§ ass (.. this txOutChanges) __txOutChanges)
@@ -16483,7 +16483,7 @@
     )
 
     #_public
-    (§ constructor #_"StoredUndoableBlock" [#_"Sha256Hash" __hash, #_"List<Transaction>" __transactions]
+    (§ constructor StoredUndoableBlock [#_"Sha256Hash" __hash, #_"List<Transaction>" __transactions]
         (§ ass (.. this blockHash) __hash)
         (§ ass (.. this txOutChanges) nil)
         (§ ass (.. this transactions) __transactions)
@@ -16574,7 +16574,7 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"Transaction" (§ extends #_"ChildMessage")
+(§ class Transaction (§ extends ChildMessage)
     ;;;
      ; A comparator that can be used to sort transactions by their updateTime field.
      ; The ordering goes from most recent into the past.
@@ -16700,7 +16700,7 @@
      ; more appropriately.
      ;;
     #_public
-    (§ enum #_"Transaction.Purpose"
+    (§ enum Transaction/Purpose
         ;;; Used when the purpose of a transaction is genuinely unknown. ;;
         (§ item UNKNOWN)
         ;;; Transaction created to satisfy a user payment request. ;;
@@ -16762,7 +16762,7 @@
     (§ def #_"long" Transaction/SEQUENCE_LOCKTIME_MASK 0x0000ffff)
 
     #_public
-    (§ constructor #_"Transaction" [#_"NetworkParameters" __params]
+    (§ constructor Transaction [#_"NetworkParameters" __params]
         (§ super __params)
 
         (§ ass (.. this version) 1)
@@ -16778,7 +16778,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"Transaction" [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
+    (§ constructor Transaction [#_"NetworkParameters" __params, #_"byte[]" __payloadBytes]
         (§ super __params, __payloadBytes, 0)
         this
     )
@@ -16788,7 +16788,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"Transaction" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset]
+    (§ constructor Transaction [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset]
         (§ super __params, __payload, __offset)
         ;; inputs/outputs will be created in parse()
         this
@@ -16808,7 +16808,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"Transaction" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_nilable #_"Message" __parent, #_"MessageSerializer" __setSerializer, #_"int" __length]
+    (§ constructor Transaction [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_nilable #_"Message" __parent, #_"MessageSerializer" __setSerializer, #_"int" __length]
         (§ super __params, __payload, __offset, __parent, __setSerializer, __length)
         this
     )
@@ -16818,7 +16818,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"Transaction" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_nilable #_"Message" __parent, #_"MessageSerializer" __setSerializer, #_"int" __length]
+    (§ constructor Transaction [#_"NetworkParameters" __params, #_"byte[]" __payload, #_nilable #_"Message" __parent, #_"MessageSerializer" __setSerializer, #_"int" __length]
         (§ super __params, __payload, 0, __parent, __setSerializer, __length)
         this
     )
@@ -17108,7 +17108,7 @@
      ; transaction can be redeemed, specifically, they control how the hash of the transaction is calculated.
      ;;
     #_public
-    (§ enum #_"Transaction.SigHash"
+    (§ enum Transaction/SigHash
         (§ item (ALL 1))
         (§ item (NONE 2))
         (§ item (SINGLE 3))
@@ -17249,7 +17249,7 @@
             (§ forin [#_"TransactionInput" __input] (.. this inputs)
                 ;; 41: min size of an input
                 ;; 110: enough to cover a compressed pubkey p2sh redemption (somewhat arbitrary)
-                (let [#_"int" __benefit (+ 41 (Math/min 110, (.. __input (getScriptSig) (getProgram) length)))]
+                (let [#_"int" __benefit (+ 41 (Math/min 110, (.. __input (getScriptSig) (getProgram) (alength))))]
                     (§ when (< __benefit __size)
                         (§ ass __size (- __size __benefit))
                     )
@@ -17403,7 +17403,7 @@
 
             (let [#_"Coin" __fee (.. this (getFee))]
                 (§ when (some? __fee)
-                    (let [#_"int" __size (.. this (unsafeBitcoinSerialize) length)]
+                    (let [#_"int" __size (.. this (unsafeBitcoinSerialize) (alength))]
                         (.. __sb (append "     fee  ") (append (.. __fee (multiply 1000) (divide __size) (toFriendlyString))) (append "/kB, ") (append (.. __fee (toFriendlyString))) (append " for ") (append __size) (append " bytes\n"))
                     )
                 )
@@ -17427,7 +17427,7 @@
         )
         (.. this inputs (clear))
         ;; You wanted to reserialize, right?
-        (§ ass (.. this length) (.. this (unsafeBitcoinSerialize) length))
+        (§ ass (.. this length) (.. this (unsafeBitcoinSerialize) (alength)))
         nil
     )
 
@@ -17536,7 +17536,7 @@
         )
         (.. this outputs (clear))
         ;; You wanted to reserialize, right?
-        (§ ass (.. this length) (.. this (unsafeBitcoinSerialize) length))
+        (§ ass (.. this length) (.. this (unsafeBitcoinSerialize) (alength)))
         nil
     )
 
@@ -18004,11 +18004,11 @@
         (let [#_"TransactionInput" __in (.. this (getInputs) (get 0))][#_"ScriptBuilder" __builder (ScriptBuilder.)]
             (.. __builder (number __height))
             (let [#_"byte[]" __expected (.. __builder (build) (getProgram))][#_"byte[]" __actual (.. __in (getScriptBytes))]
-                (§ when (< (.. __actual length) (.. __expected length))
+                (§ when (< (.. __actual (alength)) (.. __expected (alength)))
                     (throw (VerificationException/CoinbaseHeightMismatch. "Block height mismatch in coinbase."))
                 )
 
-                (§ for [#_"int" __scriptIdx 0] (< __scriptIdx (.. __expected length)) [(inc __scriptIdx)]
+                (§ for [#_"int" __scriptIdx 0] (< __scriptIdx (.. __expected (alength))) [(inc __scriptIdx)]
                     (§ when (!= (aget __actual __scriptIdx) (aget __expected __scriptIdx))
                         (throw (VerificationException/CoinbaseHeightMismatch. "Block height mismatch in coinbase."))
                     )
@@ -18071,7 +18071,7 @@
             )
 
             (§ when (.. this (isCoinBase))
-                (let [#_"int" __n (.. this inputs (get 0) (getScriptBytes) length)]
+                (let [#_"int" __n (.. this inputs (get 0) (getScriptBytes) (alength))]
                     (§ when (not (<= 2 __n 100))
                         (throw (VerificationException/CoinbaseScriptSizeOutOfRange.))
                     )
@@ -18210,7 +18210,7 @@
  ; This interface is used to abstract the {@link org.bitcoinj.wallet.Wallet} and the {@link org.bitcoinj.core.Transaction}.
  ;;
 #_public
-(§ interface #_"TransactionBag"
+(§ interface TransactionBag
     ;;; Returns true if this wallet contains a public key which hashes to the given hash. ;;
     (§ method #_"boolean" isPubKeyHashMine [#_"byte[]" __pubkeyHash])
 
@@ -18243,7 +18243,7 @@
  ; indicating that the transaction was not acceptable.
  ;;
 #_public
-(§ class #_"TransactionBroadcast"
+(§ class TransactionBroadcast
     #_private
     #_static
     (§ def- #_"Logger" TransactionBroadcast/log (LoggerFactory/getLogger (§ klass #_"TransactionBroadcast")))
@@ -18269,7 +18269,7 @@
     #_private
     (§ field- #_"Map<Peer, RejectMessage>" rejects (Collections/synchronizedMap (HashMap. #_"<Peer, RejectMessage>")))
 
-    (§ constructor #_"TransactionBroadcast" [#_"PeerGroup" __peerGroup, #_"Transaction" __tx]
+    (§ constructor TransactionBroadcast [#_"PeerGroup" __peerGroup, #_"Transaction" __tx]
         (§ ass (.. this peerGroup) __peerGroup)
         (§ ass (.. this tx) __tx)
         (§ ass (.. this minConnections) (Math/max 1, (.. __peerGroup (getMinBroadcastConnections))))
@@ -18348,7 +18348,7 @@
     )
 
     #_private
-    (§ class #_"TransactionBroadcast.EnoughAvailablePeers" (§ implements #_"Runnable")
+    (§ class TransactionBroadcast/EnoughAvailablePeers (§ implements Runnable)
         #_override
         #_public
         (§ method #_"void" run []
@@ -18410,7 +18410,7 @@
     (§ field- #_"boolean" mined)
 
     #_private
-    (§ class #_"TransactionBroadcast.ConfidenceChange" (§ implements #_"TransactionConfidence.Listener")
+    (§ class TransactionBroadcast/ConfidenceChange (§ implements TransactionConfidence/Listener)
         #_override
         #_public
         (§ method #_"void" onConfidenceChanged [#_"TransactionConfidence" __conf, #_"TransactionConfidence.Listener.ChangeReason" __reason]
@@ -18492,7 +18492,7 @@
 
     ;;; An interface for receiving progress information on the propagation of the tx, from 0.0 to 1.0 ;;
     #_public
-    (§ interface #_"TransactionBroadcast.ProgressCallback"
+    (§ interface TransactionBroadcast/ProgressCallback
         ;;;
          ; onBroadcastProgress will be invoked on the provided executor when the progress of the transaction
          ; broadcast has changed, because the transaction has been announced by another peer or because the transaction
@@ -18551,7 +18551,7 @@
  ; This is implemented by {@link org.bitcoinj.core.PeerGroup}.
  ;;
 #_public
-(§ interface #_"TransactionBroadcaster"
+(§ interface TransactionBroadcaster
     ;;; Broadcast the given transaction on the network. ;;
     (§ method #_"TransactionBroadcast" broadcastTransaction [#_"Transaction" __tx])
 )
@@ -18596,7 +18596,7 @@
  ; To make a copy that won't be changed, use {@link org.bitcoinj.core.TransactionConfidence#duplicate()}.
  ;;
 #_public
-(§ class #_"TransactionConfidence"
+(§ class TransactionConfidence
     ;;;
      ; The peers that have announced the transaction to us.  Network nodes don't have stable identities, so we use
      ; IP address as an approximation.  It's obviously vulnerable to being gamed if we allow arbitrary people to connect
@@ -18620,7 +18620,7 @@
 
     ;;; Describes the state of the transaction in general terms.  Properties can be read to learn specifics. ;;
     #_public
-    (§ enum #_"TransactionConfidence.ConfidenceType"
+    (§ enum TransactionConfidence/ConfidenceType
         ;;; If BUILDING, then the transaction is included in the best chain and your confidence in it is increasing. ;;
         (§ item (BUILDING 1))
 
@@ -18659,7 +18659,7 @@
         #_private
         (§ field- #_"int" value)
 
-        (§ constructor #_"TransactionConfidence.ConfidenceType" [#_"int" __value]
+        (§ constructor TransactionConfidence/ConfidenceType [#_"int" __value]
             (§ ass (.. this value) __value)
             this
         )
@@ -18684,7 +18684,7 @@
      ; unless re-org double spends start happening frequently.
      ;;
     #_public
-    (§ enum #_"TransactionConfidence.Source"
+    (§ enum TransactionConfidence/Source
         ;;; We don't know where the transaction came from. ;;
         (§ item UNKNOWN)
         ;;; We got this transaction from a network peer. ;;
@@ -18696,7 +18696,7 @@
     (§ field- #_"TransactionConfidence.Source" source TransactionConfidence/Source/UNKNOWN)
 
     #_public
-    (§ constructor #_"TransactionConfidence" [#_"Sha256Hash" __hash]
+    (§ constructor TransactionConfidence [#_"Sha256Hash" __hash]
         ;; Assume a default number of peers for our set.
         (§ ass (.. this broadcastBy) (CopyOnWriteArrayList. #_"<>"))
         (§ ass (.. this listeners) (CopyOnWriteArrayList. #_"<>"))
@@ -18714,9 +18714,9 @@
      ; <p>During listener execution, it's safe to remove the current listener but not others.</p>
      ;;
     #_public
-    (§ interface #_"TransactionConfidence.Listener"
+    (§ interface TransactionConfidence/Listener
         ;;; An enum that describes why a transaction confidence listener is being invoked (i.e. the class of change). ;;
-        (§ enum #_"TransactionConfidence.Listener.ChangeReason"
+        (§ enum TransactionConfidence/Listener/ChangeReason
             ;;;
              ; Occurs when the type returned by {@link org.bitcoinj.core.TransactionConfidence#getConfidenceType()}
              ; has changed.  For example, if a PENDING transaction changes to BUILDING or DEAD, then this reason will
@@ -19163,7 +19163,7 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"TransactionInput" (§ extends #_"ChildMessage")
+(§ class TransactionInput (§ extends ChildMessage)
     ;;; Magic sequence number that indicates there is no sequence number. ;;
     #_public
     #_static
@@ -19200,19 +19200,19 @@
      ; Creates an input that connects to nothing - used only in creation of coinbase transactions.
      ;;
     #_public
-    (§ constructor #_"TransactionInput" [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parentTransaction, #_"byte[]" __scriptBytes]
+    (§ constructor TransactionInput [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parentTransaction, #_"byte[]" __scriptBytes]
         (§ this __params, __parentTransaction, __scriptBytes, (TransactionOutPoint. __params, TransactionInput/UNCONNECTED, (cast Transaction nil)))
         this
     )
 
     #_public
-    (§ constructor #_"TransactionInput" [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parentTransaction, #_"byte[]" __scriptBytes, #_"TransactionOutPoint" __outpoint]
+    (§ constructor TransactionInput [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parentTransaction, #_"byte[]" __scriptBytes, #_"TransactionOutPoint" __outpoint]
         (§ this __params, __parentTransaction, __scriptBytes, __outpoint, nil)
         this
     )
 
     #_public
-    (§ constructor #_"TransactionInput" [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parentTransaction, #_"byte[]" __scriptBytes, #_"TransactionOutPoint" __outpoint, #_nilable #_"Coin" __value]
+    (§ constructor TransactionInput [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parentTransaction, #_"byte[]" __scriptBytes, #_"TransactionOutPoint" __outpoint, #_nilable #_"Coin" __value]
         (§ super __params)
 
         (§ ass (.. this scriptBytes) __scriptBytes)
@@ -19220,14 +19220,14 @@
         (§ ass (.. this sequence) TransactionInput/NO_SEQUENCE)
         (§ ass (.. this value) __value)
         (.. this (setParent __parentTransaction))
-        (§ ass (.. this length) (+ 40 (if (some? __scriptBytes) (+ (VarInt/sizeOf (.. __scriptBytes length)) (.. __scriptBytes length)) 1)))
+        (§ ass (.. this length) (+ 40 (if (some? __scriptBytes) (+ (VarInt/sizeOf (.. __scriptBytes (alength))) (.. __scriptBytes (alength))) 1)))
         this
     )
 
     ;;;
      ; Creates an UNSIGNED input that links to the given output.
      ;;
-    (§ constructor #_"TransactionInput" [#_"NetworkParameters" __params, #_"Transaction" __parentTransaction, #_"TransactionOutput" __output]
+    (§ constructor TransactionInput [#_"NetworkParameters" __params, #_"Transaction" __parentTransaction, #_"TransactionOutput" __output]
         (§ super __params)
 
         (let [#_"long" __outputIndex (.. __output (getIndex))]
@@ -19251,7 +19251,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"TransactionInput" [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parentTransaction, #_"byte[]" __payload, #_"int" __offset]
+    (§ constructor TransactionInput [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parentTransaction, #_"byte[]" __payload, #_"int" __offset]
         (§ super __params, __payload, __offset)
 
         (.. this (setParent __parentTransaction))
@@ -19269,7 +19269,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"TransactionInput" [#_"NetworkParameters" __params, #_"Transaction" __parentTransaction, #_"byte[]" __payload, #_"int" __offset, #_"MessageSerializer" __serializer]
+    (§ constructor TransactionInput [#_"NetworkParameters" __params, #_"Transaction" __parentTransaction, #_"byte[]" __payload, #_"int" __offset, #_"MessageSerializer" __serializer]
         (§ super __params, __payload, __offset, __parentTransaction, __serializer, Message/UNKNOWN_LENGTH)
 
         (§ ass (.. this value) nil)
@@ -19295,7 +19295,7 @@
     #_throws #_[ "IOException" ]
     (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" __stream]
         (.. this outpoint (bitcoinSerialize __stream))
-        (.. __stream (write (.. (VarInt. (.. this scriptBytes length)) (encode))))
+        (.. __stream (write (.. (VarInt. (.. this scriptBytes (alength))) (encode))))
         (.. __stream (write (.. this scriptBytes)))
         (Utils/uint32ToByteStreamLE (.. this sequence), __stream)
         nil
@@ -19412,7 +19412,7 @@
         (let [#_"int" __oldLength (.. this length)]
             (§ ass (.. this scriptBytes) __scriptBytes)
             ;; 40 = previous_outpoint (36) + sequence (4)
-            (let [#_"int" __newLength (+ 40 (if (some? __scriptBytes) (+ (VarInt/sizeOf (.. __scriptBytes length)) (.. __scriptBytes length)) 1))]
+            (let [#_"int" __newLength (+ 40 (if (some? __scriptBytes) (+ (VarInt/sizeOf (.. __scriptBytes (alength))) (.. __scriptBytes (alength))) 1))]
                 (.. this (adjustLength (- __newLength __oldLength)))
                 nil
             )
@@ -19437,7 +19437,7 @@
     )
 
     #_public
-    (§ enum #_"TransactionInput.ConnectionResult"
+    (§ enum TransactionInput/ConnectionResult
         (§ item NO_SUCH_TX)
         (§ item ALREADY_SPENT)
         (§ item SUCCESS)
@@ -19469,7 +19469,7 @@
     )
 
     #_public
-    (§ enum #_"TransactionInput.ConnectMode"
+    (§ enum TransactionInput/ConnectMode
         (§ item DISCONNECT_ON_CONFLICT)
         (§ item ABORT_ON_CONFLICT)
     )
@@ -19730,7 +19730,7 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"TransactionOutPoint" (§ extends #_"ChildMessage")
+(§ class TransactionOutPoint (§ extends ChildMessage)
     #_static
     (§ def #_"int" TransactionOutPoint/MESSAGE_LENGTH 36)
 
@@ -19748,7 +19748,7 @@
     (§ field #_"TransactionOutput" connectedOutput)
 
     #_public
-    (§ constructor #_"TransactionOutPoint" [#_"NetworkParameters" __params, #_"long" __index, #_nilable #_"Transaction" __fromTx]
+    (§ constructor TransactionOutPoint [#_"NetworkParameters" __params, #_"long" __index, #_nilable #_"Transaction" __fromTx]
         (§ super __params)
 
         (§ ass (.. this index) __index)
@@ -19765,7 +19765,7 @@
     )
 
     #_public
-    (§ constructor #_"TransactionOutPoint" [#_"NetworkParameters" __params, #_"long" __index, #_"Sha256Hash" __hash]
+    (§ constructor TransactionOutPoint [#_"NetworkParameters" __params, #_"long" __index, #_"Sha256Hash" __hash]
         (§ super __params)
 
         (§ ass (.. this index) __index)
@@ -19775,7 +19775,7 @@
     )
 
     #_public
-    (§ constructor #_"TransactionOutPoint" [#_"NetworkParameters" __params, #_"TransactionOutput" __connectedOutput]
+    (§ constructor TransactionOutPoint [#_"NetworkParameters" __params, #_"TransactionOutput" __connectedOutput]
         (§ this __params, (.. __connectedOutput (getIndex)), (.. __connectedOutput (getParentTransactionHash)))
         (§ ass (.. this connectedOutput) __connectedOutput)
         this
@@ -19786,7 +19786,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"TransactionOutPoint" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset]
+    (§ constructor TransactionOutPoint [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset]
         (§ super __params, __payload, __offset)
         this
     )
@@ -19800,7 +19800,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"TransactionOutPoint" [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"Message" __parent, #_"MessageSerializer" __serializer]
+    (§ constructor TransactionOutPoint [#_"NetworkParameters" __params, #_"byte[]" __payload, #_"int" __offset, #_"Message" __parent, #_"MessageSerializer" __serializer]
         (§ super __params, __payload, __offset, __parent, __serializer, TransactionOutPoint/MESSAGE_LENGTH)
         this
     )
@@ -19848,7 +19848,7 @@
     #_public
     (§ method #_"byte[]" getConnectedPubKeyScript []
         (let [#_"byte[]" __result (.. (Preconditions/checkNotNull (.. this (getConnectedOutput))) (getScriptBytes))]
-            (Preconditions/checkState (< 0 (.. __result length)))
+            (Preconditions/checkState (< 0 (.. __result (alength))))
             __result
         )
     )
@@ -19991,7 +19991,7 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"TransactionOutput" (§ extends #_"ChildMessage")
+(§ class TransactionOutput (§ extends ChildMessage)
     #_private
     #_static
     (§ def- #_"Logger" TransactionOutput/log (LoggerFactory/getLogger (§ klass #_"TransactionOutput")))
@@ -20027,7 +20027,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"TransactionOutput" [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parent, #_"byte[]" __payload, #_"int" __offset]
+    (§ constructor TransactionOutput [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parent, #_"byte[]" __payload, #_"int" __offset]
         (§ super __params, __payload, __offset)
 
         (.. this (setParent __parent))
@@ -20046,7 +20046,7 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"TransactionOutput" [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parent, #_"byte[]" __payload, #_"int" __offset, #_"MessageSerializer" __serializer]
+    (§ constructor TransactionOutput [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parent, #_"byte[]" __payload, #_"int" __offset, #_"MessageSerializer" __serializer]
         (§ super __params, __payload, __offset, __parent, __serializer, Message/UNKNOWN_LENGTH)
 
         (§ ass (.. this availableForSpending) true)
@@ -20059,7 +20059,7 @@
      ; {@link Transaction#addOutput(Coin, Address)} instead of creating a TransactionOutput directly.
      ;;
     #_public
-    (§ constructor #_"TransactionOutput" [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parent, #_"Coin" __value, #_"Address" __to]
+    (§ constructor TransactionOutput [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parent, #_"Coin" __value, #_"Address" __to]
         (§ this __params, __parent, __value, (.. (ScriptBuilder/createOutputScript __to) (getProgram)))
         this
     )
@@ -20070,13 +20070,13 @@
      ; {@link Transaction#addOutput(Coin, ECKey)} instead of creating an output directly.
      ;;
     #_public
-    (§ constructor #_"TransactionOutput" [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parent, #_"Coin" __value, #_"ECKey" __to]
+    (§ constructor TransactionOutput [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parent, #_"Coin" __value, #_"ECKey" __to]
         (§ this __params, __parent, __value, (.. (ScriptBuilder/createOutputScript __to) (getProgram)))
         this
     )
 
     #_public
-    (§ constructor #_"TransactionOutput" [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parent, #_"Coin" __value, #_"byte[]" __scriptBytes]
+    (§ constructor TransactionOutput [#_"NetworkParameters" __params, #_nilable #_"Transaction" __parent, #_"Coin" __value, #_"byte[]" __scriptBytes]
         (§ super __params)
 
         ;; Negative values obviously make no sense, except for -1 which is used as a sentinel value when calculating
@@ -20088,7 +20088,7 @@
         (§ ass (.. this scriptBytes) __scriptBytes)
         (.. this (setParent __parent))
         (§ ass (.. this availableForSpending) true)
-        (§ ass (.. this length) (+ 8 (VarInt/sizeOf (.. __scriptBytes length)) (.. __scriptBytes length)))
+        (§ ass (.. this length) (+ 8 (VarInt/sizeOf (.. __scriptBytes (alength))) (.. __scriptBytes (alength))))
         this
     )
 
@@ -20155,7 +20155,7 @@
 
         (Utils/int64ToByteStreamLE (.. this value), __stream)
         ;; TODO: Move script serialization into the Script class, where it belongs.
-        (.. __stream (write (.. (VarInt. (.. this scriptBytes length)) (encode))))
+        (.. __stream (write (.. (VarInt. (.. this scriptBytes (alength))) (encode))))
         (.. __stream (write (.. this scriptBytes)))
         nil
     )
@@ -20231,7 +20231,7 @@
         ;; formula is wrong for anything that's not a pay-to-address output, unfortunately, we must follow Bitcoin Core's
         ;; wrongness in order to ensure we're considered standard.  A better formula would either estimate the
         ;; size of data needed to satisfy all different script types, or just hard code 33 below.
-        (let [#_"long" __size (+ (.. this (unsafeBitcoinSerialize) length) 148)]
+        (let [#_"long" __size (+ (.. this (unsafeBitcoinSerialize) (alength)) 148)]
             (.. __feePerKb (multiply __size) (divide 1000))
         )
     )
@@ -20455,14 +20455,14 @@
  ; BIP30 (no duplicate txid creation if the previous one was not fully spent prior to this block) verification.</p>
  ;;
 #_public
-(§ class #_"TransactionOutputChanges"
+(§ class TransactionOutputChanges
     #_public
     (§ field #_"List<UTXO>" txOutsCreated)
     #_public
     (§ field #_"List<UTXO>" txOutsSpent)
 
     #_public
-    (§ constructor #_"TransactionOutputChanges" [#_"List<UTXO>" __txOutsCreated, #_"List<UTXO>" __txOutsSpent]
+    (§ constructor TransactionOutputChanges [#_"List<UTXO>" __txOutsCreated, #_"List<UTXO>" __txOutsSpent]
         (§ ass (.. this txOutsCreated) __txOutsCreated)
         (§ ass (.. this txOutsSpent) __txOutsSpent)
         this
@@ -20477,7 +20477,7 @@
 
     #_public
     #_throws #_[ "IOException" ]
-    (§ constructor #_"TransactionOutputChanges" [#_"InputStream" __is]
+    (§ constructor TransactionOutputChanges [#_"InputStream" __is]
         (let [#_"int" __nCreated (TransactionOutputChanges/read4x8le __is)]
             (§ ass (.. this txOutsCreated) (LinkedList. #_"<>"))
             (§ for [#_"int" __i 0] (< __i __nCreated) [(inc __i)]
@@ -20540,18 +20540,18 @@
  ; all transactions not currently included in the best chain - it's simply a cache.</p>
  ;;
 #_public
-(§ class #_"TxConfidenceTable"
+(§ class TxConfidenceTable
     #_protected
     (§ field #_"ReentrantLock" lock (Threading/lock "txconfidencetable"))
 
     #_private
     #_static
-    (§ class #_"TxConfidenceTable.WeakConfidenceReference" (§ extends #_"WeakReference<TransactionConfidence>")
+    (§ class TxConfidenceTable/WeakConfidenceReference (§ extends WeakReference #_"<TransactionConfidence>")
         #_public
         (§ field #_"Sha256Hash" hash)
 
         #_public
-        (§ constructor #_"TxConfidenceTable.WeakConfidenceReference" [#_"TransactionConfidence" __confidence, #_"ReferenceQueue<TransactionConfidence>" __queue]
+        (§ constructor TxConfidenceTable/WeakConfidenceReference [#_"TransactionConfidence" __confidence, #_"ReferenceQueue<TransactionConfidence>" __queue]
             (§ super __confidence, __queue)
 
             (§ ass (.. this hash) (.. __confidence (getTransactionHash)))
@@ -20579,7 +20579,7 @@
      ; @param size Max number of transactions to track.  The table will fill up to this size then stop growing.
      ;;
     #_public
-    (§ constructor #_"TxConfidenceTable" [#_"int" __size]
+    (§ constructor TxConfidenceTable [#_"int" __size]
         (§ ass (.. this table) (LinkedHashMap. #_"<Sha256Hash, TxConfidenceTable.WeakConfidenceReference>"
         (§ anon
             #_override
@@ -20599,7 +20599,7 @@
      ; You should normally use this constructor.
      ;;
     #_public
-    (§ constructor #_"TxConfidenceTable" []
+    (§ constructor TxConfidenceTable []
         (§ this TxConfidenceTable/MAX_SIZE)
         this
     )
@@ -20745,7 +20745,7 @@
  ; Useful when working with free standing outputs.
  ;;
 #_public
-(§ class #_"UTXO" (§ implements #_"Serializable")
+(§ class UTXO (§ implements Serializable)
     #_private
     (§ field- #_"Coin" value)
     #_private
@@ -20771,7 +20771,7 @@
      ; @param coinbase The coinbase flag.
      ;;
     #_public
-    (§ constructor #_"UTXO" [#_"Sha256Hash" __hash, #_"long" __index, #_"Coin" __value, #_"int" __height, #_"boolean" __coinbase, #_"Script" __script]
+    (§ constructor UTXO [#_"Sha256Hash" __hash, #_"long" __index, #_"Coin" __value, #_"int" __height, #_"boolean" __coinbase, #_"Script" __script]
         (§ ass (.. this hash) __hash)
         (§ ass (.. this index) __index)
         (§ ass (.. this value) __value)
@@ -20793,7 +20793,7 @@
      ; @param address  The address.
      ;;
     #_public
-    (§ constructor #_"UTXO" [#_"Sha256Hash" __hash, #_"long" __index, #_"Coin" __value, #_"int" __height, #_"boolean" __coinbase, #_"Script" __script, #_"String" __address]
+    (§ constructor UTXO [#_"Sha256Hash" __hash, #_"long" __index, #_"Coin" __value, #_"int" __height, #_"boolean" __coinbase, #_"Script" __script, #_"String" __address]
         (§ this __hash, __index, __value, __height, __coinbase, __script)
         (§ ass (.. this address) __address)
         this
@@ -20801,7 +20801,7 @@
 
     #_public
     #_throws #_[ "IOException" ]
-    (§ constructor #_"UTXO" [#_"InputStream" __in]
+    (§ constructor UTXO [#_"InputStream" __in]
         (.. this (deserializeFromStream __in))
         this
     )
@@ -20891,7 +20891,7 @@
         (Utils/uint64ToByteStreamLE (BigInteger/valueOf (.. this value value)), __os)
 
         (let [#_"byte[]" __scriptBytes (.. this script (getProgram))]
-            (UTXO/write4x8le __os, (.. __scriptBytes length))
+            (UTXO/write4x8le __os, (.. __scriptBytes (alength)))
             (.. __os (write __scriptBytes))
 
             (.. __os (write (.. this hash (getBytes))))
@@ -20971,13 +20971,13 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"UnknownMessage" (§ extends #_"EmptyMessage")
+(§ class UnknownMessage (§ extends EmptyMessage)
     #_private
     (§ field- #_"String" name)
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"UnknownMessage" [#_"NetworkParameters" __params, #_"String" __name, #_"byte[]" __payloadBytes]
+    (§ constructor UnknownMessage [#_"NetworkParameters" __params, #_"String" __name, #_"byte[]" __payloadBytes]
         (§ super __params, __payloadBytes, 0)
 
         (§ ass (.. this name) __name)
@@ -21005,15 +21005,15 @@
  ; @author git
  ;;
 #_public
-(§ class #_"UnsafeByteArrayOutputStream" (§ extends #_"ByteArrayOutputStream")
+(§ class UnsafeByteArrayOutputStream (§ extends ByteArrayOutputStream)
     #_public
-    (§ constructor #_"UnsafeByteArrayOutputStream" []
+    (§ constructor UnsafeByteArrayOutputStream []
         (§ super 32)
         this
     )
 
     #_public
-    (§ constructor #_"UnsafeByteArrayOutputStream" [#_"int" __size]
+    (§ constructor UnsafeByteArrayOutputStream [#_"int" __size]
         (§ super __size)
         this
     )
@@ -21027,8 +21027,8 @@
     #_public
     (§ method #_"void" write [#_"int" __b]
         (let [#_"int" __n (inc (.. this count))]
-            (§ when (< (.. this buf length) __n)
-                (§ ass (.. this buf) (Utils/copyOf (.. this buf), (Math/max (<< (.. this buf length) 1), __n)))
+            (§ when (< (.. this buf (alength)) __n)
+                (§ ass (.. this buf) (Utils/copyOf (.. this buf), (Math/max (<< (.. this buf (alength)) 1), __n)))
             )
             (aset (.. this buf) (.. this count) (byte __b))
             (§ ass (.. this count) __n)
@@ -21047,14 +21047,14 @@
     #_override
     #_public
     (§ method #_"void" write [#_"byte[]" __b, #_"int" __off, #_"int" __len]
-        (§ when (or (< __off 0) (< (.. __b length) __off) (< __len 0) (< (.. __b length) (+ __off __len)) (< (+ __off __len) 0))
+        (§ when (or (< __off 0) (< (.. __b (alength)) __off) (< __len 0) (< (.. __b (alength)) (+ __off __len)) (< (+ __off __len) 0))
             (throw (IndexOutOfBoundsException.))
         )
 
         (§ when (!= __len 0)
             (let [#_"int" __n (+ (.. this count) __len)]
-                (§ when (< (.. this buf length) __n)
-                    (§ ass (.. this buf) (Utils/copyOf (.. this buf), (Math/max (<< (.. this buf length) 1), __n)))
+                (§ when (< (.. this buf (alength)) __n)
+                    (§ ass (.. this buf) (Utils/copyOf (.. this buf), (Math/max (<< (.. this buf (alength)) 1), __n)))
                 )
                 (System/arraycopy __b, __off, (.. this buf), (.. this count), __len)
                 (§ ass (.. this count) __n)
@@ -21105,7 +21105,7 @@
     #_override
     #_public
     (§ method #_"byte[]" toByteArray []
-        (if (== (.. this count) (.. this buf length)) (.. this buf) (Utils/copyOf (.. this buf), (.. this count)))
+        (if (== (.. this count) (.. this buf (alength))) (.. this buf) (Utils/copyOf (.. this buf), (.. this count)))
     )
 
     ;;;
@@ -21141,7 +21141,7 @@
  ; To enable debug logging from the library, run with -Dbitcoinj.logging=true on your command line.
  ;;
 #_public
-(§ class #_"Utils"
+(§ class Utils
     ;;; The string that prefixes all text messages signed using Bitcoin keys. ;;
     #_public
     #_static
@@ -21178,7 +21178,7 @@
         (Preconditions/checkArgument (<= 0 (.. __b (signum))), "b must be positive or zero")
         (Preconditions/checkArgument (< 0 __numBytes), "numBytes must be positive")
 
-        (let [#_"byte[]" __src (.. __b (toByteArray))][#_"byte[]" __dest (byte-array __numBytes)][#_"boolean" __isFirstByteOnlyForSign (== (aget __src 0) 0)][#_"int" __length (if __isFirstByteOnlyForSign (dec (.. __src length)) (.. __src length))]
+        (let [#_"byte[]" __src (.. __b (toByteArray))][#_"byte[]" __dest (byte-array __numBytes)][#_"boolean" __isFirstByteOnlyForSign (== (aget __src 0) 0)][#_"int" __length (if __isFirstByteOnlyForSign (dec (.. __src (alength))) (.. __src (alength)))]
 
             (Preconditions/checkArgument (<= __length __numBytes), (str "The given number does not fit in " __numBytes))
 
@@ -21254,14 +21254,14 @@
     #_throws #_[ "IOException" ]
     (§ defn #_"void" Utils/uint64ToByteStreamLE [#_"BigInteger" __val, #_"OutputStream" __stream]
         (let [#_"byte[]" __bytes (.. __val (toByteArray))]
-            (§ when (< 8 (.. __bytes length))
+            (§ when (< 8 (.. __bytes (alength)))
                 (throw (RuntimeException. "Input too large to encode into a uint64"))
             )
 
             (§ ass __bytes (Utils/reverseBytes __bytes))
             (.. __stream (write __bytes))
-            (§ when (< (.. __bytes length) 8)
-                (§ for [#_"int" __i 0] (< __i (- 8 (.. __bytes length))) [(inc __i)]
+            (§ when (< (.. __bytes (alength)) 8)
+                (§ for [#_"int" __i 0] (< __i (- 8 (.. __bytes (alength)))) [(inc __i)]
                     (.. __stream (write 0))
                 )
             )
@@ -21302,9 +21302,9 @@
     (§ defn #_"byte[]" Utils/reverseBytes [#_"byte[]" __bytes]
         ;; We could use the XOR trick here, but it's easier to understand if we don't.
         ;; If we find this is really a performance issue, the matter can be revisited.
-        (let [#_"byte[]" __buf (byte-array (.. __bytes length))]
-            (§ for [#_"int" __i 0] (< __i (.. __bytes length)) [(inc __i)]
-                (aset __buf __i (aget __bytes (- (.. __bytes length) 1 __i)))
+        (let [#_"byte[]" __buf (byte-array (.. __bytes (alength)))]
+            (§ for [#_"int" __i 0] (< __i (.. __bytes (alength))) [(inc __i)]
+                (aset __buf __i (aget __bytes (- (.. __bytes (alength)) 1 __i)))
             )
             __buf
         )
@@ -21319,12 +21319,12 @@
     #_public
     #_static
     (§ defn #_"byte[]" Utils/reverseDwordBytes [#_"byte[]" __bytes, #_"int" __trimLength]
-        (Preconditions/checkArgument (== (% (.. __bytes length) 4) 0))
+        (Preconditions/checkArgument (== (% (.. __bytes (alength)) 4) 0))
         (Preconditions/checkArgument (or (< __trimLength 0) (== (% __trimLength 4) 0)))
 
-        (let [#_"byte[]" __rev (byte-array (if (< -1 __trimLength (.. __bytes length)) __trimLength (.. __bytes length)))]
+        (let [#_"byte[]" __rev (byte-array (if (< -1 __trimLength (.. __bytes (alength))) __trimLength (.. __bytes (alength))))]
 
-            (§ for [#_"int" __i 0] (< __i (.. __rev length)) [(+ __i 4)]
+            (§ for [#_"int" __i 0] (< __i (.. __rev (alength))) [(+ __i 4)]
                 (System/arraycopy __bytes, __i, __rev, __i, 4)
                 (§ for [#_"int" __j 0] (< __j 4) [(inc __j)]
                     (aset __rev (+ __i __j) (aget __bytes (- (+ __i 3) __j)))
@@ -21369,7 +21369,7 @@
     #_static
     (§ defn #_"byte[]" Utils/sha256hash160 [#_"byte[]" __input]
         (let [#_"byte[]" __sha256 (Sha256Hash/hash __input)][#_"RIPEMD160Digest" __digest (RIPEMD160Digest.)]
-            (.. __digest (update __sha256, 0, (.. __sha256 length)))
+            (.. __digest (update __sha256, 0, (.. __sha256 (alength))))
             (let [#_"byte[]" __out (byte-array 20)]
                 (.. __digest (doFinal __out, 0))
                 __out
@@ -21396,7 +21396,7 @@
             (§ else 
                 (§ ass __buf __mpi)
             )
-            (§ when (== (.. __buf length) 0)
+            (§ when (== (.. __buf (alength)) 0)
                 (§ return BigInteger/ZERO)
             )
 
@@ -21428,14 +21428,14 @@
             (§ when __isNegative
                 (§ ass __value (.. __value (negate)))
             )
-            (let [#_"byte[]" __array (.. __value (toByteArray))][#_"int" __length (.. __array length)]
+            (let [#_"byte[]" __array (.. __value (toByteArray))][#_"int" __length (.. __array (alength))]
                 (§ when (== (& (aget __array 0) 0x80) 0x80)
                     (§ ass __length (inc __length))
                 )
 
                 (§ when __includeLength
                     (let [#_"byte[]" __result (byte-array (+ __length 4))]
-                        (System/arraycopy __array, 0, __result, (+ (- __length (.. __array length)) 3), (.. __array length))
+                        (System/arraycopy __array, 0, __result, (+ (- __length (.. __array (alength))) 3), (.. __array (alength)))
                         (Utils/uint32ToByteArrayBE __length, __result, 0)
                         (§ when __isNegative
                             (aset __result 4 (| (aget __result 4) 0x80))
@@ -21445,9 +21445,9 @@
                 )
                 (§ else 
                     (let [#_"byte[]" __result]
-                        (§ when (!= __length (.. __array length))
+                        (§ when (!= __length (.. __array (alength)))
                             (§ ass __result (byte-array __length))
-                            (System/arraycopy __array, 0, __result, 1, (.. __array length))
+                            (System/arraycopy __array, 0, __result, 1, (.. __array (alength)))
                         )
                         (§ else 
                             (§ ass __result __array)
@@ -21499,7 +21499,7 @@
     #_public
     #_static
     (§ defn #_"long" Utils/encodeCompactBits [#_"BigInteger" __value]
-        (let [#_"long" __result][#_"int" __size (.. __value (toByteArray) length)]
+        (let [#_"long" __result][#_"int" __size (.. __value (toByteArray) (alength))]
             (§ when (<= __size 3)
                 (§ ass __result (<< (.. __value (longValue)) (* 8 (- 3 __size))))
             )
@@ -21626,7 +21626,7 @@
     #_static
     (§ defn #_"byte[]" Utils/copyOf [#_"byte[]" __in, #_"int" __length]
         (let [#_"byte[]" __out (byte-array __length)]
-            (System/arraycopy __in, 0, __out, 0, (Math/min __length, (.. __in length)))
+            (System/arraycopy __in, 0, __out, 0, (Math/min __length, (.. __in (alength))))
             __out
         )
     )
@@ -21637,8 +21637,8 @@
     #_public
     #_static
     (§ defn #_"byte[]" Utils/appendByte [#_"byte[]" __bytes, #_"byte" __b]
-        (let [#_"byte[]" __result (Arrays/copyOf __bytes, (inc (.. __bytes length)))]
-            (aset __result (dec (.. __result length)) __b)
+        (let [#_"byte[]" __result (Arrays/copyOf __bytes, (inc (.. __bytes (alength))))]
+            (aset __result (dec (.. __result (alength))) __b)
             __result
         )
     )
@@ -21724,9 +21724,9 @@
     (§ defn #_"byte[]" Utils/formatMessageForSigning [#_"String" __message]
         (try
             (let [#_"ByteArrayOutputStream" __bos (ByteArrayOutputStream.)]
-                (.. __bos (write (.. Utils/BITCOIN_SIGNED_MESSAGE_HEADER_BYTES length)))
+                (.. __bos (write (.. Utils/BITCOIN_SIGNED_MESSAGE_HEADER_BYTES (alength))))
                 (.. __bos (write Utils/BITCOIN_SIGNED_MESSAGE_HEADER_BYTES))
-                (let [#_"byte[]" __messageBytes (.. __message (getBytes Charsets/UTF_8))][#_"VarInt" __size (VarInt. (.. __messageBytes length))]
+                (let [#_"byte[]" __messageBytes (.. __message (getBytes Charsets/UTF_8))][#_"VarInt" __size (VarInt. (.. __messageBytes (alength)))]
                     (.. __bos (write (.. __size (encode))))
                     (.. __bos (write __messageBytes))
                     (§ return (.. __bos (toByteArray)))
@@ -21829,12 +21829,12 @@
 
     #_private
     #_static
-    (§ class #_"Utils.Pair" (§ implements #_"Comparable<Utils.Pair>")
+    (§ class Utils/Pair (§ implements Comparable #_"<Utils.Pair>")
         (§ field- #_"int" item)
         (§ field- #_"int" count)
 
         #_public
-        (§ constructor #_"Utils.Pair" [#_"int" __item, #_"int" __count]
+        (§ constructor Utils/Pair [#_"int" __item, #_"int" __count]
             (§ ass (.. this count) __count)
             (§ ass (.. this item) __item)
             this
@@ -21852,7 +21852,7 @@
     #_static
     (§ defn #_"int" Utils/maxOfMostFreq [#_"int..." __items]
         ;; Java 6 sucks.
-        (let [#_"ArrayList<Integer>" __list (ArrayList. #_"<>" (.. __items length))]
+        (let [#_"ArrayList<Integer>" __list (ArrayList. #_"<>" (.. __items (alength)))]
             (§ forin [#_"int" __item] __items
                 (.. __list (add __item))
             )
@@ -21939,7 +21939,7 @@
  ; A variable-length encoded unsigned integer using Satoshi's encoding (a.k.a. "CompactSize").
  ;;
 #_public
-(§ class #_"VarInt"
+(§ class VarInt
     #_public
     (§ field #_"long" value)
     #_private
@@ -21951,7 +21951,7 @@
      ; @param value the unsigned long value (beware widening conversion of negatives!)
      ;;
     #_public
-    (§ constructor #_"VarInt" [#_"long" __value]
+    (§ constructor VarInt [#_"long" __value]
         (§ ass (.. this value) __value)
         (§ ass (.. this originallyEncodedSize) (.. this (getSizeInBytes)))
         this
@@ -21964,7 +21964,7 @@
      ; @param offset The offset of the value.
      ;;
     #_public
-    (§ constructor #_"VarInt" [#_"byte[]" __buf, #_"int" __offset]
+    (§ constructor VarInt [#_"byte[]" __buf, #_"int" __offset]
         (let [#_"int" __first (& 0xff (aget __buf __offset))]
             (§ when (< __first 253)
                 (§ ass (.. this value) __first)
@@ -22062,30 +22062,30 @@
 #_(ns org.bitcoinj.core #_"VerificationException")
 
 #_public
-(§ class #_"VerificationException" (§ extends #_"RuntimeException")
+(§ class VerificationException (§ extends RuntimeException)
     #_public
-    (§ constructor #_"VerificationException" [#_"String" __msg]
+    (§ constructor VerificationException [#_"String" __msg]
         (§ super __msg)
         this
     )
 
     #_public
-    (§ constructor #_"VerificationException" [#_"Exception" __e]
+    (§ constructor VerificationException [#_"Exception" __e]
         (§ super __e)
         this
     )
 
     #_public
-    (§ constructor #_"VerificationException" [#_"String" __msg, #_"Throwable" __t]
+    (§ constructor VerificationException [#_"String" __msg, #_"Throwable" __t]
         (§ super __msg, __t)
         this
     )
 
     #_public
     #_static
-    (§ class #_"VerificationException.EmptyInputsOrOutputs" (§ extends #_"VerificationException")
+    (§ class VerificationException/EmptyInputsOrOutputs (§ extends VerificationException)
         #_public
-        (§ constructor #_"VerificationException.EmptyInputsOrOutputs" []
+        (§ constructor VerificationException/EmptyInputsOrOutputs []
             (§ super "Transaction had no inputs or no outputs.")
             this
         )
@@ -22093,9 +22093,9 @@
 
     #_public
     #_static
-    (§ class #_"VerificationException.LargerThanMaxBlockSize" (§ extends #_"VerificationException")
+    (§ class VerificationException/LargerThanMaxBlockSize (§ extends VerificationException)
         #_public
-        (§ constructor #_"VerificationException.LargerThanMaxBlockSize" []
+        (§ constructor VerificationException/LargerThanMaxBlockSize []
             (§ super "Transaction larger than MAX_BLOCK_SIZE")
             this
         )
@@ -22103,9 +22103,9 @@
 
     #_public
     #_static
-    (§ class #_"VerificationException.DuplicatedOutPoint" (§ extends #_"VerificationException")
+    (§ class VerificationException/DuplicatedOutPoint (§ extends VerificationException)
         #_public
-        (§ constructor #_"VerificationException.DuplicatedOutPoint" []
+        (§ constructor VerificationException/DuplicatedOutPoint []
             (§ super "Duplicated outpoint")
             this
         )
@@ -22113,9 +22113,9 @@
 
     #_public
     #_static
-    (§ class #_"VerificationException.NegativeValueOutput" (§ extends #_"VerificationException")
+    (§ class VerificationException/NegativeValueOutput (§ extends VerificationException)
         #_public
-        (§ constructor #_"VerificationException.NegativeValueOutput" []
+        (§ constructor VerificationException/NegativeValueOutput []
             (§ super "Transaction output negative")
             this
         )
@@ -22123,9 +22123,9 @@
 
     #_public
     #_static
-    (§ class #_"VerificationException.ExcessiveValue" (§ extends #_"VerificationException")
+    (§ class VerificationException/ExcessiveValue (§ extends VerificationException)
         #_public
-        (§ constructor #_"VerificationException.ExcessiveValue" []
+        (§ constructor VerificationException/ExcessiveValue []
             (§ super "Total transaction output value greater than possible")
             this
         )
@@ -22133,9 +22133,9 @@
 
     #_public
     #_static
-    (§ class #_"VerificationException.CoinbaseScriptSizeOutOfRange" (§ extends #_"VerificationException")
+    (§ class VerificationException/CoinbaseScriptSizeOutOfRange (§ extends VerificationException)
         #_public
-        (§ constructor #_"VerificationException.CoinbaseScriptSizeOutOfRange" []
+        (§ constructor VerificationException/CoinbaseScriptSizeOutOfRange []
             (§ super "Coinbase script size out of range")
             this
         )
@@ -22143,9 +22143,9 @@
 
     #_public
     #_static
-    (§ class #_"VerificationException.BlockVersionOutOfDate" (§ extends #_"VerificationException")
+    (§ class VerificationException/BlockVersionOutOfDate (§ extends VerificationException)
         #_public
-        (§ constructor #_"VerificationException.BlockVersionOutOfDate" [#_"long" __version]
+        (§ constructor VerificationException/BlockVersionOutOfDate [#_"long" __version]
             (§ super (str "Block version #" __version " is outdated."))
             this
         )
@@ -22153,9 +22153,9 @@
 
     #_public
     #_static
-    (§ class #_"VerificationException.UnexpectedCoinbaseInput" (§ extends #_"VerificationException")
+    (§ class VerificationException/UnexpectedCoinbaseInput (§ extends VerificationException)
         #_public
-        (§ constructor #_"VerificationException.UnexpectedCoinbaseInput" []
+        (§ constructor VerificationException/UnexpectedCoinbaseInput []
             (§ super "Coinbase input as input in non-coinbase transaction")
             this
         )
@@ -22163,9 +22163,9 @@
 
     #_public
     #_static
-    (§ class #_"VerificationException.CoinbaseHeightMismatch" (§ extends #_"VerificationException")
+    (§ class VerificationException/CoinbaseHeightMismatch (§ extends VerificationException)
         #_public
-        (§ constructor #_"VerificationException.CoinbaseHeightMismatch" [#_"String" __message]
+        (§ constructor VerificationException/CoinbaseHeightMismatch [#_"String" __message]
             (§ super __message)
             this
         )
@@ -22181,15 +22181,15 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"VersionAck" (§ extends #_"EmptyMessage")
+(§ class VersionAck (§ extends EmptyMessage)
     #_public
-    (§ constructor #_"VersionAck" []
+    (§ constructor VersionAck []
         this
     )
 
     ;; this is needed by the BitcoinSerializer
     #_public
-    (§ constructor #_"VersionAck" [#_"NetworkParameters" __params, #_"byte[]" __payload]
+    (§ constructor VersionAck [#_"NetworkParameters" __params, #_"byte[]" __payload]
         this
     )
 )
@@ -22214,7 +22214,7 @@
  ; <p>Instances of this class are not safe for use by multiple threads.</p>
  ;;
 #_public
-(§ class #_"VersionMessage" (§ extends #_"Message")
+(§ class VersionMessage (§ extends Message)
     ;;; The version of this library release, as a string. ;;
     #_public
     #_static
@@ -22274,7 +22274,7 @@
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor #_"VersionMessage" [#_"NetworkParameters" __params, #_"byte[]" __payload]
+    (§ constructor VersionMessage [#_"NetworkParameters" __params, #_"byte[]" __payload]
         (§ super __params, __payload, 0)
         this
     )
@@ -22284,7 +22284,7 @@
     ;; to be sent back down the wire.
 
     #_public
-    (§ constructor #_"VersionMessage" [#_"NetworkParameters" __params, #_"int" __newBestHeight]
+    (§ constructor VersionMessage [#_"NetworkParameters" __params, #_"int" __newBestHeight]
         (§ super __params)
 
         (§ ass (.. this clientVersion) (.. __params (getProtocolVersionNum NetworkParameters/ProtocolVersion/CURRENT)))
@@ -22379,7 +22379,7 @@
         (Utils/uint32ToByteStreamLE 0, __buf)
         ;; Now comes subVer.
         (let [#_"byte[]" __subVerBytes (.. this subVer (getBytes "UTF-8"))]
-            (.. __buf (write (.. (VarInt. (.. __subVerBytes length)) (encode))))
+            (.. __buf (write (.. (VarInt. (.. __subVerBytes (alength))) (encode))))
             (.. __buf (write __subVerBytes))
             ;; Size of known block chain.
             (Utils/uint32ToByteStreamLE (.. this bestHeight), __buf)
@@ -22525,7 +22525,7 @@
  ; This format is used for addresses, and private keys exported using the dumpprivkey command.</p>
  ;;
 #_public
-(§ class #_"VersionedChecksummedBytes" (§ implements #_"Serializable", #_"Cloneable", #_"Comparable<VersionedChecksummedBytes>")
+(§ class VersionedChecksummedBytes (§ implements Serializable, Cloneable, Comparable #_"<VersionedChecksummedBytes>")
     #_protected
     (§ field #_"int" version)
     #_protected
@@ -22533,17 +22533,17 @@
 
     #_protected
     #_throws #_[ "AddressFormatException" ]
-    (§ constructor #_"VersionedChecksummedBytes" [#_"String" __encoded]
+    (§ constructor VersionedChecksummedBytes [#_"String" __encoded]
         (let [#_"byte[]" __versionAndDataBytes (Base58/decodeChecked __encoded)][#_"byte" __versionByte (aget __versionAndDataBytes 0)]
             (§ ass (.. this version) (& __versionByte 0xff))
-            (§ ass (.. this bytes) (byte-array (dec (.. __versionAndDataBytes length))))
-            (System/arraycopy __versionAndDataBytes, 1, (.. this bytes), 0, (dec (.. __versionAndDataBytes length)))
+            (§ ass (.. this bytes) (byte-array (dec (.. __versionAndDataBytes (alength)))))
+            (System/arraycopy __versionAndDataBytes, 1, (.. this bytes), 0, (dec (.. __versionAndDataBytes (alength))))
             this
         )
     )
 
     #_protected
-    (§ constructor #_"VersionedChecksummedBytes" [#_"int" __version, #_"byte[]" __bytes]
+    (§ constructor VersionedChecksummedBytes [#_"int" __version, #_"byte[]" __bytes]
         (Preconditions/checkArgument (< -1 __version 256))
 
         (§ ass (.. this version) __version)
@@ -22558,11 +22558,11 @@
     #_public
     (§ method #_"String" toBase58 []
         ;; A stringified buffer is: 1 byte version + data bytes + 4 bytes check code (a truncated hash).
-        (let [#_"byte[]" __addressBytes (byte-array (+ 1 (.. this bytes length) 4))]
+        (let [#_"byte[]" __addressBytes (byte-array (+ 1 (.. this bytes (alength)) 4))]
             (aset __addressBytes 0 (byte (.. this version)))
-            (System/arraycopy (.. this bytes), 0, __addressBytes, 1, (.. this bytes length))
-            (let [#_"byte[]" __checksum (Sha256Hash/hashTwice __addressBytes, 0, (inc (.. this bytes length)))]
-                (System/arraycopy __checksum, 0, __addressBytes, (inc (.. this bytes length)), 4)
+            (System/arraycopy (.. this bytes), 0, __addressBytes, 1, (.. this bytes (alength)))
+            (let [#_"byte[]" __checksum (Sha256Hash/hashTwice __addressBytes, 0, (inc (.. this bytes (alength))))]
+                (System/arraycopy __checksum, 0, __addressBytes, (inc (.. this bytes (alength))), 4)
                 (Base58/encode __addressBytes)
             )
         )
@@ -22642,7 +22642,7 @@
  ; different chains, an operation that is guaranteed to destroy the money.
  ;;
 #_public
-(§ class #_"WrongNetworkException" (§ extends #_"AddressFormatException")
+(§ class WrongNetworkException (§ extends AddressFormatException)
     ;;; The version code that was provided in the address. ;;
     #_public
     (§ field #_"int" verCode)
@@ -22651,7 +22651,7 @@
     (§ field #_"int[]" acceptableVersions)
 
     #_public
-    (§ constructor #_"WrongNetworkException" [#_"int" __verCode, #_"int[]" __acceptableVersions]
+    (§ constructor WrongNetworkException [#_"int" __verCode, #_"int[]" __acceptableVersions]
         (§ super (str "Version code of address did not match acceptable versions for network: " __verCode " not in " (Arrays/toString __acceptableVersions)))
 
         (§ ass (.. this verCode) __verCode)
@@ -22670,7 +22670,7 @@
 #_deprecated
 #_public
 #_abstract
-(§ class #_"AbstractPeerDataEventListener" (§ implements #_"PeerDataEventListener")
+(§ class AbstractPeerDataEventListener (§ implements PeerDataEventListener)
     #_override
     #_public
     (§ method #_"void" onBlocksDownloaded [#_"Peer" __peer, #_"Block" __block, #_nilable #_"FilteredBlock" __filteredBlock, #_"int" __blocksLeft]
@@ -22704,7 +22704,7 @@
  ;;
 #_deprecated
 #_public
-(§ interface #_"BlockChainListener" (§ extends #_"NewBestBlockListener", #_"TransactionReceivedInBlockListener", #_"ReorganizeListener"))
+(§ interface BlockChainListener (§ extends NewBestBlockListener, TransactionReceivedInBlockListener, ReorganizeListener))
 
 #_(ns org.bitcoinj.core.listeners #_"BlocksDownloadedEventListener"
    (:require [org.bitcoinj.core *]))
@@ -22715,7 +22715,7 @@
  ; provide transactions to remote peers when they ask for them.</p>
  ;;
 #_public
-(§ interface #_"BlocksDownloadedEventListener"
+(§ interface BlocksDownloadedEventListener
     ;; TODO: Fix the Block/FilteredBlock type hierarchy so we can avoid the stupid typeless API here.
     ;;;
      ; <p>Called on a Peer thread when a block is received.</p>
@@ -22740,7 +22740,7 @@
  ; provide transactions to remote peers when they ask for them.</p>
  ;;
 #_public
-(§ interface #_"ChainDownloadStartedEventListener"
+(§ interface ChainDownloadStartedEventListener
     ;;;
      ; Called when a download is started with the initial number of blocks to be downloaded.
      ;
@@ -22763,7 +22763,7 @@
  ; override the progress method to update a GUI instead.</p>
  ;;
 #_public
-(§ class #_"DownloadProgressTracker" (§ extends #_"AbstractPeerDataEventListener")
+(§ class DownloadProgressTracker (§ extends AbstractPeerDataEventListener)
     #_private
     #_static
     (§ def- #_"Logger" DownloadProgressTracker/log (LoggerFactory/getLogger (§ klass #_"DownloadProgressTracker")))
@@ -22890,7 +22890,7 @@
  ; provide transactions to remote peers when they ask for them.</p>
  ;;
 #_public
-(§ interface #_"GetDataEventListener"
+(§ interface GetDataEventListener
     ;;;
      ; <p>Called when a peer receives a getdata message, usually in response to an "inv" being broadcast.  Return as many
      ; items as possible which appear in the {@link GetDataMessage}, or null if you're not interested in responding.</p>
@@ -22909,7 +22909,7 @@
  ; Listener interface for when a new block on the best chain is seen.
  ;;
 #_public
-(§ interface #_"NewBestBlockListener"
+(§ interface NewBestBlockListener
     ;;;
      ; Called when a new block on the best chain is seen, after relevant transactions are extracted and sent to us via either
      ; {@link TransactionReceivedInBlockListener#receiveFromBlock(org.bitcoinj.core.Transaction, org.bitcoinj.core.StoredBlock, org.bitcoinj.core.BlockChain.NewBlockType, int relativityOffset)}
@@ -22931,7 +22931,7 @@
  ; Called when a new transaction is broadcast over the network.
  ;;
 #_public
-(§ interface #_"OnTransactionBroadcastListener"
+(§ interface OnTransactionBroadcastListener
     ;;;
      ; Called when a new transaction is broadcast over the network.
      ;;
@@ -22945,7 +22945,7 @@
  ; <p>Implementors can listen to events indicating a new peer connecting.</p>
  ;;
 #_public
-(§ interface #_"PeerConnectedEventListener"
+(§ interface PeerConnectedEventListener
     ;;;
      ; Called when a peer is connected.  If this listener is registered to a {@link Peer} instead of a {@link PeerGroup},
      ; peerCount will always be 1.
@@ -22965,7 +22965,7 @@
  ; provide transactions to remote peers when they ask for them.</p>
  ;;
 #_public
-(§ interface #_"PeerDataEventListener" (§ extends #_"BlocksDownloadedEventListener", #_"ChainDownloadStartedEventListener", #_"GetDataEventListener", #_"PreMessageReceivedEventListener"))
+(§ interface PeerDataEventListener (§ extends BlocksDownloadedEventListener, ChainDownloadStartedEventListener, GetDataEventListener, PreMessageReceivedEventListener))
 
 #_(ns org.bitcoinj.core.listeners #_"PeerDisconnectedEventListener"
    (:require [org.bitcoinj.core Peer]))
@@ -22974,7 +22974,7 @@
  ; <p>Implementors can listen to events indicating a peer disconnecting.</p>
  ;;
 #_public
-(§ interface #_"PeerDisconnectedEventListener"
+(§ interface PeerDisconnectedEventListener
     ;;;
      ; Called when a peer is disconnected.  Note that this won't be called if the listener is registered on
      ; a {@link PeerGroup} and the group is in the process of shutting down.  If this listener is registered to
@@ -22995,7 +22995,7 @@
  ; <p>Implementors can listen to events for peers being discovered.</p>
  ;;
 #_public
-(§ interface #_"PeerDiscoveredEventListener"
+(§ interface PeerDiscoveredEventListener
     ;;;
      ; <p>Called when peers are discovered, this happens at startup of {@link PeerGroup}
      ; or if we run out of suitable {@link Peer}s to connect to.</p>
@@ -23014,7 +23014,7 @@
  ; provide transactions to remote peers when they ask for them.</p>
  ;;
 #_public
-(§ interface #_"PreMessageReceivedEventListener"
+(§ interface PreMessageReceivedEventListener
     ;;;
      ; <p>Called when a message is received by a peer, before the message is processed.  The returned message is
      ; processed instead.  Returning null will cause the message to be ignored by the Peer returning the same message
@@ -23035,7 +23035,7 @@
  ; Listener interface for when the best chain has changed.
  ;;
 #_public
-(§ interface #_"ReorganizeListener"
+(§ interface ReorganizeListener
     ;;;
      ; Called by the {@link org.bitcoinj.core.BlockChain} when the best chain (representing total work done)
      ; has changed.  In this case, we need to go through our transactions and find out if any have become invalid.
@@ -23056,7 +23056,7 @@
  ; <p>Implementors are called when confidence of a transaction changes.</p>
  ;;
 #_public
-(§ interface #_"TransactionConfidenceEventListener"
+(§ interface TransactionConfidenceEventListener
     ;;;
      ; <p>Called when a transaction changes its confidence level.  You can also attach event listeners to
      ; the individual transactions, if you don't care about all of them.  Usually you would save the wallet to disk
@@ -23090,7 +23090,7 @@
  ; Listener interface for when we receive a new block that contains a relevant transaction.
  ;;
 #_public
-(§ interface #_"TransactionReceivedInBlockListener"
+(§ interface TransactionReceivedInBlockListener
     ;;;
      ; <p>Called by the {@link BlockChain} when we receive a new block that contains a relevant transaction.</p>
      ;
@@ -23139,7 +23139,7 @@
  ; {@link DeterministicHierarchy}.  This class is immutable.
  ;;
 #_public
-(§ class #_"ChildNumber" (§ implements #_"Comparable<ChildNumber>")
+(§ class ChildNumber (§ implements Comparable #_"<ChildNumber>")
     ;;;
      ; The bit that's set in the child number to indicate whether this key is "hardened".  Given a hardened key, it is
      ; not possible to derive a child public key if you know only the hardened public key.  With a non-hardened key this
@@ -23166,7 +23166,7 @@
     (§ field- #_"int" i)
 
     #_public
-    (§ constructor #_"ChildNumber" [#_"int" __childNumber, #_"boolean" __isHardened]
+    (§ constructor ChildNumber [#_"int" __childNumber, #_"boolean" __isHardened]
         (§ when (ChildNumber/hasHardenedBit __childNumber)
             (throw (IllegalArgumentException. (str "Most significant bit is reserved and shouldn't be set: " __childNumber)))
         )
@@ -23176,7 +23176,7 @@
     )
 
     #_public
-    (§ constructor #_"ChildNumber" [#_"int" __i]
+    (§ constructor ChildNumber [#_"int" __i]
         (§ ass (.. this i) __i)
         this
     )
@@ -23263,7 +23263,7 @@
  ; is a list of {@link ChildNumber}s.</p>
  ;;
 #_public
-(§ class #_"DeterministicHierarchy"
+(§ class DeterministicHierarchy
     #_private
     (§ field- #_"Map<ImmutableList<ChildNumber>, DeterministicKey>" keys (Maps/newHashMap))
     #_private
@@ -23281,7 +23281,7 @@
      ; You can construct a DeterministicHierarchy for a subtree of a larger tree that you may not own.
      ;;
     #_public
-    (§ constructor #_"DeterministicHierarchy" [#_"DeterministicKey" __rootKey]
+    (§ constructor DeterministicHierarchy [#_"DeterministicKey" __rootKey]
         (.. this (putKey __rootKey))
         (§ ass (.. this rootPath) (.. __rootKey (getPath)))
         this
@@ -23423,7 +23423,7 @@
  ; To obtain one of these, you can call {@link HDKeyDerivation#createMasterPrivateKey(byte[])}.
  ;;
 #_public
-(§ class #_"DeterministicKey" (§ extends #_"ECKey")
+(§ class DeterministicKey (§ extends ECKey)
     ;;; Sorts deterministic keys in the order of their child number.  That's <i>usually</i> the order used to derive them. ;;
     #_public
     #_static
@@ -23453,35 +23453,35 @@
 
     ;;; Constructs a key from its components.  This is not normally something you should use. ;;
     #_public
-    (§ constructor #_"DeterministicKey" [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"LazyECPoint" __publicAsPoint, #_nilable #_"BigInteger" __priv, #_nilable #_"DeterministicKey" __parent]
+    (§ constructor DeterministicKey [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"LazyECPoint" __publicAsPoint, #_nilable #_"BigInteger" __priv, #_nilable #_"DeterministicKey" __parent]
         (§ super __priv, (ECKey/compressPoint (Preconditions/checkNotNull __publicAsPoint)))
 
-        (Preconditions/checkArgument (== (.. __chainCode length) 32))
+        (Preconditions/checkArgument (== (.. __chainCode (alength)) 32))
 
         (§ ass (.. this parent) __parent)
         (§ ass (.. this childNumberPath) (Preconditions/checkNotNull __childNumberPath))
-        (§ ass (.. this chainCode) (Arrays/copyOf __chainCode, (.. __chainCode length)))
+        (§ ass (.. this chainCode) (Arrays/copyOf __chainCode, (.. __chainCode (alength))))
         (§ ass (.. this depth) (if (some? __parent) (inc (.. __parent depth)) 0))
         (§ ass (.. this parentFingerprint) (if (some? __parent) (.. __parent (getFingerprint)) 0))
         this
     )
 
     #_public
-    (§ constructor #_"DeterministicKey" [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"ECPoint" __publicAsPoint, #_nilable #_"BigInteger" __priv, #_nilable #_"DeterministicKey" __parent]
+    (§ constructor DeterministicKey [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"ECPoint" __publicAsPoint, #_nilable #_"BigInteger" __priv, #_nilable #_"DeterministicKey" __parent]
         (§ this __childNumberPath, __chainCode, (LazyECPoint. __publicAsPoint), __priv, __parent)
         this
     )
 
     ;;; Constructs a key from its components.  This is not normally something you should use. ;;
     #_public
-    (§ constructor #_"DeterministicKey" [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"BigInteger" __priv, #_nilable #_"DeterministicKey" __parent]
+    (§ constructor DeterministicKey [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"BigInteger" __priv, #_nilable #_"DeterministicKey" __parent]
         (§ super __priv, (ECKey/compressPoint (ECKey/publicPointFromPrivate __priv)))
 
-        (Preconditions/checkArgument (== (.. __chainCode length) 32))
+        (Preconditions/checkArgument (== (.. __chainCode (alength)) 32))
 
         (§ ass (.. this parent) __parent)
         (§ ass (.. this childNumberPath) (Preconditions/checkNotNull __childNumberPath))
-        (§ ass (.. this chainCode) (Arrays/copyOf __chainCode, (.. __chainCode length)))
+        (§ ass (.. this chainCode) (Arrays/copyOf __chainCode, (.. __chainCode (alength))))
         (§ ass (.. this depth) (if (some? __parent) (inc (.. __parent depth)) 0))
         (§ ass (.. this parentFingerprint) (if (some? __parent) (.. __parent (getFingerprint)) 0))
         this
@@ -23489,7 +23489,7 @@
 
     ;;; Constructs a key from its components.  This is not normally something you should use. ;;
     #_public
-    (§ constructor #_"DeterministicKey" [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"KeyCrypter" __crypter, #_"LazyECPoint" __pub, #_"EncryptedData" __priv, #_nilable #_"DeterministicKey" __parent]
+    (§ constructor DeterministicKey [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"KeyCrypter" __crypter, #_"LazyECPoint" __pub, #_"EncryptedData" __priv, #_nilable #_"DeterministicKey" __parent]
         (§ this __childNumberPath, __chainCode, __pub, nil, __parent)
         (§ ass (.. this encryptedPrivateKey) (Preconditions/checkNotNull __priv))
         (§ ass (.. this keyCrypter) (Preconditions/checkNotNull __crypter))
@@ -23520,14 +23520,14 @@
      ; that you normally should use.
      ;;
     #_public
-    (§ constructor #_"DeterministicKey" [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"LazyECPoint" __publicAsPoint, #_nilable #_"DeterministicKey" __parent, #_"int" __depth, #_"int" __parentFingerprint]
+    (§ constructor DeterministicKey [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"LazyECPoint" __publicAsPoint, #_nilable #_"DeterministicKey" __parent, #_"int" __depth, #_"int" __parentFingerprint]
         (§ super nil, (ECKey/compressPoint (Preconditions/checkNotNull __publicAsPoint)))
 
-        (Preconditions/checkArgument (== (.. __chainCode length) 32))
+        (Preconditions/checkArgument (== (.. __chainCode (alength)) 32))
 
         (§ ass (.. this parent) __parent)
         (§ ass (.. this childNumberPath) (Preconditions/checkNotNull __childNumberPath))
-        (§ ass (.. this chainCode) (Arrays/copyOf __chainCode, (.. __chainCode length)))
+        (§ ass (.. this chainCode) (Arrays/copyOf __chainCode, (.. __chainCode (alength))))
         (§ ass (.. this depth) __depth)
         (§ ass (.. this parentFingerprint) (.. this (ascertainParentFingerprint __parent, __parentFingerprint)))
         this
@@ -23539,14 +23539,14 @@
      ; you normally should use.
      ;;
     #_public
-    (§ constructor #_"DeterministicKey" [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"BigInteger" __priv, #_nilable #_"DeterministicKey" __parent, #_"int" __depth, #_"int" __parentFingerprint]
+    (§ constructor DeterministicKey [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"BigInteger" __priv, #_nilable #_"DeterministicKey" __parent, #_"int" __depth, #_"int" __parentFingerprint]
         (§ super __priv, (ECKey/compressPoint (ECKey/publicPointFromPrivate __priv)))
 
-        (Preconditions/checkArgument (== (.. __chainCode length) 32))
+        (Preconditions/checkArgument (== (.. __chainCode (alength)) 32))
 
         (§ ass (.. this parent) __parent)
         (§ ass (.. this childNumberPath) (Preconditions/checkNotNull __childNumberPath))
-        (§ ass (.. this chainCode) (Arrays/copyOf __chainCode, (.. __chainCode length)))
+        (§ ass (.. this chainCode) (Arrays/copyOf __chainCode, (.. __chainCode (alength))))
         (§ ass (.. this depth) __depth)
         (§ ass (.. this parentFingerprint) (.. this (ascertainParentFingerprint __parent, __parentFingerprint)))
         this
@@ -23554,7 +23554,7 @@
 
     ;;; Clones the key. ;;
     #_public
-    (§ constructor #_"DeterministicKey" [#_"DeterministicKey" __keyToClone, #_"DeterministicKey" __newParent]
+    (§ constructor DeterministicKey [#_"DeterministicKey" __keyToClone, #_"DeterministicKey" __newParent]
         (§ super (.. __keyToClone priv), (.. __keyToClone pub (get)))
 
         (§ ass (.. this parent) __newParent)
@@ -23645,7 +23645,7 @@
     #_public
     (§ method #_"byte[]" getPrivKeyBytes33 []
         (let [#_"byte[]" __bytes33 (byte-array 33)][#_"byte[]" __priv (.. this (getPrivKeyBytes))]
-            (System/arraycopy __priv, 0, __bytes33, (- 33 (.. __priv length)), (.. __priv length))
+            (System/arraycopy __priv, 0, __bytes33, (- 33 (.. __priv (alength))), (.. __priv (alength)))
             __bytes33
         )
     )
@@ -23680,7 +23680,7 @@
 
     #_static
     (§ defn #_"byte[]" DeterministicKey/addChecksum [#_"byte[]" __input]
-        (let [#_"int" __inputLength (.. __input length)][#_"byte[]" __checksummed (byte-array (+ __inputLength 4))]
+        (let [#_"int" __inputLength (.. __input (alength))][#_"byte[]" __checksummed (byte-array (+ __inputLength 4))]
             (System/arraycopy __input, 0, __checksummed, 0, __inputLength)
             (let [#_"byte[]" __checksum (Sha256Hash/hashTwice __input)]
                 (System/arraycopy __checksum, 0, __checksummed, __inputLength, 4)
@@ -24134,7 +24134,7 @@
  ; and which can have a creation time associated with it.
  ;;
 #_public
-(§ interface #_"EncryptableItem"
+(§ interface EncryptableItem
     ;;; Returns whether the item is encrypted or not.  If it is, then {@link #getSecretBytes()} will return null. ;;
     (§ method #_"boolean" isEncrypted [])
 
@@ -24165,16 +24165,16 @@
  ; the private key bytes were encrypted.  You need these for decryption.</p>
  ;;
 #_public
-(§ class #_"EncryptedData"
+(§ class EncryptedData
     #_public
     (§ field #_"byte[]" initialisationVector)
     #_public
     (§ field #_"byte[]" encryptedBytes)
 
     #_public
-    (§ constructor #_"EncryptedData" [#_"byte[]" __initialisationVector, #_"byte[]" __encryptedBytes]
-        (§ ass (.. this initialisationVector) (Arrays/copyOf __initialisationVector, (.. __initialisationVector length)))
-        (§ ass (.. this encryptedBytes) (Arrays/copyOf __encryptedBytes, (.. __encryptedBytes length)))
+    (§ constructor EncryptedData [#_"byte[]" __initialisationVector, #_"byte[]" __encryptedBytes]
+        (§ ass (.. this initialisationVector) (Arrays/copyOf __initialisationVector, (.. __initialisationVector (alength))))
+        (§ ass (.. this encryptedBytes) (Arrays/copyOf __encryptedBytes, (.. __encryptedBytes (alength))))
         this
     )
 
@@ -24208,9 +24208,9 @@
 #_(ns org.bitcoinj.crypto #_"HDDerivationException")
 
 #_public
-(§ class #_"HDDerivationException" (§ extends #_"RuntimeException")
+(§ class HDDerivationException (§ extends RuntimeException)
     #_public
-    (§ constructor #_"HDDerivationException" [#_"String" __message]
+    (§ constructor HDDerivationException [#_"String" __message]
         (§ super __message)
         this
     )
@@ -24231,7 +24231,7 @@
  ; deterministic wallet child key generation algorithm.
  ;;
 #_public
-(§ class #_"HDKeyDerivation"
+(§ class HDKeyDerivation
     #_static
     (§ block
         ;; Init proper random number generator, as some old Android installations have bugs that make it unsecure.
@@ -24273,13 +24273,13 @@
     #_static
     #_throws #_[ "HDDerivationException" ]
     (§ defn #_"DeterministicKey" HDKeyDerivation/createMasterPrivateKey [#_"byte[]" __seed]
-        (Preconditions/checkArgument (< 8 (.. __seed length)), "Seed is too short and could be brute forced")
+        (Preconditions/checkArgument (< 8 (.. __seed (alength))), "Seed is too short and could be brute forced")
 
         ;; Calculate I = HMAC-SHA512(key="Bitcoin seed", msg=S).
         (let [#_"byte[]" __i (HDUtils/hmacSha512 (HDUtils/createHmacSha512Digest (.. "Bitcoin seed" (getBytes))), __seed)]
             ;; Split I into two 32-byte sequences, Il and Ir.
             ;; Use Il as master secret key, and Ir as master chain code.
-            (Preconditions/checkState (== (.. __i length) 64), (.. __i length))
+            (Preconditions/checkState (== (.. __i (alength)) 64), (.. __i (alength)))
 
             (let [#_"byte[]" __il (Arrays/copyOfRange __i, 0, 32)][#_"byte[]" __ir (Arrays/copyOfRange __i, 32, 64)]
                 (Arrays/fill __i, (byte 0))
@@ -24376,14 +24376,14 @@
         (Preconditions/checkArgument (.. __parent (hasPrivKey)), "Parent key must have private key bytes for this method.")
 
         (let [#_"byte[]" __parentPublicKey (.. __parent (getPubKeyPoint) (getEncoded true))]
-            (Preconditions/checkState (== (.. __parentPublicKey length) 33), (str "Parent pubkey must be 33 bytes, but is " (.. __parentPublicKey length)))
+            (Preconditions/checkState (== (.. __parentPublicKey (alength)) 33), (str "Parent pubkey must be 33 bytes, but is " (.. __parentPublicKey (alength))))
 
             (let [#_"ByteBuffer" __data (ByteBuffer/allocate 37)]
                 (.. __data (put (if (.. __childNumber (isHardened)) (.. __parent (getPrivKeyBytes33)) __parentPublicKey)))
                 (.. __data (putInt (.. __childNumber (i))))
 
                 (let [#_"byte[]" __i (HDUtils/hmacSha512 (.. __parent (getChainCode)), (.. __data (array)))]
-                    (Preconditions/checkState (== (.. __i length) 64), (.. __i length))
+                    (Preconditions/checkState (== (.. __i (alength)) 64), (.. __i (alength)))
 
                     (let [#_"byte[]" __il (Arrays/copyOfRange __i, 0, 32)][#_"byte[]" __chainCode (Arrays/copyOfRange __i, 32, 64)][#_"BigInteger" __ilInt (BigInteger. 1, __il)]
                         (HDKeyDerivation/assertLessThanN __ilInt, "Illegal derived key: I_L >= n")
@@ -24400,7 +24400,7 @@
     )
 
     #_public
-    (§ enum #_"HDKeyDerivation.PublicDeriveMode"
+    (§ enum HDKeyDerivation/PublicDeriveMode
         (§ item NORMAL)
         (§ item WITH_INVERSION)
     )
@@ -24412,14 +24412,14 @@
         (Preconditions/checkArgument (not (.. __childNumber (isHardened))), "Can't use private derivation with public keys only.")
 
         (let [#_"byte[]" __parentPublicKey (.. __parent (getPubKeyPoint) (getEncoded true))]
-            (Preconditions/checkState (== (.. __parentPublicKey length) 33), (str "Parent pubkey must be 33 bytes, but is " (.. __parentPublicKey length)))
+            (Preconditions/checkState (== (.. __parentPublicKey (alength)) 33), (str "Parent pubkey must be 33 bytes, but is " (.. __parentPublicKey (alength))))
 
             (let [#_"ByteBuffer" __data (ByteBuffer/allocate 37)]
                 (.. __data (put __parentPublicKey))
                 (.. __data (putInt (.. __childNumber (i))))
 
                 (let [#_"byte[]" __i (HDUtils/hmacSha512 (.. __parent (getChainCode)), (.. __data (array)))]
-                    (Preconditions/checkState (== (.. __i length) 64), (.. __i length))
+                    (Preconditions/checkState (== (.. __i (alength)) 64), (.. __i (alength)))
 
                     (let [#_"byte[]" __il (Arrays/copyOfRange __i, 0, 32)][#_"byte[]" __chainCode (Arrays/copyOfRange __i, 32, 64)][#_"BigInteger" __ilInt (BigInteger. 1, __il)]
                         (HDKeyDerivation/assertLessThanN __ilInt, "Illegal derived key: I_L >= n")
@@ -24485,14 +24485,14 @@
 
     #_public
     #_static
-    (§ class #_"HDKeyDerivation.RawKeyBytes"
+    (§ class HDKeyDerivation/RawKeyBytes
         #_public
         (§ field #_"byte[]" keyBytes)
         #_public
         (§ field #_"byte[]" chainCode)
 
         #_public
-        (§ constructor #_"HDKeyDerivation.RawKeyBytes" [#_"byte[]" __keyBytes, #_"byte[]" __chainCode]
+        (§ constructor HDKeyDerivation/RawKeyBytes [#_"byte[]" __keyBytes, #_"byte[]" __chainCode]
             (§ ass (.. this keyBytes) __keyBytes)
             (§ ass (.. this chainCode) __chainCode)
             this
@@ -24514,7 +24514,7 @@
  ; Static utilities used in BIP 32 Hierarchical Deterministic Wallets (HDW).
  ;;
 #_public
-(§ class #_"HDUtils"
+(§ class HDUtils
     #_private
     #_static
     (§ def- #_"Joiner" HDUtils/PATH_JOINER (Joiner/on "/"))
@@ -24530,7 +24530,7 @@
     #_static
     (§ defn #_"byte[]" HDUtils/hmacSha512 [#_"HMac" __hmacSha512, #_"byte[]" __input]
         (.. __hmacSha512 (reset))
-        (.. __hmacSha512 (update __input, 0, (.. __input length)))
+        (.. __hmacSha512 (update __input, 0, (.. __input (alength))))
         (let [#_"byte[]" __out (byte-array 64)]
             (.. __hmacSha512 (doFinal __out, 0))
             __out
@@ -24551,7 +24551,7 @@
     #_static
     (§ defn #_"byte[]" HDUtils/longTo4ByteArray [#_"long" __n]
         (let [#_"byte[]" __bytes (Arrays/copyOfRange (.. (ByteBuffer/allocate 8) (putLong __n) (array)), 4, 8)]
-            (§ assert (== (.. __bytes length) 4) :assert (.. __bytes length))
+            (assert (== (.. __bytes (alength)) 4) (.. __bytes (alength)))
             __bytes
         )
     )
@@ -24627,7 +24627,7 @@
  ; to determine whether any given KeyCrypter can understand the type of encrypted data you have.</p>
  ;;
 #_public
-(§ interface #_"KeyCrypter" (§ extends #_"Serializable")
+(§ interface KeyCrypter (§ extends Serializable)
     ;;;
      ; Return the EncryptionType enum value which denotes the type of encryption/ decryption that this KeyCrypter
      ; can understand.
@@ -24673,15 +24673,15 @@
  ; to the user other than as part of a "general failure to parse" response.</p>
  ;;
 #_public
-(§ class #_"KeyCrypterException" (§ extends #_"RuntimeException")
+(§ class KeyCrypterException (§ extends RuntimeException)
     #_public
-    (§ constructor #_"KeyCrypterException" [#_"String" __s]
+    (§ constructor KeyCrypterException [#_"String" __s]
         (§ super __s)
         this
     )
 
     #_public
-    (§ constructor #_"KeyCrypterException" [#_"String" __s, #_"Throwable" __throwable]
+    (§ constructor KeyCrypterException [#_"String" __s, #_"Throwable" __throwable]
         (§ super __s, __throwable)
         this
     )
@@ -24717,7 +24717,7 @@
  ; the AES symmetric cipher.  Eight bytes of salt is used to prevent dictionary attacks.</p>
  ;;
 #_public
-(§ class #_"KeyCrypterScrypt" (§ implements #_"KeyCrypter")
+(§ class KeyCrypterScrypt (§ implements KeyCrypter)
     #_private
     #_static
     (§ def- #_"Logger" KeyCrypterScrypt/log (LoggerFactory/getLogger (§ klass #_"KeyCrypterScrypt")))
@@ -24776,7 +24776,7 @@
      ; Encryption/Decryption using default parameters and a random salt.
      ;;
     #_public
-    (§ constructor #_"KeyCrypterScrypt" []
+    (§ constructor KeyCrypterScrypt []
         (let [#_"Protos.ScryptParameters.Builder" __builder (.. (Protos/ScryptParameters/newBuilder) (setSalt (ByteString/copyFrom (KeyCrypterScrypt/randomSalt))))]
             (§ ass (.. this scryptParameters) (.. __builder (build)))
             this
@@ -24790,7 +24790,7 @@
      ; @param iterations Number of scrypt iterations.
      ;;
     #_public
-    (§ constructor #_"KeyCrypterScrypt" [#_"int" __iterations]
+    (§ constructor KeyCrypterScrypt [#_"int" __iterations]
         (let [#_"Protos.ScryptParameters.Builder" __builder (.. (Protos/ScryptParameters/newBuilder) (setSalt (ByteString/copyFrom (KeyCrypterScrypt/randomSalt))) (setN __iterations))]
             (§ ass (.. this scryptParameters) (.. __builder (build)))
             this
@@ -24804,11 +24804,11 @@
      ; @throws NullPointerException if the scryptParameters or any of its N, R or P is null.
      ;;
     #_public
-    (§ constructor #_"KeyCrypterScrypt" [#_"Protos.ScryptParameters" __scryptParameters]
+    (§ constructor KeyCrypterScrypt [#_"Protos.ScryptParameters" __scryptParameters]
         (§ ass (.. this scryptParameters) (Preconditions/checkNotNull __scryptParameters))
 
         ;; Check there is a non-empty salt.  Some early MultiBit wallets has a missing salt, so it is not a hard fail.
-        (§ when (or (nil? (.. __scryptParameters (getSalt))) (nil? (.. __scryptParameters (getSalt) (toByteArray))) (== (.. __scryptParameters (getSalt) (toByteArray) length) 0))
+        (§ when (or (nil? (.. __scryptParameters (getSalt))) (nil? (.. __scryptParameters (getSalt) (toByteArray))) (== (.. __scryptParameters (getSalt) (toByteArray) (alength)) 0))
             (.. KeyCrypterScrypt/log (warn "You are using a ScryptParameters with no salt. Your encryption may be vulnerable to a dictionary attack."))
         )
         this
@@ -24878,7 +24878,7 @@
                     ;; Encrypt using AES.
                     (let [#_"BufferedBlockCipher" __cipher (PaddedBufferedBlockCipher. (CBCBlockCipher. (AESFastEngine.)))]
                         (.. __cipher (init true, __keyWithIv))
-                        (let [#_"byte[]" __encryptedBytes (byte-array (.. __cipher (getOutputSize (.. __plainBytes length))))][#_"int" __length1 (.. __cipher (processBytes __plainBytes, 0, (.. __plainBytes length), __encryptedBytes, 0))][#_"int" __length2 (.. __cipher (doFinal __encryptedBytes, __length1))]
+                        (let [#_"byte[]" __encryptedBytes (byte-array (.. __cipher (getOutputSize (.. __plainBytes (alength)))))][#_"int" __length1 (.. __cipher (processBytes __plainBytes, 0, (.. __plainBytes (alength)), __encryptedBytes, 0))][#_"int" __length2 (.. __cipher (doFinal __encryptedBytes, __length1))]
 
                             (§ return (EncryptedData. __iv, (Arrays/copyOf __encryptedBytes, (+ __length1 __length2))))
                         )
@@ -24913,7 +24913,7 @@
                 (let [#_"BufferedBlockCipher" __cipher (PaddedBufferedBlockCipher. (CBCBlockCipher. (AESFastEngine.)))]
                     (.. __cipher (init false, __keyWithIv))
 
-                    (let [#_"byte[]" __cipherBytes (.. __dataToDecrypt encryptedBytes)][#_"byte[]" __decryptedBytes (byte-array (.. __cipher (getOutputSize (.. __cipherBytes length))))][#_"int" __length1 (.. __cipher (processBytes __cipherBytes, 0, (.. __cipherBytes length), __decryptedBytes, 0))][#_"int" __length2 (.. __cipher (doFinal __decryptedBytes, __length1))]
+                    (let [#_"byte[]" __cipherBytes (.. __dataToDecrypt encryptedBytes)][#_"byte[]" __decryptedBytes (byte-array (.. __cipher (getOutputSize (.. __cipherBytes (alength)))))][#_"int" __length1 (.. __cipher (processBytes __cipherBytes, 0, (.. __cipherBytes (alength)), __decryptedBytes, 0))][#_"int" __length2 (.. __cipher (doFinal __decryptedBytes, __length1))]
 
                         (§ return (Arrays/copyOf __decryptedBytes, (+ __length1 __length2)))
                     )
@@ -24997,7 +24997,7 @@
  ; encode/decode in Bouncy Castle is quite slow especially on Dalvik, as it often involves decompression/recompression.
  ;;
 #_public
-(§ class #_"LazyECPoint"
+(§ class LazyECPoint
     ;; If curve is set, bits is also set.  If curve is unset, point is set and bits is unset.  Point can be set along
     ;; with curve and bits when the cached form has been accessed and thus must have been converted.
     #_private
@@ -25011,14 +25011,14 @@
     (§ field- #_"ECPoint" point)
 
     #_public
-    (§ constructor #_"LazyECPoint" [#_"ECCurve" __curve, #_"byte[]" __bits]
+    (§ constructor LazyECPoint [#_"ECCurve" __curve, #_"byte[]" __bits]
         (§ ass (.. this curve) __curve)
         (§ ass (.. this bits) __bits)
         this
     )
 
     #_public
-    (§ constructor #_"LazyECPoint" [#_"ECPoint" __point]
+    (§ constructor LazyECPoint [#_"ECPoint" __point]
         (§ ass (.. this point) (Preconditions/checkNotNull __point))
         (§ ass (.. this curve) nil)
         (§ ass (.. this bits) nil)
@@ -25043,7 +25043,7 @@
     #_public
     (§ method #_"byte[]" getEncoded []
         (§ when (some? (.. this bits))
-            (§ return (Arrays/copyOf (.. this bits), (.. this bits length)))
+            (§ return (Arrays/copyOf (.. this bits), (.. this bits (alength))))
         )
         (§ else 
             (§ return (.. this (get) (getEncoded)))
@@ -25138,7 +25138,7 @@
     #_public
     (§ method #_"byte[]" getEncoded [#_"boolean" __compressed]
         (§ when (and (== __compressed (.. this (isCompressed))) (some? (.. this bits)))
-            (§ return (Arrays/copyOf (.. this bits), (.. this bits length)))
+            (§ return (Arrays/copyOf (.. this bits), (.. this bits (alength))))
         )
         (§ else 
             (§ return (.. this (get) (getEncoded __compressed)))
@@ -25226,16 +25226,16 @@
  ; non-seed bytes, they are all from the same source.
  ;;
 #_public
-(§ class #_"LinuxSecureRandom" (§ extends #_"SecureRandomSpi")
+(§ class LinuxSecureRandom (§ extends SecureRandomSpi)
     #_private
     #_static
     (§ def- #_"FileInputStream" LinuxSecureRandom/URANDOM)
 
     #_private
     #_static
-    (§ class #_"LinuxSecureRandom.LinuxSecureRandomProvider" (§ extends #_"Provider")
+    (§ class LinuxSecureRandom/LinuxSecureRandomProvider (§ extends Provider)
         #_public
-        (§ constructor #_"LinuxSecureRandom.LinuxSecureRandomProvider" []
+        (§ constructor LinuxSecureRandom/LinuxSecureRandomProvider []
             (§ super "LinuxSecureRandom", 1.0, "A Linux specific random number provider that uses /dev/urandom")
 
             (.. this (put "SecureRandom.LinuxSecureRandom", (.. (§ klass #_"LinuxSecureRandom") (getName))))
@@ -25284,7 +25284,7 @@
     (§ field- #_"DataInputStream" dis)
 
     #_public
-    (§ constructor #_"LinuxSecureRandom" []
+    (§ constructor LinuxSecureRandom []
         ;; DataInputStream is not thread safe, so each random object has its own.
         (§ ass (.. this dis) (DataInputStream. LinuxSecureRandom/URANDOM))
         this
@@ -25333,7 +25333,7 @@
  ;;
 
 #_public
-(§ class #_"MnemonicCode"
+(§ class MnemonicCode
     #_private
     #_static
     (§ def- #_"Logger" MnemonicCode/log (LoggerFactory/getLogger (§ klass #_"MnemonicCode")))
@@ -25380,7 +25380,7 @@
     ;;; Initialise from the included word list.  Won't work on Android. ;;
     #_public
     #_throws #_[ "IOException" ]
-    (§ constructor #_"MnemonicCode" []
+    (§ constructor MnemonicCode []
         (§ this (MnemonicCode/openDefaultWords), MnemonicCode/BIP39_ENGLISH_SHA256)
         this
     )
@@ -25403,7 +25403,7 @@
      ;;
     #_public
     #_throws #_[ "IOException", "IllegalArgumentException" ]
-    (§ constructor #_"MnemonicCode" [#_"InputStream" __wordstream, #_"String" __wordListDigest]
+    (§ constructor MnemonicCode [#_"InputStream" __wordstream, #_"String" __wordListDigest]
         (let [#_"BufferedReader" __br (BufferedReader. (InputStreamReader. __wordstream, "UTF-8"))]
             (§ ass (.. this wordList) (ArrayList. #_"<>" 2048))
             (let [#_"MessageDigest" __md (Sha256Hash/newDigest)][#_"String" __word]
@@ -25494,7 +25494,7 @@
 
                 ;; Extract original entropy as bytes.
                 (let [#_"byte[]" __entropy (byte-array (/ __entropyLengthBits 8))]
-                    (§ for [#_"int" __i 0] (< __i (.. __entropy length)) [(inc __i)]
+                    (§ for [#_"int" __i 0] (< __i (.. __entropy (alength))) [(inc __i)]
                         (§ for [#_"int" __j 0] (< __j 8) [(inc __j)]
                             (§ when (aget __concatBits (+ (* __i 8) __j))
                                 (aset __entropy __i (| (aget __entropy __i) (<< 1 (- 7 __j))))
@@ -25525,11 +25525,11 @@
     #_public
     #_throws #_[ "MnemonicException.MnemonicLengthException" ]
     (§ method #_"List<String>" toMnemonic [#_"byte[]" __entropy]
-        (§ when (< 0 (% (.. __entropy length) 4))
+        (§ when (< 0 (% (.. __entropy (alength)) 4))
             (throw (MnemonicException/MnemonicLengthException. "Entropy length not multiple of 32 bits."))
         )
 
-        (§ when (== (.. __entropy length) 0)
+        (§ when (== (.. __entropy (alength)) 0)
             (throw (MnemonicException/MnemonicLengthException. "Entropy is empty."))
         )
 
@@ -25537,17 +25537,17 @@
 
         (let [#_"byte[]" __hash (Sha256Hash/hash __entropy)][#_"boolean[]" __hashBits (MnemonicCode/bytesToBits __hash)]
 
-            (let [#_"boolean[]" __entropyBits (MnemonicCode/bytesToBits __entropy)][#_"int" __checksumLengthBits (/ (.. __entropyBits length) 32)]
+            (let [#_"boolean[]" __entropyBits (MnemonicCode/bytesToBits __entropy)][#_"int" __checksumLengthBits (/ (.. __entropyBits (alength)) 32)]
 
                 ;; We append these bits to the end of the initial entropy.
-                (let [#_"boolean[]" __concatBits (boolean-array (+ (.. __entropyBits length) __checksumLengthBits))]
-                    (System/arraycopy __entropyBits, 0, __concatBits, 0, (.. __entropyBits length))
-                    (System/arraycopy __hashBits, 0, __concatBits, (.. __entropyBits length), __checksumLengthBits)
+                (let [#_"boolean[]" __concatBits (boolean-array (+ (.. __entropyBits (alength)) __checksumLengthBits))]
+                    (System/arraycopy __entropyBits, 0, __concatBits, 0, (.. __entropyBits (alength)))
+                    (System/arraycopy __hashBits, 0, __concatBits, (.. __entropyBits (alength)), __checksumLengthBits)
 
                     ;; Next we take these concatenated bits and split them into groups of 11 bits.  Each group encodes number from 0-2047
                     ;; which is a position in a wordlist.  We convert numbers into words and use joined words as mnemonic sentence.
 
-                    (let [#_"ArrayList<String>" __words (ArrayList. #_"<>")][#_"int" __nwords (/ (.. __concatBits length) 11)]
+                    (let [#_"ArrayList<String>" __words (ArrayList. #_"<>")][#_"int" __nwords (/ (.. __concatBits (alength)) 11)]
                         (§ for [#_"int" __i 0] (< __i __nwords) [(inc __i)]
                             (let [#_"int" __index 0]
                                 (§ for [#_"int" __j 0] (< __j 11) [(inc __j)]
@@ -25580,8 +25580,8 @@
     #_private
     #_static
     (§ defn- #_"boolean[]" MnemonicCode/bytesToBits [#_"byte[]" __data]
-        (let [#_"boolean[]" __bits (boolean-array (* (.. __data length) 8))]
-            (§ for [#_"int" __i 0] (< __i (.. __data length)) [(inc __i)]
+        (let [#_"boolean[]" __bits (boolean-array (* (.. __data (alength)) 8))]
+            (§ for [#_"int" __i 0] (< __i (.. __data (alength))) [(inc __i)]
                 (§ for [#_"int" __j 0] (< __j 8) [(inc __j)]
                     (aset __bits (+ (* __i 8) __j) (!= (& (aget __data __i) (<< 1 (- 7 __j))) 0))
                 )
@@ -25597,15 +25597,15 @@
  ; Exceptions thrown by the MnemonicCode module.
  ;;
 #_public
-(§ class #_"MnemonicException" (§ extends #_"Exception")
+(§ class MnemonicException (§ extends Exception)
     #_public
-    (§ constructor #_"MnemonicException" []
+    (§ constructor MnemonicException []
         (§ super )
         this
     )
 
     #_public
-    (§ constructor #_"MnemonicException" [#_"String" __msg]
+    (§ constructor MnemonicException [#_"String" __msg]
         (§ super __msg)
         this
     )
@@ -25615,9 +25615,9 @@
      ;;
     #_public
     #_static
-    (§ class #_"MnemonicException.MnemonicLengthException" (§ extends #_"MnemonicException")
+    (§ class MnemonicException/MnemonicLengthException (§ extends MnemonicException)
         #_public
-        (§ constructor #_"MnemonicException.MnemonicLengthException" [#_"String" __msg]
+        (§ constructor MnemonicException/MnemonicLengthException [#_"String" __msg]
             (§ super __msg)
             this
         )
@@ -25628,9 +25628,9 @@
      ;;
     #_public
     #_static
-    (§ class #_"MnemonicException.MnemonicChecksumException" (§ extends #_"MnemonicException")
+    (§ class MnemonicException/MnemonicChecksumException (§ extends MnemonicException)
         #_public
-        (§ constructor #_"MnemonicException.MnemonicChecksumException" []
+        (§ constructor MnemonicException/MnemonicChecksumException []
             (§ super )
             this
         )
@@ -25641,13 +25641,13 @@
      ;;
     #_public
     #_static
-    (§ class #_"MnemonicException.MnemonicWordException" (§ extends #_"MnemonicException")
+    (§ class MnemonicException/MnemonicWordException (§ extends MnemonicException)
         ;;; Contains the word that was not found in the word list. ;;
         #_public
         (§ field #_"String" badWord)
 
         #_public
-        (§ constructor #_"MnemonicException.MnemonicWordException" [#_"String" __badWord]
+        (§ constructor MnemonicException/MnemonicWordException [#_"String" __badWord]
             (§ super )
             (§ ass (.. this badWord) __badWord)
             this
@@ -25672,7 +25672,7 @@
  ; Modified to use SHA-512 - Ken Sedgwick ken@bonsai.com
  ;;
 #_public
-(§ class #_"PBKDF2SHA512"
+(§ class PBKDF2SHA512
     #_public
     #_static
     (§ defn #_"byte[]" PBKDF2SHA512/derive [#_"String" __P, #_"String" __S, #_"int" __c, #_"int" __dkLen]
@@ -25701,7 +25701,7 @@
             )
 
             (let [#_"byte[]" __baDerived (byte-array __dkLen)]
-                (System/arraycopy (.. __baos (toByteArray)), 0, __baDerived, 0, (.. __baDerived length))
+                (System/arraycopy (.. __baos (toByteArray)), 0, __baDerived, 0, (.. __baDerived (alength)))
 
                 __baDerived
             )
@@ -25719,10 +25719,10 @@
 
                 (§ for [#_"int" __j 0] (< __j __c) [(inc __j)]
                     (§ when (== __j 0)
-                        (let [#_"byte[]" __baS (.. __S (getBytes "UTF-8"))][#_"byte[]" __baI (PBKDF2SHA512/INT __i)][#_"byte[]" __baU (byte-array (+ (.. __baS length) (.. __baI length)))]
+                        (let [#_"byte[]" __baS (.. __S (getBytes "UTF-8"))][#_"byte[]" __baI (PBKDF2SHA512/INT __i)][#_"byte[]" __baU (byte-array (+ (.. __baS (alength)) (.. __baI (alength))))]
 
-                            (System/arraycopy __baS, 0, __baU, 0, (.. __baS length))
-                            (System/arraycopy __baI, 0, __baU, (.. __baS length), (.. __baI length))
+                            (System/arraycopy __baS, 0, __baU, 0, (.. __baS (alength)))
+                            (System/arraycopy __baI, 0, __baU, (.. __baS (alength)), (.. __baI (alength)))
 
                             (§ ass __U_XOR (.. __mac (doFinal __baU)))
                             (§ ass __U_LAST __U_XOR)
@@ -25733,7 +25733,7 @@
                         (let [#_"byte[]" __baU (.. __mac (doFinal __U_LAST))]
                             (.. __mac (reset))
 
-                            (§ for [#_"int" __k 0] (< __k (.. __U_XOR length)) [(inc __k)]
+                            (§ for [#_"int" __k 0] (< __k (.. __U_XOR (alength))) [(inc __k)]
                                 (aset __U_XOR __k (byte (bit-xor (aget __U_XOR __k) (aget __baU __k))))
                             )
 
@@ -25770,7 +25770,7 @@
  ; the additional SIGHASH mode byte that is used.
  ;;
 #_public
-(§ class #_"TransactionSignature" (§ extends #_"ECKey.ECDSASignature")
+(§ class TransactionSignature (§ extends ECKey/ECDSASignature)
     ;;;
      ; A byte that controls which parts of a transaction are signed.  This is exposed because signatures
      ; parsed off the wire may have sighash flags that aren't "normal" serializations of the enum values.
@@ -25782,14 +25782,14 @@
 
     ;;; Constructs a signature with the given components and SIGHASH_ALL. ;;
     #_public
-    (§ constructor #_"TransactionSignature" [#_"BigInteger" __r, #_"BigInteger" __s]
+    (§ constructor TransactionSignature [#_"BigInteger" __r, #_"BigInteger" __s]
         (§ this __r, __s, (.. Transaction/SigHash/ALL value))
         this
     )
 
     ;;; Constructs a signature with the given components and raw sighash flag bytes (needed for rule compatibility). ;;
     #_public
-    (§ constructor #_"TransactionSignature" [#_"BigInteger" __r, #_"BigInteger" __s, #_"int" __sighashFlags]
+    (§ constructor TransactionSignature [#_"BigInteger" __r, #_"BigInteger" __s, #_"int" __sighashFlags]
         (§ super __r, __s)
         (§ ass (.. this sighashFlags) __sighashFlags)
         this
@@ -25797,7 +25797,7 @@
 
     ;;; Constructs a transaction signature based on the ECDSA signature. ;;
     #_public
-    (§ constructor #_"TransactionSignature" [#_"ECKey.ECDSASignature" __signature, #_"Transaction.SigHash" __mode, #_"boolean" __anyoneCanPay]
+    (§ constructor TransactionSignature [#_"ECKey.ECDSASignature" __signature, #_"Transaction.SigHash" __mode, #_"boolean" __anyoneCanPay]
         (§ super (.. __signature r), (.. __signature s))
         (§ ass (.. this sighashFlags) (TransactionSignature/calcSigHashValue __mode, __anyoneCanPay))
         this
@@ -25848,26 +25848,26 @@
         ;; Where R and S are not negative (their first byte has its highest bit not set), and not
         ;; excessively padded (do not start with a 0 byte, unless an otherwise negative number follows,
         ;; in which case a single 0 byte is necessary and even required).
-        (§ when (not (<= 9 (.. __signature length) 73))
+        (§ when (not (<= 9 (.. __signature (alength)) 73))
             (§ return false)
         )
 
-        (let [#_"int" __hashType (& (& (aget __signature (dec (.. __signature length))) 0xff) (bit-not (.. Transaction/SigHash/ANYONECANPAY value)))] ;; mask the byte to prevent sign-extension hurting us
+        (let [#_"int" __hashType (& (& (aget __signature (dec (.. __signature (alength)))) 0xff) (bit-not (.. Transaction/SigHash/ANYONECANPAY value)))] ;; mask the byte to prevent sign-extension hurting us
             (§ when (not (<= (.. Transaction/SigHash/ALL value) __hashType (.. Transaction/SigHash/SINGLE value)))
                 (§ return false)
             )
 
             ;;                   "wrong type"                  "wrong length marker"
-            (§ when (or (!= (& 0xff (aget __signature 0)) 0x30) (!= (& 0xff (aget __signature 1)) (- (.. __signature length) 3)))
+            (§ when (or (!= (& 0xff (aget __signature 0)) 0x30) (!= (& 0xff (aget __signature 1)) (- (.. __signature (alength)) 3)))
                 (§ return false)
             )
 
             (let [#_"int" __lenR (& 0xff (aget __signature 3))]
-                (§ when (or (<= (.. __signature length) (+ 5 __lenR)) (== __lenR 0))
+                (§ when (or (<= (.. __signature (alength)) (+ 5 __lenR)) (== __lenR 0))
                     (§ return false)
                 )
                 (let [#_"int" __lenS (& 0xff (aget __signature (+ 5 __lenR)))]
-                    (§ when (or (!= (+ __lenR __lenS 7) (.. __signature length)) (== __lenS 0))
+                    (§ when (or (!= (+ __lenR __lenS 7) (.. __signature (alength))) (== __lenS 0))
                         (§ return false)
                     )
 
@@ -25981,7 +25981,7 @@
 
             ;; In Bitcoin, any value of the final byte is valid, but not necessarily canonical.  See javadocs
             ;; for isEncodingCanonical to learn more about this.  So we must store the exact byte found.
-            (TransactionSignature. (.. __sig r), (.. __sig s), (aget __bytes (dec (.. __bytes length))))
+            (TransactionSignature. (.. __sig r), (.. __sig s), (aget __bytes (dec (.. __bytes (alength)))))
         )
     )
 )
@@ -26025,7 +26025,7 @@
  ; out what went wrong more precisely.  Same thing if you just use the {@link #startAsync()} method.</p>
  ;;
 #_public
-(§ class #_"WalletAppKit" (§ extends #_"AbstractIdleService")
+(§ class WalletAppKit (§ extends AbstractIdleService)
     #_protected
     #_static
     (§ def #_"Logger" WalletAppKit/log (LoggerFactory/getLogger (§ klass #_"WalletAppKit")))
@@ -26086,7 +26086,7 @@
      ; Creates a new WalletAppKit, with a newly created {@link Context}.  Files will be stored in the given directory.
      ;;
     #_public
-    (§ constructor #_"WalletAppKit" [#_"NetworkParameters" __params, #_"File" __directory, #_"String" __filePrefix]
+    (§ constructor WalletAppKit [#_"NetworkParameters" __params, #_"File" __directory, #_"String" __filePrefix]
         (§ this (Context. __params), __directory, __filePrefix)
         this
     )
@@ -26095,7 +26095,7 @@
      ; Creates a new WalletAppKit, with the given {@link Context}.  Files will be stored in the given directory.
      ;;
     #_public
-    (§ constructor #_"WalletAppKit" [#_"Context" __context, #_"File" __directory, #_"String" __filePrefix]
+    (§ constructor WalletAppKit [#_"Context" __context, #_"File" __directory, #_"String" __filePrefix]
         (§ ass (.. this context) __context)
         (§ ass (.. this params) (Preconditions/checkNotNull (.. __context (getParams))))
         (§ ass (.. this directory) (Preconditions/checkNotNull __directory))
@@ -26346,7 +26346,7 @@
                         (§ forin [#_"PeerAddress" __addr] (.. this peerAddresses)
                             (.. this vPeerGroup (addAddress __addr))
                         )
-                        (.. this vPeerGroup (setMaxConnections (.. this peerAddresses length)))
+                        (.. this vPeerGroup (setMaxConnections (.. this peerAddresses (alength))))
                         (§ ass (.. this peerAddresses) nil)
                     )
                     (§ else 
@@ -26589,7 +26589,7 @@
  ;;
 #_public
 #_abstract
-(§ class #_"AbstractTimeoutHandler"
+(§ class AbstractTimeoutHandler
     ;; TimerTask and timeout value which are added to a timer to kill the connection on timeout.
     #_private
     (§ field- #_"TimerTask" timeoutTask)
@@ -26687,7 +26687,7 @@
  ; cannot be set using NIO.</p>
  ;;
 #_public
-(§ class #_"BlockingClient" (§ implements #_"MessageWriteTarget")
+(§ class BlockingClient (§ implements MessageWriteTarget)
     #_private
     #_static
     (§ def- #_"Logger" BlockingClient/log (LoggerFactory/getLogger (§ klass #_"BlockingClient")))
@@ -26721,7 +26721,7 @@
      ;;
     #_public
     #_throws #_[ "IOException" ]
-    (§ constructor #_"BlockingClient" [#_"SocketAddress" __serverAddress, #_"StreamConnection" __connection, #_"int" __connectTimeoutMillis, #_"SocketFactory" __socketFactory, #_nilable #_"Set<BlockingClient>" __clientSet]
+    (§ constructor BlockingClient [#_"SocketAddress" __serverAddress, #_"StreamConnection" __connection, #_"int" __connectTimeoutMillis, #_"SocketFactory" __socketFactory, #_nilable #_"Set<BlockingClient>" __clientSet]
         (§ ass (.. this connectFuture) (SettableFuture/create))
         ;; Try to fit at least one message in the network buffer, but place an upper and lower limit on its size to make
         ;; sure it doesnt get too large or have to call read too often.
@@ -26785,7 +26785,7 @@
         (let [#_"ByteBuffer" __dbuf (ByteBuffer/allocateDirect (Math/min (Math/max (.. __connection (getMaxMessageSize)), BlockingClient/BUFFER_SIZE_LOWER_BOUND), BlockingClient/BUFFER_SIZE_UPPER_BOUND))][#_"byte[]" __readBuff (byte-array (.. __dbuf (capacity)))]
             (§ for [] true []
                 ;; TODO: Kill the message duplication here.
-                (Preconditions/checkState (and (< 0 (.. __dbuf (remaining))) (<= (.. __dbuf (remaining)) (.. __readBuff length))))
+                (Preconditions/checkState (and (< 0 (.. __dbuf (remaining))) (<= (.. __dbuf (remaining)) (.. __readBuff (alength)))))
                 (let [#_"int" __read (.. __stream (read __readBuff, 0, (Math/max 1, (Math/min (.. __dbuf (remaining)), (.. __stream (available))))))]
                     (§ when (== __read -1)
                         (§ return nil)
@@ -26866,7 +26866,7 @@
  ; some other network settings that cannot be set using NIO.</p>
  ;;
 #_public
-(§ class #_"BlockingClientManager" (§ extends #_"AbstractIdleService") (§ implements #_"ClientConnectionManager")
+(§ class BlockingClientManager (§ extends AbstractIdleService) (§ implements ClientConnectionManager)
     #_private
     (§ field- #_"SocketFactory" socketFactory)
     #_private
@@ -26876,7 +26876,7 @@
     (§ field- #_"int" connectTimeoutMillis 1000)
 
     #_public
-    (§ constructor #_"BlockingClientManager" []
+    (§ constructor BlockingClientManager []
         (§ ass (.. this socketFactory) (SocketFactory/getDefault))
         this
     )
@@ -26886,7 +26886,7 @@
      ; Useful for customising how bitcoinj connects to the P2P network.
      ;;
     #_public
-    (§ constructor #_"BlockingClientManager" [#_"SocketFactory" __socketFactory]
+    (§ constructor BlockingClientManager [#_"SocketFactory" __socketFactory]
         (§ ass (.. this socketFactory) (Preconditions/checkNotNull __socketFactory))
         this
     )
@@ -26966,7 +26966,7 @@
  ; and the appropriate connectionClosed() calls must be made.</p>
  ;;
 #_public
-(§ interface #_"ClientConnectionManager" (§ extends #_"Service")
+(§ interface ClientConnectionManager (§ extends Service)
     ;;;
      ; Creates a new connection to the given address, with the given connection used to handle incoming data.  Any errors
      ; that occur during connection will be returned in the given future, including errors that can occur immediately.
@@ -26998,7 +26998,7 @@
  ; A simple NIO MessageWriteTarget which handles all the business logic of a connection (reading+writing bytes).
  ; Used only by the NioClient and NioServer classes.
  ;;
-(§ class #_"ConnectionHandler" (§ implements #_"MessageWriteTarget")
+(§ class ConnectionHandler (§ implements MessageWriteTarget)
     #_private
     #_static
     (§ def- #_"Logger" ConnectionHandler/log (LoggerFactory/getLogger (§ klass #_"ConnectionHandler")))
@@ -27045,7 +27045,7 @@
 
     #_public
     #_throws #_[ "IOException" ]
-    (§ constructor #_"ConnectionHandler" [#_"StreamConnectionFactory" __connectionFactory, #_"SelectionKey" __key]
+    (§ constructor ConnectionHandler [#_"StreamConnectionFactory" __connectionFactory, #_"SelectionKey" __key]
         (§ this (.. __connectionFactory (getNewConnection (.. (cast SocketChannel (.. __key (channel))) (socket) (getInetAddress)), (.. (cast SocketChannel (.. __key (channel))) (socket) (getPort)))), __key)
         (§ when (nil? (.. this connection))
             (throw (IOException. "Parser factory.getNewConnection returned nil"))
@@ -27070,7 +27070,7 @@
     )
 
     #_public
-    (§ constructor #_"ConnectionHandler" [#_"StreamConnection" __connection, #_"SelectionKey" __key, #_"Set<ConnectionHandler>" __connectedHandlers]
+    (§ constructor ConnectionHandler [#_"StreamConnection" __connection, #_"SelectionKey" __key, #_"Set<ConnectionHandler>" __connectedHandlers]
         (§ this (Preconditions/checkNotNull __connection), __key)
 
         ;; closeConnection() may have already happened because we invoked the other c'tor above, which called
@@ -27143,14 +27143,14 @@
                 ;; thus we have to buffer outbound messages sometimes.  To do this, we use a queue of ByteBuffers and just
                 ;; append to it when we want to send a message.  We then let tryWriteBytes() either send the message or
                 ;; register our SelectionKey to wakeup when we have free outbound buffer space available.
-                (§ when (< ConnectionHandler/OUTBOUND_BUFFER_BYTE_COUNT (+ (.. this bytesToWriteRemaining) (.. __message length)))
+                (§ when (< ConnectionHandler/OUTBOUND_BUFFER_BYTE_COUNT (+ (.. this bytesToWriteRemaining) (.. __message (alength))))
                     (throw (IOException. "Outbound buffer overflowed"))
                 )
 
                 ;; Just dump the message onto the write buffer and call tryWriteBytes.
                 ;; TODO: Kill the needless message duplication when the write completes right away.
-                (.. this bytesToWrite (offer (ByteBuffer/wrap (Arrays/copyOf __message, (.. __message length)))))
-                (§ ass (.. this bytesToWriteRemaining) (+ (.. this bytesToWriteRemaining) (.. __message length)))
+                (.. this bytesToWrite (offer (ByteBuffer/wrap (Arrays/copyOf __message, (.. __message (alength))))))
+                (§ ass (.. this bytesToWriteRemaining) (+ (.. this bytesToWriteRemaining) (.. __message (alength))))
                 (.. this (setWriteOps))
                 (catch IOException __e
                     (.. this lock (unlock))
@@ -27281,7 +27281,7 @@
  ; thread.  However the bloomFilterFPRate property IS thread safe, for convenience.</p>
  ;;
 #_public
-(§ class #_"FilterMerger"
+(§ class FilterMerger
     ;; We use a constant tweak to avoid giving up privacy when we regenerate our filter with new keys.
     #_private
     (§ field- #_"long" bloomFilterTweak (long (* (Math/random) Long/MAX_VALUE)))
@@ -27295,14 +27295,14 @@
     (§ field- #_"BloomFilter" lastFilter)
 
     #_public
-    (§ constructor #_"FilterMerger" [#_"double" __bloomFilterFPRate]
+    (§ constructor FilterMerger [#_"double" __bloomFilterFPRate]
         (§ ass (.. this vBloomFilterFPRate) __bloomFilterFPRate)
         this
     )
 
     #_public
     #_static
-    (§ class #_"FilterMerger.Result"
+    (§ class FilterMerger/Result
         #_public
         (§ field #_"BloomFilter" filter)
         #_public
@@ -27386,7 +27386,7 @@
  ; A target to which messages can be written/connection can be closed.
  ;;
 #_public
-(§ interface #_"MessageWriteTarget"
+(§ interface MessageWriteTarget
     ;;;
      ; Writes the given bytes to the remote server.
      ;;
@@ -27411,7 +27411,7 @@
  ; Creates a simple connection to a server using a {@link StreamConnection} to process data.
  ;;
 #_public
-(§ class #_"NioClient" (§ implements #_"MessageWriteTarget")
+(§ class NioClient (§ implements MessageWriteTarget)
     #_private
     #_static
     (§ def- #_"Logger" NioClient/log (LoggerFactory/getLogger (§ klass #_"NioClient")))
@@ -27421,7 +27421,7 @@
     #_private
     (§ field- #_"NioClientManager" manager (NioClientManager.))
 
-    (§ class #_"NioClient.Handler" (§ extends #_"AbstractTimeoutHandler") (§ implements #_"StreamConnection")
+    (§ class NioClient/Handler (§ extends AbstractTimeoutHandler) (§ implements StreamConnection)
         #_private
         (§ field- #_"StreamConnection" upstreamConnection)
         #_private
@@ -27431,7 +27431,7 @@
         #_private
         (§ field- #_"boolean" closeCalled)
 
-        (§ constructor #_"NioClient.Handler" [#_"StreamConnection" __upstreamConnection, #_"int" __connectTimeoutMillis]
+        (§ constructor NioClient/Handler [#_"StreamConnection" __upstreamConnection, #_"int" __connectTimeoutMillis]
             (§ ass (.. this upstreamConnection) __upstreamConnection)
             (.. this (setSocketTimeout __connectTimeoutMillis))
             (.. this (setTimeoutEnabled true))
@@ -27509,7 +27509,7 @@
      ;;
     #_public
     #_throws #_[ "IOException" ]
-    (§ constructor #_"NioClient" [#_"SocketAddress" __serverAddress, #_"StreamConnection" __parser, #_"int" __connectTimeoutMillis]
+    (§ constructor NioClient [#_"SocketAddress" __serverAddress, #_"StreamConnection" __parser, #_"int" __connectTimeoutMillis]
         (.. this manager (startAsync))
         (.. this manager (awaitRunning))
         (§ ass (.. this handler) (NioClient/Handler. __parser, __connectTimeoutMillis))
@@ -27565,7 +27565,7 @@
  ; in a single network processing thread.
  ;;
 #_public
-(§ class #_"NioClientManager" (§ extends #_"AbstractExecutionThreadService") (§ implements #_"ClientConnectionManager")
+(§ class NioClientManager (§ extends AbstractExecutionThreadService) (§ implements ClientConnectionManager)
     #_private
     #_static
     (§ def- #_"Logger" NioClientManager/log (LoggerFactory/getLogger (§ klass #_"NioClientManager")))
@@ -27573,13 +27573,13 @@
     #_private
     (§ field- #_"Selector" selector)
 
-    (§ class #_"NioClientManager.PendingConnect"
+    (§ class NioClientManager/PendingConnect
         (§ field- #_"SocketChannel" sc)
         (§ field- #_"StreamConnection" connection)
         (§ field- #_"SocketAddress" address)
         (§ field- #_"SettableFuture<SocketAddress>" future (SettableFuture/create))
 
-        (§ constructor #_"NioClientManager.PendingConnect" [#_"SocketChannel" __sc, #_"StreamConnection" __connection, #_"SocketAddress" __address]
+        (§ constructor NioClientManager/PendingConnect [#_"SocketChannel" __sc, #_"StreamConnection" __connection, #_"SocketAddress" __address]
             (§ ass (.. this sc) __sc)
             (§ ass (.. this connection) __connection)
             (§ ass (.. this address) __address)
@@ -27639,7 +27639,7 @@
      ; Uses a single thread to handle all select calls.
      ;;
     #_public
-    (§ constructor #_"NioClientManager" []
+    (§ constructor NioClientManager []
         (try
             (§ ass (.. this selector) (.. (SelectorProvider/provider) (openSelector)))
             (catch IOException __e
@@ -27791,7 +27791,7 @@
  ; to process data.
  ;;
 #_public
-(§ class #_"NioServer" (§ extends #_"AbstractExecutionThreadService")
+(§ class NioServer (§ extends AbstractExecutionThreadService)
     #_private
     #_static
     (§ def- #_"Logger" NioServer/log (LoggerFactory/getLogger (§ klass #_"NioServer")))
@@ -27841,7 +27841,7 @@
      ;;
     #_public
     #_throws #_[ "IOException" ]
-    (§ constructor #_"NioServer" [#_"StreamConnectionFactory" __connectionFactory, #_"InetSocketAddress" __bindAddress]
+    (§ constructor NioServer [#_"StreamConnectionFactory" __connectionFactory, #_"InetSocketAddress" __bindAddress]
         (§ ass (.. this connectionFactory) __connectionFactory)
 
         (§ ass (.. this sc) (ServerSocketChannel/open))
@@ -27942,7 +27942,7 @@
  ; by the serialized protobuf.</p>
  ;;
 #_public
-(§ class #_"ProtobufConnection<MessageType extends MessageLite>" (§ extends #_"AbstractTimeoutHandler") (§ implements #_"StreamConnection")
+(§ class ProtobufConnection #_"<MessageType extends MessageLite>" (§ extends AbstractTimeoutHandler) (§ implements StreamConnection)
     #_private
     #_static
     (§ def- #_"Logger" ProtobufConnection/log #_"<MessageType extends MessageLite>" (LoggerFactory/getLogger (§ klass #_"ProtobufConnection")))
@@ -27953,7 +27953,7 @@
      ;                      This <b>MUST</b> match the MessageType used in the parent {@link ProtobufConnection}.
      ;;
     #_public
-    (§ interface #_"ProtobufConnection.Listener<MessageType extends MessageLite>"
+    (§ interface ProtobufConnection/Listener #_"<MessageType extends MessageLite>"
         ;;; Called when a new protobuf is received from the remote side. ;;
         (§ method #_"void" messageReceived [#_"ProtobufConnection<MessageType>" __handler, #_"MessageType" __msg])
         ;;; Called when the connection is opened and available for writing data to. ;;
@@ -28001,7 +28001,7 @@
      ;                      Only enabled after the connection is established.
      ;;
     #_public
-    (§ constructor #_"ProtobufConnection" [#_"ProtobufConnection.Listener<MessageType>" __handler, #_"MessageType" __prototype, #_"int" __maxMessageSize, #_"int" __timeoutMillis]
+    (§ constructor ProtobufConnection [#_"ProtobufConnection.Listener<MessageType>" __handler, #_"MessageType" __prototype, #_"int" __maxMessageSize, #_"int" __timeoutMillis]
         (§ ass (.. this handler) __handler)
         (§ ass (.. this prototype) __prototype)
         (§ ass (.. this maxMessageSize) (Math/min __maxMessageSize, (- Integer/MAX_VALUE 4)))
@@ -28064,10 +28064,10 @@
         (try
             (§ when (some? (.. this messageBytes))
                 ;; Just keep filling up the currently being worked on message.
-                (let [#_"int" __bytesToGet (Math/min (- (.. this messageBytes length) (.. this messageBytesOffset)), (.. __buff (remaining)))]
+                (let [#_"int" __bytesToGet (Math/min (- (.. this messageBytes (alength)) (.. this messageBytesOffset)), (.. __buff (remaining)))]
                     (.. __buff (get (.. this messageBytes), (.. this messageBytesOffset), __bytesToGet))
                     (§ ass (.. this messageBytesOffset) (+ (.. this messageBytesOffset) __bytesToGet))
-                    (§ when (== (.. this messageBytesOffset) (.. this messageBytes length))
+                    (§ when (== (.. this messageBytesOffset) (.. this messageBytes (alength)))
                         ;; Filled up our buffer, decode the message.
                         (.. this (deserializeMessage (ByteBuffer/wrap (.. this messageBytes))))
                         (§ ass (.. this messageBytes) nil)
@@ -28163,10 +28163,10 @@
     #_throws #_[ "IllegalStateException" ]
     (§ method #_"void" write [#_"MessageType" __msg]
         (let [#_"byte[]" __messageBytes (.. __msg (toByteArray))]
-            (Preconditions/checkState (<= (.. __messageBytes length) (.. this maxMessageSize)))
+            (Preconditions/checkState (<= (.. __messageBytes (alength)) (.. this maxMessageSize)))
 
             (let [#_"byte[]" __messageLength (byte-array 4)]
-                (Utils/uint32ToByteArrayBE (.. __messageBytes length), __messageLength, 0)
+                (Utils/uint32ToByteArrayBE (.. __messageBytes (alength)), __messageLength, 0)
                 (try
                     (let [#_"MessageWriteTarget" __target (.. this writeTarget (get))]
                         (.. __target (writeBytes __messageLength))
@@ -28190,7 +28190,7 @@
  ; data streams.
  ;;
 #_public
-(§ interface #_"StreamConnection"
+(§ interface StreamConnection
     ;;; Called when the connection socket is closed. ;;
     (§ method #_"void" connectionClosed [])
 
@@ -28238,7 +28238,7 @@
  ; A factory which generates new {@link StreamConnection}s when a new connection is opened.
  ;;
 #_public
-(§ interface #_"StreamConnectionFactory"
+(§ interface StreamConnectionFactory
     ;;;
      ; Returns a new handler or null to have the connection close.
      ; @param inetAddress The client's (IP) address.
@@ -28267,14 +28267,14 @@
  ; you need to discover them via other means (like addr broadcasts).</p>
  ;;
 #_public
-(§ class #_"DnsDiscovery" (§ extends #_"MultiplexingDiscovery")
+(§ class DnsDiscovery (§ extends MultiplexingDiscovery)
     ;;;
      ; Supports finding peers through DNS A records.  Community run DNS entry points will be used.
      ;
      ; @param netParams Network parameters to be used for port information.
      ;;
     #_public
-    (§ constructor #_"DnsDiscovery" [#_"NetworkParameters" __netParams]
+    (§ constructor DnsDiscovery [#_"NetworkParameters" __netParams]
         (§ this (.. __netParams (getDnsSeeds)), __netParams)
         this
     )
@@ -28286,7 +28286,7 @@
      ; @param params Network parameters to be used for port information.
      ;;
     #_public
-    (§ constructor #_"DnsDiscovery" [#_"String[]" __dnsSeeds, #_"NetworkParameters" __params]
+    (§ constructor DnsDiscovery [#_"String[]" __dnsSeeds, #_"NetworkParameters" __params]
         (§ super __params, (DnsDiscovery/buildDiscoveries __params, __dnsSeeds))
         this
     )
@@ -28320,14 +28320,14 @@
     ;;; Implements discovery from a single DNS host. ;;
     #_public
     #_static
-    (§ class #_"DnsDiscovery.DnsSeedDiscovery" (§ implements #_"PeerDiscovery")
+    (§ class DnsDiscovery/DnsSeedDiscovery (§ implements PeerDiscovery)
         #_private
         (§ field- #_"String" hostname)
         #_private
         (§ field- #_"NetworkParameters" params)
 
         #_public
-        (§ constructor #_"DnsDiscovery.DnsSeedDiscovery" [#_"NetworkParameters" __params, #_"String" __hostname]
+        (§ constructor DnsDiscovery/DnsSeedDiscovery [#_"NetworkParameters" __params, #_"String" __hostname]
             (§ ass (.. this hostname) __hostname)
             (§ ass (.. this params) __params)
             this
@@ -28342,8 +28342,8 @@
             )
 
             (try
-                (let [#_"InetAddress[]" __response (InetAddress/getAllByName (.. this hostname))][#_"InetSocketAddress[]" __result (make-array InetSocketAddress (.. __response length))]
-                    (§ for [#_"int" __i 0] (< __i (.. __response length)) [(inc __i)]
+                (let [#_"InetAddress[]" __response (InetAddress/getAllByName (.. this hostname))][#_"InetSocketAddress[]" __result (make-array InetSocketAddress (.. __response (alength)))]
+                    (§ for [#_"int" __i 0] (< __i (.. __response (alength))) [(inc __i)]
                         (aset __result __i (InetSocketAddress. (aget __response __i), (.. this params (getPort))))
                     )
                     (§ return __result)
@@ -28385,7 +28385,7 @@
  ; within the timeout are ignored.  Backends are queried in parallel.  Backends may block.
  ;;
 #_public
-(§ class #_"MultiplexingDiscovery" (§ implements #_"PeerDiscovery")
+(§ class MultiplexingDiscovery (§ implements PeerDiscovery)
     #_private
     #_static
     (§ def- #_"Logger" MultiplexingDiscovery/log (LoggerFactory/getLogger (§ klass #_"MultiplexingDiscovery")))
@@ -28426,7 +28426,7 @@
      ; Will query the given seeds in parallel before producing a merged response.
      ;;
     #_public
-    (§ constructor #_"MultiplexingDiscovery" [#_"NetworkParameters" __params, #_"List<PeerDiscovery>" __seeds]
+    (§ constructor MultiplexingDiscovery [#_"NetworkParameters" __params, #_"List<PeerDiscovery>" __seeds]
         (Preconditions/checkArgument (not (.. __seeds (isEmpty))))
 
         (§ ass (.. this netParams) __params)
@@ -28515,7 +28515,7 @@
  ; Note that the addresses returned may or may not be accepting connections.
  ;;
 #_public
-(§ interface #_"PeerDiscovery"
+(§ interface PeerDiscovery
     ;; TODO: Flesh out this interface a lot more.
 
     ;;;
@@ -28532,27 +28532,27 @@
 #_(ns org.bitcoinj.net.discovery #_"PeerDiscoveryException")
 
 #_public
-(§ class #_"PeerDiscoveryException" (§ extends #_"Exception")
+(§ class PeerDiscoveryException (§ extends Exception)
     #_public
-    (§ constructor #_"PeerDiscoveryException" []
+    (§ constructor PeerDiscoveryException []
         (§ super )
         this
     )
 
     #_public
-    (§ constructor #_"PeerDiscoveryException" [#_"String" __message]
+    (§ constructor PeerDiscoveryException [#_"String" __message]
         (§ super __message)
         this
     )
 
     #_public
-    (§ constructor #_"PeerDiscoveryException" [#_"Throwable" __arg0]
+    (§ constructor PeerDiscoveryException [#_"Throwable" __arg0]
         (§ super __arg0)
         this
     )
 
     #_public
-    (§ constructor #_"PeerDiscoveryException" [#_"String" __message, #_"Throwable" __arg0]
+    (§ constructor PeerDiscoveryException [#_"String" __message, #_"Throwable" __arg0]
         (§ super __message, __arg0)
         this
     )
@@ -28569,7 +28569,7 @@
  ; a connection to the network, in case IRC and DNS fail.  The list comes from the Bitcoin C++ source code.
  ;;
 #_public
-(§ class #_"SeedPeers" (§ implements #_"PeerDiscovery")
+(§ class SeedPeers (§ implements PeerDiscovery)
     #_private
     (§ field- #_"NetworkParameters" params)
     #_private
@@ -28583,7 +28583,7 @@
      ; @param params Network parameters to be used for port information.
      ;;
     #_public
-    (§ constructor #_"SeedPeers" [#_"NetworkParameters" __params]
+    (§ constructor SeedPeers [#_"NetworkParameters" __params]
         (§ this (.. __params (getAddrSeeds)), __params)
         this
     )
@@ -28595,7 +28595,7 @@
      ; @param params Network parameters to be used for port information.
      ;;
     #_public
-    (§ constructor #_"SeedPeers" [#_"int[]" __seedAddrs, #_"NetworkParameters" __params]
+    (§ constructor SeedPeers [#_"int[]" __seedAddrs, #_"NetworkParameters" __params]
         (§ ass (.. this seedAddrs) __seedAddrs)
         (§ ass (.. this params) __params)
         this
@@ -28624,11 +28624,11 @@
     #_private
     #_throws #_[ "UnknownHostException", "PeerDiscoveryException" ]
     (§ method- #_"InetSocketAddress" nextPeer []
-        (§ when (or (nil? (.. this seedAddrs)) (== (.. this seedAddrs length) 0))
+        (§ when (or (nil? (.. this seedAddrs)) (== (.. this seedAddrs (alength)) 0))
             (throw (PeerDiscoveryException. "No IP address seeds configured; unable to find any peers"))
         )
 
-        (§ when (<= (.. this seedAddrs length) (.. this pnseedIndex))
+        (§ when (<= (.. this seedAddrs (alength)) (.. this pnseedIndex))
             (§ return nil)
         )
 
@@ -28660,8 +28660,8 @@
     #_private
     #_throws #_[ "UnknownHostException" ]
     (§ method- #_"InetSocketAddress[]" allPeers []
-        (let [#_"InetSocketAddress[]" __addresses (make-array InetSocketAddress (.. this seedAddrs length))]
-            (§ for [#_"int" __i 0] (< __i (.. this seedAddrs length)) [(inc __i)]
+        (let [#_"InetSocketAddress[]" __addresses (make-array InetSocketAddress (.. this seedAddrs (alength)))]
+            (§ for [#_"int" __i 0] (< __i (.. this seedAddrs (alength))) [(inc __i)]
                 (aset __addresses __i (InetSocketAddress. (.. this (convertAddress (aget (.. this seedAddrs) __i))), (.. this params (getPort))))
             )
             __addresses
@@ -28701,7 +28701,7 @@
  ;;
 #_public
 #_abstract
-(§ class #_"AbstractBitcoinNetParams" (§ extends #_"NetworkParameters")
+(§ class AbstractBitcoinNetParams (§ extends NetworkParameters)
     ;;;
      ; Scheme part for Bitcoin URIs.
      ;;
@@ -28717,7 +28717,7 @@
     (§ def- #_"Logger" AbstractBitcoinNetParams/log (LoggerFactory/getLogger (§ klass #_"AbstractBitcoinNetParams")))
 
     #_public
-    (§ constructor #_"AbstractBitcoinNetParams" []
+    (§ constructor AbstractBitcoinNetParams []
         (§ super )
         this
     )
@@ -28871,7 +28871,7 @@
  ; Parameters for the main production network on which people trade goods and services.
  ;;
 #_public
-(§ class #_"MainNetParams" (§ extends #_"AbstractBitcoinNetParams")
+(§ class MainNetParams (§ extends AbstractBitcoinNetParams)
     #_public
     #_static
     (§ def #_"int" MainNetParams/MAINNET_MAJORITY_WINDOW 1000)
@@ -28883,7 +28883,7 @@
     (§ def #_"int" MainNetParams/MAINNET_MAJORITY_ENFORCE_BLOCK_UPGRADE 750)
 
     #_public
-    (§ constructor #_"MainNetParams" []
+    (§ constructor MainNetParams []
         (§ super )
 
         (§ ass (.. this interval) NetworkParameters/INTERVAL)
@@ -29010,7 +29010,7 @@
  ; the register and unregister the TestNet3Params as they don't have their own address version/type code.
  ;;
 #_public
-(§ class #_"Networks"
+(§ class Networks
     ;;; Registered networks. ;;
     #_private
     #_static
@@ -29071,7 +29071,7 @@
  ; and testing of applications and new Bitcoin versions.
  ;;
 #_public
-(§ class #_"TestNet3Params" (§ extends #_"AbstractBitcoinNetParams")
+(§ class TestNet3Params (§ extends AbstractBitcoinNetParams)
     #_public
     #_static
     (§ def #_"int" TestNet3Params/TESTNET_MAJORITY_WINDOW 100)
@@ -29083,7 +29083,7 @@
     (§ def #_"int" TestNet3Params/TESTNET_MAJORITY_ENFORCE_BLOCK_UPGRADE 51)
 
     #_public
-    (§ constructor #_"TestNet3Params" []
+    (§ constructor TestNet3Params []
         (§ super )
 
         (§ ass (.. this id) NetworkParameters/ID_TESTNET)
@@ -29193,7 +29193,7 @@
  ; {@link org.bitcoinj.core.Block#solve()} by setting difficulty to the easiest possible.
  ;;
 #_public
-(§ class #_"UnitTestParams" (§ extends #_"AbstractBitcoinNetParams")
+(§ class UnitTestParams (§ extends AbstractBitcoinNetParams)
     #_public
     #_static
     (§ def #_"int" UnitTestParams/UNITNET_MAJORITY_WINDOW 8)
@@ -29205,7 +29205,7 @@
     (§ def #_"int" UnitTestParams/UNITNET_MAJORITY_ENFORCE_BLOCK_UPGRADE 4)
 
     #_public
-    (§ constructor #_"UnitTestParams" []
+    (§ constructor UnitTestParams []
         (§ super )
 
         (§ ass (.. this id) NetworkParameters/ID_UNITTESTNET)
@@ -29281,10 +29281,10 @@
  ; static methods for building scripts.</p>
  ;;
 #_public
-(§ class #_"Script"
+(§ class Script
     ;;; Enumeration to encapsulate the type of this script. ;;
     #_public
-    (§ enum #_"Script.ScriptType"
+    (§ enum Script/ScriptType
         ;; Do NOT change the ordering of the following definitions because their ordinals are stored in databases.
         (§ item NO_TYPE)
         (§ item P2PKH)
@@ -29296,7 +29296,7 @@
      ; Note currently only P2SH, DERSIG and NULLDUMMY are actually supported.
      ;;
     #_public
-    (§ enum #_"Script.VerifyFlag"
+    (§ enum Script/VerifyFlag
         (§ item P2SH) ;; Enable BIP16-style subscript evaluation.
         (§ item STRICTENC) ;; Passing a non-strict-DER signature or one with undefined hashtype to a checksig operation causes script failure.
         (§ item DERSIG) ;; Passing a non-strict-DER signature to a checksig operation causes script failure (softfork safe, BIP66 rule 1).
@@ -29360,7 +29360,7 @@
     )
 
     ;; Used from ScriptBuilder.
-    (§ constructor #_"Script" [#_"List<ScriptChunk>" __chunks]
+    (§ constructor Script [#_"List<ScriptChunk>" __chunks]
         (§ ass (.. this chunks) (Collections/unmodifiableList (ArrayList. #_"<>" __chunks)))
         (§ ass (.. this creationTimeSeconds) (Utils/currentTimeSeconds))
         this
@@ -29373,7 +29373,7 @@
      ;;
     #_public
     #_throws #_[ "ScriptException" ]
-    (§ constructor #_"Script" [#_"byte[]" __programBytes]
+    (§ constructor Script [#_"byte[]" __programBytes]
         (§ ass (.. this program) __programBytes)
         (.. this (parse __programBytes))
         (§ ass (.. this creationTimeSeconds) 0)
@@ -29382,7 +29382,7 @@
 
     #_public
     #_throws #_[ "ScriptException" ]
-    (§ constructor #_"Script" [#_"byte[]" __programBytes, #_"long" __creationTimeSeconds]
+    (§ constructor Script [#_"byte[]" __programBytes, #_"long" __creationTimeSeconds]
         (§ ass (.. this program) __programBytes)
         (.. this (parse __programBytes))
         (§ ass (.. this creationTimeSeconds) __creationTimeSeconds)
@@ -29415,7 +29415,7 @@
         (try
             ;; Don't round-trip as Bitcoin Core doesn't and it would introduce a mismatch.
             (§ when (some? (.. this program))
-                (§ return (Arrays/copyOf (.. this program), (.. this program length)))
+                (§ return (Arrays/copyOf (.. this program), (.. this program (alength))))
             )
 
             (let [#_"ByteArrayOutputStream" __bos (ByteArrayOutputStream.)]
@@ -29528,7 +29528,7 @@
      ;;
     #_public
     (§ method #_"boolean" isSentToRawPubKey []
-        (and (== (.. this chunks (size)) 2) (.. this chunks (get 1) (equalsOpCode ScriptOpCodes/OP_CHECKSIG)) (not (.. this chunks (get 0) (isOpCode))) (< 1 (.. this chunks (get 0) data length)))
+        (and (== (.. this chunks (size)) 2) (.. this chunks (get 1) (equalsOpCode ScriptOpCodes/OP_CHECKSIG)) (not (.. this chunks (get 0) (isOpCode))) (< 1 (.. this chunks (get 0) data (alength))))
     )
 
     ;;;
@@ -29539,7 +29539,7 @@
      ;;
     #_public
     (§ method #_"boolean" isSentToAddress []
-        (and (== (.. this chunks (size)) 5) (.. this chunks (get 0) (equalsOpCode ScriptOpCodes/OP_DUP)) (.. this chunks (get 1) (equalsOpCode ScriptOpCodes/OP_HASH160)) (== (.. this chunks (get 2) data length) Address/LENGTH) (.. this chunks (get 3) (equalsOpCode ScriptOpCodes/OP_EQUALVERIFY)) (.. this chunks (get 4) (equalsOpCode ScriptOpCodes/OP_CHECKSIG)))
+        (and (== (.. this chunks (size)) 5) (.. this chunks (get 0) (equalsOpCode ScriptOpCodes/OP_DUP)) (.. this chunks (get 1) (equalsOpCode ScriptOpCodes/OP_HASH160)) (== (.. this chunks (get 2) data (alength)) Address/LENGTH) (.. this chunks (get 3) (equalsOpCode ScriptOpCodes/OP_EQUALVERIFY)) (.. this chunks (get 4) (equalsOpCode ScriptOpCodes/OP_CHECKSIG)))
     )
 
     ;;;
@@ -29585,12 +29585,12 @@
         (let [#_"ScriptChunk" __chunk0 (.. this chunks (get 0))][#_"byte[]" __chunk0data (.. __chunk0 data)][#_"ScriptChunk" __chunk1 (.. this chunks (get 1))][#_"byte[]" __chunk1data (.. __chunk1 data)]
 
             ;; If we have two large constants assume the input to a pay-to-address output.
-            (§ when (and (some? __chunk0data) (< 2 (.. __chunk0data length)) (some? __chunk1data) (< 2 (.. __chunk1data length)))
+            (§ when (and (some? __chunk0data) (< 2 (.. __chunk0data (alength))) (some? __chunk1data) (< 2 (.. __chunk1data (alength))))
                 (§ return __chunk1data)
             )
 
             ;; A large constant followed by an OP_CHECKSIG is the key.
-            (§ when (and (.. __chunk1 (equalsOpCode ScriptOpCodes/OP_CHECKSIG)) (some? __chunk0data) (< 2 (.. __chunk0data length)))
+            (§ when (and (.. __chunk1 (equalsOpCode ScriptOpCodes/OP_CHECKSIG)) (some? __chunk0data) (< 2 (.. __chunk0data (alength))))
                 (§ return __chunk0data)
             )
 
@@ -29688,19 +29688,19 @@
     #_static
     #_throws #_[ "IOException" ]
     (§ defn #_"void" Script/writeBytes [#_"OutputStream" __os, #_"byte[]" __buf]
-        (§ when (< (.. __buf length) ScriptOpCodes/OP_PUSHDATA1)
-            (.. __os (write (.. __buf length)))
+        (§ when (< (.. __buf (alength)) ScriptOpCodes/OP_PUSHDATA1)
+            (.. __os (write (.. __buf (alength))))
             (.. __os (write __buf))
         )
-        (§ elsewhen (< (.. __buf length) 256)
+        (§ elsewhen (< (.. __buf (alength)) 256)
             (.. __os (write ScriptOpCodes/OP_PUSHDATA1))
-            (.. __os (write (.. __buf length)))
+            (.. __os (write (.. __buf (alength))))
             (.. __os (write __buf))
         )
-        (§ elsewhen (< (.. __buf length) 65536)
+        (§ elsewhen (< (.. __buf (alength)) 65536)
             (.. __os (write ScriptOpCodes/OP_PUSHDATA2))
-            (.. __os (write (& 0xff (.. __buf length))))
-            (.. __os (write (& 0xff (>> (.. __buf length) 8))))
+            (.. __os (write (& 0xff (.. __buf (alength)))))
+            (.. __os (write (& 0xff (>> (.. __buf (alength)) 8))))
             (.. __os (write __buf))
         )
         (§ else 
@@ -29742,7 +29742,7 @@
     (§ defn #_"byte[]" Script/createInputScript [#_"byte[]" __signature, #_"byte[]" __pubkey]
         (try
             ;; TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
-            (let [#_"ByteArrayOutputStream" __bits (UnsafeByteArrayOutputStream. (+ (.. __signature length) (.. __pubkey length) 2))]
+            (let [#_"ByteArrayOutputStream" __bits (UnsafeByteArrayOutputStream. (+ (.. __signature (alength)) (.. __pubkey (alength)) 2))]
                 (Script/writeBytes __bits, __signature)
                 (Script/writeBytes __bits, __pubkey)
                 (§ return (.. __bits (toByteArray)))
@@ -29758,7 +29758,7 @@
     (§ defn #_"byte[]" Script/createInputScript [#_"byte[]" __signature]
         (try
             ;; TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
-            (let [#_"ByteArrayOutputStream" __bits (UnsafeByteArrayOutputStream. (+ (.. __signature length) 2))]
+            (let [#_"ByteArrayOutputStream" __bits (UnsafeByteArrayOutputStream. (+ (.. __signature (alength)) 2))]
                 (Script/writeBytes __bits, __signature)
                 (§ return (.. __bits (toByteArray)))
             )
@@ -30030,7 +30030,7 @@
         (§ when (.. this (isPayToScriptHash))
             ;; scriptSig: <sig> [sig] [sig...] <redeemscript>
             (Preconditions/checkArgument (some? __redeemScript), "P2SH script requires redeemScript to be spent")
-            (§ return (+ (* (.. __redeemScript (getNumberOfSignaturesRequiredToSpend)) Script/SIG_SIZE) (.. __redeemScript (getProgram) length)))
+            (§ return (+ (* (.. __redeemScript (getNumberOfSignaturesRequiredToSpend)) Script/SIG_SIZE) (.. __redeemScript (getProgram) (alength))))
         )
         (§ elsewhen (.. this (isSentToMultiSig))
             ;; scriptSig: OP_0 <sig> [sig] [sig...]
@@ -30043,7 +30043,7 @@
         (§ elsewhen (.. this (isSentToAddress))
             ;; scriptSig: <sig> <pubkey>
             (let [#_"int" __uncompressedPubKeySize 65]
-                (§ return (+ Script/SIG_SIZE (if (some? __pubKey) (.. __pubKey (getPubKey) length) __uncompressedPubKeySize)))
+                (§ return (+ Script/SIG_SIZE (if (some? __pubKey) (.. __pubKey (getPubKey) (alength)) __uncompressedPubKeySize)))
             )
         )
         (§ else 
@@ -30070,7 +30070,7 @@
         ;; template, not the logical program structure.  Thus you can have two programs that look identical when
         ;; printed out but one is a P2SH script and the other isn't! :( ;; )
         (let [#_"byte[]" __program (.. this (getProgram))]
-            (and (== (.. __program length) 23) (== (& 0xff (aget __program 0)) ScriptOpCodes/OP_HASH160) (== (& 0xff (aget __program 1)) 0x14) (== (& 0xff (aget __program 22)) ScriptOpCodes/OP_EQUAL))
+            (and (== (.. __program (alength)) 23) (== (& 0xff (aget __program 0)) ScriptOpCodes/OP_HASH160) (== (& 0xff (aget __program 1)) 0x14) (== (& 0xff (aget __program 22)) ScriptOpCodes/OP_EQUAL))
         )
     )
 
@@ -30136,11 +30136,11 @@
     #_private
     #_static
     (§ defn- #_"boolean" Script/equalsRange [#_"byte[]" __a, #_"int" __start, #_"byte[]" __b]
-        (§ when (< (.. __a length) (+ __start (.. __b length)))
+        (§ when (< (.. __a (alength)) (+ __start (.. __b (alength))))
             (§ return false)
         )
 
-        (§ for [#_"int" __i 0] (< __i (.. __b length)) [(inc __i)]
+        (§ for [#_"int" __i 0] (< __i (.. __b (alength))) [(inc __i)]
             (§ when (!= (aget __a (+ __i __start)) (aget __b __i))
                 (§ return false)
             )
@@ -30156,10 +30156,10 @@
     #_static
     (§ defn #_"byte[]" Script/removeAllInstancesOf [#_"byte[]" __inputScript, #_"byte[]" __chunkToRemove]
         ;; We usually don't end up removing anything.
-        (let [#_"UnsafeByteArrayOutputStream" __bos (UnsafeByteArrayOutputStream. (.. __inputScript length))]
+        (let [#_"UnsafeByteArrayOutputStream" __bos (UnsafeByteArrayOutputStream. (.. __inputScript (alength)))]
 
             (let [#_"int" __cursor 0]
-                (§ for [] (< __cursor (.. __inputScript length)) []
+                (§ for [] (< __cursor (.. __inputScript (alength))) []
                     (let [#_"boolean" __skip (Script/equalsRange __inputScript, __cursor, __chunkToRemove)]
 
                         (let [#_"int" __opcode (& 0xff (aget __inputScript __cursor))]
@@ -30208,10 +30208,10 @@
     #_private
     #_static
     (§ defn- #_"boolean" Script/castToBool [#_"byte[]" __data]
-        (§ for [#_"int" __i 0] (< __i (.. __data length)) [(inc __i)]
+        (§ for [#_"int" __i 0] (< __i (.. __data (alength))) [(inc __i)]
             ;; "Can be negative zero" - Bitcoin Core (see OpenSSL's BN_bn2mpi)
             (§ when (!= (aget __data __i) 0)
-                (§ return (or (!= __i (dec (.. __data length))) (!= (& 0xff (aget __data __i)) 0x80)))
+                (§ return (or (!= __i (dec (.. __data (alength)))) (!= (& 0xff (aget __data __i)) 0x80)))
             )
         )
         false
@@ -30242,21 +30242,21 @@
     #_static
     #_throws #_[ "ScriptException" ]
     (§ defn- #_"BigInteger" Script/castToBigInteger [#_"byte[]" __chunk, #_"int" __maxLength, #_"boolean" __requireMinimal]
-        (§ when (< __maxLength (.. __chunk length))
+        (§ when (< __maxLength (.. __chunk (alength)))
             (throw (ScriptException. ScriptError/SCRIPT_ERR_UNKNOWN_ERROR, (str "Script attempted to use an integer larger than " __maxLength " bytes")))
         )
 
-        (§ when (and __requireMinimal (< 0 (.. __chunk length)))
+        (§ when (and __requireMinimal (< 0 (.. __chunk (alength))))
             ;; Check that the number is encoded with the minimum possible number of bytes.
             ;;
             ;; If the most-significant-byte - excluding the sign bit - is zero, then we're not minimal.
             ;; Note how this test also rejects the negative-zero encoding, 0x80.
-            (§ when (== (& 0x7f (aget __chunk (dec (.. __chunk length)))) 0)
+            (§ when (== (& 0x7f (aget __chunk (dec (.. __chunk (alength))))) 0)
                 ;; One exception: if there's more than one byte and the most significant bit
                 ;; of the second-most-significant-byte is set, it would conflict with the sign bit.
                 ;; An example of this case is +-255, which encode to 0xff00 and 0xff80 respectively.
                 ;; (big-endian)
-                (§ when (or (<= (.. __chunk length) 1) (== (& 0x80 (aget __chunk (- (.. __chunk length) 2))) 0))
+                (§ when (or (<= (.. __chunk (alength)) 1) (== (& 0x80 (aget __chunk (- (.. __chunk (alength)) 2))) 0))
                     (throw (ScriptException. ScriptError/SCRIPT_ERR_UNKNOWN_ERROR, "non-minimally encoded script number"))
                 )
             )
@@ -30311,7 +30311,7 @@
                     (let [#_"boolean" __shouldExecute (not (.. __ifStack (contains false)))][#_"int" __opcode (.. __chunk opcode)]
 
                         ;; Check stack element size.
-                        (§ when (and (some? (.. __chunk data)) (< Script/MAX_SCRIPT_ELEMENT_SIZE (.. __chunk data length)))
+                        (§ when (and (some? (.. __chunk data)) (< Script/MAX_SCRIPT_ELEMENT_SIZE (.. __chunk data (alength))))
                             (throw (ScriptException. ScriptError/SCRIPT_ERR_PUSH_SIZE, "Attempted to push a data string larger than 520 bytes"))
                         )
 
@@ -30601,7 +30601,7 @@
                                     (§ when (< (.. __stack (size)) 1)
                                         (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_SIZE on an empty stack"))
                                     )
-                                    (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI (BigInteger/valueOf (.. __stack (getLast) length)), false))))
+                                    (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI (BigInteger/valueOf (.. __stack (getLast) (alength))), false))))
                                     (§ break )
                                 )
                                 (§ case ScriptOpCodes/OP_EQUAL
@@ -30835,7 +30835,7 @@
                                         (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_RIPEMD160 on an empty stack"))
                                     )
                                     (let [#_"RIPEMD160Digest" __digest (RIPEMD160Digest.)][#_"byte[]" __dataToHash (.. __stack (pollLast))]
-                                        (.. __digest (update __dataToHash, 0, (.. __dataToHash length)))
+                                        (.. __digest (update __dataToHash, 0, (.. __dataToHash (alength))))
                                         (let [#_"byte[]" __ripmemdHash (byte-array 20)]
                                             (.. __digest (doFinal __ripmemdHash, 0))
                                             (.. __stack (add __ripmemdHash))
@@ -31079,9 +31079,9 @@
 
             (let [#_"byte[]" __pubKey (.. __stack (pollLast))][#_"byte[]" __sigBytes (.. __stack (pollLast))]
 
-                (let [#_"byte[]" __prog (.. __script (getProgram))][#_"byte[]" __connectedScript (Arrays/copyOfRange __prog, __lastCodeSepLocation, (.. __prog length))]
+                (let [#_"byte[]" __prog (.. __script (getProgram))][#_"byte[]" __connectedScript (Arrays/copyOfRange __prog, __lastCodeSepLocation, (.. __prog (alength)))]
 
-                    (let [#_"UnsafeByteArrayOutputStream" __outStream (UnsafeByteArrayOutputStream. (inc (.. __sigBytes length)))]
+                    (let [#_"UnsafeByteArrayOutputStream" __outStream (UnsafeByteArrayOutputStream. (inc (.. __sigBytes (alength))))]
                         (try
                             (Script/writeBytes __outStream, __sigBytes)
                             (catch IOException __e
@@ -31166,10 +31166,10 @@
                                 (.. __sigs (add (.. __stack (pollLast))))
                             )
 
-                            (let [#_"byte[]" __prog (.. __script (getProgram))][#_"byte[]" __connectedScript (Arrays/copyOfRange __prog, __lastCodeSepLocation, (.. __prog length))]
+                            (let [#_"byte[]" __prog (.. __script (getProgram))][#_"byte[]" __connectedScript (Arrays/copyOfRange __prog, __lastCodeSepLocation, (.. __prog (alength)))]
 
                                 (§ forin [#_"byte[]" __sig] __sigs
-                                    (let [#_"UnsafeByteArrayOutputStream" __outStream (UnsafeByteArrayOutputStream. (inc (.. __sig length)))]
+                                    (let [#_"UnsafeByteArrayOutputStream" __outStream (UnsafeByteArrayOutputStream. (inc (.. __sig (alength))))]
                                         (try
                                             (Script/writeBytes __outStream, __sig)
                                             (catch IOException __e
@@ -31206,7 +31206,7 @@
 
                                     ;; We uselessly remove a stack object to emulate a Bitcoin Core bug.
                                     (let [#_"byte[]" __nullDummy (.. __stack (pollLast))]
-                                        (§ when (and (.. __verifyFlags (contains Script/VerifyFlag/NULLDUMMY)) (< 0 (.. __nullDummy length)))
+                                        (§ when (and (.. __verifyFlags (contains Script/VerifyFlag/NULLDUMMY)) (< 0 (.. __nullDummy (alength))))
                                             (throw (ScriptException. ScriptError/SCRIPT_ERR_SIG_NULLFAIL, (str "OP_CHECKMULTISIG(VERIFY) with non-null nulldummy: " (Arrays/toString __nullDummy))))
                                         )
 
@@ -31266,7 +31266,7 @@
             )
         )
 
-        (§ when (or (< Script/MAX_SCRIPT_SIZE (.. this (getProgram) length)) (< Script/MAX_SCRIPT_SIZE (.. __scriptPubKey (getProgram) length)))
+        (§ when (or (< Script/MAX_SCRIPT_SIZE (.. this (getProgram) (alength))) (< Script/MAX_SCRIPT_SIZE (.. __scriptPubKey (getProgram) (alength))))
             (throw (ScriptException. ScriptError/SCRIPT_ERR_SCRIPT_SIZE, "Script larger than 10,000 bytes"))
         )
 
@@ -31382,20 +31382,20 @@
  ; the protocol at a lower level.</p>
  ;;
 #_public
-(§ class #_"ScriptBuilder"
+(§ class ScriptBuilder
     #_private
     (§ field- #_"List<ScriptChunk>" chunks)
 
     ;;; Creates a fresh ScriptBuilder with an empty program. ;;
     #_public
-    (§ constructor #_"ScriptBuilder" []
+    (§ constructor ScriptBuilder []
         (§ ass (.. this chunks) (Lists/newLinkedList))
         this
     )
 
     ;;; Creates a fresh ScriptBuilder with the given program as the starting point. ;;
     #_public
-    (§ constructor #_"ScriptBuilder" [#_"Script" __template]
+    (§ constructor ScriptBuilder [#_"Script" __template]
         (§ ass (.. this chunks) (ArrayList. #_"<>" (.. __template (getChunks))))
         this
     )
@@ -31429,18 +31429,18 @@
     ;;; Adds a copy of the given byte array as a data element (i.e. PUSHDATA) at the end of the program. ;;
     #_public
     (§ method #_"ScriptBuilder" data [#_"byte[]" __data]
-        (if (== (.. __data length) 0) (.. this (smallNum 0)) (.. this (data (.. this chunks (size)), __data)))
+        (if (== (.. __data (alength)) 0) (.. this (smallNum 0)) (.. this (data (.. this chunks (size)), __data)))
     )
 
     ;;; Adds a copy of the given byte array as a data element (i.e. PUSHDATA) at the given index in the program. ;;
     #_public
     (§ method #_"ScriptBuilder" data [#_"int" __index, #_"byte[]" __data]
         ;; implements BIP62
-        (let [#_"byte[]" __copy (Arrays/copyOf __data, (.. __data length))][#_"int" __opcode]
-            (§ when (== (.. __data length) 0)
+        (let [#_"byte[]" __copy (Arrays/copyOf __data, (.. __data (alength)))][#_"int" __opcode]
+            (§ when (== (.. __data (alength)) 0)
                 (§ ass __opcode ScriptOpCodes/OP_0)
             )
-            (§ elsewhen (== (.. __data length) 1)
+            (§ elsewhen (== (.. __data (alength)) 1)
                 (let [#_"byte" __b (aget __data 0)]
                     (§ when (<= 1 __b 16)
                         (§ ass __opcode (Script/encodeToOpN __b))
@@ -31450,13 +31450,13 @@
                     )
                 )
             )
-            (§ elsewhen (< (.. __data length) ScriptOpCodes/OP_PUSHDATA1)
-                (§ ass __opcode (.. __data length))
+            (§ elsewhen (< (.. __data (alength)) ScriptOpCodes/OP_PUSHDATA1)
+                (§ ass __opcode (.. __data (alength)))
             )
-            (§ elsewhen (< (.. __data length) 256)
+            (§ elsewhen (< (.. __data (alength)) 256)
                 (§ ass __opcode ScriptOpCodes/OP_PUSHDATA1)
             )
-            (§ elsewhen (< (.. __data length) 65536)
+            (§ elsewhen (< (.. __data (alength)) 65536)
                 (§ ass __opcode ScriptOpCodes/OP_PUSHDATA2)
             )
             (§ else 
@@ -31557,7 +31557,7 @@
                     )
 
                     (§ ass __data (byte-array (.. __result (size))))
-                    (§ for [#_"int" __byteIdx 0] (< __byteIdx (.. __data length)) [(inc __byteIdx)]
+                    (§ for [#_"int" __byteIdx 0] (< __byteIdx (.. __data (alength))) [(inc __byteIdx)]
                         (aset __data __byteIdx (.. __result (get __byteIdx)))
                     )
                 )
@@ -31565,7 +31565,7 @@
 
             ;; At most the encoded value could take up to 8 bytes, so we don't need
             ;; to use OP_PUSHDATA opcodes.
-            (.. this (addChunk __index, (ScriptChunk. (.. __data length), __data)))
+            (.. this (addChunk __index, (ScriptChunk. (.. __data (alength)), __data)))
         )
     )
 
@@ -31786,7 +31786,7 @@
     #_public
     #_static
     (§ defn #_"Script" ScriptBuilder/createP2SHOutputScript [#_"byte[]" __hash]
-        (Preconditions/checkArgument (== (.. __hash length) 20))
+        (Preconditions/checkArgument (== (.. __hash (alength)) 20))
 
         (.. (ScriptBuilder.) (op ScriptOpCodes/OP_HASH160) (data __hash) (op ScriptOpCodes/OP_EQUAL) (build))
     )
@@ -31834,7 +31834,7 @@
     #_public
     #_static
     (§ defn #_"Script" ScriptBuilder/createOpReturnScript [#_"byte[]" __data]
-        (Preconditions/checkArgument (<= (.. __data length) 80))
+        (Preconditions/checkArgument (<= (.. __data (alength)) 80))
 
         (.. (ScriptBuilder.) (op ScriptOpCodes/OP_RETURN) (data __data) (build))
     )
@@ -31843,7 +31843,7 @@
     #_static
     (§ defn #_"Script" ScriptBuilder/createCLTVPaymentChannelOutput [#_"BigInteger" __time, #_"ECKey" __from, #_"ECKey" __to]
         (let [#_"byte[]" __timeBytes (Utils/reverseBytes (Utils/encodeMPI __time, false))]
-            (§ when (< 5 (.. __timeBytes length))
+            (§ when (< 5 (.. __timeBytes (alength)))
                 (throw (RuntimeException. "Time too large to encode as 5-byte int"))
             )
 
@@ -31913,7 +31913,7 @@
  ; A script element that is either a data push (signature, pubkey, etc.) or a non-push (logic, numeric, etc.) operation.
  ;;
 #_public
-(§ class #_"ScriptChunk"
+(§ class ScriptChunk
     ;;; Operation to be executed.  Opcodes are defined in {@link ScriptOpCodes}. ;;
     #_public
     (§ field #_"int" opcode)
@@ -31929,13 +31929,13 @@
     (§ field- #_"int" startLocationInProgram)
 
     #_public
-    (§ constructor #_"ScriptChunk" [#_"int" __opcode, #_"byte[]" __data]
+    (§ constructor ScriptChunk [#_"int" __opcode, #_"byte[]" __data]
         (§ this __opcode, __data, -1)
         this
     )
 
     #_public
-    (§ constructor #_"ScriptChunk" [#_"int" __opcode, #_"byte[]" __data, #_"int" __startLocationInProgram]
+    (§ constructor ScriptChunk [#_"int" __opcode, #_"byte[]" __data, #_"int" __startLocationInProgram]
         (§ ass (.. this opcode) __opcode)
         (§ ass (.. this data) __data)
         (§ ass (.. this startLocationInProgram) __startLocationInProgram)
@@ -31988,10 +31988,10 @@
         (§ when (nil? (.. this data))
             (§ return true) ;; OP_N
         )
-        (§ when (== (.. this data length) 0)
+        (§ when (== (.. this data (alength)) 0)
             (§ return (== (.. this opcode) ScriptOpCodes/OP_0))
         )
-        (§ when (== (.. this data length) 1)
+        (§ when (== (.. this data (alength)) 1)
             (let [#_"byte" __b (aget (.. this data) 0)]
                 (§ when (<= 0x01 __b 0x10)
                     (§ return (== (.. this opcode) (dec (+ ScriptOpCodes/OP_1 __b))))
@@ -32001,13 +32001,13 @@
                 )
             )
         )
-        (§ when (< (.. this data length) ScriptOpCodes/OP_PUSHDATA1)
-            (§ return (== (.. this opcode) (.. this data length)))
+        (§ when (< (.. this data (alength)) ScriptOpCodes/OP_PUSHDATA1)
+            (§ return (== (.. this opcode) (.. this data (alength))))
         )
-        (§ when (< (.. this data length) 256)
+        (§ when (< (.. this data (alength)) 256)
             (§ return (== (.. this opcode) ScriptOpCodes/OP_PUSHDATA1))
         )
-        (§ when (< (.. this data length) 65536)
+        (§ when (< (.. this data (alength)) 65536)
             (§ return (== (.. this opcode) ScriptOpCodes/OP_PUSHDATA2))
         )
 
@@ -32024,24 +32024,24 @@
         )
         (§ elsewhen (some? (.. this data))
             (§ when (< (.. this opcode) ScriptOpCodes/OP_PUSHDATA1)
-                (Preconditions/checkState (== (.. this data length) (.. this opcode)))
+                (Preconditions/checkState (== (.. this data (alength)) (.. this opcode)))
                 (.. __stream (write (.. this opcode)))
             )
             (§ elsewhen (== (.. this opcode) ScriptOpCodes/OP_PUSHDATA1)
-                (Preconditions/checkState (<= (.. this data length) 0xff))
+                (Preconditions/checkState (<= (.. this data (alength)) 0xff))
                 (.. __stream (write ScriptOpCodes/OP_PUSHDATA1))
-                (.. __stream (write (.. this data length)))
+                (.. __stream (write (.. this data (alength))))
             )
             (§ elsewhen (== (.. this opcode) ScriptOpCodes/OP_PUSHDATA2)
-                (Preconditions/checkState (<= (.. this data length) 0xffff))
+                (Preconditions/checkState (<= (.. this data (alength)) 0xffff))
                 (.. __stream (write ScriptOpCodes/OP_PUSHDATA2))
-                (.. __stream (write (& 0xff (.. this data length))))
-                (.. __stream (write (& 0xff (>> (.. this data length) 8))))
+                (.. __stream (write (& 0xff (.. this data (alength)))))
+                (.. __stream (write (& 0xff (>> (.. this data (alength)) 8))))
             )
             (§ elsewhen (== (.. this opcode) ScriptOpCodes/OP_PUSHDATA4)
-                (Preconditions/checkState (<= (.. this data length) Script/MAX_SCRIPT_ELEMENT_SIZE))
+                (Preconditions/checkState (<= (.. this data (alength)) Script/MAX_SCRIPT_ELEMENT_SIZE))
                 (.. __stream (write ScriptOpCodes/OP_PUSHDATA4))
-                (Utils/uint32ToByteStreamLE (.. this data length), __stream)
+                (Utils/uint32ToByteStreamLE (.. this data (alength)), __stream)
             )
             (§ else 
                 (throw (RuntimeException. "Unimplemented"))
@@ -32096,7 +32096,7 @@
     (:import [java.util HashMap Map]))
 
 #_public
-(§ enum #_"ScriptError"
+(§ enum ScriptError
     (§ item (SCRIPT_ERR_OK "OK"))
     (§ item (SCRIPT_ERR_UNKNOWN_ERROR "UNKNOWN_ERROR"))
     (§ item (SCRIPT_ERR_EVAL_FALSE "EVAL_FALSE"))
@@ -32201,7 +32201,7 @@
  ; See {@link org.bitcoinj.script.Script} for details.  Also provides a method to convert them to a string.
  ;;
 #_public
-(§ class #_"ScriptOpCodes"
+(§ class ScriptOpCodes
     ;; push value
     #_public
     #_static
@@ -32637,7 +32637,7 @@
  ;;
 #_public
 #_abstract
-(§ class #_"CustomTransactionSigner" (§ extends #_"StatelessTransactionSigner")
+(§ class CustomTransactionSigner (§ extends StatelessTransactionSigner)
     #_private
     #_static
     (§ def- #_"Logger" CustomTransactionSigner/log (LoggerFactory/getLogger (§ klass #_"CustomTransactionSigner")))
@@ -32702,14 +32702,14 @@
     (§ method #_"CustomTransactionSigner.SignatureAndKey" getSignature [#_"Sha256Hash" __sighash, #_"List<ChildNumber>" __derivationPath])
 
     #_public
-    (§ class #_"CustomTransactionSigner.SignatureAndKey"
+    (§ class CustomTransactionSigner/SignatureAndKey
         #_public
         (§ field #_"ECKey.ECDSASignature" sig)
         #_public
         (§ field #_"ECKey" pubKey)
 
         #_public
-        (§ constructor #_"CustomTransactionSigner.SignatureAndKey" [#_"ECKey.ECDSASignature" __sig, #_"ECKey" __pubKey]
+        (§ constructor CustomTransactionSigner/SignatureAndKey [#_"ECKey.ECDSASignature" __sig, #_"ECKey" __pubKey]
             (§ ass (.. this sig) __sig)
             (§ ass (.. this pubKey) __pubKey)
             this
@@ -32738,7 +32738,7 @@
  ; <p>This signer always uses {@link org.bitcoinj.core.Transaction.SigHash#ALL} signing mode.</p>
  ;;
 #_public
-(§ class #_"LocalTransactionSigner" (§ extends #_"StatelessTransactionSigner")
+(§ class LocalTransactionSigner (§ extends StatelessTransactionSigner)
     #_private
     #_static
     (§ def- #_"Logger" LocalTransactionSigner/log (LoggerFactory/getLogger (§ klass #_"LocalTransactionSigner")))
@@ -32853,7 +32853,7 @@
  ; for P2SH or MissingPrivateKeyException for other transaction types.
  ;;
 #_public
-(§ class #_"MissingSigResolutionSigner" (§ extends #_"StatelessTransactionSigner")
+(§ class MissingSigResolutionSigner (§ extends StatelessTransactionSigner)
     #_private
     #_static
     (§ def- #_"Logger" MissingSigResolutionSigner/log (LoggerFactory/getLogger (§ klass #_"MissingSigResolutionSigner")))
@@ -32862,12 +32862,12 @@
     (§ field #_"Wallet.MissingSigsMode" missingSigsMode Wallet/MissingSigsMode/USE_DUMMY_SIG)
 
     #_public
-    (§ constructor #_"MissingSigResolutionSigner" []
+    (§ constructor MissingSigResolutionSigner []
         this
     )
 
     #_public
-    (§ constructor #_"MissingSigResolutionSigner" [#_"Wallet.MissingSigsMode" __missingSigsMode]
+    (§ constructor MissingSigResolutionSigner [#_"Wallet.MissingSigsMode" __missingSigsMode]
         (§ ass (.. this missingSigsMode) __missingSigsMode)
         this
     )
@@ -32939,7 +32939,7 @@
  ;;
 #_public
 #_abstract
-(§ class #_"StatelessTransactionSigner" (§ implements #_"TransactionSigner")
+(§ class StatelessTransactionSigner (§ implements TransactionSigner)
     #_override
     #_public
     (§ method #_"void" deserialize [#_"byte[]" __data]
@@ -32969,12 +32969,12 @@
  ; signer after deserialization, each signer should have no-args constructor.</p>
  ;;
 #_public
-(§ interface #_"TransactionSigner"
+(§ interface TransactionSigner
     ;;;
      ; This class wraps transaction proposed to complete keeping a metadata that may be updated, used and effectively
      ; shared by transaction signers.
      ;;
-    (§ class #_"TransactionSigner.ProposedTransaction"
+    (§ class TransactionSigner/ProposedTransaction
         #_public
         (§ field #_"Transaction" partialTx)
 
@@ -32989,14 +32989,14 @@
         (§ field #_"Map<Script, List<ChildNumber>>" keyPaths)
 
         #_public
-        (§ constructor #_"TransactionSigner.ProposedTransaction" [#_"Transaction" __partialTx]
+        (§ constructor TransactionSigner/ProposedTransaction [#_"Transaction" __partialTx]
             (§ ass (.. this partialTx) __partialTx)
             (§ ass (.. this keyPaths) (HashMap. #_"<>"))
             this
         )
     )
 
-    (§ class #_"TransactionSigner.MissingSignatureException" (§ extends #_"RuntimeException")
+    (§ class TransactionSigner/MissingSignatureException (§ extends RuntimeException)
     )
 
     ;;;
@@ -33037,7 +33037,7 @@
  ; BlockStores are thread safe.
  ;;
 #_public
-(§ interface #_"BlockStore"
+(§ interface BlockStore
     ;;;
      ; Saves the given block header+extra data.  The key isn't specified explicitly as it can be calculated
      ; from the StoredBlock directly.  Can throw if there is a problem with the underlying storage layer such
@@ -33085,21 +33085,21 @@
  ; Thrown when something goes wrong with storing a block.  Examples: out of disk space.
  ;;
 #_public
-(§ class #_"BlockStoreException" (§ extends #_"Exception")
+(§ class BlockStoreException (§ extends Exception)
     #_public
-    (§ constructor #_"BlockStoreException" [#_"String" __message]
+    (§ constructor BlockStoreException [#_"String" __message]
         (§ super __message)
         this
     )
 
     #_public
-    (§ constructor #_"BlockStoreException" [#_"Throwable" __t]
+    (§ constructor BlockStoreException [#_"Throwable" __t]
         (§ super __t)
         this
     )
 
     #_public
-    (§ constructor #_"BlockStoreException" [#_"String" __message, #_"Throwable" __t]
+    (§ constructor BlockStoreException [#_"String" __message, #_"Throwable" __t]
         (§ super __message, __t)
         this
     )
@@ -33111,15 +33111,15 @@
  ; Thrown by {@link SPVBlockStore} when the process cannot gain exclusive access to the chain file.
  ;;
 #_public
-(§ class #_"ChainFileLockedException" (§ extends #_"BlockStoreException")
+(§ class ChainFileLockedException (§ extends BlockStoreException)
     #_public
-    (§ constructor #_"ChainFileLockedException" [#_"String" __message]
+    (§ constructor ChainFileLockedException [#_"String" __message]
         (§ super __message)
         this
     )
 
     #_public
-    (§ constructor #_"ChainFileLockedException" [#_"Throwable" __t]
+    (§ constructor ChainFileLockedException [#_"Throwable" __t]
         (§ super __t)
         this
     )
@@ -33191,7 +33191,7 @@
  ;;
 #_public
 #_abstract
-(§ class #_"DatabaseFullPrunedBlockStore" (§ implements #_"FullPrunedBlockStore")
+(§ class DatabaseFullPrunedBlockStore (§ implements FullPrunedBlockStore)
     #_private
     #_static
     (§ def- #_"Logger" DatabaseFullPrunedBlockStore/log (LoggerFactory/getLogger (§ klass #_"DatabaseFullPrunedBlockStore")))
@@ -33339,7 +33339,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"DatabaseFullPrunedBlockStore" [#_"NetworkParameters" __params, #_"String" __connectionURL, #_"int" __fullStoreDepth, #_nilable #_"String" __username, #_nilable #_"String" __password, #_nilable #_"String" __schemaName]
+    (§ constructor DatabaseFullPrunedBlockStore [#_"NetworkParameters" __params, #_"String" __connectionURL, #_"int" __fullStoreDepth, #_nilable #_"String" __username, #_nilable #_"String" __password, #_nilable #_"String" __schemaName]
         (§ ass (.. this params) __params)
         (§ ass (.. this fullStoreDepth) __fullStoreDepth)
         (§ ass (.. this connectionURL) __connectionURL)
@@ -34560,7 +34560,7 @@
  ; <p>FullPrunedBlockStores are thread safe.</p>
  ;;
 #_public
-(§ interface #_"FullPrunedBlockStore" (§ extends #_"BlockStore")
+(§ interface FullPrunedBlockStore (§ extends BlockStore)
     ;;;
      ; <p>Saves the given {@link StoredUndoableBlock} and {@link StoredBlock}.  Calculates keys from the {@link StoredBlock}.</p>
      ;
@@ -34671,7 +34671,7 @@
  ; decreases the space usage somewhat (to only around 1.3G).
  ;;
 #_public
-(§ class #_"H2FullPrunedBlockStore" (§ extends #_"DatabaseFullPrunedBlockStore")
+(§ class H2FullPrunedBlockStore (§ extends DatabaseFullPrunedBlockStore)
     #_private
     #_static
     (§ def- #_"String" H2FullPrunedBlockStore/H2_DUPLICATE_KEY_ERROR_CODE "23505")
@@ -34751,7 +34751,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"H2FullPrunedBlockStore" [#_"NetworkParameters" __params, #_"String" __dbName, #_"String" __username, #_"String" __password, #_"int" __fullStoreDepth]
+    (§ constructor H2FullPrunedBlockStore [#_"NetworkParameters" __params, #_"String" __dbName, #_"String" __username, #_"String" __password, #_"int" __fullStoreDepth]
         (§ super __params, (str H2FullPrunedBlockStore/DATABASE_CONNECTION_URL_PREFIX __dbName ";create=true;LOCK_TIMEOUT=60000;DB_CLOSE_ON_EXIT=FALSE"), __fullStoreDepth, __username, __password, nil)
         this
     )
@@ -34765,7 +34765,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"H2FullPrunedBlockStore" [#_"NetworkParameters" __params, #_"String" __dbName, #_"int" __fullStoreDepth]
+    (§ constructor H2FullPrunedBlockStore [#_"NetworkParameters" __params, #_"String" __dbName, #_"int" __fullStoreDepth]
         (§ this __params, __dbName, nil, nil, __fullStoreDepth)
         this
     )
@@ -34782,7 +34782,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"H2FullPrunedBlockStore" [#_"NetworkParameters" __params, #_"String" __dbName, #_"int" __fullStoreDepth, #_"int" __cacheSize]
+    (§ constructor H2FullPrunedBlockStore [#_"NetworkParameters" __params, #_"String" __dbName, #_"int" __fullStoreDepth, #_"int" __cacheSize]
         (§ this __params, __dbName, __fullStoreDepth)
 
         (try
@@ -34850,7 +34850,7 @@
  ; Keeps {@link org.bitcoinj.core.StoredBlock}s in memory.  Used primarily for unit testing.
  ;;
 #_public
-(§ class #_"MemoryBlockStore" (§ implements #_"BlockStore")
+(§ class MemoryBlockStore (§ implements BlockStore)
     #_private
     (§ field- #_"LinkedHashMap<Sha256Hash, StoredBlock>" blockMap (LinkedHashMap. #_"<Sha256Hash, StoredBlock>"
         (§ anon
@@ -34866,7 +34866,7 @@
     (§ field- #_"NetworkParameters" params)
 
     #_public
-    (§ constructor #_"MemoryBlockStore" [#_"NetworkParameters" __params]
+    (§ constructor MemoryBlockStore [#_"NetworkParameters" __params]
         ;; Insert the genesis block.
         (try
             (let [#_"Block" __genesisHeader (.. __params (getGenesisBlock) (cloneAsHeader))][#_"StoredBlock" __storedGenesis (StoredBlock. __genesisHeader, (.. __genesisHeader (getWork)), 0)]
@@ -34958,19 +34958,19 @@
  ; Used as a key for memory map (to avoid having to think about NetworkParameters,
  ; which is required for {@link TransactionOutPoint}.
  ;;
-(§ class #_"StoredTransactionOutPoint"
+(§ class StoredTransactionOutPoint
     ;;; Hash of the transaction to which we refer. ;;
     (§ field #_"Sha256Hash" hash)
     ;;; Which output of that transaction we are talking about. ;;
     (§ field #_"long" index)
 
-    (§ constructor #_"StoredTransactionOutPoint" [#_"Sha256Hash" __hash, #_"long" __index]
+    (§ constructor StoredTransactionOutPoint [#_"Sha256Hash" __hash, #_"long" __index]
         (§ ass (.. this hash) __hash)
         (§ ass (.. this index) __index)
         this
     )
 
-    (§ constructor #_"StoredTransactionOutPoint" [#_"UTXO" __out]
+    (§ constructor StoredTransactionOutPoint [#_"UTXO" __out]
         (§ ass (.. this hash) (.. __out (getHash)))
         (§ ass (.. this index) (.. __out (getIndex)))
         this
@@ -35021,7 +35021,7 @@
  ; A HashMap<KeyType, ValueType> that is DB transaction-aware.
  ; This class is not thread-safe.
  ;;
-(§ class #_"TransactionalHashMap<KeyType, ValueType>"
+(§ class TransactionalHashMap #_"<KeyType, ValueType>"
     (§ field #_"ThreadLocal<HashMap<KeyType, ValueType>>" tempMap)
     (§ field #_"ThreadLocal<HashSet<KeyType>>" tempSetRemoved)
     #_private
@@ -35030,7 +35030,7 @@
     (§ field #_"HashMap<KeyType, ValueType>" map)
 
     #_public
-    (§ constructor #_"TransactionalHashMap" []
+    (§ constructor TransactionalHashMap []
         (§ ass (.. this tempMap) (ThreadLocal. #_"<>"))
         (§ ass (.. this tempSetRemoved) (ThreadLocal. #_"<>"))
         (§ ass (.. this inTransaction) (ThreadLocal. #_"<>"))
@@ -35146,12 +35146,12 @@
  ; @param <UniqueKeyType> Is a key that must be unique per object.
  ; @param <MultiKeyType> Is a key that can have multiple values.
  ;;
-(§ class #_"TransactionalMultiKeyHashMap<UniqueKeyType, MultiKeyType, ValueType>"
+(§ class TransactionalMultiKeyHashMap #_"<UniqueKeyType, MultiKeyType, ValueType>"
     (§ field #_"TransactionalHashMap<UniqueKeyType, ValueType>" mapValues)
     (§ field #_"HashMap<MultiKeyType, Set<UniqueKeyType>>" mapKeys)
 
     #_public
-    (§ constructor #_"TransactionalMultiKeyHashMap" []
+    (§ constructor TransactionalMultiKeyHashMap []
         (§ ass (.. this mapValues) (TransactionalHashMap. #_"<>"))
         (§ ass (.. this mapKeys) (HashMap. #_"<>"))
         this
@@ -35221,16 +35221,16 @@
  ; Used primarily for unit testing.
  ;;
 #_public
-(§ class #_"MemoryFullPrunedBlockStore" (§ implements #_"FullPrunedBlockStore")
+(§ class MemoryFullPrunedBlockStore (§ implements FullPrunedBlockStore)
     #_protected
     #_static
-    (§ class #_"MemoryFullPrunedBlockStore.StoredBlockAndWasUndoableFlag"
+    (§ class MemoryFullPrunedBlockStore/StoredBlockAndWasUndoableFlag
         #_public
         (§ field #_"StoredBlock" block)
         #_public
         (§ field #_"boolean" wasUndoable)
         #_public
-        (§ constructor #_"MemoryFullPrunedBlockStore.StoredBlockAndWasUndoableFlag" [#_"StoredBlock" __block, #_"boolean" __wasUndoable]
+        (§ constructor MemoryFullPrunedBlockStore/StoredBlockAndWasUndoableFlag [#_"StoredBlock" __block, #_"boolean" __wasUndoable]
             (§ ass (.. this block) __block)
             (§ ass (.. this wasUndoable) __wasUndoable)
             this
@@ -35258,7 +35258,7 @@
      ; @param fullStoreDepth The depth of blocks to keep FullStoredBlocks instead of StoredBlocks.
      ;;
     #_public
-    (§ constructor #_"MemoryFullPrunedBlockStore" [#_"NetworkParameters" __params, #_"int" __fullStoreDepth]
+    (§ constructor MemoryFullPrunedBlockStore [#_"NetworkParameters" __params, #_"int" __fullStoreDepth]
         (§ ass (.. this blockMap) (TransactionalHashMap. #_"<>"))
         (§ ass (.. this fullBlockMap) (TransactionalMultiKeyHashMap. #_"<>"))
         (§ ass (.. this transactionOutputMap) (TransactionalHashMap. #_"<>"))
@@ -35494,7 +35494,7 @@
  ; the quantity of bitcoins controlled by that address.</p>
  ;;
 #_public
-(§ class #_"PostgresFullPrunedBlockStore" (§ extends #_"DatabaseFullPrunedBlockStore")
+(§ class PostgresFullPrunedBlockStore (§ extends DatabaseFullPrunedBlockStore)
     #_private
     #_static
     (§ def- #_"Logger" PostgresFullPrunedBlockStore/log (LoggerFactory/getLogger (§ klass #_"PostgresFullPrunedBlockStore")))
@@ -35587,7 +35587,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"PostgresFullPrunedBlockStore" [#_"NetworkParameters" __params, #_"int" __fullStoreDepth, #_"String" __hostname, #_"String" __dbName, #_"String" __username, #_"String" __password]
+    (§ constructor PostgresFullPrunedBlockStore [#_"NetworkParameters" __params, #_"int" __fullStoreDepth, #_"String" __hostname, #_"String" __dbName, #_"String" __username, #_"String" __password]
         (§ super __params, (str PostgresFullPrunedBlockStore/DATABASE_CONNECTION_URL_PREFIX __hostname "/" __dbName), __fullStoreDepth, __username, __password, nil)
         this
     )
@@ -35610,7 +35610,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"PostgresFullPrunedBlockStore" [#_"NetworkParameters" __params, #_"int" __fullStoreDepth, #_"String" __hostname, #_"String" __dbName, #_"String" __username, #_"String" __password, #_nilable #_"String" __schemaName]
+    (§ constructor PostgresFullPrunedBlockStore [#_"NetworkParameters" __params, #_"int" __fullStoreDepth, #_"String" __hostname, #_"String" __dbName, #_"String" __username, #_"String" __password, #_nilable #_"String" __schemaName]
         (§ super __params, (str PostgresFullPrunedBlockStore/DATABASE_CONNECTION_URL_PREFIX __hostname "/" __dbName), __fullStoreDepth, __username, __password, __schemaName)
         this
     )
@@ -35791,7 +35791,7 @@
  ; but as they are virtually unheard of this is not a significant risk.
  ;;
 #_public
-(§ class #_"SPVBlockStore" (§ implements #_"BlockStore")
+(§ class SPVBlockStore (§ implements BlockStore)
     #_private
     #_static
     (§ def- #_"Logger" SPVBlockStore/log (LoggerFactory/getLogger (§ klass #_"SPVBlockStore")))
@@ -35865,7 +35865,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"SPVBlockStore" [#_"NetworkParameters" __params, #_"File" __file]
+    (§ constructor SPVBlockStore [#_"NetworkParameters" __params, #_"File" __file]
         (§ this __params, __file, SPVBlockStore/DEFAULT_CAPACITY)
         this
     )
@@ -35879,7 +35879,7 @@
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor #_"SPVBlockStore" [#_"NetworkParameters" __params, #_"File" __file, #_"int" __capacity]
+    (§ constructor SPVBlockStore [#_"NetworkParameters" __params, #_"File" __file, #_"int" __capacity]
         (Preconditions/checkNotNull __file)
         (§ ass (.. this params) (Preconditions/checkNotNull __params))
         (Preconditions/checkArgument (> __capacity 0))
@@ -36221,7 +36221,7 @@
  ; @see <a href="https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki">BIP 0021</a>
  ;;
 #_public
-(§ class #_"BitcoinURI"
+(§ class BitcoinURI
     ;; Not worth turning into an enum.
     #_public
     #_static
@@ -36272,7 +36272,7 @@
      ;;
     #_public
     #_throws #_[ "BitcoinURIParseException" ]
-    (§ constructor #_"BitcoinURI" [#_"String" __uri]
+    (§ constructor BitcoinURI [#_"String" __uri]
         (§ this nil, __uri)
         this
     )
@@ -36288,7 +36288,7 @@
      ;;
     #_public
     #_throws #_[ "BitcoinURIParseException" ]
-    (§ constructor #_"BitcoinURI" [#_nilable #_"NetworkParameters" __params, #_"String" __input]
+    (§ constructor BitcoinURI [#_nilable #_"NetworkParameters" __params, #_"String" __input]
         (Preconditions/checkNotNull __input)
 
         (let [#_"String" __scheme (if (some? __params) (.. __params (getUriScheme)) AbstractBitcoinNetParams/BITCOIN_SCHEME)]
@@ -36324,14 +36324,14 @@
 
                     ;; Split off the address from the rest of the query parameters.
                     (let [#_"String[]" __addressSplitTokens (.. __schemeSpecificPart (split "\\?", 2))]
-                        (§ when (== (.. __addressSplitTokens length) 0)
+                        (§ when (== (.. __addressSplitTokens (alength)) 0)
                             (throw (BitcoinURIParseException. "No data found after the bitcoin: prefix"))
                         )
 
                         (let [#_"String" __addressToken (aget __addressSplitTokens 0)] ;; may be empty!
 
                             (let [#_"String[]" __nameValuePairTokens]
-                                (§ when (== (.. __addressSplitTokens length) 1)
+                                (§ when (== (.. __addressSplitTokens (alength)) 1)
                                     ;; Only an address is specified - use an empty '<name>=<value>' token array.
                                     (§ ass __nameValuePairTokens (make-array String 0))
                                 )
@@ -36641,15 +36641,15 @@
  ; to the user other than as part of a "general failure to parse" response.</p>
  ;;
 #_public
-(§ class #_"BitcoinURIParseException" (§ extends #_"Exception")
+(§ class BitcoinURIParseException (§ extends Exception)
     #_public
-    (§ constructor #_"BitcoinURIParseException" [#_"String" __s]
+    (§ constructor BitcoinURIParseException [#_"String" __s]
         (§ super __s)
         this
     )
 
     #_public
-    (§ constructor #_"BitcoinURIParseException" [#_"String" __s, #_"Throwable" __throwable]
+    (§ constructor BitcoinURIParseException [#_"String" __s, #_"Throwable" __throwable]
         (§ super __s, __throwable)
         this
     )
@@ -36669,15 +36669,15 @@
  ;
  ;;
 #_public
-(§ class #_"OptionalFieldValidationException" (§ extends #_"BitcoinURIParseException")
+(§ class OptionalFieldValidationException (§ extends BitcoinURIParseException)
     #_public
-    (§ constructor #_"OptionalFieldValidationException" [#_"String" __s]
+    (§ constructor OptionalFieldValidationException [#_"String" __s]
         (§ super __s)
         this
     )
 
     #_public
-    (§ constructor #_"OptionalFieldValidationException" [#_"String" __s, #_"Throwable" __throwable]
+    (§ constructor OptionalFieldValidationException [#_"String" __s, #_"Throwable" __throwable]
         (§ super __s, __throwable)
         this
     )
@@ -36698,15 +36698,15 @@
  ;
  ;;
 #_public
-(§ class #_"RequiredFieldValidationException" (§ extends #_"BitcoinURIParseException")
+(§ class RequiredFieldValidationException (§ extends BitcoinURIParseException)
     #_public
-    (§ constructor #_"RequiredFieldValidationException" [#_"String" __s]
+    (§ constructor RequiredFieldValidationException [#_"String" __s]
         (§ super __s)
         this
     )
 
     #_public
-    (§ constructor #_"RequiredFieldValidationException" [#_"String" __s, #_"Throwable" __throwable]
+    (§ constructor RequiredFieldValidationException [#_"String" __s, #_"Throwable" __throwable]
         (§ super __s, __throwable)
         this
     )
@@ -36746,13 +36746,13 @@
  ;;
 
 #_public
-(§ class #_"BtcAutoFormat" (§ extends #_"BtcFormat")
+(§ class BtcAutoFormat (§ extends BtcFormat)
     ;;;
      ; Enum for specifying the style of currency indicators thas are used
      ; when formatting, ether codes or symbols.
      ;;
     #_public
-    (§ enum #_"BtcAutoFormat.Style"
+    (§ enum BtcAutoFormat/Style
         ;; Notes:
          ; 1. The odd-looking character in the replacements below, named "currency sign," is used
          ;    in the patterns recognized by Java's number formatter.  A single occurrence of this
@@ -36802,7 +36802,7 @@
 
     ;;; Constructor. ;;
     #_protected
-    (§ constructor #_"BtcAutoFormat" [#_"Locale" __locale, #_"BtcAutoFormat.Style" __style, #_"int" __fractionPlaces]
+    (§ constructor BtcAutoFormat [#_"Locale" __locale, #_"BtcAutoFormat.Style" __style, #_"int" __fractionPlaces]
         (§ super (cast DecimalFormat (NumberFormat/getCurrencyInstance __locale)), __fractionPlaces, (ImmutableList/of #_"ImmutableList<Integer>"))
 
         (.. __style (apply (.. this numberFormat)))
@@ -36950,7 +36950,7 @@
  ;;
 
 #_public
-(§ class #_"BtcFixedFormat" (§ extends #_"BtcFormat")
+(§ class BtcFixedFormat (§ extends BtcFormat)
     ;;;
      ; A constant specifying the use of as many optional decimal places in the fraction part
      ; of a formatted number as are useful for expressing precision.  This value can be passed
@@ -36989,7 +36989,7 @@
 
     ;;; Constructor. ;;
     #_protected
-    (§ constructor #_"BtcFixedFormat" [#_"Locale" __locale, #_"int" __scale, #_"int" __minDecimals, #_"List<Integer>" __groups]
+    (§ constructor BtcFixedFormat [#_"Locale" __locale, #_"int" __scale, #_"int" __minDecimals, #_"List<Integer>" __groups]
         (§ super (cast DecimalFormat (NumberFormat/getInstance __locale)), __minDecimals, __groups)
 
         (Preconditions/checkArgument (<= __scale Coin/SMALLEST_UNIT_EXPONENT), (str "decimal cannot be shifted " (String/valueOf __scale) " places"))
@@ -37055,7 +37055,7 @@
      ;;
     #_public
     (§ method #_"int[]" fractionPlaceGroups []
-        (let [#_"Object[]" __boxedArray (.. this decimalGroups (toArray))][#_"int" __len (inc (.. __boxedArray length))][#_"int[]" __array (int-array __len)]
+        (let [#_"Object[]" __boxedArray (.. this decimalGroups (toArray))][#_"int" __len (inc (.. __boxedArray (alength)))][#_"int[]" __array (int-array __len)]
             (aset __array 0 (.. this minimumFractionDigits))
             (§ for [#_"int" __i 1] (< __i __len) [(inc __i)]
                 (aset __array __i (cast Integer (aget __boxedArray (dec __i))))
@@ -37517,7 +37517,7 @@
 
 #_public
 #_abstract
-(§ class #_"BtcFormat" (§ extends #_"Format")
+(§ class BtcFormat (§ extends Format)
     ;; CONCURRENCY NOTES
      ;
      ; There is one mutable member of this class, the `DecimalFormat` object bound to variable `numberFormat`.
@@ -37612,9 +37612,9 @@
      ;;
     #_public
     #_static
-    (§ class #_"BtcFormat.Builder"
+    (§ class BtcFormat/Builder
         #_private
-        (§ enum #_"BtcFormat.Builder.Variant"
+        (§ enum BtcFormat/Builder/Variant
             (§ item AUTO
             (§ anon
                 #_override
@@ -37887,7 +37887,7 @@
 
     ;;; This single constructor is invoked by the overriding subclass constructors. ;;
     #_protected
-    (§ constructor #_"BtcFormat" [#_"DecimalFormat" __numberFormat, #_"int" __minDecimals, #_"List<Integer>" __groups]
+    (§ constructor BtcFormat [#_"DecimalFormat" __numberFormat, #_"int" __minDecimals, #_"List<Integer>" __groups]
         (Preconditions/checkArgument (<= 0 __minDecimals), "There can be no fewer than zero fractional decimal places")
 
         (§ ass (.. this numberFormat) __numberFormat)
@@ -38109,7 +38109,7 @@
     #_static
     #_throws #_[ "IllegalArgumentException" ]
     (§ defn- #_"List<Integer>" BtcFormat/boxAsList [#_"int[]" __elements]
-        (let [#_"List<Integer>" __list (ArrayList. #_"<>" (.. __elements length))]
+        (let [#_"List<Integer>" __list (ArrayList. #_"<>" (.. __elements (alength)))]
             (§ forin [#_"int" __e] __elements
                 (Preconditions/checkArgument (< 0 __e), "Size of decimal group must be at least one.")
                 (.. __list (add __e))
@@ -38524,13 +38524,13 @@
     )
 
     #_private
-    (§ class #_"BtcFormat.ScaleMatcher"
+    (§ class BtcFormat/ScaleMatcher
         #_public
         (§ field #_"Pattern" pattern)
         #_public
         (§ field #_"int" scale)
 
-        (§ constructor #_"BtcFormat.ScaleMatcher" [#_"Pattern" __p, #_"int" __s]
+        (§ constructor BtcFormat/ScaleMatcher [#_"Pattern" __p, #_"int" __s]
             (§ ass (.. this pattern) __p)
             (§ ass (.. this scale) __s)
             this
@@ -38931,7 +38931,7 @@
  ; from the creating thread into the new thread.  This factory creates daemon threads.
  ;;
 #_public
-(§ class #_"ContextPropagatingThreadFactory" (§ implements #_"ThreadFactory")
+(§ class ContextPropagatingThreadFactory (§ implements ThreadFactory)
     #_private
     #_static
     (§ def- #_"Logger" ContextPropagatingThreadFactory/log (LoggerFactory/getLogger (§ klass #_"ContextPropagatingThreadFactory")))
@@ -38942,14 +38942,14 @@
     (§ field- #_"int" priority)
 
     #_public
-    (§ constructor #_"ContextPropagatingThreadFactory" [#_"String" __name, #_"int" __priority]
+    (§ constructor ContextPropagatingThreadFactory [#_"String" __name, #_"int" __priority]
         (§ ass (.. this name) __name)
         (§ ass (.. this priority) __priority)
         this
     )
 
     #_public
-    (§ constructor #_"ContextPropagatingThreadFactory" [#_"String" __name]
+    (§ constructor ContextPropagatingThreadFactory [#_"String" __name]
         (§ this __name, Thread/NORM_PRIORITY)
         this
     )
@@ -38992,19 +38992,19 @@
 
 ;;; Thread factory whose threads are marked as daemon and won't prevent process exit. ;;
 #_public
-(§ class #_"DaemonThreadFactory" (§ implements #_"ThreadFactory")
+(§ class DaemonThreadFactory (§ implements ThreadFactory)
     #_nilable
     #_private
     (§ field- #_"String" name)
 
     #_public
-    (§ constructor #_"DaemonThreadFactory" [#_nilable #_"String" __name]
+    (§ constructor DaemonThreadFactory [#_nilable #_"String" __name]
         (§ ass (.. this name) __name)
         this
     )
 
     #_public
-    (§ constructor #_"DaemonThreadFactory" []
+    (§ constructor DaemonThreadFactory []
         (§ this nil)
         this
     )
@@ -39032,7 +39032,7 @@
  ; An exchange rate is expressed as a ratio of a {@link Coin} and a {@link Fiat} amount.
  ;;
 #_public
-(§ class #_"ExchangeRate" (§ implements #_"Serializable")
+(§ class ExchangeRate (§ implements Serializable)
     #_public
     (§ field #_"Coin" coin)
     #_public
@@ -39040,7 +39040,7 @@
 
     ;;; Construct exchange rate.  This amount of coin is worth that amount of fiat. ;;
     #_public
-    (§ constructor #_"ExchangeRate" [#_"Coin" __coin, #_"Fiat" __fiat]
+    (§ constructor ExchangeRate [#_"Coin" __coin, #_"Fiat" __fiat]
         (Preconditions/checkArgument (.. __coin (isPositive)))
         (Preconditions/checkArgument (.. __fiat (isPositive)))
         (Preconditions/checkArgument (some? (.. __fiat currencyCode)), "currency code required")
@@ -39052,7 +39052,7 @@
 
     ;;; Construct exchange rate.  One coin is worth this amount of fiat. ;;
     #_public
-    (§ constructor #_"ExchangeRate" [#_"Fiat" __fiat]
+    (§ constructor ExchangeRate [#_"Fiat" __fiat]
         (§ this Coin/COIN, __fiat)
         this
     )
@@ -39130,7 +39130,7 @@
  ; <p>The retries are exponentially backed off, up to a maximum interval.  On success the back off interval is reset.</p>
  ;;
 #_public
-(§ class #_"ExponentialBackoff" (§ implements #_"Comparable<ExponentialBackoff>")
+(§ class ExponentialBackoff (§ implements Comparable #_"<ExponentialBackoff>")
     #_public
     #_static
     (§ def #_"int" ExponentialBackoff/DEFAULT_INITIAL_MILLIS 100)
@@ -39153,7 +39153,7 @@
      ;;
     #_public
     #_static
-    (§ class #_"ExponentialBackoff.Params"
+    (§ class ExponentialBackoff/Params
         #_private
         (§ field- #_"float" initial)
         #_private
@@ -39167,7 +39167,7 @@
          ; @param maximumMillis The maximum interval to wait, in milliseconds.
          ;;
         #_public
-        (§ constructor #_"ExponentialBackoff.Params" [#_"long" __initialMillis, #_"float" __multiplier, #_"long" __maximumMillis]
+        (§ constructor ExponentialBackoff/Params [#_"long" __initialMillis, #_"float" __multiplier, #_"long" __maximumMillis]
             (Preconditions/checkArgument (< 1.0 __multiplier), "multiplier must be greater than 1.0")
             (Preconditions/checkArgument (<= __initialMillis __maximumMillis), "maximum must not be less than initial")
 
@@ -39181,7 +39181,7 @@
          ; Construct params with default values.
          ;;
         #_public
-        (§ constructor #_"ExponentialBackoff.Params" []
+        (§ constructor ExponentialBackoff/Params []
             (§ ass (.. this initial) ExponentialBackoff/DEFAULT_INITIAL_MILLIS)
             (§ ass (.. this multiplier) ExponentialBackoff/DEFAULT_MULTIPLIER)
             (§ ass (.. this maximum) ExponentialBackoff/DEFAULT_MAXIMUM_MILLIS)
@@ -39190,7 +39190,7 @@
     )
 
     #_public
-    (§ constructor #_"ExponentialBackoff" [#_"ExponentialBackoff.Params" __params]
+    (§ constructor ExponentialBackoff [#_"ExponentialBackoff.Params" __params]
         (§ ass (.. this params) __params)
         (.. this (trackSuccess))
         this
@@ -39247,7 +39247,7 @@
  ; This class is immutable.
  ;;
 #_public
-(§ class #_"Fiat" (§ implements #_"Monetary", #_"Comparable<Fiat>", #_"Serializable")
+(§ class Fiat (§ implements Monetary, Comparable #_"<Fiat>", Serializable)
     ;;;
      ; The absolute value of exponent of the value of a "smallest unit" in scientific notation.
      ; We picked 4 rather than 2, because in financial applications it's common to use sub-cent precision.
@@ -39505,14 +39505,14 @@
  ; A simple wrapper around a listener and an executor, with some utility methods.
  ;;
 #_public
-(§ class #_"ListenerRegistration<T>"
+(§ class ListenerRegistration #_"<T>"
     #_public
     (§ field #_"T" listener)
     #_public
     (§ field #_"Executor" executor)
 
     #_public
-    (§ constructor #_"ListenerRegistration" [#_"T" __listener, #_"Executor" __executor]
+    (§ constructor ListenerRegistration [#_"T" __listener, #_"Executor" __executor]
         (§ ass (.. this listener) (Preconditions/checkNotNull __listener))
         (§ ass (.. this executor) (Preconditions/checkNotNull __executor))
         this
@@ -39552,7 +39552,7 @@
  ; as static constants.
  ;;
 #_public
-(§ class #_"MonetaryFormat"
+(§ class MonetaryFormat
     ;;; Standard format for the BTC denomination. ;;
     #_public
     #_static
@@ -39677,7 +39677,7 @@
      ;;
     #_public
     (§ method #_"MonetaryFormat" optionalDecimals [#_"int..." __groups]
-        (let [#_"List<Integer>" __decimalGroups (ArrayList. #_"<>" (.. __groups length))]
+        (let [#_"List<Integer>" __decimalGroups (ArrayList. #_"<>" (.. __groups (alength)))]
             (§ forin [#_"int" __group] __groups
                 (.. __decimalGroups (add __group))
             )
@@ -39743,7 +39743,7 @@
     (§ method #_"MonetaryFormat" code [#_"int" __codeShift, #_"String" __code]
         (Preconditions/checkArgument (<= 0 __codeShift))
 
-        (let [#_"String[]" __codes (if (some? (.. this codes)) (Arrays/copyOf (.. this codes), (.. this codes length)) (make-array String MonetaryFormat/MAX_DECIMALS))]
+        (let [#_"String[]" __codes (if (some? (.. this codes)) (Arrays/copyOf (.. this codes), (.. this codes (alength))) (make-array String MonetaryFormat/MAX_DECIMALS))]
 
             (aset __codes __codeShift __code)
             (MonetaryFormat. (.. this negativeSign), (.. this positiveSign), (.. this zeroDigit), (.. this decimalMark), (.. this minDecimals), (.. this decimalGroups), (.. this shift), (.. this roundingMode), __codes, (.. this codeSeparator), (.. this codePrefixed))
@@ -39788,7 +39788,7 @@
     )
 
     #_public
-    (§ constructor #_"MonetaryFormat" []
+    (§ constructor MonetaryFormat []
         ;; defaults
         (§ ass (.. this negativeSign) \-)
         (§ ass (.. this positiveSign) 0) ;; none
@@ -39996,7 +39996,7 @@
  ; Also provides a worker thread that is designed for event listeners to be dispatched on.
  ;;
 #_public
-(§ class #_"Threading"
+(§ class Threading
     ;;;
      ; An executor with one thread that is intended for running event listeners on.  This ensures all event listener
      ; code runs without any locks being held.  It's intended for the API user to run things on.  Callbacks registered
@@ -40056,7 +40056,7 @@
 
     #_public
     #_static
-    (§ class #_"Threading.UserThread" (§ extends #_"Thread") (§ implements #_"Executor")
+    (§ class Threading/UserThread (§ extends Thread) (§ implements Executor)
         #_private
         #_static
         (§ def- #_"Logger" Threading/UserThread/log (LoggerFactory/getLogger (§ klass #_"Threading.UserThread")))
@@ -40070,7 +40070,7 @@
         (§ field- #_"LinkedBlockingQueue<Runnable>" tasks)
 
         #_public
-        (§ constructor #_"Threading.UserThread" []
+        (§ constructor Threading/UserThread []
             (§ super "bitcoinj user thread")
 
             (setDaemon true)
@@ -40211,7 +40211,7 @@
  ; @see org.bitcoinj.core.NetworkParameters#getMajorityRejectBlockOutdated()
  ;;
 #_public
-(§ class #_"VersionTally"
+(§ class VersionTally
     ;;;
      ; Cache of version numbers.
      ;;
@@ -40232,7 +40232,7 @@
     (§ field- #_"int" versionsStored 0)
 
     #_public
-    (§ constructor #_"VersionTally" [#_"NetworkParameters" __params]
+    (§ constructor VersionTally [#_"NetworkParameters" __params]
         (§ ass (.. this versionWindow) (long-array (.. __params (getMajorityWindow))))
         this
     )
@@ -40246,7 +40246,7 @@
     (§ method #_"void" add [#_"long" __version]
         (aset (.. this versionWindow) (.. this versionWriteHead) __version)
         (§ ass (.. this versionWriteHead) (inc (.. this versionWriteHead)))
-        (§ when (== (.. this versionWriteHead) (.. this versionWindow length))
+        (§ when (== (.. this versionWriteHead) (.. this versionWindow (alength)))
             (§ ass (.. this versionWriteHead) 0)
         )
         (§ ass (.. this versionsStored) (inc (.. this versionsStored)))
@@ -40261,12 +40261,12 @@
      ;;
     #_public
     (§ method #_"Integer" getCountAtOrAbove [#_"long" __version]
-        (§ when (< (.. this versionsStored) (.. this versionWindow length))
+        (§ when (< (.. this versionsStored) (.. this versionWindow (alength)))
             (§ return nil)
         )
 
         (let [#_"int" __count 0]
-            (§ for [#_"int" __versionIdx 0] (< __versionIdx (.. this versionWindow length)) [(inc __versionIdx)]
+            (§ for [#_"int" __versionIdx 0] (< __versionIdx (.. this versionWindow (alength))) [(inc __versionIdx)]
                 (§ when (<= __version (aget (.. this versionWindow) __versionIdx))
                     (§ ass __count (inc __count))
                 )
@@ -40290,7 +40290,7 @@
 
             ;; We don't know how many blocks back we can go, so load what we can first.
             (.. __versions (push (.. __versionBlock (getHeader) (getVersion))))
-            (§ for [#_"int" __headOffset 0] (< __headOffset (.. this versionWindow length)) [(inc __headOffset)]
+            (§ for [#_"int" __headOffset 0] (< __headOffset (.. this versionWindow (alength))) [(inc __headOffset)]
                 (§ ass __versionBlock (.. __versionBlock (getPrev __blockStore)))
                 (§ when (nil? __versionBlock)
                     (§ break )
@@ -40311,7 +40311,7 @@
      ;;
     #_public
     (§ method #_"int" size []
-        (.. this versionWindow length)
+        (.. this versionWindow (alength))
     )
 )
 
@@ -40322,7 +40322,7 @@
  ; random keys to use as source material for the seed.  Add a non-compromised key first!
  ;;
 #_public
-(§ class #_"AllRandomKeysRotating" (§ extends #_"RuntimeException"))
+(§ class AllRandomKeysRotating (§ extends RuntimeException))
 
 #_(ns org.bitcoinj.wallet #_"AllowUnconfirmedCoinSelector"
    (:require [org.bitcoinj.core Transaction]))
@@ -40332,7 +40332,7 @@
  ; confirmed yet.  However immature coinbases will not be included (would be a protocol violation).
  ;;
 #_public
-(§ class #_"AllowUnconfirmedCoinSelector" (§ extends #_"DefaultCoinSelector")
+(§ class AllowUnconfirmedCoinSelector (§ extends DefaultCoinSelector)
     #_override
     #_protected
     (§ method #_"boolean" shouldSelect [#_"Transaction" __tx]
@@ -40375,7 +40375,7 @@
  ; although it will automatically add one to itself if it's empty or if encryption is requested.
  ;;
 #_public
-(§ class #_"BasicKeyChain" (§ implements #_"EncryptableKeyChain")
+(§ class BasicKeyChain (§ implements EncryptableKeyChain)
     #_private
     (§ field- #_"ReentrantLock" lock (Threading/lock "BasicKeyChain"))
 
@@ -40394,13 +40394,13 @@
     (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<KeyChainEventListener>>" listeners)
 
     #_public
-    (§ constructor #_"BasicKeyChain" []
+    (§ constructor BasicKeyChain []
         (§ this nil)
         this
     )
 
     #_public
-    (§ constructor #_"BasicKeyChain" [#_nilable #_"KeyCrypter" __crypter]
+    (§ constructor BasicKeyChain [#_nilable #_"KeyCrypter" __crypter]
         (§ ass (.. this keyCrypter) __crypter)
         (§ ass (.. this hashToKeys) (LinkedHashMap. #_"<>"))
         (§ ass (.. this pubkeyToKeys) (LinkedHashMap. #_"<>"))
@@ -40624,7 +40624,7 @@
 
     ;;; Whether this basic key chain is empty, full of regular (usable for signing) keys, or full of watching keys. ;;
     #_public
-    (§ enum #_"BasicKeyChain.State"
+    (§ enum BasicKeyChain/State
         (§ item EMPTY)
         (§ item WATCHING)
         (§ item REGULAR)
@@ -41069,14 +41069,14 @@
  ; to their varying policies.
  ;;
 #_public
-(§ class #_"CoinSelection"
+(§ class CoinSelection
     #_public
     (§ field #_"Coin" valueGathered)
     #_public
     (§ field #_"Collection<TransactionOutput>" gathered)
 
     #_public
-    (§ constructor #_"CoinSelection" [#_"Coin" __valueGathered, #_"Collection<TransactionOutput>" __gathered]
+    (§ constructor CoinSelection [#_"Coin" __valueGathered, #_"Collection<TransactionOutput>" __gathered]
         (§ ass (.. this valueGathered) __valueGathered)
         (§ ass (.. this gathered) __gathered)
         this
@@ -41094,7 +41094,7 @@
  ; enough money in the wallet.
  ;;
 #_public
-(§ interface #_"CoinSelector"
+(§ interface CoinSelector
     ;;;
      ; Creates a CoinSelection that tries to meet the target amount of value.  The candidates list is given to
      ; this call and can be edited freely.  See the docs for CoinSelection to learn more, or look a the implementation
@@ -41114,14 +41114,14 @@
  ; If the keys are encrypted and no AES key provided, {@link org.bitcoinj.core.ECKey.KeyIsEncryptedException} will be thrown.
  ;;
 #_public
-(§ class #_"DecryptingKeyBag" (§ implements #_"KeyBag")
+(§ class DecryptingKeyBag (§ implements KeyBag)
     #_protected
     (§ field #_"KeyBag" target)
     #_protected
     (§ field #_"KeyParameter" aesKey)
 
     #_public
-    (§ constructor #_"DecryptingKeyBag" [#_"KeyBag" __target, #_nilable #_"KeyParameter" __aesKey]
+    (§ constructor DecryptingKeyBag [#_"KeyBag" __target, #_nilable #_"KeyParameter" __aesKey]
         (§ ass (.. this target) (Preconditions/checkNotNull __target))
         (§ ass (.. this aesKey) __aesKey)
         this
@@ -41188,7 +41188,7 @@
  ; "spending" more priority than would be required to get the transaction we are creating confirmed.
  ;;
 #_public
-(§ class #_"DefaultCoinSelector" (§ implements #_"CoinSelector")
+(§ class DefaultCoinSelector (§ implements CoinSelector)
     #_override
     #_public
     (§ method #_"CoinSelection" select [#_"Coin" __target, #_"List<TransactionOutput>" __candidates]
@@ -41279,7 +41279,7 @@
  ; Default factory for creating keychains while de-serializing.
  ;;
 #_public
-(§ class #_"DefaultKeyChainFactory" (§ implements #_"KeyChainFactory")
+(§ class DefaultKeyChainFactory (§ implements KeyChainFactory)
     #_override
     #_public
     (§ method #_"DeterministicKeyChain" makeKeyChain [#_"Protos.Key" __key, #_"Protos.Key" __firstSubKey, #_"DeterministicSeed" __seed, #_"KeyCrypter" __crypter, #_"boolean" __isMarried]
@@ -41313,7 +41313,7 @@
  ; non-final transactions.</p>
  ;;
 #_public
-(§ class #_"DefaultRiskAnalysis" (§ implements #_"RiskAnalysis")
+(§ class DefaultRiskAnalysis (§ implements RiskAnalysis)
     #_private
     #_static
     (§ def- #_"Logger" DefaultRiskAnalysis/log (LoggerFactory/getLogger (§ klass #_"DefaultRiskAnalysis")))
@@ -41409,7 +41409,7 @@
      ; The reason a transaction is considered non-standard, returned by {@link #isStandard(org.bitcoinj.core.Transaction)}.
      ;;
     #_public
-    (§ enum #_"DefaultRiskAnalysis.RuleViolation"
+    (§ enum DefaultRiskAnalysis/RuleViolation
         (§ item NONE)
         (§ item VERSION)
         (§ item DUST)
@@ -41566,7 +41566,7 @@
 
     #_public
     #_static
-    (§ class #_"DefaultRiskAnalysis.Analyzer" (§ implements #_"RiskAnalysis.Analyzer")
+    (§ class DefaultRiskAnalysis/Analyzer (§ implements RiskAnalysis/Analyzer)
         #_override
         #_public
         (§ method #_"DefaultRiskAnalysis" create [#_"Wallet" __wallet, #_"Transaction" __tx, #_"List<Transaction>" __dependencies]
@@ -41647,7 +41647,7 @@
  ;;
 #_suppress #_[ "PublicStaticCollectionField" ]
 #_public
-(§ class #_"DeterministicKeyChain" (§ implements #_"EncryptableKeyChain")
+(§ class DeterministicKeyChain (§ implements EncryptableKeyChain)
     #_private
     #_static
     (§ def- #_"Logger" DeterministicKeyChain/log (LoggerFactory/getLogger (§ klass #_"DeterministicKeyChain")))
@@ -41748,7 +41748,7 @@
 
     #_public
     #_static
-    (§ class #_"DeterministicKeyChain.Builder<T extends DeterministicKeyChain.Builder<T>>"
+    (§ class DeterministicKeyChain/Builder #_"<T extends DeterministicKeyChain.Builder<T>>"
         #_protected
         (§ field #_"SecureRandom" random)
         #_protected
@@ -41765,7 +41765,7 @@
         (§ field #_"DeterministicKey" watchingKey)
 
         #_protected
-        (§ constructor #_"DeterministicKeyChain.Builder" []
+        (§ constructor DeterministicKeyChain/Builder []
             this
         )
 
@@ -41883,7 +41883,7 @@
      ; object and the default entropy size.
      ;;
     #_public
-    (§ constructor #_"DeterministicKeyChain" [#_"SecureRandom" __random]
+    (§ constructor DeterministicKeyChain [#_"SecureRandom" __random]
         (§ this __random, DeterministicSeed/DEFAULT_SEED_ENTROPY_BITS, DeterministicKeyChain/DEFAULT_PASSPHRASE_FOR_MNEMONIC, (Utils/currentTimeSeconds))
         this
     )
@@ -41893,7 +41893,7 @@
      ; object and of the requested size in bits.
      ;;
     #_public
-    (§ constructor #_"DeterministicKeyChain" [#_"SecureRandom" __random, #_"int" __bits]
+    (§ constructor DeterministicKeyChain [#_"SecureRandom" __random, #_"int" __bits]
         (§ this __random, __bits, DeterministicKeyChain/DEFAULT_PASSPHRASE_FOR_MNEMONIC, (Utils/currentTimeSeconds))
         this
     )
@@ -41904,7 +41904,7 @@
      ; (see BIP 39).
      ;;
     #_public
-    (§ constructor #_"DeterministicKeyChain" [#_"SecureRandom" __random, #_"int" __bits, #_"String" __passphrase, #_"long" __seedCreationTimeSecs]
+    (§ constructor DeterministicKeyChain [#_"SecureRandom" __random, #_"int" __bits, #_"String" __passphrase, #_"long" __seedCreationTimeSecs]
         (§ this (DeterministicSeed. __random, __bits, __passphrase, __seedCreationTimeSecs))
         this
     )
@@ -41915,7 +41915,7 @@
      ; for the seed: this lets us know from what part of the chain we can expect to see derived keys appear.
      ;;
     #_public
-    (§ constructor #_"DeterministicKeyChain" [#_"byte[]" __entropy, #_"String" __passphrase, #_"long" __seedCreationTimeSecs]
+    (§ constructor DeterministicKeyChain [#_"byte[]" __entropy, #_"String" __passphrase, #_"long" __seedCreationTimeSecs]
         (§ this (DeterministicSeed. __entropy, __passphrase, __seedCreationTimeSecs))
         this
     )
@@ -41925,7 +41925,7 @@
      ; same if the starting seed is the same.
      ;;
     #_protected
-    (§ constructor #_"DeterministicKeyChain" [#_"DeterministicSeed" __seed]
+    (§ constructor DeterministicKeyChain [#_"DeterministicSeed" __seed]
         (§ this __seed, nil)
         this
     )
@@ -41936,7 +41936,7 @@
      ; this method to watch an arbitrary fragment of some other tree, this limitation may be removed in future.
      ;;
     #_public
-    (§ constructor #_"DeterministicKeyChain" [#_"DeterministicKey" __watchingKey]
+    (§ constructor DeterministicKeyChain [#_"DeterministicKey" __watchingKey]
         (Preconditions/checkArgument (.. __watchingKey (isPubKeyOnly)), "Private subtrees not currently supported: if you got this key from DKC.getWatchingKey() then use .dropPrivate().dropParent() on it first.")
         (Preconditions/checkArgument (== (.. __watchingKey (getPath) (size)) (.. this (getAccountPath) (size))), "You can only watch an account key currently")
 
@@ -41955,7 +41955,7 @@
      ; <p>Watch key has to be an account key.</p>
      ;;
     #_protected
-    (§ constructor #_"DeterministicKeyChain" [#_"DeterministicKey" __watchKey, #_"boolean" __isFollowing]
+    (§ constructor DeterministicKeyChain [#_"DeterministicKey" __watchKey, #_"boolean" __isFollowing]
         (§ this __watchKey)
         (§ ass (.. this isFollowing) __isFollowing)
         this
@@ -41985,7 +41985,7 @@
      ; For use in {@link KeyChainFactory} during deserialization.
      ;;
     #_protected
-    (§ constructor #_"DeterministicKeyChain" [#_"DeterministicSeed" __seed, #_nilable #_"KeyCrypter" __crypter]
+    (§ constructor DeterministicKeyChain [#_"DeterministicSeed" __seed, #_nilable #_"KeyCrypter" __crypter]
         (§ ass (.. this seed) __seed)
         (§ ass (.. this basicKeyChain) (BasicKeyChain. __crypter))
         (§ when (not (.. __seed (isEncrypted)))
@@ -42011,7 +42011,7 @@
      ; See also {@link #makeKeyChainFromSeed(DeterministicSeed)}.
      ;;
     #_protected
-    (§ constructor #_"DeterministicKeyChain" [#_"KeyCrypter" __crypter, #_"KeyParameter" __aesKey, #_"DeterministicKeyChain" __chain]
+    (§ constructor DeterministicKeyChain [#_"KeyCrypter" __crypter, #_"KeyParameter" __aesKey, #_"DeterministicKeyChain" __chain]
         ;; Can't encrypt a watching chain.
         (Preconditions/checkNotNull (.. __chain rootKey))
         (Preconditions/checkNotNull (.. __chain seed))
@@ -43174,7 +43174,7 @@
  ; The purpose of this wrapper is to simplify the encryption code.
  ;;
 #_public
-(§ class #_"DeterministicSeed" (§ implements #_"EncryptableItem")
+(§ class DeterministicSeed (§ implements EncryptableItem)
     ;; It would take more than 10^12 years to brute-force a 128 bit seed using $1B worth of computing equipment.
     #_public
     #_static
@@ -43200,13 +43200,13 @@
 
     #_public
     #_throws #_[ "UnreadableWalletException" ]
-    (§ constructor #_"DeterministicSeed" [#_"String" __mnemonicCode, #_"byte[]" __seed, #_"String" __passphrase, #_"long" __creationTimeSeconds]
+    (§ constructor DeterministicSeed [#_"String" __mnemonicCode, #_"byte[]" __seed, #_"String" __passphrase, #_"long" __creationTimeSeconds]
         (§ this (DeterministicSeed/decodeMnemonicCode __mnemonicCode), __seed, __passphrase, __creationTimeSeconds)
         this
     )
 
     #_public
-    (§ constructor #_"DeterministicSeed" [#_"byte[]" __seed, #_"List<String>" __mnemonic, #_"long" __creationTimeSeconds]
+    (§ constructor DeterministicSeed [#_"byte[]" __seed, #_"List<String>" __mnemonic, #_"long" __creationTimeSeconds]
         (§ ass (.. this seed) (Preconditions/checkNotNull __seed))
         (§ ass (.. this mnemonicCode) (Preconditions/checkNotNull __mnemonic))
         (§ ass (.. this encryptedMnemonicCode) nil)
@@ -43215,7 +43215,7 @@
     )
 
     #_public
-    (§ constructor #_"DeterministicSeed" [#_"EncryptedData" __encryptedMnemonic, #_nilable #_"EncryptedData" __encryptedSeed, #_"long" __creationTimeSeconds]
+    (§ constructor DeterministicSeed [#_"EncryptedData" __encryptedMnemonic, #_nilable #_"EncryptedData" __encryptedSeed, #_"long" __creationTimeSeconds]
         (§ ass (.. this seed) nil)
         (§ ass (.. this mnemonicCode) nil)
         (§ ass (.. this encryptedMnemonicCode) (Preconditions/checkNotNull __encryptedMnemonic))
@@ -43233,7 +43233,7 @@
      ; @param creationTimeSeconds When the seed was originally created, UNIX time.
      ;;
     #_public
-    (§ constructor #_"DeterministicSeed" [#_"List<String>" __mnemonicCode, #_nilable #_"byte[]" __seed, #_"String" __passphrase, #_"long" __creationTimeSeconds]
+    (§ constructor DeterministicSeed [#_"List<String>" __mnemonicCode, #_nilable #_"byte[]" __seed, #_"String" __passphrase, #_"long" __creationTimeSeconds]
         (§ this (or __seed (MnemonicCode/toSeed __mnemonicCode, (Preconditions/checkNotNull __passphrase))), __mnemonicCode, __creationTimeSeconds)
         this
     )
@@ -43247,7 +43247,7 @@
      ; @param creationTimeSeconds When the seed was originally created, UNIX time.
      ;;
     #_public
-    (§ constructor #_"DeterministicSeed" [#_"SecureRandom" __random, #_"int" __bits, #_"String" __passphrase, #_"long" __creationTimeSeconds]
+    (§ constructor DeterministicSeed [#_"SecureRandom" __random, #_"int" __bits, #_"String" __passphrase, #_"long" __creationTimeSeconds]
         (§ this (DeterministicSeed/getEntropy __random, __bits), (Preconditions/checkNotNull __passphrase), __creationTimeSeconds)
         this
     )
@@ -43260,9 +43260,9 @@
      ; @param creationTimeSeconds When the seed was originally created, UNIX time.
      ;;
     #_public
-    (§ constructor #_"DeterministicSeed" [#_"byte[]" __entropy, #_"String" __passphrase, #_"long" __creationTimeSeconds]
-        (Preconditions/checkArgument (== (% (.. __entropy length) 4) 0), "entropy size in bits not divisible by 32")
-        (Preconditions/checkArgument (<= DeterministicSeed/DEFAULT_SEED_ENTROPY_BITS (* (.. __entropy length) 8)), "entropy size too small")
+    (§ constructor DeterministicSeed [#_"byte[]" __entropy, #_"String" __passphrase, #_"long" __creationTimeSeconds]
+        (Preconditions/checkArgument (== (% (.. __entropy (alength)) 4) 0), "entropy size in bits not divisible by 32")
+        (Preconditions/checkArgument (<= DeterministicSeed/DEFAULT_SEED_ENTROPY_BITS (* (.. __entropy (alength)) 8)), "entropy size too small")
         (Preconditions/checkNotNull __passphrase)
 
         (try
@@ -43444,7 +43444,7 @@
  ; pre-HD random wallet without calling upgradeToDeterministic() beforehand.
  ;;
 #_public
-(§ class #_"DeterministicUpgradeRequiredException" (§ extends #_"RuntimeException"))
+(§ class DeterministicUpgradeRequiredException (§ extends RuntimeException))
 
 #_(ns org.bitcoinj.wallet #_"DeterministicUpgradeRequiresPassword")
 
@@ -43454,7 +43454,7 @@
  ; the oldest non-rotating key, in order to make the upgrade process itself deterministic.
  ;;
 #_public
-(§ class #_"DeterministicUpgradeRequiresPassword" (§ extends #_"RuntimeException"))
+(§ class DeterministicUpgradeRequiresPassword (§ extends RuntimeException))
 
 #_(ns org.bitcoinj.wallet #_"EncryptableKeyChain"
     (:import [org.spongycastle.crypto.params KeyParameter])
@@ -43464,7 +43464,7 @@
  ; An encryptable key chain is a key-chain that can be encrypted with a user-provided password or AES key.
  ;;
 #_public
-(§ interface #_"EncryptableKeyChain" (§ extends #_"KeyChain")
+(§ interface EncryptableKeyChain (§ extends KeyChain)
     ;;;
      ; Takes the given password, which should be strong, derives a key from it and then invokes
      ; {@link #toEncrypted(org.bitcoinj.crypto.KeyCrypter, org.spongycastle.crypto.params.KeyParameter)}
@@ -43513,14 +43513,14 @@
  ; A filtering coin selector delegates to another coin selector, but won't select outputs spent by the given transactions.
  ;;
 #_public
-(§ class #_"FilteringCoinSelector" (§ implements #_"CoinSelector")
+(§ class FilteringCoinSelector (§ implements CoinSelector)
     #_protected
     (§ field #_"CoinSelector" delegate)
     #_protected
     (§ field #_"HashSet<TransactionOutPoint>" spent (HashSet. #_"<>"))
 
     #_public
-    (§ constructor #_"FilteringCoinSelector" [#_"CoinSelector" __delegate]
+    (§ constructor FilteringCoinSelector [#_"CoinSelector" __delegate]
         (§ ass (.. this delegate) __delegate)
         this
     )
@@ -43557,7 +43557,7 @@
  ; and {@link RedeemData} objects.
  ;;
 #_public
-(§ interface #_"KeyBag"
+(§ interface KeyBag
     ;;;
      ; Locates a keypair from the keychain given the hash of the public key.  This is needed when finding out
      ; which key we need to use to redeem a transaction output.
@@ -43605,11 +43605,11 @@
  ; deterministically from a seed (and thus the notion of importing a key is meaningless).</p>
  ;;
 #_public
-(§ interface #_"KeyChain"
+(§ interface KeyChain
     ;;; Returns true if the given key is in the chain. ;;
     (§ method #_"boolean" hasKey [#_"ECKey" __key])
 
-    (§ enum #_"KeyChain.KeyPurpose"
+    (§ enum KeyChain/KeyPurpose
         (§ item RECEIVE_FUNDS)
         (§ item CHANGE)
         (§ item REFUND)
@@ -43679,7 +43679,7 @@
  ; Factory interface for creation keychains while de-serializing a wallet.
  ;;
 #_public
-(§ interface #_"KeyChainFactory"
+(§ interface KeyChainFactory
     ;;;
      ; Make a keychain (but not a watching one).
      ;
@@ -43740,7 +43740,7 @@
  ; class docs for {@link DeterministicKeyChain} for more information on this topic.</p>
  ;;
 #_public
-(§ class #_"KeyChainGroup" (§ implements #_"KeyBag")
+(§ class KeyChainGroup (§ implements KeyBag)
     #_static
     (§ block
         ;; Init proper random number generator, as some old Android installations have bugs that make it unsecure.
@@ -43777,14 +43777,14 @@
 
     ;;; Creates a keychain group with no basic chain, and a single, lazily created HD chain. ;;
     #_public
-    (§ constructor #_"KeyChainGroup" [#_"NetworkParameters" __params]
+    (§ constructor KeyChainGroup [#_"NetworkParameters" __params]
         (§ this __params, nil, (ArrayList. #_"<DeterministicKeyChain>" 1), nil, nil)
         this
     )
 
     ;;; Creates a keychain group with no basic chain, and an HD chain initialized from the given seed. ;;
     #_public
-    (§ constructor #_"KeyChainGroup" [#_"NetworkParameters" __params, #_"DeterministicSeed" __seed]
+    (§ constructor KeyChainGroup [#_"NetworkParameters" __params, #_"DeterministicSeed" __seed]
         (§ this __params, nil, (ImmutableList/of (DeterministicKeyChain. __seed)), nil, nil)
         this
     )
@@ -43794,7 +43794,7 @@
      ; This HAS to be an account key as returned by {@link DeterministicKeyChain#getWatchingKey()}.
      ;;
     #_public
-    (§ constructor #_"KeyChainGroup" [#_"NetworkParameters" __params, #_"DeterministicKey" __watchKey]
+    (§ constructor KeyChainGroup [#_"NetworkParameters" __params, #_"DeterministicKey" __watchKey]
         (§ this __params, nil, (ImmutableList/of (DeterministicKeyChain/watch __watchKey)), nil, nil)
         this
     )
@@ -44550,12 +44550,12 @@
             (.. KeyChainGroup/log (info "Instantiating new HD chain using oldest non-rotating private key (address: {})", (.. __keyToUse (toAddress (.. this params)))))
             (let [#_"byte[]" __entropy (Preconditions/checkNotNull (.. __keyToUse (getSecretBytes)))]
                 ;; Private keys should be at least 128 bits long.
-                (Preconditions/checkState (<= (/ DeterministicSeed/DEFAULT_SEED_ENTROPY_BITS 8) (.. __entropy length)))
+                (Preconditions/checkState (<= (/ DeterministicSeed/DEFAULT_SEED_ENTROPY_BITS 8) (.. __entropy (alength))))
                 ;; We reduce the entropy here to 128 bits because people like to write their seeds down on paper,
                 ;; and 128 bits should be sufficient forever unless the laws of the universe change or ECC is broken;
                 ;; in either case we all have bigger problems.
                 (§ ass __entropy (Arrays/copyOfRange __entropy, 0, (/ DeterministicSeed/DEFAULT_SEED_ENTROPY_BITS 8))) ;; Final argument is exclusive range.
-                (Preconditions/checkState (== (.. __entropy length) (/ DeterministicSeed/DEFAULT_SEED_ENTROPY_BITS 8)))
+                (Preconditions/checkState (== (.. __entropy (alength)) (/ DeterministicSeed/DEFAULT_SEED_ENTROPY_BITS 8)))
                 (let [#_"String" __passphrase ""] ;; FIXME allow non-empty passphrase
                     (let [#_"DeterministicKeyChain" __chain (DeterministicKeyChain. __entropy, __passphrase, (.. __keyToUse (getCreationTimeSeconds)))]
                         (§ when (some? __aesKey)
@@ -44679,7 +44679,7 @@
  ; Used as part of the implementation of {@link Wallet#setKeyRotationTime(java.util.Date)}.
  ;;
 #_public
-(§ class #_"KeyTimeCoinSelector" (§ implements #_"CoinSelector")
+(§ class KeyTimeCoinSelector (§ implements CoinSelector)
     #_private
     #_static
     (§ def- #_"Logger" KeyTimeCoinSelector/log (LoggerFactory/getLogger (§ klass #_"KeyTimeCoinSelector")))
@@ -44697,7 +44697,7 @@
     (§ field- #_"boolean" ignorePending)
 
     #_public
-    (§ constructor #_"KeyTimeCoinSelector" [#_"Wallet" __wallet, #_"long" __unixTimeSeconds, #_"boolean" __ignorePending]
+    (§ constructor KeyTimeCoinSelector [#_"Wallet" __wallet, #_"long" __unixTimeSeconds, #_"boolean" __ignorePending]
         (§ ass (.. this unixTimeSeconds) __unixTimeSeconds)
         (§ ass (.. this wallet) __wallet)
         (§ ass (.. this ignorePending) __ignorePending)
@@ -44781,7 +44781,7 @@
  ; <p>This method will throw an IllegalStateException, if the keychain is already married or already has leaf keys issued.</p>
  ;;
 #_public
-(§ class #_"MarriedKeyChain" (§ extends #_"DeterministicKeyChain")
+(§ class MarriedKeyChain (§ extends DeterministicKeyChain)
     ;; The map holds P2SH redeem script and corresponding ECKeys issued by this KeyChainGroup (including lookahead)
     ;; mapped to redeem script hashes.
     #_private
@@ -44793,14 +44793,14 @@
     ;;; Builds a {@link MarriedKeyChain}. ;;
     #_public
     #_static
-    (§ class #_"MarriedKeyChain.Builder<T extends DeterministicKeyChain.Builder<T>>" (§ extends #_"DeterministicKeyChain.Builder<T>")
+    (§ class MarriedKeyChain/Builder #_"<T extends DeterministicKeyChain.Builder<T>>" (§ extends DeterministicKeyChain/Builder #_"<T>")
         #_private
         (§ field- #_"List<DeterministicKey>" followingKeys)
         #_private
         (§ field- #_"int" threshold)
 
         #_protected
-        (§ constructor #_"MarriedKeyChain.Builder" []
+        (§ constructor MarriedKeyChain/Builder []
             this
         )
 
@@ -44867,12 +44867,12 @@
     )
 
     ;; Protobuf deserialization constructors.
-    (§ constructor #_"MarriedKeyChain" [#_"DeterministicKey" __accountKey]
+    (§ constructor MarriedKeyChain [#_"DeterministicKey" __accountKey]
         (§ super __accountKey, false)
         this
     )
 
-    (§ constructor #_"MarriedKeyChain" [#_"DeterministicSeed" __seed, #_"KeyCrypter" __crypter]
+    (§ constructor MarriedKeyChain [#_"DeterministicSeed" __seed, #_"KeyCrypter" __crypter]
         (§ super __seed, __crypter)
         this
     )
@@ -45104,7 +45104,7 @@
  ; a program (lexicographical order).
  ;;
 #_public
-(§ class #_"RedeemData"
+(§ class RedeemData
     #_public
     (§ field #_"Script" redeemScript)
     #_public
@@ -45167,8 +45167,8 @@
  ; <p>A factory interface is provided.  The wallet will use this to analyze new pending transactions.</p>
  ;;
 #_public
-(§ interface #_"RiskAnalysis"
-    (§ enum #_"RiskAnalysis.Result"
+(§ interface RiskAnalysis
+    (§ enum RiskAnalysis/Result
         (§ item OK)
         (§ item NON_FINAL)
         (§ item NON_STANDARD)
@@ -45176,7 +45176,7 @@
 
     (§ method #_"RiskAnalysis.Result" analyze [])
 
-    (§ interface #_"RiskAnalysis.Analyzer"
+    (§ interface RiskAnalysis/Analyzer
         (§ method #_"RiskAnalysis" create [#_"Wallet" __wallet, #_"Transaction" __tx, #_"List<Transaction>" __dependencies])
     )
 )
@@ -45198,7 +45198,7 @@
  ; modify the change address.
  ;;
 #_public
-(§ class #_"SendRequest"
+(§ class SendRequest
     ;;;
      ; <p>A transaction, probably incomplete, that describes the outline of what you want to do.  This typically
      ; will mean it has some outputs to the intended destinations, but no inputs or change address (and therefore
@@ -45472,24 +45472,24 @@
  ; internally inconsistent or appears to be from the future.
  ;;
 #_public
-(§ class #_"UnreadableWalletException" (§ extends #_"Exception")
+(§ class UnreadableWalletException (§ extends Exception)
     #_public
-    (§ constructor #_"UnreadableWalletException" [#_"String" __s]
+    (§ constructor UnreadableWalletException [#_"String" __s]
         (§ super __s)
         this
     )
 
     #_public
-    (§ constructor #_"UnreadableWalletException" [#_"String" __s, #_"Throwable" __t]
+    (§ constructor UnreadableWalletException [#_"String" __s, #_"Throwable" __t]
         (§ super __s, __t)
         this
     )
 
     #_public
     #_static
-    (§ class #_"UnreadableWalletException.BadPassword" (§ extends #_"UnreadableWalletException")
+    (§ class UnreadableWalletException/BadPassword (§ extends UnreadableWalletException)
         #_public
-        (§ constructor #_"UnreadableWalletException.BadPassword" []
+        (§ constructor UnreadableWalletException/BadPassword []
             (§ super "Password incorrect")
             this
         )
@@ -45497,9 +45497,9 @@
 
     #_public
     #_static
-    (§ class #_"UnreadableWalletException.FutureVersion" (§ extends #_"UnreadableWalletException")
+    (§ class UnreadableWalletException/FutureVersion (§ extends UnreadableWalletException)
         #_public
-        (§ constructor #_"UnreadableWalletException.FutureVersion" []
+        (§ constructor UnreadableWalletException/FutureVersion []
             (§ super "Unknown wallet version from the future.")
             this
         )
@@ -45507,9 +45507,9 @@
 
     #_public
     #_static
-    (§ class #_"UnreadableWalletException.WrongNetwork" (§ extends #_"UnreadableWalletException")
+    (§ class UnreadableWalletException/WrongNetwork (§ extends UnreadableWalletException)
         #_public
-        (§ constructor #_"UnreadableWalletException.WrongNetwork" []
+        (§ constructor UnreadableWalletException/WrongNetwork []
             (§ super "Mismatched network ID")
             this
         )
@@ -45579,7 +45579,7 @@
  ; for more information about this.</p>
  ;;
 #_public
-(§ class #_"Wallet" (§ implements #_"NewBestBlockListener", #_"TransactionReceivedInBlockListener", #_"PeerFilterProvider", #_"KeyBag", #_"TransactionBag", #_"ReorganizeListener")
+(§ class Wallet (§ implements NewBestBlockListener, TransactionReceivedInBlockListener, PeerFilterProvider, KeyBag, TransactionBag, ReorganizeListener)
     #_private
     #_static
     (§ def- #_"Logger" Wallet/log (LoggerFactory/getLogger (§ klass #_"Wallet")))
@@ -45741,7 +45741,7 @@
      ; instead, see {@link #loadFromFile}.
      ;;
     #_public
-    (§ constructor #_"Wallet" [#_"NetworkParameters" __params]
+    (§ constructor Wallet [#_"NetworkParameters" __params]
         (§ this (Context/getOrCreate __params))
         this
     )
@@ -45752,7 +45752,7 @@
      ; instead, see {@link #loadFromFile}.
      ;;
     #_public
-    (§ constructor #_"Wallet" [#_"Context" __context]
+    (§ constructor Wallet [#_"Context" __context]
         (§ this __context, (KeyChainGroup. (.. __context (getParams))))
         this
     )
@@ -45805,7 +45805,7 @@
     )
 
     #_public
-    (§ constructor #_"Wallet" [#_"NetworkParameters" __params, #_"KeyChainGroup" __keyChainGroup]
+    (§ constructor Wallet [#_"NetworkParameters" __params, #_"KeyChainGroup" __keyChainGroup]
         (§ this (Context/getOrCreate __params), __keyChainGroup)
         this
     )
@@ -49124,7 +49124,7 @@
      ; that override the relevancy checks can end up with a mix of spendable and unspendable transactions.</p>
      ;;
     #_public
-    (§ enum #_"Wallet.BalanceType"
+    (§ enum Wallet/BalanceType
         ;;;
          ; Balance calculated assuming all pending transactions are in fact included into the best chain by miners.
          ; This includes the value of immature coinbase transactions.
@@ -49205,7 +49205,7 @@
 
     #_private
     #_static
-    (§ class #_"Wallet.BalanceFutureRequest"
+    (§ class Wallet/BalanceFutureRequest
         #_public
         (§ field #_"SettableFuture<Coin>" future)
         #_public
@@ -49380,7 +49380,7 @@
     ;;; A SendResult is returned to you as part of sending coins to a recipient. ;;
     #_public
     #_static
-    (§ class #_"Wallet.SendResult"
+    (§ class Wallet/SendResult
         ;;; The Bitcoin transaction message that moves the money. ;;
         #_public
         (§ field #_"Transaction" tx)
@@ -49399,7 +49399,7 @@
      ; Enumerates possible resolutions for missing signatures.
      ;;
     #_public
-    (§ enum #_"Wallet.MissingSigsMode"
+    (§ enum Wallet/MissingSigsMode
         ;;; Input script will have OP_0 instead of missing signatures. ;;
         (§ item USE_OP_ZERO)
         ;;;
@@ -49613,21 +49613,21 @@
      ;;
     #_public
     #_static
-    (§ class #_"Wallet.CompletionException" (§ extends #_"RuntimeException"))
+    (§ class Wallet/CompletionException (§ extends RuntimeException))
 
     ;;;
      ; Thrown if the resultant transaction would violate the dust rules (an output that's too small to be worthwhile).
      ;;
     #_public
     #_static
-    (§ class #_"Wallet.DustySendRequested" (§ extends #_"Wallet.CompletionException"))
+    (§ class Wallet/DustySendRequested (§ extends Wallet/CompletionException))
 
     ;;;
      ; Thrown if there is more than one OP_RETURN output for the resultant transaction.
      ;;
     #_public
     #_static
-    (§ class #_"Wallet.MultipleOpReturnRequested" (§ extends #_"Wallet.CompletionException"))
+    (§ class Wallet/MultipleOpReturnRequested (§ extends Wallet/CompletionException))
 
     ;;;
      ; Thrown when we were trying to empty the wallet, and the total amount of money we were trying to empty after
@@ -49636,14 +49636,14 @@
      ;;
     #_public
     #_static
-    (§ class #_"Wallet.CouldNotAdjustDownwards" (§ extends #_"Wallet.CompletionException"))
+    (§ class Wallet/CouldNotAdjustDownwards (§ extends Wallet/CompletionException))
 
     ;;;
      ; Thrown if the resultant transaction is too big for Bitcoin to process.  Try breaking up the amounts of value.
      ;;
     #_public
     #_static
-    (§ class #_"Wallet.ExceededMaxTransactionSize" (§ extends #_"Wallet.CompletionException"))
+    (§ class Wallet/ExceededMaxTransactionSize (§ extends Wallet/CompletionException))
 
     ;;;
      ; Given a spend request containing an incomplete transaction, makes it valid by adding outputs and signed inputs
@@ -49765,7 +49765,7 @@
                                 )
 
                                 ;; Check size.
-                                (let [#_"int" __size (.. __req tx (unsafeBitcoinSerialize) length)]
+                                (let [#_"int" __size (.. __req tx (unsafeBitcoinSerialize) (alength))]
                                     (§ when (< Transaction/MAX_STANDARD_TX_SIZE __size)
                                         (throw (Wallet/ExceededMaxTransactionSize.))
                                     )
@@ -49863,7 +49863,7 @@
     ;;; Reduce the value of the first output of a transaction to pay the given feePerKb as appropriate for its size. ;;
     #_private
     (§ method- #_"boolean" adjustOutputDownwardsForFee [#_"Transaction" __tx, #_"CoinSelection" __coinSelection, #_"Coin" __feePerKb, #_"boolean" __ensureMinRequiredFee]
-        (let [#_"int" __size (+ (.. __tx (unsafeBitcoinSerialize) length) (.. this (estimateBytesForSigning __coinSelection)))][#_"Coin" __fee (.. __feePerKb (multiply __size) (divide 1000))]
+        (let [#_"int" __size (+ (.. __tx (unsafeBitcoinSerialize) (alength)) (.. this (estimateBytesForSigning __coinSelection)))][#_"Coin" __fee (.. __feePerKb (multiply __size) (divide 1000))]
             (§ when (and __ensureMinRequiredFee (< (.. __fee (compareTo Transaction/REFERENCE_DEFAULT_MIN_TX_FEE)) 0))
                 (§ ass __fee Transaction/REFERENCE_DEFAULT_MIN_TX_FEE)
             )
@@ -50010,7 +50010,7 @@
      ;
      ;;
     #_private
-    (§ class #_"Wallet.FreeStandingTransactionOutput" (§ extends #_"TransactionOutput")
+    (§ class Wallet/FreeStandingTransactionOutput (§ extends TransactionOutput)
         #_private
         (§ field- #_"UTXO" output)
         #_private
@@ -50022,7 +50022,7 @@
          ; @param output The stored output (free standing).
          ;;
         #_public
-        (§ constructor #_"Wallet.FreeStandingTransactionOutput" [#_"NetworkParameters" __params, #_"UTXO" __output, #_"int" __chainHeight]
+        (§ constructor Wallet/FreeStandingTransactionOutput [#_"NetworkParameters" __params, #_"UTXO" __output, #_"int" __chainHeight]
             (§ super __params, nil, (.. __output (getValue)), (.. __output (getScript) (getProgram)))
 
             (§ ass (.. this output) __output)
@@ -50065,14 +50065,14 @@
 
     #_private
     #_static
-    (§ class #_"Wallet.TxOffsetPair" (§ implements #_"Comparable<Wallet.TxOffsetPair>")
+    (§ class Wallet/TxOffsetPair (§ implements Comparable #_"<Wallet.TxOffsetPair>")
         #_public
         (§ field #_"Transaction" tx)
         #_public
         (§ field #_"int" offset)
 
         #_public
-        (§ constructor #_"Wallet.TxOffsetPair" [#_"Transaction" __tx, #_"int" __offset]
+        (§ constructor Wallet/TxOffsetPair [#_"Transaction" __tx, #_"int" __offset]
             (§ ass (.. this tx) __tx)
             (§ ass (.. this offset) __offset)
             this
@@ -50433,7 +50433,7 @@
 
     #_private
     #_static
-    (§ class #_"Wallet.FeeCalculation"
+    (§ class Wallet/FeeCalculation
         ;; Selected UTXOs to spend.
         #_public
         (§ field #_"CoinSelection" bestCoinSelection)
@@ -50538,11 +50538,11 @@
                                     (§ forin [#_"TransactionOutput" __selectedOutput] (.. __selection gathered)
                                         (let [#_"TransactionInput" __input (.. __tx (addInput __selectedOutput))]
                                             ;; If the scriptBytes don't default to none, our size calculations will be thrown off.
-                                            (Preconditions/checkState (== (.. __input (getScriptBytes) length) 0))
+                                            (Preconditions/checkState (== (.. __input (getScriptBytes) (alength)) 0))
                                         )
                                     )
 
-                                    (let [#_"int" __size (.. __tx (unsafeBitcoinSerialize) length)]
+                                    (let [#_"int" __size (.. __tx (unsafeBitcoinSerialize) (alength))]
                                         (§ ass __size (+ __size (.. this (estimateBytesForSigning __selection))))
 
                                         (let [#_"Coin" __feePerKb (.. __req feePerKb)]
@@ -50881,7 +50881,7 @@
                                 (.. this (signTransaction __req))
                             )
                             ;; KeyTimeCoinSelector should never select enough inputs to push us oversize.
-                            (Preconditions/checkState (< (.. __rekeyTx (unsafeBitcoinSerialize) length) Transaction/MAX_STANDARD_TX_SIZE))
+                            (Preconditions/checkState (< (.. __rekeyTx (unsafeBitcoinSerialize) (alength)) Transaction/MAX_STANDARD_TX_SIZE))
                             (§ return __rekeyTx)
                         )
                     )
@@ -50914,7 +50914,7 @@
  ; serialization and disk IO on a background thread performance can be improved.
  ;;
 #_public
-(§ class #_"WalletFiles"
+(§ class WalletFiles
     #_private
     #_static
     (§ def- #_"Logger" WalletFiles/log (LoggerFactory/getLogger (§ klass #_"WalletFiles")))
@@ -50942,7 +50942,7 @@
      ; Implementors can do pre/post treatment of the wallet file.  Useful for adjusting permissions and other things.
      ;;
     #_public
-    (§ interface #_"WalletFiles.Listener"
+    (§ interface WalletFiles/Listener
         ;;;
          ; Called on the auto-save thread when a new temporary file is created but before the wallet data is saved
          ; to it.  If you want to do something here like adjust permissions, go ahead and do so.
@@ -50961,7 +50961,7 @@
      ; depending on the urgency of the changes.
      ;;
     #_public
-    (§ constructor #_"WalletFiles" [#_"Wallet" __wallet, #_"File" __file, #_"long" __delay, #_"TimeUnit" __delayTimeUnit]
+    (§ constructor WalletFiles [#_"Wallet" __wallet, #_"File" __file, #_"long" __delay, #_"TimeUnit" __delayTimeUnit]
         ;; An executor that starts up threads when needed and shuts them down later.
         (§ ass (.. this executor) (ScheduledThreadPoolExecutor. 1, (ContextPropagatingThreadFactory. "Wallet autosave thread", Thread/MIN_PRIORITY)))
         (.. this executor (setKeepAliveTime 5, TimeUnit/SECONDS))
@@ -51096,7 +51096,7 @@
  ; @author Andreas Schildbach
  ;;
 #_public
-(§ class #_"WalletProtobufSerializer"
+(§ class WalletProtobufSerializer
     #_private
     #_static
     (§ def- #_"Logger" WalletProtobufSerializer/log (LoggerFactory/getLogger (§ klass #_"WalletProtobufSerializer")))
@@ -51117,7 +51117,7 @@
     (§ field- #_"int" walletWriteBufferSize CodedOutputStream/DEFAULT_BUFFER_SIZE)
 
     #_public
-    (§ interface #_"WalletProtobufSerializer.WalletFactory"
+    (§ interface WalletProtobufSerializer/WalletFactory
         (§ method #_"Wallet" create [#_"NetworkParameters" __params, #_"KeyChainGroup" __keyChainGroup])
     )
 
@@ -51127,7 +51127,7 @@
     (§ field- #_"KeyChainFactory" keyChainFactory)
 
     #_public
-    (§ constructor #_"WalletProtobufSerializer" []
+    (§ constructor WalletProtobufSerializer []
         (§ this (WalletProtobufSerializer/WalletFactory.
         (§ anon
             #_override
@@ -51140,7 +51140,7 @@
     )
 
     #_public
-    (§ constructor #_"WalletProtobufSerializer" [#_"WalletProtobufSerializer.WalletFactory" __factory]
+    (§ constructor WalletProtobufSerializer [#_"WalletProtobufSerializer.WalletFactory" __factory]
         (§ ass (.. this txMap) (HashMap. #_"<>"))
         (§ ass (.. this factory) __factory)
         (§ ass (.. this keyChainFactory) (DefaultKeyChainFactory.))
@@ -51974,9 +51974,9 @@
  ; Stores data about a transaction that is only relevant to the {@link org.bitcoinj.wallet.Wallet} class.
  ;;
 #_public
-(§ class #_"WalletTransaction"
+(§ class WalletTransaction
     #_public
-    (§ enum #_"WalletTransaction.Pool"
+    (§ enum WalletTransaction/Pool
         (§ item UNSPENT) ;; unspent in best chain
         (§ item SPENT) ;; spent in best chain
         (§ item DEAD) ;; double-spend in alt chain
@@ -51988,7 +51988,7 @@
     (§ field- #_"WalletTransaction.Pool" pool)
 
     #_public
-    (§ constructor #_"WalletTransaction" [#_"WalletTransaction.Pool" __pool, #_"Transaction" __transaction]
+    (§ constructor WalletTransaction [#_"WalletTransaction.Pool" __pool, #_"Transaction" __transaction]
         (§ ass (.. this pool) (Preconditions/checkNotNull __pool))
         (§ ass (.. this transaction) __transaction)
         this
@@ -52011,7 +52011,7 @@
              [org.bitcoinj.wallet KeyChain]))
 
 #_public
-(§ interface #_"KeyChainEventListener"
+(§ interface KeyChainEventListener
     ;;;
      ; Called whenever a new key is added to the key chain, whether that be via an explicit addition or due to some
      ; other automatic derivation.  See the documentation for your {@link KeyChain} implementation for details on
@@ -52028,7 +52028,7 @@
  ; or a block chain re-organize.</p>
  ;;
 #_public
-(§ interface #_"WalletChangeEventListener"
+(§ interface WalletChangeEventListener
     ;;;
      ; <p>Designed for GUI applications to refresh their transaction lists.  This callback is invoked in the following
      ; situations:</p>
@@ -52059,7 +52059,7 @@
  ; or a block chain re-organize.</p>
  ;;
 #_public
-(§ interface #_"WalletCoinsReceivedEventListener"
+(§ interface WalletCoinsReceivedEventListener
     ;;;
      ; This is called when a transaction is seen that sends coins <b>to</b> this wallet, either because it was
      ; broadcast across the network or because a block was received.  If a transaction is seen when it was broadcast,
@@ -52085,7 +52085,7 @@
  ; or a block chain re-organize.</p>
  ;;
 #_public
-(§ interface #_"WalletCoinsSentEventListener"
+(§ interface WalletCoinsSentEventListener
     ;;;
      ; This is called when a transaction is seen that sends coins <b>from</b> this wallet, either because it
      ; was broadcast across the network or because a block was received.  This may at first glance seem useless,
@@ -52112,7 +52112,7 @@
  ; <p>Implementors are called when the wallet is reorganized.</p>
  ;;
 #_public
-(§ interface #_"WalletReorganizeEventListener"
+(§ interface WalletReorganizeEventListener
     ;; TODO: Finish onReorganize to be more useful.
     ;;;
      ; <p>This is called when a block is received that triggers a block chain re-organization.</p>
