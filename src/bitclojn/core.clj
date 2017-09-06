@@ -4575,9 +4575,7 @@
     #_public
     #_static
     (§ defn #_"int" BloomFilter/murmurHash3 [#_"byte[]" __data, #_"long" __nTweak, #_"int" __hashNum, #_"byte[]" __object]
-        (let [#_"int" __h1 (int (+ (* __hashNum 0xfba4c795) __nTweak))
-              #_"int" __c1 0xcc9e2d51
-              #_"int" __c2 0x1b873593]
+        (let [#_"int" __h1 (int (+ (* __hashNum 0xfba4c795) __nTweak)) #_"int" __c1 0xcc9e2d51 #_"int" __c2 0x1b873593]
 
             (let [#_"int" __numBlocks (* (/ (.. __object (alength)) 4) 4)]
 
@@ -4595,28 +4593,19 @@
                     )
                 )
 
-                (let [#_"int" __k1 0]
-                    (§ switch (& (.. __object (alength)) 3)
-                        (§ case 3
-                            (§ ass __k1 (bit-xor __k1 (<< (& 0xff (aget __object (+ __numBlocks 2))) 16)))
-                            ;; Fall through.
-                        )
-                        (§ case 2
-                            (§ ass __k1 (bit-xor __k1 (<< (& 0xff (aget __object (inc __numBlocks))) 8)))
-                            ;; Fall through.
-                        )
-                        (§ case 1
-                            (§ ass __k1 (bit-xor __k1 (& 0xff (aget __object __numBlocks))))
-                            (§ ass __k1 (* __k1 __c1))
-                            (§ ass __k1 (BloomFilter/rotateLeft32 __k1, 15))
-                            (§ ass __k1 (* __k1 __c2))
-                            (§ ass __h1 (bit-xor __h1 __k1))
-                            ;; Fall through.
-                        )
-                        (§ default
-                            ;; Do nothing.
-                            (§ break )
-                        )
+                (let [#_"int" __k1 0 #_"int" __n (& (.. __object (alength)) 3)]
+                    (when (< 2 __n)
+                        (§ ass __k1 (bit-xor __k1 (<< (& 0xff (aget __object (+ __numBlocks 2))) 16)))
+                    )
+                    (when (< 1 __n)
+                        (§ ass __k1 (bit-xor __k1 (<< (& 0xff (aget __object (inc __numBlocks))) 8)))
+                    )
+                    (when (< 0 __n)
+                        (§ ass __k1 (bit-xor __k1 (& 0xff (aget __object __numBlocks))))
+                        (§ ass __k1 (* __k1 __c1))
+                        (§ ass __k1 (BloomFilter/rotateLeft32 __k1, 15))
+                        (§ ass __k1 (* __k1 __c2))
+                        (§ ass __h1 (bit-xor __h1 __k1))
                     )
 
                     ;; finalization
@@ -30266,22 +30255,16 @@
               #_"int" __lastOpCode ScriptOpCodes/OP_INVALIDOPCODE]
             (doseq [#_"ScriptChunk" __chunk __chunks]
                 (when (.. __chunk (isOpCode))
-                    (§ switch (.. __chunk opcode)
-                        (§ case ScriptOpCodes/OP_CHECKSIG)
-                        (§ case ScriptOpCodes/OP_CHECKSIGVERIFY
-                            (§ ass __sigOps (inc __sigOps))
-                            (§ break )
-                        )
-                        (§ case ScriptOpCodes/OP_CHECKMULTISIG)
-                        (§ case ScriptOpCodes/OP_CHECKMULTISIGVERIFY
-                            (if (and __accurate (<= ScriptOpCodes/OP_1 __lastOpCode ScriptOpCodes/OP_16))
-                                (§ ass __sigOps (+ __sigOps (Script/decodeFromOpN __lastOpCode)))
-                                (§ ass __sigOps (+ __sigOps 20))
-                            )
-                            (§ break )
-                        )
-                        (§ default
-                            (§ break )
+                    (§ ass __sigOps
+                        (condp ==? (.. __chunk opcode)
+                            [ScriptOpCodes/OP_CHECKSIG ScriptOpCodes/OP_CHECKSIGVERIFY]
+                                (inc __sigOps)
+                            [ScriptOpCodes/OP_CHECKMULTISIG ScriptOpCodes/OP_CHECKMULTISIGVERIFY]
+                                (if (and __accurate (<= ScriptOpCodes/OP_1 __lastOpCode ScriptOpCodes/OP_16))
+                                    (+ __sigOps (Script/decodeFromOpN __lastOpCode))
+                                    (+ __sigOps 20)
+                                )
+                            __sigOps
                         )
                     )
                     (§ ass __lastOpCode (.. __chunk opcode))
@@ -30719,592 +30702,497 @@
                             )
                             (or __shouldExecute (<= ScriptOpCodes/OP_IF __opcode ScriptOpCodes/OP_ENDIF))
                             (do
-                                (§ switch __opcode
-                                    (§ case ScriptOpCodes/OP_IF
-                                        (when (not __shouldExecute)
-                                            (.. __ifStack (add false))
+                                (condp ==? __opcode
+                                    ScriptOpCodes/OP_IF
+                                        (do
+                                            (when (not __shouldExecute)
+                                                (.. __ifStack (add false))
+                                                (§ continue )
+                                            )
+                                            (when (< (.. __stack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_UNBALANCED_CONDITIONAL, "Attempted OP_IF on an empty stack"))
+                                            )
+                                            (.. __ifStack (add (Script/castToBool (.. __stack (pollLast)))))
                                             (§ continue )
                                         )
-                                        (when (< (.. __stack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_UNBALANCED_CONDITIONAL, "Attempted OP_IF on an empty stack"))
-                                        )
-                                        (.. __ifStack (add (Script/castToBool (.. __stack (pollLast)))))
-                                        (§ continue )
-                                    )
-                                    (§ case ScriptOpCodes/OP_NOTIF
-                                        (when (not __shouldExecute)
-                                            (.. __ifStack (add false))
+                                    ScriptOpCodes/OP_NOTIF
+                                        (do
+                                            (when (not __shouldExecute)
+                                                (.. __ifStack (add false))
+                                                (§ continue )
+                                            )
+                                            (when (< (.. __stack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_UNBALANCED_CONDITIONAL, "Attempted OP_NOTIF on an empty stack"))
+                                            )
+                                            (.. __ifStack (add (not (Script/castToBool (.. __stack (pollLast))))))
                                             (§ continue )
                                         )
-                                        (when (< (.. __stack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_UNBALANCED_CONDITIONAL, "Attempted OP_NOTIF on an empty stack"))
+                                    ScriptOpCodes/OP_ELSE
+                                        (do
+                                            (when (.. __ifStack (isEmpty))
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_UNBALANCED_CONDITIONAL, "Attempted OP_ELSE without OP_IF/NOTIF"))
+                                            )
+                                            (.. __ifStack (add (not (.. __ifStack (pollLast)))))
+                                            (§ continue )
                                         )
-                                        (.. __ifStack (add (not (Script/castToBool (.. __stack (pollLast))))))
-                                        (§ continue )
-                                    )
-                                    (§ case ScriptOpCodes/OP_ELSE
-                                        (when (.. __ifStack (isEmpty))
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_UNBALANCED_CONDITIONAL, "Attempted OP_ELSE without OP_IF/NOTIF"))
+                                    ScriptOpCodes/OP_ENDIF
+                                        (do
+                                            (when (.. __ifStack (isEmpty))
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_UNBALANCED_CONDITIONAL, "Attempted OP_ENDIF without OP_IF/NOTIF"))
+                                            )
+                                            (.. __ifStack (pollLast))
+                                            (§ continue )
                                         )
-                                        (.. __ifStack (add (not (.. __ifStack (pollLast)))))
-                                        (§ continue )
-                                    )
-                                    (§ case ScriptOpCodes/OP_ENDIF
-                                        (when (.. __ifStack (isEmpty))
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_UNBALANCED_CONDITIONAL, "Attempted OP_ENDIF without OP_IF/NOTIF"))
-                                        )
-                                        (.. __ifStack (pollLast))
-                                        (§ continue )
-                                    )
 
                                     ;; OP_0 is no opcode
-                                    (§ case ScriptOpCodes/OP_1NEGATE
-                                        (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI (.. BigInteger/ONE (negate)), false))))
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_1)
-                                    (§ case ScriptOpCodes/OP_2)
-                                    (§ case ScriptOpCodes/OP_3)
-                                    (§ case ScriptOpCodes/OP_4)
-                                    (§ case ScriptOpCodes/OP_5)
-                                    (§ case ScriptOpCodes/OP_6)
-                                    (§ case ScriptOpCodes/OP_7)
-                                    (§ case ScriptOpCodes/OP_8)
-                                    (§ case ScriptOpCodes/OP_9)
-                                    (§ case ScriptOpCodes/OP_10)
-                                    (§ case ScriptOpCodes/OP_11)
-                                    (§ case ScriptOpCodes/OP_12)
-                                    (§ case ScriptOpCodes/OP_13)
-                                    (§ case ScriptOpCodes/OP_14)
-                                    (§ case ScriptOpCodes/OP_15)
-                                    (§ case ScriptOpCodes/OP_16
-                                        (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI (BigInteger/valueOf (Script/decodeFromOpN __opcode)), false))))
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_NOP
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_VERIFY
-                                        (when (< (.. __stack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_VERIFY on an empty stack"))
+                                    ScriptOpCodes/OP_1NEGATE
+                                        (do
+                                            (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI (.. BigInteger/ONE (negate)), false))))
                                         )
-                                        (when (not (Script/castToBool (.. __stack (pollLast))))
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_VERIFY, "OP_VERIFY failed"))
+                                   [ScriptOpCodes/OP_1
+                                    ScriptOpCodes/OP_2
+                                    ScriptOpCodes/OP_3
+                                    ScriptOpCodes/OP_4
+                                    ScriptOpCodes/OP_5
+                                    ScriptOpCodes/OP_6
+                                    ScriptOpCodes/OP_7
+                                    ScriptOpCodes/OP_8
+                                    ScriptOpCodes/OP_9
+                                    ScriptOpCodes/OP_10
+                                    ScriptOpCodes/OP_11
+                                    ScriptOpCodes/OP_12
+                                    ScriptOpCodes/OP_13
+                                    ScriptOpCodes/OP_14
+                                    ScriptOpCodes/OP_15
+                                    ScriptOpCodes/OP_16]
+                                        (do
+                                            (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI (BigInteger/valueOf (Script/decodeFromOpN __opcode)), false))))
                                         )
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_RETURN
-                                        (throw (ScriptException. ScriptError/SCRIPT_ERR_OP_RETURN, "Script called OP_RETURN"))
-                                    )
-                                    (§ case ScriptOpCodes/OP_TOALTSTACK
-                                        (when (< (.. __stack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_TOALTSTACK on an empty stack"))
+
+                                    ScriptOpCodes/OP_NOP
+                                        (do
                                         )
-                                        (.. __altstack (add (.. __stack (pollLast))))
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_FROMALTSTACK
-                                        (when (< (.. __altstack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_ALTSTACK_OPERATION, "Attempted OP_FROMALTSTACK on an empty altstack"))
-                                        )
-                                        (.. __stack (add (.. __altstack (pollLast))))
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_2DROP
-                                        (when (< (.. __stack (size)) 2)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_2DROP on a stack with size < 2"))
-                                        )
-                                        (.. __stack (pollLast))
-                                        (.. __stack (pollLast))
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_2DUP
-                                        (when (< (.. __stack (size)) 2)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_2DUP on a stack with size < 2"))
-                                        )
-                                        (let [#_"Iterator<byte[]>" __it2DUP (.. __stack (descendingIterator))
-                                              #_"byte[]" __OP2DUPtmpChunk2 (.. __it2DUP (next))]
-                                            (.. __stack (add (.. __it2DUP (next))))
-                                            (.. __stack (add __OP2DUPtmpChunk2))
-                                            (§ break )
-                                        )
-                                    )
-                                    (§ case ScriptOpCodes/OP_3DUP
-                                        (when (< (.. __stack (size)) 3)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_3DUP on a stack with size < 3"))
-                                        )
-                                        (let [#_"Iterator<byte[]>" __it3DUP (.. __stack (descendingIterator))
-                                              #_"byte[]" __OP3DUPtmpChunk3 (.. __it3DUP (next))
-                                              #_"byte[]" __OP3DUPtmpChunk2 (.. __it3DUP (next))]
-                                            (.. __stack (add (.. __it3DUP (next))))
-                                            (.. __stack (add __OP3DUPtmpChunk2))
-                                            (.. __stack (add __OP3DUPtmpChunk3))
-                                            (§ break )
-                                        )
-                                    )
-                                    (§ case ScriptOpCodes/OP_2OVER
-                                        (when (< (.. __stack (size)) 4)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_2OVER on a stack with size < 4"))
-                                        )
-                                        (let [#_"Iterator<byte[]>" __it2OVER (.. __stack (descendingIterator))]
-                                            (.. __it2OVER (next))
-                                            (.. __it2OVER (next))
-                                            (let [#_"byte[]" __OP2OVERtmpChunk2 (.. __it2OVER (next))]
-                                                (.. __stack (add (.. __it2OVER (next))))
-                                                (.. __stack (add __OP2OVERtmpChunk2))
-                                                (§ break )
+
+                                    ScriptOpCodes/OP_VERIFY
+                                        (do
+                                            (when (< (.. __stack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_VERIFY on an empty stack"))
+                                            )
+                                            (when (not (Script/castToBool (.. __stack (pollLast))))
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_VERIFY, "OP_VERIFY failed"))
                                             )
                                         )
-                                    )
-                                    (§ case ScriptOpCodes/OP_2ROT
-                                        (when (< (.. __stack (size)) 6)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_2ROT on a stack with size < 6"))
+
+                                    ScriptOpCodes/OP_RETURN
+                                        (throw (ScriptException. ScriptError/SCRIPT_ERR_OP_RETURN, "Script called OP_RETURN"))
+
+                                    ScriptOpCodes/OP_TOALTSTACK
+                                        (do
+                                            (when (< (.. __stack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_TOALTSTACK on an empty stack"))
+                                            )
+                                            (.. __altstack (add (.. __stack (pollLast))))
                                         )
-                                        (let [#_"byte[]" __OP2ROTtmpChunk6 (.. __stack (pollLast))
-                                              #_"byte[]" __OP2ROTtmpChunk5 (.. __stack (pollLast))
-                                              #_"byte[]" __OP2ROTtmpChunk4 (.. __stack (pollLast))
-                                              #_"byte[]" __OP2ROTtmpChunk3 (.. __stack (pollLast))
-                                              #_"byte[]" __OP2ROTtmpChunk2 (.. __stack (pollLast))
-                                              #_"byte[]" __OP2ROTtmpChunk1 (.. __stack (pollLast))]
-                                            (.. __stack (add __OP2ROTtmpChunk3))
-                                            (.. __stack (add __OP2ROTtmpChunk4))
-                                            (.. __stack (add __OP2ROTtmpChunk5))
-                                            (.. __stack (add __OP2ROTtmpChunk6))
-                                            (.. __stack (add __OP2ROTtmpChunk1))
-                                            (.. __stack (add __OP2ROTtmpChunk2))
-                                            (§ break )
+                                    ScriptOpCodes/OP_FROMALTSTACK
+                                        (do
+                                            (when (< (.. __altstack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_ALTSTACK_OPERATION, "Attempted OP_FROMALTSTACK on an empty altstack"))
+                                            )
+                                            (.. __stack (add (.. __altstack (pollLast))))
                                         )
-                                    )
-                                    (§ case ScriptOpCodes/OP_2SWAP
-                                        (when (< (.. __stack (size)) 4)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_2SWAP on a stack with size < 4"))
+
+                                    ScriptOpCodes/OP_2DROP
+                                        (do
+                                            (when (< (.. __stack (size)) 2)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_2DROP on a stack with size < 2"))
+                                            )
+                                            (.. __stack (pollLast))
+                                            (.. __stack (pollLast))
                                         )
-                                        (let [#_"byte[]" __OP2SWAPtmpChunk4 (.. __stack (pollLast))
-                                              #_"byte[]" __OP2SWAPtmpChunk3 (.. __stack (pollLast))
-                                              #_"byte[]" __OP2SWAPtmpChunk2 (.. __stack (pollLast))
-                                              #_"byte[]" __OP2SWAPtmpChunk1 (.. __stack (pollLast))]
-                                            (.. __stack (add __OP2SWAPtmpChunk3))
-                                            (.. __stack (add __OP2SWAPtmpChunk4))
-                                            (.. __stack (add __OP2SWAPtmpChunk1))
-                                            (.. __stack (add __OP2SWAPtmpChunk2))
-                                            (§ break )
+                                    ScriptOpCodes/OP_2DUP
+                                        (do
+                                            (when (< (.. __stack (size)) 2)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_2DUP on a stack with size < 2"))
+                                            )
+                                            (let [#_"Iterator<byte[]>" __it (.. __stack (descendingIterator)) #_"byte[]" __data2 (.. __it (next))]
+                                                (.. __stack (add (.. __it (next))))
+                                                (.. __stack (add __data2))
+                                            )
                                         )
-                                    )
-                                    (§ case ScriptOpCodes/OP_IFDUP
-                                        (when (< (.. __stack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_IFDUP on an empty stack"))
+                                    ScriptOpCodes/OP_3DUP
+                                        (do
+                                            (when (< (.. __stack (size)) 3)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_3DUP on a stack with size < 3"))
+                                            )
+                                            (let [#_"Iterator<byte[]>" __it (.. __stack (descendingIterator)) #_"byte[]" __data3 (.. __it (next)) #_"byte[]" __data2 (.. __it (next))]
+                                                (.. __stack (add (.. __it (next))))
+                                                (.. __stack (add __data2))
+                                                (.. __stack (add __data3))
+                                            )
                                         )
-                                        (when (Script/castToBool (.. __stack (getLast)))
+                                    ScriptOpCodes/OP_2OVER
+                                        (do
+                                            (when (< (.. __stack (size)) 4)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_2OVER on a stack with size < 4"))
+                                            )
+                                            (let [#_"Iterator<byte[]>" __it (.. __stack (descendingIterator))]
+                                                (.. __it (next))
+                                                (.. __it (next))
+                                                (let [#_"byte[]" __data2 (.. __it (next))]
+                                                    (.. __stack (add (.. __it (next))))
+                                                    (.. __stack (add __data2))
+                                                )
+                                            )
+                                        )
+                                    ScriptOpCodes/OP_2ROT
+                                        (do
+                                            (when (< (.. __stack (size)) 6)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_2ROT on a stack with size < 6"))
+                                            )
+                                            (let [#_"byte[]" __data6 (.. __stack (pollLast))
+                                                  #_"byte[]" __data5 (.. __stack (pollLast))
+                                                  #_"byte[]" __data4 (.. __stack (pollLast))
+                                                  #_"byte[]" __data3 (.. __stack (pollLast))
+                                                  #_"byte[]" __data2 (.. __stack (pollLast))
+                                                  #_"byte[]" __data1 (.. __stack (pollLast))]
+                                                (.. __stack (add __data3))
+                                                (.. __stack (add __data4))
+                                                (.. __stack (add __data5))
+                                                (.. __stack (add __data6))
+                                                (.. __stack (add __data1))
+                                                (.. __stack (add __data2))
+                                            )
+                                        )
+                                    ScriptOpCodes/OP_2SWAP
+                                        (do
+                                            (when (< (.. __stack (size)) 4)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_2SWAP on a stack with size < 4"))
+                                            )
+                                            (let [#_"byte[]" __data4 (.. __stack (pollLast))
+                                                  #_"byte[]" __data3 (.. __stack (pollLast))
+                                                  #_"byte[]" __data2 (.. __stack (pollLast))
+                                                  #_"byte[]" __data1 (.. __stack (pollLast))]
+                                                (.. __stack (add __data3))
+                                                (.. __stack (add __data4))
+                                                (.. __stack (add __data1))
+                                                (.. __stack (add __data2))
+                                            )
+                                        )
+
+                                    ScriptOpCodes/OP_IFDUP
+                                        (do
+                                            (when (< (.. __stack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_IFDUP on an empty stack"))
+                                            )
+                                            (when (Script/castToBool (.. __stack (getLast)))
+                                                (.. __stack (add (.. __stack (getLast))))
+                                            )
+                                        )
+
+                                    ScriptOpCodes/OP_DEPTH
+                                        (do
+                                            (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI (BigInteger/valueOf (.. __stack (size))), false))))
+                                        )
+
+                                    ScriptOpCodes/OP_DROP
+                                        (do
+                                            (when (< (.. __stack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_DROP on an empty stack"))
+                                            )
+                                            (.. __stack (pollLast))
+                                        )
+                                    ScriptOpCodes/OP_DUP
+                                        (do
+                                            (when (< (.. __stack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_DUP on an empty stack"))
+                                            )
                                             (.. __stack (add (.. __stack (getLast))))
                                         )
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_DEPTH
-                                        (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI (BigInteger/valueOf (.. __stack (size))), false))))
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_DROP
-                                        (when (< (.. __stack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_DROP on an empty stack"))
-                                        )
-                                        (.. __stack (pollLast))
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_DUP
-                                        (when (< (.. __stack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_DUP on an empty stack"))
-                                        )
-                                        (.. __stack (add (.. __stack (getLast))))
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_NIP
-                                        (when (< (.. __stack (size)) 2)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_NIP on a stack with size < 2"))
-                                        )
-                                        (let [#_"byte[]" __OPNIPtmpChunk (.. __stack (pollLast))]
-                                            (.. __stack (pollLast))
-                                            (.. __stack (add __OPNIPtmpChunk))
-                                            (§ break )
-                                        )
-                                    )
-                                    (§ case ScriptOpCodes/OP_OVER
-                                        (when (< (.. __stack (size)) 2)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_OVER on a stack with size < 2"))
-                                        )
-                                        (let [#_"Iterator<byte[]>" __itOVER (.. __stack (descendingIterator))]
-                                            (.. __itOVER (next))
-                                            (.. __stack (add (.. __itOVER (next))))
-                                            (§ break )
-                                        )
-                                    )
-                                    (§ case ScriptOpCodes/OP_PICK)
-                                    (§ case ScriptOpCodes/OP_ROLL
-                                        (when (< (.. __stack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_PICK/OP_ROLL on an empty stack"))
-                                        )
-                                        (let [#_"long" __val (.. (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA))) (longValue))]
-                                            (when (not (< -1 __val (.. __stack (size))))
-                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "OP_PICK/OP_ROLL attempted to get data deeper than stack size"))
+                                    ScriptOpCodes/OP_NIP
+                                        (do
+                                            (when (< (.. __stack (size)) 2)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_NIP on a stack with size < 2"))
                                             )
-                                            (let [#_"Iterator<byte[]>" __itPICK (.. __stack (descendingIterator))]
-                                                (loop-when-recur [#_"long" __i 0] (< __i __val) [(inc __i)]
-                                                    (.. __itPICK (next))
+                                            (let [#_"byte[]" __data (.. __stack (pollLast))]
+                                                (.. __stack (pollLast))
+                                                (.. __stack (add __data))
+                                            )
+                                        )
+                                    ScriptOpCodes/OP_OVER
+                                        (do
+                                            (when (< (.. __stack (size)) 2)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_OVER on a stack with size < 2"))
+                                            )
+                                            (let [#_"Iterator<byte[]>" __it (.. __stack (descendingIterator))]
+                                                (.. __it (next))
+                                                (.. __stack (add (.. __it (next))))
+                                            )
+                                        )
+                                   [ScriptOpCodes/OP_PICK
+                                    ScriptOpCodes/OP_ROLL]
+                                        (do
+                                            (when (< (.. __stack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_PICK/OP_ROLL on an empty stack"))
+                                            )
+                                            (let [#_"long" __n (.. (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA))) (longValue))]
+                                                (when (not (< -1 __n (.. __stack (size))))
+                                                    (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "OP_PICK/OP_ROLL attempted to get data deeper than stack size"))
                                                 )
-                                                (let [#_"byte[]" __OPROLLtmpChunk (.. __itPICK (next))]
-                                                    (when (== __opcode ScriptOpCodes/OP_ROLL)
-                                                        (.. __itPICK (remove))
+                                                (let [#_"Iterator<byte[]>" __it (.. __stack (descendingIterator))]
+                                                    (dotimes [_ __n]
+                                                        (.. __it (next))
                                                     )
-                                                    (.. __stack (add __OPROLLtmpChunk))
-                                                    (§ break )
+                                                    (let [#_"byte[]" __data (.. __it (next))]
+                                                        (when (== __opcode ScriptOpCodes/OP_ROLL)
+                                                            (.. __it (remove))
+                                                        )
+                                                        (.. __stack (add __data))
+                                                    )
                                                 )
                                             )
                                         )
-                                    )
-                                    (§ case ScriptOpCodes/OP_ROT
-                                        (when (< (.. __stack (size)) 3)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_ROT on a stack with size < 3"))
-                                        )
-                                        (let [#_"byte[]" __OPROTtmpChunk3 (.. __stack (pollLast))
-                                              #_"byte[]" __OPROTtmpChunk2 (.. __stack (pollLast))
-                                              #_"byte[]" __OPROTtmpChunk1 (.. __stack (pollLast))]
-                                            (.. __stack (add __OPROTtmpChunk2))
-                                            (.. __stack (add __OPROTtmpChunk3))
-                                            (.. __stack (add __OPROTtmpChunk1))
-                                            (§ break )
-                                        )
-                                    )
-                                    (§ case ScriptOpCodes/OP_SWAP)
-                                    (§ case ScriptOpCodes/OP_TUCK
-                                        (when (< (.. __stack (size)) 2)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_SWAP on a stack with size < 2"))
-                                        )
-                                        (let [#_"byte[]" __OPSWAPtmpChunk2 (.. __stack (pollLast))
-                                              #_"byte[]" __OPSWAPtmpChunk1 (.. __stack (pollLast))]
-                                            (.. __stack (add __OPSWAPtmpChunk2))
-                                            (.. __stack (add __OPSWAPtmpChunk1))
-                                            (when (== __opcode ScriptOpCodes/OP_TUCK)
-                                                (.. __stack (add __OPSWAPtmpChunk2))
+                                    ScriptOpCodes/OP_ROT
+                                        (do
+                                            (when (< (.. __stack (size)) 3)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_ROT on a stack with size < 3"))
                                             )
-                                            (§ break )
+                                            (let [#_"byte[]" __data3 (.. __stack (pollLast))
+                                                  #_"byte[]" __data2 (.. __stack (pollLast))
+                                                  #_"byte[]" __data1 (.. __stack (pollLast))]
+                                                (.. __stack (add __data2))
+                                                (.. __stack (add __data3))
+                                                (.. __stack (add __data1))
+                                            )
                                         )
-                                    )
-                                    (§ case ScriptOpCodes/OP_SIZE
-                                        (when (< (.. __stack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_SIZE on an empty stack"))
+                                   [ScriptOpCodes/OP_SWAP
+                                    ScriptOpCodes/OP_TUCK]
+                                        (do
+                                            (when (< (.. __stack (size)) 2)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_SWAP on a stack with size < 2"))
+                                            )
+                                            (let [#_"byte[]" __data2 (.. __stack (pollLast)) #_"byte[]" __data1 (.. __stack (pollLast))]
+                                                (.. __stack (add __data2))
+                                                (.. __stack (add __data1))
+                                                (when (== __opcode ScriptOpCodes/OP_TUCK)
+                                                    (.. __stack (add __data2))
+                                                )
+                                            )
                                         )
-                                        (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI (BigInteger/valueOf (.. __stack (getLast) (alength))), false))))
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_EQUAL
-                                        (when (< (.. __stack (size)) 2)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_EQUAL on a stack with size < 2"))
-                                        )
-                                        (.. __stack (add (if (Arrays/equals (.. __stack (pollLast)), (.. __stack (pollLast))) (byte-array [ 1 ]) (byte-array 0))))
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_EQUALVERIFY
-                                        (when (< (.. __stack (size)) 2)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_EQUALVERIFY on a stack with size < 2"))
-                                        )
-                                        (when (not (Arrays/equals (.. __stack (pollLast)), (.. __stack (pollLast))))
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_EQUALVERIFY, "OP_EQUALVERIFY: non-equal data"))
-                                        )
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_1ADD)
-                                    (§ case ScriptOpCodes/OP_1SUB)
-                                    (§ case ScriptOpCodes/OP_NEGATE)
-                                    (§ case ScriptOpCodes/OP_ABS)
-                                    (§ case ScriptOpCodes/OP_NOT)
-                                    (§ case ScriptOpCodes/OP_0NOTEQUAL
-                                        (when (< (.. __stack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted a numeric op on an empty stack"))
-                                        )
-                                        (let [#_"BigInteger" __numericOPnum (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))]
 
-                                            (§ switch __opcode
-                                                (§ case ScriptOpCodes/OP_1ADD
-                                                    (§ ass __numericOPnum (.. __numericOPnum (add BigInteger/ONE)))
-                                                    (§ break )
-                                                )
-                                                (§ case ScriptOpCodes/OP_1SUB
-                                                    (§ ass __numericOPnum (.. __numericOPnum (subtract BigInteger/ONE)))
-                                                    (§ break )
-                                                )
-                                                (§ case ScriptOpCodes/OP_NEGATE
-                                                    (§ ass __numericOPnum (.. __numericOPnum (negate)))
-                                                    (§ break )
-                                                )
-                                                (§ case ScriptOpCodes/OP_ABS
-                                                    (when (< (.. __numericOPnum (signum)) 0)
-                                                        (§ ass __numericOPnum (.. __numericOPnum (negate)))
-                                                    )
-                                                    (§ break )
-                                                )
-                                                (§ case ScriptOpCodes/OP_NOT
-                                                    (if (.. __numericOPnum (equals BigInteger/ZERO))
-                                                        (§ ass __numericOPnum BigInteger/ONE)
-                                                        (§ ass __numericOPnum BigInteger/ZERO)
-                                                    )
-                                                    (§ break )
-                                                )
-                                                (§ case ScriptOpCodes/OP_0NOTEQUAL
-                                                    (if (.. __numericOPnum (equals BigInteger/ZERO))
-                                                        (§ ass __numericOPnum BigInteger/ZERO)
-                                                        (§ ass __numericOPnum BigInteger/ONE)
-                                                    )
-                                                    (§ break )
-                                                )
-                                                (§ default
-                                                    (throw (AssertionError. "Unreachable"))
-                                                )
+                                    ScriptOpCodes/OP_SIZE
+                                        (do
+                                            (when (< (.. __stack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_SIZE on an empty stack"))
                                             )
-
-                                            (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI __numericOPnum, false))))
-                                            (§ break )
+                                            (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI (BigInteger/valueOf (.. __stack (getLast) (alength))), false))))
                                         )
-                                    )
-                                    (§ case ScriptOpCodes/OP_ADD)
-                                    (§ case ScriptOpCodes/OP_SUB)
-                                    (§ case ScriptOpCodes/OP_BOOLAND)
-                                    (§ case ScriptOpCodes/OP_BOOLOR)
-                                    (§ case ScriptOpCodes/OP_NUMEQUAL)
-                                    (§ case ScriptOpCodes/OP_NUMNOTEQUAL)
-                                    (§ case ScriptOpCodes/OP_LESSTHAN)
-                                    (§ case ScriptOpCodes/OP_GREATERTHAN)
-                                    (§ case ScriptOpCodes/OP_LESSTHANOREQUAL)
-                                    (§ case ScriptOpCodes/OP_GREATERTHANOREQUAL)
-                                    (§ case ScriptOpCodes/OP_MIN)
-                                    (§ case ScriptOpCodes/OP_MAX
-                                        (when (< (.. __stack (size)) 2)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted a numeric op on a stack with size < 2"))
+                                    ScriptOpCodes/OP_EQUAL
+                                        (do
+                                            (when (< (.. __stack (size)) 2)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_EQUAL on a stack with size < 2"))
+                                            )
+                                            (.. __stack (add (if (Arrays/equals (.. __stack (pollLast)), (.. __stack (pollLast))) (byte-array [ 1 ]) (byte-array 0))))
                                         )
-                                        (let [#_"BigInteger" __numericOPnum2 (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))
-                                              #_"BigInteger" __numericOPnum1 (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))]
+                                    ScriptOpCodes/OP_EQUALVERIFY
+                                        (do
+                                            (when (< (.. __stack (size)) 2)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_EQUALVERIFY on a stack with size < 2"))
+                                            )
+                                            (when (not (Arrays/equals (.. __stack (pollLast)), (.. __stack (pollLast))))
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_EQUALVERIFY, "OP_EQUALVERIFY: non-equal data"))
+                                            )
+                                        )
 
-                                            (let [#_"BigInteger" __numericOPresult]
-                                                (§ switch __opcode
-                                                    (§ case ScriptOpCodes/OP_ADD
-                                                        (§ ass __numericOPresult (.. __numericOPnum1 (add __numericOPnum2)))
-                                                        (§ break )
-                                                    )
-                                                    (§ case ScriptOpCodes/OP_SUB
-                                                        (§ ass __numericOPresult (.. __numericOPnum1 (subtract __numericOPnum2)))
-                                                        (§ break )
-                                                    )
-                                                    (§ case ScriptOpCodes/OP_BOOLAND
-                                                        (if (and (not (.. __numericOPnum1 (equals BigInteger/ZERO))) (not (.. __numericOPnum2 (equals BigInteger/ZERO))))
-                                                            (§ ass __numericOPresult BigInteger/ONE)
-                                                            (§ ass __numericOPresult BigInteger/ZERO)
-                                                        )
-                                                        (§ break )
-                                                    )
-                                                    (§ case ScriptOpCodes/OP_BOOLOR
-                                                        (if (or (not (.. __numericOPnum1 (equals BigInteger/ZERO))) (not (.. __numericOPnum2 (equals BigInteger/ZERO))))
-                                                            (§ ass __numericOPresult BigInteger/ONE)
-                                                            (§ ass __numericOPresult BigInteger/ZERO)
-                                                        )
-                                                        (§ break )
-                                                    )
-                                                    (§ case ScriptOpCodes/OP_NUMEQUAL
-                                                        (if (.. __numericOPnum1 (equals __numericOPnum2))
-                                                            (§ ass __numericOPresult BigInteger/ONE)
-                                                            (§ ass __numericOPresult BigInteger/ZERO)
-                                                        )
-                                                        (§ break )
-                                                    )
-                                                    (§ case ScriptOpCodes/OP_NUMNOTEQUAL
-                                                        (if (not (.. __numericOPnum1 (equals __numericOPnum2)))
-                                                            (§ ass __numericOPresult BigInteger/ONE)
-                                                            (§ ass __numericOPresult BigInteger/ZERO)
-                                                        )
-                                                        (§ break )
-                                                    )
-                                                    (§ case ScriptOpCodes/OP_LESSTHAN
-                                                        (if (< (.. __numericOPnum1 (compareTo __numericOPnum2)) 0)
-                                                            (§ ass __numericOPresult BigInteger/ONE)
-                                                            (§ ass __numericOPresult BigInteger/ZERO)
-                                                        )
-                                                        (§ break )
-                                                    )
-                                                    (§ case ScriptOpCodes/OP_GREATERTHAN
-                                                        (if (> (.. __numericOPnum1 (compareTo __numericOPnum2)) 0)
-                                                            (§ ass __numericOPresult BigInteger/ONE)
-                                                            (§ ass __numericOPresult BigInteger/ZERO)
-                                                        )
-                                                        (§ break )
-                                                    )
-                                                    (§ case ScriptOpCodes/OP_LESSTHANOREQUAL
-                                                        (if (<= (.. __numericOPnum1 (compareTo __numericOPnum2)) 0)
-                                                            (§ ass __numericOPresult BigInteger/ONE)
-                                                            (§ ass __numericOPresult BigInteger/ZERO)
-                                                        )
-                                                        (§ break )
-                                                    )
-                                                    (§ case ScriptOpCodes/OP_GREATERTHANOREQUAL
-                                                        (if (>= (.. __numericOPnum1 (compareTo __numericOPnum2)) 0)
-                                                            (§ ass __numericOPresult BigInteger/ONE)
-                                                            (§ ass __numericOPresult BigInteger/ZERO)
-                                                        )
-                                                        (§ break )
-                                                    )
-                                                    (§ case ScriptOpCodes/OP_MIN
-                                                        (if (< (.. __numericOPnum1 (compareTo __numericOPnum2)) 0)
-                                                            (§ ass __numericOPresult __numericOPnum1)
-                                                            (§ ass __numericOPresult __numericOPnum2)
-                                                        )
-                                                        (§ break )
-                                                    )
-                                                    (§ case ScriptOpCodes/OP_MAX
-                                                        (if (> (.. __numericOPnum1 (compareTo __numericOPnum2)) 0)
-                                                            (§ ass __numericOPresult __numericOPnum1)
-                                                            (§ ass __numericOPresult __numericOPnum2)
-                                                        )
-                                                        (§ break )
-                                                    )
-                                                    (§ default
+                                   [ScriptOpCodes/OP_1ADD
+                                    ScriptOpCodes/OP_1SUB
+                                    ScriptOpCodes/OP_NEGATE
+                                    ScriptOpCodes/OP_ABS
+                                    ScriptOpCodes/OP_NOT
+                                    ScriptOpCodes/OP_0NOTEQUAL]
+                                        (do
+                                            (when (< (.. __stack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted a numeric op on an empty stack"))
+                                            )
+                                            (let [#_"BigInteger" __n (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))
+                                                  __n (condp == __opcode
+                                                        ScriptOpCodes/OP_1ADD      (.. __n (add BigInteger/ONE))
+                                                        ScriptOpCodes/OP_1SUB      (.. __n (subtract BigInteger/ONE))
+                                                        ScriptOpCodes/OP_NEGATE    (.. __n (negate))
+                                                        ScriptOpCodes/OP_ABS       (if (< (.. __n (signum)) 0) (.. __n (negate)) __n)
+                                                        ScriptOpCodes/OP_NOT       (if (.. __n (equals BigInteger/ZERO)) BigInteger/ONE BigInteger/ZERO)
+                                                        ScriptOpCodes/OP_0NOTEQUAL (if (.. __n (equals BigInteger/ZERO)) BigInteger/ZERO BigInteger/ONE)
+                                                        (throw (AssertionError. "Unreachable"))
+                                                    )]
+                                                (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI __n, false))))
+                                            )
+                                        )
+                                   [ScriptOpCodes/OP_ADD
+                                    ScriptOpCodes/OP_SUB
+                                    ScriptOpCodes/OP_BOOLAND
+                                    ScriptOpCodes/OP_BOOLOR
+                                    ScriptOpCodes/OP_NUMEQUAL
+                                    ScriptOpCodes/OP_NUMNOTEQUAL
+                                    ScriptOpCodes/OP_LESSTHAN
+                                    ScriptOpCodes/OP_GREATERTHAN
+                                    ScriptOpCodes/OP_LESSTHANOREQUAL
+                                    ScriptOpCodes/OP_GREATERTHANOREQUAL
+                                    ScriptOpCodes/OP_MIN
+                                    ScriptOpCodes/OP_MAX]
+                                        (do
+                                            (when (< (.. __stack (size)) 2)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted a numeric op on a stack with size < 2"))
+                                            )
+                                            (let [#_"BigInteger" __n2 (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))
+                                                  #_"BigInteger" __n1 (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))
+                                                  #_"BigInteger" __n
+                                                    (condp == __opcode
+                                                        ScriptOpCodes/OP_ADD                (.. __n1 (add __n2))
+                                                        ScriptOpCodes/OP_SUB                (.. __n1 (subtract __n2))
+                                                        ScriptOpCodes/OP_BOOLAND            (if (and (not (.. __n1 (equals BigInteger/ZERO))) (not (.. __n2 (equals BigInteger/ZERO)))) BigInteger/ONE BigInteger/ZERO)
+                                                        ScriptOpCodes/OP_BOOLOR             (if (or (not (.. __n1 (equals BigInteger/ZERO))) (not (.. __n2 (equals BigInteger/ZERO)))) BigInteger/ONE BigInteger/ZERO)
+                                                        ScriptOpCodes/OP_NUMEQUAL           (if (.. __n1 (equals __n2)) BigInteger/ONE BigInteger/ZERO)
+                                                        ScriptOpCodes/OP_NUMNOTEQUAL        (if (not (.. __n1 (equals __n2))) BigInteger/ONE BigInteger/ZERO)
+                                                        ScriptOpCodes/OP_LESSTHAN           (if (< (.. __n1 (compareTo __n2)) 0) BigInteger/ONE BigInteger/ZERO)
+                                                        ScriptOpCodes/OP_GREATERTHAN        (if (> (.. __n1 (compareTo __n2)) 0) BigInteger/ONE BigInteger/ZERO)
+                                                        ScriptOpCodes/OP_LESSTHANOREQUAL    (if (<= (.. __n1 (compareTo __n2)) 0) BigInteger/ONE BigInteger/ZERO)
+                                                        ScriptOpCodes/OP_GREATERTHANOREQUAL (if (>= (.. __n1 (compareTo __n2)) 0) BigInteger/ONE BigInteger/ZERO)
+                                                        ScriptOpCodes/OP_MIN                (if (< (.. __n1 (compareTo __n2)) 0) __n1 __n2)
+                                                        ScriptOpCodes/OP_MAX                (if (> (.. __n1 (compareTo __n2)) 0) __n1 __n2)
                                                         (throw (RuntimeException. "Opcode switched at runtime?"))
-                                                    )
+                                                    )]
+                                                (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI __n, false))))
+                                            )
+                                        )
+
+                                    ScriptOpCodes/OP_NUMEQUALVERIFY
+                                        (do
+                                            (when (< (.. __stack (size)) 2)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_NUMEQUALVERIFY on a stack with size < 2"))
+                                            )
+                                            (let [#_"BigInteger" __n2 (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))
+                                                  #_"BigInteger" __n1 (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))]
+
+                                                (when (not (.. __n1 (equals __n2)))
+                                                    (throw (ScriptException. ScriptError/SCRIPT_ERR_NUMEQUALVERIFY, "OP_NUMEQUALVERIFY failed"))
                                                 )
+                                            )
+                                        )
 
-                                                (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI __numericOPresult, false))))
-                                                (§ break )
+                                    ScriptOpCodes/OP_WITHIN
+                                        (do
+                                            (when (< (.. __stack (size)) 3)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_WITHIN on a stack with size < 3"))
+                                            )
+                                            (let [#_"BigInteger" __n3 (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))
+                                                  #_"BigInteger" __n2 (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))
+                                                  #_"BigInteger" __n1 (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))]
+                                                (if (and (<= (.. __n2 (compareTo __n1)) 0) (< (.. __n1 (compareTo __n3)) 0))
+                                                    (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI BigInteger/ONE, false))))
+                                                    (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI BigInteger/ZERO, false))))
+                                                )
                                             )
                                         )
-                                    )
-                                    (§ case ScriptOpCodes/OP_NUMEQUALVERIFY
-                                        (when (< (.. __stack (size)) 2)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_NUMEQUALVERIFY on a stack with size < 2"))
-                                        )
-                                        (let [#_"BigInteger" __OPNUMEQUALVERIFYnum2 (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))
-                                              #_"BigInteger" __OPNUMEQUALVERIFYnum1 (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))]
 
-                                            (when (not (.. __OPNUMEQUALVERIFYnum1 (equals __OPNUMEQUALVERIFYnum2)))
-                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_NUMEQUALVERIFY, "OP_NUMEQUALVERIFY failed"))
+                                    ScriptOpCodes/OP_RIPEMD160
+                                        (do
+                                            (when (< (.. __stack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_RIPEMD160 on an empty stack"))
                                             )
-                                            (§ break )
-                                        )
-                                    )
-                                    (§ case ScriptOpCodes/OP_WITHIN
-                                        (when (< (.. __stack (size)) 3)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_WITHIN on a stack with size < 3"))
-                                        )
-                                        (let [#_"BigInteger" __OPWITHINnum3 (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))
-                                              #_"BigInteger" __OPWITHINnum2 (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))
-                                              #_"BigInteger" __OPWITHINnum1 (Script/castToBigInteger (.. __stack (pollLast)), (.. __verifyFlags (contains Script.VerifyFlag/MINIMALDATA)))]
-                                            (if (and (<= (.. __OPWITHINnum2 (compareTo __OPWITHINnum1)) 0) (< (.. __OPWITHINnum1 (compareTo __OPWITHINnum3)) 0))
-                                                (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI BigInteger/ONE, false))))
-                                                (.. __stack (add (Utils/reverseBytes (Utils/encodeMPI BigInteger/ZERO, false))))
-                                            )
-                                            (§ break )
-                                        )
-                                    )
-                                    (§ case ScriptOpCodes/OP_RIPEMD160
-                                        (when (< (.. __stack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_RIPEMD160 on an empty stack"))
-                                        )
-                                        (let [#_"RIPEMD160Digest" __digest (RIPEMD160Digest.)
-                                              #_"byte[]" __dataToHash (.. __stack (pollLast))]
-                                            (.. __digest (update __dataToHash, 0, (.. __dataToHash (alength))))
-                                            (let [#_"byte[]" __ripmemdHash (byte-array 20)]
-                                                (.. __digest (doFinal __ripmemdHash, 0))
-                                                (.. __stack (add __ripmemdHash))
-                                                (§ break )
+                                            (let [#_"RIPEMD160Digest" __digest (RIPEMD160Digest.) #_"byte[]" __dataToHash (.. __stack (pollLast))]
+                                                (.. __digest (update __dataToHash, 0, (.. __dataToHash (alength))))
+                                                (let [#_"byte[]" __ripmemdHash (byte-array 20)]
+                                                    (.. __digest (doFinal __ripmemdHash, 0))
+                                                    (.. __stack (add __ripmemdHash))
+                                                )
                                             )
                                         )
-                                    )
-                                    (§ case ScriptOpCodes/OP_SHA1
-                                        (when (< (.. __stack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_SHA1 on an empty stack"))
-                                        )
-                                        (try
-                                            (.. __stack (add (.. (MessageDigest/getInstance "SHA-1") (digest (.. __stack (pollLast))))))
-                                            (catch NoSuchAlgorithmException __e
-                                                (throw (RuntimeException. __e)) ;; Cannot happen.
+                                    ScriptOpCodes/OP_SHA1
+                                        (do
+                                            (when (< (.. __stack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_SHA1 on an empty stack"))
+                                            )
+                                            (try
+                                                (.. __stack (add (.. (MessageDigest/getInstance "SHA-1") (digest (.. __stack (pollLast))))))
+                                                (catch NoSuchAlgorithmException __e
+                                                    (throw (RuntimeException. __e)) ;; Cannot happen.
+                                                )
                                             )
                                         )
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_SHA256
-                                        (when (< (.. __stack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
+                                    ScriptOpCodes/OP_SHA256
+                                        (do
+                                            (when (< (.. __stack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
+                                            )
+                                            (.. __stack (add (Sha256Hash/hash (.. __stack (pollLast)))))
                                         )
-                                        (.. __stack (add (Sha256Hash/hash (.. __stack (pollLast)))))
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_HASH160
-                                        (when (< (.. __stack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_HASH160 on an empty stack"))
+                                    ScriptOpCodes/OP_HASH160
+                                        (do
+                                            (when (< (.. __stack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_HASH160 on an empty stack"))
+                                            )
+                                            (.. __stack (add (Utils/sha256hash160 (.. __stack (pollLast)))))
                                         )
-                                        (.. __stack (add (Utils/sha256hash160 (.. __stack (pollLast)))))
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_HASH256
-                                        (when (< (.. __stack (size)) 1)
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
+                                    ScriptOpCodes/OP_HASH256
+                                        (do
+                                            (when (< (.. __stack (size)) 1)
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
+                                            )
+                                            (.. __stack (add (Sha256Hash/hashTwice (.. __stack (pollLast)))))
                                         )
-                                        (.. __stack (add (Sha256Hash/hashTwice (.. __stack (pollLast)))))
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_CODESEPARATOR
-                                        (§ ass __lastCodeSepLocation (inc (.. __chunk (getStartLocationInProgram))))
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_CHECKSIG)
-                                    (§ case ScriptOpCodes/OP_CHECKSIGVERIFY
-                                        (when (nil? __txContainingThis)
-                                            (throw (IllegalStateException. "Script attempted signature check but no tx was provided"))
+
+                                    ScriptOpCodes/OP_CODESEPARATOR
+                                        (do
+                                            (§ ass __lastCodeSepLocation (inc (.. __chunk (getStartLocationInProgram))))
                                         )
-                                        (Script/executeCheckSig __txContainingThis, (int __index), __script, __stack, __lastCodeSepLocation, __opcode, __verifyFlags)
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_CHECKMULTISIG)
-                                    (§ case ScriptOpCodes/OP_CHECKMULTISIGVERIFY
-                                        (when (nil? __txContainingThis)
-                                            (throw (IllegalStateException. "Script attempted signature check but no tx was provided"))
+
+                                   [ScriptOpCodes/OP_CHECKSIG
+                                    ScriptOpCodes/OP_CHECKSIGVERIFY]
+                                        (do
+                                            (when (nil? __txContainingThis)
+                                                (throw (IllegalStateException. "Script attempted signature check but no tx was provided"))
+                                            )
+                                            (Script/executeCheckSig __txContainingThis, (int __index), __script, __stack, __lastCodeSepLocation, __opcode, __verifyFlags)
                                         )
-                                        (§ ass __opCount (Script/executeMultiSig __txContainingThis, (int __index), __script, __stack, __opCount, __lastCodeSepLocation, __opcode, __verifyFlags))
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_CHECKLOCKTIMEVERIFY
-                                        (when (not (.. __verifyFlags (contains Script.VerifyFlag/CHECKLOCKTIMEVERIFY)))
+                                   [ScriptOpCodes/OP_CHECKMULTISIG
+                                    ScriptOpCodes/OP_CHECKMULTISIGVERIFY]
+                                        (do
+                                            (when (nil? __txContainingThis)
+                                                (throw (IllegalStateException. "Script attempted signature check but no tx was provided"))
+                                            )
+                                            (§ ass __opCount (Script/executeMultiSig __txContainingThis, (int __index), __script, __stack, __opCount, __lastCodeSepLocation, __opcode, __verifyFlags))
+                                        )
+                                    ScriptOpCodes/OP_CHECKLOCKTIMEVERIFY
+                                        (if (not (.. __verifyFlags (contains Script.VerifyFlag/CHECKLOCKTIMEVERIFY)))
                                             ;; not enabled; treat as a NOP2
                                             (when (.. __verifyFlags (contains Script.VerifyFlag/DISCOURAGE_UPGRADABLE_NOPS))
                                                 (throw (ScriptException. ScriptError/SCRIPT_ERR_DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " __opcode)))
                                             )
-                                            (§ break )
+                                            (Script/executeCheckLockTimeVerify __txContainingThis, (int __index), __stack, __verifyFlags)
                                         )
-                                        (Script/executeCheckLockTimeVerify __txContainingThis, (int __index), __stack, __verifyFlags)
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_CHECKSEQUENCEVERIFY
-                                        (when (not (.. __verifyFlags (contains Script.VerifyFlag/CHECKSEQUENCEVERIFY)))
+                                    ScriptOpCodes/OP_CHECKSEQUENCEVERIFY
+                                        (if (not (.. __verifyFlags (contains Script.VerifyFlag/CHECKSEQUENCEVERIFY)))
                                             ;; not enabled; treat as a NOP3
                                             (when (.. __verifyFlags (contains Script.VerifyFlag/DISCOURAGE_UPGRADABLE_NOPS))
                                                 (throw (ScriptException. ScriptError/SCRIPT_ERR_DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " __opcode)))
                                             )
-                                            (§ break )
+                                            (Script/executeCheckSequenceVerify __txContainingThis, (int __index), __stack, __verifyFlags)
                                         )
-                                        (Script/executeCheckSequenceVerify __txContainingThis, (int __index), __stack, __verifyFlags)
-                                        (§ break )
-                                    )
-                                    (§ case ScriptOpCodes/OP_NOP1)
-                                    (§ case ScriptOpCodes/OP_NOP4)
-                                    (§ case ScriptOpCodes/OP_NOP5)
-                                    (§ case ScriptOpCodes/OP_NOP6)
-                                    (§ case ScriptOpCodes/OP_NOP7)
-                                    (§ case ScriptOpCodes/OP_NOP8)
-                                    (§ case ScriptOpCodes/OP_NOP9)
-                                    (§ case ScriptOpCodes/OP_NOP10
-                                        (when (.. __verifyFlags (contains Script.VerifyFlag/DISCOURAGE_UPGRADABLE_NOPS))
-                                            (throw (ScriptException. ScriptError/SCRIPT_ERR_DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " __opcode)))
-                                        )
-                                        (§ break )
-                                    )
 
-                                    (§ default
-                                        (throw (ScriptException. ScriptError/SCRIPT_ERR_BAD_OPCODE, (str "Script used a reserved or disabled opcode: " __opcode)))
-                                    )
+                                   [ScriptOpCodes/OP_NOP1
+                                    ScriptOpCodes/OP_NOP4
+                                    ScriptOpCodes/OP_NOP5
+                                    ScriptOpCodes/OP_NOP6
+                                    ScriptOpCodes/OP_NOP7
+                                    ScriptOpCodes/OP_NOP8
+                                    ScriptOpCodes/OP_NOP9
+                                    ScriptOpCodes/OP_NOP10]
+                                        (do
+                                            (when (.. __verifyFlags (contains Script.VerifyFlag/DISCOURAGE_UPGRADABLE_NOPS))
+                                                (throw (ScriptException. ScriptError/SCRIPT_ERR_DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " __opcode)))
+                                            )
+                                        )
+
+                                    (throw (ScriptException. ScriptError/SCRIPT_ERR_BAD_OPCODE, (str "Script used a reserved or disabled opcode: " __opcode)))
                                 )
                             )
                         )
@@ -42726,31 +42614,24 @@
         (Preconditions/checkArgument (< 0 __numberOfKeys))
         (.. this lock (lock))
         (try
-            (let [#_"DeterministicKey" __parentKey
-                  #_"int" __index]
-                (§ switch __purpose
-                    ;; Map both REFUND and RECEIVE_KEYS to the same branch for now.  Refunds are a feature of the BIP 70
-                    ;; payment protocol.  Later we may wish to map it to a different branch (in a new wallet version?).
-                    ;; This would allow a watching wallet to only be able to see inbound payments, but not change
-                    ;; (i.e. spends) or refunds.  Might be useful for auditing ...
-                    (§ case RECEIVE_FUNDS)
-                    (§ case REFUND
-                        (§ ass (.. this issuedExternalKeys) (+ (.. this issuedExternalKeys) __numberOfKeys))
-                        (§ ass __index (.. this issuedExternalKeys))
-                        (§ ass __parentKey (.. this externalParentKey))
-                        (§ break )
-                    )
-                    (§ case AUTHENTICATION)
-                    (§ case CHANGE
-                        (§ ass (.. this issuedInternalKeys) (+ (.. this issuedInternalKeys) __numberOfKeys))
-                        (§ ass __index (.. this issuedInternalKeys))
-                        (§ ass __parentKey (.. this internalParentKey))
-                        (§ break )
-                    )
-                    (§ default
+            ;; Map both REFUND and RECEIVE_KEYS to the same branch for now.  Refunds are a feature of the BIP 70
+            ;; payment protocol.  Later we may wish to map it to a different branch (in a new wallet version?).
+            ;; This would allow a watching wallet to only be able to see inbound payments, but not change
+            ;; (i.e. spends) or refunds.  Might be useful for auditing ...
+            (let [[#_"int" __index #_"DeterministicKey" __parentKey]
+                    (condp ==? __purpose
+                        [RECEIVE_FUNDS REFUND]
+                            (do
+                                (§ ass (.. this issuedExternalKeys) (+ (.. this issuedExternalKeys) __numberOfKeys))
+                                [(.. this issuedExternalKeys) (.. this externalParentKey)]
+                            )
+                        [AUTHENTICATION CHANGE]
+                            (do
+                                (§ ass (.. this issuedInternalKeys) (+ (.. this issuedInternalKeys) __numberOfKeys))
+                                [(.. this issuedInternalKeys) (.. this internalParentKey)]
+                            )
                         (throw (UnsupportedOperationException.))
-                    )
-                )
+                    )]
                 ;; Optimization: potentially do a very quick key generation for just the number of keys we need if we
                 ;; didn't already create them, ignoring the configured lookahead size.  This ensures we'll be able to
                 ;; retrieve the keys in the following loop, but if we're totally fresh and didn't get a chance to
