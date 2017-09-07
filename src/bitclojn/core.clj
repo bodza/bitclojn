@@ -34,427 +34,42 @@
 (defn -main [& args]
     )
 
-#_(ns org.bitcoinj.core #_"AbstractBlockChain"
-    (:import [java.util *]
-             [java.util.concurrent *]
-             [java.util.concurrent.locks *])
-    (:import [com.google.common.base *]
-             [com.google.common.collect *]
-             [com.google.common.util.concurrent *]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core.listeners *]
-             [org.bitcoinj.store *]
-             [org.bitcoinj.utils *]
-             [org.bitcoinj.wallet Wallet]))
-
-#_(ns org.bitcoinj.core #_"Address"
-    (:import [java.io IOException ObjectInputStream ObjectOutputStream])
-    (:import [com.google.common.base Preconditions])
-   (:require [org.bitcoinj.params Networks]
-             [org.bitcoinj.script Script]))
-
-#_(ns org.bitcoinj.core #_"AddressFormatException")
-
-#_(ns org.bitcoinj.core #_"AddressMessage"
-    (:import [java.io IOException OutputStream]
-             [java.util ArrayList Collections List]))
-
-#_(ns org.bitcoinj.core #_"AlertMessage"
-    (:import [java.util Date HashSet Set]))
-
-#_(ns org.bitcoinj.core #_"Base58"
-    (:import [java.math BigInteger]
-             [java.util Arrays]))
-
-#_(ns org.bitcoinj.core #_"BitcoinSerializer"
-    (:import [java.io IOException OutputStream]
-             [java.nio BufferUnderflowException ByteBuffer]
-             [java.util HashMap Map])
-    (:import [org.slf4j Logger LoggerFactory])
-    (:import [org.bitcoinj.core Utils]))
-
-#_(ns org.bitcoinj.core #_"Block"
-    (:import [java.io *]
-             [java.math *]
-             [java.util *])
-    (:import [com.google.common.annotations *]
-             [com.google.common.base *]
-             [com.google.common.collect *]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core Coin Sha256Hash]
-             [org.bitcoinj.script *]))
-
-#_(ns org.bitcoinj.core #_"BlockChain"
-    (:import [java.util ArrayList List])
-    (:import [com.google.common.base Preconditions])
-   (:require [org.bitcoinj.store BlockStore BlockStoreException]
-             [org.bitcoinj.wallet Wallet]))
-
-#_(ns org.bitcoinj.core #_"BloomFilter"
-    (:import [java.io IOException OutputStream]
-             #_static [java.lang.Math *]
-             [java.util ArrayList Arrays List])
-    (:import [com.google.common.base Objects Preconditions]
-             [com.google.common.collect Lists])
-   (:require [org.bitcoinj.script Script ScriptChunk]))
-
-#_(ns org.bitcoinj.core #_"CheckpointManager"
-    (:import [java.io BufferedInputStream BufferedReader DataInputStream IOException InputStream InputStreamReader]
-             [java.nio ByteBuffer ByteOrder]
-             [java.security DigestInputStream MessageDigest]
-             [java.util Arrays Map TreeMap])
-    (:import [com.google.common.base Charsets Preconditions]
+#_(ns org.bitcoinj.core
+    (:import [com.google.common.base Charsets Joiner MoreObjects Objects Preconditions Strings]
+             [com.google.common.collect ImmutableMap Lists Ordering]
              [com.google.common.hash HashCode Hasher Hashing]
-             [com.google.common.io BaseEncoding]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.store BlockStore BlockStoreException FullPrunedBlockStore]))
-
-#_(ns org.bitcoinj.core #_"ChildMessage")
-
-#_(ns org.bitcoinj.core #_"Coin"
-    (:import [java.io Serializable]
-             [java.math BigDecimal])
-    (:import [com.google.common.base Preconditions]
+             [com.google.common.io BaseEncoding ByteStreams Resources]
              [com.google.common.math LongMath]
-             [com.google.common.primitives Longs])
-   (:require [org.bitcoinj.utils MonetaryFormat]))
-
-#_(ns org.bitcoinj.core #_"Context"
-    (:import [com.google.common.base Preconditions]
-             [org.slf4j Logger LoggerFactory]))
-
-#_(ns org.bitcoinj.core #_"ECKey"
-    (:import [java.io ByteArrayOutputStream IOException]
-             [java.math BigInteger]
+             [com.google.common.net InetAddresses]
+             [com.google.common.primitives Ints Longs UnsignedBytes UnsignedLongs]
+             [com.google.common.util.concurrent FutureCallback Futures ListenableFuture SettableFuture Uninterruptibles]
+             [java.io BufferedInputStream BufferedReader ByteArrayOutputStream DataInputStream FileInputStream File IOException InputStreamReader InputStream ObjectInputStream ObjectOutputStream OutputStream Serializable UnsupportedEncodingException]
+             [java.lang.ref WeakReference]
+             [java.math BigDecimal BigInteger]
+             [java.net ConnectException InetAddress InetSocketAddress URL UnknownHostException]
+             [java.nio BufferUnderflowException ByteBuffer ByteOrder]
+             [java.nio.channels NotYetConnectedException]
              [java.nio.charset Charset]
-             [java.security SecureRandom SignatureException]
-             [java.util Arrays Comparator])
-    (:import [com.google.common.annotations VisibleForTesting]
-             [com.google.common.base MoreObjects Objects Preconditions]
-             [com.google.common.primitives Ints UnsignedBytes]
-             [org.slf4j Logger LoggerFactory]
+             [java.security DigestInputStream MessageDigest NoSuchAlgorithmException SecureRandom SignatureException]
+             [java.text DateFormat SimpleDateFormat]
+             [java.util ArrayList Arrays Collections Comparator Date HashMap HashSet LinkedList ListIterator List Locale Map Set TreeMap]
+             [java.util.concurrent ArrayBlockingQueue BlockingQueue CopyOnWriteArrayList CopyOnWriteArraySet Executor TimeUnit]
+             [java.util.concurrent.atomic AtomicInteger]
+             [java.util.concurrent.locks Lock ReentrantLock]
+             [org.slf4j LoggerFactory Logger]
              [org.spongycastle.asn1 *]
              [org.spongycastle.asn1.x9 X9ECParameters X9IntegerConverter]
              [org.spongycastle.crypto AsymmetricCipherKeyPair]
-             [org.spongycastle.crypto.digests SHA256Digest]
+             [org.spongycastle.crypto.digests RIPEMD160Digest SHA256Digest]
              [org.spongycastle.crypto.ec CustomNamedCurves]
              [org.spongycastle.crypto.generators ECKeyPairGenerator]
-             [org.spongycastle.crypto.params *]
+             [org.spongycastle.crypto.params KeyParameter]
              [org.spongycastle.crypto.signers ECDSASigner HMacDSAKCalculator]
              [org.spongycastle.math.ec ECAlgorithms ECPoint FixedPointCombMultiplier FixedPointUtil]
              [org.spongycastle.math.ec.custom.sec SecP256K1Curve]
-             [org.spongycastle.util.encoders Base64])
-   (:require [org.bitcoinj.crypto *]
-             [org.bitcoinj.wallet Protos Wallet]))
-
-#_(ns org.bitcoinj.core #_"EmptyMessage"
-    (:import [java.io IOException OutputStream]))
-
-#_(ns org.bitcoinj.core #_"FilteredBlock"
-    (:import [java.io IOException OutputStream]
-             [java.util *])
-    (:import [com.google.common.base Objects]))
-
-#_(ns org.bitcoinj.core #_"FullPrunedBlockChain"
-    (:import [java.util ArrayList LinkedList List ListIterator Set]
-             [java.util.concurrent *])
-    (:import [com.google.common.base Preconditions]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.script Script]
-             [org.bitcoinj.store BlockStoreException FullPrunedBlockStore]
-             [org.bitcoinj.utils *]
-             [org.bitcoinj.wallet Wallet]))
-
-#_(ns org.bitcoinj.core #_"GetAddrMessage")
-
-#_(ns org.bitcoinj.core #_"GetBlocksMessage"
-    (:import [java.io IOException OutputStream]
-             [java.util ArrayList List]))
-
-#_(ns org.bitcoinj.core #_"GetDataMessage")
-
-#_(ns org.bitcoinj.core #_"GetHeadersMessage"
-    (:import [java.util List]))
-
-#_(ns org.bitcoinj.core #_"HeadersMessage"
-    (:import [java.io IOException OutputStream]
-             [java.util ArrayList Arrays List])
-    (:import [org.slf4j Logger LoggerFactory]))
-
-#_(ns org.bitcoinj.core #_"InsufficientMoneyException"
-    (:import [com.google.common.base Preconditions]))
-
-#_(ns org.bitcoinj.core #_"InventoryItem"
-    (:import [com.google.common.base Objects]))
-
-#_(ns org.bitcoinj.core #_"InventoryMessage"
-    (:import [com.google.common.base Preconditions]))
-
-#_(ns org.bitcoinj.core #_"ListMessage"
-    (:import [java.io IOException OutputStream]
-             [java.util ArrayList Collections List]))
-
-#_(ns org.bitcoinj.core #_"MemoryPoolMessage"
-    (:import [java.io IOException OutputStream]))
-
-#_(ns org.bitcoinj.core #_"Message"
-    (:import [java.io *]
-             [java.math BigInteger]
-             [java.util Arrays])
-    (:import [com.google.common.base Preconditions]
-             [org.slf4j Logger LoggerFactory]))
-
-#_(ns org.bitcoinj.core #_"MessageSerializer"
-    (:import [java.io IOException OutputStream]
-             [java.nio BufferUnderflowException ByteBuffer]))
-
-#_(ns org.bitcoinj.core #_"Monetary"
-    (:import [java.io Serializable]))
-
-#_(ns org.bitcoinj.core #_"NetworkParameters"
-    (:import [java.io *]
-             [java.math *]
-             [java.util *])
-    (:import [com.google.common.base Objects])
-   (:require [org.bitcoinj.core Block Coin StoredBlock VerificationException]
-             [org.bitcoinj.net.discovery *]
-             [org.bitcoinj.params *]
-             [org.bitcoinj.script *]
-             [org.bitcoinj.store BlockStore BlockStoreException]
-             [org.bitcoinj.utils MonetaryFormat VersionTally]))
-
-#_(ns org.bitcoinj.core #_"NotFoundMessage"
-    (:import [java.util ArrayList List]))
-
-#_(ns org.bitcoinj.core #_"PartialMerkleTree"
-    (:import [java.io IOException OutputStream]
-             [java.util ArrayList Arrays List])
-    (:import [com.google.common.base Objects])
-    (:import [org.bitcoinj.core Utils]))
-
-#_(ns org.bitcoinj.core #_"Peer"
-    (:import [java.util *]
-             [java.util.concurrent CopyOnWriteArrayList CopyOnWriteArraySet Executor]
-             [java.util.concurrent.atomic AtomicInteger]
-             [java.util.concurrent.locks ReentrantLock])
-    (:import [com.google.common.base * Objects]
-             [com.google.common.collect Lists]
-             [com.google.common.util.concurrent FutureCallback Futures ListenableFuture SettableFuture]
-             [net.jcip.annotations GuardedBy]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core.listeners *]
-             [org.bitcoinj.net StreamConnection]
-             [org.bitcoinj.store BlockStore BlockStoreException]
-             [org.bitcoinj.utils ListenerRegistration Threading]
-             [org.bitcoinj.wallet Wallet]))
-
-#_(ns org.bitcoinj.core #_"PeerAddress"
-    (:import [java.io IOException OutputStream]
-             [java.math BigInteger]
-             [java.net InetAddress InetSocketAddress UnknownHostException])
-    (:import [com.google.common.base Objects Preconditions]
-             [com.google.common.net InetAddresses])
-    (:import [org.bitcoinj.core Utils]
-             [org.bitcoinj.params MainNetParams]))
-
-#_(ns org.bitcoinj.core #_"PeerException")
-
-#_(ns org.bitcoinj.core #_"PeerFilterProvider")
-
-#_(ns org.bitcoinj.core #_"PeerGroup"
-    (:import [java.io *]
-             [java.net *]
-             [java.util *]
-             [java.util.concurrent *]
-             [java.util.concurrent.locks *])
-    (:import [com.google.common.annotations *]
-             [com.google.common.base *]
-             [com.google.common.collect *]
-             [com.google.common.net *]
-             [com.google.common.primitives *]
-             [com.google.common.util.concurrent *]
-             [net.jcip.annotations *]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core.listeners *]
-             [org.bitcoinj.net *]
-             [org.bitcoinj.net.discovery *]
-             [org.bitcoinj.script *]
-             [org.bitcoinj.utils * Threading]
-             [org.bitcoinj.wallet Wallet]
-             [org.bitcoinj.wallet.listeners KeyChainEventListener WalletCoinsReceivedEventListener]))
-
-#_(ns org.bitcoinj.core #_"PeerSocketHandler"
-    (:import [java.io ByteArrayOutputStream IOException]
-             [java.net ConnectException InetSocketAddress]
-             [java.nio BufferUnderflowException ByteBuffer]
-             [java.nio.channels NotYetConnectedException]
-             [java.util.concurrent.locks Lock])
-    (:import [com.google.common.annotations VisibleForTesting]
-             [com.google.common.base Preconditions]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.net AbstractTimeoutHandler MessageWriteTarget StreamConnection]
-             [org.bitcoinj.utils Threading]))
-
-#_(ns org.bitcoinj.core #_"Ping"
-    (:import [java.io IOException OutputStream]))
-
-#_(ns org.bitcoinj.core #_"Pong"
-    (:import [java.io IOException OutputStream]))
-
-#_(ns org.bitcoinj.core #_"ProtocolException")
-
-#_(ns org.bitcoinj.core #_"PrunedException")
-
-#_(ns org.bitcoinj.core #_"RejectMessage"
-    (:import [java.io IOException OutputStream]
-             [java.util Locale])
-    (:import [com.google.common.base Objects]))
-
-#_(ns org.bitcoinj.core #_"RejectedTransactionException")
-
-#_(ns org.bitcoinj.core #_"ScriptException"
-   (:require [org.bitcoinj.script ScriptError]))
-
-#_(ns org.bitcoinj.core #_"Sha256Hash"
-    (:import [java.io File FileInputStream IOException Serializable]
-             [java.math BigInteger]
-             [java.security MessageDigest NoSuchAlgorithmException]
-             [java.util Arrays])
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.io ByteStreams]
-             [com.google.common.primitives *]))
-
-#_(ns org.bitcoinj.core #_"StoredBlock"
-    (:import [java.math BigInteger]
-             [java.nio ByteBuffer]
-             [java.util Locale])
-    (:import [com.google.common.base Objects Preconditions])
-   (:require [org.bitcoinj.store BlockStore BlockStoreException]))
-
-#_(ns org.bitcoinj.core #_"StoredUndoableBlock"
-    (:import [java.util List]))
-
-#_(ns org.bitcoinj.core #_"Transaction"
-    (:import [java.io *]
-             [java.math BigInteger]
-             [java.util *])
-    (:import [com.google.common.base Preconditions Strings]
-             [com.google.common.collect ImmutableMap]
-             [com.google.common.primitives Ints Longs]
-             [org.slf4j Logger LoggerFactory]
-             [org.spongycastle.crypto.params KeyParameter])
-   (:require [org.bitcoinj.core TransactionConfidence Utils]
-             [org.bitcoinj.crypto TransactionSignature]
-             [org.bitcoinj.script Script ScriptBuilder ScriptError ScriptOpCodes]
-             [org.bitcoinj.signers TransactionSigner]
-             [org.bitcoinj.utils ExchangeRate]
-             [org.bitcoinj.wallet Wallet WalletTransaction]))
-
-#_(ns org.bitcoinj.core #_"TransactionBag"
-    (:import [java.util Map])
-   (:require [org.bitcoinj.script Script]
-             [org.bitcoinj.wallet WalletTransaction]))
-
-#_(ns org.bitcoinj.core #_"TransactionBroadcast"
-    (:import [java.util *]
-             [java.util.concurrent *])
-    (:import [com.google.common.annotations *]
-             [com.google.common.base *]
-             [com.google.common.util.concurrent *]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core.listeners PreMessageReceivedEventListener]
-             [org.bitcoinj.utils *]
-             [org.bitcoinj.wallet Wallet]))
-
-#_(ns org.bitcoinj.core #_"TransactionBroadcaster")
-
-#_(ns org.bitcoinj.core #_"TransactionConfidence"
-    (:import [java.util *]
-             [java.util.concurrent *])
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.collect *]
-             [com.google.common.util.concurrent *])
-   (:require [org.bitcoinj.utils *]
-             [org.bitcoinj.wallet Wallet]))
-
-#_(ns org.bitcoinj.core #_"TransactionInput"
-    (:import [java.io IOException OutputStream]
-             [java.lang.ref WeakReference]
-             [java.util Arrays Map])
-    (:import [com.google.common.base Joiner Objects Preconditions])
-   (:require [org.bitcoinj.script Script ScriptError]
-             [org.bitcoinj.wallet DefaultRiskAnalysis KeyBag RedeemData]))
-
-#_(ns org.bitcoinj.core #_"TransactionOutPoint"
-    (:import [java.io *])
-    (:import [com.google.common.base Objects Preconditions])
-   (:require [org.bitcoinj.script *]
-             [org.bitcoinj.wallet *]))
-
-#_(ns org.bitcoinj.core #_"TransactionOutput"
-    (:import [java.io *]
-             [java.util *])
-    (:import [com.google.common.base Objects Preconditions]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.script *]
-             [org.bitcoinj.wallet Wallet]))
-
-#_(ns org.bitcoinj.core #_"TransactionOutputChanges"
-    (:import [java.io IOException InputStream OutputStream]
-             [java.util LinkedList List]))
-
-#_(ns org.bitcoinj.core #_"TxConfidenceTable"
-    (:import [java.lang.ref *]
-             [java.util *]
-             [java.util.concurrent.locks *])
-    (:import [com.google.common.base Preconditions])
-   (:require [org.bitcoinj.utils *]))
-
-#_(ns org.bitcoinj.core #_"UTXO"
-    (:import [java.io *]
-             [java.math *]
-             [java.util Locale])
-    (:import [com.google.common.base Objects])
-   (:require [org.bitcoinj.script *]))
-
-#_(ns org.bitcoinj.core #_"UnknownMessage")
-
-#_(ns org.bitcoinj.core #_"Utils"
-    (:import [java.io ByteArrayOutputStream IOException InputStream OutputStream UnsupportedEncodingException]
-             [java.math BigInteger]
-             [java.net URL]
-             [java.text DateFormat SimpleDateFormat]
-             [java.util *]
-             [java.util.concurrent ArrayBlockingQueue BlockingQueue TimeUnit])
-    (:import [com.google.common.base Charsets Joiner Preconditions]
-             [com.google.common.collect Lists Ordering]
-             [com.google.common.io BaseEncoding Resources]
-             [com.google.common.primitives Ints UnsignedLongs]
-             [com.google.common.util.concurrent Uninterruptibles]
-             [org.spongycastle.crypto.digests RIPEMD160Digest]))
-
-#_(ns org.bitcoinj.core #_"VarInt")
-
-#_(ns org.bitcoinj.core #_"VerificationException")
-
-#_(ns org.bitcoinj.core #_"VersionAck")
-
-#_(ns org.bitcoinj.core #_"VersionMessage"
-    (:import [java.io IOException OutputStream]
-             [java.math BigInteger]
-             [java.net InetAddress UnknownHostException]
-             [java.util Locale])
-    (:import [com.google.common.base Objects]
-             [com.google.common.net InetAddresses]))
-
-#_(ns org.bitcoinj.core #_"VersionedChecksummedBytes"
-    (:import [java.io Serializable]
-             [java.util Arrays])
-    (:import [com.google.common.base Objects Preconditions]
-             [com.google.common.primitives Ints UnsignedBytes]))
-
-#_(ns org.bitcoinj.core #_"WrongNetworkException"
-    (:import [java.util Arrays]))
+             [org.spongycastle.util.encoders Base64]
+    )
+)
 
 ;;;
  ; <p>An AbstractBlockChain holds a series of {@link Block} objects, links them together, and knows how to verify that
@@ -22573,61 +22188,13 @@
     )
 )
 
-#_(ns org.bitcoinj.core.listeners #_"AbstractPeerDataEventListener"
-    (:import [java.util *])
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.core.listeners #_"BlockChainListener")
-
-#_(ns org.bitcoinj.core.listeners #_"BlocksDownloadedEventListener"
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.core.listeners #_"ChainDownloadStartedEventListener"
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.core.listeners #_"DownloadProgressTracker"
-    (:import [java.util Date Locale]
-             [java.util.concurrent ExecutionException])
+#_(ns org.bitcoinj.core.listeners
     (:import [com.google.common.util.concurrent ListenableFuture SettableFuture]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core Block FilteredBlock Peer Utils]))
-
-#_(ns org.bitcoinj.core.listeners #_"GetDataEventListener"
-    (:import [java.util *])
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.core.listeners #_"NewBestBlockListener"
-   (:require [org.bitcoinj.core StoredBlock VerificationException]))
-
-#_(ns org.bitcoinj.core.listeners #_"OnTransactionBroadcastListener"
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.core.listeners #_"PeerConnectedEventListener"
-   (:require [org.bitcoinj.core Peer]))
-
-#_(ns org.bitcoinj.core.listeners #_"PeerDataEventListener"
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.core.listeners #_"PeerDisconnectedEventListener"
-   (:require [org.bitcoinj.core Peer]))
-
-#_(ns org.bitcoinj.core.listeners #_"PeerDiscoveredEventListener"
-    (:import [java.util Set])
-   (:require [org.bitcoinj.core Peer PeerAddress]))
-
-#_(ns org.bitcoinj.core.listeners #_"PreMessageReceivedEventListener"
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.core.listeners #_"ReorganizeListener"
-    (:import [java.util List])
-   (:require [org.bitcoinj.core StoredBlock VerificationException]))
-
-#_(ns org.bitcoinj.core.listeners #_"TransactionConfidenceEventListener"
-   (:require [org.bitcoinj.core Transaction]
-             [org.bitcoinj.wallet Wallet]))
-
-#_(ns org.bitcoinj.core.listeners #_"TransactionReceivedInBlockListener"
-   (:require [org.bitcoinj.core BlockChain Sha256Hash StoredBlock Transaction VerificationException]))
+             [java.util Date List Locale Set]
+             [java.util.concurrent ExecutionException]
+             [org.slf4j LoggerFactory Logger]
+    )
+)
 
 ;;;
  ; Deprecated: implement the more specific event listener interfaces instead to fill out only what you need.
@@ -23040,103 +22607,30 @@
     (§ method #_"boolean" notifyTransactionIsInBlock [#_"Sha256Hash" __txHash, #_"StoredBlock" block, #_"BlockChain.NewBlockType" __blockType, #_"int" __relativityOffset])
 )
 
-#_(ns org.bitcoinj.crypto #_"ChildNumber"
-    (:import [java.util Locale])
-    (:import [com.google.common.primitives Ints]))
-
-#_(ns org.bitcoinj.crypto #_"DeterministicHierarchy"
-    (:import [java.util List Locale Map])
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.collect ImmutableList Maps]))
-
-#_(ns org.bitcoinj.crypto #_"DeterministicKey"
-    (:import [java.math BigInteger]
-             [java.nio ByteBuffer]
-             [java.util Arrays Comparator])
-    (:import [com.google.common.base MoreObjects Objects Preconditions]
-             [com.google.common.collect ImmutableList]
-             [org.spongycastle.crypto.params KeyParameter]
-             [org.spongycastle.math.ec ECPoint])
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.crypto #_"EncryptableItem"
-   (:require [org.bitcoinj.wallet Protos]))
-
-#_(ns org.bitcoinj.crypto #_"EncryptedData"
-    (:import [java.util Arrays])
-    (:import [com.google.common.base Objects]))
-
-#_(ns org.bitcoinj.crypto #_"HDDerivationException")
-
-#_(ns org.bitcoinj.crypto #_"HDKeyDerivation"
-    (:import [java.math *]
-             [java.nio *]
-             [java.security *]
-             [java.util *])
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.collect *]
-             [org.spongycastle.math.ec *])
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.crypto #_"HDUtils"
-    (:import [java.nio ByteBuffer]
-             [java.util ArrayList Arrays Collections List])
-    (:import [com.google.common.base Joiner]
-             [com.google.common.collect ImmutableList Iterables]
-             [org.spongycastle.crypto.digests SHA512Digest]
-             [org.spongycastle.crypto.macs HMac]
-             [org.spongycastle.crypto.params KeyParameter])
-   (:require [org.bitcoinj.core ECKey]))
-
-#_(ns org.bitcoinj.crypto #_"KeyCrypter"
-    (:import [java.io Serializable])
-    (:import [org.spongycastle.crypto.params KeyParameter])
-   (:require [org.bitcoinj.wallet Protos]))
-
-#_(ns org.bitcoinj.crypto #_"KeyCrypterException")
-
-#_(ns org.bitcoinj.crypto #_"KeyCrypterScrypt"
-    (:import [java.security SecureRandom]
-             [java.util Arrays])
-    (:import [com.google.common.base Objects Preconditions Stopwatch]
+#_(ns org.bitcoinj.crypto
+    (:import [com.google.common.base Joiner MoreObjects Objects Preconditions Stopwatch]
+             [com.google.common.collect ImmutableList Iterables Maps]
+             [com.google.common.primitives Ints]
              [com.google.protobuf ByteString]
              [com.lambdaworks.crypto SCrypt]
-             [org.slf4j Logger LoggerFactory]
+             [java.io BufferedReader ByteArrayOutputStream FileNotFoundException IOException InputStreamReader InputStream Serializable]
+             [java.math BigInteger]
+             [java.nio ByteBuffer ByteOrder]
+             [java.security MessageDigest SecureRandom]
+             [java.util ArrayList Arrays Collections Comparator List Locale Map]
+             [javax.crypto Mac]
+             [javax.crypto.spec SecretKeySpec]
+             [org.slf4j LoggerFactory Logger]
              [org.spongycastle.crypto BufferedBlockCipher]
+             [org.spongycastle.crypto.digests SHA512Digest]
              [org.spongycastle.crypto.engines AESFastEngine]
+             [org.spongycastle.crypto.macs HMac]
              [org.spongycastle.crypto.modes CBCBlockCipher]
              [org.spongycastle.crypto.paddings PaddedBufferedBlockCipher]
-             [org.spongycastle.crypto.params KeyParameter ParametersWithIV])
-   (:require [org.bitcoinj.core Utils]
-             [org.bitcoinj.wallet Protos]))
-
-#_(ns org.bitcoinj.crypto #_"LazyECPoint"
-    (:import [java.math BigInteger]
-             [java.util Arrays])
-    (:import [com.google.common.base Preconditions]
-             [org.spongycastle.math.ec ECCurve ECFieldElement ECPoint]))
-
-#_(ns org.bitcoinj.crypto #_"MnemonicCode"
-    (:import [java.io BufferedReader FileNotFoundException IOException InputStream InputStreamReader]
-             [java.security MessageDigest]
-             [java.util ArrayList Collections List])
-    (:import [com.google.common.base Stopwatch]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core Sha256Hash Utils]))
-
-#_(ns org.bitcoinj.crypto #_"MnemonicException")
-
-#_(ns org.bitcoinj.crypto #_"PBKDF2SHA512"
-    (:import [java.io ByteArrayOutputStream]
-             [java.nio ByteBuffer ByteOrder]
-             [javax.crypto Mac]
-             [javax.crypto.spec SecretKeySpec]))
-
-#_(ns org.bitcoinj.crypto #_"TransactionSignature"
-    (:import [java.io ByteArrayOutputStream IOException]
-             [java.math BigInteger])
-    (:import [com.google.common.base Preconditions])
-   (:require [org.bitcoinj.core ECKey Transaction VerificationException]))
+             [org.spongycastle.crypto.params KeyParameter ParametersWithIV]
+             [org.spongycastle.math.ec ECCurve ECFieldElement ECPoint]
+    )
+)
 
 ;;;
  ; <p>This is just a wrapper for the i (child number) as per BIP 32 with a boolean getter for the most significant bit
@@ -25808,21 +25302,18 @@
     )
 )
 
-#_(ns org.bitcoinj.kits #_"WalletAppKit"
-    (:import [java.io *]
-             [java.net *]
-             [java.nio.channels *]
-             [java.util *]
-             [java.util.concurrent *])
+#_(ns org.bitcoinj.kits
     (:import [com.google.common.base Preconditions]
              [com.google.common.collect *]
              [com.google.common.util.concurrent *]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core.listeners *]
-             [org.bitcoinj.core *]
-             [org.bitcoinj.net.discovery *]
-             [org.bitcoinj.store *]
-             [org.bitcoinj.wallet *]))
+             [java.io *]
+             [java.net *]
+             [java.nio.channels *]
+             [java.util *]
+             [java.util.concurrent *]
+             [org.slf4j LoggerFactory Logger]
+    )
+)
 
 ;;;
  ; <p>Utility class that wraps the boilerplate needed to set up a new SPV bitcoinj app.  Instantiate it with a directory
@@ -26414,101 +25905,23 @@
     )
 )
 
-#_(ns org.bitcoinj.net #_"AbstractTimeoutHandler"
-    (:import [java.util Timer TimerTask]))
-
-#_(ns org.bitcoinj.net #_"BlockingClient"
-    (:import [java.io *]
-             [java.net *]
-             [java.nio *]
-             [java.util *]
-             [javax.net *])
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.util.concurrent *]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.net #_"BlockingClientManager"
-    (:import [java.io IOException]
-             [java.net SocketAddress]
-             [java.util Collections HashSet Iterator Set]
-             [javax.net SocketFactory])
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.util.concurrent AbstractIdleService ListenableFuture]))
-
-#_(ns org.bitcoinj.net #_"ClientConnectionManager"
-    (:import [java.net SocketAddress])
-    (:import [com.google.common.util.concurrent ListenableFuture Service]))
-
-#_(ns org.bitcoinj.net #_"ConnectionHandler"
-    (:import [java.io IOException]
-             [java.nio ByteBuffer]
-             [java.nio.channels CancelledKeyException SelectionKey SocketChannel]
-             [java.util Arrays Iterator LinkedList Set]
-             [java.util.concurrent.locks ReentrantLock]
-             [javax.annotation.concurrent GuardedBy])
+#_(ns org.bitcoinj.net
     (:import [com.google.common.base Preconditions Throwables]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core Message]
-             [org.bitcoinj.utils Threading]))
-
-#_(ns org.bitcoinj.net #_"FilterMerger"
-    (:import [java.util LinkedList])
-    (:import [com.google.common.collect ImmutableList Lists])
-   (:require [org.bitcoinj.core BloomFilter PeerFilterProvider]))
-
-#_(ns org.bitcoinj.net #_"MessageWriteTarget"
-    (:import [java.io IOException]))
-
-#_(ns org.bitcoinj.net #_"NioClient"
-    (:import [java.io *]
-             [java.net *]
-             [java.nio *])
-    (:import [com.google.common.base *]
-             [com.google.common.util.concurrent *]
-             [org.slf4j Logger LoggerFactory]))
-
-#_(ns org.bitcoinj.net #_"NioClientManager"
-    (:import [java.io IOException]
-             [java.net ConnectException SocketAddress]
-             [java.nio.channels *]
-             [java.nio.channels.spi SelectorProvider]
-             [java.util *]
-             [java.util.concurrent *])
-    (:import [com.google.common.base Throwables]
-             [com.google.common.util.concurrent *]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.utils *]))
-
-#_(ns org.bitcoinj.net #_"NioServer"
-    (:import [java.io IOException]
-             [java.net InetSocketAddress]
-             [java.nio.channels *]
-             [java.nio.channels.spi SelectorProvider]
-             [java.util Iterator])
-    (:import [com.google.common.annotations VisibleForTesting]
-             [com.google.common.base Throwables]
-             [com.google.common.util.concurrent AbstractExecutionThreadService]
-             [org.slf4j Logger LoggerFactory]))
-
-#_(ns org.bitcoinj.net #_"ProtobufConnection"
-    (:import [java.io IOException]
+             [com.google.common.collect ImmutableList Lists]
+             [com.google.common.util.concurrent AbstractExecutionThreadService AbstractIdleService ListenableFuture Service]
+             [com.google.protobuf ByteString MessageLite]
+             [java.io IOException]
+             [java.net ConnectException InetAddress InetSocketAddress SocketAddress]
              [java.nio ByteBuffer ByteOrder]
+             [java.nio.channels CancelledKeyException SelectionKey SocketChannel]
+             [java.nio.channels.spi SelectorProvider]
+             [java.util Arrays Collections HashSet Iterator LinkedList Set TimerTask Timer]
              [java.util.concurrent.atomic AtomicReference]
              [java.util.concurrent.locks ReentrantLock]
-             [javax.annotation.concurrent GuardedBy])
-    (:import [com.google.common.annotations VisibleForTesting]
-             [com.google.common.base Preconditions]
-             [com.google.protobuf ByteString MessageLite]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core Utils]
-             [org.bitcoinj.utils Threading]))
-
-#_(ns org.bitcoinj.net #_"StreamConnection"
-    (:import [java.nio ByteBuffer]))
-
-#_(ns org.bitcoinj.net #_"StreamConnectionFactory"
-    (:import [java.net InetAddress]))
+             [javax.net SocketFactory]
+             [org.slf4j LoggerFactory Logger]
+    )
+)
 
 ;;;
  ; <p>A base class which provides basic support for socket timeouts.  It is used instead of integrating timeouts into the
@@ -28096,34 +27509,15 @@
     (§ method #_"StreamConnection" getNewConnection [#_"InetAddress" __inetAddress, #_"int" port])
 )
 
-#_(ns org.bitcoinj.net.discovery #_"DnsDiscovery"
-    (:import [java.net *]
-             [java.util *]
-             [java.util.concurrent *])
-   (:require [org.bitcoinj.core *]
-             [org.bitcoinj.utils *]))
-
-#_(ns org.bitcoinj.net.discovery #_"MultiplexingDiscovery"
-    (:import [java.net InetSocketAddress]
-             [java.util ArrayList Collections List]
-             [java.util.concurrent *])
+#_(ns org.bitcoinj.net.discovery
     (:import [com.google.common.base Preconditions]
              [com.google.common.collect Lists]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core NetworkParameters VersionMessage]
-             [org.bitcoinj.net.discovery DnsDiscovery]
-             [org.bitcoinj.utils *]))
-
-#_(ns org.bitcoinj.net.discovery #_"PeerDiscovery"
-    (:import [java.net InetSocketAddress]
-             [java.util.concurrent TimeUnit]))
-
-#_(ns org.bitcoinj.net.discovery #_"PeerDiscoveryException")
-
-#_(ns org.bitcoinj.net.discovery #_"SeedPeers"
-    (:import [java.net InetAddress InetSocketAddress UnknownHostException]
-             [java.util.concurrent TimeUnit])
-   (:require [org.bitcoinj.core NetworkParameters]))
+             [java.net InetAddress InetSocketAddress UnknownHostException]
+             [java.util ArrayList Collections List]
+             [java.util.concurrent TimeUnit]
+             [org.slf4j LoggerFactory Logger]
+    )
+)
 
 ;;;
  ; <p>Supports peer discovery through DNS.</p>
@@ -28535,36 +27929,16 @@
     )
 )
 
-#_(ns org.bitcoinj.params #_"AbstractBitcoinNetParams"
-    (:import [java.math BigInteger]
-             [java.util.concurrent TimeUnit])
+#_(ns org.bitcoinj.params
     (:import [com.google.common.base Preconditions Stopwatch]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core BitcoinSerializer Block Coin NetworkParameters Sha256Hash StoredBlock Transaction Utils VerificationException]
-             [org.bitcoinj.utils MonetaryFormat]
-             [org.bitcoinj.store BlockStore BlockStoreException]))
-
-#_(ns org.bitcoinj.params #_"MainNetParams"
-    (:import [java.net *])
-    (:import [com.google.common.base Preconditions])
-   (:require [org.bitcoinj.core *]
-             [org.bitcoinj.net.discovery *]))
-
-#_(ns org.bitcoinj.params #_"Networks"
-    (:import [java.util Collection Set])
-    (:import [com.google.common.collect ImmutableSet Lists])
-   (:require [org.bitcoinj.core NetworkParameters]))
-
-#_(ns org.bitcoinj.params #_"TestNet3Params"
-    (:import [java.math BigInteger]
-             [java.util Date])
-    (:import [com.google.common.base Preconditions])
-   (:require [org.bitcoinj.core Block NetworkParameters StoredBlock Utils VerificationException]
-             [org.bitcoinj.store BlockStore BlockStoreException]))
-
-#_(ns org.bitcoinj.params #_"UnitTestParams"
-    (:import [java.math BigInteger])
-   (:require [org.bitcoinj.core *]))
+             [com.google.common.collect ImmutableSet Lists]
+             [java.math BigInteger]
+             [java.net *]
+             [java.util Collection Date Set]
+             [java.util.concurrent TimeUnit]
+             [org.slf4j LoggerFactory Logger]
+    )
+)
 
 ;;;
  ; Parameters for Bitcoin-like networks.
@@ -29104,41 +28478,17 @@
     )
 )
 
-#_(ns org.bitcoinj.script #_"Script"
-    (:import [java.io ByteArrayInputStream ByteArrayOutputStream IOException OutputStream]
+#_(ns org.bitcoinj.script
+    (:import [com.google.common.base Objects Preconditions]
+             [com.google.common.collect ImmutableMap Lists]
+             [java.io ByteArrayInputStream ByteArrayOutputStream IOException OutputStream]
              [java.math BigInteger]
              [java.security MessageDigest NoSuchAlgorithmException]
-             [java.util *])
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.collect Lists]
-             [org.slf4j Logger LoggerFactory]
-             [org.spongycastle.crypto.digests RIPEMD160Digest])
-   (:require [org.bitcoinj.core *]
-             [org.bitcoinj.crypto TransactionSignature]
-             [org.bitcoinj.script ScriptOpCodes]))
-
-#_(ns org.bitcoinj.script #_"ScriptBuilder"
-    (:import [java.math BigInteger]
-             [java.util ArrayList Arrays Collections List Stack])
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.collect Lists])
-   (:require [org.bitcoinj.core Address ECKey Utils]
-             [org.bitcoinj.crypto TransactionSignature]
-             [org.bitcoinj.script ScriptOpCodes]))
-
-#_(ns org.bitcoinj.script #_"ScriptChunk"
-    (:import [java.io IOException OutputStream]
-             [java.util Arrays])
-    (:import [com.google.common.base Objects Preconditions])
-   (:require [org.bitcoinj.core Utils]
-             [org.bitcoinj.script ScriptOpCodes]))
-
-#_(ns org.bitcoinj.script #_"ScriptError"
-    (:import [java.util HashMap Map]))
-
-#_(ns org.bitcoinj.script #_"ScriptOpCodes"
-    (:import [java.util Map])
-    (:import [com.google.common.collect ImmutableMap]))
+             [java.util ArrayList Arrays Collections HashMap List Map Stack]
+             [org.slf4j LoggerFactory Logger]
+             [org.spongycastle.crypto.digests RIPEMD160Digest]
+    )
+)
 
 ;; TODO: Redesign this entire API to be more type safe and organised.
 
@@ -32404,38 +31754,12 @@
     )
 )
 
-#_(ns org.bitcoinj.signers #_"CustomTransactionSigner"
-    (:import [java.util List])
+#_(ns org.bitcoinj.signers
     (:import [com.google.common.base Preconditions]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core *]
-             [org.bitcoinj.crypto ChildNumber TransactionSignature]
-             [org.bitcoinj.script Script]
-             [org.bitcoinj.wallet KeyBag RedeemData]))
-
-#_(ns org.bitcoinj.signers #_"LocalTransactionSigner"
-    (:import [java.util EnumSet])
-    (:import [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core ECKey ScriptException Transaction TransactionInput]
-             [org.bitcoinj.crypto DeterministicKey TransactionSignature]
-             [org.bitcoinj.script Script]
-             [org.bitcoinj.wallet KeyBag RedeemData]))
-
-#_(ns org.bitcoinj.signers #_"MissingSigResolutionSigner"
-    (:import [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core ECKey TransactionInput]
-             [org.bitcoinj.crypto TransactionSignature]
-             [org.bitcoinj.script Script ScriptChunk]
-             [org.bitcoinj.wallet KeyBag Wallet]))
-
-#_(ns org.bitcoinj.signers #_"StatelessTransactionSigner")
-
-#_(ns org.bitcoinj.signers #_"TransactionSigner"
-    (:import [java.util HashMap List Map])
-   (:require [org.bitcoinj.core Transaction]
-             [org.bitcoinj.crypto ChildNumber]
-             [org.bitcoinj.script Script]
-             [org.bitcoinj.wallet KeyBag]))
+             [java.util EnumSet HashMap List Map]
+             [org.slf4j LoggerFactory Logger]
+    )
+)
 
 ;;;
  ; <p>This signer may be used as a template for creating custom multisig transaction signers.</p>
@@ -32821,36 +32145,17 @@
     (§ method #_"boolean" signInputs [#_"ProposedTransaction" __propTx, #_"KeyBag" __keyBag])
 )
 
-#_(ns org.bitcoinj.store #_"BlockStore"
-   (:require [org.bitcoinj.core NetworkParameters Sha256Hash StoredBlock]))
-
-#_(ns org.bitcoinj.store #_"BlockStoreException")
-
-#_(ns org.bitcoinj.store #_"ChainFileLockedException")
-
-#_(ns org.bitcoinj.store #_"FullPrunedBlockStore"
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.store #_"MemoryBlockStore"
-    (:import [java.util LinkedHashMap Map])
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.store #_"MemoryFullPrunedBlockStore"
-    (:import [java.util *])
-    (:import [com.google.common.base Objects Preconditions]
-             [com.google.common.collect Lists])
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.store #_"SPVBlockStore"
-    (:import [java.io *]
+#_(ns org.bitcoinj.store
+    (:import [com.google.common.base Charsets Objects Preconditions]
+             [com.google.common.collect Lists]
+             [java.io *]
              [java.nio *]
              [java.nio.channels *]
-             [java.util *]
-             [java.util.concurrent.locks *])
-    (:import [com.google.common.base Charsets Preconditions]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core *]
-             [org.bitcoinj.utils *]))
+             [java.util LinkedHashMap Map]
+             [java.util.concurrent.locks *]
+             [org.slf4j LoggerFactory Logger]
+    )
+)
 
 ;;;
  ; An implementor of BlockStore saves StoredBlock objects to disk.  Different implementations store them in
@@ -34114,58 +33419,20 @@
     )
 )
 
-#_(ns org.bitcoinj.utils #_"ContextPropagatingThreadFactory"
-    (:import [java.util.concurrent *])
-    (:import [com.google.common.base *]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.utils #_"DaemonThreadFactory"
-    (:import [java.util.concurrent Executors ThreadFactory]))
-
-#_(ns org.bitcoinj.utils #_"ExchangeRate"
-    (:import [java.io Serializable]
-             [java.math BigInteger])
-    (:import [com.google.common.base Objects Preconditions])
-   (:require [org.bitcoinj.core Coin]))
-
-#_(ns org.bitcoinj.utils #_"ExponentialBackoff"
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.primitives Longs])
-   (:require [org.bitcoinj.core Utils]))
-
-#_(ns org.bitcoinj.utils #_"Fiat"
-    (:import [java.io Serializable]
-             [java.math BigDecimal])
+#_(ns org.bitcoinj.utils
     (:import [com.google.common.base Objects Preconditions]
              [com.google.common.math LongMath]
-             [com.google.common.primitives Longs])
-   (:require [org.bitcoinj.core Monetary]))
-
-#_(ns org.bitcoinj.utils #_"ListenerRegistration"
-    (:import [java.util List]
-             [java.util.concurrent Executor])
-    (:import [com.google.common.base Preconditions]))
-
-#_(ns org.bitcoinj.utils #_"MonetaryFormat"
-    (:import [java.math RoundingMode]
+             [com.google.common.primitives Longs]
+             [com.google.common.util.concurrent CycleDetectingLockFactory ListeningExecutorService MoreExecutors Uninterruptibles]
+             [java.io Serializable]
+             [java.math BigDecimal BigInteger RoundingMode]
              [java.text DecimalFormatSymbols]
-             [java.util ArrayList Arrays List Locale])
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.math LongMath])
-   (:require [org.bitcoinj.core Coin Monetary]))
-
-#_(ns org.bitcoinj.utils #_"Threading"
-    (:import [java.util.concurrent *]
-             [java.util.concurrent.locks ReentrantLock])
-    (:import [com.google.common.util.concurrent CycleDetectingLockFactory ListeningExecutorService MoreExecutors Uninterruptibles]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.utils #_"VersionTally"
-    (:import [java.util Stack])
-   (:require [org.bitcoinj.core NetworkParameters StoredBlock]
-             [org.bitcoinj.store BlockStore BlockStoreException]))
+             [java.util ArrayList Arrays List Locale Stack]
+             [java.util.concurrent Executor Executors ThreadFactory]
+             [java.util.concurrent.locks ReentrantLock]
+             [org.slf4j LoggerFactory Logger]
+    )
+)
 
 ;;;
  ; A {@link java.util.concurrent.ThreadFactory} that propagates a {@link org.bitcoinj.core.Context}
@@ -35518,222 +34785,24 @@
     )
 )
 
-#_(ns org.bitcoinj.wallet #_"AllRandomKeysRotating")
-
-#_(ns org.bitcoinj.wallet #_"AllowUnconfirmedCoinSelector"
-   (:require [org.bitcoinj.core Transaction]))
-
-#_(ns org.bitcoinj.wallet #_"BasicKeyChain"
-    (:import [java.util *]
-             [java.util.concurrent CopyOnWriteArrayList Executor]
-             [java.util.concurrent.locks ReentrantLock])
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.collect ImmutableList Lists]
-             [com.google.protobuf ByteString]
-             [org.spongycastle.crypto.params KeyParameter])
-   (:require [org.bitcoinj.core BloomFilter ECKey]
-             [org.bitcoinj.crypto *]
-             [org.bitcoinj.utils ListenerRegistration Threading]
-             [org.bitcoinj.wallet Protos]
-             [org.bitcoinj.wallet.listeners KeyChainEventListener]))
-
-#_(ns org.bitcoinj.wallet #_"CoinSelection"
-    (:import [java.util Collection])
-   (:require [org.bitcoinj.core Coin TransactionOutput]))
-
-#_(ns org.bitcoinj.wallet #_"CoinSelector"
-    (:import [java.util List])
-   (:require [org.bitcoinj.core Coin TransactionOutput]))
-
-#_(ns org.bitcoinj.wallet #_"DecryptingKeyBag"
-    (:import [java.util ArrayList List])
-    (:import [com.google.common.base Preconditions]
-             [org.spongycastle.crypto.params KeyParameter])
-   (:require [org.bitcoinj.core ECKey]))
-
-#_(ns org.bitcoinj.wallet #_"DefaultCoinSelector"
-    (:import [java.math BigInteger]
-             [java.util *])
-    (:import [com.google.common.annotations VisibleForTesting])
-   (:require [org.bitcoinj.core Coin NetworkParameters Transaction TransactionConfidence TransactionOutput]))
-
-#_(ns org.bitcoinj.wallet #_"DefaultKeyChainFactory"
-   (:require [org.bitcoinj.crypto *]
-             [org.bitcoinj.wallet Protos]))
-
-#_(ns org.bitcoinj.wallet #_"DefaultRiskAnalysis"
-    (:import [java.util List])
-    (:import [com.google.common.base Preconditions]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core Coin ECKey]
-             [org.bitcoinj.core NetworkParameters Transaction TransactionConfidence TransactionInput TransactionOutput]
-             [org.bitcoinj.crypto TransactionSignature]
-             [org.bitcoinj.script ScriptChunk]))
-
-#_(ns org.bitcoinj.wallet #_"DeterministicKeyChain"
-    (:import [java.math BigInteger]
-             [java.security SecureRandom]
-             [java.util *]
-             [java.util.concurrent Executor]
-             [java.util.concurrent.locks ReentrantLock])
-    (:import [com.google.common.base Preconditions Stopwatch]
+#_(ns org.bitcoinj.wallet
+    (:import [com.google.common.base Charsets MoreObjects Objects Preconditions Splitter Stopwatch]
              [com.google.common.collect ImmutableList Iterators Lists PeekingIterator]
-             [com.google.protobuf ByteString]
-             [org.slf4j Logger LoggerFactory]
-             [org.spongycastle.crypto.params KeyParameter])
-   (:require [org.bitcoinj.core BloomFilter ECKey NetworkParameters Utils]
-             [org.bitcoinj.crypto *]
-             [org.bitcoinj.script Script]
-             [org.bitcoinj.utils Threading]
-             [org.bitcoinj.wallet Protos]
-             [org.bitcoinj.wallet.listeners KeyChainEventListener]))
-
-#_(ns org.bitcoinj.wallet #_"DeterministicSeed"
-    (:import [java.security SecureRandom]
-             [java.util List])
-    (:import [com.google.common.base Charsets Objects Preconditions Splitter]
-             [org.spongycastle.crypto.params KeyParameter])
-   (:require [org.bitcoinj.core Utils]
-             [org.bitcoinj.crypto *]
-             [org.bitcoinj.wallet Protos]))
-
-#_(ns org.bitcoinj.wallet #_"DeterministicUpgradeRequiredException")
-
-#_(ns org.bitcoinj.wallet #_"DeterministicUpgradeRequiresPassword")
-
-#_(ns org.bitcoinj.wallet #_"EncryptableKeyChain"
-    (:import [org.spongycastle.crypto.params KeyParameter])
-   (:require [org.bitcoinj.crypto KeyCrypter KeyCrypterException]))
-
-#_(ns org.bitcoinj.wallet #_"FilteringCoinSelector"
-    (:import [java.util HashSet Iterator List])
-   (:require [org.bitcoinj.core *]))
-
-#_(ns org.bitcoinj.wallet #_"KeyBag"
-   (:require [org.bitcoinj.core ECKey]))
-
-#_(ns org.bitcoinj.wallet #_"KeyChain"
-    (:import [java.util List]
-             [java.util.concurrent Executor])
-   (:require [org.bitcoinj.core BloomFilter ECKey]
-             [org.bitcoinj.wallet Protos]
-             [org.bitcoinj.wallet.listeners KeyChainEventListener]))
-
-#_(ns org.bitcoinj.wallet #_"KeyChainFactory"
-   (:require [org.bitcoinj.crypto DeterministicKey KeyCrypter]
-             [org.bitcoinj.wallet Protos]))
-
-#_(ns org.bitcoinj.wallet #_"KeyChainGroup"
-    (:import [java.security *]
-             [java.util *]
-             [java.util.concurrent *])
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.collect *]
-             [com.google.protobuf *]
-             [org.slf4j Logger LoggerFactory]
-             [org.spongycastle.crypto.params *])
-   (:require [org.bitcoinj.core *]
-             [org.bitcoinj.crypto *]
-             [org.bitcoinj.script *]
-             [org.bitcoinj.utils *]
-             [org.bitcoinj.wallet Protos]
-             [org.bitcoinj.wallet.listeners KeyChainEventListener]))
-
-#_(ns org.bitcoinj.wallet #_"KeyTimeCoinSelector"
-    (:import [java.util LinkedList List])
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.collect Lists]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core *]
-             [org.bitcoinj.script Script]))
-
-#_(ns org.bitcoinj.wallet #_"MarriedKeyChain"
-    (:import [java.security SecureRandom]
-             [java.util LinkedHashMap List Map])
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.collect ImmutableList Lists]
-             [com.google.protobuf ByteString])
-   (:require [org.bitcoinj.core BloomFilter ECKey NetworkParameters Utils]
-             [org.bitcoinj.crypto DeterministicKey KeyCrypter]
-             [org.bitcoinj.script Script ScriptBuilder]
-             [org.bitcoinj.wallet Protos]))
-
-#_(ns org.bitcoinj.wallet #_"RedeemData"
-    (:import [java.util ArrayList Collections List])
-    (:import [com.google.common.base Preconditions])
-   (:require [org.bitcoinj.core ECKey]
-             [org.bitcoinj.script Script]))
-
-#_(ns org.bitcoinj.wallet #_"RiskAnalysis"
-    (:import [java.util List])
-   (:require [org.bitcoinj.core Transaction]))
-
-#_(ns org.bitcoinj.wallet #_"SendRequest"
-    (:import [java.math BigInteger]
-             [java.util Date])
-    (:import [com.google.common.base MoreObjects Preconditions]
-             [org.spongycastle.crypto.params KeyParameter])
-   (:require [org.bitcoinj.core Address Coin Context ECKey NetworkParameters Transaction TransactionOutput]
-             [org.bitcoinj.script Script ScriptBuilder]
-             [org.bitcoinj.utils ExchangeRate]
-             [org.bitcoinj.wallet KeyChain Wallet]))
-
-#_(ns org.bitcoinj.wallet #_"UnreadableWalletException")
-
-#_(ns org.bitcoinj.wallet #_"Wallet"
-    (:import [java.io *]
-             [java.math BigInteger]
-             [java.util *]
-             [java.util.concurrent *]
-             [java.util.concurrent.atomic *]
-             [java.util.concurrent.locks *])
-    (:import [com.google.common.annotations *]
-             [com.google.common.base *]
-             [com.google.common.collect *]
              [com.google.common.primitives *]
              [com.google.common.util.concurrent *]
-             [com.google.protobuf *]
-             [net.jcip.annotations *]
-             [org.slf4j Logger LoggerFactory]
-             [org.spongycastle.crypto.params *])
-   (:require [org.bitcoinj.core AbstractBlockChain Address BlockChain BloomFilter Coin Context ECKey FilteredBlock InsufficientMoneyException Message NetworkParameters Peer PeerFilterProvider PeerGroup ScriptException Sha256Hash StoredBlock Transaction TransactionBag TransactionBroadcast TransactionBroadcaster TransactionConfidence TransactionInput TransactionOutPoint TransactionOutput UTXO Utils VarInt VerificationException]
-             [org.bitcoinj.core.listeners *]
-             [org.bitcoinj.crypto *]
-             [org.bitcoinj.script *]
-             [org.bitcoinj.signers *]
-             [org.bitcoinj.utils *]
-             [org.bitcoinj.wallet Protos WalletTransaction]
-             [org.bitcoinj.wallet.listeners KeyChainEventListener WalletChangeEventListener WalletCoinsReceivedEventListener WalletCoinsSentEventListener WalletReorganizeEventListener]))
-
-#_(ns org.bitcoinj.wallet #_"WalletFiles"
-    (:import [java.io *]
-             [java.util Date]
-             [java.util.concurrent *]
-             [java.util.concurrent.atomic *])
-    (:import [com.google.common.base Preconditions Stopwatch]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core *]
-             [org.bitcoinj.utils *]))
-
-#_(ns org.bitcoinj.wallet #_"WalletProtobufSerializer"
-    (:import [java.io IOException InputStream OutputStream]
+             [com.google.protobuf ByteString CodedInputStream CodedOutputStream TextFormat WireFormat]
+             [java.io IOException InputStream OutputStream]
              [java.math BigInteger]
              [java.net InetAddress UnknownHostException]
-             [java.util *])
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.collect Lists]
-             [com.google.protobuf ByteString CodedInputStream CodedOutputStream TextFormat WireFormat]
-             [org.slf4j Logger LoggerFactory])
-   (:require [org.bitcoinj.core *]
-             [org.bitcoinj.crypto KeyCrypter KeyCrypterScrypt]
-             [org.bitcoinj.script Script]
-             [org.bitcoinj.signers LocalTransactionSigner TransactionSigner]
-             [org.bitcoinj.utils ExchangeRate Fiat]
-             [org.bitcoinj.wallet Protos]))
-
-#_(ns org.bitcoinj.wallet #_"WalletTransaction"
-    (:import [com.google.common.base Preconditions])
-   (:require [org.bitcoinj.core Transaction]))
+             [java.security SecureRandom]
+             [java.util ArrayList Collection Collections Date HashSet Iterator LinkedHashMap LinkedList List Map]
+             [java.util.concurrent CopyOnWriteArrayList Executor]
+             [java.util.concurrent.atomic *]
+             [java.util.concurrent.locks ReentrantLock]
+             [org.slf4j LoggerFactory Logger]
+             [org.spongycastle.crypto.params KeyParameter]
+    )
+)
 
 ;;;
  ; Indicates that an attempt was made to upgrade a random wallet to deterministic, but there were no non-rotating
@@ -47263,24 +46332,10 @@
     )
 )
 
-#_(ns org.bitcoinj.wallet.listeners #_"KeyChainEventListener"
-    (:import [java.util List])
-   (:require [org.bitcoinj.core ECKey]
-             [org.bitcoinj.wallet KeyChain]))
-
-#_(ns org.bitcoinj.wallet.listeners #_"WalletChangeEventListener"
-   (:require [org.bitcoinj.wallet Wallet]))
-
-#_(ns org.bitcoinj.wallet.listeners #_"WalletCoinsReceivedEventListener"
-   (:require [org.bitcoinj.core Coin Transaction]
-             [org.bitcoinj.wallet Wallet]))
-
-#_(ns org.bitcoinj.wallet.listeners #_"WalletCoinsSentEventListener"
-   (:require [org.bitcoinj.core Coin Transaction]
-             [org.bitcoinj.wallet Wallet]))
-
-#_(ns org.bitcoinj.wallet.listeners #_"WalletReorganizeEventListener"
-   (:require [org.bitcoinj.wallet Wallet]))
+#_(ns org.bitcoinj.wallet.listeners
+    (:import [java.util List]
+    )
+)
 
 #_public
 (§ interface KeyChainEventListener
