@@ -5941,10 +5941,18 @@
     #_static
     (§ def- #_"X9ECParameters" ECKey/CURVE_PARAMS (CustomNamedCurves/getByName "secp256k1"))
 
+    #_static
+    (§ block
+        ;; Tell Bouncy Castle to precompute data that's needed during secp256k1 calculations.  Increasing the width
+        ;; number makes calculations faster, but at a cost of extra memory usage and with decreasing returns.  12 was
+        ;; picked after consulting with the BC team.
+        (FixedPointUtil/precompute (.. ECKey/CURVE_PARAMS (getG)), 12)
+    )
+
     ;;; The parameters of the secp256k1 curve that Bitcoin uses. ;;
     #_public
     #_static
-    (§ def #_"ECDomainParameters" ECKey/CURVE)
+    (§ def #_"ECDomainParameters" ECKey/CURVE (ECDomainParameters. (.. ECKey/CURVE_PARAMS (getCurve)), (.. ECKey/CURVE_PARAMS (getG)), (.. ECKey/CURVE_PARAMS (getN)), (.. ECKey/CURVE_PARAMS (getH))))
 
     ;;;
      ; Equal to CURVE.getN().shiftRight(1), used for canonicalising the S value of a signature.
@@ -5952,27 +5960,11 @@
      ;;
     #_public
     #_static
-    (§ def #_"BigInteger" ECKey/HALF_CURVE_ORDER)
+    (§ def #_"BigInteger" ECKey/HALF_CURVE_ORDER (.. ECKey/CURVE_PARAMS (getN) (shiftRight 1)))
 
     #_private
     #_static
-    (§ def- #_"SecureRandom" ECKey/SECURE_RANDOM)
-
-    #_static
-    (§ block
-        ;; Init proper random number generator, as some old Android installations have bugs that make it unsecure.
-        (when (Utils/isAndroidRuntime)
-            (LinuxSecureRandom.)
-        )
-
-        ;; Tell Bouncy Castle to precompute data that's needed during secp256k1 calculations.  Increasing the width
-        ;; number makes calculations faster, but at a cost of extra memory usage and with decreasing returns.  12 was
-        ;; picked after consulting with the BC team.
-        (FixedPointUtil/precompute (.. ECKey/CURVE_PARAMS (getG)), 12)
-        (§ ass ECKey/CURVE (ECDomainParameters. (.. ECKey/CURVE_PARAMS (getCurve)), (.. ECKey/CURVE_PARAMS (getG)), (.. ECKey/CURVE_PARAMS (getN)), (.. ECKey/CURVE_PARAMS (getH))))
-        (§ ass ECKey/HALF_CURVE_ORDER (.. ECKey/CURVE_PARAMS (getN) (shiftRight 1)))
-        (§ ass ECKey/SECURE_RANDOM (SecureRandom.))
-    )
+    (§ def- #_"SecureRandom" ECKey/SECURE_RANDOM (SecureRandom.))
 
     ;; The two parts of the key.  If "priv" is set, "pub" can always be calculated.  If "pub" is set but not "priv", we
     ;; can only verify signatures not make them.
@@ -23403,11 +23395,6 @@
     (:import [com.google.common.base Preconditions]
              [org.spongycastle.math.ec ECCurve ECFieldElement ECPoint]))
 
-#_(ns org.bitcoinj.crypto #_"LinuxSecureRandom"
-    (:import [java.io *]
-             [java.security *])
-    (:import [org.slf4j Logger LoggerFactory]))
-
 #_(ns org.bitcoinj.crypto #_"MnemonicCode"
     (:import [java.io BufferedReader FileNotFoundException IOException InputStream InputStreamReader]
              [java.security MessageDigest]
@@ -24504,20 +24491,10 @@
  ;;
 #_public
 (§ class HDKeyDerivation
-    #_static
-    (§ block
-        ;; Init proper random number generator, as some old Android installations have bugs that make it unsecure.
-        (when (Utils/isAndroidRuntime)
-            (LinuxSecureRandom.)
-        )
-
-        (§ ass HDKeyDerivation/RAND_INT (BigInteger. 256, (SecureRandom.)))
-    )
-
     ;; Some arbitrary random number.  Doesn't matter what it is.
     #_private
     #_static
-    (§ def- #_"BigInteger" HDKeyDerivation/RAND_INT)
+    (§ def- #_"BigInteger" HDKeyDerivation/RAND_INT (BigInteger. 256, (SecureRandom.)))
 
     #_private
     (§ constructor- #_"HDKeyDerivation" []
@@ -24993,19 +24970,9 @@
     #_static
     (§ def #_"int" KeyCrypterScrypt/SALT_LENGTH 8)
 
-    #_static
-    (§ block
-        ;; Init proper random number generator, as some old Android installations have bugs that make it unsecure.
-        (when (Utils/isAndroidRuntime)
-            (LinuxSecureRandom.)
-        )
-
-        (§ ass KeyCrypterScrypt/SECURE_RANDOM (SecureRandom.))
-    )
-
     #_private
     #_static
-    (§ def- #_"SecureRandom" KeyCrypterScrypt/SECURE_RANDOM)
+    (§ def- #_"SecureRandom" KeyCrypterScrypt/SECURE_RANDOM (SecureRandom.))
 
     ;;; Returns SALT_LENGTH (8) bytes of random data. ;;
     #_public
@@ -25454,104 +25421,6 @@
     #_private
     (§ method- #_"byte[]" getCanonicalEncoding []
         (.. this (getEncoded true))
-    )
-)
-
-;;;
- ; A SecureRandom implementation that is able to override the standard JVM provided implementation, and which simply
- ; serves random numbers by reading /dev/urandom.  That is, it delegates to the kernel on UNIX systems and is unusable
- ; on other platforms.  Attempts to manually set the seed are ignored.  There is no difference between seed bytes and
- ; non-seed bytes, they are all from the same source.
- ;;
-#_public
-(§ class LinuxSecureRandom (§ extends SecureRandomSpi)
-    #_private
-    #_static
-    (§ def- #_"FileInputStream" LinuxSecureRandom/URANDOM)
-
-    #_private
-    #_static
-    (§ class- LinuxSecureRandom.LinuxSecureRandomProvider (§ extends Provider)
-        #_public
-        (§ constructor LinuxSecureRandom.LinuxSecureRandomProvider []
-            (§ super "LinuxSecureRandom", 1.0, "A Linux specific random number provider that uses /dev/urandom")
-
-            (.. this (put "SecureRandom.LinuxSecureRandom", (.. LinuxSecureRandom (getName))))
-            this
-        )
-    )
-
-    #_private
-    #_static
-    (§ def- #_"Logger" LinuxSecureRandom/log (LoggerFactory/getLogger LinuxSecureRandom))
-
-    #_static
-    (§ block
-        (try
-            (let [#_"File" __file (File. "/dev/urandom")]
-                ;; This stream is deliberately leaked.
-                (§ ass LinuxSecureRandom/URANDOM (FileInputStream. __file))
-                (when (== (.. LinuxSecureRandom/URANDOM (read)) -1)
-                    (throw (RuntimeException. "/dev/urandom not readable?"))
-                )
-
-                ;; Now override the default SecureRandom implementation with this one.
-                (let [#_"int" __position (Security/insertProviderAt (LinuxSecureRandom.LinuxSecureRandomProvider.), 1)]
-
-                    (if (!= __position -1)
-                        (.. LinuxSecureRandom/log (info "Secure randomness will be read from {} only.", __file))
-                        (.. LinuxSecureRandom/log (info "Randomness is already secure."))
-                    )
-                )
-            )
-            (catch FileNotFoundException __e
-                ;; Should never happen.
-                (.. LinuxSecureRandom/log (error "/dev/urandom does not appear to exist or is not openable"))
-                (throw (RuntimeException. __e))
-            )
-            (catch IOException __e
-                (.. LinuxSecureRandom/log (error "/dev/urandom does not appear to be readable"))
-                (throw (RuntimeException. __e))
-            )
-        )
-    )
-
-    #_private
-    (§ field- #_"DataInputStream" :dis)
-
-    #_public
-    (§ constructor LinuxSecureRandom []
-        ;; DataInputStream is not thread safe, so each random object has its own.
-        (§ assoc this :dis (DataInputStream. LinuxSecureRandom/URANDOM))
-        this
-    )
-
-    #_override
-    #_protected
-    (§ method #_"void" engineSetSeed [#_"byte[]" __bytes]
-        ;; Ignore.
-        nil
-    )
-
-    #_override
-    #_protected
-    (§ method #_"void" engineNextBytes [#_"byte[]" __bytes]
-        (try
-            (.. (:dis this) (readFully __bytes)) ;; This will block until all the bytes can be read.
-            (catch IOException __e
-                (throw (RuntimeException. __e)) ;; Fatal error.  Do not attempt to recover from this.
-            )
-        )
-        nil
-    )
-
-    #_override
-    #_protected
-    (§ method #_"byte[]" engineGenerateSeed [#_"int" __i]
-        (let [#_"byte[]" __bits (byte-array __i)]
-            (.. this (engineNextBytes __bits))
-            __bits
-        )
     )
 )
 
@@ -42042,14 +41911,6 @@
  ;;
 #_public
 (§ class KeyChainGroup (§ implements KeyBag)
-    #_static
-    (§ block
-        ;; Init proper random number generator, as some old Android installations have bugs that make it unsecure.
-        (when (Utils/isAndroidRuntime)
-            (LinuxSecureRandom.)
-        )
-    )
-
     #_private
     #_static
     (§ def- #_"Logger" KeyChainGroup/log (LoggerFactory/getLogger KeyChainGroup))
