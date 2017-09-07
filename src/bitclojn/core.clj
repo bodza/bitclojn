@@ -423,9 +423,6 @@
 
 #_(ns org.bitcoinj.core #_"UnknownMessage")
 
-#_(ns org.bitcoinj.core #_"UnsafeByteArrayOutputStream"
-    (:import [java.io ByteArrayOutputStream IOException OutputStream]))
-
 #_(ns org.bitcoinj.core #_"Utils"
     (:import [java.io ByteArrayOutputStream IOException InputStream OutputStream UnsupportedEncodingException]
              [java.math BigInteger]
@@ -3395,7 +3392,7 @@
         )
 
         ;; At least one of the two cacheable components is invalid, so fall back to stream write since we can't be sure of the length.
-        (let [#_"ByteArrayOutputStream" __stream (UnsafeByteArrayOutputStream. (if (== (:length this) Message/UNKNOWN_LENGTH) (+ Block/HEADER_SIZE (.. this (guessTransactionsLength))) (:length this)))]
+        (let [#_"ByteArrayOutputStream" __stream (ByteArrayOutputStream. (if (== (:length this) Message/UNKNOWN_LENGTH) (+ Block/HEADER_SIZE (.. this (guessTransactionsLength))) (:length this)))]
             (try
                 (.. this (writeHeader __stream))
                 (.. this (writeTransactions __stream))
@@ -3480,7 +3477,7 @@
     #_private
     (§ method- #_"Sha256Hash" calculateHash []
         (try
-            (let [#_"ByteArrayOutputStream" __bos (UnsafeByteArrayOutputStream. Block/HEADER_SIZE)]
+            (let [#_"ByteArrayOutputStream" __bos (ByteArrayOutputStream. Block/HEADER_SIZE)]
                 (.. this (writeHeader __bos))
                 (§ return (Sha256Hash/wrapReversed (Sha256Hash/hashTwice (.. __bos (toByteArray)))))
             )
@@ -9057,7 +9054,7 @@
         )
 
         ;; No cached array available so serialize parts by stream.
-        (let [#_"ByteArrayOutputStream" __stream (UnsafeByteArrayOutputStream. (if (< (:length this) 32) 32 (+ (:length this) 32)))]
+        (let [#_"ByteArrayOutputStream" __stream (ByteArrayOutputStream. (if (< (:length this) 32) 32 (+ (:length this) 32)))]
             (try
                 (.. this (bitcoinSerializeToStream __stream))
                 (catch IOException _
@@ -18048,7 +18045,7 @@
                         (.. (:inputs __tx) (add __input))
                     )
 
-                    (let [#_"ByteArrayOutputStream" __bos (UnsafeByteArrayOutputStream. (if (== (:length __tx) Message/UNKNOWN_LENGTH) 256 (+ (:length __tx) 4)))]
+                    (let [#_"ByteArrayOutputStream" __bos (ByteArrayOutputStream. (if (== (:length __tx) Message/UNKNOWN_LENGTH) 256 (+ (:length __tx) 4)))]
                         (.. __tx (bitcoinSerialize __bos))
                         ;; We also have to write a hash type (sigHashType is actually an unsigned char).
                         (Utils/uint32ToByteStreamLE (& 0x000000ff __sigHashType), __bos)
@@ -21198,134 +21195,6 @@
     #_public
     (§ method #_"String" toString []
         (str "Unknown message [" (:name this) "]: " (if (some? (:payload this)) (.. Utils/HEX (encode (:payload this))) ""))
-    )
-)
-
-;;;
- ; An unsynchronized implementation of ByteArrayOutputStream that will return the backing byte array
- ; if its length == size().  This avoids unneeded array copy where the BOS is simply being used to
- ; extract a byte array of known length from a 'serialized to stream' method.
- ;
- ; Unless the final length can be accurately predicted the only performance this will yield is due
- ; to unsynchronized methods.
- ;
- ; @author git
- ;;
-#_public
-(§ class UnsafeByteArrayOutputStream (§ extends ByteArrayOutputStream)
-    #_public
-    (§ constructor UnsafeByteArrayOutputStream []
-        (§ super 32)
-        this
-    )
-
-    #_public
-    (§ constructor UnsafeByteArrayOutputStream [#_"int" __size]
-        (§ super __size)
-        this
-    )
-
-    ;;;
-     ; Writes the specified byte to this byte array output stream.
-     ;
-     ; @param b The byte to be written.
-     ;;
-    #_override
-    #_public
-    (§ method #_"void" write [#_"int" __b]
-        (let [#_"int" __n (inc (:count this))]
-            (when (< (.. (:buf this) (alength)) __n)
-                (§ assoc this :buf (Utils/copyOf (:buf this), (Math/max (<< (.. (:buf this) (alength)) 1), __n)))
-            )
-            (aset (:buf this) (:count this) (byte __b))
-            (§ assoc this :count __n)
-            nil
-        )
-    )
-
-    ;;;
-     ; Writes <code>len</code> bytes from the specified byte array
-     ; starting at offset <code>off</code> to this byte array output stream.
-     ;
-     ; @param b   The data.
-     ; @param off The start offset in the data.
-     ; @param len The number of bytes to write.
-     ;;
-    #_override
-    #_public
-    (§ method #_"void" write [#_"byte[]" __b, #_"int" __off, #_"int" __len]
-        (when (or (< __off 0) (< (.. __b (alength)) __off) (< __len 0) (< (.. __b (alength)) (+ __off __len)) (< (+ __off __len) 0))
-            (throw (IndexOutOfBoundsException.))
-        )
-
-        (when (!= __len 0)
-            (let [#_"int" __n (+ (:count this) __len)]
-                (when (< (.. (:buf this) (alength)) __n)
-                    (§ assoc this :buf (Utils/copyOf (:buf this), (Math/max (<< (.. (:buf this) (alength)) 1), __n)))
-                )
-                (System/arraycopy __b, __off, (:buf this), (:count this), __len)
-                (§ assoc this :count __n)
-            )
-        )
-        nil
-    )
-
-    ;;;
-     ; Writes the complete contents of this byte array output stream to
-     ; the specified output stream argument, as if by calling the output
-     ; stream's write method using <code>out.write(buf, 0, count)</code>.
-     ;
-     ; @param out The output stream to which to write the data.
-     ; @throws IOException if an I/O error occurs.
-     ;;
-    #_override
-    #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" writeTo [#_"OutputStream" __out]
-        (.. __out (write (:buf this), 0, (:count this)))
-        nil
-    )
-
-    ;;;
-     ; Resets the <code>count</code> field of this byte array output
-     ; stream to zero, so that all currently accumulated output in the
-     ; output stream is discarded.  The output stream can be used again,
-     ; reusing the already allocated buffer space.
-     ;
-     ; @see java.io.ByteArrayInputStream#count
-     ;;
-    #_override
-    #_public
-    (§ method #_"void" reset []
-        (§ assoc this :count 0)
-        nil
-    )
-
-    ;;;
-     ; Creates a newly allocated byte array.  Its size is the current
-     ; size of this output stream and the valid contents of the buffer
-     ; have been copied into it.
-     ;
-     ; @return the current contents of this output stream, as a byte array.
-     ; @see java.io.ByteArrayOutputStream#size()
-     ;;
-    #_override
-    #_public
-    (§ method #_"byte[]" toByteArray []
-        (if (== (:count this) (.. (:buf this) (alength))) (:buf this) (Utils/copyOf (:buf this), (:count this)))
-    )
-
-    ;;;
-     ; Returns the current size of the buffer.
-     ;
-     ; @return the value of the <code>count</code> field, which is the number
-     ;         of valid bytes in this output stream.
-     ; @see java.io.ByteArrayOutputStream#count
-     ;;
-    #_override
-    #_public
-    (§ method #_"int" size []
-        (:count this)
     )
 )
 
@@ -29918,7 +29787,7 @@
     (§ defn #_"byte[]" Script/createInputScript [#_"byte[]" __signature, #_"byte[]" __pubkey]
         (try
             ;; TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
-            (let [#_"ByteArrayOutputStream" __bits (UnsafeByteArrayOutputStream. (+ (.. __signature (alength)) (.. __pubkey (alength)) 2))]
+            (let [#_"ByteArrayOutputStream" __bits (ByteArrayOutputStream. (+ (.. __signature (alength)) (.. __pubkey (alength)) 2))]
                 (Script/writeBytes __bits, __signature)
                 (Script/writeBytes __bits, __pubkey)
                 (§ return (.. __bits (toByteArray)))
@@ -29934,7 +29803,7 @@
     (§ defn #_"byte[]" Script/createInputScript [#_"byte[]" __signature]
         (try
             ;; TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
-            (let [#_"ByteArrayOutputStream" __bits (UnsafeByteArrayOutputStream. (+ (.. __signature (alength)) 2))]
+            (let [#_"ByteArrayOutputStream" __bits (ByteArrayOutputStream. (+ (.. __signature (alength)) 2))]
                 (Script/writeBytes __bits, __signature)
                 (§ return (.. __bits (toByteArray)))
             )
@@ -30343,7 +30212,7 @@
     #_static
     (§ defn #_"byte[]" Script/removeAllInstancesOf [#_"byte[]" __inputScript, #_"byte[]" __chunkToRemove]
         ;; We usually don't end up removing anything.
-        (let [#_"UnsafeByteArrayOutputStream" __bos (UnsafeByteArrayOutputStream. (.. __inputScript (alength)))]
+        (let [#_"ByteArrayOutputStream" __bos (ByteArrayOutputStream. (.. __inputScript (alength)))]
 
             (let [#_"int" __cursor 0]
                 (while (< __cursor (.. __inputScript (alength)))
@@ -31178,7 +31047,7 @@
                 (let [#_"byte[]" __prog (.. __script (getProgram))
                       #_"byte[]" __connectedScript (Arrays/copyOfRange __prog, __lastCodeSepLocation, (.. __prog (alength)))]
 
-                    (let [#_"UnsafeByteArrayOutputStream" __outStream (UnsafeByteArrayOutputStream. (inc (.. __sigBytes (alength))))]
+                    (let [#_"ByteArrayOutputStream" __outStream (ByteArrayOutputStream. (inc (.. __sigBytes (alength))))]
                         (try
                             (Script/writeBytes __outStream, __sigBytes)
                             (catch IOException __e
@@ -31270,7 +31139,7 @@
                                   #_"byte[]" __connectedScript (Arrays/copyOfRange __prog, __lastCodeSepLocation, (.. __prog (alength)))]
 
                                 (doseq [#_"byte[]" __sig __sigs]
-                                    (let [#_"UnsafeByteArrayOutputStream" __outStream (UnsafeByteArrayOutputStream. (inc (.. __sig (alength))))]
+                                    (let [#_"ByteArrayOutputStream" __outStream (ByteArrayOutputStream. (inc (.. __sig (alength))))]
                                         (try
                                             (Script/writeBytes __outStream, __sig)
                                             (catch IOException __e
