@@ -123,10 +123,6 @@
     (:import [com.google.common.base Preconditions]
              [org.slf4j Logger LoggerFactory]))
 
-#_(ns org.bitcoinj.core #_"DummySerializer"
-    (:import [java.io IOException OutputStream]
-             [java.nio BufferUnderflowException ByteBuffer]))
-
 #_(ns org.bitcoinj.core #_"ECKey"
     (:import [java.io ByteArrayOutputStream IOException]
              [java.math BigInteger]
@@ -5751,124 +5747,6 @@
 )
 
 ;;;
- ; Dummy serializer used ONLY for objects which do not have network parameters set.
- ;;
-(§ class DummySerializer (§ extends MessageSerializer)
-    #_public
-    #_static
-    (§ def #_"DummySerializer" DummySerializer/DEFAULT (DummySerializer.))
-
-    #_private
-    #_static
-    (§ def- #_"String" DummySerializer/DEFAULT_EXCEPTION_MESSAGE "Dummy serializer cannot serialize/deserialize objects as it does not know which network they belong to.")
-
-    #_public
-    (§ constructor DummySerializer []
-        this
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "UnsupportedOperationException" ]
-    (§ method #_"Message" deserialize [#_"ByteBuffer" __in]
-        (throw (UnsupportedOperationException. DummySerializer/DEFAULT_EXCEPTION_MESSAGE))
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "UnsupportedOperationException" ]
-    (§ method #_"BitcoinSerializer.BitcoinPacketHeader" deserializeHeader [#_"ByteBuffer" __in]
-        (throw (UnsupportedOperationException. DummySerializer/DEFAULT_EXCEPTION_MESSAGE))
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "UnsupportedOperationException" ]
-    (§ method #_"Message" deserializePayload [#_"BitcoinSerializer.BitcoinPacketHeader" __header, #_"ByteBuffer" __in]
-        (throw (UnsupportedOperationException. DummySerializer/DEFAULT_EXCEPTION_MESSAGE))
-    )
-
-    #_override
-    #_public
-    (§ method #_"boolean" isParseRetainMode []
-        false
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "UnsupportedOperationException" ]
-    (§ method #_"AddressMessage" makeAddressMessage [#_"byte[]" __payloadBytes, #_"int" __length]
-        (throw (UnsupportedOperationException. DummySerializer/DEFAULT_EXCEPTION_MESSAGE))
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "UnsupportedOperationException" ]
-    (§ method #_"Message" makeAlertMessage [#_"byte[]" __payloadBytes]
-        (throw (UnsupportedOperationException. DummySerializer/DEFAULT_EXCEPTION_MESSAGE))
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "UnsupportedOperationException" ]
-    (§ method #_"Block" makeBlock [#_"byte[]" __payloadBytes, #_"int" __offset, #_"int" __length]
-        (throw (UnsupportedOperationException. DummySerializer/DEFAULT_EXCEPTION_MESSAGE))
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "UnsupportedOperationException" ]
-    (§ method #_"Message" makeBloomFilter [#_"byte[]" __payloadBytes]
-        (throw (UnsupportedOperationException. DummySerializer/DEFAULT_EXCEPTION_MESSAGE))
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "UnsupportedOperationException" ]
-    (§ method #_"FilteredBlock" makeFilteredBlock [#_"byte[]" __payloadBytes]
-        (throw (UnsupportedOperationException. DummySerializer/DEFAULT_EXCEPTION_MESSAGE))
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "UnsupportedOperationException" ]
-    (§ method #_"InventoryMessage" makeInventoryMessage [#_"byte[]" __payloadBytes, #_"int" __length]
-        (throw (UnsupportedOperationException. DummySerializer/DEFAULT_EXCEPTION_MESSAGE))
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "UnsupportedOperationException" ]
-    (§ method #_"Transaction" makeTransaction [#_"byte[]" __payloadBytes, #_"int" __offset, #_"int" __length, #_"byte[]" __hash]
-        (throw (UnsupportedOperationException. DummySerializer/DEFAULT_EXCEPTION_MESSAGE))
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "BufferUnderflowException" ]
-    (§ method #_"void" seekPastMagicBytes [#_"ByteBuffer" __in]
-        (throw (UnsupportedOperationException. DummySerializer/DEFAULT_EXCEPTION_MESSAGE))
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" serialize [#_"String" __name, #_"byte[]" __message, #_"OutputStream" __out]
-        (throw (UnsupportedOperationException. DummySerializer/DEFAULT_EXCEPTION_MESSAGE))
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" serialize [#_"Message" __message, #_"OutputStream" __out]
-        (throw (UnsupportedOperationException. DummySerializer/DEFAULT_EXCEPTION_MESSAGE))
-    )
-)
-
-;; TODO: Move this class to tracking compression state itself.
-;; The Bouncy Castle guys are deprecating their own tracking of the compression state.
-
-;;;
  ; <p>Represents an elliptic curve public and (optionally) private key, usable for digital signatures but not encryption.
  ; Creating a new ECKey with the empty constructor will generate a new random keypair.  Other static methods can be used
  ; when you already have the public or private parts.  If you create a key with only the public part, you can check
@@ -8863,12 +8741,6 @@
 
     #_protected
     (§ field #_"NetworkParameters" :params)
-
-    #_protected
-    (§ constructor Message []
-        (§ assoc this :serializer DummySerializer/DEFAULT)
-        this
-    )
 
     #_protected
     (§ constructor Message [#_"NetworkParameters" __params]
