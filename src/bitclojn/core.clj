@@ -48,7 +48,7 @@
              [com.google.common.net InetAddresses]
              [com.google.common.primitives Ints Longs UnsignedBytes UnsignedLongs]
              [com.google.common.util.concurrent FutureCallback Futures ListenableFuture SettableFuture Uninterruptibles]
-             [java.io BufferedInputStream BufferedReader ByteArrayOutputStream DataInputStream FileInputStream File IOException InputStreamReader InputStream ObjectInputStream ObjectOutputStream OutputStream Serializable UnsupportedEncodingException]
+             [java.io BufferedInputStream BufferedReader ByteArrayOutputStream DataInputStream FileInputStream File IOException InputStreamReader InputStream ObjectInputStream ObjectOutputStream OutputStream UnsupportedEncodingException]
              [java.lang.ref WeakReference]
              [java.math BigDecimal BigInteger]
              [java.net ConnectException InetAddress InetSocketAddress URL UnknownHostException]
@@ -1108,11 +1108,11 @@
     #_private
     #_static
     #_throws #_[ "VerificationException" ]
-    (§ defn- #_"void" AbstractBlockChain'sendTransactionsToListener [#_"StoredBlock" block, #_"NewBlockType" __blockType, #_"TransactionReceivedInBlockListener" listener, #_"int" __relativityOffset, #_"List<Transaction>" transactions, #_"boolean" clone, #_"Set<Sha256Hash>" __falsePositives]
+    (§ defn- #_"void" AbstractBlockChain'sendTransactionsToListener [#_"StoredBlock" block, #_"NewBlockType" __blockType, #_"TransactionReceivedInBlockListener" listener, #_"int" __relativityOffset, #_"List<Transaction>" transactions, #_"boolean" clone?, #_"Set<Sha256Hash>" __falsePositives]
         (doseq [#_"Transaction" tx transactions]
             (try
                 (.. __falsePositives (remove (.. tx (getHash))))
-                (when clone
+                (when clone?
                     (§ ass tx (.. (:params tx) (getDefaultSerializer) (makeTransaction (.. tx (bitcoinSerialize)))))
                 )
                 (.. listener (receiveFromBlock tx, block, __blockType, __relativityOffset))
@@ -1540,34 +1540,6 @@
             )
         )
         false
-    )
-
-    ;;;
-     ; This implementation narrows the return type to <code>Address</code>.
-     ;;
-    #_override
-    #_public
-    #_throws #_[ "CloneNotSupportedException" ]
-    (§ method #_"Address" clone []
-        (cast Address (.. super (clone)))
-    )
-
-    ;; Java serialization
-
-    #_private
-    #_throws #_[ "IOException" ]
-    (§ method- #_"void" writeObject [#_"ObjectOutputStream" out]
-        (.. out (defaultWriteObject))
-        (.. out (writeUTF (-> this :params :id)))
-        nil
-    )
-
-    #_private
-    #_throws #_[ "IOException", "ClassNotFoundException" ]
-    (§ method- #_"void" readObject [#_"ObjectInputStream" in]
-        (.. in (defaultReadObject))
-        (§ assoc this :params (NetworkParameters'fromID (.. in (readUTF))))
-        nil
     )
 )
 
@@ -4765,7 +4737,7 @@
  ; Represents a monetary Bitcoin value.  This class is immutable.
  ;;
 #_public
-(§ class Coin (§ implements Monetary, Comparable #_"<Coin>", Serializable)
+(§ class Coin (§ implements Monetary, Comparable #_"<Coin>")
     ;;;
      ; Number of decimals for one Bitcoin.  This constant is useful for quick adapting to other coins because a lot of
      ; constants derive from it.
@@ -8709,19 +8681,6 @@
     (§ method #_"NetworkParameters" getParams []
         (:params this)
     )
-
-    ;;;
-     ; Set the serializer for this message when deserialized by Java.
-     ;;
-    #_private
-    #_throws #_[ "IOException", "ClassNotFoundException" ]
-    (§ method- #_"void" readObject [#_"java.io.ObjectInputStream" in]
-        (.. in (defaultReadObject))
-        (when (some? (:params this))
-            (§ assoc this :serializer (.. (:params this) (getDefaultSerializer)))
-        )
-        nil
-    )
 )
 
 ;;;
@@ -8919,7 +8878,7 @@
  ; Classes implementing this interface represent a monetary value, such as a Bitcoin or fiat amount.
  ;;
 #_public
-(§ interface Monetary (§ extends Serializable)
+(§ interface Monetary
     ;;;
      ; Returns the absolute value of exponent of the value of a "smallest unit" in scientific notation.
      ; For Bitcoin, a satoshi is worth 1E-8 so this would be 8.
@@ -15732,7 +15691,7 @@
  ; It also checks that the length is correct and provides a bit more type safety.
  ;;
 #_public
-(§ class Sha256Hash (§ implements Serializable, Comparable #_"<Sha256Hash>")
+(§ class Sha256Hash (§ implements Comparable #_"<Sha256Hash>")
     #_public
     #_static
     (def #_"int" Sha256Hash'LENGTH 32) ;; bytes
@@ -20134,58 +20093,6 @@
         (§ assoc this :tx-outs-spent __txOutsSpent)
         this
     )
-
-    #_private
-    #_static
-    #_throws #_[ "IOException" ]
-    (§ defn- #_"int" TransactionOutputChanges'read4x8le [#_"InputStream" is]
-        (| (& 0xff (.. is (read))) (<< (& 0xff (.. is (read))) 8) (<< (& 0xff (.. is (read))) 16) (<< (& 0xff (.. is (read))) 24))
-    )
-
-    #_public
-    #_throws #_[ "IOException" ]
-    (§ constructor TransactionOutputChanges [#_"InputStream" is]
-        (let [#_"int" __nCreated (TransactionOutputChanges'read4x8le is)]
-            (§ assoc this :tx-outs-created (LinkedList. #_"<>"))
-            (loop-when-recur [#_"int" i 0] (< i __nCreated) [(inc i)]
-                (.. (:tx-outs-created this) (add (UTXO. is)))
-            )
-
-            (let [#_"int" __nSpent (TransactionOutputChanges'read4x8le is)]
-                (§ assoc this :tx-outs-spent (LinkedList. #_"<>"))
-                (loop-when-recur [#_"int" i 0] (< i __nSpent) [(inc i)]
-                    (.. (:tx-outs-spent this) (add (UTXO. is)))
-                )
-                this
-            )
-        )
-    )
-
-    #_private
-    #_static
-    #_throws #_[ "IOException" ]
-    (§ defn- #_"void" TransactionOutputChanges'write4x8le [#_"OutputStream" os, #_"int" n]
-        (.. os (write (& 0xff n)))
-        (.. os (write (& 0xff (>> n 8))))
-        (.. os (write (& 0xff (>> n 16))))
-        (.. os (write (& 0xff (>> n 24))))
-        nil
-    )
-
-    #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" serializeToStream [#_"OutputStream" os]
-        (TransactionOutputChanges'write4x8le os, (.. (:tx-outs-created this) (size)))
-        (doseq [#_"UTXO" output (:tx-outs-created this)]
-            (.. output (serializeToStream os))
-        )
-
-        (TransactionOutputChanges'write4x8le os, (.. (:tx-outs-spent this) (size)))
-        (doseq [#_"UTXO" output (:tx-outs-spent this)]
-            (.. output (serializeToStream os))
-        )
-        nil
-    )
 )
 
 ;;;
@@ -20399,7 +20306,7 @@
  ; Useful when working with free standing outputs.
  ;;
 #_public
-(§ class UTXO (§ implements Serializable)
+(§ class UTXO
     #_private
     (§ field- #_"Coin" :value)
     #_private
@@ -20450,13 +20357,6 @@
     (§ constructor UTXO [#_"Sha256Hash" hash, #_"long" index, #_"Coin" value, #_"int" height, #_"boolean" coinbase, #_"Script" script, #_"String" address]
         (§ this hash, index, value, height, coinbase, script)
         (§ assoc this :address address)
-        this
-    )
-
-    #_public
-    #_throws #_[ "IOException" ]
-    (§ constructor UTXO [#_"InputStream" in]
-        (.. this (deserializeFromStream in))
         this
     )
 
@@ -20526,97 +20426,6 @@
         (let [#_"UTXO" other (cast UTXO o)]
             (and (= (.. this (getIndex)) (.. other (getIndex))) (.. this (getHash) (equals (.. other (getHash)))))
         )
-    )
-
-    #_private
-    #_static
-    #_throws #_[ "IOException" ]
-    (§ defn- #_"void" UTXO'write4x8le [#_"OutputStream" os, #_"int" n]
-        (.. os (write (& 0xff n)))
-        (.. os (write (& 0xff (>> n 8))))
-        (.. os (write (& 0xff (>> n 16))))
-        (.. os (write (& 0xff (>> n 24))))
-        nil
-    )
-
-    #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" serializeToStream [#_"OutputStream" os]
-        (Utils'uint64ToByteStreamLE (BigInteger/valueOf (-> this :value :value)), os)
-
-        (let [#_"byte[]" __scriptBytes (.. (:script this) (getProgram))]
-            (UTXO'write4x8le os, (alength __scriptBytes))
-            (.. os (write __scriptBytes))
-
-            (.. os (write (.. (:hash this) (getBytes))))
-            (Utils'uint32ToByteStreamLE (:index this), os)
-
-            (UTXO'write4x8le os, (:height this))
-            (.. os (write (byte-array [ (byte (if (:coinbase this) 1 0)) ])))
-            nil
-        )
-    )
-
-    #_private
-    #_static
-    #_throws #_[ "IOException" ]
-    (§ defn- #_"int" UTXO'read4x8le [#_"InputStream" is]
-        (| (& 0xff (.. is (read))) (<< (& 0xff (.. is (read))) 8) (<< (& 0xff (.. is (read))) 16) (<< (& 0xff (.. is (read))) 24))
-    )
-
-    #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" deserializeFromStream [#_"InputStream" is]
-        (let [#_"byte[]" __valueBytes (byte-array 8)]
-            (when (not= (.. is (read __valueBytes, 0, 8)) 8)
-                (throw (EOFException.))
-            )
-            (§ assoc this :value (Coin'valueOf (Utils'readInt64 __valueBytes, 0)))
-
-            (let [#_"int" __scriptBytesLength (UTXO'read4x8le is)
-                  #_"byte[]" __scriptBytes (byte-array __scriptBytesLength)]
-                (when (not= (.. is (read __scriptBytes)) __scriptBytesLength)
-                    (throw (EOFException.))
-                )
-                (§ assoc this :script (Script. __scriptBytes))
-
-                (let [#_"byte[]" __hashBytes (byte-array 32)]
-                    (when (not= (.. is (read __hashBytes)) 32)
-                        (throw (EOFException.))
-                    )
-                    (§ assoc this :hash (Sha256Hash'wrap __hashBytes))
-
-                    (let [#_"byte[]" __indexBytes (byte-array 4)]
-                        (when (not= (.. is (read __indexBytes)) 4)
-                            (throw (EOFException.))
-                        )
-                        (§ assoc this :index (Utils'readUint32 __indexBytes, 0))
-
-                        (§ assoc this :height (UTXO'read4x8le is))
-
-                        (let [#_"byte[]" __coinbaseByte (byte-array 1)]
-                            (.. is (read __coinbaseByte))
-                            (§ assoc this :coinbase (= (aget __coinbaseByte 0) 1))
-                            nil
-                        )
-                    )
-                )
-            )
-        )
-    )
-
-    #_private
-    #_throws #_[ "IOException" ]
-    (§ method- #_"void" writeObject [#_"ObjectOutputStream" o]
-        (.. this (serializeToStream o))
-        nil
-    )
-
-    #_private
-    #_throws #_[ "IOException", "ClassNotFoundException" ]
-    (§ method- #_"void" readObject [#_"ObjectInputStream" o]
-        (.. this (deserializeFromStream o))
-        nil
     )
 )
 
@@ -22020,7 +21829,7 @@
  ; This format is used for addresses, and private keys exported using the dumpprivkey command.</p>
  ;;
 #_public
-(§ class VersionedChecksummedBytes (§ implements Serializable, Cloneable, Comparable #_"<VersionedChecksummedBytes>")
+(§ class VersionedChecksummedBytes (§ implements Comparable #_"<VersionedChecksummedBytes>")
     #_protected
     (§ field #_"int" :version)
     #_protected
@@ -22088,20 +21897,6 @@
         (let [#_"VersionedChecksummedBytes" other (cast VersionedChecksummedBytes o)]
             (and (= (:version this) (:version other)) (Arrays/equals (:bytes this), (:bytes other)))
         )
-    )
-
-    ;;;
-     ; {@inheritDoc}
-     ;
-     ; This implementation narrows the return type to <code>VersionedChecksummedBytes</code>
-     ; and allows subclasses to throw <code>CloneNotSupportedException</code> even though it
-     ; is never thrown by this implementation.
-     ;;
-    #_override
-    #_public
-    #_throws #_[ "CloneNotSupportedException" ]
-    (§ method #_"VersionedChecksummedBytes" clone []
-        (cast VersionedChecksummedBytes (.. super (clone)))
     )
 
     ;;;
@@ -22578,7 +22373,7 @@
              [com.google.common.primitives Ints]
              [com.google.protobuf ByteString]
              [com.lambdaworks.crypto SCrypt]
-             [java.io BufferedReader ByteArrayOutputStream FileNotFoundException IOException InputStreamReader InputStream Serializable]
+             [java.io BufferedReader ByteArrayOutputStream FileNotFoundException IOException InputStreamReader InputStream]
              [java.math BigInteger]
              [java.nio ByteBuffer ByteOrder]
              [java.security MessageDigest SecureRandom]
@@ -24045,7 +23840,7 @@
  ; to determine whether any given KeyCrypter can understand the type of encrypted data you have.</p>
  ;;
 #_public
-(§ interface KeyCrypter (§ extends Serializable)
+(§ interface KeyCrypter
     ;;;
      ; Return the EncryptionType enum value which denotes the type of encryption/ decryption that this KeyCrypter
      ; can understand.
@@ -33338,7 +33133,6 @@
              [com.google.common.math LongMath]
              [com.google.common.primitives Longs]
              [com.google.common.util.concurrent CycleDetectingLockFactory ListeningExecutorService MoreExecutors Uninterruptibles]
-             [java.io Serializable]
              [java.math BigDecimal BigInteger RoundingMode]
              [java.text DecimalFormatSymbols]
              [java.util ArrayList Arrays List Locale Stack]
@@ -33445,7 +33239,7 @@
  ; An exchange rate is expressed as a ratio of a {@link Coin} and a {@link Fiat} amount.
  ;;
 #_public
-(§ class ExchangeRate (§ implements Serializable)
+(§ class ExchangeRate
     #_public
     (§ field #_"Coin" :coin)
     #_public
@@ -33647,7 +33441,7 @@
  ; This class is immutable.
  ;;
 #_public
-(§ class Fiat (§ implements Monetary, Comparable #_"<Fiat>", Serializable)
+(§ class Fiat (§ implements Monetary, Comparable #_"<Fiat>")
     ;;;
      ; The absolute value of exponent of the value of a "smallest unit" in scientific notation.
      ; We picked 4 rather than 2, because in financial applications it's common to use sub-cent precision.
