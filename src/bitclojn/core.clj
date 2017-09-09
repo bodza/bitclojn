@@ -3,7 +3,9 @@
 (defmacro § [& _])
 (defmacro ß [& _])
 
-(defmacro def- [s i] `(def ~(vary-meta s assoc :private true) ~i))
+(defmacro def-
+    ([s] `(def ~(vary-meta s assoc :private true)))
+    ([s i] `(def ~(vary-meta s assoc :private true) ~i)))
 
 (defmacro any
     ([f x y] `(~f ~x ~y))
@@ -122,7 +124,7 @@
 (§ class AbstractBlockChain
     #_private
     #_static
-    (§ def- #_"Logger" AbstractBlockChain'log (LoggerFactory/getLogger AbstractBlockChain))
+    (def- #_"Logger" AbstractBlockChain'log (LoggerFactory/getLogger AbstractBlockChain))
 
     #_protected
     (§ field #_"ReentrantLock" :lock (Threading'lock "blockchain"))
@@ -183,11 +185,11 @@
     ;;; False positive estimation uses a double exponential moving average. ;;
     #_public
     #_static
-    (§ def #_"double" AbstractBlockChain'FP_ESTIMATOR_ALPHA 0.0001)
+    (def #_"double" AbstractBlockChain'FP_ESTIMATOR_ALPHA 0.0001)
     ;;; False positive estimation uses a double exponential moving average. ;;
     #_public
     #_static
-    (§ def #_"double" AbstractBlockChain'FP_ESTIMATOR_BETA 0.01)
+    (def #_"double" AbstractBlockChain'FP_ESTIMATOR_BETA 0.01)
 
     #_private
     (§ field- #_"double" :false-positive-rate)
@@ -1363,7 +1365,7 @@
      ;;
     #_public
     #_static
-    (§ def #_"int" Address'LENGTH 20)
+    (def #_"int" Address'LENGTH 20)
 
     #_private
     #_transient
@@ -1592,7 +1594,7 @@
 (§ class AddressMessage (§ extends Message)
     #_private
     #_static
-    (§ def- #_"long" AddressMessage'MAX_ADDRESSES 1024)
+    (def- #_"long" AddressMessage'MAX_ADDRESSES 1024)
 
     #_private
     (§ field- #_"List<PeerAddress>" :addresses)
@@ -1766,7 +1768,7 @@
     ;; Chosen arbitrarily to avoid memory blowups.
     #_private
     #_static
-    (§ def- #_"long" AlertMessage'MAX_SET_SIZE 100)
+    (def- #_"long" AlertMessage'MAX_SET_SIZE 100)
 
     #_public
     #_throws #_[ "ProtocolException" ]
@@ -2032,13 +2034,13 @@
 (§ class Base58
     #_public
     #_static
-    (§ def #_"char[]" Base58'ALPHABET (.. "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" (toCharArray)))
+    (def #_"char[]" Base58'ALPHABET (.. "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" (toCharArray)))
     #_private
     #_static
-    (§ def- #_"char" Base58'ENCODED_ZERO (aget Base58'ALPHABET 0))
+    (def- #_"char" Base58'ENCODED_ZERO (aget Base58'ALPHABET 0))
     #_private
     #_static
-    (§ def- #_"int[]" Base58'INDEXES (let [a (int-array 128)] (Arrays/fill a, -1) (loop-when-recur [i 0] (< i (alength Base58'ALPHABET)) [(inc i)] (aset a (aget Base58'ALPHABET i) i)) a))
+    (def- #_"int[]" Base58'INDEXES (let [a (int-array 128)] (Arrays/fill a, -1) (loop-when-recur [i 0] (< i (alength Base58'ALPHABET)) [(inc i)] (aset a (aget Base58'ALPHABET i) i)) a))
 
     ;;;
      ; Encodes the given bytes as a base58 string (no checksum is appended).
@@ -2218,14 +2220,14 @@
 (§ class BitcoinSerializer (§ extends MessageSerializer)
     #_private
     #_static
-    (§ def- #_"Logger" BitcoinSerializer'log (LoggerFactory/getLogger BitcoinSerializer))
+    (def- #_"Logger" BitcoinSerializer'log (LoggerFactory/getLogger BitcoinSerializer))
     #_private
     #_static
-    (§ def- #_"int" BitcoinSerializer'COMMAND_LEN 12)
+    (def- #_"int" BitcoinSerializer'COMMAND_LEN 12)
 
     #_private
     #_static
-    (§ def- #_"Map<Class<? extends Message>, String>" BitcoinSerializer'NAMES (HashMap. #_"<>"))
+    (def- #_"Map<Class<? extends Message>, String>" BitcoinSerializer'NAMES (HashMap. #_"<>"))
     #_static
     (§ block
         (.. BitcoinSerializer'NAMES (put VersionMessage, "version"))
@@ -2573,7 +2575,7 @@
         ;;; The largest number of bytes that a header can represent. ;;
         #_public
         #_static
-        (§ def #_"int" BitcoinPacketHeader'HEADER_LENGTH (+ BitcoinSerializer'COMMAND_LEN 4 4))
+        (def #_"int" BitcoinPacketHeader'HEADER_LENGTH (+ BitcoinSerializer'COMMAND_LEN 4 4))
 
         #_public
         (§ field #_"byte[]" :header)
@@ -2639,15 +2641,15 @@
 
     #_private
     #_static
-    (§ def- #_"Logger" Block'log (LoggerFactory/getLogger Block))
+    (def- #_"Logger" Block'log (LoggerFactory/getLogger Block))
 
     ;;; How many bytes are required to represent a block header WITHOUT the trailing 00 length byte. ;;
     #_public
     #_static
-    (§ def #_"int" Block'HEADER_SIZE 80)
+    (def #_"int" Block'HEADER_SIZE 80)
 
     #_static
-    (§ def #_"long" Block'ALLOWED_TIME_DRIFT (* 2 60 60)) ;; Same value as Bitcoin Core.
+    (def #_"long" Block'ALLOWED_TIME_DRIFT (* 2 60 60)) ;; Same value as Bitcoin Core.
 
     ;;;
      ; A constant shared by the entire network: how large in bytes a block is allowed to be.  One day we may have to
@@ -2656,7 +2658,7 @@
      ;;
     #_public
     #_static
-    (§ def #_"int" Block'MAX_BLOCK_SIZE (* 1 1000 1000))
+    (def #_"int" Block'MAX_BLOCK_SIZE (* 1 1000 1000))
     ;;;
      ; A "sigop" is a signature verification operation.  Because they're expensive, we also impose a separate limit on
      ; the number in a block to prevent somebody mining a huge block that has way more sigops than normal, so is very
@@ -2664,37 +2666,37 @@
      ;;
     #_public
     #_static
-    (§ def #_"int" Block'MAX_BLOCK_SIGOPS (quot Block'MAX_BLOCK_SIZE 50))
+    (def #_"int" Block'MAX_BLOCK_SIGOPS (quot Block'MAX_BLOCK_SIZE 50))
 
     ;;; A value for difficultyTarget (nBits) that allows half of all possible hash solutions.  Used in unit testing. ;;
     #_public
     #_static
-    (§ def #_"long" Block'EASIEST_DIFFICULTY_TARGET 0x207fffff)
+    (def #_"long" Block'EASIEST_DIFFICULTY_TARGET 0x207fffff)
 
     ;;; Value to use if the block height is unknown. ;;
     #_public
     #_static
-    (§ def #_"int" Block'BLOCK_HEIGHT_UNKNOWN -1)
+    (def #_"int" Block'BLOCK_HEIGHT_UNKNOWN -1)
     ;;; Height of the first block. ;;
     #_public
     #_static
-    (§ def #_"int" Block'BLOCK_HEIGHT_GENESIS 0)
+    (def #_"int" Block'BLOCK_HEIGHT_GENESIS 0)
 
     #_public
     #_static
-    (§ def #_"long" Block'BLOCK_VERSION_GENESIS 1)
+    (def #_"long" Block'BLOCK_VERSION_GENESIS 1)
     ;;; Block version introduced in BIP 34: Height in coinbase. ;;
     #_public
     #_static
-    (§ def #_"long" Block'BLOCK_VERSION_BIP34 2)
+    (def #_"long" Block'BLOCK_VERSION_BIP34 2)
     ;;; Block version introduced in BIP 66: Strict DER signatures. ;;
     #_public
     #_static
-    (§ def #_"long" Block'BLOCK_VERSION_BIP66 3)
+    (def #_"long" Block'BLOCK_VERSION_BIP66 3)
     ;;; Block version introduced in BIP 65: OP_CHECKLOCKTIMEVERIFY ;;
     #_public
     #_static
-    (§ def #_"long" Block'BLOCK_VERSION_BIP65 4)
+    (def #_"long" Block'BLOCK_VERSION_BIP65 4)
 
     ;; Fields defined as part of the protocol format.
     #_private
@@ -3101,7 +3103,7 @@
      ;;
     #_private
     #_static
-    (§ def- #_"BigInteger" Block'LARGEST_HASH (.. BigInteger/ONE (shiftLeft 256)))
+    (def- #_"BigInteger" Block'LARGEST_HASH (.. BigInteger/ONE (shiftLeft 256)))
 
     ;;;
      ; Returns the work represented by this block.
@@ -3607,7 +3609,7 @@
     ;; Used to make transactions unique.
     #_private
     #_static
-    (§ def- #_"int" Block'TX_COUNTER)
+    (def- #_"int" Block'TX_COUNTER)
 
     ;;; Adds a coinbase transaction to the block.  This exists for unit tests.
      ;
@@ -3642,12 +3644,12 @@
     )
 
     #_static
-    (§ def #_"byte[]" Block'EMPTY_BYTES (byte-array 32))
+    (def #_"byte[]" Block'EMPTY_BYTES (byte-array 32))
 
     ;; It's pretty weak to have this around at runtime: fix later.
     #_private
     #_static
-    (§ def- #_"byte[]" Block'PUBKEY_FOR_TESTING (.. (ECKey.) (getPubKey)))
+    (def- #_"byte[]" Block'PUBKEY_FOR_TESTING (.. (ECKey.) (getPubKey)))
 
     ;;;
      ; Returns a solved block that builds on top of this one.  This exists for unit tests.
@@ -4029,11 +4031,11 @@
     ;; A filter of 20,000 items and a false positive rate of 0.1% or one of 10,000 items and 0.0001% is just under 36,000 bytes.
     #_private
     #_static
-    (§ def- #_"long" BloomFilter'MAX_FILTER_SIZE 36000)
+    (def- #_"long" BloomFilter'MAX_FILTER_SIZE 36000)
     ;; There is little reason to ever have more hash functions than 50 given a limit of 36,000 bytes.
     #_private
     #_static
-    (§ def- #_"int" BloomFilter'MAX_HASH_FUNCS 50)
+    (def- #_"int" BloomFilter'MAX_HASH_FUNCS 50)
 
     ;;;
      ; Construct a BloomFilter by deserializing payloadBytes.
@@ -4433,17 +4435,17 @@
 (§ class CheckpointManager
     #_private
     #_static
-    (§ def- #_"Logger" CheckpointManager'log (LoggerFactory/getLogger CheckpointManager))
+    (def- #_"Logger" CheckpointManager'log (LoggerFactory/getLogger CheckpointManager))
 
     #_private
     #_static
-    (§ def- #_"String" CheckpointManager'BINARY_MAGIC "CHECKPOINTS 1")
+    (def- #_"String" CheckpointManager'BINARY_MAGIC "CHECKPOINTS 1")
     #_private
     #_static
-    (§ def- #_"String" CheckpointManager'TEXTUAL_MAGIC "TXT CHECKPOINTS 1")
+    (def- #_"String" CheckpointManager'TEXTUAL_MAGIC "TXT CHECKPOINTS 1")
     #_private
     #_static
-    (§ def- #_"int" CheckpointManager'MAX_SIGNATURES 256)
+    (def- #_"int" CheckpointManager'MAX_SIGNATURES 256)
 
     ;; Map of block header time to data.
     #_protected
@@ -4456,7 +4458,7 @@
 
     #_public
     #_static
-    (§ def #_"BaseEncoding" CheckpointManager'BASE64 (.. (BaseEncoding/base64) (omitPadding)))
+    (def #_"BaseEncoding" CheckpointManager'BASE64 (.. (BaseEncoding/base64) (omitPadding)))
 
     ;;; Loads the default checkpoints bundled with bitcoinj. ;;
     #_public
@@ -4761,67 +4763,67 @@
      ;;
     #_public
     #_static
-    (§ def #_"int" Coin'SMALLEST_UNIT_EXPONENT 8)
+    (def #_"int" Coin'SMALLEST_UNIT_EXPONENT 8)
 
     ;;;
      ; The number of satoshis equal to one bitcoin.
      ;;
     #_private
     #_static
-    (§ def- #_"long" Coin'COIN_VALUE (LongMath/pow 10, Coin'SMALLEST_UNIT_EXPONENT))
+    (def- #_"long" Coin'COIN_VALUE (LongMath/pow 10, Coin'SMALLEST_UNIT_EXPONENT))
 
     ;;;
      ; Zero Bitcoins.
      ;;
     #_public
     #_static
-    (§ def #_"Coin" Coin'ZERO (Coin'valueOf 0))
+    (def #_"Coin" Coin'ZERO (Coin'valueOf 0))
 
     ;;;
      ; One Bitcoin.
      ;;
     #_public
     #_static
-    (§ def #_"Coin" Coin'COIN (Coin'valueOf Coin'COIN_VALUE))
+    (def #_"Coin" Coin'COIN (Coin'valueOf Coin'COIN_VALUE))
 
     ;;;
      ; 0.01 Bitcoins.  This unit is not really used much.
      ;;
     #_public
     #_static
-    (§ def #_"Coin" Coin'CENT (.. Coin'COIN (divide 100)))
+    (def #_"Coin" Coin'CENT (.. Coin'COIN (divide 100)))
 
     ;;;
      ; 0.001 Bitcoins, also known as 1 mBTC.
      ;;
     #_public
     #_static
-    (§ def #_"Coin" Coin'MILLICOIN (.. Coin'COIN (divide 1000)))
+    (def #_"Coin" Coin'MILLICOIN (.. Coin'COIN (divide 1000)))
 
     ;;;
      ; 0.000001 Bitcoins, also known as 1 µBTC or 1 uBTC.
      ;;
     #_public
     #_static
-    (§ def #_"Coin" Coin'MICROCOIN (.. Coin'MILLICOIN (divide 1000)))
+    (def #_"Coin" Coin'MICROCOIN (.. Coin'MILLICOIN (divide 1000)))
 
     ;;;
      ; A satoshi is the smallest unit that can be transferred.  100 million of them fit into a Bitcoin.
      ;;
     #_public
     #_static
-    (§ def #_"Coin" Coin'SATOSHI (Coin'valueOf 1))
+    (def #_"Coin" Coin'SATOSHI (Coin'valueOf 1))
 
     #_public
     #_static
-    (§ def #_"Coin" Coin'FIFTY_COINS (.. Coin'COIN (multiply 50)))
+    (def #_"Coin" Coin'FIFTY_COINS (.. Coin'COIN (multiply 50)))
 
     ;;;
      ; Represents a monetary value of minus one satoshi.
      ;;
     #_public
     #_static
-    (§ def #_"Coin" Coin'NEGATIVE_SATOSHI (Coin'valueOf -1))
+    (def #_"Coin" Coin'NEGATIVE_SATOSHI (Coin'valueOf -1))
 
     ;;;
      ; The number of satoshis of this monetary value.
@@ -5054,7 +5056,7 @@
 
     #_private
     #_static
-    (§ def- #_"MonetaryFormat" Coin'FRIENDLY_FORMAT (.. MonetaryFormat'BTC (minDecimals 2) (repeatOptionalDecimals 1, 6) (postfixCode)))
+    (def- #_"MonetaryFormat" Coin'FRIENDLY_FORMAT (.. MonetaryFormat'BTC (minDecimals 2) (repeatOptionalDecimals 1, 6) (postfixCode)))
 
     ;;;
      ; Returns the value as a 0.12 type string.  More digits after the decimal place will be used
@@ -5067,7 +5069,7 @@
 
     #_private
     #_static
-    (§ def- #_"MonetaryFormat" Coin'PLAIN_FORMAT (.. MonetaryFormat'BTC (minDecimals 0) (repeatOptionalDecimals 1, 8) (noCode)))
+    (def- #_"MonetaryFormat" Coin'PLAIN_FORMAT (.. MonetaryFormat'BTC (minDecimals 0) (repeatOptionalDecimals 1, 8) (noCode)))
 
     ;;;
      ; Returns the value as a plain string denominated in BTC.
@@ -5135,11 +5137,11 @@
 (§ class Context
     #_private
     #_static
-    (§ def- #_"Logger" Context'log (LoggerFactory/getLogger Context))
+    (def- #_"Logger" Context'log (LoggerFactory/getLogger Context))
 
     #_public
     #_static
-    (§ def #_"int" Context'DEFAULT_EVENT_HORIZON 100)
+    (def #_"int" Context'DEFAULT_EVENT_HORIZON 100)
 
     #_private
     (§ field- #_"TxConfidenceTable" :confidence-table)
@@ -5188,13 +5190,13 @@
     #_private
     #_static
     #_volatile
-    (§ def- #_"Context" Context'LAST_CONSTRUCTED)
+    (def- #_"Context" Context'LAST_CONSTRUCTED)
     #_private
     #_static
-    (§ def- #_"boolean" Context'IS_STRICT_MODE)
+    (def- #_"boolean" Context'IS_STRICT_MODE)
     #_private
     #_static
-    (§ def- #_"ThreadLocal<Context>" Context'SLOT (ThreadLocal. #_"<>"))
+    (def- #_"ThreadLocal<Context>" Context'SLOT (ThreadLocal. #_"<>"))
 
     ;;;
      ; Returns the current context that is associated with the <b>calling thread</b>.  BitcoinJ is an API that has thread
@@ -5357,12 +5359,12 @@
 (§ class ECKey (§ implements EncryptableItem)
     #_private
     #_static
-    (§ def- #_"Logger" ECKey'log (LoggerFactory/getLogger ECKey))
+    (def- #_"Logger" ECKey'log (LoggerFactory/getLogger ECKey))
 
     ;;; Sorts oldest keys first, newest last. ;;
     #_public
     #_static
-    (§ def #_"Comparator<ECKey>" ECKey'AGE_COMPARATOR (Comparator. #_"<ECKey>"
+    (def #_"Comparator<ECKey>" ECKey'AGE_COMPARATOR (Comparator. #_"<ECKey>"
         (§ anon
             #_override
             #_public
@@ -5378,7 +5380,7 @@
     ;;; Compares pub key bytes using {@link com.google.common.primitives.UnsignedBytes#lexicographicalComparator()}. ;;
     #_public
     #_static
-    (§ def #_"Comparator<ECKey>" ECKey'PUBKEY_COMPARATOR (Comparator. #_"<ECKey>"
+    (def #_"Comparator<ECKey>" ECKey'PUBKEY_COMPARATOR (Comparator. #_"<ECKey>"
         (§ anon
             #_private
             (§ field- #_"Comparator<byte[]>" :comparator (UnsignedBytes/lexicographicalComparator))
@@ -5393,7 +5395,7 @@
     ;; The parameters of the secp256k1 curve that Bitcoin uses.
     #_private
     #_static
-    (§ def- #_"X9ECParameters" ECKey'CURVE_PARAMS (CustomNamedCurves/getByName "secp256k1"))
+    (def- #_"X9ECParameters" ECKey'CURVE_PARAMS (CustomNamedCurves/getByName "secp256k1"))
 
     #_static
     (§ block
@@ -5406,7 +5408,7 @@
     ;;; The parameters of the secp256k1 curve that Bitcoin uses. ;;
     #_public
     #_static
-    (§ def #_"ECDomainParameters" ECKey'CURVE (ECDomainParameters. (.. ECKey'CURVE_PARAMS (getCurve)), (.. ECKey'CURVE_PARAMS (getG)), (.. ECKey'CURVE_PARAMS (getN)), (.. ECKey'CURVE_PARAMS (getH))))
+    (def #_"ECDomainParameters" ECKey'CURVE (ECDomainParameters. (.. ECKey'CURVE_PARAMS (getCurve)), (.. ECKey'CURVE_PARAMS (getG)), (.. ECKey'CURVE_PARAMS (getN)), (.. ECKey'CURVE_PARAMS (getH))))
 
     ;;;
      ; Equal to CURVE.getN().shiftRight(1), used for canonicalising the S value of a signature.
@@ -5414,11 +5416,11 @@
      ;;
     #_public
     #_static
-    (§ def #_"BigInteger" ECKey'HALF_CURVE_ORDER (.. ECKey'CURVE_PARAMS (getN) (shiftRight 1)))
+    (def #_"BigInteger" ECKey'HALF_CURVE_ORDER (.. ECKey'CURVE_PARAMS (getN) (shiftRight 1)))
 
     #_private
     #_static
-    (§ def- #_"SecureRandom" ECKey'SECURE_RANDOM (SecureRandom.))
+    (def- #_"SecureRandom" ECKey'SECURE_RANDOM (SecureRandom.))
 
     ;; The two parts of the key.  If "priv" is set, "pub" can always be calculated.  If "pub" is set but not "priv", we
     ;; can only verify signatures not make them.
@@ -6037,7 +6039,7 @@
     #_testing
     #_public
     #_static
-    (§ def #_"boolean" ECKey'FAKE_SIGNATURES false)
+    (def #_"boolean" ECKey'FAKE_SIGNATURES false)
 
     ;;;
      ; Signs the given hash and returns the R and S components as BigIntegers.  In the Bitcoin protocol, they are
@@ -6999,7 +7001,7 @@
 (§ class FullPrunedBlockChain (§ extends AbstractBlockChain)
     #_private
     #_static
-    (§ def- #_"Logger" FullPrunedBlockChain'log (LoggerFactory/getLogger FullPrunedBlockChain))
+    (def- #_"Logger" FullPrunedBlockChain'log (LoggerFactory/getLogger FullPrunedBlockChain))
 
     ;;;
      ; Keeps a map of block hashes to StoredBlocks.
@@ -7698,7 +7700,7 @@
     #_throws #_[ "IOException" ]
     (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
         ;; Version, for some reason.
-        (Utils'uint32ToByteStreamLE ProtocolVersion/CURRENT, stream)
+        (Utils'uint32ToByteStreamLE ProtocolVersion'CURRENT, stream)
         ;; Then a vector of block hashes.  This is actually a "block locator", a set of block
         ;; identifiers that spans the entire chain with exponentially increasing gaps between
         ;; them, until we end up at the genesis block.  See CBlockLocator::Set().
@@ -7868,12 +7870,12 @@
 (§ class HeadersMessage (§ extends Message)
     #_private
     #_static
-    (§ def- #_"Logger" HeadersMessage'log (LoggerFactory/getLogger HeadersMessage))
+    (def- #_"Logger" HeadersMessage'log (LoggerFactory/getLogger HeadersMessage))
 
     ;; The main client will never send us more than this number of headers.
     #_public
     #_static
-    (§ def #_"int" HeadersMessage'MAX_HEADERS 2000)
+    (def #_"int" HeadersMessage'MAX_HEADERS 2000)
 
     #_private
     (§ field- #_"List<Block>" :block-headers)
@@ -7992,7 +7994,7 @@
      ; 4 byte uint32 type field + 32 byte hash
      ;;
     #_static
-    (§ def #_"int" InventoryItem'MESSAGE_LENGTH 36)
+    (def #_"int" InventoryItem'MESSAGE_LENGTH 36)
 
     #_public
     (§ enum InventoryItemType
@@ -8054,7 +8056,7 @@
     ;;; A hard coded constant in the protocol. ;;
     #_public
     #_static
-    (§ def #_"int" InventoryMessage'MAX_INV_SIZE 50000)
+    (def #_"int" InventoryMessage'MAX_INV_SIZE 50000)
 
     #_public
     #_throws #_[ "ProtocolException" ]
@@ -8121,7 +8123,7 @@
 (§ class ListMessage (§ extends Message)
     #_public
     #_static
-    (§ def #_"long" ListMessage'MAX_INVENTORY_ITEMS 50000)
+    (def #_"long" ListMessage'MAX_INVENTORY_ITEMS 50000)
 
     #_private
     (§ field- #_"long" :array-len)
@@ -8279,20 +8281,20 @@
 (§ class Message
     #_private
     #_static
-    (§ def- #_"Logger" Message'log (LoggerFactory/getLogger Message))
+    (def- #_"Logger" Message'log (LoggerFactory/getLogger Message))
 
     #_public
     #_static
-    (§ def #_"int" Message'MAX_SIZE 0x02000000) ;; 32MB
+    (def #_"int" Message'MAX_SIZE 0x02000000) ;; 32MB
 
     #_public
     #_static
-    (§ def #_"int" Message'UNKNOWN_LENGTH Integer/MIN_VALUE)
+    (def #_"int" Message'UNKNOWN_LENGTH Integer/MIN_VALUE)
 
     ;; Useful to ensure serialize/deserialize are consistent with each other.
     #_private
     #_static
-    (§ def- #_"boolean" Message'SELF_CHECK false)
+    (def- #_"boolean" Message'SELF_CHECK false)
 
     ;; The offset is how many bytes into the provided byte array this message payload starts at.
     #_protected
@@ -8388,14 +8390,14 @@
     #_protected
     #_throws #_[ "ProtocolException" ]
     (§ constructor Message [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset]
-        (§ this params, payload, offset, ProtocolVersion/CURRENT, (.. params (getDefaultSerializer)), Message'UNKNOWN_LENGTH)
+        (§ this params, payload, offset, ProtocolVersion'CURRENT, (.. params (getDefaultSerializer)), Message'UNKNOWN_LENGTH)
         this
     )
 
     #_protected
     #_throws #_[ "ProtocolException" ]
     (§ constructor Message [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset, #_"MessageSerializer" serializer, #_"int" length]
-        (§ this params, payload, offset, ProtocolVersion/CURRENT, serializer, length)
+        (§ this params, payload, offset, ProtocolVersion'CURRENT, serializer, length)
         this
     )
 
@@ -8923,16 +8925,16 @@
 
 #_public
 #_static
-(§ def #_"int" ProtocolVersion/MINIMUM 70000)
+(def #_"int" ProtocolVersion'MINIMUM 70000)
 #_public
 #_static
-(§ def #_"int" ProtocolVersion/PONG 60001)
+(def #_"int" ProtocolVersion'PONG 60001)
 #_public
 #_static
-(§ def #_"int" ProtocolVersion/BLOOM_FILTER 70000)
+(def #_"int" ProtocolVersion'BLOOM_FILTER 70000)
 #_public
 #_static
-(§ def #_"int" ProtocolVersion/CURRENT 70001)
+(def #_"int" ProtocolVersion'CURRENT 70001)
 
 ;;;
  ; <p>NetworkParameters contains the data needed for working with an instantiation of a Bitcoin chain.</p>
@@ -8950,33 +8952,33 @@
      ;;
     #_public
     #_static
-    (§ def #_"byte[]" NetworkParameters'SATOSHI_KEY (.. Utils'HEX (decode "04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284")))
+    (def #_"byte[]" NetworkParameters'SATOSHI_KEY (.. Utils'HEX (decode "04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284")))
 
     ;;; The string returned by getId() for the main, production network where people trade things. ;;
     #_public
     #_static
-    (§ def #_"String" NetworkParameters'ID_MAINNET "org.bitcoin.production")
+    (def #_"String" NetworkParameters'ID_MAINNET "org.bitcoin.production")
     ;;; The string returned by getId() for the testnet. ;;
     #_public
     #_static
-    (§ def #_"String" NetworkParameters'ID_TESTNET "org.bitcoin.test")
+    (def #_"String" NetworkParameters'ID_TESTNET "org.bitcoin.test")
     ;;; Unit test network. ;;
     #_public
     #_static
-    (§ def #_"String" NetworkParameters'ID_UNITTESTNET "org.bitcoinj.unittest")
+    (def #_"String" NetworkParameters'ID_UNITTESTNET "org.bitcoinj.unittest")
 
     ;;; The string used by the payment protocol to represent the main net. ;;
     #_public
     #_static
-    (§ def #_"String" NetworkParameters'PAYMENT_PROTOCOL_ID_MAINNET "main")
+    (def #_"String" NetworkParameters'PAYMENT_PROTOCOL_ID_MAINNET "main")
     ;;; The string used by the payment protocol to represent the test net. ;;
     #_public
     #_static
-    (§ def #_"String" NetworkParameters'PAYMENT_PROTOCOL_ID_TESTNET "test")
+    (def #_"String" NetworkParameters'PAYMENT_PROTOCOL_ID_TESTNET "test")
     ;;; The string used by the payment protocol to represent unit testing (note that this is non-standard). ;;
     #_public
     #_static
-    (§ def #_"String" NetworkParameters'PAYMENT_PROTOCOL_ID_UNIT_TESTS "unittest")
+    (def #_"String" NetworkParameters'PAYMENT_PROTOCOL_ID_UNIT_TESTS "unittest")
 
     ;; TODO: Seed nodes should be here as well.
 
@@ -9071,13 +9073,13 @@
 
     #_public
     #_static
-    (§ def #_"int" NetworkParameters'TARGET_TIMESPAN (* 14 24 60 60)) ;; 2 weeks per difficulty cycle, on average.
+    (def #_"int" NetworkParameters'TARGET_TIMESPAN (* 14 24 60 60)) ;; 2 weeks per difficulty cycle, on average.
     #_public
     #_static
-    (§ def #_"int" NetworkParameters'TARGET_SPACING (* 10 60)) ;; 10 minutes per block.
+    (def #_"int" NetworkParameters'TARGET_SPACING (* 10 60)) ;; 10 minutes per block.
     #_public
     #_static
-    (§ def #_"int" NetworkParameters'INTERVAL (quot NetworkParameters'TARGET_TIMESPAN NetworkParameters'TARGET_SPACING))
+    (def #_"int" NetworkParameters'INTERVAL (quot NetworkParameters'TARGET_TIMESPAN NetworkParameters'TARGET_SPACING))
 
     ;;;
      ; Blocks with a timestamp after this should enforce BIP 16, aka "Pay to script hash".  This BIP changed
@@ -9086,21 +9088,21 @@
      ;;
     #_public
     #_static
-    (§ def #_"int" NetworkParameters'BIP16_ENFORCE_TIME 1333238400)
+    (def #_"int" NetworkParameters'BIP16_ENFORCE_TIME 1333238400)
 
     ;;;
      ; The maximum number of coins to be generated.
      ;;
     #_public
     #_static
-    (§ def #_"long" NetworkParameters'MAX_COINS 21000000)
+    (def #_"long" NetworkParameters'MAX_COINS 21000000)
 
     ;;;
      ; The maximum money to be generated.
      ;;
     #_public
     #_static
-    (§ def #_"Coin" NetworkParameters'MAX_MONEY (.. Coin'COIN (multiply NetworkParameters'MAX_COINS)))
+    (def #_"Coin" NetworkParameters'MAX_MONEY (.. Coin'COIN (multiply NetworkParameters'MAX_COINS)))
 
     ;;;
      ; A Java package style string acting as unique ID for these parameters.
@@ -9484,7 +9486,7 @@
 (§ class NotFoundMessage (§ extends InventoryMessage)
     #_public
     #_static
-    (§ def #_"int" NotFoundMessage'MIN_PROTOCOL_VERSION 70001)
+    (def #_"int" NotFoundMessage'MIN_PROTOCOL_VERSION 70001)
 
     #_public
     (§ constructor NotFoundMessage [#_"NetworkParameters" params]
@@ -9858,7 +9860,7 @@
 (§ class Peer (§ extends PeerSocketHandler)
     #_private
     #_static
-    (§ def- #_"Logger" Peer'log (LoggerFactory/getLogger Peer))
+    (def- #_"Logger" Peer'log (LoggerFactory/getLogger Peer))
 
     #_protected
     (§ field #_"ReentrantLock" :lock (Threading'lock "peer"))
@@ -9941,7 +9943,7 @@
     ;; actual false positive rate.  For now a good value was determined empirically around January 2013.
     #_private
     #_static
-    (§ def- #_"int" Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT 25000)
+    (def- #_"int" Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT 25000)
     ;; Keeps track of things we requested internally with getdata but didn't receive yet, so we can avoid re-requests.
     ;; It's not quite the same as getDataFutures, as this is used only for getdatas done as part of downloading
     ;; the chain and so is lighter weight (we just keep a bunch of hashes not futures).
@@ -9985,7 +9987,7 @@
 
     #_private
     #_static
-    (§ def- #_"int" Peer'PING_MOVING_AVERAGE_WINDOW 20)
+    (def- #_"int" Peer'PING_MOVING_AVERAGE_WINDOW 20)
 
     ;; Outstanding pings against this peer and how long the last one took to complete.
     #_private
@@ -10084,7 +10086,7 @@
         (§ assoc this :get-addr-futures (LinkedList. #_"<>"))
         (§ assoc this :fast-catchup-time-secs (.. params (getGenesisBlock) (getTimeSeconds)))
         (§ assoc this :pending-pings (CopyOnWriteArrayList. #_"<>"))
-        (§ assoc this :v-min-protocol-version ProtocolVersion/PONG)
+        (§ assoc this :v-min-protocol-version ProtocolVersion'PONG)
         (§ assoc this :wallets (CopyOnWriteArrayList. #_"<>"))
         (§ assoc this :context (Context'get))
 
@@ -11962,7 +11964,7 @@
 #_public
 (§ class PeerAddress (§ extends ChildMessage)
     #_static
-    (§ def #_"int" PeerAddress'MESSAGE_SIZE 30)
+    (def #_"int" PeerAddress'MESSAGE_SIZE 30)
 
     #_private
     (§ field- #_"InetAddress" :addr)
@@ -12022,7 +12024,7 @@
      ;;
     #_public
     (§ constructor PeerAddress [#_"NetworkParameters" params, #_"InetAddress" addr, #_"int" port]
-        (§ this params, addr, port, ProtocolVersion/CURRENT, BigInteger/ZERO)
+        (§ this params, addr, port, ProtocolVersion'CURRENT, BigInteger/ZERO)
         this
     )
 
@@ -12054,7 +12056,7 @@
 
         (§ assoc this :hostname hostname)
         (§ assoc this :port port)
-        (§ assoc this :protocol-version ProtocolVersion/CURRENT)
+        (§ assoc this :protocol-version ProtocolVersion'CURRENT)
         (§ assoc this :services BigInteger/ZERO)
         this
     )
@@ -12272,7 +12274,7 @@
 (§ class PeerGroup (§ implements TransactionBroadcaster)
     #_private
     #_static
-    (§ def- #_"Logger" PeerGroup'log (LoggerFactory/getLogger PeerGroup))
+    (def- #_"Logger" PeerGroup'log (LoggerFactory/getLogger PeerGroup))
 
     ;; All members in this class should be marked with final, volatile, @GuardedBy or a mix as appropriate to define
     ;; their thread safety semantics.  Volatile requires a Hungarian-style v prefix.
@@ -12289,13 +12291,13 @@
      ;;
     #_public
     #_static
-    (§ def #_"int" PeerGroup'DEFAULT_CONNECTIONS 12)
+    (def #_"int" PeerGroup'DEFAULT_CONNECTIONS 12)
     #_private
     #_volatile
     (§ field- #_"int" :v-max-peers-to-discover-count 100)
     #_private
     #_static
-    (§ def- #_"long" PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS 5000)
+    (def- #_"long" PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS 5000)
     #_private
     #_volatile
     (§ field- #_"long" :v-peer-discovery-timeout-millis PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS)
@@ -12389,7 +12391,7 @@
     ;;; How many milliseconds to wait after receiving a pong before sending another ping. ;;
     #_public
     #_static
-    (§ def #_"long" PeerGroup'DEFAULT_PING_INTERVAL_MSEC 2000)
+    (def #_"long" PeerGroup'DEFAULT_PING_INTERVAL_MSEC 2000)
     #_private
     (§ field- #_"long" :ping-interval-msec PeerGroup'DEFAULT_PING_INTERVAL_MSEC)
 
@@ -12543,11 +12545,11 @@
      ;;
     #_public
     #_static
-    (§ def #_"double" PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE 0.00001)
+    (def #_"double" PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE 0.00001)
     ;;; Maximum increase in FP rate before forced refresh of the bloom filter. ;;
     #_public
     #_static
-    (§ def #_"double" PeerGroup'MAX_FP_RATE_INCREASE 10.0)
+    (def #_"double" PeerGroup'MAX_FP_RATE_INCREASE 10.0)
     ;; An object that calculates bloom filters given a list of filter providers, whilst tracking some state useful
     ;; for privacy purposes.
     #_private
@@ -12556,7 +12558,7 @@
     ;;; The default timeout between when a connection attempt begins and version message exchange completes. ;;
     #_public
     #_static
-    (§ def #_"int" PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS 5000)
+    (def #_"int" PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS 5000)
     #_private
     #_volatile
     (§ field- #_"int" :v-connect-timeout-millis PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS)
@@ -12660,7 +12662,7 @@
             (§ assoc this :peer-discoverers (CopyOnWriteArraySet. #_"<>"))
             (§ assoc this :running-broadcasts (Collections/synchronizedSet (HashSet. #_"<TransactionBroadcast>")))
             (§ assoc this :bloom-filter-merger (FilterMerger. PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE))
-            (§ assoc this :v-min-required-protocol-version ProtocolVersion/BLOOM_FILTER)
+            (§ assoc this :v-min-required-protocol-version ProtocolVersion'BLOOM_FILTER)
             this
         )
     )
@@ -12748,7 +12750,7 @@
             (§ field- #_"boolean" :first-run true)
             #_private
             #_static
-            (§ def- #_"long" PeerGroup'MIN_PEER_DISCOVERY_INTERVAL 1000)
+            (def- #_"long" PeerGroup'MIN_PEER_DISCOVERY_INTERVAL 1000)
 
             #_override
             #_public
@@ -14913,7 +14915,7 @@
             (let [#_"int" __highestVersion 0 #_"int" __preferredVersion 0]
                 (doseq [#_"Peer" peer candidates]
                     (§ ass __highestVersion (Math/max (:client-version (.. peer (getPeerVersionMessage))), __highestVersion))
-                    (§ ass __preferredVersion (Math/min __highestVersion, ProtocolVersion/BLOOM_FILTER))
+                    (§ ass __preferredVersion (Math/min __highestVersion, ProtocolVersion'BLOOM_FILTER))
                 )
                 (let [#_"ArrayList<Peer>" candidates2 (ArrayList. #_"<>" (.. candidates (size)))]
                     (doseq [#_"Peer" peer candidates]
@@ -15026,7 +15028,7 @@
 (§ class PeerSocketHandler (§ extends AbstractTimeoutHandler) (§ implements StreamConnection)
     #_private
     #_static
-    (§ def- #_"Logger" PeerSocketHandler'log (LoggerFactory/getLogger PeerSocketHandler))
+    (def- #_"Logger" PeerSocketHandler'log (LoggerFactory/getLogger PeerSocketHandler))
 
     #_private
     (§ field- #_"MessageSerializer" :serializer)
@@ -15715,10 +15717,10 @@
 (§ class Sha256Hash (§ implements Serializable, Comparable #_"<Sha256Hash>")
     #_public
     #_static
-    (§ def #_"int" Sha256Hash'LENGTH 32) ;; bytes
+    (def #_"int" Sha256Hash'LENGTH 32) ;; bytes
     #_public
     #_static
-    (§ def #_"Sha256Hash" Sha256Hash'ZERO_HASH (Sha256Hash'wrap (byte-array Sha256Hash'LENGTH)))
+    (def #_"Sha256Hash" Sha256Hash'ZERO_HASH (Sha256Hash'wrap (byte-array Sha256Hash'LENGTH)))
 
     #_private
     (§ field- #_"byte[]" :bytes)
@@ -15999,13 +16001,13 @@
     ;; 8 bytes to represent this field, so 12 bytes should be plenty for now.
     #_public
     #_static
-    (§ def #_"int" StoredBlock'CHAIN_WORK_BYTES 12)
+    (def #_"int" StoredBlock'CHAIN_WORK_BYTES 12)
     #_public
     #_static
-    (§ def #_"byte[]" StoredBlock'EMPTY_BYTES (byte-array StoredBlock'CHAIN_WORK_BYTES))
+    (def #_"byte[]" StoredBlock'EMPTY_BYTES (byte-array StoredBlock'CHAIN_WORK_BYTES))
     #_public
     #_static
-    (§ def #_"int" StoredBlock'COMPACT_SERIALIZED_SIZE (+ Block'HEADER_SIZE StoredBlock'CHAIN_WORK_BYTES 4)) ;; for height
+    (def #_"int" StoredBlock'COMPACT_SERIALIZED_SIZE (+ Block'HEADER_SIZE StoredBlock'CHAIN_WORK_BYTES 4)) ;; for height
 
     #_private
     (§ field- #_"Block" :header)
@@ -16252,7 +16254,7 @@
      ;;
     #_public
     #_static
-    (§ def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_UPDATE_TIME (Comparator. #_"<Transaction>"
+    (def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_UPDATE_TIME (Comparator. #_"<Transaction>"
         (§ anon
             #_override
             #_public
@@ -16269,7 +16271,7 @@
     ;;; A comparator that can be used to sort transactions by their chain height. ;;
     #_public
     #_static
-    (§ def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_HEIGHT (Comparator. #_"<Transaction>"
+    (def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_HEIGHT (Comparator. #_"<Transaction>"
         (§ anon
             #_override
             #_public
@@ -16287,28 +16289,28 @@
 
     #_private
     #_static
-    (§ def- #_"Logger" Transaction'log (LoggerFactory/getLogger Transaction))
+    (def- #_"Logger" Transaction'log (LoggerFactory/getLogger Transaction))
 
     ;;; Threshold for lockTime: below this value it is interpreted as block number, otherwise as timestamp. ;;
     #_public
     #_static
-    (§ def #_"int" Transaction'LOCKTIME_THRESHOLD 500000000) ;; Tue Nov  5 00:53:20 1985 UTC
+    (def #_"int" Transaction'LOCKTIME_THRESHOLD 500000000) ;; Tue Nov  5 00:53:20 1985 UTC
     ;;; Same, but as a BigInteger for CHECKLOCKTIMEVERIFY. ;;
     #_public
     #_static
-    (§ def #_"BigInteger" Transaction'LOCKTIME_THRESHOLD_BIG (BigInteger/valueOf Transaction'LOCKTIME_THRESHOLD))
+    (def #_"BigInteger" Transaction'LOCKTIME_THRESHOLD_BIG (BigInteger/valueOf Transaction'LOCKTIME_THRESHOLD))
 
     ;;; How many bytes a transaction can be before it won't be relayed anymore.  Currently 100kb. ;;
     #_public
     #_static
-    (§ def #_"int" Transaction'MAX_STANDARD_TX_SIZE 100000)
+    (def #_"int" Transaction'MAX_STANDARD_TX_SIZE 100000)
 
     ;;;
      ; If feePerKb is lower than this, Bitcoin Core will treat it as if there were no fee.
      ;;
     #_public
     #_static
-    (§ def #_"Coin" Transaction'REFERENCE_DEFAULT_MIN_TX_FEE (Coin'valueOf 5000)) ;; 0.05 mBTC
+    (def #_"Coin" Transaction'REFERENCE_DEFAULT_MIN_TX_FEE (Coin'valueOf 5000)) ;; 0.05 mBTC
 
     ;;;
      ; If using this feePerKb, transactions will get confirmed within the next couple of blocks.
@@ -16316,7 +16318,7 @@
      ;;
     #_public
     #_static
-    (§ def #_"Coin" Transaction'DEFAULT_TX_FEE (Coin'valueOf 100000)) ;; 1 mBTC
+    (def #_"Coin" Transaction'DEFAULT_TX_FEE (Coin'valueOf 100000)) ;; 1 mBTC
 
     ;;;
      ; Any standard (i.e. pay-to-address) output smaller than this value (in satoshis) will most likely be rejected by the network.
@@ -16325,7 +16327,7 @@
      ;;
     #_public
     #_static
-    (§ def #_"Coin" Transaction'MIN_NONDUST_OUTPUT (Coin'valueOf 2730)) ;; satoshis
+    (def #_"Coin" Transaction'MIN_NONDUST_OUTPUT (Coin'valueOf 2730)) ;; satoshis
 
     ;; These are bitcoin serialized.
     #_private
@@ -16421,7 +16423,7 @@
      ;;
     #_public
     #_static
-    (§ def #_"long" Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG (<< 1 31))
+    (def #_"long" Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG (<< 1 31))
 
     ;; If CTxIn::nSequence encodes a relative lock-time and this flag
      ; is set, the relative lock-time has units of 512 seconds,
@@ -16429,14 +16431,14 @@
      ;;
     #_public
     #_static
-    (§ def #_"long" Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG (<< 1 22))
+    (def #_"long" Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG (<< 1 22))
 
     ;; If CTxIn::nSequence encodes a relative lock-time, this mask is
      ; applied to extract that lock-time from the sequence field.
      ;;
     #_public
     #_static
-    (§ def #_"long" Transaction'SEQUENCE_LOCKTIME_MASK 0x0000ffff)
+    (def #_"long" Transaction'SEQUENCE_LOCKTIME_MASK 0x0000ffff)
 
     #_public
     (§ constructor Transaction [#_"NetworkParameters" params]
@@ -17925,7 +17927,7 @@
 (§ class TransactionBroadcast
     #_private
     #_static
-    (§ def- #_"Logger" TransactionBroadcast'log (LoggerFactory/getLogger TransactionBroadcast))
+    (def- #_"Logger" TransactionBroadcast'log (LoggerFactory/getLogger TransactionBroadcast))
 
     #_private
     (§ field- #_"SettableFuture<Transaction>" :future (SettableFuture/create))
@@ -17942,7 +17944,7 @@
     #_testing
     #_public
     #_static
-    (§ def #_"Random" TransactionBroadcast'RANDOM (Random.))
+    (def #_"Random" TransactionBroadcast'RANDOM (Random.))
 
     ;; Tracks which nodes sent us a reject message about this broadcast, if any.  Useful for debugging.
     #_private
@@ -18428,7 +18430,7 @@
     ;; We add ourselves to this set when a listener is added and remove ourselves when the listener list is empty.
     #_private
     #_static
-    (§ def- #_"Set<TransactionConfidence>" TransactionConfidence'PINNED_CONFIDENCE_OBJECTS (Collections/synchronizedSet (HashSet. #_"<TransactionConfidence>")))
+    (def- #_"Set<TransactionConfidence>" TransactionConfidence'PINNED_CONFIDENCE_OBJECTS (Collections/synchronizedSet (HashSet. #_"<TransactionConfidence>")))
 
     ;;;
      ; <p>Adds an event listener that will be run when this confidence object is updated.  The listener will be locked
@@ -18822,14 +18824,14 @@
     ;;; Magic sequence number that indicates there is no sequence number. ;;
     #_public
     #_static
-    (§ def #_"long" TransactionInput'NO_SEQUENCE 0xffffffff)
+    (def #_"long" TransactionInput'NO_SEQUENCE 0xffffffff)
     #_private
     #_static
-    (§ def- #_"byte[]" TransactionInput'EMPTY_ARRAY (byte-array 0))
+    (def- #_"byte[]" TransactionInput'EMPTY_ARRAY (byte-array 0))
     ;; Magic outpoint index that indicates the input is in fact unconnected.
     #_private
     #_static
-    (§ def- #_"long" TransactionInput'UNCONNECTED 0xffffffff)
+    (def- #_"long" TransactionInput'UNCONNECTED 0xffffffff)
 
     ;; Allows for altering transactions after they were broadcast.  Values below NO_SEQUENCE-1 mean it can be altered.
     #_private
@@ -19392,7 +19394,7 @@
 #_public
 (§ class TransactionOutPoint (§ extends ChildMessage)
     #_static
-    (§ def #_"int" TransactionOutPoint'MESSAGE_LENGTH 36)
+    (def #_"int" TransactionOutPoint'MESSAGE_LENGTH 36)
 
     ;;; Hash of the transaction to which we refer. ;;
     #_private
@@ -19649,7 +19651,7 @@
 (§ class TransactionOutput (§ extends ChildMessage)
     #_private
     #_static
-    (§ def- #_"Logger" TransactionOutput'log (LoggerFactory/getLogger TransactionOutput))
+    (def- #_"Logger" TransactionOutput'log (LoggerFactory/getLogger TransactionOutput))
 
     ;; The output's value is kept as a native type in order to save class instances.
     #_private
@@ -20211,7 +20213,7 @@
     ;;; The max size of a table created with the no-args constructor. ;;
     #_public
     #_static
-    (§ def #_"int" TxConfidenceTable'MAX_SIZE 1000)
+    (def #_"int" TxConfidenceTable'MAX_SIZE 1000)
 
     ;;;
      ; Creates a table that will track at most the given number of transactions (allowing you to bound memory usage).
@@ -20632,18 +20634,18 @@
     ;;; The string that prefixes all text messages signed using Bitcoin keys. ;;
     #_public
     #_static
-    (§ def #_"String" Utils'BITCOIN_SIGNED_MESSAGE_HEADER "Bitcoin Signed Message:\n")
+    (def #_"String" Utils'BITCOIN_SIGNED_MESSAGE_HEADER "Bitcoin Signed Message:\n")
     #_public
     #_static
-    (§ def #_"byte[]" Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES (.. Utils'BITCOIN_SIGNED_MESSAGE_HEADER (getBytes Charsets/UTF_8)))
+    (def #_"byte[]" Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES (.. Utils'BITCOIN_SIGNED_MESSAGE_HEADER (getBytes Charsets/UTF_8)))
 
     #_public
     #_static
-    (§ def #_"Joiner" Utils'SPACE_JOINER (Joiner/on " "))
+    (def #_"Joiner" Utils'SPACE_JOINER (Joiner/on " "))
 
     #_private
     #_static
-    (§ def- #_"BlockingQueue<Boolean>" Utils'MOCK_SLEEP_QUEUE)
+    (def- #_"BlockingQueue<Boolean>" Utils'MOCK_SLEEP_QUEUE)
 
     ;;;
      ; The regular {@link java.math.BigInteger#toByteArray()} includes the sign bit of the number and
@@ -20783,7 +20785,7 @@
      ;;
     #_public
     #_static
-    (§ def #_"BaseEncoding" Utils'HEX (.. (BaseEncoding/base16) (lowerCase)))
+    (def #_"BaseEncoding" Utils'HEX (.. (BaseEncoding/base16) (lowerCase)))
 
     ;;;
      ; Returns a copy of the given byte array in reverse order.
@@ -21017,7 +21019,7 @@
     #_public
     #_static
     #_volatile
-    (§ def #_"Date" Utils'MOCK_TIME)
+    (def #_"Date" Utils'MOCK_TIME)
 
     ;;;
      ; Advances (or rewinds) the mock clock by the given number of seconds.
@@ -21087,7 +21089,7 @@
 
     #_private
     #_static
-    (§ def- #_"TimeZone" Utils'UTC (TimeZone/getTimeZone "UTC"))
+    (def- #_"TimeZone" Utils'UTC (TimeZone/getTimeZone "UTC"))
 
     ;;;
      ; Formats a given date+time value to an ISO 8601 string.
@@ -21235,7 +21237,7 @@
     ;; 00000001, 00000010, 00000100, 00001000, ...
     #_private
     #_static
-    (§ def- #_"int[]" Utils'BIT_MASK (int-array [ 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 ]))
+    (def- #_"int[]" Utils'BIT_MASK (int-array [ 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 ]))
 
     ;;; Checks if the given bit is set in data, using little endian (not the same as Java native big endian). ;;
     #_public
@@ -21315,7 +21317,7 @@
 
     #_private
     #_static
-    (§ def- #_"int" Utils'IS_ANDROID (let [#_"String" runtime (System/getProperty "java.runtime.name")] (and (some? runtime) (.. runtime (equals "Android Runtime")))))
+    (def- #_"int" Utils'IS_ANDROID (let [#_"String" runtime (System/getProperty "java.runtime.name")] (and (some? runtime) (.. runtime (equals "Android Runtime")))))
     #_public
     #_static
     (§ defn #_"boolean" Utils'isAndroidRuntime []
@@ -21695,16 +21697,16 @@
     ;;; The version of this library release, as a string. ;;
     #_public
     #_static
-    (§ def #_"String" VersionMessage'BITCOINJ_VERSION "0.15-SNAPSHOT")
+    (def #_"String" VersionMessage'BITCOINJ_VERSION "0.15-SNAPSHOT")
     ;;; The value that is prepended to the subVer field of this application. ;;
     #_public
     #_static
-    (§ def #_"String" VersionMessage'LIBRARY_SUBVER (str "/bitcoinj:" VersionMessage'BITCOINJ_VERSION "/"))
+    (def #_"String" VersionMessage'LIBRARY_SUBVER (str "/bitcoinj:" VersionMessage'BITCOINJ_VERSION "/"))
 
     ;;; A services flag that denotes whether the peer has a copy of the block chain or not. ;;
     #_public
     #_static
-    (§ def #_"int" VersionMessage'NODE_NETWORK 1)
+    (def #_"int" VersionMessage'NODE_NETWORK 1)
 
     ;;;
      ; The version number of the protocol spoken.
@@ -21764,7 +21766,7 @@
     (§ constructor VersionMessage [#_"NetworkParameters" params, #_"int" __newBestHeight]
         (§ super params)
 
-        (§ assoc this :client-version ProtocolVersion/CURRENT)
+        (§ assoc this :client-version ProtocolVersion'CURRENT)
         (§ assoc this :local-services 0)
         (§ assoc this :time (quot (System/currentTimeMillis) 1000))
         ;; Note that the Bitcoin Core doesn't do anything with these, and finding out your own external IP address
@@ -21977,7 +21979,7 @@
      ;;
     #_public
     (§ method #_"boolean" isPingPongSupported []
-        (<= ProtocolVersion/PONG (:client-version this))
+        (<= ProtocolVersion'PONG (:client-version this))
     )
 
     ;;;
@@ -21986,7 +21988,7 @@
      ;;
     #_public
     (§ method #_"boolean" isBloomFilteringSupported []
-        (<= ProtocolVersion/BLOOM_FILTER (:client-version this))
+        (<= ProtocolVersion'BLOOM_FILTER (:client-version this))
     )
 )
 
@@ -22227,7 +22229,7 @@
 (§ class DownloadProgressTracker (§ extends AbstractPeerDataEventListener)
     #_private
     #_static
-    (§ def- #_"Logger" DownloadProgressTracker'log (LoggerFactory/getLogger DownloadProgressTracker))
+    (def- #_"Logger" DownloadProgressTracker'log (LoggerFactory/getLogger DownloadProgressTracker))
 
     #_private
     (§ field- #_"int" :original-blocks-left -1)
@@ -22592,17 +22594,17 @@
      ;;
     #_public
     #_static
-    (§ def #_"int" ChildNumber'HARDENED_BIT 0x80000000)
+    (def #_"int" ChildNumber'HARDENED_BIT 0x80000000)
 
     #_public
     #_static
-    (§ def #_"ChildNumber" ChildNumber'ZERO (ChildNumber. 0))
+    (def #_"ChildNumber" ChildNumber'ZERO (ChildNumber. 0))
     #_public
     #_static
-    (§ def #_"ChildNumber" ChildNumber'ONE (ChildNumber. 1))
+    (def #_"ChildNumber" ChildNumber'ONE (ChildNumber. 1))
     #_public
     #_static
-    (§ def #_"ChildNumber" ChildNumber'ZERO_HARDENED (ChildNumber. 0, true))
+    (def #_"ChildNumber" ChildNumber'ZERO_HARDENED (ChildNumber. 0, true))
 
     ;;; Integer i as per BIP 32 spec, including the MSB denoting derivation type (0 = public, 1 = private). ;;
     #_private
@@ -22712,7 +22714,7 @@
 
     #_public
     #_static
-    (§ def #_"int" DeterministicHierarchy'BIP32_STANDARDISATION_TIME_SECS 1369267200)
+    (def #_"int" DeterministicHierarchy'BIP32_STANDARDISATION_TIME_SECS 1369267200)
 
     ;;;
      ; Constructs a new hierarchy rooted at the given key.  Note that this does not have to be the top of the tree.
@@ -22856,7 +22858,7 @@
     ;;; Sorts deterministic keys in the order of their child number.  That's <i>usually</i> the order used to derive them. ;;
     #_public
     #_static
-    (§ def #_"Comparator<ECKey>" DeterministicKey'CHILDNUM_ORDER (Comparator. #_"<ECKey>"
+    (def #_"Comparator<ECKey>" DeterministicKey'CHILDNUM_ORDER (Comparator. #_"<ECKey>"
         (§ anon
             #_override
             #_public
@@ -23650,7 +23652,7 @@
     ;; Some arbitrary random number.  Doesn't matter what it is.
     #_private
     #_static
-    (§ def- #_"BigInteger" HDKeyDerivation'RAND_INT (BigInteger. 256, (SecureRandom.)))
+    (def- #_"BigInteger" HDKeyDerivation'RAND_INT (BigInteger. 256, (SecureRandom.)))
 
     #_private
     (§ constructor- #_"HDKeyDerivation" []
@@ -23663,7 +23665,7 @@
      ;;
     #_public
     #_static
-    (§ def #_"int" HDKeyDerivation'MAX_CHILD_DERIVATION_ATTEMPTS 100)
+    (def #_"int" HDKeyDerivation'MAX_CHILD_DERIVATION_ATTEMPTS 100)
 
     ;;;
      ; Generates a new deterministic key from the given seed, which can be any arbitrary byte array.
@@ -23919,7 +23921,7 @@
 (§ class HDUtils
     #_private
     #_static
-    (§ def- #_"Joiner" HDUtils'PATH_JOINER (Joiner/on "/"))
+    (def- #_"Joiner" HDUtils'PATH_JOINER (Joiner/on "/"))
 
     #_static
     (§ defn #_"HMac" HDUtils'createHmacSha512Digest [#_"byte[]" key]
@@ -24097,14 +24099,14 @@
 (§ class KeyCrypterScrypt (§ implements KeyCrypter)
     #_private
     #_static
-    (§ def- #_"Logger" KeyCrypterScrypt'log (LoggerFactory/getLogger KeyCrypterScrypt))
+    (def- #_"Logger" KeyCrypterScrypt'log (LoggerFactory/getLogger KeyCrypterScrypt))
 
     ;;;
      ; Key length in bytes.
      ;;
     #_public
     #_static
-    (§ def #_"int" KeyCrypterScrypt'KEY_LENGTH 32) ;; = 256 bits.
+    (def #_"int" KeyCrypterScrypt'KEY_LENGTH 32) ;; = 256 bits.
 
     ;;;
      ; The size of an AES block in bytes.
@@ -24112,18 +24114,18 @@
      ;;
     #_public
     #_static
-    (§ def #_"int" KeyCrypterScrypt'BLOCK_LENGTH 16) ;; = 128 bits.
+    (def #_"int" KeyCrypterScrypt'BLOCK_LENGTH 16) ;; = 128 bits.
 
     ;;;
      ; The length of the salt used.
      ;;
     #_public
     #_static
-    (§ def #_"int" KeyCrypterScrypt'SALT_LENGTH 8)
+    (def #_"int" KeyCrypterScrypt'SALT_LENGTH 8)
 
     #_private
     #_static
-    (§ def- #_"SecureRandom" KeyCrypterScrypt'SECURE_RANDOM (SecureRandom.))
+    (def- #_"SecureRandom" KeyCrypterScrypt'SECURE_RANDOM (SecureRandom.))
 
     ;;; Returns SALT_LENGTH (8) bytes of random data. ;;
     #_public
@@ -24584,30 +24586,30 @@
 (§ class MnemonicCode
     #_private
     #_static
-    (§ def- #_"Logger" MnemonicCode'log (LoggerFactory/getLogger MnemonicCode))
+    (def- #_"Logger" MnemonicCode'log (LoggerFactory/getLogger MnemonicCode))
 
     #_private
     (§ field- #_"ArrayList<String>" :word-list)
 
     #_private
     #_static
-    (§ def- #_"String" MnemonicCode'BIP39_ENGLISH_RESOURCE_NAME "mnemonic/wordlist/english.txt")
+    (def- #_"String" MnemonicCode'BIP39_ENGLISH_RESOURCE_NAME "mnemonic/wordlist/english.txt")
     #_private
     #_static
-    (§ def- #_"String" MnemonicCode'BIP39_ENGLISH_SHA256 "ad90bf3beb7b0eb7e5acd74727dc0da96e0a280a258354e7293fb7e211ac03db")
+    (def- #_"String" MnemonicCode'BIP39_ENGLISH_SHA256 "ad90bf3beb7b0eb7e5acd74727dc0da96e0a280a258354e7293fb7e211ac03db")
 
     ;;; UNIX time for when the BIP39 standard was finalised.  This can be used as a default seed birthday. ;;
     #_public
     #_static
-    (§ def #_"long" MnemonicCode'BIP39_STANDARDISATION_TIME_SECS 1381276800)
+    (def #_"long" MnemonicCode'BIP39_STANDARDISATION_TIME_SECS 1381276800)
 
     #_private
     #_static
-    (§ def- #_"int" MnemonicCode'PBKDF2_ROUNDS 2048)
+    (def- #_"int" MnemonicCode'PBKDF2_ROUNDS 2048)
 
     #_public
     #_static
-    (§ def #_"MnemonicCode" MnemonicCode'INSTANCE)
+    (def #_"MnemonicCode" MnemonicCode'INSTANCE)
 
     #_static
     (§ block
@@ -25277,7 +25279,7 @@
 (§ class WalletAppKit (§ extends AbstractIdleService)
     #_protected
     #_static
-    (§ def #_"Logger" WalletAppKit'log (LoggerFactory/getLogger WalletAppKit))
+    (def #_"Logger" WalletAppKit'log (LoggerFactory/getLogger WalletAppKit))
 
     #_protected
     (§ field #_"String" :file-prefix)
@@ -25870,7 +25872,7 @@
     ;; A timer which manages expiring channels as their timeouts occur (if configured).
     #_private
     #_static
-    (§ def- #_"Timer" AbstractTimeoutHandler'TIMEOUT_TIMER (Timer. "AbstractTimeoutHandler timeouts", true))
+    (def- #_"Timer" AbstractTimeoutHandler'TIMEOUT_TIMER (Timer. "AbstractTimeoutHandler timeouts", true))
 
     ;;;
      ; <p>Enables or disables the timeout entirely.  This may be useful if you want to store the timeout value
@@ -25948,14 +25950,14 @@
 (§ class BlockingClient (§ implements MessageWriteTarget)
     #_private
     #_static
-    (§ def- #_"Logger" BlockingClient'log (LoggerFactory/getLogger BlockingClient))
+    (def- #_"Logger" BlockingClient'log (LoggerFactory/getLogger BlockingClient))
 
     #_private
     #_static
-    (§ def- #_"int" BlockingClient'BUFFER_SIZE_LOWER_BOUND 4096)
+    (def- #_"int" BlockingClient'BUFFER_SIZE_LOWER_BOUND 4096)
     #_private
     #_static
-    (§ def- #_"int" BlockingClient'BUFFER_SIZE_UPPER_BOUND 65536)
+    (def- #_"int" BlockingClient'BUFFER_SIZE_UPPER_BOUND 65536)
 
     #_private
     (§ field- #_"Socket" :socket)
@@ -26236,18 +26238,18 @@
 (§ class ConnectionHandler (§ implements MessageWriteTarget)
     #_private
     #_static
-    (§ def- #_"Logger" ConnectionHandler'log (LoggerFactory/getLogger ConnectionHandler))
+    (def- #_"Logger" ConnectionHandler'log (LoggerFactory/getLogger ConnectionHandler))
 
     #_private
     #_static
-    (§ def- #_"int" ConnectionHandler'BUFFER_SIZE_LOWER_BOUND 4096)
+    (def- #_"int" ConnectionHandler'BUFFER_SIZE_LOWER_BOUND 4096)
     #_private
     #_static
-    (§ def- #_"int" ConnectionHandler'BUFFER_SIZE_UPPER_BOUND 65536)
+    (def- #_"int" ConnectionHandler'BUFFER_SIZE_UPPER_BOUND 65536)
 
     #_private
     #_static
-    (§ def- #_"int" ConnectionHandler'OUTBOUND_BUFFER_BYTE_COUNT (+ Message'MAX_SIZE 24)) ;; 24 byte message header
+    (def- #_"int" ConnectionHandler'OUTBOUND_BUFFER_BYTE_COUNT (+ Message'MAX_SIZE 24)) ;; 24 byte message header
 
     ;; We lock when touching local flags and when writing data, but NEVER when calling any methods which leave
     ;; this class into non-Java classes.
@@ -26634,7 +26636,7 @@
 (§ class NioClient (§ implements MessageWriteTarget)
     #_private
     #_static
-    (§ def- #_"Logger" NioClient'log (LoggerFactory/getLogger NioClient))
+    (def- #_"Logger" NioClient'log (LoggerFactory/getLogger NioClient))
 
     #_private
     (§ field- #_"NioClientHandler" :handler)
@@ -26779,7 +26781,7 @@
 (§ class NioClientManager (§ extends AbstractExecutionThreadService) (§ implements ClientConnectionManager)
     #_private
     #_static
-    (§ def- #_"Logger" NioClientManager'log (LoggerFactory/getLogger NioClientManager))
+    (def- #_"Logger" NioClientManager'log (LoggerFactory/getLogger NioClientManager))
 
     #_private
     (§ field- #_"Selector" :selector)
@@ -27003,7 +27005,7 @@
 (§ class NioServer (§ extends AbstractExecutionThreadService)
     #_private
     #_static
-    (§ def- #_"Logger" NioServer'log (LoggerFactory/getLogger NioServer))
+    (def- #_"Logger" NioServer'log (LoggerFactory/getLogger NioServer))
 
     #_private
     (§ field- #_"StreamConnectionFactory" :connection-factory)
@@ -27144,7 +27146,7 @@
 (§ class ProtobufConnection #_"<MessageType extends MessageLite>" (§ extends AbstractTimeoutHandler) (§ implements StreamConnection)
     #_private
     #_static
-    (§ def- #_"Logger" ProtobufConnection'log #_"<MessageType extends MessageLite>" (LoggerFactory/getLogger ProtobufConnection))
+    (def- #_"Logger" ProtobufConnection'log #_"<MessageType extends MessageLite>" (LoggerFactory/getLogger ProtobufConnection))
 
     ;;;
      ; An interface which can be implemented to handle callbacks as new messages are generated and socket events occur.
@@ -27568,7 +27570,7 @@
 (§ class MultiplexingDiscovery (§ implements PeerDiscovery)
     #_private
     #_static
-    (§ def- #_"Logger" MultiplexingDiscovery'log (LoggerFactory/getLogger MultiplexingDiscovery))
+    (def- #_"Logger" MultiplexingDiscovery'log (LoggerFactory/getLogger MultiplexingDiscovery))
 
     #_protected
     (§ field #_"List<PeerDiscovery>" :seeds)
@@ -27879,14 +27881,14 @@
      ;;
     #_public
     #_static
-    (§ def #_"String" AbstractBitcoinNetParams'BITCOIN_SCHEME "bitcoin")
+    (def #_"String" AbstractBitcoinNetParams'BITCOIN_SCHEME "bitcoin")
     #_public
     #_static
-    (§ def #_"int" AbstractBitcoinNetParams'REWARD_HALVING_INTERVAL 210000)
+    (def #_"int" AbstractBitcoinNetParams'REWARD_HALVING_INTERVAL 210000)
 
     #_private
     #_static
-    (§ def- #_"Logger" AbstractBitcoinNetParams'log (LoggerFactory/getLogger AbstractBitcoinNetParams))
+    (def- #_"Logger" AbstractBitcoinNetParams'log (LoggerFactory/getLogger AbstractBitcoinNetParams))
 
     #_public
     (§ constructor AbstractBitcoinNetParams []
@@ -28017,13 +28019,13 @@
 (§ class MainNetParams (§ extends AbstractBitcoinNetParams)
     #_public
     #_static
-    (§ def #_"int" MainNetParams'MAINNET_MAJORITY_WINDOW 1000)
+    (def #_"int" MainNetParams'MAINNET_MAJORITY_WINDOW 1000)
     #_public
     #_static
-    (§ def #_"int" MainNetParams'MAINNET_MAJORITY_REJECT_BLOCK_OUTDATED 950)
+    (def #_"int" MainNetParams'MAINNET_MAJORITY_REJECT_BLOCK_OUTDATED 950)
     #_public
     #_static
-    (§ def #_"int" MainNetParams'MAINNET_MAJORITY_ENFORCE_BLOCK_UPGRADE 750)
+    (def #_"int" MainNetParams'MAINNET_MAJORITY_ENFORCE_BLOCK_UPGRADE 750)
 
     #_public
     (§ constructor MainNetParams []
@@ -28123,7 +28125,7 @@
 
     #_private
     #_static
-    (§ def- #_"MainNetParams" MainNetParams'INSTANCE)
+    (def- #_"MainNetParams" MainNetParams'INSTANCE)
 
     #_public
     #_static
@@ -28152,7 +28154,7 @@
     ;;; Registered networks. ;;
     #_private
     #_static
-    (§ def- #_"Set<? extends NetworkParameters>" Networks'NETWORKS (ImmutableSet/of (TestNet3Params'get), (MainNetParams'get)))
+    (def- #_"Set<? extends NetworkParameters>" Networks'NETWORKS (ImmutableSet/of (TestNet3Params'get), (MainNetParams'get)))
 
     #_public
     #_static
@@ -28205,13 +28207,13 @@
 (§ class TestNet3Params (§ extends AbstractBitcoinNetParams)
     #_public
     #_static
-    (§ def #_"int" TestNet3Params'TESTNET_MAJORITY_WINDOW 100)
+    (def #_"int" TestNet3Params'TESTNET_MAJORITY_WINDOW 100)
     #_public
     #_static
-    (§ def #_"int" TestNet3Params'TESTNET_MAJORITY_REJECT_BLOCK_OUTDATED 75)
+    (def #_"int" TestNet3Params'TESTNET_MAJORITY_REJECT_BLOCK_OUTDATED 75)
     #_public
     #_static
-    (§ def #_"int" TestNet3Params'TESTNET_MAJORITY_ENFORCE_BLOCK_UPGRADE 51)
+    (def #_"int" TestNet3Params'TESTNET_MAJORITY_ENFORCE_BLOCK_UPGRADE 51)
 
     #_public
     (§ constructor TestNet3Params []
@@ -28255,7 +28257,7 @@
 
     #_private
     #_static
-    (§ def- #_"TestNet3Params" TestNet3Params'INSTANCE)
+    (def- #_"TestNet3Params" TestNet3Params'INSTANCE)
 
     #_public
     #_static
@@ -28276,7 +28278,7 @@
     ;; February 16th 2012
     #_private
     #_static
-    (§ def- #_"Date" TestNet3Params'TESTNET_DIFF_DATE (Date. 1329264000000))
+    (def- #_"Date" TestNet3Params'TESTNET_DIFF_DATE (Date. 1329264000000))
 
     #_override
     #_public
@@ -28327,13 +28329,13 @@
 (§ class UnitTestParams (§ extends AbstractBitcoinNetParams)
     #_public
     #_static
-    (§ def #_"int" UnitTestParams'UNITNET_MAJORITY_WINDOW 8)
+    (def #_"int" UnitTestParams'UNITNET_MAJORITY_WINDOW 8)
     #_public
     #_static
-    (§ def #_"int" UnitTestParams'UNITNET_MAJORITY_REJECT_BLOCK_OUTDATED 6)
+    (def #_"int" UnitTestParams'UNITNET_MAJORITY_REJECT_BLOCK_OUTDATED 6)
     #_public
     #_static
-    (§ def #_"int" UnitTestParams'UNITNET_MAJORITY_ENFORCE_BLOCK_UPGRADE 4)
+    (def #_"int" UnitTestParams'UNITNET_MAJORITY_ENFORCE_BLOCK_UPGRADE 4)
 
     #_public
     (§ constructor UnitTestParams []
@@ -28366,7 +28368,7 @@
 
     #_private
     #_static
-    (§ def- #_"UnitTestParams" UnitTestParams'INSTANCE)
+    (def- #_"UnitTestParams" UnitTestParams'INSTANCE)
 
     #_public
     #_static
@@ -28441,34 +28443,34 @@
     )
     #_public
     #_static
-    (§ def #_"EnumSet<ScriptVerifyFlag>" Script'ALL_VERIFY_FLAGS (EnumSet/allOf ScriptVerifyFlag))
+    (def #_"EnumSet<ScriptVerifyFlag>" Script'ALL_VERIFY_FLAGS (EnumSet/allOf ScriptVerifyFlag))
 
     #_private
     #_static
-    (§ def- #_"Logger" Script'log (LoggerFactory/getLogger Script))
+    (def- #_"Logger" Script'log (LoggerFactory/getLogger Script))
 
     #_public
     #_static
-    (§ def #_"long" Script'MAX_SCRIPT_ELEMENT_SIZE 520) ;; bytes
+    (def #_"long" Script'MAX_SCRIPT_ELEMENT_SIZE 520) ;; bytes
     #_private
     #_static
-    (§ def- #_"int" Script'MAX_OPS_PER_SCRIPT 201)
+    (def- #_"int" Script'MAX_OPS_PER_SCRIPT 201)
     #_private
     #_static
-    (§ def- #_"int" Script'MAX_STACK_SIZE 1000)
+    (def- #_"int" Script'MAX_STACK_SIZE 1000)
     #_private
     #_static
-    (§ def- #_"int" Script'MAX_PUBKEYS_PER_MULTISIG 20)
+    (def- #_"int" Script'MAX_PUBKEYS_PER_MULTISIG 20)
     #_private
     #_static
-    (§ def- #_"int" Script'MAX_SCRIPT_SIZE 10000)
+    (def- #_"int" Script'MAX_SCRIPT_SIZE 10000)
     #_public
     #_static
-    (§ def #_"int" Script'SIG_SIZE 75)
+    (def #_"int" Script'SIG_SIZE 75)
     ;;; Max number of sigops allowed in a standard p2sh redeem script. ;;
     #_public
     #_static
-    (§ def #_"int" Script'MAX_P2SH_SIGOPS 15)
+    (def #_"int" Script'MAX_P2SH_SIGOPS 15)
 
     ;; The program is a set of chunks where each element is either [opcode] or [data, data, data ...].
     #_protected
@@ -28569,13 +28571,13 @@
 
     #_private
     #_static
-    (§ def- #_"ScriptChunk[]" Script'STANDARD_TRANSACTION_SCRIPT_CHUNKS
-    (§ coll
+    (def- #_"ScriptChunk[]" Script'STANDARD_TRANSACTION_SCRIPT_CHUNKS (into-array ScriptChunk
+    [
         (ScriptChunk. ScriptOpCodes'OP_DUP, nil, 0)
         (ScriptChunk. ScriptOpCodes'OP_HASH160, nil, 1)
         (ScriptChunk. ScriptOpCodes'OP_EQUALVERIFY, nil, 23)
         (ScriptChunk. ScriptOpCodes'OP_CHECKSIG, nil, 24)
-    ))
+    ]))
 
     ;;;
      ; <p>To run a script, first we parse it which breaks it up into chunks representing pushes of data
@@ -31228,381 +31230,381 @@
     ;; push value
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_0 0x00) ;; push empty vector
+    (def #_"int" ScriptOpCodes'OP_0 0x00) ;; push empty vector
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_FALSE ScriptOpCodes'OP_0)
+    (def #_"int" ScriptOpCodes'OP_FALSE ScriptOpCodes'OP_0)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_PUSHDATA1 0x4c)
+    (def #_"int" ScriptOpCodes'OP_PUSHDATA1 0x4c)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_PUSHDATA2 0x4d)
+    (def #_"int" ScriptOpCodes'OP_PUSHDATA2 0x4d)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_PUSHDATA4 0x4e)
+    (def #_"int" ScriptOpCodes'OP_PUSHDATA4 0x4e)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_1NEGATE 0x4f)
+    (def #_"int" ScriptOpCodes'OP_1NEGATE 0x4f)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_RESERVED 0x50)
+    (def #_"int" ScriptOpCodes'OP_RESERVED 0x50)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_1 0x51)
+    (def #_"int" ScriptOpCodes'OP_1 0x51)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_TRUE ScriptOpCodes'OP_1)
+    (def #_"int" ScriptOpCodes'OP_TRUE ScriptOpCodes'OP_1)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_2 0x52)
+    (def #_"int" ScriptOpCodes'OP_2 0x52)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_3 0x53)
+    (def #_"int" ScriptOpCodes'OP_3 0x53)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_4 0x54)
+    (def #_"int" ScriptOpCodes'OP_4 0x54)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_5 0x55)
+    (def #_"int" ScriptOpCodes'OP_5 0x55)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_6 0x56)
+    (def #_"int" ScriptOpCodes'OP_6 0x56)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_7 0x57)
+    (def #_"int" ScriptOpCodes'OP_7 0x57)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_8 0x58)
+    (def #_"int" ScriptOpCodes'OP_8 0x58)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_9 0x59)
+    (def #_"int" ScriptOpCodes'OP_9 0x59)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_10 0x5a)
+    (def #_"int" ScriptOpCodes'OP_10 0x5a)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_11 0x5b)
+    (def #_"int" ScriptOpCodes'OP_11 0x5b)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_12 0x5c)
+    (def #_"int" ScriptOpCodes'OP_12 0x5c)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_13 0x5d)
+    (def #_"int" ScriptOpCodes'OP_13 0x5d)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_14 0x5e)
+    (def #_"int" ScriptOpCodes'OP_14 0x5e)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_15 0x5f)
+    (def #_"int" ScriptOpCodes'OP_15 0x5f)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_16 0x60)
+    (def #_"int" ScriptOpCodes'OP_16 0x60)
 
     ;; control
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NOP 0x61)
+    (def #_"int" ScriptOpCodes'OP_NOP 0x61)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_VER 0x62)
+    (def #_"int" ScriptOpCodes'OP_VER 0x62)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_IF 0x63)
+    (def #_"int" ScriptOpCodes'OP_IF 0x63)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NOTIF 0x64)
+    (def #_"int" ScriptOpCodes'OP_NOTIF 0x64)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_VERIF 0x65)
+    (def #_"int" ScriptOpCodes'OP_VERIF 0x65)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_VERNOTIF 0x66)
+    (def #_"int" ScriptOpCodes'OP_VERNOTIF 0x66)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_ELSE 0x67)
+    (def #_"int" ScriptOpCodes'OP_ELSE 0x67)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_ENDIF 0x68)
+    (def #_"int" ScriptOpCodes'OP_ENDIF 0x68)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_VERIFY 0x69)
+    (def #_"int" ScriptOpCodes'OP_VERIFY 0x69)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_RETURN 0x6a)
+    (def #_"int" ScriptOpCodes'OP_RETURN 0x6a)
 
     ;; stack ops
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_TOALTSTACK 0x6b)
+    (def #_"int" ScriptOpCodes'OP_TOALTSTACK 0x6b)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_FROMALTSTACK 0x6c)
+    (def #_"int" ScriptOpCodes'OP_FROMALTSTACK 0x6c)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_2DROP 0x6d)
+    (def #_"int" ScriptOpCodes'OP_2DROP 0x6d)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_2DUP 0x6e)
+    (def #_"int" ScriptOpCodes'OP_2DUP 0x6e)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_3DUP 0x6f)
+    (def #_"int" ScriptOpCodes'OP_3DUP 0x6f)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_2OVER 0x70)
+    (def #_"int" ScriptOpCodes'OP_2OVER 0x70)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_2ROT 0x71)
+    (def #_"int" ScriptOpCodes'OP_2ROT 0x71)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_2SWAP 0x72)
+    (def #_"int" ScriptOpCodes'OP_2SWAP 0x72)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_IFDUP 0x73)
+    (def #_"int" ScriptOpCodes'OP_IFDUP 0x73)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_DEPTH 0x74)
+    (def #_"int" ScriptOpCodes'OP_DEPTH 0x74)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_DROP 0x75)
+    (def #_"int" ScriptOpCodes'OP_DROP 0x75)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_DUP 0x76)
+    (def #_"int" ScriptOpCodes'OP_DUP 0x76)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NIP 0x77)
+    (def #_"int" ScriptOpCodes'OP_NIP 0x77)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_OVER 0x78)
+    (def #_"int" ScriptOpCodes'OP_OVER 0x78)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_PICK 0x79)
+    (def #_"int" ScriptOpCodes'OP_PICK 0x79)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_ROLL 0x7a)
+    (def #_"int" ScriptOpCodes'OP_ROLL 0x7a)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_ROT 0x7b)
+    (def #_"int" ScriptOpCodes'OP_ROT 0x7b)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_SWAP 0x7c)
+    (def #_"int" ScriptOpCodes'OP_SWAP 0x7c)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_TUCK 0x7d)
+    (def #_"int" ScriptOpCodes'OP_TUCK 0x7d)
 
     ;; splice ops
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_CAT 0x7e)
+    (def #_"int" ScriptOpCodes'OP_CAT 0x7e)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_SUBSTR 0x7f)
+    (def #_"int" ScriptOpCodes'OP_SUBSTR 0x7f)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_LEFT 0x80)
+    (def #_"int" ScriptOpCodes'OP_LEFT 0x80)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_RIGHT 0x81)
+    (def #_"int" ScriptOpCodes'OP_RIGHT 0x81)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_SIZE 0x82)
+    (def #_"int" ScriptOpCodes'OP_SIZE 0x82)
 
     ;; bit logic
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_INVERT 0x83)
+    (def #_"int" ScriptOpCodes'OP_INVERT 0x83)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_AND 0x84)
+    (def #_"int" ScriptOpCodes'OP_AND 0x84)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_OR 0x85)
+    (def #_"int" ScriptOpCodes'OP_OR 0x85)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_XOR 0x86)
+    (def #_"int" ScriptOpCodes'OP_XOR 0x86)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_EQUAL 0x87)
+    (def #_"int" ScriptOpCodes'OP_EQUAL 0x87)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_EQUALVERIFY 0x88)
+    (def #_"int" ScriptOpCodes'OP_EQUALVERIFY 0x88)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_RESERVED1 0x89)
+    (def #_"int" ScriptOpCodes'OP_RESERVED1 0x89)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_RESERVED2 0x8a)
+    (def #_"int" ScriptOpCodes'OP_RESERVED2 0x8a)
 
     ;; numeric
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_1ADD 0x8b)
+    (def #_"int" ScriptOpCodes'OP_1ADD 0x8b)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_1SUB 0x8c)
+    (def #_"int" ScriptOpCodes'OP_1SUB 0x8c)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_2MUL 0x8d)
+    (def #_"int" ScriptOpCodes'OP_2MUL 0x8d)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_2DIV 0x8e)
+    (def #_"int" ScriptOpCodes'OP_2DIV 0x8e)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NEGATE 0x8f)
+    (def #_"int" ScriptOpCodes'OP_NEGATE 0x8f)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_ABS 0x90)
+    (def #_"int" ScriptOpCodes'OP_ABS 0x90)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NOT 0x91)
+    (def #_"int" ScriptOpCodes'OP_NOT 0x91)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_0NOTEQUAL 0x92)
+    (def #_"int" ScriptOpCodes'OP_0NOTEQUAL 0x92)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_ADD 0x93)
+    (def #_"int" ScriptOpCodes'OP_ADD 0x93)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_SUB 0x94)
+    (def #_"int" ScriptOpCodes'OP_SUB 0x94)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_MUL 0x95)
+    (def #_"int" ScriptOpCodes'OP_MUL 0x95)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_DIV 0x96)
+    (def #_"int" ScriptOpCodes'OP_DIV 0x96)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_MOD 0x97)
+    (def #_"int" ScriptOpCodes'OP_MOD 0x97)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_LSHIFT 0x98)
+    (def #_"int" ScriptOpCodes'OP_LSHIFT 0x98)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_RSHIFT 0x99)
+    (def #_"int" ScriptOpCodes'OP_RSHIFT 0x99)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_BOOLAND 0x9a)
+    (def #_"int" ScriptOpCodes'OP_BOOLAND 0x9a)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_BOOLOR 0x9b)
+    (def #_"int" ScriptOpCodes'OP_BOOLOR 0x9b)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NUMEQUAL 0x9c)
+    (def #_"int" ScriptOpCodes'OP_NUMEQUAL 0x9c)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NUMEQUALVERIFY 0x9d)
+    (def #_"int" ScriptOpCodes'OP_NUMEQUALVERIFY 0x9d)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NUMNOTEQUAL 0x9e)
+    (def #_"int" ScriptOpCodes'OP_NUMNOTEQUAL 0x9e)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_LESSTHAN 0x9f)
+    (def #_"int" ScriptOpCodes'OP_LESSTHAN 0x9f)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_GREATERTHAN 0xa0)
+    (def #_"int" ScriptOpCodes'OP_GREATERTHAN 0xa0)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_LESSTHANOREQUAL 0xa1)
+    (def #_"int" ScriptOpCodes'OP_LESSTHANOREQUAL 0xa1)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_GREATERTHANOREQUAL 0xa2)
+    (def #_"int" ScriptOpCodes'OP_GREATERTHANOREQUAL 0xa2)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_MIN 0xa3)
+    (def #_"int" ScriptOpCodes'OP_MIN 0xa3)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_MAX 0xa4)
+    (def #_"int" ScriptOpCodes'OP_MAX 0xa4)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_WITHIN 0xa5)
+    (def #_"int" ScriptOpCodes'OP_WITHIN 0xa5)
 
     ;; crypto
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_RIPEMD160 0xa6)
+    (def #_"int" ScriptOpCodes'OP_RIPEMD160 0xa6)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_SHA1 0xa7)
+    (def #_"int" ScriptOpCodes'OP_SHA1 0xa7)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_SHA256 0xa8)
+    (def #_"int" ScriptOpCodes'OP_SHA256 0xa8)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_HASH160 0xa9)
+    (def #_"int" ScriptOpCodes'OP_HASH160 0xa9)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_HASH256 0xaa)
+    (def #_"int" ScriptOpCodes'OP_HASH256 0xaa)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_CODESEPARATOR 0xab)
+    (def #_"int" ScriptOpCodes'OP_CODESEPARATOR 0xab)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_CHECKSIG 0xac)
+    (def #_"int" ScriptOpCodes'OP_CHECKSIG 0xac)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_CHECKSIGVERIFY 0xad)
+    (def #_"int" ScriptOpCodes'OP_CHECKSIGVERIFY 0xad)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_CHECKMULTISIG 0xae)
+    (def #_"int" ScriptOpCodes'OP_CHECKMULTISIG 0xae)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_CHECKMULTISIGVERIFY 0xaf)
+    (def #_"int" ScriptOpCodes'OP_CHECKMULTISIGVERIFY 0xaf)
 
     ;; block state
     ;;; Check lock time of the block.  Introduced in BIP 65, replacing OP_NOP2 ;;
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY 0xb1)
+    (def #_"int" ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY 0xb1)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_CHECKSEQUENCEVERIFY 0xb2)
+    (def #_"int" ScriptOpCodes'OP_CHECKSEQUENCEVERIFY 0xb2)
 
     ;; expansion
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NOP1 0xb0)
+    (def #_"int" ScriptOpCodes'OP_NOP1 0xb0)
     ;;; Deprecated by BIP 65 ;;
     #_deprecated
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NOP2 ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY)
+    (def #_"int" ScriptOpCodes'OP_NOP2 ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY)
     ;;; Deprecated by BIP 112 ;;
     #_deprecated
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NOP3 ScriptOpCodes'OP_CHECKSEQUENCEVERIFY)
+    (def #_"int" ScriptOpCodes'OP_NOP3 ScriptOpCodes'OP_CHECKSEQUENCEVERIFY)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NOP4 0xb3)
+    (def #_"int" ScriptOpCodes'OP_NOP4 0xb3)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NOP5 0xb4)
+    (def #_"int" ScriptOpCodes'OP_NOP5 0xb4)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NOP6 0xb5)
+    (def #_"int" ScriptOpCodes'OP_NOP6 0xb5)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NOP7 0xb6)
+    (def #_"int" ScriptOpCodes'OP_NOP7 0xb6)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NOP8 0xb7)
+    (def #_"int" ScriptOpCodes'OP_NOP8 0xb7)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NOP9 0xb8)
+    (def #_"int" ScriptOpCodes'OP_NOP9 0xb8)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_NOP10 0xb9)
+    (def #_"int" ScriptOpCodes'OP_NOP10 0xb9)
     #_public
     #_static
-    (§ def #_"int" ScriptOpCodes'OP_INVALIDOPCODE 0xff)
+    (def #_"int" ScriptOpCodes'OP_INVALIDOPCODE 0xff)
 
     #_private
     #_static
-    (§ def- #_"Map<Integer, String>" ScriptOpCodes'OP_CODE_MAP (.. (ImmutableMap/builder #_"ImmutableMap<Integer, String>") (put ScriptOpCodes'OP_0, "0") (put ScriptOpCodes'OP_PUSHDATA1, "PUSHDATA1") (put ScriptOpCodes'OP_PUSHDATA2, "PUSHDATA2") (put ScriptOpCodes'OP_PUSHDATA4, "PUSHDATA4") (put ScriptOpCodes'OP_1NEGATE, "1NEGATE") (put ScriptOpCodes'OP_RESERVED, "RESERVED") (put ScriptOpCodes'OP_1, "1") (put ScriptOpCodes'OP_2, "2") (put ScriptOpCodes'OP_3, "3") (put ScriptOpCodes'OP_4, "4") (put ScriptOpCodes'OP_5, "5") (put ScriptOpCodes'OP_6, "6") (put ScriptOpCodes'OP_7, "7") (put ScriptOpCodes'OP_8, "8") (put ScriptOpCodes'OP_9, "9") (put ScriptOpCodes'OP_10, "10") (put ScriptOpCodes'OP_11, "11") (put ScriptOpCodes'OP_12, "12") (put ScriptOpCodes'OP_13, "13") (put ScriptOpCodes'OP_14, "14") (put ScriptOpCodes'OP_15, "15") (put ScriptOpCodes'OP_16, "16") (put ScriptOpCodes'OP_NOP, "NOP") (put ScriptOpCodes'OP_VER, "VER") (put ScriptOpCodes'OP_IF, "IF") (put ScriptOpCodes'OP_NOTIF, "NOTIF") (put ScriptOpCodes'OP_VERIF, "VERIF") (put ScriptOpCodes'OP_VERNOTIF, "VERNOTIF") (put ScriptOpCodes'OP_ELSE, "ELSE") (put ScriptOpCodes'OP_ENDIF, "ENDIF") (put ScriptOpCodes'OP_VERIFY, "VERIFY") (put ScriptOpCodes'OP_RETURN, "RETURN") (put ScriptOpCodes'OP_TOALTSTACK, "TOALTSTACK") (put ScriptOpCodes'OP_FROMALTSTACK, "FROMALTSTACK") (put ScriptOpCodes'OP_2DROP, "2DROP") (put ScriptOpCodes'OP_2DUP, "2DUP") (put ScriptOpCodes'OP_3DUP, "3DUP") (put ScriptOpCodes'OP_2OVER, "2OVER") (put ScriptOpCodes'OP_2ROT, "2ROT") (put ScriptOpCodes'OP_2SWAP, "2SWAP") (put ScriptOpCodes'OP_IFDUP, "IFDUP") (put ScriptOpCodes'OP_DEPTH, "DEPTH") (put ScriptOpCodes'OP_DROP, "DROP") (put ScriptOpCodes'OP_DUP, "DUP") (put ScriptOpCodes'OP_NIP, "NIP") (put ScriptOpCodes'OP_OVER, "OVER") (put ScriptOpCodes'OP_PICK, "PICK") (put ScriptOpCodes'OP_ROLL, "ROLL") (put ScriptOpCodes'OP_ROT, "ROT") (put ScriptOpCodes'OP_SWAP, "SWAP") (put ScriptOpCodes'OP_TUCK, "TUCK") (put ScriptOpCodes'OP_CAT, "CAT") (put ScriptOpCodes'OP_SUBSTR, "SUBSTR") (put ScriptOpCodes'OP_LEFT, "LEFT") (put ScriptOpCodes'OP_RIGHT, "RIGHT") (put ScriptOpCodes'OP_SIZE, "SIZE") (put ScriptOpCodes'OP_INVERT, "INVERT") (put ScriptOpCodes'OP_AND, "AND") (put ScriptOpCodes'OP_OR, "OR") (put ScriptOpCodes'OP_XOR, "XOR") (put ScriptOpCodes'OP_EQUAL, "EQUAL") (put ScriptOpCodes'OP_EQUALVERIFY, "EQUALVERIFY") (put ScriptOpCodes'OP_RESERVED1, "RESERVED1") (put ScriptOpCodes'OP_RESERVED2, "RESERVED2") (put ScriptOpCodes'OP_1ADD, "1ADD") (put ScriptOpCodes'OP_1SUB, "1SUB") (put ScriptOpCodes'OP_2MUL, "2MUL") (put ScriptOpCodes'OP_2DIV, "2DIV") (put ScriptOpCodes'OP_NEGATE, "NEGATE") (put ScriptOpCodes'OP_ABS, "ABS") (put ScriptOpCodes'OP_NOT, "NOT") (put ScriptOpCodes'OP_0NOTEQUAL, "0NOTEQUAL") (put ScriptOpCodes'OP_ADD, "ADD") (put ScriptOpCodes'OP_SUB, "SUB") (put ScriptOpCodes'OP_MUL, "MUL") (put ScriptOpCodes'OP_DIV, "DIV") (put ScriptOpCodes'OP_MOD, "MOD") (put ScriptOpCodes'OP_LSHIFT, "LSHIFT") (put ScriptOpCodes'OP_RSHIFT, "RSHIFT") (put ScriptOpCodes'OP_BOOLAND, "BOOLAND") (put ScriptOpCodes'OP_BOOLOR, "BOOLOR") (put ScriptOpCodes'OP_NUMEQUAL, "NUMEQUAL") (put ScriptOpCodes'OP_NUMEQUALVERIFY, "NUMEQUALVERIFY") (put ScriptOpCodes'OP_NUMNOTEQUAL, "NUMNOTEQUAL") (put ScriptOpCodes'OP_LESSTHAN, "LESSTHAN") (put ScriptOpCodes'OP_GREATERTHAN, "GREATERTHAN") (put ScriptOpCodes'OP_LESSTHANOREQUAL, "LESSTHANOREQUAL") (put ScriptOpCodes'OP_GREATERTHANOREQUAL, "GREATERTHANOREQUAL") (put ScriptOpCodes'OP_MIN, "MIN") (put ScriptOpCodes'OP_MAX, "MAX") (put ScriptOpCodes'OP_WITHIN, "WITHIN") (put ScriptOpCodes'OP_RIPEMD160, "RIPEMD160") (put ScriptOpCodes'OP_SHA1, "SHA1") (put ScriptOpCodes'OP_SHA256, "SHA256") (put ScriptOpCodes'OP_HASH160, "HASH160") (put ScriptOpCodes'OP_HASH256, "HASH256") (put ScriptOpCodes'OP_CODESEPARATOR, "CODESEPARATOR") (put ScriptOpCodes'OP_CHECKSIG, "CHECKSIG") (put ScriptOpCodes'OP_CHECKSIGVERIFY, "CHECKSIGVERIFY") (put ScriptOpCodes'OP_CHECKMULTISIG, "CHECKMULTISIG") (put ScriptOpCodes'OP_CHECKMULTISIGVERIFY, "CHECKMULTISIGVERIFY") (put ScriptOpCodes'OP_NOP1, "NOP1") (put ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY, "CHECKLOCKTIMEVERIFY") (put ScriptOpCodes'OP_CHECKSEQUENCEVERIFY, "CHECKSEQUENCEVERIFY") (put ScriptOpCodes'OP_NOP4, "NOP4") (put ScriptOpCodes'OP_NOP5, "NOP5") (put ScriptOpCodes'OP_NOP6, "NOP6") (put ScriptOpCodes'OP_NOP7, "NOP7") (put ScriptOpCodes'OP_NOP8, "NOP8") (put ScriptOpCodes'OP_NOP9, "NOP9") (put ScriptOpCodes'OP_NOP10, "NOP10") (build)))
+    (def- #_"Map<Integer, String>" ScriptOpCodes'OP_CODE_MAP (.. (ImmutableMap/builder #_"ImmutableMap<Integer, String>") (put ScriptOpCodes'OP_0, "0") (put ScriptOpCodes'OP_PUSHDATA1, "PUSHDATA1") (put ScriptOpCodes'OP_PUSHDATA2, "PUSHDATA2") (put ScriptOpCodes'OP_PUSHDATA4, "PUSHDATA4") (put ScriptOpCodes'OP_1NEGATE, "1NEGATE") (put ScriptOpCodes'OP_RESERVED, "RESERVED") (put ScriptOpCodes'OP_1, "1") (put ScriptOpCodes'OP_2, "2") (put ScriptOpCodes'OP_3, "3") (put ScriptOpCodes'OP_4, "4") (put ScriptOpCodes'OP_5, "5") (put ScriptOpCodes'OP_6, "6") (put ScriptOpCodes'OP_7, "7") (put ScriptOpCodes'OP_8, "8") (put ScriptOpCodes'OP_9, "9") (put ScriptOpCodes'OP_10, "10") (put ScriptOpCodes'OP_11, "11") (put ScriptOpCodes'OP_12, "12") (put ScriptOpCodes'OP_13, "13") (put ScriptOpCodes'OP_14, "14") (put ScriptOpCodes'OP_15, "15") (put ScriptOpCodes'OP_16, "16") (put ScriptOpCodes'OP_NOP, "NOP") (put ScriptOpCodes'OP_VER, "VER") (put ScriptOpCodes'OP_IF, "IF") (put ScriptOpCodes'OP_NOTIF, "NOTIF") (put ScriptOpCodes'OP_VERIF, "VERIF") (put ScriptOpCodes'OP_VERNOTIF, "VERNOTIF") (put ScriptOpCodes'OP_ELSE, "ELSE") (put ScriptOpCodes'OP_ENDIF, "ENDIF") (put ScriptOpCodes'OP_VERIFY, "VERIFY") (put ScriptOpCodes'OP_RETURN, "RETURN") (put ScriptOpCodes'OP_TOALTSTACK, "TOALTSTACK") (put ScriptOpCodes'OP_FROMALTSTACK, "FROMALTSTACK") (put ScriptOpCodes'OP_2DROP, "2DROP") (put ScriptOpCodes'OP_2DUP, "2DUP") (put ScriptOpCodes'OP_3DUP, "3DUP") (put ScriptOpCodes'OP_2OVER, "2OVER") (put ScriptOpCodes'OP_2ROT, "2ROT") (put ScriptOpCodes'OP_2SWAP, "2SWAP") (put ScriptOpCodes'OP_IFDUP, "IFDUP") (put ScriptOpCodes'OP_DEPTH, "DEPTH") (put ScriptOpCodes'OP_DROP, "DROP") (put ScriptOpCodes'OP_DUP, "DUP") (put ScriptOpCodes'OP_NIP, "NIP") (put ScriptOpCodes'OP_OVER, "OVER") (put ScriptOpCodes'OP_PICK, "PICK") (put ScriptOpCodes'OP_ROLL, "ROLL") (put ScriptOpCodes'OP_ROT, "ROT") (put ScriptOpCodes'OP_SWAP, "SWAP") (put ScriptOpCodes'OP_TUCK, "TUCK") (put ScriptOpCodes'OP_CAT, "CAT") (put ScriptOpCodes'OP_SUBSTR, "SUBSTR") (put ScriptOpCodes'OP_LEFT, "LEFT") (put ScriptOpCodes'OP_RIGHT, "RIGHT") (put ScriptOpCodes'OP_SIZE, "SIZE") (put ScriptOpCodes'OP_INVERT, "INVERT") (put ScriptOpCodes'OP_AND, "AND") (put ScriptOpCodes'OP_OR, "OR") (put ScriptOpCodes'OP_XOR, "XOR") (put ScriptOpCodes'OP_EQUAL, "EQUAL") (put ScriptOpCodes'OP_EQUALVERIFY, "EQUALVERIFY") (put ScriptOpCodes'OP_RESERVED1, "RESERVED1") (put ScriptOpCodes'OP_RESERVED2, "RESERVED2") (put ScriptOpCodes'OP_1ADD, "1ADD") (put ScriptOpCodes'OP_1SUB, "1SUB") (put ScriptOpCodes'OP_2MUL, "2MUL") (put ScriptOpCodes'OP_2DIV, "2DIV") (put ScriptOpCodes'OP_NEGATE, "NEGATE") (put ScriptOpCodes'OP_ABS, "ABS") (put ScriptOpCodes'OP_NOT, "NOT") (put ScriptOpCodes'OP_0NOTEQUAL, "0NOTEQUAL") (put ScriptOpCodes'OP_ADD, "ADD") (put ScriptOpCodes'OP_SUB, "SUB") (put ScriptOpCodes'OP_MUL, "MUL") (put ScriptOpCodes'OP_DIV, "DIV") (put ScriptOpCodes'OP_MOD, "MOD") (put ScriptOpCodes'OP_LSHIFT, "LSHIFT") (put ScriptOpCodes'OP_RSHIFT, "RSHIFT") (put ScriptOpCodes'OP_BOOLAND, "BOOLAND") (put ScriptOpCodes'OP_BOOLOR, "BOOLOR") (put ScriptOpCodes'OP_NUMEQUAL, "NUMEQUAL") (put ScriptOpCodes'OP_NUMEQUALVERIFY, "NUMEQUALVERIFY") (put ScriptOpCodes'OP_NUMNOTEQUAL, "NUMNOTEQUAL") (put ScriptOpCodes'OP_LESSTHAN, "LESSTHAN") (put ScriptOpCodes'OP_GREATERTHAN, "GREATERTHAN") (put ScriptOpCodes'OP_LESSTHANOREQUAL, "LESSTHANOREQUAL") (put ScriptOpCodes'OP_GREATERTHANOREQUAL, "GREATERTHANOREQUAL") (put ScriptOpCodes'OP_MIN, "MIN") (put ScriptOpCodes'OP_MAX, "MAX") (put ScriptOpCodes'OP_WITHIN, "WITHIN") (put ScriptOpCodes'OP_RIPEMD160, "RIPEMD160") (put ScriptOpCodes'OP_SHA1, "SHA1") (put ScriptOpCodes'OP_SHA256, "SHA256") (put ScriptOpCodes'OP_HASH160, "HASH160") (put ScriptOpCodes'OP_HASH256, "HASH256") (put ScriptOpCodes'OP_CODESEPARATOR, "CODESEPARATOR") (put ScriptOpCodes'OP_CHECKSIG, "CHECKSIG") (put ScriptOpCodes'OP_CHECKSIGVERIFY, "CHECKSIGVERIFY") (put ScriptOpCodes'OP_CHECKMULTISIG, "CHECKMULTISIG") (put ScriptOpCodes'OP_CHECKMULTISIGVERIFY, "CHECKMULTISIGVERIFY") (put ScriptOpCodes'OP_NOP1, "NOP1") (put ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY, "CHECKLOCKTIMEVERIFY") (put ScriptOpCodes'OP_CHECKSEQUENCEVERIFY, "CHECKSEQUENCEVERIFY") (put ScriptOpCodes'OP_NOP4, "NOP4") (put ScriptOpCodes'OP_NOP5, "NOP5") (put ScriptOpCodes'OP_NOP6, "NOP6") (put ScriptOpCodes'OP_NOP7, "NOP7") (put ScriptOpCodes'OP_NOP8, "NOP8") (put ScriptOpCodes'OP_NOP9, "NOP9") (put ScriptOpCodes'OP_NOP10, "NOP10") (build)))
 
     #_private
     #_static
-    (§ def- #_"Map<String, Integer>" ScriptOpCodes'OP_CODE_NAME_MAP (.. (ImmutableMap/builder #_"ImmutableMap<String, Integer>") (put "0", ScriptOpCodes'OP_0) (put "PUSHDATA1", ScriptOpCodes'OP_PUSHDATA1) (put "PUSHDATA2", ScriptOpCodes'OP_PUSHDATA2) (put "PUSHDATA4", ScriptOpCodes'OP_PUSHDATA4) (put "1NEGATE", ScriptOpCodes'OP_1NEGATE) (put "RESERVED", ScriptOpCodes'OP_RESERVED) (put "1", ScriptOpCodes'OP_1) (put "2", ScriptOpCodes'OP_2) (put "3", ScriptOpCodes'OP_3) (put "4", ScriptOpCodes'OP_4) (put "5", ScriptOpCodes'OP_5) (put "6", ScriptOpCodes'OP_6) (put "7", ScriptOpCodes'OP_7) (put "8", ScriptOpCodes'OP_8) (put "9", ScriptOpCodes'OP_9) (put "10", ScriptOpCodes'OP_10) (put "11", ScriptOpCodes'OP_11) (put "12", ScriptOpCodes'OP_12) (put "13", ScriptOpCodes'OP_13) (put "14", ScriptOpCodes'OP_14) (put "15", ScriptOpCodes'OP_15) (put "16", ScriptOpCodes'OP_16) (put "NOP", ScriptOpCodes'OP_NOP) (put "VER", ScriptOpCodes'OP_VER) (put "IF", ScriptOpCodes'OP_IF) (put "NOTIF", ScriptOpCodes'OP_NOTIF) (put "VERIF", ScriptOpCodes'OP_VERIF) (put "VERNOTIF", ScriptOpCodes'OP_VERNOTIF) (put "ELSE", ScriptOpCodes'OP_ELSE) (put "ENDIF", ScriptOpCodes'OP_ENDIF) (put "VERIFY", ScriptOpCodes'OP_VERIFY) (put "RETURN", ScriptOpCodes'OP_RETURN) (put "TOALTSTACK", ScriptOpCodes'OP_TOALTSTACK) (put "FROMALTSTACK", ScriptOpCodes'OP_FROMALTSTACK) (put "2DROP", ScriptOpCodes'OP_2DROP) (put "2DUP", ScriptOpCodes'OP_2DUP) (put "3DUP", ScriptOpCodes'OP_3DUP) (put "2OVER", ScriptOpCodes'OP_2OVER) (put "2ROT", ScriptOpCodes'OP_2ROT) (put "2SWAP", ScriptOpCodes'OP_2SWAP) (put "IFDUP", ScriptOpCodes'OP_IFDUP) (put "DEPTH", ScriptOpCodes'OP_DEPTH) (put "DROP", ScriptOpCodes'OP_DROP) (put "DUP", ScriptOpCodes'OP_DUP) (put "NIP", ScriptOpCodes'OP_NIP) (put "OVER", ScriptOpCodes'OP_OVER) (put "PICK", ScriptOpCodes'OP_PICK) (put "ROLL", ScriptOpCodes'OP_ROLL) (put "ROT", ScriptOpCodes'OP_ROT) (put "SWAP", ScriptOpCodes'OP_SWAP) (put "TUCK", ScriptOpCodes'OP_TUCK) (put "CAT", ScriptOpCodes'OP_CAT) (put "SUBSTR", ScriptOpCodes'OP_SUBSTR) (put "LEFT", ScriptOpCodes'OP_LEFT) (put "RIGHT", ScriptOpCodes'OP_RIGHT) (put "SIZE", ScriptOpCodes'OP_SIZE) (put "INVERT", ScriptOpCodes'OP_INVERT) (put "AND", ScriptOpCodes'OP_AND) (put "OR", ScriptOpCodes'OP_OR) (put "XOR", ScriptOpCodes'OP_XOR) (put "EQUAL", ScriptOpCodes'OP_EQUAL) (put "EQUALVERIFY", ScriptOpCodes'OP_EQUALVERIFY) (put "RESERVED1", ScriptOpCodes'OP_RESERVED1) (put "RESERVED2", ScriptOpCodes'OP_RESERVED2) (put "1ADD", ScriptOpCodes'OP_1ADD) (put "1SUB", ScriptOpCodes'OP_1SUB) (put "2MUL", ScriptOpCodes'OP_2MUL) (put "2DIV", ScriptOpCodes'OP_2DIV) (put "NEGATE", ScriptOpCodes'OP_NEGATE) (put "ABS", ScriptOpCodes'OP_ABS) (put "NOT", ScriptOpCodes'OP_NOT) (put "0NOTEQUAL", ScriptOpCodes'OP_0NOTEQUAL) (put "ADD", ScriptOpCodes'OP_ADD) (put "SUB", ScriptOpCodes'OP_SUB) (put "MUL", ScriptOpCodes'OP_MUL) (put "DIV", ScriptOpCodes'OP_DIV) (put "MOD", ScriptOpCodes'OP_MOD) (put "LSHIFT", ScriptOpCodes'OP_LSHIFT) (put "RSHIFT", ScriptOpCodes'OP_RSHIFT) (put "BOOLAND", ScriptOpCodes'OP_BOOLAND) (put "BOOLOR", ScriptOpCodes'OP_BOOLOR) (put "NUMEQUAL", ScriptOpCodes'OP_NUMEQUAL) (put "NUMEQUALVERIFY", ScriptOpCodes'OP_NUMEQUALVERIFY) (put "NUMNOTEQUAL", ScriptOpCodes'OP_NUMNOTEQUAL) (put "LESSTHAN", ScriptOpCodes'OP_LESSTHAN) (put "GREATERTHAN", ScriptOpCodes'OP_GREATERTHAN) (put "LESSTHANOREQUAL", ScriptOpCodes'OP_LESSTHANOREQUAL) (put "GREATERTHANOREQUAL", ScriptOpCodes'OP_GREATERTHANOREQUAL) (put "MIN", ScriptOpCodes'OP_MIN) (put "MAX", ScriptOpCodes'OP_MAX) (put "WITHIN", ScriptOpCodes'OP_WITHIN) (put "RIPEMD160", ScriptOpCodes'OP_RIPEMD160) (put "SHA1", ScriptOpCodes'OP_SHA1) (put "SHA256", ScriptOpCodes'OP_SHA256) (put "HASH160", ScriptOpCodes'OP_HASH160) (put "HASH256", ScriptOpCodes'OP_HASH256) (put "CODESEPARATOR", ScriptOpCodes'OP_CODESEPARATOR) (put "CHECKSIG", ScriptOpCodes'OP_CHECKSIG) (put "CHECKSIGVERIFY", ScriptOpCodes'OP_CHECKSIGVERIFY) (put "CHECKMULTISIG", ScriptOpCodes'OP_CHECKMULTISIG) (put "CHECKMULTISIGVERIFY", ScriptOpCodes'OP_CHECKMULTISIGVERIFY) (put "NOP1", ScriptOpCodes'OP_NOP1) (put "CHECKLOCKTIMEVERIFY", ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY) (put "CHECKSEQUENCEVERIFY", ScriptOpCodes'OP_CHECKSEQUENCEVERIFY) (put "NOP2", ScriptOpCodes'OP_NOP2) (put "NOP3", ScriptOpCodes'OP_NOP3) (put "NOP4", ScriptOpCodes'OP_NOP4) (put "NOP5", ScriptOpCodes'OP_NOP5) (put "NOP6", ScriptOpCodes'OP_NOP6) (put "NOP7", ScriptOpCodes'OP_NOP7) (put "NOP8", ScriptOpCodes'OP_NOP8) (put "NOP9", ScriptOpCodes'OP_NOP9) (put "NOP10", ScriptOpCodes'OP_NOP10) (build)))
+    (def- #_"Map<String, Integer>" ScriptOpCodes'OP_CODE_NAME_MAP (.. (ImmutableMap/builder #_"ImmutableMap<String, Integer>") (put "0", ScriptOpCodes'OP_0) (put "PUSHDATA1", ScriptOpCodes'OP_PUSHDATA1) (put "PUSHDATA2", ScriptOpCodes'OP_PUSHDATA2) (put "PUSHDATA4", ScriptOpCodes'OP_PUSHDATA4) (put "1NEGATE", ScriptOpCodes'OP_1NEGATE) (put "RESERVED", ScriptOpCodes'OP_RESERVED) (put "1", ScriptOpCodes'OP_1) (put "2", ScriptOpCodes'OP_2) (put "3", ScriptOpCodes'OP_3) (put "4", ScriptOpCodes'OP_4) (put "5", ScriptOpCodes'OP_5) (put "6", ScriptOpCodes'OP_6) (put "7", ScriptOpCodes'OP_7) (put "8", ScriptOpCodes'OP_8) (put "9", ScriptOpCodes'OP_9) (put "10", ScriptOpCodes'OP_10) (put "11", ScriptOpCodes'OP_11) (put "12", ScriptOpCodes'OP_12) (put "13", ScriptOpCodes'OP_13) (put "14", ScriptOpCodes'OP_14) (put "15", ScriptOpCodes'OP_15) (put "16", ScriptOpCodes'OP_16) (put "NOP", ScriptOpCodes'OP_NOP) (put "VER", ScriptOpCodes'OP_VER) (put "IF", ScriptOpCodes'OP_IF) (put "NOTIF", ScriptOpCodes'OP_NOTIF) (put "VERIF", ScriptOpCodes'OP_VERIF) (put "VERNOTIF", ScriptOpCodes'OP_VERNOTIF) (put "ELSE", ScriptOpCodes'OP_ELSE) (put "ENDIF", ScriptOpCodes'OP_ENDIF) (put "VERIFY", ScriptOpCodes'OP_VERIFY) (put "RETURN", ScriptOpCodes'OP_RETURN) (put "TOALTSTACK", ScriptOpCodes'OP_TOALTSTACK) (put "FROMALTSTACK", ScriptOpCodes'OP_FROMALTSTACK) (put "2DROP", ScriptOpCodes'OP_2DROP) (put "2DUP", ScriptOpCodes'OP_2DUP) (put "3DUP", ScriptOpCodes'OP_3DUP) (put "2OVER", ScriptOpCodes'OP_2OVER) (put "2ROT", ScriptOpCodes'OP_2ROT) (put "2SWAP", ScriptOpCodes'OP_2SWAP) (put "IFDUP", ScriptOpCodes'OP_IFDUP) (put "DEPTH", ScriptOpCodes'OP_DEPTH) (put "DROP", ScriptOpCodes'OP_DROP) (put "DUP", ScriptOpCodes'OP_DUP) (put "NIP", ScriptOpCodes'OP_NIP) (put "OVER", ScriptOpCodes'OP_OVER) (put "PICK", ScriptOpCodes'OP_PICK) (put "ROLL", ScriptOpCodes'OP_ROLL) (put "ROT", ScriptOpCodes'OP_ROT) (put "SWAP", ScriptOpCodes'OP_SWAP) (put "TUCK", ScriptOpCodes'OP_TUCK) (put "CAT", ScriptOpCodes'OP_CAT) (put "SUBSTR", ScriptOpCodes'OP_SUBSTR) (put "LEFT", ScriptOpCodes'OP_LEFT) (put "RIGHT", ScriptOpCodes'OP_RIGHT) (put "SIZE", ScriptOpCodes'OP_SIZE) (put "INVERT", ScriptOpCodes'OP_INVERT) (put "AND", ScriptOpCodes'OP_AND) (put "OR", ScriptOpCodes'OP_OR) (put "XOR", ScriptOpCodes'OP_XOR) (put "EQUAL", ScriptOpCodes'OP_EQUAL) (put "EQUALVERIFY", ScriptOpCodes'OP_EQUALVERIFY) (put "RESERVED1", ScriptOpCodes'OP_RESERVED1) (put "RESERVED2", ScriptOpCodes'OP_RESERVED2) (put "1ADD", ScriptOpCodes'OP_1ADD) (put "1SUB", ScriptOpCodes'OP_1SUB) (put "2MUL", ScriptOpCodes'OP_2MUL) (put "2DIV", ScriptOpCodes'OP_2DIV) (put "NEGATE", ScriptOpCodes'OP_NEGATE) (put "ABS", ScriptOpCodes'OP_ABS) (put "NOT", ScriptOpCodes'OP_NOT) (put "0NOTEQUAL", ScriptOpCodes'OP_0NOTEQUAL) (put "ADD", ScriptOpCodes'OP_ADD) (put "SUB", ScriptOpCodes'OP_SUB) (put "MUL", ScriptOpCodes'OP_MUL) (put "DIV", ScriptOpCodes'OP_DIV) (put "MOD", ScriptOpCodes'OP_MOD) (put "LSHIFT", ScriptOpCodes'OP_LSHIFT) (put "RSHIFT", ScriptOpCodes'OP_RSHIFT) (put "BOOLAND", ScriptOpCodes'OP_BOOLAND) (put "BOOLOR", ScriptOpCodes'OP_BOOLOR) (put "NUMEQUAL", ScriptOpCodes'OP_NUMEQUAL) (put "NUMEQUALVERIFY", ScriptOpCodes'OP_NUMEQUALVERIFY) (put "NUMNOTEQUAL", ScriptOpCodes'OP_NUMNOTEQUAL) (put "LESSTHAN", ScriptOpCodes'OP_LESSTHAN) (put "GREATERTHAN", ScriptOpCodes'OP_GREATERTHAN) (put "LESSTHANOREQUAL", ScriptOpCodes'OP_LESSTHANOREQUAL) (put "GREATERTHANOREQUAL", ScriptOpCodes'OP_GREATERTHANOREQUAL) (put "MIN", ScriptOpCodes'OP_MIN) (put "MAX", ScriptOpCodes'OP_MAX) (put "WITHIN", ScriptOpCodes'OP_WITHIN) (put "RIPEMD160", ScriptOpCodes'OP_RIPEMD160) (put "SHA1", ScriptOpCodes'OP_SHA1) (put "SHA256", ScriptOpCodes'OP_SHA256) (put "HASH160", ScriptOpCodes'OP_HASH160) (put "HASH256", ScriptOpCodes'OP_HASH256) (put "CODESEPARATOR", ScriptOpCodes'OP_CODESEPARATOR) (put "CHECKSIG", ScriptOpCodes'OP_CHECKSIG) (put "CHECKSIGVERIFY", ScriptOpCodes'OP_CHECKSIGVERIFY) (put "CHECKMULTISIG", ScriptOpCodes'OP_CHECKMULTISIG) (put "CHECKMULTISIGVERIFY", ScriptOpCodes'OP_CHECKMULTISIGVERIFY) (put "NOP1", ScriptOpCodes'OP_NOP1) (put "CHECKLOCKTIMEVERIFY", ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY) (put "CHECKSEQUENCEVERIFY", ScriptOpCodes'OP_CHECKSEQUENCEVERIFY) (put "NOP2", ScriptOpCodes'OP_NOP2) (put "NOP3", ScriptOpCodes'OP_NOP3) (put "NOP4", ScriptOpCodes'OP_NOP4) (put "NOP5", ScriptOpCodes'OP_NOP5) (put "NOP6", ScriptOpCodes'OP_NOP6) (put "NOP7", ScriptOpCodes'OP_NOP7) (put "NOP8", ScriptOpCodes'OP_NOP8) (put "NOP9", ScriptOpCodes'OP_NOP9) (put "NOP10", ScriptOpCodes'OP_NOP10) (build)))
 
     ;;;
      ; Converts the given OpCode into a string (e.g. "0", "PUSHDATA", or "NON_OP(10)")
@@ -31661,7 +31663,7 @@
 (§ class CustomTransactionSigner (§ extends StatelessTransactionSigner)
     #_private
     #_static
-    (§ def- #_"Logger" CustomTransactionSigner'log (LoggerFactory/getLogger CustomTransactionSigner))
+    (def- #_"Logger" CustomTransactionSigner'log (LoggerFactory/getLogger CustomTransactionSigner))
 
     #_override
     #_public
@@ -31758,14 +31760,14 @@
 (§ class LocalTransactionSigner (§ extends StatelessTransactionSigner)
     #_private
     #_static
-    (§ def- #_"Logger" LocalTransactionSigner'log (LoggerFactory/getLogger LocalTransactionSigner))
+    (def- #_"Logger" LocalTransactionSigner'log (LoggerFactory/getLogger LocalTransactionSigner))
 
     ;;;
      ; Verify flags that are safe to use when testing if an input is already signed.
      ;;
     #_private
     #_static
-    (§ def- #_"EnumSet<ScriptVerifyFlag>" LocalTransactionSigner'MINIMUM_VERIFY_FLAGS (EnumSet/of ScriptVerifyFlag'P2SH, ScriptVerifyFlag'NULLDUMMY))
+    (def- #_"EnumSet<ScriptVerifyFlag>" LocalTransactionSigner'MINIMUM_VERIFY_FLAGS (EnumSet/of ScriptVerifyFlag'P2SH, ScriptVerifyFlag'NULLDUMMY))
 
     #_override
     #_public
@@ -31863,7 +31865,7 @@
 (§ class MissingSigResolutionSigner (§ extends StatelessTransactionSigner)
     #_private
     #_static
-    (§ def- #_"Logger" MissingSigResolutionSigner'log (LoggerFactory/getLogger MissingSigResolutionSigner))
+    (def- #_"Logger" MissingSigResolutionSigner'log (LoggerFactory/getLogger MissingSigResolutionSigner))
 
     #_public
     (§ field #_"MissingSigsMode" :missing-sigs-mode MissingSigsMode'USE_DUMMY_SIG)
@@ -32907,15 +32909,15 @@
 (§ class SPVBlockStore (§ implements BlockStore)
     #_private
     #_static
-    (§ def- #_"Logger" SPVBlockStore'log (LoggerFactory/getLogger SPVBlockStore))
+    (def- #_"Logger" SPVBlockStore'log (LoggerFactory/getLogger SPVBlockStore))
 
     ;;; The default number of headers that will be stored in the ring buffer. ;;
     #_public
     #_static
-    (§ def #_"int" SPVBlockStore'DEFAULT_CAPACITY 5000)
+    (def #_"int" SPVBlockStore'DEFAULT_CAPACITY 5000)
     #_public
     #_static
-    (§ def #_"String" SPVBlockStore'HEADER_MAGIC "SPVB")
+    (def #_"String" SPVBlockStore'HEADER_MAGIC "SPVB")
 
     #_protected
     #_volatile
@@ -32953,7 +32955,7 @@
     ;; not provide the removeEldestEntry control.
     #_private
     #_static
-    (§ def- #_"Object" SPVBlockStore'NOT_FOUND_MARKER (Object.))
+    (def- #_"Object" SPVBlockStore'NOT_FOUND_MARKER (Object.))
     #_protected
     (§ field #_"LinkedHashMap<Sha256Hash, Object>" :not-found-cache (LinkedHashMap. #_"<Sha256Hash, Object>"
         (§ anon
@@ -33267,7 +33269,7 @@
 
     #_protected
     #_static
-    (§ def #_"int" SPVBlockStore'RECORD_SIZE (+ 32 StoredBlock'COMPACT_SERIALIZED_SIZE)) ;; hash
+    (def #_"int" SPVBlockStore'RECORD_SIZE (+ 32 StoredBlock'COMPACT_SERIALIZED_SIZE)) ;; hash
 
     ;; File format:
     ;;   4 header bytes = "SPVB"
@@ -33281,7 +33283,7 @@
     ;;   80 bytes of block header data
     #_protected
     #_static
-    (§ def #_"int" SPVBlockStore'FILE_PROLOGUE_BYTES 1024)
+    (def #_"int" SPVBlockStore'FILE_PROLOGUE_BYTES 1024)
 
     ;;; Returns the offset from the file start where the latest block should be written (end of prev block). ;;
     #_private
@@ -33323,7 +33325,7 @@
 (§ class ContextPropagatingThreadFactory (§ implements ThreadFactory)
     #_private
     #_static
-    (§ def- #_"Logger" ContextPropagatingThreadFactory'log (LoggerFactory/getLogger ContextPropagatingThreadFactory))
+    (def- #_"Logger" ContextPropagatingThreadFactory'log (LoggerFactory/getLogger ContextPropagatingThreadFactory))
 
     #_private
     (§ field- #_"String" :name)
@@ -33508,13 +33510,13 @@
 (§ class ExponentialBackoff (§ implements Comparable #_"<ExponentialBackoff>")
     #_public
     #_static
-    (§ def #_"int" ExponentialBackoff'DEFAULT_INITIAL_MILLIS 100)
+    (def #_"int" ExponentialBackoff'DEFAULT_INITIAL_MILLIS 100)
     #_public
     #_static
-    (§ def #_"float" ExponentialBackoff'DEFAULT_MULTIPLIER 1.1)
+    (def #_"float" ExponentialBackoff'DEFAULT_MULTIPLIER 1.1)
     #_public
     #_static
-    (§ def #_"int" ExponentialBackoff'DEFAULT_MAXIMUM_MILLIS (* 30 1000))
+    (def #_"int" ExponentialBackoff'DEFAULT_MAXIMUM_MILLIS (* 30 1000))
 
     #_private
     (§ field- #_"float" :backoff)
@@ -33621,7 +33623,7 @@
      ;;
     #_public
     #_static
-    (§ def #_"int" Fiat'SMALLEST_UNIT_EXPONENT 4)
+    (def #_"int" Fiat'SMALLEST_UNIT_EXPONENT 4)
 
     ;;;
      ; The number of smallest units of this monetary value.
@@ -33806,7 +33808,7 @@
 
     #_private
     #_static
-    (§ def- #_"MonetaryFormat" Fiat'FRIENDLY_FORMAT (.. MonetaryFormat'FIAT (postfixCode)))
+    (def- #_"MonetaryFormat" Fiat'FRIENDLY_FORMAT (.. MonetaryFormat'FIAT (postfixCode)))
 
     ;;;
      ; Returns the value as a 0.12 type string.
@@ -33819,7 +33821,7 @@
 
     #_private
     #_static
-    (§ def- #_"MonetaryFormat" Fiat'PLAIN_FORMAT (.. MonetaryFormat'FIAT (minDecimals 0) (repeatOptionalDecimals 1, 4) (noCode)))
+    (def- #_"MonetaryFormat" Fiat'PLAIN_FORMAT (.. MonetaryFormat'FIAT (minDecimals 0) (repeatOptionalDecimals 1, 4) (noCode)))
 
     ;;;
      ; Returns the value as a plain string.  The result is unformatted with no trailing zeroes.
@@ -33910,35 +33912,35 @@
     ;;; Standard format for the BTC denomination. ;;
     #_public
     #_static
-    (§ def #_"MonetaryFormat" MonetaryFormat'BTC (.. (MonetaryFormat.) (shift 0) (minDecimals 2) (repeatOptionalDecimals 2, 3)))
+    (def #_"MonetaryFormat" MonetaryFormat'BTC (.. (MonetaryFormat.) (shift 0) (minDecimals 2) (repeatOptionalDecimals 2, 3)))
     ;;; Standard format for the mBTC denomination. ;;
     #_public
     #_static
-    (§ def #_"MonetaryFormat" MonetaryFormat'MBTC (.. (MonetaryFormat.) (shift 3) (minDecimals 2) (optionalDecimals 2)))
+    (def #_"MonetaryFormat" MonetaryFormat'MBTC (.. (MonetaryFormat.) (shift 3) (minDecimals 2) (optionalDecimals 2)))
     ;;; Standard format for the µBTC denomination. ;;
     #_public
     #_static
-    (§ def #_"MonetaryFormat" MonetaryFormat'UBTC (.. (MonetaryFormat.) (shift 6) (minDecimals 0) (optionalDecimals 2)))
+    (def #_"MonetaryFormat" MonetaryFormat'UBTC (.. (MonetaryFormat.) (shift 6) (minDecimals 0) (optionalDecimals 2)))
     ;;; Standard format for fiat amounts. ;;
     #_public
     #_static
-    (§ def #_"MonetaryFormat" MonetaryFormat'FIAT (.. (MonetaryFormat.) (shift 0) (minDecimals 2) (repeatOptionalDecimals 2, 1)))
+    (def #_"MonetaryFormat" MonetaryFormat'FIAT (.. (MonetaryFormat.) (shift 0) (minDecimals 2) (repeatOptionalDecimals 2, 1)))
     ;;; Currency code for base 1 Bitcoin. ;;
     #_public
     #_static
-    (§ def #_"String" MonetaryFormat'CODE_BTC "BTC")
+    (def #_"String" MonetaryFormat'CODE_BTC "BTC")
     ;;; Currency code for base 1/1000 Bitcoin. ;;
     #_public
     #_static
-    (§ def #_"String" MonetaryFormat'CODE_MBTC "mBTC")
+    (def #_"String" MonetaryFormat'CODE_MBTC "mBTC")
     ;;; Currency code for base 1/1000000 Bitcoin. ;;
     #_public
     #_static
-    (§ def #_"String" MonetaryFormat'CODE_UBTC "µBTC")
+    (def #_"String" MonetaryFormat'CODE_UBTC "µBTC")
 
     #_public
     #_static
-    (§ def #_"int" MonetaryFormat'MAX_DECIMALS 8)
+    (def #_"int" MonetaryFormat'MAX_DECIMALS 8)
 
     #_private
     (§ field- #_"char" :negative-sign)
@@ -33965,7 +33967,7 @@
 
     #_private
     #_static
-    (§ def- #_"String" MonetaryFormat'DECIMALS_PADDING "0000000000000000") ;; a few more than necessary for Bitcoin
+    (def- #_"String" MonetaryFormat'DECIMALS_PADDING "0000000000000000") ;; a few more than necessary for Bitcoin
 
     ;;;
      ; Set character to prefix negative values.
@@ -34358,7 +34360,7 @@
      ;;
     #_public
     #_static
-    (§ def #_"Executor" Threading'USER_THREAD)
+    (def #_"Executor" Threading'USER_THREAD)
 
     ;;;
      ; A dummy executor that just invokes the runnable immediately.  Use this over
@@ -34368,7 +34370,7 @@
      ;;
     #_public
     #_static
-    (§ def #_"Executor" Threading'SAME_THREAD)
+    (def #_"Executor" Threading'SAME_THREAD)
 
     ;;;
      ; Put a dummy task into the queue and wait for it to be run.  Because it's single threaded, this means all
@@ -34406,19 +34408,19 @@
     #_public
     #_static
     #_volatile
-    (§ def #_"Thread.UncaughtExceptionHandler" Threading'UNCAUGHT_EXCEPTION_HANDLER)
+    (def #_"Thread.UncaughtExceptionHandler" Threading'UNCAUGHT_EXCEPTION_HANDLER)
 
     #_public
     #_static
     (§ class UserThread (§ extends Thread) (§ implements Executor)
         #_private
         #_static
-        (§ def- #_"Logger" UserThread'log (LoggerFactory/getLogger UserThread))
+        (def- #_"Logger" UserThread'log (LoggerFactory/getLogger UserThread))
 
         ;; 10,000 pending tasks is entirely arbitrary and may or may not be appropriate for the device we're running on.
         #_public
         #_static
-        (§ def #_"int" UserThread'WARNING_THRESHOLD 10000)
+        (def #_"int" UserThread'WARNING_THRESHOLD 10000)
 
         #_private
         (§ field- #_"LinkedBlockingQueue<Runnable>" :tasks)
@@ -34488,10 +34490,10 @@
 
     #_private
     #_static
-    (§ def- #_"CycleDetectingLockFactory.Policy" Threading'POLICY)
+    (def- #_"CycleDetectingLockFactory.Policy" Threading'POLICY)
     #_public
     #_static
-    (§ def #_"CycleDetectingLockFactory" Threading'FACTORY)
+    (def #_"CycleDetectingLockFactory" Threading'FACTORY)
 
     #_public
     #_static
@@ -34537,7 +34539,7 @@
     ;;; A caching thread pool that creates daemon threads, which won't keep the JVM alive waiting for more work. ;;
     #_public
     #_static
-    (§ def #_"ListeningExecutorService" Threading'THREAD_POOL (MoreExecutors/listeningDecorator (Executors/newCachedThreadPool (ThreadFactory.)
+    (def #_"ListeningExecutorService" Threading'THREAD_POOL (MoreExecutors/listeningDecorator (Executors/newCachedThreadPool (ThreadFactory.)
         (§ anon
             #_override
             #_public
@@ -34705,7 +34707,7 @@
 
     #_private
     #_static
-    (§ def- #_"AllowUnconfirmedCoinSelector" AllowUnconfirmedCoinSelector'INSTANCE)
+    (def- #_"AllowUnconfirmedCoinSelector" AllowUnconfirmedCoinSelector'INSTANCE)
 
     ;;; Returns a global static instance of the selector. ;;
     #_public
@@ -35654,7 +35656,7 @@
 (§ class DefaultRiskAnalysis (§ implements RiskAnalysis)
     #_private
     #_static
-    (§ def- #_"Logger" DefaultRiskAnalysis'log (LoggerFactory/getLogger DefaultRiskAnalysis))
+    (def- #_"Logger" DefaultRiskAnalysis'log (LoggerFactory/getLogger DefaultRiskAnalysis))
 
     ;;;
      ; Any standard output smaller than this value (in satoshis) will be considered risky, as it's most likely
@@ -35663,7 +35665,7 @@
      ;;
     #_public
     #_static
-    (§ def #_"Coin" DefaultRiskAnalysis'MIN_ANALYSIS_NONDUST_OUTPUT Transaction'MIN_NONDUST_OUTPUT)
+    (def #_"Coin" DefaultRiskAnalysis'MIN_ANALYSIS_NONDUST_OUTPUT Transaction'MIN_NONDUST_OUTPUT)
 
     #_protected
     (§ field #_"Transaction" :tx)
@@ -35917,7 +35919,7 @@
 
     #_public
     #_static
-    (§ def #_"DefaultRiskAnalyzer" DefaultRiskAnalysis'FACTORY (DefaultRiskAnalyzer.))
+    (def #_"DefaultRiskAnalyzer" DefaultRiskAnalysis'FACTORY (DefaultRiskAnalyzer.))
 )
 
 ;;;
@@ -35973,10 +35975,10 @@
 (§ class DeterministicKeyChain (§ implements EncryptableKeyChain)
     #_private
     #_static
-    (§ def- #_"Logger" DeterministicKeyChain'log (LoggerFactory/getLogger DeterministicKeyChain))
+    (def- #_"Logger" DeterministicKeyChain'log (LoggerFactory/getLogger DeterministicKeyChain))
     #_public
     #_static
-    (§ def #_"String" DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC "")
+    (def #_"String" DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC "")
 
     #_protected
     (§ field #_"ReentrantLock" :lock (Threading'lock "DeterministicKeyChain"))
@@ -35998,23 +36000,23 @@
     ;; The account path may be overridden by subclasses.
     #_public
     #_static
-    (§ def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'ACCOUNT_ZERO_PATH (ImmutableList/of ChildNumber'ZERO_HARDENED))
+    (def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'ACCOUNT_ZERO_PATH (ImmutableList/of ChildNumber'ZERO_HARDENED))
     #_public
     #_static
-    (§ def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'EXTERNAL_SUBPATH (ImmutableList/of ChildNumber'ZERO))
+    (def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'EXTERNAL_SUBPATH (ImmutableList/of ChildNumber'ZERO))
     #_public
     #_static
-    (§ def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'INTERNAL_SUBPATH (ImmutableList/of ChildNumber'ONE))
+    (def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'INTERNAL_SUBPATH (ImmutableList/of ChildNumber'ONE))
     #_public
     #_static
-    (§ def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'EXTERNAL_PATH (HDUtils'concat DeterministicKeyChain'ACCOUNT_ZERO_PATH, DeterministicKeyChain'EXTERNAL_SUBPATH))
+    (def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'EXTERNAL_PATH (HDUtils'concat DeterministicKeyChain'ACCOUNT_ZERO_PATH, DeterministicKeyChain'EXTERNAL_SUBPATH))
     #_public
     #_static
-    (§ def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'INTERNAL_PATH (HDUtils'concat DeterministicKeyChain'ACCOUNT_ZERO_PATH, DeterministicKeyChain'INTERNAL_SUBPATH))
+    (def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'INTERNAL_PATH (HDUtils'concat DeterministicKeyChain'ACCOUNT_ZERO_PATH, DeterministicKeyChain'INTERNAL_SUBPATH))
     ;; m / 44' / 0' / 0'
     #_public
     #_static
-    (§ def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH (ImmutableList/of (ChildNumber. 44, true), ChildNumber'ZERO_HARDENED, ChildNumber'ZERO_HARDENED))
+    (def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH (ImmutableList/of (ChildNumber. 44, true), ChildNumber'ZERO_HARDENED, ChildNumber'ZERO_HARDENED))
 
     ;; We try to ensure we have at least this many keys ready and waiting to be handed out via getKey().  See docs
     ;; for getLookaheadSize() for more info on what this is for.  The -1 value means it hasn't been calculated yet.
@@ -36022,7 +36024,7 @@
     ;; chains, it will be calculated on demand from the number of loaded keys.
     #_private
     #_static
-    (§ def- #_"int" DeterministicKeyChain'LAZY_CALCULATE_LOOKAHEAD -1)
+    (def- #_"int" DeterministicKeyChain'LAZY_CALCULATE_LOOKAHEAD -1)
     #_protected
     (§ field #_"int" :lookahead-size 100)
     ;; The lookahead threshold causes us to batch up creation of new keys to minimize the frequency of Bloom filter
@@ -37542,10 +37544,10 @@
     ;; It would take more than 10^12 years to brute-force a 128 bit seed using $1B worth of computing equipment.
     #_public
     #_static
-    (§ def #_"int" DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS 128)
+    (def #_"int" DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS 128)
     #_public
     #_static
-    (§ def #_"int" DeterministicSeed'MAX_SEED_ENTROPY_BITS 512)
+    (def #_"int" DeterministicSeed'MAX_SEED_ENTROPY_BITS 512)
 
     #_nilable
     #_private
@@ -38067,7 +38069,7 @@
 (§ class KeyChainGroup (§ implements KeyBag)
     #_private
     #_static
-    (§ def- #_"Logger" KeyChainGroup'log (LoggerFactory/getLogger KeyChainGroup))
+    (def- #_"Logger" KeyChainGroup'log (LoggerFactory/getLogger KeyChainGroup))
 
     #_private
     (§ field- #_"BasicKeyChain" :basic)
@@ -39001,12 +39003,12 @@
 (§ class KeyTimeCoinSelector (§ implements CoinSelector)
     #_private
     #_static
-    (§ def- #_"Logger" KeyTimeCoinSelector'log (LoggerFactory/getLogger KeyTimeCoinSelector))
+    (def- #_"Logger" KeyTimeCoinSelector'log (LoggerFactory/getLogger KeyTimeCoinSelector))
 
     ;;; A number of inputs chosen to avoid hitting {@link org.bitcoinj.core.Transaction#MAX_STANDARD_TX_SIZE}. ;;
     #_public
     #_static
-    (§ def #_"int" KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS 600)
+    (def #_"int" KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS 600)
 
     #_private
     (§ field- #_"long" :unix-time-seconds)
@@ -39861,10 +39863,10 @@
 (§ class Wallet (§ implements NewBestBlockListener, TransactionReceivedInBlockListener, PeerFilterProvider, KeyBag, TransactionBag, ReorganizeListener)
     #_private
     #_static
-    (§ def- #_"Logger" Wallet'log (LoggerFactory/getLogger Wallet))
+    (def- #_"Logger" Wallet'log (LoggerFactory/getLogger Wallet))
     #_private
     #_static
-    (§ def- #_"int" Wallet'MINIMUM_BLOOM_DATA_LENGTH 8)
+    (def- #_"int" Wallet'MINIMUM_BLOOM_DATA_LENGTH 8)
 
     ;; Ordering: lock > keyChainGroupLock.  KeyChainGroup is protected separately to allow fast querying of current receive
     ;; address even if the wallet itself is busy e.g. saving or processing a big reorg.  Useful for reducing UI latency.
@@ -45221,7 +45223,7 @@
 (§ class WalletFiles
     #_private
     #_static
-    (§ def- #_"Logger" WalletFiles'log (LoggerFactory/getLogger WalletFiles))
+    (def- #_"Logger" WalletFiles'log (LoggerFactory/getLogger WalletFiles))
 
     #_private
     (§ field- #_"Wallet" :wallet)
@@ -45390,16 +45392,16 @@
 (§ class WalletProtobufSerializer
     #_private
     #_static
-    (§ def- #_"Logger" WalletProtobufSerializer'log (LoggerFactory/getLogger WalletProtobufSerializer))
+    (def- #_"Logger" WalletProtobufSerializer'log (LoggerFactory/getLogger WalletProtobufSerializer))
 
     ;;; Current version used for serializing wallets.  A version higher than this is considered from the future. ;;
     #_public
     #_static
-    (§ def #_"int" WalletProtobufSerializer'CURRENT_WALLET_VERSION (.. (Protos.Wallet/getDefaultInstance) (getVersion)))
+    (def #_"int" WalletProtobufSerializer'CURRENT_WALLET_VERSION (.. (Protos.Wallet/getDefaultInstance) (getVersion)))
     ;; 512 MB
     #_private
     #_static
-    (§ def- #_"int" WalletProtobufSerializer'WALLET_SIZE_LIMIT (* 512 1024 1024))
+    (def- #_"int" WalletProtobufSerializer'WALLET_SIZE_LIMIT (* 512 1024 1024))
     ;; Used for de-serialization.
     #_protected
     (§ field #_"Map<ByteString, Transaction>" :tx-map)
@@ -46119,7 +46121,7 @@
 
                     (let [#_"int" port (.. proto (getPort))
                           #_"BigInteger" services (BigInteger/valueOf (.. proto (getServices)))
-                          #_"PeerAddress" address (PeerAddress. params, ip, port, ProtocolVersion/CURRENT, services)]
+                          #_"PeerAddress" address (PeerAddress. params, ip, port, ProtocolVersion'CURRENT, services)]
                         (.. confidence (markBroadcastBy address))
                     )
                 )
