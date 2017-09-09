@@ -25139,9 +25139,6 @@
     (§ field #_"String" :version)
     #_nilable
     #_protected
-    (§ field #_"DeterministicSeed" :restore-from-seed)
-    #_nilable
-    #_protected
     (§ field #_"PeerDiscovery" :discovery)
 
     #_protected
@@ -25256,20 +25253,6 @@
     )
 
     ;;;
-     ; If a seed is set here then any existing wallet that matches the file name will be renamed to a backup name,
-     ; the chain file will be deleted, and the wallet object will be instantiated with the given seed instead of
-     ; a fresh one being created.  This is intended for restoring a wallet from the original seed.  To implement
-     ; restore, you would shut down the existing appkit, if any, then recreate it with the seed given by the user,
-     ; then start up the new kit.  The next time your app starts it should work as normal (that is, don't keep
-     ; calling this each time).
-     ;;
-    #_public
-    (§ method #_"WalletAppKit" restoreWalletFromSeed [#_"DeterministicSeed" seed]
-        (§ assoc this :restore-from-seed seed)
-        this
-    )
-
-    ;;;
      ; Sets the peer discovery class to use.  If none is provided then DNS is used, which is a reasonable default.
      ;;
     #_public
@@ -25346,12 +25329,12 @@
             (let [#_"File" __chainFile (File. (:directory this), (str (:file-prefix this) ".spvchain"))
                   #_"boolean" __chainFileExists (.. __chainFile (exists))]
                 (§ assoc this :v-wallet-file (File. (:directory this), (str (:file-prefix this) ".wallet")))
-                (let [#_"boolean" replay? (or (and (.. (:v-wallet-file this) (exists)) (not __chainFileExists)) (some? (:restore-from-seed this)))]
+                (let [#_"boolean" replay? (and (.. (:v-wallet-file this) (exists)) (not __chainFileExists))]
                     (§ assoc this :v-wallet (.. this (createOrLoadWallet replay?)))
 
                     ;; Initiate Bitcoin network objects (block store, blockchain and peer group).
                     (§ assoc this :v-store (.. this (provideBlockStore __chainFile)))
-                    (when (or (not __chainFileExists) (some? (:restore-from-seed this)))
+                    (when (not __chainFileExists)
                         (when (and (nil? (:checkpoints this)) (not (Utils'isAndroidRuntime)))
                             (§ assoc this :checkpoints (CheckpointManager'openStream (:params this)))
                         )
@@ -25359,25 +25342,7 @@
                         (cond (some? (:checkpoints this))
                             (do
                                 ;; Initialize the chain file with a checkpoint to speed up first-run sync.
-                                (let [#_"long" time]
-                                    (cond (some? (:restore-from-seed this))
-                                        (do
-                                            (§ ass time (.. (:restore-from-seed this) (getCreationTimeSeconds)))
-                                            (when __chainFileExists
-                                                (.. WalletAppKit'log (info "Deleting the chain file in preparation from restore."))
-                                                (.. (:v-store this) (close))
-                                                (when (not (.. __chainFile (delete)))
-                                                    (throw (IOException. "Failed to delete chain file in preparation for restore."))
-                                                )
-
-                                                (§ assoc this :v-store (SPVBlockStore. (:params this), __chainFile))
-                                            )
-                                        )
-                                        :else
-                                        (do
-                                            (§ ass time (.. (:v-wallet this) (getEarliestKeyCreationTime)))
-                                        )
-                                    )
+                                (let [#_"long" time (.. (:v-wallet this) (getEarliestKeyCreationTime))]
                                     (if (< 0 time)
                                         (CheckpointManager'checkpoint (:params this), (:checkpoints this), (:v-store this), time)
                                         (.. WalletAppKit'log (warn "Creating a new uncheckpointed block store due to a wallet with a creation time of zero: this will result in a very slow chain sync"))
@@ -25468,8 +25433,6 @@
     (§ method- #_"Wallet" createOrLoadWallet [#_"boolean" replay?]
         (let [#_"Wallet" wallet]
 
-            (.. this (maybeMoveOldWalletOutOfTheWay))
-
             (cond (.. (:v-wallet-file this) (exists))
                 (do
                     (§ ass wallet (.. this (loadWallet replay?)))
@@ -25517,36 +25480,7 @@
 
     #_protected
     (§ method #_"Wallet" createWallet []
-        (let [#_"KeyChainGroup" kcg (if (some? (:restore-from-seed this)) (KeyChainGroup. (:params this), (:restore-from-seed this)) (KeyChainGroup. (:params this)))]
-            (Wallet. (:params this), kcg)
-        )
-    )
-
-    #_private
-    (§ method- #_"void" maybeMoveOldWalletOutOfTheWay []
-        (when (nil? (:restore-from-seed this))
-            (§ return nil)
-        )
-        (when (not (.. (:v-wallet-file this) (exists)))
-            (§ return nil)
-        )
-
-        (let [#_"int" counter 1
-              #_"File" __newName]
-            (loop []
-                (§ ass __newName (File. (.. (:v-wallet-file this) (getParent)), (str "Backup " counter " for " (.. (:v-wallet-file this) (getName)))))
-                (§ ass counter (inc counter))
-                (§ recur-if (.. __newName (exists)))
-            )
-
-            (.. WalletAppKit'log (info "Renaming old wallet file {} to {}", (:v-wallet-file this), __newName))
-
-            ;; This should not happen unless something is really messed up.
-            (when (not (.. (:v-wallet-file this) (renameTo __newName)))
-                (throw (RuntimeException. "Failed to rename wallet for restore"))
-            )
-            nil
-        )
+        (Wallet. (:params this), (KeyChainGroup. (:params this)))
     )
 
     #_protected
@@ -35615,7 +35549,7 @@
     #_static
     (§ defn #_"RuleViolation" RiskAnalysis'isStandard [#_"Transaction" tx]
         ;; TODO: Finish this function off.
-        (when (or (< 1 (.. tx (getVersion))) (< (.. tx (getVersion)) 1))
+        (when (not (<= 1 (.. tx (getVersion)) 1))
             (.. RiskAnalysis'log (warn "TX considered non-standard due to unknown version number {}", (.. tx (getVersion))))
             (§ return :RuleViolation'VERSION)
         )
@@ -39767,11 +39701,6 @@
     #_protected
     (§ field #_"CoinSelector" :coin-selector (DefaultCoinSelector.))
 
-    ;; The wallet version.  This is an int that can be used to track breaking changes in the wallet format.
-    ;; You can also use it to detect wallets that come from the future (i.e. they contain features you
-    ;; do not know how to deal with).
-    #_private
-    (§ field- #_"int" :version)
     ;; User-provided description that may help people keep track of what a wallet is for.
     #_private
     (§ field- #_"String" :description)
@@ -43087,25 +43016,6 @@
     )
 
     ;;;
-     ; Get the version of the Wallet.
-     ; This is an int you can use to indicate which versions of wallets your code understands,
-     ; and which come from the future (and hence cannot be safely loaded).
-     ;;
-    #_public
-    (§ method #_"int" getVersion []
-        (:version this)
-    )
-
-    ;;;
-     ; Set the version number of the wallet.  See {@link Wallet#getVersion()}.
-     ;;
-    #_public
-    (§ method #_"void" setVersion [#_"int" version]
-        (§ assoc this :version version)
-        nil
-    )
-
-    ;;;
      ; Set the description of the wallet.
      ; This is a Unicode encoding string typically entered by the user as descriptive text for the wallet.
      ;;
@@ -45234,9 +45144,6 @@
                         )
                     )
 
-                    ;; Populate the wallet version.
-                    (.. __walletBuilder (setVersion (.. wallet (getVersion))))
-
                     (.. __walletBuilder (build))
                 )
             )
@@ -45563,10 +45470,6 @@
                             (throw (UnreadableWalletException. (str "Unable to deserialize TransactionSigner instance: " (.. __signerProto (getClassName))), e))
                         )
                     )
-                )
-
-                (when (.. __walletProto (hasVersion))
-                    (.. wallet (setVersion (.. __walletProto (getVersion))))
                 )
 
                 ;; Make sure the object can be re-used to read another wallet without corruption.
