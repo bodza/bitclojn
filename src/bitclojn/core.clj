@@ -48,7 +48,7 @@
              [com.google.common.net InetAddresses]
              [com.google.common.primitives Ints Longs UnsignedBytes UnsignedLongs]
              [com.google.common.util.concurrent FutureCallback Futures ListenableFuture SettableFuture Uninterruptibles]
-             [java.io BufferedInputStream BufferedReader ByteArrayOutputStream DataInputStream FileInputStream File IOException InputStreamReader InputStream ObjectInputStream ObjectOutputStream OutputStream UnsupportedEncodingException]
+             [java.io BufferedInputStream BufferedReader ByteArrayOutputStream DataInputStream FileInputStream File IOException InputStreamReader InputStream OutputStream UnsupportedEncodingException]
              [java.lang.ref WeakReference]
              [java.math BigDecimal BigInteger]
              [java.net ConnectException InetAddress InetSocketAddress URL UnknownHostException]
@@ -16375,8 +16375,8 @@
         ;;; Raise fee, e.g. child-pays-for-parent. ;;
         :TransactionPurpose'RAISE_FEE
         ;; In future: de/refragmentation, privacy boosting/mixing, etc.
-        ;; When adding a value, it also needs to be added to wallet.proto, WalletProtobufSerialize.makeTxProto()
-        ;; and WalletProtobufSerializer.readTransaction()!
+        ;; When adding a value, it also needs to be added to wallet.proto, WalletSerializer.makeTxProto()
+        ;; and WalletSerializer.readTransaction()!
     })
 
     #_private
@@ -19306,11 +19306,11 @@
      ; The "IsStandard" rules control whether the default Bitcoin Core client blocks relay of a tx / refuses to mine it,
      ; however, non-standard transactions can still be included in blocks and will be accepted as valid if so.</p>
      ;
-     ; <p>This method simply calls <tt>DefaultRiskAnalysis.isInputStandard(this)</tt>.</p>
+     ; <p>This method simply calls <tt>RiskAnalysis.isInputStandard(this)</tt>.</p>
      ;;
     #_public
     (§ method #_"RuleViolation" isStandard []
-        (DefaultRiskAnalysis'isInputStandard this)
+        (RiskAnalysis'isInputStandard this)
     )
 
     #_override
@@ -25137,8 +25137,6 @@
     (§ field #_"String" :user-agent)
     #_protected
     (§ field #_"String" :version)
-    #_protected
-    (§ field #_"WalletFactory" :wallet-factory)
     #_nilable
     #_protected
     (§ field #_"DeterministicSeed" :restore-from-seed)
@@ -25258,15 +25256,6 @@
     )
 
     ;;;
-     ; Sets a wallet factory which will be used when the kit creates a new wallet.
-     ;;
-    #_public
-    (§ method #_"WalletAppKit" setWalletFactory [#_"WalletFactory" __walletFactory]
-        (§ assoc this :wallet-factory __walletFactory)
-        this
-    )
-
-    ;;;
      ; If a seed is set here then any existing wallet that matches the file name will be renamed to a backup name,
      ; the chain file will be deleted, and the wallet object will be instantiated with the given seed instead of
      ; a fresh one being created.  This is intended for restoring a wallet from the original seed.  To implement
@@ -25357,8 +25346,8 @@
             (let [#_"File" __chainFile (File. (:directory this), (str (:file-prefix this) ".spvchain"))
                   #_"boolean" __chainFileExists (.. __chainFile (exists))]
                 (§ assoc this :v-wallet-file (File. (:directory this), (str (:file-prefix this) ".wallet")))
-                (let [#_"boolean" __shouldReplayWallet (or (and (.. (:v-wallet-file this) (exists)) (not __chainFileExists)) (some? (:restore-from-seed this)))]
-                    (§ assoc this :v-wallet (.. this (createOrLoadWallet __shouldReplayWallet)))
+                (let [#_"boolean" replay? (or (and (.. (:v-wallet-file this) (exists)) (not __chainFileExists)) (some? (:restore-from-seed this)))]
+                    (§ assoc this :v-wallet (.. this (createOrLoadWallet replay?)))
 
                     ;; Initiate Bitcoin network objects (block store, blockchain and peer group).
                     (§ assoc this :v-store (.. this (provideBlockStore __chainFile)))
@@ -25476,25 +25465,19 @@
 
     #_private
     #_throws #_[ "Exception" ]
-    (§ method- #_"Wallet" createOrLoadWallet [#_"boolean" __shouldReplayWallet]
+    (§ method- #_"Wallet" createOrLoadWallet [#_"boolean" replay?]
         (let [#_"Wallet" wallet]
 
             (.. this (maybeMoveOldWalletOutOfTheWay))
 
             (cond (.. (:v-wallet-file this) (exists))
                 (do
-                    (§ ass wallet (.. this (loadWallet __shouldReplayWallet)))
+                    (§ ass wallet (.. this (loadWallet replay?)))
                 )
                 :else
                 (do
                     (§ ass wallet (.. this (createWallet)))
                     (.. wallet (freshReceiveKey))
-
-                    ;; Currently the only way we can be sure that an extension is aware of its containing wallet is
-                    ;; by deserializing the extension.
-                    ;; Hence, we first save and then load wallet to ensure any extensions are correctly initialized.
-                    (.. wallet (saveToFile (:v-wallet-file this)))
-                    (§ ass wallet (.. this (loadWallet false)))
                 )
             )
 
@@ -25514,14 +25497,13 @@
 
     #_private
     #_throws #_[ "Exception" ]
-    (§ method- #_"Wallet" loadWallet [#_"boolean" __shouldReplayWallet]
+    (§ method- #_"Wallet" loadWallet [#_"boolean" replay?]
         (let [#_"Wallet" wallet
               #_"FileInputStream" __walletStream (FileInputStream. (:v-wallet-file this))]
             (try
-                (let [#_"Protos.Wallet" proto (WalletProtobufSerializer'parseToProto __walletStream)
-                      #_"WalletProtobufSerializer" serializer (if (some? (:wallet-factory this)) (WalletProtobufSerializer. (:wallet-factory this)) (WalletProtobufSerializer.))]
-                    (§ ass wallet (.. serializer (readWallet (:params this), proto)))
-                    (when __shouldReplayWallet
+                (let [#_"Protos.Wallet" proto (WalletSerializer'parseToProto __walletStream)]
+                    (§ ass wallet (.. (WalletSerializer.) (readWallet (:params this), proto)))
+                    (when replay?
                         (.. wallet (reset))
                     )
                 )
@@ -25536,7 +25518,7 @@
     #_protected
     (§ method #_"Wallet" createWallet []
         (let [#_"KeyChainGroup" kcg (if (some? (:restore-from-seed this)) (KeyChainGroup. (:params this), (:restore-from-seed this)) (KeyChainGroup. (:params this)))]
-            (if (some? (:wallet-factory this)) (.. (:wallet-factory this) (create (:params this), kcg)) (Wallet. (:params this), kcg)) ;; default
+            (Wallet. (:params this), kcg)
         )
     )
 
@@ -32823,7 +32805,7 @@
     (§ constructor SPVBlockStore [#_"NetworkParameters" params, #_"File" file, #_"int" capacity]
         (Preconditions/checkNotNull file)
         (§ assoc this :params (Preconditions/checkNotNull params))
-        (Preconditions/checkArgument (> capacity 0))
+        (Preconditions/checkArgument (< 0 capacity))
 
         (§ assoc this :capacity capacity)
         (try
@@ -34497,7 +34479,7 @@
              [com.google.common.collect ImmutableList Iterators Lists PeekingIterator]
              [com.google.common.primitives *]
              [com.google.common.util.concurrent *]
-             [com.google.protobuf ByteString CodedInputStream CodedOutputStream TextFormat WireFormat]
+             [com.google.protobuf ByteString CodedInputStream CodedOutputStream WireFormat]
              [java.io IOException InputStream OutputStream]
              [java.math BigInteger]
              [java.net InetAddress UnknownHostException]
@@ -35453,17 +35435,35 @@
 )
 
 ;;;
- ; Default factory for creating keychains while de-serializing.
+ ; Factory for creating keychains while de-serializing a wallet.
  ;;
 #_public
-(§ class DefaultKeyChainFactory (§ implements KeyChainFactory)
-    #_override
+(§ class KeyChainFactory
+    ;;;
+     ; Make a keychain (but not a watching one).
+     ;
+     ; @param key The protobuf for the root key.
+     ; @param firstSubKey The protobuf for the first child key (normally the parent of the external subchain).
+     ; @param seed The seed.
+     ; @param crypter The encrypted/decrypter.
+     ; @param isMarried Whether the keychain is leading in a marriage.
+     ;;
     #_public
     (§ method #_"DeterministicKeyChain" makeKeyChain [#_"Protos.Key" key, #_"Protos.Key" __firstSubKey, #_"DeterministicSeed" seed, #_"KeyCrypter" crypter, #_"boolean" __isMarried]
         (if __isMarried (MarriedKeyChain. seed, crypter) (DeterministicKeyChain. seed, crypter))
     )
 
-    #_override
+    ;;;
+     ; Make a watching keychain.
+     ;
+     ; isMarried and isFollowingKey must not be true at the same time.
+     ;
+     ; @param key The protobuf for the account key.
+     ; @param firstSubKey The protobuf for the first child key (normally the parent of the external subchain).
+     ; @param accountKey The account extended public key.
+     ; @param isFollowingKey Whether the keychain is following in a marriage.
+     ; @param isMarried Whether the keychain is leading in a marriage.
+     ;;
     #_public
     #_throws #_[ "UnreadableWalletException" ]
     (§ method #_"DeterministicKeyChain" makeWatchingKeyChain [#_"Protos.Key" key, #_"Protos.Key" __firstSubKey, #_"DeterministicKey" __accountKey, #_"boolean" __isFollowingKey, #_"boolean" __isMarried]
@@ -35476,15 +35476,22 @@
 )
 
 ;;;
- ; <p>The default risk analysis.  Currently, it only is concerned with whether a tx/dependency is non-final or not,
+ ; A RiskAnalysis represents an analysis of how likely it is that a transaction (and its dependencies)
+ ; represents a possible double spending attack.  The wallet will create these to decide whether or not to accept
+ ; a pending transaction.
+ ;
+ ; The intention here is that implementing classes can expose more information and detail about the result,
+ ; for app developers.  The core code needs only to know whether it's OK or not.
+ ;
+ ; Currently, it only is concerned with whether a tx/dependency is non-final or not,
  ; and whether a tx/dependency violates the dust rules.  Outside of specialised protocols you should not encounter
- ; non-final transactions.</p>
+ ; non-final transactions.
  ;;
 #_public
-(§ class DefaultRiskAnalysis (§ implements RiskAnalysis)
+(§ class RiskAnalysis
     #_private
     #_static
-    (def- #_"Logger" DefaultRiskAnalysis'log (LoggerFactory/getLogger DefaultRiskAnalysis))
+    (def- #_"Logger" RiskAnalysis'log (LoggerFactory/getLogger RiskAnalysis))
 
     ;;;
      ; Any standard output smaller than this value (in satoshis) will be considered risky, as it's most likely
@@ -35493,7 +35500,7 @@
      ;;
     #_public
     #_static
-    (def #_"Coin" DefaultRiskAnalysis'MIN_ANALYSIS_NONDUST_OUTPUT Transaction'MIN_NONDUST_OUTPUT)
+    (def #_"Coin" RiskAnalysis'MIN_ANALYSIS_NONDUST_OUTPUT Transaction'MIN_NONDUST_OUTPUT)
 
     #_protected
     (§ field #_"Transaction" :tx)
@@ -35511,14 +35518,23 @@
     (§ field #_"boolean" :analyzed)
 
     #_private
-    (§ constructor- DefaultRiskAnalysis [#_"Wallet" wallet, #_"Transaction" tx, #_"List<Transaction>" dependencies]
+    (§ constructor- RiskAnalysis [#_"Wallet" wallet, #_"Transaction" tx, #_"List<Transaction>" dependencies]
         (§ assoc this :tx tx)
         (§ assoc this :dependencies dependencies)
         (§ assoc this :wallet wallet)
         this
     )
 
-    #_override
+    #_public
+    #_static
+    #_enum
+    (def RiskAnalysisResult'values
+    #{
+        :RiskAnalysisResult'OK
+        :RiskAnalysisResult'NON_FINAL
+        :RiskAnalysisResult'NON_STANDARD
+    })
+
     #_public
     (§ method #_"RiskAnalysisResult" analyze []
         (Preconditions/checkState (not (:analyzed this)))
@@ -35597,19 +35613,19 @@
      ;;
     #_public
     #_static
-    (§ defn #_"RuleViolation" DefaultRiskAnalysis'isStandard [#_"Transaction" tx]
+    (§ defn #_"RuleViolation" RiskAnalysis'isStandard [#_"Transaction" tx]
         ;; TODO: Finish this function off.
         (when (or (< 1 (.. tx (getVersion))) (< (.. tx (getVersion)) 1))
-            (.. DefaultRiskAnalysis'log (warn "TX considered non-standard due to unknown version number {}", (.. tx (getVersion))))
+            (.. RiskAnalysis'log (warn "TX considered non-standard due to unknown version number {}", (.. tx (getVersion))))
             (§ return :RuleViolation'VERSION)
         )
 
         (let [#_"List<TransactionOutput>" outputs (.. tx (getOutputs))]
             (loop-when-recur [#_"int" i 0] (< i (.. outputs (size))) [(inc i)]
                 (let [#_"TransactionOutput" output (.. outputs (get i))
-                      #_"RuleViolation" violation (DefaultRiskAnalysis'isOutputStandard output)]
+                      #_"RuleViolation" violation (RiskAnalysis'isOutputStandard output)]
                     (when (not= violation :RuleViolation'NONE)
-                        (.. DefaultRiskAnalysis'log (warn "TX considered non-standard due to output {} violating rule {}", i, violation))
+                        (.. RiskAnalysis'log (warn "TX considered non-standard due to output {} violating rule {}", i, violation))
                         (§ return violation)
                     )
                 )
@@ -35618,9 +35634,9 @@
             (let [#_"List<TransactionInput>" inputs (.. tx (getInputs))]
                 (loop-when-recur [#_"int" i 0] (< i (.. inputs (size))) [(inc i)]
                     (let [#_"TransactionInput" input (.. inputs (get i))
-                          #_"RuleViolation" violation (DefaultRiskAnalysis'isInputStandard input)]
+                          #_"RuleViolation" violation (RiskAnalysis'isInputStandard input)]
                         (when (not= violation :RuleViolation'NONE)
-                            (.. DefaultRiskAnalysis'log (warn "TX considered non-standard due to input {} violating rule {}", i, violation))
+                            (.. RiskAnalysis'log (warn "TX considered non-standard due to input {} violating rule {}", i, violation))
                             (§ return violation)
                         )
                     )
@@ -35636,8 +35652,8 @@
      ;;
     #_public
     #_static
-    (§ defn #_"RuleViolation" DefaultRiskAnalysis'isOutputStandard [#_"TransactionOutput" output]
-        (when (< (.. output (getValue) (compareTo DefaultRiskAnalysis'MIN_ANALYSIS_NONDUST_OUTPUT)) 0)
+    (§ defn #_"RuleViolation" RiskAnalysis'isOutputStandard [#_"TransactionOutput" output]
+        (when (< (.. output (getValue) (compareTo RiskAnalysis'MIN_ANALYSIS_NONDUST_OUTPUT)) 0)
             (§ return :RuleViolation'DUST)
         )
 
@@ -35653,7 +35669,7 @@
     ;;; Checks if the given input passes some of the AreInputsStandard checks.  Not complete. ;;
     #_public
     #_static
-    (§ defn #_"RuleViolation" DefaultRiskAnalysis'isInputStandard [#_"TransactionInput" input]
+    (§ defn #_"RuleViolation" RiskAnalysis'isInputStandard [#_"TransactionInput" input]
         (doseq [#_"ScriptChunk" chunk (.. input (getScriptSig) (getChunks))]
             (when (and (some? (:data chunk)) (not (.. chunk (isShortestPossiblePushData))))
                 (§ return :RuleViolation'SHORTEST_POSSIBLE_PUSHDATA)
@@ -35690,14 +35706,14 @@
             (§ return :RiskAnalysisResult'OK)
         )
 
-        (let [#_"RuleViolation" __ruleViolation (DefaultRiskAnalysis'isStandard (:tx this))]
+        (let [#_"RuleViolation" __ruleViolation (RiskAnalysis'isStandard (:tx this))]
             (when (not= __ruleViolation :RuleViolation'NONE)
                 (§ assoc this :non-standard (:tx this))
                 (§ return :RiskAnalysisResult'NON_STANDARD)
             )
 
             (doseq [#_"Transaction" dep (:dependencies this)]
-                (§ ass __ruleViolation (DefaultRiskAnalysis'isStandard dep))
+                (§ ass __ruleViolation (RiskAnalysis'isStandard dep))
                 (when (not= __ruleViolation :RuleViolation'NONE)
                     (§ assoc this :non-standard dep)
                     (§ return :RiskAnalysisResult'NON_STANDARD)
@@ -35737,20 +35753,6 @@
 
         "Non-risky"
     )
-
-    #_public
-    #_static
-    (§ class DefaultRiskAnalyzer (§ implements RiskAnalyzer)
-        #_override
-        #_public
-        (§ method #_"DefaultRiskAnalysis" create [#_"Wallet" wallet, #_"Transaction" tx, #_"List<Transaction>" dependencies]
-            (DefaultRiskAnalysis. wallet, tx, dependencies)
-        )
-    )
-
-    #_public
-    #_static
-    (def #_"DefaultRiskAnalyzer" DefaultRiskAnalysis'FACTORY (DefaultRiskAnalyzer.))
 )
 
 ;;;
@@ -36615,7 +36617,7 @@
     #_static
     #_throws #_[ "UnreadableWalletException" ]
     (§ defn #_"List<DeterministicKeyChain>" DeterministicKeyChain'fromProtobuf [#_"List<Protos.Key>" keys, #_nilable #_"KeyCrypter" crypter]
-        (DeterministicKeyChain'fromProtobuf keys, crypter, (DefaultKeyChainFactory.))
+        (DeterministicKeyChain'fromProtobuf keys, crypter, (KeyChainFactory.))
     )
 
     ;;;
@@ -37852,37 +37854,6 @@
 )
 
 ;;;
- ; Factory interface for creation keychains while de-serializing a wallet.
- ;;
-#_public
-(§ interface KeyChainFactory
-    ;;;
-     ; Make a keychain (but not a watching one).
-     ;
-     ; @param key The protobuf for the root key.
-     ; @param firstSubKey The protobuf for the first child key (normally the parent of the external subchain).
-     ; @param seed The seed.
-     ; @param crypter The encrypted/decrypter.
-     ; @param isMarried Whether the keychain is leading in a marriage.
-     ;;
-    (§ method #_"DeterministicKeyChain" makeKeyChain [#_"Protos.Key" key, #_"Protos.Key" __firstSubKey, #_"DeterministicSeed" seed, #_"KeyCrypter" crypter, #_"boolean" __isMarried])
-
-    ;;;
-     ; Make a watching keychain.
-     ;
-     ; isMarried and isFollowingKey must not be true at the same time.
-     ;
-     ; @param key The protobuf for the account key.
-     ; @param firstSubKey The protobuf for the first child key (normally the parent of the external subchain).
-     ; @param accountKey The account extended public key.
-     ; @param isFollowingKey Whether the keychain is following in a marriage.
-     ; @param isMarried Whether the keychain is leading in a marriage.
-     ;;
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ method #_"DeterministicKeyChain" makeWatchingKeyChain [#_"Protos.Key" key, #_"Protos.Key" __firstSubKey, #_"DeterministicKey" __accountKey, #_"boolean" __isFollowingKey, #_"boolean" __isMarried])
-)
-
-;;;
  ; <p>A KeyChainGroup is used by the {@link org.bitcoinj.wallet.Wallet} and manages: a {@link BasicKeyChain} object
  ; (which will normally be empty), and zero or more {@link DeterministicKeyChain}s.  A deterministic key chain will be
  ; created lazily/on demand when a fresh or current key is requested, possibly being initialized from the private key
@@ -38606,7 +38577,7 @@
     #_static
     #_throws #_[ "UnreadableWalletException" ]
     (§ defn #_"KeyChainGroup" KeyChainGroup'fromProtobufUnencrypted [#_"NetworkParameters" params, #_"List<Protos.Key>" keys]
-        (KeyChainGroup'fromProtobufUnencrypted params, keys, (DefaultKeyChainFactory.))
+        (KeyChainGroup'fromProtobufUnencrypted params, keys, (KeyChainFactory.))
     )
 
     #_public
@@ -38627,7 +38598,7 @@
     #_static
     #_throws #_[ "UnreadableWalletException" ]
     (§ defn #_"KeyChainGroup" KeyChainGroup'fromProtobufEncrypted [#_"NetworkParameters" params, #_"List<Protos.Key>" keys, #_"KeyCrypter" crypter]
-        (KeyChainGroup'fromProtobufEncrypted params, keys, crypter, (DefaultKeyChainFactory.))
+        (KeyChainGroup'fromProtobufEncrypted params, keys, crypter, (KeyChainFactory.))
     )
 
     #_public
@@ -39306,34 +39277,6 @@
 )
 
 ;;;
- ; <p>A RiskAnalysis represents an analysis of how likely it is that a transaction (and its dependencies)
- ; represents a possible double spending attack.  The wallet will create these to decide whether or not to accept
- ; a pending transaction.  Look at {@link DefaultRiskAnalysis} to see what is currently considered risky.</p>
- ;
- ; <p>The intention here is that implementing classes can expose more information and detail about the result,
- ; for app developers.  The core code needs only to know whether it's OK or not.</p>
- ;
- ; <p>A factory interface is provided.  The wallet will use this to analyze new pending transactions.</p>
- ;;
-#_public
-(§ interface RiskAnalysis
-    #_static
-    #_enum
-    (def RiskAnalysisResult'values
-    #{
-        :RiskAnalysisResult'OK
-        :RiskAnalysisResult'NON_FINAL
-        :RiskAnalysisResult'NON_STANDARD
-    })
-
-    (§ method #_"RiskAnalysisResult" analyze [])
-
-    (§ interface RiskAnalyzer
-        (§ method #_"RiskAnalysis" create [#_"Wallet" wallet, #_"Transaction" tx, #_"List<Transaction>" dependencies])
-    )
-)
-
-;;;
  ; A SendRequest gives the wallet information about precisely how to send money to a recipient or set of recipients.
  ; Static methods are provided to help you create SendRequests and there are a few helper methods on the wallet that
  ; just simplify the most common use cases.  You may wish to customize a SendRequest if you want to attach a fee or
@@ -39611,7 +39554,7 @@
 )
 
 ;;;
- ; Thrown by the {@link WalletProtobufSerializer} when the serialized protocol buffer is either corrupted,
+ ; Thrown by the {@link WalletSerializer} when the serialized protocol buffer is either corrupted,
  ; internally inconsistent or appears to be from the future.
  ;;
 #_public
@@ -39634,16 +39577,6 @@
         #_public
         (§ constructor BadPassword []
             (§ super "Password incorrect")
-            this
-        )
-    )
-
-    #_public
-    #_static
-    (§ class FutureVersion (§ extends UnreadableWalletException)
-        #_public
-        (§ constructor FutureVersion []
-            (§ super "Unknown wallet version from the future.")
             this
         )
     )
@@ -39808,10 +39741,6 @@
     ;; Whether or not to ignore pending transactions that are considered risky by the configured risk analyzer.
     #_private
     (§ field- #_"boolean" :accept-risky-transactions)
-    ;; Object that performs risk analysis of pending transactions.  We might reject transactions that seem like
-    ;; a high risk of being a double spending attack.
-    #_private
-    (§ field- #_"RiskAnalyzer" :risk-analyzer DefaultRiskAnalysis'FACTORY)
 
     ;; Stuff for notifying transaction objects that we changed their confidences.  The purpose of this is to avoid
     ;; spuriously sending lots of repeated notifications to listeners that API users aren't really interested in as
@@ -40908,7 +40837,7 @@
 
     ;;;
      ; Uses protobuf serialization to save the wallet to the given file.  To learn more about this file format, see
-     ; {@link WalletProtobufSerializer}.  Writes out first to a temporary file in the same directory and then renames
+     ; {@link WalletSerializer}.  Writes out first to a temporary file in the same directory and then renames
      ; once written.
      ;;
     #_public
@@ -40925,7 +40854,7 @@
      ; <p>Whether or not the wallet will ignore pending transactions that fail the selected {@link RiskAnalysis}.
      ; By default, if a transaction is considered risky then it won't enter the wallet and won't trigger any event
      ; listeners.  If you set this property to true, then all transactions will be allowed in regardless of risk.
-     ; For example, the {@link DefaultRiskAnalysis} checks for non-finality of transactions.</p>
+     ; For example, the default {@link RiskAnalysis} checks for non-finality of transactions.</p>
      ;
      ; <p>Note that this property is not serialized.  You have to set it each time a Wallet object is constructed,
      ; even if it's loaded from a protocol buffer.</p>
@@ -40950,37 +40879,6 @@
         (.. (:lock this) (lock))
         (try
             (:accept-risky-transactions this)
-            (finally
-                (.. (:lock this) (unlock))
-            )
-        )
-    )
-
-    ;;;
-     ; Sets the {@link RiskAnalysis} implementation to use for deciding whether received pending transactions are
-     ; risky or not.  If the analyzer says a transaction is risky, by default it will be dropped. You can customize
-     ; this behaviour with {@link #setAcceptRiskyTransactions(boolean)}.
-     ;;
-    #_public
-    (§ method #_"void" setRiskAnalyzer [#_"RiskAnalyzer" analyzer]
-        (.. (:lock this) (lock))
-        (try
-            (§ assoc this :risk-analyzer (Preconditions/checkNotNull analyzer))
-            (finally
-                (.. (:lock this) (unlock))
-            )
-        )
-        nil
-    )
-
-    ;;;
-     ; Gets the current {@link RiskAnalysis} implementation.  The default is {@link DefaultRiskAnalysis}.
-     ;;
-    #_public
-    (§ method #_"RiskAnalyzer" getRiskAnalyzer []
-        (.. (:lock this) (lock))
-        (try
-            (:risk-analyzer this)
             (finally
                 (.. (:lock this) (unlock))
             )
@@ -41083,14 +40981,14 @@
 
     ;;;
      ; Uses protobuf serialization to save the wallet to the given file stream.
-     ; To learn more about this file format, see {@link WalletProtobufSerializer}.
+     ; To learn more about this file format, see {@link WalletSerializer}.
      ;;
     #_public
     #_throws #_[ "IOException" ]
     (§ method #_"void" saveToFileStream [#_"OutputStream" f]
         (.. (:lock this) (lock))
         (try
-            (.. (WalletProtobufSerializer.) (writeWallet this, f))
+            (.. (WalletSerializer.) (writeWallet this, f))
             (finally
                 (.. (:lock this) (unlock))
             )
@@ -41240,7 +41138,7 @@
     #_static
     #_throws #_[ "UnreadableWalletException" ]
     (§ defn #_"Wallet" Wallet'loadFromFileStream [#_"InputStream" stream]
-        (let [#_"Wallet" wallet (.. (WalletProtobufSerializer.) (readWallet stream))]
+        (let [#_"Wallet" wallet (.. (WalletSerializer.) (readWallet stream))]
             (when (not (.. wallet (isConsistent)))
                 (.. Wallet'log (error "Loaded an inconsistent wallet"))
             )
@@ -41365,8 +41263,8 @@
      ; Given a transaction and an optional list of dependencies (recursive/flattened), returns true if the given
      ; transaction would be rejected by the analyzer, or false otherwise.  The result of this call is independent
      ; of the value of {@link #isAcceptRiskyTransactions()}.  Risky transactions yield a logged warning.  If you
-     ; want to know the reason why a transaction is risky, create an instance of the {@link RiskAnalysis} yourself
-     ; using the factory returned by {@link #getRiskAnalyzer()} and use it directly.
+     ; want to know the reason why a transaction is risky, create an instance of {@link RiskAnalysis} yourself
+     ; and use it directly.
      ;;
     #_public
     (§ method #_"boolean" isTransactionRisky [#_"Transaction" tx, #_nilable #_"List<Transaction>" dependencies]
@@ -41375,9 +41273,8 @@
             (when (nil? dependencies)
                 (§ ass dependencies (ImmutableList/of))
             )
-            (let [#_"RiskAnalysis" analysis (.. (:risk-analyzer this) (create this, tx, dependencies))
-                  #_"RiskAnalysisResult" result (.. analysis (analyze))]
-                (when (not= result :RiskAnalysisResult'OK)
+            (let [#_"RiskAnalysis" analysis (RiskAnalysis. this, tx, dependencies)]
+                (when (not= (.. analysis (analyze)) :RiskAnalysisResult'OK)
                     (.. Wallet'log (warn "Pending transaction was considered risky: {}\n{}", analysis, tx))
                     (§ return true)
                 )
@@ -42662,7 +42559,7 @@
 
     ;;;
      ; Adds a transaction that has been associated with a particular wallet pool.  This is intended for usage by
-     ; deserialization code, such as the {@link WalletProtobufSerializer} class.  It isn't normally useful for
+     ; deserialization code, such as the {@link WalletSerializer} class.  It isn't normally useful for
      ; applications.  It does not trigger auto saving.
      ;;
     #_public
@@ -45232,72 +45129,18 @@
  ; @author Andreas Schildbach
  ;;
 #_public
-(§ class WalletProtobufSerializer
+(§ class WalletSerializer
     #_private
     #_static
-    (def- #_"Logger" WalletProtobufSerializer'log (LoggerFactory/getLogger WalletProtobufSerializer))
+    (def- #_"Logger" WalletSerializer'log (LoggerFactory/getLogger WalletSerializer))
 
-    ;;; Current version used for serializing wallets.  A version higher than this is considered from the future. ;;
-    #_public
-    #_static
-    (def #_"int" WalletProtobufSerializer'CURRENT_WALLET_VERSION (.. (Protos.Wallet/getDefaultInstance) (getVersion)))
-    ;; 512 MB
-    #_private
-    #_static
-    (def- #_"int" WalletProtobufSerializer'WALLET_SIZE_LIMIT (* 512 1024 1024))
     ;; Used for de-serialization.
     #_protected
-    (§ field #_"Map<ByteString, Transaction>" :tx-map)
-
-    #_private
-    (§ field- #_"int" :wallet-write-buffer-size CodedOutputStream/DEFAULT_BUFFER_SIZE)
+    (§ field #_"Map<ByteString, Transaction>" :tx-map (HashMap. #_"<>"))
 
     #_public
-    (§ interface WalletFactory
-        (§ method #_"Wallet" create [#_"NetworkParameters" params, #_"KeyChainGroup" __keyChainGroup])
-    )
-
-    #_private
-    (§ field- #_"WalletFactory" :factory)
-    #_private
-    (§ field- #_"KeyChainFactory" :key-chain-factory)
-
-    #_public
-    (§ constructor WalletProtobufSerializer []
-        (§ this (WalletFactory.)
-        (§ anon
-            #_override
-            #_public
-            (§ method #_"Wallet" create [#_"NetworkParameters" params, #_"KeyChainGroup" __keyChainGroup]
-                (Wallet. params, __keyChainGroup)
-            )
-        ))
+    (§ constructor WalletSerializer []
         this
-    )
-
-    #_public
-    (§ constructor WalletProtobufSerializer [#_"WalletFactory" factory]
-        (§ assoc this :tx-map (HashMap. #_"<>"))
-        (§ assoc this :factory factory)
-        (§ assoc this :key-chain-factory (DefaultKeyChainFactory.))
-        this
-    )
-
-    #_public
-    (§ method #_"void" setKeyChainFactory [#_"KeyChainFactory" __keyChainFactory]
-        (§ assoc this :key-chain-factory __keyChainFactory)
-        nil
-    )
-
-    ;;;
-     ; Change buffer size for writing wallet to output stream.
-     ; Default is {@link com.google.protobuf.CodedOutputStream.DEFAULT_BUFFER_SIZE}.
-     ; @param walletWriteBufferSize Buffer size in bytes.
-     ;;
-    #_public
-    (§ method #_"void" setWalletWriteBufferSize [#_"int" __walletWriteBufferSize]
-        (§ assoc this :wallet-write-buffer-size __walletWriteBufferSize)
-        nil
     )
 
     ;;;
@@ -45309,24 +45152,10 @@
     #_throws #_[ "IOException" ]
     (§ method #_"void" writeWallet [#_"Wallet" wallet, #_"OutputStream" output]
         (let [#_"Protos.Wallet" __walletProto (.. this (walletToProto wallet))
-              #_"CodedOutputStream" __codedOutput (CodedOutputStream/newInstance output, (:wallet-write-buffer-size this))]
+              #_"CodedOutputStream" __codedOutput (CodedOutputStream/newInstance output, CodedOutputStream/DEFAULT_BUFFER_SIZE)]
             (.. __walletProto (writeTo __codedOutput))
             (.. __codedOutput (flush))
             nil
-        )
-    )
-
-    ;;;
-     ; Returns the given wallet formatted as text.  The text format is that used by protocol buffers and although
-     ; it can also be parsed using {@link TextFormat#merge(CharSequence, com.google.protobuf.Message.Builder)},
-     ; it is designed more for debugging than storage.  It is not well specified and wallets are largely binary data
-     ; structures anyway, consisting as they do of keys (large random numbers) and {@link Transaction}s which also
-     ; mostly contain keys and hashes.
-     ;;
-    #_public
-    (§ method #_"String" walletToText [#_"Wallet" wallet]
-        (let [#_"Protos.Wallet" __walletProto (.. this (walletToProto wallet))]
-            (TextFormat/printToString __walletProto)
         )
     )
 
@@ -45343,7 +45172,7 @@
             )
 
             (doseq [#_"WalletTransaction" wtx (.. wallet (getWalletTransactions))]
-                (let [#_"Protos.Transaction" __txProto (WalletProtobufSerializer'makeTxProto wtx)]
+                (let [#_"Protos.Transaction" __txProto (WalletSerializer'makeTxProto wtx)]
                     (.. __walletBuilder (addTransaction __txProto))
                 )
             )
@@ -45353,7 +45182,7 @@
             ;; Populate the lastSeenBlockHash field.
             (let [#_"Sha256Hash" __lastSeenBlockHash (.. wallet (getLastBlockSeenHash))]
                 (when (some? __lastSeenBlockHash)
-                    (.. __walletBuilder (setLastSeenBlockHash (WalletProtobufSerializer'hashToByteString __lastSeenBlockHash)))
+                    (.. __walletBuilder (setLastSeenBlockHash (WalletSerializer'hashToByteString __lastSeenBlockHash)))
                     (.. __walletBuilder (setLastSeenBlockHeight (.. wallet (getLastBlockSeenHeight))))
                 )
                 (when (< 0 (.. wallet (getLastBlockSeenTimeSecs)))
@@ -45380,7 +45209,7 @@
                                 :else
                                 (do
                                     ;; Some other form of encryption has been specified that we do not know how to persist.
-                                    (throw (RuntimeException. (str "The wallet has encryption of type '" (.. __keyCrypter (getUnderstoodEncryptionType)) "' but this WalletProtobufSerializer does not know how to persist this.")))
+                                    (throw (RuntimeException. (str "The wallet has encryption of type '" (.. __keyCrypter (getUnderstoodEncryptionType)) "' but this WalletSerializer does not know how to persist this.")))
                                 )
                             )
                         )
@@ -45416,11 +45245,11 @@
 
     #_private
     #_static
-    (§ defn- #_"Protos.Transaction" WalletProtobufSerializer'makeTxProto [#_"WalletTransaction" wtx]
+    (§ defn- #_"Protos.Transaction" WalletSerializer'makeTxProto [#_"WalletTransaction" wtx]
         (let [#_"Transaction" tx (.. wtx (getTransaction))
               #_"Protos.Transaction.Builder" __txBuilder (Protos.Transaction/newBuilder)]
 
-            (.. __txBuilder (setPool (WalletProtobufSerializer'getProtoPool wtx)) (setHash (WalletProtobufSerializer'hashToByteString (.. tx (getHash)))) (setVersion (int (.. tx (getVersion)))))
+            (.. __txBuilder (setPool (WalletSerializer'getProtoPool wtx)) (setHash (WalletSerializer'hashToByteString (.. tx (getHash)))) (setVersion (int (.. tx (getVersion)))))
 
             (when (some? (.. tx (getUpdateTime)))
                 (.. __txBuilder (setUpdatedAt (.. tx (getUpdateTime) (getTime))))
@@ -45432,7 +45261,7 @@
 
             ;; Handle inputs.
             (doseq [#_"TransactionInput" input (.. tx (getInputs))]
-                (let [#_"Protos.TransactionInput.Builder" __inputBuilder (.. (Protos.TransactionInput/newBuilder) (setScriptBytes (ByteString/copyFrom (.. input (getScriptBytes)))) (setTransactionOutPointHash (WalletProtobufSerializer'hashToByteString (.. input (getOutpoint) (getHash)))) (setTransactionOutPointIndex (int (.. input (getOutpoint) (getIndex)))))]
+                (let [#_"Protos.TransactionInput.Builder" __inputBuilder (.. (Protos.TransactionInput/newBuilder) (setScriptBytes (ByteString/copyFrom (.. input (getScriptBytes)))) (setTransactionOutPointHash (WalletSerializer'hashToByteString (.. input (getOutpoint) (getHash)))) (setTransactionOutPointIndex (int (.. input (getOutpoint) (getIndex)))))]
                     (when (.. input (hasSequence))
                         (.. __inputBuilder (setSequence (int (.. input (getSequenceNumber)))))
                     )
@@ -45450,7 +45279,7 @@
                     (when (some? __spentBy)
                         (let [#_"Sha256Hash" __spendingHash (.. __spentBy (getParentTransaction) (getHash))
                               #_"int" __spentByTransactionIndex (.. __spentBy (getParentTransaction) (getInputs) (indexOf __spentBy))]
-                            (.. __outputBuilder (setSpentByTransactionHash (WalletProtobufSerializer'hashToByteString __spendingHash)) (setSpentByTransactionIndex __spentByTransactionIndex))
+                            (.. __outputBuilder (setSpentByTransactionHash (WalletSerializer'hashToByteString __spendingHash)) (setSpentByTransactionIndex __spentByTransactionIndex))
                         )
                     )
                     (.. __txBuilder (addTransactionOutput __outputBuilder))
@@ -45461,7 +45290,7 @@
             (let [#_"Map<Sha256Hash, Integer>" __appearsInHashes (.. tx (getAppearsInHashes))]
                 (when (some? __appearsInHashes)
                     (doseq [#_"Map.Entry<Sha256Hash, Integer>" entry (.. __appearsInHashes (entrySet))]
-                        (.. __txBuilder (addBlockHash (WalletProtobufSerializer'hashToByteString (.. entry (getKey)))))
+                        (.. __txBuilder (addBlockHash (WalletSerializer'hashToByteString (.. entry (getKey)))))
                         (.. __txBuilder (addBlockRelativityOffsets (.. entry (getValue))))
                     )
                 )
@@ -45469,7 +45298,7 @@
                 (when (.. tx (hasConfidence))
                     (let [#_"TransactionConfidence" confidence (.. tx (getConfidence))
                           #_"Protos.TransactionConfidence.Builder" __confidenceBuilder (Protos.TransactionConfidence/newBuilder)]
-                        (WalletProtobufSerializer'writeConfidence __txBuilder, confidence, __confidenceBuilder)
+                        (WalletSerializer'writeConfidence __txBuilder, confidence, __confidenceBuilder)
                     )
                 )
 
@@ -45506,7 +45335,7 @@
 
     #_private
     #_static
-    (§ defn- #_"Protos.Transaction.Pool" WalletProtobufSerializer'getProtoPool [#_"WalletTransaction" wtx]
+    (§ defn- #_"Protos.Transaction.Pool" WalletSerializer'getProtoPool [#_"WalletTransaction" wtx]
         (condp = (.. wtx (getPool))
             :PoolType'UNSPENT Protos.Transaction.Pool/UNSPENT
             :PoolType'SPENT   Protos.Transaction.Pool/SPENT
@@ -45518,7 +45347,7 @@
 
     #_private
     #_static
-    (§ defn- #_"void" WalletProtobufSerializer'writeConfidence [#_"Protos.Transaction.Builder" __txBuilder, #_"TransactionConfidence" confidence, #_"Protos.TransactionConfidence.Builder" __confidenceBuilder]
+    (§ defn- #_"void" WalletSerializer'writeConfidence [#_"Protos.Transaction.Builder" __txBuilder, #_"TransactionConfidence" confidence, #_"Protos.TransactionConfidence.Builder" __confidenceBuilder]
         (§ sync confidence
             (.. __confidenceBuilder (setType (Protos.TransactionConfidence.Type/valueOf (:value (.. confidence (getConfidenceType))))))
             (when (= (.. confidence (getConfidenceType)) ConfidenceType'BUILDING)
@@ -45530,7 +45359,7 @@
                 ;; (A dead coinbase transaction has no overriding transaction).
                 (when (some? (.. confidence (getOverridingTransaction)))
                     (let [#_"Sha256Hash" __overridingHash (.. confidence (getOverridingTransaction) (getHash))]
-                        (.. __confidenceBuilder (setOverridingTransaction (WalletProtobufSerializer'hashToByteString __overridingHash)))
+                        (.. __confidenceBuilder (setOverridingTransaction (WalletSerializer'hashToByteString __overridingHash)))
                     )
                 )
             )
@@ -45557,13 +45386,13 @@
 
     #_public
     #_static
-    (§ defn #_"ByteString" WalletProtobufSerializer'hashToByteString [#_"Sha256Hash" hash]
+    (§ defn #_"ByteString" WalletSerializer'hashToByteString [#_"Sha256Hash" hash]
         (ByteString/copyFrom (.. hash (getBytes)))
     )
 
     #_public
     #_static
-    (§ defn #_"Sha256Hash" WalletProtobufSerializer'byteStringToHash [#_"ByteString" bs]
+    (§ defn #_"Sha256Hash" WalletSerializer'byteStringToHash [#_"ByteString" bs]
         (Sha256Hash'wrap (.. bs (toByteArray)))
     )
 
@@ -45605,7 +45434,7 @@
     #_throws #_[ "UnreadableWalletException" ]
     (§ method #_"Wallet" readWallet [#_"InputStream" input, #_"boolean" __forceReset]
         (try
-            (let [#_"Protos.Wallet" __walletProto (WalletProtobufSerializer'parseToProto input)
+            (let [#_"Protos.Wallet" __walletProto (WalletSerializer'parseToProto input)
                   #_"String" __paramsID (.. __walletProto (getNetworkIdentifier))
                   #_"NetworkParameters" params (NetworkParameters'fromID __paramsID)]
                 (when (nil? params)
@@ -45663,9 +45492,6 @@
     #_public
     #_throws #_[ "UnreadableWalletException" ]
     (§ method #_"Wallet" readWallet [#_"NetworkParameters" params, #_"Protos.Wallet" __walletProto, #_"boolean" __forceReset]
-        (when (< WalletProtobufSerializer'CURRENT_WALLET_VERSION (.. __walletProto (getVersion)))
-            (throw (FutureVersion.))
-        )
         (when (not (.. __walletProto (getNetworkIdentifier) (equals (.. params (getId)))))
             (throw (WrongNetwork.))
         )
@@ -45675,12 +45501,12 @@
                 (if (.. __walletProto (hasEncryptionParameters))
                     (let [#_"Protos.ScryptParameters" __encryptionParameters (.. __walletProto (getEncryptionParameters))
                           #_"KeyCrypterScrypt" __keyCrypter (KeyCrypterScrypt. __encryptionParameters)]
-                        (KeyChainGroup'fromProtobufEncrypted params, (.. __walletProto (getKeyList)), __keyCrypter, (:key-chain-factory this))
+                        (KeyChainGroup'fromProtobufEncrypted params, (.. __walletProto (getKeyList)), __keyCrypter, (KeyChainFactory.))
                     )
-                    (KeyChainGroup'fromProtobufUnencrypted params, (.. __walletProto (getKeyList)), (:key-chain-factory this))
+                    (KeyChainGroup'fromProtobufUnencrypted params, (.. __walletProto (getKeyList)), (KeyChainFactory.))
                 )]
 
-            (let [#_"Wallet" wallet (.. (:factory this) (create params, __keyChainGroup))]
+            (let [#_"Wallet" wallet (Wallet. params, __keyChainGroup)]
                 (when (.. __walletProto (hasDescription))
                     (.. wallet (setDescription (.. __walletProto (getDescription))))
                 )
@@ -45709,7 +45535,7 @@
                         ;; Update the lastBlockSeenHash.
                         (if (not (.. __walletProto (hasLastSeenBlockHash)))
                             (.. wallet (setLastBlockSeenHash nil))
-                            (.. wallet (setLastBlockSeenHash (WalletProtobufSerializer'byteStringToHash (.. __walletProto (getLastSeenBlockHash)))))
+                            (.. wallet (setLastBlockSeenHash (WalletSerializer'byteStringToHash (.. __walletProto (getLastSeenBlockHash)))))
                         )
 
                         (if (not (.. __walletProto (hasLastSeenBlockHeight)))
@@ -45759,9 +45585,8 @@
     #_public
     #_static
     #_throws #_[ "IOException" ]
-    (§ defn #_"Protos.Wallet" WalletProtobufSerializer'parseToProto [#_"InputStream" input]
+    (§ defn #_"Protos.Wallet" WalletSerializer'parseToProto [#_"InputStream" input]
         (let [#_"CodedInputStream" __codedInput (CodedInputStream/newInstance input)]
-            (.. __codedInput (setSizeLimit WalletProtobufSerializer'WALLET_SIZE_LIMIT))
             (Protos.Wallet/parseFrom __codedInput)
         )
     )
@@ -45787,7 +45612,7 @@
 
             (doseq [#_"Protos.TransactionInput" __inputProto (.. __txProto (getTransactionInputList))]
                 (let [#_"byte[]" __scriptBytes (.. __inputProto (getScriptBytes) (toByteArray))
-                      #_"TransactionOutPoint" outpoint (TransactionOutPoint. params, (& 0xffffffff (.. __inputProto (getTransactionOutPointIndex))), (WalletProtobufSerializer'byteStringToHash (.. __inputProto (getTransactionOutPointHash))))
+                      #_"TransactionOutPoint" outpoint (TransactionOutPoint. params, (& 0xffffffff (.. __inputProto (getTransactionOutPointIndex))), (WalletSerializer'byteStringToHash (.. __inputProto (getTransactionOutPointHash))))
                       #_"Coin" value (when (.. __inputProto (hasValue)) (Coin'valueOf (.. __inputProto (getValue))))
                       #_"TransactionInput" input (TransactionInput. params, tx, __scriptBytes, outpoint, value)]
                     (when (.. __inputProto (hasSequence))
@@ -45803,7 +45628,7 @@
                     (when (< 0 (.. __txProto (getBlockRelativityOffsetsCount)))
                         (§ ass __relativityOffset (.. __txProto (getBlockRelativityOffsets i)))
                     )
-                    (.. tx (addBlockAppearance (WalletProtobufSerializer'byteStringToHash __blockHash), __relativityOffset))
+                    (.. tx (addBlockAppearance (WalletSerializer'byteStringToHash __blockHash), __relativityOffset))
                 )
             )
 
@@ -45842,12 +45667,12 @@
             )
 
             ;; Transaction should now be complete.
-            (let [#_"Sha256Hash" __protoHash (WalletProtobufSerializer'byteStringToHash (.. __txProto (getHash)))]
+            (let [#_"Sha256Hash" __protoHash (WalletSerializer'byteStringToHash (.. __txProto (getHash)))]
                 (when (not (.. tx (getHash) (equals __protoHash)))
                     (throw (UnreadableWalletException. (String/format Locale/US, "Transaction did not deserialize completely: %s vs %s", (.. tx (getHash)), __protoHash)))
                 )
                 (when (.. (:tx-map this) (containsKey (.. __txProto (getHash))))
-                    (throw (UnreadableWalletException. (str "Wallet contained duplicate transaction " (WalletProtobufSerializer'byteStringToHash (.. __txProto (getHash))))))
+                    (throw (UnreadableWalletException. (str "Wallet contained duplicate transaction " (WalletSerializer'byteStringToHash (.. __txProto (getHash))))))
                 )
                 (.. (:tx-map this) (put (.. __txProto (getHash)), tx))
                 nil
@@ -45879,7 +45704,7 @@
                         (let [#_"ByteString" __spentByTransactionHash (.. __transactionOutput (getSpentByTransactionHash))
                               #_"Transaction" __spendingTx (.. (:tx-map this) (get __spentByTransactionHash))]
                             (when (nil? __spendingTx)
-                                (throw (UnreadableWalletException. (String/format Locale/US, "Could not connect %s to %s", (.. tx (getHashAsString)), (WalletProtobufSerializer'byteStringToHash __spentByTransactionHash))))
+                                (throw (UnreadableWalletException. (String/format Locale/US, "Could not connect %s to %s", (.. tx (getHashAsString)), (WalletSerializer'byteStringToHash __spentByTransactionHash))))
                             )
 
                             (let [#_"int" __spendingIndex (.. __transactionOutput (getSpentByTransactionIndex))
@@ -45908,7 +45733,7 @@
         ;; We are lenient here because tx confidence is not an essential part of the wallet.
         ;; If the tx has an unknown type of confidence, ignore.
         (when (not (.. __confidenceProto (hasType)))
-            (.. WalletProtobufSerializer'log (warn "Unknown confidence type for tx {}", (.. tx (getHashAsString))))
+            (.. WalletSerializer'log (warn "Unknown confidence type for tx {}", (.. tx (getHashAsString))))
             (§ return nil)
         )
 
@@ -45925,7 +45750,7 @@
             (.. confidence (setConfidenceType __confidenceType))
             (when (.. __confidenceProto (hasAppearedAtHeight))
                 (when (not= (.. confidence (getConfidenceType)) ConfidenceType'BUILDING)
-                    (.. WalletProtobufSerializer'log (warn "Have appearedAtHeight but not BUILDING for tx {}", (.. tx (getHashAsString))))
+                    (.. WalletSerializer'log (warn "Have appearedAtHeight but not BUILDING for tx {}", (.. tx (getHashAsString))))
                     (§ return nil)
                 )
                 (.. confidence (setAppearedAtChainHeight (.. __confidenceProto (getAppearedAtHeight))))
@@ -45933,7 +45758,7 @@
 
             (when (.. __confidenceProto (hasDepth))
                 (when (not= (.. confidence (getConfidenceType)) ConfidenceType'BUILDING)
-                    (.. WalletProtobufSerializer'log (warn "Have depth but not BUILDING for tx {}", (.. tx (getHashAsString))))
+                    (.. WalletSerializer'log (warn "Have depth but not BUILDING for tx {}", (.. tx (getHashAsString))))
                     (§ return nil)
                 )
                 (.. confidence (setDepthInBlocks (.. __confidenceProto (getDepth))))
@@ -45941,12 +45766,12 @@
 
             (when (.. __confidenceProto (hasOverridingTransaction))
                 (when (not= (.. confidence (getConfidenceType)) ConfidenceType'DEAD)
-                    (.. WalletProtobufSerializer'log (warn "Have overridingTransaction but not OVERRIDDEN for tx {}", (.. tx (getHashAsString))))
+                    (.. WalletSerializer'log (warn "Have overridingTransaction but not OVERRIDDEN for tx {}", (.. tx (getHashAsString))))
                     (§ return nil)
                 )
                 (let [#_"Transaction" __overridingTransaction (.. (:tx-map this) (get (.. __confidenceProto (getOverridingTransaction))))]
                     (when (nil? __overridingTransaction)
-                        (.. WalletProtobufSerializer'log (warn "Have overridingTransaction that is not in wallet for tx {}", (.. tx (getHashAsString))))
+                        (.. WalletSerializer'log (warn "Have overridingTransaction that is not in wallet for tx {}", (.. tx (getHashAsString))))
                         (§ return nil)
                     )
                     (.. confidence (setOverridingTransaction __overridingTransaction))
@@ -45991,7 +45816,7 @@
      ;;
     #_public
     #_static
-    (§ defn #_"boolean" WalletProtobufSerializer'isWallet [#_"InputStream" is]
+    (§ defn #_"boolean" WalletSerializer'isWallet [#_"InputStream" is]
         (try
             (let [#_"CodedInputStream" cis (CodedInputStream/newInstance is)
                   #_"int" field (WireFormat/getTagFieldNumber (.. cis (readTag)))]
