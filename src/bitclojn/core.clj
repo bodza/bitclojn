@@ -40,7 +40,7 @@
     )
 
 #_(ns org.bitcoinj.core
-    (:import [com.google.common.base Charsets Joiner MoreObjects Objects Preconditions Strings]
+    (:import [com.google.common.base Charsets Joiner MoreObjects Objects Strings]
              [com.google.common.collect ImmutableMap Lists Ordering]
              [com.google.common.hash HashCode Hasher Hashing]
              [com.google.common.io BaseEncoding ByteStreams Resources]
@@ -77,47 +77,47 @@
 )
 
 ;;;
- ; <p>An AbstractBlockChain holds a series of {@link Block} objects, links them together, and knows how to verify that
- ; the chain follows the rules of the {@link NetworkParameters} for this chain.</p>
+ ; An AbstractBlockChain holds a series of {@link Block} objects, links them together, and knows how to verify that
+ ; the chain follows the rules of the {@link NetworkParameters} for this chain.
  ;
- ; <p>It can be connected to a {@link Wallet}, and also {@link TransactionReceivedInBlockListener}s that can receive
- ; transactions and notifications of re-organizations.</p>
+ ; It can be connected to a {@link Wallet}, and also {@link TransactionReceivedInBlockListener}s that can receive
+ ; transactions and notifications of re-organizations.
  ;
- ; <p>An AbstractBlockChain implementation must be connected to a {@link BlockStore} implementation.  The chain object
+ ; An AbstractBlockChain implementation must be connected to a {@link BlockStore} implementation.  The chain object
  ; by itself doesn't store any data, that's delegated to the store.  Which store you use is a decision best made by
  ; reading the getting started guide, but briefly, fully validating block chains need fully validating stores.  In
- ; the lightweight SPV mode, a {@link org.bitcoinj.store.SPVBlockStore} is the right choice.</p>
+ ; the lightweight SPV mode, a {@link org.bitcoinj.store.SPVBlockStore} is the right choice.
  ;
- ; <p>This class implements an abstract class which makes it simple to create a BlockChain that does/doesn't do
+ ; This class implements an abstract class which makes it simple to create a BlockChain that does/doesn't do
  ; full verification.  It verifies headers and is implements most of what is required to implement SPV mode, but
- ; also provides callback hooks which can be used to do full verification.</p>
+ ; also provides callback hooks which can be used to do full verification.
  ;
- ; <p>There are two subclasses of AbstractBlockChain that are useful: {@link BlockChain}, which is the simplest
+ ; There are two subclasses of AbstractBlockChain that are useful: {@link BlockChain}, which is the simplest
  ; class and implements <i>simplified payment verification</i>.  This is a lightweight and efficient mode that
  ; does not verify the contents of blocks, just their headers.  A {@link FullPrunedBlockChain} paired with a
  ; {@link org.bitcoinj.store.H2FullPrunedBlockStore} implements full verification, which is equivalent to
  ; Bitcoin Core.  To learn more about the alternative security models, please consult the articles on the
- ; website.</p>
+ ; website.
  ;
  ; <b>Theory</b>
  ;
- ; <p>The 'chain' is actually a tree although in normal operation it operates mostly as a list of {@link Block}s.
+ ; The 'chain' is actually a tree although in normal operation it operates mostly as a list of {@link Block}s.
  ; When multiple new head blocks are found simultaneously, there are multiple stories of the economy competing to become
  ; the one true consensus.  This can happen naturally when two miners solve a block within a few seconds of each other,
- ; or it can happen when the chain is under attack.</p>
+ ; or it can happen when the chain is under attack.
  ;
- ; <p>A reference to the head block of the best known chain is stored.  If you can reach the genesis block by repeatedly
+ ; A reference to the head block of the best known chain is stored.  If you can reach the genesis block by repeatedly
  ; walking through the prevBlock pointers, then we say this is a full chain.  If you cannot reach the genesis block
  ; we say it is an orphan chain.  Orphan chains can occur when blocks are solved and received during the initial block
- ; chain download, or if we connect to a peer that doesn't send us blocks in order.</p>
+ ; chain download, or if we connect to a peer that doesn't send us blocks in order.
  ;
- ; <p>A reorganize occurs when the blocks that make up the best known chain changes.  Note that simply adding a
+ ; A reorganize occurs when the blocks that make up the best known chain changes.  Note that simply adding a
  ; new block to the top of the best chain isn't as reorganize, but that a reorganize is always triggered by adding
  ; a new block that connects to some other (non best head) block.  By "best" we mean the chain representing the largest
- ; amount of work done.</p>
+ ; amount of work done.
  ;
- ; <p>Every so often the block chain passes a difficulty transition point.  At that time, all the blocks in the last
- ; 2016 blocks are examined and a new difficulty target is calculated from them.</p>
+ ; Every so often the block chain passes a difficulty transition point.  At that time, all the blocks in the last
+ ; 2016 blocks are examined and a new difficulty target is calculated from them.
  ;;
 #_public
 #_abstract
@@ -169,7 +169,7 @@
 
         (§ constructor OrphanBlock [#_"Block" block, #_nilable #_"List<Sha256Hash>" __filteredTxHashes, #_nilable #_"Map<Sha256Hash, Transaction>" __filteredTxn]
             (let [#_"boolean" filtered (and (some? __filteredTxHashes) (some? __filteredTxn))]
-                (Preconditions/checkArgument (or (and (nil? (:transactions block)) filtered) (and (some? (:transactions block)) (not filtered))))
+                (assert-argument (or (and (nil? (:transactions block)) filtered) (and (some? (:transactions block)) (not filtered))))
                 (§ assoc this :block block)
                 (§ assoc this :filtered-tx-hashes __filteredTxHashes)
                 (§ assoc this :filtered-txn __filteredTxn)
@@ -617,13 +617,13 @@
                     ;; We can't find the previous block.  Probably we are still in the process of downloading the chain and
                     ;; a block was solved whilst we were doing it.  We put it to one side and try to connect it later when we
                     ;; have more blocks.
-                    (Preconditions/checkState __tryConnecting, "bug in tryConnectingOrphans")
+                    (assert-state __tryConnecting, "bug in tryConnectingOrphans")
                     (.. AbstractBlockChain'log (warn "Block does not connect: {} prev {}", (.. block (getHashAsString)), (.. block (getPrevBlockHash))))
                     (.. (:orphan-blocks this) (put (.. block (getHash)), (OrphanBlock. block, __filteredTxHashList, __filteredTxn)))
                     (§ return false)
                 )
 
-                (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+                (assert-state (.. (:lock this) (isHeldByCurrentThread)))
                 ;; It connects to somewhere on the chain.  Not necessarily the top of the best known chain.
                 (.. (:params this) (checkDifficultyTransitions __storedPrev, block, (:block-store this)))
                 (.. this (connectBlock block, __storedPrev, (.. this (shouldVerifyTransactions)), __filteredTxHashList, __filteredTxn))
@@ -665,14 +665,14 @@
     #_private
     #_throws #_[ "BlockStoreException", "VerificationException", "PrunedException" ]
     (§ method- #_"void" connectBlock [#_"Block" block, #_"StoredBlock" __storedPrev, #_"boolean" __expensiveChecks, #_nilable #_"List<Sha256Hash>" __filteredTxHashList, #_nilable #_"Map<Sha256Hash, Transaction>" __filteredTxn]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
         (let [#_"boolean" filtered (and (some? __filteredTxHashList) (some? __filteredTxn))]
             ;; Check that we aren't connecting a block that fails a checkpoint check.
             (when (not (.. (:params this) (passesCheckpoint (inc (.. __storedPrev (getHeight))), (.. block (getHash)))))
                 (throw (VerificationException. (str "Block failed checkpoint lockin at " (inc (.. __storedPrev (getHeight))))))
             )
             (when (.. this (shouldVerifyTransactions))
-                (Preconditions/checkNotNull (:transactions block))
+                (ensure some? (:transactions block))
                 (doseq [#_"Transaction" tx (:transactions block)]
                     (when (not (.. tx (isFinal (inc (.. __storedPrev (getHeight))), (.. block (getTimeSeconds)))))
                         (throw (VerificationException. "Block contains non-final transaction"))
@@ -873,7 +873,7 @@
             )
             (some? __filteredTxHashList)
             (do
-                (Preconditions/checkNotNull __filteredTxn)
+                (ensure some? __filteredTxn)
                 ;; We must send transactions to listeners in the order they appeared in the block - thus we iterate over the
                 ;; set of hashes and call sendTransactionsToListener with individual txn when they have not already been
                 ;; seen in loose broadcasts - otherwise notifyTransactionIsInBlock on the hash.
@@ -937,7 +937,7 @@
     #_private
     #_throws #_[ "BlockStoreException", "VerificationException", "PrunedException" ]
     (§ method- #_"void" handleNewBestChain [#_"StoredBlock" __storedPrev, #_"StoredBlock" __newChainHead, #_"Block" block, #_"boolean" __expensiveChecks]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         ;; This chain has overtaken the one we currently believe is best.  Reorganize is required.
         ;;
@@ -1040,12 +1040,12 @@
     #_static
     #_throws #_[ "BlockStoreException" ]
     (§ defn- #_"LinkedList<StoredBlock>" AbstractBlockChain'getPartialChain [#_"StoredBlock" higher, #_"StoredBlock" lower, #_"BlockStore" store]
-        (Preconditions/checkArgument (< (.. lower (getHeight)) (.. higher (getHeight))), "higher and lower are reversed")
+        (assert-argument (< (.. lower (getHeight)) (.. higher (getHeight))), "higher and lower are reversed")
         (let [#_"LinkedList<StoredBlock>" results (LinkedList. #_"<>")
               #_"StoredBlock" cursor higher]
             (loop []
                 (.. results (add cursor))
-                (§ ass cursor (Preconditions/checkNotNull (.. cursor (getPrev store)), "Ran off the end of the chain"))
+                (§ ass cursor (ensure some? (.. cursor (getPrev store)), "Ran off the end of the chain"))
                 (when (.. cursor (equals lower))
                     (§ break )
                 )
@@ -1075,12 +1075,12 @@
                 (cond (< (.. __newChainCursor (getHeight)) (.. __currentChainCursor (getHeight)))
                     (do
                         (§ ass __currentChainCursor (.. __currentChainCursor (getPrev store)))
-                        (Preconditions/checkNotNull __currentChainCursor, "Attempt to follow an orphan chain")
+                        (ensure some? __currentChainCursor, "Attempt to follow an orphan chain")
                     )
                     :else
                     (do
                         (§ ass __newChainCursor (.. __newChainCursor (getPrev store)))
-                        (Preconditions/checkNotNull __newChainCursor, "Attempt to follow an orphan chain")
+                        (ensure some? __newChainCursor, "Attempt to follow an orphan chain")
                     )
                 )
             )
@@ -1147,7 +1147,7 @@
     #_private
     #_throws #_[ "VerificationException", "BlockStoreException", "PrunedException" ]
     (§ method- #_"void" tryConnectingOrphans []
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         ;; For each block in our orphan list, try and fit it onto the head of the chain.  If we succeed remove it
         ;; from the list and keep going.  If we changed the head of the list at the end of the round try again until
@@ -1351,15 +1351,15 @@
 )
 
 ;;;
- ; <p>A Bitcoin address looks like 1MsScoe2fTJoq4ZPdQgqyhgWeoNamYPevy and is derived from an elliptic curve public key
+ ; A Bitcoin address looks like 1MsScoe2fTJoq4ZPdQgqyhgWeoNamYPevy and is derived from an elliptic curve public key
  ; plus a set of network parameters.  Not to be confused with a {@link PeerAddress} or {@link AddressMessage}
- ; which are about network (TCP) addresses.</p>
+ ; which are about network (TCP) addresses.
  ;
- ; <p>A standard address is built by taking the RIPE-MD160 hash of the public key bytes, with a version prefix and a
+ ; A standard address is built by taking the RIPE-MD160 hash of the public key bytes, with a version prefix and a
  ; checksum suffix, then encoding it textually as base58.  The version prefix is used to both denote the network for
  ; which the address is valid (see {@link NetworkParameters}, and also to indicate how the bytes inside the address
  ; should be interpreted.  Whilst almost all addresses today are hashes of public keys, another (currently unsupported
- ; type) can contain a hash of a script instead.</p>
+ ; type) can contain a hash of a script instead.
  ;;
 #_public
 (§ class Address (§ extends VersionedChecksummedBytes)
@@ -1384,8 +1384,8 @@
     (§ constructor Address [#_"NetworkParameters" params, #_"int" version, #_"byte[]" hash160]
         (§ super version, hash160)
 
-        (Preconditions/checkNotNull params)
-        (Preconditions/checkArgument (= (alength hash160) 20), "Addresses are 160-bit hashes, so you must provide 20 bytes")
+        (ensure some? params)
+        (assert-argument (= (alength hash160) 20), "Addresses are 160-bit hashes, so you must provide 20 bytes")
         (when (not (Address'isAcceptableVersion params, version))
             (throw (WrongNetworkException. version, (.. params (getAcceptableAddressCodes))))
         )
@@ -1409,7 +1409,7 @@
     #_public
     #_static
     (§ defn #_"Address" Address'fromP2SHScript [#_"NetworkParameters" params, #_"Script" __scriptPubKey]
-        (Preconditions/checkArgument (.. __scriptPubKey (isPayToScriptHash)), "Not a P2SH script")
+        (assert-argument (.. __scriptPubKey (isPayToScriptHash)), "Not a P2SH script")
         (Address'fromP2SHHash params, (.. __scriptPubKey (getPubKeyHash)))
     )
 
@@ -1440,7 +1440,7 @@
     (§ constructor Address [#_"NetworkParameters" params, #_"byte[]" hash160]
         (§ super (.. params (getAddressHeader)), hash160)
 
-        (Preconditions/checkArgument (= (alength hash160) 20), "Addresses are 160-bit hashes, so you must provide 20 bytes")
+        (assert-argument (= (alength hash160) 20), "Addresses are 160-bit hashes, so you must provide 20 bytes")
         (§ assoc this :params params)
         this
     )
@@ -1559,11 +1559,11 @@
 )
 
 ;;;
- ; <p>Represents an "addr" message on the P2P network, which contains broadcast IP addresses of other peers.  This is
+ ; Represents an "addr" message on the P2P network, which contains broadcast IP addresses of other peers.  This is
  ; one of the ways peers can find each other without using the DNS or IRC discovery mechanisms.  However storing and
- ; using addr messages is not presently implemented.</p>
+ ; using addr messages is not presently implemented.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class AddressMessage (§ extends Message)
@@ -1705,9 +1705,9 @@
  ; that software upgrades could be distributed independently of a hard-coded website, in order to allow everything to
  ; be purely peer-to-peer.  You don't have to use this of course, and indeed it often makes more sense not to.
  ;
- ; <p>Before doing anything with an alert, you should check {@link AlertMessage#isSignatureValid()}.</p>
+ ; Before doing anything with an alert, you should check {@link AlertMessage#isSignatureValid()}.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class AlertMessage (§ extends Message)
@@ -2180,10 +2180,10 @@
 )
 
 ;;;
- ; <p>Methods to serialize and de-serialize messages to the Bitcoin network format as defined in
- ; <a href="https://en.bitcoin.it/wiki/Protocol_specification">the protocol specification</a>.</p>
+ ; Methods to serialize and de-serialize messages to the Bitcoin network format as defined in
+ ; <a href="https://en.bitcoin.it/wiki/Protocol_specification">the protocol specification</a>.
  ;
- ; <p>To be able to serialize and deserialize new Message subclasses the following criteria needs to be met.</p>
+ ; To be able to serialize and deserialize new Message subclasses the following criteria needs to be met.
  ;
  ; <ul>
  ; <li>The proper Class instance needs to be mapped to its message name in the NAMES variable below.</li>
@@ -2593,15 +2593,15 @@
 )
 
 ;;;
- ; <p>A block is a group of transactions, and is one of the fundamental data structures of the Bitcoin system.
+ ; A block is a group of transactions, and is one of the fundamental data structures of the Bitcoin system.
  ; It records a set of {@link Transaction}s together with some data that links it into a place in the global block chain,
  ; and proves that a difficult calculation was done over its contents.
  ; See <a href="http://www.bitcoin.org/bitcoin.pdf">the Bitcoin technical paper</a> for more detail on blocks.
  ;
- ; <p>To get a block, you can either build one from the raw bytes you can get from another implementation, or request one
- ; specifically using {@link Peer#getBlock(Sha256Hash)}, or grab one from a downloaded {@link BlockChain}.</p>
+ ; To get a block, you can either build one from the raw bytes you can get from another implementation, or request one
+ ; specifically using {@link Peer#getBlock(Sha256Hash)}, or grab one from a downloaded {@link BlockChain}.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class Block (§ extends Message)
@@ -2817,10 +2817,10 @@
     )
 
     ;;;
-     ; <p>A utility method that calculates how much new Bitcoin would be created by the block at the given height.
+     ; A utility method that calculates how much new Bitcoin would be created by the block at the given height.
      ; The inflation of Bitcoin is predictable and drops roughly every 4 years (210,000 blocks).  At the dawn of
      ; the system it was 50 coins per block, in late 2012 it went to 25 coins per block, and so on.  The size of
-     ; a coinbase transaction is inflation plus fees.</p>
+     ; a coinbase transaction is inflation plus fees.
      ;
      ; The half-life is controlled by {@link org.bitcoinj.core.NetworkParameters#getSubsidyDecreaseBlockCount()}.
      ;;
@@ -2945,7 +2945,7 @@
     (§ method #_"byte[]" bitcoinSerialize []
         ;; we have completely cached byte array
         (when (and (:header-bytes-valid this) (:transaction-bytes-valid this))
-            (Preconditions/checkNotNull (:payload this), "Bytes should never be nil if headerBytesValid && transactionBytesValid")
+            (ensure some? (:payload this), "Bytes should never be nil if headerBytesValid && transactionBytesValid")
             (when (= (:length this) (alength (:payload this)))
                 (§ return (:payload this))
             )
@@ -3045,7 +3045,7 @@
         (try
             (let [#_"ByteArrayOutputStream" bos (ByteArrayOutputStream. Block'HEADER_SIZE)]
                 (.. this (writeHeader bos))
-                (§ return (Sha256Hash'wrapReversed (Sha256Hash'hashTwice (.. bos (toByteArray)))))
+                (Sha256Hash'wrapReversed (Sha256Hash'hashTwice (.. bos (toByteArray))))
             )
             (catch IOException e
                 (throw (RuntimeException. e)) ;; Cannot happen.
@@ -3155,11 +3155,11 @@
     )
 
     ;;;
-     ; <p>Finds a value of nonce that makes the blocks hash lower than the difficulty target.  This is called mining,
+     ; Finds a value of nonce that makes the blocks hash lower than the difficulty target.  This is called mining,
      ; but solve() is far too slow to do real mining with.  It exists only for unit testing purposes.
      ;
-     ; <p>This can loop forever if a solution cannot be found solely by incrementing nonce.  It doesn't change
-     ; extraNonce.</p>
+     ; This can loop forever if a solution cannot be found solely by incrementing nonce.  It doesn't change
+     ; extraNonce.
      ;;
     #_public
     (§ method #_"void" solve []
@@ -3793,12 +3793,12 @@
     (§ field #_"BlockStore" :block-store)
 
     ;;;
-     ; <p>Constructs a BlockChain connected to the given wallet and store.  To obtain a {@link Wallet} you can construct
-     ; one from scratch, or you can deserialize a saved wallet from disk using {@link Wallet#loadFromFile(java.io.File)}.</p>
+     ; Constructs a BlockChain connected to the given wallet and store.  To obtain a {@link Wallet} you can construct
+     ; one from scratch, or you can deserialize a saved wallet from disk using {@link Wallet#loadFromFile(java.io.File)}.
      ;
-     ; <p>For the store, you should use {@link org.bitcoinj.store.SPVBlockStore} or you could also try a
+     ; For the store, you should use {@link org.bitcoinj.store.SPVBlockStore} or you could also try a
      ; {@link org.bitcoinj.store.MemoryBlockStore} if you want to hold all headers in RAM and don't care about
-     ; disk serialization (this is rare).</p>
+     ; disk serialization (this is rare).
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
@@ -3881,7 +3881,7 @@
         (.. (:lock this) (lock))
         (try
             (let [#_"int" __currentHeight (.. this (getBestChainHeight))]
-                (Preconditions/checkArgument (<= 0 height __currentHeight), "Bad height: %s", height)
+                (assert-argument (<= 0 height __currentHeight), "Bad height: %s", height)
                 (when (= height __currentHeight)
                     (§ return nil) ;; nothing to do
                 )
@@ -3971,16 +3971,16 @@
 )
 
 ;;;
- ; <p>A Bloom filter is a probabilistic data structure which can be sent to another client so that it can avoid
+ ; A Bloom filter is a probabilistic data structure which can be sent to another client so that it can avoid
  ; sending us transactions that aren't relevant to our set of keys.  This allows for significantly more efficient
- ; use of available network bandwidth and CPU time.</p>
+ ; use of available network bandwidth and CPU time.
  ;
- ; <p>Because a Bloom filter is probabilistic, it has a configurable false positive rate.  So the filter will sometimes
+ ; Because a Bloom filter is probabilistic, it has a configurable false positive rate.  So the filter will sometimes
  ; match transactions that weren't inserted into it, but it will never fail to match transactions that were.  This is
  ; a useful privacy feature - if you have spare bandwidth the false positive rate can be increased so the remote peer
- ; gets a noisy picture of what transactions are relevant to your wallet.</p>
+ ; gets a noisy picture of what transactions are relevant to your wallet.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class BloomFilter (§ extends Message)
@@ -4038,32 +4038,32 @@
     )
 
     ;;;
-     ; <p>Constructs a new Bloom Filter which will provide approximately the given false positive rate when the given
+     ; Constructs a new Bloom Filter which will provide approximately the given false positive rate when the given
      ; number of elements have been inserted.  If the filter would otherwise be larger than the maximum allowed size,
-     ; it will be automatically downsized to the maximum size.</p>
+     ; it will be automatically downsized to the maximum size.
      ;
-     ; <p>To check the theoretical false positive rate of a given filter, use {@link BloomFilter#getFalsePositiveRate(int)}.</p>
+     ; To check the theoretical false positive rate of a given filter, use {@link BloomFilter#getFalsePositiveRate(int)}.
      ;
-     ; <p>The anonymity of which coins are yours to any peer which you send a BloomFilter to is controlled by the
+     ; The anonymity of which coins are yours to any peer which you send a BloomFilter to is controlled by the
      ; false positive rate.  For reference, as of block 187,000, the total number of addresses used in the chain was
      ; roughly 4.5 million.  Thus, if you use a false positive rate of 0.001 (0.1%), there will be, on average, 4,500
      ; distinct public keys/addresses which will be thought to be yours by nodes which have your bloom filter, but
      ; which are not actually yours.  Keep in mind that a remote node can do a pretty good job estimating the order of
      ; magnitude of the false positive rate of a given filter you provide it when considering the anonymity of a given
-     ; filter.</p>
+     ; filter.
      ;
-     ; <p>In order for filtered block download to function efficiently, the number of matched transactions in any given
+     ; In order for filtered block download to function efficiently, the number of matched transactions in any given
      ; block should be less than (with some headroom) the maximum size of the MemoryPool used by the Peer
      ; doing the downloading (default is {@link TxConfidenceTable#MAX_SIZE}).  See the comment in processBlock(FilteredBlock)
-     ; for more information on this restriction.</p>
+     ; for more information on this restriction.
      ;
-     ; <p>randomNonce is a tweak for the hash function used to prevent some theoretical DoS attacks.
-     ; It should be a random value, however secureness of the random value is of no great consequence.</p>
+     ; randomNonce is a tweak for the hash function used to prevent some theoretical DoS attacks.
+     ; It should be a random value, however secureness of the random value is of no great consequence.
      ;
-     ; <p>updateFlag is used to control filter behaviour on the server (remote node) side when it encounters a hit.
+     ; updateFlag is used to control filter behaviour on the server (remote node) side when it encounters a hit.
      ; See {@link org.bitcoinj.core.BloomFilter.BloomUpdate} for a brief description of each mode.  The purpose
      ; of this flag is to reduce network round-tripping and avoid over-dirtying the filter for the most common
-     ; wallet configurations.</p>
+     ; wallet configurations.
      ;;
     #_public
     (§ constructor BloomFilter [#_"int" elements, #_"double" __falsePositiveRate, #_"long" __randomNonce, #_"BloomUpdate" __updateFlag]
@@ -4245,7 +4245,7 @@
     (§ method #_"void" merge [#_"BloomFilter" filter]
         (cond (and (not (.. this (matchesAll))) (not (.. filter (matchesAll))))
             (do
-                (Preconditions/checkArgument (and (= (alength (:data filter)) (alength (:data this))) (= (:hash-funcs filter) (:hash-funcs this)) (= (:n-tweak filter) (:n-tweak this))))
+                (assert-argument (and (= (alength (:data filter)) (alength (:data this))) (= (:hash-funcs filter) (:hash-funcs this)) (= (:n-tweak filter) (:n-tweak this))))
 
                 (loop-when-recur [#_"int" i 0] (< i (alength (:data this))) [(inc i)]
                     (aset (:data this) i (| (aget (:data this) i) (aget (:data filter) i)))
@@ -4390,7 +4390,7 @@
 )
 
 ;;;
- ; <p>Vends hard-coded {@link StoredBlock}s for blocks throughout the chain.  Checkpoints serve two purposes:</p>
+ ; Vends hard-coded {@link StoredBlock}s for blocks throughout the chain.  Checkpoints serve two purposes:
  ; <ol>
  ;    <li>They act as a safety mechanism against huge re-orgs that could rewrite large chunks of history, thus
  ;    constraining the block chain to be a consensus mechanism only for recent parts of the timeline.</li>
@@ -4398,19 +4398,19 @@
  ;    headers from the genesis block.</li>
  ; </ol>
  ;
- ; <p>Checkpoints are used by the SPV {@link BlockChain} to initialize fresh {@link org.bitcoinj.store.SPVBlockStore}s.
+ ; Checkpoints are used by the SPV {@link BlockChain} to initialize fresh {@link org.bitcoinj.store.SPVBlockStore}s.
  ; They are not used by fully validating mode, which instead has a different concept of checkpoints that are used
  ; to hard-code the validity of blocks that violate BIP30 (duplicate coinbase transactions).
- ; Those "checkpoints" can be found in NetworkParameters.</p>
+ ; Those "checkpoints" can be found in NetworkParameters.
  ;
- ; <p>The file format consists of the string "CHECKPOINTS 1", followed by a uint32 containing the number of signatures
+ ; The file format consists of the string "CHECKPOINTS 1", followed by a uint32 containing the number of signatures
  ; to read.  The value may not be larger than 256 (so it could have been a byte but isn't for historical reasons).
  ; If the number of signatures is larger than zero, each 65 byte ECDSA secp256k1 signature then follows.  The signatures
- ; sign the hash of all bytes that follow the last signature.</p>
+ ; sign the hash of all bytes that follow the last signature.
  ;
- ; <p>After the signatures come an int32 containing the number of checkpoints in the file.  Then each checkpoint follows
+ ; After the signatures come an int32 containing the number of checkpoints in the file.  Then each checkpoint follows
  ; one after the other.  A checkpoint is 12 bytes for the total work done field, 4 bytes for the height, 80 bytes
- ; for the block header and then 1 zero byte at the end (i.e. number of transactions in the block: always zero).</p>
+ ; for the block header and then 1 zero byte at the end (i.e. number of transactions in the block: always zero).
  ;;
 #_public
 (§ class CheckpointManager
@@ -4453,11 +4453,11 @@
     #_public
     #_throws #_[ "IOException" ]
     (§ constructor CheckpointManager [#_"NetworkParameters" params, #_nilable #_"InputStream" __inputStream]
-        (§ assoc this :params (Preconditions/checkNotNull params))
+        (§ assoc this :params (ensure some? params))
         (when (nil? __inputStream)
             (§ ass __inputStream (CheckpointManager'openStream params))
         )
-        (Preconditions/checkNotNull __inputStream)
+        (ensure some? __inputStream)
         (§ ass __inputStream (BufferedInputStream. __inputStream))
         (.. __inputStream (mark 1))
         (let [#_"int" first (.. __inputStream (read))]
@@ -4499,12 +4499,12 @@
                         (when (not (Arrays/equals header, (.. CheckpointManager'BINARY_MAGIC (getBytes "US-ASCII"))))
                             (throw (IOException. "Header bytes did not match expected version"))
                         )
-                        (dotimes [_ (Preconditions/checkPositionIndex (.. dis (readInt)), CheckpointManager'MAX_SIGNATURES, "Num signatures out of range")]
+                        (dotimes [_ (assert-position-index (.. dis (readInt)), CheckpointManager'MAX_SIGNATURES, "Num signatures out of range")]
                             (.. dis (readFully (byte-array 65))) ;; TODO: Do something with the signature here.
                         )
                         (.. digs (on true))
                         (let [#_"int" n (.. dis (readInt))]
-                            (Preconditions/checkState (< 0 n))
+                            (assert-state (< 0 n))
                             (let [#_"int" size StoredBlock'COMPACT_SERIALIZED_SIZE #_"ByteBuffer" buffer (ByteBuffer/allocate size)]
                                 (dotimes [_ n]
                                     (when (< (.. dis (read (.. buffer (array)), 0, size)) size)
@@ -4550,7 +4550,7 @@
                         (.. reader (readLine)) ;; Skip sigs for now.
                     )
                     (let [#_"int" n (Integer/parseInt (.. reader (readLine)))]
-                        (Preconditions/checkState (< 0 n))
+                        (assert-state (< 0 n))
                         ;; Hash numCheckpoints in a way compatible to the binary format.
                         (.. hasher (putBytes (.. (ByteBuffer/allocate 4) (order ByteOrder/BIG_ENDIAN) (putInt n) (array))))
                         (let [#_"int" size StoredBlock'COMPACT_SERIALIZED_SIZE #_"ByteBuffer" buffer (ByteBuffer/allocate size)]
@@ -4588,7 +4588,7 @@
     #_public
     (§ method #_"StoredBlock" getCheckpointBefore [#_"long" time]
         (try
-            (Preconditions/checkArgument (< (.. (:params this) (getGenesisBlock) (getTimeSeconds)) time))
+            (assert-argument (< (.. (:params this) (getGenesisBlock) (getTimeSeconds)) time))
             ;; This is thread safe because the map never changes after creation.
             (let [#_"Map.Entry<Long, StoredBlock>" entry (.. (:checkpoints this) (floorEntry time))]
                 (when (some? entry)
@@ -4617,23 +4617,23 @@
     )
 
     ;;;
-     ; <p>Convenience method that creates a CheckpointManager, loads the given data, gets the checkpoint for the given
+     ; Convenience method that creates a CheckpointManager, loads the given data, gets the checkpoint for the given
      ; time, then inserts it into the store and sets that to be the chain head.  Useful when you have just created
-     ; a new store from scratch and want to use configure it all in one go.</p>
+     ; a new store from scratch and want to use configure it all in one go.
      ;
-     ; <p>Note that time is adjusted backwards by a week to account for possible clock drift in the block headers.</p>
+     ; Note that time is adjusted backwards by a week to account for possible clock drift in the block headers.
      ;;
     #_public
     #_static
     #_throws #_[ "IOException", "BlockStoreException" ]
     (§ defn #_"void" CheckpointManager'checkpoint [#_"NetworkParameters" params, #_"InputStream" checkpoints, #_"BlockStore" store, #_"long" time]
-        (Preconditions/checkNotNull params)
-        (Preconditions/checkNotNull store)
-        (Preconditions/checkArgument (not (instance? FullPrunedBlockStore store)), "You cannot use checkpointing with a full store.")
+        (ensure some? params)
+        (ensure some? store)
+        (assert-argument (not (instance? FullPrunedBlockStore store)), "You cannot use checkpointing with a full store.")
 
         (§ ass time (- time (* 86400 7)))
 
-        (Preconditions/checkArgument (< 0 time))
+        (assert-argument (< 0 time))
         (.. CheckpointManager'log (info "Attempting to initialize a new block store with a checkpoint for time {} ({})", time, (Utils'dateTimeFormat (* time 1000))))
 
         (let [#_"BufferedInputStream" stream (BufferedInputStream. checkpoints)
@@ -4647,10 +4647,10 @@
 )
 
 ;;;
- ; <p>Represents a Message type that can be contained within another Message.  ChildMessages that have a cached
- ; backing byte array need to invalidate their parent's caches as well as their own if they are modified.</p>
+ ; Represents a Message type that can be contained within another Message.  ChildMessages that have a cached
+ ; backing byte array need to invalidate their parent's caches as well as their own if they are modified.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 #_abstract
@@ -4845,7 +4845,7 @@
     #_public
     #_static
     (§ defn #_"Coin" Coin'valueOf [#_"int" coins, #_"int" cents]
-        (Preconditions/checkArgument (and (<= 0 coins) (<= 0 cents) (< cents 100)))
+        (assert-argument (and (<= 0 coins) (<= 0 cents) (< cents 100)))
 
         (.. Coin'COIN (multiply coins) (add (.. Coin'CENT (multiply cents))))
     )
@@ -4863,7 +4863,7 @@
     (§ defn #_"Coin" Coin'parseCoin [#_"String" str]
         (try
             (let [#_"long" satoshis (.. (BigDecimal. str) (movePointRight Coin'SMALLEST_UNIT_EXPONENT) (longValueExact))]
-                (§ return (Coin'valueOf satoshis))
+                (Coin'valueOf satoshis)
             )
             (catch ArithmeticException e
                 (throw (IllegalArgumentException. e)) ;; Repackage exception to honor method contract.
@@ -4884,7 +4884,7 @@
     (§ defn #_"Coin" Coin'parseCoinInexact [#_"String" str]
         (try
             (let [#_"long" satoshis (.. (BigDecimal. str) (movePointRight Coin'SMALLEST_UNIT_EXPONENT) (longValue))]
-                (§ return (Coin'valueOf satoshis))
+                (Coin'valueOf satoshis)
             )
             (catch ArithmeticException e
                 (throw (IllegalArgumentException. e)) ;; Repackage exception to honor method contract.
@@ -5104,15 +5104,15 @@
 ;; TODO: Move the TorClient into Context, so different parts of the library can read data over Tor without having to request it directly. (or maybe a general socket factory??)
 
 ;;;
- ; <p>The Context object holds various objects and pieces of configuration that are scoped to a specific instantiation of
- ; bitcoinj for a specific network.  You can get an instance of this class through calling {@link #get()}.</p>
+ ; The Context object holds various objects and pieces of configuration that are scoped to a specific instantiation of
+ ; bitcoinj for a specific network.  You can get an instance of this class through calling {@link #get()}.
  ;
- ; <p>Context is new in 0.13 and the library is currently in a transitional period: you should create a Context that
+ ; Context is new in 0.13 and the library is currently in a transitional period: you should create a Context that
  ; wraps your chosen network parameters before using the rest of the library.  However if you don't, things will still
  ; work as a Context will be created for you and stashed in thread local storage.  The context is then propagated between
  ; library created threads as needed.  This automagical propagation and creation is a temporary mechanism: one day it
  ; will be removed to avoid confusing edge cases that could occur if the developer does not fully understand it e.g.
- ; in the case where multiple instances of the library are in use simultaneously.</p>
+ ; in the case where multiple instances of the library are in use simultaneously.
  ;;
 #_public
 (§ class Context
@@ -5256,7 +5256,7 @@
     #_public
     #_static
     (§ defn #_"void" Context'propagate [#_"Context" context]
-        (.. Context'SLOT (set (Preconditions/checkNotNull context)))
+        (.. Context'SLOT (set (ensure some? context)))
         nil
     )
 
@@ -5309,24 +5309,24 @@
 )
 
 ;;;
- ; <p>Represents an elliptic curve public and (optionally) private key, usable for digital signatures but not encryption.
+ ; Represents an elliptic curve public and (optionally) private key, usable for digital signatures but not encryption.
  ; Creating a new ECKey with the empty constructor will generate a new random keypair.  Other static methods can be used
  ; when you already have the public or private parts.  If you create a key with only the public part, you can check
- ; signatures but not create them.</p>
+ ; signatures but not create them.
  ;
- ; <p>ECKey also provides access to Bitcoin Core compatible text message signing, as accessible via the UI or JSON-RPC.
+ ; ECKey also provides access to Bitcoin Core compatible text message signing, as accessible via the UI or JSON-RPC.
  ; This is slightly different to signing raw bytes - if you want to sign your own data and it won't be exposed as
- ; text to people, you don't want to use this.  If in doubt, ask on the mailing list.</p>
+ ; text to people, you don't want to use this.  If in doubt, ask on the mailing list.
  ;
- ; <p>The ECDSA algorithm supports <i>key recovery</i> in which a signature plus a couple of discriminator bits can
+ ; The ECDSA algorithm supports <i>key recovery</i> in which a signature plus a couple of discriminator bits can
  ; be reversed to find the public key used to calculate it.  This can be convenient when you have a message and a
- ; signature and want to find out who signed it, rather than requiring the user to provide the expected identity.</p>
+ ; signature and want to find out who signed it, rather than requiring the user to provide the expected identity.
  ;
- ; <p>This class supports a variety of serialization forms.  The methods that accept/return byte arrays serialize
+ ; This class supports a variety of serialization forms.  The methods that accept/return byte arrays serialize
  ; private keys as raw byte arrays and public keys using the SEC standard byte encoding for public keys.  Signatures
- ; are encoded using ASN.1/DER inside the Bitcoin protocol.</p>
+ ; are encoded using ASN.1/DER inside the Bitcoin protocol.
  ;
- ; <p>A key can be <i>compressed</i> or <i>uncompressed</i>.  This refers to whether the public key is represented
+ ; A key can be <i>compressed</i> or <i>uncompressed</i>.  This refers to whether the public key is represented
  ; when encoded into bytes as an (x, y) coordinate on the elliptic curve, or whether it's represented as just an X
  ; co-ordinate and an extra byte that carries a sign bit.  With the latter form the Y coordinate can be calculated
  ; dynamically, however, <b>because the binary serialization is different the address of a key changes if its
@@ -5334,7 +5334,7 @@
  ; to a compressed version of the key will have a different address to the same key in uncompressed form.  Whether
  ; a public key is compressed or not is recorded in the SEC binary serialisation format, and preserved in a flag in
  ; this class so round-tripping preserves state.  Unless you're working with old software or doing unusual things, you
- ; can usually ignore the compressed/uncompressed distinction.</p>
+ ; can usually ignore the compressed/uncompressed distinction.
  ;;
 #_public
 (§ class ECKey (§ implements EncryptableItem)
@@ -5450,22 +5450,22 @@
 
     #_protected
     (§ constructor ECKey [#_nilable #_"BigInteger" priv, #_"ECPoint" pub]
-        (§ this priv, (LazyECPoint. (Preconditions/checkNotNull pub)))
+        (§ this priv, (LazyECPoint. (ensure some? pub)))
         this
     )
 
     #_protected
     (§ constructor ECKey [#_nilable #_"BigInteger" priv, #_"LazyECPoint" pub]
         (when (some? priv)
-            (Preconditions/checkArgument (<= (.. priv (bitLength)) (<< 32 3)), "private key exceeds 32 bytes: {} bits", (.. priv (bitLength)))
+            (assert-argument (<= (.. priv (bitLength)) (<< 32 3)), "private key exceeds 32 bytes: {} bits", (.. priv (bitLength)))
             ;; Try and catch buggy callers or bad key imports, etc.  Zero and one are special because these are often
             ;; used as sentinel values and because scripting languages have a habit of auto-casting true and false to
             ;; 1 and 0 or vice-versa.  Type confusion bugs could therefore result in private keys with these values.
-            (Preconditions/checkArgument (not (.. priv (equals BigInteger/ZERO))))
-            (Preconditions/checkArgument (not (.. priv (equals BigInteger/ONE))))
+            (assert-argument (not (.. priv (equals BigInteger/ZERO))))
+            (assert-argument (not (.. priv (equals BigInteger/ONE))))
         )
         (§ assoc this :priv priv)
-        (§ assoc this :pub (Preconditions/checkNotNull pub))
+        (§ assoc this :pub (ensure some? pub))
         this
     )
 
@@ -5586,8 +5586,8 @@
     #_public
     #_static
     (§ defn #_"ECKey" ECKey'fromPrivateAndPrecalculatedPublic [#_"byte[]" priv, #_"byte[]" pub]
-        (Preconditions/checkNotNull priv)
-        (Preconditions/checkNotNull pub)
+        (ensure some? priv)
+        (ensure some? pub)
         (ECKey. (BigInteger. 1, priv), (.. ECKey'CURVE (getCurve) (decodePoint pub)))
     )
 
@@ -5995,7 +5995,7 @@
             (§ return (TransactionSignature'dummy))
         )
 
-        (Preconditions/checkNotNull __privateKeyForSigning)
+        (ensure some? __privateKeyForSigning)
 
         (let [#_"ECDSASigner" signer (ECDSASigner. (HMacDSAKCalculator. (SHA256Digest.)))
               #_"ECPrivateKeyParameters" __privKey (ECPrivateKeyParameters. __privateKeyForSigning, ECKey'CURVE)]
@@ -6007,10 +6007,10 @@
     )
 
     ;;;
-     ; <p>Verifies the given ECDSA signature against the message bytes using the public key bytes.</p>
+     ; Verifies the given ECDSA signature against the message bytes using the public key bytes.
      ;
-     ; <p>When using native ECDSA verification, data must be 32 bytes, and no element may be
-     ; larger than 520 bytes.</p>
+     ; When using native ECDSA verification, data must be 32 bytes, and no element may be
+     ; larger than 520 bytes.
      ;
      ; @param data      Hash of the data to verify.
      ; @param signature ASN.1 encoded signature.
@@ -6127,23 +6127,23 @@
         (try
             (let [#_"ASN1InputStream" decoder (ASN1InputStream. asn1privkey)
                   #_"DLSequence" seq (cast DLSequence (.. decoder (readObject)))]
-                (Preconditions/checkArgument (nil? (.. decoder (readObject))), "Input contains extra bytes")
+                (assert-argument (nil? (.. decoder (readObject))), "Input contains extra bytes")
                 (.. decoder (close))
 
-                (Preconditions/checkArgument (= (.. seq (size)) 4), "Input does not appear to be an ASN.1 OpenSSL EC private key")
+                (assert-argument (= (.. seq (size)) 4), "Input does not appear to be an ASN.1 OpenSSL EC private key")
 
-                (Preconditions/checkArgument (.. (cast ASN1Integer (.. seq (getObjectAt 0))) (getValue) (equals BigInteger/ONE)), "Input is of wrong version")
+                (assert-argument (.. (cast ASN1Integer (.. seq (getObjectAt 0))) (getValue) (equals BigInteger/ONE)), "Input is of wrong version")
 
                 (let [#_"byte[]" privbits (.. (cast ASN1OctetString (.. seq (getObjectAt 1))) (getOctets))
                       #_"BigInteger" privkey (BigInteger. 1, privbits)]
 
                     (let [#_"ASN1TaggedObject" pubkey (cast ASN1TaggedObject (.. seq (getObjectAt 3)))]
-                        (Preconditions/checkArgument (= (.. pubkey (getTagNo)) 1), "Input has 'publicKey' with bad tag number")
+                        (assert-argument (= (.. pubkey (getTagNo)) 1), "Input has 'publicKey' with bad tag number")
                         (let [#_"byte[]" pubbits (.. (cast DERBitString (.. pubkey (getObject))) (getBytes))]
-                            (Preconditions/checkArgument (any = (alength pubbits) 33 65), "Input has 'publicKey' with invalid length")
+                            (assert-argument (any = (alength pubbits) 33 65), "Input has 'publicKey' with invalid length")
                             (let [#_"int" encoding (& 0xff (aget pubbits 0))]
                                 ;; Only allow compressed(2,3) and uncompressed(4), not infinity(0) or hybrid(6,7).
-                                (Preconditions/checkArgument (<= 2 encoding 4), "Input has 'publicKey' with invalid encoding")
+                                (assert-argument (<= 2 encoding 4), "Input has 'publicKey' with invalid encoding")
 
                                 ;; Now sanity check to ensure the pubkey bytes match the privkey.
                                 (let [#_"boolean" compressed (= (alength pubbits) 33)
@@ -6274,18 +6274,18 @@
     )
 
     ;;;
-     ; <p>Given the components of a signature and a selector value, recover and return the public key
-     ; that generated the signature according to the algorithm in SEC1v2 section 4.1.6.</p>
+     ; Given the components of a signature and a selector value, recover and return the public key
+     ; that generated the signature according to the algorithm in SEC1v2 section 4.1.6.
      ;
-     ; <p>The recId is an index from 0 to 3 which indicates which of the 4 possible keys is the correct one.  Because
+     ; The recId is an index from 0 to 3 which indicates which of the 4 possible keys is the correct one.  Because
      ; the key recovery operation yields multiple potential keys, the correct key must either be stored alongside the
      ; signature, or you must be willing to try each recId in turn until you find one that outputs the key you are
-     ; expecting.</p>
+     ; expecting.
      ;
-     ; <p>If this method returns null it means recovery was not possible and recId should be iterated.</p>
+     ; If this method returns null it means recovery was not possible and recId should be iterated.
      ;
-     ; <p>Given the above two points, a correct usage of this method is inside a for loop from 0 to 3, and if the
-     ; output is null OR a key that is not the one you expect, you try again with the next recId.</p>
+     ; Given the above two points, a correct usage of this method is inside a for loop from 0 to 3, and if the
+     ; output is null OR a key that is not the one you expect, you try again with the next recId.
      ;
      ; @param recId Which possible key to recover.
      ; @param sig The R and S components of the signature, wrapped.
@@ -6297,10 +6297,10 @@
     #_public
     #_static
     (§ defn #_"ECKey" ECKey'recoverFromSignature [#_"int" __recId, #_"ECDSASignature" sig, #_"Sha256Hash" message, #_"boolean" compressed]
-        (Preconditions/checkArgument (<= 0 __recId), "recId must be positive")
-        (Preconditions/checkArgument (<= 0 (.. (:r sig) (signum))), "r must be positive")
-        (Preconditions/checkArgument (<= 0 (.. (:s sig) (signum))), "s must be positive")
-        (Preconditions/checkNotNull message)
+        (assert-argument (<= 0 __recId), "recId must be positive")
+        (assert-argument (<= 0 (.. (:r sig) (signum))), "r must be positive")
+        (assert-argument (<= 0 (.. (:s sig) (signum))), "s must be positive")
+        (ensure some? message)
 
         ;; 1.0 For j from 0 to h   (h == recId here and the loop is outside this function)
         ;;   1.1 Let x = r + jn
@@ -6506,10 +6506,10 @@
 )
 
 ;;;
- ; <p>Parent class for header only messages that don't have a payload.
- ; Currently this includes getaddr, verack and special bitcoinj class UnknownMessage.</p>
+ ; Parent class for header only messages that don't have a payload.
+ ; Currently this includes getaddr, verack and special bitcoinj class UnknownMessage.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 #_abstract
@@ -6557,10 +6557,10 @@
 )
 
 ;;;
- ; <p>A FilteredBlock is used to relay a block with its transactions filtered using a {@link BloomFilter}.  It consists
- ; of the block header and a {@link PartialMerkleTree} which contains the transactions which matched the filter.</p>
+ ; A FilteredBlock is used to relay a block with its transactions filtered using a {@link BloomFilter}.  It consists
+ ; of the block header and a {@link PartialMerkleTree} which contains the transactions which matched the filter.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class FilteredBlock (§ extends Message)
@@ -6718,12 +6718,12 @@
 )
 
 ;;;
- ; <p>A FullPrunedBlockChain works in conjunction with a {@link FullPrunedBlockStore} to verify all the rules of the
+ ; A FullPrunedBlockChain works in conjunction with a {@link FullPrunedBlockStore} to verify all the rules of the
  ; Bitcoin system, with the downside being a large cost in system resources.  Fully verifying means all unspent
  ; transaction outputs are stored.  Once a transaction output is spent and that spend is buried deep enough, the data
  ; related to it is deleted to ensure disk space usage doesn't grow forever.  For this reason a pruning node cannot
  ; serve the full block chain to other clients, but it nevertheless provides the same security guarantees as Bitcoin
- ; Core does.</p>
+ ; Core does.
  ;;
 #_public
 (§ class FullPrunedBlockChain (§ extends AbstractBlockChain)
@@ -6886,10 +6886,10 @@
                     (loop-when-recur [#_"int" index 0] (< index (.. (:tx this) (getInputs) (size))) [(inc index)]
                         (.. (:tx this) (getInputs) (get index) (getScriptSig) (correctlySpends (:tx this), index, (.. __prevOutIt (next)), (:verify-flags this)))
                     )
-                    (§ return nil)
+                    nil
                 )
                 (catch VerificationException e
-                    (§ return e)
+                    e
                 )
             )
         )
@@ -6932,7 +6932,7 @@
     #_protected
     #_throws #_[ "VerificationException", "BlockStoreException" ]
     (§ method #_"TransactionOutputChanges" connectTransactions [#_"int" height, #_"Block" block]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         (when (nil? (:transactions block))
             (throw (RuntimeException. "connectTransactions called with Block that didn't have transactions!"))
@@ -7098,7 +7098,7 @@
     #_synchronized
     #_throws #_[ "VerificationException", "BlockStoreException", "PrunedException" ]
     (§ method #_"TransactionOutputChanges" connectTransactions [#_"StoredBlock" __newBlock]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
         (when (not (.. (:params this) (passesCheckpoint (.. __newBlock (getHeight)), (.. __newBlock (getHeader) (getHash)))))
             (throw (VerificationException. (str "Block failed checkpoint lockin at " (.. __newBlock (getHeight)))))
         )
@@ -7283,7 +7283,7 @@
     #_protected
     #_throws #_[ "PrunedException", "BlockStoreException" ]
     (§ method #_"void" disconnectTransactions [#_"StoredBlock" __oldBlock]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
         (.. (:block-store this) (beginDatabaseBatchWrite))
         (try
             (let [#_"StoredUndoableBlock" __undoBlock (.. (:block-store this) (getUndoBlock (.. __oldBlock (getHeader) (getHash))))]
@@ -7316,7 +7316,7 @@
     #_protected
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"void" doSetChainHead [#_"StoredBlock" __chainHead]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
         (.. (:block-store this) (setVerifiedChainHead __chainHead))
         (.. (:block-store this) (commitDatabaseBatchWrite))
         nil
@@ -7334,16 +7334,16 @@
     #_protected
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"StoredBlock" getStoredBlockInCurrentScope [#_"Sha256Hash" hash]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
         (.. (:block-store this) (getOnceUndoableStoredBlock hash))
     )
 )
 
 ;;;
- ; <p>Represents the "getaddr" P2P protocol message, which requests network {@link AddressMessage}s from a peer.
- ; Not to be confused with {@link Address} which is sort of like an account number.</p>
+ ; Represents the "getaddr" P2P protocol message, which requests network {@link AddressMessage}s from a peer.
+ ; Not to be confused with {@link Address} which is sort of like an account number.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class GetAddrMessage (§ extends EmptyMessage)
@@ -7355,10 +7355,10 @@
 )
 
 ;;;
- ; <p>Represents the "getblocks" P2P network message, which requests the hashes of the parts of the block chain we're missing.
- ; Those blocks can then be downloaded with a {@link GetDataMessage}.</p>
+ ; Represents the "getblocks" P2P network message, which requests the hashes of the parts of the block chain we're missing.
+ ; Those blocks can then be downloaded with a {@link GetDataMessage}.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class GetBlocksMessage (§ extends Message)
@@ -7469,9 +7469,9 @@
 )
 
 ;;;
- ; <p>Represents the "getdata" P2P network message, which requests the contents of blocks or transactions given their hashes.</p>
+ ; Represents the "getdata" P2P network message, which requests the contents of blocks or transactions given their hashes.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class GetDataMessage (§ extends ListMessage)
@@ -7529,12 +7529,12 @@
 )
 
 ;;;
- ; <p>The "getheaders" command is structurally identical to "getblocks", but has different meaning.  On receiving this
+ ; The "getheaders" command is structurally identical to "getblocks", but has different meaning.  On receiving this
  ; message a Bitcoin node returns matching blocks up to the limit, but without the bodies.  It is useful as an
  ; optimization: when your wallet does not contain any keys created before a particular time, you don't have to download
- ; the bodies for those blocks because you know there are no relevant transactions.</p>
+ ; the bodies for those blocks because you know there are no relevant transactions.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class GetHeadersMessage (§ extends GetBlocksMessage)
@@ -7588,11 +7588,11 @@
 )
 
 ;;;
- ; <p>A protocol message that contains a repeated series of block headers, sent in response to the "getheaders" command.
+ ; A protocol message that contains a repeated series of block headers, sent in response to the "getheaders" command.
  ; This is useful when you want to traverse the chain but know you don't care about the block contents, for example,
- ; because you have a freshly created wallet with no keys.</p>
+ ; because you have a freshly created wallet with no keys.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class HeadersMessage (§ extends Message)
@@ -7711,7 +7711,7 @@
     #_public
     (§ constructor InsufficientMoneyException [#_"Coin" missing, #_"String" message]
         (§ super message)
-        (§ assoc this :missing (Preconditions/checkNotNull missing))
+        (§ assoc this :missing (ensure some? missing))
         this
     )
 )
@@ -7775,12 +7775,12 @@
 )
 
 ;;;
- ; <p>Represents the "inv" P2P network message.  An inv contains a list of hashes of either blocks or transactions.
+ ; Represents the "inv" P2P network message.  An inv contains a list of hashes of either blocks or transactions.
  ; It's a bandwidth optimization - on receiving some data, a (fully validating) peer sends every connected peer an inv
  ; containing the hash of what it saw.  It'll only transmit the full thing if a peer asks for it with a
- ; {@link GetDataMessage}.</p>
+ ; {@link GetDataMessage}.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class InventoryMessage (§ extends ListMessage)
@@ -7834,7 +7834,7 @@
     #_public
     #_static
     (§ defn #_"InventoryMessage" InventoryMessage'with [#_"Transaction..." txs]
-        (Preconditions/checkArgument (< 0 (alength txs)))
+        (assert-argument (< 0 (alength txs)))
         (let [#_"InventoryMessage" result (InventoryMessage. (.. (aget txs 0) (getParams)))]
             (doseq [#_"Transaction" tx txs]
                 (.. result (addTransaction tx))
@@ -7845,9 +7845,9 @@
 )
 
 ;;;
- ; <p>Abstract superclass of classes with list based payload, i.e. InventoryMessage and GetDataMessage.</p>
+ ; Abstract superclass of classes with list based payload, i.e. InventoryMessage and GetDataMessage.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 #_abstract
@@ -7976,13 +7976,13 @@
 )
 
 ;;;
- ; <p>The "mempool" message asks a remote peer to announce all transactions in its memory pool, possibly restricted by
+ ; The "mempool" message asks a remote peer to announce all transactions in its memory pool, possibly restricted by
  ; any Bloom filter set on the connection.  The list of transaction hashes comes back in an inv message.  Note that
  ; this is different to the {@link TxConfidenceTable} object which doesn't try to keep track of all pending transactions,
  ; it's just a holding area for transactions that a part of the app may find interesting.  The mempool message has
- ; no fields.</p>
+ ; no fields.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class MemoryPoolMessage (§ extends Message)
@@ -8002,10 +8002,10 @@
 )
 
 ;;;
- ; <p>A Message is a data structure that can be serialized/deserialized using the Bitcoin serialization format.
- ; Specific types of messages that are used both in the block chain, and on the wire, are derived from this class.</p>
+ ; A Message is a data structure that can be serialized/deserialized using the Bitcoin serialization format.
+ ; Specific types of messages that are used both in the block chain, and on the wire, are derived from this class.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 #_abstract
@@ -8090,7 +8090,7 @@
         (.. this (parse))
 
         (when (= (:length this) Message'UNKNOWN_LENGTH)
-            (Preconditions/checkState false, "Length field has not been set in constructor for %s after parse.", (.. (getClass) (getSimpleName)))
+            (assert-state false, "Length field has not been set in constructor for %s after parse.", (.. (getClass) (getSimpleName)))
         )
 
         (when Message'SELF_CHECK
@@ -8140,10 +8140,11 @@
     (§ method #_"void" parse [])
 
     ;;;
-     ; <p>To be called before any change of internal values including any setters.  This ensures any cached byte array is
-     ; removed.<p/>
-     ; <p>Child messages of this object (e.g. Transactions belonging to a Block) will not have their internal byte caches
-     ; invalidated unless they are also modified internally.</p>
+     ; To be called before any change of internal values including any setters.  This ensures
+     ; any cached byte array is removed.
+     ;
+     ; Child messages of this object (e.g. Transactions belonging to a Block) will not have
+     ; their internal byte caches invalidated unless they are also modified internally.
      ;;
     #_protected
     (§ method #_"void" unCache []
@@ -8315,7 +8316,7 @@
     #_public
     (§ method #_"int" getMessageSize []
         (when (= (:length this) Message'UNKNOWN_LENGTH)
-            (Preconditions/checkState false, "Length field has not been set in %s.", (.. (getClass) (getSimpleName)))
+            (assert-state false, "Length field has not been set in %s.", (.. (getClass) (getSimpleName)))
         )
         (:length this)
     )
@@ -8326,7 +8327,7 @@
         (try
             (let [#_"long" u (Utils'readUint32 (:payload this), (:cursor this))]
                 (§ assoc this :cursor (+ (:cursor this) 4))
-                (§ return u)
+                u
             )
             (catch ArrayIndexOutOfBoundsException e
                 (throw (ProtocolException. e))
@@ -8340,7 +8341,7 @@
         (try
             (let [#_"long" u (Utils'readInt64 (:payload this), (:cursor this))]
                 (§ assoc this :cursor (+ (:cursor this) 8))
-                (§ return u)
+                u
             )
             (catch ArrayIndexOutOfBoundsException e
                 (throw (ProtocolException. e))
@@ -8367,7 +8368,7 @@
         (try
             (let [#_"VarInt" varint (VarInt. (:payload this), (+ (:cursor this) offset))]
                 (§ assoc this :cursor (+ (:cursor this) offset (.. varint (getOriginalSizeInBytes))))
-                (§ return (:value varint))
+                (:value varint)
             )
             (catch ArrayIndexOutOfBoundsException e
                 (throw (ProtocolException. e))
@@ -8386,7 +8387,7 @@
             (let [#_"byte[]" b (byte-array length)]
                 (System/arraycopy (:payload this), (:cursor this), b, 0, length)
                 (§ assoc this :cursor (+ (:cursor this) length))
-                (§ return b)
+                b
             )
             (catch IndexOutOfBoundsException e
                 (throw (ProtocolException. e))
@@ -8655,12 +8656,12 @@
 (def #_"int" ProtocolVersion'CURRENT 70001)
 
 ;;;
- ; <p>NetworkParameters contains the data needed for working with an instantiation of a Bitcoin chain.</p>
+ ; NetworkParameters contains the data needed for working with an instantiation of a Bitcoin chain.
  ;
- ; <p>This is an abstract class, concrete instantiations can be found in the params package.  There are four:
+ ; This is an abstract class, concrete instantiations can be found in the params package.  There are four:
  ; one for the main network ({@link MainNetParams}), one for the public test network, and two others that are
  ; intended for unit testing and local app development purposes.  Although this class contains some aliases for
- ; them, you are encouraged to call the static get() methods on each specific params class directly.</p>
+ ; them, you are encouraged to call the static get() methods on each specific params class directly.
  ;;
 #_public
 #_abstract
@@ -8939,15 +8940,15 @@
     )
 
     ;;;
-     ; <p>Genesis block for this chain.</p>
+     ; Genesis block for this chain.
      ;
-     ; <p>The first block in every chain is a well known constant shared between all Bitcoin implemenetations.
+     ; The first block in every chain is a well known constant shared between all Bitcoin implemenetations.
      ; For a block to be valid, it must be eventually possible to work backwards to the genesis block by following
-     ; the prevBlockHash pointers in the block headers.</p>
+     ; the prevBlockHash pointers in the block headers.
      ;
-     ; <p>The genesis blocks for both test and main networks contain the timestamp of when they were created,
+     ; The genesis blocks for both test and main networks contain the timestamp of when they were created,
      ; and a message in the coinbase transaction.  It says,
-     ; <i>"The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"</i>.</p>
+     ; <i>"The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"</i>.
      ;;
     #_public
     (§ method #_"Block" getGenesisBlock []
@@ -9195,10 +9196,10 @@
 )
 
 ;;;
- ; <p>Sent by a peer when a getdata request doesn't find the requested data in the mempool.  It has the same format
- ; as an inventory message and lists the hashes of the missing items.</p>
+ ; Sent by a peer when a getdata request doesn't find the requested data in the mempool.  It has the same format
+ ; as an inventory message and lists the hashes of the missing items.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class NotFoundMessage (§ extends InventoryMessage)
@@ -9228,30 +9229,30 @@
 )
 
 ;;;
- ; <p>A data structure that contains proofs of block inclusion for one or more transactions, in an efficient manner.</p>
+ ; A data structure that contains proofs of block inclusion for one or more transactions, in an efficient manner.
  ;
- ; <p>The encoding works as follows: we traverse the tree in depth-first order, storing a bit for each traversed node,
+ ; The encoding works as follows: we traverse the tree in depth-first order, storing a bit for each traversed node,
  ; signifying whether the node is the parent of at least one matched leaf txid (or a matched txid itself).  In case we
  ; are at the leaf level, or this bit is 0, its merkle node hash is stored, and its children are not explored further.
  ; Otherwise, no hash is stored, but we recurse into both (or the only) child branch.  During decoding, the same
- ; depth-first traversal is performed, consuming bits and hashes as they were written during encoding.</p>
+ ; depth-first traversal is performed, consuming bits and hashes as they were written during encoding.
  ;
- ; <p>The serialization is fixed and provides a hard guarantee about the encoded size,
+ ; The serialization is fixed and provides a hard guarantee about the encoded size,
  ; <tt>SIZE &lt;= 10 + ceil(32.25 * N)</tt> where N represents the number of leaf nodes of the partial tree.
- ; N itself is bounded by:</p>
+ ; N itself is bounded by:
  ;
  ; N &lt;= total_transactions
  ; N &lt;= 1 + matched_transactions * tree_height
  ;
- ; <p><pre>The serialization format:
+ ; <pre>The serialization format:
  ;  - uint32     total_transactions (4 bytes)
  ;  - varint     number of hashes (1-3 bytes)
  ;  - uint256[]  hashes in depth-first order (&lt;= 32*N bytes)
  ;  - varint     number of bytes of flag bits (1-3 bytes)
  ;  - byte[]     flag bits, packed per 8 in a byte, least significant bit first (&lt;= 2*N-1 bits)
- ; The size constraints follow from this.</pre></p>
+ ; The size constraints follow from this.</pre>
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class PartialMerkleTree (§ extends Message)
@@ -9566,13 +9567,13 @@
 )
 
 ;;;
- ; <p>A Peer handles the high level communication with a Bitcoin node, extending a {@link PeerSocketHandler} which
- ; handles low-level message (de)serialization.</p>
+ ; A Peer handles the high level communication with a Bitcoin node, extending a {@link PeerSocketHandler} which
+ ; handles low-level message (de)serialization.
  ;
- ; <p>Note that timeouts are handled by the extended
+ ; Note that timeouts are handled by the extended
  ; {@link org.bitcoinj.net.AbstractTimeoutHandler} and timeout is automatically disabled (using
  ; {@link org.bitcoinj.net.AbstractTimeoutHandler#setTimeoutEnabled(boolean)}) once the version
- ; handshake completes.</p>
+ ; handshake completes.
  ;;
 #_public
 (§ class Peer (§ extends PeerSocketHandler)
@@ -9733,23 +9734,23 @@
             #_nilable
             #_public
             (§ method #_"Peer" apply [#_nilable #_"List<Peer>" peers]
-                (Preconditions/checkNotNull peers)
-                (Preconditions/checkState (and (= (.. peers (size)) 2) (= (.. peers (get 0)) (.. peers (get 1)))))
+                (ensure some? peers)
+                (assert-state (and (= (.. peers (size)) 2) (= (.. peers (get 0)) (.. peers (get 1)))))
                 (.. peers (get 0))
             )
         )))
 
     ;;;
-     ; <p>Construct a peer that reads/writes from the given block chain.</p>
+     ; Construct a peer that reads/writes from the given block chain.
      ;
-     ; <p>Note that this does <b>NOT</b> make a connection to the given remoteAddress, it only creates a handler
+     ; Note that this does <b>NOT</b> make a connection to the given remoteAddress, it only creates a handler
      ; for a connection.  If you want to create a one-off connection, create a Peer and pass it to
      ; {@link org.bitcoinj.net.NioClientManager#openConnection(java.net.SocketAddress, StreamConnection)}
      ; or
-     ; {@link org.bitcoinj.net.NioClient#NioClient(java.net.SocketAddress, StreamConnection, int)}.</p>
+     ; {@link org.bitcoinj.net.NioClient#NioClient(java.net.SocketAddress, StreamConnection, int)}.
      ;
-     ; <p>The remoteAddress provided should match the remote address of the peer which is being connected to,
-     ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.</p>
+     ; The remoteAddress provided should match the remote address of the peer which is being connected to,
+     ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.
      ;;
     #_public
     (§ constructor Peer [#_"NetworkParameters" params, #_"VersionMessage" ver, #_nilable #_"AbstractBlockChain" chain, #_"PeerAddress" __remoteAddress]
@@ -9758,18 +9759,18 @@
     )
 
     ;;;
-     ; <p>Construct a peer that reads/writes from the given block chain.  Transactions stored in a {@link org.bitcoinj.core.TxConfidenceTable}
+     ; Construct a peer that reads/writes from the given block chain.  Transactions stored in a {@link org.bitcoinj.core.TxConfidenceTable}
      ; will have their confidence levels updated when a peer announces it, to reflect the greater likelyhood that
-     ; the transaction is valid.</p>
+     ; the transaction is valid.
      ;
-     ; <p>Note that this does <b>NOT</b> make a connection to the given remoteAddress, it only creates a handler
+     ; Note that this does <b>NOT</b> make a connection to the given remoteAddress, it only creates a handler
      ; for a connection.  If you want to create a one-off connection, create a Peer and pass it to
      ; {@link org.bitcoinj.net.NioClientManager#openConnection(java.net.SocketAddress, StreamConnection)}
      ; or
-     ; {@link org.bitcoinj.net.NioClient#NioClient(java.net.SocketAddress, StreamConnection, int)}.</p>
+     ; {@link org.bitcoinj.net.NioClient#NioClient(java.net.SocketAddress, StreamConnection, int)}.
      ;
-     ; <p>The remoteAddress provided should match the remote address of the peer which is being connected to,
-     ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.</p>
+     ; The remoteAddress provided should match the remote address of the peer which is being connected to,
+     ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.
      ;;
     #_public
     (§ constructor Peer [#_"NetworkParameters" params, #_"VersionMessage" ver, #_"PeerAddress" __remoteAddress, #_nilable #_"AbstractBlockChain" chain]
@@ -9778,25 +9779,25 @@
     )
 
     ;;;
-     ; <p>Construct a peer that reads/writes from the given block chain.  Transactions stored in a {@link org.bitcoinj.core.TxConfidenceTable}
+     ; Construct a peer that reads/writes from the given block chain.  Transactions stored in a {@link org.bitcoinj.core.TxConfidenceTable}
      ; will have their confidence levels updated when a peer announces it, to reflect the greater likelyhood that
-     ; the transaction is valid.</p>
+     ; the transaction is valid.
      ;
-     ; <p>Note that this does <b>NOT</b> make a connection to the given remoteAddress, it only creates a handler
+     ; Note that this does <b>NOT</b> make a connection to the given remoteAddress, it only creates a handler
      ; for a connection.  If you want to create a one-off connection, create a Peer and pass it to
      ; {@link org.bitcoinj.net.NioClientManager#openConnection(java.net.SocketAddress, StreamConnection)}
      ; or
-     ; {@link org.bitcoinj.net.NioClient#NioClient(java.net.SocketAddress, StreamConnection, int)}.</p>
+     ; {@link org.bitcoinj.net.NioClient#NioClient(java.net.SocketAddress, StreamConnection, int)}.
      ;
-     ; <p>The remoteAddress provided should match the remote address of the peer which is being connected to,
-     ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.</p>
+     ; The remoteAddress provided should match the remote address of the peer which is being connected to,
+     ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.
      ;;
     #_public
     (§ constructor Peer [#_"NetworkParameters" params, #_"VersionMessage" ver, #_"PeerAddress" __remoteAddress, #_nilable #_"AbstractBlockChain" chain, #_"int" __downloadTxDependencyDepth]
         (§ super params, __remoteAddress)
 
-        (§ assoc this :params (Preconditions/checkNotNull params))
-        (§ assoc this :version-message (Preconditions/checkNotNull ver))
+        (§ assoc this :params (ensure some? params))
+        (§ assoc this :version-message (ensure some? ver))
         (§ assoc this :v-download-tx-dependency-depth (if (some? chain) __downloadTxDependencyDepth 0))
         (§ assoc this :block-chain chain) ;; Allowed to be nil.
         (§ assoc this :v-download-data (some? chain))
@@ -9821,18 +9822,18 @@
     )
 
     ;;;
-     ; <p>Construct a peer that reads/writes from the given chain.  Automatically creates a VersionMessage for you from
+     ; Construct a peer that reads/writes from the given chain.  Automatically creates a VersionMessage for you from
      ; the given software name/version strings, which should be something like "MySimpleTool", "1.0" and which will tell
-     ; the remote node to relay transaction inv messages before it has received a filter.</p>
+     ; the remote node to relay transaction inv messages before it has received a filter.
      ;
-     ; <p>Note that this does <b>NOT</b> make a connection to the given remoteAddress, it only creates a handler
+     ; Note that this does <b>NOT</b> make a connection to the given remoteAddress, it only creates a handler
      ; for a connection. If you want to create a one-off connection, create a Peer and pass it to
      ; {@link org.bitcoinj.net.NioClientManager#openConnection(java.net.SocketAddress, StreamConnection)}
      ; or
-     ; {@link org.bitcoinj.net.NioClient#NioClient(java.net.SocketAddress, StreamConnection, int)}.</p>
+     ; {@link org.bitcoinj.net.NioClient#NioClient(java.net.SocketAddress, StreamConnection, int)}.
      ;
-     ; <p>The remoteAddress provided should match the remote address of the peer which is being connected to,
-     ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.</p>
+     ; The remoteAddress provided should match the remote address of the peer which is being connected to,
+     ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.
      ;;
     #_public
     (§ constructor Peer [#_"NetworkParameters" params, #_"AbstractBlockChain" __blockChain, #_"PeerAddress" __peerAddress, #_"String" __thisSoftwareName, #_"String" __thisSoftwareVersion]
@@ -10269,7 +10270,7 @@
             )
 
             (try
-                (Preconditions/checkState (not __downloadBlockBodies), (.. this (toString)))
+                (assert-state (not __downloadBlockBodies), (.. this (toString)))
 
                 (loop-when-recur [#_"int" i 0] (< i (.. m (getBlockHeaders) (size))) [(inc i)]
                     (let [#_"Block" header (.. m (getBlockHeaders) (get i))]
@@ -10481,25 +10482,25 @@
     )
 
     ;;;
-     ; <p>Returns a future that wraps a list of all transactions that the given transaction depends on, recursively.
+     ; Returns a future that wraps a list of all transactions that the given transaction depends on, recursively.
      ; Only transactions in peers memory pools are included; the recursion stops at transactions that are in the
      ; current best chain.  So it doesn't make much sense to provide a tx that was already in the best chain and
-     ; a precondition checks this.</p>
+     ; a precondition checks this.
      ;
-     ; <p>For example, if tx has 2 inputs that connect to transactions A and B, and transaction B is unconfirmed and
+     ; For example, if tx has 2 inputs that connect to transactions A and B, and transaction B is unconfirmed and
      ; has one input connecting to transaction C that is unconfirmed, and transaction C connects to transaction D
-     ; that is in the chain, then this method will return either {B, C} or {C, B}.  No ordering is guaranteed.</p>
+     ; that is in the chain, then this method will return either {B, C} or {C, B}.  No ordering is guaranteed.
      ;
-     ; <p>This method is useful for apps that want to learn about how long an unconfirmed transaction might take
+     ; This method is useful for apps that want to learn about how long an unconfirmed transaction might take
      ; to confirm, by checking for unexpectedly time locked transactions, unusually deep dependency trees or fee-paying
-     ; transactions that depend on unconfirmed free transactions.</p>
+     ; transactions that depend on unconfirmed free transactions.
      ;
-     ; <p>Note that dependencies downloaded this way will not trigger the onTransaction method of event listeners.</p>
+     ; Note that dependencies downloaded this way will not trigger the onTransaction method of event listeners.
      ;;
     #_public
     (§ method #_"ListenableFuture<List<Transaction>>" downloadDependencies [#_"Transaction" tx]
         (let [#_"ConfidenceType" __txConfidence (.. tx (getConfidence) (getConfidenceType))]
-            (Preconditions/checkArgument (not= __txConfidence ConfidenceType'BUILDING))
+            (assert-argument (not= __txConfidence ConfidenceType'BUILDING))
             (.. Peer'log (info "{}: Downloading dependencies of {}", (.. this (getAddress)), (.. tx (getHashAsString))))
             (let [#_"LinkedList<Transaction>" results (LinkedList. #_"<>")]
                 ;; future will be invoked when the entire dependency tree has been walked and the results compiled.
@@ -10693,7 +10694,7 @@
                     (try
                         (cond (:download-block-bodies this)
                             (do
-                                (let [#_"Block" __orphanRoot (Preconditions/checkNotNull (.. (:block-chain this) (getOrphanRoot (.. m (getHash)))))]
+                                (let [#_"Block" __orphanRoot (ensure some? (.. (:block-chain this) (getOrphanRoot (.. m (getHash)))))]
                                     (.. this (blockChainDownloadLocked (.. __orphanRoot (getHash))))
                                 )
                             )
@@ -10814,7 +10815,7 @@
                     ;; no matter how many blocks are solved, and therefore that the (2) duplicate filtering can work.
                     (.. (:lock this) (lock))
                     (try
-                        (let [#_"Block" __orphanRoot (Preconditions/checkNotNull (.. (:block-chain this) (getOrphanRoot (.. m (getHash)))))]
+                        (let [#_"Block" __orphanRoot (ensure some? (.. (:block-chain this) (getOrphanRoot (.. m (getHash)))))]
                             (.. this (blockChainDownloadLocked (.. __orphanRoot (getHash))))
                         )
                         (finally
@@ -10868,7 +10869,7 @@
         ;; It is possible for the peer block height difference to be negative when blocks have been solved and broadcast
         ;; since the time we first connected to the peer.  However, it's weird and unexpected to receive a callback
         ;; with negative "blocks left" in this case, so we clamp to zero so the API user doesn't have to think about it.
-        (let [#_"int" __blocksLeft (Math/max 0, (- (int (-> this :v-peer-version-message :best-height)) (.. (Preconditions/checkNotNull (:block-chain this)) (getBestChainHeight))))]
+        (let [#_"int" __blocksLeft (Math/max 0, (- (int (-> this :v-peer-version-message :best-height)) (.. (ensure some? (:block-chain this)) (getBestChainHeight))))]
             (doseq [#_"ListenerRegistration<BlocksDownloadedEventListener>" registration (:blocks-downloaded-event-listeners this)]
                 (.. (:executor registration) (execute (Runnable.)
                 (§ anon
@@ -10971,7 +10972,7 @@
                                                 (do
                                                     ;; If an orphan was re-advertised, ask for more blocks unless we are not currently downloading
                                                     ;; full block data because we have a getheaders outstanding.
-                                                    (let [#_"Block" __orphanRoot (Preconditions/checkNotNull (.. (:block-chain this) (getOrphanRoot (:hash item))))]
+                                                    (let [#_"Block" __orphanRoot (ensure some? (.. (:block-chain this) (getOrphanRoot (:hash item))))]
                                                         (.. this (blockChainDownloadLocked (.. __orphanRoot (getHash))))
                                                     )
                                                 )
@@ -11075,7 +11076,7 @@
     #_private
     (§ method- #_"ListenableFuture" sendSingleGetData [#_"GetDataMessage" getdata]
         ;; This does not need to be locked.
-        (Preconditions/checkArgument (= (.. getdata (getItems) (size)) 1))
+        (assert-argument (= (.. getdata (getItems) (size)) 1))
         (let [#_"GetDataRequest" req (GetDataRequest. (.. getdata (getItems) (get 0) :hash), (SettableFuture/create))]
             (.. (:get-data-futures this) (add req))
             (.. this (sendMessage getdata))
@@ -11158,7 +11159,7 @@
 
     #_private
     (§ method- #_"void" blockChainDownloadLocked [#_"Sha256Hash" __toHash]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         ;; The block chain download process is a bit complicated.  Basically, we start with one or more blocks in a
         ;; chain that we have from a previous session.  We want to catch up to the head of the chain BUT we don't know
@@ -11204,7 +11205,7 @@
             ;; top 100 block headers.  If there is a re-org deeper than that, we'll end up downloading the entire chain.
             ;; We must always put the genesis block as the first entry.
 
-            (let [#_"BlockStore" store (.. (Preconditions/checkNotNull (:block-chain this)) (getBlockStore))
+            (let [#_"BlockStore" store (.. (ensure some? (:block-chain this)) (getBlockStore))
                   #_"StoredBlock" __chainHead (.. (:block-chain this) (getChainHead))
                   #_"Sha256Hash" __chainHeadHash (.. __chainHead (getHeader) (getHash))]
 
@@ -11455,14 +11456,14 @@
      ;;
     #_public
     (§ method #_"int" getPeerBlockHeightDifference []
-        (Preconditions/checkNotNull (:block-chain this), "No block chain configured")
+        (ensure some? (:block-chain this), "No block chain configured")
 
         ;; Chain will overflow signed int blocks in ~41,000 years.
         (let [#_"int" __chainHeight (int (.. this (getBestHeight)))]
             ;; chainHeight should not be zero/negative because we shouldn't have given the user a Peer that is to another
             ;; client-mode node, nor should it be unconnected.  If that happens it means the user overrode us somewhere or
             ;; there is a bug in the peer management code.
-            (Preconditions/checkState (or (.. (:params this) (allowEmptyPeerChain)) (< 0 __chainHeight)), "Connected to peer with zero/negative chain height", __chainHeight)
+            (assert-state (or (.. (:params this) (allowEmptyPeerChain)) (< 0 __chainHeight)), "Connected to peer with zero/negative chain height", __chainHeight)
             (- __chainHeight (.. (:block-chain this) (getBestChainHeight)))
         )
     )
@@ -11533,19 +11534,19 @@
     )
 
     ;;;
-     ; <p>Sets a Bloom filter on this connection.  This will cause the given {@link BloomFilter} object to be sent
+     ; Sets a Bloom filter on this connection.  This will cause the given {@link BloomFilter} object to be sent
      ; to the remote peer and if either a memory pool has been set using the constructor or the
      ; vDownloadData property is true, a {@link MemoryPoolMessage} is sent as well to trigger downloading of any
-     ; pending transactions that may be relevant.</p>
+     ; pending transactions that may be relevant.
      ;
-     ; <p>The Peer does not automatically request filters from any wallets added using {@link Peer#addWallet(Wallet)}.
+     ; The Peer does not automatically request filters from any wallets added using {@link Peer#addWallet(Wallet)}.
      ; This is to allow callers to avoid redundantly recalculating the same filter repeatedly when using multiple peers
-     ; and multiple wallets together.</p>
+     ; and multiple wallets together.
      ;
-     ; <p>Therefore, you should not use this method if your app uses a {@link PeerGroup}.  It is called for you.</p>
+     ; Therefore, you should not use this method if your app uses a {@link PeerGroup}.  It is called for you.
      ;
-     ; <p>If the remote peer doesn't support Bloom filtering, then this call is ignored.  Once set you presently cannot
-     ; unset a filter, though the underlying p2p protocol does support it.</p>
+     ; If the remote peer doesn't support Bloom filtering, then this call is ignored.  Once set you presently cannot
+     ; unset a filter, though the underlying p2p protocol does support it.
      ;;
     #_public
     (§ method #_"void" setBloomFilter [#_"BloomFilter" filter]
@@ -11554,22 +11555,22 @@
     )
 
     ;;;
-     ; <p>Sets a Bloom filter on this connection.  This will cause the given {@link BloomFilter} object to be sent
+     ; Sets a Bloom filter on this connection.  This will cause the given {@link BloomFilter} object to be sent
      ; to the remote peer and if requested, a {@link MemoryPoolMessage} is sent as well to trigger downloading of any
-     ; pending transactions that may be relevant.</p>
+     ; pending transactions that may be relevant.
      ;
-     ; <p>The Peer does not automatically request filters from any wallets added using {@link Peer#addWallet(Wallet)}.
+     ; The Peer does not automatically request filters from any wallets added using {@link Peer#addWallet(Wallet)}.
      ; This is to allow callers to avoid redundantly recalculating the same filter repeatedly when using multiple peers
-     ; and multiple wallets together.</p>
+     ; and multiple wallets together.
      ;
-     ; <p>Therefore, you should not use this method if your app uses a {@link PeerGroup}.  It is called for you.</p>
+     ; Therefore, you should not use this method if your app uses a {@link PeerGroup}.  It is called for you.
      ;
-     ; <p>If the remote peer doesn't support Bloom filtering, then this call is ignored.  Once set you presently cannot
-     ; unset a filter, though the underlying p2p protocol does support it.</p>
+     ; If the remote peer doesn't support Bloom filtering, then this call is ignored.  Once set you presently cannot
+     ; unset a filter, though the underlying p2p protocol does support it.
      ;;
     #_public
     (§ method #_"void" setBloomFilter [#_"BloomFilter" filter, #_"boolean" __andQueryMemPool]
-        (Preconditions/checkNotNull filter, "Clearing filters is not currently supported")
+        (ensure some? filter, "Clearing filters is not currently supported")
 
         (let [#_"VersionMessage" ver (:v-peer-version-message this)]
             (when (and (some? ver) (.. ver (isBloomFilteringSupported)))
@@ -11606,7 +11607,7 @@
                 #_public
                 (§ method #_"void" run []
                     (.. (:lock this) (lock))
-                    (Preconditions/checkNotNull (:awaiting-fresh-filter this))
+                    (ensure some? (:awaiting-fresh-filter this))
                     (let [#_"GetDataMessage" getdata (GetDataMessage. (:params this))]
                         (doseq [#_"Sha256Hash" hash (:awaiting-fresh-filter this)]
                             (.. getdata (addFilteredBlock hash))
@@ -11674,10 +11675,10 @@
 )
 
 ;;;
- ; <p>A PeerAddress holds an IP address and port number representing the network location of
- ; a peer in the Bitcoin P2P network.  It exists primarily for serialization purposes.</p>
+ ; A PeerAddress holds an IP address and port number representing the network location of
+ ; a peer in the Bitcoin P2P network.  It exists primarily for serialization purposes.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class PeerAddress (§ extends ChildMessage)
@@ -11728,7 +11729,7 @@
     (§ constructor PeerAddress [#_"NetworkParameters" params, #_"InetAddress" addr, #_"int" port, #_"int" __protocolVersion, #_"BigInteger" services]
         (§ super params)
 
-        (§ assoc this :addr (Preconditions/checkNotNull addr))
+        (§ assoc this :addr (ensure some? addr))
         (§ assoc this :port port)
         (§ assoc this :protocol-version __protocolVersion)
         (§ assoc this :services services)
@@ -11968,25 +11969,25 @@
 )
 
 ;;;
- ; <p>Runs a set of connections to the P2P network, brings up connections to replace disconnected nodes and manages
- ; the interaction between them all.  Most applications will want to use one of these.</p>
+ ; Runs a set of connections to the P2P network, brings up connections to replace disconnected nodes and manages
+ ; the interaction between them all.  Most applications will want to use one of these.
  ;
- ; <p>PeerGroup tries to maintain a constant number of connections to a set of distinct peers.
+ ; PeerGroup tries to maintain a constant number of connections to a set of distinct peers.
  ; Each peer runs a network listener in its own thread.  When a connection is lost, a new peer
- ; will be tried after a delay as long as the number of connections less than the maximum.</p>
+ ; will be tried after a delay as long as the number of connections less than the maximum.
  ;
- ; <p>Connections are made to addresses from a provided list.  When that list is exhausted,
- ; we start again from the head of the list.</p>
+ ; Connections are made to addresses from a provided list.  When that list is exhausted,
+ ; we start again from the head of the list.
  ;
- ; <p>The PeerGroup can broadcast a transaction to the currently connected set of peers.  It can
- ; also handle download of the blockchain from peers, restarting the process when peers die.</p>
+ ; The PeerGroup can broadcast a transaction to the currently connected set of peers.  It can
+ ; also handle download of the blockchain from peers, restarting the process when peers die.
  ;
- ; <p>A PeerGroup won't do anything until you call the {@link PeerGroup#start()} method
+ ; A PeerGroup won't do anything until you call the {@link PeerGroup#start()} method
  ; which will block until peer discovery is completed and some outbound connections
  ; have been initiated (it will return before handshaking is done, however).
  ; You should call {@link PeerGroup#stop()} when finished.  Note that not all methods
  ; of PeerGroup are safe to call from a UI thread as some may do network IO,
- ; but starting and stopping the service should be fine.</p>
+ ; but starting and stopping the service should be fine.
  ;;
 #_public
 (§ class PeerGroup (§ implements TransactionBroadcaster)
@@ -12334,7 +12335,7 @@
      ;;
     #_private
     (§ constructor- PeerGroup [#_"Context" context, #_nilable #_"AbstractBlockChain" chain, #_"ClientConnectionManager" __connectionManager]
-        (Preconditions/checkNotNull context)
+        (ensure some? context)
 
         (§ assoc this :params (.. context (getParams)))
         (§ assoc this :chain chain)
@@ -12362,7 +12363,7 @@
                 #_override
                 #_public
                 (§ method #_"int" compare [#_"PeerAddress" a, #_"PeerAddress" b]
-                    (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+                    (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
                     (let [#_"int" result (.. (:backoff-map this) (get a) (compareTo (.. (:backoff-map this) (get b))))]
                         ;; Sort by port if otherwise equals - for testing.
@@ -12730,13 +12731,14 @@
     )
 
     ;;;
-     ; <p>Adds a listener that will be notified on the given executor when
-     ; blocks are downloaded by the download peer.</p>
+     ; Adds a listener that will be notified on the given executor when
+     ; blocks are downloaded by the download peer.
+     ;
      ; @see Peer#addBlocksDownloadedEventListener(Executor, BlocksDownloadedEventListener)
      ;;
     #_public
     (§ method #_"void" addBlocksDownloadedEventListener [#_"Executor" executor, #_"BlocksDownloadedEventListener" listener]
-        (.. (:peers-blocks-downloaded-event-listeners this) (add (ListenerRegistration. #_"<>" (Preconditions/checkNotNull listener), executor)))
+        (.. (:peers-blocks-downloaded-event-listeners this) (add (ListenerRegistration. #_"<>" (ensure some? listener), executor)))
         (doseq [#_"Peer" peer (.. this (getConnectedPeers))]
             (.. peer (addBlocksDownloadedEventListener executor, listener))
         )
@@ -12754,12 +12756,12 @@
     )
 
     ;;;
-     ; <p>Adds a listener that will be notified on the given executor when
-     ; chain download starts.</p>
+     ; Adds a listener that will be notified on the given executor when
+     ; chain download starts.
      ;;
     #_public
     (§ method #_"void" addChainDownloadStartedEventListener [#_"Executor" executor, #_"ChainDownloadStartedEventListener" listener]
-        (.. (:peers-chain-download-started-event-listeners this) (add (ListenerRegistration. #_"<>" (Preconditions/checkNotNull listener), executor)))
+        (.. (:peers-chain-download-started-event-listeners this) (add (ListenerRegistration. #_"<>" (ensure some? listener), executor)))
         (doseq [#_"Peer" peer (.. this (getConnectedPeers))]
             (.. peer (addChainDownloadStartedEventListener executor, listener))
         )
@@ -12777,12 +12779,12 @@
     )
 
     ;;;
-     ; <p>Adds a listener that will be notified on the given executor when
-     ; new peers are connected to.</p>
+     ; Adds a listener that will be notified on the given executor when
+     ; new peers are connected to.
      ;;
     #_public
     (§ method #_"void" addConnectedEventListener [#_"Executor" executor, #_"PeerConnectedEventListener" listener]
-        (.. (:peer-connected-event-listeners this) (add (ListenerRegistration. #_"<>" (Preconditions/checkNotNull listener), executor)))
+        (.. (:peer-connected-event-listeners this) (add (ListenerRegistration. #_"<>" (ensure some? listener), executor)))
         (doseq [#_"Peer" peer (.. this (getConnectedPeers))]
             (.. peer (addConnectedEventListener executor, listener))
         )
@@ -12800,12 +12802,12 @@
     )
 
     ;;;
-     ; <p>Adds a listener that will be notified on the given executor when
-     ; peers are disconnected from.</p>
+     ; Adds a listener that will be notified on the given executor when
+     ; peers are disconnected from.
      ;;
     #_public
     (§ method #_"void" addDisconnectedEventListener [#_"Executor" executor, #_"PeerDisconnectedEventListener" listener]
-        (.. (:peer-disconnected-event-listeners this) (add (ListenerRegistration. #_"<>" (Preconditions/checkNotNull listener), executor)))
+        (.. (:peer-disconnected-event-listeners this) (add (ListenerRegistration. #_"<>" (ensure some? listener), executor)))
         (doseq [#_"Peer" peer (.. this (getConnectedPeers))]
             (.. peer (addDisconnectedEventListener executor, listener))
         )
@@ -12823,12 +12825,12 @@
     )
 
     ;;;
-     ; <p>Adds a listener that will be notified on the given executor when new
-     ; peers are discovered.</p>
+     ; Adds a listener that will be notified on the given executor when new
+     ; peers are discovered.
      ;;
     #_public
     (§ method #_"void" addDiscoveredEventListener [#_"Executor" executor, #_"PeerDiscoveredEventListener" listener]
-        (.. (:peer-discovered-event-listeners this) (add (ListenerRegistration. #_"<>" (Preconditions/checkNotNull listener), executor)))
+        (.. (:peer-discovered-event-listeners this) (add (ListenerRegistration. #_"<>" (ensure some? listener), executor)))
         nil
     )
 
@@ -12842,7 +12844,7 @@
     ;;; See {@link Peer#addGetDataEventListener(Executor, GetDataEventListener)}. ;;
     #_public
     (§ method #_"void" addGetDataEventListener [#_"Executor" executor, #_"GetDataEventListener" listener]
-        (.. (:peer-get-data-event-listeners this) (add (ListenerRegistration. #_"<>" (Preconditions/checkNotNull listener), executor)))
+        (.. (:peer-get-data-event-listeners this) (add (ListenerRegistration. #_"<>" (ensure some? listener), executor)))
         (doseq [#_"Peer" peer (.. this (getConnectedPeers))]
             (.. peer (addGetDataEventListener executor, listener))
         )
@@ -12862,7 +12864,7 @@
     ;;; See {@link Peer#addOnTransactionBroadcastListener(OnTransactionBroadcastListener)}. ;;
     #_public
     (§ method #_"void" addOnTransactionBroadcastListener [#_"Executor" executor, #_"OnTransactionBroadcastListener" listener]
-        (.. (:peers-transaction-broadast-event-listeners this) (add (ListenerRegistration. #_"<>" (Preconditions/checkNotNull listener), executor)))
+        (.. (:peers-transaction-broadast-event-listeners this) (add (ListenerRegistration. #_"<>" (ensure some? listener), executor)))
         (doseq [#_"Peer" peer (.. this (getConnectedPeers))]
             (.. peer (addOnTransactionBroadcastListener executor, listener))
         )
@@ -12882,7 +12884,7 @@
     ;;; See {@link Peer#addPreMessageReceivedEventListener(Executor, PreMessageReceivedEventListener)}. ;;
     #_public
     (§ method #_"void" addPreMessageReceivedEventListener [#_"Executor" executor, #_"PreMessageReceivedEventListener" listener]
-        (.. (:peers-pre-message-received-event-listeners this) (add (ListenerRegistration. #_"<>" (Preconditions/checkNotNull listener), executor)))
+        (.. (:peers-pre-message-received-event-listeners this) (add (ListenerRegistration. #_"<>" (ensure some? listener), executor)))
         (doseq [#_"Peer" peer (.. this (getConnectedPeers))]
             (.. peer (addPreMessageReceivedEventListener executor, listener))
         )
@@ -13113,7 +13115,7 @@
     #_throws #_[ "PeerDiscoveryException" ]
     (§ method #_"int" discoverPeers []
         ;; Don't hold the lock whilst doing peer discovery: it can take a long time and cause high API latency.
-        (Preconditions/checkState (not (.. (:lock this) (isHeldByCurrentThread))))
+        (assert-state (not (.. (:lock this) (isHeldByCurrentThread))))
 
         (let [#_"int" __maxPeersToDiscoverCount (:v-max-peers-to-discover-count this)
               #_"long" __peerDiscoveryTimeoutMillis (:v-peer-discovery-timeout-millis this)
@@ -13188,7 +13190,7 @@
 
     #_private
     (§ method- #_"boolean" maybeCheckForLocalhostPeer []
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         (when (= (:localhost-check-state this) :LocalhostCheckState'NOT_TRIED)
             ;; Do a fast blocking connect to see if anything is listening.
@@ -13229,7 +13231,7 @@
             ;; Just try to help catch what might be a programming error.
             (.. PeerGroup'log (warn "Starting up with no attached block chain. Did you forget to pass one to the constructor?"))
         )
-        (Preconditions/checkState (not (:v-used-up this)), "Cannot start a peer group twice")
+        (assert-state (not (:v-used-up this)), "Cannot start a peer group twice")
 
         (§ assoc this :v-running true)
         (§ assoc this :v-used-up true)
@@ -13273,7 +13275,7 @@
 
     #_public
     (§ method #_"ListenableFuture" stopAsync []
-        (Preconditions/checkState (:v-running this))
+        (assert-state (:v-running this))
         (§ assoc this :v-running false)
         (let [#_"ListenableFuture" future (.. (:executor this) (submit (Runnable.)
             (§ anon
@@ -13330,7 +13332,7 @@
     )
 
     ;;;
-     ; <p>Link the given wallet to this PeerGroup.  This is used for three purposes:</p>
+     ; Link the given wallet to this PeerGroup.  This is used for three purposes:
      ;
      ; <ol>
      ;   <li>So the wallet receives broadcast transactions.</li>
@@ -13338,18 +13340,18 @@
      ;   <li>Set the fast catchup time using {@link PeerGroup#setFastCatchupTimeSecs(long)} to optimize chain download.</li>
      ; </ol>
      ;
-     ; <p>Note that this should be done before chain download commences because if you add a wallet with keys earlier
-     ; than the current chain head, the relevant parts of the chain won't be redownloaded for you.</p>
+     ; Note that this should be done before chain download commences because if you add a wallet with keys earlier
+     ; than the current chain head, the relevant parts of the chain won't be redownloaded for you.
      ;
-     ; <p>The Wallet will have an event listener registered on it, so to avoid leaks remember to use
-     ; {@link PeerGroup#removeWallet(Wallet)} on it if you wish to keep the Wallet but lose the PeerGroup.</p>
+     ; The Wallet will have an event listener registered on it, so to avoid leaks remember to use
+     ; {@link PeerGroup#removeWallet(Wallet)} on it if you wish to keep the Wallet but lose the PeerGroup.
      ;;
     #_public
     (§ method #_"void" addWallet [#_"Wallet" wallet]
         (.. (:lock this) (lock))
         (try
-            (Preconditions/checkNotNull wallet)
-            (Preconditions/checkState (not (.. (:wallets this) (contains wallet))))
+            (ensure some? wallet)
+            (assert-state (not (.. (:wallets this) (contains wallet))))
             (.. (:wallets this) (add wallet))
             (.. wallet (setTransactionBroadcaster this))
             (.. wallet (addCoinsReceivedEventListener Threading'SAME_THREAD, (:wallet-coins-received-event-listener this)))
@@ -13366,14 +13368,14 @@
     )
 
     ;;;
-     ; <p>Link the given PeerFilterProvider to this PeerGroup.
-     ; DO NOT use this for Wallets, use {@link PeerGroup#addWallet(Wallet)} instead.</p>
+     ; Link the given PeerFilterProvider to this PeerGroup.
+     ; DO NOT use this for Wallets, use {@link PeerGroup#addWallet(Wallet)} instead.
      ;
-     ; <p>Note that this should be done before chain download commences because if you add a listener with keys earlier
-     ; than the current chain head, the relevant parts of the chain won't be redownloaded for you.</p>
+     ; Note that this should be done before chain download commences because if you add a listener with keys earlier
+     ; than the current chain head, the relevant parts of the chain won't be redownloaded for you.
      ;
-     ; <p>This method invokes {@link PeerGroup#recalculateFastCatchupAndFilter(FilterRecalculateMode)}.
-     ; The return value of this method is the <code>ListenableFuture</code> returned by that invocation.</p>
+     ; This method invokes {@link PeerGroup#recalculateFastCatchupAndFilter(FilterRecalculateMode)}.
+     ; The return value of this method is the <code>ListenableFuture</code> returned by that invocation.
      ;
      ; @return a future that completes once each <code>Peer</code> in this group has had its <code>BloomFilter</code> (re)set.
      ;;
@@ -13381,8 +13383,8 @@
     (§ method #_"ListenableFuture<BloomFilter>" addPeerFilterProvider [#_"PeerFilterProvider" provider]
         (.. (:lock this) (lock))
         (try
-            (Preconditions/checkNotNull provider)
-            (Preconditions/checkState (not (.. (:peer-filter-providers this) (contains provider))))
+            (ensure some? provider)
+            (assert-state (not (.. (:peer-filter-providers this) (contains provider))))
             ;; Insert provider at the start.  This avoids various concurrency problems that could occur because we need
             ;; all providers to be in a consistent, unchanging state whilst the filter is built.  Providers can give
             ;; this guarantee by taking a lock in their begin method, but if we add to the end of the list here, it
@@ -13415,8 +13417,8 @@
     (§ method #_"void" removePeerFilterProvider [#_"PeerFilterProvider" provider]
         (.. (:lock this) (lock))
         (try
-            (Preconditions/checkNotNull provider)
-            (Preconditions/checkArgument (.. (:peer-filter-providers this) (remove provider)))
+            (ensure some? provider)
+            (assert-argument (.. (:peer-filter-providers this) (remove provider)))
             (finally
                 (.. (:lock this) (unlock))
             )
@@ -13429,7 +13431,7 @@
      ;;
     #_public
     (§ method #_"void" removeWallet [#_"Wallet" wallet]
-        (.. (:wallets this) (remove (Preconditions/checkNotNull wallet)))
+        (.. (:wallets this) (remove (ensure some? wallet)))
         (.. (:peer-filter-providers this) (remove wallet))
         (.. wallet (removeCoinsReceivedEventListener (:wallet-coins-received-event-listener this)))
         (.. wallet (removeKeyChainEventListener (:wallet-key-event-listener this)))
@@ -13487,7 +13489,7 @@
 
                     #_public
                     (§ method #_"void" go []
-                        (Preconditions/checkState (not (.. (:lock this) (isHeldByCurrentThread))))
+                        (assert-state (not (.. (:lock this) (isHeldByCurrentThread))))
                         ;; Fully verifying mode doesn't use this optimization (it can't as it needs to see all transactions).
                         (when (or (and (some? (:chain this)) (.. (:chain this) (shouldVerifyTransactions))) (not (:v-bloom-filtering-enabled this)))
                             (§ return nil)
@@ -13538,13 +13540,13 @@
     )
 
     ;;;
-     ; <p>Sets the false positive rate of bloom filters given to peers.  The default is {@link #DEFAULT_BLOOM_FILTER_FP_RATE}.</p>
+     ; Sets the false positive rate of bloom filters given to peers.  The default is {@link #DEFAULT_BLOOM_FILTER_FP_RATE}.
      ;
-     ; <p>Be careful regenerating the bloom filter too often, as it decreases anonymity because remote nodes can
-     ; compare transactions against both the new and old filters to significantly decrease the false positive rate.</p>
+     ; Be careful regenerating the bloom filter too often, as it decreases anonymity because remote nodes can
+     ; compare transactions against both the new and old filters to significantly decrease the false positive rate.
      ;
-     ; <p>See the docs for {@link BloomFilter#BloomFilter(int, double, long, BloomFilter.BloomUpdate)} for a brief
-     ; explanation of anonymity when using bloom filters.</p>
+     ; See the docs for {@link BloomFilter#BloomFilter(int, double, long, BloomFilter.BloomUpdate)} for a brief
+     ; explanation of anonymity when using bloom filters.
      ;;
     #_public
     (§ method #_"void" setBloomFilterFalsePositiveRate [#_"double" __bloomFilterFPRate]
@@ -13621,7 +13623,7 @@
     #_nilable
     #_protected
     (§ method #_"Peer" connectTo [#_"PeerAddress" address, #_"boolean" __incrementMaxConnections, #_"int" __connectTimeoutMillis]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
         (let [#_"VersionMessage" ver (.. this (getVersionMessage) (duplicate))]
             (§ assoc ver :best-height (if (some? (:chain this)) (.. (:chain this) (getBestChainHeight)) 0))
             (§ assoc ver :time (Utils'currentTimeSeconds))
@@ -13677,10 +13679,10 @@
     )
 
     ;;;
-     ; <p>Start downloading the blockchain from the first available peer.</p>
+     ; Start downloading the blockchain from the first available peer.
      ;
-     ; <p>If no peers are currently connected, the download will be started once a peer starts.  If the peer dies,
-     ; the download will resume with another peer.</p>
+     ; If no peers are currently connected, the download will be started once a peer starts.  If the peer dies,
+     ; the download will resume with another peer.
      ;
      ; @param listener A listener for chain download events, may not be null.
      ;;
@@ -13921,7 +13923,7 @@
     (§ method #_"void" setFastCatchupTimeSecs [#_"long" __secondsSinceEpoch]
         (.. (:lock this) (lock))
         (try
-            (Preconditions/checkState (or (nil? (:chain this)) (not (.. (:chain this) (shouldVerifyTransactions)))), "Fast catchup is incompatible with fully verifying")
+            (assert-state (or (nil? (:chain this)) (not (.. (:chain this) (shouldVerifyTransactions)))), "Fast catchup is incompatible with fully verifying")
 
             (§ assoc this :fast-catchup-time-secs __secondsSinceEpoch)
             (when (some? (:download-peer this))
@@ -14446,22 +14448,22 @@
     )
 
     ;;;
-     ; <p>Given a transaction, sends it un-announced to one peer and then waits for it to be received back from
+     ; Given a transaction, sends it un-announced to one peer and then waits for it to be received back from
      ; other peers.  Once all connected peers have announced the transaction, the future available via the
      ; {@link org.bitcoinj.core.TransactionBroadcast#future()} method will be completed.  If anything goes
      ; wrong the exception will be thrown when get() is called, or you can receive it via a callback on the
      ; {@link ListenableFuture}.  This method returns immediately, so if you want it to block just call get() on the
-     ; result.</p>
+     ; result.
      ;
-     ; <p>Note that if the PeerGroup is limited to only one connection (discovery is not activated) then the future
-     ; will complete as soon as the transaction was successfully written to that peer.</p>
+     ; Note that if the PeerGroup is limited to only one connection (discovery is not activated) then the future
+     ; will complete as soon as the transaction was successfully written to that peer.
      ;
-     ; <p>The transaction won't be sent until there are at least minConnections active connections available.
+     ; The transaction won't be sent until there are at least minConnections active connections available.
      ; A good choice for proportion would be between 0.5 and 0.8 but if you want faster transmission during initial
-     ; bringup of the peer group you can lower it.</p>
+     ; bringup of the peer group you can lower it.
      ;
-     ; <p>The returned {@link org.bitcoinj.core.TransactionBroadcast} object can be used to get progress feedback,
-     ; which is calculated by watching the transaction propagate across the network and be announced by peers.</p>
+     ; The returned {@link org.bitcoinj.core.TransactionBroadcast} object can be used to get progress feedback,
+     ; which is calculated by watching the transaction propagate across the network and be announced by peers.
      ;;
     #_public
     (§ method #_"TransactionBroadcast" broadcastTransaction [#_"Transaction" tx, #_"int" __minConnections]
@@ -14781,7 +14783,7 @@
 
     #_public
     (§ constructor PeerSocketHandler [#_"NetworkParameters" params, #_"InetSocketAddress" __remoteIp]
-        (Preconditions/checkNotNull params)
+        (ensure some? params)
         (§ assoc this :serializer (.. params (getDefaultSerializer)))
         (§ assoc this :peer-address (PeerAddress. params, __remoteIp))
         this
@@ -14789,9 +14791,9 @@
 
     #_public
     (§ constructor PeerSocketHandler [#_"NetworkParameters" params, #_"PeerAddress" __peerAddress]
-        (Preconditions/checkNotNull params)
+        (ensure some? params)
         (§ assoc this :serializer (.. params (getDefaultSerializer)))
-        (§ assoc this :peer-address (Preconditions/checkNotNull __peerAddress))
+        (§ assoc this :peer-address (ensure some? __peerAddress))
         this
     )
 
@@ -14863,7 +14865,7 @@
     #_override
     #_public
     (§ method #_"int" receiveBytes [#_"ByteBuffer" buff]
-        (Preconditions/checkArgument (and (= (.. buff (position)) 0) (<= (+ BitcoinPacketHeader'HEADER_LENGTH 4) (.. buff (capacity)))))
+        (assert-argument (and (= (.. buff (position)) 0) (<= (+ BitcoinPacketHeader'HEADER_LENGTH 4) (.. buff (capacity)))))
         (try
             ;; Repeatedly try to deserialize messages until we hit a BufferUnderflowException.
             (let [#_"boolean" __firstMessage true]
@@ -14871,7 +14873,7 @@
                     ;; If we are in the middle of reading a message, try to fill that one first, before we expect another.
                     (when (some? (:large-read-buffer this))
                         ;; This can only happen in the first iteration.
-                        (Preconditions/checkState __firstMessage)
+                        (assert-state __firstMessage)
                         ;; Read new bytes into the largeReadBuffer.
                         (let [#_"int" __bytesToGet (Math/min (.. buff (remaining)), (- (alength (:large-read-buffer this)) (:large-read-buffer-pos this)))]
                             (.. buff (get (:large-read-buffer this), (:large-read-buffer-pos this), __bytesToGet))
@@ -14951,12 +14953,12 @@
     #_override
     #_public
     (§ method #_"void" setWriteTarget [#_"MessageWriteTarget" __writeTarget]
-        (Preconditions/checkArgument (some? __writeTarget))
+        (assert-argument (some? __writeTarget))
 
         (.. (:lock this) (lock))
         (let [#_"boolean" __closeNow false]
             (try
-                (Preconditions/checkArgument (nil? (:write-target this)))
+                (assert-argument (nil? (:write-target this)))
 
                 (§ ass __closeNow (:close-pending this))
                 (§ assoc this :write-target __writeTarget)
@@ -15013,7 +15015,7 @@
 )
 
 ;;;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class Ping (§ extends Message)
@@ -15087,7 +15089,7 @@
 )
 
 ;;;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class Pong (§ extends Message)
@@ -15234,9 +15236,9 @@
 )
 
 ;;;
- ; <p>A message sent by nodes when a message we sent was rejected (i.e. a transaction had too little fee/was invalid/etc).</p>
+ ; A message sent by nodes when a message we sent was rejected (i.e. a transaction had too little fee/was invalid/etc).
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class RejectMessage (§ extends Message)
@@ -15454,7 +15456,7 @@
      ;;
     #_protected
     (§ constructor Sha256Hash [#_"byte[]" __rawHashBytes]
-        (Preconditions/checkArgument (= (alength __rawHashBytes) Sha256Hash'LENGTH))
+        (assert-argument (= (alength __rawHashBytes) Sha256Hash'LENGTH))
         (§ assoc this :bytes __rawHashBytes)
         this
     )
@@ -15830,7 +15832,7 @@
     #_public
     (§ method #_"void" serializeCompact [#_"ByteBuffer" buffer]
         (let [#_"byte[]" __chainWorkBytes (.. this (getChainWork) (toByteArray))]
-            (Preconditions/checkState (<= (alength __chainWorkBytes) StoredBlock'CHAIN_WORK_BYTES), "Ran out of space to store chain work!")
+            (assert-state (<= (alength __chainWorkBytes) StoredBlock'CHAIN_WORK_BYTES), "Ran out of space to store chain work!")
             (when (< (alength __chainWorkBytes) StoredBlock'CHAIN_WORK_BYTES)
                 ;; Pad to the right size.
                 (.. buffer (put StoredBlock'EMPTY_BYTES, 0, (- StoredBlock'CHAIN_WORK_BYTES (alength __chainWorkBytes))))
@@ -15955,20 +15957,20 @@
 )
 
 ;;;
- ; <p>A transaction represents the movement of coins from some addresses to some other addresses.  It can also represent
- ; the minting of new coins.  A Transaction object corresponds to the equivalent in the Bitcoin C++ implementation.</p>
+ ; A transaction represents the movement of coins from some addresses to some other addresses.  It can also represent
+ ; the minting of new coins.  A Transaction object corresponds to the equivalent in the Bitcoin C++ implementation.
  ;
- ; <p>Transactions are the fundamental atoms of Bitcoin and have many powerful features.  Read
+ ; Transactions are the fundamental atoms of Bitcoin and have many powerful features.  Read
  ; <a href="https://bitcoinj.github.io/working-with-transactions">"Working with transactions"</a> in the
- ; documentation to learn more about how to use this class.</p>
+ ; documentation to learn more about how to use this class.
  ;
- ; <p>All Bitcoin transactions are at risk of being reversed, though the risk is much less than with traditional payment
+ ; All Bitcoin transactions are at risk of being reversed, though the risk is much less than with traditional payment
  ; systems.  Transactions have <i>confidence levels</i>, which help you decide whether to trust a transaction or not.
  ; Whether to trust a transaction is something that needs to be decided on a case by case basis - a rule that makes
  ; sense for selling MP3s might not make sense for selling cars, or accepting payments from a family member.  If you
- ; are building a wallet, how to present confidence to your users is something to consider carefully.</p>
+ ; are building a wallet, how to present confidence to your users is something to consider carefully.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class Transaction (§ extends ChildMessage)
@@ -16313,14 +16315,14 @@
     )
 
     ;;;
-     ; <p>Puts the given block in the internal set of blocks in which this transaction appears.  This is
+     ; Puts the given block in the internal set of blocks in which this transaction appears.  This is
      ; used by the wallet to ensure transactions that appear on side chains are recorded properly even though
-     ; the block stores do not save the transaction data at all.</p>
+     ; the block stores do not save the transaction data at all.
      ;
-     ; <p>If there is a re-org this will be called once for each block that was previously seen, to update which block
-     ; is the best chain.  The best chain block is guaranteed to be called last. So this must be idempotent.</p>
+     ; If there is a re-org this will be called once for each block that was previously seen, to update which block
+     ; is the best chain.  The best chain block is guaranteed to be called last. So this must be idempotent.
      ;
-     ; <p>Sets updatedAt to be the earliest valid block time where this tx was seen.</p>
+     ; Sets updatedAt to be the earliest valid block time where this tx was seen.
      ;
      ; @param block     The {@link StoredBlock} in which the transaction has appeared.
      ; @param bestChain Whether to set the updatedAt timestamp from the block header (only if not already set).
@@ -16876,7 +16878,7 @@
     #_throws #_[ "ScriptException" ]
     (§ method #_"TransactionInput" addSignedInput [#_"TransactionOutPoint" __prevOut, #_"Script" __scriptPubKey, #_"ECKey" __sigKey, #_"SigHash" __sigHash, #_"boolean" __anyoneCanPay]
         ;; Verify the API user didn't try to do operations out of order.
-        (Preconditions/checkState (not (.. (:outputs this) (isEmpty))), "Attempting to sign tx without outputs.")
+        (assert-state (not (.. (:outputs this) (isEmpty))), "Attempting to sign tx without outputs.")
 
         (let [#_"TransactionInput" input (TransactionInput. (:params this), this, (byte-array 0), __prevOut)]
             (.. this (addInput input))
@@ -17023,13 +17025,13 @@
     )
 
     ;;;
-     ; <p>Calculates a signature hash, that is, a hash of a simplified form of the transaction.  How exactly the transaction
-     ; is simplified is specified by the type and anyoneCanPay parameters.</p>
+     ; Calculates a signature hash, that is, a hash of a simplified form of the transaction.  How exactly the transaction
+     ; is simplified is specified by the type and anyoneCanPay parameters.
      ;
-     ; <p>This is a low level API and when using the regular {@link Wallet} class you don't have to call this yourself.
+     ; This is a low level API and when using the regular {@link Wallet} class you don't have to call this yourself.
      ; When working with more complex transaction types and contracts, it can be necessary.  When signing a P2SH output
      ; the redeemScript should be the script encoded into the scriptSig field, for normal transactions, it's the
-     ; scriptPubKey of the output you're signing for.</p>
+     ; scriptPubKey of the output you're signing for.
      ;
      ; @param inputIndex Input the signature is being calculated for.  Tx signatures are always relative to an input.
      ; @param redeemScript The bytes that should be in the given input during signing.
@@ -17044,13 +17046,13 @@
     )
 
     ;;;
-     ; <p>Calculates a signature hash, that is, a hash of a simplified form of the transaction.  How exactly the transaction
-     ; is simplified is specified by the type and anyoneCanPay parameters.</p>
+     ; Calculates a signature hash, that is, a hash of a simplified form of the transaction.  How exactly the transaction
+     ; is simplified is specified by the type and anyoneCanPay parameters.
      ;
-     ; <p>This is a low level API and when using the regular {@link Wallet} class you don't have to call this yourself.
+     ; This is a low level API and when using the regular {@link Wallet} class you don't have to call this yourself.
      ; When working with more complex transaction types and contracts, it can be necessary.  When signing a P2SH output
      ; the redeemScript should be the script encoded into the scriptSig field, for normal transactions, it's the
-     ; scriptPubKey of the output you're signing for.</p>
+     ; scriptPubKey of the output you're signing for.
      ;
      ; @param inputIndex Input the signature is being calculated for.  Tx signatures are always relative to an input.
      ; @param redeemScript The script that should be in the given input during signing.
@@ -17247,9 +17249,9 @@
     )
 
     ;;;
-     ; <p>Returns the list of transacion outputs, whether spent or unspent, that match a wallet by address or that are
+     ; Returns the list of transacion outputs, whether spent or unspent, that match a wallet by address or that are
      ; watched by a wallet, i.e. transaction outputs whose script's address is controlled by the wallet and transaction
-     ; outputs whose script is watched by the wallet.</p>
+     ; outputs whose script is watched by the wallet.
      ;
      ; @param transactionBag The wallet that controls addresses and watches scripts.
      ; @return linked list of outputs relevant to the wallet in this transaction.
@@ -17364,8 +17366,8 @@
     #_public
     #_throws #_[ "VerificationException" ]
     (§ method #_"void" checkCoinBaseHeight [#_"int" height]
-        (Preconditions/checkArgument (<= Block'BLOCK_HEIGHT_GENESIS height))
-        (Preconditions/checkState (.. this (isCoinBase)))
+        (assert-argument (<= Block'BLOCK_HEIGHT_GENESIS height))
+        (assert-state (.. this (isCoinBase)))
 
         ;; Check block height is in coinbase input script.
         (let [#_"TransactionInput" in (.. this (getInputs) (get 0))
@@ -17388,9 +17390,9 @@
     )
 
     ;;;
-     ; <p>Checks the transaction contents for sanity, in ways that can be done in a standalone manner.
+     ; Checks the transaction contents for sanity, in ways that can be done in a standalone manner.
      ; Does <b>not</b> perform all checks on a transaction such as whether the inputs are already spent.
-     ; Specifically this method verifies:</p>
+     ; Specifically this method verifies:
      ;
      ; <ul>
      ;     <li>That there is at least one input and output.</li>
@@ -17462,9 +17464,9 @@
     )
 
     ;;;
-     ; <p>A transaction is time locked if at least one of its inputs is non-final and it has a lock time.</p>
+     ; A transaction is time locked if at least one of its inputs is non-final and it has a lock time.
      ;
-     ; <p>To check if this transaction is final at a given height and time, see {@link Transaction#isFinal(int, long)}.</p>
+     ; To check if this transaction is final at a given height and time, see {@link Transaction#isFinal(int, long)}.
      ;;
     #_public
     (§ method #_"boolean" isTimeLocked []
@@ -17494,13 +17496,13 @@
     )
 
     ;;;
-     ; <p>Returns true if this transaction is considered finalized and can be placed in a block.  Non-finalized
+     ; Returns true if this transaction is considered finalized and can be placed in a block.  Non-finalized
      ; transactions won't be included by miners and can be replaced with newer versions using sequence numbers.
      ; This is useful in certain types of <a href="http://en.bitcoin.it/wiki/Contracts">contracts</a>, such as
-     ; micropayment channels.</p>
+     ; micropayment channels.
      ;
-     ; <p>Note that currently the replacement feature is disabled in Bitcoin Core and will need to be
-     ; re-activated before this functionality is useful.</p>
+     ; Note that currently the replacement feature is disabled in Bitcoin Core and will need to be
+     ; re-activated before this functionality is useful.
      ;;
     #_public
     (§ method #_"boolean" isFinal [#_"int" height, #_"long" __blockTimeSeconds]
@@ -17825,7 +17827,7 @@
             )
             (when (some? callback)
                 (let [#_"double" progress (Math/min 1.0, (if mined 1.0 (/ __numSeenPeers (double (:num-waiting-for this)))))]
-                    (Preconditions/checkState (<= 0.0 progress 1.0), progress)
+                    (assert-state (<= 0.0 progress 1.0), progress)
                     (try
                         (cond (nil? executor)
                             (do
@@ -17923,12 +17925,12 @@
 ;; TODO: Modify the getDepthInBlocks method to require the chain height to be specified, in preparation for ceasing to touch every tx on every block.
 
 ;;;
- ; <p>A TransactionConfidence object tracks data you can use to make a confidence decision about a transaction.
+ ; A TransactionConfidence object tracks data you can use to make a confidence decision about a transaction.
  ; It also contains some pre-canned rules for common scenarios: if you aren't really sure what level of confidence
  ; you need, these should prove useful.  You can get a confidence object using {@link Transaction#getConfidence()}.
- ; They cannot be constructed directly.</p>
+ ; They cannot be constructed directly.
  ;
- ; <p>Confidence in a transaction can come in multiple ways:</p>
+ ; Confidence in a transaction can come in multiple ways:
  ;
  ; <ul>
  ; <li>Because you created it yourself and only you have the necessary keys.</li>
@@ -17943,11 +17945,11 @@
  ;     amount of work done.</li>
  ; </ul>
  ;
- ; <p>Alternatively, you may know that the transaction is "dead", that is, one or more of its inputs have
- ; been double spent and will never confirm unless there is another re-org.</p>
+ ; Alternatively, you may know that the transaction is "dead", that is, one or more of its inputs have
+ ; been double spent and will never confirm unless there is another re-org.
  ;
- ; <p>TransactionConfidence is updated via the {@link org.bitcoinj.core.TransactionConfidence#incrementDepthInBlocks()}
- ; method to ensure the block depth is up to date.</p>
+ ; TransactionConfidence is updated via the {@link org.bitcoinj.core.TransactionConfidence#incrementDepthInBlocks()}
+ ; method to ensure the block depth is up to date.
  ; To make a copy that won't be changed, use {@link org.bitcoinj.core.TransactionConfidence#duplicate()}.
  ;;
 #_public
@@ -18059,13 +18061,13 @@
     )
 
     ;;;
-     ; <p>A confidence listener is informed when the level of {@link TransactionConfidence} is updated by something, like
+     ; A confidence listener is informed when the level of {@link TransactionConfidence} is updated by something, like
      ; for example a {@link Wallet}.  You can add listeners to update your user interface or manage your order tracking
      ; system when confidence levels pass a certain threshold.  <b>Note that confidence can go down as well as up.</b>
      ; For example, this can happen if somebody is doing a double-spend attack against you.  Whilst it's unlikely, your
-     ; code should be able to handle that in order to be correct.</p>
+     ; code should be able to handle that in order to be correct.
      ;
-     ; <p>During listener execution, it's safe to remove the current listener but not others.</p>
+     ; During listener execution, it's safe to remove the current listener but not others.
      ;;
     #_public
     (§ interface TransactionConfidenceListener
@@ -18111,17 +18113,17 @@
     (def- #_"Set<TransactionConfidence>" TransactionConfidence'PINNED_CONFIDENCE_OBJECTS (Collections/synchronizedSet (HashSet. #_"<TransactionConfidence>")))
 
     ;;;
-     ; <p>Adds an event listener that will be run when this confidence object is updated.  The listener will be locked
-     ; and is likely to be invoked on a peer thread.</p>
+     ; Adds an event listener that will be run when this confidence object is updated.  The listener will be locked
+     ; and is likely to be invoked on a peer thread.
      ;
-     ; <p>Note that this is NOT called when every block arrives.  Instead it is called when the transaction
+     ; Note that this is NOT called when every block arrives.  Instead it is called when the transaction
      ; transitions between confidence states, i.e. from not being seen in the chain to being seen (not necessarily in
      ; the best chain).  If you want to know when the transaction gets buried under another block, consider using
-     ; a future from {@link #getDepthFuture(int)}.</p>
+     ; a future from {@link #getDepthFuture(int)}.
      ;;
     #_public
     (§ method #_"void" addEventListener [#_"Executor" executor, #_"TransactionConfidenceListener" listener]
-        (Preconditions/checkNotNull listener)
+        (ensure some? listener)
 
         (.. (:listeners this) (addIfAbsent (ListenerRegistration. #_"<>" listener, executor)))
         (.. TransactionConfidence'PINNED_CONFIDENCE_OBJECTS (add this))
@@ -18129,14 +18131,14 @@
     )
 
     ;;;
-     ; <p>Adds an event listener that will be run when this confidence object is updated.  The listener will be locked
-     ; and is likely to be invoked on a peer thread.</p>
+     ; Adds an event listener that will be run when this confidence object is updated.  The listener will be locked
+     ; and is likely to be invoked on a peer thread.
      ;
-     ; <p>Note that this is NOT called when every block arrives.  Instead it is called when the transaction
+     ; Note that this is NOT called when every block arrives.  Instead it is called when the transaction
      ; transitions between confidence states, i.e. from not being seen in the chain to being seen (not necessarily in
      ; the best chain).  If you want to know when the transaction gets buried under another block, implement a
      ; {@link BlockChainListener}, attach it to a {@link BlockChain} and then use the getters on the
-     ; confidence object to determine the new depth.</p>
+     ; confidence object to determine the new depth.
      ;;
     #_public
     (§ method #_"void" addEventListener [#_"TransactionConfidenceListener" listener]
@@ -18146,7 +18148,7 @@
 
     #_public
     (§ method #_"boolean" removeEventListener [#_"TransactionConfidenceListener" listener]
-        (Preconditions/checkNotNull listener)
+        (ensure some? listener)
 
         (let [#_"boolean" removed (ListenerRegistration'removeFromList listener, (:listeners this))]
             (when (.. (:listeners this) (isEmpty))
@@ -18318,14 +18320,14 @@
     )
 
     ;;;
-     ; <p>Depth in the chain is an approximation of how much time has elapsed since the transaction has been confirmed.
+     ; Depth in the chain is an approximation of how much time has elapsed since the transaction has been confirmed.
      ; On average there is supposed to be a new block every 10 minutes, but the actual rate may vary.  Bitcoin Core
      ; considers a transaction impractical to reverse after 6 blocks, but as of EOY 2011 network
      ; security is high enough that often only one block is considered enough even for high value transactions.
-     ; For low value transactions like songs, or other cheap items, no blocks at all may be necessary.</p>
+     ; For low value transactions like songs, or other cheap items, no blocks at all may be necessary.
      ;
-     ; <p>If the transaction appears in the top block, the depth is one.  If it's anything else (pending, dead, unknown)
-     ; the depth is zero.</p>
+     ; If the transaction appears in the top block, the depth is one.  If it's anything else (pending, dead, unknown)
+     ; the depth is zero.
      ;;
     #_public
     #_synchronized
@@ -18349,7 +18351,7 @@
      ;;
     #_public
     (§ method #_"void" clearBroadcastBy []
-        (Preconditions/checkState (not= (.. this (getConfidenceType)) ConfidenceType'PENDING))
+        (assert-state (not= (.. this (getConfidenceType)) ConfidenceType'PENDING))
         (.. (:broadcast-by this) (clear))
         (§ assoc this :last-broadcasted-at nil)
         nil
@@ -18490,12 +18492,12 @@
 )
 
 ;;;
- ; <p>A transfer of coins from one address to another creates a transaction in which the outputs
+ ; A transfer of coins from one address to another creates a transaction in which the outputs
  ; can be claimed by the recipient in the input of another transaction.  You can imagine a
  ; transaction as being a module which is wired up to others, the inputs of one have to be wired
- ; to the outputs of another.  The exceptions are coinbase transactions, which create new coins.</p>
+ ; to the outputs of another.  The exceptions are coinbase transactions, which create new coins.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class TransactionInput (§ extends ChildMessage)
@@ -18663,7 +18665,7 @@
     ;;; Set the given program as the scriptSig that is supposed to satisfy the connected output script. ;;
     #_public
     (§ method #_"void" setScriptSig [#_"Script" __scriptSig]
-        (§ assoc this :script-sig (WeakReference. #_"<>" (Preconditions/checkNotNull __scriptSig)))
+        (§ assoc this :script-sig (WeakReference. #_"<>" (ensure some? __scriptSig)))
         ;; TODO: This should all be cleaned up so we have a consistent internal representation.
         (.. this (setScriptBytes (.. __scriptSig (getProgram))))
         nil
@@ -18844,7 +18846,7 @@
             (§ return :ConnectionResult'NO_SUCH_TX)
         )
 
-        (Preconditions/checkElementIndex (int (.. (:outpoint this) (getIndex))), (.. transaction (getOutputs) (size)), "Corrupt transaction")
+        (assert-element-index (int (.. (:outpoint this) (getIndex))), (.. transaction (getOutputs) (size)), "Corrupt transaction")
 
         (let [#_"TransactionOutput" out (.. transaction (getOutput (int (.. (:outpoint this) (getIndex)))))]
             (when (not (.. out (isAvailableForSpending)))
@@ -18944,7 +18946,7 @@
         (let [#_"Transaction" __fromTx (:from-tx (.. this (getOutpoint)))
               #_"long" __spendingIndex (.. this (getOutpoint) (getIndex))]
 
-            (Preconditions/checkNotNull __fromTx, "Not connected")
+            (ensure some? __fromTx, "Not connected")
 
             (let [#_"TransactionOutput" output (.. __fromTx (getOutput (int __spendingIndex)))]
                 (ECKey'verify output)
@@ -19008,11 +19010,11 @@
     )
 
     ;;;
-     ; <p>Returns either RuleViolation.NONE if the input is standard, or which rule makes it non-standard if so.
+     ; Returns either RuleViolation.NONE if the input is standard, or which rule makes it non-standard if so.
      ; The "IsStandard" rules control whether the default Bitcoin Core client blocks relay of a tx / refuses to mine it,
-     ; however, non-standard transactions can still be included in blocks and will be accepted as valid if so.</p>
+     ; however, non-standard transactions can still be included in blocks and will be accepted as valid if so.
      ;
-     ; <p>This method simply calls <tt>RiskAnalysis.isInputStandard(this)</tt>.</p>
+     ; This method simply calls <tt>RiskAnalysis.isInputStandard(this)</tt>.
      ;;
     #_public
     (§ method #_"RuleViolation" isStandard []
@@ -19061,7 +19063,7 @@
                         )
                     )
                 )
-                (§ return (.. sb (toString)))
+                (.. sb (toString))
             )
             (catch ScriptException e
                 (throw (RuntimeException. e))
@@ -19071,9 +19073,9 @@
 )
 
 ;;;
- ; <p>This message is a reference or pointer to an output of a different transaction.</p>
+ ; This message is a reference or pointer to an output of a different transaction.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class TransactionOutPoint (§ extends ChildMessage)
@@ -19196,8 +19198,8 @@
      ;;
     #_public
     (§ method #_"byte[]" getConnectedPubKeyScript []
-        (let [#_"byte[]" result (.. (Preconditions/checkNotNull (.. this (getConnectedOutput))) (getScriptBytes))]
-            (Preconditions/checkState (< 0 (alength result)))
+        (let [#_"byte[]" result (.. (ensure some? (.. this (getConnectedOutput))) (getScriptBytes))]
+            (assert-state (< 0 (alength result)))
             result
         )
     )
@@ -19215,7 +19217,7 @@
     #_throws #_[ "ScriptException" ]
     (§ method #_"ECKey" getConnectedKey [#_"KeyBag" __keyBag]
         (let [#_"TransactionOutput" __connectedOutput (.. this (getConnectedOutput))]
-            (Preconditions/checkNotNull __connectedOutput, "Input is not connected so cannot retrieve key")
+            (ensure some? __connectedOutput, "Input is not connected so cannot retrieve key")
             (let [#_"Script" __connectedScript (.. __connectedOutput (getScriptPubKey))]
 
                 (when (.. __connectedScript (isSentToAddress))
@@ -19247,7 +19249,7 @@
     #_throws #_[ "ScriptException" ]
     (§ method #_"RedeemData" getConnectedRedeemData [#_"KeyBag" __keyBag]
         (let [#_"TransactionOutput" __connectedOutput (.. this (getConnectedOutput))]
-            (Preconditions/checkNotNull __connectedOutput, "Input is not connected so cannot retrieve key")
+            (ensure some? __connectedOutput, "Input is not connected so cannot retrieve key")
             (let [#_"Script" __connectedScript (.. __connectedOutput (getScriptPubKey))]
 
                 (when (.. __connectedScript (isSentToAddress))
@@ -19326,10 +19328,10 @@
 )
 
 ;;;
- ; <p>A TransactionOutput message contains a scriptPubKey that controls who is able to spend its value.
- ; It is a sub-part of the Transaction message.</p>
+ ; A TransactionOutput message contains a scriptPubKey that controls who is able to spend its value.
+ ; It is a sub-part of the Transaction message.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class TransactionOutput (§ extends ChildMessage)
@@ -19422,8 +19424,8 @@
 
         ;; Negative values obviously make no sense, except for -1 which is used as a sentinel value when calculating
         ;; SIGHASH_SINGLE signatures, so unfortunately we have to allow that here.
-        (Preconditions/checkArgument (or (<= 0 (.. value (signum))) (.. value (equals Coin'NEGATIVE_SATOSHI))), "Negative values not allowed")
-        (Preconditions/checkArgument (or (not (.. params (hasMaxMoney))) (<= (.. value (compareTo (.. params (getMaxMoney)))) 0)), "Values larger than MAX_MONEY not allowed")
+        (assert-argument (or (<= 0 (.. value (signum))) (.. value (equals Coin'NEGATIVE_SATOSHI))), "Negative values not allowed")
+        (assert-argument (or (not (.. params (hasMaxMoney))) (<= (.. value (compareTo (.. params (getMaxMoney)))) 0)), "Values larger than MAX_MONEY not allowed")
 
         (§ assoc this :value (:value value))
         (§ assoc this :script-bytes __scriptBytes)
@@ -19443,8 +19445,8 @@
     )
 
     ;;;
-     ; <p>If the output script pays to an address as in <a href="https://bitcoin.org/en/developer-guide#term-p2pkh">P2PKH</a>,
-     ; return the address of the receiver, i.e. a base58 encoded hash of the public key in the script.</p>
+     ; If the output script pays to an address as in <a href="https://bitcoin.org/en/developer-guide#term-p2pkh">P2PKH</a>,
+     ; return the address of the receiver, i.e. a base58 encoded hash of the public key in the script.
      ;
      ; @param networkParameters Needed to specify an address.
      ; @return null, if the output script is not the form <i>OP_DUP OP_HASH160 <PubkeyHash> OP_EQUALVERIFY OP_CHECKSIG</i>,
@@ -19459,12 +19461,12 @@
     )
 
     ;;;
-     ; <p>If the output script pays to a redeem script, return the address of the redeem script as described by,
+     ; If the output script pays to a redeem script, return the address of the redeem script as described by,
      ; i.e. a base58 encoding of [one-byte version][20-byte hash][4-byte checksum], where the 20-byte hash refers to
-     ; the redeem script.</p>
+     ; the redeem script.
      ;
-     ; <p>P2SH is described by <a href="https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki">BIP 16</a> and
-     ; <a href="https://bitcoin.org/en/developer-guide#p2sh-scripts">documented in the Bitcoin Developer Guide</a>.</p>
+     ; P2SH is described by <a href="https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki">BIP 16</a> and
+     ; <a href="https://bitcoin.org/en/developer-guide#p2sh-scripts">documented in the Bitcoin Developer Guide</a>.
      ;
      ; @param networkParameters Needed to specify an address.
      ; @return null if the output script does not pay to a script hash.
@@ -19492,7 +19494,7 @@
     #_protected
     #_throws #_[ "IOException" ]
     (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
-        (Preconditions/checkNotNull (:script-bytes this))
+        (ensure some? (:script-bytes this))
 
         (Utils'int64ToByteStreamLE (:value this), stream)
         ;; TODO: Move script serialization into the Script class, where it belongs.
@@ -19520,7 +19522,7 @@
      ;;
     #_public
     (§ method #_"void" setValue [#_"Coin" value]
-        (Preconditions/checkNotNull value)
+        (ensure some? value)
 
         (.. this (unCache))
         (§ assoc this :value (:value value))
@@ -19554,14 +19556,14 @@
     )
 
     ;;;
-     ; <p>Gets the minimum value for a txout of this size to be considered non-dust by Bitcoin Core
+     ; Gets the minimum value for a txout of this size to be considered non-dust by Bitcoin Core
      ; (and thus relayed).  See CTxOut::IsDust() in Bitcoin Core.  The assumption is that any output that would
      ; consume more than a third of its value in fees is not something the Bitcoin system wants to deal with right now,
      ; so we call them "dust outputs" and they're made non standard.  The choice of one third is somewhat arbitrary and
-     ; may change in future.</p>
+     ; may change in future.
      ;
-     ; <p>You probably should use {@link org.bitcoinj.core.TransactionOutput#getMinNonDustValue()} which uses
-     ; a safe fee-per-kb by default.</p>
+     ; You probably should use {@link org.bitcoinj.core.TransactionOutput#getMinNonDustValue()} which uses
+     ; a safe fee-per-kb by default.
      ;
      ; @param feePerKb The fee required per kilobyte.  Note that this is the same as Bitcoin Core's -minrelaytxfee * 3.
      ;;
@@ -19594,7 +19596,7 @@
      ;;
     #_public
     (§ method #_"void" markAsSpent [#_"TransactionInput" input]
-        (Preconditions/checkState (:available-for-spending this))
+        (assert-state (:available-for-spending this))
 
         (§ assoc this :available-for-spending false)
         (§ assoc this :spent-by input)
@@ -19659,12 +19661,12 @@
                 (when (.. script (isPayToScriptHash))
                     (§ return (.. __transactionBag (isPayToScriptHashMine (.. script (getPubKeyHash)))))
                 )
-                (§ return (.. __transactionBag (isPubKeyHashMine (.. script (getPubKeyHash)))))
+                (.. __transactionBag (isPubKeyHashMine (.. script (getPubKeyHash))))
             )
             (catch ScriptException e
                 ;; Just means we didn't understand the output of this transaction: ignore it.
                 (.. TransactionOutput'log (debug "Could not parse tx {} output script: {}", (if (some? (:parent this)) (.. (:parent this) (getHash)) "(no parent)"), (.. e (toString))))
-                (§ return false)
+                false
             )
         )
     )
@@ -19690,7 +19692,7 @@
                         (.. sb (append " (unknown type)"))
                 )
                 (.. sb (append " script:") (append script))
-                (§ return (.. sb (toString)))
+                (.. sb (toString))
             )
             (catch ScriptException e
                 (throw (RuntimeException. e))
@@ -19728,8 +19730,9 @@
     ;;;
      ; Returns the depth in blocks of the parent tx.
      ;
-     ; <p>If the transaction appears in the top block, the depth is one.
-     ; If it's anything else (pending, dead, unknown), then -1.</p>
+     ; If the transaction appears in the top block, the depth is one.
+     ; If it's anything else (pending, dead, unknown), then -1.
+     ;
      ; @return the tx depth or -1.
      ;;
     #_public
@@ -19781,10 +19784,10 @@
 )
 
 ;;;
- ; <p>TransactionOutputChanges represents a delta to the set of unspent outputs.  It used as a return value for
+ ; TransactionOutputChanges represents a delta to the set of unspent outputs.  It used as a return value for
  ; {@link AbstractBlockChain#connectTransactions(int, Block)}.  It contains the full list of transaction outputs created
  ; and spent in a block.  It DOES contain outputs created that were spent later in the block, as those are needed for
- ; BIP30 (no duplicate txid creation if the previous one was not fully spent prior to this block) verification.</p>
+ ; BIP30 (no duplicate txid creation if the previous one was not fully spent prior to this block) verification.
  ;;
 #_public
 (§ class TransactionOutputChanges
@@ -19802,15 +19805,15 @@
 )
 
 ;;;
- ; <p>Tracks transactions that are being announced across the network.  Typically one is created for you by a
+ ; Tracks transactions that are being announced across the network.  Typically one is created for you by a
  ; {@link PeerGroup} and then given to each Peer to update.  The current purpose is to let Peers update the confidence
  ; (number of peers broadcasting).  It helps address an attack scenario in which a malicious remote peer (or several)
  ; feeds you invalid transactions, e.g. ones that spend coins which don't exist.  If you don't see most of the peers
  ; announce the transaction within a reasonable time, it may be that the TX is not valid.  Alternatively, an attacker
- ; may control your entire internet connection: in this scenario counting broadcasting peers does not help you.</p>
+ ; may control your entire internet connection: in this scenario counting broadcasting peers does not help you.
  ;
- ; <p>It is <b>not</b> at this time directly equivalent to the Bitcoin Core memory pool, which tracks
- ; all transactions not currently included in the best chain - it's simply a cache.</p>
+ ; It is <b>not</b> at this time directly equivalent to the Bitcoin Core memory pool, which tracks
+ ; all transactions not currently included in the best chain - it's simply a cache.
  ;;
 #_public
 (§ class TxConfidenceTable
@@ -19962,7 +19965,7 @@
      ;;
     #_public
     (§ method #_"TransactionConfidence" getOrCreate [#_"Sha256Hash" hash]
-        (Preconditions/checkNotNull hash)
+        (ensure some? hash)
 
         (.. (:lock this) (lock))
         (try
@@ -20136,7 +20139,7 @@
 )
 
 ;;;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class UnknownMessage (§ extends EmptyMessage)
@@ -20198,15 +20201,15 @@
     #_public
     #_static
     (§ defn #_"byte[]" Utils'bigIntegerToBytes [#_"BigInteger" b, #_"int" __numBytes]
-        (Preconditions/checkArgument (<= 0 (.. b (signum))), "b must be positive or zero")
-        (Preconditions/checkArgument (< 0 __numBytes), "numBytes must be positive")
+        (assert-argument (<= 0 (.. b (signum))), "b must be positive or zero")
+        (assert-argument (< 0 __numBytes), "numBytes must be positive")
 
         (let [#_"byte[]" src (.. b (toByteArray))
               #_"byte[]" dest (byte-array __numBytes)
               #_"boolean" __isFirstByteOnlyForSign (= (aget src 0) 0)
               #_"int" length (if __isFirstByteOnlyForSign (dec (alength src)) (alength src))]
 
-            (Preconditions/checkArgument (<= length __numBytes), (str "The given number does not fit in " __numBytes))
+            (assert-argument (<= length __numBytes), (str "The given number does not fit in " __numBytes))
 
             (let [#_"int" __srcPos (if __isFirstByteOnlyForSign 1 0)
                   #_"int" __destPos (- __numBytes length)]
@@ -20346,8 +20349,8 @@
     #_public
     #_static
     (§ defn #_"byte[]" Utils'reverseDwordBytes [#_"byte[]" bytes, #_"int" __trimLength]
-        (Preconditions/checkArgument (= (rem (alength bytes) 4) 0))
-        (Preconditions/checkArgument (or (< __trimLength 0) (= (rem __trimLength 4) 0)))
+        (assert-argument (= (rem (alength bytes) 4) 0))
+        (assert-argument (or (< __trimLength 0) (= (rem __trimLength 4) 0)))
 
         (let [#_"byte[]" rev (byte-array (if (< -1 __trimLength (alength bytes)) __trimLength (alength bytes)))]
 
@@ -20496,17 +20499,17 @@
     )
 
     ;;;
-     ; <p>The "compact" format is a representation of a whole number N using an unsigned 32 bit number similar to
+     ; The "compact" format is a representation of a whole number N using an unsigned 32 bit number similar to
      ; a floating point format.  The most significant 8 bits are the unsigned exponent of base 256.  This exponent
      ; can be thought of as "number of bytes of N".  The lower 23 bits are the mantissa.  Bit number 24 (0x800000)
-     ; represents the sign of N.  Therefore, N = (-1^sign) * mantissa * 256^(exponent-3).</p>
+     ; represents the sign of N.  Therefore, N = (-1^sign) * mantissa * 256^(exponent-3).
      ;
-     ; <p>Satoshi's original implementation used BN_bn2mpi() and BN_mpi2bn().  MPI uses the most significant bit of
+     ; Satoshi's original implementation used BN_bn2mpi() and BN_mpi2bn().  MPI uses the most significant bit of
      ; the first byte as sign.  Thus 0x1234560000 is compact 0x05123456 and 0xc0de000000 is compact 0x0600c0de.
-     ; Compact 0x05c0de00 would be -0x40de000000.</p>
+     ; Compact 0x05c0de00 would be -0x40de000000.
      ;
-     ; <p>Bitcoin only uses this "compact" format for encoding difficulty targets, which are unsigned 256bit quantities.
-     ; Thus, all the complexities of the sign bit and using base 256 are probably an implementation accident.</p>
+     ; Bitcoin only uses this "compact" format for encoding difficulty targets, which are unsigned 256bit quantities.
+     ; Thus, all the complexities of the sign bit and using base 256 are probably an implementation accident.
      ;;
     #_public
     #_static
@@ -20744,9 +20747,9 @@
     )
 
     ;;;
-     ; <p>Given a textual message, returns a byte buffer formatted as follows:</p>
+     ; Given a textual message, returns a byte buffer formatted as follows:
      ;
-     ; <p><tt>[24] "Bitcoin Signed Message:\n" [message.length as a varint] message</tt>.</p>
+     ; <tt>[24] "Bitcoin Signed Message:\n" [message.length as a varint] message</tt>.
      ;;
     #_public
     #_static
@@ -21196,10 +21199,10 @@
 )
 
 ;;;
- ; <p>The verack message, sent by a client accepting the version message they
- ; received from their peer.</p>
+ ; The verack message, sent by a client accepting the version message they
+ ; received from their peer.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class VersionAck (§ extends EmptyMessage)
@@ -21216,15 +21219,15 @@
 )
 
 ;;;
- ; <p>A VersionMessage holds information exchanged during connection setup with another peer.  Most of the fields are
+ ; A VersionMessage holds information exchanged during connection setup with another peer.  Most of the fields are
  ; not particularly interesting.  The subVer field, since BIP 14, acts as a User-Agent string would.  You can and should
  ; append to or change the subVer for your own software so other implementations can identify it, and you can look at
- ; the subVer field received from other nodes to see what they are running.</p>
+ ; the subVer field received from other nodes to see what they are running.
  ;
- ; <p>After creating yourself a VersionMessage, you can pass it to {@link PeerGroup#setVersionMessage(VersionMessage)}
- ; to ensure it will be used for each new connection.</p>
+ ; After creating yourself a VersionMessage, you can pass it to {@link PeerGroup#setVersionMessage(VersionMessage)}
+ ; to ensure it will be used for each new connection.
  ;
- ; <p>Instances of this class are not safe for use by multiple threads.</p>
+ ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_public
 (§ class VersionMessage (§ extends Message)
@@ -21527,12 +21530,12 @@
 )
 
 ;;;
- ; <p>In Bitcoin the following format is often used to represent some type of key:</p>
+ ; In Bitcoin the following format is often used to represent some type of key:
  ;
  ; <pre>[one version byte] [data bytes] [4 checksum bytes]</pre>
  ;
- ; <p>and the result is then Base58 encoded.
- ; This format is used for addresses, and private keys exported using the dumpprivkey command.</p>
+ ; and the result is then Base58 encoded.
+ ; This format is used for addresses, and private keys exported using the dumpprivkey command.
  ;;
 #_public
 (§ class VersionedChecksummedBytes (§ implements Comparable #_"<VersionedChecksummedBytes>")
@@ -21555,7 +21558,7 @@
 
     #_protected
     (§ constructor VersionedChecksummedBytes [#_"int" version, #_"byte[]" bytes]
-        (Preconditions/checkArgument (< -1 version 256))
+        (assert-argument (< -1 version 256))
 
         (§ assoc this :version version)
         (§ assoc this :bytes bytes)
@@ -21703,18 +21706,18 @@
 (§ interface BlockChainListener (§ extends NewBestBlockListener, TransactionReceivedInBlockListener, ReorganizeListener))
 
 ;;;
- ; <p>Implementors can listen to events like blocks being downloaded/transactions being broadcast/connect/disconnects,
+ ; Implementors can listen to events like blocks being downloaded/transactions being broadcast/connect/disconnects,
  ; they can pre-filter messages before they are procesesed by a {@link Peer} or {@link PeerGroup}, and they can
- ; provide transactions to remote peers when they ask for them.</p>
+ ; provide transactions to remote peers when they ask for them.
  ;;
 #_public
 (§ interface BlocksDownloadedEventListener
     ;; TODO: Fix the Block/FilteredBlock type hierarchy so we can avoid the stupid typeless API here.
     ;;;
-     ; <p>Called on a Peer thread when a block is received.</p>
+     ; Called on a Peer thread when a block is received.
      ;
-     ; <p>The block may be a Block object that contains transactions, a Block object that is only a header when
-     ; fast catchup is being used.  If set, filteredBlock can be used to retrieve the list of associated transactions.</p>
+     ; The block may be a Block object that contains transactions, a Block object that is only a header when
+     ; fast catchup is being used.  If set, filteredBlock can be used to retrieve the list of associated transactions.
      ;
      ; @param peer The peer receiving the block.
      ; @param block The downloaded block.
@@ -21725,9 +21728,9 @@
 )
 
 ;;;
- ; <p>Implementors can listen to events like blocks being downloaded/transactions being broadcast/connect/disconnects,
+ ; Implementors can listen to events like blocks being downloaded/transactions being broadcast/connect/disconnects,
  ; they can pre-filter messages before they are procesesed by a {@link Peer} or {@link PeerGroup}, and they can
- ; provide transactions to remote peers when they ask for them.</p>
+ ; provide transactions to remote peers when they ask for them.
  ;;
 #_public
 (§ interface ChainDownloadStartedEventListener
@@ -21741,9 +21744,9 @@
 )
 
 ;;;
- ; <p>An implementation of {@link AbstractPeerDataEventListener} that listens to chain download events and tracks
+ ; An implementation of {@link AbstractPeerDataEventListener} that listens to chain download events and tracks
  ; progress as a percentage.  The default implementation prints progress to stdout, but you can subclass it and
- ; override the progress method to update a GUI instead.</p>
+ ; override the progress method to update a GUI instead.
  ;;
 #_public
 (§ class DownloadProgressTracker (§ extends AbstractPeerDataEventListener)
@@ -21862,18 +21865,18 @@
 )
 
 ;;;
- ; <p>Implementors can listen to events like blocks being downloaded/transactions being broadcast/connect/disconnects,
+ ; Implementors can listen to events like blocks being downloaded/transactions being broadcast/connect/disconnects,
  ; they can pre-filter messages before they are procesesed by a {@link Peer} or {@link PeerGroup}, and they can
- ; provide transactions to remote peers when they ask for them.</p>
+ ; provide transactions to remote peers when they ask for them.
  ;;
 #_public
 (§ interface GetDataEventListener
     ;;;
-     ; <p>Called when a peer receives a getdata message, usually in response to an "inv" being broadcast.  Return as many
-     ; items as possible which appear in the {@link GetDataMessage}, or null if you're not interested in responding.</p>
+     ; Called when a peer receives a getdata message, usually in response to an "inv" being broadcast.  Return as many
+     ; items as possible which appear in the {@link GetDataMessage}, or null if you're not interested in responding.
      ;
-     ; <p>Note that this will never be called if registered with any executor other than
-     ; {@link org.bitcoinj.utils.Threading#SAME_THREAD}</p>
+     ; Note that this will never be called if registered with any executor other than
+     ; {@link org.bitcoinj.utils.Threading#SAME_THREAD}.
      ;;
     #_nilable
     (§ method #_"List<Message>" getData [#_"Peer" peer, #_"GetDataMessage" m])
@@ -21910,7 +21913,7 @@
 )
 
 ;;;
- ; <p>Implementors can listen to events indicating a new peer connecting.</p>
+ ; Implementors can listen to events indicating a new peer connecting.
  ;;
 #_public
 (§ interface PeerConnectedEventListener
@@ -21925,15 +21928,15 @@
 )
 
 ;;;
- ; <p>Implementors can listen to events like blocks being downloaded/transactions being broadcast/connect/disconnects,
+ ; Implementors can listen to events like blocks being downloaded/transactions being broadcast/connect/disconnects,
  ; they can pre-filter messages before they are processed by a {@link Peer} or {@link PeerGroup}, and they can
- ; provide transactions to remote peers when they ask for them.</p>
+ ; provide transactions to remote peers when they ask for them.
  ;;
 #_public
 (§ interface PeerDataEventListener (§ extends BlocksDownloadedEventListener, ChainDownloadStartedEventListener, GetDataEventListener, PreMessageReceivedEventListener))
 
 ;;;
- ; <p>Implementors can listen to events indicating a peer disconnecting.</p>
+ ; Implementors can listen to events indicating a peer disconnecting.
  ;;
 #_public
 (§ interface PeerDisconnectedEventListener
@@ -21950,13 +21953,13 @@
 )
 
 ;;;
- ; <p>Implementors can listen to events for peers being discovered.</p>
+ ; Implementors can listen to events for peers being discovered.
  ;;
 #_public
 (§ interface PeerDiscoveredEventListener
     ;;;
-     ; <p>Called when peers are discovered, this happens at startup of {@link PeerGroup}
-     ; or if we run out of suitable {@link Peer}s to connect to.</p>
+     ; Called when peers are discovered, this happens at startup of {@link PeerGroup}
+     ; or if we run out of suitable {@link Peer}s to connect to.
      ;
      ; @param peerAddresses The set of discovered {@link PeerAddress}es.
      ;;
@@ -21964,20 +21967,20 @@
 )
 
 ;;;
- ; <p>Implementors can listen to events like blocks being downloaded/transactions being broadcast/connect/disconnects,
+ ; Implementors can listen to events like blocks being downloaded/transactions being broadcast/connect/disconnects,
  ; they can pre-filter messages before they are procesesed by a {@link Peer} or {@link PeerGroup}, and they can
- ; provide transactions to remote peers when they ask for them.</p>
+ ; provide transactions to remote peers when they ask for them.
  ;;
 #_public
 (§ interface PreMessageReceivedEventListener
     ;;;
-     ; <p>Called when a message is received by a peer, before the message is processed.  The returned message is
+     ; Called when a message is received by a peer, before the message is processed.  The returned message is
      ; processed instead.  Returning null will cause the message to be ignored by the Peer returning the same message
      ; object allows you to see the messages received but not change them.  The result from one event listeners
-     ; callback is passed as "m" to the next, forming a chain.</p>
+     ; callback is passed as "m" to the next, forming a chain.
      ;
-     ; <p>Note that this will never be called if registered with any executor other than
-     ; {@link org.bitcoinj.utils.Threading#SAME_THREAD}.</p>
+     ; Note that this will never be called if registered with any executor other than
+     ; {@link org.bitcoinj.utils.Threading#SAME_THREAD}.
      ;;
     (§ method #_"Message" onPreMessageReceived [#_"Peer" peer, #_"Message" m])
 )
@@ -22000,17 +22003,17 @@
 )
 
 ;;;
- ; <p>Implementors are called when confidence of a transaction changes.</p>
+ ; Implementors are called when confidence of a transaction changes.
  ;;
 #_public
 (§ interface TransactionConfidenceEventListener
     ;;;
-     ; <p>Called when a transaction changes its confidence level.  You can also attach event listeners to
+     ; Called when a transaction changes its confidence level.  You can also attach event listeners to
      ; the individual transactions, if you don't care about all of them.  Usually you would save the wallet to disk
-     ; after receiving this callback unless you already set up autosaving.</p>
+     ; after receiving this callback unless you already set up autosaving.
      ;
-     ; <p>You should pay attention to this callback in case a transaction becomes <i>dead</i>, that is, a transaction
-     ; you believed to be active (send or receive) becomes overridden by the network.  This can happen if</p>
+     ; You should pay attention to this callback in case a transaction becomes <i>dead</i>, that is, a transaction
+     ; you believed to be active (send or receive) becomes overridden by the network.  This can happen if
      ;
      ; <ol>
      ;     <li>You are sharing keys between wallets and accidentally create/broadcast a double spend.</li>
@@ -22019,13 +22022,13 @@
      ;     The {@link Wallet} will then re-use the same outputs when creating the next spend.</li>
      ; </ol>
      ;
-     ; <p>To find if the transaction is dead, you can use <tt>tx.getConfidence().getConfidenceType() ==
+     ; To find if the transaction is dead, you can use <tt>tx.getConfidence().getConfidenceType() ==
      ; TransactionConfidence.ConfidenceType.DEAD</tt>.  If it is, you should notify the user in some way
-     ; so they know the thing they bought may not arrive/the thing they sold should not be dispatched.</p>
+     ; so they know the thing they bought may not arrive/the thing they sold should not be dispatched.
      ;
-     ; <p>Note that this callback will be invoked for every transaction in the wallet, for every new block that is
+     ; Note that this callback will be invoked for every transaction in the wallet, for every new block that is
      ; received (because the depth has changed).  <b>If you want to update a UI view from the contents of the wallet
-     ; it is more efficient to use onWalletChanged instead.</b></p>
+     ; it is more efficient to use onWalletChanged instead.</b>
      ;;
     (§ method #_"void" onTransactionConfidenceChanged [#_"Wallet" wallet, #_"Transaction" tx])
 )
@@ -22036,36 +22039,36 @@
 #_public
 (§ interface TransactionReceivedInBlockListener
     ;;;
-     ; <p>Called by the {@link BlockChain} when we receive a new block that contains a relevant transaction.</p>
+     ; Called by the {@link BlockChain} when we receive a new block that contains a relevant transaction.
      ;
-     ; <p>A transaction may be received multiple times if is included into blocks in parallel chains.  The blockType
+     ; A transaction may be received multiple times if is included into blocks in parallel chains.  The blockType
      ; parameter describes whether the containing block is on the main/best chain or whether it's on a presently
-     ; inactive side chain.</p>
+     ; inactive side chain.
      ;
-     ; <p>The relativityOffset parameter is an arbitrary number used to establish an ordering between transactions
+     ; The relativityOffset parameter is an arbitrary number used to establish an ordering between transactions
      ; within the same block.  In the case where full blocks are being downloaded, it is simply the index of the
      ; transaction within that block.  When Bloom filtering is in use, we don't find out the exact offset into a block
      ; that a transaction occurred at, so the relativity count is not reflective of anything in an absolute sense but
-     ; rather exists only to order the transaction relative to the others.</p>
+     ; rather exists only to order the transaction relative to the others.
      ;;
     #_throws #_[ "VerificationException" ]
     (§ method #_"void" receiveFromBlock [#_"Transaction" tx, #_"StoredBlock" block, #_"NewBlockType" __blockType, #_"int" __relativityOffset])
 
     ;;;
-     ; <p>Called by the {@link BlockChain} when we receive a new {@link FilteredBlock} that contains the given
-     ; transaction hash in its merkle tree.</p>
+     ; Called by the {@link BlockChain} when we receive a new {@link FilteredBlock} that contains the given
+     ; transaction hash in its merkle tree.
      ;
-     ; <p>A transaction may be received multiple times if is included into blocks in parallel chains.  The blockType
+     ; A transaction may be received multiple times if is included into blocks in parallel chains.  The blockType
      ; parameter describes whether the containing block is on the main/best chain or whether it's on a presently
-     ; inactive side chain.</p>
+     ; inactive side chain.
      ;
-     ; <p>The relativityOffset parameter in this case is an arbitrary (meaningless) number, that is useful only when
+     ; The relativityOffset parameter in this case is an arbitrary (meaningless) number, that is useful only when
      ; compared to the relativity count of another transaction received inside the same block.  It is used to establish
-     ; an ordering of transactions relative to one another.</p>
+     ; an ordering of transactions relative to one another.
      ;
-     ; <p>This method should return false if the given tx hash isn't known about, e.g. because the the transaction was
+     ; This method should return false if the given tx hash isn't known about, e.g. because the the transaction was
      ; a Bloom false positive.  If it was known about and stored, it should return true.  The caller may need to know
-     ; this to calculate the effective FP rate.</p>
+     ; this to calculate the effective FP rate.
      ;
      ; @return whether the transaction is known about i.e. was considered relevant previously.
      ;;
@@ -22074,7 +22077,7 @@
 )
 
 #_(ns org.bitcoinj.crypto
-    (:import [com.google.common.base Joiner MoreObjects Objects Preconditions Stopwatch]
+    (:import [com.google.common.base Joiner MoreObjects Objects Stopwatch]
              [com.google.common.collect ImmutableList Iterables Maps]
              [com.google.common.primitives Ints]
              [com.google.protobuf ByteString]
@@ -22094,7 +22097,7 @@
 )
 
 ;;;
- ; <p>This is just a wrapper for the i (child number) as per BIP 32 with a boolean getter for the most significant bit
+ ; This is just a wrapper for the i (child number) as per BIP 32 with a boolean getter for the most significant bit
  ; and a getter for the actual 0-based child number.  A {@link java.util.List} of these forms a <i>path</i> through a
  ; {@link DeterministicHierarchy}.  This class is immutable.
  ;;
@@ -22206,16 +22209,16 @@
 ;; TODO: Should we be representing this using an actual tree arrangement in memory instead of a bunch of hashmaps?
 
 ;;;
- ; <p>A DeterministicHierarchy calculates and keeps a whole tree (hierarchy) of keys originating from a single
+ ; A DeterministicHierarchy calculates and keeps a whole tree (hierarchy) of keys originating from a single
  ; root key.  This implements part of the BIP 32 specification.  A deterministic key tree is useful because
  ; Bitcoin's privacy system require new keys to be created for each transaction, but managing all these
  ; keys quickly becomes unwieldy.  In particular it becomes hard to back up and distribute them.  By having
  ; a way to derive random-looking but deterministic keys we can make wallet backup simpler and gain the
  ; ability to hand out {@link DeterministicKey}s to other people who can then create new addresses
- ; on the fly, without having to contact us.</p>
+ ; on the fly, without having to contact us.
  ;
- ; <p>The hierarchy is started from a single root key, and a location in the tree is given by a path which
- ; is a list of {@link ChildNumber}s.</p>
+ ; The hierarchy is started from a single root key, and a location in the tree is given by a path which
+ ; is a list of {@link ChildNumber}s.
  ;;
 #_public
 (§ class DeterministicHierarchy
@@ -22277,7 +22280,7 @@
                 (when (not create)
                     (throw (IllegalArgumentException. (String/format Locale/US, "No key found for %s path %s.", (if __relativePath "relative" "absolute"), (HDUtils'formatPath path))))
                 )
-                (Preconditions/checkArgument (< 0 (.. __absolutePath (size))), "Can't derive the master key: nothing to derive from.")
+                (assert-argument (< 0 (.. __absolutePath (size))), "Can't derive the master key: nothing to derive from.")
                 (let [#_"DeterministicKey" parent (.. this (get (.. __absolutePath (subList 0, (dec (.. __absolutePath (size))))), false, true))]
                     (.. this (putKey (HDKeyDerivation'deriveChildKey parent, (.. __absolutePath (get (dec (.. __absolutePath (size))))))))
                 )
@@ -22401,12 +22404,12 @@
     ;;; Constructs a key from its components.  This is not normally something you should use. ;;
     #_public
     (§ constructor DeterministicKey [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"LazyECPoint" __publicAsPoint, #_nilable #_"BigInteger" priv, #_nilable #_"DeterministicKey" parent]
-        (§ super priv, (ECKey'compressPoint (Preconditions/checkNotNull __publicAsPoint)))
+        (§ super priv, (ECKey'compressPoint (ensure some? __publicAsPoint)))
 
-        (Preconditions/checkArgument (= (alength __chainCode) 32))
+        (assert-argument (= (alength __chainCode) 32))
 
         (§ assoc this :parent parent)
-        (§ assoc this :child-number-path (Preconditions/checkNotNull __childNumberPath))
+        (§ assoc this :child-number-path (ensure some? __childNumberPath))
         (§ assoc this :chain-code (Arrays/copyOf __chainCode, (alength __chainCode)))
         (§ assoc this :depth (if (some? parent) (inc (:depth parent)) 0))
         (§ assoc this :parent-fingerprint (if (some? parent) (.. parent (getFingerprint)) 0))
@@ -22424,10 +22427,10 @@
     (§ constructor DeterministicKey [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"BigInteger" priv, #_nilable #_"DeterministicKey" parent]
         (§ super priv, (ECKey'compressPoint (ECKey'publicPointFromPrivate priv)))
 
-        (Preconditions/checkArgument (= (alength __chainCode) 32))
+        (assert-argument (= (alength __chainCode) 32))
 
         (§ assoc this :parent parent)
-        (§ assoc this :child-number-path (Preconditions/checkNotNull __childNumberPath))
+        (§ assoc this :child-number-path (ensure some? __childNumberPath))
         (§ assoc this :chain-code (Arrays/copyOf __chainCode, (alength __chainCode)))
         (§ assoc this :depth (if (some? parent) (inc (:depth parent)) 0))
         (§ assoc this :parent-fingerprint (if (some? parent) (.. parent (getFingerprint)) 0))
@@ -22444,7 +22447,7 @@
     (§ method- #_"int" ascertainParentFingerprint [#_"DeterministicKey" __parentKey, #_"int" __parentFingerprint]
         (when (not= __parentFingerprint 0)
             (when (some? (:parent this))
-                (Preconditions/checkArgument (= (.. (:parent this) (getFingerprint)) __parentFingerprint), "parent fingerprint mismatch", (Integer/toHexString (.. (:parent this) (getFingerprint))), (Integer/toHexString __parentFingerprint))
+                (assert-argument (= (.. (:parent this) (getFingerprint)) __parentFingerprint), "parent fingerprint mismatch", (Integer/toHexString (.. (:parent this) (getFingerprint))), (Integer/toHexString __parentFingerprint))
             )
             (§ return __parentFingerprint)
         )
@@ -22459,12 +22462,12 @@
      ;;
     #_public
     (§ constructor DeterministicKey [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"LazyECPoint" __publicAsPoint, #_nilable #_"DeterministicKey" parent, #_"int" depth, #_"int" __parentFingerprint]
-        (§ super nil, (ECKey'compressPoint (Preconditions/checkNotNull __publicAsPoint)))
+        (§ super nil, (ECKey'compressPoint (ensure some? __publicAsPoint)))
 
-        (Preconditions/checkArgument (= (alength __chainCode) 32))
+        (assert-argument (= (alength __chainCode) 32))
 
         (§ assoc this :parent parent)
-        (§ assoc this :child-number-path (Preconditions/checkNotNull __childNumberPath))
+        (§ assoc this :child-number-path (ensure some? __childNumberPath))
         (§ assoc this :chain-code (Arrays/copyOf __chainCode, (alength __chainCode)))
         (§ assoc this :depth depth)
         (§ assoc this :parent-fingerprint (.. this (ascertainParentFingerprint parent, __parentFingerprint)))
@@ -22480,10 +22483,10 @@
     (§ constructor DeterministicKey [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"BigInteger" priv, #_nilable #_"DeterministicKey" parent, #_"int" depth, #_"int" __parentFingerprint]
         (§ super priv, (ECKey'compressPoint (ECKey'publicPointFromPrivate priv)))
 
-        (Preconditions/checkArgument (= (alength __chainCode) 32))
+        (assert-argument (= (alength __chainCode) 32))
 
         (§ assoc this :parent parent)
-        (§ assoc this :child-number-path (Preconditions/checkNotNull __childNumberPath))
+        (§ assoc this :child-number-path (ensure some? __childNumberPath))
         (§ assoc this :chain-code (Arrays/copyOf __chainCode, (alength __chainCode)))
         (§ assoc this :depth depth)
         (§ assoc this :parent-fingerprint (.. this (ascertainParentFingerprint parent, __parentFingerprint)))
@@ -22601,12 +22604,12 @@
     )
 
     ;;;
-     ; <p>Returns the same key with the parent pointer removed (it still knows its own path and the parent fingerprint).</p>
+     ; Returns the same key with the parent pointer removed (it still knows its own path and the parent fingerprint).
      ;
-     ; <p>If this key doesn't have private key bytes stored/cached itself, but could rederive them from the parent, then
+     ; If this key doesn't have private key bytes stored/cached itself, but could rederive them from the parent, then
      ; the new key returned by this method won't be able to do that.  Thus, using dropPrivateBytes().dropParent() on a
      ; regular DeterministicKey will yield a new DeterministicKey that cannot sign or do other things involving the
-     ; private key at all.</p>
+     ; private key at all.
      ;;
     #_public
     (§ method #_"DeterministicKey" dropParent []
@@ -22706,7 +22709,7 @@
                     (throw (RuntimeException. "Could not decrypt bytes"))
                 )
 
-                (Preconditions/checkNotNull (:priv __downCursor))
+                (ensure some? (:priv __downCursor))
             )
         )
     )
@@ -22730,7 +22733,7 @@
     #_public
     (§ method #_"BigInteger" getPrivKey []
         (let [#_"BigInteger" key (.. this (findOrDerivePrivateKey))]
-            (Preconditions/checkState (some? key), "Private key bytes not available")
+            (assert-state (some? key), "Private key bytes not available")
             key
         )
     )
@@ -22754,7 +22757,7 @@
             (.. ser (putInt (.. this (getChildNumber) (i))))
             (.. ser (put (.. this (getChainCode))))
             (.. ser (put (if pub (.. this (getPubKey)) (.. this (getPrivKeyBytes33)))))
-            (Preconditions/checkState (= (.. ser (position)) 78))
+            (assert-state (= (.. ser (position)) 78))
             (.. ser (array))
         )
     )
@@ -22846,7 +22849,7 @@
                         (.. buffer (get __chainCode))
                         (let [#_"byte[]" data (byte-array 33)]
                             (.. buffer (get data))
-                            (Preconditions/checkArgument (not (.. buffer (hasRemaining))), "Found unexpected data in key")
+                            (assert-argument (not (.. buffer (hasRemaining))), "Found unexpected data in key")
                             (if pub
                                 (§ return (DeterministicKey. path, __chainCode, (LazyECPoint. (.. ECKey'CURVE (getCurve)), data), parent, depth, __parentFingerprint))
                                 (§ return (DeterministicKey. path, __chainCode, (BigInteger. 1, data), parent, depth, __parentFingerprint))
@@ -22999,13 +23002,13 @@
     #_static
     #_throws #_[ "HDDerivationException" ]
     (§ defn #_"DeterministicKey" HDKeyDerivation'createMasterPrivateKey [#_"byte[]" seed]
-        (Preconditions/checkArgument (< 8 (alength seed)), "Seed is too short and could be brute forced")
+        (assert-argument (< 8 (alength seed)), "Seed is too short and could be brute forced")
 
         ;; Calculate I = HMAC-SHA512(key="Bitcoin seed", msg=S).
         (let [#_"byte[]" i (HDUtils'hmacSha512 (HDUtils'createHmacSha512Digest (.. "Bitcoin seed" (getBytes))), seed)]
             ;; Split I into two 32-byte sequences, Il and Ir.
             ;; Use Il as master secret key, and Ir as master chain code.
-            (Preconditions/checkState (= (alength i) 64), (alength i))
+            (assert-state (= (alength i) 64), (alength i))
 
             (let [#_"byte[]" il (Arrays/copyOfRange i, 0, 32)
                   #_"byte[]" ir (Arrays/copyOfRange i, 32, 64)]
@@ -23104,17 +23107,17 @@
     #_static
     #_throws #_[ "HDDerivationException" ]
     (§ defn #_"RawKeyBytes" HDKeyDerivation'deriveChildKeyBytesFromPrivate [#_"DeterministicKey" parent, #_"ChildNumber" __childNumber]
-        (Preconditions/checkArgument (.. parent (hasPrivKey)), "Parent key must have private key bytes for this method.")
+        (assert-argument (.. parent (hasPrivKey)), "Parent key must have private key bytes for this method.")
 
         (let [#_"byte[]" __parentPublicKey (.. parent (getPubKeyPoint) (getEncoded true))]
-            (Preconditions/checkState (= (alength __parentPublicKey) 33), (str "Parent pubkey must be 33 bytes, but is " (alength __parentPublicKey)))
+            (assert-state (= (alength __parentPublicKey) 33), (str "Parent pubkey must be 33 bytes, but is " (alength __parentPublicKey)))
 
             (let [#_"ByteBuffer" data (ByteBuffer/allocate 37)]
                 (.. data (put (if (.. __childNumber (isHardened)) (.. parent (getPrivKeyBytes33)) __parentPublicKey)))
                 (.. data (putInt (.. __childNumber (i))))
 
                 (let [#_"byte[]" i (HDUtils'hmacSha512 (.. parent (getChainCode)), (.. data (array)))]
-                    (Preconditions/checkState (= (alength i) 64), (alength i))
+                    (assert-state (= (alength i) 64), (alength i))
 
                     (let [#_"byte[]" il (Arrays/copyOfRange i, 0, 32)
                           #_"byte[]" __chainCode (Arrays/copyOfRange i, 32, 64)
@@ -23146,17 +23149,17 @@
     #_static
     #_throws #_[ "HDDerivationException" ]
     (§ defn #_"RawKeyBytes" HDKeyDerivation'deriveChildKeyBytesFromPublic [#_"DeterministicKey" parent, #_"ChildNumber" __childNumber, #_"PublicDerivationMode" mode]
-        (Preconditions/checkArgument (not (.. __childNumber (isHardened))), "Can't use private derivation with public keys only.")
+        (assert-argument (not (.. __childNumber (isHardened))), "Can't use private derivation with public keys only.")
 
         (let [#_"byte[]" __parentPublicKey (.. parent (getPubKeyPoint) (getEncoded true))]
-            (Preconditions/checkState (= (alength __parentPublicKey) 33), (str "Parent pubkey must be 33 bytes, but is " (alength __parentPublicKey)))
+            (assert-state (= (alength __parentPublicKey) 33), (str "Parent pubkey must be 33 bytes, but is " (alength __parentPublicKey)))
 
             (let [#_"ByteBuffer" data (ByteBuffer/allocate 37)]
                 (.. data (put __parentPublicKey))
                 (.. data (putInt (.. __childNumber (i))))
 
                 (let [#_"byte[]" i (HDUtils'hmacSha512 (.. parent (getChainCode)), (.. data (array)))]
-                    (Preconditions/checkState (= (alength i) 64), (alength i))
+                    (assert-state (= (alength i) 64), (alength i))
 
                     (let [#_"byte[]" il (Arrays/copyOfRange i, 0, 32)
                           #_"byte[]" __chainCode (Arrays/copyOfRange i, 32, 64)
@@ -23275,14 +23278,6 @@
         (.. ECKey'CURVE (getCurve) (decodePoint __uncompressedPoint) (getEncoded true))
     )
 
-    #_static
-    (§ defn #_"byte[]" HDUtils'longTo4ByteArray [#_"long" n]
-        (let [#_"byte[]" bytes (Arrays/copyOfRange (.. (ByteBuffer/allocate 8) (putLong n) (array)), 4, 8)]
-            (assert (= (alength bytes) 4) (alength bytes))
-            bytes
-        )
-    )
-
     ;;; Append a derivation level to an existing path. ;;
     #_public
     #_static
@@ -23358,7 +23353,7 @@
 
     #_public
     (§ constructor LazyECPoint [#_"ECPoint" point]
-        (§ assoc this :point (Preconditions/checkNotNull point))
+        (§ assoc this :point (ensure some? point))
         (§ assoc this :curve nil)
         (§ assoc this :bits nil)
         this
@@ -24043,7 +24038,7 @@
     #_static
     (§ defn #_"int" TransactionSignature'calcSigHashValue [#_"SigHash" mode, #_"boolean" __anyoneCanPay]
         ;; Enforce compatibility since this code was made before the SigHash enum was updated.
-        (Preconditions/checkArgument (any = mode SigHash'ALL SigHash'NONE SigHash'SINGLE))
+        (assert-argument (any = mode SigHash'ALL SigHash'NONE SigHash'SINGLE))
 
         (let [#_"int" __sighashFlags (:value mode)]
             (when __anyoneCanPay
@@ -24144,7 +24139,7 @@
         (try
             (let [#_"ByteArrayOutputStream" bos (.. this (derByteStream))]
                 (.. bos (write (:sighash-flags this)))
-                (§ return (.. bos (toByteArray)))
+                (.. bos (toByteArray))
             )
             (catch IOException e
                 (throw (RuntimeException. e)) ;; Cannot happen.
@@ -24208,8 +24203,7 @@
 )
 
 #_(ns org.bitcoinj.kits
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.collect *]
+    (:import [com.google.common.collect *]
              [com.google.common.util.concurrent *]
              [java.io *]
              [java.net *]
@@ -24221,26 +24215,26 @@
 )
 
 ;;;
- ; <p>Utility class that wraps the boilerplate needed to set up a new SPV bitcoinj app.  Instantiate it with a directory
+ ; Utility class that wraps the boilerplate needed to set up a new SPV bitcoinj app.  Instantiate it with a directory
  ; and file prefix, optionally configure a few things, then use startAsync and optionally awaitRunning.  The object will
  ; construct and configure a {@link BlockChain}, {@link SPVBlockStore}, {@link Wallet} and {@link PeerGroup}.  Depending
  ; on the value of the blockingStartup property, startup will be considered complete once the block chain has fully
- ; synchronized, so it can take a while.</p>
+ ; synchronized, so it can take a while.
  ;
- ; <p>To add listeners and modify the objects that are constructed, you can either do that by overriding the
+ ; To add listeners and modify the objects that are constructed, you can either do that by overriding the
  ; {@link #onSetupCompleted()} method (which will run on a background thread) and make your changes there,
  ; or by waiting for the service to start and then accessing the objects from wherever you want.  However, you cannot
- ; access the objects this class creates until startup is complete.</p>
+ ; access the objects this class creates until startup is complete.
  ;
- ; <p>The asynchronous design of this class may seem puzzling (just use {@link #awaitRunning()} if you don't want that).
+ ; The asynchronous design of this class may seem puzzling (just use {@link #awaitRunning()} if you don't want that).
  ; It is to make it easier to fit bitcoinj into GUI apps, which require a high degree of responsiveness on their main
  ; thread which handles all the animation and user interaction.  Even when blockingStart is false, initializing bitcoinj
  ; means doing potentially blocking file IO, generating keys and other potentially intensive operations.  By running it
- ; on a background thread, there's no risk of accidentally causing UI lag.</p>
+ ; on a background thread, there's no risk of accidentally causing UI lag.
  ;
- ; <p>Note that {@link #awaitRunning()} can throw an unchecked {@link java.lang.IllegalStateException}
+ ; Note that {@link #awaitRunning()} can throw an unchecked {@link java.lang.IllegalStateException}
  ; if anything goes wrong during startup - you should probably handle it and use {@link Exception#getCause()} to figure
- ; out what went wrong more precisely.  Same thing if you just use the {@link #startAsync()} method.</p>
+ ; out what went wrong more precisely.  Same thing if you just use the {@link #startAsync()} method.
  ;;
 #_public
 (§ class WalletAppKit (§ extends AbstractIdleService)
@@ -24310,16 +24304,16 @@
     #_public
     (§ constructor WalletAppKit [#_"Context" context, #_"File" directory, #_"String" __filePrefix]
         (§ assoc this :context context)
-        (§ assoc this :params (Preconditions/checkNotNull (.. context (getParams))))
-        (§ assoc this :directory (Preconditions/checkNotNull directory))
-        (§ assoc this :file-prefix (Preconditions/checkNotNull __filePrefix))
+        (§ assoc this :params (ensure some? (.. context (getParams))))
+        (§ assoc this :directory (ensure some? directory))
+        (§ assoc this :file-prefix (ensure some? __filePrefix))
         this
     )
 
     ;;; Will only connect to the given addresses.  Cannot be called after startup. ;;
     #_public
     (§ method #_"WalletAppKit" setPeerNodes [#_"PeerAddress..." addresses]
-        (Preconditions/checkState (= (state) KeyChainState'NEW), "Cannot call after startup")
+        (assert-state (= (state) KeyChainState'NEW), "Cannot call after startup")
         (§ assoc this :peer-addresses addresses)
         this
     )
@@ -24329,7 +24323,7 @@
     (§ method #_"WalletAppKit" connectToLocalHost []
         (try
             (let [#_"InetAddress" __localHost (InetAddress/getLocalHost)]
-                (§ return (.. this (setPeerNodes (PeerAddress. (:params this), __localHost, (.. (:params this) (getPort))))))
+                (.. this (setPeerNodes (PeerAddress. (:params this), __localHost, (.. (:params this) (getPort)))))
             )
             (catch UnknownHostException e
                 ;; Borked machine with no loopback adapter configured properly.
@@ -24341,7 +24335,7 @@
     ;;; If true, the wallet will save itself to disk automatically whenever it changes. ;;
     #_public
     (§ method #_"WalletAppKit" setAutoSave [#_"boolean" value]
-        (Preconditions/checkState (= (state) KeyChainState'NEW), "Cannot call after startup")
+        (assert-state (= (state) KeyChainState'NEW), "Cannot call after startup")
         (§ assoc this :use-auto-save value)
         this
     )
@@ -24374,7 +24368,7 @@
         (when (some? (:checkpoints this))
             (Utils'closeUnchecked (:checkpoints this))
         )
-        (§ assoc this :checkpoints (Preconditions/checkNotNull checkpoints))
+        (§ assoc this :checkpoints (ensure some? checkpoints))
         this
     )
 
@@ -24397,8 +24391,8 @@
      ;;
     #_public
     (§ method #_"WalletAppKit" setUserAgent [#_"String" __userAgent, #_"String" version]
-        (§ assoc this :user-agent (Preconditions/checkNotNull __userAgent))
-        (§ assoc this :version (Preconditions/checkNotNull version))
+        (§ assoc this :user-agent (ensure some? __userAgent))
+        (§ assoc this :version (ensure some? version))
         this
     )
 
@@ -24690,25 +24684,25 @@
 
     #_public
     (§ method #_"BlockChain" chain []
-        (Preconditions/checkState (any = (state) KeyChainState'STARTING KeyChainState'RUNNING), "Cannot call until startup is complete")
+        (assert-state (any = (state) KeyChainState'STARTING KeyChainState'RUNNING), "Cannot call until startup is complete")
         (:v-chain this)
     )
 
     #_public
     (§ method #_"BlockStore" store []
-        (Preconditions/checkState (any = (state) KeyChainState'STARTING KeyChainState'RUNNING), "Cannot call until startup is complete")
+        (assert-state (any = (state) KeyChainState'STARTING KeyChainState'RUNNING), "Cannot call until startup is complete")
         (:v-store this)
     )
 
     #_public
     (§ method #_"Wallet" wallet []
-        (Preconditions/checkState (any = (state) KeyChainState'STARTING KeyChainState'RUNNING), "Cannot call until startup is complete")
+        (assert-state (any = (state) KeyChainState'STARTING KeyChainState'RUNNING), "Cannot call until startup is complete")
         (:v-wallet this)
     )
 
     #_public
     (§ method #_"PeerGroup" peerGroup []
-        (Preconditions/checkState (any = (state) KeyChainState'STARTING KeyChainState'RUNNING), "Cannot call until startup is complete")
+        (assert-state (any = (state) KeyChainState'STARTING KeyChainState'RUNNING), "Cannot call until startup is complete")
         (:v-peer-group this)
     )
 
@@ -24719,7 +24713,7 @@
 )
 
 #_(ns org.bitcoinj.net
-    (:import [com.google.common.base Preconditions Throwables]
+    (:import [com.google.common.base Throwables]
              [com.google.common.collect ImmutableList Lists]
              [com.google.common.util.concurrent AbstractExecutionThreadService AbstractIdleService ListenableFuture Service]
              [com.google.protobuf ByteString MessageLite]
@@ -24737,9 +24731,8 @@
 )
 
 ;;;
- ; <p>A base class which provides basic support for socket timeouts.  It is used instead of integrating timeouts into the
+ ; A base class which provides basic support for socket timeouts.  It is used instead of integrating timeouts into the
  ; NIO select thread both for simplicity and to keep code shared between NIO and blocking sockets as much as possible.
- ; </p>
  ;;
 #_public
 #_abstract
@@ -24758,12 +24751,12 @@
     (def- #_"Timer" AbstractTimeoutHandler'TIMEOUT_TIMER (Timer. "AbstractTimeoutHandler timeouts", true))
 
     ;;;
-     ; <p>Enables or disables the timeout entirely.  This may be useful if you want to store the timeout value
-     ; but wish to temporarily disable/enable timeouts.</p>
+     ; Enables or disables the timeout entirely.  This may be useful if you want to store the timeout value
+     ; but wish to temporarily disable/enable timeouts.
      ;
-     ; <p>The default is for timeoutEnabled to be true but timeoutMillis to be set to 0 (i.e. disabled).</p>
+     ; The default is for timeoutEnabled to be true but timeoutMillis to be set to 0 (i.e. disabled).
      ;
-     ; <p>This call will reset the current progress towards the timeout.</p>
+     ; This call will reset the current progress towards the timeout.
      ;;
     #_public
     #_synchronized
@@ -24774,14 +24767,14 @@
     )
 
     ;;;
-     ; <p>Sets the receive timeout to the given number of milliseconds, automatically killing the connection
-     ; if no messages are received for this long.</p>
+     ; Sets the receive timeout to the given number of milliseconds, automatically killing the connection
+     ; if no messages are received for this long.
      ;
-     ; <p>A timeout of 0 is interpreted as no timeout.</p>
+     ; A timeout of 0 is interpreted as no timeout.
      ;
-     ; <p>The default is for timeoutEnabled to be true but timeoutMillis to be set to 0 (i.e. disabled).</p>
+     ; The default is for timeoutEnabled to be true but timeoutMillis to be set to 0 (i.e. disabled).
      ;
-     ; <p>This call will reset the current progress towards the timeout.</p>
+     ; This call will reset the current progress towards the timeout.
      ;;
     #_public
     #_synchronized
@@ -24823,11 +24816,11 @@
 )
 
 ;;;
- ; <p>Creates a simple connection to a server using a {@link StreamConnection} to process data.</p>
+ ; Creates a simple connection to a server using a {@link StreamConnection} to process data.
  ;
- ; <p>Generally, using {@link NioClient} and {@link NioClientManager} should be preferred over {@link BlockingClient}
+ ; Generally, using {@link NioClient} and {@link NioClientManager} should be preferred over {@link BlockingClient}
  ; and {@link BlockingClientManager}, unless you wish to connect over a proxy or use some other network settings that
- ; cannot be set using NIO.</p>
+ ; cannot be set using NIO.
  ;;
 #_public
 (§ class BlockingClient (§ implements MessageWriteTarget)
@@ -24851,10 +24844,10 @@
     (§ field- #_"SettableFuture<SocketAddress>" :connect-future)
 
     ;;;
-     ; <p>Creates a new client to the given server address using the given {@link StreamConnection} to decode the data.
+     ; Creates a new client to the given server address using the given {@link StreamConnection} to decode the data.
      ; The given connection <b>MUST</b> be unique to this object.  This does not block while waiting for the connection
      ; to open, but will call either the {@link StreamConnection#connectionOpened()} or
-     ; {@link StreamConnection#connectionClosed()} callback on the created network event processing thread.</p>
+     ; {@link StreamConnection#connectionClosed()} callback on the created network event processing thread.
      ;
      ; @param connectTimeoutMillis The connect timeout set on the connection (in milliseconds).
      ;                             0 is interpreted as no timeout.
@@ -24929,7 +24922,7 @@
               #_"byte[]" __readBuff (byte-array (.. dbuf (capacity)))]
             (loop []
                 ;; TODO: Kill the message duplication here.
-                (Preconditions/checkState (and (< 0 (.. dbuf (remaining))) (<= (.. dbuf (remaining)) (alength __readBuff))))
+                (assert-state (and (< 0 (.. dbuf (remaining))) (<= (.. dbuf (remaining)) (alength __readBuff))))
                 (let [#_"int" read (.. stream (read __readBuff, 0, (Math/max 1, (Math/min (.. dbuf (remaining)), (.. stream (available))))))]
                     (when (= read -1)
                         (§ return nil)
@@ -24940,7 +24933,7 @@
                     (.. dbuf (flip))
                     ;; Use connection.receiveBytes's return value as a double-check that it stopped reading at the right location.
                     (let [#_"int" __bytesConsumed (.. connection (receiveBytes dbuf))]
-                        (Preconditions/checkState (= (.. dbuf (position)) __bytesConsumed))
+                        (assert-state (= (.. dbuf (position)) __bytesConsumed))
                         ;; Now drop the bytes which were read by compacting dbuf (resetting limit and keeping relative position).
                         (.. dbuf (compact))
                     )
@@ -24995,11 +24988,11 @@
 )
 
 ;;;
- ; <p>A thin wrapper around a set of {@link BlockingClient}s.</p>
+ ; A thin wrapper around a set of {@link BlockingClient}s.
  ;
- ; <p>Generally, using {@link NioClient} and {@link NioClientManager} should be preferred over {@link BlockingClient}
+ ; Generally, using {@link NioClient} and {@link NioClientManager} should be preferred over {@link BlockingClient}
  ; and {@link BlockingClientManager} as they scale significantly better, unless you wish to connect over a proxy or use
- ; some other network settings that cannot be set using NIO.</p>
+ ; some other network settings that cannot be set using NIO.
  ;;
 #_public
 (§ class BlockingClientManager (§ extends AbstractIdleService) (§ implements ClientConnectionManager)
@@ -25023,7 +25016,7 @@
      ;;
     #_public
     (§ constructor BlockingClientManager [#_"SocketFactory" __socketFactory]
-        (§ assoc this :socket-factory (Preconditions/checkNotNull __socketFactory))
+        (§ assoc this :socket-factory (ensure some? __socketFactory))
         this
     )
 
@@ -25091,11 +25084,11 @@
 )
 
 ;;;
- ; <p>A generic interface for an object which keeps track of a set of open client connections, creates new ones and
- ; ensures they are serviced properly.</p>
+ ; A generic interface for an object which keeps track of a set of open client connections, creates new ones and
+ ; ensures they are serviced properly.
  ;
- ; <p>When the service is {@link com.google.common.util.concurrent.Service#stop()}ed, all connections will be closed
- ; and the appropriate connectionClosed() calls must be made.</p>
+ ; When the service is {@link com.google.common.util.concurrent.Service#stop()}ed, all connections will be closed
+ ; and the appropriate connectionClosed() calls must be made.
  ;;
 #_public
 (§ interface ClientConnectionManager (§ extends Service)
@@ -25169,7 +25162,7 @@
     #_private
     (§ constructor- ConnectionHandler [#_nilable #_"StreamConnection" connection, #_"SelectionKey" key]
         (§ assoc this :key key)
-        (§ assoc this :channel (Preconditions/checkNotNull (cast SocketChannel (.. key (channel)))))
+        (§ assoc this :channel (ensure some? (cast SocketChannel (.. key (channel)))))
         (when (nil? connection)
             (§ assoc this :read-buff nil)
             (§ return nil)
@@ -25184,7 +25177,7 @@
 
     #_public
     (§ constructor ConnectionHandler [#_"StreamConnection" connection, #_"SelectionKey" key, #_"Set<ConnectionHandler>" __connectedHandlers]
-        (§ this (Preconditions/checkNotNull connection), key)
+        (§ this (ensure some? connection), key)
 
         ;; closeConnection() may have already happened because we invoked the other c'tor above, which called
         ;; connection.setWriteTarget which might have re-entered already.  In this case we shouldn't add ourselves
@@ -25193,7 +25186,7 @@
         (try
             (§ assoc this :connected-handlers __connectedHandlers)
             (when (not (:close-called this))
-                (Preconditions/checkState (.. (:connected-handlers this) (add this)))
+                (assert-state (.. (:connected-handlers this) (add this)))
             )
             (finally
                 (.. (:lock this) (unlock))
@@ -25295,7 +25288,7 @@
     #_override
     #_public
     (§ method #_"void" closeConnection []
-        (Preconditions/checkState (not (.. (:lock this) (isHeldByCurrentThread))))
+        (assert-state (not (.. (:lock this) (isHeldByCurrentThread))))
         (try
             (.. (:channel this) (close))
             (catch IOException e
@@ -25318,7 +25311,7 @@
                 )
             )
             (when __callClosed
-                (Preconditions/checkState (or (nil? (:connected-handlers this)) (.. (:connected-handlers this) (remove this))))
+                (assert-state (or (nil? (:connected-handlers this)) (.. (:connected-handlers this) (remove this))))
                 (.. (:connection this) (connectionClosed))
             )
             nil
@@ -25357,8 +25350,8 @@
                         ;; "flip" the buffer - setting the limit to the current position and setting position to 0
                         (.. (:read-buff handler) (flip))
                         ;; Use connection.receiveBytes's return value as a check that it stopped reading at the right location.
-                        (let [#_"int" __bytesConsumed (.. (Preconditions/checkNotNull (:connection handler)) (receiveBytes (:read-buff handler)))]
-                            (Preconditions/checkState (= (.. (:read-buff handler) (position)) __bytesConsumed))
+                        (let [#_"int" __bytesConsumed (.. (ensure some? (:connection handler)) (receiveBytes (:read-buff handler)))]
+                            (assert-state (= (.. (:read-buff handler) (position)) __bytesConsumed))
                             ;; Now drop the bytes which were read by compacting readBuff (resetting limit and keeping relative position).
                             (.. (:read-buff handler) (compact))
                         )
@@ -25382,16 +25375,16 @@
 )
 
 ;;;
- ; <p>A reusable object that will calculate, given a list of {@link org.bitcoinj.core.PeerFilterProvider}s, a merged
+ ; A reusable object that will calculate, given a list of {@link org.bitcoinj.core.PeerFilterProvider}s, a merged
  ; {@link org.bitcoinj.core.BloomFilter} and earliest key time for all of them.
- ; Used by the {@link org.bitcoinj.core.PeerGroup} class internally.</p>
+ ; Used by the {@link org.bitcoinj.core.PeerGroup} class internally.
  ;
- ; <p>Thread safety: threading here can be complicated.  Each filter provider is given a begin event, which may acquire
+ ; Thread safety: threading here can be complicated.  Each filter provider is given a begin event, which may acquire
  ; a lock (and is guaranteed to receive an end event).  This class is mostly thread unsafe and is meant to be used from
  ; a single thread only, PeerGroup ensures this by only accessing it from the dedicated PeerGroup thread.  PeerGroup
  ; does not hold any locks whilst this object is used, relying on the single thread to prevent multiple filters being
  ; calculated in parallel, thus a filter provider can do things like make blocking calls into PeerGroup from a separate
- ; thread.  However the bloomFilterFPRate property IS thread safe, for convenience.</p>
+ ; thread.  However the bloomFilterFPRate property IS thread safe, for convenience.
  ;;
 #_public
 (§ class FilterMerger
@@ -25607,10 +25600,10 @@
     )
 
     ;;;
-     ; <p>Creates a new client to the given server address using the given {@link StreamConnection} to decode the data.
+     ; Creates a new client to the given server address using the given {@link StreamConnection} to decode the data.
      ; The given connection <b>MUST</b> be unique to this object.  This does not block while waiting for the connection
      ; to open, but will call either the {@link StreamConnection#connectionOpened()} or
-     ; {@link StreamConnection#connectionClosed()} callback on the created network event processing thread.</p>
+     ; {@link StreamConnection#connectionClosed()} callback on the created network event processing thread.
      ;
      ; @param connectTimeoutMillis The connect timeout set on the connection (in milliseconds).
      ;                             0 is interpreted as no timeout.
@@ -26019,11 +26012,11 @@
 )
 
 ;;;
- ; <p>A handler which is used in {@link NioServer} and {@link NioClient} to split up incoming data streams
- ; into protobufs and provide an interface for writing protobufs to the connections.</p>
+ ; A handler which is used in {@link NioServer} and {@link NioClient} to split up incoming data streams
+ ; into protobufs and provide an interface for writing protobufs to the connections.
  ;
- ; <p>Messages are encoded with a 4-byte signed integer (big endian) prefix to indicate their length followed
- ; by the serialized protobuf.</p>
+ ; Messages are encoded with a 4-byte signed integer (big endian) prefix to indicate their length followed
+ ; by the serialized protobuf.
  ;;
 #_public
 (§ class ProtobufConnection #_"<MessageType extends MessageLite>" (§ extends AbstractTimeoutHandler) (§ implements StreamConnection)
@@ -26096,7 +26089,7 @@
     #_public
     (§ method #_"void" setWriteTarget [#_"MessageWriteTarget" __writeTarget]
         ;; Only allow it to be set once.
-        (Preconditions/checkState (nil? (.. (:write-target this) (getAndSet (Preconditions/checkNotNull __writeTarget)))))
+        (assert-state (nil? (.. (:write-target this) (getAndSet (ensure some? __writeTarget)))))
         nil
     )
 
@@ -26200,7 +26193,7 @@
                 (let [#_"int" limit (.. buff (limit))]
                     (.. buff (limit (+ (.. buff (position)) len)))
                     (.. this (deserializeMessage buff))
-                    (Preconditions/checkState (= (.. buff (remaining)) 0))
+                    (assert-state (= (.. buff (remaining)) 0))
                     ;; Reset the limit in case we have to recurse.
                     (.. buff (limit limit))
 
@@ -26233,9 +26226,9 @@
     )
 
     ;;;
-     ; <p>Writes the given message to the other side of the connection, prefixing it with the proper 4-byte prefix.</p>
+     ; Writes the given message to the other side of the connection, prefixing it with the proper 4-byte prefix.
      ;
-     ; <p>Provides a write-order guarantee.</p>
+     ; Provides a write-order guarantee.
      ;
      ; @throws IllegalStateException if the encoded message is larger than the maximum message size.
      ;;
@@ -26243,7 +26236,7 @@
     #_throws #_[ "IllegalStateException" ]
     (§ method #_"void" write [#_"MessageType" msg]
         (let [#_"byte[]" __messageBytes (.. msg (toByteArray))]
-            (Preconditions/checkState (<= (alength __messageBytes) (:max-message-size this)))
+            (assert-state (<= (alength __messageBytes) (:max-message-size this)))
 
             (let [#_"byte[]" __messageLength (byte-array 4)]
                 (Utils'uint32ToByteArrayBE (alength __messageBytes), __messageLength, 0)
@@ -26275,8 +26268,8 @@
     (§ method #_"void" connectionOpened [])
 
     ;;;
-     ; <p>Called when new bytes are available from the remote end.  This should only ever be called by the single
-     ; writeTarget associated with any given StreamConnection, multiple callers will likely confuse implementations.</p>
+     ; Called when new bytes are available from the remote end.  This should only ever be called by the single
+     ; writeTarget associated with any given StreamConnection, multiple callers will likely confuse implementations.
      ;
      ; Implementers/callers must follow the following conventions exactly:
      ; <ul>
@@ -26323,8 +26316,7 @@
 )
 
 #_(ns org.bitcoinj.net.discovery
-    (:import [com.google.common.base Preconditions]
-             [com.google.common.collect Lists]
+    (:import [com.google.common.collect Lists]
              [java.net InetAddress InetSocketAddress UnknownHostException]
              [java.util ArrayList Collections List]
              [java.util.concurrent TimeUnit]
@@ -26333,15 +26325,15 @@
 )
 
 ;;;
- ; <p>Supports peer discovery through DNS.</p>
+ ; Supports peer discovery through DNS.
  ;
- ; <p>Failure to resolve individual host names will not cause an Exception to be thrown.
- ; However, if all hosts passed fail to resolve a PeerDiscoveryException will be thrown during getPeers().</p>
+ ; Failure to resolve individual host names will not cause an Exception to be thrown.
+ ; However, if all hosts passed fail to resolve a PeerDiscoveryException will be thrown during getPeers().
  ;
- ; <p>DNS seeds do not attempt to enumerate every peer on the network.
+ ; DNS seeds do not attempt to enumerate every peer on the network.
  ; {@link DnsDiscovery#getPeers(long, java.util.concurrent.TimeUnit)} will return up to 30 random peers
  ; from the set of those returned within the timeout period.  If you want more peers to connect to,
- ; you need to discover them via other means (like addr broadcasts).</p>
+ ; you need to discover them via other means (like addr broadcasts).
  ;;
 #_public
 (§ class DnsDiscovery (§ extends MultiplexingDiscovery)
@@ -26492,7 +26484,7 @@
      ;;
     #_public
     (§ constructor MultiplexingDiscovery [#_"NetworkParameters" params, #_"List<PeerDiscovery>" seeds]
-        (Preconditions/checkArgument (not (.. seeds (isEmpty))))
+        (assert-argument (not (.. seeds (isEmpty))))
 
         (§ assoc this :net-params params)
         (§ assoc this :seeds seeds)
@@ -26743,7 +26735,7 @@
 )
 
 #_(ns org.bitcoinj.params
-    (:import [com.google.common.base Preconditions Stopwatch]
+    (:import [com.google.common.base Stopwatch]
              [com.google.common.collect ImmutableSet Lists]
              [java.math BigInteger]
              [java.net *]
@@ -26824,7 +26816,7 @@
                         )
                         (§ ass hash (.. cursor (getHeader) (getPrevBlockHash)))
                     )
-                    (Preconditions/checkState (and (some? cursor) (.. this (isDifficultyTransitionPoint (dec (.. cursor (getHeight)))))), "Didn't arrive at a transition point.")
+                    (assert-state (and (some? cursor) (.. this (isDifficultyTransitionPoint (dec (.. cursor (getHeight)))))), "Didn't arrive at a transition point.")
 
                     (.. watch (stop))
                     (when (< 50 (.. watch (elapsed TimeUnit/MILLISECONDS)))
@@ -26936,7 +26928,7 @@
         (§ assoc this :subsidy-decrease-block-count 210000)
         (§ assoc this :spendable-coinbase-depth 100)
         (let [#_"String" __genesisHash (.. (:genesis-block this) (getHashAsString))]
-            (Preconditions/checkState (.. __genesisHash (equals "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f")), __genesisHash)
+            (assert-state (.. __genesisHash (equals "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f")), __genesisHash)
 
             ;; This contains (at a minimum) the blocks which are not BIP30 compliant.  BIP30 changed how duplicate
             ;; transactions are handled.  Duplicated transactions could occur in the case where a coinbase had the same
@@ -27117,7 +27109,7 @@
         (§ assoc this :spendable-coinbase-depth 100)
         (§ assoc this :subsidy-decrease-block-count 210000)
         (let [#_"String" __genesisHash (.. (:genesis-block this) (getHashAsString))]
-            (Preconditions/checkState (.. __genesisHash (equals "000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943")))
+            (assert-state (.. __genesisHash (equals "000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943")))
             (§ assoc this :alert-signing-key (.. Utils'HEX (decode "04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a")))
 
             (§ assoc this :dns-seeds (into-array String
@@ -27271,7 +27263,7 @@
 )
 
 #_(ns org.bitcoinj.script
-    (:import [com.google.common.base Objects Preconditions]
+    (:import [com.google.common.base Objects]
              [com.google.common.collect ImmutableMap Lists]
              [java.io ByteArrayInputStream ByteArrayOutputStream IOException OutputStream]
              [java.math BigInteger]
@@ -27285,15 +27277,15 @@
 ;; TODO: Redesign this entire API to be more type safe and organised.
 
 ;;;
- ; <p>Programs embedded inside transactions that control redemption of payments.</p>
+ ; Programs embedded inside transactions that control redemption of payments.
  ;
- ; <p>Bitcoin transactions don't specify what they do directly.  Instead
+ ; Bitcoin transactions don't specify what they do directly.  Instead
  ; <a href="https://en.bitcoin.it/wiki/Script">a small binary stack language</a> is used to define programs that
- ; when evaluated, return whether the transaction "accepts" or rejects the other transactions connected to it.</p>
+ ; when evaluated, return whether the transaction "accepts" or rejects the other transactions connected to it.
  ;
- ; <p>In SPV mode, scripts are not run, because that would require all transactions to be available and lightweight
+ ; In SPV mode, scripts are not run, because that would require all transactions to be available and lightweight
  ; clients don't have that data.  In full mode, this class is used to run the interpreted language.  It also has
- ; static methods for building scripts.</p>
+ ; static methods for building scripts.
  ;;
 #_public
 (§ class Script
@@ -27435,16 +27427,15 @@
     (§ method #_"byte[]" getProgram []
         (try
             ;; Don't round-trip as Bitcoin Core doesn't and it would introduce a mismatch.
-            (when (some? (:program this))
-                (§ return (Arrays/copyOf (:program this), (alength (:program this))))
-            )
-
-            (let [#_"ByteArrayOutputStream" bos (ByteArrayOutputStream.)]
-                (doseq [#_"ScriptChunk" chunk (:chunks this)]
-                    (.. chunk (write bos))
+            (if (some? (:program this))
+                (Arrays/copyOf (:program this), (alength (:program this)))
+                (let [#_"ByteArrayOutputStream" bos (ByteArrayOutputStream.)]
+                    (doseq [#_"ScriptChunk" chunk (:chunks this)]
+                        (.. chunk (write bos))
+                    )
+                    (§ assoc this :program (.. bos (toByteArray)))
+                    (:program this)
                 )
-                (§ assoc this :program (.. bos (toByteArray)))
-                (§ return (:program this))
             )
             (catch IOException e
                 (throw (RuntimeException. e)) ;; Cannot happen.
@@ -27469,13 +27460,13 @@
     ]))
 
     ;;;
-     ; <p>To run a script, first we parse it which breaks it up into chunks representing pushes of data
-     ; or logical opcodes.  Then we can run the parsed chunks.</p>
+     ; To run a script, first we parse it which breaks it up into chunks representing pushes of data
+     ; or logical opcodes.  Then we can run the parsed chunks.
      ;
-     ; <p>The reason for this split, instead of just interpreting directly, is to make it easier
+     ; The reason for this split, instead of just interpreting directly, is to make it easier
      ; to reach into a programs structure and pull out bits of data without having to run it.
      ; This is necessary to render the to/from addresses of transactions in a user interface.
-     ; Bitcoin Core does something similar.</p>
+     ; Bitcoin Core does something similar.
      ;;
     #_private
     #_throws #_[ "ScriptException" ]
@@ -27531,7 +27522,7 @@
                                     )
 
                                     (let [#_"byte[]" data (byte-array (int __dataToRead))]
-                                        (Preconditions/checkState (or (= __dataToRead 0) (= (.. bis (read data, 0, (int __dataToRead))) __dataToRead)))
+                                        (assert-state (or (= __dataToRead 0) (= (.. bis (read data, 0, (int __dataToRead))) __dataToRead)))
                                         (§ ass chunk (ScriptChunk. opcode, data, __startLocationInProgram))
                                     )
                                 )
@@ -27574,15 +27565,15 @@
     )
 
     ;;;
-     ; <p>If a program matches the standard template DUP HASH160 &lt;pubkey hash&gt; EQUALVERIFY CHECKSIG,
+     ; If a program matches the standard template DUP HASH160 &lt;pubkey hash&gt; EQUALVERIFY CHECKSIG,
      ; then this function retrieves the third element.
-     ; In this case, this is useful for fetching the destination address of a transaction.</p>
+     ; In this case, this is useful for fetching the destination address of a transaction.
      ;
-     ; <p>If a program matches the standard template HASH160 &lt;script hash&gt; EQUAL,
+     ; If a program matches the standard template HASH160 &lt;script hash&gt; EQUAL,
      ; then this function retrieves the second element.
-     ; In this case, this is useful for fetching the hash of the redeem script of a transaction.</p>
+     ; In this case, this is useful for fetching the hash of the redeem script of a transaction.
      ;
-     ; <p>Otherwise it throws a ScriptException.</p>
+     ; Otherwise it throws a ScriptException.
      ;
      ;;
     #_public
@@ -27752,9 +27743,9 @@
     #_public
     #_static
     (§ defn #_"byte[]" Script'createMultiSigOutputScript [#_"int" threshold, #_"List<ECKey>" pubkeys]
-        (Preconditions/checkArgument (< 0 threshold))
-        (Preconditions/checkArgument (<= threshold (.. pubkeys (size))))
-        (Preconditions/checkArgument (<= (.. pubkeys (size)) 16)) ;; That's the max we can represent with a single opcode.
+        (assert-argument (< 0 threshold))
+        (assert-argument (<= threshold (.. pubkeys (size))))
+        (assert-argument (<= (.. pubkeys (size)) 16)) ;; That's the max we can represent with a single opcode.
 
         (when (< 3 (.. pubkeys (size)))
             (.. Script'log (warn "Creating a multi-signature output that is non-standard: {} pubkeys, should be <= 3", (.. pubkeys (size))))
@@ -27768,7 +27759,7 @@
                 )
                 (.. bits (write (Script'encodeToOpN (.. pubkeys (size)))))
                 (.. bits (write ScriptOpCodes'OP_CHECKMULTISIG))
-                (§ return (.. bits (toByteArray)))
+                (.. bits (toByteArray))
             )
             (catch IOException e
                 (throw (RuntimeException. e)) ;; Cannot happen.
@@ -27784,7 +27775,7 @@
             (let [#_"ByteArrayOutputStream" bits (ByteArrayOutputStream. (+ (alength signature) (alength pubkey) 2))]
                 (Script'writeBytes bits, signature)
                 (Script'writeBytes bits, pubkey)
-                (§ return (.. bits (toByteArray)))
+                (.. bits (toByteArray))
             )
             (catch IOException e
                 (throw (RuntimeException. e))
@@ -27799,7 +27790,7 @@
             ;; TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
             (let [#_"ByteArrayOutputStream" bits (ByteArrayOutputStream. (+ (alength signature) 2))]
                 (Script'writeBytes bits, signature)
-                (§ return (.. bits (toByteArray)))
+                (.. bits (toByteArray))
             )
             (catch IOException e
                 (throw (RuntimeException. e))
@@ -27816,7 +27807,7 @@
     #_public
     (§ method #_"Script" createEmptyInputScript [#_nilable #_"ECKey" key, #_nilable #_"Script" __redeemScript]
         (when (.. this (isSentToAddress))
-            (Preconditions/checkArgument (some? key), "Key required to create pay-to-address input script")
+            (assert-argument (some? key), "Key required to create pay-to-address input script")
             (§ return (ScriptBuilder'createInputScript nil, key))
         )
 
@@ -27825,7 +27816,7 @@
         )
 
         (when (.. this (isPayToScriptHash))
-            (Preconditions/checkArgument (some? __redeemScript), "Redeem script required to create P2SH input script")
+            (assert-argument (some? __redeemScript), "Redeem script required to create P2SH input script")
             (§ return (ScriptBuilder'createP2SHMultiSigInputScript nil, __redeemScript))
         )
 
@@ -27867,7 +27858,7 @@
         ;; and any placeholder OP_0 sigs.
         (let [#_"List<ScriptChunk>" __existingChunks (.. (:chunks this) (subList 1, (dec (.. (:chunks this) (size)))))
               #_"ScriptChunk" __redeemScriptChunk (.. (:chunks this) (get (dec (.. (:chunks this) (size)))))]
-            (Preconditions/checkNotNull (:data __redeemScriptChunk))
+            (ensure some? (:data __redeemScriptChunk))
             (let [#_"Script" __redeemScript (Script. (:data __redeemScriptChunk))]
 
                 (let [#_"int" __sigCount 0
@@ -27879,7 +27870,7 @@
                             )
                             :else
                             (do
-                                (Preconditions/checkNotNull (:data chunk))
+                                (ensure some? (:data chunk))
                                 (when (< __myIndex (.. __redeemScript (findSigInRedeem (:data chunk), hash)))
                                     (§ return __sigCount)
                                 )
@@ -27895,7 +27886,7 @@
 
     #_private
     (§ method- #_"int" findKeyInRedeem [#_"ECKey" key]
-        (Preconditions/checkArgument (.. (:chunks this) (get 0) (isOpCode))) ;; P2SH scriptSig
+        (assert-argument (.. (:chunks this) (get 0) (isOpCode))) ;; P2SH scriptSig
 
         (let [#_"int" __numKeys (Script'decodeFromOpN (.. (:chunks this) (get (- (.. (:chunks this) (size)) 2)) :opcode))]
             (loop-when-recur [#_"int" i 0] (< i __numKeys) [(inc i)]
@@ -27930,7 +27921,7 @@
 
     #_private
     (§ method- #_"int" findSigInRedeem [#_"byte[]" __signatureBytes, #_"Sha256Hash" hash]
-        (Preconditions/checkArgument (.. (:chunks this) (get 0) (isOpCode))) ;; P2SH scriptSig
+        (assert-argument (.. (:chunks this) (get 0) (isOpCode))) ;; P2SH scriptSig
 
         (let [#_"int" __numKeys (Script'decodeFromOpN (.. (:chunks this) (get (- (.. (:chunks this) (size)) 2)) :opcode))
               #_"TransactionSignature" signature (TransactionSignature'decodeFromBitcoin __signatureBytes, true)]
@@ -27973,7 +27964,7 @@
 
     #_static
     (§ defn #_"int" Script'decodeFromOpN [#_"int" opcode]
-        (Preconditions/checkArgument (or (= opcode ScriptOpCodes'OP_0) (= opcode ScriptOpCodes'OP_1NEGATE) (<= ScriptOpCodes'OP_1 opcode ScriptOpCodes'OP_16)), "decodeFromOpN called on non OP_N opcode")
+        (assert-argument (or (= opcode ScriptOpCodes'OP_0) (= opcode ScriptOpCodes'OP_1NEGATE) (<= ScriptOpCodes'OP_1 opcode ScriptOpCodes'OP_16)), "decodeFromOpN called on non OP_N opcode")
 
         (when (= opcode ScriptOpCodes'OP_0)
             (§ return 0)
@@ -27987,7 +27978,7 @@
 
     #_static
     (§ defn #_"int" Script'encodeToOpN [#_"int" value]
-        (Preconditions/checkArgument (<= -1 value 16), (str "encodeToOpN called for " value " which we cannot encode in an opcode."))
+        (assert-argument (<= -1 value 16), (str "encodeToOpN called for " value " which we cannot encode in an opcode."))
 
         (when (= value 0)
             (§ return ScriptOpCodes'OP_0)
@@ -28074,7 +28065,7 @@
         (cond (.. this (isPayToScriptHash))
             (do
                 ;; scriptSig: <sig> [sig] [sig...] <redeemscript>
-                (Preconditions/checkArgument (some? __redeemScript), "P2SH script requires redeemScript to be spent")
+                (assert-argument (some? __redeemScript), "P2SH script requires redeemScript to be spent")
                 (§ return (+ (* (.. __redeemScript (getNumberOfSignaturesRequiredToSpend)) Script'SIG_SIZE) (alength (.. __redeemScript (getProgram)))))
             )
             (.. this (isSentToMultiSig))
@@ -28102,17 +28093,17 @@
     )
 
     ;;;
-     ; <p>Whether or not this is a scriptPubKey representing a pay-to-script-hash output.  In such outputs, the logic
+     ; Whether or not this is a scriptPubKey representing a pay-to-script-hash output.  In such outputs, the logic
      ; that controls reclamation is not actually in the output at all.  Instead there's just a hash, and it's up to the
      ; spending input to provide a program matching that hash.  This rule is "soft enforced" by the network as it does
      ; not exist in Bitcoin Core.  It means blocks containing P2SH transactions that don't match
      ; correctly are considered valid, but won't be mined upon, so they'll be rapidly re-orgd out of the chain.  This
-     ; logic is defined by <a href="https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki">BIP 16</a>.</p>
+     ; logic is defined by <a href="https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki">BIP 16</a>.
      ;
-     ; <p>bitcoinj does not support creation of P2SH transactions today.  The goal of P2SH is to allow short addresses
+     ; bitcoinj does not support creation of P2SH transactions today.  The goal of P2SH is to allow short addresses
      ; even for complex scripts (e.g. multi-sig outputs) so they are convenient to work with in things like QRcodes or
      ; with copy/paste, and also to minimize the size of the unspent output set (which improves performance of the
-     ; Bitcoin system).</p>
+     ; Bitcoin system).
      ;;
     #_public
     (§ method #_"boolean" isPayToScriptHash []
@@ -29338,9 +29329,9 @@
 )
 
 ;;;
- ; <p>Tools for the construction of commonly used script types.  You don't normally need this as it's hidden
+ ; Tools for the construction of commonly used script types.  You don't normally need this as it's hidden
  ; behind convenience methods on {@link org.bitcoinj.core.Transaction}, but they are useful when working with
- ; the protocol at a lower level.</p>
+ ; the protocol at a lower level.
  ;;
 #_public
 (§ class ScriptBuilder
@@ -29383,7 +29374,7 @@
     ;;; Adds the given opcode to the given index in the program. ;;
     #_public
     (§ method #_"ScriptBuilder" op [#_"int" index, #_"int" opcode]
-        (Preconditions/checkArgument (< ScriptOpCodes'OP_PUSHDATA4 opcode))
+        (assert-argument (< ScriptOpCodes'OP_PUSHDATA4 opcode))
         (.. this (addChunk index, (ScriptChunk. opcode, nil)))
     )
 
@@ -29460,8 +29451,8 @@
      ;;
     #_public
     (§ method #_"ScriptBuilder" smallNum [#_"int" index, #_"int" num]
-        (Preconditions/checkArgument (<= 0 num), "Cannot encode negative numbers with smallNum")
-        (Preconditions/checkArgument (<= num 16), "Cannot encode numbers larger than 16 with smallNum")
+        (assert-argument (<= 0 num), "Cannot encode negative numbers with smallNum")
+        (assert-argument (<= num 16), "Cannot encode numbers larger than 16 with smallNum")
 
         (.. this (addChunk index, (ScriptChunk. (Script'encodeToOpN num), nil)))
     )
@@ -29576,9 +29567,9 @@
     #_public
     #_static
     (§ defn #_"Script" ScriptBuilder'createMultiSigOutputScript [#_"int" threshold, #_"List<ECKey>" pubkeys]
-        (Preconditions/checkArgument (< 0 threshold))
-        (Preconditions/checkArgument (<= threshold (.. pubkeys (size))))
-        (Preconditions/checkArgument (<= (.. pubkeys (size)) 16)) ;; That's the max we can represent with a single opcode.
+        (assert-argument (< 0 threshold))
+        (assert-argument (<= threshold (.. pubkeys (size))))
+        (assert-argument (<= (.. pubkeys (size)) 16)) ;; That's the max we can represent with a single opcode.
 
         (let [#_"ScriptBuilder" builder (ScriptBuilder.)]
             (.. builder (smallNum threshold))
@@ -29653,7 +29644,7 @@
     #_public
     #_static
     (§ defn #_"Script" ScriptBuilder'createMultiSigInputScriptBytes [#_"List<byte[]>" signatures, #_nilable #_"byte[]" __multisigProgramBytes]
-        (Preconditions/checkArgument (<= (.. signatures (size)) 16))
+        (assert-argument (<= (.. signatures (size)) 16))
 
         (let [#_"ScriptBuilder" builder (ScriptBuilder.)]
             (.. builder (smallNum 0)) ;; Work around a bug in CHECKMULTISIG that is now a required part of the protocol.
@@ -29687,7 +29678,7 @@
             ;; We assume here that OP_0 placeholders always go after the sigs, so
             ;; to find if we have sigs missing, we can just check the chunk in latest sig position.
             (let [#_"boolean" __hasMissingSigs (.. __inputChunks (get (- __totalChunks __sigsSuffixCount 1)) (equalsOpCode ScriptOpCodes'OP_0))]
-                (Preconditions/checkArgument __hasMissingSigs, "ScriptSig is already filled with signatures")
+                (assert-argument __hasMissingSigs, "ScriptSig is already filled with signatures")
 
                 ;; copy the prefix
                 (let [#_"ScriptBuilder" builder (ScriptBuilder.)]
@@ -29730,7 +29721,7 @@
                             (.. builder (addChunk chunk))
                         )
 
-                        (Preconditions/checkState inserted)
+                        (assert-state inserted)
                         (.. builder (build))
                     )
                 )
@@ -29746,7 +29737,7 @@
     #_public
     #_static
     (§ defn #_"Script" ScriptBuilder'createP2SHOutputScript [#_"byte[]" hash]
-        (Preconditions/checkArgument (= (alength hash) 20))
+        (assert-argument (= (alength hash) 20))
 
         (.. (ScriptBuilder.) (op ScriptOpCodes'OP_HASH160) (data hash) (op ScriptOpCodes'OP_EQUAL) (build))
     )
@@ -29795,7 +29786,7 @@
     #_public
     #_static
     (§ defn #_"Script" ScriptBuilder'createOpReturnScript [#_"byte[]" data]
-        (Preconditions/checkArgument (<= (alength data) 80))
+        (assert-argument (<= (alength data) 80))
 
         (.. (ScriptBuilder.) (op ScriptOpCodes'OP_RETURN) (data data) (build))
     )
@@ -29919,7 +29910,7 @@
 
     #_public
     (§ method #_"int" getStartLocationInProgram []
-        (Preconditions/checkState (<= 0 (:start-location-in-program this)))
+        (assert-state (<= 0 (:start-location-in-program this)))
 
         (:start-location-in-program this)
     )
@@ -29927,7 +29918,7 @@
     ;;; If this chunk is an OP_N opcode returns the equivalent integer value. ;;
     #_public
     (§ method #_"int" decodeOpN []
-        (Preconditions/checkState (.. this (isOpCode)))
+        (assert-state (.. this (isOpCode)))
 
         (Script'decodeFromOpN (:opcode this))
     )
@@ -29937,7 +29928,7 @@
      ;;
     #_public
     (§ method #_"boolean" isShortestPossiblePushData []
-        (Preconditions/checkState (.. this (isPushData)))
+        (assert-state (.. this (isPushData)))
 
         (when (nil? (:data this))
             (§ return true) ;; OP_N
@@ -29974,32 +29965,32 @@
     (§ method #_"void" write [#_"OutputStream" stream]
         (cond (.. this (isOpCode))
             (do
-                (Preconditions/checkState (nil? (:data this)))
+                (assert-state (nil? (:data this)))
                 (.. stream (write (:opcode this)))
             )
             (some? (:data this))
             (do
                 (cond (< (:opcode this) ScriptOpCodes'OP_PUSHDATA1)
                     (do
-                        (Preconditions/checkState (= (alength (:data this)) (:opcode this)))
+                        (assert-state (= (alength (:data this)) (:opcode this)))
                         (.. stream (write (:opcode this)))
                     )
                     (= (:opcode this) ScriptOpCodes'OP_PUSHDATA1)
                     (do
-                        (Preconditions/checkState (<= (alength (:data this)) 0xff))
+                        (assert-state (<= (alength (:data this)) 0xff))
                         (.. stream (write ScriptOpCodes'OP_PUSHDATA1))
                         (.. stream (write (alength (:data this))))
                     )
                     (= (:opcode this) ScriptOpCodes'OP_PUSHDATA2)
                     (do
-                        (Preconditions/checkState (<= (alength (:data this)) 0xffff))
+                        (assert-state (<= (alength (:data this)) 0xffff))
                         (.. stream (write ScriptOpCodes'OP_PUSHDATA2))
                         (.. stream (write (& 0xff (alength (:data this)))))
                         (.. stream (write (& 0xff (>> (alength (:data this)) 8))))
                     )
                     (= (:opcode this) ScriptOpCodes'OP_PUSHDATA4)
                     (do
-                        (Preconditions/checkState (<= (alength (:data this)) Script'MAX_SCRIPT_ELEMENT_SIZE))
+                        (assert-state (<= (alength (:data this)) Script'MAX_SCRIPT_ELEMENT_SIZE))
                         (.. stream (write ScriptOpCodes'OP_PUSHDATA4))
                         (Utils'uint32ToByteStreamLE (alength (:data this)), stream)
                     )
@@ -30535,20 +30526,18 @@
 )
 
 #_(ns org.bitcoinj.signers
-    (:import [com.google.common.base Preconditions]
-             [java.util EnumSet HashMap List Map]
+    (:import [java.util EnumSet HashMap List Map]
              [org.slf4j LoggerFactory Logger]
     )
 )
 
 ;;;
- ; <p>This signer may be used as a template for creating custom multisig transaction signers.</p>
+ ; This signer may be used as a template for creating custom multisig transaction signers.
  ;
  ; Concrete implementations have to implement {@link #getSignature(org.bitcoinj.core.Sha256Hash, java.util.List)}
  ; method returning a signature and a public key of the keypair used to created that signature.
  ; It's up to custom implementation where to locate signatures: it may be a network connection,
  ; some local API or something else.
- ; </p>
  ;;
 #_public
 #_abstract
@@ -30581,7 +30570,7 @@
                             (§ return false)
                         )
 
-                        (let [#_"Script" __inputScript (Preconditions/checkNotNull (.. __txIn (getScriptSig)))]
+                        (let [#_"Script" __inputScript (ensure some? (.. __txIn (getScriptSig)))]
 
                             (try
                                 ;; We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
@@ -30637,16 +30626,18 @@
 )
 
 ;;;
- ; <p>{@link TransactionSigner} implementation for signing inputs using keys from provided {@link org.bitcoinj.wallet.KeyBag}.</p>
- ; <p>This signer doesn't create input scripts for tx inputs.  Instead it expects inputs to contain scripts with
+ ; {@link TransactionSigner} implementation for signing inputs using keys from provided {@link org.bitcoinj.wallet.KeyBag}.
+ ;
+ ; This signer doesn't create input scripts for tx inputs.  Instead it expects inputs to contain scripts with
  ; empty sigs and replaces one of the empty sigs with calculated signature.
- ; </p>
- ; <p>This signer is always implicitly added into every wallet and it is the first signer to be executed during tx
+ ;
+ ; This signer is always implicitly added into every wallet and it is the first signer to be executed during tx
  ; completion.  As the first signer to create a signature, it stores derivation path of the signing key in a given
  ; {@link ProposedTransaction} object that will be also passed then to the next signer in chain.  This allows other
  ; signers to use correct signing key for P2SH inputs, because all the keys involved in a single P2SH address have
- ; the same derivation path.</p>
- ; <p>This signer always uses {@link org.bitcoinj.core.Transaction.SigHash#ALL} signing mode.</p>
+ ; the same derivation path.
+ ;
+ ; This signer always uses {@link org.bitcoinj.core.Transaction.SigHash#ALL} signing mode.
  ;;
 #_public
 (§ class LocalTransactionSigner (§ extends StatelessTransactionSigner)
@@ -30855,12 +30846,13 @@
 )
 
 ;;;
- ; <p>Implementations of this interface are intended to sign inputs of the given transaction.
- ; Given transaction may already be partially signed or somehow altered by other signers.</p>
- ; <p>To make use of the signer, you need to add it into the wallet by calling
+ ; Implementations of this interface are intended to sign inputs of the given transaction.
+ ; Given transaction may already be partially signed or somehow altered by other signers.
+ ;
+ ; To make use of the signer, you need to add it into the wallet by calling
  ; {@link org.bitcoinj.wallet.Wallet#addTransactionSigner(TransactionSigner)}.
  ; Signer will be serialized along with the wallet data.  In order for a wallet to recreate
- ; signer after deserialization, each signer should have no-args constructor.</p>
+ ; signer after deserialization, each signer should have no-args constructor.
  ;;
 #_public
 (§ interface TransactionSigner
@@ -30918,7 +30910,7 @@
 )
 
 #_(ns org.bitcoinj.store
-    (:import [com.google.common.base Charsets Objects Preconditions]
+    (:import [com.google.common.base Charsets Objects]
              [com.google.common.collect Lists]
              [java.io *]
              [java.nio *]
@@ -31025,40 +31017,40 @@
 )
 
 ;;;
- ; <p>An implementor of FullPrunedBlockStore saves StoredBlock objects to some storage mechanism.</p>
+ ; An implementor of FullPrunedBlockStore saves StoredBlock objects to some storage mechanism.
  ;
- ; <p>In addition to keeping track of a chain using {@link StoredBlock}s, it should also keep track of
+ ; In addition to keeping track of a chain using {@link StoredBlock}s, it should also keep track of
  ; a second copy of the chain which holds {@link StoredUndoableBlock}s.  In this way, an application can
  ; perform a headers-only initial sync and then use that information to more efficiently download a locally
- ; verified full copy of the block chain.</p>
+ ; verified full copy of the block chain.
  ;
- ; <p>A FullPrunedBlockStore should function well as a standard {@link BlockStore} and then be able to
- ; trivially switch to being used as a FullPrunedBlockStore.</p>
+ ; A FullPrunedBlockStore should function well as a standard {@link BlockStore} and then be able to
+ ; trivially switch to being used as a FullPrunedBlockStore.
  ;
- ; <p>It should store the {@link StoredUndoableBlock}s of a number of recent blocks before verifiedHead.height
+ ; It should store the {@link StoredUndoableBlock}s of a number of recent blocks before verifiedHead.height
  ; and all those after verifiedHead.height.
  ; It is advisable to store any {@link StoredUndoableBlock} which has a height > verifiedHead.height - N.
  ; Because N determines the memory usage, it is recommended that N be customizable.  N should be chosen such
- ; that re-orgs beyond that point are vanishingly unlikely, e.g. a few thousand blocks is a reasonable choice.</p>
+ ; that re-orgs beyond that point are vanishingly unlikely, e.g. a few thousand blocks is a reasonable choice.
  ;
- ; <p>It must store the {@link StoredBlock} of all blocks.</p>
+ ; It must store the {@link StoredBlock} of all blocks.
  ;
- ; <p>A FullPrunedBlockStore contains a map of hashes to [Full]StoredBlock.  The hash is the double digest of
- ; the Bitcoin serialization of the block header, <b>not</b> the header with the extra data as well.</p>
+ ; A FullPrunedBlockStore contains a map of hashes to [Full]StoredBlock.  The hash is the double digest of
+ ; the Bitcoin serialization of the block header, <b>not</b> the header with the extra data as well.
  ;
- ; <p>A FullPrunedBlockStore also contains a map of hash+index to UTXO.  Again, the hash is
- ; a standard Bitcoin double-SHA256 hash of the transaction.</p>
+ ; A FullPrunedBlockStore also contains a map of hash+index to UTXO.  Again, the hash is
+ ; a standard Bitcoin double-SHA256 hash of the transaction.
  ;
- ; <p>FullPrunedBlockStores are thread safe.</p>
+ ; FullPrunedBlockStores are thread safe.
  ;;
 #_public
 (§ interface FullPrunedBlockStore (§ extends BlockStore)
     ;;;
-     ; <p>Saves the given {@link StoredUndoableBlock} and {@link StoredBlock}.  Calculates keys from the {@link StoredBlock}.</p>
+     ; Saves the given {@link StoredUndoableBlock} and {@link StoredBlock}.  Calculates keys from the {@link StoredBlock}.
      ;
-     ; <p>Though not required for proper function of a FullPrunedBlockStore, any user of a FullPrunedBlockStore should ensure
+     ; Though not required for proper function of a FullPrunedBlockStore, any user of a FullPrunedBlockStore should ensure
      ; that a StoredUndoableBlock for each block up to the fully verified chain head has been added to this block store using
-     ; this function (not put(StoredBlock)), so that the ability to perform reorgs is maintained.</p>
+     ; this function (not put(StoredBlock)), so that the ability to perform reorgs is maintained.
      ;
      ; @throws BlockStoreException if there is a problem with the underlying storage layer, such as running out of disk space.
      ;;
@@ -31129,15 +31121,15 @@
     (§ method #_"void" setVerifiedChainHead [#_"StoredBlock" __chainHead])
 
     ;;;
-     ; <p>Begins/Commits/Aborts a database transaction.</p>
+     ; Begins/Commits/Aborts a database transaction.
      ;
-     ; <p>If abortDatabaseBatchWrite() is called by the same thread that called beginDatabaseBatchWrite(),
+     ; If abortDatabaseBatchWrite() is called by the same thread that called beginDatabaseBatchWrite(),
      ; any data writes between this call and abortDatabaseBatchWrite() made by the same thread
-     ; should be discarded.</p>
+     ; should be discarded.
      ;
-     ; <p>Furthermore, any data written after a call to beginDatabaseBatchWrite() should not be readable
+     ; Furthermore, any data written after a call to beginDatabaseBatchWrite() should not be readable
      ; by any other threads until commitDatabaseBatchWrite() has been called by this thread.
-     ; Multiple calls to beginDatabaseBatchWrite() in any given thread should be ignored and treated as one call.</p>
+     ; Multiple calls to beginDatabaseBatchWrite() in any given thread should be ignored and treated as one call.
      ;;
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"void" beginDatabaseBatchWrite [])
@@ -31597,7 +31589,7 @@
     #_synchronized
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"void" put [#_"StoredBlock" block]
-        (Preconditions/checkNotNull (:block-map this), "MemoryFullPrunedBlockStore is closed")
+        (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
         (let [#_"Sha256Hash" hash (.. block (getHeader) (getHash))]
             (.. (:block-map this) (put hash, (StoredBlockAndWasUndoableFlag. block, false)))
             nil
@@ -31609,7 +31601,7 @@
     #_synchronized
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"void" put [#_"StoredBlock" __storedBlock, #_"StoredUndoableBlock" __undoableBlock]
-        (Preconditions/checkNotNull (:block-map this), "MemoryFullPrunedBlockStore is closed")
+        (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
         (let [#_"Sha256Hash" hash (.. __storedBlock (getHeader) (getHash))]
             (.. (:full-block-map this) (put hash, (.. __storedBlock (getHeight)), __undoableBlock))
             (.. (:block-map this) (put hash, (StoredBlockAndWasUndoableFlag. __storedBlock, true)))
@@ -31623,7 +31615,7 @@
     #_synchronized
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"StoredBlock" get [#_"Sha256Hash" hash]
-        (Preconditions/checkNotNull (:block-map this), "MemoryFullPrunedBlockStore is closed")
+        (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
         (let [#_"StoredBlockAndWasUndoableFlag" __storedBlock (.. (:block-map this) (get hash))]
             (when (some? __storedBlock) (:block __storedBlock))
         )
@@ -31635,7 +31627,7 @@
     #_synchronized
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"StoredBlock" getOnceUndoableStoredBlock [#_"Sha256Hash" hash]
-        (Preconditions/checkNotNull (:block-map this), "MemoryFullPrunedBlockStore is closed")
+        (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
         (let [#_"StoredBlockAndWasUndoableFlag" __storedBlock (.. (:block-map this) (get hash))]
             (when (and (some? __storedBlock) (:was-undoable __storedBlock)) (:block __storedBlock))
         )
@@ -31647,7 +31639,7 @@
     #_synchronized
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"StoredUndoableBlock" getUndoBlock [#_"Sha256Hash" hash]
-        (Preconditions/checkNotNull (:full-block-map this), "MemoryFullPrunedBlockStore is closed")
+        (ensure some? (:full-block-map this), "MemoryFullPrunedBlockStore is closed")
         (.. (:full-block-map this) (get hash))
     )
 
@@ -31656,7 +31648,7 @@
     #_synchronized
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"StoredBlock" getChainHead []
-        (Preconditions/checkNotNull (:block-map this), "MemoryFullPrunedBlockStore is closed")
+        (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
         (:chain-head this)
     )
 
@@ -31665,7 +31657,7 @@
     #_synchronized
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"void" setChainHead [#_"StoredBlock" __chainHead]
-        (Preconditions/checkNotNull (:block-map this), "MemoryFullPrunedBlockStore is closed")
+        (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
         (§ assoc this :chain-head __chainHead)
         nil
     )
@@ -31675,7 +31667,7 @@
     #_synchronized
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"StoredBlock" getVerifiedChainHead []
-        (Preconditions/checkNotNull (:block-map this), "MemoryFullPrunedBlockStore is closed")
+        (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
         (:verified-chain-head this)
     )
 
@@ -31684,7 +31676,7 @@
     #_synchronized
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"void" setVerifiedChainHead [#_"StoredBlock" __chainHead]
-        (Preconditions/checkNotNull (:block-map this), "MemoryFullPrunedBlockStore is closed")
+        (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
         (§ assoc this :verified-chain-head __chainHead)
         (when (< (.. (:chain-head this) (getHeight)) (.. __chainHead (getHeight)))
             (.. this (setChainHead __chainHead))
@@ -31710,7 +31702,7 @@
     #_synchronized
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"UTXO" getTransactionOutput [#_"Sha256Hash" hash, #_"long" index]
-        (Preconditions/checkNotNull (:transaction-output-map this), "MemoryFullPrunedBlockStore is closed")
+        (ensure some? (:transaction-output-map this), "MemoryFullPrunedBlockStore is closed")
         (.. (:transaction-output-map this) (get (StoredTransactionOutPoint. hash, index)))
     )
 
@@ -31719,7 +31711,7 @@
     #_synchronized
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"void" addUnspentTransactionOutput [#_"UTXO" out]
-        (Preconditions/checkNotNull (:transaction-output-map this), "MemoryFullPrunedBlockStore is closed")
+        (ensure some? (:transaction-output-map this), "MemoryFullPrunedBlockStore is closed")
         (.. (:transaction-output-map this) (put (StoredTransactionOutPoint. out), out))
         nil
     )
@@ -31729,7 +31721,7 @@
     #_synchronized
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"void" removeUnspentTransactionOutput [#_"UTXO" out]
-        (Preconditions/checkNotNull (:transaction-output-map this), "MemoryFullPrunedBlockStore is closed")
+        (ensure some? (:transaction-output-map this), "MemoryFullPrunedBlockStore is closed")
         (when (nil? (.. (:transaction-output-map this) (remove (StoredTransactionOutPoint. out))))
             (throw (BlockStoreException. "Tried to remove a UTXO from MemoryFullPrunedBlockStore that it didn't have!"))
         )
@@ -31884,9 +31876,9 @@
     #_public
     #_throws #_[ "BlockStoreException" ]
     (§ constructor SPVBlockStore [#_"NetworkParameters" params, #_"File" file, #_"int" capacity]
-        (Preconditions/checkNotNull file)
-        (§ assoc this :params (Preconditions/checkNotNull params))
-        (Preconditions/checkArgument (< 0 capacity))
+        (ensure some? file)
+        (§ assoc this :params (ensure some? params))
+        (assert-argument (< 0 capacity))
 
         (§ assoc this :capacity capacity)
         (try
@@ -32178,21 +32170,21 @@
     #_private
     (§ method- #_"int" getRingCursor [#_"ByteBuffer" buffer]
         (let [#_"int" c (.. buffer (getInt 4))]
-            (Preconditions/checkState (<= SPVBlockStore'FILE_PROLOGUE_BYTES c), "Integer overflow")
+            (assert-state (<= SPVBlockStore'FILE_PROLOGUE_BYTES c), "Integer overflow")
             c
         )
     )
 
     #_private
     (§ method- #_"void" setRingCursor [#_"ByteBuffer" buffer, #_"int" __newCursor]
-        (Preconditions/checkArgument (<= 0 __newCursor))
+        (assert-argument (<= 0 __newCursor))
         (.. buffer (putInt 4, __newCursor))
         nil
     )
 )
 
 #_(ns org.bitcoinj.utils
-    (:import [com.google.common.base Objects Preconditions]
+    (:import [com.google.common.base Objects]
              [com.google.common.math LongMath]
              [com.google.common.primitives Longs]
              [com.google.common.util.concurrent CycleDetectingLockFactory ListeningExecutorService MoreExecutors Uninterruptibles]
@@ -32311,9 +32303,9 @@
     ;;; Construct exchange rate.  This amount of coin is worth that amount of fiat. ;;
     #_public
     (§ constructor ExchangeRate [#_"Coin" coin, #_"Fiat" fiat]
-        (Preconditions/checkArgument (.. coin (isPositive)))
-        (Preconditions/checkArgument (.. fiat (isPositive)))
-        (Preconditions/checkArgument (some? (:currency-code fiat)), "currency code required")
+        (assert-argument (.. coin (isPositive)))
+        (assert-argument (.. fiat (isPositive)))
+        (assert-argument (some? (:currency-code fiat)), "currency code required")
 
         (§ assoc this :coin coin)
         (§ assoc this :fiat fiat)
@@ -32350,7 +32342,7 @@
      ;;
     #_public
     (§ method #_"Coin" fiatToCoin [#_"Fiat" __convertFiat]
-        (Preconditions/checkArgument (.. (:currency-code __convertFiat) (equals (-> this :fiat :currency-code))), "Currency mismatch: %s vs %s", (:currency-code __convertFiat), (-> this :fiat :currency-code))
+        (assert-argument (.. (:currency-code __convertFiat) (equals (-> this :fiat :currency-code))), "Currency mismatch: %s vs %s", (:currency-code __convertFiat), (-> this :fiat :currency-code))
 
         ;; Use BigInteger because it's much easier to maintain full precision without overflowing.
         (let [#_"BigInteger" converted (.. (BigInteger/valueOf (:value __convertFiat)) (multiply (BigInteger/valueOf (-> this :coin :value))) (divide (BigInteger/valueOf (-> this :fiat :value))))]
@@ -32390,9 +32382,9 @@
 )
 
 ;;;
- ; <p>Tracks successes and failures and calculates a time to retry the operation.</p>
+ ; Tracks successes and failures and calculates a time to retry the operation.
  ;
- ; <p>The retries are exponentially backed off, up to a maximum interval.  On success the back off interval is reset.</p>
+ ; The retries are exponentially backed off, up to a maximum interval.  On success the back off interval is reset.
  ;;
 #_public
 (§ class ExponentialBackoff (§ implements Comparable #_"<ExponentialBackoff>")
@@ -32433,8 +32425,8 @@
          ;;
         #_public
         (§ constructor BackoffParams [#_"long" __initialMillis, #_"float" multiplier, #_"long" __maximumMillis]
-            (Preconditions/checkArgument (< 1.0 multiplier), "multiplier must be greater than 1.0")
-            (Preconditions/checkArgument (<= __initialMillis __maximumMillis), "maximum must not be less than initial")
+            (assert-argument (< 1.0 multiplier), "multiplier must be greater than 1.0")
+            (assert-argument (<= __initialMillis __maximumMillis), "maximum must not be less than initial")
 
             (§ assoc this :initial __initialMillis)
             (§ assoc this :multiplier multiplier)
@@ -32567,7 +32559,7 @@
     (§ defn #_"Fiat" Fiat'parseFiat [#_"String" __currencyCode, #_"String" str]
         (try
             (let [#_"long" val (.. (BigDecimal. str) (movePointRight Fiat'SMALLEST_UNIT_EXPONENT) (longValueExact))]
-                (§ return (Fiat'valueOf __currencyCode, val))
+                (Fiat'valueOf __currencyCode, val)
             )
             (catch ArithmeticException e
                 (throw (IllegalArgumentException. e))
@@ -32588,7 +32580,7 @@
     (§ defn #_"Fiat" Fiat'parseFiatInexact [#_"String" __currencyCode, #_"String" str]
         (try
             (let [#_"long" val (.. (BigDecimal. str) (movePointRight Fiat'SMALLEST_UNIT_EXPONENT) (longValue))]
-                (§ return (Fiat'valueOf __currencyCode, val))
+                (Fiat'valueOf __currencyCode, val)
             )
             (catch ArithmeticException e
                 (throw (IllegalArgumentException. e))
@@ -32598,14 +32590,14 @@
 
     #_public
     (§ method #_"Fiat" add [#_"Fiat" value]
-        (Preconditions/checkArgument (.. (:currency-code value) (equals (:currency-code this))))
+        (assert-argument (.. (:currency-code value) (equals (:currency-code this))))
 
         (Fiat. (:currency-code this), (LongMath/checkedAdd (:value this), (:value value)))
     )
 
     #_public
     (§ method #_"Fiat" subtract [#_"Fiat" value]
-        (Preconditions/checkArgument (.. (:currency-code value) (equals (:currency-code this))))
+        (assert-argument (.. (:currency-code value) (equals (:currency-code this))))
 
         (Fiat. (:currency-code this), (LongMath/checkedSubtract (:value this), (:value value)))
     )
@@ -32627,7 +32619,7 @@
 
     #_public
     (§ method #_"long" divide [#_"Fiat" divisor]
-        (Preconditions/checkArgument (.. (:currency-code divisor) (equals (:currency-code this))))
+        (assert-argument (.. (:currency-code divisor) (equals (:currency-code this))))
 
         (quot (:value this) (:value divisor))
     )
@@ -32765,8 +32757,8 @@
 
     #_public
     (§ constructor ListenerRegistration [#_"T" listener, #_"Executor" executor]
-        (§ assoc this :listener (Preconditions/checkNotNull listener))
-        (§ assoc this :executor (Preconditions/checkNotNull executor))
+        (§ assoc this :listener (ensure some? listener))
+        (§ assoc this :executor (ensure some? executor))
         this
     )
 
@@ -32774,7 +32766,7 @@
     #_public
     #_static
     (§ defn #_"<T> boolean" ListenerRegistration'removeFromList #_"<T>" [#_"T" listener, #_"List<? extends ListenerRegistration<T>>" list]
-        (Preconditions/checkNotNull listener)
+        (ensure some? listener)
 
         (let [#_"ListenerRegistration<T>" item nil]
             (doseq [#_"ListenerRegistration<T>" registration list]
@@ -32862,8 +32854,8 @@
      ;;
     #_public
     (§ method #_"MonetaryFormat" negativeSign [#_"char" __negativeSign]
-        (Preconditions/checkArgument (not (Character/isDigit __negativeSign)))
-        (Preconditions/checkArgument (< 0 __negativeSign))
+        (assert-argument (not (Character/isDigit __negativeSign)))
+        (assert-argument (< 0 __negativeSign))
 
         (if (= __negativeSign (:negative-sign this)) this (MonetaryFormat. __negativeSign, (:positive-sign this), (:zero-digit this), (:decimal-mark this), (:min-decimals this), (:decimal-groups this), (:shift this), (:rounding-mode this), (:codes this), (:code-separator this), (:code-prefixed this)))
     )
@@ -32874,7 +32866,7 @@
      ;;
     #_public
     (§ method #_"MonetaryFormat" positiveSign [#_"char" __positiveSign]
-        (Preconditions/checkArgument (not (Character/isDigit __positiveSign)))
+        (assert-argument (not (Character/isDigit __positiveSign)))
 
         (if (= __positiveSign (:positive-sign this)) this (MonetaryFormat. (:negative-sign this), __positiveSign, (:zero-digit this), (:decimal-mark this), (:min-decimals this), (:decimal-groups this), (:shift this), (:rounding-mode this), (:codes this), (:code-separator this), (:code-prefixed this)))
     )
@@ -32893,8 +32885,8 @@
      ;;
     #_public
     (§ method #_"MonetaryFormat" decimalMark [#_"char" __decimalMark]
-        (Preconditions/checkArgument (not (Character/isDigit __decimalMark)))
-        (Preconditions/checkArgument (< 0 __decimalMark))
+        (assert-argument (not (Character/isDigit __decimalMark)))
+        (assert-argument (< 0 __decimalMark))
 
         (if (= __decimalMark (:decimal-mark this)) this (MonetaryFormat. (:negative-sign this), (:positive-sign this), (:zero-digit this), __decimalMark, (:min-decimals this), (:decimal-groups this), (:shift this), (:rounding-mode this), (:codes this), (:code-separator this), (:code-prefixed this)))
     )
@@ -32942,7 +32934,7 @@
      ;;
     #_public
     (§ method #_"MonetaryFormat" repeatOptionalDecimals [#_"int" decimals, #_"int" repetitions]
-        (Preconditions/checkArgument (<= 0 repetitions))
+        (assert-argument (<= 0 repetitions))
 
         (let [#_"List<Integer>" __decimalGroups (ArrayList. #_"<>" repetitions)]
             (loop-when-recur [#_"int" i 0] (< i repetitions) [(inc i)]
@@ -32985,7 +32977,7 @@
      ;;
     #_public
     (§ method #_"MonetaryFormat" code [#_"int" __codeShift, #_"String" code]
-        (Preconditions/checkArgument (<= 0 __codeShift))
+        (assert-argument (<= 0 __codeShift))
 
         (let [#_"String[]" codes (if (some? (:codes this)) (Arrays/copyOf (:codes this), (alength (:codes this))) (make-array String MonetaryFormat'MAX_DECIMALS))]
 
@@ -32999,8 +32991,8 @@
      ;;
     #_public
     (§ method #_"MonetaryFormat" codeSeparator [#_"char" __codeSeparator]
-        (Preconditions/checkArgument (not (Character/isDigit __codeSeparator)))
-        (Preconditions/checkArgument (< 0 __codeSeparator))
+        (assert-argument (not (Character/isDigit __codeSeparator)))
+        (assert-argument (< 0 __codeSeparator))
 
         (if (= __codeSeparator (:code-separator this)) this (MonetaryFormat. (:negative-sign this), (:positive-sign this), (:zero-digit this), (:decimal-mark this), (:min-decimals this), (:decimal-groups this), (:shift this), (:rounding-mode this), (:codes this), __codeSeparator, (:code-prefixed this)))
     )
@@ -33083,7 +33075,7 @@
                 )
             )
             (let [#_"int" __smallestUnitExponent (.. monetary (smallestUnitExponent))]
-                (Preconditions/checkState (<= __maxDecimals __smallestUnitExponent), "The maximum possible number of decimals (%s) cannot exceed %s.", __maxDecimals, __smallestUnitExponent)
+                (assert-state (<= __maxDecimals __smallestUnitExponent), "The maximum possible number of decimals (%s) cannot exceed %s.", __maxDecimals, __smallestUnitExponent)
 
                 ;; rounding
                 (let [#_"long" satoshis (Math/abs (.. monetary (getValue)))
@@ -33172,7 +33164,7 @@
 
     #_private
     (§ method- #_"long" parseValue [#_"String" str, #_"int" __smallestUnitExponent]
-        (Preconditions/checkState (<= __smallestUnitExponent (.. MonetaryFormat'DECIMALS_PADDING (length))))
+        (assert-state (<= __smallestUnitExponent (.. MonetaryFormat'DECIMALS_PADDING (length))))
 
         (when (.. str (isEmpty))
             (throw (NumberFormatException. "empty string"))
@@ -33556,7 +33548,7 @@
 )
 
 #_(ns org.bitcoinj.wallet
-    (:import [com.google.common.base Charsets MoreObjects Objects Preconditions Splitter Stopwatch]
+    (:import [com.google.common.base Charsets MoreObjects Objects Splitter Stopwatch]
              [com.google.common.collect ImmutableList Iterators Lists PeekingIterator]
              [com.google.common.primitives *]
              [com.google.common.util.concurrent *]
@@ -33656,7 +33648,7 @@
     #_override
     #_public
     (§ method #_"List<ECKey>" getKeys [#_nilable #_"KeyPurpose" purpose, #_"int" __numberOfKeys]
-        (Preconditions/checkArgument (< 0 __numberOfKeys))
+        (assert-argument (< 0 __numberOfKeys))
 
         (.. (:lock this) (lock))
         (try
@@ -33744,7 +33736,7 @@
         )
         (let [#_"ECKey" __previousKey (.. (:pubkey-to-keys this) (put (ByteString/copyFrom (.. key (getPubKey))), key))]
             (.. (:hash-to-keys this) (put (ByteString/copyFrom (.. key (getPubKeyHash))), key))
-            (Preconditions/checkState (nil? __previousKey))
+            (assert-state (nil? __previousKey))
             nil
         )
     )
@@ -33848,7 +33840,7 @@
         (try
             (let [#_"boolean" a (some? (.. (:hash-to-keys this) (remove (ByteString/copyFrom (.. key (getPubKeyHash))))))
                   #_"boolean" b (some? (.. (:pubkey-to-keys this) (remove (ByteString/copyFrom (.. key (getPubKey))))))]
-                (Preconditions/checkState (= a b)) ;; Should be in both maps or neither.
+                (assert-state (= a b)) ;; Should be in both maps or neither.
                 (§ return a)
             )
             (finally
@@ -33938,7 +33930,7 @@
     (§ method- #_"void" deserializeFromProtobuf [#_"List<Protos.Key>" keys]
         (.. (:lock this) (lock))
         (try
-            (Preconditions/checkState (.. (:hash-to-keys this) (isEmpty)), "Tried to deserialize into a non-empty chain")
+            (assert-state (.. (:hash-to-keys this) (isEmpty)), "Tried to deserialize into a non-empty chain")
             (doseq [#_"Protos.Key" key keys]
                 (when (= (.. key (getType)) Protos.Key.Type/ORIGINAL)
                     (let [#_"byte[]" priv (when (.. key (hasSecretBytes)) (.. key (getSecretBytes) (toByteArray)))]
@@ -33983,7 +33975,7 @@
 
     #_private
     (§ method- #_"void" queueOnKeysAdded [#_"List<ECKey>" keys]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         (doseq [#_"ListenerRegistration<KeyChainEventListener>" registration (:listeners this)]
             (.. (:executor registration) (execute (Runnable.)
@@ -34302,7 +34294,7 @@
 
     #_public
     (§ method #_"RiskAnalysisResult" analyze []
-        (Preconditions/checkState (not (:analyzed this)))
+        (assert-state (not (:analyzed this)))
         (§ assoc this :analyzed true)
 
         (let [#_"RiskAnalysisResult" result (.. this (analyzeIsFinal))]
@@ -34372,9 +34364,9 @@
     })
 
     ;;;
-     ; <p>Checks if a transaction is considered "standard" by Bitcoin Core's IsStandardTx and AreInputsStandard functions.</p>
+     ; Checks if a transaction is considered "standard" by Bitcoin Core's IsStandardTx and AreInputsStandard functions.
      ;
-     ; <p>Note that this method currently only implements a minimum of checks.  More to be added later.</p>
+     ; Note that this method currently only implements a minimum of checks.  More to be added later.
      ;;
     #_public
     #_static
@@ -34521,15 +34513,15 @@
 )
 
 ;;;
- ; <p>A deterministic key chain is a {@link KeyChain} that uses the
+ ; A deterministic key chain is a {@link KeyChain} that uses the
  ; <a href="https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki">BIP 32 standard</a>, as implemented by
  ; {@link org.bitcoinj.crypto.DeterministicHierarchy}, to derive all the keys in the keychain from a master seed.
  ; This type of wallet is extremely convenient and flexible.  Although backing up full wallet files is always a good
  ; idea, to recover money only the root seed needs to be preserved and that is a number small enough that it can be
  ; written down on paper or, when represented using a BIP 39 {@link org.bitcoinj.crypto.MnemonicCode},
- ; dictated over the phone (possibly even memorized).</p>
+ ; dictated over the phone (possibly even memorized).
  ;
- ; <p>Deterministic key chains have other advantages: parts of the key tree can be selectively revealed to allow
+ ; Deterministic key chains have other advantages: parts of the key tree can be selectively revealed to allow
  ; for auditing, and new public keys can be generated without access to the private keys, yielding a highly secure
  ; configuration for web servers which can accept payments into a wallet but not spend from them.  This does not work
  ; quite how you would expect due to a quirk of elliptic curve mathematics and the techniques used to deal with it.
@@ -34540,31 +34532,31 @@
  ; "xpub..." string encodes sufficient information about the account key to create a watching chain via
  ; {@link org.bitcoinj.crypto.DeterministicKey#deserializeB58(org.bitcoinj.crypto.DeterministicKey, String, org.bitcoinj.core.NetworkParameters)}
  ; (with null as the first parameter) and then
- ; {@link DeterministicKeyChain#DeterministicKeyChain(org.bitcoinj.crypto.DeterministicKey)}.</p>
+ ; {@link DeterministicKeyChain#DeterministicKeyChain(org.bitcoinj.crypto.DeterministicKey)}.
  ;
- ; <p>This class builds on {@link org.bitcoinj.crypto.DeterministicHierarchy} and {@link org.bitcoinj.crypto.DeterministicKey}
+ ; This class builds on {@link org.bitcoinj.crypto.DeterministicHierarchy} and {@link org.bitcoinj.crypto.DeterministicKey}
  ; by adding support for serialization to and from protobufs, and encryption of parts of the key tree.  Internally it
  ; arranges itself as per the BIP 32 spec, with the seed being used to derive a master key, which is then used to derive
  ; an account key, the account key is used to derive two child keys called the <i>internal</i> and <i>external</i> parent
  ; keys (for change and handing out addresses respectively) and finally the actual leaf keys that users use hanging off
  ; the end.  The leaf keys are special in that they don't internally store the private part at all, instead choosing to
- ; rederive the private key from the parent when needed for signing.  This simplifies the design for encrypted key chains.</p>
+ ; rederive the private key from the parent when needed for signing.  This simplifies the design for encrypted key chains.
  ;
- ; <p>The key chain manages a <i>lookahead zone</i>.  This zone is required because when scanning the chain, you don't
+ ; The key chain manages a <i>lookahead zone</i>.  This zone is required because when scanning the chain, you don't
  ; know exactly which keys might receive payments.  The user may have handed out several addresses and received payments
  ; on them, but for latency reasons the block chain is requested from remote peers in bulk, meaning you must
  ; "look ahead" when calculating keys to put in the Bloom filter.  The default lookahead zone is 100 keys, meaning
  ; if the user hands out more than 100 addresses and receives payment on them before the chain is next scanned, some
  ; transactions might be missed.  100 is a reasonable choice for consumer wallets running on CPU constrained devices.
  ; For industrial wallets that are receiving keys all the time, a higher value is more appropriate.  Ideally DKC and
- ; the wallet would know how to adjust this value automatically, but that's not implemented at the moment.</p>
+ ; the wallet would know how to adjust this value automatically, but that's not implemented at the moment.
  ;
- ; <p>In fact the real size of the lookahead zone is larger than requested, by default, it's one third larger.  This
+ ; In fact the real size of the lookahead zone is larger than requested, by default, it's one third larger.  This
  ; is because the act of deriving new keys means recalculating the Bloom filters and this is an expensive operation.
  ; Thus, to ensure we don't have to recalculate on every single new key/address requested or seen we add more buffer
  ; space and only extend the lookahead zone when that buffer is exhausted.  For example with a lookahead zone of 100
  ; keys, you can request 33 keys before more keys will be calculated and the Bloom filter rebuilt and rebroadcast.
- ; But even when you are requesting the 33rd key, you will still be looking 100 keys ahead.</p>
+ ; But even when you are requesting the 33rd key, you will still be looking 100 keys ahead.
  ;
  ; @author Andreas Schildbach
  ;;
@@ -34768,8 +34760,8 @@
 
         #_public
         (§ method #_"DeterministicKeyChain" build []
-            (Preconditions/checkState (or (some? (:random this)) (some? (:entropy this)) (some? (:seed this)) (some? (:watching-key this))), "Must provide either entropy or random or seed or watchingKey")
-            (Preconditions/checkState (or (nil? (:passphrase this)) (nil? (:seed this))), "Passphrase must not be specified with seed")
+            (assert-state (or (some? (:random this)) (some? (:entropy this)) (some? (:seed this)) (some? (:watching-key this))), "Must provide either entropy or random or seed or watchingKey")
+            (assert-state (or (nil? (:passphrase this)) (nil? (:seed this))), "Passphrase must not be specified with seed")
 
             ;; Default passphrase to "" if not specified.
             (when (some? (:random this))
@@ -34850,8 +34842,8 @@
      ;;
     #_public
     (§ constructor DeterministicKeyChain [#_"DeterministicKey" __watchingKey]
-        (Preconditions/checkArgument (.. __watchingKey (isPubKeyOnly)), "Private subtrees not currently supported: if you got this key from DKC.getWatchingKey() then use .dropPrivate().dropParent() on it first.")
-        (Preconditions/checkArgument (= (.. __watchingKey (getPath) (size)) (.. this (getAccountPath) (size))), "You can only watch an account key currently")
+        (assert-argument (.. __watchingKey (isPubKeyOnly)), "Private subtrees not currently supported: if you got this key from DKC.getWatchingKey() then use .dropPrivate().dropParent() on it first.")
+        (assert-argument (= (.. __watchingKey (getPath) (size)) (.. this (getAccountPath) (size))), "You can only watch an account key currently")
 
         (§ assoc this :basic-key-chain (BasicKeyChain.))
         (§ assoc this :seed nil)
@@ -34863,9 +34855,9 @@
     )
 
     ;;;
-     ; <p>Creates a deterministic key chain with the given watch key.  If <code>isFollowing</code> flag is set then this
-     ; keychain follows some other keychain.  In a married wallet following keychain represents "spouse's" keychain.</p>
-     ; <p>Watch key has to be an account key.</p>
+     ; Creates a deterministic key chain with the given watch key.  If <code>isFollowing</code> flag is set then this
+     ; keychain follows some other keychain.  In a married wallet following keychain represents "spouse's" keychain.
+     ; Watch key has to be an account key.
      ;;
     #_protected
     (§ constructor DeterministicKeyChain [#_"DeterministicKey" __watchKey, #_"boolean" __isFollowing]
@@ -34902,7 +34894,7 @@
     (§ constructor DeterministicKeyChain [#_"DeterministicSeed" seed]
         (§ assoc this :seed seed)
         (§ assoc this :basic-key-chain (BasicKeyChain.))
-        (§ assoc this :root-key (HDKeyDerivation'createMasterPrivateKey (Preconditions/checkNotNull (.. seed (getSeedBytes)))))
+        (§ assoc this :root-key (HDKeyDerivation'createMasterPrivateKey (ensure some? (.. seed (getSeedBytes)))))
         (.. (:root-key this) (setCreationTimeSeconds (.. seed (getCreationTimeSeconds))))
         (.. (:basic-key-chain this) (importKey (:root-key this)))
         (§ assoc this :hierarchy (DeterministicHierarchy. (:root-key this)))
@@ -34941,7 +34933,7 @@
     #_override
     #_public
     (§ method #_"List<DeterministicKey>" getKeys [#_"KeyPurpose" purpose, #_"int" __numberOfKeys]
-        (Preconditions/checkArgument (< 0 __numberOfKeys))
+        (assert-argument (< 0 __numberOfKeys))
         (.. (:lock this) (lock))
         (try
             ;; Map both REFUND and RECEIVE_KEYS to the same branch for now.  Refunds are a feature of the BIP 70
@@ -35000,7 +34992,7 @@
 
     #_private
     (§ method- #_"void" checkForBitFlip [#_"DeterministicKey" k]
-        (let [#_"DeterministicKey" parent (Preconditions/checkNotNull (.. k (getParent)))
+        (let [#_"DeterministicKey" parent (ensure some? (.. k (getParent)))
               #_"byte[]" rederived (:key-bytes (HDKeyDerivation'deriveChildKeyBytesFromPublic parent, (.. k (getChildNumber)), :PublicDerivationMode'WITH_INVERSION))
               #_"byte[]" actual (.. k (getPubKey))]
             (when (not (Arrays/equals rederived, actual))
@@ -35133,14 +35125,14 @@
     )
 
     ;;;
-     ; <p>An alias for <code>getKeyByPath(getAccountPath())</code>.</p>
+     ; An alias for <code>getKeyByPath(getAccountPath())</code>.
      ;
-     ; <p>Use this when you would like to create a watching key chain that follows this one, but can't spend money from it.
+     ; Use this when you would like to create a watching key chain that follows this one, but can't spend money from it.
      ; The returned key can be serialized and then passed into {@link #watch(org.bitcoinj.crypto.DeterministicKey)}
-     ; on another system to watch the hierarchy.</p>
+     ; on another system to watch the hierarchy.
      ;
-     ; <p>Note that the returned key is not pubkey only unless this key chain already is: the returned key can still
-     ; be used for signing etc if the private key bytes are available.</p>
+     ; Note that the returned key is not pubkey only unless this key chain already is: the returned key can still
+     ; be used for signing etc if the private key bytes are available.
      ;;
     #_public
     (§ method #_"DeterministicKey" getWatchingKey []
@@ -35323,7 +35315,7 @@
                             (cond (= t Protos.Key.Type/DETERMINISTIC_MNEMONIC)
                                 (do
                                     (when (some? chain)
-                                        (Preconditions/checkState (<= 0 __lookaheadSize))
+                                        (assert-state (<= 0 __lookaheadSize))
 
                                         (.. chain (setLookaheadSize __lookaheadSize))
                                         (.. chain (setSigsRequiredToSpend __sigsRequiredToSpend))
@@ -35380,7 +35372,7 @@
                                                     ;; are to be placed in new following key chain.
                                                     (when (.. key (getDeterministicKey) (getIsFollowing))
                                                         (when (some? chain)
-                                                            (Preconditions/checkState (<= 0 __lookaheadSize))
+                                                            (assert-state (<= 0 __lookaheadSize))
 
                                                             (.. chain (setLookaheadSize __lookaheadSize))
                                                             (.. chain (setSigsRequiredToSpend __sigsRequiredToSpend))
@@ -35481,7 +35473,7 @@
                         )
                     )
                     (when (some? chain)
-                        (Preconditions/checkState (>= __lookaheadSize 0))
+                        (assert-state (>= __lookaheadSize 0))
                         (.. chain (setLookaheadSize __lookaheadSize))
                         (.. chain (setSigsRequiredToSpend __sigsRequiredToSpend))
                         (.. chain (maybeLookAhead))
@@ -35504,7 +35496,7 @@
     (§ method #_"BloomFilter" getFilter [#_"int" size, #_"double" __falsePositiveRate, #_"long" tweak]
         (.. (:lock this) (lock))
         (try
-            (Preconditions/checkArgument (<= (.. this (numBloomFilterEntries)) size))
+            (assert-argument (<= (.. this (numBloomFilterEntries)) size))
             (.. this (maybeLookAhead))
             (.. (:basic-key-chain this) (getFilter size, __falsePositiveRate, tweak))
             (finally
@@ -35514,11 +35506,11 @@
     )
 
     ;;;
-     ; <p>The number of public keys we should pre-generate on each path before they are requested by the app.  This is
+     ; The number of public keys we should pre-generate on each path before they are requested by the app.  This is
      ; required so that when scanning through the chain given only a seed, we can give enough keys to the remote node
      ; via the Bloom filter such that we see transactions that are "from the future", for example transactions created
      ; by a different app that's sharing the same seed, or transactions we made before but we're replaying the chain
-     ; given just the seed. The default is 100.</p>
+     ; given just the seed. The default is 100.
      ;;
     #_public
     (§ method #_"int" getLookaheadSize []
@@ -35621,7 +35613,7 @@
 
     #_private
     (§ method- #_"List<DeterministicKey>" maybeLookAhead [#_"DeterministicKey" parent, #_"int" issued]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         (.. this (maybeLookAhead parent, issued, (.. this (getLookaheadSize)), (.. this (getLookaheadThreshold))))
     )
@@ -35634,7 +35626,7 @@
      ;;
     #_private
     (§ method- #_"List<DeterministicKey>" maybeLookAhead [#_"DeterministicKey" parent, #_"int" issued, #_"int" __lookaheadSize, #_"int" __lookaheadThreshold]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         (let [#_"int" __numChildren (.. (:hierarchy this) (getNumChildren (.. parent (getPath))))
               #_"int" needed (- (+ issued __lookaheadSize __lookaheadThreshold) __numChildren)]
@@ -35915,8 +35907,8 @@
 
     #_public
     (§ constructor DeterministicSeed [#_"byte[]" seed, #_"List<String>" mnemonic, #_"long" __creationTimeSeconds]
-        (§ assoc this :seed (Preconditions/checkNotNull seed))
-        (§ assoc this :mnemonic-code (Preconditions/checkNotNull mnemonic))
+        (§ assoc this :seed (ensure some? seed))
+        (§ assoc this :mnemonic-code (ensure some? mnemonic))
         (§ assoc this :creation-time-seconds __creationTimeSeconds)
         this
     )
@@ -35931,7 +35923,7 @@
      ;;
     #_public
     (§ constructor DeterministicSeed [#_"List<String>" __mnemonicCode, #_nilable #_"byte[]" seed, #_"String" passphrase, #_"long" __creationTimeSeconds]
-        (§ this (or seed (MnemonicCode'toSeed __mnemonicCode, (Preconditions/checkNotNull passphrase))), __mnemonicCode, __creationTimeSeconds)
+        (§ this (or seed (MnemonicCode'toSeed __mnemonicCode, (ensure some? passphrase))), __mnemonicCode, __creationTimeSeconds)
         this
     )
 
@@ -35945,7 +35937,7 @@
      ;;
     #_public
     (§ constructor DeterministicSeed [#_"SecureRandom" random, #_"int" bits, #_"String" passphrase, #_"long" __creationTimeSeconds]
-        (§ this (DeterministicSeed'getEntropy random, bits), (Preconditions/checkNotNull passphrase), __creationTimeSeconds)
+        (§ this (DeterministicSeed'getEntropy random, bits), (ensure some? passphrase), __creationTimeSeconds)
         this
     )
 
@@ -35958,9 +35950,9 @@
      ;;
     #_public
     (§ constructor DeterministicSeed [#_"byte[]" entropy, #_"String" passphrase, #_"long" __creationTimeSeconds]
-        (Preconditions/checkArgument (= (rem (alength entropy) 4) 0), "entropy size in bits not divisible by 32")
-        (Preconditions/checkArgument (<= DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS (* (alength entropy) 8)), "entropy size too small")
-        (Preconditions/checkNotNull passphrase)
+        (assert-argument (= (rem (alength entropy) 4) 0), "entropy size in bits not divisible by 32")
+        (assert-argument (<= DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS (* (alength entropy) 8)), "entropy size too small")
+        (ensure some? passphrase)
 
         (try
             (§ assoc this :mnemonic-code (.. MnemonicCode'INSTANCE (toMnemonic entropy)))
@@ -35976,7 +35968,7 @@
     #_private
     #_static
     (§ defn- #_"byte[]" DeterministicSeed'getEntropy [#_"SecureRandom" random, #_"int" bits]
-        (Preconditions/checkArgument (<= bits DeterministicSeed'MAX_SEED_ENTROPY_BITS), "requested entropy size too large")
+        (assert-argument (<= bits DeterministicSeed'MAX_SEED_ENTROPY_BITS), "requested entropy size too large")
 
         (let [#_"byte[]" seed (byte-array (quot bits 8))]
             (.. random (nextBytes seed))
@@ -36233,36 +36225,36 @@
     (§ method #_"long" getEarliestKeyCreationTime [])
 
     ;;;
-     ; <p>Gets a bloom filter that contains all of the public keys from this chain, and which will provide the given
+     ; Gets a bloom filter that contains all of the public keys from this chain, and which will provide the given
      ; false-positive rate if it has size elements.  Keep in mind that you will get 2 elements in the bloom filter for
      ; each key in the key chain, for the public key and the hash of the public key (address form).  For this reason
-     ; size should be <i>at least</i> 2x the result of {@link #numKeys()}.</p>
+     ; size should be <i>at least</i> 2x the result of {@link #numKeys()}.
      ;
-     ; <p>This is used to generate a {@link BloomFilter} which can be {@link BloomFilter#merge(BloomFilter)}d with
-     ; another.  It could also be used if you have a specific target for the filter's size.</p>
+     ; This is used to generate a {@link BloomFilter} which can be {@link BloomFilter#merge(BloomFilter)}d with
+     ; another.  It could also be used if you have a specific target for the filter's size.
      ;
-     ; <p>See the docs for {@link org.bitcoinj.core.BloomFilter#BloomFilter(int, double, long)} for a brief
-     ; explanation of anonymity when using bloom filters, and for the meaning of these parameters.</p>
+     ; See the docs for {@link org.bitcoinj.core.BloomFilter#BloomFilter(int, double, long)} for a brief
+     ; explanation of anonymity when using bloom filters, and for the meaning of these parameters.
      ;;
     (§ method #_"BloomFilter" getFilter [#_"int" size, #_"double" __falsePositiveRate, #_"long" tweak])
 )
 
 ;;;
- ; <p>A KeyChainGroup is used by the {@link org.bitcoinj.wallet.Wallet} and manages: a {@link BasicKeyChain} object
+ ; A KeyChainGroup is used by the {@link org.bitcoinj.wallet.Wallet} and manages: a {@link BasicKeyChain} object
  ; (which will normally be empty), and zero or more {@link DeterministicKeyChain}s.  A deterministic key chain will be
  ; created lazily/on demand when a fresh or current key is requested, possibly being initialized from the private key
- ; bytes of the earliest non rotating key in the basic key chain if one is available, or from a fresh random seed if not.</p>
+ ; bytes of the earliest non rotating key in the basic key chain if one is available, or from a fresh random seed if not.
  ;
- ; <p>If a key rotation time is set, it may be necessary to add a new DeterministicKeyChain with a fresh seed and
+ ; If a key rotation time is set, it may be necessary to add a new DeterministicKeyChain with a fresh seed and
  ; also preserve the old one, so funds can be swept from the rotating keys.  In this case, there may be more than
- ; one deterministic chain.  The latest chain is called the active chain and is where new keys are served from.</p>
+ ; one deterministic chain.  The latest chain is called the active chain and is where new keys are served from.
  ;
- ; <p>The wallet delegates most key management tasks to this class.  It is <b>not</b> thread safe and requires external
+ ; The wallet delegates most key management tasks to this class.  It is <b>not</b> thread safe and requires external
  ; locking, i.e. by the wallet lock.  The group then in turn delegates most operations to the key chain objects,
- ; combining their responses together when necessary.</p>
+ ; combining their responses together when necessary.
  ;
- ; <p>Deterministic key chains have a concept of a lookahead size and threshold.  Please see the discussion in the
- ; class docs for {@link DeterministicKeyChain} for more information on this topic.</p>
+ ; Deterministic key chains have a concept of a lookahead size and threshold.  Please see the discussion in the
+ ; class docs for {@link DeterministicKeyChain} for more information on this topic.
  ;;
 #_public
 (§ class KeyChainGroup (§ implements KeyBag)
@@ -36318,7 +36310,7 @@
     (§ constructor- KeyChainGroup [#_"NetworkParameters" params, #_nilable #_"BasicKeyChain" __basicKeyChain, #_"List<DeterministicKeyChain>" chains, #_nilable #_"EnumMap<KeyPurpose, DeterministicKey>" __currentKeys]
         (§ assoc this :params params)
         (§ assoc this :basic (or __basicKeyChain (BasicKeyChain.)))
-        (§ assoc this :chains (LinkedList. #_"<>" (Preconditions/checkNotNull chains)))
+        (§ assoc this :chains (LinkedList. #_"<>" (ensure some? chains)))
         (§ assoc this :current-keys (or __currentKeys (EnumMap. #_"<KeyPurpose, DeterministicKey>" KeyPurpose)))
         (§ assoc this :current-addresses (EnumMap. #_"<>" KeyPurpose))
         (.. this (maybeLookaheadScripts))
@@ -36379,9 +36371,9 @@
      ; or confirmed transaction, at which point this method will start returning a different key (for each purpose
      ; independently).
      ;
-     ; <p>This method is not supposed to be used for married keychains and will throw UnsupportedOperationException
+     ; This method is not supposed to be used for married keychains and will throw UnsupportedOperationException
      ; if the active chain is married.
-     ; For married keychains use {@link #currentAddress(KeyChain.KeyPurpose)} to get a proper P2SH address.</p>
+     ; For married keychains use {@link #currentAddress(KeyChain.KeyPurpose)} to get a proper P2SH address.
      ;;
     #_public
     (§ method #_"DeterministicKey" currentKey [#_"KeyPurpose" purpose]
@@ -36426,9 +36418,10 @@
      ; parameter is {@link KeyChain.KeyPurpose#RECEIVE_FUNDS}, the returned key is suitable for being put into a receive
      ; coins wizard type UI.  You should use this when the user is definitely going to hand this key out to someone who
      ; wishes to send money.
-     ; <p>This method is not supposed to be used for married keychains and will throw UnsupportedOperationException if
+     ;
+     ; This method is not supposed to be used for married keychains and will throw UnsupportedOperationException if
      ; the active chain is married.
-     ; For married keychains use {@link #freshAddress(KeyChain.KeyPurpose)} to get a proper P2SH address.</p>
+     ; For married keychains use {@link #freshAddress(KeyChain.KeyPurpose)} to get a proper P2SH address.
      ;;
     #_public
     (§ method #_"DeterministicKey" freshKey [#_"KeyPurpose" purpose]
@@ -36441,9 +36434,10 @@
      ; parameter is {@link KeyChain.KeyPurpose#RECEIVE_FUNDS}, the returned key is suitable for being put into a receive
      ; coins wizard type UI.  You should use this when the user is definitely going to hand this key out to someone who
      ; wishes to send money.
-     ; <p>This method is not supposed to be used for married keychains and will throw UnsupportedOperationException if
+     ;
+     ; This method is not supposed to be used for married keychains and will throw UnsupportedOperationException if
      ; the active chain is married.
-     ; For married keychains use {@link #freshAddress(KeyChain.KeyPurpose)} to get a proper P2SH address.</p>
+     ; For married keychains use {@link #freshAddress(KeyChain.KeyPurpose)} to get a proper P2SH address.
      ;;
     #_public
     (§ method #_"List<DeterministicKey>" freshKeys [#_"KeyPurpose" purpose, #_"int" __numberOfKeys]
@@ -36464,7 +36458,7 @@
         (let [#_"DeterministicKeyChain" chain (.. this (getActiveKeyChain))]
             (when (.. chain (isMarried))
                 (let [#_"Script" __outputScript (.. chain (freshOutputScript purpose))]
-                    (Preconditions/checkState (.. __outputScript (isPayToScriptHash))) ;; Only handle P2SH for now.
+                    (assert-state (.. __outputScript (isPayToScriptHash))) ;; Only handle P2SH for now.
                     (let [#_"Address" __freshAddress (Address'fromP2SHScript (:params this), __outputScript)]
                         (.. this (maybeLookaheadScripts))
                         (.. (:current-addresses this) (put purpose, __freshAddress))
@@ -36565,7 +36559,7 @@
 
     #_public
     (§ method #_"void" markP2SHAddressAsUsed [#_"Address" address]
-        (Preconditions/checkArgument (.. address (isP2SHAddress)))
+        (assert-argument (.. address (isP2SHAddress)))
 
         (let [#_"RedeemData" data (.. this (findRedeemDataFromScriptHash (.. address (getHash160))))]
             (when (nil? data)
@@ -36626,7 +36620,7 @@
     ;;; If the given P2SH address is "current", advance it to a new one. ;;
     #_private
     (§ method- #_"void" maybeMarkCurrentAddressAsUsed [#_"Address" address]
-        (Preconditions/checkArgument (.. address (isP2SHAddress)))
+        (assert-argument (.. address (isP2SHAddress)))
 
         (doseq [#_"Map.Entry<KeyPurpose, Address>" entry (.. (:current-addresses this) (entrySet))]
             (when (and (some? (.. entry (getValue))) (.. entry (getValue) (equals address)))
@@ -36719,8 +36713,8 @@
      ;;
     #_public
     (§ method #_"boolean" removeImportedKey [#_"ECKey" key]
-        (Preconditions/checkNotNull key)
-        (Preconditions/checkArgument (not (instance? DeterministicKey key)))
+        (ensure some? key)
+        (assert-argument (not (instance? DeterministicKey key)))
 
         (.. (:basic this) (removeKey key))
     )
@@ -36827,8 +36821,8 @@
     ;;; Adds a listener for events that are run when keys are added, on the given executor. ;;
     #_public
     (§ method #_"void" addEventListener [#_"KeyChainEventListener" listener, #_"Executor" executor]
-        (Preconditions/checkNotNull listener)
-        (Preconditions/checkNotNull executor)
+        (ensure some? listener)
+        (ensure some? executor)
 
         (.. (:basic this) (addEventListener listener, executor))
         (doseq [#_"DeterministicKeyChain" chain (:chains this)]
@@ -36840,7 +36834,7 @@
     ;;; Removes a listener for events that are run when keys are added. ;;
     #_public
     (§ method #_"boolean" removeEventListener [#_"KeyChainEventListener" listener]
-        (Preconditions/checkNotNull listener)
+        (ensure some? listener)
 
         (doseq [#_"DeterministicKeyChain" chain (:chains this)]
             (.. chain (removeEventListener listener))
@@ -36897,8 +36891,8 @@
     #_public
     #_throws #_[ "AllRandomKeysRotating" ]
     (§ method #_"DeterministicKeyChain" upgradeToDeterministic [#_"long" __keyRotationTimeSecs]
-        (Preconditions/checkState (< 0 (.. (:basic this) (numKeys))))
-        (Preconditions/checkArgument (<= 0 __keyRotationTimeSecs))
+        (assert-state (< 0 (.. (:basic this) (numKeys))))
+        (assert-argument (<= 0 __keyRotationTimeSecs))
 
         ;; Subtract one because the key rotation time might have been set to the creation time of the first known
         ;; good key, in which case, that's the one we want to find.
@@ -36913,14 +36907,14 @@
             )
 
             (.. KeyChainGroup'log (info "Instantiating new HD chain using oldest non-rotating private key (address: {})", (.. __keyToUse (toAddress (:params this)))))
-            (let [#_"byte[]" entropy (Preconditions/checkNotNull (.. __keyToUse (getSecretBytes)))]
+            (let [#_"byte[]" entropy (ensure some? (.. __keyToUse (getSecretBytes)))]
                 ;; Private keys should be at least 128 bits long.
-                (Preconditions/checkState (<= (quot DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS 8) (alength entropy)))
+                (assert-state (<= (quot DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS 8) (alength entropy)))
                 ;; We reduce the entropy here to 128 bits because people like to write their seeds down on paper,
                 ;; and 128 bits should be sufficient forever unless the laws of the universe change or ECC is broken;
                 ;; in either case we all have bigger problems.
                 (§ ass entropy (Arrays/copyOfRange entropy, 0, (quot DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS 8))) ;; Final argument is exclusive range.
-                (Preconditions/checkState (= (alength entropy) (quot DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS 8)))
+                (assert-state (= (alength entropy) (quot DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS 8)))
                 (let [#_"String" passphrase ""] ;; FIXME allow non-empty passphrase
                     (let [#_"DeterministicKeyChain" chain (DeterministicKeyChain. entropy, passphrase, (.. __keyToUse (getCreationTimeSeconds)))]
                         (.. (:chains this) (add chain))
@@ -37091,7 +37085,7 @@
                             )
                         )
 
-                        (Preconditions/checkNotNull __controllingKey, "Coin selector given output as candidate for which we lack the key")
+                        (ensure some? __controllingKey, "Coin selector given output as candidate for which we lack the key")
                         (when (<= (:unix-time-seconds this) (.. __controllingKey (getCreationTimeSeconds)))
                             (§ continue )
                         )
@@ -37105,7 +37099,7 @@
                         )
                     )
                 )
-                (§ return (CoinSelection. __valueGathered, gathered))
+                (CoinSelection. __valueGathered, gathered)
             )
             (catch ScriptException e
                 (throw (RuntimeException. e)) ;; We should never have problems understanding scripts in our wallet.
@@ -37120,17 +37114,17 @@
 )
 
 ;;;
- ; <p>A multi-signature keychain using synchronized HD keys (a.k.a HDM).</p>
+ ; A multi-signature keychain using synchronized HD keys (a.k.a HDM).
  ;
- ; <p>This keychain keeps track of following keychains that follow the account key of this keychain.  You can get P2SH
+ ; This keychain keeps track of following keychains that follow the account key of this keychain.  You can get P2SH
  ; addresses to receive coins to from this chain.  The threshold - sigsRequiredToSpend specifies how many signatures
  ; required to spend transactions for this married keychain.  This value should not exceed the total number of keys
- ; involved (one followed key plus number of following keys), otherwise IllegalArgumentException will be thrown.</p>
+ ; involved (one followed key plus number of following keys), otherwise IllegalArgumentException will be thrown.
  ;
- ; <p>IMPORTANT: As of Bitcoin Core 0.9 all multisig transactions which require more than 3 public keys are non-standard and
- ; such spends won't be processed by peers with default settings, essentially making such transactions almost nonspendable.</p>
+ ; IMPORTANT: As of Bitcoin Core 0.9 all multisig transactions which require more than 3 public keys are non-standard and
+ ; such spends won't be processed by peers with default settings, essentially making such transactions almost nonspendable.
  ;
- ; <p>This method will throw an IllegalStateException, if the keychain is already married or already has leaf keys issued.</p>
+ ; This method will throw an IllegalStateException, if the keychain is already married or already has leaf keys issued.
  ;;
 #_public
 (§ class MarriedKeyChain (§ extends DeterministicKeyChain)
@@ -37183,8 +37177,8 @@
         #_override
         #_public
         (§ method #_"MarriedKeyChain" build []
-            (Preconditions/checkState (or (some? (:random this)) (some? (:entropy this)) (some? (:seed this)) (some? (:watching-key this))), "Must provide either entropy or random or seed or watchingKey")
-            (Preconditions/checkNotNull (:following-keys this), "followingKeys must be provided")
+            (assert-state (or (some? (:random this)) (some? (:entropy this)) (some? (:seed this)) (some? (:watching-key this))), "Must provide either entropy or random or seed or watchingKey")
+            (ensure some? (:following-keys this), "followingKeys must be provided")
 
             (let [#_"MarriedKeyChain" chain]
                 (when (= (:threshold this) 0)
@@ -37248,7 +37242,7 @@
     )
 
     (§ method #_"void" setFollowingKeyChains [#_"List<DeterministicKeyChain>" __followingKeyChains]
-        (Preconditions/checkArgument (not (.. __followingKeyChains (isEmpty))))
+        (assert-argument (not (.. __followingKeyChains (isEmpty))))
         (§ assoc this :following-key-chains __followingKeyChains)
         nil
     )
@@ -37267,7 +37261,7 @@
               #_"ImmutableList.Builder<ECKey>" keys (.. (ImmutableList/builder #_"ImmutableList<ECKey>") (add __followedKey))]
             (doseq [#_"DeterministicKeyChain" __keyChain (:following-key-chains this)]
                 (let [#_"DeterministicKey" __followingKey (.. __keyChain (getKey purpose))]
-                    (Preconditions/checkState (.. __followedKey (getChildNumber) (equals (.. __followingKey (getChildNumber)))), "Following keychains should be in sync")
+                    (assert-state (.. __followedKey (getChildNumber) (equals (.. __followingKey (getChildNumber)))), "Following keychains should be in sync")
                     (.. keys (add __followingKey))
                 )
             )
@@ -37302,14 +37296,14 @@
 
     #_private
     (§ method- #_"void" addFollowingAccountKeys [#_"List<DeterministicKey>" __followingAccountKeys, #_"int" __sigsRequiredToSpend]
-        (Preconditions/checkArgument (<= __sigsRequiredToSpend (inc (.. __followingAccountKeys (size)))), "Multisig threshold can't exceed total number of keys")
-        (Preconditions/checkState (= (.. this (numLeafKeysIssued)) 0), "Active keychain already has keys in use")
-        (Preconditions/checkState (nil? (:following-key-chains this)))
+        (assert-argument (<= __sigsRequiredToSpend (inc (.. __followingAccountKeys (size)))), "Multisig threshold can't exceed total number of keys")
+        (assert-state (= (.. this (numLeafKeysIssued)) 0), "Active keychain already has keys in use")
+        (assert-state (nil? (:following-key-chains this)))
 
         (let [#_"List<DeterministicKeyChain>" __followingKeyChains (Lists/newArrayList)]
 
             (doseq [#_"DeterministicKey" key __followingAccountKeys]
-                (Preconditions/checkArgument (= (.. key (getPath) (size)) (.. this (getAccountPath) (size))), "Following keys have to be account keys")
+                (assert-argument (= (.. key (getPath) (size)) (.. this (getAccountPath) (size))), "Following keys have to be account keys")
 
                 (let [#_"DeterministicKeyChain" chain (DeterministicKeyChain'watchAndFollow key)]
                     (when (<= 0 (:lookahead-size this))
@@ -37395,7 +37389,7 @@
         (.. super (maybeLookAheadScripts))
 
         (let [#_"int" __numLeafKeys (.. this (getLeafKeys) (size))]
-            (Preconditions/checkState (<= (.. (:married-keys-redeem-data this) (size)) __numLeafKeys), "Number of scripts is greater than number of leaf keys")
+            (assert-state (<= (.. (:married-keys-redeem-data this) (size)) __numLeafKeys), "Number of scripts is greater than number of leaf keys")
 
             (when (not= (.. (:married-keys-redeem-data this) (size)) __numLeafKeys)
                 (.. this (maybeLookAhead))
@@ -37482,7 +37476,7 @@
     #_public
     #_static
     (§ defn #_"RedeemData" RedeemData'of [#_"ECKey" key, #_"Script" program]
-        (Preconditions/checkArgument (or (.. program (isSentToAddress)) (.. program (isSentToRawPubKey))))
+        (assert-argument (or (.. program (isSentToAddress)) (.. program (isSentToRawPubKey))))
 
         (when (some? key) (RedeemData. (Collections/singletonList key), program))
     )
@@ -37510,18 +37504,18 @@
 #_public
 (§ class SendRequest
     ;;;
-     ; <p>A transaction, probably incomplete, that describes the outline of what you want to do.  This typically
+     ; A transaction, probably incomplete, that describes the outline of what you want to do.  This typically
      ; will mean it has some outputs to the intended destinations, but no inputs or change address (and therefore
-     ; no fees) - the wallet will calculate all that for you and update tx later.</p>
+     ; no fees) - the wallet will calculate all that for you and update tx later.
      ;
-     ; <p>Be careful when adding outputs that you check the min output value
+     ; Be careful when adding outputs that you check the min output value
      ; ({@link TransactionOutput#getMinNonDustValue(Coin)}) to avoid the whole transaction being rejected
-     ; because one output is dust.</p>
+     ; because one output is dust.
      ;
-     ; <p>If there are already inputs to the transaction, make sure their out point has a connected output,
+     ; If there are already inputs to the transaction, make sure their out point has a connected output,
      ; otherwise their value will be added to fee.  Also ensure they are either signed or are spendable by
      ; a wallet key, otherwise the behavior of {@link Wallet#completeTx(Wallet.SendRequest)} is undefined
-     ; (likely RuntimeException).</p>
+     ; (likely RuntimeException).
      ;;
     #_public
     (§ field #_"Transaction" :tx)
@@ -37543,28 +37537,28 @@
     (§ field #_"Address" :change-address nil)
 
     ;;;
-     ; <p>A transaction can have a fee attached, which is defined as the difference between the input values
+     ; A transaction can have a fee attached, which is defined as the difference between the input values
      ; and output values.  Any value taken in that is not provided to an output can be claimed by a miner.  This
      ; is how mining is incentivized in later years of the Bitcoin system when inflation drops.  It also provides
      ; a way for people to prioritize their transactions over others and is used as a way to make denial of service
-     ; attacks expensive.</p>
+     ; attacks expensive.
      ;
-     ; <p>This is a dynamic fee (in satoshis) which will be added to the transaction for each kilobyte in size
+     ; This is a dynamic fee (in satoshis) which will be added to the transaction for each kilobyte in size
      ; including the first.  This is useful as as miners usually sort pending transactions by their fee per unit size
      ; when choosing which transactions to add to a block.  Note that, to keep this equivalent to Bitcoin Core
-     ; definition, a kilobyte is defined as 1000 bytes, not 1024.</p>
+     ; definition, a kilobyte is defined as 1000 bytes, not 1024.
      ;;
     #_public
     (§ field #_"Coin" :fee-per-kb (.. (Context'get) (getFeePerKb)))
 
     ;;;
-     ; <p>Requires that there be enough fee for a default Bitcoin Core to at least relay the transaction.
+     ; Requires that there be enough fee for a default Bitcoin Core to at least relay the transaction.
      ; (i.e. ensure the transaction will not be outright rejected by the network).  Defaults to true,
-     ; you should only set this to false if you know what you're doing.</p>
+     ; you should only set this to false if you know what you're doing.
      ;
-     ; <p>Note that this does not enforce certain fee rules that only apply to transactions which are larger
+     ; Note that this does not enforce certain fee rules that only apply to transactions which are larger
      ; than 26,000 bytes.  If you get a transaction which is that large, you should set a feePerKb of at least
-     ; {@link Transaction#REFERENCE_DEFAULT_MIN_TX_FEE}.</p>
+     ; {@link Transaction#REFERENCE_DEFAULT_MIN_TX_FEE}.
      ;;
     #_public
     (§ field #_"boolean" :ensure-min-required-fee (.. (Context'get) (isEnsureMinRequiredFee)))
@@ -37629,10 +37623,10 @@
     )
 
     ;;;
-     ; <p>Creates a new SendRequest to the given address for the given value.</p>
+     ; Creates a new SendRequest to the given address for the given value.
      ;
-     ; <p>Be very careful when value is smaller than {@link Transaction#MIN_NONDUST_OUTPUT} as the transaction
-     ; will likely be rejected by the network in this case.</p>
+     ; Be very careful when value is smaller than {@link Transaction#MIN_NONDUST_OUTPUT} as the transaction
+     ; will likely be rejected by the network in this case.
      ;;
     #_public
     #_static
@@ -37640,7 +37634,7 @@
         (let [#_"SendRequest" req (SendRequest.)
               #_"NetworkParameters" parameters (.. destination (getParameters))]
 
-            (Preconditions/checkNotNull parameters, "Address is for an unknown network")
+            (ensure some? parameters, "Address is for an unknown network")
 
             (§ assoc req :tx (Transaction. parameters))
             (.. (:tx req) (addOutput value, destination))
@@ -37649,12 +37643,12 @@
     )
 
     ;;;
-     ; <p>Creates a new SendRequest to the given pubkey for the given value.</p>
+     ; Creates a new SendRequest to the given pubkey for the given value.
      ;
-     ; <p>Be careful to check the output's value is reasonable using
+     ; Be careful to check the output's value is reasonable using
      ; {@link TransactionOutput#getMinNonDustValue(Coin)} afterwards or you risk having the transaction
      ; rejected by the network.  Note that using {@link SendRequest#to(Address, Coin)} will result
-     ; in a smaller output, and thus the ability to use a smaller output value without rejection.</p>
+     ; in a smaller output, and thus the ability to use a smaller output value without rejection.
      ;;
     #_public
     #_static
@@ -37682,7 +37676,7 @@
         (let [#_"SendRequest" req (SendRequest.)
               #_"NetworkParameters" parameters (.. destination (getParameters))]
 
-            (Preconditions/checkNotNull parameters, "Address is for an unknown network")
+            (ensure some? parameters, "Address is for an unknown network")
 
             (§ assoc req :tx (Transaction. parameters))
             (.. (:tx req) (addOutput Coin'ZERO, destination))
@@ -37707,7 +37701,7 @@
                 )
             )
             ;; TODO: Spend another confirmed output of own wallet if needed.
-            (Preconditions/checkNotNull __outputToSpend, "Can't find adequately sized output that spends to us")
+            (ensure some? __outputToSpend, "Can't find adequately sized output that spends to us")
 
             (let [#_"Transaction" tx (Transaction. (.. __parentTransaction (getParams)))]
                 (.. tx (addInput __outputToSpend))
@@ -37726,7 +37720,7 @@
     (§ defn #_"SendRequest" SendRequest'toCLTVPaymentChannel [#_"NetworkParameters" params, #_"Date" __releaseTime, #_"ECKey" from, #_"ECKey" to, #_"Coin" value]
         (let [#_"long" time (quot (.. __releaseTime (getTime)) 1000)]
 
-            (Preconditions/checkArgument (<= Transaction'LOCKTIME_THRESHOLD time), "Release time was too small")
+            (assert-argument (<= Transaction'LOCKTIME_THRESHOLD time), "Release time was too small")
 
             (SendRequest'toCLTVPaymentChannel params, (BigInteger/valueOf time), from, to, value)
         )
@@ -37735,7 +37729,7 @@
     #_public
     #_static
     (§ defn #_"SendRequest" SendRequest'toCLTVPaymentChannel [#_"NetworkParameters" params, #_"int" __releaseBlock, #_"ECKey" from, #_"ECKey" to, #_"Coin" value]
-        (Preconditions/checkArgument (< -1 __releaseBlock Transaction'LOCKTIME_THRESHOLD), "Block number was too large")
+        (assert-argument (< -1 __releaseBlock Transaction'LOCKTIME_THRESHOLD), "Block number was too large")
 
         (SendRequest'toCLTVPaymentChannel params, (BigInteger/valueOf __releaseBlock), from, to, value)
     )
@@ -37828,22 +37822,22 @@
 ;; fills up the lines saved!
 
 ;;;
- ; <p>A Wallet stores keys and a record of transactions that send and receive value from those keys.  Using these,
+ ; A Wallet stores keys and a record of transactions that send and receive value from those keys.  Using these,
  ; it is able to create new transactions that spend the recorded transactions, and this is the fundamental operation
- ; of the Bitcoin protocol.</p>
+ ; of the Bitcoin protocol.
  ;
- ; <p>To learn more about this class, read <b><a href="https://bitcoinj.github.io/working-with-the-wallet">working with the wallet.</a></b></p>
+ ; To learn more about this class, read <b><a href="https://bitcoinj.github.io/working-with-the-wallet">working with the wallet.</a></b>
  ;
- ; <p>To fill up a Wallet with transactions, you need to use it in combination with a {@link BlockChain} and various
+ ; To fill up a Wallet with transactions, you need to use it in combination with a {@link BlockChain} and various
  ; other objects, see the <a href="https://bitcoinj.github.io/getting-started">Getting started</a> tutorial
- ; on the website to learn more about how to set everything up.</p>
+ ; on the website to learn more about how to set everything up.
  ;
- ; <p>Wallets can be serialized using protocol buffers.  You need to save the wallet whenever it changes, there is an
+ ; Wallets can be serialized using protocol buffers.  You need to save the wallet whenever it changes, there is an
  ; auto-save feature that simplifies this for you although you're still responsible for manually triggering a save when
  ; your app is about to quit because the auto-save feature waits a moment before actually committing to disk to avoid IO
  ; thrashing when the wallet is changing very fast (e.g. due to a block chain sync).  See
  ; {@link Wallet#autosaveToFile(java.io.File, long, java.util.concurrent.TimeUnit, org.bitcoinj.wallet.WalletFiles.Listener)}
- ; for more information about this.</p>
+ ; for more information about this.
  ;;
 #_public
 (§ class Wallet (§ implements NewBestBlockListener, TransactionReceivedInBlockListener, PeerFilterProvider, KeyBag, TransactionBag, ReorganizeListener)
@@ -38051,7 +38045,7 @@
     #_static
     (§ defn #_"Wallet" Wallet'fromKeys [#_"NetworkParameters" params, #_"List<ECKey>" keys]
         (doseq [#_"ECKey" key keys]
-            (Preconditions/checkArgument (not (instance? DeterministicKey key)))
+            (assert-argument (not (instance? DeterministicKey key)))
         )
 
         (let [#_"KeyChainGroup" group (KeyChainGroup. params)]
@@ -38070,7 +38064,7 @@
     (§ constructor- Wallet [#_"Context" context, #_"KeyChainGroup" __keyChainGroup]
         (§ assoc this :context context)
         (§ assoc this :params (.. context (getParams)))
-        (§ assoc this :key-chain-group (Preconditions/checkNotNull __keyChainGroup))
+        (§ assoc this :key-chain-group (ensure some? __keyChainGroup))
         (when (.. (:params this) (getId) (equals NetworkParameters'ID_UNITTESTNET))
             (.. (:key-chain-group this) (setLookaheadSize 5)) ;; Cut down excess computation for unit tests.
         )
@@ -38141,10 +38135,11 @@
     )
 
     ;;;
-     ; <p>Adds given transaction signer to the list of signers.  It will be added to the end of the signers list,
-     ; so if this wallet already has some signers added, given signer will be executed after all of them.</p>
-     ; <p>Transaction signer should be fully initialized before adding to the wallet, otherwise
-     ; {@link IllegalStateException} will be thrown</p>
+     ; Adds given transaction signer to the list of signers.  It will be added to the end of the signers list,
+     ; so if this wallet already has some signers added, given signer will be executed after all of them.
+     ;
+     ; Transaction signer should be fully initialized before adding to the wallet, otherwise
+     ; {@link IllegalStateException} will be thrown.
      ;;
     #_public
     (§ method #_"void" addTransactionSigner [#_"TransactionSigner" signer]
@@ -38365,7 +38360,7 @@
 
     #_private
     (§ method- #_"void" maybeUpgradeToHD []
-        (Preconditions/checkState (.. (:key-chain-group-lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:key-chain-group-lock this) (isHeldByCurrentThread)))
         (when (.. (:key-chain-group this) (isDeterministicUpgradeRequired))
             (.. Wallet'log (info "Upgrade to HD wallets is required, attempting to do so."))
             (.. this (upgradeToDeterministic))
@@ -38436,10 +38431,10 @@
     )
 
     ;;;
-     ; <p>Imports the given ECKey to the wallet.</p>
+     ; Imports the given ECKey to the wallet.
      ;
-     ; <p>If the wallet is configured to auto save to a file, triggers a save immediately.  Runs the onKeysAdded event
-     ; handler.  If the key already exists in the wallet, does nothing and returns false.</p>
+     ; If the wallet is configured to auto save to a file, triggers a save immediately.  Runs the onKeysAdded event
+     ; handler.  If the key already exists in the wallet, does nothing and returns false.
      ;;
     #_public
     (§ method #_"boolean" importKey [#_"ECKey" key]
@@ -38484,13 +38479,14 @@
     ;;;
      ; Add a pre-configured keychain to the wallet.  Useful for setting up a complex keychain,
      ; such as for a married wallet.  For example:
+     ;
      ; <pre>
      ; MarriedKeyChain chain = MarriedKeyChain.builder()
      ;     .random(SecureRandom.())
      ;     .followingKeys(followingKeys)
      ;     .threshold(2).build();
      ; wallet.addAndActivateHDChain(chain);
-     ; </p>
+     ; </pre>
      ;;
     #_public
     (§ method #_"void" addAndActivateHDChain [#_"DeterministicKeyChain" chain]
@@ -38838,13 +38834,13 @@
     )
 
     ;;;
-     ; <p>Whether or not the wallet will ignore pending transactions that fail the selected {@link RiskAnalysis}.
+     ; Whether or not the wallet will ignore pending transactions that fail the selected {@link RiskAnalysis}.
      ; By default, if a transaction is considered risky then it won't enter the wallet and won't trigger any event
      ; listeners.  If you set this property to true, then all transactions will be allowed in regardless of risk.
-     ; For example, the default {@link RiskAnalysis} checks for non-finality of transactions.</p>
+     ; For example, the default {@link RiskAnalysis} checks for non-finality of transactions.
      ;
-     ; <p>Note that this property is not serialized.  You have to set it each time a Wallet object is constructed,
-     ; even if it's loaded from a protocol buffer.</p>
+     ; Note that this property is not serialized.  You have to set it each time a Wallet object is constructed,
+     ; even if it's loaded from a protocol buffer.
      ;;
     #_public
     (§ method #_"void" setAcceptRiskyTransactions [#_"boolean" __acceptRiskyTransactions]
@@ -38873,21 +38869,21 @@
     )
 
     ;;;
-     ; <p>Sets up the wallet to auto-save itself to the given file, using temp files with atomic renames to ensure
+     ; Sets up the wallet to auto-save itself to the given file, using temp files with atomic renames to ensure
      ; consistency.  After connecting to a file, you no longer need to save the wallet manually, it will do it
-     ; whenever necessary.  Protocol buffer serialization will be used.</p>
+     ; whenever necessary.  Protocol buffer serialization will be used.
      ;
-     ; <p>If delayTime is set, a background thread will be created and the wallet will only be saved to disk
+     ; If delayTime is set, a background thread will be created and the wallet will only be saved to disk
      ; every so many time units.  If no changes have occurred for the given time period, nothing will be written.
      ; In this way disk IO can be rate limited.  It's a good idea to set this as otherwise the wallet can change very
      ; frequently, e.g. if there are a lot of transactions in it or during block sync, and there will be a lot of redundant
      ; writes.  Note that when a new key is added, that always results in an immediate save regardless of delayTime.
      ; <b>You should still save the wallet manually when your program is about to shut down as the JVM will not
-     ; wait for the background thread.</b></p>
+     ; wait for the background thread.</b>
      ;
-     ; <p>An event listener can be provided.  If a delay >0 was specified, it will be called on a background thread
+     ; An event listener can be provided.  If a delay >0 was specified, it will be called on a background thread
      ; with the wallet locked when an auto-save occurs.  If delay is zero or you do something that always triggers
-     ; an immediate save, like adding a key, the event listener will be invoked on the calling threads.</p>
+     ; an immediate save, like adding a key, the event listener will be invoked on the calling threads.
      ;
      ; @param f The destination file to save to.
      ; @param delayTime How many time units to wait until saving the wallet on a background thread.
@@ -38898,7 +38894,7 @@
     (§ method #_"WalletFiles" autosaveToFile [#_"File" f, #_"long" __delayTime, #_"TimeUnit" __timeUnit, #_nilable #_"WalletFilesListener" __eventListener]
         (.. (:lock this) (lock))
         (try
-            (Preconditions/checkState (nil? (:v-file-manager this)), "Already auto saving this wallet.")
+            (assert-state (nil? (:v-file-manager this)), "Already auto saving this wallet.")
             (let [#_"WalletFiles" manager (WalletFiles. this, f, __delayTime, __timeUnit)]
                 (when (some? __eventListener)
                     (.. manager (setListener __eventListener))
@@ -38923,7 +38919,7 @@
         (try
             (let [#_"WalletFiles" files (:v-file-manager this)]
                 (§ assoc this :v-file-manager nil)
-                (Preconditions/checkState (some? files), "Auto saving not enabled.")
+                (assert-state (some? files), "Auto saving not enabled.")
                 (.. files (shutdownAndWait))
             )
             (finally
@@ -39182,17 +39178,17 @@
     )
 
     ;;;
-     ; <p>Called when we have found a transaction (via network broadcast or otherwise) that is relevant to this wallet
+     ; Called when we have found a transaction (via network broadcast or otherwise) that is relevant to this wallet
      ; and want to record it.  Note that we <b>cannot verify these transactions at all</b>, they may spend fictional
      ; coins or be otherwise invalid.  They are useful to inform the user about coins they can expect to receive soon,
      ; and if you trust the sender of the transaction you can choose to assume they are in fact valid and will not
-     ; be double spent as an optimization.</p>
+     ; be double spent as an optimization.
      ;
-     ; <p>This is the same as {@link Wallet#receivePending(Transaction, java.util.List)} but allows you to override the
+     ; This is the same as {@link Wallet#receivePending(Transaction, java.util.List)} but allows you to override the
      ; {@link Wallet#isPendingTransactionRelevant(Transaction)} sanity-check to keep track of transactions that are not
      ; spendable or spend our coins.  This can be useful when you want to keep track of transaction confidence on
      ; arbitrary transactions.  Note that transactions added in this way will still be relayed to peers and appear in
-     ; transaction lists like any other pending transaction (even when not relevant).</p>
+     ; transaction lists like any other pending transaction (even when not relevant).
      ;;
     #_public
     #_throws #_[ "VerificationException" ]
@@ -39274,15 +39270,15 @@
     )
 
     ;;;
-     ; <p>Called when we have found a transaction (via network broadcast or otherwise) that is relevant to this wallet
+     ; Called when we have found a transaction (via network broadcast or otherwise) that is relevant to this wallet
      ; and want to record it.  Note that we <b>cannot verify these transactions at all</b>, they may spend fictional
      ; coins or be otherwise invalid.  They are useful to inform the user about coins they can expect to receive soon,
      ; and if you trust the sender of the transaction you can choose to assume they are in fact valid and will not
-     ; be double spent as an optimization.</p>
+     ; be double spent as an optimization.
      ;
-     ; <p>Before this method is called, {@link Wallet#isPendingTransactionRelevant(Transaction)} should have been
+     ; Before this method is called, {@link Wallet#isPendingTransactionRelevant(Transaction)} should have been
      ; called to decide whether the wallet cares about the transaction - if it does, then this method expects the
-     ; transaction and any dependencies it has which are still in the memory pool.</p>
+     ; transaction and any dependencies it has which are still in the memory pool.
      ;;
     #_public
     #_throws #_[ "VerificationException" ]
@@ -39327,12 +39323,12 @@
     )
 
     ;;;
-     ; <p>Returns true if the given transaction sends coins to any of our keys, or has inputs spending any of our outputs,
+     ; Returns true if the given transaction sends coins to any of our keys, or has inputs spending any of our outputs,
      ; and also returns true if tx has inputs that are spending outputs which are
-     ; not ours but which are spent by pending transactions.</p>
+     ; not ours but which are spent by pending transactions.
      ;
-     ; <p>Note that if the tx has inputs containing one of our keys, but the connected transaction is not in the wallet,
-     ; it will not be considered relevant.</p>
+     ; Note that if the tx has inputs containing one of our keys, but the connected transaction is not in the wallet,
+     ; it will not be considered relevant.
      ;;
     #_public
     #_throws #_[ "ScriptException" ]
@@ -39353,7 +39349,7 @@
      ;;
     #_private
     (§ method- #_"Set<Transaction>" findDoubleSpendsAgainst [#_"Transaction" tx, #_"Map<Sha256Hash, Transaction>" candidates]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
         (when (.. tx (isCoinBase))
             (§ return (Sets/newHashSet))
         )
@@ -39461,7 +39457,7 @@
     #_throws #_[ "VerificationException" ]
     (§ method- #_"void" receive [#_"Transaction" tx, #_"StoredBlock" block, #_"NewBlockType" __blockType, #_"int" __relativityOffset]
         ;; Runs in a peer thread.
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         (let [#_"Coin" __prevBalance (.. this (getBalance))
               #_"Sha256Hash" __txHash (.. tx (getHash))
@@ -39505,7 +39501,7 @@
                                     (doseq [#_"TransactionOutput" output (.. tx (getOutputs))]
                                         (let [#_"TransactionInput" __spentBy (.. output (getSpentBy))]
                                             (when (some? __spentBy)
-                                                (Preconditions/checkState (.. (:my-unspents this) (add output)))
+                                                (assert-state (.. (:my-unspents this) (add output)))
                                                 (.. __spentBy (disconnect))
                                             )
                                         )
@@ -39516,7 +39512,7 @@
                         )
                         :else
                         (do
-                            (Preconditions/checkState __sideChain)
+                            (assert-state __sideChain)
                             ;; Transactions that appear in a side chain will have that appearance recorded below - we assume
                             ;; that some miners are also trying to include the transaction into the current best chain too,
                             ;; so let's treat it as pending, except we don't need to do any risk analysis on it.
@@ -39775,8 +39771,8 @@
     #_private
     #_throws #_[ "VerificationException" ]
     (§ method- #_"void" processTxFromBestChain [#_"Transaction" tx, #_"boolean" __forceAddToPool]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
-        (Preconditions/checkState (not (.. (:pending this) (containsKey (.. tx (getHash))))))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (not (.. (:pending this) (containsKey (.. tx (getHash))))))
 
         ;; This TX may spend our existing outputs even though it was not pending.  This can happen in unit tests,
         ;; if keys are moved between wallets, if we're catching up to the chain given only a set of keys,
@@ -39855,19 +39851,19 @@
     )
 
     ;;;
-     ; <p>Updates the wallet by checking if this TX spends any of our outputs, and marking them as spent if so.
+     ; Updates the wallet by checking if this TX spends any of our outputs, and marking them as spent if so.
      ; If fromChain is true, also checks to see if any pending transaction spends outputs of this transaction and marks
-     ; the spent flags appropriately.</p>
+     ; the spent flags appropriately.
      ;
-     ; <p>It can be called in two contexts.  One is when we receive a transaction on the best chain but it wasn't pending,
+     ; It can be called in two contexts.  One is when we receive a transaction on the best chain but it wasn't pending,
      ; this most commonly happens when we have a set of keys but the wallet transactions were wiped and we are catching
      ; up with the block chain.  It can also happen if a block includes a transaction we never saw at broadcast time.
-     ; If this tx double spends, it takes precedence over our pending transactions and the pending tx goes dead.</p>
+     ; If this tx double spends, it takes precedence over our pending transactions and the pending tx goes dead.
      ;
-     ; <p>The other context it can be called is from {@link Wallet#receivePending(Transaction, java.util.List)},
+     ; The other context it can be called is from {@link Wallet#receivePending(Transaction, java.util.List)},
      ; i.e. we saw a tx be broadcast or one was submitted directly that spends our own coins.  If this tx double spends,
      ; it does NOT take precedence because the winner will be resolved by the miners - we assume that our version will
-     ; win, if we are wrong then when a block appears the tx will go dead.</p>
+     ; win, if we are wrong then when a block appears the tx will go dead.
      ;
      ; @param tx The transaction which is being updated.
      ; @param fromChain If true, the tx appeared on the current best chain, if false it was pending.
@@ -39875,9 +39871,9 @@
     #_private
     #_throws #_[ "VerificationException" ]
     (§ method- #_"void" updateForSpends [#_"Transaction" tx, #_"boolean" __fromChain]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
         (when __fromChain
-            (Preconditions/checkState (not (.. (:pending this) (containsKey (.. tx (getHash))))))
+            (assert-state (not (.. (:pending this) (containsKey (.. tx (getHash))))))
         )
 
         (doseq [#_"TransactionInput" input (.. tx (getInputs))]
@@ -39895,7 +39891,7 @@
                     )
                 )
 
-                (let [#_"TransactionOutput" output (Preconditions/checkNotNull (.. input (getConnectedOutput)))]
+                (let [#_"TransactionOutput" output (ensure some? (.. input (getConnectedOutput)))]
                     (cond (= result :ConnectionResult'ALREADY_SPENT)
                         (do
                             (cond __fromChain
@@ -39926,12 +39922,12 @@
                             ;; Otherwise we saw a transaction spend our coins, but we didn't try and spend them ourselves yet.
                             ;; The outputs are already marked as spent by the connect call above, so check if there are any more for
                             ;; us to use.  Move if not.
-                            (let [#_"Transaction" connected (Preconditions/checkNotNull (.. input (getConnectedTransaction)))]
+                            (let [#_"Transaction" connected (ensure some? (.. input (getConnectedTransaction)))]
                                 (.. Wallet'log (info "  marked {} as spent by {}", (.. input (getOutpoint)), (.. tx (getHashAsString))))
                                 (.. this (maybeMovePool connected, "prevtx"))
                                 ;; Just because it's connected, doesn't mean it's actually ours: sometimes we have total visibility.
                                 (when (.. output (isMine this))
-                                    (Preconditions/checkState (.. (:my-unspents this) (remove output)))
+                                    (assert-state (.. (:my-unspents this) (remove output)))
                                 )
                             )
                         )
@@ -39952,7 +39948,7 @@
                     (when __fromChain
                         ;; This TX is supposed to have just appeared on the best chain, so its outputs should not be marked
                         ;; as spent yet.  If they are, it means something is happening out of order.
-                        (Preconditions/checkState (not= result :ConnectionResult'ALREADY_SPENT))
+                        (assert-state (not= result :ConnectionResult'ALREADY_SPENT))
                     )
                     (when (= result :ConnectionResult'SUCCESS)
                         (.. Wallet'log (info "Connected pending tx input {}:{}", (.. __pendingTx (getHashAsString)), (.. __pendingTx (getInputs) (indexOf input))))
@@ -39997,7 +39993,7 @@
                                 (§ continue )
                             )
                             (when (and (not= (.. connected (getConfidence) (getConfidenceType)) ConfidenceType'DEAD) (some? (.. __deadInput (getConnectedOutput) (getSpentBy))) (.. __deadInput (getConnectedOutput) (getSpentBy) (equals __deadInput)))
-                                (Preconditions/checkState (.. (:my-unspents this) (add (.. __deadInput (getConnectedOutput)))))
+                                (assert-state (.. (:my-unspents this) (add (.. __deadInput (getConnectedOutput)))))
                                 (.. Wallet'log (info "Added to UNSPENTS: {} in {}", (.. __deadInput (getConnectedOutput)), (.. __deadInput (getConnectedOutput) (getParentTransaction) (getHash))))
                             )
                             (.. __deadInput (disconnect))
@@ -40058,7 +40054,7 @@
      ;;
     #_private
     (§ method- #_"void" maybeMovePool [#_"Transaction" tx, #_"String" context]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         (cond (.. tx (isEveryOwnedOutputSpent this))
             (do
@@ -40190,20 +40186,20 @@
     )
 
     ;;;
-     ; <p>Updates the wallet with the given transaction: puts it into the pending pool, sets the spent flags
-     ; and runs the onCoinsSent/onCoinsReceived event listener.  Used in two situations:</p>
+     ; Updates the wallet with the given transaction: puts it into the pending pool, sets the spent flags
+     ; and runs the onCoinsSent/onCoinsReceived event listener.  Used in two situations:
      ;
      ; <ol>
      ;     <li>When we have just successfully transmitted the tx we created to the network.</li>
      ;     <li>When we receive a pending transaction that didn't appear in the chain yet, and we did not create it.</li>
      ; </ol>
      ;
-     ; <p>Triggers an auto save.</p>
+     ; Triggers an auto save.
      ;;
     #_public
     #_throws #_[ "VerificationException" ]
     (§ method #_"void" commitTx [#_"Transaction" tx]
-        (Preconditions/checkArgument (.. this (maybeCommitTx tx)), "commitTx called on the same transaction twice")
+        (assert-argument (.. this (maybeCommitTx tx)), "commitTx called on the same transaction twice")
         nil
     )
 
@@ -40388,7 +40384,7 @@
 
     #_private
     (§ method- #_"void" queueOnTransactionConfidenceChanged [#_"Transaction" tx]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         (doseq [#_"ListenerRegistration<TransactionConfidenceEventListener>" registration (:transaction-confidence-listeners this)]
             (cond (= (:executor registration) Threading'SAME_THREAD)
@@ -40416,8 +40412,8 @@
     (§ method #_"void" maybeQueueOnWalletChanged []
         ;; Don't invoke the callback in some circumstances, e.g. whilst we are re-organizing or fiddling
         ;; with transactions due to a new block arriving.  It will be called later instead.
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
-        (Preconditions/checkState (<= 0 (:on-wallet-changed-suppressions this)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (<= 0 (:on-wallet-changed-suppressions this)))
 
         (when (< 0 (:on-wallet-changed-suppressions this))
             (§ return nil)
@@ -40439,7 +40435,7 @@
 
     #_protected
     (§ method #_"void" queueOnCoinsReceived [#_"Transaction" tx, #_"Coin" balance, #_"Coin" __newBalance]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         (doseq [#_"ListenerRegistration<WalletCoinsReceivedEventListener>" registration (:coins-received-listeners this)]
             (.. (:executor registration) (execute (Runnable.)
@@ -40457,7 +40453,7 @@
 
     #_protected
     (§ method #_"void" queueOnCoinsSent [#_"Transaction" tx, #_"Coin" __prevBalance, #_"Coin" __newBalance]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         (doseq [#_"ListenerRegistration<WalletCoinsSentEventListener>" registration (:coins-sent-listeners this)]
             (.. (:executor registration) (execute (Runnable.)
@@ -40475,8 +40471,8 @@
 
     #_protected
     (§ method #_"void" queueOnReorganize []
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
-        (Preconditions/checkState (:inside-reorg this))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (:inside-reorg this))
 
         (doseq [#_"ListenerRegistration<WalletReorganizeEventListener>" registration (:reorganize-listeners this)]
             (.. (:executor registration) (execute (Runnable.)
@@ -40566,14 +40562,14 @@
      ;;
     #_private
     (§ method- #_"void" addWalletTransaction [#_"PoolType" pool, #_"Transaction" tx]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         (.. (:transactions this) (put (.. tx (getHash)), tx))
         (condp = pool
-            :PoolType'UNSPENT (Preconditions/checkState (nil? (.. (:unspent this) (put (.. tx (getHash)), tx))))
-            :PoolType'SPENT   (Preconditions/checkState (nil? (.. (:spent this) (put (.. tx (getHash)), tx))))
-            :PoolType'PENDING (Preconditions/checkState (nil? (.. (:pending this) (put (.. tx (getHash)), tx))))
-            :PoolType'DEAD    (Preconditions/checkState (nil? (.. (:dead this) (put (.. tx (getHash)), tx))))
+            :PoolType'UNSPENT (assert-state (nil? (.. (:unspent this) (put (.. tx (getHash)), tx))))
+            :PoolType'SPENT   (assert-state (nil? (.. (:spent this) (put (.. tx (getHash)), tx))))
+            :PoolType'PENDING (assert-state (nil? (.. (:pending this) (put (.. tx (getHash)), tx))))
+            :PoolType'DEAD    (assert-state (nil? (.. (:dead this) (put (.. tx (getHash)), tx))))
             (throw (RuntimeException. (str "Unknown wallet transaction type " pool)))
         )
 
@@ -40610,7 +40606,7 @@
     (§ method #_"List<Transaction>" getRecentTransactions [#_"int" __numTransactions, #_"boolean" __includeDead]
         (.. (:lock this) (lock))
         (try
-            (Preconditions/checkArgument (<= 0 __numTransactions))
+            (assert-argument (<= 0 __numTransactions))
 
             ;; Firstly, put all transactions into an array.
             (let [#_"int" size (+ (.. (:unspent this) (size)) (.. (:spent this) (size)) (.. (:pending this) (size)))]
@@ -40749,7 +40745,7 @@
                                                 (§ continue )
                                             )
                                             (when (.. output (isMine this))
-                                                (Preconditions/checkState (.. (:my-unspents this) (add output)))
+                                                (assert-state (.. (:my-unspents this) (add output)))
                                             )
                                             (.. input (disconnect))
                                         )
@@ -40896,7 +40892,7 @@
 
     #_private
     (§ method- #_"void" toStringHelper [#_"StringBuilder" sb, #_"Map<Sha256Hash, Transaction>" __transactionMap, #_nilable #_"AbstractBlockChain" chain, #_nilable #_"Comparator<Transaction>" __sortOrder]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         (let [#_"Collection<Transaction>" txns]
             (cond (some? __sortOrder)
@@ -41087,17 +41083,17 @@
     )
 
     ;;;
-     ; <p>It's possible to calculate a wallets balance from multiple points of view.  This enum selects which
-     ; {@link #getBalance(BalanceType)} should use.</p>
+     ; It's possible to calculate a wallets balance from multiple points of view.  This enum selects which
+     ; {@link #getBalance(BalanceType)} should use.
      ;
-     ; <p>Consider a real-world example: you buy a snack costing $5 but you only have a $10 bill.  At the start
+     ; Consider a real-world example: you buy a snack costing $5 but you only have a $10 bill.  At the start
      ; you have $10 viewed from every possible angle.  After you order the snack you hand over your $10 bill.
      ; From the perspective of your wallet you have zero dollars (AVAILABLE).  But you know in a few seconds the
-     ; shopkeeper will give you back $5 change so most people in practice would say they have $5 (ESTIMATED).</p>
+     ; shopkeeper will give you back $5 change so most people in practice would say they have $5 (ESTIMATED).
      ;
-     ; <p>The fact that the wallet can track transactions which are not spendable by itself ("watching wallets")
+     ; The fact that the wallet can track transactions which are not spendable by itself ("watching wallets")
      ; adds another type of balance to the mix.  Although the wallet won't do this by default, advanced use cases
-     ; that override the relevancy checks can end up with a mix of spendable and unspendable transactions.</p>
+     ; that override the relevancy checks can end up with a mix of spendable and unspendable transactions.
      ;;
     #_public
     #_static
@@ -41177,7 +41173,7 @@
     (§ method #_"Coin" getBalance [#_"CoinSelector" selector]
         (.. (:lock this) (lock))
         (try
-            (Preconditions/checkNotNull selector)
+            (ensure some? selector)
 
             (let [#_"List<TransactionOutput>" candidates (.. this (calculateAllSpendCandidates true, false))
                   #_"CoinSelection" selection (.. selector (select (.. (:params this) (getMaxMoney)), candidates))]
@@ -41203,18 +41199,18 @@
     (§ field- #_"List<BalanceFutureRequest>" :balance-future-requests (Lists/newLinkedList))
 
     ;;;
-     ; <p>Returns a future that will complete when the balance of the given type has become equal or larger to the
+     ; Returns a future that will complete when the balance of the given type has become equal or larger to the
      ; given value.  If the wallet already has a large enough balance the future is returned in a pre-completed state.
      ; Note that this method is not blocking, if you want to actually wait immediately, you have to call .get() on
-     ; the result.</p>
+     ; the result.
      ;
-     ; <p>Also note that by the time the future completes, the wallet may have changed yet again if something else
+     ; Also note that by the time the future completes, the wallet may have changed yet again if something else
      ; is going on in parallel, so you should treat the returned balance as advisory and be prepared for sending
      ; money to fail!  Finally please be aware that any listeners on the future will run either on the calling thread
      ; if it completes immediately, or eventually on a background thread if the balance is not yet at the right
      ; level.  If you do something that means you know the balance should be sufficient to trigger the future,
      ; you can use {@link org.bitcoinj.utils.Threading#waitForUserCode()} to block until the future had a
-     ; chance to be updated.</p>
+     ; chance to be updated.
      ;;
     #_public
     (§ method #_"ListenableFuture<Coin>" getBalanceFuture [#_"Coin" value, #_"BalanceType" type]
@@ -41252,7 +41248,7 @@
     #_suppress #_[ "FieldAccessNotGuarded" ]
     #_private
     (§ method- #_"void" checkBalanceFuturesLocked [#_nilable #_"Coin" avail]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         (let [#_"ListIterator<BalanceFutureRequest>" it (.. (:balance-future-requests this) (listIterator))]
             (while (.. it (hasNext))
@@ -41406,26 +41402,26 @@
     })
 
     ;;;
-     ; <p>Statelessly creates a transaction that sends the given value to address.  The change is sent to
-     ; {@link Wallet#currentChangeAddress()}, so you must have added at least one key.</p>
+     ; Statelessly creates a transaction that sends the given value to address.  The change is sent to
+     ; {@link Wallet#currentChangeAddress()}, so you must have added at least one key.
      ;
-     ; <p>If you just want to send money quickly, you probably want
+     ; If you just want to send money quickly, you probably want
      ; {@link Wallet#sendCoins(TransactionBroadcaster, Address, Coin)} instead.  That will create the sending
      ; transaction, commit to the wallet and broadcast it to the network all in one go.  This method is lower
-     ; level and lets you see the proposed transaction before anything is done with it.</p>
+     ; level and lets you see the proposed transaction before anything is done with it.
      ;
-     ; <p>This is a helper method that is equivalent to using {@link SendRequest#to(Address, Coin)}
+     ; This is a helper method that is equivalent to using {@link SendRequest#to(Address, Coin)}
      ; followed by {@link Wallet#completeTx(Wallet.SendRequest)} and returning the requests transaction object.
      ; Note that this means a fee may be automatically added if required, if you want more control over the process,
-     ; just do those two steps yourself.</p>
+     ; just do those two steps yourself.
      ;
-     ; <p>IMPORTANT: This method does NOT update the wallet.  If you call createSend again you may get two transactions
+     ; IMPORTANT: This method does NOT update the wallet.  If you call createSend again you may get two transactions
      ; that spend the same coins.  You have to call {@link Wallet#commitTx(Transaction)} on the created transaction to
      ; prevent this, but that should only occur once the transaction has been accepted by the network.  This implies
-     ; you cannot have more than one outstanding sending tx at once.</p>
+     ; you cannot have more than one outstanding sending tx at once.
      ;
-     ; <p>You MUST ensure that the value is not smaller than {@link Transaction#MIN_NONDUST_OUTPUT} or the transaction
-     ; will almost certainly be rejected by the network as dust.</p>
+     ; You MUST ensure that the value is not smaller than {@link Transaction#MIN_NONDUST_OUTPUT} or the transaction
+     ; will almost certainly be rejected by the network as dust.
      ;
      ; @param address The Bitcoin address to send the money to.
      ; @param value How much currency to send.
@@ -41477,20 +41473,20 @@
     )
 
     ;;;
-     ; <p>Sends coins to the given address, via the given {@link PeerGroup}.  Change is returned to
+     ; Sends coins to the given address, via the given {@link PeerGroup}.  Change is returned to
      ; {@link Wallet#currentChangeAddress()}.  Note that a fee may be automatically added if one may be required
-     ; for the transaction to be confirmed.</p>
+     ; for the transaction to be confirmed.
      ;
-     ; <p>The returned object provides both the transaction, and a future that can be used to learn when the broadcast
+     ; The returned object provides both the transaction, and a future that can be used to learn when the broadcast
      ; is complete.  Complete means, if the PeerGroup is limited to only one connection, when it was written out to
-     ; the socket.  Otherwise when the transaction is written out and we heard it back from a different peer.</p>
+     ; the socket.  Otherwise when the transaction is written out and we heard it back from a different peer.
      ;
-     ; <p>Note that the sending transaction is committed to the wallet immediately, not when the transaction is
+     ; Note that the sending transaction is committed to the wallet immediately, not when the transaction is
      ; successfully broadcast.  This means that even if the network hasn't heard about your transaction you won't be
-     ; able to spend those same coins again.</p>
+     ; able to spend those same coins again.
      ;
-     ; <p>You MUST ensure that value is not smaller than {@link Transaction#MIN_NONDUST_OUTPUT} or the transaction will
-     ; almost certainly be rejected by the network as dust.</p>
+     ; You MUST ensure that value is not smaller than {@link Transaction#MIN_NONDUST_OUTPUT} or the transaction will
+     ; almost certainly be rejected by the network as dust.
      ;
      ; @param broadcaster A {@link TransactionBroadcaster} to use to send the transactions out.
      ; @param to Which address to send coins to.
@@ -41511,15 +41507,15 @@
     )
 
     ;;;
-     ; <p>Sends coins according to the given request, via the given {@link TransactionBroadcaster}.</p>
+     ; Sends coins according to the given request, via the given {@link TransactionBroadcaster}.
      ;
-     ; <p>The returned object provides both the transaction, and a future that can be used to learn when the broadcast
+     ; The returned object provides both the transaction, and a future that can be used to learn when the broadcast
      ; is complete.  Complete means, if the PeerGroup is limited to only one connection, when it was written out to
-     ; the socket.  Otherwise when the transaction is written out and we heard it back from a different peer.</p>
+     ; the socket.  Otherwise when the transaction is written out and we heard it back from a different peer.
      ;
-     ; <p>Note that the sending transaction is committed to the wallet immediately, not when the transaction is
+     ; Note that the sending transaction is committed to the wallet immediately, not when the transaction is
      ; successfully broadcast.  This means that even if the network hasn't heard about your transaction you won't be
-     ; able to spend those same coins again.</p>
+     ; able to spend those same coins again.
      ;
      ; @param broadcaster The target to use for broadcast.
      ; @param request The SendRequest that describes what to do, get one using static methods on SendRequest itself.
@@ -41536,7 +41532,7 @@
     (§ method #_"SendResult" sendCoins [#_"TransactionBroadcaster" broadcaster, #_"SendRequest" request]
         ;; Should not be locked here, as we're going to call into the broadcaster and that might want to hold its
         ;; own lock.  sendCoinsOffline handles everything that needs to be locked.
-        (Preconditions/checkState (not (.. (:lock this) (isHeldByCurrentThread))))
+        (assert-state (not (.. (:lock this) (isHeldByCurrentThread))))
 
         ;; Commit the TX to the wallet immediately so the spent coins won't be reused.
         ;; TODO: We should probably allow the request to specify tx commit only after the network has accepted it.
@@ -41572,7 +41568,7 @@
     #_throws #_[ "InsufficientMoneyException" ]
     (§ method #_"SendResult" sendCoins [#_"SendRequest" request]
         (let [#_"TransactionBroadcaster" broadcaster (:v-transaction-broadcaster this)]
-            (Preconditions/checkState (some? broadcaster), "No transaction broadcaster is configured")
+            (assert-state (some? broadcaster), "No transaction broadcaster is configured")
             (.. this (sendCoins broadcaster, request))
         )
     )
@@ -41654,7 +41650,7 @@
     (§ method #_"void" completeTx [#_"SendRequest" req]
         (.. (:lock this) (lock))
         (try
-            (Preconditions/checkArgument (not (:completed req)), "Given SendRequest has already been completed.")
+            (assert-argument (not (:completed req)), "Given SendRequest has already been completed.")
 
             ;; Calculate the amount of value we need to import.
             (let [#_"Coin" value Coin'ZERO]
@@ -41715,7 +41711,7 @@
                                     (do
                                         ;; We're being asked to empty the wallet.  What this means is ensuring "tx" has only a single output
                                         ;; of the total value we can currently spend as determined by the selector, and then subtracting the fee.
-                                        (Preconditions/checkState (= (.. (:tx req) (getOutputs) (size)) 1), "Empty wallet TX must have a single output only.")
+                                        (assert-state (= (.. (:tx req) (getOutputs) (size)) 1), "Empty wallet TX must have a single output only.")
 
                                         (let [#_"CoinSelector" selector (or (:coin-selector req) (:coin-selector this))]
                                             (§ ass __bestCoinSelection (.. selector (select (.. (:params this) (getMaxMoney)), candidates)))
@@ -41792,10 +41788,11 @@
     )
 
     ;;;
-     ; <p>Given a send request containing transaction, attempts to sign it's inputs.  This method expects
-     ; the transaction to have all necessary inputs connected or they will be ignored.</p>
-     ; <p>Actual signing is done by pluggable {@link #signers} and it's not guaranteed that
-     ; the transaction will be complete in the end.</p>
+     ; Given a send request containing transaction, attempts to sign it's inputs.  This method expects
+     ; the transaction to have all necessary inputs connected or they will be ignored.
+     ;
+     ; Actual signing is done by pluggable {@link #signers} and it's not guaranteed that
+     ; the transaction will be complete in the end.
      ;;
     #_public
     (§ method #_"void" signTransaction [#_"SendRequest" req]
@@ -41804,8 +41801,8 @@
             (let [#_"Transaction" tx (:tx req)
                   #_"List<TransactionInput>" inputs (.. tx (getInputs))
                   #_"List<TransactionOutput>" outputs (.. tx (getOutputs))]
-                (Preconditions/checkState (< 0 (.. inputs (size))))
-                (Preconditions/checkState (< 0 (.. outputs (size))))
+                (assert-state (< 0 (.. inputs (size))))
+                (assert-state (< 0 (.. outputs (size))))
 
                 (let [#_"int" __numInputs (.. tx (getInputs) (size))]
                     (loop-when-recur [#_"int" i 0] (< i __numInputs) [(inc i)]
@@ -41830,7 +41827,7 @@
 
                             (let [#_"Script" __scriptPubKey (.. __txIn (getConnectedOutput) (getScriptPubKey))
                                   #_"RedeemData" __redeemData (.. __txIn (getConnectedRedeemData this))]
-                                (Preconditions/checkNotNull __redeemData, "Transaction exists in wallet that we cannot redeem: %s", (.. __txIn (getOutpoint) (getHash)))
+                                (ensure some? __redeemData, "Transaction exists in wallet that we cannot redeem: %s", (.. __txIn (getOutpoint) (getHash)))
                                 (.. __txIn (setScriptSig (.. __scriptPubKey (createEmptyInputScript (.. (:keys __redeemData) (get 0)), (:redeem-script __redeemData)))))
                             )
                         )
@@ -41894,7 +41891,7 @@
                     (when (and __excludeUnsignable (not (.. this (canSignFor (.. output (getScriptPubKey))))))
                         (§ continue )
                     )
-                    (let [#_"Transaction" transaction (Preconditions/checkNotNull (.. output (getParentTransaction)))]
+                    (let [#_"Transaction" transaction (ensure some? (.. output (getParentTransaction)))]
                         (when (and __excludeImmatureCoinbases (not (.. transaction (isMature))))
                             (§ continue )
                         )
@@ -41987,7 +41984,7 @@
     (§ method #_"void" setCoinSelector [#_"CoinSelector" __coinSelector]
         (.. (:lock this) (lock))
         (try
-            (§ assoc this :coin-selector (Preconditions/checkNotNull __coinSelector))
+            (§ assoc this :coin-selector (ensure some? __coinSelector))
             (finally
                 (.. (:lock this) (unlock))
             )
@@ -42089,13 +42086,13 @@
     )
 
     ;;;
-     ; <p>Don't call this directly.  It's not intended for API users.</p>
+     ; Don't call this directly.  It's not intended for API users.
      ;
-     ; <p>Called by the {@link BlockChain} when the best chain (representing total work done) has changed.
+     ; Called by the {@link BlockChain} when the best chain (representing total work done) has changed.
      ; This can cause the number of confirmations of a transaction to go higher, lower, drop to zero and
-     ; can even result in a transaction going dead (will never confirm) due to a double spend.</p>
+     ; can even result in a transaction going dead (will never confirm) due to a double spend.
      ;
-     ; <p>The oldBlocks/newBlocks lists are ordered height-wise from top first to bottom last.</p>
+     ; The oldBlocks/newBlocks lists are ordered height-wise from top first to bottom last.
      ;;
     #_override
     #_public
@@ -42117,10 +42114,10 @@
             ;; because there are so many ways the block can be invalid.
 
             ;; Avoid spuriously informing the user of wallet/tx confidence changes whilst we're re-organizing.
-            (Preconditions/checkState (= (.. (:confidence-changed this) (size)) 0))
-            (Preconditions/checkState (not (:inside-reorg this)))
+            (assert-state (= (.. (:confidence-changed this) (size)) 0))
+            (assert-state (not (:inside-reorg this)))
             (§ assoc this :inside-reorg true)
-            (Preconditions/checkState (= (:on-wallet-changed-suppressions this) 0))
+            (assert-state (= (:on-wallet-changed-suppressions this) 0))
             (§ assoc this :on-wallet-changed-suppressions (inc (:on-wallet-changed-suppressions this)))
 
             ;; Map block hash to transactions that appear in it.  We ensure that the map values are sorted according
@@ -42178,7 +42175,7 @@
                                                 (let [#_"TransactionInput" input (.. output (getSpentBy))]
                                                     (when (some? input)
                                                         (when (.. output (isMine this))
-                                                            (Preconditions/checkState (.. (:my-unspents this) (add output)))
+                                                            (assert-state (.. (:my-unspents this) (add output)))
                                                         )
                                                         (.. input (disconnect))
                                                     )
@@ -42187,8 +42184,8 @@
                                             (.. __oldChainTxns (add tx))
                                             (.. (:unspent this) (remove __txHash))
                                             (.. (:spent this) (remove __txHash))
-                                            (Preconditions/checkState (not (.. (:pending this) (containsKey __txHash))))
-                                            (Preconditions/checkState (not (.. (:dead this) (containsKey __txHash))))
+                                            (assert-state (not (.. (:pending this) (containsKey __txHash))))
+                                            (assert-state (not (.. (:dead this) (containsKey __txHash))))
                                         )
                                     )
                                 )
@@ -42373,15 +42370,15 @@
     )
 
     ;;;
-     ; <p>Gets a bloom filter that contains all of the public keys from this wallet, and which will provide the given
+     ; Gets a bloom filter that contains all of the public keys from this wallet, and which will provide the given
      ; false-positive rate if it has size elements.  Keep in mind that you will get 2 elements in the bloom filter for
-     ; each key in the wallet, for the public key and the hash of the public key (address form).</p>
+     ; each key in the wallet, for the public key and the hash of the public key (address form).
      ;
-     ; <p>This is used to generate a BloomFilter which can be {@link BloomFilter#merge(BloomFilter)}d with another.
-     ; It could also be used if you have a specific target for the filter's size.</p>
+     ; This is used to generate a BloomFilter which can be {@link BloomFilter#merge(BloomFilter)}d with another.
+     ; It could also be used if you have a specific target for the filter's size.
      ;
-     ; <p>See the docs for {@link BloomFilter(int, double)} for a brief explanation of anonymity when using bloom
-     ; filters.</p>
+     ; See the docs for {@link BloomFilter(int, double)} for a brief explanation of anonymity when using bloom
+     ; filters.
      ;;
     #_override
     #_public
@@ -42423,7 +42420,7 @@
                     (.. this (markKeysAsUsed tx))
                 )
                 (let [#_"int" __newEpoch (.. (:key-chain-group this) (getCombinedKeyLookaheadEpochs))]
-                    (Preconditions/checkState (<= epoch __newEpoch))
+                    (assert-state (<= epoch __newEpoch))
                     ;; If the key lookahead epoch has advanced, there was a call to importKeys and the PeerGroup already has a
                     ;; pending request to recalculate the filter queued up on another thread.  The calling Peer should abandon
                     ;; block at this point and await a new filter before restarting the download.
@@ -42453,7 +42450,7 @@
     #_private
     #_throws #_[ "InsufficientMoneyException" ]
     (§ method- #_"FeeCalculation" calculateFee [#_"SendRequest" req, #_"Coin" value, #_"List<TransactionInput>" __originalInputs, #_"boolean" __needAtLeastReferenceFee, #_"List<TransactionOutput>" candidates]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
         (let [#_"FeeCalculation" result
               #_"Coin" fee Coin'ZERO]
             (loop []
@@ -42547,7 +42544,7 @@
                                     (doseq [#_"TransactionOutput" __selectedOutput (:gathered selection)]
                                         (let [#_"TransactionInput" input (.. tx (addInput __selectedOutput))]
                                             ;; If the scriptBytes don't default to none, our size calculations will be thrown off.
-                                            (Preconditions/checkState (= (alength (.. input (getScriptBytes))) 0))
+                                            (assert-state (= (alength (.. input (getScriptBytes))) 0))
                                         )
                                     )
 
@@ -42599,12 +42596,12 @@
                         (cond (.. script (isSentToAddress))
                             (do
                                 (§ ass key (.. this (findKeyFromPubHash (.. script (getPubKeyHash)))))
-                                (Preconditions/checkNotNull key, "Coin selection includes unspendable outputs")
+                                (ensure some? key, "Coin selection includes unspendable outputs")
                             )
                             (.. script (isPayToScriptHash))
                             (do
                                 (§ ass __redeemScript (.. this (findRedeemDataFromScriptHash (.. script (getPubKeyHash))) :redeem-script))
-                                (Preconditions/checkNotNull __redeemScript, "Coin selection includes unspendable outputs")
+                                (ensure some? __redeemScript, "Coin selection includes unspendable outputs")
                             )
                         )
                         (§ ass size (+ size (.. script (getNumberOfBytesRequiredToSpend key, __redeemScript))))
@@ -42629,16 +42626,16 @@
     ;; keys back to our own keys.
 
     ;;;
-     ; <p>Specifies that the given {@link TransactionBroadcaster}, typically a {@link PeerGroup}, should be used for
+     ; Specifies that the given {@link TransactionBroadcaster}, typically a {@link PeerGroup}, should be used for
      ; sending transactions to the Bitcoin network by default.  Some sendCoins methods let you specify a broadcaster
      ; explicitly, in that case, they don't use this broadcaster.  If null is specified then the wallet won't attempt
-     ; to broadcast transactions itself.</p>
+     ; to broadcast transactions itself.
      ;
-     ; <p>You don't normally need to call this.  A {@link PeerGroup} will automatically set itself as the wallets
+     ; You don't normally need to call this.  A {@link PeerGroup} will automatically set itself as the wallets
      ; broadcaster when you use {@link PeerGroup#addWallet(Wallet)}.  A wallet can use the broadcaster when you ask
      ; it to send money, but in future also at other times to implement various features that may require asynchronous
      ; re-organisation of the wallet contents on the block chain.  For instance, in future the wallet may choose to
-     ; optimise itself to reduce fees or improve privacy.</p>
+     ; optimise itself to reduce fees or improve privacy.
      ;;
     #_public
     (§ method #_"void" setTransactionBroadcaster [#_nilable #_"TransactionBroadcaster" broadcaster]
@@ -42662,7 +42659,7 @@
             ;; is no inversion.
             (doseq [#_"Transaction" tx __toBroadcast]
                 (let [#_"ConfidenceType" __confidenceType (.. tx (getConfidence) (getConfidenceType))]
-                    (Preconditions/checkState (any = __confidenceType ConfidenceType'PENDING ConfidenceType'IN_CONFLICT), "Expected PENDING or IN_CONFLICT, was %s.", __confidenceType)
+                    (assert-state (any = __confidenceType ConfidenceType'PENDING ConfidenceType'IN_CONFLICT), "Expected PENDING or IN_CONFLICT, was %s.", __confidenceType)
                     ;; Re-broadcast even if it's marked as already seen for two reasons:
                     ;; 1. Old wallets may have transactions marked as broadcast by 1 peer when
                     ;;    in reality the network never saw it, due to bugs.
@@ -42712,7 +42709,7 @@
      ;;
     #_public
     (§ method #_"void" setKeyRotationTime [#_"long" __unixTimeSeconds]
-        (Preconditions/checkArgument (<= __unixTimeSeconds (Utils'currentTimeSeconds)), "Given time (%s) cannot be in the future.", (Utils'dateTimeFormat (* __unixTimeSeconds 1000)))
+        (assert-argument (<= __unixTimeSeconds (Utils'currentTimeSeconds)), "Given time (%s) cannot be in the future.", (Utils'dateTimeFormat (* __unixTimeSeconds 1000)))
         (§ assoc this :v-key-rotation-timestamp __unixTimeSeconds)
         (.. this (saveNow))
         nil
@@ -42753,7 +42750,7 @@
                     (.. (:lock this) (unlock))
                 )
             )
-            (Preconditions/checkState (not (.. (:lock this) (isHeldByCurrentThread))))
+            (assert-state (not (.. (:lock this) (isHeldByCurrentThread))))
             (let [#_"ArrayList<ListenableFuture<Transaction>>" futures (ArrayList. #_"<>" (.. txns (size)))
                   #_"TransactionBroadcaster" broadcaster (:v-transaction-broadcaster this)]
                 (doseq [#_"Transaction" tx txns]
@@ -42790,8 +42787,8 @@
     ;; Checks to see if any coins are controlled by rotating keys and if so, spends them.
     #_private
     (§ method- #_"List<Transaction>" maybeRotateKeys [#_"boolean" sign?]
-        (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
-        (Preconditions/checkState (.. (:key-chain-group-lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:lock this) (isHeldByCurrentThread)))
+        (assert-state (.. (:key-chain-group-lock this) (isHeldByCurrentThread)))
 
         (let [#_"List<Transaction>" results (Lists/newLinkedList)]
             ;; TODO: Handle chain replays here.
@@ -42891,7 +42888,7 @@
                                 (.. this (signTransaction req))
                             )
                             ;; KeyTimeCoinSelector should never select enough inputs to push us oversize.
-                            (Preconditions/checkState (< (alength (.. __rekeyTx (unsafeBitcoinSerialize))) Transaction'MAX_STANDARD_TX_SIZE))
+                            (assert-state (< (alength (.. __rekeyTx (unsafeBitcoinSerialize))) Transaction'MAX_STANDARD_TX_SIZE))
                             (§ return __rekeyTx)
                         )
                     )
@@ -42967,12 +42964,12 @@
         (.. (:executor this) (setKeepAliveTime 5, TimeUnit/SECONDS))
         (.. (:executor this) (allowCoreThreadTimeOut true))
         (.. (:executor this) (setExecuteExistingDelayedTasksAfterShutdownPolicy false))
-        (§ assoc this :wallet (Preconditions/checkNotNull wallet))
+        (§ assoc this :wallet (ensure some? wallet))
         ;; File must only be accessed from the auto-save executor from now on, to avoid simultaneous access.
-        (§ assoc this :file (Preconditions/checkNotNull file))
+        (§ assoc this :file (ensure some? file))
         (§ assoc this :save-pending (AtomicBoolean.))
         (§ assoc this :delay delay)
-        (§ assoc this :delay-time-unit (Preconditions/checkNotNull __delayTimeUnit))
+        (§ assoc this :delay-time-unit (ensure some? __delayTimeUnit))
 
         (§ assoc this :saver (Callable. #_"<Void>"
         (§ anon
@@ -43000,7 +42997,7 @@
      ;;
     #_public
     (§ method #_"void" setListener [#_non-nil #_"WalletFilesListener" listener]
-        (§ assoc this :v-listener (Preconditions/checkNotNull listener))
+        (§ assoc this :v-listener (ensure some? listener))
         nil
     )
 
@@ -43321,13 +43318,13 @@
     )
 
     ;;;
-     ; <p>Loads wallet data from the given protocol buffer and inserts it into the given Wallet object.
+     ; Loads wallet data from the given protocol buffer and inserts it into the given Wallet object.
      ; This is primarily useful when you wish to pre-register extension objects.  Note that if loading
-     ; fails the provided Wallet object may be in an indeterminate state and should be thrown away.</p>
+     ; fails the provided Wallet object may be in an indeterminate state and should be thrown away.
      ;
-     ; <p>A wallet can be unreadable for various reasons, such as inability to open the file, corrupt data,
+     ; A wallet can be unreadable for various reasons, such as inability to open the file, corrupt data,
      ; internally inconsistent data and so on.  You should always handle
-     ; {@link UnreadableWalletException} and communicate failure to the user in an appropriate manner.</p>
+     ; {@link UnreadableWalletException} and communicate failure to the user in an appropriate manner.
      ;
      ; @throws UnreadableWalletException in various error conditions (see description).
      ;;
@@ -43338,19 +43335,19 @@
     )
 
     ;;;
-     ; <p>Loads wallet data from the given protocol buffer and inserts it into the given Wallet object.
+     ; Loads wallet data from the given protocol buffer and inserts it into the given Wallet object.
      ; This is primarily useful when you wish to pre-register extension objects.  Note that if loading
      ; fails the provided Wallet object may be in an indeterminate state and should be thrown away.  Do not
      ; simply call this method again on the same Wallet object with {@code forceReset} set {@code true}.
-     ; It won't work.</p>
+     ; It won't work.
      ;
-     ; <p>If {@code forceReset} is {@code true}, then no transactions are loaded from the wallet, and
+     ; If {@code forceReset} is {@code true}, then no transactions are loaded from the wallet, and
      ; it is configured to replay transactions from the blockchain (as if the wallet had been loaded and
      ; {@link Wallet.reset} had been called immediately thereafter).
      ;
-     ; <p>A wallet can be unreadable for various reasons, such as inability to open the file, corrupt data,
+     ; A wallet can be unreadable for various reasons, such as inability to open the file, corrupt data,
      ; internally inconsistent data and so on. You should always handle
-     ; {@link UnreadableWalletException} and communicate failure to the user in an appropriate manner.</p>
+     ; {@link UnreadableWalletException} and communicate failure to the user in an appropriate manner.
      ;
      ; @throws UnreadableWalletException in various error conditions (see description).
      ;;
@@ -43365,7 +43362,7 @@
                     (throw (UnreadableWalletException. (str "Unknown network parameters ID " __paramsID)))
                 )
 
-                (§ return (.. this (readWallet params, __walletProto, __forceReset)))
+                (.. this (readWallet params, __walletProto, __forceReset))
             )
             (catch IOException e
                 (throw (UnreadableWalletException. "Could not parse input stream to protobuf", e))
@@ -43380,13 +43377,13 @@
     )
 
     ;;;
-     ; <p>Loads wallet data from the given protocol buffer and inserts it into the given Wallet object.
+     ; Loads wallet data from the given protocol buffer and inserts it into the given Wallet object.
      ; This is primarily useful when you wish to pre-register extension objects.  Note that if loading
-     ; fails, the provided Wallet object may be in an indeterminate state and should be thrown away.</p>
+     ; fails, the provided Wallet object may be in an indeterminate state and should be thrown away.
      ;
-     ; <p>A wallet can be unreadable for various reasons, such as inability to open the file, corrupt
+     ; A wallet can be unreadable for various reasons, such as inability to open the file, corrupt
      ; data, internally inconsistent data and so on.  You should always handle
-     ; {@link UnreadableWalletException} and communicate failure to the user in an appropriate manner.</p>
+     ; {@link UnreadableWalletException} and communicate failure to the user in an appropriate manner.
      ;
      ; @throws UnreadableWalletException in various error conditions (see description).
      ;;
@@ -43397,19 +43394,19 @@
     )
 
     ;;;
-     ; <p>Loads wallet data from the given protocol buffer and inserts it into the given Wallet object.
+     ; Loads wallet data from the given protocol buffer and inserts it into the given Wallet object.
      ; This is primarily useful when you wish to pre-register extension objects.  Note that if loading
      ; fails, the provided Wallet object may be in an indeterminate state and should be thrown away.  Do not
      ; simply call this method again on the same Wallet object with {@code forceReset} set {@code true}.
-     ; It won't work.</p>
+     ; It won't work.
      ;
-     ; <p>If {@code forceReset} is {@code true}, then no transactions are loaded from the wallet, and it is
+     ; If {@code forceReset} is {@code true}, then no transactions are loaded from the wallet, and it is
      ; configured to replay transactions from the blockchain (as if the wallet had been loaded and
      ; {@link Wallet.reset} had been called immediately thereafter).
      ;
-     ; <p>A wallet can be unreadable for various reasons, such as inability to open the file, corrupt data,
+     ; A wallet can be unreadable for various reasons, such as inability to open the file, corrupt data,
      ; internally inconsistent data and so on.  You should always handle
-     ; {@link UnreadableWalletException} and communicate failure to the user in an appropriate manner.</p>
+     ; {@link UnreadableWalletException} and communicate failure to the user in an appropriate manner.
      ;
      ; @throws UnreadableWalletException in various error conditions (see description).
      ;;
@@ -43618,7 +43615,7 @@
                             )
 
                             (let [#_"int" __spendingIndex (.. __transactionOutput (getSpentByTransactionIndex))
-                                  #_"TransactionInput" input (Preconditions/checkNotNull (.. __spendingTx (getInput __spendingIndex)))]
+                                  #_"TransactionInput" input (ensure some? (.. __spendingTx (getInput __spendingIndex)))]
                                 (.. input (connect output))
                             )
                         )
@@ -43764,7 +43761,7 @@
 
     #_public
     (§ constructor WalletTransaction [#_"PoolType" pool, #_"Transaction" transaction]
-        (§ assoc this :pool (Preconditions/checkNotNull pool))
+        (§ assoc this :pool (ensure some? pool))
         (§ assoc this :transaction transaction)
         this
     )
@@ -43796,14 +43793,14 @@
 )
 
 ;;;
- ; <p>Implementors are called when the contents of the wallet changes, for instance due to receiving/sending money
- ; or a block chain re-organize.</p>
+ ; Implementors are called when the contents of the wallet changes, for instance due to receiving/sending money
+ ; or a block chain re-organize.
  ;;
 #_public
 (§ interface WalletChangeEventListener
     ;;;
-     ; <p>Designed for GUI applications to refresh their transaction lists.  This callback is invoked in the following
-     ; situations:</p>
+     ; Designed for GUI applications to refresh their transaction lists.  This callback is invoked in the following
+     ; situations:
      ;
      ; <ol>
      ;     <li>A new block is received (and thus building transactions got more confidence).</li>
@@ -43815,16 +43812,16 @@
      ;     <li>The wallet is reset and all transactions removed.<li>
      ; </ol>
      ;
-     ; <p>When this is called you can refresh the UI contents from the wallet contents.  It's more efficient to use
+     ; When this is called you can refresh the UI contents from the wallet contents.  It's more efficient to use
      ; this rather than onTransactionConfidenceChanged() + onReorganize() because you only get one callback per block
-     ; rather than one per transaction per block.  Note that this is <b>not</b> called when a key is added.</p>
+     ; rather than one per transaction per block.  Note that this is <b>not</b> called when a key is added.
      ;;
     (§ method #_"void" onWalletChanged [#_"Wallet" wallet])
 )
 
 ;;;
- ; <p>Implementors are called when the contents of the wallet changes, for instance due to receiving/sending money
- ; or a block chain re-organize.</p>
+ ; Implementors are called when the contents of the wallet changes, for instance due to receiving/sending money
+ ; or a block chain re-organize.
  ;;
 #_public
 (§ interface WalletCoinsReceivedEventListener
@@ -43845,8 +43842,8 @@
 )
 
 ;;;
- ; <p>Implementors are called when the contents of the wallet changes, for instance due to receiving/sending money
- ; or a block chain re-organize.</p>
+ ; Implementors are called when the contents of the wallet changes, for instance due to receiving/sending money
+ ; or a block chain re-organize.
  ;;
 #_public
 (§ interface WalletCoinsSentEventListener
@@ -43870,20 +43867,20 @@
 )
 
 ;;;
- ; <p>Implementors are called when the wallet is reorganized.</p>
+ ; Implementors are called when the wallet is reorganized.
  ;;
 #_public
 (§ interface WalletReorganizeEventListener
     ;; TODO: Finish onReorganize to be more useful.
     ;;;
-     ; <p>This is called when a block is received that triggers a block chain re-organization.</p>
+     ; This is called when a block is received that triggers a block chain re-organization.
      ;
-     ; <p>A re-organize means that the consensus (chain) of the network has diverged and now changed from
+     ; A re-organize means that the consensus (chain) of the network has diverged and now changed from
      ; what we believed it was previously.  Usually this won't matter because the new consensus will include
      ; all our old transactions assuming we are playing by the rules.  However it's theoretically possible
-     ; for our balance to change in arbitrary ways, most likely, we could lose some money we thought we had.</p>
+     ; for our balance to change in arbitrary ways, most likely, we could lose some money we thought we had.
      ;
-     ; <p>It is safe to use methods of wallet whilst inside this callback.</p>
+     ; It is safe to use methods of wallet whilst inside this callback.
      ;;
     (§ method #_"void" onReorganize [#_"Wallet" wallet])
 )
