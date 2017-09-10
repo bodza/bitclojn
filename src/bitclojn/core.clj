@@ -5415,11 +5415,6 @@
     #_protected
     (§ field #_"long" :creation-time-seconds)
 
-    #_protected
-    (§ field #_"KeyCrypter" :key-crypter)
-    #_protected
-    (§ field #_"EncryptedData" :encrypted-private-key)
-
     #_private
     (§ field- #_"byte[]" :pub-key-hash)
 
@@ -5638,38 +5633,6 @@
     )
 
     ;;;
-     ; Create a new ECKey with an encrypted private key, a public key and a KeyCrypter.
-     ;
-     ; @param encryptedPrivateKey The encrypted private key.
-     ; @param pubKey The public key.
-     ; @param keyCrypter The KeyCrypter that will be used, with an AES key, to encrypt and decrypt the private key.
-     ;;
-    #_deprecated
-    #_public
-    (§ constructor ECKey [#_"EncryptedData" __encryptedPrivateKey, #_"byte[]" __pubKey, #_"KeyCrypter" __keyCrypter]
-        (§ this (§ cast #_"byte[]" nil), __pubKey)
-
-        (§ assoc this :key-crypter (Preconditions/checkNotNull __keyCrypter))
-        (§ assoc this :encrypted-private-key __encryptedPrivateKey)
-        this
-    )
-
-    ;;;
-     ; Constructs a key that has an encrypted private component.  The given object wraps encrypted bytes and an
-     ; initialization vector.  Note that the key will not be decrypted during this call: the returned ECKey is
-     ; unusable for signing unless a decryption key is supplied.
-     ;;
-    #_public
-    #_static
-    (§ defn #_"ECKey" ECKey'fromEncrypted [#_"EncryptedData" __encryptedPrivateKey, #_"KeyCrypter" crypter, #_"byte[]" __pubKey]
-        (let [#_"ECKey" key (ECKey'fromPublicOnly __pubKey)]
-            (§ assoc key :encrypted-private-key (Preconditions/checkNotNull __encryptedPrivateKey))
-            (§ assoc key :key-crypter (Preconditions/checkNotNull crypter))
-            key
-        )
-    )
-
-    ;;;
      ; Creates an ECKey given either the private key only, the public key only, or both.  If only the private key
      ; is supplied, the public key will be calculated from it (this is slow).  If both are supplied, it's assumed
      ; the public key already correctly matches the private key.  If only the public key is supplied, this ECKey
@@ -5736,7 +5699,7 @@
     ;;; Returns true if this key is watch only, meaning it has a public key but no private key. ;;
     #_public
     (§ method #_"boolean" isWatching []
-        (and (.. this (isPubKeyOnly)) (not (.. this (isEncrypted))))
+        (.. this (isPubKeyOnly))
     )
 
     ;;;
@@ -6002,14 +5965,18 @@
     ;;;
      ; Signs the given hash and returns the R and S components as BigIntegers.  In the Bitcoin protocol, they are
      ; usually encoded using ASN.1 format, so you want {@link org.bitcoinj.core.ECKey.ECDSASignature#toASN1()}
+     ; usually encoded using DER format, so you want {@link org.bitcoinj.core.ECKey.ECDSASignature#encodeToDER()}
      ; instead.  However sometimes the independent components can be useful, for instance, if you're going to do
      ; further EC maths on them.
-     ; @throws KeyCrypterException if this ECKey doesn't have a private part.
+     ;
+     ; @throws ECKey.MissingPrivateKeyException if this key doesn't have a private part.
      ;;
     #_public
-    #_throws #_[ "KeyCrypterException" ]
     (§ method #_"ECDSASignature" sign [#_"Sha256Hash" input]
-        (.. this (sign input, nil))
+        (when (nil? (:priv this))
+            (throw (MissingPrivateKeyException.))
+        )
+        (.. this (doSign input, (:priv this)))
     )
 
     ;;;
@@ -6021,39 +5988,6 @@
     #_public
     #_static
     (def #_"boolean" ECKey'FAKE_SIGNATURES false)
-
-    ;;;
-     ; Signs the given hash and returns the R and S components as BigIntegers.  In the Bitcoin protocol, they are
-     ; usually encoded using DER format, so you want {@link org.bitcoinj.core.ECKey.ECDSASignature#encodeToDER()}
-     ; instead.  However sometimes the independent components can be useful, for instance, if you're doing to do further
-     ; EC maths on them.
-     ;
-     ; @param aesKey The AES key to use for decryption of the private key.  If null, then no decryption is required.
-     ; @throws KeyCrypterException if there's something wrong with aesKey.
-     ; @throws ECKey.MissingPrivateKeyException if this key cannot sign because it's pubkey only.
-     ;;
-    #_public
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"ECDSASignature" sign [#_"Sha256Hash" input, #_nilable #_"KeyParameter" __aesKey]
-        (let [#_"KeyCrypter" crypter (.. this (getKeyCrypter))]
-            (cond (some? crypter)
-                (do
-                    (when (nil? __aesKey)
-                        (throw (KeyIsEncryptedException.))
-                    )
-                    (§ return (.. this (decrypt __aesKey) (sign input)))
-                )
-                :else
-                (do
-                    ;; No decryption of private key required.
-                    (when (nil? (:priv this))
-                        (throw (MissingPrivateKeyException.))
-                    )
-                )
-            )
-            (.. this (doSign input, (:priv this)))
-        )
-    )
 
     #_protected
     (§ method #_"ECDSASignature" doSign [#_"Sha256Hash" input, #_"BigInteger" __privateKeyForSigning]
@@ -6235,27 +6169,12 @@
      ; encoded string.
      ;
      ; @throws IllegalStateException if this ECKey does not have the private part.
-     ; @throws KeyCrypterException if this ECKey is encrypted and no AESKey is provided or it does not decrypt the ECKey.
      ;;
     #_public
-    #_throws #_[ "KeyCrypterException" ]
     (§ method #_"String" signMessage [#_"String" message]
-        (.. this (signMessage message, nil))
-    )
-
-    ;;;
-     ; Signs a text message using the standard Bitcoin messaging signing format and returns the signature as a base64
-     ; encoded string.
-     ;
-     ; @throws IllegalStateException if this ECKey does not have the private part.
-     ; @throws KeyCrypterException if this ECKey is encrypted and no AESKey is provided or it does not decrypt the ECKey.
-     ;;
-    #_public
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"String" signMessage [#_"String" message, #_nilable #_"KeyParameter" __aesKey]
         (let [#_"byte[]" data (Utils'formatMessageForSigning message)
               #_"Sha256Hash" hash (Sha256Hash'twiceOf data)
-              #_"ECDSASignature" sig (.. this (sign hash, __aesKey))]
+              #_"ECDSASignature" sig (.. this (sign hash))]
             ;; Now we have to work backwards to figure out the recId needed to recover the signature.
             (let [#_"int" __recId -1]
                 (loop-when-recur [#_"int" i 0] (< i 4) [(inc i)]
@@ -6480,137 +6399,6 @@
     )
 
     ;;;
-     ; Create an encrypted private key with the keyCrypter and the AES key supplied.
-     ; This method returns a new encrypted key and leaves the original unchanged.
-     ;
-     ; @param keyCrypter The keyCrypter that specifies exactly how the encrypted bytes are created.
-     ; @param aesKey The KeyParameter with the AES encryption key (usually constructed with keyCrypter#deriveKey and cached as it is slow to create).
-     ; @return encryptedKey
-     ;;
-    #_public
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"ECKey" encrypt [#_"KeyCrypter" __keyCrypter, #_"KeyParameter" __aesKey]
-        (Preconditions/checkNotNull __keyCrypter)
-
-        (let [#_"byte[]" __privKeyBytes (.. this (getPrivKeyBytes))
-              #_"EncryptedData" __encryptedPrivateKey (.. __keyCrypter (encrypt __privKeyBytes, __aesKey))
-              #_"ECKey" result (ECKey'fromEncrypted __encryptedPrivateKey, __keyCrypter, (.. this (getPubKey)))]
-            (.. result (setCreationTimeSeconds (:creation-time-seconds this)))
-            result
-        )
-    )
-
-    ;;;
-     ; Create a decrypted private key with the keyCrypter and AES key supplied.  Note that if the aesKey is wrong, this
-     ; has some chance of throwing KeyCrypterException due to the corrupted padding that will result, but it can also
-     ; just yield a garbage key.
-     ;
-     ; @param keyCrypter The keyCrypter that specifies exactly how the decrypted bytes are created.
-     ; @param aesKey The KeyParameter with the AES encryption key (usually constructed with keyCrypter#deriveKey and cached).
-     ;;
-    #_public
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"ECKey" decrypt [#_"KeyCrypter" __keyCrypter, #_"KeyParameter" __aesKey]
-        (Preconditions/checkNotNull __keyCrypter)
-
-        ;; Check that the keyCrypter matches the one used to encrypt the keys, if set.
-        (when (and (some? (:key-crypter this)) (not (.. (:key-crypter this) (equals __keyCrypter))))
-            (throw (KeyCrypterException. "The keyCrypter being used to decrypt the key is different to the one that was used to encrypt it"))
-        )
-
-        (Preconditions/checkState (some? (:encrypted-private-key this)), "This key is not encrypted")
-
-        (let [#_"byte[]" __unencryptedPrivateKey (.. __keyCrypter (decrypt (:encrypted-private-key this), __aesKey))
-              #_"ECKey" key (ECKey'fromPrivate __unencryptedPrivateKey)]
-            (when (not (.. this (isCompressed)))
-                (§ ass key (.. key (decompress)))
-            )
-            (when (not (Arrays/equals (.. key (getPubKey)), (.. this (getPubKey))))
-                (throw (KeyCrypterException. "Provided AES key is wrong"))
-            )
-
-            (.. key (setCreationTimeSeconds (:creation-time-seconds this)))
-            key
-        )
-    )
-
-    ;;;
-     ; Create a decrypted private key with AES key.  Note that if the AES key is wrong, this
-     ; has some chance of throwing KeyCrypterException due to the corrupted padding that will result, but it can also
-     ; just yield a garbage key.
-     ;
-     ; @param aesKey The KeyParameter with the AES encryption key (usually constructed with keyCrypter#deriveKey and cached).
-     ;;
-    #_public
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"ECKey" decrypt [#_"KeyParameter" __aesKey]
-        (let [#_"KeyCrypter" crypter (.. this (getKeyCrypter))]
-            (when (nil? crypter)
-                (throw (KeyCrypterException. "No key crypter available"))
-            )
-
-            (.. this (decrypt crypter, __aesKey))
-        )
-    )
-
-    ;;;
-     ; Creates decrypted private key if needed.
-     ;;
-    #_public
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"ECKey" maybeDecrypt [#_nilable #_"KeyParameter" __aesKey]
-        (if (and (.. this (isEncrypted)) (some? __aesKey)) (.. this (decrypt __aesKey)) this)
-    )
-
-    ;;;
-     ; <p>Check that it is possible to decrypt the key with the keyCrypter and that the original key is returned.</p>
-     ;
-     ; <p>Because it is a critical failure if the private keys cannot be decrypted successfully (resulting of loss of
-     ; all bitcoins controlled by the private key) you can use this method to check when you *encrypt* a wallet that
-     ; it can definitely be decrypted successfully.</p>
-     ;
-     ; <p>See {@link Wallet#encrypt(KeyCrypter keyCrypter, KeyParameter aesKey)} for example usage.</p>
-     ;
-     ; @return true if the encrypted key can be decrypted back to the original key successfully.
-     ;;
-    #_public
-    #_static
-    (§ defn #_"boolean" ECKey'encryptionIsReversible [#_"ECKey" __originalKey, #_"ECKey" __encryptedKey, #_"KeyCrypter" __keyCrypter, #_"KeyParameter" __aesKey]
-        (try
-            (let [#_"ECKey" __rebornUnencryptedKey (.. __encryptedKey (decrypt __keyCrypter, __aesKey))
-                  #_"byte[]" __originalPrivateKeyBytes (.. __originalKey (getPrivKeyBytes))
-                  #_"byte[]" __rebornKeyBytes (.. __rebornUnencryptedKey (getPrivKeyBytes))]
-                (when (not (Arrays/equals __originalPrivateKeyBytes, __rebornKeyBytes))
-                    (.. ECKey'log (error "The check that encryption could be reversed failed for {}", __originalKey))
-                    (§ return false)
-                )
-                (§ return true)
-            )
-            (catch KeyCrypterException kce
-                (.. ECKey'log (error (.. kce (getMessage))))
-                (§ return false)
-            )
-        )
-    )
-
-    ;;;
-     ; Indicates whether the private key is encrypted (true) or not (false).
-     ; A private key is deemed to be encrypted when there is both a KeyCrypter and the encryptedPrivateKey is non-zero.
-     ;;
-    #_override
-    #_public
-    (§ method #_"boolean" isEncrypted []
-        (and (some? (:key-crypter this)) (some? (:encrypted-private-key this)) (< 0 (alength (-> this :encrypted-private-key :encrypted-bytes))))
-    )
-
-    #_nilable
-    #_override
-    #_public
-    (§ method #_"Protos.Wallet.EncryptionType" getEncryptionType []
-        (if (some? (:key-crypter this)) (.. (:key-crypter this) (getUnderstoodEncryptionType)) Protos.Wallet.EncryptionType/UNENCRYPTED)
-    )
-
-    ;;;
      ; A wrapper for {@link #getPrivKeyBytes()} that returns null if the private key bytes are missing or would have
      ; to be derived (for the HD key case).
      ;;
@@ -6618,48 +6406,12 @@
     #_nilable
     #_public
     (§ method #_"byte[]" getSecretBytes []
-        (when (.. this (hasPrivKey))
-            (§ return (.. this (getPrivKeyBytes)))
-        )
-
-        nil
-    )
-
-    ;;; An alias for {@link #getEncryptedPrivateKey()}. ;;
-    #_nilable
-    #_override
-    #_public
-    (§ method #_"EncryptedData" getEncryptedData []
-        (.. this (getEncryptedPrivateKey))
-    )
-
-    ;;;
-     ; Returns the the encrypted private key bytes and initialisation vector for this ECKey, or null if the ECKey
-     ; is not encrypted.
-     ;;
-    #_nilable
-    #_public
-    (§ method #_"EncryptedData" getEncryptedPrivateKey []
-        (:encrypted-private-key this)
-    )
-
-    ;;;
-     ; Returns the KeyCrypter that was used to encrypt to encrypt this ECKey.  You need this to decrypt the ECKey.
-     ;;
-    #_nilable
-    #_public
-    (§ method #_"KeyCrypter" getKeyCrypter []
-        (:key-crypter this)
+        (when (.. this (hasPrivKey)) (.. this (getPrivKeyBytes)))
     )
 
     #_public
     #_static
     (§ class MissingPrivateKeyException (§ extends RuntimeException)
-    )
-
-    #_public
-    #_static
-    (§ class KeyIsEncryptedException (§ extends MissingPrivateKeyException)
     )
 
     #_override
@@ -6672,7 +6424,7 @@
             (§ return false)
         )
         (let [#_"ECKey" other (cast ECKey o)]
-            (and (Objects/equal (:priv this), (:priv other)) (Objects/equal (:pub this), (:pub other)) (Objects/equal (:creation-time-seconds this), (:creation-time-seconds other)) (Objects/equal (:key-crypter this), (:key-crypter other)) (Objects/equal (:encrypted-private-key this), (:encrypted-private-key other)))
+            (and (Objects/equal (:priv this), (:priv other)) (Objects/equal (:pub this), (:pub other)) (Objects/equal (:creation-time-seconds this), (:creation-time-seconds other)))
         )
     )
 
@@ -6727,11 +6479,6 @@
             (when (< 0 (:creation-time-seconds this))
                 (.. helper (add "creationTimeSeconds", (:creation-time-seconds this)))
             )
-            (.. helper (add "keyCrypter", (:key-crypter this)))
-            (when __includePrivate
-                (.. helper (add "encryptedPrivateKey", (:encrypted-private-key this)))
-            )
-            (.. helper (add "isEncrypted", (.. this (isEncrypted))))
             (.. helper (add "isPubKeyOnly", (.. this (isPubKeyOnly))))
             (.. helper (toString))
         )
@@ -17276,47 +17023,6 @@
     )
 
     ;;;
-     ; Calculates a signature that is valid for being inserted into the input at the given position.  This is simply
-     ; a wrapper around calling {@link Transaction#hashForSignature(int, byte[], org.bitcoinj.core.Transaction.SigHash, boolean)}
-     ; followed by {@link ECKey#sign(Sha256Hash)} and then returning a new {@link TransactionSignature}.  The key
-     ; must be usable for signing as-is: if the key is encrypted it must be decrypted first external to this method.
-     ;
-     ; @param inputIndex Which input to calculate the signature for, as an index.
-     ; @param key The private key used to calculate the signature.
-     ; @param aesKey The AES key to use for decryption of the private key.  If null then no decryption is required.
-     ; @param redeemScript Byte-exact contents of the scriptPubKey that is being satisified, or the P2SH redeem script.
-     ; @param hashType Signing mode, see the enum for documentation.
-     ; @param anyoneCanPay Signing mode, see the SigHash enum for documentation.
-     ; @return A newly calculated signature object that wraps the r, s and sighash components.
-     ;;
-    #_public
-    (§ method #_"TransactionSignature" calculateSignature [#_"int" __inputIndex, #_"ECKey" key, #_nilable #_"KeyParameter" __aesKey, #_"byte[]" __redeemScript, #_"SigHash" __hashType, #_"boolean" __anyoneCanPay]
-        (let [#_"Sha256Hash" hash (.. this (hashForSignature __inputIndex, __redeemScript, __hashType, __anyoneCanPay))]
-            (TransactionSignature. (.. key (sign hash, __aesKey)), __hashType, __anyoneCanPay)
-        )
-    )
-
-    ;;;
-     ; Calculates a signature that is valid for being inserted into the input at the given position.  This is simply
-     ; a wrapper around calling {@link Transaction#hashForSignature(int, byte[], org.bitcoinj.core.Transaction.SigHash, boolean)}
-     ; followed by {@link ECKey#sign(Sha256Hash)} and then returning a new {@link TransactionSignature}.
-     ;
-     ; @param inputIndex Which input to calculate the signature for, as an index.
-     ; @param key The private key used to calculate the signature.
-     ; @param aesKey The AES key to use for decryption of the private key.  If null then no decryption is required.
-     ; @param redeemScript The scriptPubKey that is being satisified, or the P2SH redeem script.
-     ; @param hashType Signing mode, see the enum for documentation.
-     ; @param anyoneCanPay Signing mode, see the SigHash enum for documentation.
-     ; @return A newly calculated signature object that wraps the r, s and sighash components.
-     ;;
-    #_public
-    (§ method #_"TransactionSignature" calculateSignature [#_"int" __inputIndex, #_"ECKey" key, #_nilable #_"KeyParameter" __aesKey, #_"Script" __redeemScript, #_"SigHash" __hashType, #_"boolean" __anyoneCanPay]
-        (let [#_"Sha256Hash" hash (.. this (hashForSignature __inputIndex, (.. __redeemScript (getProgram)), __hashType, __anyoneCanPay))]
-            (TransactionSignature. (.. key (sign hash, __aesKey)), __hashType, __anyoneCanPay)
-        )
-    )
-
-    ;;;
      ; <p>Calculates a signature hash, that is, a hash of a simplified form of the transaction.  How exactly the transaction
      ; is simplified is specified by the type and anyoneCanPay parameters.</p>
      ;
@@ -22372,7 +22078,6 @@
              [com.google.common.collect ImmutableList Iterables Maps]
              [com.google.common.primitives Ints]
              [com.google.protobuf ByteString]
-             [com.lambdaworks.crypto SCrypt]
              [java.io BufferedReader ByteArrayOutputStream FileNotFoundException IOException InputStreamReader InputStream]
              [java.math BigInteger]
              [java.nio ByteBuffer ByteOrder]
@@ -22381,13 +22086,9 @@
              [javax.crypto Mac]
              [javax.crypto.spec SecretKeySpec]
              [org.slf4j LoggerFactory Logger]
-             [org.spongycastle.crypto BufferedBlockCipher]
              [org.spongycastle.crypto.digests SHA512Digest]
-             [org.spongycastle.crypto.engines AESFastEngine]
              [org.spongycastle.crypto.macs HMac]
-             [org.spongycastle.crypto.modes CBCBlockCipher]
-             [org.spongycastle.crypto.paddings PaddedBufferedBlockCipher]
-             [org.spongycastle.crypto.params KeyParameter ParametersWithIV]
+             [org.spongycastle.crypto.params KeyParameter]
              [org.spongycastle.math.ec ECCurve ECFieldElement ECPoint]
     )
 )
@@ -22733,15 +22434,6 @@
         this
     )
 
-    ;;; Constructs a key from its components.  This is not normally something you should use. ;;
-    #_public
-    (§ constructor DeterministicKey [#_"ImmutableList<ChildNumber>" __childNumberPath, #_"byte[]" __chainCode, #_"KeyCrypter" crypter, #_"LazyECPoint" pub, #_"EncryptedData" priv, #_nilable #_"DeterministicKey" parent]
-        (§ this __childNumberPath, __chainCode, pub, nil, parent)
-        (§ assoc this :encrypted-private-key (Preconditions/checkNotNull priv))
-        (§ assoc this :key-crypter (Preconditions/checkNotNull crypter))
-        this
-    )
-
     ;;;
      ; Return the fingerprint of this key's parent as an int value, or zero if this key is the
      ; root node of the key hierarchy.  Raise an exception if the arguments are inconsistent.
@@ -22806,7 +22498,6 @@
         (§ assoc this :parent __newParent)
         (§ assoc this :child-number-path (:child-number-path __keyToClone))
         (§ assoc this :chain-code (:chain-code __keyToClone))
-        (§ assoc this :encrypted-private-key (:encrypted-private-key __keyToClone))
         (§ assoc this :depth (.. (:child-number-path this) (size)))
         (§ assoc this :parent-fingerprint (.. (:parent this) (getFingerprint)))
         this
@@ -22937,35 +22628,6 @@
         )
     )
 
-    #_override
-    #_public
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"DeterministicKey" encrypt [#_"KeyCrypter" __keyCrypter, #_"KeyParameter" __aesKey]
-        (throw (UnsupportedOperationException. "Must supply a new parent for encryption"))
-    )
-
-    #_public
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"DeterministicKey" encrypt [#_"KeyCrypter" __keyCrypter, #_"KeyParameter" __aesKey, #_nilable #_"DeterministicKey" __newParent]
-        ;; Same as the parent code, except we construct a DeterministicKey instead of an ECKey.
-        (Preconditions/checkNotNull __keyCrypter)
-        (when (some? __newParent)
-            (Preconditions/checkArgument (.. __newParent (isEncrypted)))
-        )
-
-        (let [#_"byte[]" __privKeyBytes (.. this (getPrivKeyBytes))]
-            (Preconditions/checkState (some? __privKeyBytes), "Private key is not available")
-
-            (let [#_"EncryptedData" __encryptedPrivateKey (.. __keyCrypter (encrypt __privKeyBytes, __aesKey))
-                  #_"DeterministicKey" key (DeterministicKey. (:child-number-path this), (:chain-code this), __keyCrypter, (:pub this), __encryptedPrivateKey, __newParent)]
-                (when (nil? __newParent)
-                    (.. key (setCreationTimeSeconds (.. this (getCreationTimeSeconds))))
-                )
-                key
-            )
-        )
-    )
-
     ;;;
      ; A deterministic key is considered to be 'public key only' if it hasn't got a private key part and it cannot be
      ; rederived.  If the hierarchy is encrypted this returns true.
@@ -22990,113 +22652,16 @@
         (when (some? (:priv this)) (.. this (getPrivKeyBytes)))
     )
 
-    ;;;
-     ; A deterministic key is considered to be encrypted if it has access to encrypted private key bytes, OR if its
-     ; parent does.  The reason is because the parent would be encrypted under the same key and this key knows how to
-     ; rederive its own private key bytes from the parent, if needed.
-     ;;
     #_override
     #_public
-    (§ method #_"boolean" isEncrypted []
-        (and (nil? (:priv this)) (or (.. super (isEncrypted)) (and (some? (:parent this)) (.. (:parent this) (isEncrypted)))))
-    )
-
-    ;;;
-     ; Returns this keys {@link org.bitcoinj.crypto.KeyCrypter} <b>or</b> the keycrypter of its parent key.
-     ;;
-    #_override
-    #_nilable
-    #_public
-    (§ method #_"KeyCrypter" getKeyCrypter []
-        (when (some? (:key-crypter this))
-            (§ return (:key-crypter this))
-        )
-        (when (some? (:parent this))
-            (§ return (.. (:parent this) (getKeyCrypter)))
-        )
-
-        nil
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"ECDSASignature" sign [#_"Sha256Hash" input, #_nilable #_"KeyParameter" __aesKey]
-        (cond (.. this (isEncrypted))
-            (do
-                ;; If the key is encrypted, ECKey.sign will decrypt it first before rerunning sign.  Decryption walks
-                ;; the key heirarchy to find the private key (see below), so, we can just run the inherited method.
-                (§ return (.. super (sign input, __aesKey)))
-            )
-            :else
-            (do
-                ;; If it's not encrypted, derive the private via the parents.
-                (let [#_"BigInteger" __privateKey (.. this (findOrDerivePrivateKey))]
-                    ;; This key is a part of a public-key only heirarchy and cannot be used for signing.
-                    (when (nil? __privateKey)
-                        (throw (MissingPrivateKeyException.))
-                    )
-
-                    (§ return (.. super (doSign input, __privateKey)))
-                )
-            )
-        )
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"DeterministicKey" decrypt [#_"KeyCrypter" __keyCrypter, #_"KeyParameter" __aesKey]
-        (Preconditions/checkNotNull __keyCrypter)
-        ;; Check that the keyCrypter matches the one used to encrypt the keys, if set.
-        (when (and (some? (:key-crypter this)) (not (.. (:key-crypter this) (equals __keyCrypter))))
-            (throw (KeyCrypterException. "The keyCrypter being used to decrypt the key is different to the one that was used to encrypt it"))
-        )
-
-        (let [#_"BigInteger" __privKey (.. this (findOrDeriveEncryptedPrivateKey __keyCrypter, __aesKey))
-              #_"DeterministicKey" key (DeterministicKey. (:child-number-path this), (:chain-code this), __privKey, (:parent this))]
-            (when (not (Arrays/equals (.. key (getPubKey)), (.. this (getPubKey))))
-                (throw (KeyCrypterException. "Provided AES key is wrong"))
+    (§ method #_"ECDSASignature" sign [#_"Sha256Hash" input]
+        (let [#_"BigInteger" __privateKey (.. this (findOrDerivePrivateKey))]
+            ;; This key is a part of a public-key only heirarchy and cannot be used for signing.
+            (when (nil? __privateKey)
+                (throw (MissingPrivateKeyException.))
             )
 
-            (when (nil? (:parent this))
-                (.. key (setCreationTimeSeconds (.. this (getCreationTimeSeconds))))
-            )
-            key
-        )
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"DeterministicKey" decrypt [#_"KeyParameter" __aesKey]
-        (cast DeterministicKey (.. super (decrypt __aesKey)))
-    )
-
-    ;; For when a key is encrypted, either decrypt our encrypted private key bytes, or work up the tree asking parents
-    ;; to decrypt and re-derive.
-    #_private
-    (§ method- #_"BigInteger" findOrDeriveEncryptedPrivateKey [#_"KeyCrypter" __keyCrypter, #_"KeyParameter" __aesKey]
-        (when (some? (:encrypted-private-key this))
-            (§ return (BigInteger. 1, (.. __keyCrypter (decrypt (:encrypted-private-key this), __aesKey))))
-        )
-
-        ;; Otherwise we don't have it, but maybe we can figure it out from our parents.  Walk up the tree looking for
-        ;; the first key that has some encrypted private key data.
-        (let [#_"DeterministicKey" cursor (:parent this)]
-            (while (some? cursor)
-                (when (some? (:encrypted-private-key cursor))
-                    (§ break )
-                )
-                (§ ass cursor (:parent cursor))
-            )
-            (when (nil? cursor)
-                (throw (KeyCrypterException. "Neither this key nor its parents have an encrypted private key"))
-            )
-
-            (let [#_"byte[]" __parentalPrivateKeyBytes (.. __keyCrypter (decrypt (:encrypted-private-key cursor), __aesKey))]
-                (.. this (derivePrivateKeyDownwards cursor, __parentalPrivateKeyBytes))
-            )
+            (.. super (doSign input, __privateKey))
         )
     )
 
@@ -23135,10 +22700,10 @@
                     (§ ass __downCursor (HDKeyDerivation'deriveChildKey __downCursor, num))
                 )
                 ;; downCursor is now the same key as us, but with private key bytes.
-                ;; If it's not, it means we tried decrypting with an invalid password and earlier checks e.g. for padding didn't
-                ;; catch it.
+                ;; If it's not, it means we tried decrypting with an invalid password
+                ;; and earlier checks e.g. for padding didn't catch it.
                 (when (not (.. (:pub __downCursor) (equals (:pub this))))
-                    (throw (KeyCrypterException. "Could not decrypt bytes"))
+                    (throw (RuntimeException. "Could not decrypt bytes"))
                 )
 
                 (Preconditions/checkNotNull (:priv __downCursor))
@@ -23354,7 +22919,6 @@
             (when (< 0 (:creation-time-seconds this))
                 (.. helper (add "creationTimeSeconds", (:creation-time-seconds this)))
             )
-            (.. helper (add "isEncrypted", (.. this (isEncrypted))))
             (.. helper (add "isPubKeyOnly", (.. this (isPubKeyOnly))))
             (.. helper (toString))
         )
@@ -23376,76 +22940,17 @@
 )
 
 ;;;
- ; Provides a uniform way to access something that can be optionally encrypted with a
- ; {@link org.bitcoinj.crypto.KeyCrypter}, yielding an {@link org.bitcoinj.crypto.EncryptedData},
+ ; Provides a uniform way to access something that can be optionally encrypted
  ; and which can have a creation time associated with it.
  ;;
 #_public
 (§ interface EncryptableItem
-    ;;; Returns whether the item is encrypted or not.  If it is, then {@link #getSecretBytes()} will return null. ;;
-    (§ method #_"boolean" isEncrypted [])
-
     ;;; Returns the raw bytes of the item, if not encrypted, or null if encrypted or the secret is missing. ;;
     #_nilable
     (§ method #_"byte[]" getSecretBytes [])
 
-    ;;; Returns the initialization vector and encrypted secret bytes, or null if not encrypted. ;;
-    #_nilable
-    (§ method #_"EncryptedData" getEncryptedData [])
-
-    ;;; Returns an enum constant describing what algorithm was used to encrypt the key or UNENCRYPTED. ;;
-    (§ method #_"Protos.Wallet.EncryptionType" getEncryptionType [])
-
     ;;; Returns the time in seconds since the UNIX epoch at which this encryptable item was first created/derived. ;;
     (§ method #_"long" getCreationTimeSeconds [])
-)
-
-;;;
- ; <p>An instance of EncryptedData is a holder for an initialization vector and encrypted bytes.
- ; It is typically used to hold encrypted private key bytes.</p>
- ;
- ; <p>The initialisation vector is random data that is used to initialise the AES block cipher when
- ; the private key bytes were encrypted.  You need these for decryption.</p>
- ;;
-#_public
-(§ class EncryptedData
-    #_public
-    (§ field #_"byte[]" :initialisation-vector)
-    #_public
-    (§ field #_"byte[]" :encrypted-bytes)
-
-    #_public
-    (§ constructor EncryptedData [#_"byte[]" __initialisationVector, #_"byte[]" __encryptedBytes]
-        (§ assoc this :initialisation-vector (Arrays/copyOf __initialisationVector, (alength __initialisationVector)))
-        (§ assoc this :encrypted-bytes (Arrays/copyOf __encryptedBytes, (alength __encryptedBytes)))
-        this
-    )
-
-    #_override
-    #_public
-    (§ method #_"boolean" equals [#_"Object" o]
-        (when (= this o)
-            (§ return true)
-        )
-        (when (or (nil? o) (not= (getClass) (.. o (getClass))))
-            (§ return false)
-        )
-        (let [#_"EncryptedData" other (cast EncryptedData o)]
-            (and (Arrays/equals (:encrypted-bytes this), (:encrypted-bytes other)) (Arrays/equals (:initialisation-vector this), (:initialisation-vector other)))
-        )
-    )
-
-    #_override
-    #_public
-    (§ method #_"int" hashCode []
-        (Objects/hashCode (Arrays/hashCode (:encrypted-bytes this)), (Arrays/hashCode (:initialisation-vector this)))
-    )
-
-    #_override
-    #_public
-    (§ method #_"String" toString []
-        (str "EncryptedData [initialisationVector=" (Arrays/toString (:initialisation-vector this)) ", encryptedPrivateKey=" (Arrays/toString (:encrypted-bytes this)) "]")
-    )
 )
 
 #_public
@@ -23823,361 +23328,6 @@
 
             nodes
         )
-    )
-)
-
-;;;
- ; <p>A KeyCrypter can be used to encrypt and decrypt a message.  The sequence of events to encrypt and then decrypt
- ; a message are as follows:</p>
- ;
- ; <p>(1) Ask the user for a password.  deriveKey() is then called to create an KeyParameter.  This contains the AES
- ; key that will be used for encryption.</p>
- ; <p>(2) Encrypt the message using encrypt(), providing the message bytes and the KeyParameter from (1).  This returns
- ; an EncryptedData which contains the encryptedPrivateKey bytes and an initialisation vector.</p>
- ; <p>(3) To decrypt an EncryptedData, repeat step (1) to get a KeyParameter, then call decrypt().</p>
- ;
- ; <p>There can be different algorithms used for encryption/ decryption so the getUnderstoodEncryptionType is used
- ; to determine whether any given KeyCrypter can understand the type of encrypted data you have.</p>
- ;;
-#_public
-(§ interface KeyCrypter
-    ;;;
-     ; Return the EncryptionType enum value which denotes the type of encryption/ decryption that this KeyCrypter
-     ; can understand.
-     ;;
-    (§ method #_"Protos.Wallet.EncryptionType" getUnderstoodEncryptionType [])
-
-    ;;;
-     ; Create a KeyParameter (which typically contains an AES key).
-     ; @param password
-     ; @return the KeyParameter which typically contains the AES key to use for encrypting and decrypting.
-     ; @throws KeyCrypterException
-     ;;
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"KeyParameter" deriveKey [#_"CharSequence" password])
-
-    ;;;
-     ; Decrypt the provided encrypted bytes, converting them into unencrypted bytes.
-     ;
-     ; @throws KeyCrypterException if decryption was unsuccessful.
-     ;;
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"byte[]" decrypt [#_"EncryptedData" __encryptedBytesToDecode, #_"KeyParameter" __aesKey])
-
-    ;;;
-     ; Encrypt the supplied bytes, converting them into ciphertext.
-     ;
-     ; @return an encryptedPrivateKey containing the encrypted bytes and an initialisation vector.
-     ; @throws KeyCrypterException if encryption was unsuccessful.
-     ;;
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"EncryptedData" encrypt [#_"byte[]" __plainBytes, #_"KeyParameter" __aesKey])
-)
-
-;;;
- ; <p>Exception to provide the following:</p>
- ; <ul>
- ; <li>Provision of encryption / decryption exception.</li>
- ; </ul>
- ; <p>This base exception acts as a general failure mode not attributable to a specific cause (other than
- ; that reported in the exception message).  Since this is in English, it may not be worth reporting directly
- ; to the user other than as part of a "general failure to parse" response.</p>
- ;;
-#_public
-(§ class KeyCrypterException (§ extends RuntimeException)
-    #_public
-    (§ constructor KeyCrypterException [#_"String" s]
-        (§ super s)
-        this
-    )
-
-    #_public
-    (§ constructor KeyCrypterException [#_"String" s, #_"Throwable" throwable]
-        (§ super s, throwable)
-        this
-    )
-)
-
-;;;
- ; <p>This class encrypts and decrypts byte arrays and strings using scrypt as the
- ; key derivation function and AES for the encryption.</p>
- ;
- ; <p>You can use this class to:</p>
- ;
- ; <p>1. Using a user password, create an AES key that can encrypt and decrypt your private keys.
- ; To convert the password to the AES key, scrypt is used.  This is an algorithm resistant
- ; to brute force attacks.  You can use the ScryptParameters to tune how difficult you
- ; want this to be generation to be.</p>
- ;
- ; <p>2. Using the AES Key generated above, you then can encrypt and decrypt any bytes using
- ; the AES symmetric cipher.  Eight bytes of salt is used to prevent dictionary attacks.</p>
- ;;
-#_public
-(§ class KeyCrypterScrypt (§ implements KeyCrypter)
-    #_private
-    #_static
-    (def- #_"Logger" KeyCrypterScrypt'log (LoggerFactory/getLogger KeyCrypterScrypt))
-
-    ;;;
-     ; Key length in bytes.
-     ;;
-    #_public
-    #_static
-    (def #_"int" KeyCrypterScrypt'KEY_LENGTH 32) ;; = 256 bits.
-
-    ;;;
-     ; The size of an AES block in bytes.
-     ; This is also the length of the initialisation vector.
-     ;;
-    #_public
-    #_static
-    (def #_"int" KeyCrypterScrypt'BLOCK_LENGTH 16) ;; = 128 bits.
-
-    ;;;
-     ; The length of the salt used.
-     ;;
-    #_public
-    #_static
-    (def #_"int" KeyCrypterScrypt'SALT_LENGTH 8)
-
-    #_private
-    #_static
-    (def- #_"SecureRandom" KeyCrypterScrypt'SECURE_RANDOM (SecureRandom.))
-
-    ;;; Returns SALT_LENGTH (8) bytes of random data. ;;
-    #_public
-    #_static
-    (§ defn #_"byte[]" KeyCrypterScrypt'randomSalt []
-        (let [#_"byte[]" salt (byte-array KeyCrypterScrypt'SALT_LENGTH)]
-            (.. KeyCrypterScrypt'SECURE_RANDOM (nextBytes salt))
-            salt
-        )
-    )
-
-    ;; Scrypt parameters.
-    #_private
-    (§ field- #_"Protos.ScryptParameters" :scrypt-parameters)
-
-    ;;;
-     ; Encryption/Decryption using default parameters and a random salt.
-     ;;
-    #_public
-    (§ constructor KeyCrypterScrypt []
-        (let [#_"Protos.ScryptParameters.Builder" builder (.. (Protos.ScryptParameters/newBuilder) (setSalt (ByteString/copyFrom (KeyCrypterScrypt'randomSalt))))]
-            (§ assoc this :scrypt-parameters (.. builder (build)))
-            this
-        )
-    )
-
-    ;;;
-     ; Encryption/Decryption using custom number of iterations parameters and a random salt.
-     ; As of August 2016, a useful value for mobile devices is 4096 (derivation takes about 1 second).
-     ;
-     ; @param iterations Number of scrypt iterations.
-     ;;
-    #_public
-    (§ constructor KeyCrypterScrypt [#_"int" iterations]
-        (let [#_"Protos.ScryptParameters.Builder" builder (.. (Protos.ScryptParameters/newBuilder) (setSalt (ByteString/copyFrom (KeyCrypterScrypt'randomSalt))) (setN iterations))]
-            (§ assoc this :scrypt-parameters (.. builder (build)))
-            this
-        )
-    )
-
-    ;;;
-     ; Encryption/ Decryption using specified Scrypt parameters.
-     ;
-     ; @param scryptParameters ScryptParameters to use.
-     ; @throws NullPointerException if the scryptParameters or any of its N, R or P is null.
-     ;;
-    #_public
-    (§ constructor KeyCrypterScrypt [#_"Protos.ScryptParameters" __scryptParameters]
-        (§ assoc this :scrypt-parameters (Preconditions/checkNotNull __scryptParameters))
-
-        ;; Check there is a non-empty salt.  Some early MultiBit wallets has a missing salt, so it is not a hard fail.
-        (when (or (nil? (.. __scryptParameters (getSalt))) (nil? (.. __scryptParameters (getSalt) (toByteArray))) (= (alength (.. __scryptParameters (getSalt) (toByteArray))) 0))
-            (.. KeyCrypterScrypt'log (warn "You are using a ScryptParameters with no salt. Your encryption may be vulnerable to a dictionary attack."))
-        )
-        this
-    )
-
-    ;;;
-     ; Generate AES key.
-     ;
-     ; This is a very slow operation compared to encrypt/ decrypt so it is normally worth caching the result.
-     ;
-     ; @param password The password to use in key generation.
-     ; @return the KeyParameter containing the created AES key.
-     ; @throws KeyCrypterException
-     ;;
-    #_override
-    #_public
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"KeyParameter" deriveKey [#_"CharSequence" password]
-        (let [#_"byte[]" __passwordBytes nil]
-            (try
-                (§ ass __passwordBytes (KeyCrypterScrypt'convertToByteArray password))
-                (let [#_"byte[]" salt (byte-array 0)]
-                    (cond (some? (.. (:scrypt-parameters this) (getSalt)))
-                        (do
-                            (§ ass salt (.. (:scrypt-parameters this) (getSalt) (toByteArray)))
-                        )
-                        :else
-                        (do
-                            ;; Warn the user that they are not using a salt.  Some early MultiBit wallets had a blank salt.
-                            (.. KeyCrypterScrypt'log (warn "You are using a ScryptParameters with no salt. Your encryption may be vulnerable to a dictionary attack."))
-                        )
-                    )
-
-                    (let [#_"Stopwatch" watch (Stopwatch/createStarted)
-                          #_"byte[]" __keyBytes (SCrypt/scrypt __passwordBytes, salt, (int (.. (:scrypt-parameters this) (getN))), (.. (:scrypt-parameters this) (getR)), (.. (:scrypt-parameters this) (getP)), KeyCrypterScrypt'KEY_LENGTH)]
-                        (.. watch (stop))
-                        (.. KeyCrypterScrypt'log (info "Deriving key took {} for {} scrypt iterations.", watch, (.. (:scrypt-parameters this) (getN))))
-                        (§ return (KeyParameter. __keyBytes))
-                    )
-                )
-                (catch Exception e
-                    (throw (KeyCrypterException. "Could not generate key from password and salt.", e))
-                )
-                (finally
-                    ;; Zero the password bytes.
-                    (when (some? __passwordBytes)
-                        (java.util.Arrays/fill __passwordBytes, (byte 0))
-                    )
-                )
-            )
-        )
-    )
-
-    ;;;
-     ; Password based encryption using AES - CBC 256 bits.
-     ;;
-    #_override
-    #_public
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"EncryptedData" encrypt [#_"byte[]" __plainBytes, #_"KeyParameter" __aesKey]
-        (Preconditions/checkNotNull __plainBytes)
-        (Preconditions/checkNotNull __aesKey)
-
-        (try
-            ;; Generate iv - each encryption call has a different iv.
-            (let [#_"byte[]" iv (byte-array KeyCrypterScrypt'BLOCK_LENGTH)]
-                (.. KeyCrypterScrypt'SECURE_RANDOM (nextBytes iv))
-
-                (let [#_"ParametersWithIV" __keyWithIv (ParametersWithIV. __aesKey, iv)]
-
-                    ;; Encrypt using AES.
-                    (let [#_"BufferedBlockCipher" cipher (PaddedBufferedBlockCipher. (CBCBlockCipher. (AESFastEngine.)))]
-                        (.. cipher (init true, __keyWithIv))
-                        (let [#_"byte[]" __encryptedBytes (byte-array (.. cipher (getOutputSize (alength __plainBytes))))
-                              #_"int" length1 (.. cipher (processBytes __plainBytes, 0, (alength __plainBytes), __encryptedBytes, 0))
-                              #_"int" length2 (.. cipher (doFinal __encryptedBytes, length1))]
-
-                            (§ return (EncryptedData. iv, (Arrays/copyOf __encryptedBytes, (+ length1 length2))))
-                        )
-                    )
-                )
-            )
-            (catch Exception e
-                (throw (KeyCrypterException. "Could not encrypt bytes.", e))
-            )
-        )
-    )
-
-    ;;;
-     ; Decrypt bytes previously encrypted with this class.
-     ;
-     ; @param dataToDecrypt The data to decrypt.
-     ; @param aesKey The AES key to use for decryption.
-     ; @return the decrypted bytes.
-     ; @throws KeyCrypterException if bytes could not be decrypted.
-     ;;
-    #_override
-    #_public
-    #_throws #_[ "KeyCrypterException" ]
-    (§ method #_"byte[]" decrypt [#_"EncryptedData" __dataToDecrypt, #_"KeyParameter" __aesKey]
-        (Preconditions/checkNotNull __dataToDecrypt)
-        (Preconditions/checkNotNull __aesKey)
-
-        (try
-            (let [#_"ParametersWithIV" __keyWithIv (ParametersWithIV. (KeyParameter. (.. __aesKey (getKey))), (:initialisation-vector __dataToDecrypt))]
-
-                ;; Decrypt the message.
-                (let [#_"BufferedBlockCipher" cipher (PaddedBufferedBlockCipher. (CBCBlockCipher. (AESFastEngine.)))]
-                    (.. cipher (init false, __keyWithIv))
-
-                    (let [#_"byte[]" __cipherBytes (:encrypted-bytes __dataToDecrypt)
-                          #_"byte[]" __decryptedBytes (byte-array (.. cipher (getOutputSize (alength __cipherBytes))))
-                          #_"int" length1 (.. cipher (processBytes __cipherBytes, 0, (alength __cipherBytes), __decryptedBytes, 0))
-                          #_"int" length2 (.. cipher (doFinal __decryptedBytes, length1))]
-
-                        (§ return (Arrays/copyOf __decryptedBytes, (+ length1 length2)))
-                    )
-                )
-            )
-            (catch Exception e
-                (throw (KeyCrypterException. "Could not decrypt bytes", e))
-            )
-        )
-    )
-
-    ;;;
-     ; Convert a CharSequence (which are UTF16) into a byte array.
-     ;
-     ; Note: a String.getBytes() is not used to avoid creating a String of the password in the JVM.
-     ;;
-    #_private
-    #_static
-    (§ defn- #_"byte[]" KeyCrypterScrypt'convertToByteArray [#_"CharSequence" __charSequence]
-        (Preconditions/checkNotNull __charSequence)
-
-        (let [#_"byte[]" __byteArray (byte-array (<< (.. __charSequence (length)) 1))]
-            (loop-when-recur [#_"int" i 0] (< i (.. __charSequence (length))) [(inc i)]
-                (let [#_"int" __bytePosition (<< i 1)]
-                    (aset __byteArray __bytePosition (byte (>> (& (.. __charSequence (charAt i)) 0xff00) 8)))
-                    (aset __byteArray (inc __bytePosition) (byte (& (.. __charSequence (charAt i)) 0x00ff)))
-                )
-            )
-            __byteArray
-        )
-    )
-
-    #_public
-    (§ method #_"Protos.ScryptParameters" getScryptParameters []
-        (:scrypt-parameters this)
-    )
-
-    ;;;
-     ; Return the EncryptionType enum value which denotes the type of encryption/ decryption that this KeyCrypter
-     ; can understand.
-     ;;
-    #_override
-    #_public
-    (§ method #_"Protos.Wallet.EncryptionType" getUnderstoodEncryptionType []
-        Protos.Wallet.EncryptionType/ENCRYPTED_SCRYPT_AES
-    )
-
-    #_override
-    #_public
-    (§ method #_"String" toString []
-        (str "AES-" (* KeyCrypterScrypt'KEY_LENGTH 8) "-CBC, Scrypt (N: " (.. (:scrypt-parameters this) (getN)) ")")
-    )
-
-    #_override
-    #_public
-    (§ method #_"int" hashCode []
-        (Objects/hashCode (:scrypt-parameters this))
-    )
-
-    #_override
-    #_public
-    (§ method #_"boolean" equals [#_"Object" o]
-        (when (= this o)
-            (§ return true)
-        )
-        (when (or (nil? o) (not= (getClass) (.. o (getClass))))
-            (§ return false)
-        )
-        (Objects/equal (:scrypt-parameters this), (:scrypt-parameters (cast KeyCrypterScrypt o)))
     )
 )
 
@@ -31577,9 +30727,6 @@
                                                 (let [#_"TransactionSignature" signature (.. tx (calculateSignature i, key, script, SigHash'ALL, false))]
                                                     (.. __txIn (setScriptSig (.. __scriptPubKey (getScriptSigWithSignature __inputScript, (.. signature (encodeToBitcoin)), 0))))
                                                 )
-                                                (catch KeyIsEncryptedException e
-                                                    (throw e)
-                                                )
                                                 (catch MissingPrivateKeyException _
                                                     (.. LocalTransactionSigner'log (warn "No private key in keypair for input {}", i))
                                                 )
@@ -34468,51 +33615,24 @@
  ; although it will automatically add one to itself if it's empty or if encryption is requested.
  ;;
 #_public
-(§ class BasicKeyChain (§ implements EncryptableKeyChain)
+(§ class BasicKeyChain (§ implements KeyChain)
     #_private
     (§ field- #_"ReentrantLock" :lock (Threading'lock "BasicKeyChain"))
 
     ;; Maps used to let us quickly look up a key given data we find in transcations or the block chain.
     #_private
-    (§ field- #_"LinkedHashMap<ByteString, ECKey>" :hash-to-keys)
+    (§ field- #_"LinkedHashMap<ByteString, ECKey>" :hash-to-keys (LinkedHashMap. #_"<>"))
     #_private
-    (§ field- #_"LinkedHashMap<ByteString, ECKey>" :pubkey-to-keys)
-    #_nilable
-    #_private
-    (§ field- #_"KeyCrypter" :key-crypter)
+    (§ field- #_"LinkedHashMap<ByteString, ECKey>" :pubkey-to-keys (LinkedHashMap. #_"<>"))
     #_private
     (§ field- #_"boolean" :is-watching)
 
     #_private
-    (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<KeyChainEventListener>>" :listeners)
+    (§ field- #_"CopyOnWriteArrayList<ListenerRegistration<KeyChainEventListener>>" :listeners (CopyOnWriteArrayList. #_"<>"))
 
     #_public
     (§ constructor BasicKeyChain []
-        (§ this nil)
         this
-    )
-
-    #_public
-    (§ constructor BasicKeyChain [#_nilable #_"KeyCrypter" crypter]
-        (§ assoc this :key-crypter crypter)
-        (§ assoc this :hash-to-keys (LinkedHashMap. #_"<>"))
-        (§ assoc this :pubkey-to-keys (LinkedHashMap. #_"<>"))
-        (§ assoc this :listeners (CopyOnWriteArrayList. #_"<>"))
-        this
-    )
-
-    ;;; Returns the {@link KeyCrypter} in use or null if the key chain is not encrypted. ;;
-    #_override
-    #_nilable
-    #_public
-    (§ method #_"KeyCrypter" getKeyCrypter []
-        (.. (:lock this) (lock))
-        (try
-            (:key-crypter this)
-            (finally
-                (.. (:lock this) (unlock))
-            )
-        )
     )
 
     #_override
@@ -34521,9 +33641,6 @@
         (.. (:lock this) (lock))
         (try
             (when (.. (:hash-to-keys this) (isEmpty))
-                ;; We will refuse to encrypt an empty key chain.
-                (Preconditions/checkState (nil? (:key-crypter this)))
-
                 (let [#_"ECKey" key (ECKey.)]
                     (.. this (importKeyLocked key))
                     (.. this (queueOnKeysAdded (ImmutableList/of key)))
@@ -34544,8 +33661,6 @@
         (.. (:lock this) (lock))
         (try
             (when (< (.. (:hash-to-keys this) (size)) __numberOfKeys)
-                (Preconditions/checkState (nil? (:key-crypter this)))
-
                 (let [#_"List<ECKey>" keys (ArrayList. #_"<>")]
                     (loop-when-recur [#_"int" i 0] (< i (- __numberOfKeys (.. (:hash-to-keys this) (size)))) [(inc i)]
                         (.. keys (add (ECKey.)))
@@ -34593,14 +33708,6 @@
     (§ method #_"int" importKeys [#_"List<? extends ECKey>" keys]
         (.. (:lock this) (lock))
         (try
-            ;; Check that if we're encrypted, the keys are all encrypted, and if we're not, that none are.
-            ;; We are NOT checking that the actual password matches here because we don't have access to the
-            ;; password at this point: if you screw up and import keys with mismatched passwords, you lose!
-            ;; So make sure the password is checked first.
-            (doseq [#_"ECKey" key keys]
-                (.. this (checkKeyEncryptionStateMatches key))
-            )
-
             (let [#_"List<ECKey>" __actuallyAdded (ArrayList. #_"<>" (.. keys (size)))]
                 (doseq [#_"ECKey" key keys]
                     (when (not (.. this (hasKey key)))
@@ -34617,20 +33724,6 @@
                 (.. (:lock this) (unlock))
             )
         )
-    )
-
-    #_private
-    (§ method- #_"void" checkKeyEncryptionStateMatches [#_"ECKey" key]
-        (when (and (nil? (:key-crypter this)) (.. key (isEncrypted)))
-            (throw (KeyCrypterException. "Key is encrypted but chain is not"))
-        )
-        (when (and (some? (:key-crypter this)) (not (.. key (isEncrypted))))
-            (throw (KeyCrypterException. "Key is not encrypted but chain is"))
-        )
-        (when (and (some? (:key-crypter this)) (some? (.. key (getKeyCrypter))) (not (.. key (getKeyCrypter) (equals (:key-crypter this)))))
-            (throw (KeyCrypterException. "Key encrypted under different parameters to chain"))
-        )
-        nil
     )
 
     #_private
@@ -34671,7 +33764,6 @@
     (§ method #_"void" importKey [#_"ECKey" key]
         (.. (:lock this) (lock))
         (try
-            (.. this (checkKeyEncryptionStateMatches key))
             (when (.. this (hasKey key))
                 (§ return nil)
             )
@@ -34815,29 +33907,13 @@
     (§ defn #_"Protos.Key.Builder" BasicKeyChain'serializeEncryptableItem [#_"EncryptableItem" item]
         (let [#_"Protos.Key.Builder" proto (Protos.Key/newBuilder)]
             (.. proto (setCreationTimestamp (* (.. item (getCreationTimeSeconds)) 1000)))
-            (cond (and (.. item (isEncrypted)) (some? (.. item (getEncryptedData))))
-                (do
-                    ;; The encrypted data can be missing for an "encrypted" key in the case of a deterministic wallet
-                    ;; for which the leaf keys chain to an encrypted parent and rederive their private keys on the fly.
-                    ;; In that case the caller in DeterministicKeyChain will take care of setting the type.
-                    (let [#_"EncryptedData" data (.. item (getEncryptedData))]
-                        (.. proto (getEncryptedDataBuilder) (setEncryptedPrivateKey (ByteString/copyFrom (:encrypted-bytes data))) (setInitialisationVector (ByteString/copyFrom (:initialisation-vector data))))
-                        ;; We don't allow mixing of encryption types at the moment.
-                        (Preconditions/checkState (= (.. item (getEncryptionType)) Protos.Wallet.EncryptionType/ENCRYPTED_SCRYPT_AES))
-                        (.. proto (setType Protos.Key.Type/ENCRYPTED_SCRYPT_AES))
-                    )
+            (let [#_"byte[]" secret (.. item (getSecretBytes))]
+                ;; The secret might be missing in the case of a watching wallet, or a key for which the private key
+                ;; is expected to be rederived on the fly from its parent.
+                (when (some? secret)
+                    (.. proto (setSecretBytes (ByteString/copyFrom secret)))
                 )
-                :else
-                (do
-                    (let [#_"byte[]" secret (.. item (getSecretBytes))]
-                        ;; The secret might be missing in the case of a watching wallet, or a key for which the private key
-                        ;; is expected to be rederived on the fly from its parent.
-                        (when (some? secret)
-                            (.. proto (setSecretBytes (ByteString/copyFrom secret)))
-                        )
-                        (.. proto (setType Protos.Key.Type/ORIGINAL))
-                    )
-                )
+                (.. proto (setType Protos.Key.Type/ORIGINAL))
             )
             proto
         )
@@ -34857,22 +33933,6 @@
         )
     )
 
-    ;;;
-     ; Returns a new BasicKeyChain that contains all basic, ORIGINAL type keys and also any encrypted keys
-     ; extracted from the list.  Unrecognised key types are ignored.
-     ; @throws org.bitcoinj.wallet.UnreadableWalletException.BadPassword if the password doesn't seem to match.
-     ; @throws org.bitcoinj.wallet.UnreadableWalletException if the data structures are corrupted/inconsistent.
-     ;;
-    #_public
-    #_static
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ defn #_"BasicKeyChain" BasicKeyChain'fromProtobufEncrypted [#_"List<Protos.Key>" keys, #_"KeyCrypter" crypter]
-        (let [#_"BasicKeyChain" chain (BasicKeyChain. (Preconditions/checkNotNull crypter))]
-            (.. chain (deserializeFromProtobuf keys))
-            chain
-        )
-    )
-
     #_private
     #_throws #_[ "UnreadableWalletException" ]
     (§ method- #_"void" deserializeFromProtobuf [#_"List<Protos.Key>" keys]
@@ -34880,34 +33940,17 @@
         (try
             (Preconditions/checkState (.. (:hash-to-keys this) (isEmpty)), "Tried to deserialize into a non-empty chain")
             (doseq [#_"Protos.Key" key keys]
-                (when (and (not= (.. key (getType)) Protos.Key.Type/ORIGINAL) (not= (.. key (getType)) Protos.Key.Type/ENCRYPTED_SCRYPT_AES))
-                    (§ continue )
-                )
+                (when (= (.. key (getType)) Protos.Key.Type/ORIGINAL)
+                    (let [#_"byte[]" priv (when (.. key (hasSecretBytes)) (.. key (getSecretBytes) (toByteArray)))]
+                        (when (not (.. key (hasPublicKey)))
+                            (throw (UnreadableWalletException. "Public key missing"))
+                        )
 
-                (let [#_"boolean" encrypted (= (.. key (getType)) Protos.Key.Type/ENCRYPTED_SCRYPT_AES)
-                      #_"byte[]" priv (when (.. key (hasSecretBytes)) (.. key (getSecretBytes) (toByteArray)))]
-                    (when (not (.. key (hasPublicKey)))
-                        (throw (UnreadableWalletException. "Public key missing"))
-                    )
-
-                    (let [#_"byte[]" pub (.. key (getPublicKey) (toByteArray))
-                          #_"ECKey" __ecKey
-                            (if encrypted
-                                (do
-                                    (Preconditions/checkState (some? (:key-crypter this)), "This wallet is encrypted but encrypt() was not called prior to deserialization")
-                                    (when (not (.. key (hasEncryptedData)))
-                                        (throw (UnreadableWalletException. "Encrypted private key data missing"))
-                                    )
-
-                                    (let [#_"Protos.EncryptedData" proto (.. key (getEncryptedData))
-                                          #_"EncryptedData" e (EncryptedData. (.. proto (getInitialisationVector) (toByteArray)), (.. proto (getEncryptedPrivateKey) (toByteArray)))]
-                                        (ECKey'fromEncrypted e, (:key-crypter this), pub)
-                                    )
-                                )
-                                (if (some? priv) (ECKey'fromPrivateAndPrecalculatedPublic priv, pub) (ECKey'fromPublicOnly pub))
-                            )]
-                        (.. __ecKey (setCreationTimeSeconds (quot (.. key (getCreationTimestamp)) 1000)))
-                        (.. this (importKeyLocked __ecKey))
+                        (let [#_"byte[]" pub (.. key (getPublicKey) (toByteArray))
+                            #_"ECKey" __ecKey (if (some? priv) (ECKey'fromPrivateAndPrecalculatedPublic priv, pub) (ECKey'fromPublicOnly pub))]
+                            (.. __ecKey (setCreationTimeSeconds (quot (.. key (getCreationTimestamp)) 1000)))
+                            (.. this (importKeyLocked __ecKey))
+                        )
                     )
                 )
             )
@@ -34954,150 +33997,6 @@
             )))
         )
         nil
-    )
-
-    ;;;
-     ; Convenience wrapper around {@link #toEncrypted(org.bitcoinj.crypto.KeyCrypter, org.spongycastle.crypto.params.KeyParameter)}
-     ; which uses the default Scrypt key derivation algorithm and parameters, derives a key from the given password and returns
-     ; the created key.
-     ;;
-    #_override
-    #_public
-    (§ method #_"BasicKeyChain" toEncrypted [#_"CharSequence" password]
-        (Preconditions/checkNotNull password)
-        (Preconditions/checkArgument (< 0 (.. password (length))))
-
-        (let [#_"KeyCrypter" scrypt (KeyCrypterScrypt.)
-              #_"KeyParameter" __derivedKey (.. scrypt (deriveKey password))]
-            (.. this (toEncrypted scrypt, __derivedKey))
-        )
-    )
-
-    ;;;
-     ; Encrypt the wallet using the KeyCrypter and the AES key.  A good default KeyCrypter to use is
-     ; {@link org.bitcoinj.crypto.KeyCrypterScrypt}.
-     ;
-     ; @param keyCrypter The KeyCrypter that specifies how to encrypt/ decrypt a key.
-     ; @param aesKey AES key to use (normally created using KeyCrypter#deriveKey and cached as it is time consuming
-     ;               to create from a password).
-     ; @throws KeyCrypterException if the wallet encryption fails.  If so, the wallet state is unchanged.
-     ;;
-    #_override
-    #_public
-    (§ method #_"BasicKeyChain" toEncrypted [#_"KeyCrypter" __keyCrypter, #_"KeyParameter" __aesKey]
-        (.. (:lock this) (lock))
-        (try
-            (Preconditions/checkNotNull __keyCrypter)
-            (Preconditions/checkState (nil? (:key-crypter this)), "Key chain is already encrypted")
-
-            (let [#_"BasicKeyChain" encrypted (BasicKeyChain. __keyCrypter)]
-                (doseq [#_"ECKey" key (.. (:hash-to-keys this) (values))]
-                    (let [#_"ECKey" __encryptedKey (.. key (encrypt __keyCrypter, __aesKey))]
-                        ;; Check that the encrypted key can be successfully decrypted.
-                        ;; This is done as it is a critical failure if the private key cannot be decrypted successfully
-                        ;; (all bitcoin controlled by that private key is lost forever).
-                        ;; For a correctly constructed keyCrypter the encryption should always be reversible so it is just
-                        ;; being as cautious as possible.
-                        (when (not (ECKey'encryptionIsReversible key, __encryptedKey, __keyCrypter, __aesKey))
-                            (throw (KeyCrypterException. (str "The key " key " cannot be successfully decrypted after encryption so aborting wallet encryption.")))
-                        )
-                        (.. encrypted (importKeyLocked __encryptedKey))
-                    )
-                )
-                (§ return encrypted)
-            )
-            (finally
-                (.. (:lock this) (unlock))
-            )
-        )
-    )
-
-    #_override
-    #_public
-    (§ method #_"BasicKeyChain" toDecrypted [#_"CharSequence" password]
-        (Preconditions/checkNotNull (:key-crypter this), "Wallet is already decrypted")
-
-        (.. this (toDecrypted (.. (:key-crypter this) (deriveKey password))))
-    )
-
-    #_override
-    #_public
-    (§ method #_"BasicKeyChain" toDecrypted [#_"KeyParameter" __aesKey]
-        (.. (:lock this) (lock))
-        (try
-            (Preconditions/checkState (some? (:key-crypter this)), "Wallet is already decrypted")
-
-            ;; Do an up-front check.
-            (when (and (< 0 (.. this (numKeys))) (not (.. this (checkAESKey __aesKey))))
-                (throw (KeyCrypterException. "Password/key was incorrect."))
-            )
-
-            (let [#_"BasicKeyChain" decrypted (BasicKeyChain.)]
-                (doseq [#_"ECKey" key (.. (:hash-to-keys this) (values))]
-                    (.. decrypted (importKeyLocked (.. key (decrypt __aesKey))))
-                )
-                (§ return decrypted)
-            )
-            (finally
-                (.. (:lock this) (unlock))
-            )
-        )
-    )
-
-    ;;;
-     ; Returns whether the given password is correct for this key chain.
-     ; @throws IllegalStateException if the chain is not encrypted at all.
-     ;;
-    #_override
-    #_public
-    (§ method #_"boolean" checkPassword [#_"CharSequence" password]
-        (Preconditions/checkNotNull password)
-        (Preconditions/checkState (some? (:key-crypter this)), "Key chain not encrypted")
-
-        (.. this (checkAESKey (.. (:key-crypter this) (deriveKey password))))
-    )
-
-    ;;;
-     ; Check whether the AES key can decrypt the first encrypted key in the wallet.
-     ;
-     ; @return true if AES key supplied can decrypt the first encrypted private key in the wallet, false otherwise.
-     ;;
-    #_override
-    #_public
-    (§ method #_"boolean" checkAESKey [#_"KeyParameter" __aesKey]
-        (.. (:lock this) (lock))
-        (try
-            ;; If no keys then cannot decrypt.
-            (when (.. (:hash-to-keys this) (isEmpty))
-                (§ return false)
-            )
-
-            (Preconditions/checkState (some? (:key-crypter this)), "Key chain is not encrypted")
-
-            ;; Find the first encrypted key in the wallet.
-            (let [#_"ECKey" first nil]
-                (doseq [#_"ECKey" key (.. (:hash-to-keys this) (values))]
-                    (when (.. key (isEncrypted))
-                        (§ ass first key)
-                        (§ break )
-                    )
-                )
-                (Preconditions/checkState (some? first), "No encrypted keys in the wallet")
-
-                (try
-                    (let [#_"ECKey" __rebornKey (.. first (decrypt __aesKey))]
-                        (§ return (Arrays/equals (.. first (getPubKey)), (.. __rebornKey (getPubKey))))
-                    )
-                    (catch KeyCrypterException _
-                        ;; The AES key supplied is incorrect.
-                        (§ return false)
-                    )
-                )
-            )
-            (finally
-                (.. (:lock this) (unlock))
-            )
-        )
     )
 
     #_override
@@ -35202,73 +34101,6 @@
      ; of {@link DefaultCoinSelector}.
      ;;
     (§ method #_"CoinSelection" select [#_"Coin" target, #_"List<TransactionOutput>" candidates])
-)
-
-;;;
- ; A DecryptingKeyBag filters a pre-existing key bag, decrypting keys as they are requested using the provided AES key.
- ; If the keys are encrypted and no AES key provided, {@link org.bitcoinj.core.ECKey.KeyIsEncryptedException} will be thrown.
- ;;
-#_public
-(§ class DecryptingKeyBag (§ implements KeyBag)
-    #_protected
-    (§ field #_"KeyBag" :target)
-    #_protected
-    (§ field #_"KeyParameter" :aes-key)
-
-    #_public
-    (§ constructor DecryptingKeyBag [#_"KeyBag" target, #_nilable #_"KeyParameter" __aesKey]
-        (§ assoc this :target (Preconditions/checkNotNull target))
-        (§ assoc this :aes-key __aesKey)
-        this
-    )
-
-    #_nilable
-    #_private
-    (§ method- #_"ECKey" maybeDecrypt [#_"ECKey" key]
-        (when (nil? key)
-            (§ return nil)
-        )
-
-        (when (.. key (isEncrypted))
-            (when (nil? (:aes-key this))
-                (throw (KeyIsEncryptedException.))
-            )
-            (§ return (.. key (decrypt (:aes-key this))))
-        )
-
-        key
-    )
-
-    #_private
-    (§ method- #_"RedeemData" maybeDecrypt [#_"RedeemData" __redeemData]
-        (let [#_"List<ECKey>" __decryptedKeys (ArrayList. #_"<>")]
-            (doseq [#_"ECKey" key (:keys __redeemData)]
-                (.. __decryptedKeys (add (.. this (maybeDecrypt key))))
-            )
-            (RedeemData'of __decryptedKeys, (:redeem-script __redeemData))
-        )
-    )
-
-    #_nilable
-    #_override
-    #_public
-    (§ method #_"ECKey" findKeyFromPubHash [#_"byte[]" __pubkeyHash]
-        (.. this (maybeDecrypt (.. (:target this) (findKeyFromPubHash __pubkeyHash))))
-    )
-
-    #_nilable
-    #_override
-    #_public
-    (§ method #_"ECKey" findKeyFromPubKey [#_"byte[]" pubkey]
-        (.. this (maybeDecrypt (.. (:target this) (findKeyFromPubKey pubkey))))
-    )
-
-    #_nilable
-    #_override
-    #_public
-    (§ method #_"RedeemData" findRedeemDataFromScriptHash [#_"byte[]" __scriptHash]
-        (.. this (maybeDecrypt (.. (:target this) (findRedeemDataFromScriptHash __scriptHash))))
-    )
 )
 
 ;;;
@@ -35379,12 +34211,11 @@
      ; @param key The protobuf for the root key.
      ; @param firstSubKey The protobuf for the first child key (normally the parent of the external subchain).
      ; @param seed The seed.
-     ; @param crypter The encrypted/decrypter.
      ; @param isMarried Whether the keychain is leading in a marriage.
      ;;
     #_public
-    (§ method #_"DeterministicKeyChain" makeKeyChain [#_"Protos.Key" key, #_"Protos.Key" __firstSubKey, #_"DeterministicSeed" seed, #_"KeyCrypter" crypter, #_"boolean" __isMarried]
-        (if __isMarried (MarriedKeyChain. seed, crypter) (DeterministicKeyChain. seed, crypter))
+    (§ method #_"DeterministicKeyChain" makeKeyChain [#_"Protos.Key" key, #_"Protos.Key" __firstSubKey, #_"DeterministicSeed" seed, #_"boolean" married?]
+        (if married? (MarriedKeyChain. seed) (DeterministicKeyChain. seed))
     )
 
     ;;;
@@ -35400,12 +34231,12 @@
      ;;
     #_public
     #_throws #_[ "UnreadableWalletException" ]
-    (§ method #_"DeterministicKeyChain" makeWatchingKeyChain [#_"Protos.Key" key, #_"Protos.Key" __firstSubKey, #_"DeterministicKey" __accountKey, #_"boolean" __isFollowingKey, #_"boolean" __isMarried]
+    (§ method #_"DeterministicKeyChain" makeWatchingKeyChain [#_"Protos.Key" key, #_"Protos.Key" __firstSubKey, #_"DeterministicKey" __accountKey, #_"boolean" __isFollowingKey, #_"boolean" married?]
         (when (not (.. __accountKey (getPath) (equals DeterministicKeyChain'ACCOUNT_ZERO_PATH)))
             (throw (UnreadableWalletException. (str "Expecting account key but found key with path: " (HDUtils'formatPath (.. __accountKey (getPath))))))
         )
 
-        (if __isMarried (MarriedKeyChain. __accountKey) (DeterministicKeyChain. __accountKey, __isFollowingKey))
+        (if married? (MarriedKeyChain. __accountKey) (DeterministicKeyChain. __accountKey, __isFollowingKey))
     )
 )
 
@@ -35739,7 +34570,7 @@
  ;;
 #_suppress #_[ "PublicStaticCollectionField" ]
 #_public
-(§ class DeterministicKeyChain (§ implements EncryptableKeyChain)
+(§ class DeterministicKeyChain (§ implements KeyChain)
     #_private
     #_static
     (def- #_"Logger" DeterministicKeyChain'log (LoggerFactory/getLogger DeterministicKeyChain))
@@ -36013,16 +34844,6 @@
     )
 
     ;;;
-     ; Creates a deterministic key chain starting from the given seed.  All keys yielded by this chain will be the
-     ; same if the starting seed is the same.
-     ;;
-    #_protected
-    (§ constructor DeterministicKeyChain [#_"DeterministicSeed" seed]
-        (§ this seed, nil)
-        this
-    )
-
-    ;;;
      ; Creates a deterministic key chain that watches the given (public only) root key.  You can use this to calculate
      ; balances and generally follow along, but spending is not possible with such a chain.  Currently you can't use
      ; this method to watch an arbitrary fragment of some other tree, this limitation may be removed in future.
@@ -36074,96 +34895,28 @@
     )
 
     ;;;
-     ; For use in {@link KeyChainFactory} during deserialization.
+     ; Creates a deterministic key chain starting from the given seed.  All keys yielded by this chain will be
+     ; the same if the starting seed is the same.
      ;;
     #_protected
-    (§ constructor DeterministicKeyChain [#_"DeterministicSeed" seed, #_nilable #_"KeyCrypter" crypter]
+    (§ constructor DeterministicKeyChain [#_"DeterministicSeed" seed]
         (§ assoc this :seed seed)
-        (§ assoc this :basic-key-chain (BasicKeyChain. crypter))
-        (when (not (.. seed (isEncrypted)))
-            (§ assoc this :root-key (HDKeyDerivation'createMasterPrivateKey (Preconditions/checkNotNull (.. seed (getSeedBytes)))))
-            (.. (:root-key this) (setCreationTimeSeconds (.. seed (getCreationTimeSeconds))))
-            (.. (:basic-key-chain this) (importKey (:root-key this)))
-            (§ assoc this :hierarchy (DeterministicHierarchy. (:root-key this)))
-            (loop-when-recur [#_"int" i 1] (<= i (.. this (getAccountPath) (size))) [(inc i)]
-                (.. (:basic-key-chain this) (importKey (.. (:hierarchy this) (get (.. this (getAccountPath) (subList 0, i)), false, true))))
-            )
-            (.. this (initializeHierarchyUnencrypted (:root-key this)))
-        )
-        ;; Else...
-        ;; We can't initialize ourselves with just an encrypted seed, so we expected deserialization code
-        ;; to do the rest of the setup (loading the root key).
-        this
-    )
-
-    ;;;
-     ; For use in encryption when {@link #toEncrypted(KeyCrypter, KeyParameter)} is called,
-     ; so that subclasses can override that method and create an instance of the right class.
-     ;
-     ; See also {@link #makeKeyChainFromSeed(DeterministicSeed)}.
-     ;;
-    #_protected
-    (§ constructor DeterministicKeyChain [#_"KeyCrypter" crypter, #_"KeyParameter" __aesKey, #_"DeterministicKeyChain" chain]
-        ;; Can't encrypt a watching chain.
-        (Preconditions/checkNotNull (:root-key chain))
-        (Preconditions/checkNotNull (:seed chain))
-
-        (Preconditions/checkArgument (not (.. (:root-key chain) (isEncrypted))), "Chain already encrypted")
-
-        (§ assoc this :issued-external-keys (:issued-external-keys chain))
-        (§ assoc this :issued-internal-keys (:issued-internal-keys chain))
-
-        (§ assoc this :lookahead-size (:lookahead-size chain))
-        (§ assoc this :lookahead-threshold (:lookahead-threshold chain))
-
-        (§ assoc this :seed (.. (:seed chain) (encrypt crypter, __aesKey)))
-        (§ assoc this :basic-key-chain (BasicKeyChain. crypter))
-        ;; The first number is the "account number" but we don't use that feature.
-        (§ assoc this :root-key (.. (:root-key chain) (encrypt crypter, __aesKey, nil)))
-        (§ assoc this :hierarchy (DeterministicHierarchy. (:root-key this)))
+        (§ assoc this :basic-key-chain (BasicKeyChain.))
+        (§ assoc this :root-key (HDKeyDerivation'createMasterPrivateKey (Preconditions/checkNotNull (.. seed (getSeedBytes)))))
+        (.. (:root-key this) (setCreationTimeSeconds (.. seed (getCreationTimeSeconds))))
         (.. (:basic-key-chain this) (importKey (:root-key this)))
-
-        (loop-when-recur [#_"int" i 1] (< i (.. this (getAccountPath) (size))) [(inc i)]
-            (.. this (encryptNonLeaf __aesKey, chain, (:root-key this), (.. this (getAccountPath) (subList 0, i))))
+        (§ assoc this :hierarchy (DeterministicHierarchy. (:root-key this)))
+        (loop-when-recur [#_"int" i 1] (<= i (.. this (getAccountPath) (size))) [(inc i)]
+            (.. (:basic-key-chain this) (importKey (.. (:hierarchy this) (get (.. this (getAccountPath) (subList 0, i)), false, true))))
         )
-
-        (let [#_"DeterministicKey" account (.. this (encryptNonLeaf __aesKey, chain, (:root-key this), (.. this (getAccountPath))))]
-            (§ assoc this :external-parent-key (.. this (encryptNonLeaf __aesKey, chain, account, (HDUtils'concat (.. this (getAccountPath)), DeterministicKeyChain'EXTERNAL_SUBPATH))))
-            (§ assoc this :internal-parent-key (.. this (encryptNonLeaf __aesKey, chain, account, (HDUtils'concat (.. this (getAccountPath)), DeterministicKeyChain'INTERNAL_SUBPATH))))
-
-            ;; Now copy the (pubkey only) leaf keys across to avoid rederiving them.  The private key bytes are missing
-            ;; anyway so there's nothing to encrypt.
-            (doseq [#_"ECKey" eckey (.. (:basic-key-chain chain) (getKeys))]
-                (let [#_"DeterministicKey" key (cast DeterministicKey eckey)]
-                    (when (not= (.. key (getPath) (size)) (+ (.. this (getAccountPath) (size)) 2))
-                        (§ continue ) ;; Not a leaf key.
-                    )
-
-                    (let [#_"DeterministicKey" parent (.. (:hierarchy this) (get (.. (Preconditions/checkNotNull (.. key (getParent))) (getPath)), false, false))]
-                        ;; Clone the key to the new encrypted hierarchy.
-                        (§ ass key (DeterministicKey. (.. key (dropPrivateBytes)), parent))
-                        (.. (:hierarchy this) (putKey key))
-                        (.. (:basic-key-chain this) (importKey key))
-                    )
-                )
-            )
-            this
-        )
+        (.. this (initializeHierarchyUnencrypted (:root-key this)))
+        this
     )
 
     ;;; Override in subclasses to use a different account derivation path. ;;
     #_protected
     (§ method #_"ImmutableList<ChildNumber>" getAccountPath []
         DeterministicKeyChain'ACCOUNT_ZERO_PATH
-    )
-
-    #_private
-    (§ method- #_"DeterministicKey" encryptNonLeaf [#_"KeyParameter" __aesKey, #_"DeterministicKeyChain" chain, #_"DeterministicKey" parent, #_"ImmutableList<ChildNumber>" path]
-        (let [#_"DeterministicKey" key (.. (:hierarchy chain) (get path, false, false) (encrypt (Preconditions/checkNotNull (.. (:basic-key-chain this) (getKeyCrypter))), __aesKey, parent))]
-            (.. (:hierarchy this) (putKey key))
-            (.. (:basic-key-chain this) (importKey key))
-            key
-        )
     )
 
     ;; Derives the account path keys and inserts them into the basic key chain.
@@ -36548,12 +35301,6 @@
         )
     )
 
-    #_static
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ defn #_"List<DeterministicKeyChain>" DeterministicKeyChain'fromProtobuf [#_"List<Protos.Key>" keys, #_nilable #_"KeyCrypter" crypter]
-        (DeterministicKeyChain'fromProtobuf keys, crypter, (KeyChainFactory.))
-    )
-
     ;;;
      ; Returns all the key chains found in the given list of keys.  Typically there will only be one,
      ; but in the case of key rotation it can happen that there are multiple chains found.
@@ -36561,7 +35308,7 @@
     #_public
     #_static
     #_throws #_[ "UnreadableWalletException" ]
-    (§ defn #_"List<DeterministicKeyChain>" DeterministicKeyChain'fromProtobuf [#_"List<Protos.Key>" keys, #_nilable #_"KeyCrypter" crypter, #_"KeyChainFactory" factory]
+    (§ defn #_"List<DeterministicKeyChain>" DeterministicKeyChain'fromProtobuf [#_"List<Protos.Key>" keys, #_"KeyChainFactory" factory]
         (let [#_"List<DeterministicKeyChain>" chains (Lists/newLinkedList)
               #_"DeterministicSeed" seed nil
               #_"DeterministicKeyChain" chain nil]
@@ -36597,22 +35344,6 @@
                                                         (§ ass __seedBytes (.. key (getDeterministicSeed) (toByteArray)))
                                                     )
                                                     (§ ass seed (DeterministicSeed. (.. key (getSecretBytes) (toStringUtf8)), __seedBytes, passphrase, timestamp))
-                                                )
-                                            )
-                                            (.. key (hasEncryptedData))
-                                            (do
-                                                (when (.. key (hasDeterministicSeed))
-                                                    (throw (UnreadableWalletException. (str "Malformed key proto: " key)))
-                                                )
-
-                                                (let [#_"EncryptedData" data (EncryptedData. (.. key (getEncryptedData) (getInitialisationVector) (toByteArray)), (.. key (getEncryptedData) (getEncryptedPrivateKey) (toByteArray)))
-                                                      #_"EncryptedData" __encryptedSeedBytes
-                                                        (when (.. key (hasEncryptedDeterministicSeed))
-                                                            (let [#_"Protos.EncryptedData" __encryptedSeed (.. key (getEncryptedDeterministicSeed))]
-                                                                (EncryptedData. (.. __encryptedSeed (getInitialisationVector) (toByteArray)), (.. __encryptedSeed (getEncryptedPrivateKey) (toByteArray)))
-                                                            )
-                                                        )]
-                                                    (§ ass seed (DeterministicSeed. data, __encryptedSeedBytes, timestamp))
                                                 )
                                             )
                                             :else
@@ -36663,18 +35394,18 @@
 
                                                     (when (nil? chain)
                                                         ;; If this is not a following chain and previous was, this must be married.
-                                                        (let [#_"boolean" __isMarried (and (not __isFollowingKey) (not (.. chains (isEmpty))) (.. chains (get (dec (.. chains (size)))) (isFollowing)))]
+                                                        (let [#_"boolean" married? (and (not __isFollowingKey) (not (.. chains (isEmpty))) (.. chains (get (dec (.. chains (size)))) (isFollowing)))]
                                                             (cond (nil? seed)
                                                                 (do
                                                                     (let [#_"DeterministicKey" __accountKey (DeterministicKey. __immutablePath, __chainCode, pubkey, nil, nil)]
                                                                         (.. __accountKey (setCreationTimeSeconds (quot (.. key (getCreationTimestamp)) 1000)))
-                                                                        (§ ass chain (.. factory (makeWatchingKeyChain key, (.. iter (peek)), __accountKey, __isFollowingKey, __isMarried)))
+                                                                        (§ ass chain (.. factory (makeWatchingKeyChain key, (.. iter (peek)), __accountKey, __isFollowingKey, married?)))
                                                                         (§ ass __isWatchingAccountKey true)
                                                                     )
                                                                 )
                                                                 :else
                                                                 (do
-                                                                    (§ ass chain (.. factory (makeKeyChain key, (.. iter (peek)), seed, crypter, __isMarried)))
+                                                                    (§ ass chain (.. factory (makeKeyChain key, (.. iter (peek)), seed, married?)))
                                                                     (§ assoc chain :lookahead-size DeterministicKeyChain'LAZY_CALCULATE_LOOKAHEAD)
                                                                     ;; If the seed is encrypted, then the chain is incomplete at this point.  However, we will load
                                                                     ;; it up below as we parse in the keys.  We just need to check at the end that we've loaded
@@ -36691,33 +35422,16 @@
                                                                 (.. path (add index))
                                                             )
                                                         )
-                                                        (let [#_"DeterministicKey" detkey]
-                                                            (cond (.. key (hasSecretBytes))
-                                                                (do
+                                                        (let [#_"DeterministicKey" detkey
+                                                                (if (.. key (hasSecretBytes))
                                                                     ;; Not encrypted: private key is available.
                                                                     (let [#_"BigInteger" priv (BigInteger. 1, (.. key (getSecretBytes) (toByteArray)))]
-                                                                        (§ ass detkey (DeterministicKey. __immutablePath, __chainCode, pubkey, priv, parent))
+                                                                        (DeterministicKey. __immutablePath, __chainCode, pubkey, priv, parent)
                                                                     )
-                                                                )
-                                                                :else
-                                                                (do
-                                                                    (cond (.. key (hasEncryptedData))
-                                                                        (do
-                                                                            (let [#_"Protos.EncryptedData" proto (.. key (getEncryptedData))
-                                                                                  #_"EncryptedData" data (EncryptedData. (.. proto (getInitialisationVector) (toByteArray)), (.. proto (getEncryptedPrivateKey) (toByteArray)))]
-                                                                                (Preconditions/checkNotNull crypter, "Encountered an encrypted key but no key crypter provided")
-                                                                                (§ ass detkey (DeterministicKey. __immutablePath, __chainCode, crypter, pubkey, data, parent))
-                                                                            )
-                                                                        )
-                                                                        :else
-                                                                        (do
-                                                                            ;; No secret key bytes and key is not encrypted: either a watching key or private key bytes
-                                                                            ;; will be rederived on the fly from the parent.
-                                                                            (§ ass detkey (DeterministicKey. __immutablePath, __chainCode, pubkey, nil, parent))
-                                                                        )
-                                                                    )
-                                                                )
-                                                            )
+                                                                    ;; No secret key bytes and key is not encrypted: either a watching key or private key
+                                                                    ;; bytes will be rederived on the fly from the parent.
+                                                                    (DeterministicKey. __immutablePath, __chainCode, pubkey, nil, parent)
+                                                                )]
                                                             (when (.. key (hasCreationTimestamp))
                                                                 (.. detkey (setCreationTimeSeconds (quot (.. key (getCreationTimestamp)) 1000)))
                                                             )
@@ -36777,121 +35491,6 @@
                 )
             )
         )
-    )
-
-    #_override
-    #_public
-    (§ method #_"DeterministicKeyChain" toEncrypted [#_"CharSequence" password]
-        (Preconditions/checkNotNull password)
-        (Preconditions/checkArgument (< 0 (.. password (length))))
-        (Preconditions/checkState (some? (:seed this)), "Attempt to encrypt a watching chain.")
-        (Preconditions/checkState (not (.. (:seed this) (isEncrypted))))
-
-        (let [#_"KeyCrypter" scrypt (KeyCrypterScrypt.)
-              #_"KeyParameter" __derivedKey (.. scrypt (deriveKey password))]
-            (.. this (toEncrypted scrypt, __derivedKey))
-        )
-    )
-
-    #_override
-    #_public
-    (§ method #_"DeterministicKeyChain" toEncrypted [#_"KeyCrypter" __keyCrypter, #_"KeyParameter" __aesKey]
-        (DeterministicKeyChain. __keyCrypter, __aesKey, this)
-    )
-
-    #_override
-    #_public
-    (§ method #_"DeterministicKeyChain" toDecrypted [#_"CharSequence" password]
-        (Preconditions/checkNotNull password)
-        (Preconditions/checkArgument (< 0 (.. password (length))))
-
-        (let [#_"KeyCrypter" crypter (.. this (getKeyCrypter))]
-            (Preconditions/checkState (some? crypter), "Chain not encrypted")
-            (let [#_"KeyParameter" __derivedKey (.. crypter (deriveKey password))]
-                (.. this (toDecrypted __derivedKey))
-            )
-        )
-    )
-
-    #_override
-    #_public
-    (§ method #_"DeterministicKeyChain" toDecrypted [#_"KeyParameter" __aesKey]
-        (Preconditions/checkState (some? (.. this (getKeyCrypter))), "Key chain not encrypted")
-        (Preconditions/checkState (some? (:seed this)), "Can't decrypt a watching chain")
-        (Preconditions/checkState (.. (:seed this) (isEncrypted)))
-
-        (let [#_"String" passphrase DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC] ;; FIXME allow non-empty passphrase
-            (let [#_"DeterministicSeed" __decSeed (.. (:seed this) (decrypt (.. this (getKeyCrypter)), passphrase, __aesKey))
-                  #_"DeterministicKeyChain" chain (.. this (makeKeyChainFromSeed __decSeed))]
-                ;; Now double check that the keys match to catch the case where the key is wrong but padding didn't catch it.
-                (when (not (.. chain (getWatchingKey) (getPubKeyPoint) (equals (.. this (getWatchingKey) (getPubKeyPoint)))))
-                    (throw (KeyCrypterException. "Provided AES key is wrong"))
-                )
-
-                (§ assoc chain :lookahead-size (:lookahead-size this))
-                ;; Now copy the (pubkey only) leaf keys across to avoid rederiving them.  The private key bytes are missing
-                ;; anyway so there's nothing to decrypt.
-                (doseq [#_"ECKey" eckey (.. (:basic-key-chain this) (getKeys))]
-                    (let [#_"DeterministicKey" key (cast DeterministicKey eckey)]
-                        (when (not= (.. key (getPath) (size)) (+ (.. this (getAccountPath) (size)) 2))
-                            (§ continue ) ;; Not a leaf key.
-                        )
-
-                        (Preconditions/checkState (.. key (isEncrypted)))
-                        (let [#_"DeterministicKey" parent (.. (:hierarchy chain) (get (.. (Preconditions/checkNotNull (.. key (getParent))) (getPath)), false, false))]
-                            ;; Clone the key to the new decrypted hierarchy.
-                            (§ ass key (DeterministicKey. (.. key (dropPrivateBytes)), parent))
-                            (.. (:hierarchy chain) (putKey key))
-                            (.. (:basic-key-chain chain) (importKey key))
-                        )
-                    )
-                )
-                (§ assoc chain :issued-external-keys (:issued-external-keys this))
-                (§ assoc chain :issued-internal-keys (:issued-internal-keys this))
-                chain
-            )
-        )
-    )
-
-    ;;;
-     ; Factory method to create a key chain from a seed.
-     ; Subclasses should override this to create an instance of the subclass instead of a plain DKC.
-     ; This is used in encryption/decryption.
-     ;;
-    #_protected
-    (§ method #_"DeterministicKeyChain" makeKeyChainFromSeed [#_"DeterministicSeed" seed]
-        (DeterministicKeyChain. seed)
-    )
-
-    #_override
-    #_public
-    (§ method #_"boolean" checkPassword [#_"CharSequence" password]
-        (Preconditions/checkNotNull password)
-        (Preconditions/checkState (some? (.. this (getKeyCrypter))), "Key chain not encrypted")
-
-        (.. this (checkAESKey (.. this (getKeyCrypter) (deriveKey password))))
-    )
-
-    #_override
-    #_public
-    (§ method #_"boolean" checkAESKey [#_"KeyParameter" __aesKey]
-        (Preconditions/checkState (some? (:root-key this)), "Can't check password for a watching chain")
-        (Preconditions/checkNotNull __aesKey)
-        (Preconditions/checkState (some? (.. this (getKeyCrypter))), "Key chain not encrypted")
-
-        (try
-            (§ return (.. (:root-key this) (decrypt __aesKey) (getPubKeyPoint) (equals (.. (:root-key this) (getPubKeyPoint)))))
-            (catch KeyCrypterException _
-                (§ return false)
-            )
-        )
-    )
-
-    #_nilable
-    #_override
-    #_public
-    (§ method #_"KeyCrypter" getKeyCrypter []
-        (.. (:basic-key-chain this) (getKeyCrypter))
     )
 
     #_override
@@ -37181,21 +35780,9 @@
     (§ defn #_"void" DeterministicKeyChain'serializeSeedEncryptableItem [#_"DeterministicSeed" seed, #_"Protos.Key.Builder" proto]
         ;; The seed can be missing if we have not derived it yet from the mnemonic.
         ;; This will not normally happen once all the wallets are on the latest code that caches the seed.
-        (cond (and (.. seed (isEncrypted)) (some? (.. seed (getEncryptedSeedData))))
-            (do
-                (let [#_"EncryptedData" data (.. seed (getEncryptedSeedData))]
-                    (.. proto (getEncryptedDeterministicSeedBuilder) (setEncryptedPrivateKey (ByteString/copyFrom (:encrypted-bytes data))) (setInitialisationVector (ByteString/copyFrom (:initialisation-vector data))))
-                    ;; We don't allow mixing of encryption types at the moment.
-                    (Preconditions/checkState (= (.. seed (getEncryptionType)) Protos.Wallet.EncryptionType/ENCRYPTED_SCRYPT_AES))
-                )
-            )
-            :else
-            (do
-                (let [#_"byte[]" secret (.. seed (getSeedBytes))]
-                    (when (some? secret)
-                        (.. proto (setDeterministicSeed (ByteString/copyFrom secret)))
-                    )
-                )
+        (let [#_"byte[]" secret (.. seed (getSeedBytes))]
+            (when (some? secret)
+                (.. proto (setDeterministicSeed (ByteString/copyFrom secret)))
             )
         )
         nil
@@ -37245,16 +35832,10 @@
               #_"StringBuilder" sb (StringBuilder.)]
             (cond (some? (:seed this))
                 (do
-                    (cond (.. (:seed this) (isEncrypted))
-                        (do
-                            (.. sb (append "Seed is encrypted\n"))
-                        )
-                        __includePrivateKeys
-                        (do
-                            (let [#_"List<String>" words (.. (:seed this) (getMnemonicCode))]
-                                (.. sb (append "Seed as words: ") (append (.. Utils'SPACE_JOINER (join words))) (append "\n"))
-                                (.. sb (append "Seed as hex:   ") (append (.. (:seed this) (toHexString))) (append "\n"))
-                            )
+                    (when __includePrivateKeys
+                        (let [#_"List<String>" words (.. (:seed this) (getMnemonicCode))]
+                            (.. sb (append "Seed as words: ") (append (.. Utils'SPACE_JOINER (join words))) (append "\n"))
+                            (.. sb (append "Seed as hex:   ") (append (.. (:seed this) (toHexString))) (append "\n"))
                         )
                     )
                     (.. sb (append "Seed birthday: ") (append (.. (:seed this) (getCreationTimeSeconds))) (append "  [") (append (Utils'dateTimeFormat (* (.. (:seed this) (getCreationTimeSeconds)) 1000))) (append "]\n"))
@@ -37321,13 +35902,7 @@
     (§ field- #_"byte[]" :seed)
     #_nilable
     #_private
-    (§ field- #_"List<String>" :mnemonic-code) ;; only one of mnemonicCode/encryptedMnemonicCode will be set
-    #_nilable
-    #_private
-    (§ field- #_"EncryptedData" :encrypted-mnemonic-code)
-    #_nilable
-    #_private
-    (§ field- #_"EncryptedData" :encrypted-seed)
+    (§ field- #_"List<String>" :mnemonic-code)
     #_private
     (§ field- #_"long" :creation-time-seconds)
 
@@ -37342,17 +35917,6 @@
     (§ constructor DeterministicSeed [#_"byte[]" seed, #_"List<String>" mnemonic, #_"long" __creationTimeSeconds]
         (§ assoc this :seed (Preconditions/checkNotNull seed))
         (§ assoc this :mnemonic-code (Preconditions/checkNotNull mnemonic))
-        (§ assoc this :encrypted-mnemonic-code nil)
-        (§ assoc this :creation-time-seconds __creationTimeSeconds)
-        this
-    )
-
-    #_public
-    (§ constructor DeterministicSeed [#_"EncryptedData" __encryptedMnemonic, #_nilable #_"EncryptedData" __encryptedSeed, #_"long" __creationTimeSeconds]
-        (§ assoc this :seed nil)
-        (§ assoc this :mnemonic-code nil)
-        (§ assoc this :encrypted-mnemonic-code (Preconditions/checkNotNull __encryptedMnemonic))
-        (§ assoc this :encrypted-seed __encryptedSeed)
         (§ assoc this :creation-time-seconds __creationTimeSeconds)
         this
     )
@@ -37405,7 +35969,6 @@
             )
         )
         (§ assoc this :seed (MnemonicCode'toSeed (:mnemonic-code this), passphrase))
-        (§ assoc this :encrypted-mnemonic-code nil)
         (§ assoc this :creation-time-seconds __creationTimeSeconds)
         this
     )
@@ -37423,15 +35986,8 @@
 
     #_override
     #_public
-    (§ method #_"boolean" isEncrypted []
-        (Preconditions/checkState (or (some? (:mnemonic-code this)) (some? (:encrypted-mnemonic-code this))))
-        (some? (:encrypted-mnemonic-code this))
-    )
-
-    #_override
-    #_public
     (§ method #_"String" toString []
-        (if (.. this (isEncrypted)) "DeterministicSeed [encrypted]" (str "DeterministicSeed " (.. this (toHexString)) " " (.. Utils'SPACE_JOINER (join (:mnemonic-code this)))))
+        (str "DeterministicSeed " (.. this (toHexString)) " " (.. Utils'SPACE_JOINER (join (:mnemonic-code this))))
     )
 
     ;;; Returns the seed as hex or null if encrypted. ;;
@@ -37454,25 +36010,6 @@
         (:seed this)
     )
 
-    #_nilable
-    #_override
-    #_public
-    (§ method #_"EncryptedData" getEncryptedData []
-        (:encrypted-mnemonic-code this)
-    )
-
-    #_override
-    #_public
-    (§ method #_"Protos.Wallet.EncryptionType" getEncryptionType []
-        Protos.Wallet.EncryptionType/ENCRYPTED_SCRYPT_AES
-    )
-
-    #_nilable
-    #_public
-    (§ method #_"EncryptedData" getEncryptedSeedData []
-        (:encrypted-seed this)
-    )
-
     #_override
     #_public
     (§ method #_"long" getCreationTimeSeconds []
@@ -37485,31 +36022,9 @@
         nil
     )
 
-    #_public
-    (§ method #_"DeterministicSeed" encrypt [#_"KeyCrypter" __keyCrypter, #_"KeyParameter" __aesKey]
-        (Preconditions/checkState (nil? (:encrypted-mnemonic-code this)), "Trying to encrypt seed twice")
-        (Preconditions/checkState (some? (:mnemonic-code this)), "Mnemonic missing so cannot encrypt")
-
-        (let [#_"EncryptedData" __encryptedMnemonic (.. __keyCrypter (encrypt (.. this (getMnemonicAsBytes)), __aesKey))
-              #_"EncryptedData" __encryptedSeed (.. __keyCrypter (encrypt (:seed this), __aesKey))]
-            (DeterministicSeed. __encryptedMnemonic, __encryptedSeed, (:creation-time-seconds this))
-        )
-    )
-
     #_private
     (§ method- #_"byte[]" getMnemonicAsBytes []
         (.. Utils'SPACE_JOINER (join (:mnemonic-code this)) (getBytes Charsets/UTF_8))
-    )
-
-    #_public
-    (§ method #_"DeterministicSeed" decrypt [#_"KeyCrypter" crypter, #_"String" passphrase, #_"KeyParameter" __aesKey]
-        (Preconditions/checkState (.. this (isEncrypted)))
-        (Preconditions/checkNotNull (:encrypted-mnemonic-code this))
-
-        (let [#_"List<String>" mnemonic (DeterministicSeed'decodeMnemonicCode (.. crypter (decrypt (:encrypted-mnemonic-code this), __aesKey)))
-              #_"byte[]" seed (when (some? (:encrypted-seed this)) (.. crypter (decrypt (:encrypted-seed this), __aesKey)))]
-            (DeterministicSeed. mnemonic, seed, passphrase, (:creation-time-seconds this))
-        )
     )
 
     #_override
@@ -37522,19 +36037,18 @@
             (§ return false)
         )
         (let [#_"DeterministicSeed" other (cast DeterministicSeed o)]
-            (and (= (:creation-time-seconds this) (:creation-time-seconds other)) (Objects/equal (:encrypted-mnemonic-code this), (:encrypted-mnemonic-code other)) (Objects/equal (:mnemonic-code this), (:mnemonic-code other)))
+            (and (= (:creation-time-seconds this) (:creation-time-seconds other)) (Objects/equal (:mnemonic-code this), (:mnemonic-code other)))
         )
     )
 
     #_override
     #_public
     (§ method #_"int" hashCode []
-        (Objects/hashCode (:creation-time-seconds this), (:encrypted-mnemonic-code this), (:mnemonic-code this))
+        (Objects/hashCode (:creation-time-seconds this), nil, (:mnemonic-code this))
     )
 
     ;;;
      ; Check if our mnemonic is a valid mnemonic phrase for our word list.
-     ; Does nothing if we are encrypted.
      ;
      ; @throws org.bitcoinj.crypto.MnemonicException if check fails.
      ;;
@@ -37578,59 +36092,6 @@
  ;;
 #_public
 (§ class DeterministicUpgradeRequiredException (§ extends RuntimeException))
-
-;;;
- ; Indicates that the pre-HD random wallet is encrypted, so you should try the upgrade again after getting the
- ; users password.  This is required because HD wallets are upgraded from random using the private key bytes of
- ; the oldest non-rotating key, in order to make the upgrade process itself deterministic.
- ;;
-#_public
-(§ class DeterministicUpgradeRequiresPassword (§ extends RuntimeException))
-
-;;;
- ; An encryptable key chain is a key-chain that can be encrypted with a user-provided password or AES key.
- ;;
-#_public
-(§ interface EncryptableKeyChain (§ extends KeyChain)
-    ;;;
-     ; Takes the given password, which should be strong, derives a key from it and then invokes
-     ; {@link #toEncrypted(org.bitcoinj.crypto.KeyCrypter, org.spongycastle.crypto.params.KeyParameter)}
-     ; with {@link org.bitcoinj.crypto.KeyCrypterScrypt} as the crypter.
-     ;
-     ; @return the derived key, in case you wish to cache it for future use.
-     ;;
-    (§ method #_"EncryptableKeyChain" toEncrypted [#_"CharSequence" password])
-
-    ;;;
-     ; Returns a new keychain holding identical/cloned keys to this chain, but encrypted under the given key.
-     ; Old keys and keychains remain valid and so you should ensure you don't accidentally hold references to them.
-     ;;
-    (§ method #_"EncryptableKeyChain" toEncrypted [#_"KeyCrypter" __keyCrypter, #_"KeyParameter" __aesKey])
-
-    ;;;
-     ; Decrypts the key chain with the given password.
-     ; See {@link #toDecrypted(org.spongycastle.crypto.params.KeyParameter)} for details.
-     ;;
-    (§ method #_"EncryptableKeyChain" toDecrypted [#_"CharSequence" password])
-
-    ;;;
-     ; Decrypt the key chain with the given AES key and whatever {@link KeyCrypter} is already set.  Note that
-     ; if you just want to spend money from an encrypted wallet, don't decrypt the whole thing first.  Instead,
-     ; set the {@link org.bitcoinj.wallet.SendRequest#aesKey} field before asking the wallet to build the send.
-     ;
-     ; @param aesKey AES key to use (normally created using KeyCrypter#deriveKey and cached as it is time
-     ;               consuming to create from a password).
-     ; @throws KeyCrypterException if the wallet decryption fails.  If so, the wallet state is unchanged.
-     ;;
-    (§ method #_"EncryptableKeyChain" toDecrypted [#_"KeyParameter" __aesKey])
-
-    (§ method #_"boolean" checkPassword [#_"CharSequence" password])
-    (§ method #_"boolean" checkAESKey [#_"KeyParameter" __aesKey])
-
-    ;;; Returns the key crypter used by this key chain, or null if it's not encrypted. ;;
-    #_nilable
-    (§ method #_"KeyCrypter" getKeyCrypter [])
-)
 
 ;;;
  ; A filtering coin selector delegates to another coin selector, but won't select outputs spent by the given transactions.
@@ -37707,15 +36168,14 @@
 )
 
 ;;;
- ; <p>A KeyChain is a class that stores a collection of keys for a {@link org.bitcoinj.wallet.Wallet}.  Key chains
+ ; A KeyChain is a class that stores a collection of keys for a {@link org.bitcoinj.wallet.Wallet}.  Key chains
  ; are expected to be able to look up keys given a hash (i.e. address) or pubkey bytes, and provide keys on request
- ; for a given purpose.  They can inform event listeners about new keys being added.</p>
+ ; for a given purpose.  They can inform event listeners about new keys being added.
  ;
- ; <p>However it is important to understand what this interface does <i>not</i> provide.  It cannot encrypt or decrypt
- ; keys, for instance you need an implementor of {@link EncryptableKeyChain}.  It cannot have keys imported into it,
- ; that you to use a method of a specific key chain instance, such as {@link BasicKeyChain}.  The reason for these
- ; restrictions is to support key chains that may be handled by external hardware or software, or which are derived
- ; deterministically from a seed (and thus the notion of importing a key is meaningless).</p>
+ ; However it is important to understand what this interface does <i>not</i> provide.  It cannot have keys
+ ; imported into it, that you to use a method of a specific key chain instance, such as {@link BasicKeyChain}.
+ ; The reason for these restrictions is to support key chains that may be handled by external hardware or software,
+ ; or which are derived deterministically from a seed (and thus the notion of importing a key is meaningless).
  ;;
 #_public
 (§ interface KeyChain
@@ -37824,9 +36284,6 @@
     #_private
     (§ field- #_"EnumMap<KeyPurpose, Address>" :current-addresses)
 
-    #_nilable
-    #_private
-    (§ field- #_"KeyCrypter" :key-crypter)
     #_private
     (§ field- #_"int" :lookahead-size -1)
     #_private
@@ -37835,14 +36292,14 @@
     ;;; Creates a keychain group with no basic chain, and a single, lazily created HD chain. ;;
     #_public
     (§ constructor KeyChainGroup [#_"NetworkParameters" params]
-        (§ this params, nil, (ArrayList. #_"<DeterministicKeyChain>" 1), nil, nil)
+        (§ this params, nil, (ArrayList. #_"<DeterministicKeyChain>" 1), nil)
         this
     )
 
     ;;; Creates a keychain group with no basic chain, and an HD chain initialized from the given seed. ;;
     #_public
     (§ constructor KeyChainGroup [#_"NetworkParameters" params, #_"DeterministicSeed" seed]
-        (§ this params, nil, (ImmutableList/of (DeterministicKeyChain. seed)), nil, nil)
+        (§ this params, nil, (ImmutableList/of (DeterministicKeyChain. seed)), nil)
         this
     )
 
@@ -37852,17 +36309,16 @@
      ;;
     #_public
     (§ constructor KeyChainGroup [#_"NetworkParameters" params, #_"DeterministicKey" __watchKey]
-        (§ this params, nil, (ImmutableList/of (DeterministicKeyChain'watch __watchKey)), nil, nil)
+        (§ this params, nil, (ImmutableList/of (DeterministicKeyChain'watch __watchKey)), nil)
         this
     )
 
     ;; Used for deserialization.
     #_private
-    (§ constructor- KeyChainGroup [#_"NetworkParameters" params, #_nilable #_"BasicKeyChain" __basicKeyChain, #_"List<DeterministicKeyChain>" chains, #_nilable #_"EnumMap<KeyPurpose, DeterministicKey>" __currentKeys, #_nilable #_"KeyCrypter" crypter]
+    (§ constructor- KeyChainGroup [#_"NetworkParameters" params, #_nilable #_"BasicKeyChain" __basicKeyChain, #_"List<DeterministicKeyChain>" chains, #_nilable #_"EnumMap<KeyPurpose, DeterministicKey>" __currentKeys]
         (§ assoc this :params params)
         (§ assoc this :basic (or __basicKeyChain (BasicKeyChain.)))
         (§ assoc this :chains (LinkedList. #_"<>" (Preconditions/checkNotNull chains)))
-        (§ assoc this :key-crypter crypter)
         (§ assoc this :current-keys (or __currentKeys (EnumMap. #_"<KeyPurpose, DeterministicKey>" KeyPurpose)))
         (§ assoc this :current-addresses (EnumMap. #_"<>" KeyPurpose))
         (.. this (maybeLookaheadScripts))
@@ -38091,38 +36547,6 @@
         (.. this (importKeys (ImmutableList/copyOf keys)))
     )
 
-    #_public
-    (§ method #_"boolean" checkPassword [#_"CharSequence" password]
-        (Preconditions/checkState (some? (:key-crypter this)), "Not encrypted")
-
-        (.. this (checkAESKey (.. (:key-crypter this) (deriveKey password))))
-    )
-
-    #_public
-    (§ method #_"boolean" checkAESKey [#_"KeyParameter" __aesKey]
-        (Preconditions/checkState (some? (:key-crypter this)), "Not encrypted")
-
-        (if (< 0 (.. (:basic this) (numKeys))) (.. (:basic this) (checkAESKey __aesKey)) (.. this (getActiveKeyChain) (checkAESKey __aesKey)))
-    )
-
-    ;;; Imports the given unencrypted keys into the basic chain, encrypting them along the way with the given key. ;;
-    #_public
-    (§ method #_"int" importKeysAndEncrypt [#_"List<ECKey>" keys, #_"KeyParameter" __aesKey]
-        ;; TODO: Firstly check if the aes key can decrypt any of the existing keys successfully.
-        (Preconditions/checkState (some? (:key-crypter this)), "Not encrypted")
-
-        (let [#_"LinkedList<ECKey>" __encryptedKeys (Lists/newLinkedList)]
-            (doseq [#_"ECKey" key keys]
-                (when (.. key (isEncrypted))
-                    (throw (IllegalArgumentException. "Cannot provide already encrypted keys"))
-                )
-
-                (.. __encryptedKeys (add (.. key (encrypt (:key-crypter this), __aesKey))))
-            )
-            (.. this (importKeys __encryptedKeys))
-        )
-    )
-
     #_override
     #_nilable
     #_public
@@ -38312,69 +36736,6 @@
     )
 
     ;;;
-     ; Encrypt the keys in the group using the KeyCrypter and the AES key.
-     ; A good default KeyCrypter to use is {@link org.bitcoinj.crypto.KeyCrypterScrypt}.
-     ;
-     ; @throws org.bitcoinj.crypto.KeyCrypterException if the wallet encryption fails for some reason,
-     ;         leaving the group unchanged.
-     ; @throws DeterministicUpgradeRequiredException if there are random keys but no HD chain.
-     ;;
-    #_public
-    (§ method #_"void" encrypt [#_"KeyCrypter" __keyCrypter, #_"KeyParameter" __aesKey]
-        (Preconditions/checkNotNull __keyCrypter)
-        (Preconditions/checkNotNull __aesKey)
-
-        ;; This code must be exception safe.
-        (let [#_"BasicKeyChain" __newBasic (.. (:basic this) (toEncrypted __keyCrypter, __aesKey))
-              #_"List<DeterministicKeyChain>" __newChains (ArrayList. #_"<>" (.. (:chains this) (size)))]
-            (when (and (.. (:chains this) (isEmpty)) (= (.. (:basic this) (numKeys)) 0))
-                ;; No HD chains and no random keys: encrypting an entirely empty keychain group.
-                ;; But we can't do that, we must have something to encrypt: so instantiate a new HD chain here.
-                (.. this (createAndActivateNewHDChain))
-            )
-            (doseq [#_"DeterministicKeyChain" chain (:chains this)]
-                (.. __newChains (add (.. chain (toEncrypted __keyCrypter, __aesKey))))
-            )
-            (§ assoc this :key-crypter __keyCrypter)
-            (§ assoc this :basic __newBasic)
-            (.. (:chains this) (clear))
-            (.. (:chains this) (addAll __newChains))
-            nil
-        )
-    )
-
-    ;;;
-     ; Decrypt the keys in the group using the previously given key crypter and the AES key.
-     ; A good default KeyCrypter to use is {@link org.bitcoinj.crypto.KeyCrypterScrypt}.
-     ;
-     ; @throws org.bitcoinj.crypto.KeyCrypterException if the wallet decryption fails for some reason, leaving the group unchanged.
-     ;;
-    #_public
-    (§ method #_"void" decrypt [#_"KeyParameter" __aesKey]
-        ;; This code must be exception safe.
-        (Preconditions/checkNotNull __aesKey)
-
-        (let [#_"BasicKeyChain" __newBasic (.. (:basic this) (toDecrypted __aesKey))
-              #_"List<DeterministicKeyChain>" __newChains (ArrayList. #_"<>" (.. (:chains this) (size)))]
-            (doseq [#_"DeterministicKeyChain" chain (:chains this)]
-                (.. __newChains (add (.. chain (toDecrypted __aesKey))))
-            )
-
-            (§ assoc this :key-crypter nil)
-            (§ assoc this :basic __newBasic)
-            (.. (:chains this) (clear))
-            (.. (:chains this) (addAll __newChains))
-            nil
-        )
-    )
-
-    ;;; Returns true if the group is encrypted. ;;
-    #_public
-    (§ method #_"boolean" isEncrypted []
-        (some? (:key-crypter this))
-    )
-
-    ;;;
      ; Returns whether this chain has only watching keys (unencrypted keys with no private part).
      ; Mixed chains are forbidden.
      ;
@@ -38407,13 +36768,6 @@
                 (= __activeState :KeyChainState'WATCHING)
             )
         )
-    )
-
-    ;;; Returns the key crypter or null if the group is not encrypted. ;;
-    #_nilable
-    #_public
-    (§ method #_"KeyCrypter" getKeyCrypter []
-        (:key-crypter this)
     )
 
     ;;;
@@ -38519,36 +36873,13 @@
     #_throws #_[ "UnreadableWalletException" ]
     (§ defn #_"KeyChainGroup" KeyChainGroup'fromProtobufUnencrypted [#_"NetworkParameters" params, #_"List<Protos.Key>" keys, #_"KeyChainFactory" factory]
         (let [#_"BasicKeyChain" __basicKeyChain (BasicKeyChain'fromProtobufUnencrypted keys)
-              #_"List<DeterministicKeyChain>" chains (DeterministicKeyChain'fromProtobuf keys, nil, factory)
+              #_"List<DeterministicKeyChain>" chains (DeterministicKeyChain'fromProtobuf keys, factory)
               #_"EnumMap<KeyPurpose, DeterministicKey>" __currentKeys nil]
             (when (not (.. chains (isEmpty)))
                 (§ ass __currentKeys (KeyChainGroup'createCurrentKeysMap chains))
             )
             (KeyChainGroup'extractFollowingKeychains chains)
-            (KeyChainGroup. params, __basicKeyChain, chains, __currentKeys, nil)
-        )
-    )
-
-    #_static
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ defn #_"KeyChainGroup" KeyChainGroup'fromProtobufEncrypted [#_"NetworkParameters" params, #_"List<Protos.Key>" keys, #_"KeyCrypter" crypter]
-        (KeyChainGroup'fromProtobufEncrypted params, keys, crypter, (KeyChainFactory.))
-    )
-
-    #_public
-    #_static
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ defn #_"KeyChainGroup" KeyChainGroup'fromProtobufEncrypted [#_"NetworkParameters" params, #_"List<Protos.Key>" keys, #_"KeyCrypter" crypter, #_"KeyChainFactory" factory]
-        (Preconditions/checkNotNull crypter)
-
-        (let [#_"BasicKeyChain" __basicKeyChain (BasicKeyChain'fromProtobufEncrypted keys, crypter)
-              #_"List<DeterministicKeyChain>" chains (DeterministicKeyChain'fromProtobuf keys, crypter, factory)
-              #_"EnumMap<KeyPurpose, DeterministicKey>" __currentKeys nil]
-            (when (not (.. chains (isEmpty)))
-                (§ ass __currentKeys (KeyChainGroup'createCurrentKeysMap chains))
-            )
-            (KeyChainGroup'extractFollowingKeychains chains)
-            (KeyChainGroup. params, __basicKeyChain, chains, __currentKeys, crypter)
+            (KeyChainGroup. params, __basicKeyChain, chains, __currentKeys)
         )
     )
 
@@ -38558,20 +36889,14 @@
      ;
      ; @param keyRotationTimeSecs If non-zero, UNIX time for which keys created before this are assumed to be
      ;                            compromised or weak, those keys will not be used for deterministic upgrade.
-     ; @param aesKey If non-null, the encryption key the keychain is encrypted under.  If the keychain is encrypted
-     ;               and this is not supplied, an exception is thrown letting you know you should ask the user for
-     ;               their password, turn it into a key, and then try again.
      ; @throws java.lang.IllegalStateException if there is already a deterministic key chain present or if there are
-     ;                                         no random keys (i.e. this is not an upgrade scenario), or if aesKey is
-     ;                                         provided but the wallet is not encrypted.
+     ;                                         no random keys (i.e. this is not an upgrade scenario).
      ; @throws java.lang.IllegalArgumentException if the rotation time specified excludes all keys.
-     ; @throws DeterministicUpgradeRequiresPassword if the key chain group is encrypted
-     ;         and you should provide the users encryption key.
      ; @return the DeterministicKeyChain that was created by the upgrade.
      ;;
     #_public
-    #_throws #_[ "DeterministicUpgradeRequiresPassword", "AllRandomKeysRotating" ]
-    (§ method #_"DeterministicKeyChain" upgradeToDeterministic [#_"long" __keyRotationTimeSecs, #_nilable #_"KeyParameter" __aesKey]
+    #_throws #_[ "AllRandomKeysRotating" ]
+    (§ method #_"DeterministicKeyChain" upgradeToDeterministic [#_"long" __keyRotationTimeSecs]
         (Preconditions/checkState (< 0 (.. (:basic this) (numKeys))))
         (Preconditions/checkArgument (<= 0 __keyRotationTimeSecs))
 
@@ -38580,31 +36905,6 @@
         (let [#_"ECKey" __keyToUse (.. (:basic this) (findOldestKeyAfter (dec __keyRotationTimeSecs)))]
             (when (nil? __keyToUse)
                 (throw (AllRandomKeysRotating.))
-            )
-
-            (cond (.. __keyToUse (isEncrypted))
-                (do
-                    (when (nil? __aesKey)
-                        ;; We can't auto upgrade because we don't know the users password at this point.  We throw an exception
-                        ;; so the calling code knows to abort the load and ask the user for their password, they can then try
-                        ;; loading the wallet again passing in the AES key.
-                        ;;
-                        ;; There are a few different approaches we could have used here, but they all suck.  The most obvious
-                        ;; is to try and be as lazy as possible, running in the old random-wallet mode until the user enters
-                        ;; their password for some other reason and doing the upgrade then.  But this could result in strange
-                        ;; and unexpected UI flows for the user, as well as complicating the job of wallet developers who then
-                        ;; have to support both "old" and "new" UI modes simultaneously, switching them on the fly.  Given that
-                        ;; this is a one-off transition, it seems more reasonable to just ask the user for their password
-                        ;; on startup, and then the wallet app can have all the widgets for accessing seed words etc active
-                        ;; all the time.
-                        (throw (DeterministicUpgradeRequiresPassword.))
-                    )
-                    (§ ass __keyToUse (.. __keyToUse (decrypt __aesKey)))
-                )
-                (some? __aesKey)
-                (do
-                    (throw (IllegalStateException. "AES Key was provided but wallet is not encrypted."))
-                )
             )
 
             (if (.. (:chains this) (isEmpty))
@@ -38623,9 +36923,6 @@
                 (Preconditions/checkState (= (alength entropy) (quot DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS 8)))
                 (let [#_"String" passphrase ""] ;; FIXME allow non-empty passphrase
                     (let [#_"DeterministicKeyChain" chain (DeterministicKeyChain. entropy, passphrase, (.. __keyToUse (getCreationTimeSeconds)))]
-                        (when (some? __aesKey)
-                            (§ ass chain (.. chain (toEncrypted (Preconditions/checkNotNull (.. (:basic this) (getKeyCrypter))), __aesKey)))
-                        )
                         (.. (:chains this) (add chain))
                         chain
                     )
@@ -38932,8 +37229,8 @@
         this
     )
 
-    (§ constructor MarriedKeyChain [#_"DeterministicSeed" seed, #_"KeyCrypter" crypter]
-        (§ super seed, crypter)
+    (§ constructor MarriedKeyChain [#_"DeterministicSeed" seed]
+        (§ super seed)
         this
     )
 
@@ -38947,12 +37244,6 @@
     #_private
     (§ constructor- MarriedKeyChain [#_"byte[]" entropy, #_"String" passphrase, #_"long" __seedCreationTimeSecs]
         (§ super entropy, passphrase, __seedCreationTimeSecs)
-        this
-    )
-
-    #_private
-    (§ constructor- MarriedKeyChain [#_"DeterministicSeed" seed]
-        (§ super seed)
         this
     )
 
@@ -39285,14 +37576,6 @@
     (§ field #_"boolean" :sign-inputs true)
 
     ;;;
-     ; The AES key to use to decrypt the private keys before signing.
-     ; If null then no decryption will be performed and if decryption is required an exception will be thrown.
-     ; You can get this from a password by doing wallet.getKeyCrypter().deriveKey(password).
-     ;;
-    #_public
-    (§ field #_"KeyParameter" :aes-key nil)
-
-    ;;;
      ; If not null, the {@link org.bitcoinj.wallet.CoinSelector} to use instead of the wallets default.
      ; Coin selectors are responsible for choosing which transaction outputs (coins) in a wallet to use given
      ; the desired send value amount.
@@ -39478,7 +37761,6 @@
             (.. helper (add "feePerKb", (:fee-per-kb this)))
             (.. helper (add "ensureMinRequiredFee", (:ensure-min-required-fee this)))
             (.. helper (add "signInputs", (:sign-inputs this)))
-            (.. helper (add "aesKey", (when (some? (:aes-key this)) "set"))) ;; Careful to not leak the key.
             (.. helper (add "coinSelector", (:coin-selector this)))
             (.. helper (add "shuffleOutputs", (:shuffle-outputs this)))
             (.. helper (add "recipientsPayFees", (:recipients-pay-fees this)))
@@ -40055,11 +38337,10 @@
      ; you automatically the first time a new key is requested (this happens when spending due to the change address).
      ;;
     #_public
-    #_throws #_[ "DeterministicUpgradeRequiresPassword" ]
-    (§ method #_"void" upgradeToDeterministic [#_nilable #_"KeyParameter" __aesKey]
+    (§ method #_"void" upgradeToDeterministic []
         (.. (:key-chain-group-lock this) (lock))
         (try
-            (.. (:key-chain-group this) (upgradeToDeterministic (:v-key-rotation-timestamp this), __aesKey))
+            (.. (:key-chain-group this) (upgradeToDeterministic (:v-key-rotation-timestamp this)))
             (finally
                 (.. (:key-chain-group-lock this) (unlock))
             )
@@ -40069,8 +38350,7 @@
 
     ;;;
      ; Returns true if the wallet contains random keys and no HD chains, in which case you should call
-     ; {@link #upgradeToDeterministic(org.spongycastle.crypto.params.KeyParameter)} before attempting
-     ; to do anything that would require a new address or key.
+     ; {@link #upgradeToDeterministic()} before attempting to do anything that would require a new address or key.
      ;;
     #_public
     (§ method #_"boolean" isDeterministicUpgradeRequired []
@@ -40084,25 +38364,11 @@
     )
 
     #_private
-    #_throws #_[ "DeterministicUpgradeRequiresPassword" ]
     (§ method- #_"void" maybeUpgradeToHD []
-        (.. this (maybeUpgradeToHD nil))
-        nil
-    )
-
-    #_private
-    #_throws #_[ "DeterministicUpgradeRequiresPassword" ]
-    (§ method- #_"void" maybeUpgradeToHD [#_nilable #_"KeyParameter" __aesKey]
         (Preconditions/checkState (.. (:key-chain-group-lock this) (isHeldByCurrentThread)))
         (when (.. (:key-chain-group this) (isDeterministicUpgradeRequired))
             (.. Wallet'log (info "Upgrade to HD wallets is required, attempting to do so."))
-            (try
-                (.. this (upgradeToDeterministic __aesKey))
-                (catch DeterministicUpgradeRequiresPassword e
-                    (.. Wallet'log (error "Failed to auto upgrade due to encryption. You should call wallet.upgradeToDeterministic with the users AES key to avoid this error."))
-                    (throw e)
-                )
-            )
+            (.. this (upgradeToDeterministic))
         )
         nil
     )
@@ -40213,32 +38479,6 @@
             )
         )
         nil
-    )
-
-    ;;; Takes a list of keys and a password, then encrypts and imports them in one step using the current keycrypter. ;;
-    #_public
-    (§ method #_"int" importKeysAndEncrypt [#_"List<ECKey>" keys, #_"CharSequence" password]
-        (.. (:key-chain-group-lock this) (lock))
-        (try
-            (Preconditions/checkNotNull (.. this (getKeyCrypter)), "Wallet is not encrypted")
-            (.. this (importKeysAndEncrypt keys, (.. this (getKeyCrypter) (deriveKey password))))
-            (finally
-                (.. (:key-chain-group-lock this) (unlock))
-            )
-        )
-    )
-
-    ;;; Takes a list of keys and an AES key, then encrypts and imports them in one step using the current keycrypter. ;;
-    #_public
-    (§ method #_"int" importKeysAndEncrypt [#_"List<ECKey>" keys, #_"KeyParameter" __aesKey]
-        (.. (:key-chain-group-lock this) (lock))
-        (try
-            (.. this (checkNoDeterministicKeys keys))
-            (.. (:key-chain-group this) (importKeysAndEncrypt keys, __aesKey))
-            (finally
-                (.. (:key-chain-group-lock this) (unlock))
-            )
-        )
     )
 
     ;;;
@@ -40516,188 +38756,6 @@
                 (.. (:key-chain-group-lock this) (unlock))
             )
         )
-    )
-
-    ;;;
-     ; Convenience wrapper around
-     ; {@link Wallet#encrypt(org.bitcoinj.crypto.KeyCrypter, org.spongycastle.crypto.params.KeyParameter)}
-     ; which uses the default Scrypt key derivation algorithm and parameters to derive a key from the given password.
-     ;;
-    #_public
-    (§ method #_"void" encrypt [#_"CharSequence" password]
-        (.. (:key-chain-group-lock this) (lock))
-        (try
-            (let [#_"KeyCrypterScrypt" scrypt (KeyCrypterScrypt.)]
-                (.. (:key-chain-group this) (encrypt scrypt, (.. scrypt (deriveKey password))))
-            )
-            (finally
-                (.. (:key-chain-group-lock this) (unlock))
-            )
-        )
-        (.. this (saveNow))
-        nil
-    )
-
-    ;;;
-     ; Encrypt the wallet using the KeyCrypter and the AES key.
-     ; A good default KeyCrypter to use is {@link org.bitcoinj.crypto.KeyCrypterScrypt}.
-     ;
-     ; @param keyCrypter The KeyCrypter that specifies how to encrypt/ decrypt a key.
-     ; @param aesKey AES key to use (normally created using KeyCrypter#deriveKey and cached as it is time consuming to create from a password).
-     ; @throws KeyCrypterException if the wallet encryption fails.  If so, the wallet state is unchanged.
-     ;;
-    #_public
-    (§ method #_"void" encrypt [#_"KeyCrypter" __keyCrypter, #_"KeyParameter" __aesKey]
-        (.. (:key-chain-group-lock this) (lock))
-        (try
-            (.. (:key-chain-group this) (encrypt __keyCrypter, __aesKey))
-            (finally
-                (.. (:key-chain-group-lock this) (unlock))
-            )
-        )
-        (.. this (saveNow))
-        nil
-    )
-
-    ;;;
-     ; Decrypt the wallet with the wallets keyCrypter and password.
-     ; @throws KeyCrypterException if the wallet decryption fails.  If so, the wallet state is unchanged.
-     ;;
-    #_public
-    (§ method #_"void" decrypt [#_"CharSequence" password]
-        (.. (:key-chain-group-lock this) (lock))
-        (try
-            (let [#_"KeyCrypter" crypter (.. (:key-chain-group this) (getKeyCrypter))]
-                (Preconditions/checkState (some? crypter), "Not encrypted")
-                (.. (:key-chain-group this) (decrypt (.. crypter (deriveKey password))))
-            )
-            (finally
-                (.. (:key-chain-group-lock this) (unlock))
-            )
-        )
-        (.. this (saveNow))
-        nil
-    )
-
-    ;;;
-     ; Decrypt the wallet with the wallets keyCrypter and AES key.
-     ;
-     ; @param aesKey AES key to use (normally created using KeyCrypter#deriveKey and cached as it is time consuming to create from a password).
-     ; @throws KeyCrypterException if the wallet decryption fails. If so, the wallet state is unchanged.
-     ;;
-    #_public
-    (§ method #_"void" decrypt [#_"KeyParameter" __aesKey]
-        (.. (:key-chain-group-lock this) (lock))
-        (try
-            (.. (:key-chain-group this) (decrypt __aesKey))
-            (finally
-                (.. (:key-chain-group-lock this) (unlock))
-            )
-        )
-        (.. this (saveNow))
-        nil
-    )
-
-    ;;;
-     ;  Check whether the password can decrypt the first key in the wallet.
-     ;  This can be used to check the validity of an entered password.
-     ;
-     ;  @return true if the password supplied can decrypt the first private key in the wallet, false otherwise.
-     ;  @throws IllegalStateException if the wallet is not encrypted.
-     ;;
-    #_public
-    (§ method #_"boolean" checkPassword [#_"CharSequence" password]
-        (.. (:key-chain-group-lock this) (lock))
-        (try
-            (.. (:key-chain-group this) (checkPassword password))
-            (finally
-                (.. (:key-chain-group-lock this) (unlock))
-            )
-        )
-    )
-
-    ;;;
-     ;  Check whether the AES key can decrypt the first encrypted key in the wallet.
-     ;
-     ;  @return true if AES key supplied can decrypt the first encrypted private key in the wallet, false otherwise.
-     ;;
-    #_public
-    (§ method #_"boolean" checkAESKey [#_"KeyParameter" __aesKey]
-        (.. (:key-chain-group-lock this) (lock))
-        (try
-            (.. (:key-chain-group this) (checkAESKey __aesKey))
-            (finally
-                (.. (:key-chain-group-lock this) (unlock))
-            )
-        )
-    )
-
-    ;;;
-     ; Get the wallet's KeyCrypter, or null if the wallet is not encrypted.
-     ; (Used in encrypting/decrypting an ECKey).
-     ;;
-    #_nilable
-    #_public
-    (§ method #_"KeyCrypter" getKeyCrypter []
-        (.. (:key-chain-group-lock this) (lock))
-        (try
-            (.. (:key-chain-group this) (getKeyCrypter))
-            (finally
-                (.. (:key-chain-group-lock this) (unlock))
-            )
-        )
-    )
-
-    ;;;
-     ; Get the type of encryption used for this wallet.
-     ;
-     ; (This is a convenience method - the encryption type is actually stored in the keyCrypter).
-     ;;
-    #_public
-    (§ method #_"Protos.Wallet.EncryptionType" getEncryptionType []
-        (.. (:key-chain-group-lock this) (lock))
-        (try
-            (let [#_"KeyCrypter" crypter (.. (:key-chain-group this) (getKeyCrypter))]
-                (§ return (if (some? crypter) (.. crypter (getUnderstoodEncryptionType)) Protos.Wallet.EncryptionType/UNENCRYPTED))
-            )
-            (finally
-                (.. (:key-chain-group-lock this) (unlock))
-            )
-        )
-    )
-
-    ;;; Returns true if the wallet is encrypted using any scheme, false if not. ;;
-    #_public
-    (§ method #_"boolean" isEncrypted []
-        (not= (.. this (getEncryptionType)) Protos.Wallet.EncryptionType/UNENCRYPTED)
-    )
-
-    ;;; Changes wallet encryption password, this is atomic operation. ;;
-    #_public
-    (§ method #_"void" changeEncryptionPassword [#_"CharSequence" __currentPassword, #_"CharSequence" __newPassword]
-        (.. (:key-chain-group-lock this) (lock))
-        (try
-            (.. this (decrypt __currentPassword))
-            (.. this (encrypt __newPassword))
-            (finally
-                (.. (:key-chain-group-lock this) (unlock))
-            )
-        )
-        nil
-    )
-
-    ;;; Changes wallet AES encryption key, this is atomic operation. ;;
-    #_public
-    (§ method #_"void" changeEncryptionKey [#_"KeyCrypter" __keyCrypter, #_"KeyParameter" __currentAesKey, #_"KeyParameter" __newAesKey]
-        (.. (:key-chain-group-lock this) (lock))
-        (try
-            (.. this (decrypt __currentAesKey))
-            (.. this (encrypt __keyCrypter, __newAesKey))
-            (finally
-                (.. (:key-chain-group-lock this) (unlock))
-            )
-        )
-        nil
     )
 
     ;; TODO: Make this package private once the classes finish moving around.
@@ -42793,44 +40851,39 @@
                 (.. sb (append "  ") (append (.. (:dead this) (size))) (append " dead transactions\n"))
                 (let [#_"Date" __lastBlockSeenTime (.. this (getLastBlockSeenTime))]
                     (.. sb (append "Last seen best block: ") (append (.. this (getLastBlockSeenHeight))) (append " (") (append (if (some? __lastBlockSeenTime) (Utils'dateTimeFormat __lastBlockSeenTime) "time unknown")) (append "): ") (append (.. this (getLastBlockSeenHash))) (append "\n"))
-                    (let [#_"KeyCrypter" crypter (.. (:key-chain-group this) (getKeyCrypter))]
-                        (when (some? crypter)
-                            (.. sb (append "Encryption: ") (append crypter) (append "\n"))
-                        )
-                        (when (.. this (isWatching))
-                            (.. sb (append "Wallet is watching.\n"))
-                        )
+                    (when (.. this (isWatching))
+                        (.. sb (append "Wallet is watching.\n"))
+                    )
 
-                        ;; Do the keys.
-                        (.. sb (append "\nKeys:\n"))
-                        (.. sb (append "Earliest creation time: ") (append (Utils'dateTimeFormat (* (.. this (getEarliestKeyCreationTime)) 1000))) (append "\n"))
-                        (let [#_"Date" __keyRotationTime (.. this (getKeyRotationTime))]
-                            (when (some? __keyRotationTime)
-                                (.. sb (append "Key rotation time:      ") (append (Utils'dateTimeFormat __keyRotationTime)) (append "\n"))
-                            )
-                            (.. sb (append (.. (:key-chain-group this) (toString __includePrivateKeys))))
-
-                            (when __includeTransactions
-                                ;; Print the transactions themselves.
-                                (when (< 0 (.. (:pending this) (size)))
-                                    (.. sb (append "\n>>> PENDING:\n"))
-                                    (.. this (toStringHelper sb, (:pending this), chain, Transaction'SORT_TX_BY_UPDATE_TIME))
-                                )
-                                (when (< 0 (.. (:unspent this) (size)))
-                                    (.. sb (append "\n>>> UNSPENT:\n"))
-                                    (.. this (toStringHelper sb, (:unspent this), chain, Transaction'SORT_TX_BY_HEIGHT))
-                                )
-                                (when (< 0 (.. (:spent this) (size)))
-                                    (.. sb (append "\n>>> SPENT:\n"))
-                                    (.. this (toStringHelper sb, (:spent this), chain, Transaction'SORT_TX_BY_HEIGHT))
-                                )
-                                (when (< 0 (.. (:dead this) (size)))
-                                    (.. sb (append "\n>>> DEAD:\n"))
-                                    (.. this (toStringHelper sb, (:dead this), chain, Transaction'SORT_TX_BY_UPDATE_TIME))
-                                )
-                            )
-                            (§ return (.. sb (toString)))
+                    ;; Do the keys.
+                    (.. sb (append "\nKeys:\n"))
+                    (.. sb (append "Earliest creation time: ") (append (Utils'dateTimeFormat (* (.. this (getEarliestKeyCreationTime)) 1000))) (append "\n"))
+                    (let [#_"Date" __keyRotationTime (.. this (getKeyRotationTime))]
+                        (when (some? __keyRotationTime)
+                            (.. sb (append "Key rotation time:      ") (append (Utils'dateTimeFormat __keyRotationTime)) (append "\n"))
                         )
+                        (.. sb (append (.. (:key-chain-group this) (toString __includePrivateKeys))))
+
+                        (when __includeTransactions
+                            ;; Print the transactions themselves.
+                            (when (< 0 (.. (:pending this) (size)))
+                                (.. sb (append "\n>>> PENDING:\n"))
+                                (.. this (toStringHelper sb, (:pending this), chain, Transaction'SORT_TX_BY_UPDATE_TIME))
+                            )
+                            (when (< 0 (.. (:unspent this) (size)))
+                                (.. sb (append "\n>>> UNSPENT:\n"))
+                                (.. this (toStringHelper sb, (:unspent this), chain, Transaction'SORT_TX_BY_HEIGHT))
+                            )
+                            (when (< 0 (.. (:spent this) (size)))
+                                (.. sb (append "\n>>> SPENT:\n"))
+                                (.. this (toStringHelper sb, (:spent this), chain, Transaction'SORT_TX_BY_HEIGHT))
+                            )
+                            (when (< 0 (.. (:dead this) (size)))
+                                (.. sb (append "\n>>> DEAD:\n"))
+                                (.. this (toStringHelper sb, (:dead this), chain, Transaction'SORT_TX_BY_UPDATE_TIME))
+                            )
+                        )
+                        (§ return (.. sb (toString)))
                     )
                 )
             )
@@ -43754,47 +41807,44 @@
                 (Preconditions/checkState (< 0 (.. inputs (size))))
                 (Preconditions/checkState (< 0 (.. outputs (size))))
 
-                (let [#_"KeyBag" __maybeDecryptingKeyBag (DecryptingKeyBag. this, (:aes-key req))]
-
-                    (let [#_"int" __numInputs (.. tx (getInputs) (size))]
-                        (loop-when-recur [#_"int" i 0] (< i __numInputs) [(inc i)]
-                            (let [#_"TransactionInput" __txIn (.. tx (getInput i))]
-                                ;; Missing connected output, assuming already signed.
-                                (when (nil? (.. __txIn (getConnectedOutput)))
-                                    (§ continue )
-                                )
-
-                                (try
-                                    ;; We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
-                                    ;; we sign missing pieces (to check this would require either assuming any signatures are signing
-                                    ;; standard output types or a way to get processed signatures out of script execution).
-                                    (.. __txIn (getScriptSig) (correctlySpends tx, i, (.. __txIn (getConnectedOutput) (getScriptPubKey))))
-                                    (.. Wallet'log (warn "Input {} already correctly spends output, assuming SIGHASH type used will be safe and skipping signing.", i))
-                                    (§ continue )
-                                    (catch ScriptException e
-                                        (.. Wallet'log (debug "Input contained an incorrect signature", e))
-                                        ;; Expected.
-                                    )
-                                )
-
-                                (let [#_"Script" __scriptPubKey (.. __txIn (getConnectedOutput) (getScriptPubKey))
-                                      #_"RedeemData" __redeemData (.. __txIn (getConnectedRedeemData __maybeDecryptingKeyBag))]
-                                    (Preconditions/checkNotNull __redeemData, "Transaction exists in wallet that we cannot redeem: %s", (.. __txIn (getOutpoint) (getHash)))
-                                    (.. __txIn (setScriptSig (.. __scriptPubKey (createEmptyInputScript (.. (:keys __redeemData) (get 0)), (:redeem-script __redeemData)))))
-                                )
+                (let [#_"int" __numInputs (.. tx (getInputs) (size))]
+                    (loop-when-recur [#_"int" i 0] (< i __numInputs) [(inc i)]
+                        (let [#_"TransactionInput" __txIn (.. tx (getInput i))]
+                            ;; Missing connected output, assuming already signed.
+                            (when (nil? (.. __txIn (getConnectedOutput)))
+                                (§ continue )
                             )
-                        )
 
-                        (let [#_"ProposedTransaction" proposal (ProposedTransaction. tx)]
-                            (doseq [#_"TransactionSigner" signer (:signers this)]
-                                (when (not (.. signer (signInputs proposal, __maybeDecryptingKeyBag)))
-                                    (.. Wallet'log (info "{} returned false for the tx", (.. signer (getClass) (getName))))
+                            (try
+                                ;; We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
+                                ;; we sign missing pieces (to check this would require either assuming any signatures are signing
+                                ;; standard output types or a way to get processed signatures out of script execution).
+                                (.. __txIn (getScriptSig) (correctlySpends tx, i, (.. __txIn (getConnectedOutput) (getScriptPubKey))))
+                                (.. Wallet'log (warn "Input {} already correctly spends output, assuming SIGHASH type used will be safe and skipping signing.", i))
+                                (§ continue )
+                                (catch ScriptException e
+                                    (.. Wallet'log (debug "Input contained an incorrect signature", e))
+                                    ;; Expected.
                                 )
                             )
 
-                            ;; Resolve missing sigs if any.
-                            (.. (MissingSigResolutionSigner. (:missing-sigs-mode req)) (signInputs proposal, __maybeDecryptingKeyBag))
+                            (let [#_"Script" __scriptPubKey (.. __txIn (getConnectedOutput) (getScriptPubKey))
+                                  #_"RedeemData" __redeemData (.. __txIn (getConnectedRedeemData this))]
+                                (Preconditions/checkNotNull __redeemData, "Transaction exists in wallet that we cannot redeem: %s", (.. __txIn (getOutpoint) (getHash)))
+                                (.. __txIn (setScriptSig (.. __scriptPubKey (createEmptyInputScript (.. (:keys __redeemData) (get 0)), (:redeem-script __redeemData)))))
+                            )
                         )
+                    )
+
+                    (let [#_"ProposedTransaction" proposal (ProposedTransaction. tx)]
+                        (doseq [#_"TransactionSigner" signer (:signers this)]
+                            (when (not (.. signer (signInputs proposal, this)))
+                                (.. Wallet'log (info "{} returned false for the tx", (.. signer (getClass) (getName))))
+                            )
+                        )
+
+                        ;; Resolve missing sigs if any.
+                        (.. (MissingSigResolutionSigner. (:missing-sigs-mode req)) (signInputs proposal, this))
                     )
                 )
             )
@@ -43868,7 +41918,7 @@
         (when (.. script (isSentToRawPubKey))
             (let [#_"byte[]" pubkey (.. script (getPubKey))
                   #_"ECKey" key (.. this (findKeyFromPubKey pubkey))]
-                (§ return (and (some? key) (or (.. key (isEncrypted)) (.. key (hasPrivKey)))))
+                (§ return (and (some? key) (.. key (hasPrivKey))))
             )
         )
 
@@ -43880,7 +41930,7 @@
 
         (when (.. script (isSentToAddress))
             (let [#_"ECKey" key (.. this (findKeyFromPubHash (.. script (getPubKeyHash))))]
-                (§ return (and (some? key) (or (.. key (isEncrypted)) (.. key (hasPrivKey)))))
+                (§ return (and (some? key) (.. key (hasPrivKey))))
             )
         )
 
@@ -43888,7 +41938,7 @@
             (do
                 (doseq [#_"ECKey" pubkey (.. script (getPubKeys))]
                     (let [#_"ECKey" key (.. this (findKeyFromPubKey (.. pubkey (getPubKey))))]
-                        (when (and (some? key) (or (.. key (isEncrypted)) (.. key (hasPrivKey))))
+                        (when (and (some? key) (.. key (hasPrivKey)))
                             (§ return true)
                         )
                     )
@@ -43899,13 +41949,13 @@
                 ;; Any script for which we are the recipient or sender counts.
                 (let [#_"byte[]" sender (.. script (getCLTVPaymentChannelSenderPubKey))
                       #_"ECKey" __senderKey (.. this (findKeyFromPubKey sender))]
-                    (when (and (some? __senderKey) (or (.. __senderKey (isEncrypted)) (.. __senderKey (hasPrivKey))))
+                    (when (and (some? __senderKey) (.. __senderKey (hasPrivKey)))
                         (§ return true)
                     )
 
                     (let [#_"byte[]" recipient (.. script (getCLTVPaymentChannelRecipientPubKey))
                           #_"ECKey" __recipientKey (.. this (findKeyFromPubKey sender))]
-                        (when (and (some? __recipientKey) (or (.. __recipientKey (isEncrypted)) (.. __recipientKey (hasPrivKey))))
+                        (when (and (some? __recipientKey) (.. __recipientKey (hasPrivKey)))
                             (§ return true)
                         )
                     )
@@ -44652,14 +42702,13 @@
     )
 
     ;;;
-     ; <p>When a key rotation time is set, any money controlled by keys created before the given timestamp T will be
+     ; When a key rotation time is set, any money controlled by keys created before the given timestamp T will be
      ; automatically respent to any key that was created after T.  This can be used to recover from a situation where
      ; a set of keys is believed to be compromised.  You can stop key rotation by calling this method again with zero
-     ; as the argument.  Once set up, calling {@link #doMaintenance(org.spongycastle.crypto.params.KeyParameter, boolean)}
-     ; will create and possibly send rotation transactions: but it won't be done automatically (because you might have
-     ; to ask for the users password).</p>
+     ; as the argument.  Once set up, calling {@link #doMaintenance(boolean)} will create and possibly send rotation
+     ; transactions: but it won't be done automatically (because you might have to ask for the users password).
      ;
-     ; <p>The given time cannot be in the future.</p>
+     ; The given time cannot be in the future.
      ;;
     #_public
     (§ method #_"void" setKeyRotationTime [#_"long" __unixTimeSeconds]
@@ -44686,19 +42735,16 @@
      ; which don't require making transactions - these will happen automatically unless the password is required
      ; in which case an exception will be thrown.
      ;
-     ; @param aesKey The users password, if any.
      ; @param signAndSend If true, send the transactions via the tx broadcaster and return them, if false just return them.
      ; @return a list of transactions that the wallet just made/will make for internal maintenance.  Might be empty.
-     ; @throws org.bitcoinj.wallet.DeterministicUpgradeRequiresPassword if key rotation requires the users password.
      ;;
     #_public
-    #_throws #_[ "DeterministicUpgradeRequiresPassword" ]
-    (§ method #_"ListenableFuture<List<Transaction>>" doMaintenance [#_nilable #_"KeyParameter" __aesKey, #_"boolean" __signAndSend]
+    (§ method #_"ListenableFuture<List<Transaction>>" doMaintenance [#_"boolean" __signAndSend]
         (let [#_"List<Transaction>" txns]
             (.. (:lock this) (lock))
             (.. (:key-chain-group-lock this) (lock))
             (try
-                (§ ass txns (.. this (maybeRotateKeys __aesKey, __signAndSend)))
+                (§ ass txns (.. this (maybeRotateKeys __signAndSend)))
                 (when (not __signAndSend)
                     (§ return (Futures/immediateFuture txns))
                 )
@@ -44743,8 +42789,7 @@
 
     ;; Checks to see if any coins are controlled by rotating keys and if so, spends them.
     #_private
-    #_throws #_[ "DeterministicUpgradeRequiresPassword" ]
-    (§ method- #_"List<Transaction>" maybeRotateKeys [#_nilable #_"KeyParameter" __aesKey, #_"boolean" sign]
+    (§ method- #_"List<Transaction>" maybeRotateKeys [#_"boolean" sign?]
         (Preconditions/checkState (.. (:lock this) (isHeldByCurrentThread)))
         (Preconditions/checkState (.. (:key-chain-group-lock this) (isHeldByCurrentThread)))
 
@@ -44773,7 +42818,7 @@
                                 :else
                                 (do
                                     (.. Wallet'log (info "All HD chains are currently rotating, attempting to create a new one from the next oldest non-rotating key material ..."))
-                                    (.. (:key-chain-group this) (upgradeToDeterministic __keyRotationTimestamp, __aesKey))
+                                    (.. (:key-chain-group this) (upgradeToDeterministic __keyRotationTimestamp))
                                     (.. Wallet'log (info " ... upgraded to HD again, based on next best oldest key."))
                                 )
                             )
@@ -44789,7 +42834,7 @@
                     ;; around here until we no longer produce transactions with the max number of inputs.  That means we're fully
                     ;; done, at least for now (we may still get more transactions later and this method will be reinvoked).
                     (loop []
-                        (let [#_"Transaction" tx (.. this (rekeyOneBatch __keyRotationTimestamp, __aesKey, results, sign))]
+                        (let [#_"Transaction" tx (.. this (rekeyOneBatch __keyRotationTimestamp, results, sign?))]
                             (when (some? tx)
                                 (.. results (add tx))
                             )
@@ -44805,7 +42850,7 @@
 
     #_nilable
     #_private
-    (§ method- #_"Transaction" rekeyOneBatch [#_"long" __timeSecs, #_nilable #_"KeyParameter" __aesKey, #_"List<Transaction>" others, #_"boolean" sign]
+    (§ method- #_"Transaction" rekeyOneBatch [#_"long" __timeSecs, #_"List<Transaction>" others, #_"boolean" sign]
         (.. (:lock this) (lock))
         (try
             ;; Build the transaction using some custom logic for our special needs.  Last parameter to
@@ -44827,7 +42872,7 @@
                         (§ return nil) ;; Nothing to do.
                     )
 
-                    (.. this (maybeUpgradeToHD __aesKey))
+                    (.. this (maybeUpgradeToHD))
                     (let [#_"Transaction" __rekeyTx (Transaction. (:params this))]
                         (doseq [#_"TransactionOutput" output (:gathered __toMove)]
                             (.. __rekeyTx (addInput output))
@@ -44842,7 +42887,6 @@
                         (.. __rekeyTx (getConfidence) (setSource :ConfidenceSource'SELF))
                         (.. __rekeyTx (setPurpose :TransactionPurpose'KEY_ROTATION))
                         (let [#_"SendRequest" req (SendRequest'forTx __rekeyTx)]
-                            (§ assoc req :aes-key __aesKey)
                             (when sign
                                 (.. this (signTransaction req))
                             )
@@ -45099,53 +43143,26 @@
                     (.. __walletBuilder (setLastSeenBlockTimeSecs (.. wallet (getLastBlockSeenTimeSecs))))
                 )
 
-                ;; Populate the scrypt parameters.
-                (let [#_"KeyCrypter" __keyCrypter (.. wallet (getKeyCrypter))]
-                    (cond (nil? __keyCrypter)
-                        (do
-                            ;; The wallet is unencrypted.
-                            (.. __walletBuilder (setEncryptionType Protos.Wallet.EncryptionType/UNENCRYPTED))
-                        )
-                        :else
-                        (do
-                            ;; The wallet is encrypted.
-                            (.. __walletBuilder (setEncryptionType (.. __keyCrypter (getUnderstoodEncryptionType))))
-                            (cond (instance? KeyCrypterScrypt __keyCrypter)
-                                (do
-                                    (let [#_"KeyCrypterScrypt" __keyCrypterScrypt (cast KeyCrypterScrypt __keyCrypter)]
-                                        (.. __walletBuilder (setEncryptionParameters (.. __keyCrypterScrypt (getScryptParameters))))
-                                    )
-                                )
-                                :else
-                                (do
-                                    ;; Some other form of encryption has been specified that we do not know how to persist.
-                                    (throw (RuntimeException. (str "The wallet has encryption of type '" (.. __keyCrypter (getUnderstoodEncryptionType)) "' but this WalletSerializer does not know how to persist this.")))
-                                )
-                            )
-                        )
+                (when (some? (.. wallet (getKeyRotationTime)))
+                    (let [#_"long" __timeSecs (quot (.. wallet (getKeyRotationTime) (getTime)) 1000)]
+                        (.. __walletBuilder (setKeyRotationTime __timeSecs))
                     )
-
-                    (when (some? (.. wallet (getKeyRotationTime)))
-                        (let [#_"long" __timeSecs (quot (.. wallet (getKeyRotationTime) (getTime)) 1000)]
-                            (.. __walletBuilder (setKeyRotationTime __timeSecs))
-                        )
-                    )
-
-                    (doseq [#_"TransactionSigner" signer (.. wallet (getTransactionSigners))]
-                        ;; Do not serialize LocalTransactionSigner as it's being added implicitly.
-                        (when (instance? LocalTransactionSigner signer)
-                            (§ continue )
-                        )
-
-                        (let [#_"Protos.TransactionSigner.Builder" __protoSigner (Protos.TransactionSigner/newBuilder)]
-                            (.. __protoSigner (setClassName (.. signer (getClass) (getName))))
-                            (.. __protoSigner (setData (ByteString/copyFrom (.. signer (serialize)))))
-                            (.. __walletBuilder (addTransactionSigners __protoSigner))
-                        )
-                    )
-
-                    (.. __walletBuilder (build))
                 )
+
+                (doseq [#_"TransactionSigner" signer (.. wallet (getTransactionSigners))]
+                    ;; Do not serialize LocalTransactionSigner as it's being added implicitly.
+                    (when (instance? LocalTransactionSigner signer)
+                        (§ continue )
+                    )
+
+                    (let [#_"Protos.TransactionSigner.Builder" __protoSigner (Protos.TransactionSigner/newBuilder)]
+                        (.. __protoSigner (setClassName (.. signer (getClass) (getName))))
+                        (.. __protoSigner (setData (ByteString/copyFrom (.. signer (serialize)))))
+                        (.. __walletBuilder (addTransactionSigners __protoSigner))
+                    )
+                )
+
+                (.. __walletBuilder (build))
             )
         )
     )
@@ -45403,80 +43420,70 @@
             (throw (WrongNetwork.))
         )
 
-        ;; Read the scrypt parameters that specify how encryption and decryption is performed.
-        (let [#_"KeyChainGroup" __keyChainGroup
-                (if (.. __walletProto (hasEncryptionParameters))
-                    (let [#_"Protos.ScryptParameters" __encryptionParameters (.. __walletProto (getEncryptionParameters))
-                          #_"KeyCrypterScrypt" __keyCrypter (KeyCrypterScrypt. __encryptionParameters)]
-                        (KeyChainGroup'fromProtobufEncrypted params, (.. __walletProto (getKeyList)), __keyCrypter, (KeyChainFactory.))
-                    )
-                    (KeyChainGroup'fromProtobufUnencrypted params, (.. __walletProto (getKeyList)), (KeyChainFactory.))
-                )]
-
-            (let [#_"Wallet" wallet (Wallet. params, __keyChainGroup)]
-                (when (.. __walletProto (hasDescription))
-                    (.. wallet (setDescription (.. __walletProto (getDescription))))
-                )
-
-                (cond __forceReset
-                    (do
-                        ;; Should mirror Wallet.reset().
-                        (.. wallet (setLastBlockSeenHash nil))
-                        (.. wallet (setLastBlockSeenHeight -1))
-                        (.. wallet (setLastBlockSeenTimeSecs 0))
-                    )
-                    :else
-                    (do
-                        ;; Read all transactions and insert into the txMap.
-                        (doseq [#_"Protos.Transaction" __txProto (.. __walletProto (getTransactionList))]
-                            (.. this (readTransaction __txProto, (.. wallet (getParams))))
-                        )
-
-                        ;; Update transaction outputs to point to inputs that spend them.
-                        (doseq [#_"Protos.Transaction" __txProto (.. __walletProto (getTransactionList))]
-                            (let [#_"WalletTransaction" wtx (.. this (connectTransactionOutputs params, __txProto))]
-                                (.. wallet (addWalletTransaction wtx))
-                            )
-                        )
-
-                        ;; Update the lastBlockSeenHash.
-                        (if (not (.. __walletProto (hasLastSeenBlockHash)))
-                            (.. wallet (setLastBlockSeenHash nil))
-                            (.. wallet (setLastBlockSeenHash (WalletSerializer'byteStringToHash (.. __walletProto (getLastSeenBlockHash)))))
-                        )
-
-                        (if (not (.. __walletProto (hasLastSeenBlockHeight)))
-                            (.. wallet (setLastBlockSeenHeight -1))
-                            (.. wallet (setLastBlockSeenHeight (.. __walletProto (getLastSeenBlockHeight))))
-                        )
-
-                        ;; Will default to zero if not present.
-                        (.. wallet (setLastBlockSeenTimeSecs (.. __walletProto (getLastSeenBlockTimeSecs))))
-
-                        (when (.. __walletProto (hasKeyRotationTime))
-                            (.. wallet (setKeyRotationTime (Date. (* (.. __walletProto (getKeyRotationTime)) 1000))))
-                        )
-                    )
-                )
-
-                (doseq [#_"Protos.TransactionSigner" __signerProto (.. __walletProto (getTransactionSignersList))]
-                    (try
-                        (let [#_"Class" __signerClass (Class/forName (.. __signerProto (getClassName)))
-                              #_"TransactionSigner" signer (cast TransactionSigner (.. __signerClass (newInstance)))]
-                            (.. signer (deserialize (.. __signerProto (getData) (toByteArray))))
-                            (.. wallet (addTransactionSigner signer))
-                        )
-                        (catch Exception e
-                            (throw (UnreadableWalletException. (str "Unable to deserialize TransactionSigner instance: " (.. __signerProto (getClassName))), e))
-                        )
-                    )
-                )
-
-                ;; Make sure the object can be re-used to read another wallet without corruption.
-                (.. (:tx-map this) (clear))
-
-                wallet
+        (let [#_"KeyChainGroup" __keyChainGroup (KeyChainGroup'fromProtobufUnencrypted params, (.. __walletProto (getKeyList)), (KeyChainFactory.))
+              #_"Wallet" wallet (Wallet. params, __keyChainGroup)]
+            (when (.. __walletProto (hasDescription))
+                (.. wallet (setDescription (.. __walletProto (getDescription))))
             )
+
+            (cond __forceReset
+                (do
+                    ;; Should mirror Wallet.reset().
+                    (.. wallet (setLastBlockSeenHash nil))
+                    (.. wallet (setLastBlockSeenHeight -1))
+                    (.. wallet (setLastBlockSeenTimeSecs 0))
+                )
+                :else
+                (do
+                    ;; Read all transactions and insert into the txMap.
+                    (doseq [#_"Protos.Transaction" __txProto (.. __walletProto (getTransactionList))]
+                        (.. this (readTransaction __txProto, (.. wallet (getParams))))
+                    )
+
+                    ;; Update transaction outputs to point to inputs that spend them.
+                    (doseq [#_"Protos.Transaction" __txProto (.. __walletProto (getTransactionList))]
+                        (let [#_"WalletTransaction" wtx (.. this (connectTransactionOutputs params, __txProto))]
+                            (.. wallet (addWalletTransaction wtx))
+                        )
+                    )
+
+                    ;; Update the lastBlockSeenHash.
+                    (if (not (.. __walletProto (hasLastSeenBlockHash)))
+                        (.. wallet (setLastBlockSeenHash nil))
+                        (.. wallet (setLastBlockSeenHash (WalletSerializer'byteStringToHash (.. __walletProto (getLastSeenBlockHash)))))
+                    )
+
+                    (if (not (.. __walletProto (hasLastSeenBlockHeight)))
+                        (.. wallet (setLastBlockSeenHeight -1))
+                        (.. wallet (setLastBlockSeenHeight (.. __walletProto (getLastSeenBlockHeight))))
+                    )
+
+                    ;; Will default to zero if not present.
+                    (.. wallet (setLastBlockSeenTimeSecs (.. __walletProto (getLastSeenBlockTimeSecs))))
+
+                    (when (.. __walletProto (hasKeyRotationTime))
+                        (.. wallet (setKeyRotationTime (Date. (* (.. __walletProto (getKeyRotationTime)) 1000))))
+                    )
+                )
+            )
+
+            (doseq [#_"Protos.TransactionSigner" __signerProto (.. __walletProto (getTransactionSignersList))]
+                (try
+                    (let [#_"Class" __signerClass (Class/forName (.. __signerProto (getClassName)))
+                          #_"TransactionSigner" signer (cast TransactionSigner (.. __signerClass (newInstance)))]
+                        (.. signer (deserialize (.. __signerProto (getData) (toByteArray))))
+                        (.. wallet (addTransactionSigner signer))
+                    )
+                    (catch Exception e
+                        (throw (UnreadableWalletException. (str "Unable to deserialize TransactionSigner instance: " (.. __signerProto (getClassName))), e))
+                    )
+                )
+            )
+
+            ;; Make sure the object can be re-used to read another wallet without corruption.
+            (.. (:tx-map this) (clear))
+
+            wallet
         )
     )
 
