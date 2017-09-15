@@ -1631,12 +1631,11 @@
 
     #_override
     #_protected
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
         (when (some? (:addresses this))
-            (.. stream (write (.. (VarInt. (.. (:addresses this) (size))) (encode))))
+            (.. baos (write (.. (VarInt. (.. (:addresses this) (size))) (encode))))
             (doseq [#_"PeerAddress" addr (:addresses this)]
-                (.. addr (bitcoinSerialize stream))
+                (.. addr (bitcoinSerialize baos))
             )
         )
         nil
@@ -2213,8 +2212,7 @@
      ; Writes message to the output stream.
      ;;
     #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" serialize [#_"String" name, #_"byte[]" message, #_"OutputStream" out]
+    (§ method #_"void" serialize [#_"String" name, #_"byte[]" message, #_"ByteArrayOutputStream" baos]
         (let [#_"byte[]" header (byte-array (+ 4 BitcoinSerializer'COMMAND_LEN 4 4))] ;; checksum
             (Utils'uint32ToByteArrayBE (-> this :params :packet-magic), header, 0)
 
@@ -2228,8 +2226,8 @@
 
             (let [#_"byte[]" hash (Sha256Hash'hashTwice message)]
                 (System/arraycopy hash, 0, header, (+ 4 BitcoinSerializer'COMMAND_LEN 4), 4)
-                (.. out (write header))
-                (.. out (write message))
+                (.. baos (write header))
+                (.. baos (write message))
             )
         )
         nil
@@ -2239,11 +2237,10 @@
      ; Writes message to the output stream.
      ;;
     #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" serialize [#_"Message" message, #_"OutputStream" out]
+    (§ method #_"void" serialize [#_"Message" message, #_"ByteArrayOutputStream" baos]
         (let [#_"String" name (BitcoinSerializer'nameOf (.. message (getClass)))]
             (if (some? name)
-                (.. this (serialize name, (.. message (bitcoinSerialize)), out))
+                (.. this (serialize name, (.. message (bitcoinSerialize)), baos))
                 (throw (Error. (str "BitcoinSerializer doesn't currently know how to serialize " (.. message (getClass)))))
             )
         )
@@ -2821,41 +2818,39 @@
         (:optimal-encoding-message-size this)
     )
 
-    ;; default for testing
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" writeHeader [#_"OutputStream" stream]
+    #_private
+    (§ method- #_"void" writeHeader [#_"ByteArrayOutputStream" baos]
         (cond (and (:header-bytes-valid this) (some? (:payload this)) (<= (+ (:offset this) Block'HEADER_SIZE) (alength (:payload this))))
             (do
                 ;; try for cached write first
-                (.. stream (write (:payload this), (:offset this), Block'HEADER_SIZE))
+                (.. baos (write (:payload this), (:offset this), Block'HEADER_SIZE))
             )
             :else
             (do
                 ;; fall back to manual write
-                (Utils'uint32ToByteStreamLE (:version this), stream)
-                (.. stream (write (.. (:prev-block-hash this) (getReversedBytes))))
-                (.. stream (write (.. this (getMerkleRoot) (getReversedBytes))))
-                (Utils'uint32ToByteStreamLE (:time this), stream)
-                (Utils'uint32ToByteStreamLE (:difficulty-target this), stream)
-                (Utils'uint32ToByteStreamLE (:nonce this), stream)
+                (Utils'uint32ToByteStreamLE (:version this), baos)
+                (.. baos (write (.. (:prev-block-hash this) (getReversedBytes))))
+                (.. baos (write (.. this (getMerkleRoot) (getReversedBytes))))
+                (Utils'uint32ToByteStreamLE (:time this), baos)
+                (Utils'uint32ToByteStreamLE (:difficulty-target this), baos)
+                (Utils'uint32ToByteStreamLE (:nonce this), baos)
             )
         )
         nil
     )
 
     #_private
-    #_throws #_[ "IOException" ]
-    (§ method- #_"void" writeTransactions [#_"OutputStream" stream]
+    (§ method- #_"void" writeTransactions [#_"ByteArrayOutputStream" baos]
         (when (some? (:transactions this))
             (cond (and (:transaction-bytes-valid this) (some? (:payload this)) (<= (+ (:offset this) (:length this)) (alength (:payload this))))
                 (do
-                    (.. stream (write (:payload this), (+ (:offset this) Block'HEADER_SIZE), (- (:length this) Block'HEADER_SIZE)))
+                    (.. baos (write (:payload this), (+ (:offset this) Block'HEADER_SIZE), (- (:length this) Block'HEADER_SIZE)))
                 )
                 :else
                 (do
-                    (.. stream (write (.. (VarInt. (.. (:transactions this) (size))) (encode))))
+                    (.. baos (write (.. (VarInt. (.. (:transactions this) (size))) (encode))))
                     (doseq [#_"Transaction" tx (:transactions this)]
-                        (.. tx (bitcoinSerialize stream))
+                        (.. tx (bitcoinSerialize baos))
                     )
                 )
             )
@@ -2886,13 +2881,8 @@
             :else
             ;; At least one of the two cacheable components is invalid, so fall back to stream write since we can't be sure of the length.
             (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (if (= (:length this) Message'UNKNOWN_LENGTH) (+ Block'HEADER_SIZE (.. this (guessTransactionsLength))) (:length this)))]
-                (try
-                    (.. this (writeHeader baos))
-                    (.. this (writeTransactions baos))
-                    (catch IOException e
-                        ;; Cannot happen, we are serializing to a memory stream.
-                    )
-                )
+                (.. this (writeHeader baos))
+                (.. this (writeTransactions baos))
                 (.. baos (toByteArray))
             )
         )
@@ -2900,11 +2890,10 @@
 
     #_override
     #_protected
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
-        (.. this (writeHeader stream))
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
+        (.. this (writeHeader baos))
         ;; We may only have enough data to write the header.
-        (.. this (writeTransactions stream))
+        (.. this (writeTransactions baos))
         nil
     )
 
@@ -2969,14 +2958,9 @@
      ;;
     #_private
     (§ method- #_"Sha256Hash" calculateHash []
-        (try
-            (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. Block'HEADER_SIZE)]
-                (.. this (writeHeader baos))
-                (Sha256Hash'wrapReversed (Sha256Hash'hashTwice (.. baos (toByteArray))))
-            )
-            (catch IOException e
-                (throw (RuntimeException. e)) ;; Cannot happen.
-            )
+        (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. Block'HEADER_SIZE)]
+            (.. this (writeHeader baos))
+            (Sha256Hash'wrapReversed (Sha256Hash'hashTwice (.. baos (toByteArray))))
         )
     )
 
@@ -4038,13 +4022,12 @@
      ;;
     #_override
     #_protected
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
-        (.. stream (write (.. (VarInt. (alength (:data this))) (encode))))
-        (.. stream (write (:data this)))
-        (Utils'uint32ToByteStreamLE (:hash-funcs this), stream)
-        (Utils'uint32ToByteStreamLE (:n-tweak this), stream)
-        (.. stream (write (:n-flags this)))
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
+        (.. baos (write (.. (VarInt. (alength (:data this))) (encode))))
+        (.. baos (write (:data this)))
+        (Utils'uint32ToByteStreamLE (:hash-funcs this), baos)
+        (Utils'uint32ToByteStreamLE (:n-tweak this), baos)
+        (.. baos (write (:n-flags this)))
         nil
     )
 
@@ -5599,26 +5582,20 @@
      ;;
     #_public
     (§ method #_"byte[]" toASN1 []
-        (try
-            (let [#_"byte[]" __privKeyBytes (.. this (getPrivKeyBytes)) #_"ByteArrayOutputStream" baos (ByteArrayOutputStream. 400)]
-                ;; ASN1_SEQUENCE(EC_PRIVATEKEY) = {
-                ;;   ASN1_SIMPLE(EC_PRIVATEKEY, version, LONG),
-                ;;   ASN1_SIMPLE(EC_PRIVATEKEY, privateKey, ASN1_OCTET_STRING),
-                ;;   ASN1_EXP_OPT(EC_PRIVATEKEY, parameters, ECPKPARAMETERS, 0),
-                ;;   ASN1_EXP_OPT(EC_PRIVATEKEY, publicKey, ASN1_BIT_STRING, 1)
-                ;; } ASN1_SEQUENCE_END(EC_PRIVATEKEY)
-                (let [#_"DERSequenceGenerator" seq (DERSequenceGenerator. baos)]
-                    (.. seq (addObject (ASN1Integer. 1))) ;; version
-                    (.. seq (addObject (DEROctetString. __privKeyBytes)))
-                    (.. seq (addObject (DERTaggedObject. 0, (.. ECKey'CURVE_PARAMS (toASN1Primitive)))))
-                    (.. seq (addObject (DERTaggedObject. 1, (DERBitString. (.. this (getPubKey))))))
-                    (.. seq (close))
-                    (.. baos (toByteArray))
-                )
-            )
-            (catch IOException e
-                (throw (RuntimeException. e)) ;; Cannot happen, writing to memory stream.
-            )
+        ;; ASN1_SEQUENCE(EC_PRIVATEKEY) = {
+        ;;   ASN1_SIMPLE(EC_PRIVATEKEY, version, LONG),
+        ;;   ASN1_SIMPLE(EC_PRIVATEKEY, privateKey, ASN1_OCTET_STRING),
+        ;;   ASN1_EXP_OPT(EC_PRIVATEKEY, parameters, ECPKPARAMETERS, 0),
+        ;;   ASN1_EXP_OPT(EC_PRIVATEKEY, publicKey, ASN1_BIT_STRING, 1)
+        ;; } ASN1_SEQUENCE_END(EC_PRIVATEKEY)
+        (let [#_"byte[]" bytes (.. this (getPrivKeyBytes))
+              #_"ByteArrayOutputStream" baos (ByteArrayOutputStream. 400) #_"DERSequenceGenerator" seq (DERSequenceGenerator. baos)]
+            (.. seq (addObject (ASN1Integer. 1))) ;; version
+            (.. seq (addObject (DEROctetString. bytes)))
+            (.. seq (addObject (DERTaggedObject. 0, (.. ECKey'CURVE_PARAMS (toASN1Primitive)))))
+            (.. seq (addObject (DERTaggedObject. 1, (DERBitString. (.. this (getPubKey))))))
+            (.. seq (close))
+            (.. baos (toByteArray))
         )
     )
 
@@ -5762,12 +5739,7 @@
          ;;
         #_public
         (§ method #_"byte[]" encodeToDER []
-            (try
-                (.. this (derByteStream) (toByteArray))
-                (catch IOException e
-                    (throw (RuntimeException. e)) ;; Cannot happen.
-                )
-            )
+            (.. this (derByteStream) (toByteArray))
         )
 
         #_public
@@ -5813,11 +5785,9 @@
         )
 
         #_protected
-        #_throws #_[ "IOException" ]
         (§ method #_"ByteArrayOutputStream" derByteStream []
             ;; Usually 70-72 bytes.
-            (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. 72)
-                  #_"DERSequenceGenerator" seq (DERSequenceGenerator. baos)]
+            (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. 72) #_"DERSequenceGenerator" seq (DERSequenceGenerator. baos)]
                 (.. seq (addObject (ASN1Integer. (:r this))))
                 (.. seq (addObject (ASN1Integer. (:s this))))
                 (.. seq (close))
@@ -6008,43 +5978,38 @@
         ;;   ASN1_EXP_OPT(EC_PRIVATEKEY, parameters, ECPKPARAMETERS, 0),
         ;;   ASN1_EXP_OPT(EC_PRIVATEKEY, publicKey, ASN1_BIT_STRING, 1)
         ;; } ASN1_SEQUENCE_END(EC_PRIVATEKEY)
-        (try
-            (let [#_"ASN1InputStream" decoder (ASN1InputStream. asn1privkey)
-                  #_"DLSequence" seq (cast DLSequence (.. decoder (readObject)))]
-                (assert-argument (nil? (.. decoder (readObject))), "Input contains extra bytes")
-                (.. decoder (close))
+        (let [#_"ASN1InputStream" decoder (ASN1InputStream. asn1privkey)
+                #_"DLSequence" seq (cast DLSequence (.. decoder (readObject)))]
+            (assert-argument (nil? (.. decoder (readObject))), "Input contains extra bytes")
+            (.. decoder (close))
 
-                (assert-argument (= (.. seq (size)) 4), "Input does not appear to be an ASN.1 OpenSSL EC private key")
-                (assert-argument (.. (cast ASN1Integer (.. seq (getObjectAt 0))) (getValue) (equals BigInteger/ONE)), "Input is of wrong version")
+            (assert-argument (= (.. seq (size)) 4), "Input does not appear to be an ASN.1 OpenSSL EC private key")
+            (assert-argument (.. (cast ASN1Integer (.. seq (getObjectAt 0))) (getValue) (equals BigInteger/ONE)), "Input is of wrong version")
 
-                (let [#_"byte[]" privbits (.. (cast ASN1OctetString (.. seq (getObjectAt 1))) (getOctets))
-                      #_"BigInteger" privkey (BigInteger. 1, privbits)]
+            (let [#_"byte[]" privbits (.. (cast ASN1OctetString (.. seq (getObjectAt 1))) (getOctets))
+                  #_"BigInteger" privkey (BigInteger. 1, privbits)]
 
-                    (let [#_"ASN1TaggedObject" pubkey (cast ASN1TaggedObject (.. seq (getObjectAt 3)))]
-                        (assert-argument (= (.. pubkey (getTagNo)) 1), "Input has 'publicKey' with bad tag number")
+                (let [#_"ASN1TaggedObject" pubkey (cast ASN1TaggedObject (.. seq (getObjectAt 3)))]
+                    (assert-argument (= (.. pubkey (getTagNo)) 1), "Input has 'publicKey' with bad tag number")
 
-                        (let [#_"byte[]" pubbits (.. (cast DERBitString (.. pubkey (getObject))) (getBytes))]
-                            (assert-argument (any = (alength pubbits) 33 65), "Input has 'publicKey' with invalid length")
+                    (let [#_"byte[]" pubbits (.. (cast DERBitString (.. pubkey (getObject))) (getBytes))]
+                        (assert-argument (any = (alength pubbits) 33 65), "Input has 'publicKey' with invalid length")
 
-                            (let [#_"int" encoding (& 0xff (aget pubbits 0))]
-                                ;; Only allow compressed(2,3) and uncompressed(4), not infinity(0) or hybrid(6,7).
-                                (assert-argument (<= 2 encoding 4), "Input has 'publicKey' with invalid encoding")
+                        (let [#_"int" encoding (& 0xff (aget pubbits 0))]
+                            ;; Only allow compressed(2,3) and uncompressed(4), not infinity(0) or hybrid(6,7).
+                            (assert-argument (<= 2 encoding 4), "Input has 'publicKey' with invalid encoding")
 
-                                ;; Now sanity check to ensure the pubkey bytes match the privkey.
-                                (let [#_"boolean" compressed (= (alength pubbits) 33)
-                                      #_"ECKey" key (ECKey. privkey, nil, compressed)]
-                                    (when (not (Arrays/equals (.. key (getPubKey)), pubbits))
-                                        (throw (IllegalArgumentException. "Public key in ASN.1 structure does not match private key."))
-                                    )
-                                    key
+                            ;; Now sanity check to ensure the pubkey bytes match the privkey.
+                            (let [#_"boolean" compressed (= (alength pubbits) 33)
+                                  #_"ECKey" key (ECKey. privkey, nil, compressed)]
+                                (when (not (Arrays/equals (.. key (getPubKey)), pubbits))
+                                    (throw (IllegalArgumentException. "Public key in ASN.1 structure does not match private key."))
                                 )
+                                key
                             )
                         )
                     )
                 )
-            )
-            (catch IOException e
-                (throw (RuntimeException. e)) ;; Cannot happen, reading from memory stream.
             )
         )
     )
@@ -6421,8 +6386,7 @@
 
     #_override
     #_protected
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
         nil
     )
 
@@ -6478,13 +6442,12 @@
 
     #_override
     #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
         (if (nil? (-> this :header :transactions))
-            (.. (:header this) (bitcoinSerializeToStream stream))
-            (.. (:header this) (cloneAsHeader) (bitcoinSerializeToStream stream))
+            (.. (:header this) (bitcoinSerializeToStream baos))
+            (.. (:header this) (cloneAsHeader) (bitcoinSerializeToStream baos))
         )
-        (.. (:merkle-tree this) (bitcoinSerializeToStream stream))
+        (.. (:merkle-tree this) (bitcoinSerializeToStream baos))
         nil
     )
 
@@ -7305,20 +7268,19 @@
 
     #_override
     #_protected
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
         ;; Version, for some reason.
-        (Utils'uint32ToByteStreamLE ProtocolVersion'CURRENT, stream)
+        (Utils'uint32ToByteStreamLE ProtocolVersion'CURRENT, baos)
         ;; Then a vector of block hashes.  This is actually a "block locator", a set of block
         ;; identifiers that spans the entire chain with exponentially increasing gaps between
         ;; them, until we end up at the genesis block.  See CBlockLocator::Set().
-        (.. stream (write (.. (VarInt. (.. (:locator this) (size))) (encode))))
+        (.. baos (write (.. (VarInt. (.. (:locator this) (size))) (encode))))
         (doseq [#_"Sha256Hash" hash (:locator this)]
             ;; Have to reverse as wire format is little endian.
-            (.. stream (write (.. hash (getReversedBytes))))
+            (.. baos (write (.. hash (getReversedBytes))))
         )
         ;; Next, a block ID to stop at.
-        (.. stream (write (.. (:stop-hash this) (getReversedBytes))))
+        (.. baos (write (.. (:stop-hash this) (getReversedBytes))))
         nil
     )
 
@@ -7510,12 +7472,11 @@
 
     #_override
     #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
-        (.. stream (write (.. (VarInt. (.. (:block-headers this) (size))) (encode))))
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
+        (.. baos (write (.. (VarInt. (.. (:block-headers this) (size))) (encode))))
         (doseq [#_"Block" header (:block-headers this)]
-            (.. header (cloneAsHeader) (bitcoinSerializeToStream stream))
-            (.. stream (write 0))
+            (.. header (cloneAsHeader) (bitcoinSerializeToStream baos))
+            (.. baos (write 0))
         )
         nil
     )
@@ -7814,14 +7775,13 @@
 
     #_override
     #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
-        (.. stream (write (.. (VarInt. (.. (:items this) (size))) (encode))))
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
+        (.. baos (write (.. (VarInt. (.. (:items this) (size))) (encode))))
         (doseq [#_"InventoryItem" i (:items this)]
             ;; Write out the type code.
-            (Utils'uint32ToByteStreamLE (.. (:type i) (ordinal)), stream)
+            (Utils'uint32ToByteStreamLE (.. (:type i) (ordinal)), baos)
             ;; And now the hash.
-            (.. stream (write (.. (:hash i) (getReversedBytes))))
+            (.. baos (write (.. (:hash i) (getReversedBytes))))
         )
         nil
     )
@@ -7863,8 +7823,7 @@
 
     #_override
     #_protected
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
         nil
     )
 )
@@ -8095,12 +8054,7 @@
 
         ;; No cached array available so serialize parts by stream.
         (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (if (< (:length this) 32) 32 (+ (:length this) 32)))]
-            (try
-                (.. this (bitcoinSerializeToStream baos))
-                (catch IOException _
-                    ;; Cannot happen, we are serializing to a memory stream.
-                )
-            )
+            (.. this (bitcoinSerializeToStream baos))
 
             (if (-> this :serializer :parse-retain)
                 ;; A free set of steak knives!
@@ -8131,18 +8085,14 @@
     )
 
     ;;;
-     ; Serialize this message to the provided OutputStream using the bitcoin wire format.
-     ;
-     ; @param stream
-     ; @throws IOException
+     ; Serialize this message to the provided stream using the bitcoin wire format.
      ;;
     #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerialize [#_"OutputStream" stream]
+    (§ method #_"void" bitcoinSerialize [#_"ByteArrayOutputStream" baos]
         ;; 1st check for cached bytes.
         (if (and (some? (:payload this)) (not= (:length this) Message'UNKNOWN_LENGTH))
-            (.. stream (write (:payload this), (:offset this), (:length this)))
-            (.. this (bitcoinSerializeToStream stream))
+            (.. baos (write (:payload this), (:offset this), (:length this)))
+            (.. this (bitcoinSerializeToStream baos))
         )
         nil
     )
@@ -8151,8 +8101,7 @@
      ; Serializes this message to the provided stream.  If you just want the raw bytes use bitcoinSerialize().
      ;;
     #_protected
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
         (.. Message'log (error "Error: {} class has not implemented bitcoinSerializeToStream method.  Generating message with no payload", (getClass)))
         nil
     )
@@ -8526,24 +8475,19 @@
     #_private
     #_static
     (§ defn- #_"Block" NetworkParameters'createGenesis [#_"NetworkParameters" param]
-        (let [#_"Block" genesis (Block. param, Block'BLOCK_VERSION_GENESIS)
-              #_"Transaction" tx (Transaction. param)]
-            (try
-                ;; A script containing the difficulty bits and the following message: "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks".
-                (let [#_"byte[]" bytes (.. Utils'HEX (decode "04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73"))]
-                    (.. tx (addInput (TransactionInput. param, tx, bytes)))
-                    (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
-                        (Script'writeBytes baos, (.. Utils'HEX (decode "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f")))
-                        (.. baos (write ScriptOpCodes'OP_CHECKSIG))
-                        (.. tx (addOutput (TransactionOutput. param, tx, Coin'FIFTY_COINS, (.. baos (toByteArray)))))
-                    )
-                )
-                (catch Exception e
-                    (throw (RuntimeException. e)) ;; Cannot happen.
+        (let [#_"Transaction" tx (Transaction. param)
+              ;; A script containing the difficulty bits and the following message: "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks".
+              #_"byte[]" bytes (.. Utils'HEX (decode "04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73"))]
+            (.. tx (addInput (TransactionInput. param, tx, bytes)))
+            (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
+                (Script'writeBytes baos, (.. Utils'HEX (decode "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f")))
+                (.. baos (write ScriptOpCodes'OP_CHECKSIG))
+                (.. tx (addOutput (TransactionOutput. param, tx, Coin'FIFTY_COINS, (.. baos (toByteArray)))))
+                (let [#_"Block" genesis (Block. param, Block'BLOCK_VERSION_GENESIS)]
+                    (.. genesis (addTransaction tx))
+                    genesis
                 )
             )
-            (.. genesis (addTransaction tx))
-            genesis
         )
     )
 
@@ -8946,17 +8890,16 @@
 
     #_override
     #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
-        (Utils'uint32ToByteStreamLE (:transaction-count this), stream)
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
+        (Utils'uint32ToByteStreamLE (:transaction-count this), baos)
 
-        (.. stream (write (.. (VarInt. (.. (:hashes this) (size))) (encode))))
+        (.. baos (write (.. (VarInt. (.. (:hashes this) (size))) (encode))))
         (doseq [#_"Sha256Hash" hash (:hashes this)]
-            (.. stream (write (.. hash (getReversedBytes))))
+            (.. baos (write (.. hash (getReversedBytes))))
         )
 
-        (.. stream (write (.. (VarInt. (alength (:matched-child-bits this))) (encode))))
-        (.. stream (write (:matched-child-bits this)))
+        (.. baos (write (.. (VarInt. (alength (:matched-child-bits this))) (encode))))
+        (.. baos (write (:matched-child-bits this)))
         nil
     )
 
@@ -11369,17 +11312,16 @@
 
     #_override
     #_protected
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
         (when (<= 31402 (:protocol-version this))
             ;; TODO: This appears to be dynamic because the client only ever sends out it's own address
             ;; so assumes itself to be up.  For a fuller implementation this needs to be dynamic only if
             ;; the address refers to this client.
             (let [#_"int" secs (int (Utils'currentTimeSeconds))]
-                (Utils'uint32ToByteStreamLE secs, stream)
+                (Utils'uint32ToByteStreamLE secs, baos)
             )
         )
-        (Utils'uint64ToByteStreamLE (:services this), stream) ;; nServices.
+        (Utils'uint64ToByteStreamLE (:services this), baos) ;; nServices.
         ;; Java does not provide any utility to map an IPv4 address into IPv6 space, so we have to do it by hand.
         (let [#_"byte[]" __ipBytes (.. (:addr this) (getAddress))]
             (when (= (alength __ipBytes) 4)
@@ -11390,10 +11332,10 @@
                     (§ ass __ipBytes v6addr)
                 )
             )
-            (.. stream (write __ipBytes))
+            (.. baos (write __ipBytes))
             ;; And write out the port.  Unlike the rest of the protocol, address and port is in big endian byte order.
-            (.. stream (write (byte (& 0xff (>> (:port this) 8)))))
-            (.. stream (write (byte (& 0xff (:port this)))))
+            (.. baos (write (byte (& 0xff (>> (:port this) 8)))))
+            (.. baos (write (byte (& 0xff (:port this)))))
         )
         nil
     )
@@ -14380,13 +14322,8 @@
         )
         ;; TODO: Some round-tripping could be avoided here.
         (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
-            (try
-                (.. (:serializer this) (serialize message, baos))
-                (.. (:write-target this) (writeBytes (.. baos (toByteArray))))
-                (catch IOException e
-                    (.. this (exceptionCaught e))
-                )
-            )
+            (.. (:serializer this) (serialize message, baos))
+            (.. (:write-target this) (writeBytes (.. baos (toByteArray))))
         )
         nil
     )
@@ -14617,10 +14554,9 @@
 
     #_override
     #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
         (when (:has-nonce this)
-            (Utils'int64ToByteStreamLE (:nonce this), stream)
+            (Utils'int64ToByteStreamLE (:nonce this), baos)
         )
         nil
     )
@@ -14687,9 +14623,8 @@
 
     #_override
     #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
-        (Utils'int64ToByteStreamLE (:nonce this), stream)
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
+        (Utils'int64ToByteStreamLE (:nonce this), baos)
         nil
     )
 
@@ -14851,17 +14786,16 @@
 
     #_override
     #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
         (let [#_"byte[]" __messageBytes (.. (:message this) (getBytes "UTF-8"))]
-            (.. stream (write (.. (VarInt. (alength __messageBytes)) (encode))))
-            (.. stream (write __messageBytes))
-            (.. stream (write (-> this :code :code)))
+            (.. baos (write (.. (VarInt. (alength __messageBytes)) (encode))))
+            (.. baos (write __messageBytes))
+            (.. baos (write (-> this :code :code)))
             (let [#_"byte[]" __reasonBytes (.. (:reason this) (getBytes "UTF-8"))]
-                (.. stream (write (.. (VarInt. (alength __reasonBytes)) (encode))))
-                (.. stream (write __reasonBytes))
+                (.. baos (write (.. (VarInt. (alength __reasonBytes)) (encode))))
+                (.. baos (write __reasonBytes))
                 (when (or (.. "block" (equals (:message this))) (.. "tx" (equals (:message this))))
-                    (.. stream (write (.. (:message-hash this) (getReversedBytes))))
+                    (.. baos (write (.. (:message-hash this) (getReversedBytes))))
                 )
             )
         )
@@ -16618,113 +16552,103 @@
         ;;
         ;;   https://en.bitcoin.it/wiki/Contracts
 
-        (try
-            ;; Create a copy of this transaction to operate upon because we need make changes to the inputs and outputs.
-            ;; It would not be thread-safe to change the attributes of the transaction object itself.
-            (let [#_"Transaction" tx (.. (-> this :params :default-serializer) (makeTransaction (.. this (bitcoinSerialize))))]
+        ;; Create a copy of this transaction to operate upon because we need make changes to the inputs and outputs.
+        ;; It would not be thread-safe to change the attributes of the transaction object itself.
+        (let [#_"Transaction" tx (.. (-> this :params :default-serializer) (makeTransaction (.. this (bitcoinSerialize))))]
 
-                ;; Clear input scripts in preparation for signing.  If we're signing a fresh transaction that step isn't very
-                ;; helpful, but it doesn't add much cost relative to the actual EC math so we'll do it anyway.
-                (loop-when-recur [#_"int" i 0] (< i (.. (:inputs tx) (size))) [(inc i)]
-                    (.. (:inputs tx) (get i) (clearScriptBytes))
-                )
-
-                ;; This step has no purpose beyond being synchronized with Bitcoin Core's bugs.  OP_CODESEPARATOR
-                ;; is a legacy holdover from a previous, broken design of executing scripts that shipped in Bitcoin 0.1.
-                ;; It was seriously flawed and would have let anyone take anyone elses money.  Later versions switched to
-                ;; the design we use today where scripts are executed independently but share a stack.  This left the
-                ;; OP_CODESEPARATOR instruction having no purpose as it was only meant to be used internally, not actually
-                ;; ever put into scripts.  Deleting OP_CODESEPARATOR is a step that should never be required but if we don't
-                ;; do it, we could split off the main chain.
-                (§ ass __connectedScript (Script'removeAllInstancesOfOp __connectedScript, ScriptOpCodes'OP_CODESEPARATOR))
-
-                ;; Set the input to the script of its output.  Bitcoin Core does this but the step has no obvious purpose as
-                ;; the signature covers the hash of the prevout transaction which obviously includes the output script
-                ;; already.  Perhaps it felt safer to him in some way, or is another leftover from how the code was written.
-                (let [#_"TransactionInput" input (.. (:inputs tx) (get __inputIndex))]
-                    (.. input (setScriptBytes __connectedScript))
-
-                    (cond (= (& __sigHashType 0x1f) (:value SigHash'NONE))
-                        (do
-                            ;; SIGHASH_NONE means no outputs are signed at all - the signature is effectively for a "blank cheque".
-                            (§ assoc tx :outputs (ArrayList. #_"<>" 0))
-                            ;; The signature isn't broken by new versions of the transaction issued by other parties.
-                            (loop-when-recur [#_"int" i 0] (< i (.. (:inputs tx) (size))) [(inc i)]
-                                (when (not= i __inputIndex)
-                                    (.. (:inputs tx) (get i) (setSequenceNumber 0))
-                                )
-                            )
-                        )
-                        (= (& __sigHashType 0x1f) (:value SigHash'SINGLE))
-                        (do
-                            ;; SIGHASH_SINGLE means only sign the output at the same index as the input (i.e. my output).
-                            (when (<= (.. (:outputs tx) (size)) __inputIndex)
-                                ;; The input index is beyond the number of outputs, it's a buggy signature made by a broken
-                                ;; Bitcoin implementation.  Bitcoin Core also contains a bug in handling this case:
-                                ;; any transaction output that is signed in this case will result in both the signed output
-                                ;; and any future outputs to this public key being steal-able by anyone who has
-                                ;; the resulting signature and the public key (both of which are part of the signed tx input).
-
-                                ;; Bitcoin Core's bug is that SignatureHash was supposed to return a hash and on this codepath it
-                                ;; actually returns the constant "1" to indicate an error, which is never checked for.  Oops.
-                                (§ return (Sha256Hash'wrap "0100000000000000000000000000000000000000000000000000000000000000"))
-                            )
-                            ;; In SIGHASH_SINGLE the outputs after the matching input index are deleted, and the outputs before
-                            ;; that position are "nulled out".  Unintuitively, the value in a "null" transaction is set to -1.
-                            (§ assoc tx :outputs (ArrayList. #_"<>" (.. (:outputs tx) (subList 0, (inc __inputIndex)))))
-                            (loop-when-recur [#_"int" i 0] (< i __inputIndex) [(inc i)]
-                                (.. (:outputs tx) (set i, (TransactionOutput. (:params tx), tx, Coin'NEGATIVE_SATOSHI, (byte-array 0))))
-                            )
-                            ;; The signature isn't broken by new versions of the transaction issued by other parties.
-                            (loop-when-recur [#_"int" i 0] (< i (.. (:inputs tx) (size))) [(inc i)]
-                                (when (not= i __inputIndex)
-                                    (.. (:inputs tx) (get i) (setSequenceNumber 0))
-                                )
-                            )
-                        )
-                    )
-
-                    (when (= (& __sigHashType (:value SigHash'ANYONECANPAY)) (:value SigHash'ANYONECANPAY))
-                        ;; SIGHASH_ANYONECANPAY means the signature in the input is not broken by changes/additions/removals
-                        ;; of other inputs.  For example, this is useful for building assurance contracts.
-                        (§ assoc tx :inputs (ArrayList. #_"<TransactionInput>"))
-                        (.. (:inputs tx) (add input))
-                    )
-
-                    (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (if (= (:length tx) Message'UNKNOWN_LENGTH) 256 (+ (:length tx) 4)))]
-                        (.. tx (bitcoinSerialize baos))
-                        ;; We also have to write a hash type (sigHashType is actually an unsigned char).
-                        (Utils'uint32ToByteStreamLE (& 0x000000ff __sigHashType), baos)
-                        ;; Note that this is NOT reversed to ensure it will be signed correctly.  If it were to be printed out
-                        ;; however then we would expect that it is IS reversed.
-                        (let [#_"Sha256Hash" hash (Sha256Hash'twiceOf (.. baos (toByteArray)))]
-                            (.. baos (close))
-
-                            (§ return hash)
-                        )
-                    )
-                )
+            ;; Clear input scripts in preparation for signing.  If we're signing a fresh transaction that step isn't very
+            ;; helpful, but it doesn't add much cost relative to the actual EC math so we'll do it anyway.
+            (loop-when-recur [#_"int" i 0] (< i (.. (:inputs tx) (size))) [(inc i)]
+                (.. (:inputs tx) (get i) (clearScriptBytes))
             )
-            (catch IOException e
-                (throw (RuntimeException. e)) ;; Cannot happen.
+
+            ;; This step has no purpose beyond being synchronized with Bitcoin Core's bugs.  OP_CODESEPARATOR
+            ;; is a legacy holdover from a previous, broken design of executing scripts that shipped in Bitcoin 0.1.
+            ;; It was seriously flawed and would have let anyone take anyone elses money.  Later versions switched to
+            ;; the design we use today where scripts are executed independently but share a stack.  This left the
+            ;; OP_CODESEPARATOR instruction having no purpose as it was only meant to be used internally, not actually
+            ;; ever put into scripts.  Deleting OP_CODESEPARATOR is a step that should never be required but if we don't
+            ;; do it, we could split off the main chain.
+            (§ ass __connectedScript (Script'removeAllInstancesOfOp __connectedScript, ScriptOpCodes'OP_CODESEPARATOR))
+
+            ;; Set the input to the script of its output.  Bitcoin Core does this but the step has no obvious purpose as
+            ;; the signature covers the hash of the prevout transaction which obviously includes the output script
+            ;; already.  Perhaps it felt safer to him in some way, or is another leftover from how the code was written.
+            (let [#_"TransactionInput" input (.. (:inputs tx) (get __inputIndex))]
+                (.. input (setScriptBytes __connectedScript))
+
+                (cond (= (& __sigHashType 0x1f) (:value SigHash'NONE))
+                    (do
+                        ;; SIGHASH_NONE means no outputs are signed at all - the signature is effectively for a "blank cheque".
+                        (§ assoc tx :outputs (ArrayList. #_"<>" 0))
+                        ;; The signature isn't broken by new versions of the transaction issued by other parties.
+                        (loop-when-recur [#_"int" i 0] (< i (.. (:inputs tx) (size))) [(inc i)]
+                            (when (not= i __inputIndex)
+                                (.. (:inputs tx) (get i) (setSequenceNumber 0))
+                            )
+                        )
+                    )
+                    (= (& __sigHashType 0x1f) (:value SigHash'SINGLE))
+                    (do
+                        ;; SIGHASH_SINGLE means only sign the output at the same index as the input (i.e. my output).
+                        (when (<= (.. (:outputs tx) (size)) __inputIndex)
+                            ;; The input index is beyond the number of outputs, it's a buggy signature made by a broken
+                            ;; Bitcoin implementation.  Bitcoin Core also contains a bug in handling this case:
+                            ;; any transaction output that is signed in this case will result in both the signed output
+                            ;; and any future outputs to this public key being steal-able by anyone who has
+                            ;; the resulting signature and the public key (both of which are part of the signed tx input).
+
+                            ;; Bitcoin Core's bug is that SignatureHash was supposed to return a hash and on this codepath it
+                            ;; actually returns the constant "1" to indicate an error, which is never checked for.  Oops.
+                            (§ return (Sha256Hash'wrap "0100000000000000000000000000000000000000000000000000000000000000"))
+                        )
+                        ;; In SIGHASH_SINGLE the outputs after the matching input index are deleted, and the outputs before
+                        ;; that position are "nulled out".  Unintuitively, the value in a "null" transaction is set to -1.
+                        (§ assoc tx :outputs (ArrayList. #_"<>" (.. (:outputs tx) (subList 0, (inc __inputIndex)))))
+                        (loop-when-recur [#_"int" i 0] (< i __inputIndex) [(inc i)]
+                            (.. (:outputs tx) (set i, (TransactionOutput. (:params tx), tx, Coin'NEGATIVE_SATOSHI, (byte-array 0))))
+                        )
+                        ;; The signature isn't broken by new versions of the transaction issued by other parties.
+                        (loop-when-recur [#_"int" i 0] (< i (.. (:inputs tx) (size))) [(inc i)]
+                            (when (not= i __inputIndex)
+                                (.. (:inputs tx) (get i) (setSequenceNumber 0))
+                            )
+                        )
+                    )
+                )
+
+                (when (= (& __sigHashType (:value SigHash'ANYONECANPAY)) (:value SigHash'ANYONECANPAY))
+                    ;; SIGHASH_ANYONECANPAY means the signature in the input is not broken by changes/additions/removals
+                    ;; of other inputs.  For example, this is useful for building assurance contracts.
+                    (§ assoc tx :inputs (ArrayList. #_"<TransactionInput>"))
+                    (.. (:inputs tx) (add input))
+                )
+
+                (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (if (= (:length tx) Message'UNKNOWN_LENGTH) 256 (+ (:length tx) 4)))]
+                    (.. tx (bitcoinSerialize baos))
+                    ;; We also have to write a hash type (sigHashType is actually an unsigned char).
+                    (Utils'uint32ToByteStreamLE (& 0x000000ff __sigHashType), baos)
+                    ;; Note that this is NOT reversed to ensure it will be signed correctly.  If it were to be printed out
+                    ;; however then we would expect that it is IS reversed.
+                    (Sha256Hash'twiceOf (.. baos (toByteArray)))
+                )
             )
         )
     )
 
     #_override
     #_protected
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
-        (Utils'uint32ToByteStreamLE (:version this), stream)
-        (.. stream (write (.. (VarInt. (.. (:inputs this) (size))) (encode))))
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
+        (Utils'uint32ToByteStreamLE (:version this), baos)
+        (.. baos (write (.. (VarInt. (.. (:inputs this) (size))) (encode))))
         (doseq [#_"TransactionInput" in (:inputs this)]
-            (.. in (bitcoinSerialize stream))
+            (.. in (bitcoinSerialize baos))
         )
-        (.. stream (write (.. (VarInt. (.. (:outputs this) (size))) (encode))))
+        (.. baos (write (.. (VarInt. (.. (:outputs this) (size))) (encode))))
         (doseq [#_"TransactionOutput" out (:outputs this)]
-            (.. out (bitcoinSerialize stream))
+            (.. out (bitcoinSerialize baos))
         )
-        (Utils'uint32ToByteStreamLE (:lock-time this), stream)
+        (Utils'uint32ToByteStreamLE (:lock-time this), baos)
         nil
     )
 
@@ -18120,12 +18044,11 @@
 
     #_override
     #_protected
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
-        (.. (:outpoint this) (bitcoinSerialize stream))
-        (.. stream (write (.. (VarInt. (alength (:script-bytes this))) (encode))))
-        (.. stream (write (:script-bytes this)))
-        (Utils'uint32ToByteStreamLE (:sequence this), stream)
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
+        (.. (:outpoint this) (bitcoinSerialize baos))
+        (.. baos (write (.. (VarInt. (alength (:script-bytes this))) (encode))))
+        (.. baos (write (:script-bytes this)))
+        (Utils'uint32ToByteStreamLE (:sequence this), baos)
         nil
     )
 
@@ -18650,10 +18573,9 @@
 
     #_override
     #_protected
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
-        (.. stream (write (.. (:hash this) (getReversedBytes))))
-        (Utils'uint32ToByteStreamLE (:index this), stream)
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
+        (.. baos (write (.. (:hash this) (getReversedBytes))))
+        (Utils'uint32ToByteStreamLE (:index this), baos)
         nil
     )
 
@@ -18965,14 +18887,13 @@
 
     #_override
     #_protected
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" stream]
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
         (ensure some? (:script-bytes this))
 
-        (Utils'int64ToByteStreamLE (:value this), stream)
+        (Utils'int64ToByteStreamLE (:value this), baos)
         ;; TODO: Move script serialization into the Script class, where it belongs.
-        (.. stream (write (.. (VarInt. (alength (:script-bytes this))) (encode))))
-        (.. stream (write (:script-bytes this)))
+        (.. baos (write (.. (VarInt. (alength (:script-bytes this))) (encode))))
+        (.. baos (write (:script-bytes this)))
         nil
     )
 
@@ -20188,19 +20109,13 @@
     #_public
     #_static
     (§ defn #_"byte[]" Utils'formatMessageForSigning [#_"String" message]
-        (try
-            (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
-                (.. baos (write (alength Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES)))
-                (.. baos (write Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES))
-                (let [#_"byte[]" bytes (.. message (getBytes Charsets/UTF_8))
-                      #_"VarInt" size (VarInt. (alength bytes))]
-                    (.. baos (write (.. size (encode))))
-                    (.. baos (write bytes))
-                    (.. baos (toByteArray))
-                )
-            )
-            (catch IOException e
-                (throw (RuntimeException. e)) ;; Cannot happen.
+        (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
+            (.. baos (write (alength Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES)))
+            (.. baos (write Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES))
+            (let [#_"byte[]" bytes (.. message (getBytes Charsets/UTF_8)) #_"VarInt" size (VarInt. (alength bytes))]
+                (.. baos (write (.. size (encode))))
+                (.. baos (write bytes))
+                (.. baos (toByteArray))
             )
         )
     )
@@ -20371,31 +20286,6 @@
     (§ defn #_"String" Utils'getResourceAsString [#_"URL" url]
         (let [#_"List<String>" lines (Resources/readLines url, Charsets/UTF_8)]
             (.. (Joiner/on "\n") (join lines))
-        )
-    )
-
-    ;; Can't use Closeable here because it's Java 7 only and Android devices only got that with KitKat.
-    #_public
-    #_static
-    (§ defn #_"InputStream" Utils'closeUnchecked [#_"InputStream" stream]
-        (try
-            (.. stream (close))
-            stream
-            (catch IOException e
-                (throw (RuntimeException. e))
-            )
-        )
-    )
-
-    #_public
-    #_static
-    (§ defn #_"OutputStream" Utils'closeUnchecked [#_"OutputStream" stream]
-        (try
-            (.. stream (close))
-            stream
-            (catch IOException e
-                (throw (RuntimeException. e))
-            )
         )
     )
 )
@@ -20705,18 +20595,17 @@
 
     #_override
     #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" bitcoinSerializeToStream [#_"OutputStream" buf]
-        (Utils'uint32ToByteStreamLE (:client-version this), buf)
-        (Utils'uint32ToByteStreamLE (:local-services this), buf)
-        (Utils'uint32ToByteStreamLE (>> (:local-services this) 32), buf)
-        (Utils'uint32ToByteStreamLE (:time this), buf)
-        (Utils'uint32ToByteStreamLE (>> (:time this) 32), buf)
+    (§ method #_"void" bitcoinSerializeToStream [#_"ByteArrayOutputStream" baos]
+        (Utils'uint32ToByteStreamLE (:client-version this), baos)
+        (Utils'uint32ToByteStreamLE (:local-services this), baos)
+        (Utils'uint32ToByteStreamLE (>> (:local-services this) 32), baos)
+        (Utils'uint32ToByteStreamLE (:time this), baos)
+        (Utils'uint32ToByteStreamLE (>> (:time this) 32), baos)
         (try
             ;; My address.
-            (.. (:my-addr this) (bitcoinSerialize buf))
+            (.. (:my-addr this) (bitcoinSerialize baos))
             ;; Their address.
-            (.. (:their-addr this) (bitcoinSerialize buf))
+            (.. (:their-addr this) (bitcoinSerialize baos))
             (catch UnknownHostException e
                 (throw (RuntimeException. e)) ;; Can't happen.
             )
@@ -20726,15 +20615,15 @@
         )
         ;; Next up is the "local host nonce", this is to detect the case of connecting back to yourself.
         ;; We don't care about this as we won't be accepting inbound connections.
-        (Utils'uint32ToByteStreamLE 0, buf)
-        (Utils'uint32ToByteStreamLE 0, buf)
+        (Utils'uint32ToByteStreamLE 0, baos)
+        (Utils'uint32ToByteStreamLE 0, baos)
         ;; Now comes subVer.
         (let [#_"byte[]" __subVerBytes (.. (:sub-ver this) (getBytes "UTF-8"))]
-            (.. buf (write (.. (VarInt. (alength __subVerBytes)) (encode))))
-            (.. buf (write __subVerBytes))
+            (.. baos (write (.. (VarInt. (alength __subVerBytes)) (encode))))
+            (.. baos (write __subVerBytes))
             ;; Size of known block chain.
-            (Utils'uint32ToByteStreamLE (:best-height this), buf)
-            (.. buf (write (if (:relay-txes-before-filter this) 1 0)))
+            (Utils'uint32ToByteStreamLE (:best-height this), baos)
+            (.. baos (write (if (:relay-txes-before-filter this) 1 0)))
         )
         nil
     )
@@ -22951,14 +22840,6 @@
     )
 
     ;;;
-     ; Gets the word list this code uses.
-     ;;
-    #_public
-    (§ method #_"List<String>" getWordList []
-        (:word-list this)
-    )
-
-    ;;;
      ; Convert mnemonic word list to seed.
      ;;
     #_public
@@ -23420,14 +23301,9 @@
      ;;
     #_public
     (§ method #_"byte[]" encodeToBitcoin []
-        (try
-            (let [#_"ByteArrayOutputStream" baos (.. this (derByteStream))]
-                (.. baos (write (:sighash-flags this)))
-                (.. baos (toByteArray))
-            )
-            (catch IOException e
-                (throw (RuntimeException. e)) ;; Cannot happen.
-            )
+        (let [#_"ByteArrayOutputStream" baos (.. this (derByteStream))]
+            (.. baos (write (:sighash-flags this)))
+            (.. baos (toByteArray))
         )
     )
 
@@ -23650,7 +23526,12 @@
     #_public
     (§ method #_"WalletAppKit" setCheckpoints [#_"InputStream" checkpoints]
         (when (some? (:checkpoints this))
-            (Utils'closeUnchecked (:checkpoints this))
+            (try
+                (.. (:checkpoints this) (close))
+                (catch IOException e
+                    (throw (RuntimeException. e))
+                )
+            )
         )
         (§ assoc this :checkpoints (ensure some? checkpoints))
         this
@@ -26503,10 +26384,10 @@
 
     #_public
     #_throws #_[ "ScriptException" ]
-    (§ constructor Script [#_"byte[]" __programBytes, #_"long" __creationTimeSeconds]
+    (§ constructor Script [#_"byte[]" __programBytes, #_"long" secs]
         (§ assoc this :program __programBytes)
         (.. this (parse __programBytes))
-        (§ assoc this :creation-time-seconds __creationTimeSeconds)
+        (§ assoc this :creation-time-seconds secs)
         this
     )
 
@@ -26516,8 +26397,8 @@
     )
 
     #_public
-    (§ method #_"void" setCreationTimeSeconds [#_"long" __creationTimeSeconds]
-        (§ assoc this :creation-time-seconds __creationTimeSeconds)
+    (§ method #_"void" setCreationTimeSeconds [#_"long" secs]
+        (§ assoc this :creation-time-seconds secs)
         nil
     )
 
@@ -26533,20 +26414,15 @@
     ;;; Returns the serialized program as a newly created byte array. ;;
     #_public
     (§ method #_"byte[]" getProgram []
-        (try
-            ;; Don't round-trip as Bitcoin Core doesn't and it would introduce a mismatch.
-            (if (some? (:program this))
-                (Arrays/copyOf (:program this), (alength (:program this)))
-                (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
-                    (doseq [#_"ScriptChunk" chunk (:chunks this)]
-                        (.. chunk (write baos))
-                    )
-                    (§ assoc this :program (.. baos (toByteArray)))
-                    (:program this)
+        ;; Don't round-trip as Bitcoin Core doesn't and it would introduce a mismatch.
+        (if (some? (:program this))
+            (Arrays/copyOf (:program this), (alength (:program this)))
+            (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
+                (doseq [#_"ScriptChunk" chunk (:chunks this)]
+                    (.. chunk (writeChunk baos))
                 )
-            )
-            (catch IOException e
-                (throw (RuntimeException. e)) ;; Cannot happen.
+                (§ assoc this :program (.. baos (toByteArray)))
+                (:program this)
             )
         )
     )
@@ -26583,7 +26459,7 @@
         (let [#_"ByteArrayInputStream" bis (ByteArrayInputStream. program)
               #_"int" __initialSize (.. bis (available))]
             (while (< 0 (.. bis (available)))
-                (let [#_"int" __startLocationInProgram (- __initialSize (.. bis (available)))
+                (let [#_"int" start (- __initialSize (.. bis (available)))
                       #_"int" opcode (.. bis (read))]
 
                     (let [#_"long" __dataToRead -1]
@@ -26621,7 +26497,7 @@
                         (let [#_"ScriptChunk" chunk]
                             (cond (= __dataToRead -1)
                                 (do
-                                    (§ ass chunk (ScriptChunk. opcode, nil, __startLocationInProgram))
+                                    (§ ass chunk (ScriptChunk. opcode, nil, start))
                                 )
                                 :else
                                 (do
@@ -26631,7 +26507,7 @@
 
                                     (let [#_"byte[]" data (byte-array (int __dataToRead))]
                                         (assert-state (or (= __dataToRead 0) (= (.. bis (read data, 0, (int __dataToRead))) __dataToRead)))
-                                        (§ ass chunk (ScriptChunk. opcode, data, __startLocationInProgram))
+                                        (§ ass chunk (ScriptChunk. opcode, data, start))
                                     )
                                 )
                             )
@@ -26803,24 +26679,24 @@
     #_public
     #_static
     #_throws #_[ "IOException" ]
-    (§ defn #_"void" Script'writeBytes [#_"OutputStream" os, #_"byte[]" buf]
+    (§ defn #_"void" Script'writeBytes [#_"OutputStream" stream, #_"byte[]" buf]
         (cond (< (alength buf) ScriptOpCodes'OP_PUSHDATA1)
             (do
-                (.. os (write (alength buf)))
-                (.. os (write buf))
+                (.. stream (write (alength buf)))
+                (.. stream (write buf))
             )
             (< (alength buf) 256)
             (do
-                (.. os (write ScriptOpCodes'OP_PUSHDATA1))
-                (.. os (write (alength buf)))
-                (.. os (write buf))
+                (.. stream (write ScriptOpCodes'OP_PUSHDATA1))
+                (.. stream (write (alength buf)))
+                (.. stream (write buf))
             )
             (< (alength buf) 65536)
             (do
-                (.. os (write ScriptOpCodes'OP_PUSHDATA2))
-                (.. os (write (& 0xff (alength buf))))
-                (.. os (write (& 0xff (>> (alength buf) 8))))
-                (.. os (write buf))
+                (.. stream (write ScriptOpCodes'OP_PUSHDATA2))
+                (.. stream (write (& 0xff (alength buf))))
+                (.. stream (write (& 0xff (>> (alength buf) 8))))
+                (.. stream (write buf))
             )
             :else
             (do
@@ -26842,50 +26718,35 @@
             (.. Script'log (warn "Creating a multi-signature output that is non-standard: {} pubkeys, should be <= 3", (.. pubkeys (size))))
         )
 
-        (try
-            (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
-                (.. baos (write (Script'encodeToOpN threshold)))
-                (doseq [#_"ECKey" key pubkeys]
-                    (Script'writeBytes baos, (.. key (getPubKey)))
-                )
-                (.. baos (write (Script'encodeToOpN (.. pubkeys (size)))))
-                (.. baos (write ScriptOpCodes'OP_CHECKMULTISIG))
-                (.. baos (toByteArray))
+        (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
+            (.. baos (write (Script'encodeToOpN threshold)))
+            (doseq [#_"ECKey" key pubkeys]
+                (Script'writeBytes baos, (.. key (getPubKey)))
             )
-            (catch IOException e
-                (throw (RuntimeException. e)) ;; Cannot happen.
-            )
+            (.. baos (write (Script'encodeToOpN (.. pubkeys (size)))))
+            (.. baos (write ScriptOpCodes'OP_CHECKMULTISIG))
+            (.. baos (toByteArray))
         )
     )
 
     #_public
     #_static
     (§ defn #_"byte[]" Script'createInputScript [#_"byte[]" signature, #_"byte[]" pubkey]
-        (try
-            ;; TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
-            (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (+ (alength signature) (alength pubkey) 2))]
-                (Script'writeBytes baos, signature)
-                (Script'writeBytes baos, pubkey)
-                (.. baos (toByteArray))
-            )
-            (catch IOException e
-                (throw (RuntimeException. e))
-            )
+        ;; TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
+        (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (+ (alength signature) (alength pubkey) 2))]
+            (Script'writeBytes baos, signature)
+            (Script'writeBytes baos, pubkey)
+            (.. baos (toByteArray))
         )
     )
 
     #_public
     #_static
     (§ defn #_"byte[]" Script'createInputScript [#_"byte[]" signature]
-        (try
-            ;; TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
-            (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (+ (alength signature) 2))]
-                (Script'writeBytes baos, signature)
-                (.. baos (toByteArray))
-            )
-            (catch IOException e
-                (throw (RuntimeException. e))
-            )
+        ;; TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
+        (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (+ (alength signature) 2))]
+            (Script'writeBytes baos, signature)
+            (.. baos (toByteArray))
         )
     )
 
@@ -27254,49 +27115,37 @@
      ;;
     #_public
     #_static
-    (§ defn #_"byte[]" Script'removeAllInstancesOf [#_"byte[]" __inputScript, #_"byte[]" __chunkToRemove]
+    (§ defn #_"byte[]" Script'removeAllInstancesOf [#_"byte[]" script, #_"byte[]" chunk]
         ;; We usually don't end up removing anything.
-        (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (alength __inputScript))]
-
-            (let [#_"int" cursor 0]
-                (loop-when-recur [] (< cursor (alength __inputScript)) []
-                    (let [#_"boolean" skip (Script'equalsRange __inputScript, cursor, __chunkToRemove)]
-
-                        (let [#_"int" opcode (& 0xff (aget __inputScript cursor))]
-                            (§ ass cursor (inc cursor))
-                            (let [#_"int" __additionalBytes
-                                    (cond
-                                        (<= 0 opcode (dec ScriptOpCodes'OP_PUSHDATA1))
-                                            opcode
-                                        (= opcode ScriptOpCodes'OP_PUSHDATA1)
-                                            (inc (& 0xff (aget __inputScript cursor)))
-                                        (= opcode ScriptOpCodes'OP_PUSHDATA2)
-                                            (+ (| (& 0xff (aget __inputScript cursor))
-                                              (<< (& 0xff (aget __inputScript (inc cursor))) 8)) 2)
-                                        (= opcode ScriptOpCodes'OP_PUSHDATA4)
-                                            (+ (| (& 0xff (aget __inputScript cursor))
-                                              (<< (& 0xff (aget __inputScript (inc cursor))) 8)
-                                              (<< (& 0xff (aget __inputScript (inc cursor))) 16)
-                                              (<< (& 0xff (aget __inputScript (inc cursor))) 24)) 4)
-                                        :else
-                                            0
-                                    )]
-                                (when (not skip)
-                                    (try
-                                        (.. baos (write opcode))
-                                        (.. baos (write (Arrays/copyOfRange __inputScript, cursor, (+ cursor __additionalBytes))))
-                                        (catch IOException e
-                                            (throw (RuntimeException. e))
-                                        )
-                                    )
-                                )
-                                (§ ass cursor (+ cursor __additionalBytes))
-                            )
-                        )
+        (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (alength script))]
+            (loop-when [#_"int" i 0] (< i (alength script))
+                (let [#_"boolean" skip? (Script'equalsRange script, i, chunk)
+                      #_"int" opcode (& 0xff (aget script i)) i (inc i)
+                      #_"int" m
+                        (cond
+                            (<= 0 opcode (dec ScriptOpCodes'OP_PUSHDATA1))
+                                opcode
+                            (= opcode ScriptOpCodes'OP_PUSHDATA1)
+                                (inc (& 0xff (aget script i)))
+                            (= opcode ScriptOpCodes'OP_PUSHDATA2)
+                                (+ (| (& 0xff (aget script i))
+                                  (<< (& 0xff (aget script (inc i))) 8)) 2)
+                            (= opcode ScriptOpCodes'OP_PUSHDATA4)
+                                (+ (| (& 0xff (aget script i))
+                                  (<< (& 0xff (aget script (inc i))) 8)
+                                  (<< (& 0xff (aget script (inc i))) 16)
+                                  (<< (& 0xff (aget script (inc i))) 24)) 4)
+                            :else
+                                0
+                        )]
+                    (when-not skip?
+                        (.. baos (write opcode))
+                        (.. baos (write (Arrays/copyOfRange script, i, (+ i m))))
                     )
+                    (recur (+ i m))
                 )
-                (.. baos (toByteArray))
             )
+            (.. baos (toByteArray))
         )
     )
 
@@ -27305,8 +27154,8 @@
      ;;
     #_public
     #_static
-    (§ defn #_"byte[]" Script'removeAllInstancesOfOp [#_"byte[]" __inputScript, #_"int" __opCode]
-        (Script'removeAllInstancesOf __inputScript, (byte-array [ (byte __opCode)]))
+    (§ defn #_"byte[]" Script'removeAllInstancesOfOp [#_"byte[]" script, #_"int" opcode]
+        (Script'removeAllInstancesOf script, (byte-array [ (byte opcode) ]))
     )
 
     #_private
@@ -28076,12 +27925,7 @@
                       #_"byte[]" __connectedScript (Arrays/copyOfRange prog, __lastCodeSepLocation, (alength prog))]
 
                     (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (inc (alength __sigBytes)))]
-                        (try
-                            (Script'writeBytes baos, __sigBytes)
-                            (catch IOException e
-                                (throw (RuntimeException. e)) ;; Cannot happen.
-                            )
-                        )
+                        (Script'writeBytes baos, __sigBytes)
                         (§ ass __connectedScript (Script'removeAllInstancesOf __connectedScript, (.. baos (toByteArray))))
 
                         ;; TODO: Use int for indexes everywhere, we can't have that many inputs/outputs.
@@ -28168,12 +28012,7 @@
 
                                 (doseq [#_"byte[]" sig sigs]
                                     (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (inc (alength sig)))]
-                                        (try
-                                            (Script'writeBytes baos, sig)
-                                            (catch IOException e
-                                                (throw (RuntimeException. e)) ;; Cannot happen.
-                                            )
-                                        )
+                                        (Script'writeBytes baos, sig)
                                         (§ ass __connectedScript (Script'removeAllInstancesOf __connectedScript, (.. baos (toByteArray))))
                                     )
                                 )
@@ -28919,10 +28758,10 @@
     )
 
     #_public
-    (§ constructor ScriptChunk [#_"int" opcode, #_"byte[]" data, #_"int" __startLocationInProgram]
+    (§ constructor ScriptChunk [#_"int" opcode, #_"byte[]" data, #_"int" start]
         (§ assoc this :opcode opcode)
         (§ assoc this :data data)
-        (§ assoc this :start-location-in-program __startLocationInProgram)
+        (§ assoc this :start-location-in-program start)
         this
     )
 
@@ -28997,49 +28836,48 @@
     )
 
     #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" write [#_"OutputStream" stream]
+    (§ method #_"void" writeChunk [#_"ByteArrayOutputStream" baos]
         (cond (.. this (isOpCode))
             (do
                 (assert-state (nil? (:data this)))
-                (.. stream (write (:opcode this)))
+                (.. baos (write (:opcode this)))
             )
             (some? (:data this))
             (do
                 (cond (< (:opcode this) ScriptOpCodes'OP_PUSHDATA1)
                     (do
                         (assert-state (= (alength (:data this)) (:opcode this)))
-                        (.. stream (write (:opcode this)))
+                        (.. baos (write (:opcode this)))
                     )
                     (= (:opcode this) ScriptOpCodes'OP_PUSHDATA1)
                     (do
                         (assert-state (<= (alength (:data this)) 0xff))
-                        (.. stream (write ScriptOpCodes'OP_PUSHDATA1))
-                        (.. stream (write (alength (:data this))))
+                        (.. baos (write ScriptOpCodes'OP_PUSHDATA1))
+                        (.. baos (write (alength (:data this))))
                     )
                     (= (:opcode this) ScriptOpCodes'OP_PUSHDATA2)
                     (do
                         (assert-state (<= (alength (:data this)) 0xffff))
-                        (.. stream (write ScriptOpCodes'OP_PUSHDATA2))
-                        (.. stream (write (& 0xff (alength (:data this)))))
-                        (.. stream (write (& 0xff (>> (alength (:data this)) 8))))
+                        (.. baos (write ScriptOpCodes'OP_PUSHDATA2))
+                        (.. baos (write (& 0xff (alength (:data this)))))
+                        (.. baos (write (& 0xff (>> (alength (:data this)) 8))))
                     )
                     (= (:opcode this) ScriptOpCodes'OP_PUSHDATA4)
                     (do
                         (assert-state (<= (alength (:data this)) Script'MAX_SCRIPT_ELEMENT_SIZE))
-                        (.. stream (write ScriptOpCodes'OP_PUSHDATA4))
-                        (Utils'uint32ToByteStreamLE (alength (:data this)), stream)
+                        (.. baos (write ScriptOpCodes'OP_PUSHDATA4))
+                        (Utils'uint32ToByteStreamLE (alength (:data this)), baos)
                     )
                     :else
                     (do
                         (throw (RuntimeException. "Unimplemented"))
                     )
                 )
-                (.. stream (write (:data this)))
+                (.. baos (write (:data this)))
             )
             :else
             (do
-                (.. stream (write (:opcode this))) ;; smallNum
+                (.. baos (write (:opcode this))) ;; smallNum
             )
         )
         nil
@@ -34834,16 +34672,16 @@
 
     #_public
     #_throws #_[ "UnreadableWalletException" ]
-    (§ constructor DeterministicSeed [#_"String" __mnemonicCode, #_"byte[]" seed, #_"String" passphrase, #_"long" __creationTimeSeconds]
-        (§ this (DeterministicSeed'decodeMnemonicCode __mnemonicCode), seed, passphrase, __creationTimeSeconds)
+    (§ constructor DeterministicSeed [#_"String" __mnemonicCode, #_"byte[]" seed, #_"String" passphrase, #_"long" secs]
+        (§ this (DeterministicSeed'decodeMnemonicCode __mnemonicCode), seed, passphrase, secs)
         this
     )
 
     #_public
-    (§ constructor DeterministicSeed [#_"byte[]" seed, #_"List<String>" mnemonic, #_"long" __creationTimeSeconds]
+    (§ constructor DeterministicSeed [#_"byte[]" seed, #_"List<String>" mnemonic, #_"long" secs]
         (§ assoc this :seed (ensure some? seed))
         (§ assoc this :mnemonic-code (ensure some? mnemonic))
-        (§ assoc this :creation-time-seconds __creationTimeSeconds)
+        (§ assoc this :creation-time-seconds secs)
         this
     )
 
@@ -34857,8 +34695,8 @@
      ; @param creationTimeSeconds When the seed was originally created, UNIX time.
      ;;
     #_public
-    (§ constructor DeterministicSeed [#_"List<String>" __mnemonicCode, #_nilable #_"byte[]" seed, #_"String" passphrase, #_"long" __creationTimeSeconds]
-        (§ this (or seed (MnemonicCode'toSeed __mnemonicCode, (ensure some? passphrase))), __mnemonicCode, __creationTimeSeconds)
+    (§ constructor DeterministicSeed [#_"List<String>" __mnemonicCode, #_nilable #_"byte[]" seed, #_"String" passphrase, #_"long" secs]
+        (§ this (or seed (MnemonicCode'toSeed __mnemonicCode, (ensure some? passphrase))), __mnemonicCode, secs)
         this
     )
 
@@ -34872,8 +34710,8 @@
      ; @param creationTimeSeconds When the seed was originally created, UNIX time.
      ;;
     #_public
-    (§ constructor DeterministicSeed [#_"SecureRandom" random, #_"int" bits, #_"String" passphrase, #_"long" __creationTimeSeconds]
-        (§ this (DeterministicSeed'getEntropy random, bits), (ensure some? passphrase), __creationTimeSeconds)
+    (§ constructor DeterministicSeed [#_"SecureRandom" random, #_"int" bits, #_"String" passphrase, #_"long" secs]
+        (§ this (DeterministicSeed'getEntropy random, bits), (ensure some? passphrase), secs)
         this
     )
 
@@ -34886,7 +34724,7 @@
      ; @param creationTimeSeconds When the seed was originally created, UNIX time.
      ;;
     #_public
-    (§ constructor DeterministicSeed [#_"byte[]" entropy, #_"String" passphrase, #_"long" __creationTimeSeconds]
+    (§ constructor DeterministicSeed [#_"byte[]" entropy, #_"String" passphrase, #_"long" secs]
         (assert-argument (= (rem (alength entropy) 4) 0), "entropy size in bits not divisible by 32")
         (assert-argument (<= DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS (* (alength entropy) 8)), "entropy size too small")
         (ensure some? passphrase)
@@ -34898,7 +34736,7 @@
             )
         )
         (§ assoc this :seed (MnemonicCode'toSeed (:mnemonic-code this), passphrase))
-        (§ assoc this :creation-time-seconds __creationTimeSeconds)
+        (§ assoc this :creation-time-seconds secs)
         this
     )
 
@@ -34946,8 +34784,8 @@
     )
 
     #_public
-    (§ method #_"void" setCreationTimeSeconds [#_"long" __creationTimeSeconds]
-        (§ assoc this :creation-time-seconds __creationTimeSeconds)
+    (§ method #_"void" setCreationTimeSeconds [#_"long" secs]
+        (§ assoc this :creation-time-seconds secs)
         nil
     )
 
@@ -36944,9 +36782,9 @@
      ;;
     #_public
     #_static
-    (§ defn #_"Wallet" Wallet'fromWatchingKeyB58 [#_"NetworkParameters" params, #_"String" __watchKeyB58, #_"long" __creationTimeSeconds]
+    (§ defn #_"Wallet" Wallet'fromWatchingKeyB58 [#_"NetworkParameters" params, #_"String" __watchKeyB58, #_"long" secs]
         (let [#_"DeterministicKey" __watchKey (DeterministicKey'deserializeB58 nil, __watchKeyB58, params)]
-            (.. __watchKey (setCreationTimeSeconds __creationTimeSeconds))
+            (.. __watchKey (setCreationTimeSeconds secs))
             (Wallet'fromWatchingKey params, __watchKey)
         )
     )
@@ -37878,10 +37716,10 @@
      ;;
     #_public
     #_throws #_[ "IOException" ]
-    (§ method #_"void" saveToFileStream [#_"OutputStream" f]
+    (§ method #_"void" saveToFileStream [#_"OutputStream" stream]
         (.. (:lock this) (lock))
         (try
-            (.. (WalletSerializer.) (writeWallet this, f))
+            (.. (WalletSerializer.) (writeWallet this, stream))
             (finally
                 (.. (:lock this) (unlock))
             )
@@ -41960,9 +41798,9 @@
      ;;
     #_public
     #_throws #_[ "IOException" ]
-    (§ method #_"void" writeWallet [#_"Wallet" wallet, #_"OutputStream" output]
+    (§ method #_"void" writeWallet [#_"Wallet" wallet, #_"OutputStream" stream]
         (let [#_"Protos.Wallet" proto (.. this (walletToProto wallet))
-              #_"CodedOutputStream" cos (CodedOutputStream/newInstance output, CodedOutputStream/DEFAULT_BUFFER_SIZE)]
+              #_"CodedOutputStream" cos (CodedOutputStream/newInstance stream, CodedOutputStream/DEFAULT_BUFFER_SIZE)]
             (.. proto (writeTo cos))
             (.. cos (flush))
         )
