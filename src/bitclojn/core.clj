@@ -77,22 +77,22 @@
 )
 
 ;;;
- ; An AbstractBlockChain holds a series of {@link Block} objects, links them together, and knows how to verify that
+ ; A BlockChain holds a series of {@link Block} objects, links them together, and knows how to verify that
  ; the chain follows the rules of the {@link NetworkParameters} for this chain.
  ;
  ; It can be connected to a {@link Wallet}, and also {@link TransactionReceivedInBlockListener}s that can receive
  ; transactions and notifications of re-organizations.
  ;
- ; An AbstractBlockChain implementation must be connected to a {@link BlockStore} implementation.  The chain object
+ ; A BlockChain implementation must be connected to a {@link BlockStore} implementation.  The chain object
  ; by itself doesn't store any data, that's delegated to the store.  Which store you use is a decision best made by
  ; reading the getting started guide, but briefly, fully validating block chains need fully validating stores.
  ; In the lightweight SPV mode, a {@link SPVBlockStore} is the right choice.
  ;
- ; This class implements an abstract class which makes it simple to create a BlockChain that does/doesn't do
+ ; This class implements an abstract class which makes it simple to create a SPVBlockChain that does/doesn't do
  ; full verification.  It verifies headers and is implements most of what is required to implement SPV mode, but
  ; also provides callback hooks which can be used to do full verification.
  ;
- ; There are two subclasses of AbstractBlockChain that are useful: {@link BlockChain}, which is the simplest
+ ; There are two subclasses of BlockChain that are useful: {@link SPVBlockChain}, which is the simplest
  ; class and implements <i>simplified payment verification</i>.  This is a lightweight and efficient mode that
  ; does not verify the contents of blocks, just their headers.  A {@link FullPrunedBlockChain} paired with a
  ; {@link H2FullPrunedBlockStore} implements full verification, which is equivalent to Bitcoin Core.
@@ -121,10 +121,10 @@
  ;;
 #_public
 #_abstract
-(§ class AbstractBlockChain
+(§ class BlockChain
     #_private
     #_static
-    (def- #_"Logger" AbstractBlockChain'log (LoggerFactory/getLogger AbstractBlockChain))
+    (def- #_"Logger" BlockChain'log (LoggerFactory/getLogger BlockChain))
 
     #_protected
     (§ field #_"ReentrantLock" :lock (Threading'lock "blockchain"))
@@ -145,9 +145,9 @@
     (§ field #_"StoredBlock" :chain-head)
 
     ;; TODO: Scrap this and use a proper read/write for all of the block chain objects.
-    ;; The chainHead field is read/written synchronized with this object rather than BlockChain.  However writing is
-    ;; also guaranteed to happen whilst BlockChain is synchronized (see setChainHead).  The goal of this is to let
-    ;; clients quickly access the chain head even whilst the block chain is downloading and thus the BlockChain is
+    ;; The chainHead field is read/written synchronized with this object rather than SPVBlockChain.  However writing is
+    ;; also guaranteed to happen whilst SPVBlockChain is synchronized (see setChainHead).  The goal of this is to let
+    ;; clients quickly access the chain head even whilst the block chain is downloading and thus the SPVBlockChain is
     ;; locked most of the time.
     #_private
     (§ field- #_"Object" :chain-head-lock (Object.))
@@ -185,11 +185,11 @@
     ;;; False positive estimation uses a double exponential moving average. ;;
     #_public
     #_static
-    (def #_"double" AbstractBlockChain'FP_ESTIMATOR_ALPHA 0.0001)
+    (def #_"double" BlockChain'FP_ESTIMATOR_ALPHA 0.0001)
     ;;; False positive estimation uses a double exponential moving average. ;;
     #_public
     #_static
-    (def #_"double" AbstractBlockChain'FP_ESTIMATOR_BETA 0.01)
+    (def #_"double" BlockChain'FP_ESTIMATOR_BETA 0.01)
 
     #_private
     (§ field- #_"double" :false-positive-rate)
@@ -201,23 +201,23 @@
     #_private
     (§ field- #_"VersionTally" :version-tally)
 
-    ;;; See {@link #AbstractBlockChain(Context, List, BlockStore)} ;;
+    ;;; See {@link #BlockChain(Context, List, BlockStore)} ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor AbstractBlockChain [#_"NetworkParameters" params, #_"List<? extends Wallet>" __transactionReceivedListeners, #_"BlockStore" __blockStore]
+    (§ constructor BlockChain [#_"NetworkParameters" params, #_"List<? extends Wallet>" __transactionReceivedListeners, #_"BlockStore" __blockStore]
         (§ this (Context'getOrCreate params), __transactionReceivedListeners, __blockStore)
         this
     )
 
     ;;;
-     ; Constructs a BlockChain connected to the given list of listeners (e.g. wallets) and a store.
+     ; Constructs a SPVBlockChain connected to the given list of listeners (e.g. wallets) and a store.
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor AbstractBlockChain [#_"Context" context, #_"List<? extends Wallet>" wallets, #_"BlockStore" __blockStore]
+    (§ constructor BlockChain [#_"Context" context, #_"List<? extends Wallet>" wallets, #_"BlockStore" __blockStore]
         (§ assoc this :block-store __blockStore)
         (§ assoc this :chain-head (.. __blockStore (getChainHead)))
-        (.. AbstractBlockChain'log (info "chain head is at height {}:\n{}", (.. (:chain-head this) (getHeight)), (.. (:chain-head this) (getHeader))))
+        (.. BlockChain'log (info "chain head is at height {}:\n{}", (.. (:chain-head this) (getHeight)), (.. (:chain-head this) (getHeader))))
         (§ assoc this :params (.. context (getParams)))
 
         (§ assoc this :new-best-block-listeners (CopyOnWriteArrayList. #_"<>"))
@@ -239,9 +239,9 @@
     )
 
     ;;;
-     ; Add a wallet to the BlockChain.  Note that the wallet will be unaffected by any blocks received while it
-     ; was not part of this BlockChain.  This method is useful if the wallet has just been created, and its keys
-     ; have never been in use, or if the wallet has been loaded along with the BlockChain.  Note that adding
+     ; Add a wallet to the SPVBlockChain.  Note that the wallet will be unaffected by any blocks received while it
+     ; was not part of this SPVBlockChain.  This method is useful if the wallet has just been created, and its keys
+     ; have never been in use, or if the wallet has been loaded along with the SPVBlockChain.  Note that adding
      ; multiple wallets is not well tested!
      ;;
     #_public
@@ -253,8 +253,8 @@
         (let [#_"int" __walletHeight (.. wallet (getLastBlockSeenHeight))
               #_"int" __chainHeight (.. this (getBestChainHeight))]
             (when (not= __walletHeight __chainHeight)
-                (.. AbstractBlockChain'log (warn "Wallet/chain height mismatch: {} vs {}", __walletHeight, __chainHeight))
-                (.. AbstractBlockChain'log (warn "Hashes: {} vs {}", (.. wallet (getLastBlockSeenHash)), (.. this (getChainHead) (getHeader) (getHash))))
+                (.. BlockChain'log (warn "Wallet/chain height mismatch: {} vs {}", __walletHeight, __chainHeight))
+                (.. BlockChain'log (warn "Hashes: {} vs {}", (.. wallet (getLastBlockSeenHash)), (.. this (getChainHead) (getHeader) (getHash))))
 
                 ;; This special case happens when the VM crashes because of a transaction received.  It causes the updated
                 ;; block store to persist, but not the wallet.  In order to fix the issue, we roll back the block store to
@@ -262,9 +262,9 @@
                 (when (< 0 __walletHeight __chainHeight)
                     (try
                         (.. this (rollbackBlockStore __walletHeight))
-                        (.. AbstractBlockChain'log (info "Rolled back block store to height {}.", __walletHeight))
+                        (.. BlockChain'log (info "Rolled back block store to height {}.", __walletHeight))
                         (catch BlockStoreException _
-                            (.. AbstractBlockChain'log (warn "Rollback of block store failed, continuing with mismatched heights. This can happen due to a replay."))
+                            (.. BlockChain'log (warn "Rollback of block store failed, continuing with mismatched heights. This can happen due to a replay."))
                         )
                     )
                 )
@@ -428,7 +428,7 @@
     (§ method #_"StoredBlock" addToBlockStore [#_"StoredBlock" __storedPrev, #_"Block" header, #_nilable #_"TransactionOutputChanges" __txOutputChanges])
 
     ;;;
-     ; Rollback the block store to a given height.  This is currently only supported by {@link BlockChain} instances.
+     ; Rollback the block store to a given height.  This is currently only supported by {@link SPVBlockChain} instances.
      ;
      ; @throws BlockStoreException if the operation fails or is unsupported.
      ;;
@@ -459,7 +459,7 @@
     (§ method #_"void" notSettingChainHead [])
 
     ;;;
-     ; For a standard BlockChain, this should return blockStore.get(hash),
+     ; For a standard SPVBlockChain, this should return blockStore.get(hash),
      ; for a FullPrunedBlockChain blockStore.getOnceUndoableStoredBlock(hash)
      ;;
     #_protected
@@ -603,8 +603,8 @@
                                 prior
                             )
                             (catch VerificationException e
-                                (.. AbstractBlockChain'log (error "Failed to verify block: ", e))
-                                (.. AbstractBlockChain'log (error (.. block (getHashAsString))))
+                                (.. BlockChain'log (error "Failed to verify block: ", e))
+                                (.. BlockChain'log (error (.. block (getHashAsString))))
                                 (throw e)
                             )
                         )]
@@ -627,7 +627,7 @@
                             ;; We can't find the previous block.  Probably we are still in the process of downloading the chain and
                             ;; a block was solved whilst we were doing it.  We put it to one side and try to connect it later when
                             ;; we have more blocks.
-                            (.. AbstractBlockChain'log (warn "Block does not connect: {} prev {}", (.. block (getHashAsString)), (.. block (getPrevBlockHash))))
+                            (.. BlockChain'log (warn "Block does not connect: {} prev {}", (.. block (getHashAsString)), (.. block (getPrevBlockHash))))
                             (.. (:orphan-blocks this) (put (.. block (getHash)), (OrphanBlock. block, __filteredTxHashList, __filteredTxn)))
                             false
                         )
@@ -684,12 +684,12 @@
                 (cond (.. __storedPrev (equals head))
                     (do
                         (when (and filtered (< 0 (.. __filteredTxn (size))))
-                            (.. AbstractBlockChain'log (debug "Block {} connects to top of best chain with {} transaction(s) of which we were sent {}", (.. block (getHashAsString)), (.. __filteredTxHashList (size)), (.. __filteredTxn (size))))
+                            (.. BlockChain'log (debug "Block {} connects to top of best chain with {} transaction(s) of which we were sent {}", (.. block (getHashAsString)), (.. __filteredTxHashList (size)), (.. __filteredTxn (size))))
                             (doseq [#_"Sha256Hash" hash __filteredTxHashList]
-                                (.. AbstractBlockChain'log (debug "  matched tx {}", hash))
+                                (.. BlockChain'log (debug "  matched tx {}", hash))
                             )
                         )
-                        (when (and __expensiveChecks (<= (.. block (getTimeSeconds)) (AbstractBlockChain'getMedianTimestampOfRecentBlocks head, (:block-store this))))
+                        (when (and __expensiveChecks (<= (.. block (getTimeSeconds)) (BlockChain'getMedianTimestampOfRecentBlocks head, (:block-store this))))
                             (throw (VerificationException. "Block's timestamp is too early"))
                         )
 
@@ -709,7 +709,7 @@
                               #_"StoredBlock" __newStoredBlock (.. this (addToBlockStore __storedPrev, (if (some? (:transactions block)) (.. block (cloneAsHeader)) block), __txOutChanges))]
                             (.. (:version-tally this) (add (.. block (getVersion))))
                             (.. this (setChainHead __newStoredBlock))
-                            (.. AbstractBlockChain'log (debug "Chain is now {} blocks high, running listeners", (.. __newStoredBlock (getHeight))))
+                            (.. BlockChain'log (debug "Chain is now {} blocks high, running listeners", (.. __newStoredBlock (getHeight))))
                             (.. this (informListenersForNewBlock block, :NewBlockType'BEST_CHAIN, __filteredTxHashList, __filteredTxn, __newStoredBlock))
                         )
                     )
@@ -723,16 +723,16 @@
                               #_"boolean" __haveNewBestChain (.. __newBlock (moreWorkThan head))]
                             (cond __haveNewBestChain
                                 (do
-                                    (.. AbstractBlockChain'log (info "Block is causing a re-organize"))
+                                    (.. BlockChain'log (info "Block is causing a re-organize"))
                                 )
                                 :else
                                 (do
-                                    (let [#_"StoredBlock" __splitPoint (AbstractBlockChain'findSplit __newBlock, head, (:block-store this))]
+                                    (let [#_"StoredBlock" __splitPoint (BlockChain'findSplit __newBlock, head, (:block-store this))]
                                         (when (and (some? __splitPoint) (.. __splitPoint (equals __newBlock)))
                                             ;; newStoredBlock is a part of the same chain, there's no fork.  This happens when we receive a block
                                             ;; that we already saw and linked into the chain previously, which isn't the chain head.
                                             ;; Re-processing it is confusing for the wallet so just skip.
-                                            (.. AbstractBlockChain'log (warn "Saw duplicated block in main chain at height {}: {}", (.. __newBlock (getHeight)), (.. __newBlock (getHeader) (getHash))))
+                                            (.. BlockChain'log (warn "Saw duplicated block in main chain at height {}: {}", (.. __newBlock (getHeight)), (.. __newBlock (getHeader) (getHash))))
                                             (§ return nil)
                                         )
 
@@ -748,7 +748,7 @@
                                                 (.. this (addToBlockStore __storedPrev, block))
                                                 (let [#_"int" __splitPointHeight (.. __splitPoint (getHeight))
                                                       #_"String" __splitPointHash (.. __splitPoint (getHeader) (getHashAsString))]
-                                                    (.. AbstractBlockChain'log (info "Block forks the chain at height {}/block {}, but it did not cause a reorganize:\n{}", __splitPointHeight, __splitPointHash, (.. __newBlock (getHeader) (getHashAsString))))
+                                                    (.. BlockChain'log (info "Block forks the chain at height {}/block {}, but it did not cause a reorganize:\n{}", __splitPointHeight, __splitPointHash, (.. __newBlock (getHeader) (getHashAsString))))
                                                 )
                                             )
                                         )
@@ -789,7 +789,7 @@
             (doseq [#_"ListenerRegistration<TransactionReceivedInBlockListener>" registration (:transaction-received-listeners this)]
                 (cond (= (:executor registration) Threading'SAME_THREAD)
                     (do
-                        (AbstractBlockChain'informListenerForNewTransactions block, __newBlockType, __filteredTxHashList, __filteredTxn, __newStoredBlock, first, (:listener registration), __falsePositives)
+                        (BlockChain'informListenerForNewTransactions block, __newBlockType, __filteredTxHashList, __filteredTxn, __newStoredBlock, first, (:listener registration), __falsePositives)
                     )
                     :else
                     (do
@@ -803,10 +803,10 @@
                                     (try
                                         ;; We can't do false-positive handling when executing on another thread.
                                         (let [#_"Set<Sha256Hash>" __ignoredFalsePositives (Sets/newHashSet)]
-                                            (AbstractBlockChain'informListenerForNewTransactions block, __newBlockType, __filteredTxHashList, __filteredTxn, __newStoredBlock, __notFirst, (:listener registration), __ignoredFalsePositives)
+                                            (BlockChain'informListenerForNewTransactions block, __newBlockType, __filteredTxHashList, __filteredTxn, __newStoredBlock, __notFirst, (:listener registration), __ignoredFalsePositives)
                                         )
                                         (catch VerificationException e
-                                            (.. AbstractBlockChain'log (error "Block chain listener threw exception: ", e))
+                                            (.. BlockChain'log (error "Block chain listener threw exception: ", e))
                                             ;; Don't attempt to relay this back to the original peer thread if this was an async listener invocation.
                                             ;; TODO: Make exception reporting a global feature and use it here.
                                         )
@@ -840,7 +840,7 @@
                                         (.. (:listener registration) (notifyNewBestBlock __newStoredBlock))
                                     )
                                     (catch VerificationException e
-                                        (.. AbstractBlockChain'log (error "Block chain listener threw exception: ", e))
+                                        (.. BlockChain'log (error "Block chain listener threw exception: ", e))
                                         ;; Don't attempt to relay this back to the original peer thread if this was an async listener invocation.
                                         ;; TODO: Make exception reporting a global feature and use it here.
                                     )
@@ -861,7 +861,7 @@
     #_private
     #_static
     #_throws #_[ "VerificationException" ]
-    (§ defn- #_"void" AbstractBlockChain'informListenerForNewTransactions [#_"Block" block, #_"NewBlockType" __newBlockType, #_nilable #_"List<Sha256Hash>" __filteredTxHashList, #_nilable #_"Map<Sha256Hash, Transaction>" __filteredTxn, #_"StoredBlock" __newStoredBlock, #_"boolean" first, #_"TransactionReceivedInBlockListener" listener, #_"Set<Sha256Hash>" __falsePositives]
+    (§ defn- #_"void" BlockChain'informListenerForNewTransactions [#_"Block" block, #_"NewBlockType" __newBlockType, #_nilable #_"List<Sha256Hash>" __filteredTxHashList, #_nilable #_"Map<Sha256Hash, Transaction>" __filteredTxn, #_"StoredBlock" __newStoredBlock, #_"boolean" first, #_"TransactionReceivedInBlockListener" listener, #_"Set<Sha256Hash>" __falsePositives]
         (cond (some? (:transactions block))
             (do
                 ;; If this is not the first wallet, ask for the transactions to be duplicated before being given
@@ -869,7 +869,7 @@
                 ;; is relevant to both of them, they don't end up accidentally sharing the same object (which can
                 ;; result in temporary in-memory corruption during re-orgs).  See bug 257.  We only duplicate in
                 ;; the case of multiple wallets to avoid an unnecessary efficiency hit in the common case.
-                (AbstractBlockChain'sendTransactionsToListener __newStoredBlock, __newBlockType, listener, 0, (:transactions block), (not first), __falsePositives)
+                (BlockChain'sendTransactionsToListener __newStoredBlock, __newBlockType, listener, 0, (:transactions block), (not first), __falsePositives)
             )
             (some? __filteredTxHashList)
             (do
@@ -882,7 +882,7 @@
                         (let [#_"Transaction" tx (.. __filteredTxn (get hash))]
                             (cond (some? tx)
                                 (do
-                                    (AbstractBlockChain'sendTransactionsToListener __newStoredBlock, __newBlockType, listener, __relativityOffset, (Collections/singletonList tx), (not first), __falsePositives)
+                                    (BlockChain'sendTransactionsToListener __newStoredBlock, __newBlockType, listener, __relativityOffset, (Collections/singletonList tx), (not first), __falsePositives)
                                 )
                                 (.. listener (notifyTransactionIsInBlock hash, __newStoredBlock, __newBlockType, __relativityOffset))
                                 (do
@@ -904,7 +904,7 @@
     #_private
     #_static
     #_throws #_[ "BlockStoreException" ]
-    (§ defn- #_"long" AbstractBlockChain'getMedianTimestampOfRecentBlocks [#_"StoredBlock" __storedBlock, #_"BlockStore" store]
+    (§ defn- #_"long" BlockChain'getMedianTimestampOfRecentBlocks [#_"StoredBlock" __storedBlock, #_"BlockStore" store]
         (let [#_"long[]" timestamps (long-array 11)
               #_"int" unused 9]
             (aset timestamps 10 (.. __storedBlock (getHeader) (getTimeSeconds)))
@@ -946,15 +946,15 @@
         ;; chain from beyond this block to find differences.
 
         (let [#_"StoredBlock" head (.. this (getChainHead))
-              #_"StoredBlock" __splitPoint (AbstractBlockChain'findSplit __newChainHead, head, (:block-store this))]
-            (.. AbstractBlockChain'log (info "Re-organize after split at height {}", (.. __splitPoint (getHeight))))
-            (.. AbstractBlockChain'log (info "Old chain head: {}", (.. head (getHeader) (getHashAsString))))
-            (.. AbstractBlockChain'log (info "New chain head: {}", (.. __newChainHead (getHeader) (getHashAsString))))
-            (.. AbstractBlockChain'log (info "Split at block: {}", (.. __splitPoint (getHeader) (getHashAsString))))
+              #_"StoredBlock" __splitPoint (BlockChain'findSplit __newChainHead, head, (:block-store this))]
+            (.. BlockChain'log (info "Re-organize after split at height {}", (.. __splitPoint (getHeight))))
+            (.. BlockChain'log (info "Old chain head: {}", (.. head (getHeader) (getHashAsString))))
+            (.. BlockChain'log (info "New chain head: {}", (.. __newChainHead (getHeader) (getHashAsString))))
+            (.. BlockChain'log (info "Split at block: {}", (.. __splitPoint (getHeader) (getHashAsString))))
 
             ;; Then build a list of all blocks in the old part of the chain and the new part.
-            (let [#_"LinkedList<StoredBlock>" __oldBlocks (AbstractBlockChain'getPartialChain head, __splitPoint, (:block-store this))
-                  #_"LinkedList<StoredBlock>" __newBlocks (AbstractBlockChain'getPartialChain __newChainHead, __splitPoint, (:block-store this))]
+            (let [#_"LinkedList<StoredBlock>" __oldBlocks (BlockChain'getPartialChain head, __splitPoint, (:block-store this))
+                  #_"LinkedList<StoredBlock>" __newBlocks (BlockChain'getPartialChain __newChainHead, __splitPoint, (:block-store this))]
 
                 ;; Disconnect each transaction in the previous main chain that is no longer in the new main chain.
                 (let [#_"StoredBlock" __storedNewHead __splitPoint]
@@ -976,7 +976,7 @@
                             ;; Walk in ascending chronological order.
                             (loop-when-recur [#_"Iterator<StoredBlock>" it (.. __newBlocks (descendingIterator))] (.. it (hasNext)) []
                                 (let [#_"StoredBlock" cursor (.. it (next)) #_"Block" __cursorBlock (.. cursor (getHeader))]
-                                    (when (and __expensiveChecks (<= (.. __cursorBlock (getTimeSeconds)) (AbstractBlockChain'getMedianTimestampOfRecentBlocks (.. cursor (getPrev (:block-store this))), (:block-store this))))
+                                    (when (and __expensiveChecks (<= (.. __cursorBlock (getTimeSeconds)) (BlockChain'getMedianTimestampOfRecentBlocks (.. cursor (getPrev (:block-store this))), (:block-store this))))
                                         (throw (VerificationException. "Block's timestamp is too early during reorg"))
                                     )
                                     (let [#_"TransactionOutputChanges" __txOutChanges
@@ -1016,7 +1016,7 @@
                                         (try
                                             (.. (:listener registration) (reorganize __splitPoint, __oldBlocks, __newBlocks))
                                             (catch VerificationException e
-                                                (.. AbstractBlockChain'log (error "Block chain listener threw exception during reorg", e))
+                                                (.. BlockChain'log (error "Block chain listener threw exception during reorg", e))
                                             )
                                         )
                                         nil
@@ -1040,7 +1040,7 @@
     #_private
     #_static
     #_throws #_[ "BlockStoreException" ]
-    (§ defn- #_"LinkedList<StoredBlock>" AbstractBlockChain'getPartialChain [#_"StoredBlock" higher, #_"StoredBlock" lower, #_"BlockStore" store]
+    (§ defn- #_"LinkedList<StoredBlock>" BlockChain'getPartialChain [#_"StoredBlock" higher, #_"StoredBlock" lower, #_"BlockStore" store]
         (assert-argument (< (.. lower (getHeight)) (.. higher (getHeight))), "higher and lower are reversed")
         (let [#_"LinkedList<StoredBlock>" results (LinkedList. #_"<>")
               #_"StoredBlock" cursor higher]
@@ -1063,7 +1063,7 @@
     #_private
     #_static
     #_throws #_[ "BlockStoreException" ]
-    (§ defn- #_"StoredBlock" AbstractBlockChain'findSplit [#_"StoredBlock" __newChainHead, #_"StoredBlock" __oldChainHead, #_"BlockStore" store]
+    (§ defn- #_"StoredBlock" BlockChain'findSplit [#_"StoredBlock" __newChainHead, #_"StoredBlock" __oldChainHead, #_"BlockStore" store]
         ;; Loop until we find the block both chains have in common.  Example:
         ;;
         ;;    A -> B -> C -> D
@@ -1108,7 +1108,7 @@
     #_private
     #_static
     #_throws #_[ "VerificationException" ]
-    (§ defn- #_"void" AbstractBlockChain'sendTransactionsToListener [#_"StoredBlock" block, #_"NewBlockType" __blockType, #_"TransactionReceivedInBlockListener" listener, #_"int" __relativityOffset, #_"List<Transaction>" transactions, #_"boolean" clone?, #_"Set<Sha256Hash>" __falsePositives]
+    (§ defn- #_"void" BlockChain'sendTransactionsToListener [#_"StoredBlock" block, #_"NewBlockType" __blockType, #_"TransactionReceivedInBlockListener" listener, #_"int" __relativityOffset, #_"List<Transaction>" transactions, #_"boolean" clone?, #_"Set<Sha256Hash>" __falsePositives]
         (doseq [#_"Transaction" tx transactions]
             (try
                 (.. __falsePositives (remove (.. tx (getHash))))
@@ -1120,7 +1120,7 @@
                 (catch ScriptException e
                     ;; We don't want scripts we don't understand to break the block chain so just note that this tx was
                     ;; not scanned here and continue.
-                    (.. AbstractBlockChain'log (warn (str "Failed to parse a script: " e)))
+                    (.. BlockChain'log (warn (str "Failed to parse a script: " e)))
                 )
                 (catch ProtocolException e
                     ;; Failed to duplicate tx, should never happen.
@@ -1163,12 +1163,12 @@
                         (if (nil? (.. this (getStoredBlockInCurrentScope (.. (:block orphan) (getPrevBlockHash)))))
                             (do
                                 ;; This is still an unconnected/orphan block.
-                                (.. AbstractBlockChain'log (debug "Orphan block {} is not connectable right now", (.. (:block orphan) (getHash))))
+                                (.. BlockChain'log (debug "Orphan block {} is not connectable right now", (.. (:block orphan) (getHash))))
                             )
                             (do
                                 ;; Otherwise we can connect it now.
                                 ;; False here ensures we don't recurse infinitely downwards when connecting huge chains.
-                                (.. AbstractBlockChain'log (info "Connected orphan {}", (.. (:block orphan) (getHash))))
+                                (.. BlockChain'log (info "Connected orphan {}", (.. (:block orphan) (getHash))))
                                 (.. this (add (:block orphan), false, (:filtered-tx-hashes orphan), (:filtered-txn orphan)))
                                 (.. it (remove))
                                 (§ ass n (inc n))
@@ -1177,7 +1177,7 @@
                     )
                 )
                 (when (< 0 n)
-                    (.. AbstractBlockChain'log (info "Connected {} orphan blocks.", n))
+                    (.. BlockChain'log (info "Connected {} orphan blocks.", n))
                     (recur)
                 )
             )
@@ -1302,15 +1302,15 @@
         ;; This is slightly off because we are applying false positive tracking before non-FP tracking,
         ;; which counts FP as if they came at the beginning of the block.  Assuming uniform FP
         ;; spread in a block, this will somewhat underestimate the FP rate (5% for 1000 tx block).
-        (let [#_"double" __alphaDecay (Math/pow (- 1 AbstractBlockChain'FP_ESTIMATOR_ALPHA), count)]
+        (let [#_"double" __alphaDecay (Math/pow (- 1 BlockChain'FP_ESTIMATOR_ALPHA), count)]
 
             ;; new_rate = alpha_decay * new_rate
             (§ assoc this :false-positive-rate (* __alphaDecay (:false-positive-rate this)))
 
-            (let [#_"double" __betaDecay (Math/pow (- 1 AbstractBlockChain'FP_ESTIMATOR_BETA), count)]
+            (let [#_"double" __betaDecay (Math/pow (- 1 BlockChain'FP_ESTIMATOR_BETA), count)]
 
                 ;; trend = beta * (new_rate - old_rate) + beta_decay * trend
-                (§ assoc this :false-positive-trend (+ (* AbstractBlockChain'FP_ESTIMATOR_BETA count (- (:false-positive-rate this) (:previous-false-positive-rate this))) (* __betaDecay (:false-positive-trend this))))
+                (§ assoc this :false-positive-trend (+ (* BlockChain'FP_ESTIMATOR_BETA count (- (:false-positive-rate this) (:previous-false-positive-rate this))) (* __betaDecay (:false-positive-trend this))))
 
                 ;; new_rate += alpha_decay * trend
                 (§ assoc this :false-positive-rate (+ (:false-positive-rate this) (* __alphaDecay (:false-positive-trend this))))
@@ -1326,9 +1326,9 @@
     (§ method #_"void" trackFalsePositives [#_"int" count]
         ;; Track false positives in batch by adding alpha to the false positive estimate once per count.
         ;; Each false positive counts as 1.0 towards the estimate.
-        (§ update this :false-positive-rate + (* AbstractBlockChain'FP_ESTIMATOR_ALPHA count))
+        (§ update this :false-positive-rate + (* BlockChain'FP_ESTIMATOR_ALPHA count))
         (when (< 0 count)
-            (.. AbstractBlockChain'log (debug "{} false positives, current rate = {} trend = {}", count, (:false-positive-rate this), (:false-positive-trend this)))
+            (.. BlockChain'log (debug "{} false positives, current rate = {} trend = {}", count, (:false-positive-rate this), (:false-positive-trend this)))
         )
         nil
     )
@@ -1609,7 +1609,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         (let [#_"long" __numAddresses (.. this (readVarInt))]
             ;; Guard against ultra large messages that will crash us.
             (when (< AddressMessage'MAX_ADDRESSES __numAddresses)
@@ -1749,7 +1749,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         ;; Alerts are formatted in two levels.  The top level contains two byte arrays: a signature, and a serialized
         ;; data structure containing the actual alert data.
         (let [#_"int" __startPos (:cursor this)]
@@ -2292,14 +2292,14 @@
     #_throws #_[ "ProtocolException", "BufferUnderflowException" ]
     (§ method #_"Message" deserializePayload [#_"BitcoinPacketHeader" header, #_"ByteBuffer" in]
         (let [#_"byte[]" payload (byte-array (:size header)) _ (.. in (get payload, 0, (:size header)))
-              #_"byte[]" hash (Sha256Hash'hashTwice payload)]
+              #_"byte[]" hash (Sha256Hash'hashTwice payload) #_"byte[]" checksum (:checksum header)]
             ;; Verify the checksum.
-            (when (or (not= (aget (:checksum header) 0) (aget hash 0)) (not= (aget (:checksum header) 1) (aget hash 1)) (not= (aget (:checksum header) 2) (aget hash 2)) (not= (aget (:checksum header) 3) (aget hash 3)))
-                (throw (ProtocolException. (str "Checksum failed to verify, actual " (.. Utils'HEX (encode hash)) " vs " (.. Utils'HEX (encode (:checksum header))))))
+            (when-not (and (= (aget checksum 0) (aget hash 0)) (= (aget checksum 1) (aget hash 1)) (= (aget checksum 2) (aget hash 2)) (= (aget checksum 3) (aget hash 3)))
+                (throw (ProtocolException. (str "Checksum failed to verify, actual " (.. Utils'HEX (encode hash)) " vs " (.. Utils'HEX (encode checksum)))))
             )
 
             (try
-                (.. this (makeMessage (:command header), (:size header), payload, hash, (:checksum header)))
+                (.. this (makeMessage (:command header), (:size header), payload, hash))
                 (catch Exception e
                     (throw (ProtocolException. (str "Error deserializing message " (.. Utils'HEX (encode payload)) "\n"), e))
                 )
@@ -2309,31 +2309,32 @@
 
     #_private
     #_throws #_[ "ProtocolException" ]
-    (§ method- #_"Message" makeMessage [#_"String" command, #_"int" length, #_"byte[]" payload, #_"byte[]" hash, #_"byte[]" checksum]
-        ;; We use an if ladder rather than reflection because reflection is very slow on Android.
-        (case command
-            "version"     (VersionMessage. (:params this), payload)
-            "inv"         (.. this (makeInventoryMessage payload, length))
-            "block"       (.. this (makeBlock payload, length))
-            "merkleblock" (.. this (makeFilteredBlock payload))
-            "getdata"     (GetDataMessage. (:params this), payload, this, length)
-            "getblocks"   (GetBlocksMessage. (:params this), payload)
-            "getheaders"  (GetHeadersMessage. (:params this), payload)
-            "tx"          (.. this (makeTransaction payload, 0, length, hash))
-            "addr"        (.. this (makeAddressMessage payload, length))
-            "ping"        (Ping. (:params this), payload)
-            "pong"        (Pong. (:params this), payload)
-            "verack"      (VersionAck. (:params this), payload)
-            "headers"     (HeadersMessage. (:params this), payload)
-            "alert"       (.. this (makeAlertMessage payload))
-            "filterload"  (.. this (makeBloomFilter payload))
-            "notfound"    (NotFoundMessage. (:params this), payload)
-            "mempool"     (MemoryPoolMessage.)
-            "reject"      (RejectMessage. (:params this), payload)
-                      (do
-                          (.. BitcoinSerializer'log (warn "No support for deserializing message with name {}", command))
-                          (UnknownMessage. (:params this), command, payload)
-                      )
+    (§ method- #_"Message" makeMessage [#_"String" command, #_"int" length, #_"byte[]" payload, #_"byte[]" hash]
+        (let [params (:params this)]
+            (case command
+                "version"     (VersionMessage. params, payload)
+                "inv"         (InventoryMessage. params, payload, this, length)
+                "block"       (.. this (makeBlock payload, length))
+                "merkleblock" (FilteredBlock. params, payload)
+                "getdata"     (GetDataMessage. params, payload, this, length)
+                "getblocks"   (GetBlocksMessage. params, payload)
+                "getheaders"  (GetHeadersMessage. params, payload)
+                "tx"          (.. this (makeTransaction payload, 0, length, hash))
+                "addr"        (AddressMessage. params, payload, this, length)
+                "ping"        (Ping. params, payload)
+                "pong"        (Pong. params, payload)
+                "verack"      (VersionAck. params, payload)
+                "headers"     (HeadersMessage. params, payload)
+                "alert"       (AlertMessage. params, payload)
+                "filterload"  (BloomFilter. params, payload)
+                "notfound"    (NotFoundMessage. params, payload)
+                "mempool"     (MemoryPoolMessage.)
+                "reject"      (RejectMessage. params, payload)
+                        (do
+                            (.. BitcoinSerializer'log (warn "No support for deserializing message with name {}", command))
+                            (UnknownMessage. params, command, payload)
+                        )
+            )
         )
     )
 
@@ -2343,26 +2344,6 @@
     #_public
     (§ method #_"NetworkParameters" getParameters []
         (:params this)
-    )
-
-    ;;;
-     ; Make an address message from the payload.
-     ;;
-    #_override
-    #_public
-    #_throws #_[ "ProtocolException" ]
-    (§ method #_"AddressMessage" makeAddressMessage [#_"byte[]" payload, #_"int" length]
-        (AddressMessage. (:params this), payload, this, length)
-    )
-
-    ;;;
-     ; Make an alert message from the payload.
-     ;;
-    #_override
-    #_public
-    #_throws #_[ "ProtocolException" ]
-    (§ method #_"Message" makeAlertMessage [#_"byte[]" payload]
-        (AlertMessage. (:params this), payload)
     )
 
     ;;;
@@ -2390,34 +2371,6 @@
     #_throws #_[ "ProtocolException" ]
     (§ method #_"Block" makeBlock [#_"byte[]" payload, #_"int" offset, #_"int" length]
         (Block. (:params this), payload, offset, this, length)
-    )
-
-    ;;;
-     ; Make a filter message from the payload.
-     ;;
-    #_public
-    #_throws #_[ "ProtocolException" ]
-    (§ method #_"Message" makeBloomFilter [#_"byte[]" payload]
-        (BloomFilter. (:params this), payload)
-    )
-
-    ;;;
-     ; Make a filtered block from the payload.
-     ;;
-    #_public
-    #_throws #_[ "ProtocolException" ]
-    (§ method #_"FilteredBlock" makeFilteredBlock [#_"byte[]" payload]
-        (FilteredBlock. (:params this), payload)
-    )
-
-    ;;;
-     ; Make an inventory message from the payload.
-     ;;
-    #_override
-    #_public
-    #_throws #_[ "ProtocolException" ]
-    (§ method #_"InventoryMessage" makeInventoryMessage [#_"byte[]" payload, #_"int" length]
-        (InventoryMessage. (:params this), payload, this, length)
     )
 
     ;;;
@@ -2523,7 +2476,7 @@
  ; See <a href="http://www.bitcoin.org/bitcoin.pdf">the Bitcoin technical paper</a> for more detail on blocks.
  ;
  ; To get a block, you can either build one from the raw bytes you can get from another implementation, or request one
- ; specifically using {@link Peer#getBlock(Sha256Hash)}, or grab one from a downloaded {@link BlockChain}.
+ ; specifically using {@link Peer#getBlock(Sha256Hash)}, or grab one from a downloaded {@link SPVBlockChain}.
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
@@ -2792,7 +2745,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         ;; header
         (§ assoc this :cursor (:offset this))
         (§ assoc this :version (.. this (readUint32)))
@@ -3442,7 +3395,7 @@
 
     ;;;
      ; Returns the difficulty of the proof of work that this block should meet encoded <b>in compact form</b>.
-     ; The {@link BlockChain} verifies that this is not too easy by looking at the length of the chain when the block is added.
+     ; The {@link SPVBlockChain} verifies that this is not too easy by looking at the length of the chain when the block is added.
      ; To find the actual value the hash should be compared against, use {@link Block#getDifficultyTargetAsInteger()}.
      ; Note that this is <b>not</b> the same as the difficulty value reported by the Bitcoin "getdifficulty" RPC that you may see on various block explorers.
      ; That number is the result of applying a formula to the underlying difficulty to normalize the minimum to 1.
@@ -3526,75 +3479,73 @@
     )
 )
 
-;; TODO: Rename this class to SPVBlockChain at some point.
-
 ;;;
- ; A BlockChain implements the <i>simplified payment verification</i> mode of the Bitcoin protocol.  It is the right
+ ; A SPVBlockChain implements the <i>simplified payment verification</i> mode of the Bitcoin protocol.  It is the right
  ; choice to use for programs that have limited resources as it won't verify transactions signatures or attempt to store
- ; all of the block chain.  Really, this class should be called SPVBlockChain but for backwards compatibility it is not.
+ ; all of the block chain.
  ;;
 #_public
-(§ class BlockChain (§ extends AbstractBlockChain)
+(§ class SPVBlockChain (§ extends BlockChain)
     ;;; Keeps a map of block hashes to StoredBlocks. ;;
     #_protected
     (§ field #_"BlockStore" :block-store)
 
     ;;;
-     ; Constructs a BlockChain connected to the given wallet and store.
+     ; Constructs a SPVBlockChain connected to the given wallet and store.
      ;
      ; For the store, you should use {@link SPVBlockStore} or you could also try a {@link MemoryBlockStore}
      ; if you want to hold all headers in RAM and don't care about disk serialization (this is rare).
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor BlockChain [#_"Context" context, #_"Wallet" wallet, #_"BlockStore" __blockStore]
+    (§ constructor SPVBlockChain [#_"Context" context, #_"Wallet" wallet, #_"BlockStore" __blockStore]
         (§ this context, (ArrayList. #_"<Wallet>"), __blockStore)
         (.. this (addWallet wallet))
         this
     )
 
-    ;;; See {@link #BlockChain(Context, Wallet, BlockStore)}}. ;;
+    ;;; See {@link #SPVBlockChain(Context, Wallet, BlockStore)}}. ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor BlockChain [#_"NetworkParameters" params, #_"Wallet" wallet, #_"BlockStore" __blockStore]
+    (§ constructor SPVBlockChain [#_"NetworkParameters" params, #_"Wallet" wallet, #_"BlockStore" __blockStore]
         (§ this (Context'getOrCreate params), wallet, __blockStore)
         this
     )
 
     ;;;
-     ; Constructs a BlockChain that has no wallet at all.  This is helpful when you don't actually care about sending
+     ; Constructs a SPVBlockChain that has no wallet at all.  This is helpful when you don't actually care about sending
      ; and receiving coins but rather, just want to explore the network data structures.
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor BlockChain [#_"Context" context, #_"BlockStore" __blockStore]
+    (§ constructor SPVBlockChain [#_"Context" context, #_"BlockStore" __blockStore]
         (§ this context, (ArrayList. #_"<Wallet>"), __blockStore)
         this
     )
 
-    ;;; See {@link #BlockChain(Context, BlockStore)}. ;;
+    ;;; See {@link #SPVBlockChain(Context, BlockStore)}. ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor BlockChain [#_"NetworkParameters" params, #_"BlockStore" __blockStore]
+    (§ constructor SPVBlockChain [#_"NetworkParameters" params, #_"BlockStore" __blockStore]
         (§ this params, (ArrayList. #_"<Wallet>"), __blockStore)
         this
     )
 
     ;;;
-     ; Constructs a BlockChain connected to the given list of listeners and a store.
+     ; Constructs a SPVBlockChain connected to the given list of listeners and a store.
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor BlockChain [#_"Context" params, #_"List<? extends Wallet>" wallets, #_"BlockStore" __blockStore]
+    (§ constructor SPVBlockChain [#_"Context" params, #_"List<? extends Wallet>" wallets, #_"BlockStore" __blockStore]
         (§ super params, wallets, __blockStore)
         (§ assoc this :block-store __blockStore)
         this
     )
 
-    ;;; See {@link #BlockChain(Context, List, BlockStore)}. ;;
+    ;;; See {@link #SPVBlockChain(Context, List, BlockStore)}. ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
-    (§ constructor BlockChain [#_"NetworkParameters" params, #_"List<? extends Wallet>" wallets, #_"BlockStore" __blockStore]
+    (§ constructor SPVBlockChain [#_"NetworkParameters" params, #_"List<? extends Wallet>" wallets, #_"BlockStore" __blockStore]
         (§ this (Context'getOrCreate params), wallets, __blockStore)
         this
     )
@@ -3841,7 +3792,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         (§ assoc this :data (.. this (readByteArray)))
         (when (< BloomFilter'MAX_FILTER_SIZE (alength (:data this)))
             (throw (ProtocolException. "Bloom filter out of size range."))
@@ -4123,7 +4074,7 @@
  ;    headers from the genesis block.</li>
  ; </ol>
  ;
- ; Checkpoints are used by the SPV {@link BlockChain} to initialize fresh {@link SPVBlockStore}s.
+ ; Checkpoints are used by the {@link SPVBlockChain} to initialize fresh {@link SPVBlockStore}s.
  ; They are not used by fully validating mode, which instead has a different concept of checkpoints that are used
  ; to hard-code the validity of blocks that violate BIP30 (duplicate coinbase transactions).
  ; Those "checkpoints" can be found in NetworkParameters.
@@ -4291,15 +4242,15 @@
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor ChildMessage [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset, #_"int" __protocolVersion]
-        (§ super params, payload, offset, __protocolVersion)
+    (§ constructor ChildMessage [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset, #_"int" version]
+        (§ super params, payload, offset, version)
         this
     )
 
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor ChildMessage [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset, #_"int" __protocolVersion, #_"Message" parent, #_"BitcoinSerializer" __setSerializer, #_"int" length]
-        (§ super params, payload, offset, __protocolVersion, __setSerializer, length)
+    (§ constructor ChildMessage [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset, #_"int" version, #_"Message" parent, #_"BitcoinSerializer" __setSerializer, #_"int" length]
+        (§ super params, payload, offset, version, __setSerializer, length)
         (§ assoc this :parent parent)
         this
     )
@@ -4715,7 +4666,7 @@
 ;; TODO: Finish adding Context c'tors to all the different objects so we can start deprecating the versions that take NetworkParameters.
 ;; TODO: Add a working directory notion to Context and make various subsystems that want to use files default to that directory (e.g. Orchid, block stores, wallet, etc).
 ;; TODO: Auto-register the block chain object here, and then use it in the (newly deprecated) TransactionConfidence.getDepthInBlocks() method:
-;;       the new version should take an AbstractBlockChain specifically.
+;;       the new version should take a BlockChain specifically.
 ;;       Also use the block chain object reference from the context in PeerGroup and remove the other constructors, as it's easy to forget to wire things up.
 ;; TODO: Move Threading.USER_THREAD to here and leave behind just a source code stub.  Allow different instantiations of the library to use different user threads.
 ;; TODO: Keep a URI to where library internal data files can be found, to abstract over the lack of JAR files on Android.
@@ -6034,7 +5985,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         nil
     )
 
@@ -6095,7 +6046,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         (let [#_"byte[]" __headerBytes (byte-array Block'HEADER_SIZE)]
             (System/arraycopy (:payload this), 0, __headerBytes, 0, Block'HEADER_SIZE)
             (§ assoc this :header (.. (-> this :params :default-serializer) (makeBlock __headerBytes)))
@@ -6210,7 +6161,7 @@
  ; Core does.
  ;;
 #_public
-(§ class FullPrunedBlockChain (§ extends AbstractBlockChain)
+(§ class FullPrunedBlockChain (§ extends BlockChain)
     #_private
     #_static
     (def- #_"Logger" FullPrunedBlockChain'log (LoggerFactory/getLogger FullPrunedBlockChain))
@@ -6871,7 +6822,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         (§ assoc this :cursor (:offset this))
         (§ assoc this :version (.. this (readUint32)))
         (let [#_"int" __startCount (int (.. this (readVarInt)))]
@@ -7123,23 +7074,23 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
-        (let [#_"long" __numHeaders (.. this (readVarInt))]
-            (when (< HeadersMessage'MAX_HEADERS __numHeaders)
-                (throw (ProtocolException. (str "Too many headers: got " __numHeaders " which is larger than " HeadersMessage'MAX_HEADERS)))
+    (§ method #_"void" parseMessage []
+        (let [#_"long" n (.. this (readVarInt))]
+            (when (< HeadersMessage'MAX_HEADERS n)
+                (throw (ProtocolException. (str "Too many headers: got " n " which is larger than " HeadersMessage'MAX_HEADERS)))
             )
 
             (§ assoc this :block-headers (ArrayList. #_"<>"))
             (let [#_"BitcoinSerializer" serializer (BitcoinSerializer. (:params this), true)]
 
-                (loop-when-recur [#_"int" i 0] (< i __numHeaders) [(inc i)]
-                    (let [#_"Block" __newBlockHeader (.. serializer (makeBlock (:payload this), (:cursor this), Message'UNKNOWN_LENGTH))]
-                        (when (.. __newBlockHeader (hasTransactions))
+                (loop-when-recur [#_"int" i 0] (< i n) [(inc i)]
+                    (let [#_"Block" header (.. serializer (makeBlock (:payload this), (:cursor this), Message'UNKNOWN_LENGTH))]
+                        (when (.. header (hasTransactions))
                             (throw (ProtocolException. "Block header does not end with a nil byte"))
                         )
 
-                        (§ update this :cursor + (:optimal-encoding-message-size __newBlockHeader))
-                        (.. (:block-headers this) (add __newBlockHeader))
+                        (§ update this :cursor + (:optimal-encoding-message-size header))
+                        (.. (:block-headers this) (add header))
                     )
                 )
 
@@ -7149,11 +7100,6 @@
             )
         )
         nil
-    )
-
-    #_public
-    (§ method #_"List<Block>" getBlockHeaders []
-        (:block-headers this)
     )
 )
 
@@ -7381,7 +7327,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         (§ assoc this :array-len (.. this (readVarInt)))
         (when (< ListMessage'MAX_INVENTORY_ITEMS (:array-len this))
             (throw (ProtocolException. (str "Too many items in INV message: " (:array-len this))))
@@ -7456,7 +7402,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         nil
     )
 
@@ -7528,8 +7474,8 @@
 
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ constructor Message [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset, #_"int" __protocolVersion]
-        (§ this params, payload, offset, __protocolVersion, (:default-serializer params), Message'UNKNOWN_LENGTH)
+    (§ constructor Message [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset, #_"int" version]
+        (§ this params, payload, offset, version, (:default-serializer params), Message'UNKNOWN_LENGTH)
         this
     )
 
@@ -7545,9 +7491,9 @@
      ;;
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ constructor Message [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset, #_"int" __protocolVersion, #_"BitcoinSerializer" serializer, #_"int" length]
+    (§ constructor Message [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset, #_"int" version, #_"BitcoinSerializer" serializer, #_"int" length]
         (§ assoc this :serializer serializer)
-        (§ assoc this :protocol-version __protocolVersion)
+        (§ assoc this :protocol-version version)
         (§ assoc this :params params)
         (§ assoc this :payload payload)
         (§ assoc this :cursor (§ assoc this :offset offset))
@@ -7602,7 +7548,7 @@
     #_protected
     #_abstract
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse [])
+    (§ method #_"void" parseMessage [])
 
     ;;;
      ; To be called before any change of internal values including any setters.  This ensures
@@ -8505,7 +8451,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         (§ assoc this :transaction-count (int (.. this (readUint32))))
 
         (let [#_"int" __nHashes (int (.. this (readVarInt)))]
@@ -8742,7 +8688,7 @@
     #_private
     (§ field- #_"NetworkParameters" :params)
     #_private
-    (§ field- #_"AbstractBlockChain" :block-chain)
+    (§ field- #_"BlockChain" :block-chain)
     #_private
     (§ field- #_"Context" :context)
 
@@ -8908,7 +8854,7 @@
      ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.
      ;;
     #_public
-    (§ constructor Peer [#_"NetworkParameters" params, #_"VersionMessage" ver, #_nilable #_"AbstractBlockChain" chain, #_"PeerAddress" __remoteAddress]
+    (§ constructor Peer [#_"NetworkParameters" params, #_"VersionMessage" ver, #_nilable #_"BlockChain" chain, #_"PeerAddress" __remoteAddress]
         (§ this params, ver, __remoteAddress, chain)
         this
     )
@@ -8928,7 +8874,7 @@
      ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.
      ;;
     #_public
-    (§ constructor Peer [#_"NetworkParameters" params, #_"VersionMessage" ver, #_"PeerAddress" __remoteAddress, #_nilable #_"AbstractBlockChain" chain]
+    (§ constructor Peer [#_"NetworkParameters" params, #_"VersionMessage" ver, #_"PeerAddress" __remoteAddress, #_nilable #_"BlockChain" chain]
         (§ this params, ver, __remoteAddress, chain, Integer/MAX_VALUE)
         this
     )
@@ -8948,7 +8894,7 @@
      ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.
      ;;
     #_public
-    (§ constructor Peer [#_"NetworkParameters" params, #_"VersionMessage" ver, #_"PeerAddress" __remoteAddress, #_nilable #_"AbstractBlockChain" chain, #_"int" __downloadTxDependencyDepth]
+    (§ constructor Peer [#_"NetworkParameters" params, #_"VersionMessage" ver, #_"PeerAddress" __remoteAddress, #_nilable #_"BlockChain" chain, #_"int" __downloadTxDependencyDepth]
         (§ super params, __remoteAddress)
 
         (§ assoc this :params (ensure some? params))
@@ -8991,7 +8937,7 @@
      ; and is used to keep track of which peers relayed transactions and offer more descriptive logging.
      ;;
     #_public
-    (§ constructor Peer [#_"NetworkParameters" params, #_"AbstractBlockChain" __blockChain, #_"PeerAddress" __peerAddress, #_"String" __thisSoftwareName, #_"String" __thisSoftwareVersion]
+    (§ constructor Peer [#_"NetworkParameters" params, #_"BlockChain" __blockChain, #_"PeerAddress" __peerAddress, #_"String" __thisSoftwareName, #_"String" __thisSoftwareVersion]
         (§ this params, (VersionMessage. params, (.. __blockChain (getBestChainHeight))), __blockChain, __peerAddress)
         (.. (:version-message this) (appendToSubVer __thisSoftwareName, __thisSoftwareVersion, nil))
         this
@@ -9425,8 +9371,8 @@
             (try
                 (assert-state (not __downloadBlockBodies), (.. this (toString)))
 
-                (loop-when-recur [#_"int" i 0] (< i (.. m (getBlockHeaders) (size))) [(inc i)]
-                    (let [#_"Block" header (.. m (getBlockHeaders) (get i))]
+                (loop-when-recur [#_"int" i 0] (< i (.. (:block-headers m) (size))) [(inc i)]
+                    (let [#_"Block" header (.. (:block-headers m) (get i))]
                         ;; Process headers until we pass the fast catchup time, or are about to catch up with the head
                         ;; of the chain - always process the last block as a full/filtered block to kick us out of the
                         ;; fast catchup mode (in which we ignore new blocks).
@@ -9457,7 +9403,7 @@
                                 (do
                                     (.. (:lock this) (lock))
                                     (try
-                                        (.. Peer'log (info "Passed the fast catchup time ({}) at height {}, discarding {} headers and requesting full blocks", (Utils'dateTimeFormat (* __fastCatchupTimeSecs 1000)), (inc (.. (:block-chain this) (getBestChainHeight))), (- (.. m (getBlockHeaders) (size)) i)))
+                                        (.. Peer'log (info "Passed the fast catchup time ({}) at height {}, discarding {} headers and requesting full blocks", (Utils'dateTimeFormat (* __fastCatchupTimeSecs 1000)), (inc (.. (:block-chain this) (getBestChainHeight))), (- (.. (:block-headers m) (size)) i)))
                                         (§ assoc this :download-block-bodies true)
                                         ;; Prevent this request being seen as a duplicate.
                                         (§ assoc this :last-get-blocks-begin Sha256Hash'ZERO_HASH)
@@ -9474,7 +9420,7 @@
                 )
                 ;; We added all headers in the message to the chain.
                 ;; Request some more if we got up to the limit, otherwise we are at the end of the chain.
-                (when (<= HeadersMessage'MAX_HEADERS (.. m (getBlockHeaders) (size)))
+                (when (<= HeadersMessage'MAX_HEADERS (.. (:block-headers m) (size)))
                     (.. (:lock this) (lock))
                     (try
                         (.. this (blockChainDownloadLocked Sha256Hash'ZERO_HASH))
@@ -9643,8 +9589,8 @@
      ; that is in the chain, then this method will return either {B, C} or {C, B}.  No ordering is guaranteed.
      ;
      ; This method is useful for apps that want to learn about how long an unconfirmed transaction might take
-     ; to confirm, by checking for unexpectedly time locked transactions, unusually deep dependency trees or fee-paying
-     ; transactions that depend on unconfirmed free transactions.
+     ; to confirm, by checking for unexpectedly time locked transactions, unusually deep dependency trees or
+     ; fee-paying transactions that depend on unconfirmed free transactions.
      ;
      ; Note that dependencies downloaded this way will not trigger the onTransaction method of event listeners.
      ;;
@@ -9797,7 +9743,7 @@
             (.. this (maybeHandleRequestedData m))
                 nil
             (nil? (:block-chain this))
-                (.. Peer'log (debug "Received block but was not configured with an AbstractBlockChain"))
+                (.. Peer'log (debug "Received block but was not configured with a BlockChain"))
             ;; Did we lose download peer status after requesting block data?
             (not (:v-download-data this))
                 (.. Peer'log (debug "{}: Received block we did not ask for: {}", (.. this (getAddress)), (.. m (getHashAsString))))
@@ -9864,7 +9810,7 @@
             (not (:v-download-data this))
                 (.. Peer'log (debug "{}: Received block we did not ask for: {}", (.. this (getAddress)), (.. m (getHash) (toString))))
             (nil? (:block-chain this))
-                (.. Peer'log (debug "Received filtered block but was not configured with an AbstractBlockChain"))
+                (.. Peer'log (debug "Received filtered block but was not configured with a BlockChain"))
             :else
                 (do
                     ;; Note that we currently do nothing about peers which maliciously do not include transactions which
@@ -10817,8 +10763,8 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor PeerAddress [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset, #_"int" __protocolVersion]
-        (§ super params, payload, offset, __protocolVersion)
+    (§ constructor PeerAddress [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset, #_"int" version]
+        (§ super params, payload, offset, version)
         this
     )
 
@@ -10834,8 +10780,8 @@
      ;;
     #_public
     #_throws #_[ "ProtocolException" ]
-    (§ constructor PeerAddress [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset, #_"int" __protocolVersion, #_"Message" parent, #_"BitcoinSerializer" serializer]
-        (§ super params, payload, offset, __protocolVersion, parent, serializer, Message'UNKNOWN_LENGTH)
+    (§ constructor PeerAddress [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset, #_"int" version, #_"Message" parent, #_"BitcoinSerializer" serializer]
+        (§ super params, payload, offset, version, parent, serializer, Message'UNKNOWN_LENGTH)
         this
     )
 
@@ -10843,15 +10789,15 @@
      ; Construct a peer address from a memorized or hardcoded address.
      ;;
     #_public
-    (§ constructor PeerAddress [#_"NetworkParameters" params, #_"InetAddress" addr, #_"int" port, #_"int" __protocolVersion, #_"BigInteger" services]
+    (§ constructor PeerAddress [#_"NetworkParameters" params, #_"InetAddress" addr, #_"int" port, #_"int" version, #_"BigInteger" services]
         (§ super params)
 
         (§ assoc this :addr (ensure some? addr))
         (§ assoc this :port port)
-        (§ assoc this :protocol-version __protocolVersion)
+        (§ assoc this :protocol-version version)
         (§ assoc this :services services)
 
-        (§ assoc this :length (if (< 31402 __protocolVersion) PeerAddress'MESSAGE_SIZE (- PeerAddress'MESSAGE_SIZE 4)))
+        (§ assoc this :length (if (< 31402 version) PeerAddress'MESSAGE_SIZE (- PeerAddress'MESSAGE_SIZE 4)))
         this
     )
 
@@ -10936,7 +10882,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         ;; Format of a serialized address:
         ;;   uint32 timestamp
         ;;   uint64 services (flags determining what the node can do)
@@ -11142,7 +11088,7 @@
     (§ field #_"NetworkParameters" :params)
     #_nilable
     #_protected
-    (§ field #_"AbstractBlockChain" :chain)
+    (§ field #_"BlockChain" :chain)
 
     ;; This executor is used to queue up jobs: it's used when we don't want to use locks for mutual exclusion,
     ;; typically because the job might call in to user provided code that needs/wants the freedom to use the API
@@ -11417,9 +11363,9 @@
         this
     )
 
-    ;;; See {@link #PeerGroup(Context, AbstractBlockChain)}. ;;
+    ;;; See {@link #PeerGroup(Context, BlockChain)}. ;;
     #_public
-    (§ constructor PeerGroup [#_"NetworkParameters" params, #_nilable #_"AbstractBlockChain" chain]
+    (§ constructor PeerGroup [#_"NetworkParameters" params, #_nilable #_"BlockChain" chain]
         (§ this (Context'getOrCreate params), chain, (NioClientManager.))
         this
     )
@@ -11429,14 +11375,14 @@
      ; and downloaded.  This is probably the constructor you want to use.
      ;;
     #_public
-    (§ constructor PeerGroup [#_"Context" context, #_nilable #_"AbstractBlockChain" chain]
+    (§ constructor PeerGroup [#_"Context" context, #_nilable #_"BlockChain" chain]
         (§ this context, chain, (NioClientManager.))
         this
     )
 
-    ;;; See {@link #PeerGroup(Context, AbstractBlockChain, ClientConnectionManager)}. ;;
+    ;;; See {@link #PeerGroup(Context, BlockChain, ClientConnectionManager)}. ;;
     #_public
-    (§ constructor PeerGroup [#_"NetworkParameters" params, #_nilable #_"AbstractBlockChain" chain, #_"ClientConnectionManager" __connectionManager]
+    (§ constructor PeerGroup [#_"NetworkParameters" params, #_nilable #_"BlockChain" chain, #_"ClientConnectionManager" __connectionManager]
         (§ this (Context'getOrCreate params), chain, __connectionManager)
         this
     )
@@ -11446,7 +11392,7 @@
      ; connections and keep track of existing ones.
      ;;
     #_private
-    (§ constructor- PeerGroup [#_"Context" context, #_nilable #_"AbstractBlockChain" chain, #_"ClientConnectionManager" __connectionManager]
+    (§ constructor- PeerGroup [#_"Context" context, #_nilable #_"BlockChain" chain, #_"ClientConnectionManager" __connectionManager]
         (ensure some? context)
 
         (§ assoc this :params (.. context (getParams)))
@@ -13388,8 +13334,8 @@
      ; @return a future that will be triggered when the number of connected peers implementing protocolVersion or higher >= numPeers.
      ;;
     #_public
-    (§ method #_"ListenableFuture<List<Peer>>" waitForPeersOfVersion [#_"int" __numPeers, #_"long" __protocolVersion]
-        (let [#_"List<Peer>" __foundPeers (.. this (findPeersOfAtLeastVersion __protocolVersion))]
+    (§ method #_"ListenableFuture<List<Peer>>" waitForPeersOfVersion [#_"int" __numPeers, #_"long" version]
+        (let [#_"List<Peer>" __foundPeers (.. this (findPeersOfAtLeastVersion version))]
             (if (<= __numPeers (.. __foundPeers (size)))
                 (Futures/immediateFuture __foundPeers)
                 (let [#_"SettableFuture<List<Peer>>" future (SettableFuture/create)]
@@ -13398,7 +13344,7 @@
                         #_override
                         #_public
                         (§ method #_"void" onPeerConnected [#_"Peer" peer, #_"int" __peerCount]
-                            (let [#_"List<Peer>" peers (.. this (findPeersOfAtLeastVersion __protocolVersion))]
+                            (let [#_"List<Peer>" peers (.. this (findPeersOfAtLeastVersion version))]
                                 (when (<= __numPeers (.. peers (size)))
                                     (.. future (set peers))
                                     (.. this (removeConnectedEventListener this))
@@ -13417,12 +13363,12 @@
      ; Returns an array list of peers that implement the given protocol version or better.
      ;;
     #_public
-    (§ method #_"List<Peer>" findPeersOfAtLeastVersion [#_"long" __protocolVersion]
+    (§ method #_"List<Peer>" findPeersOfAtLeastVersion [#_"long" version]
         (.. (:lock this) (lock))
         (try
             (let [#_"ArrayList<Peer>" results (ArrayList. #_"<Peer>" (.. (:peers this) (size)))]
                 (doseq [#_"Peer" peer (:peers this)]
-                    (when (<= __protocolVersion (:client-version (.. peer (getPeerVersionMessage))))
+                    (when (<= version (:client-version (.. peer (getPeerVersionMessage))))
                         (.. results (add peer))
                     )
                 )
@@ -14150,7 +14096,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         (try
             (§ assoc this :nonce (.. this (readInt64)))
             (§ assoc this :has-nonce true)
@@ -14201,7 +14147,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         (§ assoc this :nonce (.. this (readInt64)))
         (§ assoc this :length 8)
         nil
@@ -14359,7 +14305,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         (§ assoc this :message (.. this (readStr)))
         (§ assoc this :code (RejectCode'fromCode (aget (.. this (readBytes 1)) 0)))
         (§ assoc this :reason (.. this (readStr)))
@@ -15248,7 +15194,7 @@
     #_throws #_[ "ProtocolException" ]
     (§ constructor Transaction [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset]
         (§ super params, payload, offset)
-        ;; inputs/outputs will be created in parse()
+        ;; inputs/outputs will be created in parseMessage()
         this
     )
 
@@ -15601,7 +15547,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         (§ assoc this :cursor (:offset this))
 
         (§ assoc this :version (.. this (readUint32)))
@@ -15705,7 +15651,7 @@
      ; @param chain If provided, will be used to estimate lock times (if set).  Can be null.
      ;;
     #_public
-    (§ method #_"String" toString [#_nilable #_"AbstractBlockChain" chain]
+    (§ method #_"String" toString [#_nilable #_"BlockChain" chain]
         (let [#_"StringBuilder" sb (StringBuilder.)]
             (.. sb (append "  ") (append (.. this (getHashAsString))) (append "\n"))
             (when (some? (:updated-at this))
@@ -16502,7 +16448,7 @@
      ; the current head block if it was specified as a block time.
      ;;
     #_public
-    (§ method #_"Date" estimateLockTime [#_"AbstractBlockChain" chain]
+    (§ method #_"Date" estimateLockTime [#_"BlockChain" chain]
         (if (< (:lock-time this) Transaction'LOCKTIME_THRESHOLD) (.. chain (estimateBlockTime (int (.. this (getLockTime))))) (Date. (* (.. this (getLockTime)) 1000)))
     )
 
@@ -17095,7 +17041,7 @@
      ; Note that this is NOT called when every block arrives.  Instead it is called when the transaction
      ; transitions between confidence states, i.e. from not being seen in the chain to being seen (not necessarily in
      ; the best chain).  If you want to know when the transaction gets buried under another block, implement a
-     ; {@link BlockChainListener}, attach it to a {@link BlockChain} and then use the getters on the
+     ; {@link BlockChainListener}, attach it to a {@link SPVBlockChain} and then use the getters on the
      ; confidence object to determine the new depth.
      ;;
     #_public
@@ -17573,7 +17519,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         (§ assoc this :outpoint (TransactionOutPoint. (:params this), (:payload this), (:cursor this), this, (:serializer this)))
         (§ assoc this :cursor (+ (:cursor this) (.. (:outpoint this) (getMessageSize))))
         (let [#_"int" __scriptLen (int (.. this (readVarInt)))]
@@ -18104,7 +18050,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         (§ assoc this :length TransactionOutPoint'MESSAGE_LENGTH)
         (§ assoc this :hash (.. this (readHash)))
         (§ assoc this :index (.. this (readUint32)))
@@ -18417,7 +18363,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         (§ assoc this :value (.. this (readInt64)))
         (§ assoc this :script-len (int (.. this (readVarInt))))
         (§ assoc this :length (+ (- (:cursor this) (:offset this)) (:script-len this)))
@@ -18701,7 +18647,7 @@
 
 ;;;
  ; TransactionOutputChanges represents a delta to the set of unspent outputs.  It used as a return value for
- ; {@link AbstractBlockChain#connectTransactions(int, Block)}.  It contains the full list of transaction outputs created
+ ; {@link BlockChain#connectTransactions(int, Block)}.  It contains the full list of transaction outputs created
  ; and spent in a block.  It DOES contain outputs created that were spent later in the block, as those are needed for
  ; BIP30 (no duplicate txid creation if the previous one was not fully spent prior to this block) verification.
  ;;
@@ -19071,7 +19017,6 @@
 
 ;;;
  ; A collection of various utility methods that are helpful for working with the Bitcoin protocol.
- ; To enable debug logging from the library, run with -Dbitcoinj.logging=true on your command line.
  ;;
 #_public
 (§ class Utils
@@ -19199,24 +19144,6 @@
     )
 
     ;;;
-     ; Work around lack of unsigned types in Java.
-     ;;
-    #_public
-    #_static
-    (§ defn #_"boolean" Utils'isLessThanUnsigned [#_"long" n1, #_"long" n2]
-        (< (UnsignedLongs/compare n1, n2) 0)
-    )
-
-    ;;;
-     ; Work around lack of unsigned types in Java.
-     ;;
-    #_public
-    #_static
-    (§ defn #_"boolean" Utils'isLessThanOrEqualToUnsigned [#_"long" n1, #_"long" n2]
-        (<= (UnsignedLongs/compare n1, n2) 0)
-    )
-
-    ;;;
      ; Hex encoding used throughout the framework.  Use with HEX.encode(byte[]) or HEX.decode(CharSequence).
      ;;
     #_public
@@ -19239,30 +19166,6 @@
         )
     )
 
-    ;;;
-     ; Returns a copy of the given byte array with the bytes of each double-word (4 bytes) reversed.
-     ;
-     ; @param bytes Length must be divisible by 4.
-     ; @param trimLength Trim output to this length.  If positive, must be divisible by 4.
-     ;;
-    #_public
-    #_static
-    (§ defn #_"byte[]" Utils'reverseDwordBytes [#_"byte[]" bytes, #_"int" __trimLength]
-        (assert-argument (= (rem (alength bytes) 4) 0))
-        (assert-argument (or (< __trimLength 0) (= (rem __trimLength 4) 0)))
-
-        (let [#_"byte[]" rev (byte-array (if (< -1 __trimLength (alength bytes)) __trimLength (alength bytes)))]
-
-            (loop-when-recur [#_"int" i 0] (< i (alength rev)) [(+ i 4)]
-                (System/arraycopy bytes, i, rev, i, 4)
-                (loop-when-recur [#_"int" j 0] (< j 4) [(inc j)]
-                    (aset rev (+ i j) (aget bytes (- (+ i 3) j)))
-                )
-            )
-            rev
-        )
-    )
-
     ;;; Parse 4 bytes from the byte array (starting at the offset) as unsigned 32-bit integer in little endian format. ;;
     #_public
     #_static
@@ -19282,13 +19185,6 @@
     #_static
     (§ defn #_"long" Utils'readUint32BE [#_"byte[]" bytes, #_"int" offset]
         (| (<< (& 0xff (aget bytes offset)) 24) (<< (& 0xff (aget bytes (inc offset))) 16) (<< (& 0xff (aget bytes (+ offset 2))) 8) (& 0xff (aget bytes (+ offset 3))))
-    )
-
-    ;;; Parse 2 bytes from the byte array (starting at the offset) as unsigned 16-bit integer in big endian format. ;;
-    #_public
-    #_static
-    (§ defn #_"int" Utils'readUint16BE [#_"byte[]" bytes, #_"int" offset]
-        (| (<< (& 0xff (aget bytes offset)) 8) (& 0xff (aget bytes (inc offset))))
     )
 
     ;;;
@@ -19497,18 +19393,6 @@
         (let [#_"byte[]" out (byte-array length)]
             (System/arraycopy in, 0, out, 0, (min length, (alength in)))
             out
-        )
-    )
-
-    ;;;
-     ; Creates a copy of bytes and appends b to the end of it.
-     ;;
-    #_public
-    #_static
-    (§ defn #_"byte[]" Utils'appendByte [#_"byte[]" bytes, #_"byte" b]
-        (let [#_"byte[]" result (Arrays/copyOf bytes, (inc (alength bytes)))]
-            (aset result (dec (alength result)) b)
-            result
         )
     )
 
@@ -19953,7 +19837,7 @@
     #_override
     #_protected
     #_throws #_[ "ProtocolException" ]
-    (§ method #_"void" parse []
+    (§ method #_"void" parseMessage []
         (§ assoc this :client-version (int (.. this (readUint32))))
         (§ assoc this :local-services (.. this (readUint64) (longValue)))
         (§ assoc this :time (.. this (readUint64) (longValue)))
@@ -20506,8 +20390,8 @@
 (§ interface NewBestBlockListener
     ;;;
      ; Called when a new block on the best chain is seen, after relevant transactions are extracted and sent to us via either
-     ; {@link TransactionReceivedInBlockListener#receiveFromBlock(Transaction, StoredBlock, BlockChain.NewBlockType, int relativityOffset)}
-     ; or {@link TransactionReceivedInBlockListener#notifyTransactionIsInBlock(Sha256Hash, StoredBlock, BlockChain.NewBlockType, int)}.
+     ; {@link TransactionReceivedInBlockListener#receiveFromBlock(Transaction, StoredBlock, SPVBlockChain.NewBlockType, int relativityOffset)}
+     ; or {@link TransactionReceivedInBlockListener#notifyTransactionIsInBlock(Sha256Hash, StoredBlock, SPVBlockChain.NewBlockType, int)}.
      ;
      ; If this block is causing a re-organise to a new chain, this method is NOT called even though
      ; the block may be the new best block: your reorganize implementation is expected to do whatever
@@ -20606,7 +20490,7 @@
 #_public
 (§ interface ReorganizeListener
     ;;;
-     ; Called by the {@link BlockChain} when the best chain (representing total work done)
+     ; Called by the {@link SPVBlockChain} when the best chain (representing total work done)
      ; has changed.  In this case, we need to go through our transactions and find out if any have become invalid.
      ; It's possible for our balance to go down in this case: money we thought we had can suddenly vanish
      ; if the rest of the network agrees it should be so.
@@ -20654,7 +20538,7 @@
 #_public
 (§ interface TransactionReceivedInBlockListener
     ;;;
-     ; Called by the {@link BlockChain} when we receive a new block that contains a relevant transaction.
+     ; Called by the {@link SPVBlockChain} when we receive a new block that contains a relevant transaction.
      ;
      ; A transaction may be received multiple times if is included into blocks in parallel chains.  The blockType
      ; parameter describes whether the containing block is on the main/best chain or whether it's on a presently
@@ -20670,7 +20554,7 @@
     (§ method #_"void" receiveFromBlock [#_"Transaction" tx, #_"StoredBlock" block, #_"NewBlockType" __blockType, #_"int" __relativityOffset])
 
     ;;;
-     ; Called by the {@link BlockChain} when we receive a new {@link FilteredBlock} that contains the given
+     ; Called by the {@link SPVBlockChain} when we receive a new {@link FilteredBlock} that contains the given
      ; transaction hash in its merkle tree.
      ;
      ; A transaction may be received multiple times if is included into blocks in parallel chains.  The blockType
@@ -22991,7 +22875,7 @@
 ;;;
  ; Utility class that wraps the boilerplate needed to set up a new SPV bitcoinj app.  Instantiate it with a directory
  ; and file prefix, optionally configure a few things, then use startAsync and optionally awaitRunning.  The object will
- ; construct and configure a {@link BlockChain}, {@link SPVBlockStore}, {@link Wallet} and {@link PeerGroup}.  Depending
+ ; construct and configure a {@link SPVBlockChain}, {@link SPVBlockStore}, {@link Wallet} and {@link PeerGroup}.  Depending
  ; on the value of the blockingStartup property, startup will be considered complete once the block chain has fully
  ; synchronized, so it can take a while.
  ;
@@ -23022,7 +22906,7 @@
     (§ field #_"NetworkParameters" :params)
     #_protected
     #_volatile
-    (§ field #_"BlockChain" :v-chain)
+    (§ field #_"SPVBlockChain" :v-chain)
     #_protected
     #_volatile
     (§ field #_"BlockStore" :v-store)
@@ -23229,7 +23113,7 @@
                         )
                     )
                 )
-                (§ assoc this :v-chain (BlockChain. (:params this), (:v-store this)))
+                (§ assoc this :v-chain (SPVBlockChain. (:params this), (:v-store this)))
                 (§ assoc this :v-peer-group (.. this (createPeerGroup)))
                 (when (some? (:user-agent this))
                     (.. (:v-peer-group this) (setUserAgent (:user-agent this), (:version this)))
@@ -23356,7 +23240,7 @@
     )
 
     #_public
-    (§ method #_"BlockChain" chain []
+    (§ method #_"SPVBlockChain" chain []
         (assert-state (any = (state) KeyChainState'STARTING KeyChainState'RUNNING), "Cannot call until startup is complete")
         (:v-chain this)
     )
@@ -23483,274 +23367,6 @@
     #_protected
     #_abstract
     (§ method #_"void" timeoutOccurred [])
-)
-
-;;;
- ; Creates a simple connection to a server using a {@link StreamConnection} to process data.
- ;
- ; Generally, using {@link NioClient} and {@link NioClientManager} should be preferred over {@link BlockingClient}
- ; and {@link BlockingClientManager}, unless you wish to connect over a proxy or use some other network settings that
- ; cannot be set using NIO.
- ;;
-#_public
-(§ class BlockingClient (§ implements MessageWriteTarget)
-    #_private
-    #_static
-    (def- #_"Logger" BlockingClient'log (LoggerFactory/getLogger BlockingClient))
-
-    #_private
-    #_static
-    (def- #_"int" BlockingClient'BUFFER_SIZE_LOWER_BOUND 4096)
-    #_private
-    #_static
-    (def- #_"int" BlockingClient'BUFFER_SIZE_UPPER_BOUND 65536)
-
-    #_private
-    (§ field- #_"Socket" :socket)
-    #_private
-    #_volatile
-    (§ field- #_"boolean" :v-close-requested false)
-    #_private
-    (§ field- #_"SettableFuture<SocketAddress>" :connect-future)
-
-    ;;;
-     ; Creates a new client to the given server address using the given {@link StreamConnection} to decode the data.
-     ; The given connection <b>MUST</b> be unique to this object.  This does not block while waiting for the connection
-     ; to open, but will call either the {@link StreamConnection#connectionOpened()} or
-     ; {@link StreamConnection#connectionClosed()} callback on the created network event processing thread.
-     ;
-     ; @param connectTimeoutMillis The connect timeout set on the connection (in milliseconds).
-     ;                             0 is interpreted as no timeout.
-     ; @param socketFactory An object that creates {@link Socket} objects on demand, which may be customised to control
-     ;                      how this client connects to the internet.  If not sure, use SocketFactory.getDefault().
-     ; @param clientSet A set which this object will add itself to after initialization, and then remove itself from.
-     ;;
-    #_public
-    #_throws #_[ "IOException" ]
-    (§ constructor BlockingClient [#_"SocketAddress" __serverAddress, #_"StreamConnection" connection, #_"int" __connectTimeoutMillis, #_"SocketFactory" __socketFactory, #_nilable #_"Set<BlockingClient>" __clientSet]
-        (§ assoc this :connect-future (SettableFuture/create))
-        ;; Try to fit at least one message in the network buffer, but place an upper and lower limit on its size to make
-        ;; sure it doesnt get too large or have to call read too often.
-        (.. connection (setWriteTarget this))
-        (§ assoc this :socket (.. __socketFactory (createSocket)))
-        (let [#_"Context" context (Context'get)]
-            (let [#_"Thread" t (Thread.)
-                (§ anon
-                    #_override
-                    #_public
-                    (§ method #_"void" run []
-                        (Context'propagate context)
-                        (when (some? __clientSet)
-                            (.. __clientSet (add (§ dhis BlockingClient)))
-                        )
-                        (try
-                            (.. (:socket this) (connect __serverAddress, __connectTimeoutMillis))
-                            (.. connection (connectionOpened))
-                            (.. (:connect-future this) (set __serverAddress))
-                            (let [#_"InputStream" stream (.. (:socket this) (getInputStream))]
-                                (BlockingClient'runReadLoop stream, connection)
-                            )
-                            (catch Exception e
-                                (when (not (:v-close-requested this))
-                                    (.. BlockingClient'log (error "Error trying to open/read from connection: {}: {}", __serverAddress, (.. e (getMessage))))
-                                    (.. (:connect-future this) (setException e))
-                                )
-                            )
-                            (finally
-                                (try
-                                    (.. (:socket this) (close))
-                                    (catch IOException e1
-                                        ;; At this point there isn't much we can do, and we can probably assume the channel is closed.
-                                    )
-                                )
-                                (when (some? __clientSet)
-                                    (.. __clientSet (remove (§ dhis BlockingClient)))
-                                )
-                                (.. connection (connectionClosed))
-                            )
-                        )
-                        nil
-                    )
-                )]
-                (.. t (setName (str "BlockingClient network thread for " __serverAddress)))
-                (.. t (setDaemon true))
-                (.. t (start))
-                this
-            )
-        )
-    )
-
-    ;;;
-     ; A blocking call that never returns, except by throwing an exception.  It reads bytes from the input stream
-     ; and feeds them to the provided {@link StreamConnection}, for example, a {@link Peer}.
-     ;;
-    #_public
-    #_static
-    #_throws #_[ "Exception" ]
-    (§ defn #_"void" BlockingClient'runReadLoop [#_"InputStream" stream, #_"StreamConnection" connection]
-        (let [#_"ByteBuffer" dbuf (ByteBuffer/allocateDirect (min (max (.. connection (getMaxMessageSize)), BlockingClient'BUFFER_SIZE_LOWER_BOUND), BlockingClient'BUFFER_SIZE_UPPER_BOUND))
-              #_"byte[]" __readBuff (byte-array (.. dbuf (capacity)))]
-            (loop []
-                ;; TODO: Kill the message duplication here.
-                (assert-state (and (< 0 (.. dbuf (remaining))) (<= (.. dbuf (remaining)) (alength __readBuff))))
-                (let [#_"int" read (.. stream (read __readBuff, 0, (max 1, (min (.. dbuf (remaining)), (.. stream (available))))))]
-                    (when (= read -1)
-                        (§ return nil)
-                    )
-
-                    (.. dbuf (put __readBuff, 0, read))
-                    ;; "flip" the buffer - setting the limit to the current position and setting position to 0
-                    (.. dbuf (flip))
-                    ;; Use connection.receiveBytes's return value as a double-check that it stopped reading at the right location.
-                    (let [#_"int" __bytesConsumed (.. connection (receiveBytes dbuf))]
-                        (assert-state (= (.. dbuf (position)) __bytesConsumed))
-                        ;; Now drop the bytes which were read by compacting dbuf (resetting limit and keeping relative position).
-                        (.. dbuf (compact))
-                    )
-                )
-            )
-        )
-        nil
-    )
-
-    ;;;
-     ; Closes the connection to the server, triggering the {@link StreamConnection#connectionClosed()}
-     ; event on the network-handling thread where all callbacks occur.
-     ;;
-    #_override
-    #_public
-    (§ method #_"void" closeConnection []
-        ;; Closes the channel, triggering an exception in the network-handling thread triggering connectionClosed().
-        (try
-            (§ assoc this :v-close-requested true)
-            (.. (:socket this) (close))
-            (catch IOException e
-                (throw (RuntimeException. e))
-            )
-        )
-        nil
-    )
-
-    #_override
-    #_public
-    #_synchronized
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" writeBytes [#_"byte[]" message]
-        (try
-            (let [#_"OutputStream" stream (.. (:socket this) (getOutputStream))]
-                (.. stream (write message))
-                (.. stream (flush))
-            )
-            (catch IOException e
-                (.. BlockingClient'log (error "Error writing message to connection, closing connection", e))
-                (.. this (closeConnection))
-                (throw e)
-            )
-        )
-        nil
-    )
-
-    ;;; Returns a future that completes once connection has occurred at the socket level or with an exception if failed to connect. ;;
-    #_public
-    (§ method #_"ListenableFuture<SocketAddress>" getConnectFuture []
-        (:connect-future this)
-    )
-)
-
-;;;
- ; A thin wrapper around a set of {@link BlockingClient}s.
- ;
- ; Generally, using {@link NioClient} and {@link NioClientManager} should be preferred over {@link BlockingClient}
- ; and {@link BlockingClientManager} as they scale significantly better, unless you wish to connect over a proxy or use
- ; some other network settings that cannot be set using NIO.
- ;;
-#_public
-(§ class BlockingClientManager (§ extends AbstractIdleService) (§ implements ClientConnectionManager)
-    #_private
-    (§ field- #_"SocketFactory" :socket-factory)
-    #_private
-    (§ field- #_"Set<BlockingClient>" :clients (Collections/synchronizedSet (HashSet. #_"<BlockingClient>")))
-
-    #_private
-    (§ field- #_"int" :connect-timeout-millis 1000)
-
-    #_public
-    (§ constructor BlockingClientManager []
-        (§ assoc this :socket-factory (SocketFactory/getDefault))
-        this
-    )
-
-    ;;;
-     ; Creates a blocking client manager that will obtain sockets from the given factory.
-     ; Useful for customising how bitcoinj connects to the P2P network.
-     ;;
-    #_public
-    (§ constructor BlockingClientManager [#_"SocketFactory" __socketFactory]
-        (§ assoc this :socket-factory (ensure some? __socketFactory))
-        this
-    )
-
-    #_override
-    #_public
-    (§ method #_"ListenableFuture<SocketAddress>" openConnection [#_"SocketAddress" __serverAddress, #_"StreamConnection" connection]
-        (try
-            (when (not (.. this (isRunning)))
-                (throw (IllegalStateException.))
-            )
-
-            (.. (BlockingClient. __serverAddress, connection, (:connect-timeout-millis this), (:socket-factory this), (:clients this)) (getConnectFuture))
-            (catch IOException e
-                (throw (RuntimeException. e)) ;; This should only happen if we are, e.g. out of system resources.
-            )
-        )
-    )
-
-    ;;; Sets the number of milliseconds to wait before giving up on a connect attempt. ;;
-    #_public
-    (§ method #_"void" setConnectTimeoutMillis [#_"int" __connectTimeoutMillis]
-        (§ assoc this :connect-timeout-millis __connectTimeoutMillis)
-        nil
-    )
-
-    #_override
-    #_protected
-    #_throws #_[ "Exception" ]
-    (§ method #_"void" startUp []
-        nil
-    )
-
-    #_override
-    #_protected
-    #_throws #_[ "Exception" ]
-    (§ method #_"void" shutDown []
-        (§ sync (:clients this)
-            (doseq [#_"BlockingClient" client (:clients this)]
-                (.. client (closeConnection))
-            )
-        )
-        nil
-    )
-
-    #_override
-    #_public
-    (§ method #_"int" getConnectedClientCount []
-        (.. (:clients this) (size))
-    )
-
-    #_override
-    #_public
-    (§ method #_"void" closeConnections [#_"int" n]
-        (when (not (.. this (isRunning)))
-            (throw (IllegalStateException.))
-        )
-
-        (§ sync (:clients this)
-            (loop-when-recur [#_"Iterator<BlockingClient>" it (.. (:clients this) (iterator))] (and (< 0 n) (.. it (hasNext))) [(§ ass n (dec n))]
-                (.. it (next) (closeConnection))
-            )
-        )
-        nil
-    )
 )
 
 ;;;
@@ -24678,8 +24294,7 @@
 )
 
 ;;;
- ; A generic handler which is used in {@link NioServer}, {@link NioClient} and {@link BlockingClient} to handle incoming
- ; data streams.
+ ; A generic handler which is used in {@link NioServer} and {@link NioClient} to handle incoming data streams.
  ;;
 #_public
 (§ interface StreamConnection
@@ -29631,8 +29246,8 @@
 
     ;;;
      ; Returns the {@link StoredBlock} that represents the top of the chain of greatest total work.  Note that
-     ; this can be arbitrarily expensive, you probably should use {@link BlockChain#getChainHead()}
-     ; or perhaps {@link BlockChain#getBestChainHeight()} which will run in constant time and
+     ; this can be arbitrarily expensive, you probably should use {@link SPVBlockChain#getChainHead()}
+     ; or perhaps {@link SPVBlockChain#getBestChainHeight()} which will run in constant time and
      ; not take any heavyweight locks.
      ;;
     #_throws #_[ "BlockStoreException" ]
@@ -30359,7 +29974,7 @@
             (.. this (setChainHead __chainHead))
         )
         ;; Potential leak here if not all blocks get setChainHead'd.
-        ;; Though the FullPrunedBlockStore allows for this, the current AbstractBlockChain will not do it.
+        ;; Though the FullPrunedBlockStore allows for this, the current BlockChain will not do it.
         (.. (:full-block-map this) (removeByMultiKey (- (.. __chainHead (getHeight)) (:full-store-depth this))))
         nil
     )
@@ -35956,6 +35571,16 @@
 ;; Finally, find more ways to break the class up and decompose it.  Currently every time we move code out, other code
 ;; fills up the lines saved!
 
+#_public
+#_enum
+(def PoolType'values
+#{
+    :PoolType'UNSPENT ;; unspent in best chain
+    :PoolType'SPENT ;; spent in best chain
+    :PoolType'DEAD ;; double-spend in alt chain
+    :PoolType'PENDING ;; a pending tx we would like to go into the best chain
+})
+
 ;;;
  ; A Wallet stores keys and a record of transactions that send and receive value from those keys.  Using these,
  ; it is able to create new transactions that spend the recorded transactions, and this is the fundamental operation
@@ -35963,7 +35588,7 @@
  ;
  ; To learn more about this class, read <b><a href="https://bitcoinj.github.io/working-with-the-wallet">working with the wallet.</a></b>
  ;
- ; To fill up a Wallet with transactions, you need to use it in combination with a {@link BlockChain} and various
+ ; To fill up a Wallet with transactions, you need to use it in combination with a {@link SPVBlockChain} and various
  ; other objects, see the <a href="https://bitcoinj.github.io/getting-started">Getting started</a> tutorial
  ; on the website to learn more about how to set everything up.
  ;
@@ -36077,7 +35702,7 @@
     (§ field- #_"TransactionConfidenceListener" :tx-confidence-listener)
 
     ;; If a TX hash appears in this set then notifyNewBestBlock will ignore it, as its confidence was already set up
-    ;; in receive() via Transaction.setBlockAppearance().  As the BlockChain always calls notifyNewBestBlock even if
+    ;; in receive() via Transaction.setBlockAppearance().  As the SPVBlockChain always calls notifyNewBestBlock even if
     ;; it sent transactions to the wallet, without this we'd double count.
     #_private
     (§ field- #_"HashSet<Sha256Hash>" :ignore-next-new-block)
@@ -37038,7 +36663,7 @@
     )
 
     ;;;
-     ; Called by the {@link BlockChain} when we receive a new filtered block that contains a transactions previously
+     ; Called by the {@link SPVBlockChain} when we receive a new filtered block that contains a transactions previously
      ; received by a call to {@link #receivePending}.
      ;
      ; This is necessary for the internal book-keeping Wallet does.  When a transaction is received that sends us
@@ -37323,7 +36948,7 @@
     )
 
     ;;;
-     ; Called by the {@link BlockChain} when we receive a new block that sends coins to one of our addresses or
+     ; Called by the {@link SPVBlockChain} when we receive a new block that sends coins to one of our addresses or
      ; spends coins from one of our addresses (note that a single transaction can do both).
      ;
      ; This is necessary for the internal book-keeping Wallet does.  When a transaction is received that sends us
@@ -37451,7 +37076,7 @@
                         (.. tx (setBlockAppearance block, __bestChain, __relativityOffset))
                         (when __bestChain
                             ;; Don't notify this tx of work done in notifyNewBestBlock which will be called immediately
-                            ;; after this method has been called by BlockChain for all relevant transactions.  Otherwise
+                            ;; after this method has been called by SPVBlockChain for all relevant transactions.  Otherwise
                             ;; we'd double count.
                             (.. (:ignore-next-new-block this) (add __txHash))
 
@@ -37585,7 +37210,7 @@
     )
 
     ;;;
-     ; Called by the {@link BlockChain} when a new block on the best chain is seen, AFTER relevant wallet
+     ; Called by the {@link SPVBlockChain} when a new block on the best chain is seen, AFTER relevant wallet
      ; transactions are extracted and sent to us UNLESS the new block caused a re-org, in which case this will
      ; not be called (the {@link Wallet#reorganize(StoredBlock, java.util.List, java.util.List)} method will
      ; call this one in that case).
@@ -38393,35 +38018,6 @@
     )
 
     ;;;
-     ; Returns a set of all WalletTransactions in the wallet.
-     ;;
-    #_public
-    (§ method #_"Iterable<WalletTransaction>" getWalletTransactions []
-        (.. (:lock this) (lock))
-        (try
-            (let [#_"Set<WalletTransaction>" all (HashSet. #_"<>")]
-                (Wallet'addWalletTransactionsToSet all, :PoolType'UNSPENT, (.. (:unspent this) (values)))
-                (Wallet'addWalletTransactionsToSet all, :PoolType'SPENT, (.. (:spent this) (values)))
-                (Wallet'addWalletTransactionsToSet all, :PoolType'DEAD, (.. (:dead this) (values)))
-                (Wallet'addWalletTransactionsToSet all, :PoolType'PENDING, (.. (:pending this) (values)))
-                all
-            )
-            (finally
-                (.. (:lock this) (unlock))
-            )
-        )
-    )
-
-    #_private
-    #_static
-    (§ defn- #_"void" Wallet'addWalletTransactionsToSet [#_"Set<WalletTransaction>" txns, #_"PoolType" __poolType, #_"Collection<Transaction>" pool]
-        (doseq [#_"Transaction" tx pool]
-            (.. txns (add (WalletTransaction. __poolType, tx)))
-        )
-        nil
-    )
-
-    ;;;
      ; Adds the given transaction to the given pools and registers a confidence change listener on it.
      ;;
     #_private
@@ -38688,7 +38284,7 @@
      ; @param chain If set, will be used to estimate lock times for block timelocked transactions.
      ;;
     #_public
-    (§ method #_"String" toString [#_"boolean" __includePrivateKeys, #_"boolean" __includeTransactions, #_nilable #_"AbstractBlockChain" chain]
+    (§ method #_"String" toString [#_"boolean" __includePrivateKeys, #_"boolean" __includeTransactions, #_nilable #_"BlockChain" chain]
         (.. (:lock this) (lock))
         (.. (:key-chain-group-lock this) (lock))
         (try
@@ -38746,7 +38342,7 @@
     )
 
     #_private
-    (§ method- #_"void" toStringHelper [#_"StringBuilder" sb, #_"Map<Sha256Hash, Transaction>" __transactionMap, #_nilable #_"AbstractBlockChain" chain, #_nilable #_"Comparator<Transaction>" __sortOrder]
+    (§ method- #_"void" toStringHelper [#_"StringBuilder" sb, #_"Map<Sha256Hash, Transaction>" __transactionMap, #_nilable #_"BlockChain" chain, #_nilable #_"Comparator<Transaction>" __sortOrder]
         (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
         (let [#_"Collection<Transaction>" txns]
@@ -39924,7 +39520,7 @@
     ;;;
      ; Don't call this directly.  It's not intended for API users.
      ;
-     ; Called by the {@link BlockChain} when the best chain (representing total work done) has changed.
+     ; Called by the {@link SPVBlockChain} when the best chain (representing total work done) has changed.
      ; This can cause the number of confirmations of a transaction to go higher, lower, drop to zero and
      ; can even result in a transaction going dead (will never confirm) due to a double spend.
      ;
@@ -40725,44 +40321,6 @@
                 (.. (:lock this) (unlock))
             )
         )
-    )
-)
-
-;;;
- ; Stores data about a transaction that is only relevant to the {@link Wallet} class.
- ;;
-#_public
-(§ class WalletTransaction
-    #_public
-    #_static
-    #_enum
-    (def PoolType'values
-    #{
-        :PoolType'UNSPENT ;; unspent in best chain
-        :PoolType'SPENT ;; spent in best chain
-        :PoolType'DEAD ;; double-spend in alt chain
-        :PoolType'PENDING ;; a pending tx we would like to go into the best chain
-    })
-    #_private
-    (§ field- #_"Transaction" :transaction)
-    #_private
-    (§ field- #_"PoolType" :pool)
-
-    #_public
-    (§ constructor WalletTransaction [#_"PoolType" pool, #_"Transaction" transaction]
-        (§ assoc this :pool (ensure some? pool))
-        (§ assoc this :transaction transaction)
-        this
-    )
-
-    #_public
-    (§ method #_"Transaction" getTransaction []
-        (:transaction this)
-    )
-
-    #_public
-    (§ method #_"PoolType" getPool []
-        (:pool this)
     )
 )
 
