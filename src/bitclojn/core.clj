@@ -11682,9 +11682,7 @@
                         (.. (:lock this) (lock))
                         (try
                             ;; First run: try and use a local node if there is one, for the additional security it can provide.
-                            ;; But, not on Android as there are none for this platform: it could only be a malicious app trying
-                            ;; to hijack our traffic.
-                            (when (and (not (Utils'isAndroidRuntime)) (:use-localhost-peer-when-possible this) (.. this (maybeCheckForLocalhostPeer)) (:first-run this))
+                            (when (and (:use-localhost-peer-when-possible this) (.. this (maybeCheckForLocalhostPeer)) (:first-run this))
                                 (.. PeerGroup'log (info "Localhost peer detected, trying to use it instead of P2P discovery"))
                                 (§ assoc this :max-connections 0)
                                 (.. this (connectToLocalHost))
@@ -15545,32 +15543,13 @@
         )
     )
 
-    #_nilable
-    #_private
-    (§ field- #_"Coin" :cached-value)
-    #_nilable
-    #_private
-    (§ field- #_"TransactionBag" :cached-for-bag)
-
     ;;;
      ; Returns the difference of {@link Transaction#getValueSentToMe(TransactionBag)} and {@link Transaction#getValueSentFromMe(TransactionBag)}.
      ;;
     #_public
     #_throws #_[ "ScriptException" ]
     (§ method #_"Coin" getValue [#_"TransactionBag" wallet]
-        ;; FIXME: TEMP PERF HACK FOR ANDROID - this crap can go away once we have a real payments API.
-        (let [#_"boolean" __isAndroid (Utils'isAndroidRuntime)]
-            (if (and __isAndroid (some? (:cached-value this)) (= (:cached-for-bag this) wallet))
-                (:cached-value this)
-                (let [#_"Coin" result (.. this (getValueSentToMe wallet) (subtract (.. this (getValueSentFromMe wallet))))]
-                    (when __isAndroid
-                        (§ assoc this :cached-value result)
-                        (§ assoc this :cached-for-bag wallet)
-                    )
-                    result
-                )
-            )
-        )
+        (.. this (getValueSentToMe wallet) (subtract (.. this (getValueSentFromMe wallet))))
     )
 
     ;;;
@@ -19735,12 +19714,6 @@
         )
     )
 
-    #_public
-    #_static
-    (§ defn #_"boolean" Utils'isWindows []
-        (.. (System/getProperty "os.name") (toLowerCase) (contains "win"))
-    )
-
     ;;;
      ; Given a textual message, returns a byte buffer formatted as follows:
      ;
@@ -19839,15 +19812,6 @@
             (.. Utils'MOCK_SLEEP_QUEUE (offer true))
         )
         nil
-    )
-
-    #_private
-    #_static
-    (def- #_"int" Utils'IS_ANDROID (let [#_"String" runtime (System/getProperty "java.runtime.name")] (and (some? runtime) (.. runtime (equals "Android Runtime")))))
-    #_public
-    #_static
-    (§ defn #_"boolean" Utils'isAndroidRuntime []
-        Utils'IS_ANDROID
     )
 
     #_private
@@ -22392,10 +22356,7 @@
         (try
             (§ ass MnemonicCode'INSTANCE (MnemonicCode.))
             (catch FileNotFoundException e
-                ;; We expect failure on Android.  The developer has to set INSTANCE themselves.
-                (when (not (Utils'isAndroidRuntime))
-                    (.. MnemonicCode'log (error "Could not find word list", e))
-                )
+                (.. MnemonicCode'log (error "Could not find word list", e))
             )
             (catch IOException e
                 (.. MnemonicCode'log (error "Failed to load word list", e))
@@ -23229,7 +23190,7 @@
                     ;; Initiate Bitcoin network objects (block store, blockchain and peer group).
                     (§ assoc this :v-store (.. this (provideBlockStore __chainFile)))
                     (when (not __chainFileExists)
-                        (when (and (nil? (:checkpoints this)) (not (Utils'isAndroidRuntime)))
+                        (when (nil? (:checkpoints this))
                             (§ assoc this :checkpoints (CheckpointManager'openStream (:params this)))
                         )
 
@@ -25113,12 +25074,7 @@
     #_override
     #_protected
     (§ method #_"ExecutorService" createExecutor []
-        ;; Attempted workaround for reported bugs on Linux in which gethostbyname does not appear to be properly
-        ;; thread safe and can cause segfaults on some libc versions.
-        (if (.. (System/getProperty "os.name") (toLowerCase) (contains "linux"))
-            (Executors/newSingleThreadExecutor (ContextPropagatingThreadFactory. "DNS seed lookups"))
-            (Executors/newFixedThreadPool (.. (:seeds this) (size)), (DaemonThreadFactory. "DNS seed lookups"))
-        )
+        (Executors/newFixedThreadPool (.. (:seeds this) (size)), (DaemonThreadFactory. "DNS seed lookups"))
     )
 
     ;;; Implements discovery from a single DNS host. ;;
@@ -31773,7 +31729,7 @@
     #_public
     #_static
     (§ defn #_"ReentrantLock" Threading'lock [#_"String" name]
-        (if (Utils'isAndroidRuntime) (ReentrantLock. true) (.. Threading'FACTORY (newReentrantLock name)))
+        (.. Threading'FACTORY (newReentrantLock name))
     )
 
     #_public
@@ -37105,23 +37061,8 @@
                 (.. stream (getFD) (sync))
                 (.. stream (close))
                 (§ ass stream nil)
-                (cond (Utils'isWindows)
-                    (do
-                        ;; Work around an issue on Windows whereby you can't rename over existing files.
-                        (let [#_"File" canonical (.. __destFile (getCanonicalFile))]
-                            (when (and (.. canonical (exists)) (not (.. canonical (delete))))
-                                (throw (IOException. "Failed to delete canonical wallet file for replacement with autosave"))
-                            )
-                            (when (.. temp (renameTo canonical))
-                                (§ return nil) ;; else fall through
-                            )
-                            (throw (IOException. (str "Failed to rename " temp " to " canonical)))
-                        )
-                    )
-                    (not (.. temp (renameTo __destFile)))
-                    (do
-                        (throw (IOException. (str "Failed to rename " temp " to " __destFile)))
-                    )
+                (when-not (.. temp (renameTo __destFile))
+                    (throw (IOException. (str "Failed to rename " temp " to " __destFile)))
                 )
                 (catch RuntimeException e
                     (.. Wallet'log (error "Failed whilst saving wallet", e))
