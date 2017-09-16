@@ -3540,12 +3540,10 @@
     (§ field #_"BlockStore" :block-store)
 
     ;;;
-     ; Constructs a BlockChain connected to the given wallet and store.  To obtain a {@link Wallet} you can construct
-     ; one from scratch, or you can deserialize a saved wallet from disk using {@link Wallet#loadFromFile(java.io.File)}.
+     ; Constructs a BlockChain connected to the given wallet and store.
      ;
-     ; For the store, you should use {@link SPVBlockStore} or you could also try a
-     ; {@link MemoryBlockStore} if you want to hold all headers in RAM and don't care about
-     ; disk serialization (this is rare).
+     ; For the store, you should use {@link SPVBlockStore} or you could also try a {@link MemoryBlockStore}
+     ; if you want to hold all headers in RAM and don't care about disk serialization (this is rare).
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
@@ -6228,8 +6226,7 @@
     (§ field- #_"boolean" :run-scripts true)
 
     ;;;
-     ; Constructs a block chain connected to the given wallet and store.  To obtain a {@link Wallet} you can construct
-     ; one from scratch, or you can deserialize a saved wallet from disk using {@link Wallet#loadFromFile(java.io.File)}.
+     ; Constructs a block chain connected to the given wallet and store.
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
@@ -6240,8 +6237,7 @@
     )
 
     ;;;
-     ; Constructs a block chain connected to the given wallet and store.  To obtain a {@link Wallet} you can construct
-     ; one from scratch, or you can deserialize a saved wallet from disk using {@link Wallet#loadFromFile(java.io.File)}.
+     ; Constructs a block chain connected to the given wallet and store.
      ;;
     #_public
     #_throws #_[ "BlockStoreException" ]
@@ -15180,8 +15176,6 @@
         ;;; Raise fee, e.g. child-pays-for-parent. ;;
         :TransactionPurpose'RAISE_FEE
         ;; In future: de/refragmentation, privacy boosting/mixing, etc.
-        ;; When adding a value, it also needs to be added to wallet.proto, WalletSerializer.makeTxProto()
-        ;; and WalletSerializer.readTransaction()!
     })
 
     #_private
@@ -23061,8 +23055,6 @@
     (§ field #_"File" :v-wallet-file)
 
     #_protected
-    (§ field #_"boolean" :use-auto-save true)
-    #_protected
     (§ field #_"PeerAddress[]" :peer-addresses)
     #_protected
     (§ field #_"DownloadProgressTracker" :download-listener)
@@ -23125,14 +23117,6 @@
                 (throw (RuntimeException. e))
             )
         )
-    )
-
-    ;;; If true, the wallet will save itself to disk automatically whenever it changes. ;;
-    #_public
-    (§ method #_"WalletAppKit" setAutoSave [#_"boolean" value]
-        (assert-state (= (state) KeyChainState'NEW), "Cannot call after startup")
-        (§ assoc this :use-auto-save value)
-        this
     )
 
     ;;;
@@ -23346,18 +23330,8 @@
                 )
             )
 
-            (when (:use-auto-save this)
-                (.. this (setupAutoSave wallet))
-            )
-
             wallet
         )
-    )
-
-    #_protected
-    (§ method #_"void" setupAutoSave [#_"Wallet" wallet]
-        (.. wallet (autosaveToFile (:v-wallet-file this), 5, TimeUnit/SECONDS, nil))
-        nil
     )
 
     #_private
@@ -36743,9 +36717,7 @@
  ; Wallets can be serialized using protocol buffers.  You need to save the wallet whenever it changes, there is an
  ; auto-save feature that simplifies this for you although you're still responsible for manually triggering a save when
  ; your app is about to quit because the auto-save feature waits a moment before actually committing to disk to avoid IO
- ; thrashing when the wallet is changing very fast (e.g. due to a block chain sync).  See
- ; {@link Wallet#autosaveToFile(java.io.File, long, java.util.concurrent.TimeUnit, WalletFiles.Listener)}
- ; for more information about this.
+ ; thrashing when the wallet is changing very fast (e.g. due to a block chain sync).
  ;;
 #_public
 (§ class Wallet (§ implements NewBestBlockListener, TransactionReceivedInBlockListener, PeerFilterProvider, KeyBag, TransactionBag, ReorganizeListener)
@@ -36869,15 +36841,12 @@
     (§ field- #_"boolean" :inside-reorg)
     #_private
     (§ field- #_"Map<Transaction, ConfidenceChangeReason>" :confidence-changed)
-    #_protected
-    #_volatile
-    (§ field #_"WalletFiles" :v-file-manager)
     ;; Object that is used to send transactions asynchronously when the wallet requires it.
     #_protected
     #_volatile
     (§ field #_"TransactionBroadcaster" :v-transaction-broadcaster)
-    ;; UNIX time in seconds.  Money controlled by keys created before this time will be automatically respent to
-    ;; a key that was created after it.  Useful when you believe some keys have been compromised.
+    ;; UNIX time in seconds.  Money controlled by keys created before this time will be automatically respent
+    ;; to a key that was created after it.  Useful when you believe some keys have been compromised.
     #_private
     #_volatile
     (§ field- #_"long" :v-key-rotation-timestamp)
@@ -36895,8 +36864,7 @@
 
     ;;;
      ; Creates a new, empty wallet with a randomly chosen seed and no transactions.  Make sure to provide for
-     ; sufficient backup!  Any keys will be derived from the seed.  If you want to restore a wallet from disk
-     ; instead, see {@link #loadFromFile}.
+     ; sufficient backup!  Any keys will be derived from the seed.
      ;;
     #_public
     (§ constructor Wallet [#_"NetworkParameters" params]
@@ -36906,8 +36874,7 @@
 
     ;;;
      ; Creates a new, empty wallet with a randomly chosen seed and no transactions.  Make sure to provide for
-     ; sufficient backup!  Any keys will be derived from the seed.  If you want to restore a wallet from disk
-     ; instead, see {@link #loadFromFile}.
+     ; sufficient backup!  Any keys will be derived from the seed.
      ;;
     #_public
     (§ constructor Wallet [#_"Context" context]
@@ -37332,8 +37299,7 @@
     ;;;
      ; Imports the given ECKey to the wallet.
      ;
-     ; If the wallet is configured to auto save to a file, triggers a save immediately.  Runs the onKeysAdded event
-     ; handler.  If the key already exists in the wallet, does nothing and returns false.
+     ; Runs the onKeysAdded event handler.  If the key already exists in the wallet, does nothing and returns false.
      ;;
     #_public
     (§ method #_"boolean" importKey [#_"ECKey" key]
@@ -37342,8 +37308,7 @@
 
     ;;;
      ; Imports the given keys to the wallet.
-     ; If {@link Wallet#autosaveToFile(java.io.File, long, java.util.concurrent.TimeUnit, WalletFiles.Listener)}
-     ; has been called, triggers an auto save bypassing the normal coalescing delay and event handlers.
+     ;
      ; Returns the number of keys added, after duplicates are ignored.  The onKeyAdded event will be called
      ; for each key in the list that was not already present.
      ;;
@@ -37755,97 +37720,15 @@
         )
     )
 
-    ;;;
-     ; Sets up the wallet to auto-save itself to the given file, using temp files with atomic renames to ensure
-     ; consistency.  After connecting to a file, you no longer need to save the wallet manually, it will do it
-     ; whenever necessary.  Protocol buffer serialization will be used.
-     ;
-     ; If delayTime is set, a background thread will be created and the wallet will only be saved to disk
-     ; every so many time units.  If no changes have occurred for the given time period, nothing will be written.
-     ; In this way disk IO can be rate limited.  It's a good idea to set this as otherwise the wallet can change very
-     ; frequently, e.g. if there are a lot of transactions in it or during block sync, and there will be a lot of redundant
-     ; writes.  Note that when a new key is added, that always results in an immediate save regardless of delayTime.
-     ; <b>You should still save the wallet manually when your program is about to shut down as the JVM will not
-     ; wait for the background thread.</b>
-     ;
-     ; An event listener can be provided.  If a delay >0 was specified, it will be called on a background thread
-     ; with the wallet locked when an auto-save occurs.  If delay is zero or you do something that always triggers
-     ; an immediate save, like adding a key, the event listener will be invoked on the calling threads.
-     ;
-     ; @param f The destination file to save to.
-     ; @param delayTime How many time units to wait until saving the wallet on a background thread.
-     ; @param timeUnit The unit of measurement for delayTime.
-     ; @param eventListener Callback to be informed when the auto-save thread does things, or null.
-     ;;
-    #_public
-    (§ method #_"WalletFiles" autosaveToFile [#_"File" f, #_"long" __delayTime, #_"TimeUnit" __timeUnit, #_nilable #_"WalletFilesListener" __eventListener]
-        (.. (:lock this) (lock))
-        (try
-            (assert-state (nil? (:v-file-manager this)), "Already auto saving this wallet.")
-            (let [#_"WalletFiles" manager (WalletFiles. this, f, __delayTime, __timeUnit)]
-                (when (some? __eventListener)
-                    (.. manager (setListener __eventListener))
-                )
-                (§ assoc this :v-file-manager manager)
-                manager
-            )
-            (finally
-                (.. (:lock this) (unlock))
-            )
-        )
-    )
-
-    ;;;
-     ; Disables auto-saving, after it had been enabled with
-     ; {@link Wallet#autosaveToFile(java.io.File, long, java.util.concurrent.TimeUnit, WalletFiles.Listener)}
-     ; before.  This method blocks until finished.
-     ;;
-    #_public
-    (§ method #_"void" shutdownAutosaveAndWait []
-        (.. (:lock this) (lock))
-        (try
-            (let [#_"WalletFiles" files (:v-file-manager this)]
-                (§ assoc this :v-file-manager nil)
-                (assert-state (some? files), "Auto saving not enabled.")
-                (.. files (shutdownAndWait))
-            )
-            (finally
-                (.. (:lock this) (unlock))
-            )
-        )
-        nil
-    )
-
     ;;; Requests an asynchronous save on a background thread. ;;
     #_protected
     (§ method #_"void" saveLater []
-        (let [#_"WalletFiles" files (:v-file-manager this)]
-            (when (some? files)
-                (.. files (saveLater))
-            )
-        )
         nil
     )
 
     ;;; If auto saving is enabled, do an immediate sync write to disk ignoring any delays. ;;
     #_protected
     (§ method #_"void" saveNow []
-        (let [#_"WalletFiles" files (:v-file-manager this)]
-            (when (some? files)
-                (try
-                    (.. files (saveNow)) ;; This calls back into saveToFile().
-                    (catch IOException e
-                        ;; Can't really do much at this point, just let the API user know.
-                        (.. Wallet'log (error "Failed to save wallet to disk!", e))
-                        (let [#_"Thread.UncaughtExceptionHandler" handler Threading'UNCAUGHT_EXCEPTION_HANDLER]
-                            (when (some? handler)
-                                (.. handler (uncaughtException (Thread/currentThread), e))
-                            )
-                        )
-                    )
-                )
-            )
-        )
         nil
     )
 
@@ -37876,33 +37759,6 @@
     #_public
     (§ method #_"Context" getContext []
         (:context this)
-    )
-
-    ;;;
-     ; Returns a wallet deserialized from the given file.
-     ;
-     ; @param file The wallet file to be read.
-     ;;
-    #_public
-    #_static
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ defn #_"Wallet" Wallet'loadFromFile [#_"File" file]
-        (try
-            (let [#_"FileInputStream" stream nil]
-                (try
-                    (§ ass stream (FileInputStream. file))
-                    (Wallet'loadFromFileStream stream)
-                    (finally
-                        (when (some? stream)
-                            (.. stream (close))
-                        )
-                    )
-                )
-            )
-            (catch IOException e
-                (throw (UnreadableWalletException. "Could not open file", e))
-            )
-        )
     )
 
     ;;;
@@ -38000,19 +37856,6 @@
                 )
             )
             (= __isActuallySpent __isSpent)
-        )
-    )
-
-    ;;; Returns a wallet deserialized from the given input stream. ;;
-    #_public
-    #_static
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ defn #_"Wallet" Wallet'loadFromFileStream [#_"InputStream" stream]
-        (let [#_"Wallet" wallet (.. (WalletSerializer.) (readWallet stream))]
-            (when (not (.. wallet (isConsistent)))
-                (.. Wallet'log (error "Loaded an inconsistent wallet"))
-            )
-            wallet
         )
     )
 
@@ -41725,157 +41568,6 @@
 )
 
 ;;;
- ; A class that handles atomic and optionally delayed writing of the wallet file to disk.  In future: backups too.
- ; It can be useful to delay writing of a wallet file to disk on slow devices where disk and serialization overhead
- ; can come to dominate the chain processing speed, i.e. on Android phones.  By coalescing writes and doing
- ; serialization and disk IO on a background thread performance can be improved.
- ;;
-#_public
-(§ class WalletFiles
-    #_private
-    #_static
-    (def- #_"Logger" WalletFiles'log (LoggerFactory/getLogger WalletFiles))
-
-    #_private
-    (§ field- #_"Wallet" :wallet)
-    #_private
-    (§ field- #_"ScheduledThreadPoolExecutor" :executor)
-    #_private
-    (§ field- #_"File" :file)
-    #_private
-    (§ field- #_"AtomicBoolean" :save-pending)
-    #_private
-    (§ field- #_"long" :delay)
-    #_private
-    (§ field- #_"TimeUnit" :delay-time-unit)
-    #_private
-    (§ field- #_"Callable<Void>" :saver)
-
-    #_private
-    #_volatile
-    (§ field- #_"WalletFilesListener" :v-listener)
-
-    ;;;
-     ; Implementors can do pre/post treatment of the wallet file.  Useful for adjusting permissions and other things.
-     ;;
-    #_public
-    (§ interface WalletFilesListener
-        ;;;
-         ; Called on the auto-save thread when a new temporary file is created but before the wallet data is saved
-         ; to it.  If you want to do something here like adjust permissions, go ahead and do so.
-         ;;
-        (§ method #_"void" onBeforeAutoSave [#_"File" __tempFile])
-
-        ;;;
-         ; Called on the auto-save thread after the newly created temporary file has been filled with data and renamed.
-         ;;
-        (§ method #_"void" onAfterAutoSave [#_"File" __newlySavedFile])
-    )
-
-    ;;;
-     ; Initialize atomic and optionally delayed writing of the wallet file to disk.  Note the initial wallet state isn't
-     ; saved automatically.  The {@link Wallet} calls {@link #saveNow()} or {@link #saveLater()} as wallet state changes,
-     ; depending on the urgency of the changes.
-     ;;
-    #_public
-    (§ constructor WalletFiles [#_"Wallet" wallet, #_"File" file, #_"long" delay, #_"TimeUnit" __delayTimeUnit]
-        ;; An executor that starts up threads when needed and shuts them down later.
-        (§ assoc this :executor (ScheduledThreadPoolExecutor. 1, (ContextPropagatingThreadFactory. "Wallet autosave thread", Thread/MIN_PRIORITY)))
-        (.. (:executor this) (setKeepAliveTime 5, TimeUnit/SECONDS))
-        (.. (:executor this) (allowCoreThreadTimeOut true))
-        (.. (:executor this) (setExecuteExistingDelayedTasksAfterShutdownPolicy false))
-        (§ assoc this :wallet (ensure some? wallet))
-        ;; File must only be accessed from the auto-save executor from now on, to avoid simultaneous access.
-        (§ assoc this :file (ensure some? file))
-        (§ assoc this :save-pending (AtomicBoolean.))
-        (§ assoc this :delay delay)
-        (§ assoc this :delay-time-unit (ensure some? __delayTimeUnit))
-
-        (§ assoc this :saver (Callable. #_"<Void>"
-        (§ anon
-            #_override
-            #_public
-            #_throws #_[ "Exception" ]
-            (§ method #_"Void" call []
-                ;; Runs in an auto save thread, unless some other scheduled request already beat us to it.
-                (when (.. (:save-pending this) (getAndSet false))
-                    (let [#_"Date" time (.. wallet (getLastBlockSeenTime))]
-                        (.. WalletFiles'log (info "Background saving wallet; last seen block is height {}, date {}, hash {}", (.. wallet (getLastBlockSeenHeight)), (if (some? time) (Utils'dateTimeFormat time) "unknown"), (.. wallet (getLastBlockSeenHash))))
-                        (.. this (saveNowInternal))
-                    )
-                )
-                nil
-            )
-        )))
-        this
-    )
-
-    ;;;
-     ; The given listener will be called on the autosave thread before and after the wallet is saved to disk.
-     ;;
-    #_public
-    (§ method #_"void" setListener [#_non-nil #_"WalletFilesListener" listener]
-        (§ assoc this :v-listener (ensure some? listener))
-        nil
-    )
-
-    ;;; Actually write the wallet file to disk, using an atomic rename when possible.  Runs on the current thread. ;;
-    #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" saveNow []
-        ;; Can be called by any thread. However the wallet is locked whilst saving, so we can have two saves
-        ;; in flight, but they will serialize (using different temp files).
-        (let [#_"Date" __lastBlockSeenTime (.. (:wallet this) (getLastBlockSeenTime))]
-            (.. WalletFiles'log (info "Saving wallet; last seen block is height {}, date {}, hash {}", (.. (:wallet this) (getLastBlockSeenHeight)), (if (some? __lastBlockSeenTime) (Utils'dateTimeFormat __lastBlockSeenTime) "unknown"), (.. (:wallet this) (getLastBlockSeenHash))))
-            (.. this (saveNowInternal))
-        )
-        nil
-    )
-
-    #_private
-    #_throws #_[ "IOException" ]
-    (§ method- #_"void" saveNowInternal []
-        (let [#_"Stopwatch" watch (Stopwatch/createStarted)
-              #_"File" directory (.. (:file this) (getAbsoluteFile) (getParentFile))
-              #_"File" temp (File/createTempFile "wallet", nil, directory)
-              #_"WalletFilesListener" listener (:v-listener this)]
-            (when (some? listener)
-                (.. listener (onBeforeAutoSave temp))
-            )
-            (.. (:wallet this) (saveToFile temp, (:file this)))
-            (when (some? listener)
-                (.. listener (onAfterAutoSave (:file this)))
-            )
-            (.. watch (stop))
-            (.. WalletFiles'log (info "Save completed in {}", watch))
-        )
-        nil
-    )
-
-    ;;; Queues up a save in the background.  Useful for not very important wallet changes. ;;
-    #_public
-    (§ method #_"void" saveLater []
-        (when-not (.. (:save-pending this) (getAndSet true)) ;; Else already pending.
-            (.. (:executor this) (schedule (:saver this), (:delay this), (:delay-time-unit this)))
-        )
-        nil
-    )
-
-    ;;; Shut down auto-saving. ;;
-    #_public
-    (§ method #_"void" shutdownAndWait []
-        (.. (:executor this) (shutdown))
-        (try
-            (.. (:executor this) (awaitTermination Long/MAX_VALUE, TimeUnit/DAYS)) ;; forever
-            (catch InterruptedException e
-                (throw (RuntimeException. e))
-            )
-        )
-        nil
-    )
-)
-
-;;;
  ; Serialize and de-serialize a wallet to a byte stream containing a
  ; <a href="https://developers.google.com/protocol-buffers/docs/overview">protocol buffer</a>.  Protocol buffers are
  ; a data interchange format developed by Google with an efficient binary representation, a type safe specification
@@ -42298,9 +41990,7 @@
     )
 
     ;;;
-     ; Returns the loaded protocol buffer from the given byte stream.  You normally want
-     ; {@link Wallet#loadFromFile(java.io.File)} instead - this method is designed for
-     ; low level work involving the wallet file format itself.
+     ; Returns the loaded protocol buffer from the given byte stream.
      ;;
     #_public
     #_static
