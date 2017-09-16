@@ -4954,7 +4954,7 @@
  ; can usually ignore the compressed/uncompressed distinction.
  ;;
 #_public
-(§ class ECKey (§ implements EncryptableItem)
+(§ class ECKey
     #_private
     #_static
     (def- #_"Logger" ECKey'log (LoggerFactory/getLogger ECKey))
@@ -20695,7 +20695,6 @@
     (:import [com.google.common.base Joiner MoreObjects Objects Stopwatch]
              [com.google.common.collect ImmutableList Iterables Maps]
              [com.google.common.primitives Ints]
-             [com.google.protobuf ByteString]
              [java.io ByteArrayOutputStream FileNotFoundException IOException InputStream]
              [java.math BigInteger]
              [java.nio ByteBuffer ByteOrder]
@@ -21535,20 +21534,6 @@
         )
         nil
     )
-)
-
-;;;
- ; Provides a uniform way to access something that can be optionally encrypted
- ; and which can have a creation time associated with it.
- ;;
-#_public
-(§ interface EncryptableItem
-    ;;; Returns the raw bytes of the item, if not encrypted, or null if encrypted or the secret is missing. ;;
-    #_nilable
-    (§ method #_"byte[]" getSecretBytes [])
-
-    ;;; Returns the time in seconds since the UNIX epoch at which this encryptable item was first created/derived. ;;
-    (§ method #_"long" getCreationTimeSeconds [])
 )
 
 #_public
@@ -23050,9 +23035,6 @@
 
     #_protected
     (§ field #_"File" :directory)
-    #_protected
-    #_volatile
-    (§ field #_"File" :v-wallet-file)
 
     #_protected
     (§ field #_"PeerAddress[]" :peer-addresses)
@@ -23213,97 +23195,96 @@
         (.. WalletAppKit'log (info "Starting up with directory = {}", (:directory this)))
         (try
             (let [#_"File" __chainFile (File. (:directory this), (str (:file-prefix this) ".spvchain"))
-                  #_"boolean" __chainFileExists (.. __chainFile (exists))]
-                (§ assoc this :v-wallet-file (File. (:directory this), (str (:file-prefix this) ".wallet")))
-                (let [#_"boolean" replay? (and (.. (:v-wallet-file this) (exists)) (not __chainFileExists))]
-                    (§ assoc this :v-wallet (.. this (createOrLoadWallet replay?)))
+                  #_"boolean" __chainFileExists (.. __chainFile (exists))
+                  #_"Wallet" wallet (.. this (createWallet))]
+                (.. wallet (freshReceiveKey))
+                (§ assoc this :v-wallet wallet)
 
-                    ;; Initiate Bitcoin network objects (block store, blockchain and peer group).
-                    (§ assoc this :v-store (.. this (provideBlockStore __chainFile)))
-                    (when (not __chainFileExists)
-                        (when (nil? (:textual-checkpoints this))
-                            (§ assoc this :textual-checkpoints (-> this :params :textual-checkpoints))
-                        )
-
-                        (cond (some? (:textual-checkpoints this))
-                            (do
-                                ;; Initialize the chain file with a checkpoint to speed up first-run sync.
-                                (let [#_"long" time (.. (:v-wallet this) (getEarliestKeyCreationTime))]
-                                    (if (< 0 time)
-                                        (CheckpointManager'checkpoint (:params this), (:textual-checkpoints this), (:v-store this), time)
-                                        (.. WalletAppKit'log (warn "Creating a new uncheckpointed block store due to a wallet with a creation time of zero: this will result in a very slow chain sync"))
-                                    )
-                                )
-                            )
-                            __chainFileExists
-                            (do
-                                (.. WalletAppKit'log (info "Deleting the chain file in preparation from restore."))
-                                (.. (:v-store this) (close))
-                                (when (not (.. __chainFile (delete)))
-                                    (throw (IOException. "Failed to delete chain file in preparation for restore."))
-                                )
-
-                                (§ assoc this :v-store (SPVBlockStore. (:params this), __chainFile))
-                            )
-                        )
-                    )
-                    (§ assoc this :v-chain (BlockChain. (:params this), (:v-store this)))
-                    (§ assoc this :v-peer-group (.. this (createPeerGroup)))
-                    (when (some? (:user-agent this))
-                        (.. (:v-peer-group this) (setUserAgent (:user-agent this), (:version this)))
+                ;; Initiate Bitcoin network objects (block store, blockchain and peer group).
+                (§ assoc this :v-store (.. this (provideBlockStore __chainFile)))
+                (when (not __chainFileExists)
+                    (when (nil? (:textual-checkpoints this))
+                        (§ assoc this :textual-checkpoints (-> this :params :textual-checkpoints))
                     )
 
-                    ;; Set up peer addresses or discovery first, so if wallet extensions try to broadcast a transaction
-                    ;; before we're actually connected the broadcast waits for an appropriate number of connections.
-                    (cond (some? (:peer-addresses this))
+                    (cond (some? (:textual-checkpoints this))
                         (do
-                            (doseq [#_"PeerAddress" addr (:peer-addresses this)]
-                                (.. (:v-peer-group this) (addAddress addr))
+                            ;; Initialize the chain file with a checkpoint to speed up first-run sync.
+                            (let [#_"long" time (.. (:v-wallet this) (getEarliestKeyCreationTime))]
+                                (if (< 0 time)
+                                    (CheckpointManager'checkpoint (:params this), (:textual-checkpoints this), (:v-store this), time)
+                                    (.. WalletAppKit'log (warn "Creating a new uncheckpointed block store due to a wallet with a creation time of zero: this will result in a very slow chain sync"))
+                                )
                             )
-                            (.. (:v-peer-group this) (setMaxConnections (alength (:peer-addresses this))))
-                            (§ assoc this :peer-addresses nil)
                         )
-                        :else
+                        __chainFileExists
                         (do
-                            (.. (:v-peer-group this) (addPeerDiscovery (or (:discovery this) (DnsDiscovery. (:params this)))))
+                            (.. WalletAppKit'log (info "Deleting the chain file in preparation from restore."))
+                            (.. (:v-store this) (close))
+                            (when (not (.. __chainFile (delete)))
+                                (throw (IOException. "Failed to delete chain file in preparation for restore."))
+                            )
+
+                            (§ assoc this :v-store (SPVBlockStore. (:params this), __chainFile))
                         )
                     )
-                    (.. (:v-chain this) (addWallet (:v-wallet this)))
-                    (.. (:v-peer-group this) (addWallet (:v-wallet this)))
-                    (.. this (onSetupCompleted))
+                )
+                (§ assoc this :v-chain (BlockChain. (:params this), (:v-store this)))
+                (§ assoc this :v-peer-group (.. this (createPeerGroup)))
+                (when (some? (:user-agent this))
+                    (.. (:v-peer-group this) (setUserAgent (:user-agent this), (:version this)))
+                )
 
-                    (cond (:blocking-startup this)
-                        (do
-                            (.. (:v-peer-group this) (start))
-                            ;; Make sure we shut down cleanly.
-                            (.. this (installShutdownHook))
+                ;; Set up peer addresses or discovery first, so if wallet extensions try to broadcast a transaction
+                ;; before we're actually connected the broadcast waits for an appropriate number of connections.
+                (cond (some? (:peer-addresses this))
+                    (do
+                        (doseq [#_"PeerAddress" addr (:peer-addresses this)]
+                            (.. (:v-peer-group this) (addAddress addr))
+                        )
+                        (.. (:v-peer-group this) (setMaxConnections (alength (:peer-addresses this))))
+                        (§ assoc this :peer-addresses nil)
+                    )
+                    :else
+                    (do
+                        (.. (:v-peer-group this) (addPeerDiscovery (or (:discovery this) (DnsDiscovery. (:params this)))))
+                    )
+                )
+                (.. (:v-chain this) (addWallet (:v-wallet this)))
+                (.. (:v-peer-group this) (addWallet (:v-wallet this)))
+                (.. this (onSetupCompleted))
 
-                            ;; TODO: Be able to use the provided download listener when doing a blocking startup.
-                            (let [#_"DownloadProgressTracker" listener (DownloadProgressTracker.)]
-                                (.. (:v-peer-group this) (startBlockChainDownload listener))
-                                (.. listener (await))
+                (cond (:blocking-startup this)
+                    (do
+                        (.. (:v-peer-group this) (start))
+                        ;; Make sure we shut down cleanly.
+                        (.. this (installShutdownHook))
+
+                        ;; TODO: Be able to use the provided download listener when doing a blocking startup.
+                        (let [#_"DownloadProgressTracker" listener (DownloadProgressTracker.)]
+                            (.. (:v-peer-group this) (startBlockChainDownload listener))
+                            (.. listener (await))
+                        )
+                    )
+                    :else
+                    (do
+                        (Futures/addCallback (.. (:v-peer-group this) (startAsync)), (FutureCallback.)
+                        (§ anon
+                            #_override
+                            #_public
+                            (§ method #_"void" onSuccess [#_nilable #_"Object" result]
+                                (let [#_"DownloadProgressTracker" l (or (:download-listener this) (DownloadProgressTracker.))]
+                                    (.. (:v-peer-group this) (startBlockChainDownload l))
+                                )
+                                nil
                             )
-                        )
-                        :else
-                        (do
-                            (Futures/addCallback (.. (:v-peer-group this) (startAsync)), (FutureCallback.)
-                            (§ anon
-                                #_override
-                                #_public
-                                (§ method #_"void" onSuccess [#_nilable #_"Object" result]
-                                    (let [#_"DownloadProgressTracker" l (or (:download-listener this) (DownloadProgressTracker.))]
-                                        (.. (:v-peer-group this) (startBlockChainDownload l))
-                                    )
-                                    nil
-                                )
 
-                                #_override
-                                #_public
-                                (§ method #_"void" onFailure [#_"Throwable" t]
-                                    (throw (RuntimeException. t))
-                                )
-                            ))
-                        )
+                            #_override
+                            #_public
+                            (§ method #_"void" onFailure [#_"Throwable" t]
+                                (throw (RuntimeException. t))
+                            )
+                        ))
                     )
                 )
             )
@@ -23312,46 +23293,6 @@
             )
         )
         nil
-    )
-
-    #_private
-    #_throws #_[ "Exception" ]
-    (§ method- #_"Wallet" createOrLoadWallet [#_"boolean" replay?]
-        (let [#_"Wallet" wallet]
-
-            (cond (.. (:v-wallet-file this) (exists))
-                (do
-                    (§ ass wallet (.. this (loadWallet replay?)))
-                )
-                :else
-                (do
-                    (§ ass wallet (.. this (createWallet)))
-                    (.. wallet (freshReceiveKey))
-                )
-            )
-
-            wallet
-        )
-    )
-
-    #_private
-    #_throws #_[ "Exception" ]
-    (§ method- #_"Wallet" loadWallet [#_"boolean" replay?]
-        (let [#_"Wallet" wallet
-              #_"FileInputStream" __walletStream (FileInputStream. (:v-wallet-file this))]
-            (try
-                (let [#_"Protos.Wallet" proto (WalletSerializer'parseToProto __walletStream)]
-                    (§ ass wallet (.. (WalletSerializer.) (readWallet (:params this), proto)))
-                    (when replay?
-                        (.. wallet (reset))
-                    )
-                )
-                (finally
-                    (.. __walletStream (close))
-                )
-            )
-            wallet
-        )
     )
 
     #_protected
@@ -23395,7 +23336,7 @@
         (try
             (Context'propagate (:context this))
             (.. (:v-peer-group this) (stop))
-            (.. (:v-wallet this) (saveToFile (:v-wallet-file this)))
+            (.. (:v-wallet this) (save))
             (.. (:v-store this) (close))
 
             (§ assoc this :v-peer-group nil)
@@ -23448,7 +23389,6 @@
     (:import [com.google.common.base Throwables]
              [com.google.common.collect ImmutableList Lists]
              [com.google.common.util.concurrent AbstractExecutionThreadService AbstractIdleService ListenableFuture Service]
-             [com.google.protobuf ByteString MessageLite]
              [java.io IOException]
              [java.net ConnectException InetAddress InetSocketAddress SocketAddress]
              [java.nio ByteBuffer ByteOrder]
@@ -24733,242 +24673,6 @@
     (§ method #_"void" triggerShutdown []
         ;; Wake up the selector and let the selection thread break its loop as the ExecutionService !isRunning().
         (.. (:selector this) (wakeup))
-        nil
-    )
-)
-
-;;;
- ; A handler which is used in {@link NioServer} and {@link NioClient} to split up incoming data streams
- ; into protobufs and provide an interface for writing protobufs to the connections.
- ;
- ; Messages are encoded with a 4-byte signed integer (big endian) prefix to indicate their length followed
- ; by the serialized protobuf.
- ;;
-#_public
-(§ class ProtobufConnection #_"<MessageType extends MessageLite>" (§ extends AbstractTimeoutHandler) (§ implements StreamConnection)
-    #_private
-    #_static
-    (def- #_"Logger" ProtobufConnection'log #_"<MessageType extends MessageLite>" (LoggerFactory/getLogger ProtobufConnection))
-
-    ;;;
-     ; An interface which can be implemented to handle callbacks as new messages are generated and socket events occur.
-     ;
-     ; @param <MessageType> The protobuf type which is used on this socket.
-     ;                      This <b>MUST</b> match the MessageType used in the parent {@link ProtobufConnection}.
-     ;;
-    #_public
-    (§ interface ProtobufConnectionListener #_"<MessageType extends MessageLite>"
-        ;;; Called when a new protobuf is received from the remote side. ;;
-        (§ method #_"void" messageReceived [#_"ProtobufConnection<MessageType>" handler, #_"MessageType" msg])
-        ;;; Called when the connection is opened and available for writing data to. ;;
-        (§ method #_"void" connectionOpen [#_"ProtobufConnection<MessageType>" handler])
-        ;;; Called when the connection is closed and no more data should be provided. ;;
-        (§ method #_"void" connectionClosed [#_"ProtobufConnection<MessageType>" handler])
-    )
-
-    ;; The callback listener.
-    #_private
-    (§ field- #_"ProtobufConnectionListener<MessageType>" :handler)
-    ;; The prototype which is used to deserialize messages.
-    #_private
-    (§ field- #_"MessageLite" :prototype)
-
-    ;; The maximum message size (NOT INCLUDING LENGTH PREFIX).
-    (§ field #_"int" :max-message-size)
-
-    ;; A temporary buffer used when the message size is larger than the buffer being used by the network code.
-    ;; Because the networking code uses a constant size buffer and we want to allow for very large message sizes, we use
-    ;; a smaller network buffer per client and only allocate more memory when we need it to deserialize large messages.
-    ;; Though this is not in of itself a DoS protection, it allows for handling more legitimate clients per server and
-    ;; attacking clients can be made to timeout/get blocked if they are sending crap to fill buffers.
-    #_private
-    (§ field- #_"int" :message-bytes-offset 0)
-    #_private
-    (§ field- #_"byte[]" :message-bytes)
-    #_private
-    (§ field- #_"ReentrantLock" :lock (Threading'lock "ProtobufConnection"))
-
-    #_testing
-    (§ field #_"AtomicReference<MessageWriteTarget>" :write-target (AtomicReference. #_"<>"))
-
-    ;;;
-     ; Creates a new protobuf handler.
-     ;
-     ; @param handler The callback listener.
-     ; @param prototype The default instance of the message type used in both directions of this channel.
-     ;                  This should be the return value from {@link MessageType#getDefaultInstanceForType()}.
-     ; @param maxMessageSize The maximum message size (not including the 4-byte length prefix).
-     ;                       Note that this has an upper bound of {@link Integer#MAX_VALUE} - 4.
-     ; @param timeoutMillis The timeout between messages before the connection is automatically closed.
-     ;                      Only enabled after the connection is established.
-     ;;
-    #_public
-    (§ constructor ProtobufConnection [#_"ProtobufConnectionListener<MessageType>" handler, #_"MessageType" prototype, #_"int" __maxMessageSize, #_"int" __timeoutMillis]
-        (§ assoc this :handler handler)
-        (§ assoc this :prototype prototype)
-        (§ assoc this :max-message-size (min __maxMessageSize, (- Integer/MAX_VALUE 4)))
-        (.. this (setTimeoutEnabled false))
-        (.. this (setSocketTimeout __timeoutMillis))
-        this
-    )
-
-    #_override
-    #_public
-    (§ method #_"void" setWriteTarget [#_"MessageWriteTarget" __writeTarget]
-        ;; Only allow it to be set once.
-        (assert-state (nil? (.. (:write-target this) (getAndSet (ensure some? __writeTarget)))))
-        nil
-    )
-
-    #_override
-    #_public
-    (§ method #_"int" getMaxMessageSize []
-        (:max-message-size this)
-    )
-
-    ;;;
-     ; Closes this connection, eventually triggering a {@link ProtobufConnection.Listener#connectionClosed()} event.
-     ;;
-    #_public
-    (§ method #_"void" closeConnection []
-        (.. (:write-target this) (get) (closeConnection))
-        nil
-    )
-
-    #_override
-    #_protected
-    (§ method #_"void" timeoutOccurred []
-        (.. ProtobufConnection'log #_"<MessageType extends MessageLite>" (warn (str "Timeout occurred for " (:handler this))))
-        (.. this (closeConnection))
-        nil
-    )
-
-    ;; Deserializes and provides a listener event (buff must not have the length prefix in it).
-    ;; Does set the buffers's position to its limit.
-    #_suppress #_[ "unchecked" ]
-    ;; The warning 'unchecked cast' being suppressed here comes from the build() formally returning
-    ;; a MessageLite-derived class that cannot be statically guaranteed to be the MessageType.
-    #_private
-    #_throws #_[ "Exception" ]
-    (§ method- #_"void" deserializeMessage [#_"ByteBuffer" buff]
-        (let [#_"MessageType" msg (cast MessageType (.. (:prototype this) (newBuilderForType) (mergeFrom (ByteString/copyFrom buff)) (build)))]
-            (.. this (resetTimeout))
-            (.. (:handler this) (messageReceived this, msg))
-        )
-        nil
-    )
-
-    #_override
-    #_public
-    #_throws #_[ "Exception" ]
-    (§ method #_"int" receiveBytes [#_"ByteBuffer" buff]
-        (.. (:lock this) (lock))
-        (try
-            (cond
-                (some? (:message-bytes this))
-                    ;; Just keep filling up the currently being worked on message.
-                    (let [#_"int" n (min (- (alength (:message-bytes this)) (:message-bytes-offset this)), (.. buff (remaining)))]
-                        (.. buff (get (:message-bytes this), (:message-bytes-offset this), n))
-                        (§ update this :message-bytes-offset + n)
-                        (when' (= (:message-bytes-offset this) (alength (:message-bytes this))) => n
-                            ;; Filled up our buffer, decode the message.
-                            (.. this (deserializeMessage (ByteBuffer/wrap (:message-bytes this))))
-                            (§ assoc this :message-bytes nil)
-                            (+ n (if (.. buff (hasRemaining)) (.. this (receiveBytes buff)) 0))
-                        )
-                    )
-                (< (.. buff (remaining)) 4)
-                    ;; If we cant read the length prefix yet, give up.
-                    0
-                :else
-                    ;; Read one integer in big endian.
-                    (let [_ (.. buff (order ByteOrder/BIG_ENDIAN)) #_"int" len (.. buff (getInt))]
-                        ;; If length is larger than the maximum message size (or is negative/overflows) throw an exception and close
-                        ;; the connection.
-                        (when-not (<= 0 len (:max-message-size this))
-                            (throw (IllegalStateException. "Message too large or length underflowed"))
-                        )
-                        (cond
-                            ;; If the buffer's capacity is less than the next messages length + 4 (length prefix), we must use messageBytes
-                            ;; as a temporary buffer to store the message.
-                            (< (.. buff (capacity)) (+ len 4))
-                                (do
-                                    (§ assoc this :message-bytes (byte-array len))
-                                    ;; Now copy all remaining bytes into the new buffer, set messageBytesOffset and tell the caller how many
-                                    ;; bytes we consumed.
-                                    (let [#_"int" n (.. buff (remaining))]
-                                        (.. buff (get (:message-bytes this), 0, n))
-                                        (§ assoc this :message-bytes-offset n)
-                                        (+ n 4)
-                                    )
-                                )
-                            ;; Wait until the whole message is available in the buffer.
-                            (< (.. buff (remaining)) len)
-                                (do ;; Make sure the buffer's position is right at the end.
-                                    (.. buff (position (- (.. buff (position)) 4)))
-                                    0
-                                )
-                            :else
-                                ;; Temporarily limit the buffer to the size of the message, so that the protobuf decode doesn't get messed up.
-                                (let [#_"int" limit (.. buff (limit))]
-                                    (.. buff (limit (+ (.. buff (position)) len)))
-                                    (.. this (deserializeMessage buff))
-                                    (assert-state (= (.. buff (remaining)) 0))
-                                    ;; Reset the limit in case we have to recurse.
-                                    (.. buff (limit limit))
-                                    ;; If there are still bytes remaining, see if we can pull out another message since we won't get called again.
-                                    (+ len 4 (if (.. buff (hasRemaining)) (.. this (receiveBytes buff)) 0))
-                                )
-                        )
-                    )
-            )
-            (finally
-                (.. (:lock this) (unlock))
-            )
-        )
-    )
-
-    #_override
-    #_public
-    (§ method #_"void" connectionClosed []
-        (.. (:handler this) (connectionClosed this))
-        nil
-    )
-
-    #_override
-    #_public
-    (§ method #_"void" connectionOpened []
-        (.. this (setTimeoutEnabled true))
-        (.. (:handler this) (connectionOpen this))
-        nil
-    )
-
-    ;;;
-     ; Writes the given message to the other side of the connection, prefixing it with the proper 4-byte prefix.
-     ;
-     ; Provides a write-order guarantee.
-     ;
-     ; @throws IllegalStateException if the encoded message is larger than the maximum message size.
-     ;;
-    #_public
-    #_throws #_[ "IllegalStateException" ]
-    (§ method #_"void" write [#_"MessageType" msg]
-        (let [#_"byte[]" __messageBytes (.. msg (toByteArray))]
-            (assert-state (<= (alength __messageBytes) (:max-message-size this)))
-
-            (let [#_"byte[]" __messageLength (byte-array 4)]
-                (Utils'uint32ToByteArrayBE (alength __messageBytes), __messageLength, 0)
-                (try
-                    (let [#_"MessageWriteTarget" target (.. (:write-target this) (get))]
-                        (.. target (writeBytes __messageLength))
-                        (.. target (writeBytes __messageBytes))
-                    )
-                    (catch IOException e
-                        (.. this (closeConnection))
-                    )
-                )
-            )
-        )
         nil
     )
 )
@@ -32498,7 +32202,7 @@
              [com.google.common.collect ImmutableList Iterators Lists PeekingIterator]
              [com.google.common.primitives *]
              [com.google.common.util.concurrent *]
-             [com.google.protobuf ByteString CodedInputStream CodedOutputStream WireFormat]
+             [com.google.protobuf ByteString]
              [java.io IOException InputStream OutputStream]
              [java.math BigInteger]
              [java.net InetAddress UnknownHostException]
@@ -32816,88 +32520,6 @@
         (ArrayList. #_"<>" (:listeners this))
     )
 
-    (§ method #_"Map<ECKey, Protos.Key.Builder>" serializeToEditableProtobufs []
-        (let [#_"Map<ECKey, Protos.Key.Builder>" result (LinkedHashMap. #_"<>")]
-            (doseq [#_"ECKey" __ecKey (.. (:hash-to-keys this) (values))]
-                (let [#_"Protos.Key.Builder" __protoKey (BasicKeyChain'serializeEncryptableItem __ecKey)]
-                    (.. __protoKey (setPublicKey (ByteString/copyFrom (.. __ecKey (getPubKey)))))
-                    (.. result (put __ecKey, __protoKey))
-                )
-            )
-            result
-        )
-    )
-
-    #_override
-    #_public
-    (§ method #_"List<Protos.Key>" serializeToProtobuf []
-        (let [#_"Collection<Protos.Key.Builder>" builders (.. this (serializeToEditableProtobufs) (values))
-              #_"List<Protos.Key>" result (ArrayList. #_"<>" (.. builders (size)))]
-            (doseq [#_"Protos.Key.Builder" builder builders]
-                (.. result (add (.. builder (build))))
-            )
-            result
-        )
-    )
-
-    #_static
-    (§ defn #_"Protos.Key.Builder" BasicKeyChain'serializeEncryptableItem [#_"EncryptableItem" item]
-        (let [#_"Protos.Key.Builder" proto (Protos.Key/newBuilder)]
-            (.. proto (setCreationTimestamp (* (.. item (getCreationTimeSeconds)) 1000)))
-            (let [#_"byte[]" secret (.. item (getSecretBytes))]
-                ;; The secret might be missing in the case of a watching wallet, or a key for which the private key
-                ;; is expected to be rederived on the fly from its parent.
-                (when (some? secret)
-                    (.. proto (setSecretBytes (ByteString/copyFrom secret)))
-                )
-                (.. proto (setType Protos.Key.Type/ORIGINAL))
-            )
-            proto
-        )
-    )
-
-    ;;;
-     ; Returns a new BasicKeyChain that contains all basic, ORIGINAL type keys extracted from the list.
-     ; Unrecognised key types are ignored.
-     ;;
-    #_public
-    #_static
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ defn #_"BasicKeyChain" BasicKeyChain'fromProtobufUnencrypted [#_"List<Protos.Key>" keys]
-        (let [#_"BasicKeyChain" chain (BasicKeyChain.)]
-            (.. chain (deserializeFromProtobuf keys))
-            chain
-        )
-    )
-
-    #_private
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ method- #_"void" deserializeFromProtobuf [#_"List<Protos.Key>" keys]
-        (.. (:lock this) (lock))
-        (try
-            (assert-state (.. (:hash-to-keys this) (isEmpty)), "Tried to deserialize into a non-empty chain")
-            (doseq [#_"Protos.Key" key keys]
-                (when (= (.. key (getType)) Protos.Key.Type/ORIGINAL)
-                    (let [#_"byte[]" priv (when (.. key (hasSecretBytes)) (.. key (getSecretBytes) (toByteArray)))]
-                        (when (not (.. key (hasPublicKey)))
-                            (throw (UnreadableWalletException. "Public key missing"))
-                        )
-
-                        (let [#_"byte[]" pub (.. key (getPublicKey) (toByteArray))
-                              #_"ECKey" __ecKey (if (some? priv) (ECKey'fromPrivateAndPrecalculatedPublic priv, pub) (ECKey'fromPublicOnly pub))]
-                            (.. __ecKey (setCreationTimeSeconds (quot (.. key (getCreationTimestamp)) 1000)))
-                            (.. this (importKeyLocked __ecKey))
-                        )
-                    )
-                )
-            )
-            (finally
-                (.. (:lock this) (unlock))
-            )
-        )
-        nil
-    )
-
     #_override
     #_public
     (§ method #_"void" addEventListener [#_"KeyChainEventListener" listener]
@@ -33129,46 +32751,6 @@
             ;; TODO: The value 1 below dates from a time when transactions we broadcast *to* were counted, set to 0.
             (or (.. type (equals ConfidenceType'BUILDING)) (and (.. type (equals ConfidenceType'PENDING)) (.. confidence (getSource) (equals :ConfidenceSource'SELF)) (< 1 (.. confidence (numBroadcastPeers)))))
         )
-    )
-)
-
-;;;
- ; Factory for creating keychains while de-serializing a wallet.
- ;;
-#_public
-(§ class KeyChainFactory
-    ;;;
-     ; Make a keychain (but not a watching one).
-     ;
-     ; @param key The protobuf for the root key.
-     ; @param firstSubKey The protobuf for the first child key (normally the parent of the external subchain).
-     ; @param seed The seed.
-     ; @param isMarried Whether the keychain is leading in a marriage.
-     ;;
-    #_public
-    (§ method #_"DeterministicKeyChain" makeKeyChain [#_"Protos.Key" key, #_"Protos.Key" __firstSubKey, #_"DeterministicSeed" seed, #_"boolean" married?]
-        (if married? (MarriedKeyChain. seed) (DeterministicKeyChain. seed))
-    )
-
-    ;;;
-     ; Make a watching keychain.
-     ;
-     ; isMarried and isFollowingKey must not be true at the same time.
-     ;
-     ; @param key The protobuf for the account key.
-     ; @param firstSubKey The protobuf for the first child key (normally the parent of the external subchain).
-     ; @param accountKey The account extended public key.
-     ; @param isFollowingKey Whether the keychain is following in a marriage.
-     ; @param isMarried Whether the keychain is leading in a marriage.
-     ;;
-    #_public
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ method #_"DeterministicKeyChain" makeWatchingKeyChain [#_"Protos.Key" key, #_"Protos.Key" __firstSubKey, #_"DeterministicKey" __accountKey, #_"boolean" following?, #_"boolean" married?]
-        (when (not (.. __accountKey (getPath) (equals DeterministicKeyChain'ACCOUNT_ZERO_PATH)))
-            (throw (UnreadableWalletException. (str "Expecting account key but found key with path: " (HDUtils'formatPath (.. __accountKey (getPath))))))
-        )
-
-        (if married? (MarriedKeyChain. __accountKey) (DeterministicKeyChain. __accountKey, following?))
     )
 )
 
@@ -34160,247 +33742,6 @@
 
     #_override
     #_public
-    (§ method #_"List<Protos.Key>" serializeToProtobuf []
-        (let [#_"List<Protos.Key>" result (Lists/newArrayList)]
-            (.. (:lock this) (lock))
-            (try
-                (.. result (addAll (.. this (serializeMyselfToProtobuf))))
-                (finally
-                    (.. (:lock this) (unlock))
-                )
-            )
-            result
-        )
-    )
-
-    #_protected
-    (§ method #_"List<Protos.Key>" serializeMyselfToProtobuf []
-        ;; Most of the serialization work is delegated to the basic key chain, which will serialize the bulk of the
-        ;; data (handling encryption along the way), and letting us patch it up with the extra data we care about.
-        (let [#_"LinkedList<Protos.Key>" entries (Lists/newLinkedList)]
-            (when (some? (:seed this))
-                (let [#_"Protos.Key.Builder" __mnemonicEntry (BasicKeyChain'serializeEncryptableItem (:seed this))]
-                    (.. __mnemonicEntry (setType Protos.Key.Type/DETERMINISTIC_MNEMONIC))
-                    (DeterministicKeyChain'serializeSeedEncryptableItem (:seed this), __mnemonicEntry)
-                    (.. entries (add (.. __mnemonicEntry (build))))
-                )
-            )
-            (let [#_"Map<ECKey, Protos.Key.Builder>" keys (.. (:basic-key-chain this) (serializeToEditableProtobufs))]
-                (doseq [#_"Map.Entry<ECKey, Protos.Key.Builder>" entry (.. keys (entrySet))]
-                    (let [#_"DeterministicKey" key (cast DeterministicKey (.. entry (getKey)))
-                          #_"Protos.Key.Builder" proto (.. entry (getValue))]
-                        (.. proto (setType Protos.Key.Type/DETERMINISTIC_KEY))
-                        (let [#_"Protos.DeterministicKey.Builder" __detKey (.. proto (getDeterministicKeyBuilder))]
-                            (.. __detKey (setChainCode (ByteString/copyFrom (.. key (getChainCode)))))
-                            (doseq [#_"ChildNumber" num (.. key (getPath))]
-                                (.. __detKey (addPath (.. num (i))))
-                            )
-                            (cond (.. key (equals (:external-parent-key this)))
-                                (do
-                                    (.. __detKey (setIssuedSubkeys (:issued-external-keys this)))
-                                    (.. __detKey (setLookaheadSize (:lookahead-size this)))
-                                    (.. __detKey (setSigsRequiredToSpend (.. this (getSigsRequiredToSpend))))
-                                )
-                                (.. key (equals (:internal-parent-key this)))
-                                (do
-                                    (.. __detKey (setIssuedSubkeys (:issued-internal-keys this)))
-                                    (.. __detKey (setLookaheadSize (:lookahead-size this)))
-                                    (.. __detKey (setSigsRequiredToSpend (.. this (getSigsRequiredToSpend))))
-                                )
-                            )
-                            ;; Flag the very first key of following keychain.
-                            (when (and (.. entries (isEmpty)) (.. this (isFollowing)))
-                                (.. __detKey (setIsFollowing true))
-                            )
-                            ;; HD keys inherit the timestamp of their parent if they have one, so no need to serialize it.
-                            (when (some? (.. key (getParent)))
-                                (.. proto (clearCreationTimestamp))
-                            )
-                            (.. entries (add (.. proto (build))))
-                        )
-                    )
-                )
-                entries
-            )
-        )
-    )
-
-    ;;;
-     ; Returns all the key chains found in the given list of keys.  Typically there will only be one,
-     ; but in the case of key rotation it can happen that there are multiple chains found.
-     ;;
-    #_public
-    #_static
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ defn #_"List<DeterministicKeyChain>" DeterministicKeyChain'fromProtobuf [#_"List<Protos.Key>" keys, #_"KeyChainFactory" factory]
-        (let [#_"List<DeterministicKeyChain>" chains (Lists/newLinkedList)
-              #_"DeterministicSeed" seed nil #_"DeterministicKeyChain" chain nil
-              #_"int" __lookaheadSize -1 #_"int" __sigsRequiredToSpend 1]
-            (loop-when-recur [#_"PeekingIterator<Protos.Key>" it (Iterators/peekingIterator (.. keys (iterator)))] (.. it (hasNext)) []
-                (let [#_"Protos.Key" key (.. it (next)) #_"Protos.Key.Type" t (.. key (getType))]
-                    (cond (= t Protos.Key.Type/DETERMINISTIC_MNEMONIC)
-                        (do
-                            (when (some? chain)
-                                (assert-state (<= 0 __lookaheadSize))
-
-                                (.. chain (setLookaheadSize __lookaheadSize))
-                                (.. chain (setSigsRequiredToSpend __sigsRequiredToSpend))
-                                (.. chain (maybeLookAhead))
-                                (.. chains (add chain))
-                                (§ ass chain nil)
-                            )
-                            (let [#_"long" timestamp (quot (.. key (getCreationTimestamp)) 1000)
-                                  #_"String" passphrase DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC] ;; FIXME: allow non-empty passphrase
-                                (cond (.. key (hasSecretBytes))
-                                    (do
-                                        (when (.. key (hasEncryptedDeterministicSeed))
-                                            (throw (UnreadableWalletException. (str "Malformed key proto: " key)))
-                                        )
-
-                                        (let [#_"byte[]" bytes (when (.. key (hasDeterministicSeed)) (.. key (getDeterministicSeed) (toByteArray)))]
-                                            (§ ass seed (DeterministicSeed. (.. key (getSecretBytes) (toStringUtf8)), bytes, passphrase, timestamp))
-                                        )
-                                    )
-                                    :else
-                                    (do
-                                        (throw (UnreadableWalletException. (str "Malformed key proto: " key)))
-                                    )
-                                )
-                            )
-                        )
-                        (= t Protos.Key.Type/DETERMINISTIC_KEY)
-                        (do
-                            (when (not (.. key (hasDeterministicKey)))
-                                (throw (UnreadableWalletException. (str "Deterministic key missing extra data: " key)))
-                            )
-
-                            (let [#_"byte[]" __chainCode (.. key (getDeterministicKey) (getChainCode) (toByteArray))]
-                                ;; Deserialize the path through the tree.
-                                (let [#_"LinkedList<ChildNumber>" path (Lists/newLinkedList)]
-                                    (doseq [#_"int" i (.. key (getDeterministicKey) (getPathList))]
-                                        (.. path (add (ChildNumber. i)))
-                                    )
-
-                                    ;; Deserialize the public key and path.
-                                    (let [#_"LazyECPoint" pubkey (LazyECPoint. (.. ECKey'CURVE (getCurve)), (.. key (getPublicKey) (toByteArray)))
-                                          #_"ImmutableList<ChildNumber>" __immutablePath (ImmutableList/copyOf path)]
-                                        ;; Possibly create the chain, if we didn't already do so yet.
-                                        (let [#_"boolean" watching? false #_"boolean" following? false]
-                                            ;; Save previous chain if any if the key is marked as following.  Current key and the next ones
-                                            ;; are to be placed in new following key chain.
-                                            (when (.. key (getDeterministicKey) (getIsFollowing))
-                                                (when (some? chain)
-                                                    (assert-state (<= 0 __lookaheadSize))
-
-                                                    (.. chain (setLookaheadSize __lookaheadSize))
-                                                    (.. chain (setSigsRequiredToSpend __sigsRequiredToSpend))
-                                                    (.. chain (maybeLookAhead))
-                                                    (.. chains (add chain))
-                                                    (§ ass chain nil)
-                                                    (§ ass seed nil)
-                                                )
-                                                (§ ass following? true)
-                                            )
-
-                                            (when (nil? chain)
-                                                ;; If this is not a following chain and previous was, this must be married.
-                                                (let [#_"boolean" married? (and (not following?) (not (.. chains (isEmpty))) (.. chains (get (dec (.. chains (size)))) (isFollowing)))]
-                                                    (cond (nil? seed)
-                                                        (do
-                                                            (let [#_"DeterministicKey" __accountKey (DeterministicKey. __immutablePath, __chainCode, pubkey, nil, nil)]
-                                                                (.. __accountKey (setCreationTimeSeconds (quot (.. key (getCreationTimestamp)) 1000)))
-                                                                (§ ass chain (.. factory (makeWatchingKeyChain key, (.. it (peek)), __accountKey, following?, married?)))
-                                                                (§ ass watching? true)
-                                                            )
-                                                        )
-                                                        :else
-                                                        (do
-                                                            (§ ass chain (.. factory (makeKeyChain key, (.. it (peek)), seed, married?)))
-                                                            (§ assoc chain :lookahead-size DeterministicKeyChain'LAZY_CALCULATE_LOOKAHEAD)
-                                                            ;; If the seed is encrypted, then the chain is incomplete at this point.  However, we will load
-                                                            ;; it up below as we parse in the keys.  We just need to check at the end that we've loaded
-                                                            ;; everything afterwards.
-                                                        )
-                                                    )
-                                                )
-                                            )
-                                            ;; Find the parent key assuming this is not the root key, and not an account key for a watching chain.
-                                            (let [#_"DeterministicKey" parent nil]
-                                                (when (and (not (.. path (isEmpty))) (not watching?))
-                                                    (let [#_"ChildNumber" index (.. path (removeLast))]
-                                                        (§ ass parent (.. (:hierarchy chain) (get path, false, false)))
-                                                        (.. path (add index))
-                                                    )
-                                                )
-                                                (let [#_"DeterministicKey" detkey
-                                                        (if (.. key (hasSecretBytes))
-                                                            ;; Not encrypted: private key is available.
-                                                            (let [#_"BigInteger" priv (BigInteger. 1, (.. key (getSecretBytes) (toByteArray)))]
-                                                                (DeterministicKey. __immutablePath, __chainCode, pubkey, priv, parent)
-                                                            )
-                                                            ;; No secret key bytes and key is not encrypted: either a watching key or private key
-                                                            ;; bytes will be rederived on the fly from the parent.
-                                                            (DeterministicKey. __immutablePath, __chainCode, pubkey, nil, parent)
-                                                        )]
-                                                    (when (.. key (hasCreationTimestamp))
-                                                        (.. detkey (setCreationTimeSeconds (quot (.. key (getCreationTimestamp)) 1000)))
-                                                    )
-                                                    (when (not watching?)
-                                                        ;; If the non-encrypted case, the non-leaf keys (account, internal, external) have already
-                                                        ;; been rederived and inserted at this point.  In the encrypted case though, we can't
-                                                        ;; rederive and we must reinsert, potentially building the heirarchy object if need be.
-                                                        (cond (= (.. path (size)) 0)
-                                                            (do
-                                                                ;; Master key.
-                                                                (when (nil? (:root-key chain))
-                                                                    (§ assoc chain :root-key detkey)
-                                                                    (§ assoc chain :hierarchy (DeterministicHierarchy. detkey))
-                                                                )
-                                                            )
-                                                            (= (.. path (size)) (inc (.. chain (getAccountPath) (size))))
-                                                            (do
-                                                                (cond (= (.. detkey (getChildNumber) (num)) 0)
-                                                                    (do
-                                                                        (§ assoc chain :external-parent-key detkey)
-                                                                        (§ assoc chain :issued-external-keys (.. key (getDeterministicKey) (getIssuedSubkeys)))
-                                                                        (§ ass __lookaheadSize (max __lookaheadSize, (.. key (getDeterministicKey) (getLookaheadSize))))
-                                                                        (§ ass __sigsRequiredToSpend (.. key (getDeterministicKey) (getSigsRequiredToSpend)))
-                                                                    )
-                                                                    (= (.. detkey (getChildNumber) (num)) 1)
-                                                                    (do
-                                                                        (§ assoc chain :internal-parent-key detkey)
-                                                                        (§ assoc chain :issued-internal-keys (.. key (getDeterministicKey) (getIssuedSubkeys)))
-                                                                    )
-                                                                )
-                                                            )
-                                                        )
-                                                    )
-                                                    (.. (:hierarchy chain) (putKey detkey))
-                                                    (.. (:basic-key-chain chain) (importKey detkey))
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            )
-            (when (some? chain)
-                (assert-state (<= 0 __lookaheadSize))
-
-                (.. chain (setLookaheadSize __lookaheadSize))
-                (.. chain (setSigsRequiredToSpend __sigsRequiredToSpend))
-                (.. chain (maybeLookAhead))
-                (.. chains (add chain))
-            )
-            chains
-        )
-    )
-
-    #_override
-    #_public
     (§ method #_"int" numBloomFilterEntries []
         (* (.. this (numKeys)) 2)
     )
@@ -34677,18 +34018,6 @@
         )
     )
 
-    #_static
-    (§ defn #_"void" DeterministicKeyChain'serializeSeedEncryptableItem [#_"DeterministicSeed" seed, #_"Protos.Key.Builder" proto]
-        ;; The seed can be missing if we have not derived it yet from the mnemonic.
-        ;; This will not normally happen once all the wallets are on the latest code that caches the seed.
-        (let [#_"byte[]" secret (.. seed (getSeedBytes))]
-            (when (some? secret)
-                (.. proto (setDeterministicSeed (ByteString/copyFrom secret)))
-            )
-        )
-        nil
-    )
-
     ;;;
      ; Returns a counter that is incremented each time new keys are generated due to lookahead.
      ; Used by the network code to learn whether to discard the current block and await calculation
@@ -34790,7 +34119,7 @@
  ; The purpose of this wrapper is to simplify the encryption code.
  ;;
 #_public
-(§ class DeterministicSeed (§ implements EncryptableItem)
+(§ class DeterministicSeed
     ;; It would take more than 10^12 years to brute-force a 128 bit seed using $1B worth of computing equipment.
     #_public
     #_static
@@ -34809,7 +34138,6 @@
     (§ field- #_"long" :creation-time-seconds)
 
     #_public
-    #_throws #_[ "UnreadableWalletException" ]
     (§ constructor DeterministicSeed [#_"String" __mnemonicCode, #_"byte[]" seed, #_"String" passphrase, #_"long" secs]
         (§ this (DeterministicSeed'decodeMnemonicCode __mnemonicCode), seed, passphrase, secs)
         this
@@ -35106,9 +34434,6 @@
      ; The chain may create a new key, derive one, or re-use an old one.
      ;;
     (§ method #_"ECKey" getKey [#_"KeyPurpose" purpose])
-
-    ;;; Returns a list of keys serialized to the bitcoinj protobuf format. ;;
-    (§ method #_"List<Protos.Key>" serializeToProtobuf [])
 
     ;;; Adds a listener for events that are run when keys are added, on the user thread. ;;
     (§ method #_"void" addEventListener [#_"KeyChainEventListener" listener])
@@ -35744,41 +35069,6 @@
         (.. (:basic this) (removeEventListener listener))
     )
 
-    ;;; Returns a list of key protobufs obtained by merging the chains. ;;
-    #_public
-    (§ method #_"List<Protos.Key>" serializeToProtobuf []
-        (let [#_"List<Protos.Key>" result (if (some? (:basic this)) (.. (:basic this) (serializeToProtobuf)) (Lists/newArrayList))]
-
-            (doseq [#_"DeterministicKeyChain" chain (:chains this)]
-                (let [#_"List<Protos.Key>" protos (.. chain (serializeToProtobuf))]
-                    (.. result (addAll protos))
-                )
-            )
-            result
-        )
-    )
-
-    #_static
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ defn #_"KeyChainGroup" KeyChainGroup'fromProtobufUnencrypted [#_"NetworkParameters" params, #_"List<Protos.Key>" keys]
-        (KeyChainGroup'fromProtobufUnencrypted params, keys, (KeyChainFactory.))
-    )
-
-    #_public
-    #_static
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ defn #_"KeyChainGroup" KeyChainGroup'fromProtobufUnencrypted [#_"NetworkParameters" params, #_"List<Protos.Key>" keys, #_"KeyChainFactory" factory]
-        (let [#_"BasicKeyChain" __basicKeyChain (BasicKeyChain'fromProtobufUnencrypted keys)
-              #_"List<DeterministicKeyChain>" chains (DeterministicKeyChain'fromProtobuf keys, factory)
-              #_"EnumMap<KeyPurpose, DeterministicKey>" __currentKeys nil]
-            (when (not (.. chains (isEmpty)))
-                (§ ass __currentKeys (KeyChainGroup'createCurrentKeysMap chains))
-            )
-            (KeyChainGroup'extractFollowingKeychains chains)
-            (KeyChainGroup. params, __basicKeyChain, chains, __currentKeys)
-        )
-    )
-
     ;;;
      ; If the key chain contains only random keys and no deterministic key chains, this method will create a chain
      ; based on the oldest non-rotating private key (i.e. the seed is derived from the old wallet).
@@ -36243,24 +35533,6 @@
     )
 
     #_override
-    #_public
-    (§ method #_"List<Protos.Key>" serializeToProtobuf []
-        (let [#_"List<Protos.Key>" result (Lists/newArrayList)]
-            (.. (:lock this) (lock))
-            (try
-                (doseq [#_"DeterministicKeyChain" chain (:following-key-chains this)]
-                    (.. result (addAll (.. chain (serializeMyselfToProtobuf))))
-                )
-                (.. result (addAll (.. this (serializeMyselfToProtobuf))))
-                (finally
-                    (.. (:lock this) (unlock))
-                )
-            )
-            result
-        )
-    )
-
-    #_override
     #_protected
     (§ method #_"void" formatAddresses [#_"boolean" __includePrivateKeys, #_"NetworkParameters" params, #_"StringBuilder" sb]
         (doseq [#_"DeterministicKeyChain" __followingChain (:following-key-chains this)]
@@ -36662,25 +35934,6 @@
             (.. helper (add "recipientsPayFees", (:recipients-pay-fees this)))
             (.. helper (toString))
         )
-    )
-)
-
-;;;
- ; Thrown by the {@link WalletSerializer} when the serialized protocol buffer is either corrupted,
- ; internally inconsistent or appears to be from the future.
- ;;
-#_public
-(§ class UnreadableWalletException (§ extends Exception)
-    #_public
-    (§ constructor UnreadableWalletException [#_"String" s]
-        (§ super s)
-        this
-    )
-
-    #_public
-    (§ constructor UnreadableWalletException [#_"String" s, #_"Throwable" t]
-        (§ super s, t)
-        this
     )
 )
 
@@ -37621,70 +36874,6 @@
         )
     )
 
-    ;; TODO: Make this package private once the classes finish moving around.
-    ;;; Internal use only. ;;
-    #_public
-    (§ method #_"List<Protos.Key>" serializeKeyChainGroupToProtobuf []
-        (.. (:key-chain-group-lock this) (lock))
-        (try
-            (.. (:key-chain-group this) (serializeToProtobuf))
-            (finally
-                (.. (:key-chain-group-lock this) (unlock))
-            )
-        )
-    )
-
-    ;;; Saves the wallet first to the given temp file, then renames to the dest file. ;;
-    #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" saveToFile [#_"File" temp, #_"File" __destFile]
-        (let [#_"FileOutputStream" stream nil]
-            (.. (:lock this) (lock))
-            (try
-                (§ ass stream (FileOutputStream. temp))
-                (.. this (saveToFileStream stream))
-                ;; Attempt to force the bits to hit the disk.  In reality the OS or hard disk itself may still decide
-                ;; to not write through to physical media for at least a few seconds, but this is the best we can do.
-                (.. stream (flush))
-                (.. stream (getFD) (sync))
-                (.. stream (close))
-                (§ ass stream nil)
-                (when-not (.. temp (renameTo __destFile))
-                    (throw (IOException. (str "Failed to rename " temp " to " __destFile)))
-                )
-                (catch RuntimeException e
-                    (.. Wallet'log (error "Failed whilst saving wallet", e))
-                    (throw e)
-                )
-                (finally
-                    (.. (:lock this) (unlock))
-                    (when (some? stream)
-                        (.. stream (close))
-                    )
-                    (when (.. temp (exists))
-                        (.. Wallet'log (warn "Temp file still exists after failed save."))
-                    )
-                )
-            )
-        )
-        nil
-    )
-
-    ;;;
-     ; Uses protobuf serialization to save the wallet to the given file.  To learn more about this file format,
-     ; see {@link WalletSerializer}.  Writes out first to a temporary file in the same directory and then renames
-     ; once written.
-     ;;
-    #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" saveToFile [#_"File" f]
-        (let [#_"File" directory (.. f (getAbsoluteFile) (getParentFile))
-              #_"File" temp (File/createTempFile "wallet", nil, directory)]
-            (.. this (saveToFile temp, f))
-        )
-        nil
-    )
-
     ;;;
      ; Whether or not the wallet will ignore pending transactions that fail the selected {@link RiskAnalysis}.
      ; By default, if a transaction is considered risky then it won't enter the wallet and won't trigger any event
@@ -37720,6 +36909,12 @@
         )
     )
 
+    #_public
+    #_throws #_[ "IOException" ]
+    (§ method #_"void" save []
+        nil
+    )
+
     ;;; Requests an asynchronous save on a background thread. ;;
     #_protected
     (§ method #_"void" saveLater []
@@ -37729,23 +36924,6 @@
     ;;; If auto saving is enabled, do an immediate sync write to disk ignoring any delays. ;;
     #_protected
     (§ method #_"void" saveNow []
-        nil
-    )
-
-    ;;;
-     ; Uses protobuf serialization to save the wallet to the given file stream.
-     ; To learn more about this file format, see {@link WalletSerializer}.
-     ;;
-    #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" saveToFileStream [#_"OutputStream" stream]
-        (.. (:lock this) (lock))
-        (try
-            (.. (WalletSerializer.) (writeWallet this, stream))
-            (finally
-                (.. (:lock this) (unlock))
-            )
-        )
         nil
     )
 
@@ -39239,23 +38417,6 @@
     (§ defn- #_"void" Wallet'addWalletTransactionsToSet [#_"Set<WalletTransaction>" txns, #_"PoolType" __poolType, #_"Collection<Transaction>" pool]
         (doseq [#_"Transaction" tx pool]
             (.. txns (add (WalletTransaction. __poolType, tx)))
-        )
-        nil
-    )
-
-    ;;;
-     ; Adds a transaction that has been associated with a particular wallet pool.  This is intended for usage
-     ; by deserialization code, such as the {@link WalletSerializer} class.  It isn't normally useful for
-     ; applications.  It does not trigger auto saving.
-     ;;
-    #_public
-    (§ method #_"void" addWalletTransaction [#_"WalletTransaction" wtx]
-        (.. (:lock this) (lock))
-        (try
-            (.. this (addWalletTransaction (.. wtx (getPool)), (.. wtx (getTransaction))))
-            (finally
-                (.. (:lock this) (unlock))
-            )
         )
         nil
     )
@@ -41562,677 +40723,6 @@
             )
             (finally
                 (.. (:lock this) (unlock))
-            )
-        )
-    )
-)
-
-;;;
- ; Serialize and de-serialize a wallet to a byte stream containing a
- ; <a href="https://developers.google.com/protocol-buffers/docs/overview">protocol buffer</a>.  Protocol buffers are
- ; a data interchange format developed by Google with an efficient binary representation, a type safe specification
- ; language and compilers that generate code to work with those data structures for many languages.  Protocol buffers
- ; can have their format evolved over time: conceptually they represent data using (tag, length, value) tuples.  The
- ; format is defined by the <tt>wallet.proto</tt> file in the bitcoinj source distribution.
- ;
- ; This class is used through its static methods.  The most common operations are writeWallet and readWallet, which do
- ; the obvious operations on Output/InputStreams.  You can use a {@link java.io.ByteArrayInputStream} and equivalent
- ; {@link java.io.ByteArrayOutputStream} if you'd like byte arrays instead.  The protocol buffer can also be manipulated
- ; in its object form if you'd like to modify the flattened data structure before serialization to binary.
- ;
- ; You can extend the wallet format with additional fields specific to your application if you want, but make sure
- ; to either put the extra data in the provided extension areas, or select tag numbers that are unlikely to be used
- ; by anyone else.
- ;
- ; @author Miron Cuperman
- ; @author Andreas Schildbach
- ;;
-#_public
-(§ class WalletSerializer
-    #_private
-    #_static
-    (def- #_"Logger" WalletSerializer'log (LoggerFactory/getLogger WalletSerializer))
-
-    ;; Used for de-serialization.
-    #_protected
-    (§ field #_"Map<ByteString, Transaction>" :tx-map (HashMap. #_"<>"))
-
-    #_public
-    (§ constructor WalletSerializer []
-        this
-    )
-
-    ;;;
-     ; Formats the given wallet (transactions and keys) to the given output stream in protocol buffer format.
-     ;
-     ; Equivalent to <tt>walletToProto(wallet).writeTo(output)</tt>.
-     ;;
-    #_public
-    #_throws #_[ "IOException" ]
-    (§ method #_"void" writeWallet [#_"Wallet" wallet, #_"OutputStream" stream]
-        (let [#_"Protos.Wallet" proto (.. this (walletToProto wallet))
-              #_"CodedOutputStream" cos (CodedOutputStream/newInstance stream, CodedOutputStream/DEFAULT_BUFFER_SIZE)]
-            (.. proto (writeTo cos))
-            (.. cos (flush))
-        )
-        nil
-    )
-
-    ;;;
-     ; Converts the given wallet to the object representation of the protocol buffers.  This can be modified,
-     ; or additional data fields set, before serialization takes place.
-     ;;
-    #_public
-    (§ method #_"Protos.Wallet" walletToProto [#_"Wallet" wallet]
-        (let [#_"Protos.Wallet.Builder" builder (Protos.Wallet/newBuilder)]
-            (.. builder (setNetworkIdentifier (-> wallet :params :id)))
-            (when (some? (.. wallet (getDescription)))
-                (.. builder (setDescription (.. wallet (getDescription))))
-            )
-
-            (doseq [#_"WalletTransaction" wtx (.. wallet (getWalletTransactions))]
-                (let [#_"Protos.Transaction" __txProto (WalletSerializer'makeTxProto wtx)]
-                    (.. builder (addTransaction __txProto))
-                )
-            )
-
-            (.. builder (addAllKey (.. wallet (serializeKeyChainGroupToProtobuf))))
-
-            ;; Populate the lastSeenBlockHash field.
-            (let [#_"Sha256Hash" __lastSeenBlockHash (.. wallet (getLastBlockSeenHash))]
-                (when (some? __lastSeenBlockHash)
-                    (.. builder (setLastSeenBlockHash (WalletSerializer'hashToByteString __lastSeenBlockHash)))
-                    (.. builder (setLastSeenBlockHeight (.. wallet (getLastBlockSeenHeight))))
-                )
-                (when (< 0 (.. wallet (getLastBlockSeenTimeSecs)))
-                    (.. builder (setLastSeenBlockTimeSecs (.. wallet (getLastBlockSeenTimeSecs))))
-                )
-
-                (when (some? (.. wallet (getKeyRotationTime)))
-                    (let [#_"long" __timeSecs (quot (.. wallet (getKeyRotationTime) (getTime)) 1000)]
-                        (.. builder (setKeyRotationTime __timeSecs))
-                    )
-                )
-
-                (doseq [#_"TransactionSigner" signer (.. wallet (getTransactionSigners))]
-                    ;; Do not serialize LocalTransactionSigner as it's being added implicitly.
-                    (when-not (instance? LocalTransactionSigner signer)
-                        (let [#_"Protos.TransactionSigner.Builder" __protoSigner (Protos.TransactionSigner/newBuilder)]
-                            (.. __protoSigner (setClassName (.. signer (getClass) (getName))))
-                            (.. __protoSigner (setData (ByteString/copyFrom (.. signer (serialize)))))
-                            (.. builder (addTransactionSigners __protoSigner))
-                        )
-                    )
-                )
-
-                (.. builder (build))
-            )
-        )
-    )
-
-    #_private
-    #_static
-    (§ defn- #_"Protos.Transaction" WalletSerializer'makeTxProto [#_"WalletTransaction" wtx]
-        (let [#_"Transaction" tx (.. wtx (getTransaction))
-              #_"Protos.Transaction.Builder" __txBuilder (Protos.Transaction/newBuilder)]
-
-            (.. __txBuilder (setPool (WalletSerializer'getProtoPool wtx)) (setHash (WalletSerializer'hashToByteString (.. tx (getHash)))) (setVersion (int (.. tx (getVersion)))))
-
-            (when (some? (.. tx (getUpdateTime)))
-                (.. __txBuilder (setUpdatedAt (.. tx (getUpdateTime) (getTime))))
-            )
-
-            (when (< 0 (.. tx (getLockTime)))
-                (.. __txBuilder (setLockTime (int (.. tx (getLockTime)))))
-            )
-
-            ;; Handle inputs.
-            (doseq [#_"TransactionInput" input (.. tx (getInputs))]
-                (let [#_"Protos.TransactionInput.Builder" __inputBuilder (.. (Protos.TransactionInput/newBuilder) (setScriptBytes (ByteString/copyFrom (.. input (getScriptBytes)))) (setTransactionOutPointHash (WalletSerializer'hashToByteString (.. (:outpoint input) (getHash)))) (setTransactionOutPointIndex (int (.. (:outpoint input) (getIndex)))))]
-                    (when (.. input (hasSequence))
-                        (.. __inputBuilder (setSequence (int (.. input (getSequenceNumber)))))
-                    )
-                    (when (some? (.. input (getValue)))
-                        (.. __inputBuilder (setValue (:value (.. input (getValue)))))
-                    )
-                    (.. __txBuilder (addTransactionInput __inputBuilder))
-                )
-            )
-
-            ;; Handle outputs.
-            (doseq [#_"TransactionOutput" output (.. tx (getOutputs))]
-                (let [#_"Protos.TransactionOutput.Builder" __outputBuilder (.. (Protos.TransactionOutput/newBuilder) (setScriptBytes (ByteString/copyFrom (.. output (getScriptBytes)))) (setValue (:value (.. output (getValue)))))
-                      #_"TransactionInput" __spentBy (.. output (getSpentBy))]
-                    (when (some? __spentBy)
-                        (let [#_"Sha256Hash" __spendingHash (.. __spentBy (getParentTransaction) (getHash))
-                              #_"int" __spentByTransactionIndex (.. __spentBy (getParentTransaction) (getInputs) (indexOf __spentBy))]
-                            (.. __outputBuilder (setSpentByTransactionHash (WalletSerializer'hashToByteString __spendingHash)) (setSpentByTransactionIndex __spentByTransactionIndex))
-                        )
-                    )
-                    (.. __txBuilder (addTransactionOutput __outputBuilder))
-                )
-            )
-
-            ;; Handle which blocks tx was seen in.
-            (let [#_"Map<Sha256Hash, Integer>" __appearsInHashes (.. tx (getAppearsInHashes))]
-                (when (some? __appearsInHashes)
-                    (doseq [#_"Map.Entry<Sha256Hash, Integer>" entry (.. __appearsInHashes (entrySet))]
-                        (.. __txBuilder (addBlockHash (WalletSerializer'hashToByteString (.. entry (getKey)))))
-                        (.. __txBuilder (addBlockRelativityOffsets (.. entry (getValue))))
-                    )
-                )
-
-                (when (.. tx (hasConfidence))
-                    (let [#_"TransactionConfidence" confidence (.. tx (getConfidence))
-                          #_"Protos.TransactionConfidence.Builder" __confidenceBuilder (Protos.TransactionConfidence/newBuilder)]
-                        (WalletSerializer'writeConfidence __txBuilder, confidence, __confidenceBuilder)
-                    )
-                )
-
-                (let [#_"Protos.TransactionPurpose" purpose
-                        (condp = (.. tx (getPurpose))
-                            :TransactionPurpose'UNKNOWN                   Protos.Transaction.Purpose/UNKNOWN
-                            :TransactionPurpose'USER_PAYMENT              Protos.Transaction.Purpose/USER_PAYMENT
-                            :TransactionPurpose'KEY_ROTATION              Protos.Transaction.Purpose/KEY_ROTATION
-                            :TransactionPurpose'ASSURANCE_CONTRACT_CLAIM  Protos.Transaction.Purpose/ASSURANCE_CONTRACT_CLAIM
-                            :TransactionPurpose'ASSURANCE_CONTRACT_PLEDGE Protos.Transaction.Purpose/ASSURANCE_CONTRACT_PLEDGE
-                            :TransactionPurpose'ASSURANCE_CONTRACT_STUB   Protos.Transaction.Purpose/ASSURANCE_CONTRACT_STUB
-                            :TransactionPurpose'RAISE_FEE                 Protos.Transaction.Purpose/RAISE_FEE
-                            (throw (RuntimeException. "New tx purpose serialization not implemented."))
-                        )]
-                    (.. __txBuilder (setPurpose purpose))
-
-                    (let [#_"ExchangeRate" __exchangeRate (.. tx (getExchangeRate))]
-                        (when (some? __exchangeRate)
-                            (let [#_"Protos.ExchangeRate.Builder" __exchangeRateBuilder (.. (Protos.ExchangeRate/newBuilder) (setCoinValue (.. (:coin __exchangeRate) :value)) (setFiatValue (.. (:fiat __exchangeRate) :value)) (setFiatCurrencyCode (.. (:fiat __exchangeRate) :currency-code)))]
-                                (.. __txBuilder (setExchangeRate __exchangeRateBuilder))
-                            )
-                        )
-
-                        (when (some? (.. tx (getMemo)))
-                            (.. __txBuilder (setMemo (.. tx (getMemo))))
-                        )
-
-                        (.. __txBuilder (build))
-                    )
-                )
-            )
-        )
-    )
-
-    #_private
-    #_static
-    (§ defn- #_"Protos.Transaction.Pool" WalletSerializer'getProtoPool [#_"WalletTransaction" wtx]
-        (condp = (.. wtx (getPool))
-            :PoolType'UNSPENT Protos.Transaction.Pool/UNSPENT
-            :PoolType'SPENT   Protos.Transaction.Pool/SPENT
-            :PoolType'DEAD    Protos.Transaction.Pool/DEAD
-            :PoolType'PENDING Protos.Transaction.Pool/PENDING
-            (throw (RuntimeException. "Unreachable"))
-        )
-    )
-
-    #_private
-    #_static
-    (§ defn- #_"void" WalletSerializer'writeConfidence [#_"Protos.Transaction.Builder" __txBuilder, #_"TransactionConfidence" confidence, #_"Protos.TransactionConfidence.Builder" __confidenceBuilder]
-        (§ sync confidence
-            (.. __confidenceBuilder (setType (Protos.TransactionConfidence.Type/valueOf (:value (.. confidence (getConfidenceType))))))
-            (when (= (.. confidence (getConfidenceType)) ConfidenceType'BUILDING)
-                (.. __confidenceBuilder (setAppearedAtHeight (.. confidence (getAppearedAtChainHeight))))
-                (.. __confidenceBuilder (setDepth (.. confidence (getDepthInBlocks))))
-            )
-            (when (= (.. confidence (getConfidenceType)) ConfidenceType'DEAD)
-                ;; Copy in the overriding transaction, if available.
-                ;; (A dead coinbase transaction has no overriding transaction).
-                (when (some? (.. confidence (getOverridingTransaction)))
-                    (let [#_"Sha256Hash" __overridingHash (.. confidence (getOverridingTransaction) (getHash))]
-                        (.. __confidenceBuilder (setOverridingTransaction (WalletSerializer'hashToByteString __overridingHash)))
-                    )
-                )
-            )
-            (condp = (.. confidence (getSource))
-                :ConfidenceSource'SELF        (.. __confidenceBuilder (setSource Protos.TransactionConfidence.Source/SOURCE_SELF))
-                :ConfidenceSource'NETWORK     (.. __confidenceBuilder (setSource Protos.TransactionConfidence.Source/SOURCE_NETWORK))
-                #_":ConfidenceSource'UNKNOWN" (.. __confidenceBuilder (setSource Protos.TransactionConfidence.Source/SOURCE_UNKNOWN))
-            )
-        )
-
-        (doseq [#_"PeerAddress" address (.. confidence (getBroadcastBy))]
-            (let [#_"Protos.PeerAddress" proto (.. (Protos.PeerAddress/newBuilder) (setIpAddress (ByteString/copyFrom (.. address (getAddr) (getAddress)))) (setPort (.. address (getPort))) (setServices (.. address (getServices) (longValue))) (build))]
-                (.. __confidenceBuilder (addBroadcastBy proto))
-            )
-        )
-        (let [#_"Date" __lastBroadcastedAt (.. confidence (getLastBroadcastedAt))]
-            (when (some? __lastBroadcastedAt)
-                (.. __confidenceBuilder (setLastBroadcastedAt (.. __lastBroadcastedAt (getTime))))
-            )
-            (.. __txBuilder (setConfidence __confidenceBuilder))
-        )
-        nil
-    )
-
-    #_public
-    #_static
-    (§ defn #_"ByteString" WalletSerializer'hashToByteString [#_"Sha256Hash" hash]
-        (ByteString/copyFrom (.. hash (getBytes)))
-    )
-
-    #_public
-    #_static
-    (§ defn #_"Sha256Hash" WalletSerializer'byteStringToHash [#_"ByteString" bs]
-        (Sha256Hash'wrap (.. bs (toByteArray)))
-    )
-
-    ;;;
-     ; Loads wallet data from the given protocol buffer and inserts it into the given Wallet object.
-     ; This is primarily useful when you wish to pre-register extension objects.  Note that if loading
-     ; fails the provided Wallet object may be in an indeterminate state and should be thrown away.
-     ;
-     ; A wallet can be unreadable for various reasons, such as inability to open the file, corrupt data,
-     ; internally inconsistent data and so on.  You should always handle
-     ; {@link UnreadableWalletException} and communicate failure to the user in an appropriate manner.
-     ;
-     ; @throws UnreadableWalletException in various error conditions (see description).
-     ;;
-    #_public
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ method #_"Wallet" readWallet [#_"InputStream" input]
-        (.. this (readWallet input, false))
-    )
-
-    ;;;
-     ; Loads wallet data from the given protocol buffer and inserts it into the given Wallet object.
-     ; This is primarily useful when you wish to pre-register extension objects.  Note that if loading
-     ; fails the provided Wallet object may be in an indeterminate state and should be thrown away.  Do not
-     ; simply call this method again on the same Wallet object with {@code forceReset} set {@code true}.
-     ; It won't work.
-     ;
-     ; If {@code forceReset} is {@code true}, then no transactions are loaded from the wallet, and
-     ; it is configured to replay transactions from the blockchain (as if the wallet had been loaded and
-     ; {@link Wallet.reset} had been called immediately thereafter).
-     ;
-     ; A wallet can be unreadable for various reasons, such as inability to open the file, corrupt data,
-     ; internally inconsistent data and so on. You should always handle
-     ; {@link UnreadableWalletException} and communicate failure to the user in an appropriate manner.
-     ;
-     ; @throws UnreadableWalletException in various error conditions (see description).
-     ;;
-    #_public
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ method #_"Wallet" readWallet [#_"InputStream" input, #_"boolean" __forceReset]
-        (try
-            (let [#_"Protos.Wallet" proto (WalletSerializer'parseToProto input)
-                  #_"String" id (.. proto (getNetworkIdentifier))
-                  #_"NetworkParameters" params (NetworkParameters'fromID id)]
-                (when (nil? params)
-                    (throw (UnreadableWalletException. (str "Unknown network parameters ID " id)))
-                )
-
-                (.. this (readWallet params, proto, __forceReset))
-            )
-            (catch IOException e
-                (throw (UnreadableWalletException. "Could not parse input stream to protobuf", e))
-            )
-            (catch IllegalStateException e
-                (throw (UnreadableWalletException. "Could not parse input stream to protobuf", e))
-            )
-            (catch IllegalArgumentException e
-                (throw (UnreadableWalletException. "Could not parse input stream to protobuf", e))
-            )
-        )
-    )
-
-    ;;;
-     ; Loads wallet data from the given protocol buffer and inserts it into the given Wallet object.
-     ; This is primarily useful when you wish to pre-register extension objects.  Note that if loading
-     ; fails, the provided Wallet object may be in an indeterminate state and should be thrown away.
-     ;
-     ; A wallet can be unreadable for various reasons, such as inability to open the file, corrupt
-     ; data, internally inconsistent data and so on.  You should always handle
-     ; {@link UnreadableWalletException} and communicate failure to the user in an appropriate manner.
-     ;
-     ; @throws UnreadableWalletException in various error conditions (see description).
-     ;;
-    #_public
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ method #_"Wallet" readWallet [#_"NetworkParameters" params, #_"Protos.Wallet" proto]
-        (.. this (readWallet params, proto, false))
-    )
-
-    ;;;
-     ; Loads wallet data from the given protocol buffer and inserts it into the given Wallet object.
-     ; This is primarily useful when you wish to pre-register extension objects.  Note that if loading
-     ; fails, the provided Wallet object may be in an indeterminate state and should be thrown away.
-     ; Do not simply call this method again on the same Wallet object with {@code forceReset} set to true.
-     ; It won't work.
-     ;
-     ; If {@code forceReset} is {@code true}, then no transactions are loaded from the wallet, and it is
-     ; configured to replay transactions from the blockchain (as if the wallet had been loaded and
-     ; {@link Wallet.reset} had been called immediately thereafter).
-     ;
-     ; A wallet can be unreadable for various reasons, such as inability to open the file, corrupt data,
-     ; internally inconsistent data and so on.  You should always handle {@link UnreadableWalletException}
-     ; and communicate failure to the user in an appropriate manner.
-     ;
-     ; @throws UnreadableWalletException in various error conditions (see description).
-     ;;
-    #_public
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ method #_"Wallet" readWallet [#_"NetworkParameters" params, #_"Protos.Wallet" proto, #_"boolean" __forceReset]
-        (when-not (= (.. proto (getNetworkIdentifier)) (:id params))
-            (throw (UnreadableWalletException. "Mismatched network ID"))
-        )
-
-        (let [#_"Wallet" wallet (Wallet. params, (KeyChainGroup'fromProtobufUnencrypted params, (.. proto (getKeyList)), (KeyChainFactory.)))]
-            (when (.. proto (hasDescription))
-                (.. wallet (setDescription (.. proto (getDescription))))
-            )
-
-            (cond __forceReset
-                (do
-                    ;; Should mirror Wallet.reset().
-                    (.. wallet (setLastBlockSeenHash nil))
-                    (.. wallet (setLastBlockSeenHeight -1))
-                    (.. wallet (setLastBlockSeenTimeSecs 0))
-                )
-                :else
-                (do
-                    ;; Read all transactions and insert into the txMap.
-                    (doseq [#_"Protos.Transaction" __txProto (.. proto (getTransactionList))]
-                        (.. this (readTransaction __txProto, (.. wallet (getParams))))
-                    )
-
-                    ;; Update transaction outputs to point to inputs that spend them.
-                    (doseq [#_"Protos.Transaction" __txProto (.. proto (getTransactionList))]
-                        (let [#_"WalletTransaction" wtx (.. this (connectTransactionOutputs params, __txProto))]
-                            (.. wallet (addWalletTransaction wtx))
-                        )
-                    )
-
-                    ;; Update the lastBlockSeenHash.
-                    (if (not (.. proto (hasLastSeenBlockHash)))
-                        (.. wallet (setLastBlockSeenHash nil))
-                        (.. wallet (setLastBlockSeenHash (WalletSerializer'byteStringToHash (.. proto (getLastSeenBlockHash)))))
-                    )
-
-                    (if (not (.. proto (hasLastSeenBlockHeight)))
-                        (.. wallet (setLastBlockSeenHeight -1))
-                        (.. wallet (setLastBlockSeenHeight (.. proto (getLastSeenBlockHeight))))
-                    )
-
-                    ;; Will default to zero if not present.
-                    (.. wallet (setLastBlockSeenTimeSecs (.. proto (getLastSeenBlockTimeSecs))))
-
-                    (when (.. proto (hasKeyRotationTime))
-                        (.. wallet (setKeyRotationTime (Date. (* (.. proto (getKeyRotationTime)) 1000))))
-                    )
-                )
-            )
-
-            (doseq [#_"Protos.TransactionSigner" __signerProto (.. proto (getTransactionSignersList))]
-                (try
-                    (let [#_"Class" __signerClass (Class/forName (.. __signerProto (getClassName)))
-                          #_"TransactionSigner" signer (cast TransactionSigner (.. __signerClass (newInstance)))]
-                        (.. signer (deserialize (.. __signerProto (getData) (toByteArray))))
-                        (.. wallet (addTransactionSigner signer))
-                    )
-                    (catch Exception e
-                        (throw (UnreadableWalletException. (str "Unable to deserialize TransactionSigner instance: " (.. __signerProto (getClassName))), e))
-                    )
-                )
-            )
-
-            ;; Make sure the object can be re-used to read another wallet without corruption.
-            (.. (:tx-map this) (clear))
-
-            wallet
-        )
-    )
-
-    ;;;
-     ; Returns the loaded protocol buffer from the given byte stream.
-     ;;
-    #_public
-    #_static
-    #_throws #_[ "IOException" ]
-    (§ defn #_"Protos.Wallet" WalletSerializer'parseToProto [#_"InputStream" input]
-        (Protos.Wallet/parseFrom (CodedInputStream/newInstance input))
-    )
-
-    #_private
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ method- #_"void" readTransaction [#_"Protos.Transaction" __txProto, #_"NetworkParameters" params]
-        (let [#_"Transaction" tx (Transaction. params)]
-
-            (.. tx (setVersion (.. __txProto (getVersion))))
-
-            (when (.. __txProto (hasUpdatedAt))
-                (.. tx (setUpdateTime (Date. (.. __txProto (getUpdatedAt)))))
-            )
-
-            (doseq [#_"Protos.TransactionOutput" __outputProto (.. __txProto (getTransactionOutputList))]
-                (let [#_"Coin" value (Coin'valueOf (.. __outputProto (getValue)))
-                      #_"byte[]" script (.. __outputProto (getScriptBytes) (toByteArray))
-                      #_"TransactionOutput" output (TransactionOutput. params, tx, value, script)]
-                    (.. tx (addOutput output))
-                )
-            )
-
-            (doseq [#_"Protos.TransactionInput" __inputProto (.. __txProto (getTransactionInputList))]
-                (let [#_"byte[]" script (.. __inputProto (getScriptBytes) (toByteArray))
-                      #_"TransactionOutPoint" outpoint (TransactionOutPoint. params, (& 0xffffffff (.. __inputProto (getTransactionOutPointIndex))), (WalletSerializer'byteStringToHash (.. __inputProto (getTransactionOutPointHash))))
-                      #_"Coin" value (when (.. __inputProto (hasValue)) (Coin'valueOf (.. __inputProto (getValue))))
-                      #_"TransactionInput" input (TransactionInput. params, tx, script, outpoint, value)]
-                    (when (.. __inputProto (hasSequence))
-                        (.. input (setSequenceNumber (& 0xffffffff (.. __inputProto (getSequence)))))
-                    )
-                    (.. tx (addInput input))
-                )
-            )
-
-            (loop-when-recur [#_"int" i 0] (< i (.. __txProto (getBlockHashCount))) [(inc i)]
-                (let [#_"ByteString" __blockHash (.. __txProto (getBlockHash i))
-                      #_"int" __relativityOffset 0]
-                    (when (< 0 (.. __txProto (getBlockRelativityOffsetsCount)))
-                        (§ ass __relativityOffset (.. __txProto (getBlockRelativityOffsets i)))
-                    )
-                    (.. tx (addBlockAppearance (WalletSerializer'byteStringToHash __blockHash), __relativityOffset))
-                )
-            )
-
-            (when (.. __txProto (hasLockTime))
-                (.. tx (setLockTime (& 0xffffffff (.. __txProto (getLockTime)))))
-            )
-
-            (cond (.. __txProto (hasPurpose))
-                (do
-                    (condp = (.. __txProto (getPurpose))
-                        Protos.Transaction.Purpose/UNKNOWN                   (.. tx (setPurpose :TransactionPurpose'UNKNOWN))
-                        Protos.Transaction.Purpose/USER_PAYMENT              (.. tx (setPurpose :TransactionPurpose'USER_PAYMENT))
-                        Protos.Transaction.Purpose/KEY_ROTATION              (.. tx (setPurpose :TransactionPurpose'KEY_ROTATION))
-                        Protos.Transaction.Purpose/ASSURANCE_CONTRACT_CLAIM  (.. tx (setPurpose :TransactionPurpose'ASSURANCE_CONTRACT_CLAIM))
-                        Protos.Transaction.Purpose/ASSURANCE_CONTRACT_PLEDGE (.. tx (setPurpose :TransactionPurpose'ASSURANCE_CONTRACT_PLEDGE))
-                        Protos.Transaction.Purpose/ASSURANCE_CONTRACT_STUB   (.. tx (setPurpose :TransactionPurpose'ASSURANCE_CONTRACT_STUB))
-                        Protos.Transaction.Purpose/RAISE_FEE                 (.. tx (setPurpose :TransactionPurpose'RAISE_FEE))
-                        (throw (RuntimeException. "New purpose serialization not implemented."))
-                    )
-                )
-                :else
-                (do
-                    ;; Old wallet: assume a user payment as that's the only reason a new tx would have been created back then.
-                    (.. tx (setPurpose :TransactionPurpose'USER_PAYMENT))
-                )
-            )
-
-            (when (.. __txProto (hasExchangeRate))
-                (let [#_"Protos.ExchangeRate" __exchangeRateProto (.. __txProto (getExchangeRate))]
-                    (.. tx (setExchangeRate (ExchangeRate. (Coin'valueOf (.. __exchangeRateProto (getCoinValue))), (Fiat'valueOf (.. __exchangeRateProto (getFiatCurrencyCode)), (.. __exchangeRateProto (getFiatValue))))))
-                )
-            )
-
-            (when (.. __txProto (hasMemo))
-                (.. tx (setMemo (.. __txProto (getMemo))))
-            )
-
-            ;; Transaction should now be complete.
-            (let [#_"Sha256Hash" __protoHash (WalletSerializer'byteStringToHash (.. __txProto (getHash)))]
-                (when (not (.. tx (getHash) (equals __protoHash)))
-                    (throw (UnreadableWalletException. (String/format Locale/US, "Transaction did not deserialize completely: %s vs %s", (.. tx (getHash)), __protoHash)))
-                )
-                (when (.. (:tx-map this) (containsKey (.. __txProto (getHash))))
-                    (throw (UnreadableWalletException. (str "Wallet contained duplicate transaction " (WalletSerializer'byteStringToHash (.. __txProto (getHash))))))
-                )
-                (.. (:tx-map this) (put (.. __txProto (getHash)), tx))
-            )
-        )
-        nil
-    )
-
-    #_private
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ method- #_"WalletTransaction" connectTransactionOutputs [#_"NetworkParameters" params, #_"org.bitcoinj.wallet.Protos.Transaction" __txProto]
-        (let [#_"Transaction" tx (.. (:tx-map this) (get (.. __txProto (getHash))))
-              #_"PoolType" pool
-                (condp =? (.. __txProto (getPool))
-                    Protos.Transaction.Pool/DEAD    :PoolType'DEAD
-                    Protos.Transaction.Pool/PENDING :PoolType'PENDING
-                    Protos.Transaction.Pool/SPENT   :PoolType'SPENT
-                    Protos.Transaction.Pool/UNSPENT :PoolType'UNSPENT
-                    ;; Upgrade old wallets: inactive pool has been merged with the pending pool.
-                    ;; Remove this some time after 0.9 is old and everyone has upgraded.
-                    ;; There should not be any spent outputs in this tx as old wallets would not allow them to be spent in this state.
-                    [Protos.Transaction.Pool/INACTIVE Protos.Transaction.Pool/PENDING_INACTIVE] :PoolType'PENDING
-                    (throw (UnreadableWalletException. (str "Unknown transaction pool: " (.. __txProto (getPool)))))
-                )]
-
-            (loop-when-recur [#_"int" i 0] (< i (.. tx (getOutputs) (size))) [(inc i)]
-                (let [#_"TransactionOutput" output (.. tx (getOutputs) (get i))
-                      #_"Protos.TransactionOutput" __transactionOutput (.. __txProto (getTransactionOutput i))]
-                    (when (.. __transactionOutput (hasSpentByTransactionHash))
-                        (let [#_"ByteString" __spentByTransactionHash (.. __transactionOutput (getSpentByTransactionHash))
-                              #_"Transaction" __spendingTx (.. (:tx-map this) (get __spentByTransactionHash))]
-                            (when (nil? __spendingTx)
-                                (throw (UnreadableWalletException. (String/format Locale/US, "Could not connect %s to %s", (.. tx (getHashAsString)), (WalletSerializer'byteStringToHash __spentByTransactionHash))))
-                            )
-
-                            (let [#_"int" __spendingIndex (.. __transactionOutput (getSpentByTransactionIndex))
-                                  #_"TransactionInput" input (ensure some? (.. __spendingTx (getInput __spendingIndex)))]
-                                (.. input (connect output))
-                            )
-                        )
-                    )
-                )
-            )
-
-            (when (.. __txProto (hasConfidence))
-                (let [#_"Protos.TransactionConfidence" __confidenceProto (.. __txProto (getConfidence))
-                      #_"TransactionConfidence" confidence (.. tx (getConfidence))]
-                    (.. this (readConfidence params, tx, __confidenceProto, confidence))
-                )
-            )
-
-            (WalletTransaction. pool, tx)
-        )
-    )
-
-    #_private
-    #_throws #_[ "UnreadableWalletException" ]
-    (§ method- #_"void" readConfidence [#_"NetworkParameters" params, #_"Transaction" tx, #_"Protos.TransactionConfidence" __confidenceProto, #_"TransactionConfidence" confidence]
-        ;; We are lenient here because tx confidence is not an essential part of the wallet.
-        ;; If the tx has an unknown type of confidence, ignore.
-        (if-not (.. __confidenceProto (hasType))
-            (.. WalletSerializer'log (warn "Unknown confidence type for tx {}", (.. tx (getHashAsString))))
-            (let [#_"ConfidenceType" type
-                    (condp = (.. __confidenceProto (getType))
-                        Protos.TransactionConfidence.ConfidenceType/BUILDING          ConfidenceType'BUILDING
-                        Protos.TransactionConfidence.ConfidenceType/DEAD              ConfidenceType'DEAD
-                        ;; These two are equivalent (must be able to read old wallets).
-                        Protos.TransactionConfidence.ConfidenceType/NOT_IN_BEST_CHAIN ConfidenceType'PENDING
-                        Protos.TransactionConfidence.ConfidenceType/PENDING           ConfidenceType'PENDING
-                        Protos.TransactionConfidence.ConfidenceType/IN_CONFLICT       ConfidenceType'IN_CONFLICT
-                        #_"Protos.TransactionConfidence.ConfidenceType/UNKNOWN"       ConfidenceType'UNKNOWN
-                    )]
-                (.. confidence (setConfidenceType type))
-                (when (.. __confidenceProto (hasAppearedAtHeight))
-                    (when (not= (.. confidence (getConfidenceType)) ConfidenceType'BUILDING)
-                        (.. WalletSerializer'log (warn "Have appearedAtHeight but not BUILDING for tx {}", (.. tx (getHashAsString))))
-                        (§ return nil)
-                    )
-                    (.. confidence (setAppearedAtChainHeight (.. __confidenceProto (getAppearedAtHeight))))
-                )
-
-                (when (.. __confidenceProto (hasDepth))
-                    (when (not= (.. confidence (getConfidenceType)) ConfidenceType'BUILDING)
-                        (.. WalletSerializer'log (warn "Have depth but not BUILDING for tx {}", (.. tx (getHashAsString))))
-                        (§ return nil)
-                    )
-                    (.. confidence (setDepthInBlocks (.. __confidenceProto (getDepth))))
-                )
-
-                (when (.. __confidenceProto (hasOverridingTransaction))
-                    (when (not= (.. confidence (getConfidenceType)) ConfidenceType'DEAD)
-                        (.. WalletSerializer'log (warn "Have overridingTransaction but not OVERRIDDEN for tx {}", (.. tx (getHashAsString))))
-                        (§ return nil)
-                    )
-                    (let [#_"Transaction" __overridingTransaction (.. (:tx-map this) (get (.. __confidenceProto (getOverridingTransaction))))]
-                        (when (nil? __overridingTransaction)
-                            (.. WalletSerializer'log (warn "Have overridingTransaction that is not in wallet for tx {}", (.. tx (getHashAsString))))
-                            (§ return nil)
-                        )
-                        (.. confidence (setOverridingTransaction __overridingTransaction))
-                    )
-                )
-
-                (doseq [#_"Protos.PeerAddress" proto (.. __confidenceProto (getBroadcastByList))]
-                    (let [#_"InetAddress" ip]
-                        (try
-                            (§ ass ip (InetAddress/getByAddress (.. proto (getIpAddress) (toByteArray))))
-                            (catch UnknownHostException e
-                                (throw (UnreadableWalletException. "Peer IP address does not have the right length", e))
-                            )
-                        )
-
-                        (let [#_"int" port (.. proto (getPort))
-                              #_"BigInteger" services (BigInteger/valueOf (.. proto (getServices)))
-                              #_"PeerAddress" address (PeerAddress. params, ip, port, ProtocolVersion'CURRENT, services)]
-                            (.. confidence (markBroadcastBy address))
-                        )
-                    )
-                )
-
-                (when (.. __confidenceProto (hasLastBroadcastedAt))
-                    (.. confidence (setLastBroadcastedAt (Date. (.. __confidenceProto (getLastBroadcastedAt)))))
-                )
-
-                (condp = (.. __confidenceProto (getSource))
-                    Protos.TransactionConfidence.Source/SOURCE_SELF        (.. confidence (setSource :ConfidenceSource'SELF))
-                    Protos.TransactionConfidence.Source/SOURCE_NETWORK     (.. confidence (setSource :ConfidenceSource'NETWORK))
-                    #_"Protos.TransactionConfidence.Source/SOURCE_UNKNOWN" (.. confidence (setSource :ConfidenceSource'UNKNOWN))
-                )
-            )
-        )
-        nil
-    )
-
-    ;;;
-     ; Cheap test to see if input stream is a wallet.  This checks for a magic value at the beginning of the stream.
-     ;
-     ; @param is Input stream to test.
-     ; @return true if input stream is a wallet.
-     ;;
-    #_public
-    #_static
-    (§ defn #_"boolean" WalletSerializer'isWallet [#_"InputStream" is]
-        (try
-            (let [#_"CodedInputStream" cis (CodedInputStream/newInstance is)
-                  #_"int" field (WireFormat/getTagFieldNumber (.. cis (readTag)))]
-                (if (= field 1) ;; network_identifier
-                    (some? (NetworkParameters'fromID (.. cis (readString))))
-                    false
-                )
-            )
-            (catch IOException _
-                false
             )
         )
     )
