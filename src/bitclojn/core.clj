@@ -86,9 +86,12 @@
  ; An OrphanBlock holds a block header and, optionally, a list of tx hashes or block's transactions.
  ;;
 (§ class OrphanBlock
-    #_field #_"Block" (ß assoc this :block nil)
-    #_field #_"List<Sha256Hash>" (ß assoc this :filtered-tx-hashes nil)
-    #_field #_"Map<Sha256Hash, Transaction>" (ß assoc this :filtered-txn nil)
+    (ß defn- #_"OrphanBlock" OrphanBlock'init []
+    {
+        #_field #_"Block" :block nil
+        #_field #_"List<Sha256Hash>" :filtered-tx-hashes nil
+        #_field #_"Map<Sha256Hash, Transaction>" :filtered-txn nil
+    })
 
     (§ defn #_"OrphanBlock" OrphanBlock'new [#_"Block" block, #_nilable #_"List<Sha256Hash>" hashes, #_nilable #_"Map<Sha256Hash, Transaction>" txn]
         (let [#_"boolean" filtered (and (some? hashes) (some? txn))]
@@ -151,50 +154,50 @@
 (§ class BlockChain
     (def- #_"Logger" BlockChain'log (LoggerFactory/getLogger BlockChain))
 
-    #_protected
-    #_field #_"ReentrantLock" (ß assoc this :lock (Threading'lock "blockchain"))
-
-    ;;; Keeps a map of block hashes to StoredBlocks. ;;
-    #_field- #_"BlockStore" (ß assoc this :block-store nil)
-
-    ;;;
-     ; Tracks the top of the best known chain.
-     ;
-     ; Following this one down to the genesis block produces the story of the economy from the creation of Bitcoin
-     ; until the present day.  The chain head can change if a new set of blocks is received that results in a chain of
-     ; greater work than the one obtained by following this one down.  In that case a reorganize is triggered,
-     ; potentially invalidating transactions in our wallet.
-     ;;
-    #_protected
-    #_field #_"StoredBlock" (ß assoc this :chain-head nil)
-
-    ;; TODO: Scrap this and use a proper read/write for all of the block chain objects.
-    ;; The chainHead field is read/written synchronized with this object rather than SPVBlockChain.  However writing is
-    ;; also guaranteed to happen whilst SPVBlockChain is synchronized (see setChainHead).  The goal of this is to let
-    ;; clients quickly access the chain head even whilst the block chain is downloading and thus the SPVBlockChain is
-    ;; locked most of the time.
-    #_field- #_"Object" (ß assoc this :chain-head-lock (Object.))
-
-    #_protected
-    #_field #_"NetworkParameters" (ß assoc this :params nil)
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<NewBestBlockListener>>" (ß assoc this :new-best-block-listeners nil)
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<ReorganizeListener>>" (ß assoc this :reorganize-listeners nil)
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<TransactionReceivedInBlockListener>>" (ß assoc this :transaction-received-listeners nil)
-
-    ;; Holds blocks that we have received but can't plug into the chain yet, e.g. because they were created whilst we
-    ;; were downloading the block chain.
-    #_field- #_"LinkedHashMap<Sha256Hash, OrphanBlock>" (ß assoc this :orphan-blocks (LinkedHashMap.))
-
     ;;; False positive estimation uses a double exponential moving average. ;;
     (def #_"double" BlockChain'FP_ESTIMATOR_ALPHA 0.0001)
     ;;; False positive estimation uses a double exponential moving average. ;;
     (def #_"double" BlockChain'FP_ESTIMATOR_BETA 0.01)
 
-    #_field- #_"double" (ß assoc this :false-positive-rate 0.0)
-    #_field- #_"double" (ß assoc this :false-positive-trend 0.0)
-    #_field- #_"double" (ß assoc this :previous-false-positive-rate 0.0)
-
-    #_field- #_"VersionTally" (ß assoc this :version-tally nil)
+    (ß defn- #_"BlockChain" BlockChain'init []
+    {
+        #_field #_"ReentrantLock" :lock (Threading'lock "blockchain")
+    
+        ;;; Keeps a map of block hashes to StoredBlocks. ;;
+        #_field #_"BlockStore" :block-store nil
+    
+        ;;;
+         ; Tracks the top of the best known chain.
+         ;
+         ; Following this one down to the genesis block produces the story of the economy from the creation of Bitcoin
+         ; until the present day.  The chain head can change if a new set of blocks is received that results in a chain of
+         ; greater work than the one obtained by following this one down.  In that case a reorganize is triggered,
+         ; potentially invalidating transactions in our wallet.
+         ;;
+        #_field #_"StoredBlock" :chain-head nil
+    
+        ;; TODO: Scrap this and use a proper read/write for all of the block chain objects.
+        ;; The chainHead field is read/written synchronized with this object rather than SPVBlockChain.  However writing is
+        ;; also guaranteed to happen whilst SPVBlockChain is synchronized (see setChainHead).  The goal of this is to let
+        ;; clients quickly access the chain head even whilst the block chain is downloading and thus the SPVBlockChain is
+        ;; locked most of the time.
+        #_field #_"Object" :chain-head-lock (Object.)
+    
+        #_field #_"NetworkParameters" :params nil
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<NewBestBlockListener>>" :new-best-block-listeners nil
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<ReorganizeListener>>" :reorganize-listeners nil
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<TransactionReceivedInBlockListener>>" :transaction-received-listeners nil
+    
+        ;; Holds blocks that we have received but can't plug into the chain yet, e.g. because they were created whilst we
+        ;; were downloading the block chain.
+        #_field #_"LinkedHashMap<Sha256Hash, OrphanBlock>" :orphan-blocks (LinkedHashMap.)
+    
+        #_field #_"double" :false-positive-rate 0.0
+        #_field #_"double" :false-positive-trend 0.0
+        #_field #_"double" :previous-false-positive-rate 0.0
+    
+        #_field #_"VersionTally" :version-tally nil
+    })
 
     ;;; See {@link #BlockChain(Context, List, BlockStore)} ;;
     #_throws #_[ "BlockStoreException" ]
@@ -1307,8 +1310,11 @@
      ;;
     (def #_"int" Address'LENGTH 20)
 
-    #_transient
-    #_field- #_"NetworkParameters" (ß assoc this :params nil)
+    (ß defn- #_"Address" Address'init []
+    {
+        #_transient
+        #_field #_"NetworkParameters" :params nil
+    })
 
     ;;;
      ; Construct an address from parameters, the address version, and the hash160 form.
@@ -1479,7 +1485,10 @@
 (§ class AddressMessage (§ extends Message)
     (def- #_"long" AddressMessage'MAX_ADDRESSES 1024)
 
-    #_field- #_"List<PeerAddress>" (ß assoc this :addresses nil)
+    (ß defn- #_"AddressMessage" AddressMessage'init []
+    {
+        #_field #_"List<PeerAddress>" :addresses nil
+    })
 
     ;;;
      ; Contruct a new 'addr' message.
@@ -1618,21 +1627,24 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (§ class AlertMessage (§ extends Message)
-    #_field- #_"byte[]" (ß assoc this :content nil)
-    #_field- #_"byte[]" (ß assoc this :signature nil)
-
-    ;; See the getters for documentation of what each field means.
-    #_field- #_"long" (ß assoc this :version 1)
-    #_field- #_"Date" (ß assoc this :relay-until nil)
-    #_field- #_"Date" (ß assoc this :expiration nil)
-    #_field- #_"long" (ß assoc this :id 0)
-    #_field- #_"long" (ß assoc this :cancel 0)
-    #_field- #_"long" (ß assoc this :min-ver 0)
-    #_field- #_"long" (ß assoc this :max-ver 0)
-    #_field- #_"long" (ß assoc this :priority 0)
-    #_field- #_"String" (ß assoc this :comment nil)
-    #_field- #_"String" (ß assoc this :status-bar nil)
-    #_field- #_"String" (ß assoc this :reserved nil)
+    (ß defn- #_"AlertMessage" AlertMessage'init []
+    {
+        #_field #_"byte[]" :content nil
+        #_field #_"byte[]" :signature nil
+    
+        ;; See the getters for documentation of what each field means.
+        #_field #_"long" :version 1
+        #_field #_"Date" :relay-until nil
+        #_field #_"Date" :expiration nil
+        #_field #_"long" :id 0
+        #_field #_"long" :cancel 0
+        #_field #_"long" :min-ver 0
+        #_field #_"long" :max-ver 0
+        #_field #_"long" :priority 0
+        #_field #_"String" :comment nil
+        #_field #_"String" :status-bar nil
+        #_field #_"String" :reserved nil
+    })
 
     ;; Chosen arbitrarily to avoid memory blowups.
     (def- #_"long" AlertMessage'MAX_SET_SIZE 100)
@@ -2017,10 +2029,13 @@
     ;;; The largest number of bytes that a header can represent. ;;
     (def #_"int" BitcoinPacketHeader'HEADER_LENGTH (+ BitcoinSerializer'COMMAND_LEN 4 4))
 
-    #_field #_"byte[]" (ß assoc this :header nil)
-    #_field #_"String" (ß assoc this :command nil)
-    #_field #_"int" (ß assoc this :size 0)
-    #_field #_"byte[]" (ß assoc this :checksum nil)
+    (ß defn- #_"BitcoinPacketHeader" BitcoinPacketHeader'init []
+    {
+        #_field #_"byte[]" :header nil
+        #_field #_"String" :command nil
+        #_field #_"int" :size 0
+        #_field #_"byte[]" :checksum nil
+    })
 
     #_throws #_[ "ProtocolException", "BufferUnderflowException" ]
     (§ defn #_"BitcoinPacketHeader" BitcoinPacketHeader'new [#_"ByteBuffer" in]
@@ -2084,12 +2099,15 @@
         RejectMessage     "reject"
     })
 
-    #_field- #_"NetworkParameters" (ß assoc this :params nil)
-
-    ;;;
-     ; Whether the serializer will produce cached mode Messages.
-     ;;
-    #_field- #_"boolean" (ß assoc this :parse-retain false)
+    (ß defn- #_"BitcoinSerializer" BitcoinSerializer'init []
+    {
+        #_field #_"NetworkParameters" :params nil
+    
+        ;;;
+         ; Whether the serializer will produce cached mode Messages.
+         ;;
+        #_field #_"boolean" :parse-retain false
+    })
 
     ;;;
      ; Constructs a BitcoinSerializer with the given behavior.
@@ -2361,32 +2379,32 @@
     ;;; Block version introduced in BIP 65: OP_CHECKLOCKTIMEVERIFY ;;
     (def #_"long" Block'BLOCK_VERSION_BIP65 4)
 
-    ;; Fields defined as part of the protocol format.
-    #_field- #_"long" (ß assoc this :version 0)
-    #_field- #_"Sha256Hash" (ß assoc this :prev-block-hash nil)
-    #_field- #_"Sha256Hash" (ß assoc this :merkle-root nil)
-    #_field- #_"long" (ß assoc this :time 0)
-    #_field- #_"long" (ß assoc this :difficulty-target 0) ;; "nBits"
-    #_field- #_"long" (ß assoc this :nonce 0)
-
-    ;; TODO: Get rid of all the direct accesses to this field.  It's a long-since unnecessary holdover from the Dalvik days.
-    ;;; If null, it means this object holds only the headers. ;;
-    #_nilable
-    #_field #_"List<Transaction>" (ß assoc this :transactions nil)
-
-    ;;; Stores the hash of the block.  If null, getHash() will recalculate it. ;;
-    #_field- #_"Sha256Hash" (ß assoc this :hash nil)
-
-    #_protected
-    #_field #_"boolean" (ß assoc this :header-bytes-valid false)
-    #_protected
-    #_field #_"boolean" (ß assoc this :transaction-bytes-valid false)
-
-    ;; Blocks can be encoded in a way that will use more bytes than is optimal (due to VarInts having multiple encodings).
-    ;; MAX_BLOCK_SIZE must be compared to the optimal encoding, not the actual encoding, so when parsing, we keep track
-    ;; of the size of the ideal encoding in addition to the actual message size (which Message needs).
-    #_protected
-    #_field #_"int" (ß assoc this :optimal-encoding-message-size 0)
+    (ß defn- #_"Block" Block'init []
+    {
+        ;; Fields defined as part of the protocol format.
+        #_field #_"long" :version 0
+        #_field #_"Sha256Hash" :prev-block-hash nil
+        #_field #_"Sha256Hash" :merkle-root nil
+        #_field #_"long" :time 0
+        #_field #_"long" :difficulty-target 0 ;; "nBits"
+        #_field #_"long" :nonce 0
+    
+        ;; TODO: Get rid of all the direct accesses to this field.  It's a long-since unnecessary holdover from the Dalvik days.
+        ;;; If null, it means this object holds only the headers. ;;
+        #_nilable
+        #_field #_"List<Transaction>" :transactions nil
+    
+        ;;; Stores the hash of the block.  If null, getHash() will recalculate it. ;;
+        #_field #_"Sha256Hash" :hash nil
+    
+        #_field #_"boolean" :header-bytes-valid false
+        #_field #_"boolean" :transaction-bytes-valid false
+    
+        ;; Blocks can be encoded in a way that will use more bytes than is optimal (due to VarInts having multiple encodings).
+        ;; MAX_BLOCK_SIZE must be compared to the optimal encoding, not the actual encoding, so when parsing, we keep track
+        ;; of the size of the ideal encoding in addition to the actual message size (which Message needs).
+        #_field #_"int" :optimal-encoding-message-size 0
+    })
 
     ;;; Special case constructor, used for the genesis node, cloneAsHeader and unit tests. ;;
     (§ defn #_"Block" Block'new [#_"NetworkParameters" params, #_"long" __setVersion]
@@ -3242,9 +3260,11 @@
  ; all of the block chain.
  ;;
 (§ class SPVBlockChain (§ extends BlockChain)
-    ;;; Keeps a map of block hashes to StoredBlocks. ;;
-    #_protected
-    #_field #_"BlockStore" (ß assoc this :block-store nil)
+    (ß defn- #_"SPVBlockChain" SPVBlockChain'init []
+    {
+        ;;; Keeps a map of block hashes to StoredBlocks. ;;
+        #_field #_"BlockStore" :block-store nil
+    })
 
     ;;;
      ; Constructs a SPVBlockChain connected to the given wallet and store.
@@ -3443,10 +3463,13 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (§ class BloomFilter (§ extends Message)
-    #_field- #_"byte[]" (ß assoc this :data nil)
-    #_field- #_"long" (ß assoc this :hash-funcs 0)
-    #_field- #_"long" (ß assoc this :n-tweak 0)
-    #_field- #_"byte" (ß assoc this :n-flags 0)
+    (ß defn- #_"BloomFilter" BloomFilter'init []
+    {
+        #_field #_"byte[]" :data nil
+        #_field #_"long" :hash-funcs 0
+        #_field #_"long" :n-tweak 0
+        #_field #_"byte" :n-flags 0
+    })
 
     ;; Same value as of Bitcoin Core.
     ;; A filter of 20,000 items and a false positive rate of 0.1% or one of 10,000 items and 0.0001% is just under 36,000 bytes.
@@ -3819,14 +3842,14 @@
 
     (def- #_"int" CheckpointManager'MAX_SIGNATURES 256)
 
-    ;; Map of block header time to data.
-    #_protected
-    #_field #_"TreeMap<Long, StoredBlock>" (ß assoc this :checkpoints (TreeMap.))
-
-    #_protected
-    #_field #_"NetworkParameters" (ß assoc this :params nil)
-    #_protected
-    #_field #_"Sha256Hash" (ß assoc this :data-hash nil)
+    (ß defn- #_"CheckpointManager" CheckpointManager'init []
+    {
+        ;; Map of block header time to data.
+        #_field #_"TreeMap<Long, StoredBlock>" :checkpoints (TreeMap.)
+    
+        #_field #_"NetworkParameters" :params nil
+        #_field #_"Sha256Hash" :data-hash nil
+    })
 
     (def #_"BaseEncoding" CheckpointManager'BASE64 (.. (BaseEncoding/base64) (omitPadding)))
 
@@ -3943,9 +3966,11 @@
  ;;
 #_abstract
 (§ class ChildMessage (§ extends Message)
-    #_nilable
-    #_protected
-    #_field #_"Message" (ß assoc this :parent nil)
+    (ß defn- #_"ChildMessage" ChildMessage'init []
+    {
+        #_nilable
+        #_field #_"Message" :parent nil
+    })
 
     (§ defn #_"ChildMessage" ChildMessage'new [#_"NetworkParameters" params]
         (let [this (Message'new params)]
@@ -4072,10 +4097,13 @@
      ;;
     (def #_"Coin" Coin'NEGATIVE_SATOSHI (Coin'valueOf -1))
 
-    ;;;
-     ; The number of satoshis of this monetary value.
-     ;;
-    #_field #_"long" (ß assoc this :value 0)
+    (ß defn- #_"Coin" Coin'init []
+    {
+        ;;;
+         ; The number of satoshis of this monetary value.
+         ;;
+        #_field #_"long" :value 0
+    })
 
     (§ defn- #_"Coin" Coin'new [#_"long" satoshis]
         (let [this {}]
@@ -4338,11 +4366,14 @@
 
     (def #_"int" Context'DEFAULT_EVENT_HORIZON 100)
 
-    #_field- #_"TxConfidenceTable" (ß assoc this :confidence-table nil)
-    #_field- #_"NetworkParameters" (ß assoc this :params nil)
-    #_field- #_"int" (ß assoc this :event-horizon 0)
-    #_field- #_"boolean" (ß assoc this :ensure-min-required-fee false)
-    #_field- #_"Coin" (ß assoc this :fee-per-kb nil)
+    (ß defn- #_"Context" Context'init []
+    {
+        #_field #_"TxConfidenceTable" :confidence-table nil
+        #_field #_"NetworkParameters" :params nil
+        #_field #_"int" :event-horizon 0
+        #_field #_"boolean" :ensure-min-required-fee false
+        #_field #_"Coin" :fee-per-kb nil
+    })
 
     ;;;
      ; Creates a new context object.  For now, this will be done for you by the framework.  Eventually you will be
@@ -4503,9 +4534,12 @@
  ; The raw components can be useful for doing further EC maths on them.
  ;;
 (§ class ECDSASignature
-    ;;; The two components of the signature. ;;
-    #_field #_"BigInteger" (ß assoc this :r nil)
-    #_field #_"BigInteger" (ß assoc this :s nil)
+    (ß defn- #_"ECDSASignature" ECDSASignature'init []
+    {
+        ;;; The two components of the signature. ;;
+        #_field #_"BigInteger" :r nil
+        #_field #_"BigInteger" :s nil
+    })
 
     ;;;
      ; Constructs a signature with the given components.  Does NOT automatically canonicalise the signature.
@@ -4672,7 +4706,7 @@
     ;;; Compares pub key bytes using {@link com.google.common.primitives.UnsignedBytes#lexicographicalComparator()}. ;;
     (def #_"Comparator<ECKey>" ECKey'PUBKEY_COMPARATOR (Comparator. #_"<ECKey>"
         (§ anon
-            #_field- #_"Comparator<byte[]>" (ß assoc this :comparator (UnsignedBytes/lexicographicalComparator))
+            (§ field #_"Comparator<byte[]>" :comparator (UnsignedBytes/lexicographicalComparator))
 
             #_override
             (§ method #_"int" compare [#_"ECKey" k1, #_"ECKey" k2]
@@ -4701,19 +4735,19 @@
 
     (def- #_"SecureRandom" ECKey'SECURE_RANDOM (SecureRandom.))
 
-    ;; The two parts of the key.  If "priv" is set, "pub" can always be calculated.  If "pub" is set but not "priv", we
-    ;; can only verify signatures not make them.
-    #_protected
-    #_field #_"BigInteger" (ß assoc this :priv nil) ;; A field element.
-    #_protected
-    #_field #_"LazyECPoint" (ß assoc this :pub nil)
-
-    ;; Creation time of the key in seconds since the epoch, or zero if the key was deserialized from a version that did
-    ;; not have this field.
-    #_protected
-    #_field #_"long" (ß assoc this :creation-time-seconds 0)
-
-    #_field- #_"byte[]" (ß assoc this :pub-key-hash nil)
+    (ß defn- #_"ECKey" ECKey'init []
+    {
+        ;; The two parts of the key.  If "priv" is set, "pub" can always be calculated.  If "pub" is set but not "priv", we
+        ;; can only verify signatures not make them.
+        #_field #_"BigInteger" :priv nil ;; A field element.
+        #_field #_"LazyECPoint" :pub nil
+    
+        ;; Creation time of the key in seconds since the epoch, or zero if the key was deserialized from a version that did
+        ;; not have this field.
+        #_field #_"long" :creation-time-seconds 0
+    
+        #_field #_"byte[]" :pub-key-hash nil
+    })
 
     ;;;
      ; Generates an entirely new keypair.  Point compression is used so the resulting public key will be 33 bytes
@@ -5530,14 +5564,17 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (§ class FilteredBlock (§ extends Message)
-    #_field- #_"Block" (ß assoc this :header nil)
-
-    #_field- #_"PartialMerkleTree" (ß assoc this :merkle-tree nil)
-    #_field- #_"List<Sha256Hash>" (ß assoc this :cached-transaction-hashes nil)
-
-    ;; A set of transactions whose hashes are a subset of getTransactionHashes().
-    ;; These were relayed as a part of the filteredblock getdata, i.e. likely weren't previously received as loose transactions.
-    #_field- #_"Map<Sha256Hash, Transaction>" (ß assoc this :associated-transactions (HashMap.))
+    (ß defn- #_"FilteredBlock" FilteredBlock'init []
+    {
+        #_field #_"Block" :header nil
+    
+        #_field #_"PartialMerkleTree" :merkle-tree nil
+        #_field #_"List<Sha256Hash>" :cached-transaction-hashes nil
+    
+        ;; A set of transactions whose hashes are a subset of getTransactionHashes().
+        ;; These were relayed as a part of the filteredblock getdata, i.e. likely weren't previously received as loose transactions.
+        #_field #_"Map<Sha256Hash, Transaction>" :associated-transactions (HashMap.)
+    })
 
     #_throws #_[ "ProtocolException" ]
     (§ defn #_"FilteredBlock" FilteredBlock'new [#_"NetworkParameters" params, #_"byte[]" payload]
@@ -5667,9 +5704,12 @@
  ; A job submitted to the executor which verifies signatures.
  ;;
 (§ class- FullPrunedVerifier (§ implements Callable #_"<VerificationException>")
-    #_field #_"Transaction" (ß assoc this :tx nil)
-    #_field #_"List<Script>" (ß assoc this :prev-out-scripts nil)
-    #_field #_"Set<ScriptVerifyFlag>" (ß assoc this :verify-flags nil)
+    (ß defn- #_"FullPrunedVerifier" FullPrunedVerifier'init []
+    {
+        #_field #_"Transaction" :tx nil
+        #_field #_"List<Script>" :prev-out-scripts nil
+        #_field #_"Set<ScriptVerifyFlag>" :verify-flags nil
+    })
 
     (§ defn #_"FullPrunedVerifier" FullPrunedVerifier'new [#_"Transaction" tx, #_"List<Script>" scripts, #_"Set<ScriptVerifyFlag>" flags]
         (let [this {}]
@@ -5709,14 +5749,19 @@
 (§ class FullPrunedBlockChain (§ extends BlockChain)
     (def- #_"Logger" FullPrunedBlockChain'log (LoggerFactory/getLogger FullPrunedBlockChain))
 
-    ;;;
-     ; Keeps a map of block hashes to StoredBlocks.
-     ;;
-    #_protected
-    #_field #_"FullPrunedBlockStore" (ß assoc this :block-store nil)
-
-    ;; Whether or not to execute scriptPubKeys before accepting a transaction (i.e. check signatures).
-    #_field- #_"boolean" (ß assoc this :run-scripts true)
+    (ß defn- #_"FullPrunedBlockChain" FullPrunedBlockChain'init []
+    {
+        ;;;
+         ; Keeps a map of block hashes to StoredBlocks.
+         ;;
+        #_field #_"FullPrunedBlockStore" :block-store nil
+    
+        ;; Whether or not to execute scriptPubKeys before accepting a transaction (i.e. check signatures).
+        #_field #_"boolean" :run-scripts true
+    
+        ;; TODO: Execute in order of largest transaction (by input count) first.
+        #_field #_"ExecutorService" :script-verification-executor (Executors/newFixedThreadPool (.. (Runtime/getRuntime) (availableProcessors)), (ContextPropagatingThreadFactory'new "Script verification"))
+    })
 
     ;;;
      ; Constructs a block chain connected to the given wallet and store.
@@ -5828,9 +5873,6 @@
     )
 
     ;; TODO: Remove lots of duplicated code in the two connectTransactions.
-
-    ;; TODO: Execute in order of largest transaction (by input count) first.
-    #_field #_"ExecutorService" (ß assoc this :script-verification-executor (Executors/newFixedThreadPool (.. (Runtime/getRuntime) (availableProcessors)), (ContextPropagatingThreadFactory'new "Script verification")))
 
     ;;;
      ; Get the {@link Script} from the script bytes or return Script of empty byte array.
@@ -6295,12 +6337,12 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (§ class GetBlocksMessage (§ extends Message)
-    #_protected
-    #_field #_"long" (ß assoc this :version 0)
-    #_protected
-    #_field #_"List<Sha256Hash>" (ß assoc this :locator nil)
-    #_protected
-    #_field #_"Sha256Hash" (ß assoc this :stop-hash nil)
+    (ß defn- #_"GetBlocksMessage" GetBlocksMessage'init []
+    {
+        #_field #_"long" :version 0
+        #_field #_"List<Sha256Hash>" :locator nil
+        #_field #_"Sha256Hash" :stop-hash nil
+    })
 
     (§ defn #_"GetBlocksMessage" GetBlocksMessage'new [#_"NetworkParameters" params, #_"List<Sha256Hash>" locator, #_"Sha256Hash" __stopHash]
         (let [this (Message'new params)]
@@ -6515,7 +6557,10 @@
     ;; The main client will never send us more than this number of headers.
     (def #_"int" HeadersMessage'MAX_HEADERS 2000)
 
-    #_field- #_"List<Block>" (ß assoc this :block-headers nil)
+    (ß defn- #_"HeadersMessage" HeadersMessage'init []
+    {
+        #_field #_"List<Block>" :block-headers nil
+    })
 
     #_throws #_[ "ProtocolException" ]
     (§ defn #_"HeadersMessage" HeadersMessage'new [#_"NetworkParameters" params, #_"byte[]" payload]
@@ -6586,9 +6631,12 @@
  ; Thrown to indicate that you don't have enough money available to perform the requested operation.
  ;;
 (§ class InsufficientMoneyException (§ extends Exception)
-    ;;; Contains the number of satoshis that would have been required to complete the operation. ;;
-    #_nilable
-    #_field #_"Coin" (ß assoc this :missing nil)
+    (ß defn- #_"InsufficientMoneyException" InsufficientMoneyException'init []
+    {
+        ;;; Contains the number of satoshis that would have been required to complete the operation. ;;
+        #_nilable
+        #_field #_"Coin" :missing nil
+    })
 
     #_protected
     (§ defn #_"InsufficientMoneyException" InsufficientMoneyException'new []
@@ -6625,8 +6673,11 @@
      ;;
     (def #_"int" InventoryItem'MESSAGE_LENGTH 36)
 
-    #_field #_"InventoryItemType" (ß assoc this :type nil)
-    #_field #_"Sha256Hash" (ß assoc this :hash nil)
+    (ß defn- #_"InventoryItem" InventoryItem'init []
+    {
+        #_field #_"InventoryItemType" :type nil
+        #_field #_"Sha256Hash" :hash nil
+    })
 
     (§ defn #_"InventoryItem" InventoryItem'new [#_"InventoryItemType" type, #_"Sha256Hash" hash]
         (let [this {}]
@@ -6731,10 +6782,12 @@
 (§ class ListMessage (§ extends Message)
     (def #_"long" ListMessage'MAX_INVENTORY_ITEMS 50000)
 
-    #_field- #_"long" (ß assoc this :array-len 0)
-    ;; For some reason the compiler complains if this is inside InventoryItem.
-    #_protected
-    #_field #_"List<InventoryItem>" (ß assoc this :items nil)
+    (ß defn- #_"ListMessage" ListMessage'init []
+    {
+        #_field #_"long" :array-len 0
+        ;; For some reason the compiler complains if this is inside InventoryItem.
+        #_field #_"List<InventoryItem>" :items nil
+    })
 
     #_throws #_[ "ProtocolException" ]
     (§ defn #_"ListMessage" ListMessage'new [#_"NetworkParameters" params, #_"byte[]" bytes]
@@ -6887,31 +6940,26 @@
     ;; Useful to ensure serialize/deserialize are consistent with each other.
     (def- #_"boolean" Message'SELF_CHECK false)
 
-    ;; The offset is how many bytes into the provided byte array this message payload starts at.
-    #_protected
-    #_field #_"int" (ß assoc this :offset 0)
-    ;; The cursor keeps track of where we are in the byte array as we parse it.
-    ;; Note that it's relative to the start of the array NOT the start of the message payload.
-    #_protected
-    #_field #_"int" (ß assoc this :cursor 0)
-
-    #_protected
-    #_field #_"int" (ß assoc this :length Message'UNKNOWN_LENGTH)
-
-    ;; The raw message payload bytes themselves.
-    #_protected
-    #_field #_"byte[]" (ß assoc this :payload nil)
-
-    #_protected
-    #_field #_"boolean" (ß assoc this :recached false)
-    #_protected
-    #_field #_"BitcoinSerializer" (ß assoc this :serializer nil)
-
-    #_protected
-    #_field #_"int" (ß assoc this :protocol-version 0)
-
-    #_protected
-    #_field #_"NetworkParameters" (ß assoc this :params nil)
+    (ß defn- #_"Message" Message'init []
+    {
+        ;; The offset is how many bytes into the provided byte array this message payload starts at.
+        #_field #_"int" :offset 0
+        ;; The cursor keeps track of where we are in the byte array as we parse it.
+        ;; Note that it's relative to the start of the array NOT the start of the message payload.
+        #_field #_"int" :cursor 0
+    
+        #_field #_"int" :length Message'UNKNOWN_LENGTH
+    
+        ;; The raw message payload bytes themselves.
+        #_field #_"byte[]" :payload nil
+    
+        #_field #_"boolean" :recached false
+        #_field #_"BitcoinSerializer" :serializer nil
+    
+        #_field #_"int" :protocol-version 0
+    
+        #_field #_"NetworkParameters" :params nil
+    })
 
     #_protected
     (§ defn #_"Message" Message'new [#_"NetworkParameters" params]
@@ -7313,152 +7361,132 @@
 
     ;; TODO: Seed nodes should be here as well.
 
-    ;;;
-     ; Genesis block for this chain.
-     ;
-     ; The first block in every chain is a well known constant shared between all Bitcoin implemenetations.
-     ; For a block to be valid, it must be eventually possible to work backwards to the genesis block by following
-     ; the prevBlockHash pointers in the block headers.
-     ;
-     ; The genesis blocks for both test and main networks contain the timestamp of when they were created,
-     ; and a message in the coinbase transaction.  It says,
-     ; <i>"The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"</i>.
-     ;;
-    #_protected
-    #_field #_"Block" (ß assoc this :genesis-block nil)
-
-    ;;;
-     ; Maximum target represents the easiest allowable proof of work.
-     ;;
-    #_protected
-    #_field #_"BigInteger" (ß assoc this :max-target nil)
-
-    ;;;
-     ; Default TCP port on which to connect to nodes.
-     ;;
-    #_protected
-    #_field #_"int" (ß assoc this :port 0)
-
-    ;;;
-     ; The header bytes that identify the start of a packet on this network.
-     ; Indicates message origin network and is used to seek to the next message when stream state is unknown.
-     ;;
-    #_protected
-    #_field #_"long" (ß assoc this :packet-magic 0)
-
-    ;;;
-     ; First byte of a base58 encoded address.  See {@link Address}.
-     ; This is the same as acceptableAddressCodes[0] and is the one used for "normal" addresses.
-     ; Other types of address may be encountered with version codes found in the acceptableAddressCodes array.
-     ;;
-    #_protected
-    #_field #_"int" (ß assoc this :address-header 0)
-
-    ;;;
-     ; First byte of a base58 encoded P2SH address.  P2SH addresses are defined as part of BIP0013.
-     ;;
-    #_protected
-    #_field #_"int" (ß assoc this :p2sh-header 0)
-
-    ;;;
-     ; How many blocks pass between difficulty adjustment periods.  Bitcoin standardises this to be 2016.
-     ;;
-    #_protected
-    #_field #_"int" (ß assoc this :interval 0)
-
-    ;;;
-     ; How much time in seconds is supposed to pass between "interval" blocks.  If the actual elapsed time is
-     ; significantly different from this value, the network difficulty formula will produce a different value.
-     ; Both test and main Bitcoin networks use 2 weeks (1209600 seconds).
-     ;;
-    #_protected
-    #_field #_"int" (ß assoc this :target-timespan 0)
-
-    ;;;
-     ; The key used to sign {@link AlertMessage}s.
-     ; You can use {@link ECKey#verify(byte[], byte[], byte[])} to verify signatures using it.
-     ;;
-    #_protected
-    #_field #_"byte[]" (ß assoc this :alert-signing-key nil)
-
-    ;;;
-     ; 4 byte header for BIP32 (HD) wallet - public key part.
-     ;;
-    #_protected
-    #_field #_"int" (ß assoc this :bip32-header-pub 0)
-
-    ;;;
-     ; 4 byte header for BIP32 (HD) wallet - private key part.
-     ;;
-    #_protected
-    #_field #_"int" (ß assoc this :bip32-header-priv 0)
-
-    ;;; Used to check majorities for block version upgrade. ;;
-
-    ;;;
-     ; The number of blocks in the last {@link getMajorityWindow()} blocks at which to trigger a notice
-     ; to the user to upgrade their client, where the client does not understand those blocks.
-     ;;
-    #_protected
-    #_field #_"int" (ß assoc this :majority-enforce-block-upgrade 0)
-
-    ;;;
-     ; The number of blocks in the last {@link getMajorityWindow()} blocks at which to enforce the requirement
-     ; that all new blocks are of the newer type (i.e. outdated blocks are rejected).
-     ;;
-    #_protected
-    #_field #_"int" (ß assoc this :majority-reject-block-outdated 0)
-
-    ;;;
-     ; The sampling window from which the version numbers of blocks are taken
-     ; in order to determine if a new block version is now the majority.
-     ;;
-    #_protected
-    #_field #_"int" (ß assoc this :majority-window 0)
-
-    ;;;
-     ; A Java package style string acting as unique ID for these parameters.
-     ; This may be null for old deserialized wallets.  In that case we derive it heuristically
-     ; by looking at the port number.
-     ;;
-    #_protected
-    #_field #_"String" (ß assoc this :id nil)
-
-    ;;;
-     ; The depth of blocks required for a coinbase transaction to be spendable.
-     ;;
-    #_protected
-    #_field #_"int" (ß assoc this :spendable-coinbase-depth 0)
-    #_protected
-    #_field #_"int" (ß assoc this :subsidy-decrease-block-count 0)
-
-    ;;;
-     ; The version codes that prefix addresses which are acceptable on this network.  Although Satoshi intended these
-     ; to be used for "versioning", in fact they are today used to discriminate what kind of data is contained in the
-     ; address and to prevent accidentally sending coins across chains which would destroy them.
-     ;;
-    #_protected
-    #_field #_"int[]" (ß assoc this :acceptable-address-codes nil)
-
-    ;;;
-     ; DNS names that when resolved, give IP addresses of active peers.
-     ;;
-    #_protected
-    #_field #_"String[]" (ß assoc this :dns-seeds nil)
-
-    ;;;
-     ; IP address of active peers.
-     ;;
-    #_protected
-    #_field #_"int[]" (ß assoc this :addr-seeds nil)
-
-    #_protected
-    #_field #_"String[]" (ß assoc this :textual-checkpoints nil)
-    #_protected
-    #_field #_"Map<Integer, Sha256Hash>" (ß assoc this :checkpoints (HashMap.))
-
-    #_protected
-    #_field #_"BitcoinSerializer" (ß assoc this :default-serializer nil)
+    (ß defn- #_"NetworkParameters" NetworkParameters'init []
+    {
+        ;;;
+         ; Genesis block for this chain.
+         ;
+         ; The first block in every chain is a well known constant shared between all Bitcoin implemenetations.
+         ; For a block to be valid, it must be eventually possible to work backwards to the genesis block by following
+         ; the prevBlockHash pointers in the block headers.
+         ;
+         ; The genesis blocks for both test and main networks contain the timestamp of when they were created,
+         ; and a message in the coinbase transaction.  It says,
+         ; <i>"The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"</i>.
+         ;;
+        #_field #_"Block" :genesis-block nil
+    
+        ;;;
+         ; Maximum target represents the easiest allowable proof of work.
+         ;;
+        #_field #_"BigInteger" :max-target nil
+    
+        ;;;
+         ; Default TCP port on which to connect to nodes.
+         ;;
+        #_field #_"int" :port 0
+    
+        ;;;
+         ; The header bytes that identify the start of a packet on this network.
+         ; Indicates message origin network and is used to seek to the next message when stream state is unknown.
+         ;;
+        #_field #_"long" :packet-magic 0
+    
+        ;;;
+         ; First byte of a base58 encoded address.  See {@link Address}.
+         ; This is the same as acceptableAddressCodes[0] and is the one used for "normal" addresses.
+         ; Other types of address may be encountered with version codes found in the acceptableAddressCodes array.
+         ;;
+        #_field #_"int" :address-header 0
+    
+        ;;;
+         ; First byte of a base58 encoded P2SH address.  P2SH addresses are defined as part of BIP0013.
+         ;;
+        #_field #_"int" :p2sh-header 0
+    
+        ;;;
+         ; How many blocks pass between difficulty adjustment periods.  Bitcoin standardises this to be 2016.
+         ;;
+        #_field #_"int" :interval 0
+    
+        ;;;
+         ; How much time in seconds is supposed to pass between "interval" blocks.  If the actual elapsed time is
+         ; significantly different from this value, the network difficulty formula will produce a different value.
+         ; Both test and main Bitcoin networks use 2 weeks (1209600 seconds).
+         ;;
+        #_field #_"int" :target-timespan 0
+    
+        ;;;
+         ; The key used to sign {@link AlertMessage}s.
+         ; You can use {@link ECKey#verify(byte[], byte[], byte[])} to verify signatures using it.
+         ;;
+        #_field #_"byte[]" :alert-signing-key nil
+    
+        ;;;
+         ; 4 byte header for BIP32 (HD) wallet - public key part.
+         ;;
+        #_field #_"int" :bip32-header-pub 0
+    
+        ;;;
+         ; 4 byte header for BIP32 (HD) wallet - private key part.
+         ;;
+        #_field #_"int" :bip32-header-priv 0
+    
+        ;;; Used to check majorities for block version upgrade. ;;
+    
+        ;;;
+         ; The number of blocks in the last {@link getMajorityWindow()} blocks at which to trigger a notice
+         ; to the user to upgrade their client, where the client does not understand those blocks.
+         ;;
+        #_field #_"int" :majority-enforce-block-upgrade 0
+    
+        ;;;
+         ; The number of blocks in the last {@link getMajorityWindow()} blocks at which to enforce the requirement
+         ; that all new blocks are of the newer type (i.e. outdated blocks are rejected).
+         ;;
+        #_field #_"int" :majority-reject-block-outdated 0
+    
+        ;;;
+         ; The sampling window from which the version numbers of blocks are taken
+         ; in order to determine if a new block version is now the majority.
+         ;;
+        #_field #_"int" :majority-window 0
+    
+        ;;;
+         ; A Java package style string acting as unique ID for these parameters.
+         ; This may be null for old deserialized wallets.  In that case we derive it heuristically
+         ; by looking at the port number.
+         ;;
+        #_field #_"String" :id nil
+    
+        ;;;
+         ; The depth of blocks required for a coinbase transaction to be spendable.
+         ;;
+        #_field #_"int" :spendable-coinbase-depth 0
+        #_field #_"int" :subsidy-decrease-block-count 0
+    
+        ;;;
+         ; The version codes that prefix addresses which are acceptable on this network.  Although Satoshi intended these
+         ; to be used for "versioning", in fact they are today used to discriminate what kind of data is contained in the
+         ; address and to prevent accidentally sending coins across chains which would destroy them.
+         ;;
+        #_field #_"int[]" :acceptable-address-codes nil
+    
+        ;;;
+         ; DNS names that when resolved, give IP addresses of active peers.
+         ;;
+        #_field #_"String[]" :dns-seeds nil
+    
+        ;;;
+         ; IP address of active peers.
+         ;;
+        #_field #_"int[]" :addr-seeds nil
+    
+        #_field #_"String[]" :textual-checkpoints nil
+        #_field #_"Map<Integer, Sha256Hash>" :checkpoints (HashMap.)
+    
+        #_field #_"BitcoinSerializer" :default-serializer nil
+    })
 
     #_protected
     (§ defn #_"NetworkParameters" NetworkParameters'new []
@@ -7747,8 +7775,11 @@
 )
 
 (§ class- ValuesUsed
-    #_field #_"int" (ß assoc this :bits-used 0)
-    #_field #_"int" (ß assoc this :hashes-used 0)
+    (ß defn- #_"ValuesUsed" ValuesUsed'init []
+    {
+        #_field #_"int" :bits-used 0
+        #_field #_"int" :hashes-used 0
+    })
 
     (§ defn- #_"ValuesUsed" ValuesUsed'new []
         (let [this {}]
@@ -7784,14 +7815,17 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (§ class PartialMerkleTree (§ extends Message)
-    ;; the total number of transactions in the block
-    #_field- #_"int" (ß assoc this :transaction-count 0)
-
-    ;; node-is-parent-of-matched-txid bits
-    #_field- #_"byte[]" (ß assoc this :matched-child-bits nil)
-
-    ;; txids and internal hashes
-    #_field- #_"List<Sha256Hash>" (ß assoc this :hashes nil)
+    (ß defn- #_"PartialMerkleTree" PartialMerkleTree'init []
+    {
+        ;; the total number of transactions in the block
+        #_field #_"int" :transaction-count 0
+    
+        ;; node-is-parent-of-matched-txid bits
+        #_field #_"byte[]" :matched-child-bits nil
+    
+        ;; txids and internal hashes
+        #_field #_"List<Sha256Hash>" :hashes nil
+    })
 
     #_throws #_[ "ProtocolException" ]
     (§ defn #_"PartialMerkleTree" PartialMerkleTree'new [#_"NetworkParameters" params, #_"byte[]" payload, #_"int" offset]
@@ -8048,8 +8082,11 @@
 )
 
 (§ class- GetDataRequest
-    #_field #_"Sha256Hash" (ß assoc this :hash nil)
-    #_field #_"SettableFuture" (ß assoc this :future nil)
+    (ß defn- #_"GetDataRequest" GetDataRequest'init []
+    {
+        #_field #_"Sha256Hash" :hash nil
+        #_field #_"SettableFuture" :future nil
+    })
 
     (§ defn #_"GetDataRequest" GetDataRequest'new [#_"Sha256Hash" hash, #_"SettableFuture" future]
         (let [this {}]
@@ -8061,14 +8098,16 @@
 )
 
 (§ class- PendingPing
-    #_protected
-    #_field #_"Peer" (ß assoc this :peer nil)
-    ;; The future that will be invoked when the pong is heard back.
-    #_field #_"SettableFuture<Long>" (ß assoc this :future nil)
-    ;; The random nonce that lets us tell apart overlapping pings/pongs.
-    #_field #_"long" (ß assoc this :nonce 0)
-    ;; Measurement of the time elapsed.
-    #_field #_"long" (ß assoc this :start-time-msec 0)
+    (ß defn- #_"PendingPing" PendingPing'init []
+    {
+        #_field #_"Peer" :peer nil
+        ;; The future that will be invoked when the pong is heard back.
+        #_field #_"SettableFuture<Long>" :future nil
+        ;; The random nonce that lets us tell apart overlapping pings/pongs.
+        #_field #_"long" :nonce 0
+        ;; Measurement of the time elapsed.
+        #_field #_"long" :start-time-msec 0
+    })
 
     (§ defn #_"PendingPing" PendingPing'new [#_"Peer" peer, #_"long" nonce]
         (let [this {}]
@@ -8102,111 +8141,119 @@
 (§ class Peer (§ extends PeerSocketHandler)
     (def- #_"Logger" Peer'log (LoggerFactory/getLogger Peer))
 
-    #_protected
-    #_field #_"ReentrantLock" (ß assoc this :lock (Threading'lock "peer"))
-
-    #_field- #_"NetworkParameters" (ß assoc this :params nil)
-    #_field- #_"BlockChain" (ß assoc this :block-chain nil)
-    #_field- #_"Context" (ß assoc this :context nil)
-
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>" (ß assoc this :blocks-downloaded-event-listeners (CopyOnWriteArrayList.))
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>" (ß assoc this :chain-download-started-event-listeners (CopyOnWriteArrayList.))
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>" (ß assoc this :connected-event-listeners (CopyOnWriteArrayList.))
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>" (ß assoc this :disconnected-event-listeners (CopyOnWriteArrayList.))
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>" (ß assoc this :get-data-event-listeners (CopyOnWriteArrayList.))
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>" (ß assoc this :pre-message-received-event-listeners (CopyOnWriteArrayList.))
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>" (ß assoc this :on-transaction-event-listeners (CopyOnWriteArrayList.))
-
-    ;; Whether to try and download blocks and transactions from this peer.  Set to false by PeerGroup if not the
-    ;; primary peer.  This is to avoid redundant work and concurrency problems with downloading the same chain
-    ;; in parallel.
-    #_volatile
-    #_field- #_"boolean" (ß assoc this :v-download-data false)
-    ;; The version data to announce to the other side of the connections we make: useful for setting our "user agent"
-    ;; equivalent and other things.
-    #_field- #_"VersionMessage" (ß assoc this :version-message nil)
-    ;; Maximum depth up to which pending transaction dependencies are downloaded, or 0 for disabled.
-    #_volatile
-    #_field- #_"int" (ß assoc this :v-download-tx-dependency-depth 0)
-    ;; How many block messages the peer has announced to us.  Peers only announce blocks that attach to their best chain
-    ;; so we can use this to calculate the height of the peers chain, by adding it to the initial height in the version
-    ;; message.  This method can go wrong if the peer re-orgs onto a shorter (but harder) chain, however, this is rare.
-    #_field- #_"AtomicInteger" (ß assoc this :blocks-announced (AtomicInteger.))
-    ;; Each wallet added to the peer will be notified of downloaded transaction data.
-    #_field- #_"CopyOnWriteArrayList<Wallet>" (ß assoc this :wallets nil)
-    ;; A time before which we only download block headers, after that point we download block bodies.
-    #_field- #_"long" (ß assoc this :fast-catchup-time-secs 0)
-    ;; Whether we are currently downloading headers only or block bodies.  Starts at true.  If the fast catchup time is
-    ;; set AND our best block is before that date, switch to false until block headers beyond that point have been
-    ;; received at which point it gets set to true again.  This isn't relevant unless vDownloadData is true.
-    #_field- #_"boolean" (ß assoc this :download-block-bodies true)
-    ;; Whether to request filtered blocks instead of full blocks if the protocol version allows for them.
-    #_field- #_"boolean" (ß assoc this :use-filtered-blocks false)
-    ;; The current Bloom filter set on the connection, used to tell the remote peer what transactions to send us.
-    #_volatile
-    #_field- #_"BloomFilter" (ß assoc this :v-bloom-filter nil)
-    ;; The last filtered block we received, we're waiting to fill it out with transactions.
-    #_field- #_"FilteredBlock" (ß assoc this :current-filtered-block nil)
-    ;; How many filtered blocks have been received during the lifetime of this connection.  Used to decide when to
-    ;; refresh the server-side side filter by sending a new one (it degrades over time as false positives are added
-    ;; on the remote side, see BIP 37 for a discussion of this).
-    ;; TODO: Is this still needed?  It should not be since the auto FP tracking logic was added.
-    #_field- #_"int" (ß assoc this :filtered-blocks-received 0)
-    ;; If non-null, we should discard incoming filtered blocks because we ran out of keys and are awaiting a new filter
-    ;; to be calculated by the PeerGroup.  The discarded block hashes should be added here so we can re-request them
-    ;; once we've recalculated and resent a new filter.
-    #_nilable
-    #_field- #_"List<Sha256Hash>" (ß assoc this :awaiting-fresh-filter nil)
     ;; How frequently to refresh the filter.  This should become dynamic in future and calculated depending on the
     ;; actual false positive rate.  For now a good value was determined empirically around January 2013.
     (def- #_"int" Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT 25000)
-    ;; Keeps track of things we requested internally with getdata but didn't receive yet, so we can avoid re-requests.
-    ;; It's not quite the same as getDataFutures, as this is used only for getdatas done as part of downloading
-    ;; the chain and so is lighter weight (we just keep a bunch of hashes not futures).
-    ;;
-    ;; It is important to avoid a nasty edge case where we can end up with parallel chain downloads proceeding
-    ;; simultaneously if we were to receive a newly solved block whilst parts of the chain are streaming to us.
-    #_field- #_"HashSet<Sha256Hash>" (ß assoc this :pending-block-downloads (HashSet.))
-    ;; Keep references to TransactionConfidence objects for transactions that were announced by a remote peer, but
-    ;; which we haven't downloaded yet.  These objects are de-duplicated by the TxConfidenceTable class.
-    ;; Once the tx is downloaded (by some peer), the Transaction object that is created will have a reference to
-    ;; the confidence object held inside it, and it's then up to the event listeners that receive the Transaction
-    ;; to keep it pinned to the root set if they care about this data.
-    #_suppress #_[ "MismatchedQueryAndUpdateOfCollection" ]
-    #_field- #_"HashSet<TransactionConfidence>" (ß assoc this :pending-tx-downloads (HashSet.))
-    ;; The lowest version number we're willing to accept.  Lower than this will result in an immediate disconnect.
-    #_volatile
-    #_field- #_"int" (ß assoc this :v-min-protocol-version 0)
-    ;; When an API user explicitly requests a block or transaction from a peer, the InventoryItem is put here
-    ;; whilst waiting for the response.  Is not used for downloads Peer generates itself.
-    ;; TODO: The types/locking should be rationalised a bit.
-    #_field- #_"CopyOnWriteArrayList<GetDataRequest>" (ß assoc this :get-data-futures nil)
-    #_field- #_"LinkedList<SettableFuture<AddressMessage>>" (ß assoc this :get-addr-futures nil)
 
     (def- #_"int" Peer'PING_MOVING_AVERAGE_WINDOW 20)
 
-    ;; Outstanding pings against this peer and how long the last one took to complete.
-    #_field- #_"ReentrantLock" (ß assoc this :last-ping-times-lock (ReentrantLock.))
-    #_field- #_"long[]" (ß assoc this :last-ping-times nil)
-    #_field- #_"CopyOnWriteArrayList<PendingPing>" (ß assoc this :pending-pings nil)
-
-    #_volatile
-    #_field- #_"VersionMessage" (ß assoc this :v-peer-version-message nil)
-
-    ;; A settable future which completes (with this) when the connection is open.
-    #_field- #_"SettableFuture<Peer>" (ß assoc this :connection-open-future (SettableFuture/create))
-    #_field- #_"SettableFuture<Peer>" (ß assoc this :outgoing-version-handshake-future (SettableFuture/create))
-    #_field- #_"SettableFuture<Peer>" (ß assoc this :incoming-version-handshake-future (SettableFuture/create))
-    #_field- #_"ListenableFuture<Peer>" (ß assoc this :version-handshake-future (Futures/transform (Futures/allAsList (:outgoing-version-handshake-future this), (:incoming-version-handshake-future this)), (Function. #_"<List<Peer>, Peer>")
-        (§ anon
-            #_override
-            #_nilable
-            (§ method #_"Peer" apply [#_nilable #_"List<Peer>" peers]
-                (ensure some? peers)
-                (assert-state (and (= (.. peers (size)) 2) (= (.. peers (get 0)) (.. peers (get 1)))))
-                (.. peers (get 0))
-            )
-        )))
+    (ß defn- #_"Peer" Peer'init []
+    {
+        #_field #_"ReentrantLock" :lock (Threading'lock "peer")
+    
+        #_field #_"NetworkParameters" :params nil
+        #_field #_"BlockChain" :block-chain nil
+        #_field #_"Context" :context nil
+    
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>" :blocks-downloaded-event-listeners (CopyOnWriteArrayList.)
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>" :chain-download-started-event-listeners (CopyOnWriteArrayList.)
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>" :connected-event-listeners (CopyOnWriteArrayList.)
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>" :disconnected-event-listeners (CopyOnWriteArrayList.)
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>" :get-data-event-listeners (CopyOnWriteArrayList.)
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>" :pre-message-received-event-listeners (CopyOnWriteArrayList.)
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>" :on-transaction-event-listeners (CopyOnWriteArrayList.)
+    
+        ;; Whether to try and download blocks and transactions from this peer.  Set to false by PeerGroup if not the
+        ;; primary peer.  This is to avoid redundant work and concurrency problems with downloading the same chain
+        ;; in parallel.
+        #_volatile
+        #_field #_"boolean" :v-download-data false
+        ;; The version data to announce to the other side of the connections we make: useful for setting our "user agent"
+        ;; equivalent and other things.
+        #_field #_"VersionMessage" :version-message nil
+        ;; Maximum depth up to which pending transaction dependencies are downloaded, or 0 for disabled.
+        #_volatile
+        #_field #_"int" :v-download-tx-dependency-depth 0
+        ;; How many block messages the peer has announced to us.  Peers only announce blocks that attach to their best chain
+        ;; so we can use this to calculate the height of the peers chain, by adding it to the initial height in the version
+        ;; message.  This method can go wrong if the peer re-orgs onto a shorter (but harder) chain, however, this is rare.
+        #_field #_"AtomicInteger" :blocks-announced (AtomicInteger.)
+        ;; Each wallet added to the peer will be notified of downloaded transaction data.
+        #_field #_"CopyOnWriteArrayList<Wallet>" :wallets nil
+        ;; A time before which we only download block headers, after that point we download block bodies.
+        #_field #_"long" :fast-catchup-time-secs 0
+        ;; Whether we are currently downloading headers only or block bodies.  Starts at true.  If the fast catchup time is
+        ;; set AND our best block is before that date, switch to false until block headers beyond that point have been
+        ;; received at which point it gets set to true again.  This isn't relevant unless vDownloadData is true.
+        #_field #_"boolean" :download-block-bodies true
+        ;; Whether to request filtered blocks instead of full blocks if the protocol version allows for them.
+        #_field #_"boolean" :use-filtered-blocks false
+        ;; The current Bloom filter set on the connection, used to tell the remote peer what transactions to send us.
+        #_volatile
+        #_field #_"BloomFilter" :v-bloom-filter nil
+        ;; The last filtered block we received, we're waiting to fill it out with transactions.
+        #_field #_"FilteredBlock" :current-filtered-block nil
+        ;; How many filtered blocks have been received during the lifetime of this connection.  Used to decide when to
+        ;; refresh the server-side side filter by sending a new one (it degrades over time as false positives are added
+        ;; on the remote side, see BIP 37 for a discussion of this).
+        ;; TODO: Is this still needed?  It should not be since the auto FP tracking logic was added.
+        #_field #_"int" :filtered-blocks-received 0
+        ;; If non-null, we should discard incoming filtered blocks because we ran out of keys and are awaiting a new filter
+        ;; to be calculated by the PeerGroup.  The discarded block hashes should be added here so we can re-request them
+        ;; once we've recalculated and resent a new filter.
+        #_nilable
+        #_field #_"List<Sha256Hash>" :awaiting-fresh-filter nil
+        ;; Keeps track of things we requested internally with getdata but didn't receive yet, so we can avoid re-requests.
+        ;; It's not quite the same as getDataFutures, as this is used only for getdatas done as part of downloading
+        ;; the chain and so is lighter weight (we just keep a bunch of hashes not futures).
+        ;;
+        ;; It is important to avoid a nasty edge case where we can end up with parallel chain downloads proceeding
+        ;; simultaneously if we were to receive a newly solved block whilst parts of the chain are streaming to us.
+        #_field #_"HashSet<Sha256Hash>" :pending-block-downloads (HashSet.)
+        ;; Keep references to TransactionConfidence objects for transactions that were announced by a remote peer, but
+        ;; which we haven't downloaded yet.  These objects are de-duplicated by the TxConfidenceTable class.
+        ;; Once the tx is downloaded (by some peer), the Transaction object that is created will have a reference to
+        ;; the confidence object held inside it, and it's then up to the event listeners that receive the Transaction
+        ;; to keep it pinned to the root set if they care about this data.
+        #_suppress #_[ "MismatchedQueryAndUpdateOfCollection" ]
+        #_field #_"HashSet<TransactionConfidence>" :pending-tx-downloads (HashSet.)
+        ;; The lowest version number we're willing to accept.  Lower than this will result in an immediate disconnect.
+        #_volatile
+        #_field #_"int" :v-min-protocol-version 0
+        ;; When an API user explicitly requests a block or transaction from a peer, the InventoryItem is put here
+        ;; whilst waiting for the response.  Is not used for downloads Peer generates itself.
+        ;; TODO: The types/locking should be rationalised a bit.
+        #_field #_"CopyOnWriteArrayList<GetDataRequest>" :get-data-futures nil
+        #_field #_"LinkedList<SettableFuture<AddressMessage>>" :get-addr-futures nil
+    
+        ;; Outstanding pings against this peer and how long the last one took to complete.
+        #_field #_"ReentrantLock" :last-ping-times-lock (ReentrantLock.)
+        #_field #_"long[]" :last-ping-times nil
+        #_field #_"CopyOnWriteArrayList<PendingPing>" :pending-pings nil
+    
+        #_volatile
+        #_field #_"VersionMessage" :v-peer-version-message nil
+    
+        ;; A settable future which completes (with this) when the connection is open.
+        #_field #_"SettableFuture<Peer>" :connection-open-future (SettableFuture/create)
+        #_field #_"SettableFuture<Peer>" :outgoing-version-handshake-future (SettableFuture/create)
+        #_field #_"SettableFuture<Peer>" :incoming-version-handshake-future (SettableFuture/create)
+        #_field #_"ListenableFuture<Peer>" :version-handshake-future (Futures/transform (Futures/allAsList (:outgoing-version-handshake-future this), (:incoming-version-handshake-future this)), (Function. #_"<List<Peer>, Peer>"
+            (§ anon
+                #_override
+                #_nilable
+                (§ method #_"Peer" apply [#_nilable #_"List<Peer>" peers]
+                    (ensure some? peers)
+                    (assert-state (and (= (.. peers (size)) 2) (= (.. peers (get 0)) (.. peers (get 1)))))
+                    (.. peers (get 0))
+                )
+            )))
+    
+        ;; Keep track of the last request we made to the peer in blockChainDownloadLocked so we can avoid redundant and harmful
+        ;; getblocks requests.
+        #_field #_"Sha256Hash" :last-get-blocks-begin nil
+        #_field #_"Sha256Hash" :last-get-blocks-end nil
+    })
 
     ;;;
      ; Construct a peer that reads/writes from the given block chain.
@@ -9536,11 +9583,6 @@
         nil
     )
 
-    ;; Keep track of the last request we made to the peer in blockChainDownloadLocked so we can avoid redundant and harmful
-    ;; getblocks requests.
-    #_field- #_"Sha256Hash" (ß assoc this :last-get-blocks-begin nil)
-    #_field- #_"Sha256Hash" (ß assoc this :last-get-blocks-end nil)
-
     (§ method- #_"void" blockChainDownloadLocked [#_"Sha256Hash" __toHash]
         (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
@@ -9995,11 +10037,14 @@
 (§ class PeerAddress (§ extends ChildMessage)
     (def #_"int" PeerAddress'MESSAGE_SIZE 30)
 
-    #_field- #_"InetAddress" (ß assoc this :addr nil)
-    #_field- #_"String" (ß assoc this :hostname nil) ;; Used for .onion addresses.
-    #_field- #_"int" (ß assoc this :port 0)
-    #_field- #_"BigInteger" (ß assoc this :services nil)
-    #_field- #_"long" (ß assoc this :time 0)
+    (ß defn- #_"PeerAddress" PeerAddress'init []
+    {
+        #_field #_"InetAddress" :addr nil
+        #_field #_"String" :hostname nil ;; Used for .onion addresses.
+        #_field #_"int" :port 0
+        #_field #_"BigInteger" :services nil
+        #_field #_"long" :time 0
+    })
 
     ;;;
      ; Construct a peer address from a serialized payload.
@@ -10301,23 +10346,26 @@
 
 #_non-static #_"PeerGroup"
 (§ class- ChainDownloadSpeedCalculator (§ implements BlocksDownloadedEventListener, Runnable)
-    #_field- #_"int" (ß assoc this :blocks-in-last-second 0)
-    #_field- #_"int" (ß assoc this :txns-in-last-second 0)
-    #_field- #_"int" (ß assoc this :orig-txns-in-last-second 0)
-    #_field- #_"long" (ß assoc this :bytes-in-last-second 0)
-
-    ;; If we take more stalls than this, we assume we're on some kind of terminally slow network and the
-    ;; stall threshold just isn't set properly.  We give up on stall disconnects after that.
-    #_field- #_"int" (ß assoc this :max-stalls 3)
-
-    ;; How many seconds the peer has until we start measuring its speed.
-    #_field- #_"int" (ß assoc this :warmup-seconds -1)
-
-    ;; Used to calculate a moving average.
-    #_field- #_"long[]" (ß assoc this :samples nil)
-    #_field- #_"int" (ß assoc this :cursor 0)
-
-    #_field- #_"boolean" (ß assoc this :sync-done false)
+    (ß defn- #_"ChainDownloadSpeedCalculator" ChainDownloadSpeedCalculator'init []
+    {
+        #_field #_"int" :blocks-in-last-second 0
+        #_field #_"int" :txns-in-last-second 0
+        #_field #_"int" :orig-txns-in-last-second 0
+        #_field #_"long" :bytes-in-last-second 0
+    
+        ;; If we take more stalls than this, we assume we're on some kind of terminally slow network and the
+        ;; stall threshold just isn't set properly.  We give up on stall disconnects after that.
+        #_field #_"int" :max-stalls 3
+    
+        ;; How many seconds the peer has until we start measuring its speed.
+        #_field #_"int" :warmup-seconds -1
+    
+        ;; Used to calculate a moving average.
+        #_field #_"long[]" :samples nil
+        #_field #_"int" :cursor 0
+    
+        #_field #_"boolean" :sync-done false
+    })
 
     (§ defn- #_"ChainDownloadSpeedCalculator" ChainDownloadSpeedCalculator'new []
         (let [this {}]
@@ -10473,12 +10521,6 @@
 (§ class PeerGroup (§ implements TransactionBroadcaster)
     (def- #_"Logger" PeerGroup'log (LoggerFactory/getLogger PeerGroup))
 
-    ;; All members in this class should be marked with final, volatile, @GuardedBy or a mix as appropriate to define
-    ;; their thread safety semantics.  Volatile requires a Hungarian-style v prefix.
-
-    ;; By default we don't require any services because any peer will do.
-    #_field- #_"long" (ß assoc this :required-services 0)
-
     ;;;
      ; The default number of connections to the p2p network the library will try to build.  This is set to 12 empirically.
      ; It used to be 4, but because we divide the connection pool in two for broadcasting transactions, that meant we
@@ -10486,157 +10528,11 @@
      ; get through.
      ;;
     (def #_"int" PeerGroup'DEFAULT_CONNECTIONS 12)
-    #_volatile
-    #_field- #_"int" (ß assoc this :v-max-peers-to-discover-count 100)
+
     (def- #_"long" PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS 5000)
-    #_volatile
-    #_field- #_"long" (ß assoc this :v-peer-discovery-timeout-millis PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS)
-
-    #_protected
-    #_field #_"ReentrantLock" (ß assoc this :lock (Threading'lock "peergroup"))
-
-    #_protected
-    #_field #_"NetworkParameters" (ß assoc this :params nil)
-    #_nilable
-    #_protected
-    #_field #_"BlockChain" (ß assoc this :chain nil)
-
-    ;; This executor is used to queue up jobs: it's used when we don't want to use locks for mutual exclusion,
-    ;; typically because the job might call in to user provided code that needs/wants the freedom to use the API
-    ;; however it wants, or because a job needs to be ordered relative to other jobs like that.
-    #_protected
-    #_field #_"ListeningScheduledExecutorService" (ß assoc this :executor nil)
-
-    ;; Whether the peer group is currently running.  Once shut down it cannot be restarted.
-    #_volatile
-    #_field- #_"boolean" (ß assoc this :v-running false)
-    ;; Whether the peer group has been started or not.  An unstarted PG does not try to access the network.
-    #_volatile
-    #_field- #_"boolean" (ß assoc this :v-used-up false)
-
-    ;; Addresses to try to connect to, excluding active peers.
-    #_field- #_"PriorityQueue<PeerAddress>" (ß assoc this :inactives nil)
-    #_field- #_"Map<PeerAddress, ExponentialBackoff>" (ß assoc this :backoff-map nil)
-
-    ;; Currently active peers.  This is an ordered list rather than a set to make unit tests predictable.
-    #_field- #_"CopyOnWriteArrayList<Peer>" (ß assoc this :peers nil)
-    ;; Currently connecting peers.
-    #_field- #_"CopyOnWriteArrayList<Peer>" (ß assoc this :pending-peers nil)
-    #_field- #_"ClientConnectionManager" (ß assoc this :channels nil)
-
-    ;; The peer that has been selected for the purposes of downloading announced data.
-    #_field- #_"Peer" (ß assoc this :download-peer nil)
-    ;; Callback for events related to chain download.
-    #_nilable
-    #_field- #_"PeerDataEventListener" (ß assoc this :download-listener nil)
-
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>" (ß assoc this :peers-blocks-downloaded-event-listeners (CopyOnWriteArrayList.))
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>" (ß assoc this :peers-chain-download-started-event-listeners (CopyOnWriteArrayList.))
-    ;;; Callbacks for events related to peers connecting. ;;
-    #_protected
-    #_field #_"CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>" (ß assoc this :peer-connected-event-listeners (CopyOnWriteArrayList.))
-    ;;; Callbacks for events related to peer connection/disconnection. ;;
-    #_protected
-    #_field #_"CopyOnWriteArrayList<ListenerRegistration<PeerDiscoveredEventListener>>" (ß assoc this :peer-discovered-event-listeners (CopyOnWriteArrayList.))
-    ;;; Callbacks for events related to peers disconnecting. ;;
-    #_protected
-    #_field #_"CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>" (ß assoc this :peer-disconnected-event-listeners (CopyOnWriteArrayList.))
-    ;;; Callbacks for events related to peer data being received. ;;
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>" (ß assoc this :peer-get-data-event-listeners (CopyOnWriteArrayList.))
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>" (ß assoc this :peers-pre-message-received-event-listeners (CopyOnWriteArrayList.))
-    #_protected
-    #_field #_"CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>" (ß assoc this :peers-transaction-broadast-event-listeners (CopyOnWriteArrayList.))
-
-    ;; Peer discovery sources, will be polled occasionally if there aren't enough inactives.
-    #_field- #_"CopyOnWriteArraySet<PeerDiscovery>" (ß assoc this :peer-discoverers nil)
-    ;; The version message to use for new connections.
-    #_field- #_"VersionMessage" (ß assoc this :version-message nil)
-    ;; Maximum depth up to which pending transaction dependencies are downloaded, or 0 for disabled.
-    #_field- #_"int" (ß assoc this :download-tx-dependency-depth 0)
-    ;; How many connections we want to have open at the current time.  If we lose connections, we'll try opening more
-    ;; until we reach this count.
-    #_field- #_"int" (ß assoc this :max-connections 0)
-    ;; Minimum protocol version we will allow ourselves to connect to: require Bloom filtering.
-    #_volatile
-    #_field- #_"int" (ß assoc this :v-min-required-protocol-version 0)
 
     ;;; How many milliseconds to wait after receiving a pong before sending another ping. ;;
     (def #_"long" PeerGroup'DEFAULT_PING_INTERVAL_MSEC 2000)
-    #_field- #_"long" (ß assoc this :ping-interval-msec PeerGroup'DEFAULT_PING_INTERVAL_MSEC)
-
-    #_field- #_"boolean" (ß assoc this :use-localhost-peer-when-possible true)
-    #_field- #_"boolean" (ß assoc this :ipv6-unreachable false)
-
-    #_field- #_"long" (ß assoc this :fast-catchup-time-secs 0)
-    #_field- #_"CopyOnWriteArrayList<Wallet>" (ß assoc this :wallets nil)
-    #_field- #_"CopyOnWriteArrayList<PeerFilterProvider>" (ß assoc this :peer-filter-providers nil)
-
-    ;; This event listener is added to every peer.  It's here so when we announce transactions via an "inv",
-    ;; every peer can fetch them.
-    #_field- #_"PeerListener" (ß assoc this :peer-listener (PeerListener'new))
-
-    #_field- #_"int" (ß assoc this :min-broadcast-connections 0)
-
-    #_field- #_"KeyChainEventListener" (ß assoc this :wallet-key-event-listener (KeyChainEventListener.)
-        (§ anon
-            #_override
-            (§ method #_"void" onKeysAdded [#_"List<ECKey>" keys]
-                (.. this (recalculateFastCatchupAndFilter :FilterRecalculateMode'SEND_IF_CHANGED))
-                nil
-            )
-        ))
-
-    #_field- #_"WalletCoinsReceivedEventListener" (ß assoc this :wallet-coins-received-event-listener (WalletCoinsReceivedEventListener.)
-        (§ anon
-            #_override
-            (§ method #_"void" onCoinsReceived [#_"Wallet" wallet, #_"Transaction" tx, #_"Coin" __prevBalance, #_"Coin" __newBalance]
-                ;; We received a relevant transaction.  We MAY need to recalculate and resend the Bloom filter, but only
-                ;; if we have received a transaction that includes a relevant pay-to-pubkey output.
-                ;;
-                ;; The reason is that pay-to-pubkey outputs, when spent, will not repeat any data we can predict in their
-                ;; inputs.  So a remote peer will update the Bloom filter for us when such an output is seen matching the
-                ;; existing filter, so that it includes the tx hash in which the pay-to-pubkey output was observed.  Thus
-                ;; the spending transaction will always match (due to the outpoint structure).
-                ;;
-                ;; Unfortunately, whilst this is required for correct sync of the chain in blocks, there are two edge cases.
-                ;;
-                ;; (1) If a wallet receives a relevant, confirmed p2pubkey output that was not broadcast across the network,
-                ;; for example in a coinbase transaction, then the node that's serving us the chain will update its filter
-                ;; but the rest will not.  If another transaction then spends it, the other nodes won't match/relay it.
-                ;;
-                ;; (2) If we receive a p2pubkey output broadcast across the network, all currently connected nodes will see
-                ;; it and update their filter themselves, but any newly connected nodes will receive the last filter we
-                ;; calculated, which would not include this transaction.
-                ;;
-                ;; For this reason we check if the transaction contained any relevant pay to pubkeys and force a recalc
-                ;; and possibly retransmit if so.  The recalculation process will end up including the tx hash into the
-                ;; filter.  In case (1), we need to retransmit the filter to the connected peers.  In case (2), we don't
-                ;; and shouldn't, we should just recalculate and cache the new filter for next time.
-
-                (doseq [#_"TransactionOutput" output (.. tx (getOutputs))]
-                    (when (and (.. output (getScriptPubKey) (isSentToRawPubKey)) (.. output (isMine wallet)))
-                        (if (= (.. tx (getConfidence) (getConfidenceType)) ConfidenceType'BUILDING)
-                            (.. this (recalculateFastCatchupAndFilter :FilterRecalculateMode'SEND_IF_CHANGED))
-                            (.. this (recalculateFastCatchupAndFilter :FilterRecalculateMode'DONT_SEND))
-                        )
-                        (§ return nil)
-                    )
-                )
-                nil
-            )
-        ))
-
-    ;; Exponential backoff for peers starts at 1 second and maxes at 10 minutes.
-    #_field- #_"BackoffParams" (ß assoc this :peer-backoff-params (BackoffParams'new 1000, 1.5, (* 10 60 1000)))
-    ;; Tracks failures globally in case of a network failure.
-    #_field- #_"ExponentialBackoff" (ß assoc this :group-backoff (ExponentialBackoff'new (BackoffParams'new 1000, 1.5, (* 10 1000))))
-
-    ;; This is a synchronized set, so it locks on itself.  We use it to prevent TransactionBroadcast objects from
-    ;; being garbage collected if nothing in the apps code holds on to them transitively.  See the discussion
-    ;; in broadcastTransaction.
-    #_field- #_"Set<TransactionBroadcast>" (ß assoc this :running-broadcasts nil)
-
-    #_field- #_"PeerStartupListener" (ß assoc this :startup-listener (PeerStartupListener'new))
 
     ;;;
      ; The default Bloom filter false positive rate, which is selected to be extremely low such that you hardly ever
@@ -10649,18 +10545,296 @@
     (def #_"double" PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE 0.00001)
     ;;; Maximum increase in FP rate before forced refresh of the bloom filter. ;;
     (def #_"double" PeerGroup'MAX_FP_RATE_INCREASE 10.0)
-    ;; An object that calculates bloom filters given a list of filter providers, whilst tracking some state useful
-    ;; for privacy purposes.
-    #_field- #_"FilterMerger" (ß assoc this :bloom-filter-merger nil)
 
     ;;; The default timeout between when a connection attempt begins and version message exchange completes. ;;
     (def #_"int" PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS 5000)
-    #_volatile
-    #_field- #_"int" (ß assoc this :v-connect-timeout-millis PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS)
 
-    ;;; Whether bloom filter support is enabled when using a non FullPrunedBlockchain. ;;
-    #_volatile
-    #_field- #_"boolean" (ß assoc this :v-bloom-filtering-enabled true)
+    ;; All members in this class should be marked with final, volatile, @GuardedBy or a mix as appropriate to define
+    ;; their thread safety semantics.  Volatile requires a Hungarian-style v prefix.
+
+    (ß defn- #_"PeerGroup" PeerGroup'init []
+    {
+        ;; By default we don't require any services because any peer will do.
+        #_field #_"long" :required-services 0
+        #_volatile
+        #_field #_"int" :v-max-peers-to-discover-count 100
+        #_volatile
+        #_field #_"long" :v-peer-discovery-timeout-millis PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS
+    
+        #_field #_"ReentrantLock" :lock (Threading'lock "peergroup")
+    
+        #_field #_"NetworkParameters" :params nil
+        #_nilable
+        #_field #_"BlockChain" :chain nil
+    
+        ;; This executor is used to queue up jobs: it's used when we don't want to use locks for mutual exclusion,
+        ;; typically because the job might call in to user provided code that needs/wants the freedom to use the API
+        ;; however it wants, or because a job needs to be ordered relative to other jobs like that.
+        #_field #_"ListeningScheduledExecutorService" :executor nil
+    
+        ;; Whether the peer group is currently running.  Once shut down it cannot be restarted.
+        #_volatile
+        #_field #_"boolean" :v-running false
+        ;; Whether the peer group has been started or not.  An unstarted PG does not try to access the network.
+        #_volatile
+        #_field #_"boolean" :v-used-up false
+    
+        ;; Addresses to try to connect to, excluding active peers.
+        #_field #_"PriorityQueue<PeerAddress>" :inactives nil
+        #_field #_"Map<PeerAddress, ExponentialBackoff>" :backoff-map nil
+    
+        ;; Currently active peers.  This is an ordered list rather than a set to make unit tests predictable.
+        #_field #_"CopyOnWriteArrayList<Peer>" :peers nil
+        ;; Currently connecting peers.
+        #_field #_"CopyOnWriteArrayList<Peer>" :pending-peers nil
+        #_field #_"ClientConnectionManager" :channels nil
+    
+        ;; The peer that has been selected for the purposes of downloading announced data.
+        #_field #_"Peer" :download-peer nil
+        ;; Callback for events related to chain download.
+        #_nilable
+        #_field #_"PeerDataEventListener" :download-listener nil
+    
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>" :peers-blocks-downloaded-event-listeners (CopyOnWriteArrayList.)
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>" :peers-chain-download-started-event-listeners (CopyOnWriteArrayList.)
+        ;;; Callbacks for events related to peers connecting. ;;
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>" :peer-connected-event-listeners (CopyOnWriteArrayList.)
+        ;;; Callbacks for events related to peer connection/disconnection. ;;
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<PeerDiscoveredEventListener>>" :peer-discovered-event-listeners (CopyOnWriteArrayList.)
+        ;;; Callbacks for events related to peers disconnecting. ;;
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>" :peer-disconnected-event-listeners (CopyOnWriteArrayList.)
+        ;;; Callbacks for events related to peer data being received. ;;
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>" :peer-get-data-event-listeners (CopyOnWriteArrayList.)
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>" :peers-pre-message-received-event-listeners (CopyOnWriteArrayList.)
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>" :peers-transaction-broadast-event-listeners (CopyOnWriteArrayList.)
+    
+        ;; Peer discovery sources, will be polled occasionally if there aren't enough inactives.
+        #_field #_"CopyOnWriteArraySet<PeerDiscovery>" :peer-discoverers nil
+        ;; The version message to use for new connections.
+        #_field #_"VersionMessage" :version-message nil
+        ;; Maximum depth up to which pending transaction dependencies are downloaded, or 0 for disabled.
+        #_field #_"int" :download-tx-dependency-depth 0
+        ;; How many connections we want to have open at the current time.  If we lose connections, we'll try opening more
+        ;; until we reach this count.
+        #_field #_"int" :max-connections 0
+        ;; Minimum protocol version we will allow ourselves to connect to: require Bloom filtering.
+        #_volatile
+        #_field #_"int" :v-min-required-protocol-version 0
+    
+        #_field #_"long" :ping-interval-msec PeerGroup'DEFAULT_PING_INTERVAL_MSEC
+    
+        #_field #_"boolean" :use-localhost-peer-when-possible true
+        #_field #_"boolean" :ipv6-unreachable false
+    
+        #_field #_"long" :fast-catchup-time-secs 0
+        #_field #_"CopyOnWriteArrayList<Wallet>" :wallets nil
+        #_field #_"CopyOnWriteArrayList<PeerFilterProvider>" :peer-filter-providers nil
+    
+        ;; This event listener is added to every peer.  It's here so when we announce transactions via an "inv",
+        ;; every peer can fetch them.
+        #_field #_"PeerListener" :peer-listener (PeerListener'new)
+    
+        #_field #_"int" :min-broadcast-connections 0
+    
+        #_field #_"KeyChainEventListener" :wallet-key-event-listener (KeyChainEventListener.
+            (§ anon
+                #_override
+                (§ method #_"void" onKeysAdded [#_"List<ECKey>" keys]
+                    (.. this (recalculateFastCatchupAndFilter :FilterRecalculateMode'SEND_IF_CHANGED))
+                    nil
+                )
+            ))
+    
+        #_field #_"WalletCoinsReceivedEventListener" :wallet-coins-received-event-listener (WalletCoinsReceivedEventListener.
+            (§ anon
+                #_override
+                (§ method #_"void" onCoinsReceived [#_"Wallet" wallet, #_"Transaction" tx, #_"Coin" __prevBalance, #_"Coin" __newBalance]
+                    ;; We received a relevant transaction.  We MAY need to recalculate and resend the Bloom filter, but only
+                    ;; if we have received a transaction that includes a relevant pay-to-pubkey output.
+                    ;;
+                    ;; The reason is that pay-to-pubkey outputs, when spent, will not repeat any data we can predict in their
+                    ;; inputs.  So a remote peer will update the Bloom filter for us when such an output is seen matching the
+                    ;; existing filter, so that it includes the tx hash in which the pay-to-pubkey output was observed.  Thus
+                    ;; the spending transaction will always match (due to the outpoint structure).
+                    ;;
+                    ;; Unfortunately, whilst this is required for correct sync of the chain in blocks, there are two edge cases.
+                    ;;
+                    ;; (1) If a wallet receives a relevant, confirmed p2pubkey output that was not broadcast across the network,
+                    ;; for example in a coinbase transaction, then the node that's serving us the chain will update its filter
+                    ;; but the rest will not.  If another transaction then spends it, the other nodes won't match/relay it.
+                    ;;
+                    ;; (2) If we receive a p2pubkey output broadcast across the network, all currently connected nodes will see
+                    ;; it and update their filter themselves, but any newly connected nodes will receive the last filter we
+                    ;; calculated, which would not include this transaction.
+                    ;;
+                    ;; For this reason we check if the transaction contained any relevant pay to pubkeys and force a recalc
+                    ;; and possibly retransmit if so.  The recalculation process will end up including the tx hash into the
+                    ;; filter.  In case (1), we need to retransmit the filter to the connected peers.  In case (2), we don't
+                    ;; and shouldn't, we should just recalculate and cache the new filter for next time.
+    
+                    (doseq [#_"TransactionOutput" output (.. tx (getOutputs))]
+                        (when (and (.. output (getScriptPubKey) (isSentToRawPubKey)) (.. output (isMine wallet)))
+                            (if (= (.. tx (getConfidence) (getConfidenceType)) ConfidenceType'BUILDING)
+                                (.. this (recalculateFastCatchupAndFilter :FilterRecalculateMode'SEND_IF_CHANGED))
+                                (.. this (recalculateFastCatchupAndFilter :FilterRecalculateMode'DONT_SEND))
+                            )
+                            (§ return nil)
+                        )
+                    )
+                    nil
+                )
+            ))
+    
+        ;; Exponential backoff for peers starts at 1 second and maxes at 10 minutes.
+        #_field #_"BackoffParams" :peer-backoff-params (BackoffParams'new 1000, 1.5, (* 10 60 1000))
+        ;; Tracks failures globally in case of a network failure.
+        #_field #_"ExponentialBackoff" :group-backoff (ExponentialBackoff'new (BackoffParams'new 1000, 1.5, (* 10 1000)))
+    
+        ;; This is a synchronized set, so it locks on itself.  We use it to prevent TransactionBroadcast objects from
+        ;; being garbage collected if nothing in the apps code holds on to them transitively.  See the discussion
+        ;; in broadcastTransaction.
+        #_field #_"Set<TransactionBroadcast>" :running-broadcasts nil
+    
+        #_field #_"PeerStartupListener" :startup-listener (PeerStartupListener'new)
+    
+        ;; An object that calculates bloom filters given a list of filter providers, whilst tracking some state useful
+        ;; for privacy purposes.
+        #_field #_"FilterMerger" :bloom-filter-merger nil
+    
+        #_volatile
+        #_field #_"int" :v-connect-timeout-millis PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS
+    
+        ;;; Whether bloom filter support is enabled when using a non FullPrunedBlockchain. ;;
+        #_volatile
+        #_field #_"boolean" :v-bloom-filtering-enabled true
+    
+        #_field #_"CountDownLatch" :executor-startup-latch (CountDownLatch. 1)
+    
+        #_field #_"Runnable" :trigger-connections-job (Runnable.
+            (§ anon
+                (§ field #_"boolean" :first-run true)
+                (def- #_"long" PeerGroup'MIN_PEER_DISCOVERY_INTERVAL 1000)
+
+                #_override
+                (§ method #_"void" run []
+                    (try
+                        (.. this (go))
+                        (catch Throwable e
+                            (.. PeerGroup'log (error "Exception when trying to build connections", e)) ;; The executor swallows exceptions :( ;; )
+                        )
+                    )
+                    nil
+                )
+
+                (§ method #_"void" go []
+                    (when (:v-running this)
+                        (let [#_"boolean" __doDiscovery false #_"long" now (Utils'currentTimeMillis)]
+                            (.. (:lock this) (lock))
+                            (try
+                                ;; First run: try and use a local node if there is one, for the additional security it can provide.
+                                (when (and (:use-localhost-peer-when-possible this) (.. this (maybeCheckForLocalhostPeer)) (:first-run this))
+                                    (.. PeerGroup'log (info "Localhost peer detected, trying to use it instead of P2P discovery"))
+                                    (§ assoc this :max-connections 0)
+                                    (.. this (connectToLocalHost))
+                                    (§ return nil)
+                                )
+
+                                (let [#_"boolean" __havePeerWeCanTry (and (not (.. (:inactives this) (isEmpty))) (<= (.. (:backoff-map this) (get (.. (:inactives this) (peek))) (getRetryTime)) now))]
+                                    (§ ass __doDiscovery (not __havePeerWeCanTry))
+                                )
+                                (finally
+                                    (§ assoc this :first-run false)
+                                    (.. (:lock this) (unlock))
+                                )
+                            )
+
+                            ;; Don't hold the lock across discovery as this process can be very slow.
+                            (let [#_"boolean" __discoverySuccess false]
+                                (when __doDiscovery
+                                    (try
+                                        (§ ass __discoverySuccess (< 0 (.. this (discoverPeers))))
+                                        (catch PeerDiscoveryException e
+                                            (.. PeerGroup'log (error "Peer discovery failure", e))
+                                        )
+                                    )
+                                )
+
+                                (let [#_"long" __retryTime
+                                    #_"PeerAddress" __addrToTry]
+                                    (.. (:lock this) (lock))
+                                    (try
+                                        (when __doDiscovery
+                                            ;; Require that we have enough connections, to consider this a success,
+                                            ;; or we just constantly test for new peers.
+                                            (if (and __discoverySuccess (<= (.. this (getMaxConnections)) (.. this (countConnectedAndPendingPeers))))
+                                                (.. (:group-backoff this) (trackSuccess))
+                                                (.. (:group-backoff this) (trackFailure))
+                                            )
+                                        )
+                                        ;; Inactives is sorted by backoffMap time.
+                                        (cond (.. (:inactives this) (isEmpty))
+                                            (do
+                                                (cond (< (.. this (countConnectedAndPendingPeers)) (.. this (getMaxConnections)))
+                                                    (let [#_"long" interval (max (- (.. (:group-backoff this) (getRetryTime)) now), PeerGroup'MIN_PEER_DISCOVERY_INTERVAL)]
+                                                        (.. PeerGroup'log (info (str "Peer discovery didn't provide us any more peers, will try again in " interval "ms.")))
+                                                        (.. (:executor this) (schedule this, interval, TimeUnit/MILLISECONDS))
+                                                    )
+                                                    :else
+                                                    (do
+                                                        ;; We have enough peers and discovery provided no more, so just settle down.
+                                                        ;; Most likely we were given a fixed set of addresses in some test scenario.
+                                                    )
+                                                )
+                                                (§ return nil)
+                                            )
+                                            :else
+                                            (do
+                                                (loop []
+                                                    (§ ass __addrToTry (.. (:inactives this) (poll)))
+                                                    (§ recur-if (and (:ipv6-unreachable this) (instance? Inet6Address (.. __addrToTry (getAddr)))))
+                                                )
+                                                (§ ass __retryTime (.. (:backoff-map this) (get __addrToTry) (getRetryTime)))
+                                            )
+                                        )
+                                        (§ ass __retryTime (max __retryTime, (.. (:group-backoff this) (getRetryTime))))
+                                        (when (< now __retryTime)
+                                            (let [#_"long" delay (- __retryTime now)]
+                                                (.. PeerGroup'log (info "Waiting {} msec before next connect attempt {}", delay, (if (some? __addrToTry) (str "to " __addrToTry) "")))
+                                                (.. (:inactives this) (add __addrToTry))
+                                                (.. (:executor this) (schedule this, delay, TimeUnit/MILLISECONDS))
+                                                (§ return nil)
+                                            )
+                                        )
+                                        (.. this (connectTo __addrToTry, false, (:v-connect-timeout-millis this)))
+                                        (finally
+                                            (.. (:lock this) (unlock))
+                                        )
+                                    )
+                                    (when (< (.. this (countConnectedAndPendingPeers)) (.. this (getMaxConnections)))
+                                        (.. (:executor this) (execute this)) ;; Try next peer immediately.
+                                    )
+                                )
+                            )
+                        )
+                    )
+                    nil
+                )
+            ))
+    
+        #_field #_"LocalhostCheckState" :localhost-check-state :LocalhostCheckState'NOT_TRIED
+    
+        #_field #_"Map<FilterRecalculateMode, SettableFuture<BloomFilter>>" :in-flight-recalculations (Maps/newHashMap)
+    
+        #_nilable
+        #_volatile
+        #_field #_"ListenableScheduledFuture<?>" :v-ping-task nil
+    
+        #_field #_"int" :stall-period-seconds 10
+        #_field #_"int" :stall-min-speed-bytes-sec (* Block'HEADER_SIZE 20)
+    
+        #_nilable
+        #_field #_"ChainDownloadSpeedCalculator" :chain-download-speed-calculator nil
+    })
 
     ;;; See {@link #PeerGroup(Context)}. ;;
     (§ defn #_"PeerGroup" PeerGroup'new [#_"NetworkParameters" params]
@@ -10761,8 +10935,6 @@
         )
     )
 
-    #_field- #_"CountDownLatch" (ß assoc this :executor-startup-latch (CountDownLatch. 1))
-
     #_protected
     (§ method #_"ListeningScheduledExecutorService" createPrivateExecutor []
         (let [#_"ListeningScheduledExecutorService" result (MoreExecutors/listeningDecorator (ScheduledThreadPoolExecutor. 1, (ContextPropagatingThreadFactory'new "PeerGroup Thread")))]
@@ -10831,117 +11003,6 @@
         )
         nil
     )
-
-    #_field- #_"Runnable" (ß assoc this :trigger-connections-job (Runnable.
-        (§ anon
-            #_field- #_"boolean" (ß assoc this :first-run true)
-            (def- #_"long" PeerGroup'MIN_PEER_DISCOVERY_INTERVAL 1000)
-
-            #_override
-            (§ method #_"void" run []
-                (try
-                    (.. this (go))
-                    (catch Throwable e
-                        (.. PeerGroup'log (error "Exception when trying to build connections", e)) ;; The executor swallows exceptions :( ;; )
-                    )
-                )
-                nil
-            )
-
-            (§ method #_"void" go []
-                (when (:v-running this)
-                    (let [#_"boolean" __doDiscovery false #_"long" now (Utils'currentTimeMillis)]
-                        (.. (:lock this) (lock))
-                        (try
-                            ;; First run: try and use a local node if there is one, for the additional security it can provide.
-                            (when (and (:use-localhost-peer-when-possible this) (.. this (maybeCheckForLocalhostPeer)) (:first-run this))
-                                (.. PeerGroup'log (info "Localhost peer detected, trying to use it instead of P2P discovery"))
-                                (§ assoc this :max-connections 0)
-                                (.. this (connectToLocalHost))
-                                (§ return nil)
-                            )
-
-                            (let [#_"boolean" __havePeerWeCanTry (and (not (.. (:inactives this) (isEmpty))) (<= (.. (:backoff-map this) (get (.. (:inactives this) (peek))) (getRetryTime)) now))]
-                                (§ ass __doDiscovery (not __havePeerWeCanTry))
-                            )
-                            (finally
-                                (§ assoc this :first-run false)
-                                (.. (:lock this) (unlock))
-                            )
-                        )
-
-                        ;; Don't hold the lock across discovery as this process can be very slow.
-                        (let [#_"boolean" __discoverySuccess false]
-                            (when __doDiscovery
-                                (try
-                                    (§ ass __discoverySuccess (< 0 (.. this (discoverPeers))))
-                                    (catch PeerDiscoveryException e
-                                        (.. PeerGroup'log (error "Peer discovery failure", e))
-                                    )
-                                )
-                            )
-
-                            (let [#_"long" __retryTime
-                                  #_"PeerAddress" __addrToTry]
-                                (.. (:lock this) (lock))
-                                (try
-                                    (when __doDiscovery
-                                        ;; Require that we have enough connections, to consider this a success,
-                                        ;; or we just constantly test for new peers.
-                                        (if (and __discoverySuccess (<= (.. this (getMaxConnections)) (.. this (countConnectedAndPendingPeers))))
-                                            (.. (:group-backoff this) (trackSuccess))
-                                            (.. (:group-backoff this) (trackFailure))
-                                        )
-                                    )
-                                    ;; Inactives is sorted by backoffMap time.
-                                    (cond (.. (:inactives this) (isEmpty))
-                                        (do
-                                            (cond (< (.. this (countConnectedAndPendingPeers)) (.. this (getMaxConnections)))
-                                                (let [#_"long" interval (max (- (.. (:group-backoff this) (getRetryTime)) now), PeerGroup'MIN_PEER_DISCOVERY_INTERVAL)]
-                                                    (.. PeerGroup'log (info (str "Peer discovery didn't provide us any more peers, will try again in " interval "ms.")))
-                                                    (.. (:executor this) (schedule this, interval, TimeUnit/MILLISECONDS))
-                                                )
-                                                :else
-                                                (do
-                                                    ;; We have enough peers and discovery provided no more, so just settle down.
-                                                    ;; Most likely we were given a fixed set of addresses in some test scenario.
-                                                )
-                                            )
-                                            (§ return nil)
-                                        )
-                                        :else
-                                        (do
-                                            (loop []
-                                                (§ ass __addrToTry (.. (:inactives this) (poll)))
-                                                (§ recur-if (and (:ipv6-unreachable this) (instance? Inet6Address (.. __addrToTry (getAddr)))))
-                                            )
-                                            (§ ass __retryTime (.. (:backoff-map this) (get __addrToTry) (getRetryTime)))
-                                        )
-                                    )
-                                    (§ ass __retryTime (max __retryTime, (.. (:group-backoff this) (getRetryTime))))
-                                    (when (< now __retryTime)
-                                        (let [#_"long" delay (- __retryTime now)]
-                                            (.. PeerGroup'log (info "Waiting {} msec before next connect attempt {}", delay, (if (some? __addrToTry) (str "to " __addrToTry) "")))
-                                            (.. (:inactives this) (add __addrToTry))
-                                            (.. (:executor this) (schedule this, delay, TimeUnit/MILLISECONDS))
-                                            (§ return nil)
-                                        )
-                                    )
-                                    (.. this (connectTo __addrToTry, false, (:v-connect-timeout-millis this)))
-                                    (finally
-                                        (.. (:lock this) (unlock))
-                                    )
-                                )
-                                (when (< (.. this (countConnectedAndPendingPeers)) (.. this (getMaxConnections)))
-                                    (.. (:executor this) (execute this)) ;; Try next peer immediately.
-                                )
-                            )
-                        )
-                    )
-                )
-                nil
-            )
-        )))
 
     (§ method- #_"void" triggerConnections []
         ;; Run on a background thread due to the need to potentially retry and back off in the background.
@@ -11491,8 +11552,6 @@
         )
     )
 
-    #_field- #_"LocalhostCheckState" (ß assoc this :localhost-check-state :LocalhostCheckState'NOT_TRIED)
-
     (§ method- #_"boolean" maybeCheckForLocalhostPeer []
         (assert-state (.. (:lock this) (isHeldByCurrentThread)))
 
@@ -11734,8 +11793,6 @@
         )
         nil
     )
-
-    #_field- #_"Map<FilterRecalculateMode, SettableFuture<BloomFilter>>" (ß assoc this :in-flight-recalculations (Maps/newHashMap))
 
     ;;;
      ; Recalculates the bloom filter given to peers as well as the timestamp after which full blocks are downloaded
@@ -12108,10 +12165,6 @@
         nil
     )
 
-    #_nilable
-    #_volatile
-    #_field- #_"ListenableScheduledFuture<?>" (ß assoc this :v-ping-task nil)
-
     #_suppress #_[ "NonAtomicOperationOnVolatileField" ]
     (§ method- #_"void" setupPinging []
         (when-not (<= (.. this (getPingIntervalMsec)) 0) ;; Disabled.
@@ -12308,9 +12361,6 @@
         nil
     )
 
-    #_field- #_"int" (ß assoc this :stall-period-seconds 10)
-    #_field- #_"int" (ß assoc this :stall-min-speed-bytes-sec (* Block'HEADER_SIZE 20))
-
     ;;;
      ; Configures the stall speed: the speed at which a peer is considered to be serving us the block chain
      ; unacceptably slowly.  Once a peer has served us data slower than the given data rate for the given
@@ -12333,9 +12383,6 @@
         )
         nil
     )
-
-    #_nilable
-    #_field- #_"ChainDownloadSpeedCalculator" (ß assoc this :chain-download-speed-calculator nil)
 
     (§ method- #_"void" startBlockChainDownloadFromPeer [#_"Peer" peer]
         (.. (:lock this) (lock))
@@ -12810,24 +12857,25 @@
 (§ class PeerSocketHandler (§ extends AbstractTimeoutHandler) (§ implements StreamConnection)
     (def- #_"Logger" PeerSocketHandler'log (LoggerFactory/getLogger PeerSocketHandler))
 
-    #_field- #_"BitcoinSerializer" (ß assoc this :serializer nil)
-    #_protected
-    #_field #_"PeerAddress" (ß assoc this :peer-address nil)
-    ;; If we close() before we know our writeTarget, set this to true to call writeTarget.closeConnection() right away.
-    #_field- #_"boolean" (ß assoc this :close-pending false)
-    ;; writeTarget will be thread-safe, and may call into PeerGroup, which calls us, so we should call it unlocked.
-    #_testing
-    #_protected
-    #_field #_"MessageWriteTarget" (ß assoc this :write-target nil)
-
-    ;; The ByteBuffers passed to us from the writeTarget are static in size, and usually smaller than some messages we
-    ;; will receive.  For SPV clients, this should be rare (i.e. we're mostly dealing with small transactions), but for
-    ;; messages which are larger than the read buffer, we have to keep a temporary buffer with its bytes.
-    #_field- #_"byte[]" (ß assoc this :large-read-buffer nil)
-    #_field- #_"int" (ß assoc this :large-read-buffer-pos 0)
-    #_field- #_"BitcoinPacketHeader" (ß assoc this :header nil)
-
-    #_field- #_"Lock" (ß assoc this :lock (Threading'lock "PeerSocketHandler"))
+    (ß defn- #_"PeerSocketHandler" PeerSocketHandler'init []
+    {
+        #_field #_"BitcoinSerializer" :serializer nil
+        #_field #_"PeerAddress" :peer-address nil
+        ;; If we close() before we know our writeTarget, set this to true to call writeTarget.closeConnection() right away.
+        #_field #_"boolean" :close-pending false
+        ;; writeTarget will be thread-safe, and may call into PeerGroup, which calls us, so we should call it unlocked.
+        #_testing
+        #_field #_"MessageWriteTarget" :write-target nil
+    
+        ;; The ByteBuffers passed to us from the writeTarget are static in size, and usually smaller than some messages we
+        ;; will receive.  For SPV clients, this should be rare (i.e. we're mostly dealing with small transactions), but for
+        ;; messages which are larger than the read buffer, we have to keep a temporary buffer with its bytes.
+        #_field #_"byte[]" :large-read-buffer nil
+        #_field #_"int" :large-read-buffer-pos 0
+        #_field #_"BitcoinPacketHeader" :header nil
+    
+        #_field #_"Lock" :lock (Threading'lock "PeerSocketHandler")
+    })
 
     (§ defn #_"PeerSocketHandler" PeerSocketHandler'new [#_"NetworkParameters" params, #_"InetSocketAddress" __remoteIp]
         (ensure some? params)
@@ -13057,8 +13105,11 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (§ class Ping (§ extends Message)
-    #_field- #_"long" (ß assoc this :nonce 0)
-    #_field- #_"boolean" (ß assoc this :has-nonce false)
+    (ß defn- #_"Ping" Ping'init []
+    {
+        #_field #_"long" :nonce 0
+        #_field #_"boolean" :has-nonce false
+    })
 
     #_throws #_[ "ProtocolException" ]
     (§ defn #_"Ping" Ping'new [#_"NetworkParameters" params, #_"byte[]" payload]
@@ -13126,7 +13177,10 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (§ class Pong (§ extends Message)
-    #_field- #_"long" (ß assoc this :nonce 0)
+    (ß defn- #_"Pong" Pong'init []
+    {
+        #_field #_"long" :nonce 0
+    })
 
     #_throws #_[ "ProtocolException" ]
     (§ defn #_"Pong" Pong'new [#_"NetworkParameters" params, #_"byte[]" payload]
@@ -13196,7 +13250,10 @@
  ; required to trigger it.
  ;;
 (§ class PrunedException (§ extends Exception)
-    #_field- #_"Sha256Hash" (ß assoc this :hash nil)
+    (ß defn- #_"PrunedException" PrunedException'init []
+    {
+        #_field #_"Sha256Hash" :hash nil
+    })
 
     (§ defn #_"PrunedException" PrunedException'new [#_"Sha256Hash" hash]
         (let [this (§ super Exception'new (.. hash (toString)))]
@@ -13241,7 +13298,7 @@
     (§ item RejectCode'CHECKPOINT      (byte 0x43))
     (§ item RejectCode'OTHER           (byte 0xff))
 
-    #_field #_"byte" (ß assoc this :code 0)
+    (§ field #_"byte" :code 0)
 
     (§ defn #_"RejectCode" RejectCode'new [#_"byte" code]
         (let [this {}]
@@ -13267,11 +13324,14 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (§ class RejectMessage (§ extends Message)
-    #_field- #_"String" (ß assoc this :message nil)
-    #_field- #_"String" (ß assoc this :reason nil)
-
-    #_field- #_"RejectCode" (ß assoc this :code nil)
-    #_field- #_"Sha256Hash" (ß assoc this :message-hash nil)
+    (ß defn- #_"RejectMessage" RejectMessage'init []
+    {
+        #_field #_"String" :message nil
+        #_field #_"String" :reason nil
+    
+        #_field #_"RejectCode" :code nil
+        #_field #_"Sha256Hash" :message-hash nil
+    })
 
     #_throws #_[ "ProtocolException" ]
     (§ defn #_"RejectMessage" RejectMessage'new [#_"NetworkParameters" params, #_"byte[]" payload]
@@ -13391,8 +13451,11 @@
  ; some peers may never do so.
  ;;
 (§ class RejectedTransactionException (§ extends Exception)
-    #_field- #_"Transaction" (ß assoc this :tx nil)
-    #_field- #_"RejectMessage" (ß assoc this :reject-message nil)
+    (ß defn- #_"RejectedTransactionException" RejectedTransactionException'init []
+    {
+        #_field #_"Transaction" :tx nil
+        #_field #_"RejectMessage" :reject-message nil
+    })
 
     (§ defn #_"RejectedTransactionException" RejectedTransactionException'new [#_"Transaction" tx, #_"RejectMessage" __rejectMessage]
         (let [this (§ super Exception'new (.. __rejectMessage (toString)))]
@@ -13415,7 +13478,10 @@
 )
 
 (§ class ScriptException (§ extends VerificationException)
-    #_field- #_"ScriptError" (ß assoc this :err nil)
+    (ß defn- #_"ScriptException" ScriptException'init []
+    {
+        #_field #_"ScriptError" :err nil
+    })
 
     (§ defn #_"ScriptException" ScriptException'new [#_"ScriptError" err, #_"String" msg]
         (let [this (VerificationException'new msg)]
@@ -13445,7 +13511,10 @@
     (def #_"int" Sha256Hash'LENGTH 32) ;; bytes
     (def #_"Sha256Hash" Sha256Hash'ZERO_HASH (Sha256Hash'wrap (byte-array Sha256Hash'LENGTH)))
 
-    #_field- #_"byte[]" (ß assoc this :bytes nil)
+    (ß defn- #_"Sha256Hash" Sha256Hash'init []
+    {
+        #_field #_"byte[]" :bytes nil
+    })
 
     ;;;
      ; Use {@link #wrap(byte[])} instead.
@@ -13673,9 +13742,12 @@
     (def #_"byte[]" StoredBlock'EMPTY_BYTES (byte-array StoredBlock'CHAIN_WORK_BYTES))
     (def #_"int" StoredBlock'COMPACT_SERIALIZED_SIZE (+ Block'HEADER_SIZE StoredBlock'CHAIN_WORK_BYTES 4)) ;; for height
 
-    #_field- #_"Block" (ß assoc this :header nil)
-    #_field- #_"BigInteger" (ß assoc this :chain-work nil)
-    #_field- #_"int" (ß assoc this :height 0)
+    (ß defn- #_"StoredBlock" StoredBlock'init []
+    {
+        #_field #_"Block" :header nil
+        #_field #_"BigInteger" :chain-work nil
+        #_field #_"int" :height 0
+    })
 
     (§ defn #_"StoredBlock" StoredBlock'new [#_"Block" header, #_"BigInteger" __chainWork, #_"int" height]
         (let [this {}]
@@ -13802,11 +13874,14 @@
  ; connected.
  ;;
 (§ class StoredUndoableBlock
-    #_field #_"Sha256Hash" (ß assoc this :block-hash nil)
-
-    ;; Only one of either txOutChanges or transactions will be set.
-    #_field- #_"TransactionOutputChanges" (ß assoc this :tx-out-changes nil)
-    #_field- #_"List<Transaction>" (ß assoc this :transactions nil)
+    (ß defn- #_"StoredUndoableBlock" StoredUndoableBlock'init []
+    {
+        #_field #_"Sha256Hash" :block-hash nil
+    
+        ;; Only one of either txOutChanges or transactions will be set.
+        #_field #_"TransactionOutputChanges" :tx-out-changes nil
+        #_field #_"List<Transaction>" :transactions nil
+    })
 
     (§ defn #_"StoredUndoableBlock" StoredUndoableBlock'new [#_"Sha256Hash" hash, #_"TransactionOutputChanges" __txOutChanges]
         (let [this {}]
@@ -13906,7 +13981,7 @@
     (§ item SigHash'ANYONECANPAY_NONE   0x82)
     (§ item SigHash'ANYONECANPAY_SINGLE 0x83)
 
-    #_field #_"int" (ß assoc this :value 0)
+    (§ field #_"int" :value 0)
 
     (§ defn- #_"SigHash" SigHash'new [#_"int" value]
         (let [this {}]
@@ -13994,57 +14069,60 @@
      ;;
     (def #_"Coin" Transaction'MIN_NONDUST_OUTPUT (Coin'valueOf 2730)) ;; satoshis
 
-    ;; These are bitcoin serialized.
-    #_field- #_"long" (ß assoc this :version 0)
-    #_field- #_"ArrayList<TransactionInput>" (ß assoc this :inputs nil)
-    #_field- #_"ArrayList<TransactionOutput>" (ß assoc this :outputs nil)
-
-    #_field- #_"long" (ß assoc this :lock-time 0)
-
-    ;; This is either the time the transaction was broadcast as measured from the local clock, or the time from the
-    ;; block in which it was included.  Note that this can be changed by re-orgs so the wallet may update this field.
-    ;; Old serialized transactions don't have this field, thus null is valid.  It is used for returning an ordered
-    ;; list of transactions from a wallet, which is helpful for presenting to users.
-    #_field- #_"Date" (ß assoc this :updated-at nil)
-
-    ;; This is an in memory helper only.
-    #_field- #_"Sha256Hash" (ß assoc this :hash nil)
-
-    ;; Data about how confirmed this tx is.  Serialized, may be null.
-    #_nilable
-    #_field- #_"TransactionConfidence" (ß assoc this :confidence nil)
-
-    ;; Records a map of which blocks the transaction has appeared in (keys) to an index within that block (values).
-    ;; The "index" is not a real index, instead the values are only meaningful relative to each other.  For example,
-    ;; consider two transactions that appear in the same block, t1 and t2, where t2 spends an output of t1.  Both
-    ;; will have the same block hash as a key in their appearsInHashes, but the counter would be 1 and 2 respectively
-    ;; regardless of where they actually appeared in the block.
-    ;;
-    ;; If this transaction is not stored in the wallet, appearsInHashes is null.
-    #_field- #_"Map<Sha256Hash, Integer>" (ß assoc this :appears-in-hashes nil)
-
-    ;; Transactions can be encoded in a way that will use more bytes than is optimal
-    ;; (due to VarInts having multiple encodings).
-    ;; MAX_BLOCK_SIZE must be compared to the optimal encoding, not the actual encoding, so when parsing, we keep track
-    ;; of the size of the ideal encoding in addition to the actual message size (which Message needs) so that Blocks
-    ;; can properly keep track of optimal encoded size.
-    #_field- #_"int" (ß assoc this :optimal-encoding-message-size 0)
-
-    #_field- #_"TransactionPurpose" (ß assoc this :purpose :TransactionPurpose'UNKNOWN)
-
-    ;;;
-     ; This field can be used by applications to record the exchange rate that was valid when the transaction happened.
-     ; It's optional.
-     ;;
-    #_nilable
-    #_field- #_"ExchangeRate" (ß assoc this :exchange-rate nil)
-
-    ;;;
-     ; This field can be used to record the memo of the payment request that initiated the transaction.
-     ; It's optional.
-     ;;
-    #_nilable
-    #_field- #_"String" (ß assoc this :memo nil)
+    (ß defn- #_"Transaction" Transaction'init []
+    {
+        ;; These are bitcoin serialized.
+        #_field #_"long" :version 0
+        #_field #_"ArrayList<TransactionInput>" :inputs nil
+        #_field #_"ArrayList<TransactionOutput>" :outputs nil
+    
+        #_field #_"long" :lock-time 0
+    
+        ;; This is either the time the transaction was broadcast as measured from the local clock, or the time from the
+        ;; block in which it was included.  Note that this can be changed by re-orgs so the wallet may update this field.
+        ;; Old serialized transactions don't have this field, thus null is valid.  It is used for returning an ordered
+        ;; list of transactions from a wallet, which is helpful for presenting to users.
+        #_field #_"Date" :updated-at nil
+    
+        ;; This is an in memory helper only.
+        #_field #_"Sha256Hash" :hash nil
+    
+        ;; Data about how confirmed this tx is.  Serialized, may be null.
+        #_nilable
+        #_field #_"TransactionConfidence" :confidence nil
+    
+        ;; Records a map of which blocks the transaction has appeared in (keys) to an index within that block (values).
+        ;; The "index" is not a real index, instead the values are only meaningful relative to each other.  For example,
+        ;; consider two transactions that appear in the same block, t1 and t2, where t2 spends an output of t1.  Both
+        ;; will have the same block hash as a key in their appearsInHashes, but the counter would be 1 and 2 respectively
+        ;; regardless of where they actually appeared in the block.
+        ;;
+        ;; If this transaction is not stored in the wallet, appearsInHashes is null.
+        #_field #_"Map<Sha256Hash, Integer>" :appears-in-hashes nil
+    
+        ;; Transactions can be encoded in a way that will use more bytes than is optimal
+        ;; (due to VarInts having multiple encodings).
+        ;; MAX_BLOCK_SIZE must be compared to the optimal encoding, not the actual encoding, so when parsing, we keep track
+        ;; of the size of the ideal encoding in addition to the actual message size (which Message needs) so that Blocks
+        ;; can properly keep track of optimal encoded size.
+        #_field #_"int" :optimal-encoding-message-size 0
+    
+        #_field #_"TransactionPurpose" :purpose :TransactionPurpose'UNKNOWN
+    
+        ;;;
+         ; This field can be used by applications to record the exchange rate that was valid when the transaction happened.
+         ; It's optional.
+         ;;
+        #_nilable
+        #_field #_"ExchangeRate" :exchange-rate nil
+    
+        ;;;
+         ; This field can be used to record the memo of the payment request that initiated the transaction.
+         ; It's optional.
+         ;;
+        #_nilable
+        #_field #_"String" :memo nil
+    })
 
     ;; Below flags apply in the context of BIP 68.
      ; If this flag set, CTxIn::nSequence is NOT interpreted as a relative lock-time.
@@ -15452,18 +15530,52 @@
 (§ class TransactionBroadcast
     (def- #_"Logger" TransactionBroadcast'log (LoggerFactory/getLogger TransactionBroadcast))
 
-    #_field- #_"SettableFuture<Transaction>" (ß assoc this :future (SettableFuture/create))
-    #_field- #_"PeerGroup" (ß assoc this :peer-group nil)
-    #_field- #_"Transaction" (ß assoc this :tx nil)
-    #_field- #_"int" (ß assoc this :min-connections 0)
-    #_field- #_"int" (ß assoc this :num-waiting-for 0)
-
     ;;; Used for shuffling the peers before broadcast: unit tests can replace this to make themselves deterministic. ;;
     #_testing
     (def #_"Random" TransactionBroadcast'RANDOM (Random.))
 
-    ;; Tracks which nodes sent us a reject message about this broadcast, if any.  Useful for debugging.
-    #_field- #_"Map<Peer, RejectMessage>" (ß assoc this :rejects (Collections/synchronizedMap (HashMap. #_"<Peer, RejectMessage>")))
+    (ß defn- #_"TransactionBroadcast" TransactionBroadcast'init []
+    {
+        #_field #_"SettableFuture<Transaction>" :future (SettableFuture/create)
+        #_field #_"PeerGroup" :peer-group nil
+        #_field #_"Transaction" :tx nil
+        #_field #_"int" :min-connections 0
+        #_field #_"int" :num-waiting-for 0
+    
+        ;; Tracks which nodes sent us a reject message about this broadcast, if any.  Useful for debugging.
+        #_field #_"Map<Peer, RejectMessage>" :rejects (Collections/synchronizedMap (HashMap. #_"<Peer, RejectMessage>"))
+    
+        #_field #_"PreMessageReceivedEventListener" :rejection-listener (PreMessageReceivedEventListener.
+            (§ anon
+                #_override
+                (§ method #_"Message" onPreMessageReceived [#_"Peer" peer, #_"Message" m]
+                    (when (instance? RejectMessage m)
+                        (let [#_"RejectMessage" __rejectMessage (cast RejectMessage m)]
+                            (when (.. (:tx this) (getHash) (equals (.. __rejectMessage (getRejectedObjectHash))))
+                                (.. (:rejects this) (put peer, __rejectMessage))
+                                (let [#_"int" size (.. (:rejects this) (size))
+                                      #_"long" threshold (Math/round (/ (:num-waiting-for this) 2.0))]
+                                    (when (< threshold size)
+                                        (.. TransactionBroadcast'log (warn "Threshold for considering broadcast rejected has been reached ({}/{})", size, threshold))
+                                        (.. (:future this) (setException (RejectedTransactionException'new (:tx this), __rejectMessage)))
+                                        (.. (:peer-group this) (removePreMessageReceivedEventListener this))
+                                    )
+                                )
+                            )
+                        )
+                    )
+                    m
+                )
+            ))
+    
+        #_field #_"int" :num-seem-peers 0
+        #_field #_"boolean" :mined false
+    
+        #_nilable
+        #_field #_"ProgressCallback" :callback nil
+        #_nilable
+        #_field #_"Executor" :progress-callback-executor nil
+    })
 
     (§ defn #_"TransactionBroadcast" TransactionBroadcast'new [#_"PeerGroup" __peerGroup, #_"Transaction" tx]
         (let [this {}]
@@ -15483,38 +15595,12 @@
         nil
     )
 
-    #_field- #_"PreMessageReceivedEventListener" (ß assoc this :rejection-listener (PreMessageReceivedEventListener.)
-        (§ anon
-            #_override
-            (§ method #_"Message" onPreMessageReceived [#_"Peer" peer, #_"Message" m]
-                (when (instance? RejectMessage m)
-                    (let [#_"RejectMessage" __rejectMessage (cast RejectMessage m)]
-                        (when (.. (:tx this) (getHash) (equals (.. __rejectMessage (getRejectedObjectHash))))
-                            (.. (:rejects this) (put peer, __rejectMessage))
-                            (let [#_"int" size (.. (:rejects this) (size))
-                                  #_"long" threshold (Math/round (/ (:num-waiting-for this) 2.0))]
-                                (when (< threshold size)
-                                    (.. TransactionBroadcast'log (warn "Threshold for considering broadcast rejected has been reached ({}/{})", size, threshold))
-                                    (.. (:future this) (setException (RejectedTransactionException'new (:tx this), __rejectMessage)))
-                                    (.. (:peer-group this) (removePreMessageReceivedEventListener this))
-                                )
-                            )
-                        )
-                    )
-                )
-                m
-            )
-        ))
-
     (§ method #_"ListenableFuture<Transaction>" broadcast []
         (.. (:peer-group this) (addPreMessageReceivedEventListener Threading'SAME_THREAD, (:rejection-listener this)))
         (.. TransactionBroadcast'log (info "Waiting for {} peers required for broadcast, we have {} ...", (:min-connections this), (.. (:peer-group this) (getConnectedPeers) (size))))
         (.. (:peer-group this) (waitForPeers (:min-connections this)) (addListener (EnoughAvailablePeers'new), Threading'SAME_THREAD))
         (:future this)
     )
-
-    #_field- #_"int" (ß assoc this :num-seem-peers 0)
-    #_field- #_"boolean" (ß assoc this :mined false)
 
     (§ method- #_"void" invokeAndRecord [#_"int" __numSeenPeers, #_"boolean" mined]
         (§ sync this
@@ -15561,11 +15647,6 @@
         )
         nil
     )
-
-    #_nilable
-    #_field- #_"ProgressCallback" (ß assoc this :callback nil)
-    #_nilable
-    #_field- #_"Executor" (ß assoc this :progress-callback-executor nil)
 
     ;;;
      ; Sets the given callback for receiving progress values, which will run on the user thread.
@@ -15688,7 +15769,7 @@
      ;;
     (§ item ConfidenceType'UNKNOWN     0)
 
-    #_field #_"int" (ß assoc this :value 0)
+    (§ field #_"int" :value 0)
 
     (§ defn- #_"ConfidenceType" ConfidenceType'new [#_"int" value]
         (let [this {}]
@@ -15740,28 +15821,31 @@
  ; To make a copy that won't be changed, use {@link TransactionConfidence#duplicate()}.
  ;;
 (§ class TransactionConfidence
-    ;;;
-     ; The peers that have announced the transaction to us.  Network nodes don't have stable identities, so we use
-     ; IP address as an approximation.  It's obviously vulnerable to being gamed if we allow arbitrary people to connect
-     ; to us, so only peers we explicitly connected to should go here.
-     ;;
-    #_field- #_"CopyOnWriteArrayList<PeerAddress>" (ß assoc this :broadcast-by nil)
-    ;;; The time the transaction was last announced to us. ;;
-    #_field- #_"Date" (ß assoc this :last-broadcasted-at nil)
-    ;;; The Transaction that this confidence object is associated with. ;;
-    #_field- #_"Sha256Hash" (ß assoc this :hash nil)
-    ;; Lazily created listeners array.
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<TransactionConfidenceListener>>" (ß assoc this :listeners nil)
-
-    ;; The depth of the transaction on the best chain in blocks.  An unconfirmed block has depth 0.
-    #_field- #_"int" (ß assoc this :depth 0)
-
-    #_field- #_"ConfidenceType" (ß assoc this :confidence-type ConfidenceType'UNKNOWN)
-    #_field- #_"int" (ß assoc this :appeared-at-chain-height -1)
-    ;; The transaction that double spent this one, if any.
-    #_field- #_"Transaction" (ß assoc this :overriding-transaction nil)
-
-    #_field- #_"ConfidenceSource" (ß assoc this :source :ConfidenceSource'UNKNOWN)
+    (ß defn- #_"TransactionConfidence" TransactionConfidence'init []
+    {
+        ;;;
+         ; The peers that have announced the transaction to us.  Network nodes don't have stable identities, so we use
+         ; IP address as an approximation.  It's obviously vulnerable to being gamed if we allow arbitrary people to connect
+         ; to us, so only peers we explicitly connected to should go here.
+         ;;
+        #_field #_"CopyOnWriteArrayList<PeerAddress>" :broadcast-by nil
+        ;;; The time the transaction was last announced to us. ;;
+        #_field #_"Date" :last-broadcasted-at nil
+        ;;; The Transaction that this confidence object is associated with. ;;
+        #_field #_"Sha256Hash" :hash nil
+        ;; Lazily created listeners array.
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<TransactionConfidenceListener>>" :listeners nil
+    
+        ;; The depth of the transaction on the best chain in blocks.  An unconfirmed block has depth 0.
+        #_field #_"int" :depth 0
+    
+        #_field #_"ConfidenceType" :confidence-type ConfidenceType'UNKNOWN
+        #_field #_"int" :appeared-at-chain-height -1
+        ;; The transaction that double spent this one, if any.
+        #_field #_"Transaction" :overriding-transaction nil
+    
+        #_field #_"ConfidenceSource" :source :ConfidenceSource'UNKNOWN
+    })
 
     (§ defn #_"TransactionConfidence" TransactionConfidence'new [#_"Sha256Hash" hash]
         (let [this {}]
@@ -16155,23 +16239,26 @@
     ;; Magic outpoint index that indicates the input is in fact unconnected.
     (def- #_"long" TransactionInput'UNCONNECTED 0xffffffff)
 
-    ;; Allows for altering transactions after they were broadcast.  Values below NO_SEQUENCE-1 mean it can be altered.
-    #_field- #_"long" (ß assoc this :sequence 0)
-    ;;;
-     ; The previous output transaction reference, as an OutPoint structure.  This contains the
-     ; data needed to connect to the output of the transaction we're gathering coins from.
-     ;;
-    #_field- #_"TransactionOutPoint" (ß assoc this :outpoint nil)
-    ;; The "script bytes" might not actually be a script.  In coinbase transactions where new coins are minted there
-    ;; is no input transaction, so instead the scriptBytes contains some extra stuff (like a rollover nonce) that we
-    ;; don't care about much.  The bytes are turned into a Script object (cached below) on demand via a getter.
-    #_field- #_"byte[]" (ß assoc this :script-bytes nil)
-    ;; The Script object obtained from parsing scriptBytes.  Only filled in on demand and if the transaction is not
-    ;; coinbase.
-    #_field- #_"WeakReference<Script>" (ß assoc this :script-sig nil)
-    ;;; Value of the output connected to the input, if known.  This field does not participate in equals()/hashCode(). ;;
-    #_nilable
-    #_field- #_"Coin" (ß assoc this :value nil)
+    (ß defn- #_"TransactionInput" TransactionInput'init []
+    {
+        ;; Allows for altering transactions after they were broadcast.  Values below NO_SEQUENCE-1 mean it can be altered.
+        #_field #_"long" :sequence 0
+        ;;;
+         ; The previous output transaction reference, as an OutPoint structure.  This contains the
+         ; data needed to connect to the output of the transaction we're gathering coins from.
+         ;;
+        #_field #_"TransactionOutPoint" :outpoint nil
+        ;; The "script bytes" might not actually be a script.  In coinbase transactions where new coins are minted there
+        ;; is no input transaction, so instead the scriptBytes contains some extra stuff (like a rollover nonce) that we
+        ;; don't care about much.  The bytes are turned into a Script object (cached below) on demand via a getter.
+        #_field #_"byte[]" :script-bytes nil
+        ;; The Script object obtained from parsing scriptBytes.  Only filled in on demand and if the transaction is not
+        ;; coinbase.
+        #_field #_"WeakReference<Script>" :script-sig nil
+        ;;; Value of the output connected to the input, if known.  This field does not participate in equals()/hashCode(). ;;
+        #_nilable
+        #_field #_"Coin" :value nil
+    })
 
     ;;;
      ; Creates an input that connects to nothing - used only in creation of coinbase transactions.
@@ -16662,16 +16749,19 @@
 (§ class TransactionOutPoint (§ extends ChildMessage)
     (def #_"int" TransactionOutPoint'MESSAGE_LENGTH 36)
 
-    ;;; Hash of the transaction to which we refer. ;;
-    #_field- #_"Sha256Hash" (ß assoc this :hash nil)
-    ;;; Which output of that transaction we are talking about. ;;
-    #_field- #_"long" (ß assoc this :index 0)
-
-    ;; This is not part of bitcoin serialization.  It points to the connected transaction.
-    #_field #_"Transaction" (ß assoc this :from-tx nil)
-
-    ;; The connected output.
-    #_field #_"TransactionOutput" (ß assoc this :connected-output nil)
+    (ß defn- #_"TransactionOutPoint" TransactionOutPoint'init []
+    {
+        ;;; Hash of the transaction to which we refer. ;;
+        #_field #_"Sha256Hash" :hash nil
+        ;;; Which output of that transaction we are talking about. ;;
+        #_field #_"long" :index 0
+    
+        ;; This is not part of bitcoin serialization.  It points to the connected transaction.
+        #_field #_"Transaction" :from-tx nil
+    
+        ;; The connected output.
+        #_field #_"TransactionOutput" :connected-output nil
+    })
 
     (§ defn #_"TransactionOutPoint" TransactionOutPoint'new [#_"NetworkParameters" params, #_"long" index, #_nilable #_"Transaction" __fromTx]
         (let [this (ChildMessage'new params)]
@@ -16896,25 +16986,28 @@
 (§ class TransactionOutput (§ extends ChildMessage)
     (def- #_"Logger" TransactionOutput'log (LoggerFactory/getLogger TransactionOutput))
 
-    ;; The output's value is kept as a native type in order to save class instances.
-    #_field- #_"long" (ß assoc this :value 0)
-
-    ;; A transaction output has a script used for authenticating that the redeemer is allowed to spend
-    ;; this output.
-    #_field- #_"byte[]" (ß assoc this :script-bytes nil)
-
-    ;; The script bytes are parsed and turned into a Script on demand.
-    #_field- #_"Script" (ß assoc this :script-pub-key nil)
-
-    ;; These fields are not Bitcoin serialized.  They are used for tracking purposes in our wallet only.
-    ;; If set to true, this output is counted towards our balance.  If false and spentBy is null the tx output
-    ;; was owned by us and was sent to somebody else.  If false and spentBy is set it means this output was owned
-    ;; by us and used in one of our own transactions (e.g. because it is a change output).
-    #_field- #_"boolean" (ß assoc this :available-for-spending false)
-    #_nilable
-    #_field- #_"TransactionInput" (ß assoc this :spent-by nil)
-
-    #_field- #_"int" (ß assoc this :script-len 0)
+    (ß defn- #_"TransactionOutput" TransactionOutput'init []
+    {
+        ;; The output's value is kept as a native type in order to save class instances.
+        #_field #_"long" :value 0
+    
+        ;; A transaction output has a script used for authenticating that the redeemer is allowed to spend
+        ;; this output.
+        #_field #_"byte[]" :script-bytes nil
+    
+        ;; The script bytes are parsed and turned into a Script on demand.
+        #_field #_"Script" :script-pub-key nil
+    
+        ;; These fields are not Bitcoin serialized.  They are used for tracking purposes in our wallet only.
+        ;; If set to true, this output is counted towards our balance.  If false and spentBy is null the tx output
+        ;; was owned by us and was sent to somebody else.  If false and spentBy is set it means this output was owned
+        ;; by us and used in one of our own transactions (e.g. because it is a change output).
+        #_field #_"boolean" :available-for-spending false
+        #_nilable
+        #_field #_"TransactionInput" :spent-by nil
+    
+        #_field #_"int" :script-len 0
+    })
 
     ;;;
      ; Deserializes a transaction output message.  This is usually part of a transaction message.
@@ -17298,8 +17391,11 @@
  ; BIP30 (no duplicate txid creation if the previous one was not fully spent prior to this block) verification.
  ;;
 (§ class TransactionOutputChanges
-    #_field #_"List<UTXO>" (ß assoc this :tx-outs-created nil)
-    #_field #_"List<UTXO>" (ß assoc this :tx-outs-spent nil)
+    (ß defn- #_"TransactionOutputChanges" TransactionOutputChanges'init []
+    {
+        #_field #_"List<UTXO>" :tx-outs-created nil
+        #_field #_"List<UTXO>" :tx-outs-spent nil
+    })
 
     (§ defn #_"TransactionOutputChanges" TransactionOutputChanges'new [#_"List<UTXO>" __txOutsCreated, #_"List<UTXO>" __txOutsSpent]
         (let [this {}]
@@ -17311,7 +17407,10 @@
 )
 
 (§ class- WeakConfidenceReference (§ extends WeakReference #_"<TransactionConfidence>")
-    #_field #_"Sha256Hash" (ß assoc this :hash nil)
+    (ß defn- #_"WeakConfidenceReference" WeakConfidenceReference'init []
+    {
+        #_field #_"Sha256Hash" :hash nil
+    })
 
     (§ defn #_"WeakConfidenceReference" WeakConfidenceReference'new [#_"TransactionConfidence" confidence, #_"ReferenceQueue<TransactionConfidence>" queue]
         (let [this (§ super WeakReference'new confidence, queue)]
@@ -17334,17 +17433,19 @@
  ; all transactions not currently included in the best chain - it's simply a cache.
  ;;
 (§ class TxConfidenceTable
-    #_protected
-    #_field #_"ReentrantLock" (ß assoc this :lock (Threading'lock "txconfidencetable"))
-
-    #_field- #_"LinkedHashMap<Sha256Hash, WeakConfidenceReference>" (ß assoc this :table nil)
-
-    ;; This ReferenceQueue gets entries added to it when they are only weakly reachable, i.e. the TxConfidenceTable is
-    ;; the only thing that is tracking the confidence data anymore.  We check it from time to time and delete table entries
-    ;; corresponding to expired transactions.  In this way memory usage of the system is in line with however many
-    ;; transactions you actually care to track the confidence of.  We can still end up with lots of hashes being stored
-    ;; if our peers flood us with invs but the MAX_SIZE param caps this.
-    #_field- #_"ReferenceQueue<TransactionConfidence>" (ß assoc this :reference-queue nil)
+    (ß defn- #_"TxConfidenceTable" TxConfidenceTable'init []
+    {
+        #_field #_"ReentrantLock" :lock (Threading'lock "txconfidencetable")
+    
+        #_field #_"LinkedHashMap<Sha256Hash, WeakConfidenceReference>" :table nil
+    
+        ;; This ReferenceQueue gets entries added to it when they are only weakly reachable, i.e. the TxConfidenceTable is
+        ;; the only thing that is tracking the confidence data anymore.  We check it from time to time and delete table entries
+        ;; corresponding to expired transactions.  In this way memory usage of the system is in line with however many
+        ;; transactions you actually care to track the confidence of.  We can still end up with lots of hashes being stored
+        ;; if our peers flood us with invs but the MAX_SIZE param caps this.
+        #_field #_"ReferenceQueue<TransactionConfidence>" :reference-queue nil
+    })
 
     ;;; The max size of a table created with the no-args constructor. ;;
     (def #_"int" TxConfidenceTable'MAX_SIZE 1000)
@@ -17503,13 +17604,16 @@
  ; Useful when working with free standing outputs.
  ;;
 (§ class UTXO
-    #_field- #_"Coin" (ß assoc this :value nil)
-    #_field- #_"Script" (ß assoc this :script nil)
-    #_field- #_"Sha256Hash" (ß assoc this :hash nil)
-    #_field- #_"long" (ß assoc this :index 0)
-    #_field- #_"int" (ß assoc this :height 0)
-    #_field- #_"boolean" (ß assoc this :coinbase false)
-    #_field- #_"String" (ß assoc this :address nil)
+    (ß defn- #_"UTXO" UTXO'init []
+    {
+        #_field #_"Coin" :value nil
+        #_field #_"Script" :script nil
+        #_field #_"Sha256Hash" :hash nil
+        #_field #_"long" :index 0
+        #_field #_"int" :height 0
+        #_field #_"boolean" :coinbase false
+        #_field #_"String" :address nil
+    })
 
     ;;;
      ; Creates a stored transaction output.
@@ -17611,7 +17715,10 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (§ class UnknownMessage (§ extends EmptyMessage)
-    #_field- #_"String" (ß assoc this :name nil)
+    (ß defn- #_"UnknownMessage" UnknownMessage'init []
+    {
+        #_field #_"String" :name nil
+    })
 
     #_throws #_[ "ProtocolException" ]
     (§ defn #_"UnknownMessage" UnknownMessage'new [#_"NetworkParameters" params, #_"String" name, #_"byte[]" payload]
@@ -17629,8 +17736,11 @@
 )
 
 (§ class- Pair (§ implements Comparable #_"<Pair>")
-    #_field- #_"int" (ß assoc this :item 0)
-    #_field- #_"int" (ß assoc this :count 0)
+    (ß defn- #_"Pair" Pair'init []
+    {
+        #_field #_"int" :item 0
+        #_field #_"int" :count 0
+    })
 
     (§ defn #_"Pair" Pair'new [#_"int" item, #_"int" count]
         (let [this {}]
@@ -18116,8 +18226,11 @@
  ; A variable-length encoded unsigned integer using Satoshi's encoding (a.k.a. "CompactSize").
  ;;
 (§ class VarInt
-    #_field #_"long" (ß assoc this :value 0)
-    #_field- #_"int" (ß assoc this :originally-encoded-size 0)
+    (ß defn- #_"VarInt" VarInt'init []
+    {
+        #_field #_"long" :value 0
+        #_field #_"int" :originally-encoded-size 0
+    })
 
     ;;;
      ; Constructs a new VarInt with the given unsigned long value.
@@ -18279,40 +18392,43 @@
     ;;; A services flag that denotes whether the peer has a copy of the block chain or not. ;;
     (def #_"int" VersionMessage'NODE_NETWORK 1)
 
-    ;;;
-     ; The version number of the protocol spoken.
-     ;;
-    #_field #_"int" (ß assoc this :client-version 0)
-    ;;;
-     ; Flags defining what optional services are supported.
-     ;;
-    #_field #_"long" (ß assoc this :local-services 0)
-    ;;;
-     ; What the other side believes the current time to be, in seconds.
-     ;;
-    #_field #_"long" (ß assoc this :time 0)
-    ;;;
-     ; What the other side believes the address of this program is.  Not used.
-     ;;
-    #_field #_"PeerAddress" (ß assoc this :my-addr nil)
-    ;;;
-     ; What the other side believes their own address is.  Not used.
-     ;;
-    #_field #_"PeerAddress" (ß assoc this :their-addr nil)
-    ;;;
-     ; User-Agent as defined in <a href="https://github.com/bitcoin/bips/blob/master/bip-0014.mediawiki">BIP 14</a>.
-     ; Bitcoin Core sets it to something like "/Satoshi:0.9.1/".
-     ;;
-    #_field #_"String" (ß assoc this :sub-ver nil)
-    ;;;
-     ; How many blocks are in the chain, according to the other side.
-     ;;
-    #_field #_"long" (ß assoc this :best-height 0)
-    ;;;
-     ; Whether or not to relay tx invs before a filter is received.
-     ; See <a href="https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki#extensions-to-existing-messages">BIP 37</a>.
-     ;;
-    #_field #_"boolean" (ß assoc this :relay-txes-before-filter false)
+    (ß defn- #_"VersionMessage" VersionMessage'init []
+    {
+        ;;;
+         ; The version number of the protocol spoken.
+         ;;
+        #_field #_"int" :client-version 0
+        ;;;
+         ; Flags defining what optional services are supported.
+         ;;
+        #_field #_"long" :local-services 0
+        ;;;
+         ; What the other side believes the current time to be, in seconds.
+         ;;
+        #_field #_"long" :time 0
+        ;;;
+         ; What the other side believes the address of this program is.  Not used.
+         ;;
+        #_field #_"PeerAddress" :my-addr nil
+        ;;;
+         ; What the other side believes their own address is.  Not used.
+         ;;
+        #_field #_"PeerAddress" :their-addr nil
+        ;;;
+         ; User-Agent as defined in <a href="https://github.com/bitcoin/bips/blob/master/bip-0014.mediawiki">BIP 14</a>.
+         ; Bitcoin Core sets it to something like "/Satoshi:0.9.1/".
+         ;;
+        #_field #_"String" :sub-ver nil
+        ;;;
+         ; How many blocks are in the chain, according to the other side.
+         ;;
+        #_field #_"long" :best-height 0
+        ;;;
+         ; Whether or not to relay tx invs before a filter is received.
+         ; See <a href="https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki#extensions-to-existing-messages">BIP 37</a>.
+         ;;
+        #_field #_"boolean" :relay-txes-before-filter false
+    })
 
     #_throws #_[ "ProtocolException" ]
     (§ defn #_"VersionMessage" VersionMessage'new [#_"NetworkParameters" params, #_"byte[]" payload]
@@ -18550,10 +18666,11 @@
  ; This format is used for addresses, and private keys exported using the dumpprivkey command.
  ;;
 (§ class VersionedChecksummedBytes (§ implements Comparable #_"<VersionedChecksummedBytes>")
-    #_protected
-    #_field #_"int" (ß assoc this :version 0)
-    #_protected
-    #_field #_"byte[]" (ß assoc this :bytes nil)
+    (ß defn- #_"VersionedChecksummedBytes" VersionedChecksummedBytes'init []
+    {
+        #_field #_"int" :version 0
+        #_field #_"byte[]" :bytes nil
+    })
 
     #_protected
     #_throws #_[ "AddressFormatException" ]
@@ -18645,10 +18762,13 @@
  ; different chains, an operation that is guaranteed to destroy the money.
  ;;
 (§ class WrongNetworkException (§ extends AddressFormatException)
-    ;;; The version code that was provided in the address. ;;
-    #_field #_"int" (ß assoc this :ver-code 0)
-    ;;; The list of acceptable versions that were expected given the addresses network parameters. ;;
-    #_field #_"int[]" (ß assoc this :acceptable-versions nil)
+    (ß defn- #_"WrongNetworkException" WrongNetworkException'init []
+    {
+        ;;; The version code that was provided in the address. ;;
+        #_field #_"int" :ver-code 0
+        ;;; The list of acceptable versions that were expected given the addresses network parameters. ;;
+        #_field #_"int[]" :acceptable-versions nil
+    })
 
     (§ defn #_"WrongNetworkException" WrongNetworkException'new [#_"int" __verCode, #_"int[]" __acceptableVersions]
         (let [this (AddressFormatException'new (str "Version code of address did not match acceptable versions for network: " __verCode " not in " (Arrays/toString __acceptableVersions)))]
@@ -18719,10 +18839,13 @@
 (§ class DownloadProgressTracker (§ implements PeerDataEventListener)
     (def- #_"Logger" DownloadProgressTracker'log (LoggerFactory/getLogger DownloadProgressTracker))
 
-    #_field- #_"int" (ß assoc this :original-blocks-left -1)
-    #_field- #_"int" (ß assoc this :last-percent 0)
-    #_field- #_"SettableFuture<Long>" (ß assoc this :future (SettableFuture/create))
-    #_field- #_"boolean" (ß assoc this :caught-up false)
+    (ß defn- #_"DownloadProgressTracker" DownloadProgressTracker'init []
+    {
+        #_field #_"int" :original-blocks-left -1
+        #_field #_"int" :last-percent 0
+        #_field #_"SettableFuture<Long>" :future (SettableFuture/create)
+        #_field #_"boolean" :caught-up false
+    })
 
     (§ defn #_"DownloadProgressTracker" DownloadProgressTracker'new []
         (let [this {}]
@@ -19072,8 +19195,11 @@
     (def #_"ChildNumber" ChildNumber'ONE (ChildNumber'new 1))
     (def #_"ChildNumber" ChildNumber'ZERO_HARDENED (ChildNumber'new 0, true))
 
-    ;;; Integer i as per BIP 32 spec, including the MSB denoting derivation type (0 = public, 1 = private). ;;
-    #_field- #_"int" (ß assoc this :i 0)
+    (ß defn- #_"ChildNumber" ChildNumber'init []
+    {
+        ;;; Integer i as per BIP 32 spec, including the MSB denoting derivation type (0 = public, 1 = private). ;;
+        #_field #_"int" :i 0
+    })
 
     (§ defn #_"ChildNumber" ChildNumber'new [#_"int" __childNumber, #_"boolean" __isHardened]
         (let [this {}]
@@ -19158,10 +19284,13 @@
  ; is a list of {@link ChildNumber}s.
  ;;
 (§ class DeterministicHierarchy
-    #_field- #_"Map<ImmutableList<ChildNumber>, DeterministicKey>" (ß assoc this :keys (Maps/newHashMap))
-    #_field- #_"ImmutableList<ChildNumber>" (ß assoc this :root-path nil)
-    ;; Keep track of how many child keys each node has.  This is kind of weak.
-    #_field- #_"Map<ImmutableList<ChildNumber>, ChildNumber>" (ß assoc this :last-child-numbers (Maps/newHashMap))
+    (ß defn- #_"DeterministicHierarchy" DeterministicHierarchy'init []
+    {
+        #_field #_"Map<ImmutableList<ChildNumber>, DeterministicKey>" :keys (Maps/newHashMap)
+        #_field #_"ImmutableList<ChildNumber>" :root-path nil
+        ;; Keep track of how many child keys each node has.  This is kind of weak.
+        #_field #_"Map<ImmutableList<ChildNumber>, ChildNumber>" :last-child-numbers (Maps/newHashMap)
+    })
 
     (def #_"int" DeterministicHierarchy'BIP32_STANDARDISATION_TIME_SECS 1369267200)
 
@@ -19308,13 +19437,16 @@
             )
         )))
 
-    #_field- #_"DeterministicKey" (ß assoc this :parent nil)
-    #_field- #_"ImmutableList<ChildNumber>" (ß assoc this :child-number-path nil)
-    #_field- #_"int" (ß assoc this :depth 0)
-    #_field- #_"int" (ß assoc this :parent-fingerprint 0) ;; 0 if this key is root node of key hierarchy
-
-    ;;; 32 bytes ;;
-    #_field- #_"byte[]" (ß assoc this :chain-code nil)
+    (ß defn- #_"DeterministicKey" DeterministicKey'init []
+    {
+        #_field #_"DeterministicKey" :parent nil
+        #_field #_"ImmutableList<ChildNumber>" :child-number-path nil
+        #_field #_"int" :depth 0
+        #_field #_"int" :parent-fingerprint 0 ;; 0 if this key is root node of key hierarchy
+    
+        ;;; 32 bytes ;;
+        #_field #_"byte[]" :chain-code nil
+    })
 
     ;;; Constructs a key from its components.  This is not normally something you should use. ;;
     (§ defn #_"DeterministicKey" DeterministicKey'new [#_"ImmutableList<ChildNumber>" path, #_"byte[]" code, #_"LazyECPoint" __publicAsPoint, #_nilable #_"BigInteger" priv, #_nilable #_"DeterministicKey" parent]
@@ -19809,8 +19941,11 @@
 )
 
 (§ class RawKeyBytes
-    #_field #_"byte[]" (ß assoc this :key-bytes nil)
-    #_field #_"byte[]" (ß assoc this :chain-code nil)
+    (ß defn- #_"RawKeyBytes" RawKeyBytes'init []
+    {
+        #_field #_"byte[]" :key-bytes nil
+        #_field #_"byte[]" :chain-code nil
+    })
 
     (§ defn #_"RawKeyBytes" RawKeyBytes'new [#_"byte[]" __keyBytes, #_"byte[]" code]
         (let [this {}]
@@ -20111,14 +20246,17 @@
  ; encode/decode in Bouncy Castle is quite slow especially on Dalvik, as it often involves decompression/recompression.
  ;;
 (§ class LazyECPoint
-    ;; If curve is set, bits is also set.  If curve is unset, point is set and bits is unset.  Point can be set along
-    ;; with curve and bits when the cached form has been accessed and thus must have been converted.
-    #_field- #_"ECCurve" (ß assoc this :curve nil)
-    #_field- #_"byte[]" (ß assoc this :bits nil)
-
-    ;; This field is effectively final - once set it won't change again.  However it can be set after construction.
-    #_nilable
-    #_field- #_"ECPoint" (ß assoc this :point nil)
+    (ß defn- #_"LazyECPoint" LazyECPoint'init []
+    {
+        ;; If curve is set, bits is also set.  If curve is unset, point is set and bits is unset.  Point can be set along
+        ;; with curve and bits when the cached form has been accessed and thus must have been converted.
+        #_field #_"ECCurve" :curve nil
+        #_field #_"byte[]" :bits nil
+    
+        ;; This field is effectively final - once set it won't change again.  However it can be set after construction.
+        #_nilable
+        #_field #_"ECPoint" :point nil
+    })
 
     (§ defn #_"LazyECPoint" LazyECPoint'new [#_"ECCurve" curve, #_"byte[]" bits]
         (let [this {}]
@@ -20291,7 +20429,10 @@
 (§ class MnemonicCode
     (def- #_"Logger" MnemonicCode'log (LoggerFactory/getLogger MnemonicCode))
 
-    #_field- #_"ArrayList<String>" (ß assoc this :word-list nil)
+    (ß defn- #_"MnemonicCode" MnemonicCode'init []
+    {
+        #_field #_"ArrayList<String>" :word-list nil
+    })
 
     (def- #_"String[]" MnemonicCode'BIP39_ENGLISH_WORDLIST (into-array String
     [
@@ -20808,8 +20949,11 @@
  ; Thrown when a word is encountered which is not in the MnemonicCode's word list.
  ;;
 (§ class MnemonicWordException (§ extends MnemonicException)
-    ;;; Contains the word that was not found in the word list. ;;
-    #_field #_"String" (ß assoc this :bad-word nil)
+    (ß defn- #_"MnemonicWordException" MnemonicWordException'init []
+    {
+        ;;; Contains the word that was not found in the word list. ;;
+        #_field #_"String" :bad-word nil
+    })
 
     (§ defn #_"MnemonicWordException" MnemonicWordException'new [#_"String" __badWord]
         (let [this (MnemonicException'new)]
@@ -20923,13 +21067,16 @@
  ; the additional SIGHASH mode byte that is used.
  ;;
 (§ class TransactionSignature (§ extends ECDSASignature)
-    ;;;
-     ; A byte that controls which parts of a transaction are signed.  This is exposed because signatures
-     ; parsed off the wire may have sighash flags that aren't "normal" serializations of the enum values.
-     ; Because Bitcoin Core works via bit testing, we must not lose the exact value when round-tripping
-     ; otherwise we'll fail to verify signature hashes.
-     ;;
-    #_field #_"int" (ß assoc this :sighash-flags 0)
+    (ß defn- #_"TransactionSignature" TransactionSignature'init []
+    {
+        ;;;
+         ; A byte that controls which parts of a transaction are signed.  This is exposed because signatures
+         ; parsed off the wire may have sighash flags that aren't "normal" serializations of the enum values.
+         ; Because Bitcoin Core works via bit testing, we must not lose the exact value when round-tripping
+         ; otherwise we'll fail to verify signature hashes.
+         ;;
+        #_field #_"int" :sighash-flags 0
+    })
 
     ;;; Constructs a signature with the given components and SIGHASH_ALL. ;;
     (§ defn #_"TransactionSignature" TransactionSignature'new [#_"BigInteger" r, #_"BigInteger" s]
@@ -21135,47 +21282,34 @@
     #_protected
     (def #_"Logger" WalletAppKit'log (LoggerFactory/getLogger WalletAppKit))
 
-    #_protected
-    #_field #_"String" (ß assoc this :file-prefix nil)
-    #_protected
-    #_field #_"NetworkParameters" (ß assoc this :params nil)
-    #_protected
-    #_volatile
-    #_field #_"SPVBlockChain" (ß assoc this :v-chain nil)
-    #_protected
-    #_volatile
-    #_field #_"BlockStore" (ß assoc this :v-store nil)
-    #_protected
-    #_volatile
-    #_field #_"Wallet" (ß assoc this :v-wallet nil)
-    #_protected
-    #_volatile
-    #_field #_"PeerGroup" (ß assoc this :v-peer-group nil)
-
-    #_protected
-    #_field #_"File" (ß assoc this :directory nil)
-
-    #_protected
-    #_field #_"PeerAddress[]" (ß assoc this :peer-addresses nil)
-    #_protected
-    #_field #_"DownloadProgressTracker" (ß assoc this :download-listener nil)
-    #_protected
-    #_field #_"boolean" (ß assoc this :auto-stop true)
-    #_protected
-    #_field #_"String[]" (ß assoc this :textual-checkpoints nil)
-    #_protected
-    #_field #_"boolean" (ß assoc this :blocking-startup true)
-    #_protected
-    #_field #_"String" (ß assoc this :user-agent nil)
-    #_protected
-    #_field #_"String" (ß assoc this :version nil)
-    #_nilable
-    #_protected
-    #_field #_"PeerDiscovery" (ß assoc this :discovery nil)
-
-    #_protected
-    #_volatile
-    #_field #_"Context" (ß assoc this :context nil)
+    (ß defn- #_"WalletAppKit" WalletAppKit'init []
+    {
+        #_field #_"String" :file-prefix nil
+        #_field #_"NetworkParameters" :params nil
+        #_volatile
+        #_field #_"SPVBlockChain" :v-chain nil
+        #_volatile
+        #_field #_"BlockStore" :v-store nil
+        #_volatile
+        #_field #_"Wallet" :v-wallet nil
+        #_volatile
+        #_field #_"PeerGroup" :v-peer-group nil
+    
+        #_field #_"File" :directory nil
+    
+        #_field #_"PeerAddress[]" :peer-addresses nil
+        #_field #_"DownloadProgressTracker" :download-listener nil
+        #_field #_"boolean" :auto-stop true
+        #_field #_"String[]" :textual-checkpoints nil
+        #_field #_"boolean" :blocking-startup true
+        #_field #_"String" :user-agent nil
+        #_field #_"String" :version nil
+        #_nilable
+        #_field #_"PeerDiscovery" :discovery nil
+    
+        #_volatile
+        #_field #_"Context" :context nil
+    })
 
     ;;;
      ; Creates a new WalletAppKit, with a newly created {@link Context}.  Files will be stored in the given directory.
@@ -21514,10 +21648,13 @@
     ;; A timer which manages expiring channels as their timeouts occur (if configured).
     (def- #_"Timer" AbstractTimeoutHandler'TIMEOUT_TIMER (Timer. "AbstractTimeoutHandler timeouts", true))
 
-    ;; TimerTask and timeout value which are added to a timer to kill the connection on timeout.
-    #_field- #_"TimerTask" (ß assoc this :timeout-task nil)
-    #_field- #_"long" (ß assoc this :timeout-millis 0)
-    #_field- #_"boolean" (ß assoc this :timeout-enabled true)
+    (ß defn- #_"AbstractTimeoutHandler" AbstractTimeoutHandler'init []
+    {
+        ;; TimerTask and timeout value which are added to a timer to kill the connection on timeout.
+        #_field #_"TimerTask" :timeout-task nil
+        #_field #_"long" :timeout-millis 0
+        #_field #_"boolean" :timeout-enabled true
+    })
 
     #_protected
     (§ defn #_"AbstractTimeoutHandler" AbstractTimeoutHandler'new []
@@ -21621,19 +21758,22 @@
 
     (def- #_"int" ConnectionHandler'OUTBOUND_BUFFER_BYTE_COUNT (+ Message'MAX_SIZE 24)) ;; 24 byte message header
 
-    ;; We lock when touching local flags and when writing data, but NEVER when calling any methods which leave
-    ;; this class into non-Java classes.
-    #_field- #_"ReentrantLock" (ß assoc this :lock (Threading'lock "nioConnectionHandler"))
-    #_field- #_"ByteBuffer" (ß assoc this :read-buff nil)
-    #_field- #_"SocketChannel" (ß assoc this :channel nil)
-    #_field- #_"SelectionKey" (ß assoc this :key nil)
-    #_field #_"StreamConnection" (ß assoc this :connection nil)
-    #_field- #_"boolean" (ß assoc this :close-called false)
-
-    #_field- #_"long" (ß assoc this :bytes-to-write-remaining 0)
-    #_field- #_"LinkedList<ByteBuffer>" (ß assoc this :bytes-to-write (LinkedList.))
-
-    #_field- #_"Set<ConnectionHandler>" (ß assoc this :connected-handlers nil)
+    (ß defn- #_"ConnectionHandler" ConnectionHandler'init []
+    {
+        ;; We lock when touching local flags and when writing data, but NEVER when calling any methods which leave
+        ;; this class into non-Java classes.
+        #_field #_"ReentrantLock" :lock (Threading'lock "nioConnectionHandler")
+        #_field #_"ByteBuffer" :read-buff nil
+        #_field #_"SocketChannel" :channel nil
+        #_field #_"SelectionKey" :key nil
+        #_field #_"StreamConnection" :connection nil
+        #_field #_"boolean" :close-called false
+    
+        #_field #_"long" :bytes-to-write-remaining 0
+        #_field #_"LinkedList<ByteBuffer>" :bytes-to-write (LinkedList.)
+    
+        #_field #_"Set<ConnectionHandler>" :connected-handlers nil
+    })
 
     #_throws #_[ "IOException" ]
     (§ defn #_"ConnectionHandler" ConnectionHandler'new [#_"StreamConnectionFactory" factory, #_"SelectionKey" key]
@@ -21852,9 +21992,12 @@
 )
 
 (§ class FilterMergerResult
-    #_field #_"BloomFilter" (ß assoc this :filter nil)
-    #_field #_"long" (ß assoc this :earliest-key-time-secs 0)
-    #_field #_"boolean" (ß assoc this :changed false)
+    (ß defn- #_"FilterMergerResult" FilterMergerResult'init []
+    {
+        #_field #_"BloomFilter" :filter nil
+        #_field #_"long" :earliest-key-time-secs 0
+        #_field #_"boolean" :changed false
+    })
 
     (§ defn #_"FilterMergerResult" FilterMergerResult'new []
         (let [this {}]
@@ -21875,13 +22018,16 @@
  ; thread.  However the bloomFilterFPRate property IS thread safe, for convenience.
  ;;
 (§ class FilterMerger
-    ;; We use a constant tweak to avoid giving up privacy when we regenerate our filter with new keys.
-    #_field- #_"long" (ß assoc this :bloom-filter-tweak (long (* (Math/random) Long/MAX_VALUE)))
-
-    #_volatile
-    #_field- #_"double" (ß assoc this :v-bloom-filter-fp-rate 0.0)
-    #_field- #_"int" (ß assoc this :last-bloom-filter-element-count 0)
-    #_field- #_"BloomFilter" (ß assoc this :last-filter nil)
+    (ß defn- #_"FilterMerger" FilterMerger'init []
+    {
+        ;; We use a constant tweak to avoid giving up privacy when we regenerate our filter with new keys.
+        #_field #_"long" :bloom-filter-tweak (long (* (Math/random) Long/MAX_VALUE))
+    
+        #_volatile
+        #_field #_"double" :v-bloom-filter-fp-rate 0.0
+        #_field #_"int" :last-bloom-filter-element-count 0
+        #_field #_"BloomFilter" :last-filter nil
+    })
 
     (§ defn #_"FilterMerger" FilterMerger'new [#_"double" __bloomFilterFPRate]
         (let [this {}]
@@ -21975,10 +22121,13 @@
 
 #_non-static #_"NioClient"
 (§ class NioClientHandler (§ extends AbstractTimeoutHandler) (§ implements StreamConnection)
-    #_field- #_"StreamConnection" (ß assoc this :upstream-connection nil)
-    #_field- #_"MessageWriteTarget" (ß assoc this :write-target nil)
-    #_field- #_"boolean" (ß assoc this :close-on-open false)
-    #_field- #_"boolean" (ß assoc this :close-called false)
+    (ß defn- #_"NioClientHandler" NioClientHandler'init []
+    {
+        #_field #_"StreamConnection" :upstream-connection nil
+        #_field #_"MessageWriteTarget" :write-target nil
+        #_field #_"boolean" :close-on-open false
+        #_field #_"boolean" :close-called false
+    })
 
     (§ defn #_"NioClientHandler" NioClientHandler'new [#_"StreamConnection" __upstreamConnection, #_"int" __connectTimeoutMillis]
         (let [this (AbstractTimeoutHandler'new)]
@@ -22053,8 +22202,11 @@
 (§ class NioClient (§ implements MessageWriteTarget)
     (def- #_"Logger" NioClient'log (LoggerFactory/getLogger NioClient))
 
-    #_field- #_"NioClientHandler" (ß assoc this :handler nil)
-    #_field- #_"NioClientManager" (ß assoc this :manager (NioClientManager'new))
+    (ß defn- #_"NioClient" NioClient'init []
+    {
+        #_field #_"NioClientHandler" :handler nil
+        #_field #_"NioClientManager" :manager (NioClientManager'new)
+    })
 
     ;;;
      ; Creates a new client to the given server address using the given {@link StreamConnection} to decode the data.
@@ -22104,10 +22256,13 @@
 )
 
 (§ class PendingConnection
-    #_field- #_"SocketChannel" (ß assoc this :sc nil)
-    #_field- #_"StreamConnection" (ß assoc this :connection nil)
-    #_field- #_"SocketAddress" (ß assoc this :address nil)
-    #_field- #_"SettableFuture<SocketAddress>" (ß assoc this :future (SettableFuture/create))
+    (ß defn- #_"PendingConnection" PendingConnection'init []
+    {
+        #_field #_"SocketChannel" :sc nil
+        #_field #_"StreamConnection" :connection nil
+        #_field #_"SocketAddress" :address nil
+        #_field #_"SettableFuture<SocketAddress>" :future (SettableFuture/create)
+    })
 
     (§ defn #_"PendingConnection" PendingConnection'new [#_"SocketChannel" sc, #_"StreamConnection" connection, #_"SocketAddress" address]
         (let [this {}]
@@ -22126,12 +22281,15 @@
 (§ class NioClientManager (§ extends AbstractExecutionThreadService) (§ implements ClientConnectionManager)
     (def- #_"Logger" NioClientManager'log (LoggerFactory/getLogger NioClientManager))
 
-    #_field- #_"Selector" (ß assoc this :selector nil)
-
-    #_field #_"Queue<PendingConnection>" (ß assoc this :new-connection-channels (LinkedBlockingQueue.))
-
-    ;; Added to/removed from by the individual ConnectionHandler's, thus must by synchronized on its own.
-    #_field- #_"Set<ConnectionHandler>" (ß assoc this :connected-handlers (Collections/synchronizedSet (HashSet. #_"<ConnectionHandler>")))
+    (ß defn- #_"NioClientManager" NioClientManager'init []
+    {
+        #_field #_"Selector" :selector nil
+    
+        #_field #_"Queue<PendingConnection>" :new-connection-channels (LinkedBlockingQueue.)
+    
+        ;; Added to/removed from by the individual ConnectionHandler's, thus must by synchronized on its own.
+        #_field #_"Set<ConnectionHandler>" :connected-handlers (Collections/synchronizedSet (HashSet. #_"<ConnectionHandler>"))
+    })
 
     ;; Handle a SelectionKey which was selected.
     #_throws #_[ "IOException" ]
@@ -22326,11 +22484,14 @@
 (§ class NioServer (§ extends AbstractExecutionThreadService)
     (def- #_"Logger" NioServer'log (LoggerFactory/getLogger NioServer))
 
-    #_field- #_"StreamConnectionFactory" (ß assoc this :connection-factory nil)
-
-    #_field- #_"ServerSocketChannel" (ß assoc this :sc nil)
-    #_testing
-    #_field #_"Selector" (ß assoc this :selector nil)
+    (ß defn- #_"NioServer" NioServer'init []
+    {
+        #_field #_"StreamConnectionFactory" :connection-factory nil
+    
+        #_field #_"ServerSocketChannel" :sc nil
+        #_testing
+        #_field #_"Selector" :selector nil
+    })
 
     ;; Handle a SelectionKey which was selected.
     #_throws #_[ "IOException" ]
@@ -22523,8 +22684,11 @@
  ; Implements discovery from a single DNS host.
  ;;
 (§ class DnsSeedDiscovery (§ implements PeerDiscovery)
-    #_field- #_"String" (ß assoc this :hostname nil)
-    #_field- #_"NetworkParameters" (ß assoc this :params nil)
+    (ß defn- #_"DnsSeedDiscovery" DnsSeedDiscovery'init []
+    {
+        #_field #_"String" :hostname nil
+        #_field #_"NetworkParameters" :params nil
+    })
 
     (§ defn #_"DnsSeedDiscovery" DnsSeedDiscovery'new [#_"NetworkParameters" params, #_"String" hostname]
         (let [this {}]
@@ -22627,12 +22791,13 @@
 (§ class MultiplexingDiscovery (§ implements PeerDiscovery)
     (def- #_"Logger" MultiplexingDiscovery'log (LoggerFactory/getLogger MultiplexingDiscovery))
 
-    #_protected
-    #_field #_"List<PeerDiscovery>" (ß assoc this :seeds nil)
-    #_protected
-    #_field #_"NetworkParameters" (ß assoc this :net-params nil)
-    #_volatile
-    #_field- #_"ExecutorService" (ß assoc this :v-thread-pool nil)
+    (ß defn- #_"MultiplexingDiscovery" MultiplexingDiscovery'init []
+    {
+        #_field #_"List<PeerDiscovery>" :seeds nil
+        #_field #_"NetworkParameters" :net-params nil
+        #_volatile
+        #_field #_"ExecutorService" :v-thread-pool nil
+    })
 
     ;;;
      ; Builds a suitable set of peer discoveries.  Will query them in parallel before producing a merged response.
@@ -22789,9 +22954,12 @@
  ; a connection to the network, in case IRC and DNS fail.  The list comes from the Bitcoin C++ source code.
  ;;
 (§ class SeedPeers (§ implements PeerDiscovery)
-    #_field- #_"NetworkParameters" (ß assoc this :params nil)
-    #_field- #_"int[]" (ß assoc this :seed-addrs nil)
-    #_field- #_"int" (ß assoc this :pnseed-index 0)
+    (ß defn- #_"SeedPeers" SeedPeers'init []
+    {
+        #_field #_"NetworkParameters" :params nil
+        #_field #_"int[]" :seed-addrs nil
+        #_field #_"int" :pnseed-index 0
+    })
 
     ;;;
      ; Supports finding peers by IP addresses.
@@ -23879,16 +24047,17 @@
     ;;; Max number of sigops allowed in a standard p2sh redeem script. ;;
     (def #_"int" Script'MAX_P2SH_SIGOPS 15)
 
-    ;; The program is a set of chunks where each element is either [opcode] or [data, data, data ...].
-    #_protected
-    #_field #_"List<ScriptChunk>" (ß assoc this :chunks nil)
-    ;; Unfortunately, scripts are not ever re-serialized or canonicalized when used in signature hashing.
-    ;; Thus we must preserve the exact bytes that we read off the wire, along with the parsed form.
-    #_protected
-    #_field #_"byte[]" (ß assoc this :program nil)
-
-    ;; Creation time of the associated keys in seconds since the epoch.
-    #_field- #_"long" (ß assoc this :creation-time-seconds 0)
+    (ß defn- #_"Script" Script'init []
+    {
+        ;; The program is a set of chunks where each element is either [opcode] or [data, data, data ...].
+        #_field #_"List<ScriptChunk>" :chunks nil
+        ;; Unfortunately, scripts are not ever re-serialized or canonicalized when used in signature hashing.
+        ;; Thus we must preserve the exact bytes that we read off the wire, along with the parsed form.
+        #_field #_"byte[]" :program nil
+    
+        ;; Creation time of the associated keys in seconds since the epoch.
+        #_field #_"long" :creation-time-seconds 0
+    })
 
     ;;; Creates an empty script that serializes to nothing. ;;
     (§ defn- #_"Script" Script'new []
@@ -25684,7 +25853,10 @@
  ; the protocol at a lower level.
  ;;
 (§ class ScriptBuilder
-    #_field- #_"List<ScriptChunk>" (ß assoc this :chunks nil)
+    (ß defn- #_"ScriptBuilder" ScriptBuilder'init []
+    {
+        #_field #_"List<ScriptChunk>" :chunks nil
+    })
 
     ;;; Creates a fresh ScriptBuilder with an empty program. ;;
     (§ defn #_"ScriptBuilder" ScriptBuilder'new []
@@ -26153,16 +26325,19 @@
  ; A script element that is either a data push (signature, pubkey, etc.) or a non-push (logic, numeric, etc.) operation.
  ;;
 (§ class ScriptChunk
-    ;;; Operation to be executed.  Opcodes are defined in {@link ScriptOpCodes}. ;;
-    #_field #_"int" (ß assoc this :opcode 0)
-    ;;;
-     ; For push operations, this is the vector to be pushed on the stack.
-     ; For {@link ScriptOpCodes#OP_0}, the vector is empty.
-     ; Null for non-push operations.
-     ;;
-    #_nilable
-    #_field #_"byte[]" (ß assoc this :data nil)
-    #_field- #_"int" (ß assoc this :start-location-in-program 0)
+    (ß defn- #_"ScriptChunk" ScriptChunk'init []
+    {
+        ;;; Operation to be executed.  Opcodes are defined in {@link ScriptOpCodes}. ;;
+        #_field #_"int" :opcode 0
+        ;;;
+         ; For push operations, this is the vector to be pushed on the stack.
+         ; For {@link ScriptOpCodes#OP_0}, the vector is empty.
+         ; Null for non-push operations.
+         ;;
+        #_nilable
+        #_field #_"byte[]" :data nil
+        #_field #_"int" :start-location-in-program 0
+    })
 
     (§ defn #_"ScriptChunk" ScriptChunk'new [#_"int" opcode, #_"byte[]" data]
         (let [this (ScriptChunk'new opcode, data, -1)]
@@ -26565,8 +26740,11 @@
 
 #_unused
 (§ class SignatureAndKey
-    #_field #_"ECDSASignature" (ß assoc this :sig nil)
-    #_field #_"ECKey" (ß assoc this :pub-key nil)
+    (ß defn- #_"SignatureAndKey" SignatureAndKey'init []
+    {
+        #_field #_"ECDSASignature" :sig nil
+        #_field #_"ECKey" :pub-key nil
+    })
 
     (§ defn #_"SignatureAndKey" SignatureAndKey'new [#_"ECDSASignature" sig, #_"ECKey" __pubKey]
         (let [this {}]
@@ -26752,7 +26930,10 @@
 (§ class MissingSigResolutionSigner (§ extends StatelessTransactionSigner)
     (def- #_"Logger" MissingSigResolutionSigner'log (LoggerFactory/getLogger MissingSigResolutionSigner))
 
-    #_field #_"MissingSigsMode" (ß assoc this :missing-sigs-mode :MissingSigsMode'USE_DUMMY_SIG)
+    (ß defn- #_"MissingSigResolutionSigner" MissingSigResolutionSigner'init []
+    {
+        #_field #_"MissingSigsMode" :missing-sigs-mode :MissingSigsMode'USE_DUMMY_SIG
+    })
 
     (§ defn #_"MissingSigResolutionSigner" MissingSigResolutionSigner'new []
         (let [this (StatelessTransactionSigner'new)]
@@ -26846,16 +27027,19 @@
  ; shared by transaction signers.
  ;;
 (§ class ProposedTransaction
-    #_field #_"Transaction" (ß assoc this :partial-tx nil)
-
-    ;;;
-     ; HD key paths used for each input to derive a signing key.  It's useful for multisig inputs only.
-     ; The keys used to create a single P2SH address have the same derivation path, so to use a correct key each signer
-     ; has to know a derivation path of signing keys used by previous signers.  For each input signers will use the
-     ; same derivation path and we need to store only one key path per input.  As TransactionInput is mutable, inputs
-     ; are identified by their scriptPubKeys (keys in this map).
-     ;;
-    #_field #_"Map<Script, List<ChildNumber>>" (ß assoc this :key-paths nil)
+    (ß defn- #_"ProposedTransaction" ProposedTransaction'init []
+    {
+        #_field #_"Transaction" :partial-tx nil
+    
+        ;;;
+         ; HD key paths used for each input to derive a signing key.  It's useful for multisig inputs only.
+         ; The keys used to create a single P2SH address have the same derivation path, so to use a correct key each signer
+         ; has to know a derivation path of signing keys used by previous signers.  For each input signers will use the
+         ; same derivation path and we need to store only one key path per input.  As TransactionInput is mutable, inputs
+         ; are identified by their scriptPubKeys (keys in this map).
+         ;;
+        #_field #_"Map<Script, List<ChildNumber>>" :key-paths nil
+    })
 
     (§ defn #_"ProposedTransaction" ProposedTransaction'new [#_"Transaction" __partialTx]
         (let [this {}]
@@ -27144,16 +27328,19 @@
  ; Keeps {@link StoredBlock}s in memory.
  ;;
 (§ class MemoryBlockStore (§ implements BlockStore)
-    #_field- #_"LinkedHashMap<Sha256Hash, StoredBlock>" (ß assoc this :block-map (LinkedHashMap. #_"<Sha256Hash, StoredBlock>"
-        (§ anon
-            #_override
-            #_protected
-            (§ method #_"boolean" removeEldestEntry [#_"Map.Entry<Sha256Hash, StoredBlock>" eldest]
-                (< 5000 (.. (:block-map this) (size)))
-            )
-        )))
-    #_field- #_"StoredBlock" (ß assoc this :chain-head nil)
-    #_field- #_"NetworkParameters" (ß assoc this :params nil)
+    (ß defn- #_"MemoryBlockStore" MemoryBlockStore'init []
+    {
+        #_field #_"LinkedHashMap<Sha256Hash, StoredBlock>" :block-map (LinkedHashMap. #_"<Sha256Hash, StoredBlock>"
+            (§ anon
+                #_override
+                #_protected
+                (§ method #_"boolean" removeEldestEntry [#_"Map.Entry<Sha256Hash, StoredBlock>" eldest]
+                    (< 5000 (.. (:block-map this) (size)))
+                )
+            ))
+        #_field #_"StoredBlock" :chain-head nil
+        #_field #_"NetworkParameters" :params nil
+    })
 
     (§ defn #_"MemoryBlockStore" MemoryBlockStore'new [#_"NetworkParameters" params]
         (let [this {}]
@@ -27239,10 +27426,13 @@
  ; which is required for {@link TransactionOutPoint}.
  ;;
 (§ class StoredTransactionOutPoint
-    ;;; Hash of the transaction to which we refer. ;;
-    #_field #_"Sha256Hash" (ß assoc this :hash nil)
-    ;;; Which output of that transaction we are talking about. ;;
-    #_field #_"long" (ß assoc this :index 0)
+    (ß defn- #_"StoredTransactionOutPoint" StoredTransactionOutPoint'init []
+    {
+        ;;; Hash of the transaction to which we refer. ;;
+        #_field #_"Sha256Hash" :hash nil
+        ;;; Which output of that transaction we are talking about. ;;
+        #_field #_"long" :index 0
+    })
 
     (§ defn #_"StoredTransactionOutPoint" StoredTransactionOutPoint'new [#_"Sha256Hash" hash, #_"long" index]
         (let [this {}]
@@ -27301,11 +27491,14 @@
  ; This class is not thread-safe.
  ;;
 (§ class TransactionalHashMap #_"<KeyType, ValueType>"
-    #_field #_"ThreadLocal<HashMap<KeyType, ValueType>>" (ß assoc this :temp-map nil)
-    #_field #_"ThreadLocal<HashSet<KeyType>>" (ß assoc this :temp-set-removed nil)
-    #_field- #_"ThreadLocal<Boolean>" (ß assoc this :in-transaction nil)
-
-    #_field #_"HashMap<KeyType, ValueType>" (ß assoc this :map nil)
+    (ß defn- #_"TransactionalHashMap" TransactionalHashMap'init []
+    {
+        #_field #_"ThreadLocal<HashMap<KeyType, ValueType>>" :temp-map nil
+        #_field #_"ThreadLocal<HashSet<KeyType>>" :temp-set-removed nil
+        #_field #_"ThreadLocal<Boolean>" :in-transaction nil
+    
+        #_field #_"HashMap<KeyType, ValueType>" :map nil
+    })
 
     (§ defn #_"TransactionalHashMap" TransactionalHashMap'new []
         (let [this {}]
@@ -27420,8 +27613,11 @@
  ; @param <MultiKeyType> Is a key that can have multiple values.
  ;;
 (§ class TransactionalMultiKeyHashMap #_"<UniqueKeyType, MultiKeyType, ValueType>"
-    #_field #_"TransactionalHashMap<UniqueKeyType, ValueType>" (ß assoc this :map-values nil)
-    #_field #_"HashMap<MultiKeyType, Set<UniqueKeyType>>" (ß assoc this :map-keys nil)
+    (ß defn- #_"TransactionalMultiKeyHashMap" TransactionalMultiKeyHashMap'init []
+    {
+        #_field #_"TransactionalHashMap<UniqueKeyType, ValueType>" :map-values nil
+        #_field #_"HashMap<MultiKeyType, Set<UniqueKeyType>>" :map-keys nil
+    })
 
     (§ defn #_"TransactionalMultiKeyHashMap" TransactionalMultiKeyHashMap'new []
         (let [this {}]
@@ -27487,8 +27683,12 @@
 )
 
 (§ class StoredBlockAndWasUndoableFlag
-    #_field #_"StoredBlock" (ß assoc this :block nil)
-    #_field #_"boolean" (ß assoc this :was-undoable false)
+    (ß defn- #_"StoredBlockAndWasUndoableFlag" StoredBlockAndWasUndoableFlag'init []
+    {
+        #_field #_"StoredBlock" :block nil
+        #_field #_"boolean" :was-undoable false
+    })
+
     (§ defn #_"StoredBlockAndWasUndoableFlag" StoredBlockAndWasUndoableFlag'new [#_"StoredBlock" block, #_"boolean" __wasUndoable]
         (let [this {}]
             (§ assoc this :block block)
@@ -27502,14 +27702,17 @@
  ; Keeps {@link StoredBlock}s, {@link StoredUndoableBlock}s and {@link UTXO}s in memory.
  ;;
 (§ class MemoryFullPrunedBlockStore (§ implements FullPrunedBlockStore)
-    #_field- #_"TransactionalHashMap<Sha256Hash, StoredBlockAndWasUndoableFlag>" (ß assoc this :block-map nil)
-    #_field- #_"TransactionalMultiKeyHashMap<Sha256Hash, Integer, StoredUndoableBlock>" (ß assoc this :full-block-map nil)
-    ;; TODO: Use something more suited to remove-heavy use?
-    #_field- #_"TransactionalHashMap<StoredTransactionOutPoint, UTXO>" (ß assoc this :transaction-output-map nil)
-    #_field- #_"StoredBlock" (ß assoc this :chain-head nil)
-    #_field- #_"StoredBlock" (ß assoc this :verified-chain-head nil)
-    #_field- #_"int" (ß assoc this :full-store-depth 0)
-    #_field- #_"NetworkParameters" (ß assoc this :params nil)
+    (ß defn- #_"MemoryFullPrunedBlockStore" MemoryFullPrunedBlockStore'init []
+    {
+        #_field #_"TransactionalHashMap<Sha256Hash, StoredBlockAndWasUndoableFlag>" :block-map nil
+        #_field #_"TransactionalMultiKeyHashMap<Sha256Hash, Integer, StoredUndoableBlock>" :full-block-map nil
+        ;; TODO: Use something more suited to remove-heavy use?
+        #_field #_"TransactionalHashMap<StoredTransactionOutPoint, UTXO>" :transaction-output-map nil
+        #_field #_"StoredBlock" :chain-head nil
+        #_field #_"StoredBlock" :verified-chain-head nil
+        #_field #_"int" :full-store-depth 0
+        #_field #_"NetworkParameters" :params nil
+    })
 
     ;;;
      ; Set up the MemoryFullPrunedBlockStore.
@@ -27734,34 +27937,6 @@
     (def #_"int" SPVBlockStore'DEFAULT_CAPACITY 5000)
     (def #_"String" SPVBlockStore'HEADER_MAGIC "SPVB")
 
-    #_protected
-    #_volatile
-    #_field #_"MappedByteBuffer" (ß assoc this :buffer nil)
-    #_protected
-    #_field #_"int" (ß assoc this :capacity 0)
-    #_protected
-    #_field #_"NetworkParameters" (ß assoc this :params nil)
-
-    #_protected
-    #_field #_"ReentrantLock" (ß assoc this :lock (Threading'lock "SPVBlockStore"))
-
-    ;; The entire ring-buffer is mmapped and accessing it should be as fast as accessing regular memory once it's
-    ;; faulted in.  Unfortunately, in theory practice and theory are the same.  In practice they aren't.
-    ;;
-    ;; MMapping a file in Java does not give us a byte[] as you may expect but rather a ByteBuffer, and whilst on
-    ;; the OpenJDK/Oracle JVM calls into the get() methods are compiled down to inlined native code on Android each
-    ;; get() call is actually a full-blown JNI method under the hood, meaning it's unbelievably slow.  The caches
-    ;; below let us stay in the JIT-compiled Java world without expensive JNI transitions and make a 10x difference!
-    #_protected
-    #_field #_"LinkedHashMap<Sha256Hash, StoredBlock>" (ß assoc this :block-cache (LinkedHashMap. #_"<Sha256Hash, StoredBlock>"
-        (§ anon
-            #_override
-            #_protected
-            (§ method #_"boolean" removeEldestEntry [#_"Map.Entry<Sha256Hash, StoredBlock>" entry]
-                (< 2050 (.. this (size))) ;; Slightly more than the difficulty transition period.
-            )
-        )))
-
     ;; Use a separate cache to track get() misses.  This is to efficiently handle the case of an unconnected block
     ;; during chain download.  Each new block will do a get() on the unconnected block so if we haven't seen it yet
     ;; we must efficiently respond.
@@ -27769,21 +27944,47 @@
     ;; We don't care about the value in this cache.  It is always notFoundMarker.  Unfortunately LinkedHashSet does
     ;; not provide the removeEldestEntry control.
     (def- #_"Object" SPVBlockStore'NOT_FOUND_MARKER (Object.))
-    #_protected
-    #_field #_"LinkedHashMap<Sha256Hash, Object>" (ß assoc this :not-found-cache (LinkedHashMap. #_"<Sha256Hash, Object>"
-        (§ anon
-            #_override
-            #_protected
-            (§ method #_"boolean" removeEldestEntry [#_"Map.Entry<Sha256Hash, Object>" entry]
-                (< 100 (.. this (size))) ;; This was chosen arbitrarily.
-            )
-        )))
 
-    ;; Used to stop other applications/processes from opening the store.
-    #_protected
-    #_field #_"FileLock" (ß assoc this :file-lock nil)
-    #_protected
-    #_field #_"RandomAccessFile" (ß assoc this :random-access-file nil)
+    (ß defn- #_"SPVBlockStore" SPVBlockStore'init []
+    {
+        #_volatile
+        #_field #_"MappedByteBuffer" :buffer nil
+        #_field #_"int" :capacity 0
+        #_field #_"NetworkParameters" :params nil
+    
+        #_field #_"ReentrantLock" :lock (Threading'lock "SPVBlockStore")
+    
+        ;; The entire ring-buffer is mmapped and accessing it should be as fast as accessing regular memory once it's
+        ;; faulted in.  Unfortunately, in theory practice and theory are the same.  In practice they aren't.
+        ;;
+        ;; MMapping a file in Java does not give us a byte[] as you may expect but rather a ByteBuffer, and whilst on
+        ;; the OpenJDK/Oracle JVM calls into the get() methods are compiled down to inlined native code on Android each
+        ;; get() call is actually a full-blown JNI method under the hood, meaning it's unbelievably slow.  The caches
+        ;; below let us stay in the JIT-compiled Java world without expensive JNI transitions and make a 10x difference!
+        #_field #_"LinkedHashMap<Sha256Hash, StoredBlock>" :block-cache (LinkedHashMap. #_"<Sha256Hash, StoredBlock>"
+            (§ anon
+                #_override
+                #_protected
+                (§ method #_"boolean" removeEldestEntry [#_"Map.Entry<Sha256Hash, StoredBlock>" entry]
+                    (< 2050 (.. this (size))) ;; Slightly more than the difficulty transition period.
+                )
+            ))
+    
+        #_field #_"LinkedHashMap<Sha256Hash, Object>" :not-found-cache (LinkedHashMap. #_"<Sha256Hash, Object>"
+            (§ anon
+                #_override
+                #_protected
+                (§ method #_"boolean" removeEldestEntry [#_"Map.Entry<Sha256Hash, Object>" entry]
+                    (< 100 (.. this (size))) ;; This was chosen arbitrarily.
+                )
+            ))
+    
+        ;; Used to stop other applications/processes from opening the store.
+        #_field #_"FileLock" :file-lock nil
+        #_field #_"RandomAccessFile" :random-access-file nil
+    
+        #_field #_"StoredBlock" :last-chain-head nil
+    })
 
     ;;;
      ; Creates and initializes an SPV block store that can hold {@link #DEFAULT_CAPACITY} blocks.
@@ -27998,9 +28199,6 @@
         )
     )
 
-    #_protected
-    #_field #_"StoredBlock" (ß assoc this :last-chain-head nil)
-
     #_override
     #_throws #_[ "BlockStoreException" ]
     (§ method #_"StoredBlock" getChainHead []
@@ -28128,8 +28326,11 @@
 (§ class ContextPropagatingThreadFactory (§ implements ThreadFactory)
     (def- #_"Logger" ContextPropagatingThreadFactory'log (LoggerFactory/getLogger ContextPropagatingThreadFactory))
 
-    #_field- #_"String" (ß assoc this :name nil)
-    #_field- #_"int" (ß assoc this :priority 0)
+    (ß defn- #_"ContextPropagatingThreadFactory" ContextPropagatingThreadFactory'init []
+    {
+        #_field #_"String" :name nil
+        #_field #_"int" :priority 0
+    })
 
     (§ defn #_"ContextPropagatingThreadFactory" ContextPropagatingThreadFactory'new [#_"String" name, #_"int" priority]
         (let [this {}]
@@ -28178,8 +28379,11 @@
 
 ;;; Thread factory whose threads are marked as daemon and won't prevent process exit. ;;
 (§ class DaemonThreadFactory (§ implements ThreadFactory)
-    #_nilable
-    #_field- #_"String" (ß assoc this :name nil)
+    (ß defn- #_"DaemonThreadFactory" DaemonThreadFactory'init []
+    {
+        #_nilable
+        #_field #_"String" :name nil
+    })
 
     (§ defn #_"DaemonThreadFactory" DaemonThreadFactory'new [#_nilable #_"String" name]
         (let [this {}]
@@ -28210,8 +28414,11 @@
  ; An exchange rate is expressed as a ratio of a {@link Coin} and a {@link Fiat} amount.
  ;;
 (§ class ExchangeRate
-    #_field #_"Coin" (ß assoc this :coin nil)
-    #_field #_"Fiat" (ß assoc this :fiat nil)
+    (ß defn- #_"ExchangeRate" ExchangeRate'init []
+    {
+        #_field #_"Coin" :coin nil
+        #_field #_"Fiat" :fiat nil
+    })
 
     ;;; Construct exchange rate.  This amount of coin is worth that amount of fiat. ;;
     (§ defn #_"ExchangeRate" ExchangeRate'new [#_"Coin" coin, #_"Fiat" fiat]
@@ -28295,9 +28502,12 @@
  ; Parameters to configure a particular kind of exponential backoff.
  ;;
 (§ class BackoffParams
-    #_field- #_"float" (ß assoc this :initial 0.0)
-    #_field- #_"float" (ß assoc this :multiplier 0.0)
-    #_field- #_"float" (ß assoc this :maximum 0.0)
+    (ß defn- #_"BackoffParams" BackoffParams'init []
+    {
+        #_field #_"float" :initial 0.0
+        #_field #_"float" :multiplier 0.0
+        #_field #_"float" :maximum 0.0
+    })
 
     ;;;
      ; @param initialMillis The initial interval to wait, in milliseconds.
@@ -28339,9 +28549,12 @@
     (def #_"float" ExponentialBackoff'DEFAULT_MULTIPLIER 1.1)
     (def #_"int" ExponentialBackoff'DEFAULT_MAXIMUM_MILLIS (* 30 1000))
 
-    #_field- #_"float" (ß assoc this :backoff 0.0)
-    #_field- #_"long" (ß assoc this :retry-time 0)
-    #_field- #_"BackoffParams" (ß assoc this :params nil)
+    (ß defn- #_"ExponentialBackoff" ExponentialBackoff'init []
+    {
+        #_field #_"float" :backoff 0.0
+        #_field #_"long" :retry-time 0
+        #_field #_"BackoffParams" :params nil
+    })
 
     (§ defn #_"ExponentialBackoff" ExponentialBackoff'new [#_"BackoffParams" params]
         (let [this {}]
@@ -28395,11 +28608,14 @@
      ;;
     (def #_"int" Fiat'SMALLEST_UNIT_EXPONENT 4)
 
-    ;;;
-     ; The number of smallest units of this monetary value.
-     ;;
-    #_field #_"long" (ß assoc this :value 0)
-    #_field #_"String" (ß assoc this :currency-code nil)
+    (ß defn- #_"Fiat" Fiat'init []
+    {
+        ;;;
+         ; The number of smallest units of this monetary value.
+         ;;
+        #_field #_"long" :value 0
+        #_field #_"String" :currency-code nil
+    })
 
     (§ defn- #_"Fiat" Fiat'new [#_"String" code, #_"long" value]
         (let [this {}]
@@ -28603,8 +28819,11 @@
  ; A simple wrapper around a listener and an executor, with some utility methods.
  ;;
 (§ class ListenerRegistration #_"<T>"
-    #_field #_"T" (ß assoc this :listener nil)
-    #_field #_"Executor" (ß assoc this :executor nil)
+    (ß defn- #_"ListenerRegistration" ListenerRegistration'init []
+    {
+        #_field #_"T" :listener nil
+        #_field #_"Executor" :executor nil
+    })
 
     (§ defn #_"ListenerRegistration" ListenerRegistration'new [#_"T" listener, #_"Executor" executor]
         (let [this {}]
@@ -28655,17 +28874,20 @@
 
     (def #_"int" MonetaryFormat'MAX_DECIMALS 8)
 
-    #_field- #_"char" (ß assoc this :negative-sign 0)
-    #_field- #_"char" (ß assoc this :positive-sign 0)
-    #_field- #_"char" (ß assoc this :zero-digit 0)
-    #_field- #_"char" (ß assoc this :decimal-mark 0)
-    #_field- #_"int" (ß assoc this :min-decimals 0)
-    #_field- #_"List<Integer>" (ß assoc this :decimal-groups nil)
-    #_field- #_"int" (ß assoc this :shift 0)
-    #_field- #_"RoundingMode" (ß assoc this :rounding-mode nil)
-    #_field- #_"String[]" (ß assoc this :codes nil)
-    #_field- #_"char" (ß assoc this :code-separator 0)
-    #_field- #_"boolean" (ß assoc this :code-prefixed false)
+    (ß defn- #_"MonetaryFormat" MonetaryFormat'init []
+    {
+        #_field #_"char" :negative-sign 0
+        #_field #_"char" :positive-sign 0
+        #_field #_"char" :zero-digit 0
+        #_field #_"char" :decimal-mark 0
+        #_field #_"int" :min-decimals 0
+        #_field #_"List<Integer>" :decimal-groups nil
+        #_field #_"int" :shift 0
+        #_field #_"RoundingMode" :rounding-mode nil
+        #_field #_"String[]" :codes nil
+        #_field #_"char" :code-separator 0
+        #_field #_"boolean" :code-prefixed false
+    })
 
     (def- #_"String" MonetaryFormat'DECIMALS_PADDING "0000000000000000") ;; a few more than necessary for Bitcoin
 
@@ -29015,7 +29237,10 @@
     ;; 10,000 pending tasks is entirely arbitrary and may or may not be appropriate for the device we're running on.
     (def #_"int" UserThread'WARNING_THRESHOLD 10000)
 
-    #_field- #_"LinkedBlockingQueue<Runnable>" (ß assoc this :tasks nil)
+    (ß defn- #_"UserThread" UserThread'init []
+    {
+        #_field #_"LinkedBlockingQueue<Runnable>" :tasks nil
+    })
 
     (§ defn #_"UserThread" UserThread'new []
         (let [this (§ super Thread'new "bitcoinj user thread")]
@@ -29185,21 +29410,24 @@
  ; @see NetworkParameters#getMajorityWindow()
  ;;
 (§ class VersionTally
-    ;;;
-     ; Cache of version numbers.
-     ;;
-    #_field- #_"long[]" (ß assoc this :version-window nil)
-
-    ;;;
-     ; Offset within the version window at which the next version will be written.
-     ;;
-    #_field- #_"int" (ß assoc this :version-write-head 0)
-
-    ;;;
-     ; Number of versions written into the tally.  Until this matches the length
-     ; of the version window, we do not have sufficient data to return values.
-     ;;
-    #_field- #_"int" (ß assoc this :versions-stored 0)
+    (ß defn- #_"VersionTally" VersionTally'init []
+    {
+        ;;;
+         ; Cache of version numbers.
+         ;;
+        #_field #_"long[]" :version-window nil
+    
+        ;;;
+         ; Offset within the version window at which the next version will be written.
+         ;;
+        #_field #_"int" :version-write-head 0
+    
+        ;;;
+         ; Number of versions written into the tally.  Until this matches the length
+         ; of the version window, we do not have sufficient data to return values.
+         ;;
+        #_field #_"int" :versions-stored 0
+    })
 
     (§ defn #_"VersionTally" VersionTally'new [#_"NetworkParameters" params]
         (let [this {}]
@@ -29356,14 +29584,17 @@
  ; although it will automatically add one to itself if it's empty or if encryption is requested.
  ;;
 (§ class BasicKeyChain (§ implements KeyChain)
-    #_field- #_"ReentrantLock" (ß assoc this :lock (Threading'lock "BasicKeyChain"))
-
-    ;; Maps used to let us quickly look up a key given data we find in transcations or the block chain.
-    #_field- #_"LinkedHashMap<ByteString, ECKey>" (ß assoc this :hash-to-keys (LinkedHashMap.))
-    #_field- #_"LinkedHashMap<ByteString, ECKey>" (ß assoc this :pubkey-to-keys (LinkedHashMap.))
-    #_field- #_"boolean" (ß assoc this :is-watching false)
-
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<KeyChainEventListener>>" (ß assoc this :listeners (CopyOnWriteArrayList.))
+    (ß defn- #_"BasicKeyChain" BasicKeyChain'init []
+    {
+        #_field #_"ReentrantLock" :lock (Threading'lock "BasicKeyChain")
+    
+        ;; Maps used to let us quickly look up a key given data we find in transcations or the block chain.
+        #_field #_"LinkedHashMap<ByteString, ECKey>" :hash-to-keys (LinkedHashMap.)
+        #_field #_"LinkedHashMap<ByteString, ECKey>" :pubkey-to-keys (LinkedHashMap.)
+        #_field #_"boolean" :is-watching false
+    
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<KeyChainEventListener>>" :listeners (CopyOnWriteArrayList.)
+    })
 
     (§ defn #_"BasicKeyChain" BasicKeyChain'new []
         (let [this {}]
@@ -29690,8 +29921,11 @@
  ; to their varying policies.
  ;;
 (§ class CoinSelection
-    #_field #_"Coin" (ß assoc this :value-gathered nil)
-    #_field #_"Collection<TransactionOutput>" (ß assoc this :gathered nil)
+    (ß defn- #_"CoinSelection" CoinSelection'init []
+    {
+        #_field #_"Coin" :value-gathered nil
+        #_field #_"Collection<TransactionOutput>" :gathered nil
+    })
 
     (§ defn #_"CoinSelection" CoinSelection'new [#_"Coin" __valueGathered, #_"Collection<TransactionOutput>" gathered]
         (let [this {}]
@@ -29849,19 +30083,17 @@
      ;;
     (def #_"Coin" RiskAnalysis'MIN_ANALYSIS_NONDUST_OUTPUT Transaction'MIN_NONDUST_OUTPUT)
 
-    #_protected
-    #_field #_"Transaction" (ß assoc this :tx nil)
-    #_protected
-    #_field #_"List<Transaction>" (ß assoc this :dependencies nil)
-    #_nilable
-    #_protected
-    #_field #_"Wallet" (ß assoc this :wallet nil)
-
-    #_field- #_"Transaction" (ß assoc this :non-standard nil)
-    #_protected
-    #_field #_"Transaction" (ß assoc this :non-final nil)
-    #_protected
-    #_field #_"boolean" (ß assoc this :analyzed false)
+    (ß defn- #_"RiskAnalysis" RiskAnalysis'init []
+    {
+        #_field #_"Transaction" :tx nil
+        #_field #_"List<Transaction>" :dependencies nil
+        #_nilable
+        #_field #_"Wallet" :wallet nil
+    
+        #_field #_"Transaction" :non-standard nil
+        #_field #_"Transaction" :non-final nil
+        #_field #_"boolean" :analyzed false
+    })
 
     (§ defn- #_"RiskAnalysis" RiskAnalysis'new [#_"Wallet" wallet, #_"Transaction" tx, #_"List<Transaction>" dependencies]
         (let [this {}]
@@ -30056,20 +30288,16 @@
 )
 
 (§ class DeterministicKeyChainBuilder #_"<T extends DeterministicKeyChainBuilder<T>>"
-    #_protected
-    #_field #_"SecureRandom" (ß assoc this :random nil)
-    #_protected
-    #_field #_"int" (ß assoc this :bits 128)
-    #_protected
-    #_field #_"String" (ß assoc this :passphrase nil)
-    #_protected
-    #_field #_"long" (ß assoc this :seed-creation-time-secs 0)
-    #_protected
-    #_field #_"byte[]" (ß assoc this :entropy nil)
-    #_protected
-    #_field #_"DeterministicSeed" (ß assoc this :seed nil)
-    #_protected
-    #_field #_"DeterministicKey" (ß assoc this :watching-key nil)
+    (ß defn- #_"DeterministicKeyChainBuilder" DeterministicKeyChainBuilder'init []
+    {
+        #_field #_"SecureRandom" :random nil
+        #_field #_"int" :bits 128
+        #_field #_"String" :passphrase nil
+        #_field #_"long" :seed-creation-time-secs 0
+        #_field #_"byte[]" :entropy nil
+        #_field #_"DeterministicSeed" :seed nil
+        #_field #_"DeterministicKey" :watching-key nil
+    })
 
     #_protected
     (§ defn #_"DeterministicKeyChainBuilder" DeterministicKeyChainBuilder'new []
@@ -30229,15 +30457,6 @@
     (def- #_"Logger" DeterministicKeyChain'log (LoggerFactory/getLogger DeterministicKeyChain))
     (def #_"String" DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC "")
 
-    #_protected
-    #_field #_"ReentrantLock" (ß assoc this :lock (Threading'lock "DeterministicKeyChain"))
-
-    #_field- #_"DeterministicHierarchy" (ß assoc this :hierarchy nil)
-    #_nilable
-    #_field- #_"DeterministicKey" (ß assoc this :root-key nil)
-    #_nilable
-    #_field- #_"DeterministicSeed" (ß assoc this :seed nil)
-
     ;; Paths through the key tree.  External keys are ones that are communicated to other parties.  Internal keys are
     ;; keys created for change addresses, coinbases, mixing, etc - anything that isn't communicated.  The distinction
     ;; is somewhat arbitrary but can be useful for audits.  The first number is the "account number" but we don't use
@@ -30257,43 +30476,52 @@
     ;; For new chains it's set to whatever the default is, unless overridden by setLookaheadSize.  For deserialized
     ;; chains, it will be calculated on demand from the number of loaded keys.
     (def- #_"int" DeterministicKeyChain'LAZY_CALCULATE_LOOKAHEAD -1)
-    #_protected
-    #_field #_"int" (ß assoc this :lookahead-size 100)
-    ;; The lookahead threshold causes us to batch up creation of new keys to minimize the frequency of Bloom filter
-    ;; regenerations, which are expensive and will (in future) trigger chain download stalls/retries.  One third is
-    ;; an efficiency tradeoff.
-    #_protected
-    #_field #_"int" (ß assoc this :lookahead-threshold (.. this (calcDefaultLookaheadThreshold)))
+
+    (ß defn- #_"DeterministicKeyChain" DeterministicKeyChain'init []
+    {
+        #_field #_"ReentrantLock" :lock (Threading'lock "DeterministicKeyChain")
+    
+        #_field #_"DeterministicHierarchy" :hierarchy nil
+        #_nilable
+        #_field #_"DeterministicKey" :root-key nil
+        #_nilable
+        #_field #_"DeterministicSeed" :seed nil
+    
+        #_field #_"int" :lookahead-size 100
+        ;; The lookahead threshold causes us to batch up creation of new keys to minimize the frequency of Bloom filter
+        ;; regenerations, which are expensive and will (in future) trigger chain download stalls/retries.  One third is
+        ;; an efficiency tradeoff.
+        #_field #_"int" :lookahead-threshold (.. this (calcDefaultLookaheadThreshold))
+    
+        ;; The parent keys for external keys (handed out to other people) and internal keys (used for change addresses).
+        #_field #_"DeterministicKey" :external-parent-key nil
+        #_field #_"DeterministicKey" :internal-parent-key nil
+        ;; How many keys on each path have actually been used.  This may be fewer than the number that have been
+        ;; deserialized or held in memory, because of the lookahead zone.
+        #_field #_"int" :issued-external-keys 0
+        #_field #_"int" :issued-internal-keys 0
+        ;; A counter that is incremented each time a key in the lookahead threshold zone is marked as used and lookahead
+        ;; is triggered.  The Wallet/KCG reads these counters and combines them so it can tell the Peer whether to throw
+        ;; away the current block (and any future blocks in the same download batch) and restart chain sync once a new filter
+        ;; has been calculated.  This field isn't persisted to the wallet as it's only relevant within a network session.
+        #_field #_"int" :key-lookahead-epoch 0
+    
+        ;; We simplify by wrapping a basic key chain and that way we get some functionality like key lookup and event
+        ;; listeners "for free".  All keys in the key tree appear here, even if they aren't meant to be used for
+        ;; receiving money.
+        #_field #_"BasicKeyChain" :basic-key-chain nil
+    
+        ;; If set this chain is following another chain in a married KeyChainGroup.
+        #_field #_"boolean" :is-following false
+    
+        ;; Holds a number of signatures required to spend.  It's the N from N-of-M CHECKMULTISIG script for P2SH transactions
+        ;; and always 1 for other transaction types.
+        #_field #_"int" :sigs-required-to-spend 1
+    })
 
     (§ method- #_"int" calcDefaultLookaheadThreshold []
         (quot (:lookahead-size this) 3)
     )
-
-    ;; The parent keys for external keys (handed out to other people) and internal keys (used for change addresses).
-    #_field- #_"DeterministicKey" (ß assoc this :external-parent-key nil)
-    #_field- #_"DeterministicKey" (ß assoc this :internal-parent-key nil)
-    ;; How many keys on each path have actually been used.  This may be fewer than the number that have been
-    ;; deserialized or held in memory, because of the lookahead zone.
-    #_field- #_"int" (ß assoc this :issued-external-keys 0)
-    #_field- #_"int" (ß assoc this :issued-internal-keys 0)
-    ;; A counter that is incremented each time a key in the lookahead threshold zone is marked as used and lookahead
-    ;; is triggered.  The Wallet/KCG reads these counters and combines them so it can tell the Peer whether to throw
-    ;; away the current block (and any future blocks in the same download batch) and restart chain sync once a new filter
-    ;; has been calculated.  This field isn't persisted to the wallet as it's only relevant within a network session.
-    #_field- #_"int" (ß assoc this :key-lookahead-epoch 0)
-
-    ;; We simplify by wrapping a basic key chain and that way we get some functionality like key lookup and event
-    ;; listeners "for free".  All keys in the key tree appear here, even if they aren't meant to be used for
-    ;; receiving money.
-    #_field- #_"BasicKeyChain" (ß assoc this :basic-key-chain nil)
-
-    ;; If set this chain is following another chain in a married KeyChainGroup.
-    #_field- #_"boolean" (ß assoc this :is-following false)
-
-    ;; Holds a number of signatures required to spend.  It's the N from N-of-M CHECKMULTISIG script for P2SH transactions
-    ;; and always 1 for other transaction types.
-    #_protected
-    #_field #_"int" (ß assoc this :sigs-required-to-spend 1)
 
     (§ defn #_"DeterministicKeyChainBuilder<?>" DeterministicKeyChain'builder []
         (DeterministicKeyChainBuilder'new)
@@ -31069,11 +31297,14 @@
     (def #_"int" DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS 128)
     (def #_"int" DeterministicSeed'MAX_SEED_ENTROPY_BITS 512)
 
-    #_nilable
-    #_field- #_"byte[]" (ß assoc this :seed nil)
-    #_nilable
-    #_field- #_"List<String>" (ß assoc this :mnemonic-code nil)
-    #_field- #_"long" (ß assoc this :creation-time-seconds 0)
+    (ß defn- #_"DeterministicSeed" DeterministicSeed'init []
+    {
+        #_nilable
+        #_field #_"byte[]" :seed nil
+        #_nilable
+        #_field #_"List<String>" :mnemonic-code nil
+        #_field #_"long" :creation-time-seconds 0
+    })
 
     (§ defn #_"DeterministicSeed" DeterministicSeed'new [#_"String" __mnemonicCode, #_"byte[]" seed, #_"String" passphrase, #_"long" secs]
         (let [this (DeterministicSeed'new (DeterministicSeed'decodeMnemonicCode __mnemonicCode), seed, passphrase, secs)]
@@ -31256,10 +31487,11 @@
  ; A filtering coin selector delegates to another coin selector, but won't select outputs spent by the given transactions.
  ;;
 (§ class FilteringCoinSelector (§ implements CoinSelector)
-    #_protected
-    #_field #_"CoinSelector" (ß assoc this :delegate nil)
-    #_protected
-    #_field #_"HashSet<TransactionOutPoint>" (ß assoc this :spent (HashSet.))
+    (ß defn- #_"FilteringCoinSelector" FilteringCoinSelector'init []
+    {
+        #_field #_"CoinSelector" :delegate nil
+        #_field #_"HashSet<TransactionOutPoint>" :spent (HashSet.)
+    })
 
     (§ defn #_"FilteringCoinSelector" FilteringCoinSelector'new [#_"CoinSelector" delegate]
         (let [this {}]
@@ -31416,18 +31648,20 @@
 (§ class KeyChainGroup (§ implements KeyBag)
     (def- #_"Logger" KeyChainGroup'log (LoggerFactory/getLogger KeyChainGroup))
 
-    #_field- #_"BasicKeyChain" (ß assoc this :basic nil)
-    #_field- #_"NetworkParameters" (ß assoc this :params nil)
-    #_protected
-    #_field #_"LinkedList<DeterministicKeyChain>" (ß assoc this :chains nil)
-    ;; currentKeys is used for normal, non-multisig/married wallets.
-    ;; currentAddresses is used when we're handing out P2SH addresses.
-    ;; They're mutually exclusive.
-    #_field- #_"EnumMap<KeyPurpose, DeterministicKey>" (ß assoc this :current-keys nil)
-    #_field- #_"EnumMap<KeyPurpose, Address>" (ß assoc this :current-addresses nil)
-
-    #_field- #_"int" (ß assoc this :lookahead-size -1)
-    #_field- #_"int" (ß assoc this :lookahead-threshold -1)
+    (ß defn- #_"KeyChainGroup" KeyChainGroup'init []
+    {
+        #_field #_"BasicKeyChain" :basic nil
+        #_field #_"NetworkParameters" :params nil
+        #_field #_"LinkedList<DeterministicKeyChain>" :chains nil
+        ;; currentKeys is used for normal, non-multisig/married wallets.
+        ;; currentAddresses is used when we're handing out P2SH addresses.
+        ;; They're mutually exclusive.
+        #_field #_"EnumMap<KeyPurpose, DeterministicKey>" :current-keys nil
+        #_field #_"EnumMap<KeyPurpose, Address>" :current-addresses nil
+    
+        #_field #_"int" :lookahead-size -1
+        #_field #_"int" :lookahead-threshold -1
+    })
 
     ;;; Creates a keychain group with no basic chain, and a single, lazily created HD chain. ;;
     (§ defn #_"KeyChainGroup" KeyChainGroup'new [#_"NetworkParameters" params]
@@ -32094,9 +32328,12 @@
     ;;; A number of inputs chosen to avoid hitting {@link Transaction#MAX_STANDARD_TX_SIZE}. ;;
     (def #_"int" KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS 600)
 
-    #_field- #_"long" (ß assoc this :unix-time-seconds 0)
-    #_field- #_"Wallet" (ß assoc this :wallet nil)
-    #_field- #_"boolean" (ß assoc this :ignore-pending false)
+    (ß defn- #_"KeyTimeCoinSelector" KeyTimeCoinSelector'init []
+    {
+        #_field #_"long" :unix-time-seconds 0
+        #_field #_"Wallet" :wallet nil
+        #_field #_"boolean" :ignore-pending false
+    })
 
     (§ defn #_"KeyTimeCoinSelector" KeyTimeCoinSelector'new [#_"Wallet" wallet, #_"long" secs, #_"boolean" __ignorePending]
         (let [this {}]
@@ -32167,8 +32404,11 @@
  ; Builds a {@link MarriedKeyChain}.
  ;;
 (§ class MarriedKeyChainBuilder #_"<T extends DeterministicKeyChainBuilder<T>>" (§ extends DeterministicKeyChainBuilder #_"<T>")
-    #_field- #_"List<DeterministicKey>" (ß assoc this :following-keys nil)
-    #_field- #_"int" (ß assoc this :threshold 0)
+    (ß defn- #_"MarriedKeyChainBuilder" MarriedKeyChainBuilder'init []
+    {
+        #_field #_"List<DeterministicKey>" :following-keys nil
+        #_field #_"int" :threshold 0
+    })
 
     #_protected
     (§ defn #_"MarriedKeyChainBuilder" MarriedKeyChainBuilder'new []
@@ -32248,11 +32488,14 @@
  ; This method will throw an IllegalStateException, if the keychain is already married or already has leaf keys issued.
  ;;
 (§ class MarriedKeyChain (§ extends DeterministicKeyChain)
-    ;; The map holds P2SH redeem script and corresponding ECKeys issued by this KeyChainGroup (including lookahead)
-    ;; mapped to redeem script hashes.
-    #_field- #_"LinkedHashMap<ByteString, RedeemData>" (ß assoc this :married-keys-redeem-data (LinkedHashMap.))
-
-    #_field- #_"List<DeterministicKeyChain>" (ß assoc this :following-key-chains nil)
+    (ß defn- #_"MarriedKeyChain" MarriedKeyChain'init []
+    {
+        ;; The map holds P2SH redeem script and corresponding ECKeys issued by this KeyChainGroup (including lookahead)
+        ;; mapped to redeem script hashes.
+        #_field #_"LinkedHashMap<ByteString, RedeemData>" :married-keys-redeem-data (LinkedHashMap.)
+    
+        #_field #_"List<DeterministicKeyChain>" :following-key-chains nil
+    })
 
     (§ defn #_"MarriedKeyChainBuilder<?>" MarriedKeyChain'builder []
         (MarriedKeyChainBuilder'new)
@@ -32461,8 +32704,11 @@
  ; a program (lexicographical order).
  ;;
 (§ class RedeemData
-    #_field #_"Script" (ß assoc this :redeem-script nil)
-    #_field #_"List<ECKey>" (ß assoc this :keys nil)
+    (ß defn- #_"RedeemData" RedeemData'init []
+    {
+        #_field #_"Script" :redeem-script nil
+        #_field #_"List<ECKey>" :keys nil
+    })
 
     (§ defn- #_"RedeemData" RedeemData'new [#_"List<ECKey>" keys, #_"Script" __redeemScript]
         (let [this {}]
@@ -32509,108 +32755,111 @@
  ; modify the change address.
  ;;
 (§ class SendRequest
-    ;;;
-     ; A transaction, probably incomplete, that describes the outline of what you want to do.  This typically
-     ; will mean it has some outputs to the intended destinations, but no inputs or change address (and therefore
-     ; no fees) - the wallet will calculate all that for you and update tx later.
-     ;
-     ; Be careful when adding outputs that you check the min output value
-     ; ({@link TransactionOutput#getMinNonDustValue(Coin)}) to avoid the whole transaction being rejected
-     ; because one output is dust.
-     ;
-     ; If there are already inputs to the transaction, make sure their out point has a connected output,
-     ; otherwise their value will be added to fee.  Also ensure they are either signed or are spendable by
-     ; a wallet key, otherwise the behavior of {@link Wallet#completeTx(Wallet.SendRequest)} is undefined
-     ; (likely RuntimeException).
-     ;;
-    #_field #_"Transaction" (ß assoc this :tx nil)
-
-    ;;;
-     ; When emptyWallet is set, all coins selected by the coin selector are sent to the first output in tx
-     ; (its value is ignored and set to {@link Wallet#getBalance()} - the fees required
-     ; for the transaction).  Any additional outputs are removed.
-     ;;
-    #_field #_"boolean" (ß assoc this :empty-wallet false)
-
-    ;;;
-     ; "Change" means the difference between the value gathered by a transactions inputs (the size of which you
-     ; don't really control as it depends on who sent you money), and the value being sent somewhere else.  The
-     ; change address should be selected from this wallet, normally.  <b>If null this will be chosen for you.</b>
-     ;;
-    #_field #_"Address" (ß assoc this :change-address nil)
-
-    ;;;
-     ; A transaction can have a fee attached, which is defined as the difference between the input values
-     ; and output values.  Any value taken in that is not provided to an output can be claimed by a miner.  This
-     ; is how mining is incentivized in later years of the Bitcoin system when inflation drops.  It also provides
-     ; a way for people to prioritize their transactions over others and is used as a way to make denial of service
-     ; attacks expensive.
-     ;
-     ; This is a dynamic fee (in satoshis) which will be added to the transaction for each kilobyte in size
-     ; including the first.  This is useful as as miners usually sort pending transactions by their fee per unit size
-     ; when choosing which transactions to add to a block.  Note that, to keep this equivalent to Bitcoin Core
-     ; definition, a kilobyte is defined as 1000 bytes, not 1024.
-     ;;
-    #_field #_"Coin" (ß assoc this :fee-per-kb (.. (Context'get) (getFeePerKb)))
-
-    ;;;
-     ; Requires that there be enough fee for a default Bitcoin Core to at least relay the transaction.
-     ; (i.e. ensure the transaction will not be outright rejected by the network).  Defaults to true,
-     ; you should only set this to false if you know what you're doing.
-     ;
-     ; Note that this does not enforce certain fee rules that only apply to transactions which are larger
-     ; than 26,000 bytes.  If you get a transaction which is that large, you should set a feePerKb of at least
-     ; {@link Transaction#REFERENCE_DEFAULT_MIN_TX_FEE}.
-     ;;
-    #_field #_"boolean" (ß assoc this :ensure-min-required-fee (.. (Context'get) (isEnsureMinRequiredFee)))
-
-    ;;;
-     ; If true (the default), the inputs will be signed.
-     ;;
-    #_field #_"boolean" (ß assoc this :sign-inputs true)
-
-    ;;;
-     ; If not null, the {@link CoinSelector} to use instead of the wallets default.
-     ; Coin selectors are responsible for choosing which transaction outputs (coins) in a wallet to use given
-     ; the desired send value amount.
-     ;;
-    #_field #_"CoinSelector" (ß assoc this :coin-selector nil)
-
-    ;;;
-     ; If true (the default), the outputs will be shuffled during completion to randomize the location
-     ; of the change output, if any.  This is normally what you want for privacy reasons but in unit tests
-     ; it can be annoying, so it can be disabled here.
-     ;;
-    #_field #_"boolean" (ß assoc this :shuffle-outputs true)
-
-    ;;;
-     ; Specifies what to do with missing signatures left after completing this request.  Default strategy is
-     ; to throw an exception on missing signature ({@link MissingSigsMode#THROW}).
-     ;
-     ; @see MissingSigsMode
-     ;;
-    #_field #_"MissingSigsMode" (ß assoc this :missing-sigs-mode :MissingSigsMode'THROW)
-
-    ;;;
-     ; If not null, this exchange rate is recorded with the transaction during completion.
-     ;;
-    #_field #_"ExchangeRate" (ß assoc this :exchange-rate nil)
-
-    ;;;
-     ; If not null, this memo is recorded with the transaction during completion.  It can be used to record
-     ; the memo of the payment request that initiated the transaction.
-     ;;
-    #_field #_"String" (ß assoc this :memo nil)
-
-    ;;;
-     ; If false (default value), tx fee is paid by the sender.  If true, tx fee is paid by the recipient/s.
-     ; If there is more than one recipient, the tx fee is split equally between them regardless of output
-     ; value and size.
-     ;;
-    #_field #_"boolean" (ß assoc this :recipients-pay-fees false)
-
-    ;; Tracks if this has been passed to wallet.completeTx already: just a safety check.
-    #_field #_"boolean" (ß assoc this :completed false)
+    (ß defn- #_"SendRequest" SendRequest'init []
+    {
+        ;;;
+         ; A transaction, probably incomplete, that describes the outline of what you want to do.  This typically
+         ; will mean it has some outputs to the intended destinations, but no inputs or change address (and therefore
+         ; no fees) - the wallet will calculate all that for you and update tx later.
+         ;
+         ; Be careful when adding outputs that you check the min output value
+         ; ({@link TransactionOutput#getMinNonDustValue(Coin)}) to avoid the whole transaction being rejected
+         ; because one output is dust.
+         ;
+         ; If there are already inputs to the transaction, make sure their out point has a connected output,
+         ; otherwise their value will be added to fee.  Also ensure they are either signed or are spendable by
+         ; a wallet key, otherwise the behavior of {@link Wallet#completeTx(Wallet.SendRequest)} is undefined
+         ; (likely RuntimeException).
+         ;;
+        #_field #_"Transaction" :tx nil
+    
+        ;;;
+         ; When emptyWallet is set, all coins selected by the coin selector are sent to the first output in tx
+         ; (its value is ignored and set to {@link Wallet#getBalance()} - the fees required
+         ; for the transaction).  Any additional outputs are removed.
+         ;;
+        #_field #_"boolean" :empty-wallet false
+    
+        ;;;
+         ; "Change" means the difference between the value gathered by a transactions inputs (the size of which you
+         ; don't really control as it depends on who sent you money), and the value being sent somewhere else.  The
+         ; change address should be selected from this wallet, normally.  <b>If null this will be chosen for you.</b>
+         ;;
+        #_field #_"Address" :change-address nil
+    
+        ;;;
+         ; A transaction can have a fee attached, which is defined as the difference between the input values
+         ; and output values.  Any value taken in that is not provided to an output can be claimed by a miner.  This
+         ; is how mining is incentivized in later years of the Bitcoin system when inflation drops.  It also provides
+         ; a way for people to prioritize their transactions over others and is used as a way to make denial of service
+         ; attacks expensive.
+         ;
+         ; This is a dynamic fee (in satoshis) which will be added to the transaction for each kilobyte in size
+         ; including the first.  This is useful as as miners usually sort pending transactions by their fee per unit size
+         ; when choosing which transactions to add to a block.  Note that, to keep this equivalent to Bitcoin Core
+         ; definition, a kilobyte is defined as 1000 bytes, not 1024.
+         ;;
+        #_field #_"Coin" :fee-per-kb (.. (Context'get) (getFeePerKb))
+    
+        ;;;
+         ; Requires that there be enough fee for a default Bitcoin Core to at least relay the transaction.
+         ; (i.e. ensure the transaction will not be outright rejected by the network).  Defaults to true,
+         ; you should only set this to false if you know what you're doing.
+         ;
+         ; Note that this does not enforce certain fee rules that only apply to transactions which are larger
+         ; than 26,000 bytes.  If you get a transaction which is that large, you should set a feePerKb of at least
+         ; {@link Transaction#REFERENCE_DEFAULT_MIN_TX_FEE}.
+         ;;
+        #_field #_"boolean" :ensure-min-required-fee (.. (Context'get) (isEnsureMinRequiredFee))
+    
+        ;;;
+         ; If true (the default), the inputs will be signed.
+         ;;
+        #_field #_"boolean" :sign-inputs true
+    
+        ;;;
+         ; If not null, the {@link CoinSelector} to use instead of the wallets default.
+         ; Coin selectors are responsible for choosing which transaction outputs (coins) in a wallet to use given
+         ; the desired send value amount.
+         ;;
+        #_field #_"CoinSelector" :coin-selector nil
+    
+        ;;;
+         ; If true (the default), the outputs will be shuffled during completion to randomize the location
+         ; of the change output, if any.  This is normally what you want for privacy reasons but in unit tests
+         ; it can be annoying, so it can be disabled here.
+         ;;
+        #_field #_"boolean" :shuffle-outputs true
+    
+        ;;;
+         ; Specifies what to do with missing signatures left after completing this request.  Default strategy is
+         ; to throw an exception on missing signature ({@link MissingSigsMode#THROW}).
+         ;
+         ; @see MissingSigsMode
+         ;;
+        #_field #_"MissingSigsMode" :missing-sigs-mode :MissingSigsMode'THROW
+    
+        ;;;
+         ; If not null, this exchange rate is recorded with the transaction during completion.
+         ;;
+        #_field #_"ExchangeRate" :exchange-rate nil
+    
+        ;;;
+         ; If not null, this memo is recorded with the transaction during completion.  It can be used to record
+         ; the memo of the payment request that initiated the transaction.
+         ;;
+        #_field #_"String" :memo nil
+    
+        ;;;
+         ; If false (default value), tx fee is paid by the sender.  If true, tx fee is paid by the recipient/s.
+         ; If there is more than one recipient, the tx fee is split equally between them regardless of output
+         ; value and size.
+         ;;
+        #_field #_"boolean" :recipients-pay-fees false
+    
+        ;; Tracks if this has been passed to wallet.completeTx already: just a safety check.
+        #_field #_"boolean" :completed false
+    })
 
     (§ defn- #_"SendRequest" SendRequest'new []
         (let [this {}]
@@ -32825,9 +33074,12 @@
 )
 
 (§ class- BalanceFutureRequest
-    #_field #_"SettableFuture<Coin>" (ß assoc this :future nil)
-    #_field #_"Coin" (ß assoc this :value nil)
-    #_field #_"BalanceType" (ß assoc this :type nil)
+    (ß defn- #_"BalanceFutureRequest" BalanceFutureRequest'init []
+    {
+        #_field #_"SettableFuture<Coin>" :future nil
+        #_field #_"Coin" :value nil
+        #_field #_"BalanceType" :type nil
+    })
 
     (§ defn- #_"BalanceFutureRequest" BalanceFutureRequest'new []
         (let [this {}]
@@ -32840,15 +33092,18 @@
  ; A SendResult is returned to you as part of sending coins to a recipient.
  ;;
 (§ class SendResult
-    ;;; The Bitcoin transaction message that moves the money. ;;
-    #_field #_"Transaction" (ß assoc this :tx nil)
-    ;;;
-     ; A future that will complete once the tx message has been successfully broadcast to the network.
-     ; This is just the result of calling broadcast.future().
-     ;;
-    #_field #_"ListenableFuture<Transaction>" (ß assoc this :broadcast-complete nil)
-    ;;; The broadcast object returned by the linked TransactionBroadcaster. ;;
-    #_field #_"TransactionBroadcast" (ß assoc this :broadcast nil)
+    (ß defn- #_"SendResult" SendResult'init []
+    {
+        ;;; The Bitcoin transaction message that moves the money. ;;
+        #_field #_"Transaction" :tx nil
+        ;;;
+         ; A future that will complete once the tx message has been successfully broadcast to the network.
+         ; This is just the result of calling broadcast.future().
+         ;;
+        #_field #_"ListenableFuture<Transaction>" :broadcast-complete nil
+        ;;; The broadcast object returned by the linked TransactionBroadcaster. ;;
+        #_field #_"TransactionBroadcast" :broadcast nil
+    })
 
     (§ defn #_"SendResult" SendResult'new []
         (let [this {}]
@@ -32921,8 +33176,11 @@
  ;;
 #_unused
 (§ class- FreeStandingTransactionOutput (§ extends TransactionOutput)
-    #_field- #_"UTXO" (ß assoc this :output nil)
-    #_field- #_"int" (ß assoc this :chain-height 0)
+    (ß defn- #_"FreeStandingTransactionOutput" FreeStandingTransactionOutput'init []
+    {
+        #_field #_"UTXO" :output nil
+        #_field #_"int" :chain-height 0
+    })
 
     ;;;
      ; Construct a free standing Transaction Output.
@@ -32970,8 +33228,11 @@
 )
 
 (§ class- TxOffsetPair (§ implements Comparable #_"<TxOffsetPair>")
-    #_field #_"Transaction" (ß assoc this :tx nil)
-    #_field #_"int" (ß assoc this :offset 0)
+    (ß defn- #_"TxOffsetPair" TxOffsetPair'init []
+    {
+        #_field #_"Transaction" :tx nil
+        #_field #_"int" :offset 0
+    })
 
     (§ defn #_"TxOffsetPair" TxOffsetPair'new [#_"Transaction" tx, #_"int" offset]
         (let [this {}]
@@ -32989,12 +33250,15 @@
 )
 
 (§ class- FeeCalculation
-    ;; Selected UTXOs to spend.
-    #_field #_"CoinSelection" (ß assoc this :best-coin-selection nil)
-    ;; Change output (may be null if no change).
-    #_field #_"TransactionOutput" (ß assoc this :best-change-output nil)
-    ;; List of output values adjusted downwards when recipients pay fees (may be null if no adjustment needed).
-    #_field #_"List<Coin>" (ß assoc this :updated-output-values nil)
+    (ß defn- #_"FeeCalculation" FeeCalculation'init []
+    {
+        ;; Selected UTXOs to spend.
+        #_field #_"CoinSelection" :best-coin-selection nil
+        ;; Change output (may be null if no change).
+        #_field #_"TransactionOutput" :best-change-output nil
+        ;; List of output values adjusted downwards when recipients pay fees (may be null if no adjustment needed).
+        #_field #_"List<Coin>" :updated-output-values nil
+    })
 
     (§ defn- #_"FeeCalculation" FeeCalculation'new []
         (let [this {}]
@@ -33023,116 +33287,120 @@
     (def- #_"Logger" Wallet'log (LoggerFactory/getLogger Wallet))
     (def- #_"int" Wallet'MINIMUM_BLOOM_DATA_LENGTH 8)
 
-    ;; Ordering: lock > keyChainGroupLock.  KeyChainGroup is protected separately to allow fast querying of current receive
-    ;; address even if the wallet itself is busy e.g. saving or processing a big reorg.  Useful for reducing UI latency.
-    #_protected
-    #_field #_"ReentrantLock" (ß assoc this :lock (Threading'lock "wallet"))
-    #_protected
-    #_field #_"ReentrantLock" (ß assoc this :key-chain-group-lock (Threading'lock "wallet-keychaingroup"))
-
-    ;; The various pools below give quick access to wallet-relevant transactions by the state they're in:
-    ;;
-    ;; Pending:  Transactions that didn't make it into the best chain yet.  Pending transactions can be killed if a
-    ;;           double spend against them appears in the best chain, in which case they move to the dead pool.
-    ;;           If a double spend appears in the pending state as well, we update the confidence type
-    ;;           of all txns in conflict to IN_CONFLICT and wait for the miners to resolve the race.
-    ;; Unspent:  Transactions that appeared in the best chain and have outputs we can spend.  Note that we store the
-    ;;           entire transaction in memory even though for spending purposes we only really need the outputs, the
-    ;;           reason being that this simplifies handling of re-orgs.  It would be worth fixing this in future.
-    ;; Spent:    Transactions that appeared in the best chain but don't have any spendable outputs.  They're stored
-    ;;           here for history browsing/auditing reasons only and in future will probably be flushed out to some
-    ;;           other kind of cold storage or just removed.
-    ;; Dead:     Transactions that we believe will never confirm get moved here, out of pending.  Note that Bitcoin
-    ;;           Core has no notion of dead-ness: the assumption is that double spends won't happen so there's no
-    ;;           need to notify the user about them.  We take a more pessimistic approach and try to track the fact
-    ;;           that transactions have been double spent so applications can do something intelligent (cancel orders,
-    ;;           show to the user in the UI, etc).  A transaction can leave dead and move into spent/unspent if there
-    ;;           is a re-org to a chain that doesn't include the double spend.
-
-    #_field- #_"Map<Sha256Hash, Transaction>" (ß assoc this :pending nil)
-    #_field- #_"Map<Sha256Hash, Transaction>" (ß assoc this :unspent nil)
-    #_field- #_"Map<Sha256Hash, Transaction>" (ß assoc this :spent nil)
-    #_field- #_"Map<Sha256Hash, Transaction>" (ß assoc this :dead nil)
-
-    ;; All transactions together.
-    #_protected
-    #_field #_"Map<Sha256Hash, Transaction>" (ß assoc this :transactions nil)
-
-    ;; All the TransactionOutput objects that we could spend (ignoring whether we have the private key or not).
-    ;; Used to speed up various calculations.
-    #_protected
-    #_field #_"HashSet<TransactionOutput>" (ß assoc this :my-unspents (Sets/newHashSet))
-
-    ;; Transactions that were dropped by the risk analysis system.  These are not in any pools and not serialized
-    ;; to disk.  We have to keep them around because if we ignore a tx because we think it will never confirm, but
-    ;; then it actually does confirm and does so within the same network session, remote peers will not resend us
-    ;; the tx data along with the Bloom filtered block, as they know we already received it once before
-    ;; (so it would be wasteful to repeat).  Thus we keep them around here for a while.  If we drop our network
-    ;; connections then the remote peers will forget that we were sent the tx data previously and send it again
-    ;; when relaying a filtered merkleblock.
-    #_field- #_"LinkedHashMap<Sha256Hash, Transaction>" (ß assoc this :risk-dropped (LinkedHashMap. #_"<Sha256Hash, Transaction>"
-        (§ anon
-            #_override
-            #_protected
-            (§ method #_"boolean" removeEldestEntry [#_"Map.Entry<Sha256Hash, Transaction>" eldest]
-                (< 1000 (.. this (size)))
-            )
-        )))
-
-    ;; The key chain group is not thread safe, and generally the whole hierarchy of objects should not be mutated
-    ;; outside the wallet lock.  So don't expose this object directly via any accessors!
-    #_field- #_"KeyChainGroup" (ß assoc this :key-chain-group nil)
-
-    #_protected
-    #_field #_"Context" (ß assoc this :context nil)
-    #_protected
-    #_field #_"NetworkParameters" (ß assoc this :params nil)
-
-    #_nilable
-    #_field- #_"Sha256Hash" (ß assoc this :last-block-seen-hash nil)
-    #_field- #_"int" (ß assoc this :last-block-seen-height 0)
-    #_field- #_"long" (ß assoc this :last-block-seen-time-secs 0)
-
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<WalletChangeEventListener>>" (ß assoc this :change-listeners (CopyOnWriteArrayList.))
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<WalletCoinsReceivedEventListener>>" (ß assoc this :coins-received-listeners (CopyOnWriteArrayList.))
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<WalletCoinsSentEventListener>>" (ß assoc this :coins-sent-listeners (CopyOnWriteArrayList.))
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<WalletReorganizeEventListener>>" (ß assoc this :reorganize-listeners (CopyOnWriteArrayList.))
-    #_field- #_"CopyOnWriteArrayList<ListenerRegistration<TransactionConfidenceEventListener>>" (ß assoc this :transaction-confidence-listeners (CopyOnWriteArrayList.))
-
-    ;; A listener that relays confidence changes from the transaction confidence object to the wallet event listener,
-    ;; as a convenience to API users so they don't have to register on every transaction themselves.
-    #_field- #_"TransactionConfidenceListener" (ß assoc this :tx-confidence-listener nil)
-
-    ;; If a TX hash appears in this set then notifyNewBestBlock will ignore it, as its confidence was already set up
-    ;; in receive() via Transaction.setBlockAppearance().  As the SPVBlockChain always calls notifyNewBestBlock even if
-    ;; it sent transactions to the wallet, without this we'd double count.
-    #_field- #_"HashSet<Sha256Hash>" (ß assoc this :ignore-next-new-block nil)
-    ;; Whether or not to ignore pending transactions that are considered risky by the configured risk analyzer.
-    #_field- #_"boolean" (ß assoc this :accept-risky-transactions false)
-
-    ;; Stuff for notifying transaction objects that we changed their confidences.  The purpose of this is to avoid
-    ;; spuriously sending lots of repeated notifications to listeners that API users aren't really interested in as
-    ;; a side effect of how the code is written (e.g. during re-orgs confidence data gets adjusted multiple times).
-    #_field- #_"int" (ß assoc this :on-wallet-changed-suppressions 0)
-    #_field- #_"boolean" (ß assoc this :inside-reorg false)
-    #_field- #_"Map<Transaction, ConfidenceChangeReason>" (ß assoc this :confidence-changed nil)
-    ;; Object that is used to send transactions asynchronously when the wallet requires it.
-    #_protected
-    #_volatile
-    #_field #_"TransactionBroadcaster" (ß assoc this :v-transaction-broadcaster nil)
-    ;; UNIX time in seconds.  Money controlled by keys created before this time will be automatically respent
-    ;; to a key that was created after it.  Useful when you believe some keys have been compromised.
-    #_volatile
-    #_field- #_"long" (ß assoc this :v-key-rotation-timestamp 0)
-
-    #_protected
-    #_field #_"CoinSelector" (ß assoc this :coin-selector (DefaultCoinSelector'new))
-
-    ;; User-provided description that may help people keep track of what a wallet is for.
-    #_field- #_"String" (ß assoc this :description nil)
-
-    ;; Objects that perform transaction signing.  Applied subsequently one after another.
-    #_field- #_"List<TransactionSigner>" (ß assoc this :signers nil)
+    (ß defn- #_"Wallet" Wallet'init []
+    {
+        ;; Ordering: lock > keyChainGroupLock.  KeyChainGroup is protected separately to allow fast querying of current receive
+        ;; address even if the wallet itself is busy e.g. saving or processing a big reorg.  Useful for reducing UI latency.
+        #_field #_"ReentrantLock" :lock (Threading'lock "wallet")
+        #_field #_"ReentrantLock" :key-chain-group-lock (Threading'lock "wallet-keychaingroup")
+    
+        ;; The various pools below give quick access to wallet-relevant transactions by the state they're in:
+        ;;
+        ;; Pending:  Transactions that didn't make it into the best chain yet.  Pending transactions can be killed if a
+        ;;           double spend against them appears in the best chain, in which case they move to the dead pool.
+        ;;           If a double spend appears in the pending state as well, we update the confidence type
+        ;;           of all txns in conflict to IN_CONFLICT and wait for the miners to resolve the race.
+        ;; Unspent:  Transactions that appeared in the best chain and have outputs we can spend.  Note that we store the
+        ;;           entire transaction in memory even though for spending purposes we only really need the outputs, the
+        ;;           reason being that this simplifies handling of re-orgs.  It would be worth fixing this in future.
+        ;; Spent:    Transactions that appeared in the best chain but don't have any spendable outputs.  They're stored
+        ;;           here for history browsing/auditing reasons only and in future will probably be flushed out to some
+        ;;           other kind of cold storage or just removed.
+        ;; Dead:     Transactions that we believe will never confirm get moved here, out of pending.  Note that Bitcoin
+        ;;           Core has no notion of dead-ness: the assumption is that double spends won't happen so there's no
+        ;;           need to notify the user about them.  We take a more pessimistic approach and try to track the fact
+        ;;           that transactions have been double spent so applications can do something intelligent (cancel orders,
+        ;;           show to the user in the UI, etc).  A transaction can leave dead and move into spent/unspent if there
+        ;;           is a re-org to a chain that doesn't include the double spend.
+    
+        #_field #_"Map<Sha256Hash, Transaction>" :pending nil
+        #_field #_"Map<Sha256Hash, Transaction>" :unspent nil
+        #_field #_"Map<Sha256Hash, Transaction>" :spent nil
+        #_field #_"Map<Sha256Hash, Transaction>" :dead nil
+    
+        ;; All transactions together.
+        #_field #_"Map<Sha256Hash, Transaction>" :transactions nil
+    
+        ;; All the TransactionOutput objects that we could spend (ignoring whether we have the private key or not).
+        ;; Used to speed up various calculations.
+        #_field #_"HashSet<TransactionOutput>" :my-unspents (Sets/newHashSet)
+    
+        ;; Transactions that were dropped by the risk analysis system.  These are not in any pools and not serialized
+        ;; to disk.  We have to keep them around because if we ignore a tx because we think it will never confirm, but
+        ;; then it actually does confirm and does so within the same network session, remote peers will not resend us
+        ;; the tx data along with the Bloom filtered block, as they know we already received it once before
+        ;; (so it would be wasteful to repeat).  Thus we keep them around here for a while.  If we drop our network
+        ;; connections then the remote peers will forget that we were sent the tx data previously and send it again
+        ;; when relaying a filtered merkleblock.
+        #_field #_"LinkedHashMap<Sha256Hash, Transaction>" :risk-dropped (LinkedHashMap. #_"<Sha256Hash, Transaction>"
+            (§ anon
+                #_override
+                #_protected
+                (§ method #_"boolean" removeEldestEntry [#_"Map.Entry<Sha256Hash, Transaction>" eldest]
+                    (< 1000 (.. this (size)))
+                )
+            ))
+    
+        ;; The key chain group is not thread safe, and generally the whole hierarchy of objects should not be mutated
+        ;; outside the wallet lock.  So don't expose this object directly via any accessors!
+        #_field #_"KeyChainGroup" :key-chain-group nil
+    
+        #_field #_"Context" :context nil
+        #_field #_"NetworkParameters" :params nil
+    
+        #_nilable
+        #_field #_"Sha256Hash" :last-block-seen-hash nil
+        #_field #_"int" :last-block-seen-height 0
+        #_field #_"long" :last-block-seen-time-secs 0
+    
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<WalletChangeEventListener>>" :change-listeners (CopyOnWriteArrayList.)
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<WalletCoinsReceivedEventListener>>" :coins-received-listeners (CopyOnWriteArrayList.)
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<WalletCoinsSentEventListener>>" :coins-sent-listeners (CopyOnWriteArrayList.)
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<WalletReorganizeEventListener>>" :reorganize-listeners (CopyOnWriteArrayList.)
+        #_field #_"CopyOnWriteArrayList<ListenerRegistration<TransactionConfidenceEventListener>>" :transaction-confidence-listeners (CopyOnWriteArrayList.)
+    
+        ;; A listener that relays confidence changes from the transaction confidence object to the wallet event listener,
+        ;; as a convenience to API users so they don't have to register on every transaction themselves.
+        #_field #_"TransactionConfidenceListener" :tx-confidence-listener nil
+    
+        ;; If a TX hash appears in this set then notifyNewBestBlock will ignore it, as its confidence was already set up
+        ;; in receive() via Transaction.setBlockAppearance().  As the SPVBlockChain always calls notifyNewBestBlock even if
+        ;; it sent transactions to the wallet, without this we'd double count.
+        #_field #_"HashSet<Sha256Hash>" :ignore-next-new-block nil
+        ;; Whether or not to ignore pending transactions that are considered risky by the configured risk analyzer.
+        #_field #_"boolean" :accept-risky-transactions false
+    
+        ;; Stuff for notifying transaction objects that we changed their confidences.  The purpose of this is to avoid
+        ;; spuriously sending lots of repeated notifications to listeners that API users aren't really interested in as
+        ;; a side effect of how the code is written (e.g. during re-orgs confidence data gets adjusted multiple times).
+        #_field #_"int" :on-wallet-changed-suppressions 0
+        #_field #_"boolean" :inside-reorg false
+        #_field #_"Map<Transaction, ConfidenceChangeReason>" :confidence-changed nil
+        ;; Object that is used to send transactions asynchronously when the wallet requires it.
+        #_volatile
+        #_field #_"TransactionBroadcaster" :v-transaction-broadcaster nil
+        ;; UNIX time in seconds.  Money controlled by keys created before this time will be automatically respent
+        ;; to a key that was created after it.  Useful when you believe some keys have been compromised.
+        #_volatile
+        #_field #_"long" :v-key-rotation-timestamp 0
+    
+        #_field #_"CoinSelector" :coin-selector (DefaultCoinSelector'new)
+    
+        ;; User-provided description that may help people keep track of what a wallet is for.
+        #_field #_"String" :description nil
+    
+        ;; Objects that perform transaction signing.  Applied subsequently one after another.
+        #_field #_"List<TransactionSigner>" :signers nil
+    
+        ;; Whether to do a saveNow or saveLater when we are notified of the next best block.
+        #_field #_"boolean" :hard-save-on-next-block false
+    
+        #_field #_"List<BalanceFutureRequest>" :balance-future-requests (Lists/newLinkedList)
+    
+        #_field #_"ArrayList<TransactionOutPoint>" :bloom-out-points (Lists/newArrayList)
+        ;; Used to track whether we must automatically begin/end a filter calculation and calc outpoints/take the locks.
+        #_field #_"AtomicInteger" :bloom-filter-guard (AtomicInteger. 0)
+    })
 
     ;;;
      ; Creates a new, empty wallet with a randomly chosen seed and no transactions.  Make sure to provide for
@@ -34308,9 +34576,6 @@
         )
         nil
     )
-
-    ;; Whether to do a saveNow or saveLater when we are notified of the next best block.
-    #_field- #_"boolean" (ß assoc this :hard-save-on-next-block false)
 
     #_throws #_[ "VerificationException" ]
     (§ method- #_"void" receive [#_"Transaction" tx, #_"StoredBlock" block, #_"NewBlockType" __blockType, #_"int" __relativityOffset]
@@ -35863,8 +36128,6 @@
         )
     )
 
-    #_field- #_"List<BalanceFutureRequest>" (ß assoc this :balance-future-requests (Lists/newLinkedList))
-
     ;;;
      ; Returns a future that will complete when the balance of the given type has become equal or larger to the
      ; given value.  If the wallet already has a large enough balance the future is returned in a pre-completed state.
@@ -36742,10 +37005,6 @@
         )
         nil
     )
-
-    #_field- #_"ArrayList<TransactionOutPoint>" (ß assoc this :bloom-out-points (Lists/newArrayList))
-    ;; Used to track whether we must automatically begin/end a filter calculation and calc outpoints/take the locks.
-    #_field- #_"AtomicInteger" (ß assoc this :bloom-filter-guard (AtomicInteger. 0))
 
     #_override
     (§ method #_"void" beginBloomFilterCalculation []
