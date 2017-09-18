@@ -7,10 +7,13 @@
     ([s] `(def ~(vary-meta s assoc :private true)))
     ([s i] `(def ~(vary-meta s assoc :private true) ~i)))
 
+(defmacro def- [& _] `(def ~@_))
+(defmacro defn- [& _] `(defn ~@_))
+
 (defmacro any
     ([f x y] `(~f ~x ~y))
     ([f x y & z] `(let [f# ~f x# ~x _# (any f# x# ~y)] (if _# _# (any f# x# ~@z)))))
-(defn- =?
+(defn =?
     ([x y] (if (sequential? x) (if (seq x) (or (=? (first x) y) (recur (rest x) y)) false) (if (sequential? y) (recur y x) (= x y))))
     ([x y & z] (=? x (cons y z))))
 
@@ -30,16 +33,16 @@
     (let [z (cond (vector? z) `(recur ~@z) (some? z) `(recur ~z)) _ (if (= '=> (first w)) (second w))]
         `(if ~y ~z ~_)))
 
-(def- & bit-and)
-(def- | bit-or)
-(def- << bit-shift-left)
-(def- >> bit-shift-right)
-(def- >>> unsigned-bit-shift-right)
+(def & bit-and)
+(def | bit-or)
+(def << bit-shift-left)
+(def >> bit-shift-right)
+(def >>> unsigned-bit-shift-right)
 
+(defmacro defclass [s & i] `(do (defrecord ~s []) ~@i))
 (defmacro defenum [s & i] `(def ~s (hash-set ~@i)))
-(defmacro defenum- [s & i] `(def- ~s (hash-set ~@i)))
 
-(ns org.bitcoinj.core
+(ns bitclojn.base
   #_(:import [com.google.common.base Charsets Joiner MoreObjects Objects Strings]
              [com.google.common.collect ImmutableMap Lists Ordering]
              [com.google.common.hash HashCode Hasher Hashing]
@@ -74,7 +77,7 @@
              [org.spongycastle.math.ec.custom.sec SecP256K1Curve]
              [org.spongycastle.util.encoders Base64]
     )
-    (:use [bitclojn.slang])
+    (:use [bitclojn slang])
 )
 
 (defenum NewBlockType'values
@@ -85,7 +88,7 @@
 ;;;
  ; An OrphanBlock holds a block header and, optionally, a list of tx hashes or block's transactions.
  ;;
-(§ class OrphanBlock
+(defclass OrphanBlock
     (ß defn- #_"OrphanBlock" OrphanBlock'init []
     {
         #_field #_"Block" :block nil
@@ -151,8 +154,8 @@
  ; 2016 blocks are examined and a new difficulty target is calculated from them.
  ;;
 #_abstract
-(§ class BlockChain
-    (def- #_"Logger" BlockChain'log (LoggerFactory/getLogger BlockChain))
+(defclass BlockChain
+    (§ def- #_"Logger" BlockChain'log (LoggerFactory/getLogger BlockChain))
 
     ;;; False positive estimation uses a double exponential moving average. ;;
     (def #_"double" BlockChain'FP_ESTIMATOR_ALPHA 0.0001)
@@ -1304,7 +1307,7 @@
  ; should be interpreted.  Whilst almost all addresses today are hashes of public keys, another (currently unsupported
  ; type) can contain a hash of a script instead.
  ;;
-(§ class Address (§ extends VersionedChecksummedBytes)
+(defclass Address (§ extends VersionedChecksummedBytes)
     ;;;
      ; An address is a RIPEMD160 hash of a public key, therefore is always 160 bits or 20 bytes.
      ;;
@@ -1461,7 +1464,7 @@
     )
 )
 
-(§ class AddressFormatException (§ extends IllegalArgumentException)
+(defclass AddressFormatException (§ extends IllegalArgumentException)
     (§ defn #_"AddressFormatException" AddressFormatException'new []
         (let [this (§ super IllegalArgumentException'new)]
             this
@@ -1482,7 +1485,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class AddressMessage (§ extends Message)
+(defclass AddressMessage (§ extends Message)
     (def- #_"long" AddressMessage'MAX_ADDRESSES 1024)
 
     (ß defn- #_"AddressMessage" AddressMessage'init []
@@ -1626,7 +1629,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class AlertMessage (§ extends Message)
+(defclass AlertMessage (§ extends Message)
     (ß defn- #_"AlertMessage" AlertMessage'init []
     {
         #_field #_"byte[]" :content nil
@@ -1891,10 +1894,10 @@
  ; numbers), and finally represent the resulting base-58 digits as alphanumeric ASCII characters.
  ;;
 #_stateless
-(§ class Base58
-    (def #_"char[]" Base58'ALPHABET (.. "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" (toCharArray)))
-    (def- #_"char" Base58'ENCODED_ZERO (aget Base58'ALPHABET 0))
-    (def- #_"int[]" Base58'INDEXES (let [a (int-array 128)] (Arrays/fill a, -1) (loop-when-recur [i 0] (< i (alength Base58'ALPHABET)) [(inc i)] (aset a (aget Base58'ALPHABET i) i)) a))
+(defclass Base58
+    (§ def #_"char[]" Base58'ALPHABET (.. "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" (toCharArray)))
+    (§ def- #_"char" Base58'ENCODED_ZERO (aget Base58'ALPHABET 0))
+    (§ def- #_"int[]" Base58'INDEXES (let [a (int-array 128)] (Arrays/fill a, -1) (loop-when-recur [i 0] (< i (alength Base58'ALPHABET)) [(inc i)] (aset a (aget Base58'ALPHABET i) i)) a))
 
     ;;;
      ; Encodes the given bytes as a base58 string (no checksum is appended).
@@ -2025,9 +2028,9 @@
     )
 )
 
-(§ class BitcoinPacketHeader
+(defclass BitcoinPacketHeader
     ;;; The largest number of bytes that a header can represent. ;;
-    (def #_"int" BitcoinPacketHeader'HEADER_LENGTH (+ BitcoinSerializer'COMMAND_LEN 4 4))
+    (§ def #_"int" BitcoinPacketHeader'HEADER_LENGTH (+ BitcoinSerializer'COMMAND_LEN 4 4))
 
     (ß defn- #_"BitcoinPacketHeader" BitcoinPacketHeader'init []
     {
@@ -2046,8 +2049,8 @@
                 ;; The command is a NULL terminated string, unless the command fills all twelve bytes
                 ;; in which case the termination is implicit.
                 (let [n BitcoinSerializer'COMMAND_LEN
-                        #_"int" i (loop-when-recur [i 0] (and (not= (aget (:header this) i) 0) (< i n)) [(inc i)] => i)
-                        bytes (byte-array i) _ (System/arraycopy (:header this), 0, bytes, 0, i)]
+                      #_"int" i (loop-when-recur [i 0] (and (not= (aget (:header this) i) 0) (< i n)) [(inc i)] => i)
+                      bytes (byte-array i) _ (System/arraycopy (:header this), 0, bytes, 0, i)]
 
                     (§ assoc this :command (Utils'toString bytes, "US-ASCII"))
                     (§ assoc this :size (int (Utils'readUint32 (:header this), n)))
@@ -2072,12 +2075,12 @@
  ; Serialize and de-serialize messages to the Bitcoin network format as defined in
  ; <a href="https://en.bitcoin.it/wiki/Protocol_specification">the protocol specification</a>.
  ;;
-(§ class BitcoinSerializer
-    (def- #_"Logger" BitcoinSerializer'log (LoggerFactory/getLogger BitcoinSerializer))
+(defclass BitcoinSerializer
+    (§ def- #_"Logger" BitcoinSerializer'log (LoggerFactory/getLogger BitcoinSerializer))
 
     (def- #_"int" BitcoinSerializer'COMMAND_LEN 12)
 
-    (def- #_"Map<Class<Message>, String>" BitcoinSerializer'nameOf
+    (§ def- #_"Map<Class<Message>, String>" BitcoinSerializer'nameOf
     {
         VersionMessage    "version"
         InventoryMessage  "inv"
@@ -2342,8 +2345,8 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class Block (§ extends Message)
-    (def- #_"Logger" Block'log (LoggerFactory/getLogger Block))
+(defclass Block (§ extends Message)
+    (§ def- #_"Logger" Block'log (LoggerFactory/getLogger Block))
 
     ;;; How many bytes are required to represent a block header WITHOUT the trailing 00 length byte. ;;
     (def #_"int" Block'HEADER_SIZE 80)
@@ -2361,7 +2364,7 @@
      ; the number in a block to prevent somebody mining a huge block that has way more sigops than normal, so is very
      ; expensive/slow to verify.
      ;;
-    (def #_"int" Block'MAX_BLOCK_SIGOPS (quot Block'MAX_BLOCK_SIZE 50))
+    (§ def #_"int" Block'MAX_BLOCK_SIGOPS (quot Block'MAX_BLOCK_SIZE 50))
 
     ;;; A value for difficultyTarget (nBits) that allows half of all possible hash solutions. ;;
     (def #_"long" Block'EASIEST_DIFFICULTY_TARGET 0x207fffff)
@@ -2750,7 +2753,7 @@
     ;;;
      ; The number that is one greater than the largest representable SHA-256 hash.
      ;;
-    (def- #_"BigInteger" Block'LARGEST_HASH (.. BigInteger/ONE (shiftLeft 256)))
+    (§ def- #_"BigInteger" Block'LARGEST_HASH (.. BigInteger/ONE (shiftLeft 256)))
 
     ;;;
      ; Returns the work represented by this block.
@@ -3259,7 +3262,7 @@
  ; choice to use for programs that have limited resources as it won't verify transactions signatures or attempt to store
  ; all of the block chain.
  ;;
-(§ class SPVBlockChain (§ extends BlockChain)
+(defclass SPVBlockChain (§ extends BlockChain)
     (ß defn- #_"SPVBlockChain" SPVBlockChain'init []
     {
         ;;; Keeps a map of block hashes to StoredBlocks. ;;
@@ -3462,7 +3465,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class BloomFilter (§ extends Message)
+(defclass BloomFilter (§ extends Message)
     (ß defn- #_"BloomFilter" BloomFilter'init []
     {
         #_field #_"byte[]" :data nil
@@ -3837,8 +3840,8 @@
  ; one after the other.  A checkpoint is 12 bytes for the total work done field, 4 bytes for the height, 80 bytes
  ; for the block header and then 1 zero byte at the end (i.e. number of transactions in the block: always zero).
  ;;
-(§ class CheckpointManager
-    (def- #_"Logger" CheckpointManager'log (LoggerFactory/getLogger CheckpointManager))
+(defclass CheckpointManager
+    (§ def- #_"Logger" CheckpointManager'log (LoggerFactory/getLogger CheckpointManager))
 
     (def- #_"int" CheckpointManager'MAX_SIGNATURES 256)
 
@@ -3851,7 +3854,7 @@
         #_field #_"Sha256Hash" :data-hash nil
     })
 
-    (def #_"BaseEncoding" CheckpointManager'BASE64 (.. (BaseEncoding/base64) (omitPadding)))
+    (§ def #_"BaseEncoding" CheckpointManager'BASE64 (.. (BaseEncoding/base64) (omitPadding)))
 
     ;;; Loads the default checkpoints bundled with bitcoinj. ;;
     #_throws #_[ "IOException" ]
@@ -3965,7 +3968,7 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_abstract
-(§ class ChildMessage (§ extends Message)
+(defclass ChildMessage (§ extends Message)
     (ß defn- #_"ChildMessage" ChildMessage'init []
     {
         #_nilable
@@ -4048,7 +4051,7 @@
 ;;;
  ; Represents a monetary Bitcoin value.  This class is immutable.
  ;;
-(§ class Coin (§ implements Monetary, Comparable #_"<Coin>")
+(defclass Coin (§ implements Monetary, Comparable #_"<Coin>")
     ;;;
      ; Number of decimals for one Bitcoin.  This constant is useful for quick adapting to other coins because a lot of
      ; constants derive from it.
@@ -4058,44 +4061,44 @@
     ;;;
      ; The number of satoshis equal to one bitcoin.
      ;;
-    (def- #_"long" Coin'COIN_VALUE (LongMath/pow 10, Coin'SMALLEST_UNIT_EXPONENT))
+    (§ def- #_"long" Coin'COIN_VALUE (LongMath/pow 10, Coin'SMALLEST_UNIT_EXPONENT))
 
     ;;;
      ; Zero Bitcoins.
      ;;
-    (def #_"Coin" Coin'ZERO (Coin'valueOf 0))
+    (§ def #_"Coin" Coin'ZERO (Coin'valueOf 0))
 
     ;;;
      ; One Bitcoin.
      ;;
-    (def #_"Coin" Coin'COIN (Coin'valueOf Coin'COIN_VALUE))
+    (§ def #_"Coin" Coin'COIN (Coin'valueOf Coin'COIN_VALUE))
 
     ;;;
      ; 0.01 Bitcoins.  This unit is not really used much.
      ;;
-    (def #_"Coin" Coin'CENT (.. Coin'COIN (divide 100)))
+    (§ def #_"Coin" Coin'CENT (.. Coin'COIN (divide 100)))
 
     ;;;
      ; 0.001 Bitcoins, also known as 1 mBTC.
      ;;
-    (def #_"Coin" Coin'MILLICOIN (.. Coin'COIN (divide 1000)))
+    (§ def #_"Coin" Coin'MILLICOIN (.. Coin'COIN (divide 1000)))
 
     ;;;
      ; 0.000001 Bitcoins, also known as 1 µBTC or 1 uBTC.
      ;;
-    (def #_"Coin" Coin'MICROCOIN (.. Coin'MILLICOIN (divide 1000)))
+    (§ def #_"Coin" Coin'MICROCOIN (.. Coin'MILLICOIN (divide 1000)))
 
     ;;;
      ; A satoshi is the smallest unit that can be transferred.  100 million of them fit into a Bitcoin.
      ;;
-    (def #_"Coin" Coin'SATOSHI (Coin'valueOf 1))
+    (§ def #_"Coin" Coin'SATOSHI (Coin'valueOf 1))
 
-    (def #_"Coin" Coin'FIFTY_COINS (.. Coin'COIN (multiply 50)))
+    (§ def #_"Coin" Coin'FIFTY_COINS (.. Coin'COIN (multiply 50)))
 
     ;;;
      ; Represents a monetary value of minus one satoshi.
      ;;
-    (def #_"Coin" Coin'NEGATIVE_SATOSHI (Coin'valueOf -1))
+    (§ def #_"Coin" Coin'NEGATIVE_SATOSHI (Coin'valueOf -1))
 
     (ß defn- #_"Coin" Coin'init []
     {
@@ -4294,7 +4297,7 @@
         (:value this)
     )
 
-    (def- #_"MonetaryFormat" Coin'FRIENDLY_FORMAT (.. MonetaryFormat'BTC (minDecimals 2) (repeatOptionalDecimals 1, 6) (postfixCode)))
+    (§ def- #_"MonetaryFormat" Coin'FRIENDLY_FORMAT (.. MonetaryFormat'BTC (minDecimals 2) (repeatOptionalDecimals 1, 6) (postfixCode)))
 
     ;;;
      ; Returns the value as a 0.12 type string.  More digits after the decimal place will be used
@@ -4304,7 +4307,7 @@
         (.. Coin'FRIENDLY_FORMAT (format this) (toString))
     )
 
-    (def- #_"MonetaryFormat" Coin'PLAIN_FORMAT (.. MonetaryFormat'BTC (minDecimals 0) (repeatOptionalDecimals 1, 8) (noCode)))
+    (§ def- #_"MonetaryFormat" Coin'PLAIN_FORMAT (.. MonetaryFormat'BTC (minDecimals 0) (repeatOptionalDecimals 1, 8) (noCode)))
 
     ;;;
      ; Returns the value as a plain string denominated in BTC.
@@ -4361,8 +4364,8 @@
  ; will be removed to avoid confusing edge cases that could occur if the developer does not fully understand it e.g.
  ; in the case where multiple instances of the library are in use simultaneously.
  ;;
-(§ class Context
-    (def- #_"Logger" Context'log (LoggerFactory/getLogger Context))
+(defclass Context
+    (§ def- #_"Logger" Context'log (LoggerFactory/getLogger Context))
 
     (def #_"int" Context'DEFAULT_EVENT_HORIZON 100)
 
@@ -4412,7 +4415,7 @@
     #_volatile
     (def- #_"Context" Context'LAST_CONSTRUCTED)
     (def- #_"boolean" Context'IS_STRICT_MODE)
-    (def- #_"ThreadLocal<Context>" Context'SLOT (ThreadLocal.))
+    (§ def- #_"ThreadLocal<Context>" Context'SLOT (ThreadLocal.))
 
     ;;;
      ; Returns the current context that is associated with the <b>calling thread</b>.  BitcoinJ is an API that has thread
@@ -4533,7 +4536,7 @@
  ; how ECDSA signatures are represented when embedded in other data structures in the Bitcoin protocol.
  ; The raw components can be useful for doing further EC maths on them.
  ;;
-(§ class ECDSASignature
+(defclass ECDSASignature
     (ß defn- #_"ECDSASignature" ECDSASignature'init []
     {
         ;;; The two components of the signature. ;;
@@ -4596,7 +4599,7 @@
                     )
 
                     (let [#_"ASN1Integer" r
-                            #_"ASN1Integer" s]
+                          #_"ASN1Integer" s]
                         (try
                             (§ ass r (cast ASN1Integer (.. seq (getObjectAt 0))))
                             (§ ass s (cast ASN1Integer (.. seq (getObjectAt 1))))
@@ -4653,7 +4656,7 @@
     )
 )
 
-(§ class MissingPrivateKeyException (§ extends RuntimeException)
+(defclass MissingPrivateKeyException (§ extends RuntimeException)
     (§ defn #_"MissingPrivateKeyException" MissingPrivateKeyException'new []
         (let [this (RuntimeException'new)]
             this
@@ -4689,11 +4692,11 @@
  ; this class so round-tripping preserves state.  Unless you're working with old software or doing unusual things, you
  ; can usually ignore the compressed/uncompressed distinction.
  ;;
-(§ class ECKey
-    (def- #_"Logger" ECKey'log (LoggerFactory/getLogger ECKey))
+(defclass ECKey
+    (§ def- #_"Logger" ECKey'log (LoggerFactory/getLogger ECKey))
 
     ;;; Sorts oldest keys first, newest last. ;;
-    (def #_"Comparator<ECKey>" ECKey'AGE_COMPARATOR (Comparator. #_"<ECKey>"
+    (§ def #_"Comparator<ECKey>" ECKey'AGE_COMPARATOR (Comparator. #_"<ECKey>"
         (§ anon
             #_override
             (§ method #_"int" compare [#_"ECKey" k1, #_"ECKey" k2]
@@ -4704,7 +4707,7 @@
         )))
 
     ;;; Compares pub key bytes using {@link com.google.common.primitives.UnsignedBytes#lexicographicalComparator()}. ;;
-    (def #_"Comparator<ECKey>" ECKey'PUBKEY_COMPARATOR (Comparator. #_"<ECKey>"
+    (§ def #_"Comparator<ECKey>" ECKey'PUBKEY_COMPARATOR (Comparator. #_"<ECKey>"
         (§ anon
             (§ field #_"Comparator<byte[]>" :comparator (UnsignedBytes/lexicographicalComparator))
 
@@ -4715,7 +4718,7 @@
         )))
 
     ;; The parameters of the secp256k1 curve that Bitcoin uses.
-    (def- #_"X9ECParameters" ECKey'CURVE_PARAMS (CustomNamedCurves/getByName "secp256k1"))
+    (§ def- #_"X9ECParameters" ECKey'CURVE_PARAMS (CustomNamedCurves/getByName "secp256k1"))
     #_static
     (§ block
         ;; Tell Bouncy Castle to precompute data that's needed during secp256k1 calculations.  Increasing the width
@@ -4725,15 +4728,15 @@
     )
 
     ;;; The parameters of the secp256k1 curve that Bitcoin uses. ;;
-    (def #_"ECDomainParameters" ECKey'CURVE (ECDomainParameters. (.. ECKey'CURVE_PARAMS (getCurve)), (.. ECKey'CURVE_PARAMS (getG)), (.. ECKey'CURVE_PARAMS (getN)), (.. ECKey'CURVE_PARAMS (getH))))
+    (§ def #_"ECDomainParameters" ECKey'CURVE (ECDomainParameters. (.. ECKey'CURVE_PARAMS (getCurve)), (.. ECKey'CURVE_PARAMS (getG)), (.. ECKey'CURVE_PARAMS (getN)), (.. ECKey'CURVE_PARAMS (getH))))
 
     ;;;
      ; Equal to CURVE.getN().shiftRight(1), used for canonicalising the S value of a signature.
      ; If you aren't sure what this is about, you can ignore it.
      ;;
-    (def #_"BigInteger" ECKey'HALF_CURVE_ORDER (.. ECKey'CURVE_PARAMS (getN) (shiftRight 1)))
+    (§ def #_"BigInteger" ECKey'HALF_CURVE_ORDER (.. ECKey'CURVE_PARAMS (getN) (shiftRight 1)))
 
-    (def- #_"SecureRandom" ECKey'SECURE_RANDOM (SecureRandom.))
+    (§ def- #_"SecureRandom" ECKey'SECURE_RANDOM (SecureRandom.))
 
     (ß defn- #_"ECKey" ECKey'init []
     {
@@ -5515,7 +5518,7 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_abstract
-(§ class EmptyMessage (§ extends Message)
+(defclass EmptyMessage (§ extends Message)
     (§ defn #_"EmptyMessage" EmptyMessage'new []
         (let [this (Message'new)]
             (§ assoc this :length 0)
@@ -5563,7 +5566,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class FilteredBlock (§ extends Message)
+(defclass FilteredBlock (§ extends Message)
     (ß defn- #_"FilteredBlock" FilteredBlock'init []
     {
         #_field #_"Block" :header nil
@@ -5703,7 +5706,7 @@
 ;;;
  ; A job submitted to the executor which verifies signatures.
  ;;
-(§ class- FullPrunedVerifier (§ implements Callable #_"<VerificationException>")
+(defclass FullPrunedVerifier (§ implements Callable #_"<VerificationException>")
     (ß defn- #_"FullPrunedVerifier" FullPrunedVerifier'init []
     {
         #_field #_"Transaction" :tx nil
@@ -5746,8 +5749,8 @@
  ; serve the full block chain to other clients, but it nevertheless provides the same security guarantees as Bitcoin
  ; Core does.
  ;;
-(§ class FullPrunedBlockChain (§ extends BlockChain)
-    (def- #_"Logger" FullPrunedBlockChain'log (LoggerFactory/getLogger FullPrunedBlockChain))
+(defclass FullPrunedBlockChain (§ extends BlockChain)
+    (§ def- #_"Logger" FullPrunedBlockChain'log (LoggerFactory/getLogger FullPrunedBlockChain))
 
     (ß defn- #_"FullPrunedBlockChain" FullPrunedBlockChain'init []
     {
@@ -6322,7 +6325,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class GetAddrMessage (§ extends EmptyMessage)
+(defclass GetAddrMessage (§ extends EmptyMessage)
     (§ defn #_"GetAddrMessage" GetAddrMessage'new [#_"NetworkParameters" params]
         (let [this (EmptyMessage'new params)]
             this
@@ -6336,7 +6339,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class GetBlocksMessage (§ extends Message)
+(defclass GetBlocksMessage (§ extends Message)
     (ß defn- #_"GetBlocksMessage" GetBlocksMessage'init []
     {
         #_field #_"long" :version 0
@@ -6440,7 +6443,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class GetDataMessage (§ extends ListMessage)
+(defclass GetDataMessage (§ extends ListMessage)
     #_throws #_[ "ProtocolException" ]
     (§ defn #_"GetDataMessage" GetDataMessage'new [#_"NetworkParameters" params, #_"byte[]" payload]
         (let [this (ListMessage'new params, payload)]
@@ -6499,7 +6502,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class GetHeadersMessage (§ extends GetBlocksMessage)
+(defclass GetHeadersMessage (§ extends GetBlocksMessage)
     (§ defn #_"GetHeadersMessage" GetHeadersMessage'new [#_"NetworkParameters" params, #_"List<Sha256Hash>" locator, #_"Sha256Hash" __stopHash]
         (let [this (GetBlocksMessage'new params, locator, __stopHash)]
             this
@@ -6551,8 +6554,8 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class HeadersMessage (§ extends Message)
-    (def- #_"Logger" HeadersMessage'log (LoggerFactory/getLogger HeadersMessage))
+(defclass HeadersMessage (§ extends Message)
+    (§ def- #_"Logger" HeadersMessage'log (LoggerFactory/getLogger HeadersMessage))
 
     ;; The main client will never send us more than this number of headers.
     (def #_"int" HeadersMessage'MAX_HEADERS 2000)
@@ -6630,7 +6633,7 @@
 ;;;
  ; Thrown to indicate that you don't have enough money available to perform the requested operation.
  ;;
-(§ class InsufficientMoneyException (§ extends Exception)
+(defclass InsufficientMoneyException (§ extends Exception)
     (ß defn- #_"InsufficientMoneyException" InsufficientMoneyException'init []
     {
         ;;; Contains the number of satoshis that would have been required to complete the operation. ;;
@@ -6667,7 +6670,7 @@
     :InventoryItemType'FILTERED_BLOCK
 )
 
-(§ class InventoryItem
+(defclass InventoryItem
     ;;;
      ; 4 byte uint32 type field + 32 byte hash
      ;;
@@ -6717,7 +6720,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class InventoryMessage (§ extends ListMessage)
+(defclass InventoryMessage (§ extends ListMessage)
     ;;; A hard coded constant in the protocol. ;;
     (def #_"int" InventoryMessage'MAX_INV_SIZE 50000)
 
@@ -6779,7 +6782,7 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_abstract
-(§ class ListMessage (§ extends Message)
+(defclass ListMessage (§ extends Message)
     (def #_"long" ListMessage'MAX_INVENTORY_ITEMS 50000)
 
     (ß defn- #_"ListMessage" ListMessage'init []
@@ -6902,7 +6905,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class MemoryPoolMessage (§ extends Message)
+(defclass MemoryPoolMessage (§ extends Message)
     (§ defn #_"MemoryPoolMessage" MemoryPoolMessage'new []
         (let [this (Message'new)]
             this
@@ -6930,15 +6933,15 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 #_abstract
-(§ class Message
-    (def- #_"Logger" Message'log (LoggerFactory/getLogger Message))
+(defclass Message
+    (§ def- #_"Logger" Message'log (LoggerFactory/getLogger Message))
 
     (def #_"int" Message'MAX_SIZE 0x02000000) ;; 32MB
 
-    (def #_"int" Message'UNKNOWN_LENGTH Integer/MIN_VALUE)
+    (§ def #_"int" Message'UNKNOWN_LENGTH Integer/MIN_VALUE)
 
     ;; Useful to ensure serialize/deserialize are consistent with each other.
-    (def- #_"boolean" Message'SELF_CHECK false)
+    (§ def- #_"boolean" Message'SELF_CHECK false)
 
     (ß defn- #_"Message" Message'init []
     {
@@ -7346,18 +7349,18 @@
  ; one for the main network ({@link MainNetParams}), and one for the public test network.
  ;;
 #_abstract
-(§ class NetworkParameters
+(defclass NetworkParameters
     ;;;
      ; The alert signing key originally owned by Satoshi, and now passed on to Gavin along with a few others.
      ;;
-    (def #_"byte[]" NetworkParameters'SATOSHI_KEY (.. Utils'HEX (decode "04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284")))
+    (§ def #_"byte[]" NetworkParameters'SATOSHI_KEY (.. Utils'HEX (decode "04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284")))
 
     ;;; The string id of the main, production network where people trade things. ;;
     (def #_"String" NetworkParameters'ID_MAINNET "org.bitcoin.production")
     ;;; The string id of the testnet. ;;
     (def #_"String" NetworkParameters'ID_TESTNET "org.bitcoin.test")
 
-    (def- #_"Logger" NetworkParameters'log (LoggerFactory/getLogger NetworkParameters))
+    (§ def- #_"Logger" NetworkParameters'log (LoggerFactory/getLogger NetworkParameters))
 
     ;; TODO: Seed nodes should be here as well.
 
@@ -7517,7 +7520,7 @@
 
     (def #_"int" NetworkParameters'TARGET_TIMESPAN (* 14 24 60 60)) ;; 2 weeks per difficulty cycle, on average.
     (def #_"int" NetworkParameters'TARGET_SPACING (* 10 60)) ;; 10 minutes per block.
-    (def #_"int" NetworkParameters'INTERVAL (quot NetworkParameters'TARGET_TIMESPAN NetworkParameters'TARGET_SPACING))
+    (§ def #_"int" NetworkParameters'INTERVAL (quot NetworkParameters'TARGET_TIMESPAN NetworkParameters'TARGET_SPACING))
 
     (def #_"int" NetworkParameters'REWARD_HALVING_INTERVAL 210000)
 
@@ -7536,7 +7539,7 @@
     ;;;
      ; The maximum money to be generated.
      ;;
-    (def #_"Coin" NetworkParameters'MAX_MONEY (.. Coin'COIN (multiply NetworkParameters'MAX_COINS)))
+    (§ def #_"Coin" NetworkParameters'MAX_MONEY (.. Coin'COIN (multiply NetworkParameters'MAX_COINS)))
 
     #_override
     (§ method #_"boolean" equals [#_"Object" o]
@@ -7750,7 +7753,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class NotFoundMessage (§ extends InventoryMessage)
+(defclass NotFoundMessage (§ extends InventoryMessage)
     (def #_"int" NotFoundMessage'MIN_PROTOCOL_VERSION 70001)
 
     (§ defn #_"NotFoundMessage" NotFoundMessage'new [#_"NetworkParameters" params]
@@ -7774,7 +7777,7 @@
     )
 )
 
-(§ class- ValuesUsed
+(defclass ValuesUsed
     (ß defn- #_"ValuesUsed" ValuesUsed'init []
     {
         #_field #_"int" :bits-used 0
@@ -7814,7 +7817,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class PartialMerkleTree (§ extends Message)
+(defclass PartialMerkleTree (§ extends Message)
     (ß defn- #_"PartialMerkleTree" PartialMerkleTree'init []
     {
         ;; the total number of transactions in the block
@@ -8081,7 +8084,7 @@
     )
 )
 
-(§ class- GetDataRequest
+(defclass GetDataRequest
     (ß defn- #_"GetDataRequest" GetDataRequest'init []
     {
         #_field #_"Sha256Hash" :hash nil
@@ -8097,7 +8100,7 @@
     )
 )
 
-(§ class- PendingPing
+(defclass PendingPing
     (ß defn- #_"PendingPing" PendingPing'init []
     {
         #_field #_"Peer" :peer nil
@@ -8138,8 +8141,8 @@
  ; Note that timeouts are handled by the extended {@link AbstractTimeoutHandler} and timeout is automatically
  ; disabled (using {@link AbstractTimeoutHandler#setTimeoutEnabled(boolean)}) once the version handshake completes.
  ;;
-(§ class Peer (§ extends PeerSocketHandler)
-    (def- #_"Logger" Peer'log (LoggerFactory/getLogger Peer))
+(defclass Peer (§ extends PeerSocketHandler)
+    (§ def- #_"Logger" Peer'log (LoggerFactory/getLogger Peer))
 
     ;; How frequently to refresh the filter.  This should become dynamic in future and calculated depending on the
     ;; actual false positive rate.  For now a good value was determined empirically around January 2013.
@@ -10034,7 +10037,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class PeerAddress (§ extends ChildMessage)
+(defclass PeerAddress (§ extends ChildMessage)
     (def #_"int" PeerAddress'MESSAGE_SIZE 30)
 
     (ß defn- #_"PeerAddress" PeerAddress'init []
@@ -10279,7 +10282,7 @@
     (§ method #_"void" endBloomFilterCalculation [])
 )
 
-(defenum- LocalhostCheckState'values
+(defenum LocalhostCheckState'values
     :LocalhostCheckState'NOT_TRIED
     :LocalhostCheckState'FOUND
     :LocalhostCheckState'FOUND_AND_CONNECTED
@@ -10293,7 +10296,7 @@
 )
 
 #_non-static #_"PeerGroup"
-(§ class- PeerListener (§ implements GetDataEventListener, BlocksDownloadedEventListener)
+(defclass PeerListener (§ implements GetDataEventListener, BlocksDownloadedEventListener)
     (§ defn #_"PeerListener" PeerListener'new []
         (let [this {}]
             this
@@ -10309,7 +10312,7 @@
     (§ method #_"void" onBlocksDownloaded [#_"Peer" peer, #_"Block" block, #_nilable #_"FilteredBlock" __filteredBlock, #_"int" __blocksLeft]
         (when (some? (:chain this))
             (let [#_"double" rate (.. (:chain this) (getFalsePositiveRate))
-                    #_"double" target (* (.. (:bloom-filter-merger this) (getBloomFilterFPRate)) PeerGroup'MAX_FP_RATE_INCREASE)]
+                  #_"double" target (* (.. (:bloom-filter-merger this) (getBloomFilterFPRate)) PeerGroup'MAX_FP_RATE_INCREASE)]
                 (when (< target rate)
                     ;; TODO: Avoid hitting this path if the remote peer didn't acknowledge applying a new filter yet.
                     (.. PeerGroup'log (debug "Force update Bloom filter due to high false positive rate ({} vs {})", rate, target))
@@ -10323,7 +10326,7 @@
 )
 
 #_non-static #_"PeerGroup"
-(§ class- PeerStartupListener (§ implements PeerConnectedEventListener, PeerDisconnectedEventListener)
+(defclass PeerStartupListener (§ implements PeerConnectedEventListener, PeerDisconnectedEventListener)
     (§ defn- #_"PeerStartupListener" PeerStartupListener'new []
         (let [this {}]
             this
@@ -10345,7 +10348,7 @@
 )
 
 #_non-static #_"PeerGroup"
-(§ class- ChainDownloadSpeedCalculator (§ implements BlocksDownloadedEventListener, Runnable)
+(defclass ChainDownloadSpeedCalculator (§ implements BlocksDownloadedEventListener, Runnable)
     (ß defn- #_"ChainDownloadSpeedCalculator" ChainDownloadSpeedCalculator'init []
     {
         #_field #_"int" :blocks-in-last-second 0
@@ -10410,7 +10413,7 @@
 
     (§ method- #_"void" calculate []
         (let [#_"int" __minSpeedBytesPerSec
-                #_"int" period]
+              #_"int" period]
 
             (.. (:lock this) (lock))
             (try
@@ -10518,8 +10521,8 @@
  ; of PeerGroup are safe to call from a UI thread as some may do network IO,
  ; but starting and stopping the service should be fine.
  ;;
-(§ class PeerGroup (§ implements TransactionBroadcaster)
-    (def- #_"Logger" PeerGroup'log (LoggerFactory/getLogger PeerGroup))
+(defclass PeerGroup (§ implements TransactionBroadcaster)
+    (§ def- #_"Logger" PeerGroup'log (LoggerFactory/getLogger PeerGroup))
 
     ;;;
      ; The default number of connections to the p2p network the library will try to build.  This is set to 12 empirically.
@@ -10760,7 +10763,7 @@
                                 )
 
                                 (let [#_"long" __retryTime
-                                    #_"PeerAddress" __addrToTry]
+                                      #_"PeerAddress" __addrToTry]
                                     (.. (:lock this) (lock))
                                     (try
                                         (when __doDiscovery
@@ -12854,8 +12857,8 @@
  ; {@link net} classes and {@link Peer}.
  ;;
 #_abstract
-(§ class PeerSocketHandler (§ extends AbstractTimeoutHandler) (§ implements StreamConnection)
-    (def- #_"Logger" PeerSocketHandler'log (LoggerFactory/getLogger PeerSocketHandler))
+(defclass PeerSocketHandler (§ extends AbstractTimeoutHandler) (§ implements StreamConnection)
+    (§ def- #_"Logger" PeerSocketHandler'log (LoggerFactory/getLogger PeerSocketHandler))
 
     (ß defn- #_"PeerSocketHandler" PeerSocketHandler'init []
     {
@@ -13104,7 +13107,7 @@
 ;;;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class Ping (§ extends Message)
+(defclass Ping (§ extends Message)
     (ß defn- #_"Ping" Ping'init []
     {
         #_field #_"long" :nonce 0
@@ -13176,7 +13179,7 @@
 ;;;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class Pong (§ extends Message)
+(defclass Pong (§ extends Message)
     (ß defn- #_"Pong" Pong'init []
     {
         #_field #_"long" :nonce 0
@@ -13221,7 +13224,7 @@
     )
 )
 
-(§ class ProtocolException (§ extends VerificationException)
+(defclass ProtocolException (§ extends VerificationException)
     (§ defn #_"ProtocolException" ProtocolException'new [#_"String" msg]
         (let [this (VerificationException'new msg)]
             this
@@ -13249,7 +13252,7 @@
  ; as the pruning parameters should be set very conservatively, such that an absolutely enormous re-org would be
  ; required to trigger it.
  ;;
-(§ class PrunedException (§ extends Exception)
+(defclass PrunedException (§ extends Exception)
     (ß defn- #_"PrunedException" PrunedException'init []
     {
         #_field #_"Sha256Hash" :hash nil
@@ -13323,7 +13326,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class RejectMessage (§ extends Message)
+(defclass RejectMessage (§ extends Message)
     (ß defn- #_"RejectMessage" RejectMessage'init []
     {
         #_field #_"String" :message nil
@@ -13450,7 +13453,7 @@
  ; protocol rule.  Note that not all invalid transactions generate a reject message, and
  ; some peers may never do so.
  ;;
-(§ class RejectedTransactionException (§ extends Exception)
+(defclass RejectedTransactionException (§ extends Exception)
     (ß defn- #_"RejectedTransactionException" RejectedTransactionException'init []
     {
         #_field #_"Transaction" :tx nil
@@ -13477,7 +13480,7 @@
     )
 )
 
-(§ class ScriptException (§ extends VerificationException)
+(defclass ScriptException (§ extends VerificationException)
     (ß defn- #_"ScriptException" ScriptException'init []
     {
         #_field #_"ScriptError" :err nil
@@ -13507,9 +13510,9 @@
  ; allowing it to be used as keys in a map.
  ; It also checks that the length is correct and provides a bit more type safety.
  ;;
-(§ class Sha256Hash (§ implements Comparable #_"<Sha256Hash>")
+(defclass Sha256Hash (§ implements Comparable #_"<Sha256Hash>")
     (def #_"int" Sha256Hash'LENGTH 32) ;; bytes
-    (def #_"Sha256Hash" Sha256Hash'ZERO_HASH (Sha256Hash'wrap (byte-array Sha256Hash'LENGTH)))
+    (§ def #_"Sha256Hash" Sha256Hash'ZERO_HASH (Sha256Hash'wrap (byte-array Sha256Hash'LENGTH)))
 
     (ß defn- #_"Sha256Hash" Sha256Hash'init []
     {
@@ -13735,12 +13738,12 @@
  ;
  ; StoredBlocks are put inside a {@link BlockStore} which saves them to memory or disk.
  ;;
-(§ class StoredBlock
+(defclass StoredBlock
     ;; A BigInteger representing the total amount of work done so far on this chain.  As of May 2011 it takes
     ;; 8 bytes to represent this field, so 12 bytes should be plenty for now.
     (def #_"int" StoredBlock'CHAIN_WORK_BYTES 12)
-    (def #_"byte[]" StoredBlock'EMPTY_BYTES (byte-array StoredBlock'CHAIN_WORK_BYTES))
-    (def #_"int" StoredBlock'COMPACT_SERIALIZED_SIZE (+ Block'HEADER_SIZE StoredBlock'CHAIN_WORK_BYTES 4)) ;; for height
+    (§ def #_"byte[]" StoredBlock'EMPTY_BYTES (byte-array StoredBlock'CHAIN_WORK_BYTES))
+    (§ def #_"int" StoredBlock'COMPACT_SERIALIZED_SIZE (+ Block'HEADER_SIZE StoredBlock'CHAIN_WORK_BYTES 4)) ;; for height
 
     (ß defn- #_"StoredBlock" StoredBlock'init []
     {
@@ -13873,7 +13876,7 @@
  ; or the set of transaction outputs created/destroyed when the block is
  ; connected.
  ;;
-(§ class StoredUndoableBlock
+(defclass StoredUndoableBlock
     (ß defn- #_"StoredUndoableBlock" StoredUndoableBlock'init []
     {
         #_field #_"Sha256Hash" :block-hash nil
@@ -14007,12 +14010,12 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class Transaction (§ extends ChildMessage)
+(defclass Transaction (§ extends ChildMessage)
     ;;;
      ; A comparator that can be used to sort transactions by their updateTime field.
      ; The ordering goes from most recent into the past.
      ;;
-    (def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_UPDATE_TIME (Comparator. #_"<Transaction>"
+    (§ def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_UPDATE_TIME (Comparator. #_"<Transaction>"
         (§ anon
             #_override
             (§ method #_"int" compare [#_"Transaction" tx1, #_"Transaction" tx2]
@@ -14026,7 +14029,7 @@
         )))
 
     ;;; A comparator that can be used to sort transactions by their chain height. ;;
-    (def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_HEIGHT (Comparator. #_"<Transaction>"
+    (§ def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_HEIGHT (Comparator. #_"<Transaction>"
         (§ anon
             #_override
             (§ method #_"int" compare [#_"Transaction" tx1, #_"Transaction" tx2]
@@ -14041,12 +14044,12 @@
             )
         )))
 
-    (def- #_"Logger" Transaction'log (LoggerFactory/getLogger Transaction))
+    (§ def- #_"Logger" Transaction'log (LoggerFactory/getLogger Transaction))
 
     ;;; Threshold for lockTime: below this value it is interpreted as block number, otherwise as timestamp. ;;
     (def #_"int" Transaction'LOCKTIME_THRESHOLD 500000000) ;; Tue Nov  5 00:53:20 1985 UTC
     ;;; Same, but as a BigInteger for CHECKLOCKTIMEVERIFY. ;;
-    (def #_"BigInteger" Transaction'LOCKTIME_THRESHOLD_BIG (BigInteger/valueOf Transaction'LOCKTIME_THRESHOLD))
+    (§ def #_"BigInteger" Transaction'LOCKTIME_THRESHOLD_BIG (BigInteger/valueOf Transaction'LOCKTIME_THRESHOLD))
 
     ;;; How many bytes a transaction can be before it won't be relayed anymore.  Currently 100kb. ;;
     (def #_"int" Transaction'MAX_STANDARD_TX_SIZE 100000)
@@ -14054,20 +14057,20 @@
     ;;;
      ; If feePerKb is lower than this, Bitcoin Core will treat it as if there were no fee.
      ;;
-    (def #_"Coin" Transaction'REFERENCE_DEFAULT_MIN_TX_FEE (Coin'valueOf 5000)) ;; 0.05 mBTC
+    (§ def #_"Coin" Transaction'REFERENCE_DEFAULT_MIN_TX_FEE (Coin'valueOf 5000)) ;; 0.05 mBTC
 
     ;;;
      ; If using this feePerKb, transactions will get confirmed within the next couple of blocks.
      ; This should be adjusted from time to time.  Last adjustment: February 2017.
      ;;
-    (def #_"Coin" Transaction'DEFAULT_TX_FEE (Coin'valueOf 100000)) ;; 1 mBTC
+    (§ def #_"Coin" Transaction'DEFAULT_TX_FEE (Coin'valueOf 100000)) ;; 1 mBTC
 
     ;;;
      ; Any standard (i.e. pay-to-address) output smaller than this value (in satoshis) will most likely be rejected
      ; by the network.  This is calculated by assuming a standard output will be 34 bytes, and then using the formula
      ; used in {@link TransactionOutput#getMinNonDustValue(Coin)}.
      ;;
-    (def #_"Coin" Transaction'MIN_NONDUST_OUTPUT (Coin'valueOf 2730)) ;; satoshis
+    (§ def #_"Coin" Transaction'MIN_NONDUST_OUTPUT (Coin'valueOf 2730)) ;; satoshis
 
     (ß defn- #_"Transaction" Transaction'init []
     {
@@ -14127,13 +14130,13 @@
     ;; Below flags apply in the context of BIP 68.
      ; If this flag set, CTxIn::nSequence is NOT interpreted as a relative lock-time.
      ;;
-    (def #_"long" Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG (<< 1 31))
+    (§ def #_"long" Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG (<< 1 31))
 
     ;; If CTxIn::nSequence encodes a relative lock-time and this flag
      ; is set, the relative lock-time has units of 512 seconds,
      ; otherwise it specifies blocks with a granularity of 1.
      ;;
-    (def #_"long" Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG (<< 1 22))
+    (§ def #_"long" Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG (<< 1 22))
 
     ;; If CTxIn::nSequence encodes a relative lock-time, this mask is
      ; applied to extract that lock-time from the sequence field.
@@ -15416,7 +15419,7 @@
 )
 
 #_non-static #_"TransactionBroadcast"
-(§ class- EnoughAvailablePeers (§ implements Runnable)
+(defclass EnoughAvailablePeers (§ implements Runnable)
     (§ defn- #_"EnoughAvailablePeers" EnoughAvailablePeers'new []
         (let [this {}]
             this
@@ -15448,7 +15451,7 @@
             ;; our version message, as SPV nodes cannot relay it doesn't give away any additional information
             ;; to skip the inv here - we wouldn't send invs anyway.
             (let [#_"int" __numConnected (.. peers (size))
-                    #_"int" __numToBroadcastTo (int (max 1, (Math/round (Math/ceil (/ (.. peers (size)) 2.0)))))]
+                  #_"int" __numToBroadcastTo (int (max 1, (Math/round (Math/ceil (/ (.. peers (size)) 2.0)))))]
                 (§ assoc this :num-waiting-for (int (Math/ceil (/ (- (.. peers (size)) __numToBroadcastTo) 2.0))))
                 (Collections/shuffle peers, TransactionBroadcast'RANDOM)
                 (§ ass peers (.. peers (subList 0, __numToBroadcastTo)))
@@ -15479,7 +15482,7 @@
 )
 
 #_non-static #_"TransactionBroadcast"
-(§ class- ConfidenceChange (§ implements TransactionConfidenceListener)
+(defclass ConfidenceChange (§ implements TransactionConfidenceListener)
     (§ defn- #_"ConfidenceChange" ConfidenceChange'new []
         (let [this {}]
             this
@@ -15490,7 +15493,7 @@
     (§ method #_"void" onConfidenceChanged [#_"TransactionConfidence" conf, #_"ConfidenceChangeReason" reason]
         ;; The number of peers that announced this tx has gone up.
         (let [#_"int" __numSeenPeers (+ (.. conf (numBroadcastPeers)) (.. (:rejects this) (size)))
-                #_"boolean" mined (some? (.. (:tx this) (getAppearsInHashes)))]
+              #_"boolean" mined (some? (.. (:tx this) (getAppearsInHashes)))]
             (.. TransactionBroadcast'log (info "broadcastTransaction: {}:  TX {} seen by {} peers{}", reason, (.. (:tx this) (getHashAsString)), __numSeenPeers, (if mined " and mined" "")))
 
             ;; Progress callback on the requested thread.
@@ -15527,12 +15530,12 @@
  ; A failure is defined as not reaching acceptance within a timeout period, or getting an explicit reject message from
  ; a peer indicating that the transaction was not acceptable.
  ;;
-(§ class TransactionBroadcast
-    (def- #_"Logger" TransactionBroadcast'log (LoggerFactory/getLogger TransactionBroadcast))
+(defclass TransactionBroadcast
+    (§ def- #_"Logger" TransactionBroadcast'log (LoggerFactory/getLogger TransactionBroadcast))
 
     ;;; Used for shuffling the peers before broadcast: unit tests can replace this to make themselves deterministic. ;;
     #_testing
-    (def #_"Random" TransactionBroadcast'RANDOM (Random.))
+    (§ def #_"Random" TransactionBroadcast'RANDOM (Random.))
 
     (ß defn- #_"TransactionBroadcast" TransactionBroadcast'init []
     {
@@ -15820,7 +15823,7 @@
  ; method to ensure the block depth is up to date.
  ; To make a copy that won't be changed, use {@link TransactionConfidence#duplicate()}.
  ;;
-(§ class TransactionConfidence
+(defclass TransactionConfidence
     (ß defn- #_"TransactionConfidence" TransactionConfidence'init []
     {
         ;;;
@@ -15864,7 +15867,7 @@
     ;; heap reachability as a proxy for interest.
     ;;
     ;; We add ourselves to this set when a listener is added and remove ourselves when the listener list is empty.
-    (def- #_"Set<TransactionConfidence>" TransactionConfidence'PINNED_CONFIDENCE_OBJECTS (Collections/synchronizedSet (HashSet. #_"<TransactionConfidence>")))
+    (§ def- #_"Set<TransactionConfidence>" TransactionConfidence'PINNED_CONFIDENCE_OBJECTS (Collections/synchronizedSet (HashSet. #_"<TransactionConfidence>")))
 
     ;;;
      ; Adds an event listener that will be run when this confidence object is updated.  The listener will be locked
@@ -16232,10 +16235,10 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class TransactionInput (§ extends ChildMessage)
+(defclass TransactionInput (§ extends ChildMessage)
     ;;; Magic sequence number that indicates there is no sequence number. ;;
     (def #_"long" TransactionInput'NO_SEQUENCE 0xffffffff)
-    (def- #_"byte[]" TransactionInput'EMPTY_ARRAY (byte-array 0))
+    (§ def- #_"byte[]" TransactionInput'EMPTY_ARRAY (byte-array 0))
     ;; Magic outpoint index that indicates the input is in fact unconnected.
     (def- #_"long" TransactionInput'UNCONNECTED 0xffffffff)
 
@@ -16746,7 +16749,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class TransactionOutPoint (§ extends ChildMessage)
+(defclass TransactionOutPoint (§ extends ChildMessage)
     (def #_"int" TransactionOutPoint'MESSAGE_LENGTH 36)
 
     (ß defn- #_"TransactionOutPoint" TransactionOutPoint'init []
@@ -16983,8 +16986,8 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class TransactionOutput (§ extends ChildMessage)
-    (def- #_"Logger" TransactionOutput'log (LoggerFactory/getLogger TransactionOutput))
+(defclass TransactionOutput (§ extends ChildMessage)
+    (§ def- #_"Logger" TransactionOutput'log (LoggerFactory/getLogger TransactionOutput))
 
     (ß defn- #_"TransactionOutput" TransactionOutput'init []
     {
@@ -17390,7 +17393,7 @@
  ; and spent in a block.  It DOES contain outputs created that were spent later in the block, as those are needed for
  ; BIP30 (no duplicate txid creation if the previous one was not fully spent prior to this block) verification.
  ;;
-(§ class TransactionOutputChanges
+(defclass TransactionOutputChanges
     (ß defn- #_"TransactionOutputChanges" TransactionOutputChanges'init []
     {
         #_field #_"List<UTXO>" :tx-outs-created nil
@@ -17406,7 +17409,7 @@
     )
 )
 
-(§ class- WeakConfidenceReference (§ extends WeakReference #_"<TransactionConfidence>")
+(defclass WeakConfidenceReference (§ extends WeakReference #_"<TransactionConfidence>")
     (ß defn- #_"WeakConfidenceReference" WeakConfidenceReference'init []
     {
         #_field #_"Sha256Hash" :hash nil
@@ -17432,7 +17435,7 @@
  ; It is <b>not</b> at this time directly equivalent to the Bitcoin Core memory pool, which tracks
  ; all transactions not currently included in the best chain - it's simply a cache.
  ;;
-(§ class TxConfidenceTable
+(defclass TxConfidenceTable
     (ß defn- #_"TxConfidenceTable" TxConfidenceTable'init []
     {
         #_field #_"ReentrantLock" :lock (Threading'lock "txconfidencetable")
@@ -17603,7 +17606,7 @@
  ; It avoids having to store the entire parentTransaction just to get the hash and index.
  ; Useful when working with free standing outputs.
  ;;
-(§ class UTXO
+(defclass UTXO
     (ß defn- #_"UTXO" UTXO'init []
     {
         #_field #_"Coin" :value nil
@@ -17714,7 +17717,7 @@
 ;;;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class UnknownMessage (§ extends EmptyMessage)
+(defclass UnknownMessage (§ extends EmptyMessage)
     (ß defn- #_"UnknownMessage" UnknownMessage'init []
     {
         #_field #_"String" :name nil
@@ -17735,7 +17738,7 @@
     )
 )
 
-(§ class- Pair (§ implements Comparable #_"<Pair>")
+(defclass Pair (§ implements Comparable #_"<Pair>")
     (ß defn- #_"Pair" Pair'init []
     {
         #_field #_"int" :item 0
@@ -17761,12 +17764,12 @@
  ; A collection of various utility methods that are helpful for working with the Bitcoin protocol.
  ;;
 #_stateless
-(§ class Utils
+(defclass Utils
     ;;; The string that prefixes all text messages signed using Bitcoin keys. ;;
     (def #_"String" Utils'BITCOIN_SIGNED_MESSAGE_HEADER "Bitcoin Signed Message:\n")
-    (def #_"byte[]" Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES (.. Utils'BITCOIN_SIGNED_MESSAGE_HEADER (getBytes Charsets/UTF_8)))
+    (§ def #_"byte[]" Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES (.. Utils'BITCOIN_SIGNED_MESSAGE_HEADER (getBytes Charsets/UTF_8)))
 
-    (def #_"Joiner" Utils'SPACE_JOINER (Joiner/on " "))
+    (§ def #_"Joiner" Utils'SPACE_JOINER (Joiner/on " "))
 
     ;;;
      ; The regular {@link java.math.BigInteger#toByteArray()} includes the sign bit of the number and might result
@@ -17868,7 +17871,7 @@
     ;;;
      ; Hex encoding used throughout the framework.  Use with HEX.encode(byte[]) or HEX.decode(CharSequence).
      ;;
-    (def #_"BaseEncoding" Utils'HEX (.. (BaseEncoding/base16) (lowerCase)))
+    (§ def #_"BaseEncoding" Utils'HEX (.. (BaseEncoding/base16) (lowerCase)))
 
     ;;;
      ; Returns a copy of the given byte array in reverse order.
@@ -18051,7 +18054,7 @@
         (quot (Utils'currentTimeMillis) 1000)
     )
 
-    (def- #_"TimeZone" Utils'UTC (TimeZone/getTimeZone "UTC"))
+    (§ def- #_"TimeZone" Utils'UTC (TimeZone/getTimeZone "UTC"))
 
     ;;;
      ; Formats a given date+time value to an ISO 8601 string.
@@ -18161,7 +18164,7 @@
     )
 
     ;; 00000001, 00000010, 00000100, 00001000, ...
-    (def- #_"int[]" Utils'BIT_MASK (int-array [ 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 ]))
+    (§ def- #_"int[]" Utils'BIT_MASK (int-array [ 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 ]))
 
     ;;; Checks if the given bit is set in data, using little endian (not the same as Java native big endian). ;;
     (§ defn #_"boolean" Utils'checkBitLE [#_"byte[]" data, #_"int" index]
@@ -18225,7 +18228,7 @@
 ;;;
  ; A variable-length encoded unsigned integer using Satoshi's encoding (a.k.a. "CompactSize").
  ;;
-(§ class VarInt
+(defclass VarInt
     (ß defn- #_"VarInt" VarInt'init []
     {
         #_field #_"long" :value 0
@@ -18331,7 +18334,7 @@
     )
 )
 
-(§ class VerificationException (§ extends RuntimeException)
+(defclass VerificationException (§ extends RuntimeException)
     (§ defn #_"VerificationException" VerificationException'new [#_"String" msg]
         (let [this (§ super RuntimeException'new msg)]
             this
@@ -18357,7 +18360,7 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class VersionAck (§ extends EmptyMessage)
+(defclass VersionAck (§ extends EmptyMessage)
     (§ defn #_"VersionAck" VersionAck'new []
         (let [this (EmptyMessage'new)]
             this
@@ -18383,11 +18386,11 @@
  ;
  ; Instances of this class are not safe for use by multiple threads.
  ;;
-(§ class VersionMessage (§ extends Message)
+(defclass VersionMessage (§ extends Message)
     ;;; The version of this library release, as a string. ;;
     (def #_"String" VersionMessage'BITCOINJ_VERSION "0.15-SNAPSHOT")
     ;;; The value that is prepended to the subVer field of this application. ;;
-    (def #_"String" VersionMessage'LIBRARY_SUBVER (str "/bitcoinj:" VersionMessage'BITCOINJ_VERSION "/"))
+    (§ def #_"String" VersionMessage'LIBRARY_SUBVER (str "/bitcoinj:" VersionMessage'BITCOINJ_VERSION "/"))
 
     ;;; A services flag that denotes whether the peer has a copy of the block chain or not. ;;
     (def #_"int" VersionMessage'NODE_NETWORK 1)
@@ -18665,7 +18668,7 @@
  ; and the result is then Base58 encoded.
  ; This format is used for addresses, and private keys exported using the dumpprivkey command.
  ;;
-(§ class VersionedChecksummedBytes (§ implements Comparable #_"<VersionedChecksummedBytes>")
+(defclass VersionedChecksummedBytes (§ implements Comparable #_"<VersionedChecksummedBytes>")
     (ß defn- #_"VersionedChecksummedBytes" VersionedChecksummedBytes'init []
     {
         #_field #_"int" :version 0
@@ -18761,7 +18764,7 @@
  ; used by that network.  You shouldn't allow the user to proceed in this case as they are trying to send money across
  ; different chains, an operation that is guaranteed to destroy the money.
  ;;
-(§ class WrongNetworkException (§ extends AddressFormatException)
+(defclass WrongNetworkException (§ extends AddressFormatException)
     (ß defn- #_"WrongNetworkException" WrongNetworkException'init []
     {
         ;;; The version code that was provided in the address. ;;
@@ -18780,13 +18783,13 @@
     )
 )
 
-(ns org.bitcoinj.core.listeners
+(ns bitclojn.base-listeners
   #_(:import [com.google.common.util.concurrent ListenableFuture SettableFuture]
              [java.util Date List Locale Set]
              [java.util.concurrent ExecutionException]
              [org.slf4j LoggerFactory Logger]
     )
-    (:use [bitclojn.slang])
+    (:use [bitclojn slang])
 )
 
 ;;;
@@ -18836,8 +18839,8 @@
  ; progress as a percentage.  The default implementation prints progress to stdout, but you can subclass it and
  ; override the progress method to update a GUI instead.
  ;;
-(§ class DownloadProgressTracker (§ implements PeerDataEventListener)
-    (def- #_"Logger" DownloadProgressTracker'log (LoggerFactory/getLogger DownloadProgressTracker))
+(defclass DownloadProgressTracker (§ implements PeerDataEventListener)
+    (§ def- #_"Logger" DownloadProgressTracker'log (LoggerFactory/getLogger DownloadProgressTracker))
 
     (ß defn- #_"DownloadProgressTracker" DownloadProgressTracker'init []
     {
@@ -19156,7 +19159,7 @@
     (§ method #_"boolean" notifyTransactionIsInBlock [#_"Sha256Hash" __txHash, #_"StoredBlock" block, #_"NewBlockType" __blockType, #_"int" __relativityOffset])
 )
 
-(ns org.bitcoinj.crypto
+(ns bitclojn.crypto
   #_(:import [com.google.common.base Joiner MoreObjects Objects Stopwatch]
              [com.google.common.collect ImmutableList Iterables Maps]
              [com.google.common.primitives Ints]
@@ -19173,7 +19176,7 @@
              [org.spongycastle.crypto.params KeyParameter]
              [org.spongycastle.math.ec ECCurve ECFieldElement ECPoint]
     )
-    (:use [bitclojn.slang])
+    (:use [bitclojn slang])
 )
 
 ;;;
@@ -19181,7 +19184,7 @@
  ; and a getter for the actual 0-based child number.  A {@link java.util.List} of these forms a <i>path</i> through a
  ; {@link DeterministicHierarchy}.  This class is immutable.
  ;;
-(§ class ChildNumber (§ implements Comparable #_"<ChildNumber>")
+(defclass ChildNumber (§ implements Comparable #_"<ChildNumber>")
     ;;;
      ; The bit that's set in the child number to indicate whether this key is "hardened".  Given a hardened key, it is
      ; not possible to derive a child public key if you know only the hardened public key.  With a non-hardened key this
@@ -19191,9 +19194,9 @@
      ;;
     (def #_"int" ChildNumber'HARDENED_BIT 0x80000000)
 
-    (def #_"ChildNumber" ChildNumber'ZERO (ChildNumber'new 0))
-    (def #_"ChildNumber" ChildNumber'ONE (ChildNumber'new 1))
-    (def #_"ChildNumber" ChildNumber'ZERO_HARDENED (ChildNumber'new 0, true))
+    (§ def #_"ChildNumber" ChildNumber'ZERO (ChildNumber'new 0))
+    (§ def #_"ChildNumber" ChildNumber'ONE (ChildNumber'new 1))
+    (§ def #_"ChildNumber" ChildNumber'ZERO_HARDENED (ChildNumber'new 0, true))
 
     (ß defn- #_"ChildNumber" ChildNumber'init []
     {
@@ -19283,7 +19286,7 @@
  ; The hierarchy is started from a single root key, and a location in the tree is given by a path which
  ; is a list of {@link ChildNumber}s.
  ;;
-(§ class DeterministicHierarchy
+(defclass DeterministicHierarchy
     (ß defn- #_"DeterministicHierarchy" DeterministicHierarchy'init []
     {
         #_field #_"Map<ImmutableList<ChildNumber>, DeterministicKey>" :keys (Maps/newHashMap)
@@ -19424,9 +19427,9 @@
  ; (key, chaincode).  If you know its path in the tree and its chain code you can derive more keys from this.
  ; To obtain one of these, you can call {@link HDKeyDerivation#createMasterPrivateKey(byte[])}.
  ;;
-(§ class DeterministicKey (§ extends ECKey)
+(defclass DeterministicKey (§ extends ECKey)
     ;;; Sorts deterministic keys in the order of their child number.  That's <i>usually</i> the order used to derive them. ;;
-    (def #_"Comparator<ECKey>" DeterministicKey'CHILDNUM_ORDER (Comparator. #_"<ECKey>"
+    (§ def #_"Comparator<ECKey>" DeterministicKey'CHILDNUM_ORDER (Comparator. #_"<ECKey>"
         (§ anon
             #_override
             (§ method #_"int" compare [#_"ECKey" k1, #_"ECKey" k2]
@@ -19927,7 +19930,7 @@
     )
 )
 
-(§ class HDDerivationException (§ extends RuntimeException)
+(defclass HDDerivationException (§ extends RuntimeException)
     (§ defn #_"HDDerivationException" HDDerivationException'new [#_"String" message]
         (let [this (§ super RuntimeException'new message)]
             this
@@ -19940,7 +19943,7 @@
     :PublicDerivationMode'WITH_INVERSION
 )
 
-(§ class RawKeyBytes
+(defclass RawKeyBytes
     (ß defn- #_"RawKeyBytes" RawKeyBytes'init []
     {
         #_field #_"byte[]" :key-bytes nil
@@ -19961,9 +19964,9 @@
  ; deterministic wallet child key generation algorithm.
  ;;
 #_stateless
-(§ class HDKeyDerivation
+(defclass HDKeyDerivation
     ;; Some arbitrary random number.  Doesn't matter what it is.
-    (def- #_"BigInteger" HDKeyDerivation'RAND_INT (BigInteger. 256, (SecureRandom.)))
+    (§ def- #_"BigInteger" HDKeyDerivation'RAND_INT (BigInteger. 256, (SecureRandom.)))
 
     ;;;
      ; Child derivation may fail (although with extremely low probability); in such case it is re-attempted.
@@ -20173,8 +20176,8 @@
  ; Static utilities used in BIP 32 Hierarchical Deterministic Wallets (HDW).
  ;;
 #_stateless
-(§ class HDUtils
-    (def- #_"Joiner" HDUtils'PATH_JOINER (Joiner/on "/"))
+(defclass HDUtils
+    (§ def- #_"Joiner" HDUtils'PATH_JOINER (Joiner/on "/"))
 
     (§ defn #_"HMac" HDUtils'createHmacSha512Digest [#_"byte[]" key]
         (let [#_"SHA512Digest" digest (SHA512Digest.)
@@ -20245,7 +20248,7 @@
  ; A wrapper around ECPoint that delays decoding of the point for as long as possible.  This is useful because point
  ; encode/decode in Bouncy Castle is quite slow especially on Dalvik, as it often involves decompression/recompression.
  ;;
-(§ class LazyECPoint
+(defclass LazyECPoint
     (ß defn- #_"LazyECPoint" LazyECPoint'init []
     {
         ;; If curve is set, bits is also set.  If curve is unset, point is set and bits is unset.  Point can be set along
@@ -20426,15 +20429,15 @@
  ; <a href="https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki">the BIP 39 specification</a>.
  ;;
 
-(§ class MnemonicCode
-    (def- #_"Logger" MnemonicCode'log (LoggerFactory/getLogger MnemonicCode))
+(defclass MnemonicCode
+    (§ def- #_"Logger" MnemonicCode'log (LoggerFactory/getLogger MnemonicCode))
 
     (ß defn- #_"MnemonicCode" MnemonicCode'init []
     {
         #_field #_"ArrayList<String>" :word-list nil
     })
 
-    (def- #_"String[]" MnemonicCode'BIP39_ENGLISH_WORDLIST (into-array String
+    (§ def- #_"String[]" MnemonicCode'BIP39_ENGLISH_WORDLIST (into-array String
     [
         "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract",
         "absurd", "abuse", "access", "accident", "account", "accuse", "achieve", "acid",
@@ -20909,7 +20912,7 @@
 ;;;
  ; Exceptions thrown by the MnemonicCode module.
  ;;
-(§ class MnemonicException (§ extends Exception)
+(defclass MnemonicException (§ extends Exception)
     (§ defn #_"MnemonicException" MnemonicException'new []
         (let [this (§ super Exception'new)]
             this
@@ -20926,7 +20929,7 @@
 ;;;
  ; Thrown when an argument to MnemonicCode is the wrong length.
  ;;
-(§ class MnemonicLengthException (§ extends MnemonicException)
+(defclass MnemonicLengthException (§ extends MnemonicException)
     (§ defn #_"MnemonicLengthException" MnemonicLengthException'new [#_"String" msg]
         (let [this (MnemonicException'new msg)]
             this
@@ -20937,7 +20940,7 @@
 ;;;
  ; Thrown when a list of MnemonicCode words fails the checksum check.
  ;;
-(§ class MnemonicChecksumException (§ extends MnemonicException)
+(defclass MnemonicChecksumException (§ extends MnemonicException)
     (§ defn #_"MnemonicChecksumException" MnemonicChecksumException'new []
         (let [this (MnemonicException'new)]
             this
@@ -20948,7 +20951,7 @@
 ;;;
  ; Thrown when a word is encountered which is not in the MnemonicCode's word list.
  ;;
-(§ class MnemonicWordException (§ extends MnemonicException)
+(defclass MnemonicWordException (§ extends MnemonicException)
     (ß defn- #_"MnemonicWordException" MnemonicWordException'init []
     {
         ;;; Contains the word that was not found in the word list. ;;
@@ -20974,7 +20977,7 @@
  ; Modified to use SHA-512 - Ken Sedgwick ken@bonsai.com
  ;;
 #_stateless
-(§ class PBKDF2SHA512
+(defclass PBKDF2SHA512
     (§ defn #_"byte[]" PBKDF2SHA512'derive [#_"String" __P, #_"String" __S, #_"int" c, #_"int" __dkLen]
         (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
 
@@ -20986,7 +20989,7 @@
                     )
 
                     (let [#_"int" l (int (Math/ceil (/ (double __dkLen) (double __hLen))))]
-                    ;; int r = dkLen - (l - 1) * hLen;
+                       ;; #_"int" r (- __dkLen (* (dec l) __hLen))
 
                         (loop-when-recur [#_"int" i 1] (<= i l) [(inc i)]
                             (let [#_"byte[]" __T (PBKDF2SHA512'F __P, __S, c, i)]
@@ -21066,7 +21069,7 @@
  ; A TransactionSignature wraps an {@link ECKey.ECDSASignature} and adds methods for handling
  ; the additional SIGHASH mode byte that is used.
  ;;
-(§ class TransactionSignature (§ extends ECDSASignature)
+(defclass TransactionSignature (§ extends ECDSASignature)
     (ß defn- #_"TransactionSignature" TransactionSignature'init []
     {
         ;;;
@@ -21243,7 +21246,7 @@
     )
 )
 
-(ns org.bitcoinj.kits
+(ns bitclojn.kits
   #_(:import [com.google.common.collect *]
              [com.google.common.util.concurrent *]
              [java.io *]
@@ -21253,7 +21256,7 @@
              [java.util.concurrent *]
              [org.slf4j LoggerFactory Logger]
     )
-    (:use [bitclojn.slang])
+    (:use [bitclojn slang])
 )
 
 ;;;
@@ -21278,9 +21281,9 @@
  ; if anything goes wrong during startup - you should probably handle it and use {@link Exception#getCause()} to figure
  ; out what went wrong more precisely.  Same thing if you just use the {@link #startAsync()} method.
  ;;
-(§ class WalletAppKit (§ extends AbstractIdleService)
+(defclass WalletAppKit (§ extends AbstractIdleService)
     #_protected
-    (def #_"Logger" WalletAppKit'log (LoggerFactory/getLogger WalletAppKit))
+    (§ def #_"Logger" WalletAppKit'log (LoggerFactory/getLogger WalletAppKit))
 
     (ß defn- #_"WalletAppKit" WalletAppKit'init []
     {
@@ -21621,7 +21624,7 @@
     )
 )
 
-(ns org.bitcoinj.net
+(ns bitclojn.net
   #_(:import [com.google.common.base Throwables]
              [com.google.common.collect ImmutableList Lists]
              [com.google.common.util.concurrent AbstractExecutionThreadService AbstractIdleService ListenableFuture Service]
@@ -21636,7 +21639,7 @@
              [javax.net SocketFactory]
              [org.slf4j LoggerFactory Logger]
     )
-    (:use [bitclojn.slang])
+    (:use [bitclojn slang])
 )
 
 ;;;
@@ -21644,9 +21647,9 @@
  ; NIO select thread both for simplicity and to keep code shared between NIO and blocking sockets as much as possible.
  ;;
 #_abstract
-(§ class AbstractTimeoutHandler
+(defclass AbstractTimeoutHandler
     ;; A timer which manages expiring channels as their timeouts occur (if configured).
-    (def- #_"Timer" AbstractTimeoutHandler'TIMEOUT_TIMER (Timer. "AbstractTimeoutHandler timeouts", true))
+    (§ def- #_"Timer" AbstractTimeoutHandler'TIMEOUT_TIMER (Timer. "AbstractTimeoutHandler timeouts", true))
 
     (ß defn- #_"AbstractTimeoutHandler" AbstractTimeoutHandler'init []
     {
@@ -21750,13 +21753,13 @@
  ; A simple NIO MessageWriteTarget which handles all the business logic of a connection (reading+writing bytes).
  ; Used only by the NioClient and NioServer classes.
  ;;
-(§ class ConnectionHandler (§ implements MessageWriteTarget)
-    (def- #_"Logger" ConnectionHandler'log (LoggerFactory/getLogger ConnectionHandler))
+(defclass ConnectionHandler (§ implements MessageWriteTarget)
+    (§ def- #_"Logger" ConnectionHandler'log (LoggerFactory/getLogger ConnectionHandler))
 
     (def- #_"int" ConnectionHandler'BUFFER_SIZE_LOWER_BOUND 4096)
     (def- #_"int" ConnectionHandler'BUFFER_SIZE_UPPER_BOUND 65536)
 
-    (def- #_"int" ConnectionHandler'OUTBOUND_BUFFER_BYTE_COUNT (+ Message'MAX_SIZE 24)) ;; 24 byte message header
+    (§ def- #_"int" ConnectionHandler'OUTBOUND_BUFFER_BYTE_COUNT (+ Message'MAX_SIZE 24)) ;; 24 byte message header
 
     (ß defn- #_"ConnectionHandler" ConnectionHandler'init []
     {
@@ -21991,7 +21994,7 @@
     )
 )
 
-(§ class FilterMergerResult
+(defclass FilterMergerResult
     (ß defn- #_"FilterMergerResult" FilterMergerResult'init []
     {
         #_field #_"BloomFilter" :filter nil
@@ -22017,7 +22020,7 @@
  ; calculated in parallel, thus a filter provider can do things like make blocking calls into PeerGroup from a separate
  ; thread.  However the bloomFilterFPRate property IS thread safe, for convenience.
  ;;
-(§ class FilterMerger
+(defclass FilterMerger
     (ß defn- #_"FilterMerger" FilterMerger'init []
     {
         ;; We use a constant tweak to avoid giving up privacy when we regenerate our filter with new keys.
@@ -22120,7 +22123,7 @@
 )
 
 #_non-static #_"NioClient"
-(§ class NioClientHandler (§ extends AbstractTimeoutHandler) (§ implements StreamConnection)
+(defclass NioClientHandler (§ extends AbstractTimeoutHandler) (§ implements StreamConnection)
     (ß defn- #_"NioClientHandler" NioClientHandler'init []
     {
         #_field #_"StreamConnection" :upstream-connection nil
@@ -22199,8 +22202,8 @@
 ;;;
  ; Creates a simple connection to a server using a {@link StreamConnection} to process data.
  ;;
-(§ class NioClient (§ implements MessageWriteTarget)
-    (def- #_"Logger" NioClient'log (LoggerFactory/getLogger NioClient))
+(defclass NioClient (§ implements MessageWriteTarget)
+    (§ def- #_"Logger" NioClient'log (LoggerFactory/getLogger NioClient))
 
     (ß defn- #_"NioClient" NioClient'init []
     {
@@ -22255,7 +22258,7 @@
     )
 )
 
-(§ class PendingConnection
+(defclass PendingConnection
     (ß defn- #_"PendingConnection" PendingConnection'init []
     {
         #_field #_"SocketChannel" :sc nil
@@ -22278,8 +22281,8 @@
  ; A class which manages a set of client connections.  Uses Java NIO to select network events and processes them
  ; in a single network processing thread.
  ;;
-(§ class NioClientManager (§ extends AbstractExecutionThreadService) (§ implements ClientConnectionManager)
-    (def- #_"Logger" NioClientManager'log (LoggerFactory/getLogger NioClientManager))
+(defclass NioClientManager (§ extends AbstractExecutionThreadService) (§ implements ClientConnectionManager)
+    (§ def- #_"Logger" NioClientManager'log (LoggerFactory/getLogger NioClientManager))
 
     (ß defn- #_"NioClientManager" NioClientManager'init []
     {
@@ -22481,8 +22484,8 @@
  ; Creates a simple server listener which listens for incoming client connections and uses a {@link StreamConnection}
  ; to process data.
  ;;
-(§ class NioServer (§ extends AbstractExecutionThreadService)
-    (def- #_"Logger" NioServer'log (LoggerFactory/getLogger NioServer))
+(defclass NioServer (§ extends AbstractExecutionThreadService)
+    (§ def- #_"Logger" NioServer'log (LoggerFactory/getLogger NioServer))
 
     (ß defn- #_"NioServer" NioServer'init []
     {
@@ -22670,20 +22673,20 @@
     (§ method #_"StreamConnection" getNewConnection [#_"InetAddress" __inetAddress, #_"int" port])
 )
 
-(ns org.bitcoinj.net.discovery
+(ns bitclojn.net-discovery
   #_(:import [com.google.common.collect Lists]
              [java.net InetAddress InetSocketAddress UnknownHostException]
              [java.util ArrayList Collections List]
              [java.util.concurrent TimeUnit]
              [org.slf4j LoggerFactory Logger]
     )
-    (:use [bitclojn.slang])
+    (:use [bitclojn slang])
 )
 
 ;;;
  ; Implements discovery from a single DNS host.
  ;;
-(§ class DnsSeedDiscovery (§ implements PeerDiscovery)
+(defclass DnsSeedDiscovery (§ implements PeerDiscovery)
     (ß defn- #_"DnsSeedDiscovery" DnsSeedDiscovery'init []
     {
         #_field #_"String" :hostname nil
@@ -22707,7 +22710,7 @@
 
         (try
             (let [#_"InetAddress[]" response (InetAddress/getAllByName (:hostname this))
-                    #_"InetSocketAddress[]" result (make-array InetSocketAddress (alength response))]
+                  #_"InetSocketAddress[]" result (make-array InetSocketAddress (alength response))]
                 (loop-when-recur [#_"int" i 0] (< i (alength response)) [(inc i)]
                     (aset result i (InetSocketAddress. (aget response i), (-> this :params :port)))
                 )
@@ -22741,7 +22744,7 @@
  ; from the set of those returned within the timeout period.  If you want more peers to connect to,
  ; you need to discover them via other means (like addr broadcasts).
  ;;
-(§ class DnsDiscovery (§ extends MultiplexingDiscovery)
+(defclass DnsDiscovery (§ extends MultiplexingDiscovery)
     ;;;
      ; Supports finding peers through DNS A records.  Community run DNS entry points will be used.
      ;
@@ -22788,8 +22791,8 @@
  ; thus selecting randomly between them and reducing the influence of any particular seed.  Any that don't respond
  ; within the timeout are ignored.  Backends are queried in parallel.  Backends may block.
  ;;
-(§ class MultiplexingDiscovery (§ implements PeerDiscovery)
-    (def- #_"Logger" MultiplexingDiscovery'log (LoggerFactory/getLogger MultiplexingDiscovery))
+(defclass MultiplexingDiscovery (§ implements PeerDiscovery)
+    (§ def- #_"Logger" MultiplexingDiscovery'log (LoggerFactory/getLogger MultiplexingDiscovery))
 
     (ß defn- #_"MultiplexingDiscovery" MultiplexingDiscovery'init []
     {
@@ -22922,7 +22925,7 @@
     (§ method #_"void" shutdown [])
 )
 
-(§ class PeerDiscoveryException (§ extends Exception)
+(defclass PeerDiscoveryException (§ extends Exception)
     (§ defn #_"PeerDiscoveryException" PeerDiscoveryException'new []
         (let [this (§ super Exception'new)]
             this
@@ -22953,7 +22956,7 @@
  ; being active on the network for a long period of time.  The intention is to be a last resort way of finding
  ; a connection to the network, in case IRC and DNS fail.  The list comes from the Bitcoin C++ source code.
  ;;
-(§ class SeedPeers (§ implements PeerDiscovery)
+(defclass SeedPeers (§ implements PeerDiscovery)
     (ß defn- #_"SeedPeers" SeedPeers'init []
     {
         #_field #_"NetworkParameters" :params nil
@@ -23064,7 +23067,7 @@
     )
 )
 
-(ns org.bitcoinj.params
+(ns bitclojn.params
   #_(:import [com.google.common.base Stopwatch]
              [com.google.common.collect ImmutableSet Lists]
              [java.math BigInteger]
@@ -23073,13 +23076,13 @@
              [java.util.concurrent TimeUnit]
              [org.slf4j LoggerFactory Logger]
     )
-    (:use [bitclojn.slang])
+    (:use [bitclojn slang])
 )
 
 ;;;
  ; Parameters for the main production network on which people trade goods and services.
  ;;
-(§ class MainNetParams (§ extends NetworkParameters)
+(defclass MainNetParams (§ extends NetworkParameters)
     (§ defn #_"MainNetParams" MainNetParams'new []
         (let [this (NetworkParameters'new)]
 
@@ -23176,9 +23179,9 @@
         )
     )
 
-    (def- #_"MainNetParams" MainNetParams'INSTANCE (MainNetParams'new))
+    (§ def- #_"MainNetParams" MainNetParams'INSTANCE (MainNetParams'new))
 
-    (def #_"String[]" MainNetParams'TEXTUAL_CHECKPOINTS (into-array String
+    (§ def #_"String[]" MainNetParams'TEXTUAL_CHECKPOINTS (into-array String
     [
         "AAAAAAAAB+EH4QfhAAAH4AEAAABjl7tqvU/FIcDT9gcbVlA4nwtFUbxAtOawZzBpAAAAAKzkcK7NqciBjI/ldojNKncrWleVSgDfBCCn3VRrbSxXaw5/Sf//AB0z8Bkv",
         "AAAAAAAAD8EPwQ/BAAAPwAEAAADfP83Sx8MZ9RsrnZCvqzAwqB2Ma+ZesNAJrTfwAAAAACwESaNKhvRgz6WuE7UFdFk1xwzfRY/OIdIOPzX5yaAdjnWUSf//AB0GrNq5",
@@ -23397,9 +23400,9 @@
  ; By default only MainNetParams and TestNetParams are used.
  ;;
 #_stateless
-(§ class Networks
+(defclass Networks
     ;;; Registered networks. ;;
-    (def- #_"Set<NetworkParameters>" Networks'NETWORKS (ImmutableSet/of TestNetParams'INSTANCE, MainNetParams'INSTANCE))
+    (§ def- #_"Set<NetworkParameters>" Networks'NETWORKS (ImmutableSet/of TestNetParams'INSTANCE, MainNetParams'INSTANCE))
 
     (§ defn #_"Set<NetworkParameters>" Networks'get []
         Networks'NETWORKS
@@ -23440,7 +23443,7 @@
  ; Parameters for the testnet, a separate public instance of Bitcoin that has relaxed rules suitable for development
  ; and testing of applications and new Bitcoin versions.
  ;;
-(§ class TestNetParams (§ extends NetworkParameters)
+(defclass TestNetParams (§ extends NetworkParameters)
     (§ defn #_"TestNetParams" TestNetParams'new []
         (let [this (NetworkParameters'new)]
 
@@ -23481,9 +23484,9 @@
         )
     )
 
-    (def- #_"TestNetParams" TestNetParams'INSTANCE (TestNetParams'new))
+    (§ def- #_"TestNetParams" TestNetParams'INSTANCE (TestNetParams'new))
 
-    (def- #_"Date" TestNetParams'TESTNET_DIFF_DATE (Date. 1329264000000)) ;; February 16th 2012
+    (§ def- #_"Date" TestNetParams'TESTNET_DIFF_DATE (Date. 1329264000000)) ;; February 16th 2012
 
     #_override
     #_throws #_[ "VerificationException", "BlockStoreException" ]
@@ -23524,7 +23527,7 @@
         nil
     )
 
-    (def #_"String[]" TestNetParams'TEXTUAL_CHECKPOINTS (into-array String
+    (§ def #_"String[]" TestNetParams'TEXTUAL_CHECKPOINTS (into-array String
     [
         "AAAAAAAAB+EH4QfhAAAH4AEAAAApmwX6UCEnJcYIKTa7HO3pFkqqNhAzJVBMdEuGAAAAAPSAvVCBUypCbBW/OqU0oIF7ISF84h2spOqHrFCWN9Zw6r6/T///AB0E5oOO",
         "AAAAAAAAD8QPxA/EAAAPwAEAAADHtJ8Nq3z30grJ9lTH6bLhKSHX+MxmkZn8z5wuAAAAAK0gXcQFtYSj/IB2KZ38+itS1Da0Dn/3XosOFJntz7A8OsC/T8D/Pxwf0no+",
@@ -23978,7 +23981,7 @@
     ]))
 )
 
-(ns org.bitcoinj.script
+(ns bitclojn.script
   #_(:import [com.google.common.base Objects]
              [com.google.common.collect ImmutableMap Lists]
              [java.io ByteArrayInputStream ByteArrayOutputStream IOException]
@@ -23988,7 +23991,7 @@
              [org.slf4j LoggerFactory Logger]
              [org.spongycastle.crypto.digests RIPEMD160Digest]
     )
-    (:use [bitclojn.slang])
+    (:use [bitclojn slang])
 )
 
 ;; TODO: Redesign this entire API to be more type safe and organised.
@@ -24033,10 +24036,10 @@
  ; clients don't have that data.  In full mode, this class is used to run the interpreted language.  It also has
  ; static methods for building scripts.
  ;;
-(§ class Script
-    (def #_"EnumSet<ScriptVerifyFlag>" Script'ALL_VERIFY_FLAGS (EnumSet/allOf ScriptVerifyFlag))
+(defclass Script
+    (§ def #_"EnumSet<ScriptVerifyFlag>" Script'ALL_VERIFY_FLAGS (EnumSet/allOf ScriptVerifyFlag))
 
-    (def- #_"Logger" Script'log (LoggerFactory/getLogger Script))
+    (§ def- #_"Logger" Script'log (LoggerFactory/getLogger Script))
 
     (def #_"long" Script'MAX_SCRIPT_ELEMENT_SIZE 520) ;; bytes
     (def- #_"int" Script'MAX_OPS_PER_SCRIPT 201)
@@ -24139,7 +24142,7 @@
         (Collections/unmodifiableList (:chunks this))
     )
 
-    (def- #_"ScriptChunk[]" Script'STANDARD_TRANSACTION_SCRIPT_CHUNKS (into-array ScriptChunk
+    (§ def- #_"ScriptChunk[]" Script'STANDARD_TRANSACTION_SCRIPT_CHUNKS (into-array ScriptChunk
     [
         (ScriptChunk'new ScriptOpCodes'OP_DUP, nil, 0)
         (ScriptChunk'new ScriptOpCodes'OP_HASH160, nil, 1)
@@ -25852,7 +25855,7 @@
  ; behind convenience methods on {@link Transaction}, but they are useful when working with
  ; the protocol at a lower level.
  ;;
-(§ class ScriptBuilder
+(defclass ScriptBuilder
     (ß defn- #_"ScriptBuilder" ScriptBuilder'init []
     {
         #_field #_"List<ScriptChunk>" :chunks nil
@@ -26324,7 +26327,7 @@
 ;;;
  ; A script element that is either a data push (signature, pubkey, etc.) or a non-push (logic, numeric, etc.) operation.
  ;;
-(§ class ScriptChunk
+(defclass ScriptChunk
     (ß defn- #_"ScriptChunk" ScriptChunk'init []
     {
         ;;; Operation to be executed.  Opcodes are defined in {@link ScriptOpCodes}. ;;
@@ -26556,17 +26559,17 @@
  ; See {@link Script} for details.  Also provides a method to convert them to a string.
  ;;
 #_stateless
-(§ class ScriptOpCodes
+(defclass ScriptOpCodes
     ;; push value
     (def #_"int" ScriptOpCodes'OP_0 0x00) ;; push empty vector
-    (def #_"int" ScriptOpCodes'OP_FALSE ScriptOpCodes'OP_0)
+    (§ def #_"int" ScriptOpCodes'OP_FALSE ScriptOpCodes'OP_0)
     (def #_"int" ScriptOpCodes'OP_PUSHDATA1 0x4c)
     (def #_"int" ScriptOpCodes'OP_PUSHDATA2 0x4d)
     (def #_"int" ScriptOpCodes'OP_PUSHDATA4 0x4e)
     (def #_"int" ScriptOpCodes'OP_1NEGATE 0x4f)
     (def #_"int" ScriptOpCodes'OP_RESERVED 0x50)
     (def #_"int" ScriptOpCodes'OP_1 0x51)
-    (def #_"int" ScriptOpCodes'OP_TRUE ScriptOpCodes'OP_1)
+    (§ def #_"int" ScriptOpCodes'OP_TRUE ScriptOpCodes'OP_1)
     (def #_"int" ScriptOpCodes'OP_2 0x52)
     (def #_"int" ScriptOpCodes'OP_3 0x53)
     (def #_"int" ScriptOpCodes'OP_4 0x54)
@@ -26683,10 +26686,10 @@
     (def #_"int" ScriptOpCodes'OP_NOP1 0xb0)
     ;;; Deprecated by BIP 65 ;;
     #_deprecated
-    (def #_"int" ScriptOpCodes'OP_NOP2 ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY)
+    (§ def #_"int" ScriptOpCodes'OP_NOP2 ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY)
     ;;; Deprecated by BIP 112 ;;
     #_deprecated
-    (def #_"int" ScriptOpCodes'OP_NOP3 ScriptOpCodes'OP_CHECKSEQUENCEVERIFY)
+    (§ def #_"int" ScriptOpCodes'OP_NOP3 ScriptOpCodes'OP_CHECKSEQUENCEVERIFY)
     (def #_"int" ScriptOpCodes'OP_NOP4 0xb3)
     (def #_"int" ScriptOpCodes'OP_NOP5 0xb4)
     (def #_"int" ScriptOpCodes'OP_NOP6 0xb5)
@@ -26696,9 +26699,9 @@
     (def #_"int" ScriptOpCodes'OP_NOP10 0xb9)
     (def #_"int" ScriptOpCodes'OP_INVALIDOPCODE 0xff)
 
-    (def- #_"Map<Integer, String>" ScriptOpCodes'OP_CODE_MAP (.. (ImmutableMap/builder #_"ImmutableMap<Integer, String>") (put ScriptOpCodes'OP_0, "0") (put ScriptOpCodes'OP_PUSHDATA1, "PUSHDATA1") (put ScriptOpCodes'OP_PUSHDATA2, "PUSHDATA2") (put ScriptOpCodes'OP_PUSHDATA4, "PUSHDATA4") (put ScriptOpCodes'OP_1NEGATE, "1NEGATE") (put ScriptOpCodes'OP_RESERVED, "RESERVED") (put ScriptOpCodes'OP_1, "1") (put ScriptOpCodes'OP_2, "2") (put ScriptOpCodes'OP_3, "3") (put ScriptOpCodes'OP_4, "4") (put ScriptOpCodes'OP_5, "5") (put ScriptOpCodes'OP_6, "6") (put ScriptOpCodes'OP_7, "7") (put ScriptOpCodes'OP_8, "8") (put ScriptOpCodes'OP_9, "9") (put ScriptOpCodes'OP_10, "10") (put ScriptOpCodes'OP_11, "11") (put ScriptOpCodes'OP_12, "12") (put ScriptOpCodes'OP_13, "13") (put ScriptOpCodes'OP_14, "14") (put ScriptOpCodes'OP_15, "15") (put ScriptOpCodes'OP_16, "16") (put ScriptOpCodes'OP_NOP, "NOP") (put ScriptOpCodes'OP_VER, "VER") (put ScriptOpCodes'OP_IF, "IF") (put ScriptOpCodes'OP_NOTIF, "NOTIF") (put ScriptOpCodes'OP_VERIF, "VERIF") (put ScriptOpCodes'OP_VERNOTIF, "VERNOTIF") (put ScriptOpCodes'OP_ELSE, "ELSE") (put ScriptOpCodes'OP_ENDIF, "ENDIF") (put ScriptOpCodes'OP_VERIFY, "VERIFY") (put ScriptOpCodes'OP_RETURN, "RETURN") (put ScriptOpCodes'OP_TOALTSTACK, "TOALTSTACK") (put ScriptOpCodes'OP_FROMALTSTACK, "FROMALTSTACK") (put ScriptOpCodes'OP_2DROP, "2DROP") (put ScriptOpCodes'OP_2DUP, "2DUP") (put ScriptOpCodes'OP_3DUP, "3DUP") (put ScriptOpCodes'OP_2OVER, "2OVER") (put ScriptOpCodes'OP_2ROT, "2ROT") (put ScriptOpCodes'OP_2SWAP, "2SWAP") (put ScriptOpCodes'OP_IFDUP, "IFDUP") (put ScriptOpCodes'OP_DEPTH, "DEPTH") (put ScriptOpCodes'OP_DROP, "DROP") (put ScriptOpCodes'OP_DUP, "DUP") (put ScriptOpCodes'OP_NIP, "NIP") (put ScriptOpCodes'OP_OVER, "OVER") (put ScriptOpCodes'OP_PICK, "PICK") (put ScriptOpCodes'OP_ROLL, "ROLL") (put ScriptOpCodes'OP_ROT, "ROT") (put ScriptOpCodes'OP_SWAP, "SWAP") (put ScriptOpCodes'OP_TUCK, "TUCK") (put ScriptOpCodes'OP_CAT, "CAT") (put ScriptOpCodes'OP_SUBSTR, "SUBSTR") (put ScriptOpCodes'OP_LEFT, "LEFT") (put ScriptOpCodes'OP_RIGHT, "RIGHT") (put ScriptOpCodes'OP_SIZE, "SIZE") (put ScriptOpCodes'OP_INVERT, "INVERT") (put ScriptOpCodes'OP_AND, "AND") (put ScriptOpCodes'OP_OR, "OR") (put ScriptOpCodes'OP_XOR, "XOR") (put ScriptOpCodes'OP_EQUAL, "EQUAL") (put ScriptOpCodes'OP_EQUALVERIFY, "EQUALVERIFY") (put ScriptOpCodes'OP_RESERVED1, "RESERVED1") (put ScriptOpCodes'OP_RESERVED2, "RESERVED2") (put ScriptOpCodes'OP_1ADD, "1ADD") (put ScriptOpCodes'OP_1SUB, "1SUB") (put ScriptOpCodes'OP_2MUL, "2MUL") (put ScriptOpCodes'OP_2DIV, "2DIV") (put ScriptOpCodes'OP_NEGATE, "NEGATE") (put ScriptOpCodes'OP_ABS, "ABS") (put ScriptOpCodes'OP_NOT, "NOT") (put ScriptOpCodes'OP_0NOTEQUAL, "0NOTEQUAL") (put ScriptOpCodes'OP_ADD, "ADD") (put ScriptOpCodes'OP_SUB, "SUB") (put ScriptOpCodes'OP_MUL, "MUL") (put ScriptOpCodes'OP_DIV, "DIV") (put ScriptOpCodes'OP_MOD, "MOD") (put ScriptOpCodes'OP_LSHIFT, "LSHIFT") (put ScriptOpCodes'OP_RSHIFT, "RSHIFT") (put ScriptOpCodes'OP_BOOLAND, "BOOLAND") (put ScriptOpCodes'OP_BOOLOR, "BOOLOR") (put ScriptOpCodes'OP_NUMEQUAL, "NUMEQUAL") (put ScriptOpCodes'OP_NUMEQUALVERIFY, "NUMEQUALVERIFY") (put ScriptOpCodes'OP_NUMNOTEQUAL, "NUMNOTEQUAL") (put ScriptOpCodes'OP_LESSTHAN, "LESSTHAN") (put ScriptOpCodes'OP_GREATERTHAN, "GREATERTHAN") (put ScriptOpCodes'OP_LESSTHANOREQUAL, "LESSTHANOREQUAL") (put ScriptOpCodes'OP_GREATERTHANOREQUAL, "GREATERTHANOREQUAL") (put ScriptOpCodes'OP_MIN, "MIN") (put ScriptOpCodes'OP_MAX, "MAX") (put ScriptOpCodes'OP_WITHIN, "WITHIN") (put ScriptOpCodes'OP_RIPEMD160, "RIPEMD160") (put ScriptOpCodes'OP_SHA1, "SHA1") (put ScriptOpCodes'OP_SHA256, "SHA256") (put ScriptOpCodes'OP_HASH160, "HASH160") (put ScriptOpCodes'OP_HASH256, "HASH256") (put ScriptOpCodes'OP_CODESEPARATOR, "CODESEPARATOR") (put ScriptOpCodes'OP_CHECKSIG, "CHECKSIG") (put ScriptOpCodes'OP_CHECKSIGVERIFY, "CHECKSIGVERIFY") (put ScriptOpCodes'OP_CHECKMULTISIG, "CHECKMULTISIG") (put ScriptOpCodes'OP_CHECKMULTISIGVERIFY, "CHECKMULTISIGVERIFY") (put ScriptOpCodes'OP_NOP1, "NOP1") (put ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY, "CHECKLOCKTIMEVERIFY") (put ScriptOpCodes'OP_CHECKSEQUENCEVERIFY, "CHECKSEQUENCEVERIFY") (put ScriptOpCodes'OP_NOP4, "NOP4") (put ScriptOpCodes'OP_NOP5, "NOP5") (put ScriptOpCodes'OP_NOP6, "NOP6") (put ScriptOpCodes'OP_NOP7, "NOP7") (put ScriptOpCodes'OP_NOP8, "NOP8") (put ScriptOpCodes'OP_NOP9, "NOP9") (put ScriptOpCodes'OP_NOP10, "NOP10") (build)))
+    (§ def- #_"Map<Integer, String>" ScriptOpCodes'OP_CODE_MAP (.. (ImmutableMap/builder #_"ImmutableMap<Integer, String>") (put ScriptOpCodes'OP_0, "0") (put ScriptOpCodes'OP_PUSHDATA1, "PUSHDATA1") (put ScriptOpCodes'OP_PUSHDATA2, "PUSHDATA2") (put ScriptOpCodes'OP_PUSHDATA4, "PUSHDATA4") (put ScriptOpCodes'OP_1NEGATE, "1NEGATE") (put ScriptOpCodes'OP_RESERVED, "RESERVED") (put ScriptOpCodes'OP_1, "1") (put ScriptOpCodes'OP_2, "2") (put ScriptOpCodes'OP_3, "3") (put ScriptOpCodes'OP_4, "4") (put ScriptOpCodes'OP_5, "5") (put ScriptOpCodes'OP_6, "6") (put ScriptOpCodes'OP_7, "7") (put ScriptOpCodes'OP_8, "8") (put ScriptOpCodes'OP_9, "9") (put ScriptOpCodes'OP_10, "10") (put ScriptOpCodes'OP_11, "11") (put ScriptOpCodes'OP_12, "12") (put ScriptOpCodes'OP_13, "13") (put ScriptOpCodes'OP_14, "14") (put ScriptOpCodes'OP_15, "15") (put ScriptOpCodes'OP_16, "16") (put ScriptOpCodes'OP_NOP, "NOP") (put ScriptOpCodes'OP_VER, "VER") (put ScriptOpCodes'OP_IF, "IF") (put ScriptOpCodes'OP_NOTIF, "NOTIF") (put ScriptOpCodes'OP_VERIF, "VERIF") (put ScriptOpCodes'OP_VERNOTIF, "VERNOTIF") (put ScriptOpCodes'OP_ELSE, "ELSE") (put ScriptOpCodes'OP_ENDIF, "ENDIF") (put ScriptOpCodes'OP_VERIFY, "VERIFY") (put ScriptOpCodes'OP_RETURN, "RETURN") (put ScriptOpCodes'OP_TOALTSTACK, "TOALTSTACK") (put ScriptOpCodes'OP_FROMALTSTACK, "FROMALTSTACK") (put ScriptOpCodes'OP_2DROP, "2DROP") (put ScriptOpCodes'OP_2DUP, "2DUP") (put ScriptOpCodes'OP_3DUP, "3DUP") (put ScriptOpCodes'OP_2OVER, "2OVER") (put ScriptOpCodes'OP_2ROT, "2ROT") (put ScriptOpCodes'OP_2SWAP, "2SWAP") (put ScriptOpCodes'OP_IFDUP, "IFDUP") (put ScriptOpCodes'OP_DEPTH, "DEPTH") (put ScriptOpCodes'OP_DROP, "DROP") (put ScriptOpCodes'OP_DUP, "DUP") (put ScriptOpCodes'OP_NIP, "NIP") (put ScriptOpCodes'OP_OVER, "OVER") (put ScriptOpCodes'OP_PICK, "PICK") (put ScriptOpCodes'OP_ROLL, "ROLL") (put ScriptOpCodes'OP_ROT, "ROT") (put ScriptOpCodes'OP_SWAP, "SWAP") (put ScriptOpCodes'OP_TUCK, "TUCK") (put ScriptOpCodes'OP_CAT, "CAT") (put ScriptOpCodes'OP_SUBSTR, "SUBSTR") (put ScriptOpCodes'OP_LEFT, "LEFT") (put ScriptOpCodes'OP_RIGHT, "RIGHT") (put ScriptOpCodes'OP_SIZE, "SIZE") (put ScriptOpCodes'OP_INVERT, "INVERT") (put ScriptOpCodes'OP_AND, "AND") (put ScriptOpCodes'OP_OR, "OR") (put ScriptOpCodes'OP_XOR, "XOR") (put ScriptOpCodes'OP_EQUAL, "EQUAL") (put ScriptOpCodes'OP_EQUALVERIFY, "EQUALVERIFY") (put ScriptOpCodes'OP_RESERVED1, "RESERVED1") (put ScriptOpCodes'OP_RESERVED2, "RESERVED2") (put ScriptOpCodes'OP_1ADD, "1ADD") (put ScriptOpCodes'OP_1SUB, "1SUB") (put ScriptOpCodes'OP_2MUL, "2MUL") (put ScriptOpCodes'OP_2DIV, "2DIV") (put ScriptOpCodes'OP_NEGATE, "NEGATE") (put ScriptOpCodes'OP_ABS, "ABS") (put ScriptOpCodes'OP_NOT, "NOT") (put ScriptOpCodes'OP_0NOTEQUAL, "0NOTEQUAL") (put ScriptOpCodes'OP_ADD, "ADD") (put ScriptOpCodes'OP_SUB, "SUB") (put ScriptOpCodes'OP_MUL, "MUL") (put ScriptOpCodes'OP_DIV, "DIV") (put ScriptOpCodes'OP_MOD, "MOD") (put ScriptOpCodes'OP_LSHIFT, "LSHIFT") (put ScriptOpCodes'OP_RSHIFT, "RSHIFT") (put ScriptOpCodes'OP_BOOLAND, "BOOLAND") (put ScriptOpCodes'OP_BOOLOR, "BOOLOR") (put ScriptOpCodes'OP_NUMEQUAL, "NUMEQUAL") (put ScriptOpCodes'OP_NUMEQUALVERIFY, "NUMEQUALVERIFY") (put ScriptOpCodes'OP_NUMNOTEQUAL, "NUMNOTEQUAL") (put ScriptOpCodes'OP_LESSTHAN, "LESSTHAN") (put ScriptOpCodes'OP_GREATERTHAN, "GREATERTHAN") (put ScriptOpCodes'OP_LESSTHANOREQUAL, "LESSTHANOREQUAL") (put ScriptOpCodes'OP_GREATERTHANOREQUAL, "GREATERTHANOREQUAL") (put ScriptOpCodes'OP_MIN, "MIN") (put ScriptOpCodes'OP_MAX, "MAX") (put ScriptOpCodes'OP_WITHIN, "WITHIN") (put ScriptOpCodes'OP_RIPEMD160, "RIPEMD160") (put ScriptOpCodes'OP_SHA1, "SHA1") (put ScriptOpCodes'OP_SHA256, "SHA256") (put ScriptOpCodes'OP_HASH160, "HASH160") (put ScriptOpCodes'OP_HASH256, "HASH256") (put ScriptOpCodes'OP_CODESEPARATOR, "CODESEPARATOR") (put ScriptOpCodes'OP_CHECKSIG, "CHECKSIG") (put ScriptOpCodes'OP_CHECKSIGVERIFY, "CHECKSIGVERIFY") (put ScriptOpCodes'OP_CHECKMULTISIG, "CHECKMULTISIG") (put ScriptOpCodes'OP_CHECKMULTISIGVERIFY, "CHECKMULTISIGVERIFY") (put ScriptOpCodes'OP_NOP1, "NOP1") (put ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY, "CHECKLOCKTIMEVERIFY") (put ScriptOpCodes'OP_CHECKSEQUENCEVERIFY, "CHECKSEQUENCEVERIFY") (put ScriptOpCodes'OP_NOP4, "NOP4") (put ScriptOpCodes'OP_NOP5, "NOP5") (put ScriptOpCodes'OP_NOP6, "NOP6") (put ScriptOpCodes'OP_NOP7, "NOP7") (put ScriptOpCodes'OP_NOP8, "NOP8") (put ScriptOpCodes'OP_NOP9, "NOP9") (put ScriptOpCodes'OP_NOP10, "NOP10") (build)))
 
-    (def- #_"Map<String, Integer>" ScriptOpCodes'OP_CODE_NAME_MAP (.. (ImmutableMap/builder #_"ImmutableMap<String, Integer>") (put "0", ScriptOpCodes'OP_0) (put "PUSHDATA1", ScriptOpCodes'OP_PUSHDATA1) (put "PUSHDATA2", ScriptOpCodes'OP_PUSHDATA2) (put "PUSHDATA4", ScriptOpCodes'OP_PUSHDATA4) (put "1NEGATE", ScriptOpCodes'OP_1NEGATE) (put "RESERVED", ScriptOpCodes'OP_RESERVED) (put "1", ScriptOpCodes'OP_1) (put "2", ScriptOpCodes'OP_2) (put "3", ScriptOpCodes'OP_3) (put "4", ScriptOpCodes'OP_4) (put "5", ScriptOpCodes'OP_5) (put "6", ScriptOpCodes'OP_6) (put "7", ScriptOpCodes'OP_7) (put "8", ScriptOpCodes'OP_8) (put "9", ScriptOpCodes'OP_9) (put "10", ScriptOpCodes'OP_10) (put "11", ScriptOpCodes'OP_11) (put "12", ScriptOpCodes'OP_12) (put "13", ScriptOpCodes'OP_13) (put "14", ScriptOpCodes'OP_14) (put "15", ScriptOpCodes'OP_15) (put "16", ScriptOpCodes'OP_16) (put "NOP", ScriptOpCodes'OP_NOP) (put "VER", ScriptOpCodes'OP_VER) (put "IF", ScriptOpCodes'OP_IF) (put "NOTIF", ScriptOpCodes'OP_NOTIF) (put "VERIF", ScriptOpCodes'OP_VERIF) (put "VERNOTIF", ScriptOpCodes'OP_VERNOTIF) (put "ELSE", ScriptOpCodes'OP_ELSE) (put "ENDIF", ScriptOpCodes'OP_ENDIF) (put "VERIFY", ScriptOpCodes'OP_VERIFY) (put "RETURN", ScriptOpCodes'OP_RETURN) (put "TOALTSTACK", ScriptOpCodes'OP_TOALTSTACK) (put "FROMALTSTACK", ScriptOpCodes'OP_FROMALTSTACK) (put "2DROP", ScriptOpCodes'OP_2DROP) (put "2DUP", ScriptOpCodes'OP_2DUP) (put "3DUP", ScriptOpCodes'OP_3DUP) (put "2OVER", ScriptOpCodes'OP_2OVER) (put "2ROT", ScriptOpCodes'OP_2ROT) (put "2SWAP", ScriptOpCodes'OP_2SWAP) (put "IFDUP", ScriptOpCodes'OP_IFDUP) (put "DEPTH", ScriptOpCodes'OP_DEPTH) (put "DROP", ScriptOpCodes'OP_DROP) (put "DUP", ScriptOpCodes'OP_DUP) (put "NIP", ScriptOpCodes'OP_NIP) (put "OVER", ScriptOpCodes'OP_OVER) (put "PICK", ScriptOpCodes'OP_PICK) (put "ROLL", ScriptOpCodes'OP_ROLL) (put "ROT", ScriptOpCodes'OP_ROT) (put "SWAP", ScriptOpCodes'OP_SWAP) (put "TUCK", ScriptOpCodes'OP_TUCK) (put "CAT", ScriptOpCodes'OP_CAT) (put "SUBSTR", ScriptOpCodes'OP_SUBSTR) (put "LEFT", ScriptOpCodes'OP_LEFT) (put "RIGHT", ScriptOpCodes'OP_RIGHT) (put "SIZE", ScriptOpCodes'OP_SIZE) (put "INVERT", ScriptOpCodes'OP_INVERT) (put "AND", ScriptOpCodes'OP_AND) (put "OR", ScriptOpCodes'OP_OR) (put "XOR", ScriptOpCodes'OP_XOR) (put "EQUAL", ScriptOpCodes'OP_EQUAL) (put "EQUALVERIFY", ScriptOpCodes'OP_EQUALVERIFY) (put "RESERVED1", ScriptOpCodes'OP_RESERVED1) (put "RESERVED2", ScriptOpCodes'OP_RESERVED2) (put "1ADD", ScriptOpCodes'OP_1ADD) (put "1SUB", ScriptOpCodes'OP_1SUB) (put "2MUL", ScriptOpCodes'OP_2MUL) (put "2DIV", ScriptOpCodes'OP_2DIV) (put "NEGATE", ScriptOpCodes'OP_NEGATE) (put "ABS", ScriptOpCodes'OP_ABS) (put "NOT", ScriptOpCodes'OP_NOT) (put "0NOTEQUAL", ScriptOpCodes'OP_0NOTEQUAL) (put "ADD", ScriptOpCodes'OP_ADD) (put "SUB", ScriptOpCodes'OP_SUB) (put "MUL", ScriptOpCodes'OP_MUL) (put "DIV", ScriptOpCodes'OP_DIV) (put "MOD", ScriptOpCodes'OP_MOD) (put "LSHIFT", ScriptOpCodes'OP_LSHIFT) (put "RSHIFT", ScriptOpCodes'OP_RSHIFT) (put "BOOLAND", ScriptOpCodes'OP_BOOLAND) (put "BOOLOR", ScriptOpCodes'OP_BOOLOR) (put "NUMEQUAL", ScriptOpCodes'OP_NUMEQUAL) (put "NUMEQUALVERIFY", ScriptOpCodes'OP_NUMEQUALVERIFY) (put "NUMNOTEQUAL", ScriptOpCodes'OP_NUMNOTEQUAL) (put "LESSTHAN", ScriptOpCodes'OP_LESSTHAN) (put "GREATERTHAN", ScriptOpCodes'OP_GREATERTHAN) (put "LESSTHANOREQUAL", ScriptOpCodes'OP_LESSTHANOREQUAL) (put "GREATERTHANOREQUAL", ScriptOpCodes'OP_GREATERTHANOREQUAL) (put "MIN", ScriptOpCodes'OP_MIN) (put "MAX", ScriptOpCodes'OP_MAX) (put "WITHIN", ScriptOpCodes'OP_WITHIN) (put "RIPEMD160", ScriptOpCodes'OP_RIPEMD160) (put "SHA1", ScriptOpCodes'OP_SHA1) (put "SHA256", ScriptOpCodes'OP_SHA256) (put "HASH160", ScriptOpCodes'OP_HASH160) (put "HASH256", ScriptOpCodes'OP_HASH256) (put "CODESEPARATOR", ScriptOpCodes'OP_CODESEPARATOR) (put "CHECKSIG", ScriptOpCodes'OP_CHECKSIG) (put "CHECKSIGVERIFY", ScriptOpCodes'OP_CHECKSIGVERIFY) (put "CHECKMULTISIG", ScriptOpCodes'OP_CHECKMULTISIG) (put "CHECKMULTISIGVERIFY", ScriptOpCodes'OP_CHECKMULTISIGVERIFY) (put "NOP1", ScriptOpCodes'OP_NOP1) (put "CHECKLOCKTIMEVERIFY", ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY) (put "CHECKSEQUENCEVERIFY", ScriptOpCodes'OP_CHECKSEQUENCEVERIFY) (put "NOP2", ScriptOpCodes'OP_NOP2) (put "NOP3", ScriptOpCodes'OP_NOP3) (put "NOP4", ScriptOpCodes'OP_NOP4) (put "NOP5", ScriptOpCodes'OP_NOP5) (put "NOP6", ScriptOpCodes'OP_NOP6) (put "NOP7", ScriptOpCodes'OP_NOP7) (put "NOP8", ScriptOpCodes'OP_NOP8) (put "NOP9", ScriptOpCodes'OP_NOP9) (put "NOP10", ScriptOpCodes'OP_NOP10) (build)))
+    (§ def- #_"Map<String, Integer>" ScriptOpCodes'OP_CODE_NAME_MAP (.. (ImmutableMap/builder #_"ImmutableMap<String, Integer>") (put "0", ScriptOpCodes'OP_0) (put "PUSHDATA1", ScriptOpCodes'OP_PUSHDATA1) (put "PUSHDATA2", ScriptOpCodes'OP_PUSHDATA2) (put "PUSHDATA4", ScriptOpCodes'OP_PUSHDATA4) (put "1NEGATE", ScriptOpCodes'OP_1NEGATE) (put "RESERVED", ScriptOpCodes'OP_RESERVED) (put "1", ScriptOpCodes'OP_1) (put "2", ScriptOpCodes'OP_2) (put "3", ScriptOpCodes'OP_3) (put "4", ScriptOpCodes'OP_4) (put "5", ScriptOpCodes'OP_5) (put "6", ScriptOpCodes'OP_6) (put "7", ScriptOpCodes'OP_7) (put "8", ScriptOpCodes'OP_8) (put "9", ScriptOpCodes'OP_9) (put "10", ScriptOpCodes'OP_10) (put "11", ScriptOpCodes'OP_11) (put "12", ScriptOpCodes'OP_12) (put "13", ScriptOpCodes'OP_13) (put "14", ScriptOpCodes'OP_14) (put "15", ScriptOpCodes'OP_15) (put "16", ScriptOpCodes'OP_16) (put "NOP", ScriptOpCodes'OP_NOP) (put "VER", ScriptOpCodes'OP_VER) (put "IF", ScriptOpCodes'OP_IF) (put "NOTIF", ScriptOpCodes'OP_NOTIF) (put "VERIF", ScriptOpCodes'OP_VERIF) (put "VERNOTIF", ScriptOpCodes'OP_VERNOTIF) (put "ELSE", ScriptOpCodes'OP_ELSE) (put "ENDIF", ScriptOpCodes'OP_ENDIF) (put "VERIFY", ScriptOpCodes'OP_VERIFY) (put "RETURN", ScriptOpCodes'OP_RETURN) (put "TOALTSTACK", ScriptOpCodes'OP_TOALTSTACK) (put "FROMALTSTACK", ScriptOpCodes'OP_FROMALTSTACK) (put "2DROP", ScriptOpCodes'OP_2DROP) (put "2DUP", ScriptOpCodes'OP_2DUP) (put "3DUP", ScriptOpCodes'OP_3DUP) (put "2OVER", ScriptOpCodes'OP_2OVER) (put "2ROT", ScriptOpCodes'OP_2ROT) (put "2SWAP", ScriptOpCodes'OP_2SWAP) (put "IFDUP", ScriptOpCodes'OP_IFDUP) (put "DEPTH", ScriptOpCodes'OP_DEPTH) (put "DROP", ScriptOpCodes'OP_DROP) (put "DUP", ScriptOpCodes'OP_DUP) (put "NIP", ScriptOpCodes'OP_NIP) (put "OVER", ScriptOpCodes'OP_OVER) (put "PICK", ScriptOpCodes'OP_PICK) (put "ROLL", ScriptOpCodes'OP_ROLL) (put "ROT", ScriptOpCodes'OP_ROT) (put "SWAP", ScriptOpCodes'OP_SWAP) (put "TUCK", ScriptOpCodes'OP_TUCK) (put "CAT", ScriptOpCodes'OP_CAT) (put "SUBSTR", ScriptOpCodes'OP_SUBSTR) (put "LEFT", ScriptOpCodes'OP_LEFT) (put "RIGHT", ScriptOpCodes'OP_RIGHT) (put "SIZE", ScriptOpCodes'OP_SIZE) (put "INVERT", ScriptOpCodes'OP_INVERT) (put "AND", ScriptOpCodes'OP_AND) (put "OR", ScriptOpCodes'OP_OR) (put "XOR", ScriptOpCodes'OP_XOR) (put "EQUAL", ScriptOpCodes'OP_EQUAL) (put "EQUALVERIFY", ScriptOpCodes'OP_EQUALVERIFY) (put "RESERVED1", ScriptOpCodes'OP_RESERVED1) (put "RESERVED2", ScriptOpCodes'OP_RESERVED2) (put "1ADD", ScriptOpCodes'OP_1ADD) (put "1SUB", ScriptOpCodes'OP_1SUB) (put "2MUL", ScriptOpCodes'OP_2MUL) (put "2DIV", ScriptOpCodes'OP_2DIV) (put "NEGATE", ScriptOpCodes'OP_NEGATE) (put "ABS", ScriptOpCodes'OP_ABS) (put "NOT", ScriptOpCodes'OP_NOT) (put "0NOTEQUAL", ScriptOpCodes'OP_0NOTEQUAL) (put "ADD", ScriptOpCodes'OP_ADD) (put "SUB", ScriptOpCodes'OP_SUB) (put "MUL", ScriptOpCodes'OP_MUL) (put "DIV", ScriptOpCodes'OP_DIV) (put "MOD", ScriptOpCodes'OP_MOD) (put "LSHIFT", ScriptOpCodes'OP_LSHIFT) (put "RSHIFT", ScriptOpCodes'OP_RSHIFT) (put "BOOLAND", ScriptOpCodes'OP_BOOLAND) (put "BOOLOR", ScriptOpCodes'OP_BOOLOR) (put "NUMEQUAL", ScriptOpCodes'OP_NUMEQUAL) (put "NUMEQUALVERIFY", ScriptOpCodes'OP_NUMEQUALVERIFY) (put "NUMNOTEQUAL", ScriptOpCodes'OP_NUMNOTEQUAL) (put "LESSTHAN", ScriptOpCodes'OP_LESSTHAN) (put "GREATERTHAN", ScriptOpCodes'OP_GREATERTHAN) (put "LESSTHANOREQUAL", ScriptOpCodes'OP_LESSTHANOREQUAL) (put "GREATERTHANOREQUAL", ScriptOpCodes'OP_GREATERTHANOREQUAL) (put "MIN", ScriptOpCodes'OP_MIN) (put "MAX", ScriptOpCodes'OP_MAX) (put "WITHIN", ScriptOpCodes'OP_WITHIN) (put "RIPEMD160", ScriptOpCodes'OP_RIPEMD160) (put "SHA1", ScriptOpCodes'OP_SHA1) (put "SHA256", ScriptOpCodes'OP_SHA256) (put "HASH160", ScriptOpCodes'OP_HASH160) (put "HASH256", ScriptOpCodes'OP_HASH256) (put "CODESEPARATOR", ScriptOpCodes'OP_CODESEPARATOR) (put "CHECKSIG", ScriptOpCodes'OP_CHECKSIG) (put "CHECKSIGVERIFY", ScriptOpCodes'OP_CHECKSIGVERIFY) (put "CHECKMULTISIG", ScriptOpCodes'OP_CHECKMULTISIG) (put "CHECKMULTISIGVERIFY", ScriptOpCodes'OP_CHECKMULTISIGVERIFY) (put "NOP1", ScriptOpCodes'OP_NOP1) (put "CHECKLOCKTIMEVERIFY", ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY) (put "CHECKSEQUENCEVERIFY", ScriptOpCodes'OP_CHECKSEQUENCEVERIFY) (put "NOP2", ScriptOpCodes'OP_NOP2) (put "NOP3", ScriptOpCodes'OP_NOP3) (put "NOP4", ScriptOpCodes'OP_NOP4) (put "NOP5", ScriptOpCodes'OP_NOP5) (put "NOP6", ScriptOpCodes'OP_NOP6) (put "NOP7", ScriptOpCodes'OP_NOP7) (put "NOP8", ScriptOpCodes'OP_NOP8) (put "NOP9", ScriptOpCodes'OP_NOP9) (put "NOP10", ScriptOpCodes'OP_NOP10) (build)))
 
     ;;;
      ; Converts the given OpCode into a string (e.g. "0", "PUSHDATA", or "NON_OP(10)")
@@ -26731,15 +26734,15 @@
     )
 )
 
-(ns org.bitcoinj.signers
+(ns bitclojn.signers
   #_(:import [java.util EnumSet HashMap List Map]
              [org.slf4j LoggerFactory Logger]
     )
-    (:use [bitclojn.slang])
+    (:use [bitclojn slang])
 )
 
 #_unused
-(§ class SignatureAndKey
+(defclass SignatureAndKey
     (ß defn- #_"SignatureAndKey" SignatureAndKey'init []
     {
         #_field #_"ECDSASignature" :sig nil
@@ -26765,14 +26768,14 @@
  ;;
 #_unused
 #_abstract
-(§ class CustomTransactionSigner (§ extends StatelessTransactionSigner)
+(defclass CustomTransactionSigner (§ extends StatelessTransactionSigner)
     (§ defn #_"CustomTransactionSigner" CustomTransactionSigner'new []
         (let [this (StatelessTransactionSigner'new)]
             this
         )
     )
 
-    (def- #_"Logger" CustomTransactionSigner'log (LoggerFactory/getLogger CustomTransactionSigner))
+    (§ def- #_"Logger" CustomTransactionSigner'log (LoggerFactory/getLogger CustomTransactionSigner))
 
     #_override
     (§ method #_"boolean" isReady []
@@ -26839,19 +26842,19 @@
  ;
  ; This signer always uses {@link Transaction.SigHash#ALL} signing mode.
  ;;
-(§ class LocalTransactionSigner (§ extends StatelessTransactionSigner)
+(defclass LocalTransactionSigner (§ extends StatelessTransactionSigner)
     (§ defn #_"LocalTransactionSigner" LocalTransactionSigner'new []
         (let [this (StatelessTransactionSigner'new)]
             this
         )
     )
 
-    (def- #_"Logger" LocalTransactionSigner'log (LoggerFactory/getLogger LocalTransactionSigner))
+    (§ def- #_"Logger" LocalTransactionSigner'log (LoggerFactory/getLogger LocalTransactionSigner))
 
     ;;;
      ; Verify flags that are safe to use when testing if an input is already signed.
      ;;
-    (def- #_"EnumSet<ScriptVerifyFlag>" LocalTransactionSigner'MINIMUM_VERIFY_FLAGS (EnumSet/of :ScriptVerifyFlag'P2SH, :ScriptVerifyFlag'NULLDUMMY))
+    (§ def- #_"EnumSet<ScriptVerifyFlag>" LocalTransactionSigner'MINIMUM_VERIFY_FLAGS (EnumSet/of :ScriptVerifyFlag'P2SH, :ScriptVerifyFlag'NULLDUMMY))
 
     #_override
     (§ method #_"boolean" isReady []
@@ -26927,8 +26930,8 @@
  ; In MissingSigsMode.THROW mode this signer will throw an exception.  It would be MissingSignatureException
  ; for P2SH or MissingPrivateKeyException for other transaction types.
  ;;
-(§ class MissingSigResolutionSigner (§ extends StatelessTransactionSigner)
-    (def- #_"Logger" MissingSigResolutionSigner'log (LoggerFactory/getLogger MissingSigResolutionSigner))
+(defclass MissingSigResolutionSigner (§ extends StatelessTransactionSigner)
+    (§ def- #_"Logger" MissingSigResolutionSigner'log (LoggerFactory/getLogger MissingSigResolutionSigner))
 
     (ß defn- #_"MissingSigResolutionSigner" MissingSigResolutionSigner'init []
     {
@@ -27003,7 +27006,7 @@
  ; A signer that doesn't have any state to be serialized.
  ;;
 #_abstract
-(§ class StatelessTransactionSigner (§ implements TransactionSigner)
+(defclass StatelessTransactionSigner (§ implements TransactionSigner)
     #_protected
     (§ defn #_"StatelessTransactionSigner" StatelessTransactionSigner'new []
         (let [this {}]
@@ -27026,7 +27029,7 @@
  ; This class wraps transaction proposed to complete keeping a metadata that may be updated, used and effectively
  ; shared by transaction signers.
  ;;
-(§ class ProposedTransaction
+(defclass ProposedTransaction
     (ß defn- #_"ProposedTransaction" ProposedTransaction'init []
     {
         #_field #_"Transaction" :partial-tx nil
@@ -27050,7 +27053,7 @@
     )
 )
 
-(§ class MissingSignatureException (§ extends RuntimeException)
+(defclass MissingSignatureException (§ extends RuntimeException)
     (§ defn #_"MissingSignatureException" MissingSignatureException'new []
         (let [this (RuntimeException'new)]
             this
@@ -27092,7 +27095,7 @@
     (§ method #_"boolean" signInputs [#_"ProposedTransaction" __propTx, #_"KeyBag" bag])
 )
 
-(ns org.bitcoinj.store
+(ns bitclojn.store
   #_(:import [com.google.common.base Charsets Objects]
              [com.google.common.collect Lists]
              [java.io *]
@@ -27102,7 +27105,7 @@
              [java.util.concurrent.locks *]
              [org.slf4j LoggerFactory Logger]
     )
-    (:use [bitclojn.slang])
+    (:use [bitclojn slang])
 )
 
 ;;;
@@ -27161,7 +27164,7 @@
 ;;;
  ; Thrown when something goes wrong with storing a block.  Examples: out of disk space.
  ;;
-(§ class BlockStoreException (§ extends Exception)
+(defclass BlockStoreException (§ extends Exception)
     (§ defn #_"BlockStoreException" BlockStoreException'new [#_"String" message]
         (let [this (§ super Exception'new message)]
             this
@@ -27184,7 +27187,7 @@
 ;;;
  ; Thrown by {@link SPVBlockStore} when the process cannot gain exclusive access to the chain file.
  ;;
-(§ class ChainFileLockedException (§ extends BlockStoreException)
+(defclass ChainFileLockedException (§ extends BlockStoreException)
     (§ defn #_"ChainFileLockedException" ChainFileLockedException'new [#_"String" message]
         (let [this (BlockStoreException'new message)]
             this
@@ -27327,7 +27330,7 @@
 ;;;
  ; Keeps {@link StoredBlock}s in memory.
  ;;
-(§ class MemoryBlockStore (§ implements BlockStore)
+(defclass MemoryBlockStore (§ implements BlockStore)
     (ß defn- #_"MemoryBlockStore" MemoryBlockStore'init []
     {
         #_field #_"LinkedHashMap<Sha256Hash, StoredBlock>" :block-map (LinkedHashMap. #_"<Sha256Hash, StoredBlock>"
@@ -27425,7 +27428,7 @@
  ; Used as a key for memory map (to avoid having to think about NetworkParameters,
  ; which is required for {@link TransactionOutPoint}.
  ;;
-(§ class StoredTransactionOutPoint
+(defclass StoredTransactionOutPoint
     (ß defn- #_"StoredTransactionOutPoint" StoredTransactionOutPoint'init []
     {
         ;;; Hash of the transaction to which we refer. ;;
@@ -27490,7 +27493,7 @@
  ; A HashMap<KeyType, ValueType> that is DB transaction-aware.
  ; This class is not thread-safe.
  ;;
-(§ class TransactionalHashMap #_"<KeyType, ValueType>"
+(defclass TransactionalHashMap #_"<KeyType, ValueType>"
     (ß defn- #_"TransactionalHashMap" TransactionalHashMap'init []
     {
         #_field #_"ThreadLocal<HashMap<KeyType, ValueType>>" :temp-map nil
@@ -27612,7 +27615,7 @@
  ; @param <UniqueKeyType> Is a key that must be unique per object.
  ; @param <MultiKeyType> Is a key that can have multiple values.
  ;;
-(§ class TransactionalMultiKeyHashMap #_"<UniqueKeyType, MultiKeyType, ValueType>"
+(defclass TransactionalMultiKeyHashMap #_"<UniqueKeyType, MultiKeyType, ValueType>"
     (ß defn- #_"TransactionalMultiKeyHashMap" TransactionalMultiKeyHashMap'init []
     {
         #_field #_"TransactionalHashMap<UniqueKeyType, ValueType>" :map-values nil
@@ -27682,7 +27685,7 @@
     )
 )
 
-(§ class StoredBlockAndWasUndoableFlag
+(defclass StoredBlockAndWasUndoableFlag
     (ß defn- #_"StoredBlockAndWasUndoableFlag" StoredBlockAndWasUndoableFlag'init []
     {
         #_field #_"StoredBlock" :block nil
@@ -27701,7 +27704,7 @@
 ;;;
  ; Keeps {@link StoredBlock}s, {@link StoredUndoableBlock}s and {@link UTXO}s in memory.
  ;;
-(§ class MemoryFullPrunedBlockStore (§ implements FullPrunedBlockStore)
+(defclass MemoryFullPrunedBlockStore (§ implements FullPrunedBlockStore)
     (ß defn- #_"MemoryFullPrunedBlockStore" MemoryFullPrunedBlockStore'init []
     {
         #_field #_"TransactionalHashMap<Sha256Hash, StoredBlockAndWasUndoableFlag>" :block-map nil
@@ -27930,8 +27933,8 @@
  ; you may not be able to process very deep re-orgs and could be disconnected from the chain (requiring a replay),
  ; but as they are virtually unheard of this is not a significant risk.
  ;;
-(§ class SPVBlockStore (§ implements BlockStore)
-    (def- #_"Logger" SPVBlockStore'log (LoggerFactory/getLogger SPVBlockStore))
+(defclass SPVBlockStore (§ implements BlockStore)
+    (§ def- #_"Logger" SPVBlockStore'log (LoggerFactory/getLogger SPVBlockStore))
 
     ;;; The default number of headers that will be stored in the ring buffer. ;;
     (def #_"int" SPVBlockStore'DEFAULT_CAPACITY 5000)
@@ -27943,7 +27946,7 @@
     ;;
     ;; We don't care about the value in this cache.  It is always notFoundMarker.  Unfortunately LinkedHashSet does
     ;; not provide the removeEldestEntry control.
-    (def- #_"Object" SPVBlockStore'NOT_FOUND_MARKER (Object.))
+    (§ def- #_"Object" SPVBlockStore'NOT_FOUND_MARKER (Object.))
 
     (ß defn- #_"SPVBlockStore" SPVBlockStore'init []
     {
@@ -28274,7 +28277,7 @@
     )
 
     #_protected
-    (def #_"int" SPVBlockStore'RECORD_SIZE (+ 32 StoredBlock'COMPACT_SERIALIZED_SIZE)) ;; hash
+    (§ def #_"int" SPVBlockStore'RECORD_SIZE (+ 32 StoredBlock'COMPACT_SERIALIZED_SIZE)) ;; hash
 
     ;; File format:
     ;;   4 header bytes = "SPVB"
@@ -28304,7 +28307,7 @@
     )
 )
 
-(ns org.bitcoinj.utils
+(ns bitclojn.utils
   #_(:import [com.google.common.base Objects]
              [com.google.common.math LongMath]
              [com.google.common.primitives Longs]
@@ -28316,15 +28319,15 @@
              [java.util.concurrent.locks ReentrantLock]
              [org.slf4j LoggerFactory Logger]
     )
-    (:use [bitclojn.slang])
+    (:use [bitclojn slang])
 )
 
 ;;;
  ; A {@link java.util.concurrent.ThreadFactory} that propagates a {@link Context}
  ; from the creating thread into the new thread.  This factory creates daemon threads.
  ;;
-(§ class ContextPropagatingThreadFactory (§ implements ThreadFactory)
-    (def- #_"Logger" ContextPropagatingThreadFactory'log (LoggerFactory/getLogger ContextPropagatingThreadFactory))
+(defclass ContextPropagatingThreadFactory (§ implements ThreadFactory)
+    (§ def- #_"Logger" ContextPropagatingThreadFactory'log (LoggerFactory/getLogger ContextPropagatingThreadFactory))
 
     (ß defn- #_"ContextPropagatingThreadFactory" ContextPropagatingThreadFactory'init []
     {
@@ -28378,7 +28381,7 @@
 )
 
 ;;; Thread factory whose threads are marked as daemon and won't prevent process exit. ;;
-(§ class DaemonThreadFactory (§ implements ThreadFactory)
+(defclass DaemonThreadFactory (§ implements ThreadFactory)
     (ß defn- #_"DaemonThreadFactory" DaemonThreadFactory'init []
     {
         #_nilable
@@ -28413,7 +28416,7 @@
 ;;;
  ; An exchange rate is expressed as a ratio of a {@link Coin} and a {@link Fiat} amount.
  ;;
-(§ class ExchangeRate
+(defclass ExchangeRate
     (ß defn- #_"ExchangeRate" ExchangeRate'init []
     {
         #_field #_"Coin" :coin nil
@@ -28501,7 +28504,7 @@
 ;;;
  ; Parameters to configure a particular kind of exponential backoff.
  ;;
-(§ class BackoffParams
+(defclass BackoffParams
     (ß defn- #_"BackoffParams" BackoffParams'init []
     {
         #_field #_"float" :initial 0.0
@@ -28544,7 +28547,7 @@
  ;
  ; The retries are exponentially backed off, up to a maximum interval.  On success the back off interval is reset.
  ;;
-(§ class ExponentialBackoff (§ implements Comparable #_"<ExponentialBackoff>")
+(defclass ExponentialBackoff (§ implements Comparable #_"<ExponentialBackoff>")
     (def #_"int" ExponentialBackoff'DEFAULT_INITIAL_MILLIS 100)
     (def #_"float" ExponentialBackoff'DEFAULT_MULTIPLIER 1.1)
     (def #_"int" ExponentialBackoff'DEFAULT_MAXIMUM_MILLIS (* 30 1000))
@@ -28601,7 +28604,7 @@
  ;
  ; This class is immutable.
  ;;
-(§ class Fiat (§ implements Monetary, Comparable #_"<Fiat>")
+(defclass Fiat (§ implements Monetary, Comparable #_"<Fiat>")
     ;;;
      ; The absolute value of exponent of the value of a "smallest unit" in scientific notation.
      ; We picked 4 rather than 2, because in financial applications it's common to use sub-cent precision.
@@ -28768,7 +28771,7 @@
         (:value this)
     )
 
-    (def- #_"MonetaryFormat" Fiat'FRIENDLY_FORMAT (.. MonetaryFormat'FIAT (postfixCode)))
+    (§ def- #_"MonetaryFormat" Fiat'FRIENDLY_FORMAT (.. MonetaryFormat'FIAT (postfixCode)))
 
     ;;;
      ; Returns the value as a 0.12 type string.
@@ -28778,7 +28781,7 @@
         (.. Fiat'FRIENDLY_FORMAT (code 0, (:currency-code this)) (format this) (toString))
     )
 
-    (def- #_"MonetaryFormat" Fiat'PLAIN_FORMAT (.. MonetaryFormat'FIAT (minDecimals 0) (repeatOptionalDecimals 1, 4) (noCode)))
+    (§ def- #_"MonetaryFormat" Fiat'PLAIN_FORMAT (.. MonetaryFormat'FIAT (minDecimals 0) (repeatOptionalDecimals 1, 4) (noCode)))
 
     ;;;
      ; Returns the value as a plain string.  The result is unformatted with no trailing zeroes.
@@ -28818,7 +28821,7 @@
 ;;;
  ; A simple wrapper around a listener and an executor, with some utility methods.
  ;;
-(§ class ListenerRegistration #_"<T>"
+(defclass ListenerRegistration #_"<T>"
     (ß defn- #_"ListenerRegistration" ListenerRegistration'init []
     {
         #_field #_"T" :listener nil
@@ -28856,15 +28859,15 @@
  ; you must store and use the new instance it returns, instead.  Instances are thread safe, so they may be stored safely
  ; as static constants.
  ;;
-(§ class MonetaryFormat
+(defclass MonetaryFormat
     ;;; Standard format for the BTC denomination. ;;
-    (def #_"MonetaryFormat" MonetaryFormat'BTC (.. (MonetaryFormat'new) (shift 0) (minDecimals 2) (repeatOptionalDecimals 2, 3)))
+    (§ def #_"MonetaryFormat" MonetaryFormat'BTC (.. (MonetaryFormat'new) (shift 0) (minDecimals 2) (repeatOptionalDecimals 2, 3)))
     ;;; Standard format for the mBTC denomination. ;;
-    (def #_"MonetaryFormat" MonetaryFormat'MBTC (.. (MonetaryFormat'new) (shift 3) (minDecimals 2) (optionalDecimals 2)))
+    (§ def #_"MonetaryFormat" MonetaryFormat'MBTC (.. (MonetaryFormat'new) (shift 3) (minDecimals 2) (optionalDecimals 2)))
     ;;; Standard format for the µBTC denomination. ;;
-    (def #_"MonetaryFormat" MonetaryFormat'UBTC (.. (MonetaryFormat'new) (shift 6) (minDecimals 0) (optionalDecimals 2)))
+    (§ def #_"MonetaryFormat" MonetaryFormat'UBTC (.. (MonetaryFormat'new) (shift 6) (minDecimals 0) (optionalDecimals 2)))
     ;;; Standard format for fiat amounts. ;;
-    (def #_"MonetaryFormat" MonetaryFormat'FIAT (.. (MonetaryFormat'new) (shift 0) (minDecimals 2) (repeatOptionalDecimals 2, 1)))
+    (§ def #_"MonetaryFormat" MonetaryFormat'FIAT (.. (MonetaryFormat'new) (shift 0) (minDecimals 2) (repeatOptionalDecimals 2, 1)))
     ;;; Currency code for base 1 Bitcoin. ;;
     (def #_"String" MonetaryFormat'CODE_BTC "BTC")
     ;;; Currency code for base 1/1000 Bitcoin. ;;
@@ -29231,8 +29234,8 @@
     )
 )
 
-(§ class UserThread (§ extends Thread) (§ implements Executor)
-    (def- #_"Logger" UserThread'log (LoggerFactory/getLogger UserThread))
+(defclass UserThread (§ extends Thread) (§ implements Executor)
+    (§ def- #_"Logger" UserThread'log (LoggerFactory/getLogger UserThread))
 
     ;; 10,000 pending tasks is entirely arbitrary and may or may not be appropriate for the device we're running on.
     (def #_"int" UserThread'WARNING_THRESHOLD 10000)
@@ -29291,7 +29294,7 @@
  ; Also provides a worker thread that is designed for event listeners to be dispatched on.
  ;;
 #_stateless
-(§ class Threading
+(defclass Threading
     ;;;
      ; An executor with one thread that is intended for running event listeners on.  This ensures all event listener
      ; code runs without any locks being held.  It's intended for the API user to run things on.  Callbacks registered
@@ -29390,7 +29393,7 @@
     )
 
     ;;; A caching thread pool that creates daemon threads, which won't keep the JVM alive waiting for more work. ;;
-    (def #_"ListeningExecutorService" Threading'THREAD_POOL (MoreExecutors/listeningDecorator (Executors/newCachedThreadPool (ThreadFactory.)
+    (§ def #_"ListeningExecutorService" Threading'THREAD_POOL (MoreExecutors/listeningDecorator (Executors/newCachedThreadPool (ThreadFactory.)
         (§ anon
             #_override
             (§ method #_"Thread" newThread [#_"Runnable" r]
@@ -29409,7 +29412,7 @@
  ;
  ; @see NetworkParameters#getMajorityWindow()
  ;;
-(§ class VersionTally
+(defclass VersionTally
     (ß defn- #_"VersionTally" VersionTally'init []
     {
         ;;;
@@ -29508,7 +29511,7 @@
     )
 )
 
-(ns org.bitcoinj.wallet
+(ns bitclojn.wallet
   #_(:import [com.google.common.base Charsets MoreObjects Objects Splitter Stopwatch]
              [com.google.common.collect ImmutableList Iterators Lists PeekingIterator]
              [com.google.common.primitives *]
@@ -29525,14 +29528,14 @@
              [org.slf4j LoggerFactory Logger]
              [org.spongycastle.crypto.params KeyParameter]
     )
-    (:use [bitclojn.slang])
+    (:use [bitclojn slang])
 )
 
 ;;;
  ; Indicates that an attempt was made to upgrade a random wallet to deterministic, but there were no non-rotating
  ; random keys to use as source material for the seed.  Add a non-compromised key first!
  ;;
-(§ class AllRandomKeysRotating (§ extends RuntimeException)
+(defclass AllRandomKeysRotating (§ extends RuntimeException)
     (§ defn #_"AllRandomKeysRotating" AllRandomKeysRotating'new []
         (let [this (RuntimeException'new)]
             this
@@ -29544,7 +29547,7 @@
  ; This coin selector will select any transaction at all, regardless of where it came from or whether it was
  ; confirmed yet.  However immature coinbases will not be included (would be a protocol violation).
  ;;
-(§ class AllowUnconfirmedCoinSelector (§ extends DefaultCoinSelector)
+(defclass AllowUnconfirmedCoinSelector (§ extends DefaultCoinSelector)
     (§ defn #_"AllowUnconfirmedCoinSelector" AllowUnconfirmedCoinSelector'new []
         (let [this (DefaultCoinSelector'new)]
             this
@@ -29583,7 +29586,7 @@
  ; acts as a dumb bag of keys.  It will, left to its own devices, always return the same key for usage by the wallet,
  ; although it will automatically add one to itself if it's empty or if encryption is requested.
  ;;
-(§ class BasicKeyChain (§ implements KeyChain)
+(defclass BasicKeyChain (§ implements KeyChain)
     (ß defn- #_"BasicKeyChain" BasicKeyChain'init []
     {
         #_field #_"ReentrantLock" :lock (Threading'lock "BasicKeyChain")
@@ -29920,7 +29923,7 @@
  ; Different coin selections could be produced by different coin selectors from the same input set, according
  ; to their varying policies.
  ;;
-(§ class CoinSelection
+(defclass CoinSelection
     (ß defn- #_"CoinSelection" CoinSelection'init []
     {
         #_field #_"Coin" :value-gathered nil
@@ -29956,7 +29959,7 @@
  ; This means that the transaction is the most likely to get confirmed.  Note that this means we may end up
  ; "spending" more priority than would be required to get the transaction we are creating confirmed.
  ;;
-(§ class DefaultCoinSelector (§ implements CoinSelector)
+(defclass DefaultCoinSelector (§ implements CoinSelector)
     (§ defn #_"DefaultCoinSelector" DefaultCoinSelector'new []
         (let [this {}]
             this
@@ -30073,15 +30076,15 @@
  ; and whether a tx/dependency violates the dust rules.  Outside of specialised protocols you should not encounter
  ; non-final transactions.
  ;;
-(§ class RiskAnalysis
-    (def- #_"Logger" RiskAnalysis'log (LoggerFactory/getLogger RiskAnalysis))
+(defclass RiskAnalysis
+    (§ def- #_"Logger" RiskAnalysis'log (LoggerFactory/getLogger RiskAnalysis))
 
     ;;;
      ; Any standard output smaller than this value (in satoshis) will be considered risky, as it's most likely
      ; be rejected by the network.  This is usually the same as {@link Transaction#MIN_NONDUST_OUTPUT} but can
      ; be different when the fee is about to change in Bitcoin Core.
      ;;
-    (def #_"Coin" RiskAnalysis'MIN_ANALYSIS_NONDUST_OUTPUT Transaction'MIN_NONDUST_OUTPUT)
+    (§ def #_"Coin" RiskAnalysis'MIN_ANALYSIS_NONDUST_OUTPUT Transaction'MIN_NONDUST_OUTPUT)
 
     (ß defn- #_"RiskAnalysis" RiskAnalysis'init []
     {
@@ -30287,7 +30290,7 @@
     )
 )
 
-(§ class DeterministicKeyChainBuilder #_"<T extends DeterministicKeyChainBuilder<T>>"
+(defclass DeterministicKeyChainBuilder #_"<T extends DeterministicKeyChainBuilder<T>>"
     (ß defn- #_"DeterministicKeyChainBuilder" DeterministicKeyChainBuilder'init []
     {
         #_field #_"SecureRandom" :random nil
@@ -30453,8 +30456,8 @@
  ; @author Andreas Schildbach
  ;;
 #_suppress #_[ "PublicStaticCollectionField" ]
-(§ class DeterministicKeyChain (§ implements KeyChain)
-    (def- #_"Logger" DeterministicKeyChain'log (LoggerFactory/getLogger DeterministicKeyChain))
+(defclass DeterministicKeyChain (§ implements KeyChain)
+    (§ def- #_"Logger" DeterministicKeyChain'log (LoggerFactory/getLogger DeterministicKeyChain))
     (def #_"String" DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC "")
 
     ;; Paths through the key tree.  External keys are ones that are communicated to other parties.  Internal keys are
@@ -30463,13 +30466,13 @@
     ;; that feature yet.  In future we might hand out different accounts for cases where we wish to hand payers
     ;; a payment request that can generate lots of addresses independently.
     ;; The account path may be overridden by subclasses.
-    (def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'ACCOUNT_ZERO_PATH (ImmutableList/of ChildNumber'ZERO_HARDENED))
-    (def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'EXTERNAL_SUBPATH (ImmutableList/of ChildNumber'ZERO))
-    (def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'INTERNAL_SUBPATH (ImmutableList/of ChildNumber'ONE))
-    (def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'EXTERNAL_PATH (HDUtils'concat DeterministicKeyChain'ACCOUNT_ZERO_PATH, DeterministicKeyChain'EXTERNAL_SUBPATH))
-    (def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'INTERNAL_PATH (HDUtils'concat DeterministicKeyChain'ACCOUNT_ZERO_PATH, DeterministicKeyChain'INTERNAL_SUBPATH))
+    (§ def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'ACCOUNT_ZERO_PATH (ImmutableList/of ChildNumber'ZERO_HARDENED))
+    (§ def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'EXTERNAL_SUBPATH (ImmutableList/of ChildNumber'ZERO))
+    (§ def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'INTERNAL_SUBPATH (ImmutableList/of ChildNumber'ONE))
+    (§ def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'EXTERNAL_PATH (HDUtils'concat DeterministicKeyChain'ACCOUNT_ZERO_PATH, DeterministicKeyChain'EXTERNAL_SUBPATH))
+    (§ def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'INTERNAL_PATH (HDUtils'concat DeterministicKeyChain'ACCOUNT_ZERO_PATH, DeterministicKeyChain'INTERNAL_SUBPATH))
     ;; m / 44' / 0' / 0'
-    (def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH (ImmutableList/of (ChildNumber'new 44, true), ChildNumber'ZERO_HARDENED, ChildNumber'ZERO_HARDENED))
+    (§ def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH (ImmutableList/of (ChildNumber'new 44, true), ChildNumber'ZERO_HARDENED, ChildNumber'ZERO_HARDENED))
 
     ;; We try to ensure we have at least this many keys ready and waiting to be handed out via getKey().  See docs
     ;; for getLookaheadSize() for more info on what this is for.  The -1 value means it hasn't been calculated yet.
@@ -31292,7 +31295,7 @@
  ; Holds the seed bytes for the BIP32 deterministic wallet algorithm, inside a {@link DeterministicKeyChain}.
  ; The purpose of this wrapper is to simplify the encryption code.
  ;;
-(§ class DeterministicSeed
+(defclass DeterministicSeed
     ;; It would take more than 10^12 years to brute-force a 128 bit seed using $1B worth of computing equipment.
     (def #_"int" DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS 128)
     (def #_"int" DeterministicSeed'MAX_SEED_ENTROPY_BITS 512)
@@ -31475,7 +31478,7 @@
  ; Indicates that an attempt was made to use HD wallet features on a wallet that was deserialized from an old,
  ; pre-HD random wallet without calling upgradeToDeterministic() beforehand.
  ;;
-(§ class DeterministicUpgradeRequiredException (§ extends RuntimeException)
+(defclass DeterministicUpgradeRequiredException (§ extends RuntimeException)
     (§ defn #_"DeterministicUpgradeRequiredException" DeterministicUpgradeRequiredException'new []
         (let [this (RuntimeException'new)]
             this
@@ -31486,7 +31489,7 @@
 ;;;
  ; A filtering coin selector delegates to another coin selector, but won't select outputs spent by the given transactions.
  ;;
-(§ class FilteringCoinSelector (§ implements CoinSelector)
+(defclass FilteringCoinSelector (§ implements CoinSelector)
     (ß defn- #_"FilteringCoinSelector" FilteringCoinSelector'init []
     {
         #_field #_"CoinSelector" :delegate nil
@@ -31645,8 +31648,8 @@
  ; Deterministic key chains have a concept of a lookahead size and threshold.  Please see the discussion in the
  ; class docs for {@link DeterministicKeyChain} for more information on this topic.
  ;;
-(§ class KeyChainGroup (§ implements KeyBag)
-    (def- #_"Logger" KeyChainGroup'log (LoggerFactory/getLogger KeyChainGroup))
+(defclass KeyChainGroup (§ implements KeyBag)
+    (§ def- #_"Logger" KeyChainGroup'log (LoggerFactory/getLogger KeyChainGroup))
 
     (ß defn- #_"KeyChainGroup" KeyChainGroup'init []
     {
@@ -32322,8 +32325,8 @@
  ; A coin selector that takes all coins assigned to keys created before the given timestamp.
  ; Used as part of the implementation of {@link Wallet#setKeyRotationTime(java.util.Date)}.
  ;;
-(§ class KeyTimeCoinSelector (§ implements CoinSelector)
-    (def- #_"Logger" KeyTimeCoinSelector'log (LoggerFactory/getLogger KeyTimeCoinSelector))
+(defclass KeyTimeCoinSelector (§ implements CoinSelector)
+    (§ def- #_"Logger" KeyTimeCoinSelector'log (LoggerFactory/getLogger KeyTimeCoinSelector))
 
     ;;; A number of inputs chosen to avoid hitting {@link Transaction#MAX_STANDARD_TX_SIZE}. ;;
     (def #_"int" KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS 600)
@@ -32403,7 +32406,7 @@
 ;;;
  ; Builds a {@link MarriedKeyChain}.
  ;;
-(§ class MarriedKeyChainBuilder #_"<T extends DeterministicKeyChainBuilder<T>>" (§ extends DeterministicKeyChainBuilder #_"<T>")
+(defclass MarriedKeyChainBuilder #_"<T extends DeterministicKeyChainBuilder<T>>" (§ extends DeterministicKeyChainBuilder #_"<T>")
     (ß defn- #_"MarriedKeyChainBuilder" MarriedKeyChainBuilder'init []
     {
         #_field #_"List<DeterministicKey>" :following-keys nil
@@ -32487,7 +32490,7 @@
  ;
  ; This method will throw an IllegalStateException, if the keychain is already married or already has leaf keys issued.
  ;;
-(§ class MarriedKeyChain (§ extends DeterministicKeyChain)
+(defclass MarriedKeyChain (§ extends DeterministicKeyChain)
     (ß defn- #_"MarriedKeyChain" MarriedKeyChain'init []
     {
         ;; The map holds P2SH redeem script and corresponding ECKeys issued by this KeyChainGroup (including lookahead)
@@ -32703,7 +32706,7 @@
  ; redeem script will be a CHECKMULTISIG program.  Keys will be sorted in the same order they appear in
  ; a program (lexicographical order).
  ;;
-(§ class RedeemData
+(defclass RedeemData
     (ß defn- #_"RedeemData" RedeemData'init []
     {
         #_field #_"Script" :redeem-script nil
@@ -32754,7 +32757,7 @@
  ; just simplify the most common use cases.  You may wish to customize a SendRequest if you want to attach a fee or
  ; modify the change address.
  ;;
-(§ class SendRequest
+(defclass SendRequest
     (ß defn- #_"SendRequest" SendRequest'init []
     {
         ;;;
@@ -33073,7 +33076,7 @@
     :MissingSigsMode'THROW
 )
 
-(§ class- BalanceFutureRequest
+(defclass BalanceFutureRequest
     (ß defn- #_"BalanceFutureRequest" BalanceFutureRequest'init []
     {
         #_field #_"SettableFuture<Coin>" :future nil
@@ -33091,7 +33094,7 @@
 ;;;
  ; A SendResult is returned to you as part of sending coins to a recipient.
  ;;
-(§ class SendResult
+(defclass SendResult
     (ß defn- #_"SendResult" SendResult'init []
     {
         ;;; The Bitcoin transaction message that moves the money. ;;
@@ -33115,7 +33118,7 @@
  ;;;
   ; Class of exceptions thrown in {@link Wallet#completeTx(SendRequest)}.
   ;;
-(§ class CompletionException (§ extends RuntimeException)
+(defclass CompletionException (§ extends RuntimeException)
     (§ defn #_"CompletionException" CompletionException'new []
         (let [this (RuntimeException'new)]
             this
@@ -33126,7 +33129,7 @@
  ;;;
   ; Thrown if the resultant transaction would violate the dust rules (an output that's too small to be worthwhile).
   ;;
-(§ class DustySendRequested (§ extends CompletionException)
+(defclass DustySendRequested (§ extends CompletionException)
     (§ defn #_"DustySendRequested" DustySendRequested'new []
         (let [this (CompletionException'new)]
             this
@@ -33137,7 +33140,7 @@
  ;;;
   ; Thrown if there is more than one OP_RETURN output for the resultant transaction.
   ;;
-(§ class MultipleOpReturnRequested (§ extends CompletionException)
+(defclass MultipleOpReturnRequested (§ extends CompletionException)
     (§ defn #_"MultipleOpReturnRequested" MultipleOpReturnRequested'new []
         (let [this (CompletionException'new)]
             this
@@ -33150,7 +33153,7 @@
   ; being reduced for the fee was smaller than the min payment.
   ; Note that the missing field will be null in this case.
   ;;
-(§ class CouldNotAdjustDownwards (§ extends CompletionException)
+(defclass CouldNotAdjustDownwards (§ extends CompletionException)
     (§ defn #_"CouldNotAdjustDownwards" CouldNotAdjustDownwards'new []
         (let [this (CompletionException'new)]
             this
@@ -33161,7 +33164,7 @@
  ;;;
   ; Thrown if the resultant transaction is too big for Bitcoin to process.  Try breaking up the amounts of value.
   ;;
-(§ class ExceededMaxTransactionSize (§ extends CompletionException)
+(defclass ExceededMaxTransactionSize (§ extends CompletionException)
     (§ defn #_"ExceededMaxTransactionSize" ExceededMaxTransactionSize'new []
         (let [this (CompletionException'new)]
             this
@@ -33175,7 +33178,7 @@
  ;
  ;;
 #_unused
-(§ class- FreeStandingTransactionOutput (§ extends TransactionOutput)
+(defclass FreeStandingTransactionOutput (§ extends TransactionOutput)
     (ß defn- #_"FreeStandingTransactionOutput" FreeStandingTransactionOutput'init []
     {
         #_field #_"UTXO" :output nil
@@ -33227,7 +33230,7 @@
     )
 )
 
-(§ class- TxOffsetPair (§ implements Comparable #_"<TxOffsetPair>")
+(defclass TxOffsetPair (§ implements Comparable #_"<TxOffsetPair>")
     (ß defn- #_"TxOffsetPair" TxOffsetPair'init []
     {
         #_field #_"Transaction" :tx nil
@@ -33249,7 +33252,7 @@
     )
 )
 
-(§ class- FeeCalculation
+(defclass FeeCalculation
     (ß defn- #_"FeeCalculation" FeeCalculation'init []
     {
         ;; Selected UTXOs to spend.
@@ -33283,8 +33286,8 @@
  ; your app is about to quit because the auto-save feature waits a moment before actually committing to disk to avoid IO
  ; thrashing when the wallet is changing very fast (e.g. due to a block chain sync).
  ;;
-(§ class Wallet (§ implements NewBestBlockListener, TransactionReceivedInBlockListener, PeerFilterProvider, KeyBag, TransactionBag, ReorganizeListener)
-    (def- #_"Logger" Wallet'log (LoggerFactory/getLogger Wallet))
+(defclass Wallet (§ implements NewBestBlockListener, TransactionReceivedInBlockListener, PeerFilterProvider, KeyBag, TransactionBag, ReorganizeListener)
+    (§ def- #_"Logger" Wallet'log (LoggerFactory/getLogger Wallet))
     (def- #_"int" Wallet'MINIMUM_BLOOM_DATA_LENGTH 8)
 
     (ß defn- #_"Wallet" Wallet'init []
@@ -37578,10 +37581,10 @@
     )
 )
 
-(ns org.bitcoinj.wallet.listeners
+(ns bitclojn.wallet-listeners
   #_(:import [java.util List]
     )
-    (:use [bitclojn.slang])
+    (:use [bitclojn slang])
 )
 
 (§ interface KeyChainEventListener
@@ -37683,7 +37686,7 @@
 )
 
 (ns bitclojn.core
-    (:use [bitclojn.slang]))
+    (:use [bitclojn slang base base-listeners crypto kits net net-discovery params script signers store utils wallet wallet-listeners]))
 
 (defn -main [& args]
     )
