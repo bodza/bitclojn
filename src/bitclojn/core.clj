@@ -2504,7 +2504,7 @@
                 (loop-when-recur [#_"int" i 0] (< i n) [(inc i)]
                     (let [#_"Transaction" tx (Transaction'new-6 (:params this), (:payload this), (:cursor this), this, (:serializer this), Message'UNKNOWN_LENGTH)]
                         ;; Label the transaction as coming from the P2P network, so code that cares where we first saw it knows.
-                        (TransactionConfidence''setSource (TransactiongetConfidence tx), :ConfidenceSource'NETWORK)
+                        (TransactionConfidence''setSource (Transaction''getConfidence-t tx), :ConfidenceSource'NETWORK)
                         (.add (:transactions this), tx)
                         (§ update this :cursor + (Message''getMessageSize tx))
                         (§ update this :optimal-encoding-message-size + (Transaction''getOptimalEncodingMessageSize tx))
@@ -5048,14 +5048,14 @@
      ; @param hash      Hash of the data to verify.
      ; @param signature ASN.1 encoded signature.
      ;;
-    (§ method #_"boolean" ECKeyverify-3 [#_"ECKey" this, #_"byte[]" hash, #_"byte[]" signature]
+    (§ method #_"boolean" ECKey''verify-3b [#_"ECKey" this, #_"byte[]" hash, #_"byte[]" signature]
         (ECKey'verify-3-bytes hash, signature, (ECKey''getPubKey this))
     )
 
     ;;;
      ; Verifies the given R/S pair (signature) against a hash using the public key.
      ;;
-    (§ method #_"boolean" ECKeyverify-3 [#_"ECKey" this, #_"Sha256Hash" __sigHash, #_"ECDSASignature" signature]
+    (§ method #_"boolean" ECKey''verify-3s [#_"ECKey" this, #_"Sha256Hash" __sigHash, #_"ECDSASignature" signature]
         (ECKey'verify-3e (Sha256Hash''getBytes __sigHash), signature, (ECKey''getPubKey this))
     )
 
@@ -5066,7 +5066,7 @@
      ; @throws java.security.SignatureException if the signature does not match.
      ;;
     #_throws #_[ "SignatureException" ]
-    (§ method #_"void" ECKeyverifyOrThrow [#_"ECKey" __, #_"byte[]" hash, #_"byte[]" signature]
+    (§ method #_"void" ECKey''verifyOrThrow-3b [#_"ECKey" __, #_"byte[]" hash, #_"byte[]" signature]
         (when-not (ECKey'verify-2 hash, signature)
             (throw (SignatureException.))
         )
@@ -5080,7 +5080,7 @@
      ; @throws java.security.SignatureException if the signature does not match.
      ;;
     #_throws #_[ "SignatureException" ]
-    (§ method #_"void" ECKeyverifyOrThrow [#_"ECKey" this, #_"Sha256Hash" __sigHash, #_"ECDSASignature" signature]
+    (§ method #_"void" ECKey''verifyOrThrow-3s [#_"ECKey" this, #_"Sha256Hash" __sigHash, #_"ECDSASignature" signature]
         (when-not (ECKey'verify-3e (Sha256Hash''getBytes __sigHash), signature, (ECKey''getPubKey this))
             (throw (SignatureException.))
         )
@@ -7359,11 +7359,11 @@
         (let [#_"Transaction" tx (Transaction'new-1 param)
               ;; A script containing the difficulty bits and the following message: "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks".
               #_"byte[]" bytes (.decode Utils'HEX, "04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73")]
-            (TransactionaddInput tx, (TransactionInput'new-3-bytes param, tx, bytes))
+            (Transaction''addInput-i tx, (TransactionInput'new-3-bytes param, tx, bytes))
             (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
                 (Script'writeBytes baos, (.decode Utils'HEX, "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f"))
                 (.write baos, ScriptOpCodes'OP_CHECKSIG)
-                (TransactionaddOutput tx, (TransactionOutput'new-4cb param, tx, Coin'FIFTY_COINS, (.toByteArray baos)))
+                (Transaction''addOutput-o tx, (TransactionOutput'new-4cb param, tx, Coin'FIFTY_COINS, (.toByteArray baos)))
                 (let [#_"Block" genesis (Block'new-2 param, Block'BLOCK_VERSION_GENESIS)]
                     (Block''addTransaction-2 genesis, tx)
                     genesis
@@ -8663,7 +8663,7 @@
             ;; we can stop holding a reference to the confidence object ourselves.  It's up to event listeners on the
             ;; Peer to stash the tx object somewhere if they want to keep receiving updates about network propagation
             ;; and so on.
-            (let [#_"TransactionConfidence" confidence (TransactiongetConfidence tx)]
+            (let [#_"TransactionConfidence" confidence (Transaction''getConfidence-t tx)]
                 (TransactionConfidence''setSource confidence, :ConfidenceSource'NETWORK)
                 (.remove (:pending-tx-downloads this), confidence)
                 (when (Peer''maybeHandleRequestedData this, tx)
@@ -8777,7 +8777,7 @@
      ; Note that dependencies downloaded this way will not trigger the onTransaction method of event listeners.
      ;;
     (§ method #_"ListenableFuture<List<Transaction>>" Peer''downloadDependencies [#_"Peer" this, #_"Transaction" tx]
-        (let [#_"ConfidenceType" __txConfidence (TransactionConfidence''getConfidenceType (TransactiongetConfidence tx))]
+        (let [#_"ConfidenceType" __txConfidence (TransactionConfidence''getConfidenceType (Transaction''getConfidence-t tx))]
             (assert-argument (not= __txConfidence ConfidenceType'BUILDING))
             (.info Peer'LOG, "{}: Downloading dependencies of {}", (PeerSocketHandler''getAddress this), (Transaction''getHashAsString tx))
             (let [#_"LinkedList<Transaction>" results (LinkedList.)]
@@ -9786,7 +9786,7 @@
      ; before handing the transaction off to the wallet.  The wallet can do risk analysis on pending/recent transactions
      ; to try and discover if a pending tx might be at risk of double spending.
      ;;
-    (§ method #_"void" PeersetDownloadTxDependencies [#_"Peer" this, #_"boolean" enable]
+    (§ method #_"void" Peer''setDownloadTxDependencies-b [#_"Peer" this, #_"boolean" enable]
         (§ assoc this :v-download-tx-dependency-depth (if enable Integer/MAX_VALUE 0))
         nil
     )
@@ -9796,7 +9796,7 @@
      ; before handing the transaction off to the wallet.  The wallet can do risk analysis on pending/recent transactions
      ; to try and discover if a pending tx might be at risk of double spending.
      ;;
-    (§ method #_"void" PeersetDownloadTxDependencies [#_"Peer" this, #_"int" depth]
+    (§ method #_"void" Peer''setDownloadTxDependencies-i [#_"Peer" this, #_"int" depth]
         (§ assoc this :v-download-tx-dependency-depth depth)
         nil
     )
@@ -10436,7 +10436,7 @@
 
                     (doseq [#_"TransactionOutput" output (Transaction''getOutputs tx)]
                         (when (and (Script''isSentToRawPubKey (TransactionOutput''getScriptPubKey output)) (TransactionOutput''isMine output, wallet))
-                            (if (= (TransactionConfidence''getConfidenceType (TransactiongetConfidence tx)) ConfidenceType'BUILDING)
+                            (if (= (TransactionConfidence''getConfidenceType (Transaction''getConfidence-t tx)) ConfidenceType'BUILDING)
                                 (PeerGroup''recalculateFastCatchupAndFilter (§ this PeerGroup), :FilterRecalculateMode'SEND_IF_CHANGED)
                                 (PeerGroup''recalculateFastCatchupAndFilter (§ this PeerGroup), :FilterRecalculateMode'DONT_SEND)
                             )
@@ -11109,7 +11109,7 @@
      ;
      ; @param peerAddress IP/port to use.
      ;;
-    (§ method #_"void" PeerGroupaddAddress [#_"PeerGroup" this, #_"PeerAddress" addr]
+    (§ method #_"void" PeerGroup''addAddress-p [#_"PeerGroup" this, #_"PeerAddress" addr]
         (let [#_"int" __newMax]
             (§ sync (:peergroup-lock this)
                 (PeerGroup''addInactive this, addr)
@@ -11147,8 +11147,8 @@
     )
 
     ;;; Convenience method for addAddress(new PeerAddress(address, params.port)). ;;
-    (§ method #_"void" PeerGroupaddAddress [#_"PeerGroup" this, #_"InetAddress" address]
-        (PeerGroupaddAddress this, (PeerAddress'new-3ia (:params this), address, (-> this :params :port)))
+    (§ method #_"void" PeerGroup''addAddress-i [#_"PeerGroup" this, #_"InetAddress" address]
+        (PeerGroup''addAddress-p this, (PeerAddress'new-3ia (:params this), address, (-> this :params :port)))
         nil
     )
 
@@ -12198,9 +12198,9 @@
     (§ method #_"TransactionBroadcast" PeerGroup''broadcastTransaction-3 [#_"PeerGroup" this, #_"Transaction" tx, #_"int" __minConnections]
         ;; If we don't have a record of where this tx came from already, set it to be ourselves so Peer doesn't end up
         ;; redownloading it from the network redundantly.
-        (when (.equals (TransactionConfidence''getSource (TransactiongetConfidence tx)), :ConfidenceSource'UNKNOWN)
+        (when (.equals (TransactionConfidence''getSource (Transaction''getConfidence-t tx)), :ConfidenceSource'UNKNOWN)
             (.info PeerGroup'LOG, "Transaction source unknown, setting to SELF: {}", (Transaction''getHashAsString tx))
-            (TransactionConfidence''setSource (TransactiongetConfidence tx), :ConfidenceSource'SELF)
+            (TransactionConfidence''setSource (Transaction''getConfidence-t tx), :ConfidenceSource'SELF)
         )
         (let [#_"TransactionBroadcast" broadcast (TransactionBroadcast'new this, tx)]
             (TransactionBroadcast''setMinConnections broadcast, __minConnections)
@@ -13582,9 +13582,9 @@
         (§ reify Comparator #_"<Transaction>"
             #_foreign
             (§ override #_"int" Comparator'''compare [#_"Comparator" __, #_"Transaction" tx1, #_"Transaction" tx2]
-                (let [#_"TransactionConfidence" confidence1 (TransactiongetConfidence tx1)
+                (let [#_"TransactionConfidence" confidence1 (Transaction''getConfidence-t tx1)
                       #_"int" height1 (if (= (TransactionConfidence''getConfidenceType confidence1) ConfidenceType'BUILDING) (TransactionConfidence''getAppearedAtChainHeight confidence1) Block'BLOCK_HEIGHT_UNKNOWN)
-                      #_"TransactionConfidence" confidence2 (TransactiongetConfidence tx2)
+                      #_"TransactionConfidence" confidence2 (Transaction''getConfidence-t tx2)
                       #_"int" height2 (if (= (TransactionConfidence''getConfidenceType confidence2) ConfidenceType'BUILDING) (TransactionConfidence''getAppearedAtChainHeight confidence2) Block'BLOCK_HEIGHT_UNKNOWN)
                       #_"int" __heightComparison (- (Ints/compare height1, height2))]
                     ;; If height1 == height2, compare by tx hash to make comparator consistent with equals.
@@ -13823,7 +13823,7 @@
      ; @return true if this transaction hasn't been seen in any block yet.
      ;;
     (§ method #_"boolean" Transaction''isPending [#_"Transaction" this]
-        (= (TransactionConfidence''getConfidenceType (TransactiongetConfidence this)) ConfidenceType'PENDING)
+        (= (TransactionConfidence''getConfidenceType (Transaction''getConfidence-t this)) ConfidenceType'PENDING)
     )
 
     ;;;
@@ -13849,7 +13849,7 @@
             (Transaction''addBlockAppearance this, (Message'''getHash (StoredBlock''getHeader block)), __relativityOffset)
 
             (when __bestChain
-                (let [#_"TransactionConfidence" __transactionConfidence (TransactiongetConfidence this)]
+                (let [#_"TransactionConfidence" __transactionConfidence (Transaction''getConfidence-t this)]
                     ;; This sets type to BUILDING and depth to one.
                     (TransactionConfidence''setAppearedAtChainHeight __transactionConfidence, (StoredBlock''getHeight block))
                 )
@@ -14105,8 +14105,8 @@
     (§ method #_"boolean" Transaction''isMature [#_"Transaction" this]
         (cond
             (not (Transaction''isCoinBase this)) true
-            (not= (TransactionConfidence''getConfidenceType (TransactiongetConfidence this)) ConfidenceType'BUILDING) false
-            :else (<= (-> this :params :spendable-coinbase-depth) (TransactionConfidence''getDepthInBlocks (TransactiongetConfidence this)))
+            (not= (TransactionConfidence''getConfidenceType (Transaction''getConfidence-t this)) ConfidenceType'BUILDING) false
+            :else (<= (-> this :params :spendable-coinbase-depth) (TransactionConfidence''getDepthInBlocks (Transaction''getConfidence-t this)))
         )
     )
 
@@ -14268,8 +14268,8 @@
      ;
      ; @return the newly created input.
      ;;
-    (§ method #_"TransactionInput" TransactionaddInput [#_"Transaction" this, #_"TransactionOutput" from]
-        (TransactionaddInput this, (TransactionInput'new-3o (:params this), this, from))
+    (§ method #_"TransactionInput" Transaction''addInput-o [#_"Transaction" this, #_"TransactionOutput" from]
+        (Transaction''addInput-i this, (TransactionInput'new-3o (:params this), this, from))
     )
 
     ;;;
@@ -14277,7 +14277,7 @@
      ;
      ; @return the new input.
      ;;
-    (§ method #_"TransactionInput" TransactionaddInput [#_"Transaction" this, #_"TransactionInput" input]
+    (§ method #_"TransactionInput" Transaction''addInput-i [#_"Transaction" this, #_"TransactionInput" input]
         (Message'''unCache this)
         (ChildMessage''setParent input, this)
         (.add (:inputs this), input)
@@ -14290,8 +14290,8 @@
      ;
      ; @return the newly created input.
      ;;
-    (§ method #_"TransactionInput" TransactionaddInput [#_"Transaction" this, #_"Sha256Hash" __spendTxHash, #_"long" index, #_"Script" script]
-        (TransactionaddInput this, (TransactionInput'new-4o (:params this), this, (Script''getProgram script), (TransactionOutPoint'new-3h (:params this), index, __spendTxHash)))
+    (§ method #_"TransactionInput" Transaction''addInput-s [#_"Transaction" this, #_"Sha256Hash" __spendTxHash, #_"long" index, #_"Script" script]
+        (Transaction''addInput-i this, (TransactionInput'new-4o (:params this), this, (Script''getProgram script), (TransactionOutPoint'new-3h (:params this), index, __spendTxHash)))
     )
 
     ;;;
@@ -14308,8 +14308,8 @@
         (assert-state (not (.isEmpty (:outputs this))), "Attempting to sign tx without outputs.")
 
         (let [#_"TransactionInput" input (TransactionInput'new-4o (:params this), this, (byte-array 0), __prevOut)]
-            (TransactionaddInput this, input)
-            (let [#_"Sha256Hash" hash (TransactionhashForSignature this, (dec (.size (:inputs this))), __scriptPubKey, __sigHash, anyone?)
+            (Transaction''addInput-i this, input)
+            (let [#_"Sha256Hash" hash (Transaction''hashForSignature-5s this, (dec (.size (:inputs this))), __scriptPubKey, __sigHash, anyone?)
                   #_"ECDSASignature" __ecSig (ECKey'''sign __sigKey, hash)
                   #_"TransactionSignature" __txSig (TransactionSignature'new-3s __ecSig, __sigHash, anyone?)]
                 (cond (Script''isSentToRawPubKey __scriptPubKey)
@@ -14373,7 +14373,7 @@
     ;;;
      ; Adds the given output to this transaction.  The output must be completely initialized.  Returns the given output.
      ;;
-    (§ method #_"TransactionOutput" TransactionaddOutput [#_"Transaction" this, #_"TransactionOutput" to]
+    (§ method #_"TransactionOutput" Transaction''addOutput-o [#_"Transaction" this, #_"TransactionOutput" to]
         (Message'''unCache this)
         (ChildMessage''setParent to, this)
         (.add (:outputs this), to)
@@ -14384,24 +14384,24 @@
     ;;;
      ; Creates an output based on the given address and value, adds it to this transaction, and returns the new output.
      ;;
-    (§ method #_"TransactionOutput" TransactionaddOutput [#_"Transaction" this, #_"Coin" value, #_"Address" address]
-        (TransactionaddOutput this, (TransactionOutput'new-4ca (:params this), this, value, address))
+    (§ method #_"TransactionOutput" Transaction''addOutput-ca [#_"Transaction" this, #_"Coin" value, #_"Address" address]
+        (Transaction''addOutput-o this, (TransactionOutput'new-4ca (:params this), this, value, address))
     )
 
     ;;;
      ; Creates an output that pays to the given pubkey directly (no address) with the given value, adds it to this
      ; transaction, and returns the new output.
      ;;
-    (§ method #_"TransactionOutput" TransactionaddOutput [#_"Transaction" this, #_"Coin" value, #_"ECKey" pubkey]
-        (TransactionaddOutput this, (TransactionOutput'new-4ce (:params this), this, value, pubkey))
+    (§ method #_"TransactionOutput" Transaction''addOutput-ce [#_"Transaction" this, #_"Coin" value, #_"ECKey" pubkey]
+        (Transaction''addOutput-o this, (TransactionOutput'new-4ce (:params this), this, value, pubkey))
     )
 
     ;;;
      ; Creates an output that pays to the given script.  The address and key forms are specialisations of this method,
      ; you won't normally need to use it unless you're doing unusual things.
      ;;
-    (§ method #_"TransactionOutput" TransactionaddOutput [#_"Transaction" this, #_"Coin" value, #_"Script" script]
-        (TransactionaddOutput this, (TransactionOutput'new-4cb (:params this), this, value, (Script''getProgram script)))
+    (§ method #_"TransactionOutput" Transaction''addOutput-cs [#_"Transaction" this, #_"Coin" value, #_"Script" script]
+        (Transaction''addOutput-o this, (TransactionOutput'new-4cb (:params this), this, value, (Script''getProgram script)))
     )
 
     ;;;
@@ -14417,8 +14417,8 @@
      ; @param anyoneCanPay Signing mode, see the SigHash enum for documentation.
      ; @return A newly calculated signature object that wraps the r, s and sighash components.
      ;;
-    (§ method #_"TransactionSignature" TransactioncalculateSignature [#_"Transaction" this, #_"int" __inputIndex, #_"ECKey" key, #_"byte[]" __redeemScript, #_"SigHash" __hashType, #_"boolean" anyone?]
-        (let [#_"Sha256Hash" hash (TransactionhashForSignature this, __inputIndex, __redeemScript, __hashType, anyone?)]
+    (§ method #_"TransactionSignature" Transaction''calculateSignature-b [#_"Transaction" this, #_"int" __inputIndex, #_"ECKey" key, #_"byte[]" __redeemScript, #_"SigHash" __hashType, #_"boolean" anyone?]
+        (let [#_"Sha256Hash" hash (Transaction''hashForSignature-5b this, __inputIndex, __redeemScript, __hashType, anyone?)]
             (TransactionSignature'new-3s (ECKey'''sign key, hash), __hashType, anyone?)
         )
     )
@@ -14435,8 +14435,8 @@
      ; @param anyoneCanPay Signing mode, see the SigHash enum for documentation.
      ; @return A newly calculated signature object that wraps the r, s and sighash components.
      ;;
-    (§ method #_"TransactionSignature" TransactioncalculateSignature [#_"Transaction" this, #_"int" __inputIndex, #_"ECKey" key, #_"Script" __redeemScript, #_"SigHash" __hashType, #_"boolean" anyone?]
-        (let [#_"Sha256Hash" hash (TransactionhashForSignature this, __inputIndex, (Script''getProgram __redeemScript), __hashType, anyone?)]
+    (§ method #_"TransactionSignature" Transaction''calculateSignature-s [#_"Transaction" this, #_"int" __inputIndex, #_"ECKey" key, #_"Script" __redeemScript, #_"SigHash" __hashType, #_"boolean" anyone?]
+        (let [#_"Sha256Hash" hash (Transaction''hashForSignature-5b this, __inputIndex, (Script''getProgram __redeemScript), __hashType, anyone?)]
             (TransactionSignature'new-3s (ECKey'''sign key, hash), __hashType, anyone?)
         )
     )
@@ -14455,9 +14455,9 @@
      ; @param type Should be SigHash.ALL.
      ; @param anyoneCanPay Should be false.
      ;;
-    (§ method #_"Sha256Hash" TransactionhashForSignature [#_"Transaction" this, #_"int" __inputIndex, #_"byte[]" __redeemScript, #_"SigHash" type, #_"boolean" anyone?]
+    (§ method #_"Sha256Hash" Transaction''hashForSignature-5b [#_"Transaction" this, #_"int" __inputIndex, #_"byte[]" __redeemScript, #_"SigHash" type, #_"boolean" anyone?]
         (let [#_"byte" __sigHashType (byte (TransactionSignature'calcSigHashValue type, anyone?))]
-            (TransactionhashForSignature this, __inputIndex, __redeemScript, __sigHashType)
+            (Transaction''hashForSignature-4b this, __inputIndex, __redeemScript, __sigHashType)
         )
     )
 
@@ -14475,9 +14475,9 @@
      ; @param type Should be SigHash.ALL.
      ; @param anyoneCanPay Should be false.
      ;;
-    (§ method #_"Sha256Hash" TransactionhashForSignature [#_"Transaction" this, #_"int" __inputIndex, #_"Script" __redeemScript, #_"SigHash" type, #_"boolean" anyone?]
+    (§ method #_"Sha256Hash" Transaction''hashForSignature-5s [#_"Transaction" this, #_"int" __inputIndex, #_"Script" __redeemScript, #_"SigHash" type, #_"boolean" anyone?]
         (let [#_"int" __sigHash (TransactionSignature'calcSigHashValue type, anyone?)]
-            (TransactionhashForSignature this, __inputIndex, (Script''getProgram __redeemScript), (byte __sigHash))
+            (Transaction''hashForSignature-4b this, __inputIndex, (Script''getProgram __redeemScript), (byte __sigHash))
         )
     )
 
@@ -14485,7 +14485,7 @@
      ; This is required for signatures which use a sigHashType which cannot be represented using SigHash and anyoneCanPay.
      ; See transaction c99c49da4c38af669dea436d3e73780dfdb6c1ecf9958baa52960e8baee30e73, which has sigHashType 0.
      ;;
-    (§ method #_"Sha256Hash" TransactionhashForSignature [#_"Transaction" this, #_"int" __inputIndex, #_"byte[]" __connectedScript, #_"byte" __sigHashType]
+    (§ method #_"Sha256Hash" Transaction''hashForSignature-4b [#_"Transaction" this, #_"int" __inputIndex, #_"byte[]" __connectedScript, #_"byte" __sigHashType]
         ;; The SIGHASH flags are used in the design of contracts, please see this page for a further understanding of
         ;; the purposes of the code in this method:
         ;;
@@ -14686,22 +14686,22 @@
      ; Returns the confidence object for this transaction from the {@link TxConfidenceTable}
      ; referenced by the implicit {@link Context}.
      ;;
-    (§ method #_"TransactionConfidence" TransactiongetConfidence [#_"Transaction" this]
-        (TransactiongetConfidence this, (Context'get))
+    (§ method #_"TransactionConfidence" Transaction''getConfidence-t [#_"Transaction" this]
+        (Transaction''getConfidence-tc this, (Context'get))
     )
 
     ;;;
      ; Returns the confidence object for this transaction from the {@link TxConfidenceTable}
      ; referenced by the given {@link Context}.
      ;;
-    (§ method #_"TransactionConfidence" TransactiongetConfidence [#_"Transaction" this, #_"Context" context]
-        (TransactiongetConfidence this, (Context''getConfidenceTable context))
+    (§ method #_"TransactionConfidence" Transaction''getConfidence-tc [#_"Transaction" this, #_"Context" context]
+        (Transaction''getConfidence-tct this, (Context''getConfidenceTable context))
     )
 
     ;;;
      ; Returns the confidence object for this transaction from the {@link TxConfidenceTable}.
      ;;
-    (§ method #_"TransactionConfidence" TransactiongetConfidence [#_"Transaction" this, #_"TxConfidenceTable" table]
+    (§ method #_"TransactionConfidence" Transaction''getConfidence-tct [#_"Transaction" this, #_"TxConfidenceTable" table]
         (when (nil? (:confidence this))
             (§ assoc this :confidence (TxConfidenceTable''getOrCreate table, (Message'''getHash this)))
         )
@@ -14710,7 +14710,7 @@
 
     ;;; Check if the transaction has a known confidence. ;;
     (§ method #_"boolean" Transaction''hasConfidence [#_"Transaction" this]
-        (not= (TransactionConfidence''getConfidenceType (TransactiongetConfidence this)) ConfidenceType'UNKNOWN)
+        (not= (TransactionConfidence''getConfidenceType (Transaction''getConfidence-t this)) ConfidenceType'UNKNOWN)
     )
 
     #_foreign
@@ -14975,7 +14975,7 @@
             ;; Prepare to send the transaction by adding a listener that'll be called when confidence changes.
             ;; Only bother with this if we might actually hear back:
             (when (< 1 (:min-connections this))
-                (TransactionConfidence''addEventListener-2 (TransactiongetConfidence (:tx this)), (ConfidenceChange'new))
+                (TransactionConfidence''addEventListener-2 (Transaction''getConfidence-t (:tx this)), (ConfidenceChange'new))
             )
             ;; Bitcoin Core sends an inv in this case and then lets the peer request the tx data.  We just
             ;; blast out the TX here for a couple of reasons.  Firstly it's simpler: in the case where we have
@@ -16061,9 +16061,9 @@
      ; @param mode Whether to abort if there's a pre-existing connection or not.
      ; @return NO_SUCH_TX if the prevtx wasn't found, ALREADY_SPENT if there was a conflict, SUCCESS if not.
      ;;
-    (§ method #_"ConnectionResult" TransactionInputconnect [#_"TransactionInput" this, #_"Map<Sha256Hash, Transaction>" transactions, #_"ConnectionMode" mode]
+    (§ method #_"ConnectionResult" TransactionInput''connect-3m [#_"TransactionInput" this, #_"Map<Sha256Hash, Transaction>" transactions, #_"ConnectionMode" mode]
         (let [#_"Transaction" tx (.get transactions, (Message'''getHash (:outpoint this)))]
-            (if (some? tx) (TransactionInputconnect this, tx, mode) :ConnectionResult'NO_SUCH_TX)
+            (if (some? tx) (TransactionInput''connect-3t this, tx, mode) :ConnectionResult'NO_SUCH_TX)
         )
     )
 
@@ -16076,7 +16076,7 @@
      ; @param mode Whether to abort if there's a pre-existing connection or not.
      ; @return NO_SUCH_TX if transaction is not the prevtx, ALREADY_SPENT if there was a conflict, SUCCESS if not.
      ;;
-    (§ method #_"ConnectionResult" TransactionInputconnect [#_"TransactionInput" this, #_"Transaction" transaction, #_"ConnectionMode" mode]
+    (§ method #_"ConnectionResult" TransactionInput''connect-3t [#_"TransactionInput" this, #_"Transaction" transaction, #_"ConnectionMode" mode]
         (when' (.equals (Message'''getHash transaction), (Message'''getHash (:outpoint this))) => :ConnectionResult'NO_SUCH_TX
             (assert-element-index (int (:index (:outpoint this))), (.size (Transaction''getOutputs transaction)), "Corrupt transaction")
 
@@ -16098,14 +16098,14 @@
                         )
                     )
                 )
-                (TransactionInputconnect this, out)
+                (TransactionInput''connect-o this, out)
                 :ConnectionResult'SUCCESS
             )
         )
     )
 
     ;;; Internal use only: connects this TransactionInput to the given output (updates pointers and spent flags). ;;
-    (§ method #_"void" TransactionInputconnect [#_"TransactionInput" this, #_"TransactionOutput" out]
+    (§ method #_"void" TransactionInput''connect-o [#_"TransactionInput" this, #_"TransactionOutput" out]
         (§ assoc-in this [:outpoint :from-tx] (TransactionOutput''getParentTransaction out))
         (TransactionOutput''markAsSpent out, this)
         (§ assoc this :value (TransactionOutput''getValue out))
@@ -16840,7 +16840,7 @@
      ;;
     (§ abstract #_"int" TransactionOutput'''getParentTransactionDepthInBlocks [#_"TransactionOutput" this]
         (when (some? (TransactionOutput''getParentTransaction this))
-            (let [#_"TransactionConfidence" confidence (TransactiongetConfidence (TransactionOutput''getParentTransaction this))]
+            (let [#_"TransactionConfidence" confidence (Transaction''getConfidence-t (TransactionOutput''getParentTransaction this))]
                 (when (= (TransactionConfidence''getConfidenceType confidence) ConfidenceType'BUILDING)
                     (§ return (TransactionConfidence''getDepthInBlocks confidence))
                 )
@@ -20852,7 +20852,7 @@
                 (cond (some? (:peer-addresses this))
                     (do
                         (doseq [#_"PeerAddress" addr (:peer-addresses this)]
-                            (PeerGroupaddAddress (:v-peer-group this), addr)
+                            (PeerGroup''addAddress-p (:v-peer-group this), addr)
                         )
                         (PeerGroup''setMaxConnections (:v-peer-group this), (alength (:peer-addresses this)))
                         (§ assoc this :peer-addresses nil)
@@ -23872,7 +23872,7 @@
         (let [#_"int" n (Script'decodeFromOpN (:opcode (.get (:chunks this), (- (.size (:chunks this)) 2))))
               #_"TransactionSignature" signature (TransactionSignature'decodeFromBitcoin-2 __signatureBytes, true)]
             (loop-when-recur [#_"int" i 0] (< i n) [(inc i)]
-                (when (ECKeyverify-3 (ECKey'fromPublicOnly-1-bytes (:data (.get (:chunks this), (inc i)))), hash, signature)
+                (when (ECKey''verify-3s (ECKey'fromPublicOnly-1-bytes (:data (.get (:chunks this), (inc i)))), hash, signature)
                     (§ return i)
                 )
             )
@@ -24875,7 +24875,7 @@
                                 (let [#_"TransactionSignature" sig (TransactionSignature'decodeFromBitcoin-3 __sigBytes, __requireCanonical, (.contains __verifyFlags, :ScriptVerifyFlag'LOW_S))]
 
                                     ;; TODO: Should check hash type is known.
-                                    (let [#_"Sha256Hash" hash (TransactionhashForSignature __txContainingThis, index, __connectedScript, (byte (:sighash-flags sig)))]
+                                    (let [#_"Sha256Hash" hash (Transaction''hashForSignature-4b __txContainingThis, index, __connectedScript, (byte (:sighash-flags sig)))]
                                         (§ ass __sigValid (ECKey'verify-3e (Sha256Hash''getBytes hash), sig, __pubKey))
                                     )
                                 )
@@ -24963,7 +24963,7 @@
                                             ;; more expensive than hashing, its not a big deal.
                                             (try
                                                 (let [#_"TransactionSignature" sig (TransactionSignature'decodeFromBitcoin-2 (.getFirst sigs), __requireCanonical)
-                                                      #_"Sha256Hash" hash (TransactionhashForSignature __txContainingThis, index, __connectedScript, (byte (:sighash-flags sig)))]
+                                                      #_"Sha256Hash" hash (Transaction''hashForSignature-4b __txContainingThis, index, __connectedScript, (byte (:sighash-flags sig)))]
                                                     (when (ECKey'verify-3e (Sha256Hash''getBytes hash), sig, __pubKey)
                                                         (.pollFirst sigs)
                                                     )
@@ -26311,7 +26311,7 @@
                                         (let [#_"RedeemData" redeem (TransactionInput''getConnectedRedeemData in, bag)]
                                             (if (nil? redeem)
                                                 (.warn CustomTransactionSigner'LOG, "No redeem data found for input {}", i)
-                                                (let [#_"Sha256Hash" sigHash (TransactionhashForSignature tx, i, (:redeem-script redeem), SigHash'ALL, false)
+                                                (let [#_"Sha256Hash" sigHash (Transaction''hashForSignature-5s tx, i, (:redeem-script redeem), SigHash'ALL, false)
                                                       #_"SignatureAndKey" sigKey (CustomTransactionSigner'''getSignature this, sigHash, (.get (:key-paths __propTx), outKey))
                                                       #_"TransactionSignature" sig (TransactionSignature'new-3s (:sig sigKey), SigHash'ALL, false)
                                                       #_"int" x (Script''getSigInsertionIndex inSig, sigHash, (:pub-key sigKey))]
@@ -26405,7 +26405,7 @@
                                                         ;; we always run first, we have to depend on the other signers rearranging the signatures as needed.
                                                         ;; Therefore, always place as first signature.
                                                         (try
-                                                            (let [#_"TransactionSignature" sig (TransactioncalculateSignature tx, i, key, script, SigHash'ALL, false)]
+                                                            (let [#_"TransactionSignature" sig (Transaction''calculateSignature-b tx, i, key, script, SigHash'ALL, false)]
                                                                 (TransactionInput''setScriptSig in, (Script''getScriptSigWithSignature outKey, inSig, (TransactionSignature''encodeToBitcoin sig), 0))
                                                             )
                                                             (catch MissingPrivateKeyException _
@@ -29305,7 +29305,7 @@
 
     (§ defn #_"boolean" DefaultCoinSelector'isSelectable [#_"Transaction" tx]
         ;; Only pick chain-included transactions, or transactions that are ours and pending.
-        (let [#_"TransactionConfidence" confidence (TransactiongetConfidence tx) #_"ConfidenceType" type (TransactionConfidence''getConfidenceType confidence)]
+        (let [#_"TransactionConfidence" confidence (Transaction''getConfidence-t tx) #_"ConfidenceType" type (TransactionConfidence''getConfidenceType confidence)]
             ;; TODO: The value 1 below dates from a time when transactions we broadcast *to* were counted, set to 0.
             (or (.equals type, ConfidenceType'BUILDING) (and (.equals type, ConfidenceType'PENDING) (.equals (TransactionConfidence''getSource confidence), :ConfidenceSource'SELF) (< 1 (TransactionConfidence''numBroadcastPeers confidence))))
         )
@@ -29384,7 +29384,7 @@
     (§ method- #_"RiskAnalysisResult" RiskAnalysis''analyzeIsFinal [#_"RiskAnalysis" this]
         (cond
             ;; Transactions we create ourselves are, by definition, not at risk of double spending against us.
-            (= (TransactionConfidence''getSource (TransactiongetConfidence (:tx this))) :ConfidenceSource'SELF)
+            (= (TransactionConfidence''getSource (Transaction''getConfidence-t (:tx this))) :ConfidenceSource'SELF)
                 :RiskAnalysisResult'OK
 
             ;; We consider transactions that opt into replace-by-fee at risk of double spending.
@@ -31528,7 +31528,7 @@
     )
 
     (§ method- #_"boolean" KeyTimeCoinSelector''isConfirmed [#_"KeyTimeCoinSelector" this, #_"TransactionOutput" output]
-        (.equals (TransactionConfidence''getConfidenceType (TransactiongetConfidence (TransactionOutput''getParentTransaction output))), ConfidenceType'BUILDING)
+        (.equals (TransactionConfidence''getConfidenceType (Transaction''getConfidence-t (TransactionOutput''getParentTransaction output))), ConfidenceType'BUILDING)
     )
 )
 
@@ -31549,13 +31549,8 @@
         )
     )
 
-    (§ method #_"T" MarriedKeyChainBuilderfollowingKeys [#_"MarriedKeyChainBuilder" this, #_"List<DeterministicKey>" __followingKeys]
+    (§ method #_"T" MarriedKeyChainBuilder''followingKeys [#_"MarriedKeyChainBuilder" this, #_"List<DeterministicKey>" __followingKeys]
         (§ assoc this :following-keys __followingKeys)
-        (DeterministicKeyChainBuilder''self this)
-    )
-
-    (§ method #_"T" MarriedKeyChainBuilderfollowingKeys [#_"MarriedKeyChainBuilder" this, #_"DeterministicKey" __followingKey, #_"DeterministicKey" __followingKeys ...]
-        (§ assoc this :following-keys (Lists/asList __followingKey, __followingKeys))
         (DeterministicKeyChainBuilder''self this)
     )
 
@@ -31991,7 +31986,7 @@
             (ensure some? parameters, "Address is for an unknown network")
 
             (§ assoc req :tx (Transaction'new-1 parameters))
-            (TransactionaddOutput (:tx req), value, destination)
+            (Transaction''addOutput-ca (:tx req), value, destination)
             req
         )
     )
@@ -32007,7 +32002,7 @@
     (§ defn #_"SendRequest" SendRequest'to-3 [#_"NetworkParameters" params, #_"ECKey" destination, #_"Coin" value]
         (let [#_"SendRequest" req (SendRequest'new)]
             (§ assoc req :tx (Transaction'new-1 params))
-            (TransactionaddOutput (:tx req), value, destination)
+            (Transaction''addOutput-ce (:tx req), value, destination)
             req
         )
     )
@@ -32027,7 +32022,7 @@
             (ensure some? parameters, "Address is for an unknown network")
 
             (§ assoc req :tx (Transaction'new-1 parameters))
-            (TransactionaddOutput (:tx req), Coin'ZERO, destination)
+            (Transaction''addOutput-ca (:tx req), Coin'ZERO, destination)
             (§ assoc req :empty-wallet true)
             req
         )
@@ -32050,8 +32045,8 @@
             (ensure some? __outputToSpend, "Can't find adequately sized output that spends to us")
 
             (let [#_"Transaction" tx (Transaction'new-1 (:params parent))]
-                (TransactionaddInput tx, __outputToSpend)
-                (TransactionaddOutput tx, (Coin''subtract (TransactionOutput''getValue __outputToSpend), __feeRaise), (Wallet''freshAddress wallet, :KeyPurpose'CHANGE))
+                (Transaction''addInput-o tx, __outputToSpend)
+                (Transaction''addOutput-ca tx, (Coin''subtract (TransactionOutput''getValue __outputToSpend), __feeRaise), (Wallet''freshAddress wallet, :KeyPurpose'CHANGE))
                 (Transaction''setPurpose tx, :TransactionPurpose'RAISE_FEE)
                 (let [#_"SendRequest" req (SendRequest'forTx tx)]
                     (§ assoc req :completed true)
@@ -32080,7 +32075,7 @@
         (let [#_"SendRequest" req (SendRequest'new)
               #_"Script" output (ScriptBuilder'createCLTVPaymentChannelOutput time, from, to)]
             (§ assoc req :tx (Transaction'new-1 params))
-            (TransactionaddOutput (:tx req), value, output)
+            (Transaction''addOutput-cs (:tx req), value, output)
             req
         )
     )
@@ -33311,7 +33306,7 @@
                             (when (.isInfoEnabled Wallet'LOG)
                                 (.info Wallet'LOG, (str "Received a pending transaction " (Transaction''getHashAsString tx) " that spends " (Coin''toFriendlyString spent) " from our own wallet, and sends us " (Coin''toFriendlyString earned)))
                             )
-                            (when (.equals (TransactionConfidence''getSource (TransactiongetConfidence tx)), :ConfidenceSource'UNKNOWN)
+                            (when (.equals (TransactionConfidence''getSource (Transaction''getConfidence-t tx)), :ConfidenceSource'UNKNOWN)
                                 (.warn Wallet'LOG, "Wallet received transaction with an unknown source. Consider tagging it!")
                             )
                             ;; If this tx spends any of our unspent outputs, mark them as spent now, then add to the pending pool.
@@ -33523,7 +33518,7 @@
         ;; Runs in a peer thread.
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
 
-        (let [#_"Coin" __prevBalance (WalletgetBalance this)
+        (let [#_"Coin" __prevBalance (Wallet''getBalance-1 this)
               #_"Sha256Hash" __txHash (Message'''getHash tx)
               #_"boolean" __bestChain (= __blockType :NewBlockType'BEST_CHAIN)
               #_"boolean" __sideChain (= __blockType :NewBlockType'SIDE_CHAIN)]
@@ -33620,9 +33615,9 @@
                                 (.remove __currentTxDependencies, tx)
                                 (let [#_"List<Transaction>" __currentTxDependenciesSorted (Wallet''sortTxnsByDependency this, __currentTxDependencies)]
                                     (doseq [#_"Transaction" __txDependency __currentTxDependenciesSorted]
-                                        (when (.equals (TransactionConfidence''getConfidenceType (TransactiongetConfidence __txDependency)), ConfidenceType'IN_CONFLICT)
+                                        (when (.equals (TransactionConfidence''getConfidenceType (Transaction''getConfidence-t __txDependency)), ConfidenceType'IN_CONFLICT)
                                             (when (Wallet''isNotSpendingTxnsInConfidenceType this, __txDependency, ConfidenceType'IN_CONFLICT)
-                                                (TransactionConfidence''setConfidenceType (TransactiongetConfidence __txDependency), ConfidenceType'PENDING)
+                                                (TransactionConfidence''setConfidenceType (Transaction''getConfidence-t __txDependency), ConfidenceType'PENDING)
                                                 (.put (:confidence-changed this), __txDependency, :ConfidenceChangeReason'TYPE)
                                             )
                                         )
@@ -33654,7 +33649,7 @@
                     ;;    or for our own spends.  If users want to know when a broadcast tx becomes confirmed,
                     ;;    they need to use tx confidence listeners.
                     (when (and (not (:inside-reorg this)) __bestChain)
-                        (let [#_"Coin" __newBalance (WalletgetBalance this)] ;; This is slow.
+                        (let [#_"Coin" __newBalance (Wallet''getBalance-1 this)] ;; This is slow.
                             (.info Wallet'LOG, (str "Balance is now: " (Coin''toFriendlyString __newBalance)))
                             (when (not __wasPending)
                                 (let [#_"int" diff (Monetary'''signum __valueDifference)]
@@ -33685,7 +33680,7 @@
     (§ method- #_"boolean" Wallet''isNotSpendingTxnsInConfidenceType [#_"Wallet" this, #_"Transaction" tx, #_"ConfidenceType" type]
         (doseq [#_"TransactionInput" in (Transaction''getInputs tx)]
             (let [#_"Transaction" tx' (Wallet''getTransaction this, (Message'''getHash (:outpoint in)))]
-                (when (and (some? tx') (.equals (TransactionConfidence''getConfidenceType (TransactiongetConfidence tx')), type))
+                (when (and (some? tx') (.equals (TransactionConfidence''getConfidenceType (Transaction''getConfidence-t tx')), type))
                     (§ return false)
                 )
             )
@@ -33728,7 +33723,7 @@
         (when-not (:inside-reorg this)
             (doseq [#_"Map.Entry<Transaction, ConfidenceChangeReason>" entry (.entrySet (:confidence-changed this))]
                 (let [#_"Transaction" tx (.getKey entry)]
-                    (TransactionConfidence''queueListeners (TransactiongetConfidence tx), (.getValue entry))
+                    (TransactionConfidence''queueListeners (Transaction''getConfidence-t tx), (.getValue entry))
                     (Wallet''queueOnTransactionConfidenceChanged this, tx)
                 )
             )
@@ -33768,7 +33763,7 @@
                                 )
                                 :else
                                 (do
-                                    (let [#_"TransactionConfidence" confidence (TransactiongetConfidence tx)]
+                                    (let [#_"TransactionConfidence" confidence (Transaction''getConfidence-t tx)]
                                         (when (= (TransactionConfidence''getConfidenceType confidence) ConfidenceType'BUILDING)
                                             ;; Erase the set of seen peers once the tx is so deep that it seems unlikely to ever go
                                             ;; pending again.  We could clear this data the moment a tx is seen in the block chain,
@@ -33829,7 +33824,7 @@
                 ;; entirely by this point.  We could and maybe should rebroadcast them so the network remembers and tries
                 ;; to confirm them again.  But this is a deeply unusual edge case that due to the maturity rule should never
                 ;; happen in practice, thus for simplicities sake we ignore it here.
-                (.info Wallet'LOG, "  coinbase tx <-dead: confidence {}", (Transaction''getHashAsString tx), (.name (TransactionConfidence''getConfidenceType (TransactiongetConfidence tx))))
+                (.info Wallet'LOG, "  coinbase tx <-dead: confidence {}", (Transaction''getHashAsString tx), (.name (TransactionConfidence''getConfidenceType (Transaction''getConfidence-t tx))))
                 (.remove (:dead this), (Message'''getHash tx))
             )
 
@@ -33919,13 +33914,13 @@
         )
 
         (doseq [#_"TransactionInput" input (Transaction''getInputs tx)]
-            (let [#_"ConnectionResult" result (TransactionInputconnect input, (:unspent this), :ConnectionMode'ABORT_ON_CONFLICT)]
+            (let [#_"ConnectionResult" result (TransactionInput''connect-3m input, (:unspent this), :ConnectionMode'ABORT_ON_CONFLICT)]
                 (when (= result :ConnectionResult'NO_SUCH_TX)
                     ;; Not found in the unspent map.  Try again with the spent map.
-                    (§ ass result (TransactionInputconnect input, (:spent this), :ConnectionMode'ABORT_ON_CONFLICT))
+                    (§ ass result (TransactionInput''connect-3m input, (:spent this), :ConnectionMode'ABORT_ON_CONFLICT))
                     (when (= result :ConnectionResult'NO_SUCH_TX)
                         ;; Not found in the unspent and spent maps.  Try again with the pending map.
-                        (§ ass result (TransactionInputconnect input, (:pending this), :ConnectionMode'ABORT_ON_CONFLICT))
+                        (§ ass result (TransactionInput''connect-3m input, (:pending this), :ConnectionMode'ABORT_ON_CONFLICT))
                         (when (= result :ConnectionResult'NO_SUCH_TX)
                             ;; Doesn't spend any of our outputs or is coinbase.
                             (§ continue )
@@ -33985,7 +33980,7 @@
         ;; used by another wallet somewhere else.  Also, unconfirmed transactions can arrive from the mempool in more
         ;; or less random order.
         (doseq [#_"Transaction" __pendingTx (.values (:pending this)) #_"TransactionInput" input (Transaction''getInputs __pendingTx)]
-            (let [#_"ConnectionResult" result (TransactionInputconnect input, tx, :ConnectionMode'ABORT_ON_CONFLICT)]
+            (let [#_"ConnectionResult" result (TransactionInput''connect-3t input, tx, :ConnectionMode'ABORT_ON_CONFLICT)]
                 (when __fromChain
                     ;; This TX is supposed to have just appeared on the best chain, so its outputs should not be marked
                     ;; as spent yet.  If they are, it means something is happening out of order.
@@ -34029,7 +34024,7 @@
                     (doseq [#_"TransactionInput" dead (Transaction''getInputs tx)]
                         (let [#_"Transaction" connected (TransactionInput''getConnectedTransaction dead)]
                             (when (some? connected)
-                                (when (and (not= (TransactionConfidence''getConfidenceType (TransactiongetConfidence connected)) ConfidenceType'DEAD) (some? (TransactionOutput''getSpentBy (TransactionInput''getConnectedOutput-1 dead))) (.equals (TransactionOutput''getSpentBy (TransactionInput''getConnectedOutput-1 dead)), dead))
+                                (when (and (not= (TransactionConfidence''getConfidenceType (Transaction''getConfidence-t connected)) ConfidenceType'DEAD) (some? (TransactionOutput''getSpentBy (TransactionInput''getConnectedOutput-1 dead))) (.equals (TransactionOutput''getSpentBy (TransactionInput''getConnectedOutput-1 dead)), dead))
                                     (assert-state (.add (:my-unspents this), (TransactionInput''getConnectedOutput-1 dead)))
                                     (.info Wallet'LOG, "Added to UNSPENTS: {} in {}", (TransactionInput''getConnectedOutput-1 dead), (Message'''getHash (TransactionOutput''getParentTransaction (TransactionInput''getConnectedOutput-1 dead))))
                                 )
@@ -34038,7 +34033,7 @@
                             )
                         )
                     )
-                    (TransactionConfidence''setOverridingTransaction (TransactiongetConfidence tx), __overridingTx)
+                    (TransactionConfidence''setOverridingTransaction (Transaction''getConfidence-t tx), __overridingTx)
                     (.put (:confidence-changed this), tx, :ConfidenceChangeReason'TYPE)
                     ;; Now kill any transactions we have that depended on this one.
                     (doseq [#_"TransactionOutput" __deadOutput (Transaction''getOutputs tx)]
@@ -34059,14 +34054,14 @@
             (when (some? __overridingTx)
                 (.warn Wallet'LOG, "Now attempting to connect the inputs of the overriding transaction.")
                 (doseq [#_"TransactionInput" input (Transaction''getInputs __overridingTx)]
-                    (let [#_"ConnectionResult" result (TransactionInputconnect input, (:unspent this), :ConnectionMode'DISCONNECT_ON_CONFLICT)]
+                    (let [#_"ConnectionResult" result (TransactionInput''connect-3m input, (:unspent this), :ConnectionMode'DISCONNECT_ON_CONFLICT)]
                         (if (= result :ConnectionResult'SUCCESS)
                             (do
                                 (Wallet''maybeMovePool this, (TransactionInput''getConnectedTransaction input), "kill")
                                 (.remove (:my-unspents this), (TransactionInput''getConnectedOutput-1 input))
                                 (.info Wallet'LOG, "Removing from UNSPENTS: {}", (TransactionInput''getConnectedOutput-1 input))
                             )
-                            (let [result (TransactionInputconnect input, (:spent this), :ConnectionMode'DISCONNECT_ON_CONFLICT)]
+                            (let [result (TransactionInput''connect-3m input, (:spent this), :ConnectionMode'DISCONNECT_ON_CONFLICT)]
                                 (when (= result :ConnectionResult'SUCCESS)
                                     (Wallet''maybeMovePool this, (TransactionInput''getConnectedTransaction input), "kill")
                                     (.remove (:my-unspents this), (TransactionInput''getConnectedOutput-1 input))
@@ -34122,7 +34117,7 @@
         (§ sync (:wallet-lock this)
             (when' (not (.containsKey (:pending this), (Message'''getHash tx))) => false
                 (.info Wallet'LOG, "commitTx of {}", (Transaction''getHashAsString tx))
-                (let [#_"Coin" balance (WalletgetBalance this)]
+                (let [#_"Coin" balance (Wallet''getBalance-1 this)]
                     (Transaction''setUpdateTime tx, (Utils'now))
                     ;; Put any outputs that are sending money back to us into the unspents map, and calculate their total value.
                     (let [#_"Coin" earned (reduce #(if (TransactionOutput''isMine %2, this) (Coin''add %1, (TransactionOutput''getValue %2)) %1) Coin'ZERO (Transaction''getOutputs tx))]
@@ -34140,7 +34135,7 @@
                                     ;; tx is a double spend against a tx already in the best chain or spends outputs of a DEAD tx.
                                     ;; Add tx to the dead pool and schedule confidence listener notifications.
                                     (.info Wallet'LOG, "->dead: {}", (Transaction''getHashAsString tx))
-                                    (TransactionConfidence''setConfidenceType (TransactiongetConfidence tx), ConfidenceType'DEAD)
+                                    (TransactionConfidence''setConfidenceType (Transaction''getConfidence-t tx), ConfidenceType'DEAD)
                                     (.put (:confidence-changed this), tx, :ConfidenceChangeReason'TYPE)
                                     (Wallet''addWalletTransaction this, :PoolType'DEAD, tx)
                                 )
@@ -34154,7 +34149,7 @@
                                     (.add __doubleSpendPendingTxns, tx)
                                     (Wallet''addTransactionsDependingOn this, __doubleSpendPendingTxns, (Wallet''getTransactions this, true))
                                     (doseq [#_"Transaction" __doubleSpendTx __doubleSpendPendingTxns]
-                                        (TransactionConfidence''setConfidenceType (TransactiongetConfidence __doubleSpendTx), ConfidenceType'IN_CONFLICT)
+                                        (TransactionConfidence''setConfidenceType (Transaction''getConfidence-t __doubleSpendTx), ConfidenceType'IN_CONFLICT)
                                         (.put (:confidence-changed this), __doubleSpendTx, :ConfidenceChangeReason'TYPE)
                                     )
                                 )
@@ -34163,13 +34158,13 @@
                                     ;; No conflict detected.
                                     ;; Add to the pending pool and schedule confidence listener notifications.
                                     (.info Wallet'LOG, "->pending: {}", (Transaction''getHashAsString tx))
-                                    (TransactionConfidence''setConfidenceType (TransactiongetConfidence tx), ConfidenceType'PENDING)
+                                    (TransactionConfidence''setConfidenceType (Transaction''getConfidence-t tx), ConfidenceType'PENDING)
                                     (.put (:confidence-changed this), tx, :ConfidenceChangeReason'TYPE)
                                     (Wallet''addWalletTransaction this, :PoolType'PENDING, tx)
                                 )
                             )
                             (when (.isInfoEnabled Wallet'LOG)
-                                (.info Wallet'LOG, "Estimated balance is now: {}", (Coin''toFriendlyString (WalletgetBalance this, :BalanceType'ESTIMATED)))
+                                (.info Wallet'LOG, "Estimated balance is now: {}", (Coin''toFriendlyString (Wallet''getBalance-2t this, :BalanceType'ESTIMATED)))
                             )
 
                             ;; Mark any keys used in the outputs as "used", this allows wallet UI's to auto-advance the current key
@@ -34534,7 +34529,7 @@
         )
         ;; This is safe even if the listener has been added before, as TransactionConfidence ignores duplicate
         ;; registration requests.  That makes the code in the wallet simpler.
-        (TransactionConfidence''addEventListener-3 (TransactiongetConfidence tx), Threading'SAME_THREAD, (:tx-confidence-listener this))
+        (TransactionConfidence''addEventListener-3 (Transaction''getConfidence-t tx), Threading'SAME_THREAD, (:tx-confidence-listener this))
         nil
     )
 
@@ -34682,7 +34677,7 @@
                     (Wallet''isConsistentOrThrow this)
                     (Wallet''saveLater this)
                     (when (.isInfoEnabled Wallet'LOG)
-                        (.info Wallet'LOG, "Estimated balance is now: {}", (Coin''toFriendlyString (WalletgetBalance this, :BalanceType'ESTIMATED)))
+                        (.info Wallet'LOG, "Estimated balance is now: {}", (Coin''toFriendlyString (Wallet''getBalance-2t this, :BalanceType'ESTIMATED)))
                     )
                 )
             )
@@ -34735,8 +34730,8 @@
         (§ sync (:wallet-lock this)
             (§ sync (:keychaingroup-lock this)
                 (let [#_"StringBuilder" sb (StringBuilder.)
-                      #_"Coin" estimated (WalletgetBalance this, :BalanceType'ESTIMATED)
-                      #_"Coin" available (WalletgetBalance this, :BalanceType'AVAILABLE_SPENDABLE)]
+                      #_"Coin" estimated (Wallet''getBalance-2t this, :BalanceType'ESTIMATED)
+                      #_"Coin" available (Wallet''getBalance-2t this, :BalanceType'AVAILABLE_SPENDABLE)]
                     (.. sb (append "Wallet containing ") (append (Coin''toFriendlyString estimated)) (append " (spendable: ") (append (Coin''toFriendlyString available)) (append ") in:\n"))
                     (.. sb (append "  ") (append (.size (:pending this))) (append " pending transactions\n"))
                     (.. sb (append "  ") (append (.size (:unspent this))) (append " unspent transactions\n"))
@@ -34812,7 +34807,7 @@
                     )
                 )
                 (when (Transaction''hasConfidence tx)
-                    (.. sb (append "  confidence: ") (append (TransactiongetConfidence tx)) (append "\n"))
+                    (.. sb (append "  confidence: ") (append (Transaction''getConfidence-t tx)) (append "\n"))
                 )
                 (.. sb (append (Transaction''toString-2 tx, chain)))
             )
@@ -34933,14 +34928,14 @@
      ; Returns the AVAILABLE balance of this wallet.
      ; See {@link BalanceType#AVAILABLE} for details on what this means.
      ;;
-    (§ method #_"Coin" WalletgetBalance [#_"Wallet" this]
-        (WalletgetBalance this, :BalanceType'AVAILABLE)
+    (§ method #_"Coin" Wallet''getBalance-1 [#_"Wallet" this]
+        (Wallet''getBalance-2t this, :BalanceType'AVAILABLE)
     )
 
     ;;;
      ; Returns the balance of this wallet as calculated by the provided balanceType.
      ;;
-    (§ method #_"Coin" WalletgetBalance [#_"Wallet" this, #_"BalanceType" type]
+    (§ method #_"Coin" Wallet''getBalance-2t [#_"Wallet" this, #_"BalanceType" type]
         (§ sync (:wallet-lock this)
             (cond (any = type :BalanceType'AVAILABLE :BalanceType'AVAILABLE_SPENDABLE)
                 (do
@@ -34972,7 +34967,7 @@
      ; (i.e. balance includes outputs we don't have the private keys for).  Just asks it to select as many coins as
      ; possible and returns the total.
      ;;
-    (§ method #_"Coin" WalletgetBalance [#_"Wallet" this, #_"CoinSelector" selector]
+    (§ method #_"Coin" Wallet''getBalance-2s [#_"Wallet" this, #_"CoinSelector" selector]
         (§ sync (:wallet-lock this)
             (ensure some? selector)
 
@@ -35000,7 +34995,7 @@
     (§ method #_"ListenableFuture<Coin>" Wallet''getBalanceFuture [#_"Wallet" this, #_"Coin" value, #_"BalanceType" type]
         (§ sync (:wallet-lock this)
             (let [#_"SettableFuture<Coin>" future (SettableFuture/create)
-                  #_"Coin" current (WalletgetBalance this, type)]
+                  #_"Coin" current (Wallet''getBalance-2t this, type)]
                 (cond (<= 0 (.compareTo current, value))
                     (do
                         ;; Already have enough.
@@ -35032,7 +35027,7 @@
         (let [#_"ListIterator<BalanceFutureRequest>" it (.listIterator (:balance-future-requests this))]
             (while (.hasNext it)
                 (let [#_"BalanceFutureRequest" req (.next it)
-                      #_"Coin" val (WalletgetBalance this, (:type req))] ;; This could be slow for lots of futures.
+                      #_"Coin" val (Wallet''getBalance-2t this, (:type req))] ;; This could be slow for lots of futures.
                     (when (< (.compareTo val, (:value req)) 0)
                         (§ continue )
                     )
@@ -35230,9 +35225,9 @@
      ; @throws MultipleOpReturnRequested if there is more than one OP_RETURN output for the resultant transaction.
      ;;
     #_throws #_[ "InsufficientMoneyException" ]
-    (§ method #_"SendResult" WalletsendCoins [#_"Wallet" this, #_"TransactionBroadcaster" broadcaster, #_"Address" to, #_"Coin" value]
+    (§ method #_"SendResult" Wallet''sendCoins-4 [#_"Wallet" this, #_"TransactionBroadcaster" broadcaster, #_"Address" to, #_"Coin" value]
         (let [#_"SendRequest" request (SendRequest'to-2 to, value)]
-            (WalletsendCoins this, broadcaster, request)
+            (Wallet''sendCoins-3b this, broadcaster, request)
         )
     )
 
@@ -35258,7 +35253,7 @@
      ; @throws MultipleOpReturnRequested if there is more than one OP_RETURN output for the resultant transaction.
      ;;
     #_throws #_[ "InsufficientMoneyException" ]
-    (§ method #_"SendResult" WalletsendCoins [#_"Wallet" this, #_"TransactionBroadcaster" broadcaster, #_"SendRequest" request]
+    (§ method #_"SendResult" Wallet''sendCoins-3b [#_"Wallet" this, #_"TransactionBroadcaster" broadcaster, #_"SendRequest" request]
         ;; Should not be locked here, as we're going to call into the broadcaster and that might want to hold its
         ;; own lock.  sendCoinsOffline handles everything that needs to be locked.
         (assert-state (not (.isHeldByCurrentThread (:wallet-lock this))))
@@ -35294,10 +35289,10 @@
      ; @throws MultipleOpReturnRequested if there is more than one OP_RETURN output for the resultant transaction.
      ;;
     #_throws #_[ "InsufficientMoneyException" ]
-    (§ method #_"SendResult" WalletsendCoins [#_"Wallet" this, #_"SendRequest" request]
+    (§ method #_"SendResult" Wallet''sendCoins-2 [#_"Wallet" this, #_"SendRequest" request]
         (let [#_"TransactionBroadcaster" broadcaster (:v-transaction-broadcaster this)]
             (assert-state (some? broadcaster), "No transaction broadcaster is configured")
-            (WalletsendCoins this, broadcaster, request)
+            (Wallet''sendCoins-3b this, broadcaster, request)
         )
     )
 
@@ -35316,7 +35311,7 @@
      ; @throws MultipleOpReturnRequested if there is more than one OP_RETURN output for the resultant transaction.
      ;;
     #_throws #_[ "InsufficientMoneyException" ]
-    (§ method #_"Transaction" WalletsendCoins [#_"Wallet" this, #_"Peer" peer, #_"SendRequest" request]
+    (§ method #_"Transaction" Wallet''sendCoins-3p [#_"Wallet" this, #_"Peer" peer, #_"SendRequest" request]
         (let [#_"Transaction" tx (Wallet''sendCoinsOffline this, request)]
             (PeerSocketHandler''sendMessage peer, tx)
             tx
@@ -35411,7 +35406,7 @@
                                 )
 
                                 (doseq [#_"TransactionOutput" output (:gathered __bestCoinSelection)]
-                                    (TransactionaddInput (:tx req), output)
+                                    (Transaction''addInput-o (:tx req), output)
                                 )
 
                                 (when (:empty-wallet req)
@@ -35429,7 +35424,7 @@
                                 )
 
                                 (when (some? __bestChangeOutput)
-                                    (TransactionaddOutput (:tx req), __bestChangeOutput)
+                                    (Transaction''addOutput-o (:tx req), __bestChangeOutput)
                                     (.info Wallet'LOG, "  with {} change", (Coin''toFriendlyString (TransactionOutput''getValue __bestChangeOutput)))
                                 )
 
@@ -35452,7 +35447,7 @@
                                     ;; Label the transaction as being self created.  We can use this later to spend its change output even before
                                     ;; the transaction is confirmed.  We deliberately won't bother notifying listeners here as there's not much
                                     ;; point - the user isn't interested in a confidence transition they made themselves.
-                                    (TransactionConfidence''setSource (TransactiongetConfidence (:tx req)), :ConfidenceSource'SELF)
+                                    (TransactionConfidence''setSource (Transaction''getConfidence-t (:tx req)), :ConfidenceSource'SELF)
                                     ;; Label the transaction as being a user requested payment.  This can be used to render GUI wallet
                                     ;; transaction lists more appropriately, especially when the wallet starts to generate transactions itself
                                     ;; for internal purposes.
@@ -35746,7 +35741,7 @@
                             )
                             (.info Wallet'LOG, "  ->pending {}", (Message'''getHash tx))
 
-                            (TransactionConfidence''setConfidenceType (TransactiongetConfidence tx), ConfidenceType'PENDING) ;; Wipe height/depth/work data.
+                            (TransactionConfidence''setConfidenceType (Transaction''getConfidence-t tx), ConfidenceType'PENDING) ;; Wipe height/depth/work data.
                             (.put (:confidence-changed this), tx, :ConfidenceChangeReason'TYPE)
                             (Wallet''addWalletTransaction this, :PoolType'PENDING, tx)
                             (Wallet''updateForSpends this, tx, false)
@@ -35788,7 +35783,7 @@
                                 (NewBestBlockListener'''notifyNewBestBlock this, block)
                             )
                             (Wallet''isConsistentOrThrow this)
-                            (let [#_"Coin" balance (WalletgetBalance this)]
+                            (let [#_"Coin" balance (Wallet''getBalance-1 this)]
                                 (.info Wallet'LOG, "post-reorg balance is {}", (Coin''toFriendlyString balance))
                                 ;; Inform event listeners that a re-org took place.
                                 (Wallet''queueOnReorganize this)
@@ -35812,8 +35807,8 @@
      ;;
     (§ method- #_"void" Wallet''subtractDepth [#_"Wallet" this, #_"int" depth, #_"Collection<Transaction>" transactions]
         (doseq [#_"Transaction" tx transactions]
-            (when (= (TransactionConfidence''getConfidenceType (TransactiongetConfidence tx)) ConfidenceType'BUILDING)
-                (TransactionConfidence''setDepthInBlocks (TransactiongetConfidence tx), (- (TransactionConfidence''getDepthInBlocks (TransactiongetConfidence tx)) depth))
+            (when (= (TransactionConfidence''getConfidenceType (Transaction''getConfidence-t tx)) ConfidenceType'BUILDING)
+                (TransactionConfidence''setDepthInBlocks (Transaction''getConfidence-t tx), (- (TransactionConfidence''getDepthInBlocks (Transaction''getConfidence-t tx)) depth))
                 (.put (:confidence-changed this), tx, :ConfidenceChangeReason'DEPTH)
             )
         )
@@ -35978,7 +35973,7 @@
                                         (throw (CouldNotAdjustDownwards'new))
                                     )
                                 )
-                                (TransactionaddOutput tx, output)
+                                (Transaction''addOutput-o tx, output)
                             )
                         )
 
@@ -36030,7 +36025,7 @@
                                                     )
                                                     :else
                                                     (do
-                                                        (TransactionaddOutput tx, __changeOutput)
+                                                        (Transaction''addOutput-o tx, __changeOutput)
                                                         (§ assoc result :best-change-output __changeOutput)
                                                     )
                                                 )
@@ -36039,7 +36034,7 @@
                                     )
 
                                     (doseq [#_"TransactionOutput" __selectedOutput (:gathered selection)]
-                                        (let [#_"TransactionInput" input (TransactionaddInput tx, __selectedOutput)]
+                                        (let [#_"TransactionInput" input (Transaction''addInput-o tx, __selectedOutput)]
                                             ;; If the scriptBytes don't default to none, our size calculations will be thrown off.
                                             (assert-state (= (alength (TransactionInput''getScriptBytes input)) 0))
                                         )
@@ -36076,7 +36071,7 @@
 
     (§ method- #_"void" Wallet''addSuppliedInputs [#_"Wallet" this, #_"Transaction" tx, #_"List<TransactionInput>" inputs]
         (doseq [#_"TransactionInput" input inputs]
-            (TransactionaddInput tx, (TransactionInput'new-3-bytes (:params this), tx, (Message'''bitcoinSerialize-1 input)))
+            (Transaction''addInput-i tx, (TransactionInput'new-3-bytes (:params this), tx, (Message'''bitcoinSerialize-1 input)))
         )
         nil
     )
@@ -36148,7 +36143,7 @@
             ;; Don't hold the wallet lock whilst doing this, so if the broadcaster accesses the wallet at some point there
             ;; is no inversion.
             (doseq [#_"Transaction" tx __toBroadcast]
-                (let [#_"ConfidenceType" type (TransactionConfidence''getConfidenceType (TransactiongetConfidence tx))]
+                (let [#_"ConfidenceType" type (TransactionConfidence''getConfidenceType (Transaction''getConfidence-t tx))]
                     (assert-state (any = type ConfidenceType'PENDING ConfidenceType'IN_CONFLICT), "Expected PENDING or IN_CONFLICT, was %s.", type)
                     ;; Re-broadcast even if it's marked as already seen for two reasons:
                     ;; 1. Old wallets may have transactions marked as broadcast by 1 peer when
@@ -36170,8 +36165,8 @@
      ; The rotation time is persisted to the wallet. You can stop key rotation by calling this method again with zero
      ; as the argument.
      ;;
-    (§ method #_"void" WalletsetKeyRotationTime [#_"Wallet" this, #_"Date" time]
-        (WalletsetKeyRotationTime this, (quot (.getTime time) 1000))
+    (§ method #_"void" Wallet''setKeyRotationTime-d [#_"Wallet" this, #_"Date" time]
+        (Wallet''setKeyRotationTime-l this, (quot (.getTime time) 1000))
         nil
     )
 
@@ -36194,7 +36189,7 @@
      ;
      ; The given time cannot be in the future.
      ;;
-    (§ method #_"void" WalletsetKeyRotationTime [#_"Wallet" this, #_"long" secs]
+    (§ method #_"void" Wallet''setKeyRotationTime-l [#_"Wallet" this, #_"long" secs]
         (assert-argument (<= secs (Utils'currentTimeSeconds)), "Given time (%s) cannot be in the future.", (Utils'dateTimeFormat-1-time (* secs 1000)))
         (§ assoc this :v-key-rotation-timestamp secs)
         (Wallet''saveNow this)
@@ -36340,13 +36335,13 @@
                             (Wallet''maybeUpgradeToHD this)
                             (let [#_"Transaction" tx (Transaction'new-1 (:params this))]
                                 (doseq [#_"TransactionOutput" output (:gathered __toMove)]
-                                    (TransactionaddInput tx, output)
+                                    (Transaction''addInput-o tx, output)
                                 )
                                 ;; When not signing, don't waste addresses.
-                                (TransactionaddOutput tx, (:value-gathered __toMove), (if sign? (Wallet''freshReceiveAddress this) (Wallet''currentReceiveAddress this)))
+                                (Transaction''addOutput-ca tx, (:value-gathered __toMove), (if sign? (Wallet''freshReceiveAddress this) (Wallet''currentReceiveAddress this)))
                                 (cond (Wallet''adjustOutputDownwardsForFee this, tx, __toMove, Transaction'DEFAULT_TX_FEE, true)
                                     (do
-                                        (TransactionConfidence''setSource (TransactiongetConfidence tx), :ConfidenceSource'SELF)
+                                        (TransactionConfidence''setSource (Transaction''getConfidence-t tx), :ConfidenceSource'SELF)
                                         (Transaction''setPurpose tx, :TransactionPurpose'KEY_ROTATION)
                                         (let [#_"SendRequest" req (SendRequest'forTx tx)]
                                             (when sign?
