@@ -1,5 +1,5 @@
 (ns bitclojn.slang
-    (:refer-clojure :exclude [defn- ensure]))
+    (:refer-clojure :exclude [defn- ensure sync]))
 
 (defmacro § [& _])
 (defmacro ß [& _])
@@ -49,8 +49,10 @@
 
 (defmacro defclass [s & i] `(do (defrecord ~s []) ~@i))
 
+(defmacro sync [& _] `(do ~@_))
+
 (ns bitclojn.core
-    (:refer-clojure :exclude [defn- ensure])
+    (:refer-clojure :exclude [defn- ensure sync])
     (:import [com.google.common.base Charsets Joiner MoreObjects Splitter Stopwatch Strings Throwables]
              [com.google.common.collect ArrayListMultimap ImmutableList ImmutableMap ImmutableSet Iterables Ordering]
              [com.google.common.hash HashCode Hasher Hashing]
@@ -326,7 +328,7 @@
 (declare WrongNetworkException'init WrongNetworkException'new)
 
 (§ ns bitclojn.base-listeners
-    (:refer-clojure :exclude [defn- ensure])
+    (:refer-clojure :exclude [defn- ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -710,7 +712,7 @@
 )
 
 (§ ns bitclojn.base
-    (:refer-clojure :exclude [defn- ensure])
+    (:refer-clojure :exclude [defn- ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -2520,7 +2522,7 @@
     #_protected
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    (defn #_"void" BlockChain'''do-set-chain-head [#_"BlockChain" this, #_"StoredBlock" __chainHead])
+    (defn #_"void" BlockChain'''do-set-chain-head [#_"BlockChain" this, #_"StoredBlock" head])
 
     ;;;
      ; Called if we (possibly) previously called disconnectTransaction/connectTransactions,
@@ -2718,7 +2720,7 @@
      ;;
     #_method
     (defn #_"Set<Sha256Hash>" BlockChain''drain-orphan-blocks [#_"BlockChain" this]
-        (§ sync (:blockchain-lock this)
+        (sync (:blockchain-lock this)
             (let [#_"Set<Sha256Hash>" hashes (HashSet. (.keySet (:orphan-blocks this)))]
                 (.clear (:orphan-blocks this))
                 hashes
@@ -2972,12 +2974,12 @@
      ; Gets the median timestamp of the last 11 blocks.
      ;;
     #_throws #_[ "BlockStoreException" ]
-    (defn- #_"long" BlockChain'get-median-timestamp-of-recent-blocks [#_"StoredBlock" __storedBlock, #_"BlockStore" store]
+    (defn- #_"long" BlockChain'get-median-timestamp-of-recent-blocks [#_"StoredBlock" stored, #_"BlockStore" store]
         (§ let [#_"long[]" timestamps (long-array 11)
               #_"int" unused 9]
-            (aset timestamps 10 (Block''get-time-seconds (StoredBlock''get-header __storedBlock)))
-            (loop-when-recur [] (and (<= 0 unused) (some? (§ ass __storedBlock (StoredBlock''get-prev __storedBlock, store)))) [(§ ass unused (dec unused))]
-                (aset timestamps unused (Block''get-time-seconds (StoredBlock''get-header __storedBlock)))
+            (aset timestamps 10 (Block''get-time-seconds (StoredBlock''get-header stored)))
+            (loop-when-recur [] (and (<= 0 unused) (some? (§ ass stored (StoredBlock''get-prev stored, store)))) [(§ ass unused (dec unused))]
+                (aset timestamps unused (Block''get-time-seconds (StoredBlock''get-header stored)))
             )
 
             (Arrays/sort timestamps, (inc unused), 11)
@@ -3190,10 +3192,10 @@
     #_protected
     #_throws #_[ "BlockStoreException" ]
     #_method
-    (defn #_"void" BlockChain''set-chain-head [#_"BlockChain" this, #_"StoredBlock" __chainHead]
-        (BlockChain'''do-set-chain-head this, __chainHead)
-        (§ sync (:chain-head-lock this)
-            (§ assoc this :chain-head __chainHead)
+    (defn #_"void" BlockChain''set-chain-head [#_"BlockChain" this, #_"StoredBlock" head]
+        (BlockChain'''do-set-chain-head this, head)
+        (sync (:chain-head-lock this)
+            (§ assoc this :chain-head head)
         )
         nil
     )
@@ -3248,7 +3250,7 @@
      ;;
     #_method
     (defn #_"StoredBlock" BlockChain''get-chain-head [#_"BlockChain" this]
-        (§ sync (:chain-head-lock this)
+        (sync (:chain-head-lock this)
             (:chain-head this)
         )
     )
@@ -3263,7 +3265,7 @@
      ;;
     #_method
     (defn #_"Block" BlockChain''get-orphan-root [#_"BlockChain" this, #_"Sha256Hash" from]
-        (§ sync (:blockchain-lock this)
+        (sync (:blockchain-lock this)
             (let [#_"OrphanBlock" cursor (.get (:orphan-blocks this), from)]
                 (when (some? cursor)
                     (loop [cursor cursor]
@@ -3279,7 +3281,7 @@
     ;;; Returns true if the given block is currently in the orphan blocks list. ;;
     #_method
     (defn #_"boolean" BlockChain''is-orphan [#_"BlockChain" this, #_"Sha256Hash" block]
-        (§ sync (:blockchain-lock this)
+        (sync (:blockchain-lock this)
             (.containsKey (:orphan-blocks this), block)
         )
     )
@@ -3292,10 +3294,10 @@
      ;;
     #_method
     (defn #_"Date" BlockChain''estimate-block-time [#_"BlockChain" this, #_"int" height]
-        (§ sync (:chain-head-lock this)
+        (sync (:chain-head-lock this)
             (let [#_"long" offset (- height (StoredBlock''get-height (:chain-head this)))
-                  #_"long" __headTime (Block''get-time-seconds (StoredBlock''get-header (:chain-head this)))
-                  #_"long" estimated (+ (* __headTime 1000) (* 1000 60 10 offset))]
+                  #_"long" time (Block''get-time-seconds (StoredBlock''get-header (:chain-head this)))
+                  #_"long" estimated (+ (* time 1000) (* 1000 60 10 offset))]
                 (Date. estimated)
             )
         )
@@ -3307,14 +3309,14 @@
      ;;
     #_method
     (defn #_"ListenableFuture<StoredBlock>" BlockChain''get-height-future [#_"BlockChain" this, #_"int" height]
-        (§ let [#_"SettableFuture<StoredBlock>" result (SettableFuture/create)]
+        (let [#_"SettableFuture<StoredBlock>" result (SettableFuture/create)]
             (BlockChain''add-new-best-block-listener-3 this, Threading'SAME_THREAD,
                 #_non-static
                 (§ reify NewBestBlockListener
                     #_throws #_[ "VerificationException" ]
                     #_override
                     (defn #_"void" NewBestBlockListener'''notify-new-best-block [#_"NewBestBlockListener" this, #_"StoredBlock" block]
-                        (§ when (<= height (StoredBlock''get-height block))
+                        (when (<= height (StoredBlock''get-height block))
                             (BlockChain''remove-new-best-block-listener (§ this BlockChain), this)
                             (.set result, block)
                         )
@@ -5599,8 +5601,8 @@
     #_protected
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" BlockChain'''do-set-chain-head [#_"SPVBlockChain" this, #_"StoredBlock" __chainHead]
-        (BlockStore'''set-chain-head (:block-store this), __chainHead)
+    (defn #_"void" BlockChain'''do-set-chain-head [#_"SPVBlockChain" this, #_"StoredBlock" head]
+        (BlockStore'''set-chain-head (:block-store this), head)
         nil
     )
 
@@ -5844,7 +5846,7 @@
      ;;
     #_method
     (defn #_"boolean" BloomFilter''contains [#_"BloomFilter" this, #_"byte[]" object]
-        (§ sync this
+        (sync this
             (loop-when [#_"int" i 0] (< i (:hash-funcs this)) => true
                 (recur-if (Utils'check-bit-le (:data this), (BloomFilter'murmur-hash3 (:data this), (:n-tweak this), i, object)) [(inc i)] => false)
             )
@@ -5854,7 +5856,7 @@
     ;;; Insert the given arbitrary data into the filter. ;;
     #_method
     (defn #_"void" BloomFilter''insert-b [#_"BloomFilter" this, #_"byte[]" object]
-        (§ sync this
+        (sync this
             (loop-when-recur [#_"int" i 0] (< i (:hash-funcs this)) [(inc i)]
                 (Utils'set-bit-le (:data this), (BloomFilter'murmur-hash3 (:data this), (:n-tweak this), i, object))
             )
@@ -5865,7 +5867,7 @@
     ;;; Inserts the given key and equivalent hashed form (for the address). ;;
     #_method
     (defn #_"void" BloomFilter''insert-e [#_"BloomFilter" this, #_"ECKey" key]
-        (§ sync this
+        (sync this
             (BloomFilter''insert-b this, (ECKey''get-pub-key key))
             (BloomFilter''insert-b this, (ECKey''get-pub-key-hash key))
         )
@@ -5881,7 +5883,7 @@
      ;;
     #_method
     (defn #_"void" BloomFilter''set-match-all [#_"BloomFilter" this]
-        (§ sync this
+        (sync this
             (§ assoc this :data (byte-array [ (byte 0xff) ]))
         )
         nil
@@ -5917,7 +5919,7 @@
      ;;
     #_method
     (defn #_"boolean" BloomFilter''matches-all [#_"BloomFilter" this]
-        (§ sync this
+        (sync this
             (every? #(= % (byte 0xff)) (:data this))
         )
     )
@@ -5928,7 +5930,7 @@
      ;;
     #_method
     (defn #_"BloomUpdate" BloomFilter''get-update-flag [#_"BloomFilter" this]
-        (§ sync this
+        (sync this
             (BloomUpdate'from-code (:n-flags this), (throw (IllegalStateException. "Unknown flag combination")))
         )
     )
@@ -6009,7 +6011,7 @@
     #_foreign
     #_override
     (defn #_"boolean" Object'''equals [#_"BloomFilter" this, #_"Object" o]
-        (§ sync this
+        (sync this
             (cond
                 (= this o) true
                 (or (nil? o) (not= (.getClass this) (.getClass o))) false
@@ -6023,7 +6025,7 @@
     #_foreign
     #_override
     (defn #_"int" Object'''hashCode [#_"BloomFilter" this]
-        (§ sync this
+        (sync this
             (Objects/hash (object-array [ (:hash-funcs this), (:n-tweak this), (Arrays/hashCode (:data this)) ]))
         )
     )
@@ -8337,9 +8339,9 @@
     #_protected
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" BlockChain'''do-set-chain-head [#_"FullPrunedBlockChain" this, #_"StoredBlock" __chainHead]
+    (defn #_"void" BlockChain'''do-set-chain-head [#_"FullPrunedBlockChain" this, #_"StoredBlock" head]
         (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
-        (FullPrunedBlockStore'''set-verified-chain-head (:block-store this), __chainHead)
+        (FullPrunedBlockStore'''set-verified-chain-head (:block-store this), head)
         (FullPrunedBlockStore'''commit-database-batch-write (:block-store this))
         nil
     )
@@ -10247,7 +10249,7 @@
      ; This writeTarget should be stored and used to close the connection or write data to the socket.
      ;;
     #_abstract
-    #_"void" (StreamConnection'''set-write-target [#_"StreamConnection" this, #_"MessageWriteTarget" __writeTarget])
+    #_"void" (StreamConnection'''set-write-target [#_"StreamConnection" this, #_"MessageWriteTarget" target])
 
     ;;;
      ; Returns the maximum message size of a message on the socket. This is used in calculating size of buffers
@@ -10327,7 +10329,7 @@
     #_throws #_[ "NotYetConnectedException" ]
     #_method
     (defn #_"void" PeerSocketHandler''send-message [#_"PeerSocketHandler" this, #_"Message" message]
-        (§ sync (:peersocket-lock this)
+        (sync (:peersocket-lock this)
             (when (nil? (:write-target this))
                 (throw (NotYetConnectedException.))
             )
@@ -10459,18 +10461,18 @@
      ; it is called automatically by {@link NioClient} or {@link NioClientManager} once the socket finishes initialization.
      ;;
     #_override
-    (defn #_"void" StreamConnection'''set-write-target [#_"PeerSocketHandler" this, #_"MessageWriteTarget" __writeTarget]
-        (assert-argument (some? __writeTarget))
+    (defn #_"void" StreamConnection'''set-write-target [#_"PeerSocketHandler" this, #_"MessageWriteTarget" target]
+        (assert-argument (some? target))
 
-        (§ let [#_"boolean" close? false]
+        (let [#_"boolean" close? false]
             (§ sync (:peersocket-lock this)
                 (assert-argument (nil? (:write-target this)))
 
                 (§ ass close? (:close-pending this))
-                (§ assoc this :write-target __writeTarget)
+                (§ assoc this :write-target target)
             )
             (when close?
-                (MessageWriteTarget'''close-connection __writeTarget)
+                (MessageWriteTarget'''close-connection target)
             )
         )
         nil
@@ -10960,14 +10962,13 @@
 
     #_method
     (defn- #_"void" Peer''process-address-message [#_"Peer" this, #_"AddressMessage" m]
-        (§ let [#_"SettableFuture<AddressMessage>" future]
-            (§ sync (:get-addr-futures this)
-                (§ ass future (.poll (:get-addr-futures this)))
-                (when (nil? future) ;; Not an addr message we are waiting for.
-                    (§ return nil)
-                )
+        (let [#_"SettableFuture<AddressMessage>" future
+                (sync (:get-addr-futures this)
+                    (.poll (:get-addr-futures this))
+                )]
+            (when (some? future) ;; Else not an addr message we are waiting for.
+                (.set future, m)
             )
-            (.set future, m)
         )
         nil
     )
@@ -11165,7 +11166,7 @@
                                 )
                                 :else
                                 (do
-                                    (§ sync (:peer-lock this)
+                                    (sync (:peer-lock this)
                                         (.info Peer'LOG, "Passed the fast catchup time ({}) at height {}, discarding {} headers and requesting full blocks", (Utils'date-time-format-1-time (* __fastCatchupTimeSecs 1000)), (inc (BlockChain''get-best-chain-height (:block-chain this))), (- (.size (:block-headers m)) i))
                                         (§ assoc this :download-block-bodies true)
                                         ;; Prevent this request being seen as a duplicate.
@@ -11181,7 +11182,7 @@
                 ;; We added all headers in the message to the chain.
                 ;; Request some more if we got up to the limit, otherwise we are at the end of the chain.
                 (when (<= HeadersMessage'MAX_HEADERS (.size (:block-headers m)))
-                    (§ sync (:peer-lock this)
+                    (sync (:peer-lock this)
                         (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH)
                     )
                 )
@@ -11537,14 +11538,12 @@
                             ;;
                             ;; We only do this if we are not currently downloading headers.  If we are then we don't want to kick
                             ;; off a request for lots more headers in parallel.
-                            (do
-                                (§ sync (:peer-lock this)
-                                    (if (:download-block-bodies this)
-                                        (let [#_"Block" __orphanRoot (ensure some? (BlockChain''get-orphan-root (:block-chain this), (Message'''get-hash m)))]
-                                            (Peer''block-chain-download-locked this, (Message'''get-hash __orphanRoot))
-                                        )
-                                        (.info Peer'LOG, "Did not start chain download on solved block due to in-flight header download.")
+                            (sync (:peer-lock this)
+                                (if (:download-block-bodies this)
+                                    (let [#_"Block" root (ensure some? (BlockChain''get-orphan-root (:block-chain this), (Message'''get-hash m)))]
+                                        (Peer''block-chain-download-locked this, (Message'''get-hash root))
                                     )
+                                    (.info Peer'LOG, "Did not start chain download on solved block due to in-flight header download.")
                                 )
                             )
                         )
@@ -11640,11 +11639,9 @@
                             ;; chain twice (or more!) on the same connection!  The block chain would filter out the duplicates but
                             ;; only at a huge speed penalty.  By finding the orphan root we ensure every getblocks looks the same
                             ;; no matter how many blocks are solved, and therefore that the (2) duplicate filtering can work.
-                            (do
-                                (§ sync (:peer-lock this)
-                                    (let [#_"Block" __orphanRoot (ensure some? (BlockChain''get-orphan-root (:block-chain this), (Message'''get-hash m)))]
-                                        (Peer''block-chain-download-locked this, (Message'''get-hash __orphanRoot))
-                                    )
+                            (sync (:peer-lock this)
+                                (let [#_"Block" root (ensure some? (BlockChain''get-orphan-root (:block-chain this), (Message'''get-hash m)))]
+                                    (Peer''block-chain-download-locked this, (Message'''get-hash root))
                                 )
                             )
                         )
@@ -11913,7 +11910,7 @@
     #_method
     (defn #_"ListenableFuture<AddressMessage>" Peer''get-addr [#_"Peer" this]
         (§ let [#_"SettableFuture<AddressMessage>" future (SettableFuture/create)]
-            (§ sync (:get-addr-futures this)
+            (sync (:get-addr-futures this)
                 (.add (:get-addr-futures this), future)
             )
             (PeerSocketHandler''send-message this, (GetAddrMessage'new (:params this)))
@@ -11931,19 +11928,19 @@
      ; @param secondsSinceEpoch Time in seconds since the epoch or 0 to reset to always downloading block bodies.
      ;;
     #_method
-    (defn #_"void" Peer''set-download-parameters [#_"Peer" this, #_"long" __secondsSinceEpoch, #_"boolean" __useFilteredBlocks]
-        (§ sync (:peer-lock this)
-            (cond (= __secondsSinceEpoch 0)
+    (defn #_"void" Peer''set-download-parameters [#_"Peer" this, #_"long" secs, #_"boolean" __useFilteredBlocks]
+        (sync (:peer-lock this)
+            (cond (zero? secs)
                 (do
                     (§ assoc this :fast-catchup-time-secs (Block''get-time-seconds (-> this :params :genesis-block)))
                     (§ assoc this :download-block-bodies true)
                 )
                 :else
                 (do
-                    (§ assoc this :fast-catchup-time-secs __secondsSinceEpoch)
+                    (§ assoc this :fast-catchup-time-secs secs)
                     ;; If the given time is before the current chains head block time, then this has no effect (we already
                     ;; downloaded everything we need).
-                    (when (and (some? (:block-chain this)) (< (Block''get-time-seconds (StoredBlock''get-header (BlockChain''get-chain-head (:block-chain this)))) (:fast-catchup-time-secs this)))
+                    (when (and (some? (:block-chain this)) (< (Block''get-time-seconds (StoredBlock''get-header (BlockChain''get-chain-head (:block-chain this)))) secs))
                         (§ assoc this :download-block-bodies false)
                     )
                 )
@@ -12020,8 +12017,8 @@
             ;; We must always put the genesis block as the first entry.
 
             (let [#_"BlockStore" store (BlockChain''get-block-store (ensure some? (:block-chain this)))
-                  #_"StoredBlock" __chainHead (BlockChain''get-chain-head (:block-chain this))
-                  #_"Sha256Hash" __chainHeadHash (Message'''get-hash (StoredBlock''get-header __chainHead))]
+                  #_"StoredBlock" head (BlockChain''get-chain-head (:block-chain this))
+                  #_"Sha256Hash" __chainHeadHash (Message'''get-hash (StoredBlock''get-header head))]
 
                 ;; Did we already make this request?  If so, don't do it again.
                 (when (and (Objects/equals (:last-get-blocks-begin this), __chainHeadHash) (Objects/equals (:last-get-blocks-end this), __toHash))
@@ -12033,7 +12030,7 @@
                     (§ return nil)
                 )
 
-                (let [#_"StoredBlock" cursor __chainHead]
+                (let [#_"StoredBlock" cursor head]
                     (loop-when-recur [#_"int" i 100] (and (some? cursor) (< 0 i)) [(dec i)]
                         (.add __blockLocator, (Message'''get-hash (StoredBlock''get-header cursor)))
                         (try
@@ -12055,18 +12052,13 @@
                     (§ assoc this :last-get-blocks-begin __chainHeadHash)
                     (§ assoc this :last-get-blocks-end __toHash)
 
-                    (cond (:download-block-bodies this)
-                        (do
-                            (let [#_"GetBlocksMessage" message (GetBlocksMessage'new-3 (:params this), __blockLocator, __toHash)]
-                                (PeerSocketHandler''send-message this, message)
-                            )
+                    (if (:download-block-bodies this)
+                        (let [#_"GetBlocksMessage" message (GetBlocksMessage'new-3 (:params this), __blockLocator, __toHash)]
+                            (PeerSocketHandler''send-message this, message)
                         )
-                        :else
-                        (do
-                            ;; Downloading headers for a while instead of full blocks.
-                            (let [#_"GetHeadersMessage" message (GetHeadersMessage'new-3 (:params this), __blockLocator, __toHash)]
-                                (PeerSocketHandler''send-message this, message)
-                            )
+                        ;; Downloading headers for a while instead of full blocks.
+                        (let [#_"GetHeadersMessage" message (GetHeadersMessage'new-3 (:params this), __blockLocator, __toHash)]
+                            (PeerSocketHandler''send-message this, message)
                         )
                     )
                 )
@@ -12100,7 +12092,7 @@
                     )
                 )
                 ;; When we just want as many blocks as possible, we can set the target hash to zero.
-                (§ sync (:peer-lock this)
+                (sync (:peer-lock this)
                     (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH)
                 )
             )
@@ -12167,8 +12159,10 @@
      ;;
     #_method
     (defn #_"long" Peer''get-last-ping-time [#_"Peer" this]
-        (§ sync (:lastping-lock this)
-            (if (some? (:last-ping-times this)) (aget (:last-ping-times this) (dec (alength (:last-ping-times this)))) Long/MAX_VALUE)
+        (sync (:lastping-lock this)
+            (let [times (:last-ping-times this)]
+                (if (some? times) (aget times (dec (alength times))) Long/MAX_VALUE)
+            )
         )
     )
 
@@ -12179,14 +12173,16 @@
      ;;
     #_method
     (defn #_"long" Peer''get-ping-time [#_"Peer" this]
-        (§ sync (:lastping-lock this)
-            (if (some? (:last-ping-times this)) (long (/ (double (reduce + (:last-ping-times this))) (alength (:last-ping-times this)))) Long/MAX_VALUE)
+        (sync (:lastping-lock this)
+            (let [times (:last-ping-times this)]
+                (if (some? times) (long (/ (double (reduce + times)) (alength times))) Long/MAX_VALUE)
+            )
         )
     )
 
     #_method
     (defn- #_"void" Peer''process-ping [#_"Peer" this, #_"Ping" m]
-        (§ when (Ping''has-nonce m)
+        (when (Ping''has-nonce m)
             (PeerSocketHandler''send-message this, (Pong'new-1 (Ping''get-nonce m)))
         )
         nil
@@ -12824,15 +12820,11 @@
 
     #_method
     (defn- #_"void" ChainDownloadSpeedCalculator''calculate [#_"ChainDownloadSpeedCalculator" this]
-        (§ let [#_"int" __minSpeedBytesPerSec
-              #_"int" period]
-
-            (§ sync (:peergroup-lock this)
-                (§ ass __minSpeedBytesPerSec (:stall-min-speed-bytes-sec this))
-                (§ ass period (:stall-period-seconds this))
-            )
-
-            (§ sync this
+        (let [[#_"int" __minSpeedBytesPerSec #_"int" period]
+                (sync (:peergroup-lock this)
+                    [(:stall-min-speed-bytes-sec this) (:stall-period-seconds this)]
+                )]
+            (sync this
                 (when (or (nil? (:samples this)) (not= (alength (:samples this)) period))
                     (§ assoc this :samples (long-array period))
                     ;; *2 because otherwise a single low sample could cause an immediate disconnect which is too harsh.
@@ -12840,7 +12832,7 @@
                     (§ assoc this :warmup-seconds 15)
                 )
 
-                (let [#_"boolean" __behindPeers (and (some? (:chain this)) (< (BlockChain''get-best-chain-height (:chain this)) (PeerGroup'get-most-common-chain-height (§ this PeerGroup))))]
+                (§ let [#_"boolean" __behindPeers (and (some? (:chain this)) (< (BlockChain''get-best-chain-height (:chain this)) (PeerGroup'get-most-common-chain-height (§ this PeerGroup))))]
                     (when (not __behindPeers)
                         (§ assoc this :sync-done true)
                     )
@@ -13389,20 +13381,19 @@
      ; Likewise if there aren't enough current connections to meet the new requested max size, some will be added.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-max-connections [#_"PeerGroup" this, #_"int" __maxConnections]
+    (defn #_"void" PeerGroup''set-max-connections [#_"PeerGroup" this, #_"int" n]
         (§ sync (:peergroup-lock this)
-            (§ assoc this :max-connections __maxConnections)
+            (§ assoc this :max-connections n)
             (when-not (PeerGroup''is-running this)
                 (§ return nil)
             )
         )
 
         ;; We may now have too many or too few open connections.  Add more or drop some to get to the right amount.
-        (let [#_"int" adjustment (- __maxConnections (ClientConnectionManager'''get-connected-client-count (:channels this)))]
+        (let [#_"int" adjustment (- n (ClientConnectionManager'''get-connected-client-count (:channels this)))]
             (when (< 0 adjustment)
                 (PeerGroup''trigger-connections this)
             )
-
             (when (< adjustment 0)
                 (ClientConnectionManager'''close-connections (:channels this), (- adjustment))
             )
@@ -13415,7 +13406,7 @@
      ;;
     #_method
     (defn #_"void" PeerGroup''set-download-tx-dependencies [#_"PeerGroup" this, #_"int" depth]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (§ assoc this :download-tx-dependency-depth depth)
         )
         nil
@@ -13433,7 +13424,7 @@
     ;;; The maximum number of connections that we will create to peers. ;;
     #_method
     (defn #_"int" PeerGroup''get-max-connections [#_"PeerGroup" this]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (:max-connections this)
         )
     )
@@ -13476,7 +13467,7 @@
      ;;
     #_method
     (defn #_"void" PeerGroup''set-version-message [#_"PeerGroup" this, #_"VersionMessage" ver]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (§ assoc this :version-message ver)
         )
         nil
@@ -13487,7 +13478,7 @@
      ;;
     #_method
     (defn #_"VersionMessage" PeerGroup''get-version-message [#_"PeerGroup" this]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (:version-message this)
         )
     )
@@ -13498,7 +13489,7 @@
         ;; We will provide the remote node with a bloom filter (i.e. they shouldn't relay yet)
         ;; if chain == null || !chain.shouldVerifyTransactions() and a wallet is added and bloom filters are enabled.
         ;; Note that the default here means that no tx invs will be received if no wallet is ever added.
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (let [#_"boolean" __spvMode (and (some? (:chain this)) (not (BlockChain'''should-verify-transactions (:chain this))))
                   #_"boolean" __willSendFilter (and __spvMode (< 0 (.size (:peer-filter-providers this))) (:v-bloom-filtering-enabled this))]
                 (§ assoc ver :relay-txes-before-filter (not __willSendFilter))
@@ -13787,7 +13778,7 @@
      ;;
     #_method
     (defn #_"List<Peer>" PeerGroup''get-connected-peers [#_"PeerGroup" this]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (ArrayList. (:peers this))
         )
     )
@@ -13797,7 +13788,7 @@
      ;;
     #_method
     (defn #_"List<Peer>" PeerGroup''get-pending-peers [#_"PeerGroup" this]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (ArrayList. (:pending-peers this))
         )
     )
@@ -13810,19 +13801,19 @@
      ;;
     #_method
     (defn #_"void" PeerGroup''add-address-p [#_"PeerGroup" this, #_"PeerAddress" addr]
-        (§ let [#_"int" __newMax]
-            (§ sync (:peergroup-lock this)
-                (PeerGroup''add-inactive this, addr)
-                (§ ass __newMax (inc (PeerGroup''get-max-connections this)))
-            )
-            (PeerGroup''set-max-connections this, __newMax)
+        (let [#_"int" n
+                (sync (:peergroup-lock this)
+                    (PeerGroup''add-inactive this, addr)
+                    (inc (PeerGroup''get-max-connections this))
+                )]
+            (PeerGroup''set-max-connections this, n)
         )
         nil
     )
 
     #_method
     (defn- #_"void" PeerGroup''add-inactive [#_"PeerGroup" this, #_"PeerAddress" addr]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             ;; Deduplicate.
             (when-not (.containsKey (:backoff-map this), addr)
                 (.put (:backoff-map this), addr, (ExponentialBackoff'new (:peer-backoff-params this)))
@@ -13840,7 +13831,7 @@
      ;;
     #_method
     (defn #_"void" PeerGroup''set-required-services [#_"PeerGroup" this, #_"long" __requiredServices]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (§ assoc this :required-services __requiredServices)
             (.clear (:peer-discoverers this))
             (PeerGroup''add-peer-discovery this, (MultiplexingDiscovery'for-services (:params this), __requiredServices))
@@ -13861,8 +13852,8 @@
      ;;
     #_method
     (defn #_"void" PeerGroup''add-peer-discovery [#_"PeerGroup" this, #_"PeerDiscovery" __peerDiscovery]
-        (§ sync (:peergroup-lock this)
-            (when (= (PeerGroup''get-max-connections this) 0)
+        (sync (:peergroup-lock this)
+            (when (zero? (PeerGroup''get-max-connections this))
                 (PeerGroup''set-max-connections this, PeerGroup'DEFAULT_CONNECTIONS)
             )
             (.add (:peer-discoverers this), __peerDiscovery)
@@ -13930,7 +13921,7 @@
 
     #_method
     (defn- #_"int" PeerGroup''count-connected-and-pending-peers [#_"PeerGroup" this]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (+ (.size (:peers this)) (.size (:pending-peers this)))
         )
     )
@@ -14158,8 +14149,9 @@
      ;;
     #_method
     (defn #_"void" PeerGroup''remove-peer-filter-provider [#_"PeerGroup" this, #_"PeerFilterProvider" provider]
-        (§ sync (:peergroup-lock this)
-            (ensure some? provider)
+        (ensure some? provider)
+
+        (sync (:peergroup-lock this)
             (assert-argument (.remove (:peer-filter-providers this), provider))
         )
         nil
@@ -14193,7 +14185,7 @@
      ;;
     #_method
     (defn #_"ListenableFuture<BloomFilter>" PeerGroup''recalculate-fast-catchup-and-filter [#_"PeerGroup" this, #_"FilterRecalculateMode" mode]
-        (§ let [#_"SettableFuture<BloomFilter>" future (SettableFuture/create)]
+        (let [#_"SettableFuture<BloomFilter>" future (SettableFuture/create)]
             (§ sync (:in-flight-recalculations this)
                 (when (some? (.get (:in-flight-recalculations this), mode))
                     (§ return (.get (:in-flight-recalculations this), mode))
@@ -14207,7 +14199,7 @@
                         #_foreign
                         #_override
                         (defn #_"void" Runnable'''run [#_"Runnable" this]
-                            (§ try
+                            (try
                                 (go (§ this PeerGroup), this)
                                 (catch Throwable e
                                     (.error PeerGroup'LOG, "Exception when trying to recalculate Bloom filter", e) ;; The executor swallows exceptions :( ;; )
@@ -14245,7 +14237,7 @@
                                         )
                                         ;; Do this last so that bloomFilter is already set when it gets called.
                                         (PeerGroup''set-fast-catchup-time-secs this, (:earliest-key-time-secs result))
-                                        (§ sync (:in-flight-recalculations this)
+                                        (sync (:in-flight-recalculations this)
                                             (.put (:in-flight-recalculations this), mode, nil)
                                         )
                                         (.set future, (:filter result))
@@ -14277,7 +14269,7 @@
      ;;
     #_method
     (defn #_"void" PeerGroup''set-bloom-filter-false-positive-rate [#_"PeerGroup" this, #_"double" rate]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (FilterMerger''set-bloom-filter-fp-rate (:bloom-filter-merger this), rate)
             (PeerGroup''recalculate-fast-catchup-and-filter this, :FilterRecalculateMode'SEND_IF_CHANGED)
         )
@@ -14305,7 +14297,7 @@
      ;;
     #_method
     (defn #_"Peer" PeerGroup''connect-to-2 [#_"PeerGroup" this, #_"InetSocketAddress" address]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (let [#_"PeerAddress" __peerAddress (PeerAddress'new-2isa (:params this), address)]
                 (.put (:backoff-map this), __peerAddress, (ExponentialBackoff'new (:peer-backoff-params this)))
                 (PeerGroup''connect-to-4 this, __peerAddress, true, (:v-connect-timeout-millis this))
@@ -14318,7 +14310,7 @@
      ;;
     #_method
     (defn #_"Peer" PeerGroup''connect-to-local-host [#_"PeerGroup" this]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (let [#_"PeerAddress" localhost (PeerAddress'localhost (:params this))]
                 (.put (:backoff-map this), localhost, (ExponentialBackoff'new (:peer-backoff-params this)))
                 (PeerGroup''connect-to-4 this, localhost, true, (:v-connect-timeout-millis this))
@@ -14616,13 +14608,13 @@
      ; Do not use a time > NOW - 1 block, as it will break some block download logic.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-fast-catchup-time-secs [#_"PeerGroup" this, #_"long" __secondsSinceEpoch]
-        (§ sync (:peergroup-lock this)
+    (defn #_"void" PeerGroup''set-fast-catchup-time-secs [#_"PeerGroup" this, #_"long" secs]
+        (sync (:peergroup-lock this)
             (assert-state (or (nil? (:chain this)) (not (BlockChain'''should-verify-transactions (:chain this)))), "Fast catchup is incompatible with fully verifying")
 
-            (§ assoc this :fast-catchup-time-secs __secondsSinceEpoch)
+            (§ assoc this :fast-catchup-time-secs secs)
             (when (some? (:download-peer this))
-                (Peer''set-download-parameters (:download-peer this), __secondsSinceEpoch, (some? (FilterMerger''get-last-filter (:bloom-filter-merger this))))
+                (Peer''set-download-parameters (:download-peer this), secs, (some? (FilterMerger''get-last-filter (:bloom-filter-merger this))))
             )
         )
         nil
@@ -14637,7 +14629,7 @@
      ;;
     #_method
     (defn #_"long" PeerGroup''get-fast-catchup-time-secs [#_"PeerGroup" this]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (:fast-catchup-time-secs this)
         )
     )
@@ -14751,7 +14743,7 @@
      ;;
     #_method
     (defn #_"void" PeerGroup''set-stall-threshold [#_"PeerGroup" this, #_"int" __periodSecs, #_"int" __bytesPerSecond]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (§ assoc this :stall-period-seconds __periodSecs)
             (§ assoc this :stall-min-speed-bytes-sec __bytesPerSecond)
         )
@@ -14830,7 +14822,7 @@
      ;;
     #_method
     (defn #_"List<Peer>" PeerGroup''find-peers-of-at-least-version [#_"PeerGroup" this, #_"long" version]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (let [#_"ArrayList<Peer>" results (ArrayList. #_"<Peer>" (.size (:peers this)))]
                 (doseq [#_"Peer" peer (:peers this)]
                     (when (<= version (:client-version (Peer''get-peer-version-message peer)))
@@ -14884,7 +14876,7 @@
      ;;
     #_method
     (defn #_"List<Peer>" PeerGroup''find-peers-with-service-mask [#_"PeerGroup" this, #_"int" mask]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (let [#_"ArrayList<Peer>" results (ArrayList. #_"<Peer>" (.size (:peers this)))]
                 (doseq [#_"Peer" peer (:peers this)]
                     (when (= (& (:local-services (Peer''get-peer-version-message peer)) mask) mask)
@@ -14905,8 +14897,8 @@
      ;;
     #_method
     (defn #_"int" PeerGroup''get-min-broadcast-connections [#_"PeerGroup" this]
-        (§ sync (:peergroup-lock this)
-            (if (= (:min-broadcast-connections this) 0)
+        (sync (:peergroup-lock this)
+            (if (zero? (:min-broadcast-connections this))
                 (let [#_"int" m (PeerGroup''get-max-connections this)]
                     (if (<= m 1) m (int (Math/round (* m 0.8))))
                 )
@@ -14920,7 +14912,7 @@
      ;;
     #_method
     (defn #_"void" PeerGroup''set-min-broadcast-connections [#_"PeerGroup" this, #_"int" value]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (§ assoc this :min-broadcast-connections value)
         )
         nil
@@ -15015,7 +15007,7 @@
      ;;
     #_method
     (defn #_"long" PeerGroup''get-ping-interval-msec [#_"PeerGroup" this]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (:ping-interval-msec this)
         )
     )
@@ -15028,9 +15020,9 @@
      ; using {@link Peer#ping()}.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-ping-interval-msec [#_"PeerGroup" this, #_"long" __pingIntervalMsec]
-        (§ sync (:peergroup-lock this)
-            (§ assoc this :ping-interval-msec __pingIntervalMsec)
+    (defn #_"void" PeerGroup''set-ping-interval-msec [#_"PeerGroup" this, #_"long" msec]
+        (sync (:peergroup-lock this)
+            (§ assoc this :ping-interval-msec msec)
             (let [#_"ListenableScheduledFuture<?>" task (:v-ping-task this)]
                 (when (some? task)
                     (.cancel task, false)
@@ -15046,8 +15038,8 @@
      ; be disconnected and another one will be tried instead.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-min-required-protocol-version [#_"PeerGroup" this, #_"int" __minRequiredProtocolVersion]
-        (§ assoc this :v-min-required-protocol-version __minRequiredProtocolVersion)
+    (defn #_"void" PeerGroup''set-min-required-protocol-version [#_"PeerGroup" this, #_"int" version]
+        (§ assoc this :v-min-required-protocol-version version)
         nil
     )
 
@@ -15063,7 +15055,7 @@
      ;;
     #_method
     (defn #_"int" PeerGroup''get-most-common-chain-height [#_"PeerGroup" this]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (PeerGroup'get-most-common-chain-height* (:peers this))
         )
     )
@@ -15133,7 +15125,7 @@
      ;;
     #_method
     (defn #_"Peer" PeerGroup''get-download-peer [#_"PeerGroup" this]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (:download-peer this)
         )
     )
@@ -15164,7 +15156,7 @@
     ;;; See {@link #setUseLocalhostPeerWhenPossible(boolean)}. ;;
     #_method
     (defn #_"boolean" PeerGroup''get-use-localhost-peer-when-possible [#_"PeerGroup" this]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (:use-localhost-peer-when-possible this)
         )
     )
@@ -15176,7 +15168,7 @@
      ;;
     #_method
     (defn #_"void" PeerGroup''set-use-localhost-peer-when-possible [#_"PeerGroup" this, #_"boolean" __useLocalhostPeerWhenPossible]
-        (§ sync (:peergroup-lock this)
+        (sync (:peergroup-lock this)
             (§ assoc this :use-localhost-peer-when-possible __useLocalhostPeerWhenPossible)
         )
         nil
@@ -17788,42 +17780,34 @@
     )
 
     #_method
-    (defn- #_"void" TransactionBroadcast''invoke-and-record [#_"TransactionBroadcast" this, #_"int" __numSeenPeers, #_"boolean" mined]
-        (§ sync this
-            (§ assoc this :num-seem-peers __numSeenPeers)
-            (§ assoc this :mined mined)
+    (defn- #_"void" TransactionBroadcast''invoke-and-record [#_"TransactionBroadcast" this, #_"int" seen, #_"boolean" mined?]
+        (sync this
+            (§ assoc this :num-seem-peers seen)
+            (§ assoc this :mined mined?)
         )
-        (TransactionBroadcast''invoke-progress-callback this, __numSeenPeers, mined)
+        (TransactionBroadcast''invoke-progress-callback this, seen, mined?)
         nil
     )
 
     #_method
-    (defn- #_"void" TransactionBroadcast''invoke-progress-callback [#_"TransactionBroadcast" this, #_"int" __numSeenPeers, #_"boolean" mined]
-        (§ let [#_"ProgressCallback" callback
-              #_"Executor" executor]
-            (§ sync this
-                (§ ass callback (:callback this))
-                (§ ass executor (:progress-callback-executor this))
-            )
+    (defn- #_"void" TransactionBroadcast''invoke-progress-callback [#_"TransactionBroadcast" this, #_"int" seen, #_"boolean" mined?]
+        (let [[#_"ProgressCallback" callback #_"Executor" executor]
+                (sync this
+                    [(:callback this) (:progress-callback-executor this)]
+                )]
             (when (some? callback)
-                (let [#_"double" progress (min 1.0, (if mined 1.0 (/ __numSeenPeers (double (:num-waiting-for this)))))]
+                (let [#_"double" progress (min 1.0 (if mined? 1.0 (/ seen (double (:num-waiting-for this)))))]
                     (assert-state (<= 0.0 progress 1.0), progress)
                     (try
-                        (cond (nil? executor)
-                            (do
-                                (ProgressCallback'''on-broadcast-progress callback, progress)
-                            )
-                            :else
-                            (do
-                                (.execute executor,
-                                    #_non-static
-                                    (§ reify Runnable
-                                        #_foreign
-                                        #_override
-                                        (defn #_"void" Runnable'''run [#_"Runnable" __]
-                                            (ProgressCallback'''on-broadcast-progress callback, progress)
-                                            nil
-                                        )
+                        (when' (some? executor) => (ProgressCallback'''on-broadcast-progress callback, progress)
+                            (.execute executor,
+                                #_non-static
+                                (§ reify Runnable
+                                    #_foreign
+                                    #_override
+                                    (defn #_"void" Runnable'''run [#_"Runnable" __]
+                                        (ProgressCallback'''on-broadcast-progress callback, progress)
+                                        nil
                                     )
                                 )
                             )
@@ -17857,18 +17841,14 @@
      ;;
     #_method
     (defn #_"void" TransactionBroadcast''set-progress-callback-3 [#_"TransactionBroadcast" this, #_"ProgressCallback" callback, #_"Executor" executor]
-        (§ let [#_"boolean" __shouldInvoke
-              #_"int" num
-              #_"boolean" mined]
-            (§ sync this
-                (§ assoc this :callback callback)
-                (§ assoc this :progress-callback-executor executor)
-                (§ ass num (:num-seem-peers this))
-                (§ ass mined (:mined this))
-                (§ ass __shouldInvoke (< 0 (:num-waiting-for this)))
-            )
-            (when __shouldInvoke
-                (TransactionBroadcast''invoke-progress-callback this, num, mined)
+        (let [[#_"int" seen #_"boolean" mined? #_"boolean" invoke?]
+                (sync this
+                    (§ assoc this :callback callback)
+                    (§ assoc this :progress-callback-executor executor)
+                    [(:num-seem-peers this) (:mined this) (< 0 (:num-waiting-for this))]
+                )]
+            (when invoke?
+                (TransactionBroadcast''invoke-progress-callback this, seen, mined?)
             )
         )
         nil
@@ -18071,11 +18051,11 @@
     (defn #_"boolean" TransactionConfidence''remove-event-listener-2 [#_"TransactionConfidence" this, #_"TransactionConfidenceListener" listener]
         (ensure some? listener)
 
-        (§ let [#_"boolean" removed (ListenerRegistration'remove-from-list listener, (:listeners this))]
+        (let [#_"boolean" removed? (ListenerRegistration'remove-from-list listener, (:listeners this))]
             (when (.isEmpty (:listeners this))
                 (.remove TransactionConfidence'PINNED_CONFIDENCE_OBJECTS, this)
             )
-            removed
+            removed?
         )
     )
 
@@ -18086,8 +18066,8 @@
      ;;
     #_method
     (defn #_"int" TransactionConfidence''get-appeared-at-chain-height [#_"TransactionConfidence" this]
-        (§ sync this
-            (when (not= (TransactionConfidence''get-confidence-type this) :ConfidenceType'BUILDING)
+        (sync this
+            (when-not (= (TransactionConfidence''get-confidence-type this) :ConfidenceType'BUILDING)
                 (throw (IllegalStateException. (str "Confidence type is " (TransactionConfidence''get-confidence-type this) ", not BUILDING")))
             )
             (:appeared-at-chain-height this)
@@ -18099,13 +18079,13 @@
      ; Automatically sets the current type to {@link ConfidenceType#BUILDING} and depth to one.
      ;;
     #_method
-    (defn #_"void" TransactionConfidence''set-appeared-at-chain-height [#_"TransactionConfidence" this, #_"int" __appearedAtChainHeight]
-        (§ sync this
-            (when (< __appearedAtChainHeight 0)
+    (defn #_"void" TransactionConfidence''set-appeared-at-chain-height [#_"TransactionConfidence" this, #_"int" height]
+        (sync this
+            (when (< height 0)
                 (throw (IllegalArgumentException. "appearedAtChainHeight out of range"))
             )
 
-            (§ assoc this :appeared-at-chain-height __appearedAtChainHeight)
+            (§ assoc this :appeared-at-chain-height height)
             (§ assoc this :depth 1)
             (TransactionConfidence''set-confidence-type this, :ConfidenceType'BUILDING)
         )
@@ -18117,7 +18097,7 @@
      ;;
     #_method
     (defn #_"ConfidenceType" TransactionConfidence''get-confidence-type [#_"TransactionConfidence" this]
-        (§ sync this
+        (sync this
             (:confidence-type this)
         )
     )
@@ -18155,7 +18135,7 @@
     (defn #_"boolean" TransactionConfidence''mark-broadcast-by [#_"TransactionConfidence" this, #_"PeerAddress" address]
         (§ assoc this :last-broadcasted-at (Utils'now))
         (when' (.addIfAbsent (:broadcast-by this), address) => false ;; Duplicate.
-            (§ sync this
+            (sync this
                 (when (= (TransactionConfidence''get-confidence-type this) :ConfidenceType'UNKNOWN)
                     (§ assoc this :confidence-type :ConfidenceType'PENDING)
                 )
@@ -18237,7 +18217,7 @@
      ;;
     #_method
     (defn #_"int" TransactionConfidence''increment-depth-in-blocks [#_"TransactionConfidence" this]
-        (§ sync this
+        (sync this
             (§ update this :depth inc)
             (:depth this)
         )
@@ -18255,7 +18235,7 @@
      ;;
     #_method
     (defn #_"int" TransactionConfidence''get-depth-in-blocks [#_"TransactionConfidence" this]
-        (§ sync this
+        (sync this
             (:depth this)
         )
     )
@@ -18265,7 +18245,7 @@
      ;;
     #_method
     (defn #_"void" TransactionConfidence''set-depth-in-blocks [#_"TransactionConfidence" this, #_"int" depth]
-        (§ sync this
+        (sync this
             (§ assoc this :depth depth)
         )
         nil
@@ -18293,8 +18273,8 @@
      ;;
     #_method
     (defn #_"Transaction" TransactionConfidence''get-overriding-transaction [#_"TransactionConfidence" this]
-        (§ sync this
-            (when (not= (TransactionConfidence''get-confidence-type this) :ConfidenceType'DEAD)
+        (sync this
+            (when-not (= (TransactionConfidence''get-confidence-type this) :ConfidenceType'DEAD)
                 (throw (IllegalStateException. (str "Confidence type is " (TransactionConfidence''get-confidence-type this) ", not DEAD")))
             )
             (:overriding-transaction this)
@@ -18309,7 +18289,7 @@
      ;;
     #_method
     (defn #_"void" TransactionConfidence''set-overriding-transaction [#_"TransactionConfidence" this, #_"Transaction" __overridingTransaction]
-        (§ sync this
+        (sync this
             (§ assoc this :overriding-transaction __overridingTransaction)
             (TransactionConfidence''set-confidence-type this, :ConfidenceType'DEAD)
         )
@@ -18319,10 +18299,10 @@
     ;;; Returns a copy of this object.  Event listeners are not duplicated. ;;
     #_method
     (defn #_"TransactionConfidence" TransactionConfidence''duplicate [#_"TransactionConfidence" this]
-        (§ let [#_"TransactionConfidence" c (TransactionConfidence'new (:hash this))]
+        (let [#_"TransactionConfidence" c (TransactionConfidence'new (:hash this))]
             (.addAll (:broadcast-by c), (:broadcast-by this))
             (§ assoc c :last-broadcasted-at (:last-broadcasted-at this))
-            (§ sync this
+            (sync this
                 (§ assoc c :confidence-type (:confidence-type this))
                 (§ assoc c :overriding-transaction (:overriding-transaction this))
                 (§ assoc c :appeared-at-chain-height (:appeared-at-chain-height this))
@@ -18363,7 +18343,7 @@
      ;;
     #_method
     (defn #_"ConfidenceSource" TransactionConfidence''get-source [#_"TransactionConfidence" this]
-        (§ sync this
+        (sync this
             (:source this)
         )
     )
@@ -18376,7 +18356,7 @@
      ;;
     #_method
     (defn #_"void" TransactionConfidence''set-source [#_"TransactionConfidence" this, #_"ConfidenceSource" source]
-        (§ sync this
+        (sync this
             (§ assoc this :source source)
         )
         nil
@@ -18415,7 +18395,7 @@
 
     #_method
     (defn #_"ListenableFuture<TransactionConfidence>" TransactionConfidence''get-depth-future-2 [#_"TransactionConfidence" this, #_"int" depth]
-        (§ sync this
+        (sync this
             (TransactionConfidence''get-depth-future-3 this, depth, Threading'USER_THREAD)
         )
     )
@@ -19716,8 +19696,8 @@
      ;;
     #_method
     (defn- #_"void" TxConfidenceTable''clean-table [#_"TxConfidenceTable" this]
-        (§ sync (:confidence-lock this)
-            (let [#_"Reference<TransactionConfidence>" ref]
+        (sync (:confidence-lock this)
+            (§ let [#_"Reference<TransactionConfidence>" ref]
                 (loop-when-recur [] (some? (§ ass ref (.poll (:reference-queue this)))) []
                     ;; Find which transaction got deleted by the GC.
                     (let [#_"WeakConfidenceReference" __txRef (§ cast WeakConfidenceReference ref)]
@@ -19735,7 +19715,7 @@
      ;;
     #_method
     (defn #_"int" TxConfidenceTable''num-broadcast-peers [#_"TxConfidenceTable" this, #_"Sha256Hash" hash]
-        (§ sync (:confidence-lock this)
+        (sync (:confidence-lock this)
             (TxConfidenceTable''clean-table this)
             (let-when [#_"WeakConfidenceReference" entry (.get (:table this), hash)] (some? entry) => 0 ;; No such TX known.
                 (let-when [#_"TransactionConfidence" confidence (.get entry)] (nil? confidence) => (TransactionConfidence''num-broadcast-peers confidence)
@@ -19800,7 +19780,7 @@
      ;;
     #_method
     (defn #_"TransactionConfidence" TxConfidenceTable''get-2 [#_"TxConfidenceTable" this, #_"Sha256Hash" hash]
-        (§ sync (:confidence-lock this)
+        (sync (:confidence-lock this)
             (let [#_"WeakConfidenceReference" ref (.get (:table this), hash)]
                 (when (some? ref) (.get ref))
             )
@@ -20462,7 +20442,7 @@
 )
 
 (§ ns bitclojn.crypto
-    (:refer-clojure :exclude [defn- ensure])
+    (:refer-clojure :exclude [defn- ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -22368,7 +22348,7 @@
 )
 
 (§ ns bitclojn.kits
-    (:refer-clojure :exclude [defn- ensure])
+    (:refer-clojure :exclude [defn- ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -22743,7 +22723,7 @@
 )
 
 (§ ns bitclojn.net
-    (:refer-clojure :exclude [defn- ensure])
+    (:refer-clojure :exclude [defn- ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -22823,7 +22803,7 @@
      ;;
     #_method
     (defn #_"void" AbstractTimeoutHandler''set-timeout-enabled [#_"AbstractTimeoutHandler" this, #_"boolean" __timeoutEnabled]
-        (§ sync this
+        (sync this
             (§ assoc this :timeout-enabled __timeoutEnabled)
             (AbstractTimeoutHandler''reset-timeout this)
         )
@@ -22842,7 +22822,7 @@
      ;;
     #_method
     (defn #_"void" AbstractTimeoutHandler''set-socket-timeout [#_"AbstractTimeoutHandler" this, #_"int" __timeoutMillis]
-        (§ sync this
+        (sync this
             (§ assoc this :timeout-millis __timeoutMillis)
             (AbstractTimeoutHandler''reset-timeout this)
         )
@@ -22938,14 +22918,14 @@
         )
     )
 
-    (defn #_"ConnectionHandler" ConnectionHandler'new-3 [#_"StreamConnection" connection, #_"SelectionKey" key, #_"Set<ConnectionHandler>" __connectedHandlers]
+    (defn #_"ConnectionHandler" ConnectionHandler'new-3 [#_"StreamConnection" connection, #_"SelectionKey" key, #_"Set<ConnectionHandler>" handlers]
         (let [this (ConnectionHandler'new-2c (ensure some? connection), key)]
 
             ;; closeConnection() may have already happened because we invoked the other c'tor above, which called
             ;; connection.setWriteTarget() which might have re-entered already.  In this case we shouldn't add ourselves
             ;; to the connectedHandlers set.
-            (§ sync (:connection-lock this)
-                (§ assoc this :connected-handlers __connectedHandlers)
+            (sync (:connection-lock this)
+                (§ assoc this :connected-handlers handlers)
                 (when-not (:close-called this)
                     (assert-state (.add (:connected-handlers this), this))
                 )
@@ -23054,12 +23034,12 @@
 
     #_method
     (defn- #_"void" ConnectionHandler''connection-closed [#_"ConnectionHandler" this]
-        (§ let [#_"boolean" __callClosed false]
+        (let [#_"boolean" closed? false]
             (§ sync (:connection-lock this)
-                (§ ass __callClosed (not (:close-called this)))
+                (§ ass closed? (not (:close-called this)))
                 (§ assoc this :close-called true)
             )
-            (when __callClosed
+            (when closed?
                 (assert-state (or (nil? (:connected-handlers this)) (.remove (:connected-handlers this), this)))
                 (StreamConnection'''connection-closed (:connection this))
             )
@@ -23259,7 +23239,7 @@
     #_protected
     #_override
     (defn #_"void" AbstractTimeoutHandler'''timeout-occurred [#_"NioClientHandler" this]
-        (§ sync this
+        (sync this
             (§ assoc this :close-on-open true)
             (StreamConnection'''connection-closed this)
         )
@@ -23268,7 +23248,7 @@
 
     #_override
     (defn #_"void" StreamConnection'''connection-closed [#_"NioClientHandler" this]
-        (§ sync this
+        (sync this
             (PeerGroup''stop-async (:manager this))
             (when (not (:close-called this))
                 (§ assoc this :close-called true)
@@ -23280,7 +23260,7 @@
 
     #_override
     (defn #_"void" StreamConnection'''connection-opened [#_"NioClientHandler" this]
-        (§ sync this
+        (sync this
             (when (not (:close-on-open this))
                 (StreamConnection'''connection-opened (:upstream-connection this))
             )
@@ -23295,17 +23275,17 @@
     )
 
     #_override
-    (defn #_"void" StreamConnection'''set-write-target [#_"NioClientHandler" this, #_"MessageWriteTarget" __writeTarget]
-        (§ sync this
+    (defn #_"void" StreamConnection'''set-write-target [#_"NioClientHandler" this, #_"MessageWriteTarget" target]
+        (sync this
             (cond (:close-on-open this)
                 (do
-                    (MessageWriteTarget'''close-connection __writeTarget)
+                    (MessageWriteTarget'''close-connection target)
                 )
                 :else
                 (do
                     (AbstractTimeoutHandler''set-timeout-enabled this, false)
-                    (§ assoc this :write-target __writeTarget)
-                    (StreamConnection'''set-write-target (:upstream-connection this), __writeTarget)
+                    (§ assoc this :write-target target)
+                    (StreamConnection'''set-write-target (:upstream-connection this), target)
                 )
             )
         )
@@ -23375,7 +23355,7 @@
     #_throws #_[ "IOException" ]
     #_override
     (defn #_"void" MessageWriteTarget'''write-bytes [#_"NioClient" this, #_"byte[]" message]
-        (§ sync this
+        (sync this
             (MessageWriteTarget'''write-bytes (-> this :handler :write-target), message)
         )
         nil
@@ -23581,10 +23561,10 @@
     #_override
     (defn #_"void" ClientConnectionManager'''close-connections [#_"NioClientManager" this, #_"int" n]
         (§ loop-when-recur n (< 0 n) (dec n)
-            (let [#_"ConnectionHandler" handler]
-                (§ sync (:connected-handlers this)
-                    (§ ass handler (.next (.iterator (:connected-handlers this))))
-                )
+            (let [#_"ConnectionHandler" handler
+                    (sync (:connected-handlers this)
+                        (.next (.iterator (:connected-handlers this)))
+                    )]
                 (when (some? handler)
                     (MessageWriteTarget'''close-connection handler) ;; Removes handler from connectedHandlers before returning.
                 )
@@ -23748,7 +23728,7 @@
 )
 
 (§ ns bitclojn.net-discovery
-    (:refer-clojure :exclude [defn- ensure])
+    (:refer-clojure :exclude [defn- ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -24146,7 +24126,7 @@
 )
 
 (§ ns bitclojn.params
-    (:refer-clojure :exclude [defn- ensure])
+    (:refer-clojure :exclude [defn- ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -25019,7 +24999,7 @@
 )
 
 (§ ns bitclojn.script
-    (:refer-clojure :exclude [defn- ensure])
+    (:refer-clojure :exclude [defn- ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -28010,7 +27990,7 @@
 )
 
 (§ ns bitclojn.signers
-    (:refer-clojure :exclude [defn- ensure])
+    (:refer-clojure :exclude [defn- ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -28337,7 +28317,7 @@
 )
 
 (§ ns bitclojn.store
-    (:refer-clojure :exclude [defn- ensure])
+    (:refer-clojure :exclude [defn- ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -28384,7 +28364,7 @@
      ;;
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    #_"void" (BlockStore'''set-chain-head [#_"BlockStore" this, #_"StoredBlock" __chainHead])
+    #_"void" (BlockStore'''set-chain-head [#_"BlockStore" this, #_"StoredBlock" head])
 
     ;;; Closes the store. ;;
     #_throws #_[ "BlockStoreException" ]
@@ -28471,7 +28451,7 @@
      ;;
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    #_"void" (FullPrunedBlockStore'''put-3 [#_"FullPrunedBlockStore" this, #_"StoredBlock" __storedBlock, #_"StoredUndoableBlock" __undoableBlock])
+    #_"void" (FullPrunedBlockStore'''put-3 [#_"FullPrunedBlockStore" this, #_"StoredBlock" stored, #_"StoredUndoableBlock" undoable])
 
     ;;;
      ; Returns the StoredBlock that was added as a StoredUndoableBlock given a hash.  The returned values block.getHash()
@@ -28544,7 +28524,7 @@
      ;;
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    #_"void" (FullPrunedBlockStore'''set-verified-chain-head [#_"FullPrunedBlockStore" this, #_"StoredBlock" __chainHead])
+    #_"void" (FullPrunedBlockStore'''set-verified-chain-head [#_"FullPrunedBlockStore" this, #_"StoredBlock" head])
 
     ;;;
      ; Begins/Commits/Aborts a database transaction.
@@ -28614,7 +28594,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"void" BlockStore'''put-2 [#_"MemoryBlockStore" this, #_"StoredBlock" block]
-        (§ sync this
+        (sync this
             (when (nil? (:block-map this))
                 (throw (BlockStoreException'new-1 "MemoryBlockStore is closed"))
             )
@@ -28629,7 +28609,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"StoredBlock" BlockStore'''get-2 [#_"MemoryBlockStore" this, #_"Sha256Hash" hash]
-        (§ sync this
+        (sync this
             (when (nil? (:block-map this))
                 (throw (BlockStoreException'new-1 "MemoryBlockStore is closed"))
             )
@@ -28650,12 +28630,12 @@
 
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" BlockStore'''set-chain-head [#_"MemoryBlockStore" this, #_"StoredBlock" __chainHead]
+    (defn #_"void" BlockStore'''set-chain-head [#_"MemoryBlockStore" this, #_"StoredBlock" head]
         (when (nil? (:block-map this))
             (throw (BlockStoreException'new-1 "MemoryBlockStore is closed"))
         )
 
-        (§ assoc this :chain-head __chainHead)
+        (§ assoc this :chain-head head)
         nil
     )
 
@@ -28995,7 +28975,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"void" BlockStore'''put-2 [#_"MemoryFullPrunedBlockStore" this, #_"StoredBlock" block]
-        (§ sync this
+        (sync this
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
             (let [#_"Sha256Hash" hash (Message'''get-hash (StoredBlock''get-header block))]
                 (.put (:block-map this), hash, (StoredBlockAndWasUndoableFlag'new block, false))
@@ -29006,12 +28986,12 @@
 
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" FullPrunedBlockStore'''put-3 [#_"MemoryFullPrunedBlockStore" this, #_"StoredBlock" __storedBlock, #_"StoredUndoableBlock" __undoableBlock]
-        (§ sync this
+    (defn #_"void" FullPrunedBlockStore'''put-3 [#_"MemoryFullPrunedBlockStore" this, #_"StoredBlock" stored, #_"StoredUndoableBlock" undoable]
+        (sync this
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
-            (let [#_"Sha256Hash" hash (Message'''get-hash (StoredBlock''get-header __storedBlock))]
-                (.put (:full-block-map this), hash, (StoredBlock''get-height __storedBlock), __undoableBlock)
-                (.put (:block-map this), hash, (StoredBlockAndWasUndoableFlag'new __storedBlock, true))
+            (let [#_"Sha256Hash" hash (Message'''get-hash (StoredBlock''get-header stored))]
+                (.put (:full-block-map this), hash, (StoredBlock''get-height stored), undoable)
+                (.put (:block-map this), hash, (StoredBlockAndWasUndoableFlag'new stored, true))
             )
         )
         nil
@@ -29020,10 +29000,10 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"StoredBlock" BlockStore'''get-2 [#_"MemoryFullPrunedBlockStore" this, #_"Sha256Hash" hash]
-        (§ sync this
+        (sync this
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
-            (let [#_"StoredBlockAndWasUndoableFlag" __storedBlock (.get (:block-map this), hash)]
-                (when (some? __storedBlock) (:block __storedBlock))
+            (let [#_"StoredBlockAndWasUndoableFlag" stored (.get (:block-map this), hash)]
+                (when (some? stored) (:block stored))
             )
         )
     )
@@ -29031,10 +29011,10 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"StoredBlock" FullPrunedBlockStore'''get-once-undoable-stored-block [#_"MemoryFullPrunedBlockStore" this, #_"Sha256Hash" hash]
-        (§ sync this
+        (sync this
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
-            (let [#_"StoredBlockAndWasUndoableFlag" __storedBlock (.get (:block-map this), hash)]
-                (when (and (some? __storedBlock) (:was-undoable __storedBlock)) (:block __storedBlock))
+            (let [#_"StoredBlockAndWasUndoableFlag" stored (.get (:block-map this), hash)]
+                (when (and (some? stored) (:was-undoable stored)) (:block stored))
             )
         )
     )
@@ -29042,7 +29022,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"StoredUndoableBlock" FullPrunedBlockStore'''get-undo-block [#_"MemoryFullPrunedBlockStore" this, #_"Sha256Hash" hash]
-        (§ sync this
+        (sync this
             (ensure some? (:full-block-map this), "MemoryFullPrunedBlockStore is closed")
             (.get (:full-block-map this), hash)
         )
@@ -29051,7 +29031,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"StoredBlock" BlockStore'''get-chain-head [#_"MemoryFullPrunedBlockStore" this]
-        (§ sync this
+        (sync this
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
             (:chain-head this)
         )
@@ -29059,10 +29039,10 @@
 
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" BlockStore'''set-chain-head [#_"MemoryFullPrunedBlockStore" this, #_"StoredBlock" __chainHead]
-        (§ sync this
+    (defn #_"void" BlockStore'''set-chain-head [#_"MemoryFullPrunedBlockStore" this, #_"StoredBlock" head]
+        (sync this
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
-            (§ assoc this :chain-head __chainHead)
+            (§ assoc this :chain-head head)
         )
         nil
     )
@@ -29070,7 +29050,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"StoredBlock" FullPrunedBlockStore'''get-verified-chain-head [#_"MemoryFullPrunedBlockStore" this]
-        (§ sync this
+        (sync this
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
             (:verified-chain-head this)
         )
@@ -29078,16 +29058,16 @@
 
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" FullPrunedBlockStore'''set-verified-chain-head [#_"MemoryFullPrunedBlockStore" this, #_"StoredBlock" __chainHead]
-        (§ sync this
+    (defn #_"void" FullPrunedBlockStore'''set-verified-chain-head [#_"MemoryFullPrunedBlockStore" this, #_"StoredBlock" head]
+        (sync this
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
-            (§ assoc this :verified-chain-head __chainHead)
-            (when (< (StoredBlock''get-height (:chain-head this)) (StoredBlock''get-height __chainHead))
-                (BlockStore'''set-chain-head this, __chainHead)
+            (§ assoc this :verified-chain-head head)
+            (when (< (StoredBlock''get-height (:chain-head this)) (StoredBlock''get-height head))
+                (BlockStore'''set-chain-head this, head)
             )
             ;; Potential leak here if not all blocks get setChainHead'd.
             ;; Though the FullPrunedBlockStore allows for this, the current BlockChain will not do it.
-            (TransactionalMultiKeyHashMap''remove-by-multi-key (:full-block-map this), (- (StoredBlock''get-height __chainHead) (:full-store-depth this)))
+            (TransactionalMultiKeyHashMap''remove-by-multi-key (:full-block-map this), (- (StoredBlock''get-height head) (:full-store-depth this)))
         )
         nil
     )
@@ -29103,7 +29083,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"UTXO" FullPrunedBlockStore'''get-transaction-output [#_"MemoryFullPrunedBlockStore" this, #_"Sha256Hash" hash, #_"long" index]
-        (§ sync this
+        (sync this
             (ensure some? (:transaction-output-map this), "MemoryFullPrunedBlockStore is closed")
             (.get (:transaction-output-map this), (StoredTransactionOutPoint'new-2 hash, index))
         )
@@ -29112,7 +29092,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"void" FullPrunedBlockStore'''add-unspent-transaction-output [#_"MemoryFullPrunedBlockStore" this, #_"UTXO" out]
-        (§ sync this
+        (sync this
             (ensure some? (:transaction-output-map this), "MemoryFullPrunedBlockStore is closed")
             (.put (:transaction-output-map this), (StoredTransactionOutPoint'new-1 out), out)
         )
@@ -29122,7 +29102,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"void" FullPrunedBlockStore'''remove-unspent-transaction-output [#_"MemoryFullPrunedBlockStore" this, #_"UTXO" out]
-        (§ sync this
+        (sync this
             (ensure some? (:transaction-output-map this), "MemoryFullPrunedBlockStore is closed")
             (when (nil? (TransactionalHashMap''remove (:transaction-output-map this), (StoredTransactionOutPoint'new-1 out)))
                 (throw (BlockStoreException'new-1 "Tried to remove a UTXO from MemoryFullPrunedBlockStore that it didn't have!"))
@@ -29134,7 +29114,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"void" FullPrunedBlockStore'''begin-database-batch-write [#_"MemoryFullPrunedBlockStore" this]
-        (§ sync this
+        (sync this
             (TransactionalHashMap''begin-database-batch-write (:block-map this))
             (TransactionalMultiKeyHashMap''begin-transaction (:full-block-map this))
             (TransactionalHashMap''begin-database-batch-write (:transaction-output-map this))
@@ -29145,7 +29125,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"void" FullPrunedBlockStore'''commit-database-batch-write [#_"MemoryFullPrunedBlockStore" this]
-        (§ sync this
+        (sync this
             (TransactionalHashMap''commit-database-batch-write (:block-map this))
             (TransactionalMultiKeyHashMap''commit-transaction (:full-block-map this))
             (TransactionalHashMap''commit-database-batch-write (:transaction-output-map this))
@@ -29156,7 +29136,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"void" FullPrunedBlockStore'''abort-database-batch-write [#_"MemoryFullPrunedBlockStore" this]
-        (§ sync this
+        (sync this
             (TransactionalHashMap''abort-database-batch-write (:block-map this))
             (TransactionalMultiKeyHashMap''abort-transaction (:full-block-map this))
             (TransactionalHashMap''abort-database-batch-write (:transaction-output-map this))
@@ -29167,7 +29147,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"boolean" FullPrunedBlockStore'''has-unspent-outputs [#_"MemoryFullPrunedBlockStore" this, #_"Sha256Hash" hash, #_"int" n]
-        (§ sync this
+        (sync this
             (loop-when [#_"int" i 0] (< i n) => false
                 (or (some? (FullPrunedBlockStore'''get-transaction-output this, hash, i)) (recur (inc i)))
             )
@@ -29341,7 +29321,7 @@
         (§ let [#_"byte[]" magic (.getBytes SPVBlockStore'HEADER_MAGIC, "US-ASCII")]
             (.put (:buffer this), magic)
             ;; Insert the genesis block.
-            (§ sync (:blockstore-lock this)
+            (sync (:blockstore-lock this)
                 (SPVBlockStore''set-ring-cursor this, (:buffer this), SPVBlockStore'FILE_PROLOGUE_BYTES)
             )
             (let [#_"Block" header (Block''clone-as-header (:genesis-block params))
@@ -29422,9 +29402,9 @@
                                 (.get buffer, scratch)
                                 (when (Arrays/equals scratch, __targetHashBytes)
                                     ;; Found the target.
-                                    (let [#_"StoredBlock" __storedBlock (StoredBlock'deserialize-compact (:params this), buffer)]
-                                        (.put (:block-cache this), hash, __storedBlock)
-                                        (§ return __storedBlock)
+                                    (let [#_"StoredBlock" stored (StoredBlock'deserialize-compact (:params this), buffer)]
+                                        (.put (:block-cache this), hash, stored)
+                                        (§ return stored)
                                     )
                                 )
                                 (§ recur-if (not= i i0))
@@ -29473,17 +29453,17 @@
 
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" BlockStore'''set-chain-head [#_"SPVBlockStore" this, #_"StoredBlock" __chainHead]
-        (§ let [#_"MappedByteBuffer" buffer (:buffer this)]
+    (defn #_"void" BlockStore'''set-chain-head [#_"SPVBlockStore" this, #_"StoredBlock" head]
+        (let [#_"MappedByteBuffer" buffer (:buffer this)]
             (when (nil? buffer)
                 (throw (BlockStoreException'new-1 "Store closed"))
             )
 
-            (§ sync (:blockstore-lock this)
-                (§ assoc this :last-chain-head __chainHead)
-                (let [#_"byte[]" __headHash (Sha256Hash''get-bytes (Message'''get-hash (StoredBlock''get-header __chainHead)))]
+            (sync (:blockstore-lock this)
+                (§ assoc this :last-chain-head head)
+                (let [#_"byte[]" bytes (Sha256Hash''get-bytes (Message'''get-hash (StoredBlock''get-header head)))]
                     (.position buffer, 8)
-                    (.put buffer, __headHash)
+                    (.put buffer, bytes)
                 )
             )
         )
@@ -29538,7 +29518,7 @@
 )
 
 (§ ns bitclojn.utils
-    (:refer-clojure :exclude [defn- ensure])
+    (:refer-clojure :exclude [defn- ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -30079,8 +30059,8 @@
      ;;
     #_throws #_[ "BlockStoreException" ]
     #_method
-    (defn #_"void" VersionTally''initialize [#_"VersionTally" this, #_"BlockStore" __blockStore, #_"StoredBlock" __chainHead]
-        (§ let [#_"StoredBlock" __versionBlock __chainHead
+    (defn #_"void" VersionTally''initialize [#_"VersionTally" this, #_"BlockStore" __blockStore, #_"StoredBlock" head]
+        (§ let [#_"StoredBlock" __versionBlock head
               #_"Stack<Long>" versions (Stack.)]
 
             ;; We don't know how many blocks back we can go, so load what we can first.
@@ -30111,7 +30091,7 @@
 )
 
 (§ ns bitclojn.wallet
-    (:refer-clojure :exclude [defn- ensure])
+    (:refer-clojure :exclude [defn- ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -30147,7 +30127,7 @@
      ; The chain may create new key/s, derive, or re-use an old one.
      ;;
     #_abstract
-    #_"List<ECKey>" (KeyChain'''get-keys-3a [#_"KeyChain" this, #_"KeyPurpose" purpose, #_"int" __numberOfKeys])
+    #_"List<ECKey>" (KeyChain'''get-keys-3a [#_"KeyChain" this, #_"KeyPurpose" purpose, #_"int" n])
 
     ;;;
      ; Obtains a key intended for the given purpose.
@@ -30240,7 +30220,7 @@
 
     #_override
     (defn #_"ECKey" KeyChain'''get-key [#_"BasicKeyChain" this, #_"KeyPurpose" ignored]
-        (§ sync (:b-keychain-lock this)
+        (sync (:b-keychain-lock this)
             (when (.isEmpty (:hash-to-keys this))
                 (let [#_"ECKey" key (ECKey'new-0)]
                     (BasicKeyChain''import-key-locked this, key)
@@ -30283,7 +30263,7 @@
     ;;; Returns a copy of the list of keys that this chain is managing. ;;
     #_method
     (defn #_"List<ECKey>" BasicKeyChain''get-keys-1 [#_"BasicKeyChain" this]
-        (§ sync (:b-keychain-lock this)
+        (sync (:b-keychain-lock this)
             (ArrayList. (.values (:hash-to-keys this)))
         )
     )
@@ -30342,7 +30322,7 @@
      ;;
     #_method
     (defn #_"void" BasicKeyChain''import-key [#_"BasicKeyChain" this, #_"ECKey" key]
-        (§ sync (:b-keychain-lock this)
+        (sync (:b-keychain-lock this)
             (when-not (KeyChain'''has-key this, key)
                 (BasicKeyChain''import-key-locked this, key)
                 (BasicKeyChain''queue-on-keys-added this, (ImmutableList/of key))
@@ -30353,14 +30333,14 @@
 
     #_method
     (defn #_"ECKey" BasicKeyChain''find-key-from-pub-hash [#_"BasicKeyChain" this, #_"byte[]" hash]
-        (§ sync (:b-keychain-lock this)
+        (sync (:b-keychain-lock this)
             (.get (:hash-to-keys this), (§ ByteString/copyFrom hash))
         )
     )
 
     #_method
     (defn #_"ECKey" BasicKeyChain''find-key-from-pub-key [#_"BasicKeyChain" this, #_"byte[]" pubkey]
-        (§ sync (:b-keychain-lock this)
+        (sync (:b-keychain-lock this)
             (.get (:pubkey-to-keys this), (§ ByteString/copyFrom pubkey))
         )
     )
@@ -30381,8 +30361,8 @@
      ;;
     #_method
     (defn #_"KeyChainState" BasicKeyChain''is-watching [#_"BasicKeyChain" this]
-        (§ sync (:b-keychain-lock this)
-            (if (.isEmpty (:hash-to-keys this)) :KeyChainState'EMPTY (if (:is-watching this) :KeyChainState'WATCHING :KeyChainState'REGULAR))
+        (sync (:b-keychain-lock this)
+            (cond (.isEmpty (:hash-to-keys this)) :KeyChainState'EMPTY (:is-watching this) :KeyChainState'WATCHING :else :KeyChainState'REGULAR)
         )
     )
 
@@ -30394,7 +30374,7 @@
      ;;
     #_method
     (defn #_"boolean" BasicKeyChain''remove-key [#_"BasicKeyChain" this, #_"ECKey" key]
-        (§ sync (:b-keychain-lock this)
+        (sync (:b-keychain-lock this)
             (let [#_"boolean" a (some? (.remove (:hash-to-keys this), (§ ByteString/copyFrom (ECKey''get-pub-key-hash key))))
                   #_"boolean" b (some? (.remove (:pubkey-to-keys this), (§ ByteString/copyFrom (ECKey''get-pub-key key))))]
                 (assert-state (= a b)) ;; Should be in both maps or neither.
@@ -30405,10 +30385,10 @@
 
     #_override
     (defn #_"long" KeyChain'''get-earliest-key-creation-time [#_"BasicKeyChain" this]
-        (§ sync (:b-keychain-lock this)
-            (let [#_"long" time Long/MAX_VALUE]
+        (sync (:b-keychain-lock this)
+            (§ let [#_"long" time Long/MAX_VALUE]
                 (doseq [#_"ECKey" key (.values (:hash-to-keys this))]
-                    (§ ass time (min (ECKey'''get-creation-time-seconds key), time))
+                    (§ ass time (min (ECKey'''get-creation-time-seconds key) time))
                 )
                 time
             )
@@ -30441,7 +30421,7 @@
     (defn- #_"void" BasicKeyChain''queue-on-keys-added [#_"BasicKeyChain" this, #_"List<ECKey>" keys]
         (assert-state (.isHeldByCurrentThread (:b-keychain-lock this)))
 
-        (§ doseq [#_"ListenerRegistration<KeyChainEventListener>" registration (:listeners this)]
+        (doseq [#_"ListenerRegistration<KeyChainEventListener>" registration (:listeners this)]
             (.execute (:executor registration),
                 #_non-static
                 (§ reify Runnable
@@ -30459,7 +30439,7 @@
 
     #_override
     (defn #_"BloomFilter" KeyChain'''get-filter [#_"BasicKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
-        (§ sync (:b-keychain-lock this)
+        (sync (:b-keychain-lock this)
             (let [#_"BloomFilter" filter (BloomFilter'new-3 size, rate, tweak)]
                 (doseq [#_"ECKey" key (.values (:hash-to-keys this))]
                     (BloomFilter''insert-e filter, key)
@@ -30862,14 +30842,14 @@
 
     #_method
     (defn #_"DeterministicKey" DeterministicKeyChain''find-key-from-pub-hash [#_"DeterministicKeyChain" this, #_"byte[]" hash]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (§ cast DeterministicKey (BasicKeyChain''find-key-from-pub-hash (:basic-key-chain this), hash))
         )
     )
 
     #_method
     (defn #_"DeterministicKey" DeterministicKeyChain''find-key-from-pub-key [#_"DeterministicKeyChain" this, #_"byte[]" pubkey]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (§ cast DeterministicKey (BasicKeyChain''find-key-from-pub-key (:basic-key-chain this), pubkey))
         )
     )
@@ -30880,12 +30860,12 @@
      ;;
     #_method
     (defn #_"DeterministicKey" DeterministicKeyChain''mark-pub-hash-as-used [#_"DeterministicKeyChain" this, #_"byte[]" hash]
-        (§ sync (:d-keychain-lock this)
-            (let [#_"DeterministicKey" k (§ cast DeterministicKey (BasicKeyChain''find-key-from-pub-hash (:basic-key-chain this), hash))]
-                (when (some? k)
-                    (DeterministicKeyChain''mark-key-as-used this, k)
+        (sync (:d-keychain-lock this)
+            (let [#_"DeterministicKey" key (§ cast DeterministicKey (BasicKeyChain''find-key-from-pub-hash (:basic-key-chain this), hash))]
+                (when (some? key)
+                    (DeterministicKeyChain''mark-key-as-used this, key)
                 )
-                k
+                key
             )
         )
     )
@@ -30896,19 +30876,19 @@
      ;;
     #_method
     (defn #_"DeterministicKey" DeterministicKeyChain''mark-pub-key-as-used [#_"DeterministicKeyChain" this, #_"byte[]" pubkey]
-        (§ sync (:d-keychain-lock this)
-            (let [#_"DeterministicKey" k (§ cast DeterministicKey (BasicKeyChain''find-key-from-pub-key (:basic-key-chain this), pubkey))]
-                (when (some? k)
-                    (DeterministicKeyChain''mark-key-as-used this, k)
+        (sync (:d-keychain-lock this)
+            (let [#_"DeterministicKey" key (§ cast DeterministicKey (BasicKeyChain''find-key-from-pub-key (:basic-key-chain this), pubkey))]
+                (when (some? key)
+                    (DeterministicKeyChain''mark-key-as-used this, key)
                 )
-                k
+                key
             )
         )
     )
 
     #_override
     (defn #_"boolean" KeyChain'''has-key [#_"DeterministicKeyChain" this, #_"ECKey" key]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (KeyChain'''has-key (:basic-key-chain this), key)
         )
     )
@@ -30951,7 +30931,7 @@
     (defn #_"int" KeyChain'''num-keys [#_"DeterministicKeyChain" this]
         ;; We need to return here the total number of keys including the lookahead zone, not the number
         ;; of keys we have issued via getKey/freshReceiveKey.
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (DeterministicKeyChain''maybe-look-ahead-1 this)
             (KeyChain'''num-keys (:basic-key-chain this))
         )
@@ -30963,7 +30943,7 @@
      ;;
     #_method
     (defn #_"int" DeterministicKeyChain''num-leaf-keys-issued [#_"DeterministicKeyChain" this]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (+ (:issued-external-keys this) (:issued-internal-keys this))
         )
     )
@@ -30993,7 +30973,7 @@
     ;;; Returns a list of words that represent the seed or null if this chain is a watching chain. ;;
     #_method
     (defn #_"List<String>" DeterministicKeyChain''get-mnemonic-code [#_"DeterministicKeyChain" this]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (when (some? (:seed this))
                 (DeterministicSeed''get-mnemonic-code (:seed this))
             )
@@ -31015,7 +30995,7 @@
 
     #_override
     (defn #_"BloomFilter" KeyChain'''get-filter [#_"DeterministicKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (assert-argument (<= (KeyChain'''num-bloom-filter-entries this) size))
             (DeterministicKeyChain''maybe-look-ahead-1 this)
             (KeyChain'''get-filter (:basic-key-chain this), size, rate, tweak)
@@ -31031,7 +31011,7 @@
      ;;
     #_method
     (defn #_"int" DeterministicKeyChain''get-lookahead-size [#_"DeterministicKeyChain" this]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (:lookahead-size this)
         )
     )
@@ -31045,7 +31025,7 @@
      ;;
     #_abstract
     (defn #_"void" DeterministicKeyChain'''set-lookahead-size [#_"DeterministicKeyChain" this, #_"int" size]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (let [#_"boolean" readjust? (= (:lookahead-threshold this) (DeterministicKeyChain''calc-default-lookahead-threshold this))]
                 (§ assoc this :lookahead-size size)
                 (when readjust?
@@ -31063,7 +31043,7 @@
      ;;
     #_method
     (defn #_"void" DeterministicKeyChain''set-lookahead-threshold [#_"DeterministicKeyChain" this, #_"int" n]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (when (<= (:lookahead-size this) n)
                 (throw (IllegalArgumentException. "Threshold larger or equal to the lookaheadSize"))
             )
@@ -31080,7 +31060,7 @@
      ;;
     #_method
     (defn #_"int" DeterministicKeyChain''get-lookahead-threshold [#_"DeterministicKeyChain" this]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (if (< (:lookahead-threshold this) (:lookahead-size this)) (:lookahead-threshold this) 0)
         )
     )
@@ -31159,7 +31139,7 @@
      ;;
     #_method
     (defn #_"int" DeterministicKeyChain''get-issued-external-keys [#_"DeterministicKeyChain" this]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (:issued-external-keys this)
         )
     )
@@ -31170,7 +31150,7 @@
      ;;
     #_method
     (defn #_"int" DeterministicKeyChain''get-issued-internal-keys [#_"DeterministicKeyChain" this]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (:issued-internal-keys this)
         )
     )
@@ -31178,7 +31158,7 @@
     ;;; Returns the seed or null if this chain is a watching chain. ;;
     #_method
     (defn #_"DeterministicSeed" DeterministicKeyChain''get-seed [#_"DeterministicKeyChain" this]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (:seed this)
         )
     )
@@ -31249,7 +31229,7 @@
      ;;
     #_method
     (defn #_"int" DeterministicKeyChain''get-key-lookahead-epoch [#_"DeterministicKeyChain" this]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (:key-lookahead-epoch this)
         )
     )
@@ -32193,13 +32173,13 @@
      ; For married keychains use {@link #freshAddress(KeyChain.KeyPurpose)} to get a proper P2SH address.
      ;;
     #_method
-    (defn #_"List<DeterministicKey>" KeyChainGroup''fresh-keys [#_"KeyChainGroup" this, #_"KeyPurpose" purpose, #_"int" __numberOfKeys]
+    (defn #_"List<DeterministicKey>" KeyChainGroup''fresh-keys [#_"KeyChainGroup" this, #_"KeyPurpose" purpose, #_"int" n]
         (§ let [#_"DeterministicKeyChain" chain (KeyChainGroup''get-active-key-chain this)]
             (when (DeterministicKeyChain'''is-married chain)
                 (throw (UnsupportedOperationException. "Key is not suitable to receive coins for married keychains. Use freshAddress to get P2SH address instead."))
             )
 
-            (KeyChain'''get-keys-3a chain, purpose, __numberOfKeys) ;; Always returns the next key along the key chain.
+            (KeyChain'''get-keys-3a chain, purpose, n) ;; Always returns the next key along the key chain.
         )
     )
 
@@ -32926,7 +32906,7 @@
 
     #_override
     (defn #_"void" DeterministicKeyChain'''set-lookahead-size [#_"MarriedKeyChain" this, #_"int" size]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (DeterministicKeyChain'''set-lookahead-size (§ this super), size)
 
             (when (some? (:following-key-chains this))
@@ -32989,7 +32969,7 @@
 
     #_override
     (defn #_"BloomFilter" KeyChain'''get-filter [#_"MarriedKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
-        (§ sync (:d-keychain-lock this)
+        (sync (:d-keychain-lock this)
             (let [#_"BloomFilter" filter (BloomFilter'new-3 size, rate, tweak)]
                 (doseq [#_"Map.Entry<ByteString, RedeemData>" entry (.entrySet (:married-keys-redeem-data this))]
                     (BloomFilter''insert-b filter, (.toByteArray (.getKey entry)))
@@ -33828,8 +33808,8 @@
                     ;; doesn't necessarily know at that point which wallets contain which transactions, so it's up
                     ;; to us to listen for that.  Other types of confidence changes (type, etc.) are triggered by us,
                     ;; so we'll queue up a wallet change event in other parts of the code.
-                    (§ when (= reason :ConfidenceChangeReason'SEEN_PEERS)
-                        (§ sync (:wallet-lock (§ this Wallet))
+                    (when (= reason :ConfidenceChangeReason'SEEN_PEERS)
+                        (sync (:wallet-lock (§ this Wallet))
                             (Wallet''check-balance-futures-locked (§ this Wallet), nil)
                             (let [#_"Transaction" tx (Wallet''get-transaction (§ this Wallet), (TransactionConfidence''get-transaction-hash confidence))]
                                 (Wallet''queue-on-transaction-confidence-changed (§ this Wallet), tx)
@@ -33862,7 +33842,7 @@
      ;;
     #_method
     (defn #_"void" Wallet''add-transaction-signer [#_"Wallet" this, #_"TransactionSigner" signer]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (if (TransactionSigner'''is-ready signer)
                 (.add (:signers this), signer)
                 (throw (IllegalStateException. (str "Signer instance is not ready to be added into Wallet: " (.getClass signer))))
@@ -33873,7 +33853,7 @@
 
     #_method
     (defn #_"List<TransactionSigner>" Wallet''get-transaction-signers [#_"Wallet" this]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (ImmutableList/copyOf (:signers this))
         )
     )
@@ -33887,7 +33867,7 @@
      ;;
     #_method
     (defn #_"DeterministicKey" Wallet''current-key [#_"Wallet" this, #_"KeyPurpose" purpose]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (Wallet''maybe-upgrade-to-hd this)
             (KeyChainGroup''current-key (:key-chain-group this), purpose)
         )
@@ -33907,7 +33887,7 @@
      ;;
     #_method
     (defn #_"Address" Wallet''current-address [#_"Wallet" this, #_"KeyPurpose" purpose]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (Wallet''maybe-upgrade-to-hd this)
             (KeyChainGroup''current-address (:key-chain-group this), purpose)
         )
@@ -33942,12 +33922,12 @@
      ; this when the user is definitely going to hand this key/s out to someone who wishes to send money.
      ;;
     #_method
-    (defn #_"List<DeterministicKey>" Wallet''fresh-keys [#_"Wallet" this, #_"KeyPurpose" purpose, #_"int" __numberOfKeys]
-        (§ let [#_"List<DeterministicKey>" keys]
-            (§ sync (:keychaingroup-lock this)
-                (Wallet''maybe-upgrade-to-hd this)
-                (§ ass keys (KeyChainGroup''fresh-keys (:key-chain-group this), purpose, __numberOfKeys))
-            )
+    (defn #_"List<DeterministicKey>" Wallet''fresh-keys [#_"Wallet" this, #_"KeyPurpose" purpose, #_"int" n]
+        (let [#_"List<DeterministicKey>" keys
+                (sync (:keychaingroup-lock this)
+                    (Wallet''maybe-upgrade-to-hd this)
+                    (KeyChainGroup''fresh-keys (:key-chain-group this), purpose, n)
+                )]
             ;; Do we really need an immediate hard save?  Arguably all this is doing is saving the 'current' key
             ;; and that's not quite so important, so we could coalesce for more performance.
             (Wallet''save-now this)
@@ -33969,10 +33949,10 @@
      ;;
     #_method
     (defn #_"Address" Wallet''fresh-address [#_"Wallet" this, #_"KeyPurpose" purpose]
-        (§ let [#_"Address" key]
-            (§ sync (:keychaingroup-lock this)
-                (§ ass key (KeyChainGroup''fresh-address (:key-chain-group this), purpose))
-            )
+        (let [#_"Address" key
+                (sync (:keychaingroup-lock this)
+                    (KeyChainGroup''fresh-address (:key-chain-group this), purpose)
+                )]
             (Wallet''save-now this)
             key
         )
@@ -33993,7 +33973,7 @@
      ;;
     #_method
     (defn #_"List<ECKey>" Wallet''get-issued-receive-keys [#_"Wallet" this]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (DeterministicKeyChain''get-issued-receive-keys (KeyChainGroup''get-active-key-chain (:key-chain-group this)))
         )
     )
@@ -34022,7 +34002,7 @@
      ;;
     #_method
     (defn #_"void" Wallet''upgrade-to-deterministic [#_"Wallet" this]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (KeyChainGroup''upgrade-to-deterministic (:key-chain-group this), (:v-key-rotation-timestamp this))
         )
         nil
@@ -34034,7 +34014,7 @@
      ;;
     #_method
     (defn #_"boolean" Wallet''is-deterministic-upgrade-required [#_"Wallet" this]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (KeyChainGroup''is-deterministic-upgrade-required (:key-chain-group this))
         )
     )
@@ -34058,7 +34038,7 @@
      ;;
     #_method
     (defn #_"boolean" Wallet''remove-key [#_"Wallet" this, #_"ECKey" key]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (KeyChainGroup''remove-imported-key (:key-chain-group this), key)
         )
     )
@@ -34068,7 +34048,7 @@
      ;;
     #_method
     (defn #_"int" Wallet''get-key-chain-group-size [#_"Wallet" this]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (KeyChainGroup''num-keys (:key-chain-group this))
         )
     )
@@ -34076,7 +34056,7 @@
     #_testing
     #_method
     (defn #_"int" Wallet''get-key-chain-group-combined-key-lookahead-epochs [#_"Wallet" this]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (KeyChainGroup''get-combined-key-lookahead-epochs (:key-chain-group this))
         )
     )
@@ -34086,7 +34066,7 @@
      ;;
     #_method
     (defn #_"List<ECKey>" Wallet''get-imported-keys [#_"Wallet" this]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (KeyChainGroup''get-imported-keys (:key-chain-group this))
         )
     )
@@ -34118,7 +34098,7 @@
         ;; API usage check.
         (Wallet''check-no-deterministic-keys this, keys)
         (let [#_"int" result
-                (§ sync (:keychaingroup-lock this)
+                (sync (:keychaingroup-lock this)
                     (KeyChainGroup''import-keys (:key-chain-group this), keys)
                 )]
             (Wallet''save-now this)
@@ -34151,7 +34131,7 @@
      ;;
     #_method
     (defn #_"void" Wallet''add-and-activate-hd-chain [#_"Wallet" this, #_"DeterministicKeyChain" chain]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (KeyChainGroup''add-and-activate-hd-chain (:key-chain-group this), chain)
         )
         nil
@@ -34160,7 +34140,7 @@
     ;;; See {@link DeterministicKeyChain#setLookaheadSize(int)} for more info on this. ;;
     #_method
     (defn #_"void" Wallet''set-key-chain-group-lookahead-size [#_"Wallet" this, #_"int" __lookaheadSize]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (KeyChainGroup''set-lookahead-size (:key-chain-group this), __lookaheadSize)
         )
         nil
@@ -34169,7 +34149,7 @@
     ;;; See {@link DeterministicKeyChain#setLookaheadSize(int)} for more info on this. ;;
     #_method
     (defn #_"int" Wallet''get-key-chain-group-lookahead-size [#_"Wallet" this]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (KeyChainGroup''get-lookahead-size (:key-chain-group this))
         )
     )
@@ -34177,7 +34157,7 @@
     ;;; See {@link DeterministicKeyChain#setLookaheadThreshold(int)} for more info on this. ;;
     #_method
     (defn #_"void" Wallet''set-key-chain-group-lookahead-threshold [#_"Wallet" this, #_"int" num]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (Wallet''maybe-upgrade-to-hd this)
             (KeyChainGroup''set-lookahead-threshold (:key-chain-group this), num)
         )
@@ -34187,7 +34167,7 @@
     ;;; See {@link DeterministicKeyChain#setLookaheadThreshold(int)} for more info on this. ;;
     #_method
     (defn #_"int" Wallet''get-key-chain-group-lookahead-threshold [#_"Wallet" this]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (Wallet''maybe-upgrade-to-hd this)
             (KeyChainGroup''get-lookahead-threshold (:key-chain-group this))
         )
@@ -34201,7 +34181,7 @@
      ;;
     #_method
     (defn #_"DeterministicKey" Wallet''get-watching-key [#_"Wallet" this]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (Wallet''maybe-upgrade-to-hd this)
             (DeterministicKeyChain''get-watching-key (KeyChainGroup''get-active-key-chain (:key-chain-group this)))
         )
@@ -34215,7 +34195,7 @@
      ;;
     #_method
     (defn #_"boolean" Wallet''is-watching [#_"Wallet" this]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (Wallet''maybe-upgrade-to-hd this)
             (KeyChainGroup''is-watching (:key-chain-group this))
         )
@@ -34229,7 +34209,7 @@
      ;;
     #_override
     (defn #_"ECKey" KeyBag'''find-key-from-pub-hash [#_"Wallet" this, #_"byte[]" hash]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (KeyBag'''find-key-from-pub-hash (:key-chain-group this), hash)
         )
     )
@@ -34237,7 +34217,7 @@
     ;;; Returns true if the given key is in the wallet, false otherwise.  Currently an O(N) operation. ;;
     #_method
     (defn #_"boolean" Wallet''has-key [#_"Wallet" this, #_"ECKey" key]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (KeyChainGroup''has-key (:key-chain-group this), key)
         )
     )
@@ -34255,7 +34235,7 @@
      ;;
     #_override
     (defn #_"ECKey" KeyBag'''find-key-from-pub-key [#_"Wallet" this, #_"byte[]" pubkey]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (KeyBag'''find-key-from-pub-key (:key-chain-group this), pubkey)
         )
     )
@@ -34273,7 +34253,7 @@
      ;;
     #_override
     (defn #_"RedeemData" KeyBag'''find-redeem-data-from-script-hash [#_"Wallet" this, #_"byte[]" hash]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (KeyBag'''find-redeem-data-from-script-hash (:key-chain-group this), hash)
         )
     )
@@ -34331,7 +34311,7 @@
      ;;
     #_method
     (defn #_"DeterministicSeed" Wallet''get-key-chain-seed [#_"Wallet" this]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (let [#_"DeterministicSeed" seed (DeterministicKeyChain''get-seed (KeyChainGroup''get-active-key-chain (:key-chain-group this)))]
                 (when (nil? seed)
                     (throw (MissingPrivateKeyException'new))
@@ -34347,7 +34327,7 @@
      ;;
     #_method
     (defn #_"DeterministicKey" Wallet''get-key-by-path-2 [#_"Wallet" this, #_"List<ChildNumber>" path]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (Wallet''maybe-upgrade-to-hd this)
             (DeterministicKeyChain''get-key-by-path-3 (KeyChainGroup''get-active-key-chain (:key-chain-group this)), path, false)
         )
@@ -34364,7 +34344,7 @@
      ;;
     #_method
     (defn #_"void" Wallet''set-accept-risky-transactions [#_"Wallet" this, #_"boolean" accept?]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (§ assoc this :accept-risky-transactions accept?)
         )
         nil
@@ -34375,7 +34355,7 @@
      ;;
     #_method
     (defn #_"boolean" Wallet''is-accept-risky-transactions [#_"Wallet" this]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (:accept-risky-transactions this)
         )
     )
@@ -34685,8 +34665,10 @@
     #_throws #_[ "ScriptException" ]
     #_method
     (defn #_"boolean" Wallet''is-transaction-relevant [#_"Wallet" this, #_"Transaction" tx]
-        (§ sync (:wallet-lock this)
-            (or (< 0 (Monetary'''signum (Transaction''get-value-sent-from-me tx, this))) (< 0 (Monetary'''signum (Transaction''get-value-sent-to-me tx, this))) (not (.isEmpty (Wallet''find-double-spends-against this, tx, (:transactions this)))))
+        (sync (:wallet-lock this)
+            (or (< 0 (Monetary'''signum (Transaction''get-value-sent-from-me tx, this)))
+                (< 0 (Monetary'''signum (Transaction''get-value-sent-to-me tx, this)))
+                (not (.isEmpty (Wallet''find-double-spends-against this, tx, (:transactions this)))))
         )
     )
 
@@ -34785,7 +34767,7 @@
     #_throws #_[ "VerificationException" ]
     #_override
     (defn #_"void" TransactionReceivedInBlockListener'''receive-from-block [#_"Wallet" this, #_"Transaction" tx, #_"StoredBlock" block, #_"NewBlockType" __blockType, #_"int" __relativityOffset]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (when (Wallet''is-transaction-relevant this, tx)
                 (Wallet''receive this, tx, block, __blockType, __relativityOffset)
             )
@@ -35803,7 +35785,7 @@
      ;;
     #_method
     (defn #_"Set<Transaction>" Wallet''get-transactions [#_"Wallet" this, #_"boolean" dead?]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (let [#_"Set<Transaction>" all (HashSet.)]
                 (.addAll all, (.values (:unspent this)))
                 (.addAll all, (.values (:spent this)))
@@ -35885,7 +35867,7 @@
      ;;
     #_method
     (defn #_"Transaction" Wallet''get-transaction [#_"Wallet" this, #_"Sha256Hash" hash]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (.get (:transactions this), hash)
         )
     )
@@ -35893,7 +35875,7 @@
     ;;; {@inheritDoc} ;;
     #_override
     (defn #_"Map<Sha256Hash, Transaction>" TransactionBag'''get-transaction-pool [#_"Wallet" this, #_"PoolType" pool]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (condp = pool
                 :PoolType'UNSPENT (:unspent this)
                 :PoolType'SPENT   (:spent this)
@@ -35910,7 +35892,7 @@
      ;;
     #_method
     (defn #_"void" Wallet''reset [#_"Wallet" this]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (Wallet''clear-transactions-1 this)
             (§ assoc this :last-block-seen-hash nil)
             (§ assoc this :last-block-seen-height -1) ;; Magic value for 'never'.
@@ -36028,7 +36010,7 @@
     ;;; Returns a copy of the internal unspent outputs list. ;;
     #_method
     (defn #_"List<TransactionOutput>" Wallet''get-unspents [#_"Wallet" this]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (ArrayList. (:my-unspents this))
         )
     )
@@ -36143,7 +36125,7 @@
      ;;
     #_method
     (defn #_"Collection<Transaction>" Wallet''get-pending-transactions [#_"Wallet" this]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (Collections/unmodifiableCollection (.values (:pending this)))
         )
     )
@@ -36162,7 +36144,7 @@
      ;;
     #_override
     (defn #_"long" PeerFilterProvider'''get-earliest-key-creation-time [#_"Wallet" this]
-        (§ sync (:keychaingroup-lock this)
+        (sync (:keychaingroup-lock this)
             (let [#_"long" earliest (KeyChainGroup''get-earliest-key-creation-time (:key-chain-group this))]
                 (if (= earliest Long/MAX_VALUE) (Utils'current-time-seconds) earliest)
             )
@@ -36172,14 +36154,14 @@
     ;;; Returns the hash of the last seen best-chain block, or null if the wallet is too old to store this data. ;;
     #_method
     (defn #_"Sha256Hash" Wallet''get-last-block-seen-hash [#_"Wallet" this]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (:last-block-seen-hash this)
         )
     )
 
     #_method
     (defn #_"void" Wallet''set-last-block-seen-hash [#_"Wallet" this, #_"Sha256Hash" hash]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (§ assoc this :last-block-seen-hash hash)
         )
         nil
@@ -36187,7 +36169,7 @@
 
     #_method
     (defn #_"void" Wallet''set-last-block-seen-height [#_"Wallet" this, #_"int" height]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (§ assoc this :last-block-seen-height height)
         )
         nil
@@ -36195,7 +36177,7 @@
 
     #_method
     (defn #_"void" Wallet''set-last-block-seen-time-secs [#_"Wallet" this, #_"long" secs]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (§ assoc this :last-block-seen-time-secs secs)
         )
         nil
@@ -36210,7 +36192,7 @@
      ;;
     #_method
     (defn #_"long" Wallet''get-last-block-seen-time-secs [#_"Wallet" this]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (:last-block-seen-time-secs this)
         )
     )
@@ -36235,7 +36217,7 @@
      ;;
     #_method
     (defn #_"int" Wallet''get-last-block-seen-height [#_"Wallet" this]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (:last-block-seen-height this)
         )
     )
@@ -36305,9 +36287,9 @@
      ;;
     #_method
     (defn #_"Coin" Wallet''get-balance-2s [#_"Wallet" this, #_"CoinSelector" selector]
-        (§ sync (:wallet-lock this)
-            (ensure some? selector)
+        (ensure some? selector)
 
+        (sync (:wallet-lock this)
             (let [#_"List<TransactionOutput>" candidates (Wallet''calculate-all-spend-candidates-3 this, true, false)
                   #_"CoinSelection" selection (CoinSelector'''select selector, (NetworkParameters''get-max-money (:params this)), candidates)]
                 (:value-gathered selection)
@@ -36535,7 +36517,7 @@
     #_throws #_[ "InsufficientMoneyException" ]
     #_method
     (defn #_"Transaction" Wallet''send-coins-offline [#_"Wallet" this, #_"SendRequest" request]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (Wallet''complete-tx this, request)
             (Wallet''commit-tx this, (:tx request))
             (:tx request)
@@ -36965,7 +36947,7 @@
     ;;; Returns the {@link CoinSelector} object which controls which outputs can be spent by this wallet. ;;
     #_method
     (defn #_"CoinSelector" Wallet''get-coin-selector [#_"Wallet" this]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (:coin-selector this)
         )
     )
@@ -36978,7 +36960,7 @@
      ;;
     #_method
     (defn #_"void" Wallet''set-coin-selector [#_"Wallet" this, #_"CoinSelector" selector]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (§ assoc this :coin-selector (ensure some? selector))
         )
         nil
@@ -37751,7 +37733,7 @@
 )
 
 (§ ns bitclojn.wallet-listeners
-    (:refer-clojure :exclude [defn- ensure])
+    (:refer-clojure :exclude [defn- ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -37859,7 +37841,7 @@
 )
 
 (§ ns bitclojn.core
-    (:refer-clojure :exclude [defn- ensure])
+    (:refer-clojure :exclude [defn- ensure sync])
     (:use [bitclojn slang]))
 
 (defn -main [& args]
