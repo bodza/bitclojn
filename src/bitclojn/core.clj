@@ -233,7 +233,7 @@
 (declare NotFoundMessage'MIN_PROTOCOL_VERSION NotFoundMessage'new-1 NotFoundMessage'new-2 NotFoundMessage'new-2-bytes)
 (declare Object'''equals Object'''hashCode Object'''toString)
 (declare OrphanBlock'init OrphanBlock'new)
-(declare PBKDF2SHA512'F PBKDF2SHA512'INT PBKDF2SHA512'derive)
+(declare PBKDF2SHA512'f PBKDF2SHA512'derive)
 (declare Pair'init Pair'new)
 (declare PartialMerkleTree''get-transaction-count PartialMerkleTree''get-txn-hash-and-merkle-root PartialMerkleTree''recursive-extract-hashes PartialMerkleTree'build-from-leaves PartialMerkleTree'calc-hash PartialMerkleTree'combine-left-right PartialMerkleTree'get-tree-width PartialMerkleTree'init PartialMerkleTree'new-3 PartialMerkleTree'new-4 PartialMerkleTree'traverse-and-build)
 (declare Peer''add-blocks-downloaded-event-listener-2 Peer''add-blocks-downloaded-event-listener-3 Peer''add-chain-download-started-event-listener-2 Peer''add-chain-download-started-event-listener-3 Peer''add-connected-event-listener-2 Peer''add-connected-event-listener-3 Peer''add-disconnected-event-listener-2 Peer''add-disconnected-event-listener-3 Peer''add-get-data-event-listener-2 Peer''add-get-data-event-listener-3 Peer''add-on-transaction-broadcast-listener-2 Peer''add-on-transaction-broadcast-listener-3 Peer''add-ping-time-data Peer''add-pre-message-received-event-listener-2 Peer''add-pre-message-received-event-listener-3 Peer''add-wallet Peer''block-chain-download-locked Peer''check-for-filter-exhaustion Peer''download-dependencies Peer''download-dependencies-internal Peer''end-filtered-block Peer''get-addr Peer''get-best-height Peer''get-block Peer''get-bloom-filter-1 Peer''get-connection-open-future Peer''get-last-ping-time Peer''get-peer-block-height-difference Peer''get-peer-mempool-transaction Peer''get-peer-version-message Peer''get-ping-time Peer''get-version-handshake-future Peer''get-version-message Peer''invoke-on-blocks-downloaded Peer''is-download-data Peer''is-download-tx-dependencies Peer''is-not-found-message-supported Peer''maybe-handle-requested-data Peer''maybe-restart-chain-download Peer''ping-1 Peer''ping-2 Peer''process-address-message Peer''process-alert Peer''process-block Peer''process-get-data Peer''process-headers Peer''process-inv Peer''process-not-found-message Peer''process-ping Peer''process-pong Peer''process-transaction Peer''process-version-ack Peer''process-version-message Peer''remove-blocks-downloaded-event-listener Peer''remove-chain-download-started-event-listener Peer''remove-connected-event-listener Peer''remove-disconnected-event-listener Peer''remove-get-data-event-listener Peer''remove-on-transaction-broadcast-listener Peer''remove-pre-message-received-event-listener Peer''remove-wallet Peer''send-single-get-data Peer''set-bloom-filter-2 Peer''set-bloom-filter-3 Peer''set-download-data Peer''set-download-parameters Peer''set-download-tx-dependencies-b Peer''set-download-tx-dependencies-i Peer''set-min-protocol-version Peer''start-block-chain-download Peer''start-filtered-block Peer''version-handshake-complete Peer'LOG Peer'PING_MOVING_AVERAGE_WINDOW Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT Peer'init Peer'new-4 Peer'new-5)
@@ -21799,89 +21799,57 @@
  ;;
 #_stateless
 (defclass PBKDF2SHA512
-    (defn #_"byte[]" PBKDF2SHA512'derive [#_"String" __P, #_"String" __S, #_"int" c, #_"int" __dkLen]
-        (§ let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
-
-            (try
-                (let [#_"int" __hLen 20]
-
-                    (when (< (* (dec (Math/pow 2, 32)) __hLen) __dkLen)
-                        (throw (IllegalArgumentException. "derived key too long"))
-                    )
-
-                    (let [#_"int" l (int (Math/ceil (/ (double __dkLen) (double __hLen))))]
-                       ;; #_"int" r (- __dkLen (* (dec l) __hLen))
-
-                        (loop-when-recur [#_"int" i 1] (<= i l) [(inc i)]
-                            (let [#_"byte[]" __T (PBKDF2SHA512'F __P, __S, c, i)]
-                                (.write baos, __T)
-                            )
-                        )
-                    )
-                )
-                (catch Exception e
-                    (throw (RuntimeException. e))
-                )
-            )
-
-            (let [#_"byte[]" __baDerived (byte-array __dkLen)]
-                (System/arraycopy (.toByteArray baos), 0, __baDerived, 0, (alength __baDerived))
-
-                __baDerived
-            )
-        )
-    )
-
     #_throws #_[ "Exception" ]
-    (defn- #_"byte[]" PBKDF2SHA512'F [#_"String" __P, #_"String" __S, #_"int" c, #_"int" i]
-        (§ let [#_"byte[]" __U_LAST nil
-              #_"byte[]" __U_XOR nil]
+    (defn- #_"byte[]" PBKDF2SHA512'f [#_"String" p, #_"String" s, #_"int" c, #_"int" i]
+        (let [#_"SecretKeySpec" key (SecretKeySpec. (.getBytes p, "UTF-8"), "HmacSHA512")
+              #_"Mac" mac (Mac/getInstance (.getAlgorithm key)) _ (.init mac, key)]
 
-            (let [#_"SecretKeySpec" key (SecretKeySpec. (.getBytes __P, "UTF-8"), "HmacSHA512")
-                  #_"Mac" mac (Mac/getInstance (.getAlgorithm key))]
-                (.init mac, key)
+            (loop-when [#_"byte[]" xor' nil #_"byte[]" xor nil #_"int" j 0] (< j c) => xor
+                (if (zero? j)
+                    (let [#_"byte[]" s* (.getBytes s, "UTF-8")
+                          #_"byte[]" i* (let [#_"ByteBuffer" b* (ByteBuffer/allocate 4)] (.order b*, ByteOrder/BIG_ENDIAN) (.putInt b*, i) (.array b*))
+                          #_"byte[]" u* (byte-array (+ (alength s*) (alength i*)))]
 
-                (loop-when-recur [#_"int" j 0] (< j c) [(inc j)]
-                    (cond (= j 0)
-                        (do
-                            (let [#_"byte[]" __baS (.getBytes __S, "UTF-8")
-                                  #_"byte[]" __baI (PBKDF2SHA512'INT i)
-                                  #_"byte[]" __baU (byte-array (+ (alength __baS) (alength __baI)))]
+                        (System/arraycopy s*, 0, u*, 0, (alength s*))
+                        (System/arraycopy i*, 0, u*, (alength s*), (alength i*))
 
-                                (System/arraycopy __baS, 0, __baU, 0, (alength __baS))
-                                (System/arraycopy __baI, 0, __baU, (alength __baS), (alength __baI))
-
-                                (§ ass __U_XOR (.doFinal mac, __baU))
-                                (§ ass __U_LAST __U_XOR)
-                                (.reset mac)
-                            )
-                        )
-                        :else
-                        (do
-                            (let [#_"byte[]" __baU (.doFinal mac, __U_LAST)]
-                                (.reset mac)
-
-                                (loop-when-recur [#_"int" k 0] (< k (alength __U_XOR)) [(inc k)]
-                                    (aset __U_XOR k (byte (bit-xor (aget __U_XOR k) (aget __baU k))))
-                                )
-
-                                (§ ass __U_LAST __baU)
-                            )
+                        (let [xor (.doFinal mac, u*) _ (.reset mac)]
+                            (recur xor xor (inc j))
                         )
                     )
-                )
+                    (let [#_"byte[]" u* (.doFinal mac, xor') _ (.reset mac)]
 
-                __U_XOR
+                        (§ dotimes [#_"int" k (alength xor)]
+                            (aset xor k (byte (bit-xor (aget xor k) (aget u* k))))
+                        )
+
+                        (recur u* xor (inc j))
+                    )
+                )
             )
         )
     )
 
-    (defn- #_"byte[]" PBKDF2SHA512'INT [#_"int" i]
-        (§ let [#_"ByteBuffer" bb (ByteBuffer/allocate 4)]
-            (.order bb, ByteOrder/BIG_ENDIAN)
-            (.putInt bb, i)
+    (defn #_"byte[]" PBKDF2SHA512'derive [#_"String" p, #_"String" s, #_"int" c, #_"int" n]
+        (let [#_"int" h 20]
+            (when (< (* (dec (Math/pow 2, 32)) h) n)
+                (throw (IllegalArgumentException. "derived key too long"))
+            )
 
-            (.array bb)
+            (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
+                (try
+                    (dotimes [#_"int" i (int (Math/ceil (/ (double n) (double h))))]
+                        (.write baos, (PBKDF2SHA512'f p, s, c, (inc i)))
+                    )
+                    (catch Exception e
+                        (throw (RuntimeException. e))
+                    )
+                )
+                (let [#_"byte[]" bytes (byte-array n)]
+                    (System/arraycopy (.toByteArray baos), 0, bytes, 0, n)
+                    bytes
+                )
+            )
         )
     )
 )
@@ -23752,7 +23720,7 @@
     #_throws #_[ "PeerDiscoveryException" ]
     #_method
     (defn #_"InetSocketAddress" SeedPeers''get-peer [#_"SeedPeers" this]
-        (§ try
+        (try
             (SeedPeers''next-peer this)
             (catch UnknownHostException e
                 (throw (PeerDiscoveryException'new-1x e))
@@ -23766,7 +23734,6 @@
         (when (or (nil? (:seed-addrs this)) (zero? (alength (:seed-addrs this))))
             (throw (PeerDiscoveryException'new-1 "No IP address seeds configured; unable to find any peers"))
         )
-
         (when (< (:pnseed-index this) (alength (:seed-addrs this)))
             (let [#_"int" i (:pnseed-index this)]
                 (§ update this :pnseed-index inc)
@@ -23784,7 +23751,6 @@
         (when (not= services 0)
             (throw (PeerDiscoveryException'new-1 (str "Pre-determined peers cannot be filtered by services: " services)))
         )
-
         (try
             (SeedPeers''all-peers this)
             (catch UnknownHostException e
@@ -23796,18 +23762,18 @@
     #_throws #_[ "UnknownHostException" ]
     #_method
     (defn- #_"InetSocketAddress[]" SeedPeers''all-peers [#_"SeedPeers" this]
-        (§ let [#_"InetSocketAddress[]" addresses (make-array InetSocketAddress (alength (:seed-addrs this)))]
-            (loop-when-recur [#_"int" i 0] (< i (alength (:seed-addrs this))) [(inc i)]
-                (aset addresses i (InetSocketAddress. (SeedPeers''convert-address this, (aget (:seed-addrs this) i)), (-> this :params :port)))
+        (let [#_"InetSocketAddress[]" all (make-array InetSocketAddress (alength (:seed-addrs this)))]
+            (dotimes [#_"int" i (alength (:seed-addrs this))]
+                (aset all i (InetSocketAddress. (SeedPeers''convert-address this, (aget (:seed-addrs this) i)), (-> this :params :port)))
             )
-            addresses
+            all
         )
     )
 
     #_throws #_[ "UnknownHostException" ]
     #_method
     (defn- #_"InetAddress" SeedPeers''convert-address [#_"SeedPeers" this, #_"int" seed]
-        (§ let [#_"byte[]" v4addr (byte-array 4)]
+        (let [#_"byte[]" v4addr (byte-array 4)]
             (aset v4addr 0 (byte (& 0xff seed)))
             (aset v4addr 1 (byte (& 0xff (>> seed 8))))
             (aset v4addr 2 (byte (& 0xff (>> seed 16))))
@@ -25269,9 +25235,9 @@
     #_throws #_[ "ScriptException" ]
     #_method
     (defn #_"Address" Script''get-to-address-3 [#_"Script" this, #_"NetworkParameters" params, #_"boolean" force?]
-        (§ cond
-            (Script''is-sent-to-address this)                (Address'new-2-bytes params, (Script''get-pub-key-hash this))
-            (Script''is-pay-to-script-hash this)              (Address'from-p2sh-script params, this)
+        (cond
+            (Script''is-sent-to-address this)                  (Address'new-2-bytes params, (Script''get-pub-key-hash this))
+            (Script''is-pay-to-script-hash this)               (Address'from-p2sh-script params, this)
             (and force? (Script''is-sent-to-raw-pub-key this)) (ECKey''to-address (ECKey'from-public-only-1-bytes (Script''get-pub-key this)), params)
             :else (throw (ScriptException'new-2 :ScriptError'UNKNOWN_ERROR, "Cannot cast this script to a pay-to-address type"))
         )
@@ -25282,7 +25248,7 @@
      ; To write an integer call writeBytes(stream, Utils.reverseBytes(Utils.encodeMPI(val, false))).
      ;;
     (defn #_"void" Script'write-bytes [#_"ByteArrayOutputStream" baos, #_"byte[]" bytes]
-        (§ let [n (alength bytes)]
+        (let [#_"int" n (alength bytes)]
             (cond
                 (< n ScriptOpCodes'OP_PUSHDATA1)
                 (do
@@ -26409,12 +26375,12 @@
         nil
     )
 
-    (defn- #_"boolean" Script'check-sequence [#_"long" __nSequence, #_"Transaction" __txContainingThis, #_"int" index]
+    (defn- #_"boolean" Script'check-sequence [#_"long" __nSequence, #_"Transaction" tx, #_"int" index]
         ;; Relative lock times are supported by comparing the passed in operand to the sequence number of the input.
-        (§ let [#_"long" __txToSequence (TransactionInput''get-sequence-number (Transaction''get-input __txContainingThis, index))]
+        (§ let [#_"long" __txToSequence (TransactionInput''get-sequence-number (Transaction''get-input tx, index))]
             (and
                 ;; Fail if the transaction's version number is not set high enough to trigger BIP 68 rules.
-                (<= 2 (Transaction''get-version __txContainingThis))
+                (<= 2 (Transaction''get-version tx))
 
                 ;; Sequence numbers with their most significant bit set are not consensus constrained.  Testing
                 ;; that the transaction's sequence number do not have this bit set prevents using this property
@@ -26442,8 +26408,8 @@
     )
 
     #_throws #_[ "ScriptException" ]
-    (defn- #_"void" Script'execute-check-sig [#_"Transaction" __txContainingThis, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" __lastCodeSepLocation, #_"int" opcode, #_"Set<ScriptVerifyFlag>" __verifyFlags]
-        (§ let [#_"boolean" __requireCanonical (or (.contains __verifyFlags, :ScriptVerifyFlag'STRICTENC) (.contains __verifyFlags, :ScriptVerifyFlag'DERSIG) (.contains __verifyFlags, :ScriptVerifyFlag'LOW_S))]
+    (defn- #_"void" Script'execute-check-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" __lastCodeSepLocation, #_"int" opcode, #_"Set<ScriptVerifyFlag>" flags]
+        (§ let [#_"boolean" __requireCanonical (or (.contains flags, :ScriptVerifyFlag'STRICTENC) (.contains flags, :ScriptVerifyFlag'DERSIG) (.contains flags, :ScriptVerifyFlag'LOW_S))]
             (when (< (.size stack) 2)
                 (throw (ScriptException'new-2 :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKSIG(VERIFY) on a stack with size < 2"))
             )
@@ -26461,10 +26427,10 @@
                         ;; TODO: Use int for indexes everywhere, we can't have that many inputs/outputs.
                         (let [#_"boolean" __sigValid false]
                             (try
-                                (let [#_"TransactionSignature" sig (TransactionSignature'decode-from-bitcoin-3 __sigBytes, __requireCanonical, (.contains __verifyFlags, :ScriptVerifyFlag'LOW_S))]
+                                (let [#_"TransactionSignature" sig (TransactionSignature'decode-from-bitcoin-3 __sigBytes, __requireCanonical, (.contains flags, :ScriptVerifyFlag'LOW_S))]
 
                                     ;; TODO: Should check hash type is known.
-                                    (let [#_"Sha256Hash" hash (Transaction''hash-for-signature-4b __txContainingThis, index, __connectedScript, (byte (:sighash-flags sig)))]
+                                    (let [#_"Sha256Hash" hash (Transaction''hash-for-signature-4b tx, index, __connectedScript, (byte (:sighash-flags sig)))]
                                         (§ ass __sigValid (ECKey'verify-3e (Sha256Hash''get-bytes hash), sig, __pubKey))
                                     )
                                 )
@@ -26498,13 +26464,13 @@
     )
 
     #_throws #_[ "ScriptException" ]
-    (defn- #_"int" Script'execute-multi-sig [#_"Transaction" __txContainingThis, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" __opCount, #_"int" __lastCodeSepLocation, #_"int" opcode, #_"Set<ScriptVerifyFlag>" __verifyFlags]
-        (§ let [#_"boolean" __requireCanonical (or (.contains __verifyFlags, :ScriptVerifyFlag'STRICTENC) (.contains __verifyFlags, :ScriptVerifyFlag'DERSIG) (.contains __verifyFlags, :ScriptVerifyFlag'LOW_S))]
+    (defn- #_"int" Script'execute-multi-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" __opCount, #_"int" __lastCodeSepLocation, #_"int" opcode, #_"Set<ScriptVerifyFlag>" flags]
+        (§ let [#_"boolean" __requireCanonical (or (.contains flags, :ScriptVerifyFlag'STRICTENC) (.contains flags, :ScriptVerifyFlag'DERSIG) (.contains flags, :ScriptVerifyFlag'LOW_S))]
             (when (< (.size stack) 1)
                 (throw (ScriptException'new-2 :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < 2"))
             )
 
-            (let [#_"int" __pubKeyCount (.intValue (Script'cast-to-big-integer-2 (.pollLast stack), (.contains __verifyFlags, :ScriptVerifyFlag'MINIMALDATA)))]
+            (let [#_"int" __pubKeyCount (.intValue (Script'cast-to-big-integer-2 (.pollLast stack), (.contains flags, :ScriptVerifyFlag'MINIMALDATA)))]
                 (when (or (< __pubKeyCount 0) (< Script'MAX_PUBKEYS_PER_MULTISIG __pubKeyCount))
                     (throw (ScriptException'new-2 :ScriptError'PUBKEY_COUNT, "OP_CHECKMULTISIG(VERIFY) with pubkey count out of range"))
                 )
@@ -26522,7 +26488,7 @@
                         (.add pubkeys, (.pollLast stack))
                     )
 
-                    (let [#_"int" __sigCount (.intValue (Script'cast-to-big-integer-2 (.pollLast stack), (.contains __verifyFlags, :ScriptVerifyFlag'MINIMALDATA)))]
+                    (let [#_"int" __sigCount (.intValue (Script'cast-to-big-integer-2 (.pollLast stack), (.contains flags, :ScriptVerifyFlag'MINIMALDATA)))]
                         (when (or (< __sigCount 0) (< __pubKeyCount __sigCount))
                             (throw (ScriptException'new-2 :ScriptError'SIG_COUNT, "OP_CHECKMULTISIG(VERIFY) with sig count out of range"))
                         )
@@ -26552,7 +26518,7 @@
                                             ;; more expensive than hashing, its not a big deal.
                                             (try
                                                 (let [#_"TransactionSignature" sig (TransactionSignature'decode-from-bitcoin-2 (.getFirst sigs), __requireCanonical)
-                                                      #_"Sha256Hash" hash (Transaction''hash-for-signature-4b __txContainingThis, index, __connectedScript, (byte (:sighash-flags sig)))]
+                                                      #_"Sha256Hash" hash (Transaction''hash-for-signature-4b tx, index, __connectedScript, (byte (:sighash-flags sig)))]
                                                     (when (ECKey'verify-3e (Sha256Hash''get-bytes hash), sig, __pubKey)
                                                         (.pollFirst sigs)
                                                     )
@@ -26572,7 +26538,7 @@
 
                                     ;; We uselessly remove a stack object to emulate a Bitcoin Core bug.
                                     (let [#_"byte[]" __nullDummy (.pollLast stack)]
-                                        (when (and (.contains __verifyFlags, :ScriptVerifyFlag'NULLDUMMY) (< 0 (alength __nullDummy)))
+                                        (when (and (.contains flags, :ScriptVerifyFlag'NULLDUMMY) (< 0 (alength __nullDummy)))
                                             (throw (ScriptException'new-2 :ScriptError'SIG_NULLFAIL, (str "OP_CHECKMULTISIG(VERIFY) with non-null nulldummy: " (Arrays/toString __nullDummy))))
                                         )
 
@@ -26610,8 +26576,8 @@
     #_deprecated
     #_throws #_[ "ScriptException" ]
     #_method
-    (defn #_"void" Script''correctly-spends-4 [#_"Script" this, #_"Transaction" __txContainingThis, #_"long" __scriptSigIndex, #_"Script" __scriptPubKey]
-        (Script''correctly-spends-5 this, __txContainingThis, __scriptSigIndex, __scriptPubKey, Script'ALL_VERIFY_FLAGS)
+    (defn #_"void" Script''correctly-spends-4 [#_"Script" this, #_"Transaction" tx, #_"long" index, #_"Script" __scriptPubKey]
+        (Script''correctly-spends-5 this, tx, index, __scriptPubKey, Script'ALL_VERIFY_FLAGS)
         nil
     )
 
@@ -26627,68 +26593,62 @@
      ;;
     #_throws #_[ "ScriptException" ]
     #_method
-    (defn #_"void" Script''correctly-spends-5 [#_"Script" this, #_"Transaction" __txContainingThis, #_"long" __scriptSigIndex, #_"Script" __scriptPubKey, #_"Set<ScriptVerifyFlag>" __verifyFlags]
+    (defn #_"void" Script''correctly-spends-5 [#_"Script" this, #_"Transaction" tx, #_"long" index, #_"Script" __scriptPubKey, #_"Set<ScriptVerifyFlag>" flags]
         ;; Clone the transaction because executing the script involves editing it, and if we die, we'll leave
         ;; the tx half broken (also it's not so thread safe to work on it directly).
-        (§ try
-            (§ ass __txContainingThis (BitcoinSerializer''make-transaction-2 (:default-serializer (:params __txContainingThis)), (Message'''bitcoin-serialize-1 __txContainingThis)))
-            (§ catch ProtocolException e
-                (throw (RuntimeException. e)) ;; Should not happen unless we were given a totally broken transaction.
-            )
-        )
-
-        (when (or (< Script'MAX_SCRIPT_SIZE (alength (Script''get-program this))) (< Script'MAX_SCRIPT_SIZE (alength (Script''get-program __scriptPubKey))))
-            (throw (ScriptException'new-2 :ScriptError'SCRIPT_SIZE, "Script larger than 10,000 bytes"))
-        )
-
-        (§ let [#_"LinkedList<byte[]>" stack (LinkedList.)
-              #_"LinkedList<byte[]>" __p2shStack nil]
-
-            (Script'execute-script-5 __txContainingThis, __scriptSigIndex, this, stack, __verifyFlags)
-            (when (.contains __verifyFlags, :ScriptVerifyFlag'P2SH)
-                (§ ass __p2shStack (LinkedList. stack))
-            )
-            (Script'execute-script-5 __txContainingThis, __scriptSigIndex, __scriptPubKey, stack, __verifyFlags)
-
-            (when (= (.size stack) 0)
-                (throw (ScriptException'new-2 :ScriptError'EVAL_FALSE, "Stack empty at end of script execution."))
-            )
-
-            (when-not (Script'cast-to-bool (.pollLast stack))
-                (throw (ScriptException'new-2 :ScriptError'EVAL_FALSE, (str "Script resulted in a non-true stack: " stack)))
-            )
-
-            ;; P2SH is pay to script hash.  It means that the scriptPubKey has a special form which is a valid
-            ;; program but it has "useless" form that if evaluated as a normal program always returns true.
-            ;; Instead, miners recognize it as special based on its template - it provides a hash of the real scriptPubKey
-            ;; and that must be provided by the input.  The goal of this bizarre arrangement is twofold:
-            ;;
-            ;; (1) You can sum up a large, complex script (like a CHECKMULTISIG script) with an address that's the same
-            ;;     size as a regular address.  This means it doesn't overload scannable QR codes/NFC tags or become
-            ;;     un-wieldy to copy/paste.
-            ;; (2) It allows the working set to be smaller: nodes perform best when they can store as many unspent outputs
-            ;;     in RAM as possible, so if the outputs are made smaller and the inputs get bigger, then it's better for
-            ;;     overall scalability and performance.
-
-            ;; TODO: Check if we can take out enforceP2SH if there's a checkpoint at the enforcement block.
-            (when (and (.contains __verifyFlags, :ScriptVerifyFlag'P2SH) (Script''is-pay-to-script-hash __scriptPubKey))
-                (doseq [#_"ScriptChunk" chunk (:chunks this)]
-                    (when (and (ScriptChunk''is-op-code chunk) (< ScriptOpCodes'OP_16 (:opcode chunk)))
-                        (throw (ScriptException'new-2 :ScriptError'SIG_PUSHONLY, "Attempted to spend a P2SH scriptPubKey with a script that contained script ops"))
+        (let [tx (try
+                    (BitcoinSerializer''make-transaction-2 (:default-serializer (:params tx)), (Message'''bitcoin-serialize-1 tx))
+                    (§ catch ProtocolException e
+                        (throw (RuntimeException. e)) ;; Should not happen unless we were given a totally broken transaction.
                     )
-                )
+                )]
+            (when (or (< Script'MAX_SCRIPT_SIZE (alength (Script''get-program this))) (< Script'MAX_SCRIPT_SIZE (alength (Script''get-program __scriptPubKey))))
+                (throw (ScriptException'new-2 :ScriptError'SCRIPT_SIZE, "Script larger than 10,000 bytes"))
+            )
 
-                (let [#_"byte[]" __scriptPubKeyBytes (.pollLast __p2shStack)
-                      #_"Script" __scriptPubKeyP2SH (Script'new-1-bytes __scriptPubKeyBytes)]
+            (let [#_"LinkedList<byte[]>" stack (LinkedList.)]
+                (Script'execute-script-5 tx, index, this, stack, flags)
 
-                    (Script'execute-script-5 __txContainingThis, __scriptSigIndex, __scriptPubKeyP2SH, __p2shStack, __verifyFlags)
+                (let [#_"LinkedList<byte[]>" __p2shStack (when (.contains flags, :ScriptVerifyFlag'P2SH) (LinkedList. stack))]
+                    (Script'execute-script-5 tx, index, __scriptPubKey, stack, flags)
 
-                    (when (= (.size __p2shStack) 0)
-                        (throw (ScriptException'new-2 :ScriptError'EVAL_FALSE, "P2SH stack empty at end of script execution."))
+                    (when (zero? (.size stack))
+                        (throw (ScriptException'new-2 :ScriptError'EVAL_FALSE, "Stack empty at end of script execution."))
+                    )
+                    (when-not (Script'cast-to-bool (.pollLast stack))
+                        (throw (ScriptException'new-2 :ScriptError'EVAL_FALSE, (str "Script resulted in a non-true stack: " stack)))
                     )
 
-                    (when-not (Script'cast-to-bool (.pollLast __p2shStack))
-                        (throw (ScriptException'new-2 :ScriptError'EVAL_FALSE, "P2SH script execution resulted in a non-true stack"))
+                    ;; P2SH is pay to script hash.  It means that the scriptPubKey has a special form which is a valid
+                    ;; program but it has "useless" form that if evaluated as a normal program always returns true.
+                    ;; Instead, miners recognize it as special based on its template - it provides a hash of the real scriptPubKey
+                    ;; and that must be provided by the input.  The goal of this bizarre arrangement is twofold:
+                    ;;
+                    ;; (1) You can sum up a large, complex script (like a CHECKMULTISIG script) with an address that's the same
+                    ;;     size as a regular address.  This means it doesn't overload scannable QR codes/NFC tags or become
+                    ;;     un-wieldy to copy/paste.
+                    ;; (2) It allows the working set to be smaller: nodes perform best when they can store as many unspent outputs
+                    ;;     in RAM as possible, so if the outputs are made smaller and the inputs get bigger, then it's better for
+                    ;;     overall scalability and performance.
+
+                    ;; TODO: Check if we can take out enforceP2SH if there's a checkpoint at the enforcement block.
+                    (when (and (.contains flags, :ScriptVerifyFlag'P2SH) (Script''is-pay-to-script-hash __scriptPubKey))
+                        (doseq [#_"ScriptChunk" chunk (:chunks this)]
+                            (when (and (ScriptChunk''is-op-code chunk) (< ScriptOpCodes'OP_16 (:opcode chunk)))
+                                (throw (ScriptException'new-2 :ScriptError'SIG_PUSHONLY, "Attempted to spend a P2SH scriptPubKey with a script that contained script ops"))
+                            )
+                        )
+
+                        (let [#_"Script" __scriptPubKeyP2SH (Script'new-1-bytes (.pollLast __p2shStack))]
+                            (Script'execute-script-5 tx, index, __scriptPubKeyP2SH, __p2shStack, flags)
+
+                            (when (zero? (.size __p2shStack))
+                                (throw (ScriptException'new-2 :ScriptError'EVAL_FALSE, "P2SH stack empty at end of script execution."))
+                            )
+                            (when-not (Script'cast-to-bool (.pollLast __p2shStack))
+                                (throw (ScriptException'new-2 :ScriptError'EVAL_FALSE, "P2SH script execution resulted in a non-true stack"))
+                            )
+                        )
                     )
                 )
             )
@@ -26709,7 +26669,7 @@
      ;;
     #_method
     (defn #_"ScriptType" Script''get-script-type [#_"Script" this]
-        (§ cond
+        (cond
             (Script''is-sent-to-address this)     :ScriptType'P2PKH
             (Script''is-sent-to-raw-pub-key this) :ScriptType'PUB_KEY
             (Script''is-pay-to-script-hash this)  :ScriptType'P2SH
@@ -26932,7 +26892,7 @@
 
     ;;; Creates a scriptPubKey that encodes payment to the given address. ;;
     (defn #_"Script" ScriptBuilder'create-output-script-1a [#_"Address" to]
-        (§ if (Address''is-p2sh-address to)
+        (if (Address''is-p2sh-address to)
             ;; OP_HASH160 <scriptHash> OP_EQUAL
             (-> (ScriptBuilder'new-0) (ScriptBuilder''op-2 ScriptOpCodes'OP_HASH160) (ScriptBuilder''data-2 (Address''get-hash160 to)) (ScriptBuilder''op-2 ScriptOpCodes'OP_EQUAL) (ScriptBuilder''build))
             ;; OP_DUP OP_HASH160 <pubKeyHash> OP_EQUALVERIFY OP_CHECKSIG
@@ -28466,30 +28426,24 @@
 
     #_method
     (defn #_"List<ValueType>" TransactionalHashMap''values [#_"TransactionalHashMap" this]
-        (§ let [#_"List<ValueType>" __valueTypes (ArrayList.)]
-            (doseq [#_"KeyType" __keyType (.keySet (:map this))]
-                (.add __valueTypes, (TransactionalHashMap''get-2 this, __keyType))
+        (let [#_"List<ValueType>" values (ArrayList.)]
+            (doseq [#_"KeyType" key (.keySet (:map this))]
+                (.add values, (TransactionalHashMap''get-2 this, key))
             )
-            __valueTypes
+            values
         )
     )
 
     #_method
     (defn #_"void" TransactionalHashMap''put-3 [#_"TransactionalHashMap" this, #_"KeyType" key, #_"ValueType" value]
-        (§ cond (true? (.get (:in-transaction this)))
-            (do
-                (when (some? (.get (:temp-set-removed this)))
-                    (.remove (.get (:temp-set-removed this)), key)
-                )
-                (when (nil? (.get (:temp-map this)))
-                    (.set (:temp-map this), (HashMap. #_"<KeyType, ValueType>"))
-                )
-                (.put (.get (:temp-map this)), key, value)
+        (when' (true? (.get (:in-transaction this))) => (.put (:map this), key, value)
+            (when (some? (.get (:temp-set-removed this)))
+                (.remove (.get (:temp-set-removed this)), key)
             )
-            :else
-            (do
-                (.put (:map this), key, value)
+            (when (nil? (.get (:temp-map this)))
+                (.set (:temp-map this), (HashMap. #_"<KeyType, ValueType>"))
             )
+            (.put (.get (:temp-map this)), key, value)
         )
         nil
     )
@@ -28497,21 +28451,17 @@
     #_method
     (defn #_"ValueType" TransactionalHashMap''remove [#_"TransactionalHashMap" this, #_"KeyType" key]
         (when' (true? (.get (:in-transaction this))) => (.remove (:map this), key)
-            (§ let [#_"ValueType" __retVal (.get (:map this), key)]
-                (when (some? __retVal)
+            (let [#_"ValueType" value (.get (:map this), key)]
+                (when (some? value)
                     (when (nil? (.get (:temp-set-removed this)))
                         (.set (:temp-set-removed this), (HashSet. #_"<KeyType>"))
                     )
                     (.add (.get (:temp-set-removed this)), key)
                 )
-                (when (some? (.get (:temp-map this)))
-                    (let [#_"ValueType" __tempVal (.remove (.get (:temp-map this)), key)]
-                        (when (some? __tempVal)
-                            (§ return __tempVal)
-                        )
-                    )
+                (if (some? (.get (:temp-map this)))
+                    (or (.remove (.get (:temp-map this)), key) value)
+                    value
                 )
-                __retVal
             )
         )
     )
