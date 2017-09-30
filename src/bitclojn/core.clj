@@ -47,19 +47,19 @@
 (def >> bit-shift-right)
 (def >>> unsigned-bit-shift-right)
 
-(defmacro defclass [s & i] `(do (defrecord ~s []) ~@i))
+(defmacro defclass [name & _] (ensure symbol? name) `(do ~@_))
 
-(defmacro sync [& _] `(do ~@_))
+(defmacro sync [lock & _] `(do (ensure some? ~lock) ~@_))
 
 (ns bitclojn.core
     (:refer-clojure :exclude [defn- ensure sync])
     (:import [com.google.common.base Charsets Joiner MoreObjects Splitter Stopwatch Throwables]
-             [com.google.common.collect ArrayListMultimap ImmutableList ImmutableMap ImmutableSet Iterables Ordering]
+             [com.google.common.collect ArrayListMultimap ImmutableList ImmutableMap ImmutableSet Iterables]
              [com.google.common.hash HashCode Hasher Hashing]
              [com.google.common.io BaseEncoding]
              [com.google.common.math LongMath]
              [com.google.common.net InetAddresses]
-             [com.google.common.primitives Ints Longs UnsignedBytes]
+             [com.google.common.primitives Ints UnsignedBytes]
              [com.google.common.util.concurrent AbstractExecutionThreadService AbstractIdleService FutureCallback Futures ListenableFuture ListeningExecutorService MoreExecutors Runnables Service SettableFuture Uninterruptibles]
            #_[com.google.protobuf ByteString]
              [java.io ByteArrayInputStream ByteArrayOutputStream File IOException RandomAccessFile UnsupportedEncodingException]
@@ -227,7 +227,6 @@
 (declare NotFoundMessage'MIN_PROTOCOL_VERSION NotFoundMessage'new-1 NotFoundMessage'new-2 NotFoundMessage'new-2-bytes)
 (declare OrphanBlock'init OrphanBlock'new)
 (declare PBKDF2SHA512'f PBKDF2SHA512'derive)
-(declare Pair'init Pair'new)
 (declare PartialMerkleTree''get-transaction-count PartialMerkleTree''get-txn-hash-and-merkle-root PartialMerkleTree''recursive-extract-hashes PartialMerkleTree'build-from-leaves PartialMerkleTree'calc-hash PartialMerkleTree'combine-left-right PartialMerkleTree'get-tree-width PartialMerkleTree'init PartialMerkleTree'new-3 PartialMerkleTree'new-4 PartialMerkleTree'traverse-and-build)
 (declare Peer''add-blocks-downloaded-event-listener-2 Peer''add-blocks-downloaded-event-listener-3 Peer''add-chain-download-started-event-listener-2 Peer''add-chain-download-started-event-listener-3 Peer''add-connected-event-listener-2 Peer''add-connected-event-listener-3 Peer''add-disconnected-event-listener-2 Peer''add-disconnected-event-listener-3 Peer''add-get-data-event-listener-2 Peer''add-get-data-event-listener-3 Peer''add-on-transaction-broadcast-listener-2 Peer''add-on-transaction-broadcast-listener-3 Peer''add-ping-time-data Peer''add-pre-message-received-event-listener-2 Peer''add-pre-message-received-event-listener-3 Peer''add-wallet Peer''block-chain-download-locked Peer''check-for-filter-exhaustion Peer''download-dependencies Peer''download-dependencies-internal Peer''end-filtered-block Peer''get-addr Peer''get-best-height Peer''get-block Peer''get-bloom-filter-1 Peer''get-connection-open-future Peer''get-last-ping-time Peer''get-peer-block-height-difference Peer''get-peer-mempool-transaction Peer''get-peer-version-message Peer''get-ping-time Peer''get-version-handshake-future Peer''get-version-message Peer''invoke-on-blocks-downloaded Peer''is-download-data Peer''is-download-tx-dependencies Peer''is-not-found-message-supported Peer''maybe-handle-requested-data Peer''maybe-restart-chain-download Peer''ping-1 Peer''ping-2 Peer''process-address-message Peer''process-alert Peer''process-block Peer''process-get-data Peer''process-headers Peer''process-inv Peer''process-not-found-message Peer''process-ping Peer''process-pong Peer''process-transaction Peer''process-version-ack Peer''process-version-message Peer''remove-blocks-downloaded-event-listener Peer''remove-chain-download-started-event-listener Peer''remove-connected-event-listener Peer''remove-disconnected-event-listener Peer''remove-get-data-event-listener Peer''remove-on-transaction-broadcast-listener Peer''remove-pre-message-received-event-listener Peer''remove-wallet Peer''send-single-get-data Peer''set-bloom-filter-2 Peer''set-bloom-filter-3 Peer''set-download-data Peer''set-download-parameters Peer''set-download-tx-dependencies-b Peer''set-download-tx-dependencies-i Peer''set-min-protocol-version Peer''start-block-chain-download Peer''start-filtered-block Peer''version-handshake-complete Peer'LOG Peer'PING_MOVING_AVERAGE_WINDOW Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT Peer'init Peer'new-4 Peer'new-5)
 (declare PeerAddress''get-addr PeerAddress''get-hostname PeerAddress''get-port PeerAddress''get-services PeerAddress''get-socket-address PeerAddress''get-time PeerAddress''to-socket-address PeerAddress'MESSAGE_SIZE PeerAddress'init PeerAddress'localhost PeerAddress'new-2ia PeerAddress'new-2isa PeerAddress'new-3ia PeerAddress'new-3s PeerAddress'new-4 PeerAddress'new-5 PeerAddress'new-6)
@@ -578,7 +577,7 @@
  ; override the progress method to update a GUI instead.
  ;;
 (defclass DownloadProgressTracker (§ implements PeerDataEventListener)
-    (def- #_"Logger" DownloadProgressTracker'LOG (LoggerFactory/getLogger DownloadProgressTracker))
+    (def- #_"Logger" DownloadProgressTracker'LOG (§ LoggerFactory/getLogger DownloadProgressTracker))
 
     (defn- #_"DownloadProgressTracker" DownloadProgressTracker'init []
     {
@@ -704,29 +703,6 @@
 (§ ns bitclojn.base
     (:refer-clojure :exclude [defn- ensure sync])
     (:use [bitclojn slang])
-)
-
-(defclass Pair (§ implements Comparable #_"<Pair>")
-    (defn- #_"Pair" Pair'init []
-    {
-        #_"int" :item 0
-        #_"int" :count 0
-    })
-
-    (defn #_"Pair" Pair'new [#_"int" item, #_"int" count]
-        (let [this (Pair'init)]
-            (§ assoc this :count count)
-            (§ assoc this :item item)
-            this
-        )
-    )
-
-    ;; Note that in this implementation compareTo() is not consistent with equals().
-    #_foreign
-    #_override
-    (defn #_"int" Comparable'''compareTo [#_"Pair" this, #_"Pair" o]
-        (- (Ints/compare (:count this), (:count o)))
-    )
 )
 
 ;;;
@@ -1129,31 +1105,11 @@
     )
 
     (defn #_"int" Utils'max-of-most-freq [#_"List<Integer>" items]
-        (§ if (empty? items)
-            0
-            ;; This would be much easier in a functional language (or in Java 8).
-            (let [items (.sortedCopy (.reverse (Ordering/natural)), items) #_"LinkedList<Pair>" pairs (LinkedList.)]
-                (.add pairs, (Pair'new (.get items, 0), 0))
-                (doseq [#_"int" item items]
-                    (let [#_"Pair" pair (.getLast pairs)]
-                        (when (not= (:item pair) item)
-                            (§ ass pair (Pair'new item, 0))
-                            (.add pairs, pair)
-                        )
-                        (§ update pair :count inc)
-                    )
-                )
-                ;; pairs now contains a uniqified list of the sorted inputs, with counts for how often that item appeared.
-                ;; Now sort by how frequently they occur, and pick the max of the most frequent.
-                (Collections/sort pairs)
-                (let [#_"int" __maxCount (:count (.getFirst pairs)) #_"int" __maxItem (:item (.getFirst pairs))]
-                    (doseq [#_"Pair" pair pairs]
-                        (when (not= (:count pair) __maxCount)
-                            (§ break )
-                        )
-                        (§ ass __maxItem (max __maxItem, (:item pair)))
-                    )
-                    __maxItem
+        (when' (seq items) => 0
+            (let [pairs (frequencies items)]
+                ;; Pick the max of the most frequent items.
+                (let [pairs (sort-by second (comp - compare) pairs) #_"int" m (second (first pairs))]
+                    (reduce max (first (first pairs)) (map first (take-while #(= (second %) m) (rest pairs))))
                 )
             )
         )
@@ -1733,7 +1689,7 @@
 
     #_method
     (defn #_"Coin[]" Coin''divide-and-remainder [#_"Coin" this, #_"long" divisor]
-        (into-array Coin [ (Coin'new (quot (:value this) divisor)), (Coin'new (rem (:value this) divisor)) ])
+        (§ into-array Coin [ (Coin'new (quot (:value this) divisor)), (Coin'new (rem (:value this) divisor)) ])
     )
 
     #_method
@@ -1862,7 +1818,7 @@
     #_foreign
     #_override
     (defn #_"int" Comparable'''compareTo [#_"Coin" this, #_"Coin" other]
-        (Longs/compare (:value this), (:value other))
+        (compare (:value this), (:value other))
     )
 
     ;;;
@@ -2018,7 +1974,7 @@
 
     #_method
     (defn #_"Fiat[]" Fiat''divide-and-remainder [#_"Fiat" this, #_"long" divisor]
-        (into-array Fiat [ (Fiat'new (:currency-code this), (quot (:value this) divisor)), (Fiat'new (:currency-code this), (rem (:value this) divisor)) ])
+        (§ into-array Fiat [ (Fiat'new (:currency-code this), (quot (:value this) divisor)), (Fiat'new (:currency-code this), (rem (:value this) divisor)) ])
     )
 
     #_method
@@ -2138,7 +2094,7 @@
     #_foreign
     #_override
     (defn #_"int" Comparable'''compareTo [#_"Fiat" this, #_"Fiat" other]
-        (if (.equals (:currency-code this), (:currency-code other)) (Longs/compare (:value this), (:value other)) (.compareTo (:currency-code this), (:currency-code other)))
+        (if (.equals (:currency-code this), (:currency-code other)) (compare (:value this), (:value other)) (.compareTo (:currency-code this), (:currency-code other)))
     )
 )
 
@@ -2217,7 +2173,7 @@
  ;;
 #_abstract
 (defclass BlockChain
-    (def- #_"Logger" BlockChain'LOG (LoggerFactory/getLogger BlockChain))
+    (def- #_"Logger" BlockChain'LOG (§ LoggerFactory/getLogger BlockChain))
 
     ;;; False positive estimation uses a double exponential moving average. ;;
     (def #_"double" BlockChain'FP_ESTIMATOR_ALPHA 0.0001)
@@ -4094,7 +4050,7 @@
  ; <a href="https://en.bitcoin.it/wiki/Protocol_specification">the protocol specification</a>.
  ;;
 (defclass BitcoinSerializer
-    (def- #_"Logger" BitcoinSerializer'LOG (LoggerFactory/getLogger BitcoinSerializer))
+    (def- #_"Logger" BitcoinSerializer'LOG (§ LoggerFactory/getLogger BitcoinSerializer))
 
     (def- #_"int" BitcoinSerializer'COMMAND_LEN 12)
 
@@ -4369,7 +4325,7 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (defclass Block (§ extends Message)
-    (def- #_"Logger" Block'LOG (LoggerFactory/getLogger Block))
+    (def- #_"Logger" Block'LOG (§ LoggerFactory/getLogger Block))
 
     ;;; How many bytes are required to represent a block header WITHOUT the trailing 00 length byte. ;;
     (def #_"int" Block'HEADER_SIZE 80)
@@ -5898,7 +5854,7 @@
  ; for the block header and then 1 zero byte at the end (i.e. number of transactions in the block: always zero).
  ;;
 (defclass CheckpointManager
-    (def- #_"Logger" CheckpointManager'LOG (LoggerFactory/getLogger CheckpointManager))
+    (def- #_"Logger" CheckpointManager'LOG (§ LoggerFactory/getLogger CheckpointManager))
 
     (def- #_"int" CheckpointManager'MAX_SIGNATURES 256)
 
@@ -6124,7 +6080,7 @@
  ; in the case where multiple instances of the library are in use simultaneously.
  ;;
 (defclass Context
-    (def- #_"Logger" Context'LOG (LoggerFactory/getLogger Context))
+    (def- #_"Logger" Context'LOG (§ LoggerFactory/getLogger Context))
 
     (def #_"int" Context'DEFAULT_EVENT_HORIZON 100)
 
@@ -6557,7 +6513,7 @@
  ; you can usually ignore the compressed/uncompressed distinction.
  ;;
 (defclass ECKey
-    (def- #_"Logger" ECKey'LOG (LoggerFactory/getLogger ECKey))
+    (def- #_"Logger" ECKey'LOG (§ LoggerFactory/getLogger ECKey))
 
     ;;; Sorts oldest keys first, newest last. ;;
     (def #_"Comparator<ECKey>" ECKey'AGE_COMPARATOR
@@ -7558,7 +7514,7 @@
  ; Core does.
  ;;
 (defclass FullPrunedBlockChain (§ extends BlockChain)
-    (def- #_"Logger" FullPrunedBlockChain'LOG (LoggerFactory/getLogger FullPrunedBlockChain))
+    (def- #_"Logger" FullPrunedBlockChain'LOG (§ LoggerFactory/getLogger FullPrunedBlockChain))
 
     (defn- #_"FullPrunedBlockChain" FullPrunedBlockChain'init []
     {
@@ -8350,7 +8306,7 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (defclass HeadersMessage (§ extends Message)
-    (def- #_"Logger" HeadersMessage'LOG (LoggerFactory/getLogger HeadersMessage))
+    (def- #_"Logger" HeadersMessage'LOG (§ LoggerFactory/getLogger HeadersMessage))
 
     ;; The main client will never send us more than this number of headers.
     (def #_"int" HeadersMessage'MAX_HEADERS 2000)
@@ -8709,7 +8665,7 @@
  ;;
 #_abstract
 (defclass Message
-    (def- #_"Logger" Message'LOG (LoggerFactory/getLogger Message))
+    (def- #_"Logger" Message'LOG (§ LoggerFactory/getLogger Message))
 
     (def #_"int" Message'MAX_SIZE 0x02000000) ;; 32MB
 
@@ -9120,7 +9076,7 @@
     ;;; The string id of the testnet. ;;
     (def #_"String" NetworkParameters'ID_TESTNET "org.bitcoin.test")
 
-    (def- #_"Logger" NetworkParameters'LOG (LoggerFactory/getLogger NetworkParameters))
+    (def- #_"Logger" NetworkParameters'LOG (§ LoggerFactory/getLogger NetworkParameters))
 
     ;; TODO: Seed nodes should be here as well.
 
@@ -9966,7 +9922,7 @@
  ;;
 #_abstract
 (defclass PeerSocketHandler (§ extends AbstractTimeoutHandler) (§ implements StreamConnection)
-    (def- #_"Logger" PeerSocketHandler'LOG (LoggerFactory/getLogger PeerSocketHandler))
+    (def- #_"Logger" PeerSocketHandler'LOG (§ LoggerFactory/getLogger PeerSocketHandler))
 
     (defn- #_"PeerSocketHandler" PeerSocketHandler'init []
     {
@@ -10212,7 +10168,7 @@
  ; disabled (using {@link AbstractTimeoutHandler#setTimeoutEnabled(boolean)}) once the version handshake completes.
  ;;
 (defclass Peer (§ extends PeerSocketHandler)
-    (def- #_"Logger" Peer'LOG (LoggerFactory/getLogger Peer))
+    (def- #_"Logger" Peer'LOG (§ LoggerFactory/getLogger Peer))
 
     ;; How frequently to refresh the filter.  This should become dynamic in future and calculated depending on the
     ;; actual false positive rate.  For now a good value was determined empirically around January 2013.
@@ -12284,9 +12240,7 @@
 #_non-static #_"PeerGroup"
 (defclass PeerListener (§ implements GetDataEventListener, BlocksDownloadedEventListener)
     (defn #_"PeerListener" PeerListener'new []
-        (let [this {}]
-            this
-        )
+        {}
     )
 
     #_override
@@ -12314,9 +12268,7 @@
 #_non-static #_"PeerGroup"
 (defclass PeerStartupListener (§ implements PeerConnectedEventListener, PeerDisconnectedEventListener)
     (defn- #_"PeerStartupListener" PeerStartupListener'new []
-        (let [this {}]
-            this
-        )
+        {}
     )
 
     #_override
@@ -12509,7 +12461,7 @@
  ; but starting and stopping the service should be fine.
  ;;
 (defclass PeerGroup (§ implements TransactionBroadcaster)
-    (def- #_"Logger" PeerGroup'LOG (LoggerFactory/getLogger PeerGroup))
+    (def- #_"Logger" PeerGroup'LOG (§ LoggerFactory/getLogger PeerGroup))
 
     ;;;
      ; The default number of connections to the p2p network the library will try to build.  This is set to 12 empirically.
@@ -12888,7 +12840,7 @@
 
                             (let [#_"int" cmp (.compareTo (.get (:backoff-map this), a), (.get (:backoff-map this), b))]
                                 ;; Sort by port if otherwise equals - for testing.
-                                (if (= cmp 0) (Ints/compare (PeerAddress''get-port a), (PeerAddress''get-port b)) cmp)
+                                (if (= cmp 0) (compare (PeerAddress''get-port a), (PeerAddress''get-port b)) cmp)
                             )
                         )
                     )
@@ -15571,7 +15523,7 @@
             (#_"int" compare [#_"Comparator" __, #_"Transaction" tx1, #_"Transaction" tx2]
                 (let [#_"long" time1 (.getTime (Transaction''get-update-time tx1))
                       #_"long" time2 (.getTime (Transaction''get-update-time tx2))
-                      #_"int" cmp (- (Longs/compare time1, time2))]
+                      #_"int" cmp (- (compare time1, time2))]
                     ;; If time1 == time2, compare by tx hash to make comparator consistent with equals.
                     (if (not= cmp 0) cmp (.compareTo (Message'''get-hash tx1), (Message'''get-hash tx2)))
                 )
@@ -15588,14 +15540,14 @@
                       #_"int" height1 (if (= (TransactionConfidence''get-confidence-type confidence1) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height confidence1) Block'BLOCK_HEIGHT_UNKNOWN)
                       #_"TransactionConfidence" confidence2 (Transaction''get-confidence-t tx2)
                       #_"int" height2 (if (= (TransactionConfidence''get-confidence-type confidence2) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height confidence2) Block'BLOCK_HEIGHT_UNKNOWN)
-                      #_"int" cmp (- (Ints/compare height1, height2))]
+                      #_"int" cmp (- (compare height1, height2))]
                     ;; If height1 == height2, compare by tx hash to make comparator consistent with equals.
                     (if (not= cmp 0) cmp (.compareTo (Message'''get-hash tx1), (Message'''get-hash tx2)))
                 )
             )
         ))
 
-    (def- #_"Logger" Transaction'LOG (LoggerFactory/getLogger Transaction))
+    (def- #_"Logger" Transaction'LOG (§ LoggerFactory/getLogger Transaction))
 
     ;;; Threshold for lockTime: below this value it is interpreted as block number, otherwise as timestamp. ;;
     (def #_"int" Transaction'LOCKTIME_THRESHOLD 500000000) ;; Tue Nov  5 00:53:20 1985 UTC
@@ -16967,9 +16919,7 @@
 #_non-static #_"TransactionBroadcast"
 (defclass EnoughAvailablePeers (§ implements Runnable)
     (defn- #_"EnoughAvailablePeers" EnoughAvailablePeers'new []
-        (let [this {}]
-            this
-        )
+        {}
     )
 
     #_foreign
@@ -17045,9 +16995,7 @@
 #_non-static #_"TransactionBroadcast"
 (defclass ConfidenceChange (§ implements TransactionConfidenceListener)
     (defn- #_"ConfidenceChange" ConfidenceChange'new []
-        (let [this {}]
-            this
-        )
+        {}
     )
 
     #_override
@@ -17092,7 +17040,7 @@
  ; a peer indicating that the transaction was not acceptable.
  ;;
 (defclass TransactionBroadcast
-    (def- #_"Logger" TransactionBroadcast'LOG (LoggerFactory/getLogger TransactionBroadcast))
+    (def- #_"Logger" TransactionBroadcast'LOG (§ LoggerFactory/getLogger TransactionBroadcast))
 
     ;;; Used for shuffling the peers before broadcast: unit tests can replace this to make themselves deterministic. ;;
     #_testing
@@ -18508,7 +18456,7 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (defclass TransactionOutput (§ extends ChildMessage)
-    (def- #_"Logger" TransactionOutput'LOG (LoggerFactory/getLogger TransactionOutput))
+    (def- #_"Logger" TransactionOutput'LOG (§ LoggerFactory/getLogger TransactionOutput))
 
     (defn- #_"TransactionOutput" TransactionOutput'init []
     {
@@ -19666,7 +19614,7 @@
     #_foreign
     #_override
     (defn #_"int" Comparable'''compareTo [#_"VersionedChecksummedBytes" this, #_"VersionedChecksummedBytes" o]
-        (let [#_"int" cmp (Ints/compare (:version this), (:version o))]
+        (let [#_"int" cmp (compare (:version this), (:version o))]
             (if (not= cmp 0) cmp (.compare (UnsignedBytes/lexicographicalComparator), (:bytes this), (:bytes o)))
         )
     )
@@ -19804,7 +19752,7 @@
     #_override
     (defn #_"int" Comparable'''compareTo [#_"ChildNumber" this, #_"ChildNumber" other]
         ;; Note that in this implementation compareTo() is not consistent with equals().
-        (Ints/compare (ChildNumber''num this), (ChildNumber''num other))
+        (compare (ChildNumber''num this), (ChildNumber''num other))
     )
 )
 
@@ -20786,14 +20734,14 @@
  ;;
 
 (defclass MnemonicCode
-    (def- #_"Logger" MnemonicCode'LOG (LoggerFactory/getLogger MnemonicCode))
+    (def- #_"Logger" MnemonicCode'LOG (§ LoggerFactory/getLogger MnemonicCode))
 
     (defn- #_"MnemonicCode" MnemonicCode'init []
     {
         #_"ArrayList<String>" :word-list nil
     })
 
-    (def- #_"String[]" MnemonicCode'BIP39_ENGLISH_WORDLIST (into-array String
+    (def- #_"String[]" MnemonicCode'BIP39_ENGLISH_WORDLIST (§ into-array String
     [
         "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract",
         "absurd", "abuse", "access", "accident", "account", "accuse", "achieve", "acid",
@@ -21553,7 +21501,7 @@
  ;;
 (defclass WalletAppKit (§ extends AbstractIdleService)
     #_protected
-    (def #_"Logger" WalletAppKit'LOG (LoggerFactory/getLogger WalletAppKit))
+    (def #_"Logger" WalletAppKit'LOG (§ LoggerFactory/getLogger WalletAppKit))
 
     (defn- #_"WalletAppKit" WalletAppKit'init []
     {
@@ -22022,7 +21970,7 @@
  ; Used only by the NioClient and NioServer classes.
  ;;
 (defclass ConnectionHandler (§ implements MessageWriteTarget)
-    (def- #_"Logger" ConnectionHandler'LOG (LoggerFactory/getLogger ConnectionHandler))
+    (def- #_"Logger" ConnectionHandler'LOG (§ LoggerFactory/getLogger ConnectionHandler))
 
     (def- #_"int" ConnectionHandler'BUFFER_SIZE_LOWER_BOUND 4096)
     (def- #_"int" ConnectionHandler'BUFFER_SIZE_UPPER_BOUND 65536)
@@ -22441,7 +22389,7 @@
  ; Creates a simple connection to a server using a {@link StreamConnection} to process data.
  ;;
 (defclass NioClient (§ implements MessageWriteTarget)
-    (def- #_"Logger" NioClient'LOG (LoggerFactory/getLogger NioClient))
+    (def- #_"Logger" NioClient'LOG (§ LoggerFactory/getLogger NioClient))
 
     (defn- #_"NioClient" NioClient'init []
     {
@@ -22521,7 +22469,7 @@
  ; in a single network processing thread.
  ;;
 (defclass NioClientManager (§ extends AbstractExecutionThreadService) (§ implements ClientConnectionManager)
-    (def- #_"Logger" NioClientManager'LOG (LoggerFactory/getLogger NioClientManager))
+    (def- #_"Logger" NioClientManager'LOG (§ LoggerFactory/getLogger NioClientManager))
 
     (defn- #_"NioClientManager" NioClientManager'init []
     {
@@ -22728,7 +22676,7 @@
  ; to process data.
  ;;
 (defclass NioServer (§ extends AbstractExecutionThreadService)
-    (def- #_"Logger" NioServer'LOG (LoggerFactory/getLogger NioServer))
+    (def- #_"Logger" NioServer'LOG (§ LoggerFactory/getLogger NioServer))
 
     (defn- #_"NioServer" NioServer'init []
     {
@@ -22982,7 +22930,7 @@
  ; within the timeout are ignored.  Backends are queried in parallel.  Backends may block.
  ;;
 (defclass MultiplexingDiscovery (§ implements PeerDiscovery)
-    (def- #_"Logger" MultiplexingDiscovery'LOG (LoggerFactory/getLogger MultiplexingDiscovery))
+    (def- #_"Logger" MultiplexingDiscovery'LOG (§ LoggerFactory/getLogger MultiplexingDiscovery))
 
     (defn- #_"MultiplexingDiscovery" MultiplexingDiscovery'init []
     {
@@ -23268,7 +23216,7 @@
             (.put (:checkpoints this), 91880, (Sha256Hash'wrap-1 "00000000000743f190a18c5577a3c2d2a1f610ae9601ac046a38084ccb7cd721"))
             (.put (:checkpoints this), 200000, (Sha256Hash'wrap-1 "000000000000034a7dedef4a161fa058a2d67a173a90155f3a2fe6fc132e0ebf"))
 
-            (§ assoc this :dns-seeds (into-array String
+            (§ assoc this :dns-seeds (§ into-array String
             [
                 "seed.bitcoin.sipa.be",          ;; Pieter Wuille
                 "dnsseed.bluematt.me",           ;; Matt Corallo
@@ -23329,7 +23277,7 @@
 
     (§ def- #_"MainNetParams" MainNetParams'INSTANCE (MainNetParams'new))
 
-    (def #_"String[]" MainNetParams'TEXTUAL_CHECKPOINTS (into-array String
+    (def #_"String[]" MainNetParams'TEXTUAL_CHECKPOINTS (§ into-array String
     [
         "AAAAAAAAB+EH4QfhAAAH4AEAAABjl7tqvU/FIcDT9gcbVlA4nwtFUbxAtOawZzBpAAAAAKzkcK7NqciBjI/ldojNKncrWleVSgDfBCCn3VRrbSxXaw5/Sf//AB0z8Bkv",
         "AAAAAAAAD8EPwQ/BAAAPwAEAAADfP83Sx8MZ9RsrnZCvqzAwqB2Ma+ZesNAJrTfwAAAAACwESaNKhvRgz6WuE7UFdFk1xwzfRY/OIdIOPzX5yaAdjnWUSf//AB0GrNq5",
@@ -23578,7 +23526,7 @@
             (assert-state (= (Block''get-hash-as-string (:genesis-block this)) "000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"))
             (§ assoc this :alert-signing-key (.decode Utils'HEX, "04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a"))
 
-            (§ assoc this :dns-seeds (into-array String
+            (§ assoc this :dns-seeds (§ into-array String
             [
                 "testnet-seed.bitcoin.jonasschnelli.ch", ;; Jonas Schnelli
                 "testnet-seed.bluematt.me",              ;; Matt Corallo
@@ -23640,7 +23588,7 @@
         nil
     )
 
-    (def #_"String[]" TestNetParams'TEXTUAL_CHECKPOINTS (into-array String
+    (def #_"String[]" TestNetParams'TEXTUAL_CHECKPOINTS (§ into-array String
     [
         "AAAAAAAAB+EH4QfhAAAH4AEAAAApmwX6UCEnJcYIKTa7HO3pFkqqNhAzJVBMdEuGAAAAAPSAvVCBUypCbBW/OqU0oIF7ISF84h2spOqHrFCWN9Zw6r6/T///AB0E5oOO",
         "AAAAAAAAD8QPxA/EAAAPwAEAAADHtJ8Nq3z30grJ9lTH6bLhKSHX+MxmkZn8z5wuAAAAAK0gXcQFtYSj/IB2KZ38+itS1Da0Dn/3XosOFJntz7A8OsC/T8D/Pxwf0no+",
@@ -24324,7 +24272,7 @@
 (defclass Script
     (def #_"EnumSet<ScriptVerifyFlag>" Script'ALL_VERIFY_FLAGS (§ EnumSet/allOf ScriptVerifyFlag))
 
-    (def- #_"Logger" Script'LOG (LoggerFactory/getLogger Script))
+    (def- #_"Logger" Script'LOG (§ LoggerFactory/getLogger Script))
 
     (def #_"long" Script'MAX_SCRIPT_ELEMENT_SIZE 520) ;; bytes
     (def- #_"int" Script'MAX_OPS_PER_SCRIPT 201)
@@ -24425,7 +24373,7 @@
         (Collections/unmodifiableList (:chunks this))
     )
 
-    (§ def- #_"ScriptChunk[]" Script'STANDARD_TRANSACTION_SCRIPT_CHUNKS (into-array ScriptChunk
+    (§ def- #_"ScriptChunk[]" Script'STANDARD_TRANSACTION_SCRIPT_CHUNKS (§ into-array ScriptChunk
     [
         (ScriptChunk'new-3 ScriptOpCodes'OP_DUP, nil, 0)
         (ScriptChunk'new-3 ScriptOpCodes'OP_HASH160, nil, 1)
@@ -27100,12 +27048,10 @@
 #_abstract
 (defclass CustomTransactionSigner (§ implements TransactionSigner)
     (defn #_"CustomTransactionSigner" CustomTransactionSigner'new []
-        (let [this {}]
-            this
-        )
+        {}
     )
 
-    (def- #_"Logger" CustomTransactionSigner'LOG (LoggerFactory/getLogger CustomTransactionSigner))
+    (def- #_"Logger" CustomTransactionSigner'LOG (§ LoggerFactory/getLogger CustomTransactionSigner))
 
     #_override
     (defn #_"boolean" TransactionSigner'''is-ready [#_"CustomTransactionSigner" __]
@@ -27174,12 +27120,10 @@
  ;;
 (defclass LocalTransactionSigner (§ implements TransactionSigner)
     (defn #_"LocalTransactionSigner" LocalTransactionSigner'new []
-        (let [this {}]
-            this
-        )
+        {}
     )
 
-    (def- #_"Logger" LocalTransactionSigner'LOG (LoggerFactory/getLogger LocalTransactionSigner))
+    (def- #_"Logger" LocalTransactionSigner'LOG (§ LoggerFactory/getLogger LocalTransactionSigner))
 
     ;;;
      ; Verify flags that are safe to use when testing if an input is already signed.
@@ -27261,7 +27205,7 @@
  ; for P2SH or MissingPrivateKeyException for other transaction types.
  ;;
 (defclass MissingSigResolutionSigner (§ implements TransactionSigner)
-    (def- #_"Logger" MissingSigResolutionSigner'LOG (LoggerFactory/getLogger MissingSigResolutionSigner))
+    (def- #_"Logger" MissingSigResolutionSigner'LOG (§ LoggerFactory/getLogger MissingSigResolutionSigner))
 
     (defn- #_"MissingSigResolutionSigner" MissingSigResolutionSigner'init []
     {
@@ -28176,7 +28120,7 @@
  ; but as they are virtually unheard of this is not a significant risk.
  ;;
 (defclass SPVBlockStore (§ implements BlockStore)
-    (def- #_"Logger" SPVBlockStore'LOG (LoggerFactory/getLogger SPVBlockStore))
+    (def- #_"Logger" SPVBlockStore'LOG (§ LoggerFactory/getLogger SPVBlockStore))
 
     ;;; The default number of headers that will be stored in the ring buffer. ;;
     (def #_"int" SPVBlockStore'DEFAULT_CAPACITY 5000)
@@ -28505,7 +28449,7 @@
  ; from the creating thread into the new thread.  This factory creates daemon threads.
  ;;
 (defclass ContextPropagatingThreadFactory (§ implements ThreadFactory)
-    (def- #_"Logger" ContextPropagatingThreadFactory'LOG (LoggerFactory/getLogger ContextPropagatingThreadFactory))
+    (def- #_"Logger" ContextPropagatingThreadFactory'LOG (§ LoggerFactory/getLogger ContextPropagatingThreadFactory))
 
     (defn- #_"ContextPropagatingThreadFactory" ContextPropagatingThreadFactory'init []
     {
@@ -28758,7 +28702,7 @@
     #_override
     (defn #_"int" Comparable'''compareTo [#_"ExponentialBackoff" this, #_"ExponentialBackoff" other]
         ;; Note that in this implementation compareTo() is not consistent with equals().
-        (Longs/compare (:retry-time this), (:retry-time other))
+        (compare (:retry-time this), (:retry-time other))
     )
 
     #_foreign
@@ -28797,7 +28741,7 @@
 )
 
 (defclass UserThread (§ extends Thread) (§ implements Executor)
-    (def- #_"Logger" UserThread'LOG (LoggerFactory/getLogger UserThread))
+    (def- #_"Logger" UserThread'LOG (§ LoggerFactory/getLogger UserThread))
 
     ;; 10,000 pending tasks is entirely arbitrary and may or may not be appropriate for the device we're running on.
     (def #_"int" UserThread'WARNING_THRESHOLD 10000)
@@ -29549,7 +29493,7 @@
  ;;
 #_suppress #_[ "PublicStaticCollectionField" ]
 (defclass DeterministicKeyChain (§ implements KeyChain)
-    (def- #_"Logger" DeterministicKeyChain'LOG (LoggerFactory/getLogger DeterministicKeyChain))
+    (def- #_"Logger" DeterministicKeyChain'LOG (§ LoggerFactory/getLogger DeterministicKeyChain))
     (def #_"String" DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC "")
 
     ;; Paths through the key tree.  External keys are ones that are communicated to other parties.  Internal keys are
@@ -30358,9 +30302,7 @@
  ;;
 (defclass DefaultCoinSelector (§ implements CoinSelector)
     (defn #_"DefaultCoinSelector" DefaultCoinSelector'new []
-        (let [this {}]
-            this
-        )
+        {}
     )
 
     #_override
@@ -30481,7 +30423,7 @@
  ; non-final transactions.
  ;;
 (defclass RiskAnalysis
-    (def- #_"Logger" RiskAnalysis'LOG (LoggerFactory/getLogger RiskAnalysis))
+    (def- #_"Logger" RiskAnalysis'LOG (§ LoggerFactory/getLogger RiskAnalysis))
 
     ;;;
      ; Any standard output smaller than this value (in satoshis) will be considered risky, as it's most likely
@@ -30983,7 +30925,7 @@
  ; class docs for {@link DeterministicKeyChain} for more information on this topic.
  ;;
 (defclass KeyChainGroup (§ implements KeyBag)
-    (def- #_"Logger" KeyChainGroup'LOG (LoggerFactory/getLogger KeyChainGroup))
+    (def- #_"Logger" KeyChainGroup'LOG (§ LoggerFactory/getLogger KeyChainGroup))
 
     (defn- #_"KeyChainGroup" KeyChainGroup'init []
     {
@@ -31613,7 +31555,7 @@
  ; Used as part of the implementation of {@link Wallet#setKeyRotationTime(java.util.Date)}.
  ;;
 (defclass KeyTimeCoinSelector (§ implements CoinSelector)
-    (def- #_"Logger" KeyTimeCoinSelector'LOG (LoggerFactory/getLogger KeyTimeCoinSelector))
+    (def- #_"Logger" KeyTimeCoinSelector'LOG (§ LoggerFactory/getLogger KeyTimeCoinSelector))
 
     ;;; A number of inputs chosen to avoid hitting {@link Transaction#MAX_STANDARD_TX_SIZE}. ;;
     (def #_"int" KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS 600)
@@ -32407,7 +32349,7 @@
     #_override
     (defn #_"int" Comparable'''compareTo [#_"TxOffsetPair" this, #_"TxOffsetPair" o]
         ;; Note that in this implementation compareTo() is not consistent with equals().
-        (Ints/compare (:offset this), (:offset o))
+        (compare (:offset this), (:offset o))
     )
 )
 
@@ -32444,7 +32386,7 @@
  ; thrashing when the wallet is changing very fast (e.g. due to a block chain sync).
  ;;
 (defclass Wallet (§ implements NewBestBlockListener, TransactionReceivedInBlockListener, PeerFilterProvider, KeyBag, TransactionBag, ReorganizeListener)
-    (def- #_"Logger" Wallet'LOG (LoggerFactory/getLogger Wallet))
+    (def- #_"Logger" Wallet'LOG (§ LoggerFactory/getLogger Wallet))
     (def- #_"int" Wallet'MINIMUM_BLOOM_DATA_LENGTH 8)
 
     (defn- #_"Wallet" Wallet'init []
