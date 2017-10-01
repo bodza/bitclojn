@@ -105,7 +105,7 @@
 (declare AlertMessage''get-cancel AlertMessage''get-comment AlertMessage''get-expiration AlertMessage''get-id AlertMessage''get-max-ver AlertMessage''get-min-ver AlertMessage''get-priority AlertMessage''get-relay-until AlertMessage''get-reserved AlertMessage''get-status-bar AlertMessage''get-version AlertMessage''is-signature-valid AlertMessage''set-cancel AlertMessage''set-comment AlertMessage''set-expiration AlertMessage''set-id AlertMessage''set-max-ver AlertMessage''set-min-ver AlertMessage''set-priority AlertMessage''set-relay-until AlertMessage''set-reserved AlertMessage''set-status-bar AlertMessage'MAX_SET_SIZE AlertMessage'init AlertMessage'new)
 (declare AllRandomKeysRotating'new)
 (declare BackoffParams'init BackoffParams'new-0 BackoffParams'new-3)
-(declare BalanceFutureRequest'init BalanceFutureRequest'new)
+(declare BalanceFutureRequest'new)
 (declare BalanceType'enum-set)
 (declare Base58'ALPHABET Base58'ENCODED_ZERO Base58'INDEXES Base58'decode Base58'decode-checked Base58'decode-to-big-integer Base58'divmod Base58'encode)
 (declare BasicKeyChain''find-key-from-pub-hash BasicKeyChain''find-key-from-pub-key BasicKeyChain''find-keys-before BasicKeyChain''find-oldest-key-after BasicKeyChain''get-keys-1 BasicKeyChain''get-listeners BasicKeyChain''import-key BasicKeyChain''import-key-locked BasicKeyChain''import-keys BasicKeyChain''import-keys-locked BasicKeyChain''is-watching BasicKeyChain''queue-on-keys-added BasicKeyChain''remove-key BasicKeyChain'init BasicKeyChain'new)
@@ -158,7 +158,7 @@
 (declare ExceededMaxTransactionSize'new)
 (declare ExchangeRate''coin-to-fiat ExchangeRate''fiat-to-coin ExchangeRate'init ExchangeRate'new-1 ExchangeRate'new-2)
 (declare ExponentialBackoff''get-retry-time ExponentialBackoff''track-failure ExponentialBackoff''track-success ExponentialBackoff'DEFAULT_INITIAL_MILLIS ExponentialBackoff'DEFAULT_MAXIMUM_MILLIS ExponentialBackoff'DEFAULT_MULTIPLIER ExponentialBackoff'init ExponentialBackoff'new)
-(declare FeeCalculation'init FeeCalculation'new)
+(declare FeeCalculation'new)
 (declare Fiat''add Fiat''divide-and-remainder Fiat''divide-f Fiat''divide-l Fiat''get-currency-code Fiat''is-greater-than Fiat''is-less-than Fiat''is-negative Fiat''is-positive Fiat''is-zero Fiat''long-value Fiat''multiply Fiat''negate Fiat''subtract Fiat''to-friendly-string Fiat''to-plain-string Fiat'FRIENDLY_FORMAT Fiat'PLAIN_FORMAT Fiat'SMALLEST_UNIT_EXPONENT Fiat'init Fiat'new Fiat'parse-fiat Fiat'parse-fiat-inexact Fiat'value-of)
 (declare FilterMerger''calculate FilterMerger''get-bloom-filter-fp-rate FilterMerger''get-last-filter FilterMerger''set-bloom-filter-fp-rate FilterMerger'init FilterMerger'new)
 (declare FilterMergerResult'init FilterMergerResult'new)
@@ -186,10 +186,10 @@
 (declare KeyBag'''find-key-from-pub-hash KeyBag'''find-key-from-pub-key KeyBag'''find-redeem-data-from-script-hash)
 (declare KeyChain'''add-event-listener-2 KeyChain'''add-event-listener-3 KeyChain'''get-earliest-key-creation-time KeyChain'''get-filter KeyChain'''get-key KeyChain'''get-keys-3a KeyChain'''has-key KeyChain'''num-bloom-filter-entries KeyChain'''num-keys KeyChain'''remove-event-listener-2)
 (declare KeyChainEventListener'''on-keys-added)
-(declare KeyChainGroup''add-and-activate-hd-chain KeyChainGroup''add-event-listener-2 KeyChainGroup''add-event-listener-3 KeyChainGroup''create-and-activate-new-hd-chain KeyChainGroup''current-address KeyChainGroup''current-key KeyChainGroup''fresh-address KeyChainGroup''fresh-key KeyChainGroup''fresh-keys KeyChainGroup''get-active-key-chain KeyChainGroup''get-bloom-filter-4 KeyChainGroup''get-bloom-filter-element-count KeyChainGroup''get-combined-key-lookahead-epochs KeyChainGroup''get-deterministic-key-chains KeyChainGroup''get-earliest-key-creation-time KeyChainGroup''get-imported-keys KeyChainGroup''get-lookahead-size KeyChainGroup''get-lookahead-threshold KeyChainGroup''has-key KeyChainGroup''import-keys KeyChainGroup''is-deterministic-upgrade-required KeyChainGroup''is-married KeyChainGroup''is-watching KeyChainGroup''make-p2sh-output-script KeyChainGroup''mark-p2sh-address-as-used KeyChainGroup''mark-pub-key-as-used KeyChainGroup''mark-pub-key-hash-as-used KeyChainGroup''maybe-lookahead-scripts KeyChainGroup''maybe-mark-current-address-as-used KeyChainGroup''maybe-mark-current-key-as-used KeyChainGroup''num-keys KeyChainGroup''remove-event-listener-2 KeyChainGroup''remove-imported-key KeyChainGroup''set-lookahead-size KeyChainGroup''set-lookahead-threshold KeyChainGroup''to-string-2 KeyChainGroup''upgrade-to-deterministic KeyChainGroup'create-current-keys-map KeyChainGroup'extract-following-keychains KeyChainGroup'init KeyChainGroup'new-1 KeyChainGroup'new-2-key KeyChainGroup'new-2-seed KeyChainGroup'new-4)
+(declare KeyChainGroup''add-and-activate-hd-chain KeyChainGroup''add-event-listener-2 KeyChainGroup''add-event-listener-3 KeyChainGroup''create-and-activate-new-hd-chain KeyChainGroup''current-address KeyChainGroup''current-key KeyChainGroup''fresh-address KeyChainGroup''fresh-key KeyChainGroup''fresh-keys KeyChainGroup''get-active-key-chain KeyChainGroup''get-bloom-filter-4 KeyChainGroup''get-bloom-filter-element-count KeyChainGroup''get-combined-key-lookahead-epochs KeyChainGroup''get-deterministic-key-chains KeyChainGroup''get-earliest-key-creation-time KeyChainGroup''get-imported-keys KeyChainGroup''get-lookahead-size KeyChainGroup''get-lookahead-threshold KeyChainGroup''has-key KeyChainGroup''import-keys KeyChainGroup''is-deterministic-upgrade-required KeyChainGroup''is-married KeyChainGroup''is-watching KeyChainGroup''make-p2sh-output-script KeyChainGroup''mark-p2sh-address-as-used KeyChainGroup''mark-pub-key-as-used KeyChainGroup''mark-pub-key-hash-as-used KeyChainGroup''maybe-lookahead-scripts KeyChainGroup''maybe-mark-current-address-as-used KeyChainGroup''maybe-mark-current-key-as-used KeyChainGroup''num-keys KeyChainGroup''remove-event-listener-2 KeyChainGroup''remove-imported-key KeyChainGroup''set-lookahead-size KeyChainGroup''set-lookahead-threshold KeyChainGroup''to-string-2 KeyChainGroup''upgrade-to-deterministic KeyChainGroup'create-current-keys-map KeyChainGroup'extract-following-keychains KeyChainGroup'new-1 KeyChainGroup'new-2-key KeyChainGroup'new-2-seed KeyChainGroup'new)
 (declare KeyChainState'enum-set)
 (declare KeyPurpose'enum-set)
-(declare KeyTimeCoinSelector''is-confirmed KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS KeyTimeCoinSelector'init KeyTimeCoinSelector'new)
+(declare KeyTimeCoinSelector''is-confirmed KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS KeyTimeCoinSelector'new)
 (declare LazyECPoint''get-1 LazyECPoint''get-affine-x-coord LazyECPoint''get-affine-y-coord LazyECPoint''get-canonical-encoding LazyECPoint''get-curve LazyECPoint''get-encoded-1 LazyECPoint''get-encoded-2 LazyECPoint''is-compressed LazyECPoint''is-infinity LazyECPoint''is-valid LazyECPoint''normalize LazyECPoint'init LazyECPoint'new-1 LazyECPoint'new-2)
 (declare ListMessage''add-item ListMessage''get-items ListMessage''remove-item ListMessage'MAX_INVENTORY_ITEMS ListMessage'init ListMessage'new-1 ListMessage'new-2 ListMessage'new-4)
 (declare ListenerRegistration'init ListenerRegistration'new ListenerRegistration'remove-from-list)
@@ -250,7 +250,7 @@
 (declare PrunedException''get-hash PrunedException'init PrunedException'new)
 (declare PublicDerivationMode'enum-set)
 (declare RawKeyBytes'init RawKeyBytes'new)
-(declare RedeemData''get-full-key RedeemData'init RedeemData'new RedeemData'of-2 RedeemData'of-2*)
+(declare RedeemData''get-full-key RedeemData'new RedeemData'of)
 (declare RejectCode'enum-map RejectCode'from-code)
 (declare RejectMessage''get-reason-code RejectMessage''get-reason-string RejectMessage''get-rejected-message RejectMessage''get-rejected-object-hash RejectMessage'init RejectMessage'new-2 RejectMessage'new-5)
 (declare RejectedTransactionException''get-reject-message RejectedTransactionException''get-transaction RejectedTransactionException'init RejectedTransactionException'new)
@@ -269,8 +269,8 @@
 (declare ScriptType'enum-set)
 (declare ScriptVerifyFlag'enum-set)
 (declare SeedPeers''all-peers SeedPeers''convert-address SeedPeers''get-peer SeedPeers''next-peer SeedPeers'init SeedPeers'new-1 SeedPeers'new-2)
-(declare SendRequest'child-pays-for-parent SendRequest'empty-wallet SendRequest'for-tx SendRequest'init SendRequest'new SendRequest'to-2 SendRequest'to-3 SendRequest'to-cltv-payment-channel-5bi SendRequest'to-cltv-payment-channel-5d SendRequest'to-cltv-payment-channel-5i)
-(declare SendResult'init SendResult'new)
+(declare SendRequest'child-pays-for-parent SendRequest'empty-wallet SendRequest'for-tx SendRequest'new SendRequest'to-2 SendRequest'to-3 SendRequest'to-cltv-payment-channel-5bi SendRequest'to-cltv-payment-channel-5d SendRequest'to-cltv-payment-channel-5i)
+(declare SendResult'new)
 (declare Sha256Hash''get-bytes Sha256Hash''get-reversed-bytes Sha256Hash''to-big-integer Sha256Hash'LENGTH Sha256Hash'ZERO_HASH Sha256Hash'create-digest Sha256Hash'hash-1 Sha256Hash'hash-3 Sha256Hash'hash-twice-1 Sha256Hash'hash-twice-3 Sha256Hash'hash-twice-6 Sha256Hash'init Sha256Hash'new Sha256Hash'of Sha256Hash'twice-of Sha256Hash'wrap-1 Sha256Hash'wrap-1-bytes Sha256Hash'wrap-reversed)
 (declare SigHash'ALL SigHash'ANYONECANPAY SigHash'ANYONECANPAY_ALL SigHash'ANYONECANPAY_NONE SigHash'ANYONECANPAY_SINGLE SigHash'NONE SigHash'SINGLE SigHash'UNSET)
 (declare SignatureAndKey'init SignatureAndKey'new)
@@ -299,7 +299,7 @@
 (declare TransactionalHashMap''abort-database-batch-write TransactionalHashMap''begin-database-batch-write TransactionalHashMap''commit-database-batch-write TransactionalHashMap''get-2 TransactionalHashMap''put-3 TransactionalHashMap''remove TransactionalHashMap''values TransactionalHashMap'init TransactionalHashMap'new)
 (declare TransactionalMultiKeyHashMap''abort-transaction TransactionalMultiKeyHashMap''begin-transaction TransactionalMultiKeyHashMap''commit-transaction TransactionalMultiKeyHashMap''get-2 TransactionalMultiKeyHashMap''put-4 TransactionalMultiKeyHashMap''remove-by-multi-key TransactionalMultiKeyHashMap''remove-by-unique-key TransactionalMultiKeyHashMap'init TransactionalMultiKeyHashMap'new)
 (declare TxConfidenceTable''clean-table TxConfidenceTable''get-2 TxConfidenceTable''get-or-create TxConfidenceTable''num-broadcast-peers TxConfidenceTable''seen TxConfidenceTable'MAX_SIZE TxConfidenceTable'init TxConfidenceTable'new-0 TxConfidenceTable'new-1)
-(declare TxOffsetPair'init TxOffsetPair'new)
+(declare TxOffsetPair'new)
 (declare UTXO'init UTXO'new-6 UTXO'new-7)
 (declare UnknownMessage'init UnknownMessage'new)
 (declare UserThread'WARNING_THRESHOLD UserThread'init UserThread'new)
@@ -1375,71 +1375,61 @@
     #_method
     (defn #_"CharSequence" MonetaryFormat''format [#_"MonetaryFormat" this, #_"Monetary" monetary]
         ;; preparation
-        (§ let [#_"int" __maxDecimals (:min-decimals this)]
-            (when (some? (:decimal-groups this))
-                (doseq [#_"int" group (:decimal-groups this)]
-                    (§ ass __maxDecimals (+ __maxDecimals group))
-                )
-            )
-            (let [#_"int" __smallestUnitExponent (Monetary'''smallest-unit-exponent monetary)]
-                (assert-state (<= __maxDecimals __smallestUnitExponent), (str "The maximum possible number of decimals (" __maxDecimals ") cannot exceed " __smallestUnitExponent "."))
+        (let [#_"int" __maxDecimals (reduce + (:min-decimals this) (:decimal-groups this))
+              #_"int" __smallestUnitExponent (Monetary'''smallest-unit-exponent monetary)]
+            (assert-state (<= __maxDecimals __smallestUnitExponent), (str "The maximum possible number of decimals (" __maxDecimals ") cannot exceed " __smallestUnitExponent "."))
 
-                ;; rounding
-                (let [#_"long" satoshis (Math/abs (Monetary'''get-value monetary))
-                      #_"long" __precisionDivisor (LongMath/checkedPow 10, (- __smallestUnitExponent (:shift this) __maxDecimals))
-                      satoshis (LongMath/checkedMultiply (LongMath/divide satoshis, __precisionDivisor, (:rounding-mode this)), __precisionDivisor)]
+            ;; rounding
+            (let [#_"long" satoshis (Math/abs (Monetary'''get-value monetary))
+                  #_"long" __precisionDivisor (LongMath/checkedPow 10, (- __smallestUnitExponent (:shift this) __maxDecimals))
+                  satoshis (LongMath/checkedMultiply (LongMath/divide satoshis, __precisionDivisor, (:rounding-mode this)), __precisionDivisor)]
 
-                    ;; shifting
-                    (let [#_"long" __shiftDivisor (LongMath/checkedPow 10, (- __smallestUnitExponent (:shift this)))
-                          #_"long" numbers (quot satoshis __shiftDivisor) #_"long" decimals (rem satoshis __shiftDivisor)]
+                ;; shifting
+                (let [#_"long" __shiftDivisor (LongMath/checkedPow 10, (- __smallestUnitExponent (:shift this)))
+                      #_"long" numbers (quot satoshis __shiftDivisor) #_"long" decimals (rem satoshis __shiftDivisor)]
 
-                        ;; formatting
-                        (let [#_"StringBuilder" sb (StringBuilder. (format (str "%0" (- __smallestUnitExponent (:shift this)) "d"), decimals))]
-                            (while (and (< (:min-decimals this) (.length sb)) (= (.charAt sb, (dec (.length sb))) \0))
-                                (.setLength sb, (dec (.length sb))) ;; trim trailing zero
-                            )
-                            (let [#_"int" i (:min-decimals this)]
-                                (when (some? (:decimal-groups this))
-                                    (doseq [#_"int" group (:decimal-groups this)]
-                                        (when (and (< i (.length sb)) (< (.length sb) (+ i group)))
-                                            (while (< (.length sb) (+ i group))
-                                                (.append sb, "0")
-                                            )
-                                            (§ break )
-                                        )
-                                        (§ ass i (+ i group))
+                    ;; formatting
+                    (let [#_"StringBuilder" sb (StringBuilder. (format (str "%0" (- __smallestUnitExponent (:shift this)) "d"), decimals))]
+                        (while (and (< (:min-decimals this) (.length sb)) (= (.charAt sb, (dec (.length sb))) \0))
+                            (.setLength sb, (dec (.length sb))) ;; trim trailing zero
+                        )
+                        (loop-when [#_"int" i (:min-decimals this) #_"List<Integer>" groups (:decimal-groups this)] (seq groups)
+                            (let [#_"int" group (first groups)]
+                                (when' (< i (.length sb) (+ i group)) => (recur (+ i group) (next groups))
+                                    (while (< (.length sb) (+ i group))
+                                        (.append sb, "0")
                                     )
                                 )
-                                (when (< 0 (.length sb))
-                                    (.insert sb, 0, (:decimal-mark this))
-                                )
-                                (.insert sb, 0, numbers)
-                                (cond
-                                    (< (Monetary'''get-value monetary) 0) (.insert sb, 0, (:negative-sign this))
-                                    (not= (:positive-sign this) 0)       (.insert sb, 0, (:positive-sign this))
-                                )
-                                (when (some? (:codes this))
-                                    (if (:code-prefixed this)
-                                        (.. sb (insert 0, (:code-separator this)) (insert 0, (MonetaryFormat''code-1 this)))
-                                        (.. sb (append (:code-separator this)) (append (MonetaryFormat''code-1 this)))
-                                    )
-                                )
-
-                                ;; Convert to non-arabic digits.
-                                (when (not= (:zero-digit this) \0)
-                                    (let [#_"int" offset (- (:zero-digit this) \0)]
-                                        (loop-when-recur [#_"int" d 0] (< d (.length sb)) [(inc d)]
-                                            (let [#_"char" c (.charAt sb, d)]
-                                                (when (Character/isDigit c)
-                                                    (.setCharAt sb, d, (char (+ c offset)))
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                                sb
                             )
                         )
+                        (when (< 0 (.length sb))
+                            (.insert sb, 0, (:decimal-mark this))
+                        )
+                        (.insert sb, (int 0), numbers)
+                        (cond
+                            (< (Monetary'''get-value monetary) 0) (.insert sb, 0, (:negative-sign this))
+                            (not= (:positive-sign this) 0)        (.insert sb, 0, (:positive-sign this))
+                        )
+                        (when (some? (:codes this))
+                            (if (:code-prefixed this)
+                                (.. sb (insert 0, (:code-separator this)) (insert 0, (MonetaryFormat''code-1 this)))
+                                (.. sb (append (:code-separator this)) (append (MonetaryFormat''code-1 this)))
+                            )
+                        )
+
+                        ;; Convert to non-arabic digits.
+                        (when (not= (:zero-digit this) \0)
+                            (let [#_"int" offset (- (:zero-digit this) \0)]
+                                (dotimes [#_"int" i (.length sb)]
+                                    (let [#_"char" c (.charAt sb, i)]
+                                        (when (Character/isDigit c)
+                                            (.setCharAt sb, i, (char (+ c offset)))
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                        sb
                     )
                 )
             )
@@ -18368,16 +18358,14 @@
     #_throws #_[ "ScriptException" ]
     #_method
     (defn #_"RedeemData" TransactionOutPoint''get-connected-redeem-data [#_"TransactionOutPoint" this, #_"KeyBag" bag]
-        (§ let [#_"TransactionOutput" output (TransactionOutPoint''get-connected-output-1 this)]
-            (ensure some? output, "Input is not connected so cannot retrieve key")
-            (let [#_"Script" script (TransactionOutput''get-script-pub-key output)]
-                (cond
-                    (Script''is-sent-to-address script)   (RedeemData'of-2 (KeyBag'''find-key-from-pub-hash bag, (Script''get-pub-key-hash script)), script)
-                    (Script''is-sent-to-raw-pub-key script) (RedeemData'of-2 (KeyBag'''find-key-from-pub-key bag, (Script''get-pub-key script)), script)
-                    (Script''is-pay-to-script-hash script) (KeyBag'''find-redeem-data-from-script-hash bag, (Script''get-pub-key-hash script))
-                    :else
-                        (throw (ScriptException'new-2 :ScriptError'UNKNOWN_ERROR, (str "Could not understand form of connected output script: " script)))
-                )
+        (let [#_"TransactionOutput" output (ensure some? (TransactionOutPoint''get-connected-output-1 this), "Input is not connected, so cannot retrieve key")
+              #_"Script" script (TransactionOutput''get-script-pub-key output)]
+            (cond
+                (Script''is-sent-to-address script)     (RedeemData'of script, (KeyBag'''find-key-from-pub-hash bag, (Script''get-pub-key-hash script)))
+                (Script''is-sent-to-raw-pub-key script) (RedeemData'of script, (KeyBag'''find-key-from-pub-key bag, (Script''get-pub-key script)))
+                (Script''is-pay-to-script-hash script)  (KeyBag'''find-redeem-data-from-script-hash bag, (Script''get-pub-key-hash script))
+                :else
+                    (throw (ScriptException'new-2 :ScriptError'UNKNOWN_ERROR, (str "Could not understand form of connected output script: " script)))
             )
         )
     )
@@ -27131,7 +27119,7 @@
                                         ;; For P2SH inputs we need to share derivation path of the signing key with other signers,
                                         ;; so that they use correct key to calculate their signatures.
                                         ;; Married keys all have the same derivation path, so we can safely just take first one here.
-                                        (let [#_"ECKey" __pubKey (.get (:keys redeem), 0)]
+                                        (let [#_"ECKey" __pubKey (first (:redeem-keys redeem))]
                                             (when (§ instance? DeterministicKey __pubKey)
                                                 (.put (:key-paths __propTx), outKey, (DeterministicKey''get-path (§ cast DeterministicKey __pubKey)))
                                             )
@@ -30262,9 +30250,9 @@
         )
     )
 
-    (defn #_"CoinSelection" CoinSelection'new [#_"Coin" __valueGathered, #_"Collection<TransactionOutput>" gathered]
+    (defn #_"CoinSelection" CoinSelection'new [#_"Coin" value, #_"Collection<TransactionOutput>" gathered]
         (let [this (CoinSelection'init)]
-            (assoc this :value-gathered __valueGathered, :gathered gathered)
+            (assoc this :value-gathered value, :gathered gathered)
         )
     )
 )
@@ -30904,48 +30892,23 @@
  ; class docs for {@link DeterministicKeyChain} for more information on this topic.
  ;;
 (class-ns KeyChainGroup (§ implements KeyBag)
-    (defn- #_"KeyChainGroup" KeyChainGroup'init []
-        (hash-map
-            #_"BasicKeyChain" :basic nil
-            #_"NetworkParameters" :params nil
-            #_"LinkedList<DeterministicKeyChain>" :chains nil
-            ;; currentKeys is used for normal, non-multisig/married wallets.
-            ;; currentAddresses is used when we're handing out P2SH addresses.
-            ;; They're mutually exclusive.
-            #_"EnumMap<KeyPurpose, DeterministicKey>" :current-keys nil
-            #_"EnumMap<KeyPurpose, Address>" :current-addresses nil
-
-            #_"int" :lookahead-size -1
-            #_"int" :lookahead-threshold -1
-        )
-    )
-
-    ;;; Creates a keychain group with no basic chain, and a single, lazily created HD chain. ;;
-    (defn #_"KeyChainGroup" KeyChainGroup'new-1 [#_"NetworkParameters" params]
-        (KeyChainGroup'new-4 params, nil, (ArrayList. #_"<DeterministicKeyChain>" 1), nil)
-    )
-
-    ;;; Creates a keychain group with no basic chain, and an HD chain initialized from the given seed. ;;
-    (defn #_"KeyChainGroup" KeyChainGroup'new-2-seed [#_"NetworkParameters" params, #_"DeterministicSeed" seed]
-        (KeyChainGroup'new-4 params, nil, (ImmutableList/of (DeterministicKeyChain'new-1-seed seed)), nil)
-    )
-
-    ;;;
-     ; Creates a keychain group with no basic chain, and an HD chain that is watching the given watching key.
-     ; This HAS to be an account key as returned by {@link DeterministicKeyChain#getWatchingKey()}.
-     ;;
-    (defn #_"KeyChainGroup" KeyChainGroup'new-2-key [#_"NetworkParameters" params, #_"DeterministicKey" key]
-        (KeyChainGroup'new-4 params, nil, (ImmutableList/of (DeterministicKeyChain'watch key)), nil)
-    )
-
     ;; Used for deserialization.
-    (defn- #_"KeyChainGroup" KeyChainGroup'new-4 [#_"NetworkParameters" params, #_"BasicKeyChain" __basicKeyChain, #_"List<DeterministicKeyChain>" chains, #_"EnumMap<KeyPurpose, DeterministicKey>" __currentKeys]
-        (let [this (KeyChainGroup'init)]
-            (§ assoc this :params params)
-            (§ assoc this :basic (or __basicKeyChain (BasicKeyChain'new)))
-            (§ assoc this :chains (LinkedList. (ensure some? chains)))
-            (§ assoc this :current-keys (or __currentKeys (§ EnumMap. #_"<KeyPurpose, DeterministicKey>" KeyPurpose)))
-            (§ assoc this :current-addresses (§ EnumMap. KeyPurpose))
+    (defn- #_"KeyChainGroup" KeyChainGroup'new [#_"NetworkParameters" params, #_"BasicKeyChain" basic, #_"List<DeterministicKeyChain>" chains, #_"EnumMap<KeyPurpose, DeterministicKey>" keys]
+        (let [this
+                (hash-map
+                    #_"BasicKeyChain" :basic (or basic (BasicKeyChain'new))
+                    #_"NetworkParameters" :params params
+                    #_"LinkedList<DeterministicKeyChain>" :chains (LinkedList. (ensure some? chains))
+                    ;; :current-keys is used for normal, non-multisig/married wallets.
+                    #_"EnumMap<KeyPurpose, DeterministicKey>" :current-keys (or keys (§ EnumMap. #_"<KeyPurpose, DeterministicKey>" KeyPurpose))
+                    ;; :current-addresses is used when we're handing out P2SH addresses.
+                    #_"EnumMap<KeyPurpose, Address>" :current-addresses (§ EnumMap. KeyPurpose)
+                    ;; They're mutually exclusive.
+
+                    #_"int" :lookahead-size -1
+                    #_"int" :lookahead-threshold -1
+                )]
+
             (KeyChainGroup''maybe-lookahead-scripts this)
 
             (when (KeyChainGroup''is-married this)
@@ -30957,6 +30920,24 @@
             )
             this
         )
+    )
+
+    ;;; Creates a keychain group with no basic chain, and a single, lazily created HD chain. ;;
+    (defn #_"KeyChainGroup" KeyChainGroup'new-1 [#_"NetworkParameters" params]
+        (KeyChainGroup'new params, nil, (ArrayList. #_"<DeterministicKeyChain>" 1), nil)
+    )
+
+    ;;; Creates a keychain group with no basic chain, and an HD chain initialized from the given seed. ;;
+    (defn #_"KeyChainGroup" KeyChainGroup'new-2-seed [#_"NetworkParameters" params, #_"DeterministicSeed" seed]
+        (KeyChainGroup'new params, nil, (ImmutableList/of (DeterministicKeyChain'new-1-seed seed)), nil)
+    )
+
+    ;;;
+     ; Creates a keychain group with no basic chain, and an HD chain that is watching the given watching key.
+     ; This HAS to be an account key as returned by {@link DeterministicKeyChain#getWatchingKey()}.
+     ;;
+    (defn #_"KeyChainGroup" KeyChainGroup'new-2-key [#_"NetworkParameters" params, #_"DeterministicKey" key]
+        (KeyChainGroup'new params, nil, (ImmutableList/of (DeterministicKeyChain'watch key)), nil)
     )
 
     ;; This keeps married redeem data in sync with the number of keys issued.
@@ -31089,6 +31070,7 @@
             (if (DeterministicKeyChain'''is-married chain)
                 (let [#_"Script" output (DeterministicKeyChain'''fresh-output-script chain, purpose)]
                     (assert-state (Script''is-pay-to-script-hash output)) ;; Only handle P2SH for now.
+
                     (let [#_"Address" fresh (Address'from-p2sh-script (:params this), output)]
                         (KeyChainGroup''maybe-lookahead-scripts this)
                         (.put (:current-addresses this), purpose, fresh)
@@ -31169,7 +31151,7 @@
         ;; Iterate in reverse order, since the active keychain is the one most likely to have the hit.
         (loop-when [#_"Iterator<DeterministicKeyChain>" it (.descendingIterator (:chains this))] (.hasNext it)
             (let [#_"RedeemData" redeem (DeterministicKeyChain'''find-redeem-data-by-script-hash (.next it), (§ ByteString/copyFrom hash))]
-                (if (some? redeem) redeem (recur it))
+                (or redeem (recur it))
             )
         )
     )
@@ -31180,7 +31162,7 @@
 
         (let [#_"RedeemData" data (KeyBag'''find-redeem-data-from-script-hash this, (Address''get-hash160 address))]
             (when (some? data) ;; Else not our P2SH address.
-                (doseq [#_"ECKey" key (:keys data) #_"DeterministicKeyChain" chain (:chains this)]
+                (doseq [#_"ECKey" key (:redeem-keys data) #_"DeterministicKeyChain" chain (:chains this)]
                     (let [#_"DeterministicKey" k (DeterministicKeyChain''find-key-from-pub-key chain, (ECKey''get-pub-key key))]
                         (when (some? k)
                             (DeterministicKeyChain''mark-key-as-used chain, k)
@@ -31219,12 +31201,9 @@
     (defn- #_"void" KeyChainGroup''maybe-mark-current-address-as-used [#_"KeyChainGroup" this, #_"Address" address]
         (assert-argument (Address''is-p2sh-address address))
 
-        (§ doseq [#_"Map.Entry<KeyPurpose, Address>" entry (.entrySet (:current-addresses this))]
-            (when (and (some? (.getValue entry)) (.equals (.getValue entry), address))
-                (log/info (str "Marking P2SH address as used: " address))
-                (.put (:current-addresses this), (.getKey entry), (KeyChainGroup''fresh-address this, (.getKey entry)))
-                (§ return nil)
-            )
+        (let-when [#_"Map.Entry<KeyPurpose, Address>" entry (first (filter #(and (some? (.getValue %)) (.equals (.getValue %), address)) (.entrySet (:current-addresses this))))] (some? entry)
+            (log/info (str "Marking P2SH address as used: " address))
+            (.put (:current-addresses this), (.getKey entry), (KeyChainGroup''fresh-address this, (.getKey entry)))
         )
         nil
     )
@@ -31232,13 +31211,10 @@
     ;;; If the given key is "current", advance the current key to a new one. ;;
     #_method
     (defn- #_"void" KeyChainGroup''maybe-mark-current-key-as-used [#_"KeyChainGroup" this, #_"DeterministicKey" key]
-        ;; It's OK for currentKeys to be empty here: it means we're a married wallet and the key may be a part of a rotating chain.
-        (§ doseq [#_"Map.Entry<KeyPurpose, DeterministicKey>" entry (.entrySet (:current-keys this))]
-            (when (and (some? (.getValue entry)) (.equals (.getValue entry), key))
-                (log/info (str "Marking key as used: " key))
-                (.put (:current-keys this), (.getKey entry), (KeyChainGroup''fresh-key this, (.getKey entry)))
-                (§ return nil)
-            )
+        ;; It's OK for :current-keys to be empty here: it means we're a married wallet and the key may be a part of a rotating chain.
+        (let-when [#_"Map.Entry<KeyPurpose, DeterministicKey>" entry (first (filter #(and (some? (.getValue %)) (.equals (.getValue %), key)) (.entrySet (:current-keys this))))] (some? entry)
+            (log/info (str "Marking key as used: " key))
+            (.put (:current-keys this), (.getKey entry), (KeyChainGroup''fresh-key this, (.getKey entry)))
         )
         nil
     )
@@ -31533,67 +31509,58 @@
  ; Used as part of the implementation of {@link Wallet#setKeyRotationTime(java.util.Date)}.
  ;;
 (class-ns KeyTimeCoinSelector (§ implements CoinSelector)
-    ;;; A number of inputs chosen to avoid hitting {@link Transaction#MAX_STANDARD_TX_SIZE}. ;;
+    ;;;
+     ; A number of inputs chosen to avoid hitting {@link Transaction#MAX_STANDARD_TX_SIZE}.
+     ;;
     (def #_"int" KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS 600)
 
-    (defn- #_"KeyTimeCoinSelector" KeyTimeCoinSelector'init []
-        (hash-map
-            #_"long" :unix-time-seconds 0
-            #_"Wallet" :wallet nil
-            #_"boolean" :ignore-pending false
-        )
-    )
-
     (defn #_"KeyTimeCoinSelector" KeyTimeCoinSelector'new [#_"Wallet" wallet, #_"long" secs, #_"boolean" __ignorePending]
-        (let [this (KeyTimeCoinSelector'init)]
-            (assoc this :unix-time-seconds secs, :wallet wallet, :ignore-pending __ignorePending)
+        (hash-map
+            #_"long" :unix-time-seconds secs
+            #_"Wallet" :wallet wallet
+            #_"boolean" :ignore-pending __ignorePending
         )
     )
 
     #_override
     (defn #_"CoinSelection" CoinSelector'''select [#_"KeyTimeCoinSelector" this, #_"Coin" target, #_"List<TransactionOutput>" candidates]
-        (§ try
+        (try
             (let [#_"LinkedList<TransactionOutput>" gathered (LinkedList.)
-                  #_"Coin" __valueGathered Coin'ZERO]
-                (doseq [#_"TransactionOutput" output candidates]
-                    (when (and (:ignore-pending this) (not (KeyTimeCoinSelector''is-confirmed this, output)))
-                        (§ continue )
-                    )
+                  #_"Coin" value
+                    (loop-when [value Coin'ZERO candidates candidates] (seq candidates) => value
+                        (let [#_"TransactionOutput" output (first candidates)]
+                            (when' (or (not (:ignore-pending this)) (KeyTimeCoinSelector''is-confirmed this, output)) => (recur value (next candidates))
+                                ;; Find the key that controls output, assuming it's a regular pay-to-pubkey or pay-to-address output.
+                                ;; We ignore any other kind of exotic output on the assumption we can't spend it ourselves.
+                                (let [#_"Script" script (TransactionOutput''get-script-pub-key output)
+                                      [#_"boolean" skip? #_"ECKey" key]
+                                        (cond
+                                            (Script''is-sent-to-raw-pub-key script)
+                                                [false (KeyBag'''find-key-from-pub-key (:wallet this), (Script''get-pub-key script))]
+                                            (Script''is-sent-to-address script)
+                                                [false (KeyBag'''find-key-from-pub-hash (:wallet this), (Script''get-pub-key-hash script))]
+                                            :else
+                                                [true (log/info (str "Skipping tx output " output " because it's not of simple form."))]
+                                        )]
+                                    (when' (not skip?) => (recur value (next candidates))
+                                        (ensure some? key, "Coin selector given output as candidate for which we lack the key")
 
-                    ;; Find the key that controls output, assuming it's a regular pay-to-pubkey or pay-to-address output.
-                    ;; We ignore any other kind of exotic output on the assumption we can't spend it ourselves.
-                    (let [#_"Script" __scriptPubKey (TransactionOutput''get-script-pub-key output)
-                          #_"ECKey" __controllingKey]
-                        (cond (Script''is-sent-to-raw-pub-key __scriptPubKey)
-                            (do
-                                (§ ass __controllingKey (KeyBag'''find-key-from-pub-key (:wallet this), (Script''get-pub-key __scriptPubKey)))
-                            )
-                            (Script''is-sent-to-address __scriptPubKey)
-                            (do
-                                (§ ass __controllingKey (KeyBag'''find-key-from-pub-hash (:wallet this), (Script''get-pub-key-hash __scriptPubKey)))
-                            )
-                            :else
-                            (do
-                                (log/info (str "Skipping tx output " output " because it's not of simple form."))
-                                (§ continue )
+                                        (when' (< (ECKey'''get-creation-time-seconds key) (:unix-time-seconds this)) => (recur value (next candidates))
+                                            ;; It's older than the cutoff time, so select it.
+                                            (let [value (Coin''add value, (TransactionOutput''get-value output))]
+                                                (.push gathered, output)
+                                                (when' (<= KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS (.size gathered)) => (recur value (next candidates))
+                                                    (log/warn (str "Reached " (.size gathered) " inputs, going further would yield a tx that is too large, stopping here."))
+                                                    value
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
                             )
                         )
-
-                        (ensure some? __controllingKey, "Coin selector given output as candidate for which we lack the key")
-                        (when (<= (:unix-time-seconds this) (ECKey'''get-creation-time-seconds __controllingKey))
-                            (§ continue )
-                        )
-
-                        ;; It's older than the cutoff time so select.
-                        (§ ass __valueGathered (Coin''add __valueGathered, (TransactionOutput''get-value output)))
-                        (.push gathered, output)
-                        (when (<= KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS (.size gathered))
-                            (log/warn (str "Reached " (.size gathered) " inputs, going further would yield a tx that is too large, stopping here."))
-                            (§ break )
-                        )
-                    )
-                )
-                (CoinSelection'new __valueGathered, gathered)
+                    )]
+                (CoinSelection'new value, gathered)
             )
             (§ catch ScriptException e
                 (throw (RuntimeException. e)) ;; We should never have problems understanding scripts in our wallet.
@@ -31696,7 +31663,7 @@
     (defn #_"RedeemData" DeterministicKeyChain'''get-redeem-data [#_"MarriedKeyChain" this, #_"DeterministicKey" __followedKey]
         (let [#_"List<ECKey>" __marriedKeys (MarriedKeyChain''get-married-keys-with-followed this, __followedKey)
               #_"Script" redeem (ScriptBuilder'create-redeem-script (:sigs-required-to-spend this), __marriedKeys)]
-            (RedeemData'of-2* __marriedKeys, redeem)
+            (RedeemData'new redeem, __marriedKeys)
         )
     )
 
@@ -31819,34 +31786,21 @@
  ; a program (lexicographical order).
  ;;
 (class-ns RedeemData
-    (defn- #_"RedeemData" RedeemData'init []
+    (defn #_"RedeemData" RedeemData'new [#_"Script" script, #_"List<ECKey>" keys]
         (hash-map
-            #_"Script" :redeem-script nil
-            #_"List<ECKey>" :keys nil
+            #_"Script" :redeem-script script
+            #_"List<ECKey>" :redeem-keys (sort ECKey'PUBKEY_COMPARATOR, keys)
         )
-    )
-
-    (defn- #_"RedeemData" RedeemData'new [#_"List<ECKey>" keys, #_"Script" redeem]
-        (let [this (RedeemData'init)]
-            (§ assoc this :redeem-script redeem)
-            (let [keys (ArrayList. keys) _ (Collections/sort keys, ECKey'PUBKEY_COMPARATOR)]
-                (assoc this :keys keys)
-            )
-        )
-    )
-
-    (defn #_"RedeemData" RedeemData'of-2* [#_"List<ECKey>" keys, #_"Script" redeem]
-        (RedeemData'new keys, redeem)
     )
 
     ;;;
      ; Creates RedeemData for pay-to-address or pay-to-pubkey input.  Provided key is a single private key
      ; needed to spend such inputs and provided program should be a proper CHECKSIG program.
      ;;
-    (defn #_"RedeemData" RedeemData'of-2 [#_"ECKey" key, #_"Script" program]
-        (assert-argument (or (Script''is-sent-to-address program) (Script''is-sent-to-raw-pub-key program)))
+    (defn #_"RedeemData" RedeemData'of [#_"Script" script, #_"ECKey" key]
+        (assert-argument (or (Script''is-sent-to-address script) (Script''is-sent-to-raw-pub-key script)))
 
-        (when (some? key) (RedeemData'new (Collections/singletonList key), program))
+        (when (some? key) (RedeemData'new script, (list key)))
     )
 
     ;;;
@@ -31854,7 +31808,7 @@
      ;;
     #_method
     (defn #_"ECKey" RedeemData''get-full-key [#_"RedeemData" this]
-        (first (filter ECKey'''has-priv-key (:keys this)))
+        (first (filter ECKey'''has-priv-key (:redeem-keys this)))
     )
 )
 
@@ -31865,7 +31819,7 @@
  ; modify the change address.
  ;;
 (class-ns SendRequest
-    (defn- #_"SendRequest" SendRequest'init []
+    (defn- #_"SendRequest" SendRequest'new []
         (hash-map
             ;;;
              ; A transaction, probably incomplete, that describes the outline of what you want to do.  This typically
@@ -31970,10 +31924,6 @@
             ;; Tracks if this has been passed to wallet.completeTx already: just a safety check.
             #_"boolean" :completed false
         )
-    )
-
-    (defn- #_"SendRequest" SendRequest'new []
-        (SendRequest'init)
     )
 
     ;;;
@@ -32173,16 +32123,12 @@
 )
 
 (class-ns BalanceFutureRequest
-    (defn- #_"BalanceFutureRequest" BalanceFutureRequest'init []
+    (defn- #_"BalanceFutureRequest" BalanceFutureRequest'new []
         (hash-map
             #_"SettableFuture<Coin>" :future nil
             #_"Coin" :value nil
             #_"BalanceType" :type nil
         )
-    )
-
-    (defn- #_"BalanceFutureRequest" BalanceFutureRequest'new []
-        (BalanceFutureRequest'init)
     )
 )
 
@@ -32190,7 +32136,7 @@
  ; A SendResult is returned to you as part of sending coins to a recipient.
  ;;
 (class-ns SendResult
-    (defn- #_"SendResult" SendResult'init []
+    (defn- #_"SendResult" SendResult'new []
         (hash-map
             ;;;
              ; The Bitcoin transaction message that moves the money.
@@ -32206,10 +32152,6 @@
              ;;
             #_"TransactionBroadcast" :broadcast nil
         )
-    )
-
-    (defn #_"SendResult" SendResult'new []
-        (SendResult'init)
     )
 )
 
@@ -32260,88 +32202,24 @@
     )
 )
 
-;;;
- ; A custom {@link TransactionOutput} that is free standing.  This contains all the information
- ; required for spending without actually having all the linked data (i.e parent tx).
- ;
- ;;
-#_unused
-(class-ns FreeStandingTransactionOutput (§ extends TransactionOutput)
-    (defn- #_"FreeStandingTransactionOutput" FreeStandingTransactionOutput'init []
-        (hash-map
-            #_"UTXO" :utxo nil
-            #_"int" :chain-height 0
-        )
-    )
-
-    ;;;
-     ; Construct a free standing Transaction Output.
-     ;
-     ; @param params The network parameters.
-     ; @param output The stored output (free standing).
-     ;;
-    (defn #_"FreeStandingTransactionOutput" FreeStandingTransactionOutput'new [#_"NetworkParameters" params, #_"UTXO" utxo, #_"int" height]
-        (let [this (merge (TransactionOutput'new-4cb params, nil, (:value utxo), (Script''get-program (:script utxo))) (FreeStandingTransactionOutput'init))]
-            (assoc this :utxo utxo, :chain-height height)
-        )
-    )
-
-    ;;;
-     ; Get the {@link UTXO}.
-     ;
-     ; @return the stored output.
-     ;;
-    #_method
-    (defn #_"UTXO" FreeStandingTransactionOutput''get-utxo [#_"FreeStandingTransactionOutput" this]
-        (:utxo this)
-    )
-
-    ;;;
-     ; Get the depth within the chain of the parent tx, depth is 1 if the output height is the height
-     ; of the latest block.
-     ;
-     ; @return the depth.
-     ;;
-    #_override
-    (defn #_"int" TransactionOutput'''get-parent-transaction-depth-in-blocks [#_"FreeStandingTransactionOutput" this]
-        (inc (- (:chain-height this) (:height (:utxo this))))
-    )
-
-    #_override
-    (defn #_"int" TransactionOutput'''get-index [#_"FreeStandingTransactionOutput" this]
-        (int (:index (:utxo this)))
-    )
-
-    #_override
-    (defn #_"Sha256Hash" TransactionOutput'''get-parent-transaction-hash [#_"FreeStandingTransactionOutput" this]
-        (:hash (:utxo this))
-    )
-)
-
 (class-ns TxOffsetPair (§ implements Comparable #_"<TxOffsetPair>")
-    (defn- #_"TxOffsetPair" TxOffsetPair'init []
+    (defn- #_"TxOffsetPair" TxOffsetPair'new [#_"Transaction" tx, #_"int" offset]
         (hash-map
-            #_"Transaction" :tx nil
-            #_"int" :offset 0
-        )
-    )
-
-    (defn #_"TxOffsetPair" TxOffsetPair'new [#_"Transaction" tx, #_"int" offset]
-        (let [this (TxOffsetPair'init)]
-            (assoc this :tx tx, :offset offset)
+            #_"Transaction" :tx tx
+            #_"int" :offset offset
         )
     )
 
     #_foreign
     #_override
-    (defn #_"int" Comparable'''compareTo [#_"TxOffsetPair" this, #_"TxOffsetPair" o]
+    (defn #_"int" Comparable'''compareTo [#_"TxOffsetPair" this, #_"TxOffsetPair" that]
         ;; Note that in this implementation compareTo() is not consistent with equals().
-        (compare (:offset this), (:offset o))
+        (compare (:offset this), (:offset that))
     )
 )
 
 (class-ns FeeCalculation
-    (defn- #_"FeeCalculation" FeeCalculation'init []
+    (defn- #_"FeeCalculation" FeeCalculation'new []
         (hash-map
             ;; Selected UTXOs to spend.
             #_"CoinSelection" :best-coin-selection nil
@@ -32350,10 +32228,6 @@
             ;; List of output values adjusted downwards when recipients pay fees (may be null if no adjustment needed).
             #_"List<Coin>" :updated-output-values nil
         )
-    )
-
-    (defn- #_"FeeCalculation" FeeCalculation'new []
-        (FeeCalculation'init)
     )
 )
 
@@ -32402,13 +32276,13 @@
             ;;           show to the user in the UI, etc).  A transaction can leave dead and move into spent/unspent if there
             ;;           is a re-org to a chain that doesn't include the double spend.
 
-            #_"Map<Sha256Hash, Transaction>" :pending nil
-            #_"Map<Sha256Hash, Transaction>" :unspent nil
-            #_"Map<Sha256Hash, Transaction>" :spent nil
-            #_"Map<Sha256Hash, Transaction>" :dead nil
+            #_"Map<Sha256Hash, Transaction>" :pending (HashMap.)
+            #_"Map<Sha256Hash, Transaction>" :unspent (HashMap.)
+            #_"Map<Sha256Hash, Transaction>" :spent (HashMap.)
+            #_"Map<Sha256Hash, Transaction>" :dead (HashMap.)
 
             ;; All transactions together.
-            #_"Map<Sha256Hash, Transaction>" :transactions nil
+            #_"Map<Sha256Hash, Transaction>" :transactions (HashMap.)
 
             ;; All the TransactionOutput objects that we could spend (ignoring whether we have the private key or not).
             ;; Used to speed up various calculations.
@@ -32464,7 +32338,8 @@
             ;; a side effect of how the code is written (e.g. during re-orgs confidence data gets adjusted multiple times).
             #_"int" :on-wallet-changed-suppressions 0
             #_"boolean" :inside-reorg false
-            #_"Map<Transaction, ConfidenceChangeReason>" :confidence-changed nil
+            ;; Use a linked hash map to ensure ordering of event listeners is correct.
+            #_"Map<Transaction, ConfidenceChangeReason>" :confidence-changed (LinkedHashMap.)
             ;; Object that is used to send transactions asynchronously when the wallet requires it.
             #_volatile
             #_"TransactionBroadcaster" :v-transaction-broadcaster nil
@@ -32479,7 +32354,7 @@
             #_"String" :description nil
 
             ;; Objects that perform transaction signing.  Applied subsequently one after another.
-            #_"List<TransactionSigner>" :signers nil
+            #_"List<TransactionSigner>" :signers (ArrayList.)
 
             ;; Whether to do a saveNow or saveLater when we are notified of the next best block.
             #_"boolean" :hard-save-on-next-block false
@@ -32562,14 +32437,6 @@
             (when (zero? (KeyChainGroup''num-keys (:key-chain-group this)))
                 (KeyChainGroup''create-and-activate-new-hd-chain (:key-chain-group this))
             )
-            (§ assoc this :unspent (HashMap.))
-            (§ assoc this :spent (HashMap.))
-            (§ assoc this :pending (HashMap.))
-            (§ assoc this :dead (HashMap.))
-            (§ assoc this :transactions (HashMap.))
-            ;; Use a linked hash map to ensure ordering of event listeners is correct.
-            (§ assoc this :confidence-changed (LinkedHashMap.))
-            (§ assoc this :signers (ArrayList.))
             (Wallet''add-transaction-signer this, (LocalTransactionSigner'new))
             (Wallet''create-transient-state this)
             this
@@ -35325,19 +35192,17 @@
     #_throws #_[ "InsufficientMoneyException" ]
     #_method
     (defn #_"void" Wallet''complete-tx [#_"Wallet" this, #_"SendRequest" req]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (assert-argument (not (:completed req)), "Given SendRequest has already been completed.")
 
             ;; Calculate the amount of value we need to import.
-            (let [#_"Coin" value Coin'ZERO]
-                (doseq [#_"TransactionOutput" output (Transaction''get-outputs (:tx req))]
-                    (§ ass value (Coin''add value, (TransactionOutput''get-value output)))
-                )
+            (let [#_"List<TransactionOutput>" outputs (Transaction''get-outputs (:tx req))
+                  #_"Coin" value (reduce Coin''add Coin'ZERO (map TransactionOutput''get-value outputs))]
 
-                (log/info (str "Completing send tx with " (.size (Transaction''get-outputs (:tx req))) " outputs totalling " (Coin''to-friendly-string value) " and a fee of " (Coin''to-friendly-string (:fee-per-kb req)) "/kB"))
+                (log/info (str "Completing send tx with " (.size outputs) " outputs totalling " (Coin''to-friendly-string value) " and a fee of " (Coin''to-friendly-string (:fee-per-kb req)) "/kB"))
 
                 ;; If any inputs have already been added, we don't need to get their value from wallet.
-                (let [#_"Coin" __totalInput Coin'ZERO]
+                (§ let [#_"Coin" __totalInput Coin'ZERO]
                     (doseq [#_"TransactionInput" input (Transaction''get-inputs (:tx req))]
                         (if (some? (TransactionInput''get-connected-output-1 input))
                             (§ ass __totalInput (Coin''add __totalInput, (TransactionOutput''get-value (TransactionInput''get-connected-output-1 input))))
@@ -35346,112 +35211,100 @@
                     )
                     (§ ass value (Coin''subtract value, __totalInput))
 
-                    (let [#_"List<TransactionInput>" __originalInputs (ArrayList. (Transaction''get-inputs (:tx req)))]
+                    ;; Check for dusty sends and the OP_RETURN limit.
+                    (when (and (:ensure-min-required-fee req) (not (:empty-wallet req))) ;; Min fee checking is handled later for emptyWallet.
+                        (let [#_"int" __opReturnCount 0]
+                            (doseq [#_"TransactionOutput" output outputs]
+                                (when (TransactionOutput''is-dust output)
+                                    (throw (DustySendRequested'new))
+                                )
+                                (when (Script''is-op-return (TransactionOutput''get-script-pub-key output))
+                                    (§ ass __opReturnCount (inc __opReturnCount))
+                                )
+                            )
+                            (when (< 1 __opReturnCount) ;; Only 1 OP_RETURN per transaction allowed.
+                                (throw (MultipleOpReturnRequested'new))
+                            )
+                        )
+                    )
 
-                        ;; Check for dusty sends and the OP_RETURN limit.
-                        (when (and (:ensure-min-required-fee req) (not (:empty-wallet req))) ;; Min fee checking is handled later for emptyWallet.
-                            (let [#_"int" __opReturnCount 0]
-                                (doseq [#_"TransactionOutput" output (Transaction''get-outputs (:tx req))]
-                                    (when (TransactionOutput''is-dust output)
-                                        (throw (DustySendRequested'new))
-                                    )
-                                    (when (Script''is-op-return (TransactionOutput''get-script-pub-key output))
-                                        (§ ass __opReturnCount (inc __opReturnCount))
+                    ;; Calculate a list of ALL potential candidates for spending and then ask a coin selector to provide us
+                    ;; with the actual outputs that'll be used to gather the required amount of value.  In this way, users
+                    ;; can customize coin selection policies.  The call below will ignore immature coinbases and outputs
+                    ;; we don't have the keys for.
+                    (let [#_"List<TransactionOutput>" candidates (Wallet''calculate-all-spend-candidates-3 this, true, (= (:missing-sigs-mode req) :MissingSigsMode'THROW))
+                          [candidates #_"CoinSelection" __bestCoinSelection #_"TransactionOutput" __bestChangeOutput #_"List<Coin>" __updatedOutputValues]
+                            (if (not (:empty-wallet req))
+                                ;; This can throw InsufficientMoneyException.
+                                (let [#_"FeeCalculation" calc (Wallet''calculate-fee this, req, value, (:ensure-min-required-fee req), candidates)]
+                                    [candidates (:best-coin-selection calc) (:best-change-output calc) (:updated-output-values calc)]
+                                )
+                                ;; We're being asked to empty the wallet.  What this means is ensuring "tx" has only a single output
+                                ;; of the total value we can currently spend as determined by the selector, and then subtracting the fee.
+                                (do (assert-state (= (.size outputs) 1), "Empty wallet TX must have a single output only.")
+
+                                    (let [#_"CoinSelector" selector (or (:coin-selector req) (:coin-selector this))
+                                          __bestCoinSelection (CoinSelector'''select selector, (NetworkParameters''get-max-money (:params this)), candidates)]
+                                        (TransactionOutput''set-value (Transaction''get-output (:tx req), 0), (:value-gathered __bestCoinSelection))
+                                        (log/info (str "  emptying " (Coin''to-friendly-string (:value-gathered __bestCoinSelection))))
+                                        ;; Selector took ownership and might have changed candidates.  Don't access again.
+                                        [nil __bestCoinSelection nil nil]
                                     )
                                 )
-                                (when (< 1 __opReturnCount) ;; Only 1 OP_RETURN per transaction allowed.
-                                    (throw (MultipleOpReturnRequested'new))
+                            )]
+
+                        (doseq [#_"TransactionOutput" output (:gathered __bestCoinSelection)]
+                            (Transaction''add-input-o (:tx req), output)
+                        )
+
+                        (when (:empty-wallet req)
+                            (let [#_"Coin" __feePerKb (or (:fee-per-kb req) Coin'ZERO)]
+                                (when-not (Wallet''adjust-output-downwards-for-fee this, (:tx req), __bestCoinSelection, __feePerKb, (:ensure-min-required-fee req))
+                                    (throw (CouldNotAdjustDownwards'new))
                                 )
                             )
                         )
 
-                        ;; Calculate a list of ALL potential candidates for spending and then ask a coin selector to provide us
-                        ;; with the actual outputs that'll be used to gather the required amount of value.  In this way, users
-                        ;; can customize coin selection policies.  The call below will ignore immature coinbases and outputs
-                        ;; we don't have the keys for.
-                        (let [#_"List<TransactionOutput>" candidates (Wallet''calculate-all-spend-candidates-3 this, true, (= (:missing-sigs-mode req) :MissingSigsMode'THROW))]
-
-                            (let [#_"CoinSelection" __bestCoinSelection
-                                  #_"TransactionOutput" __bestChangeOutput nil
-                                  #_"List<Coin>" __updatedOutputValues nil]
-                                (cond (not (:empty-wallet req))
-                                    (do
-                                        ;; This can throw InsufficientMoneyException.
-                                        (let [#_"FeeCalculation" __feeCalculation (Wallet''calculate-fee this, req, value, __originalInputs, (:ensure-min-required-fee req), candidates)]
-                                            (§ ass __bestCoinSelection (:best-coin-selection __feeCalculation))
-                                            (§ ass __bestChangeOutput (:best-change-output __feeCalculation))
-                                            (§ ass __updatedOutputValues (:updated-output-values __feeCalculation))
-                                        )
-                                    )
-                                    :else
-                                    (do
-                                        ;; We're being asked to empty the wallet.  What this means is ensuring "tx" has only a single output
-                                        ;; of the total value we can currently spend as determined by the selector, and then subtracting the fee.
-                                        (assert-state (= (.size (Transaction''get-outputs (:tx req))) 1), "Empty wallet TX must have a single output only.")
-
-                                        (let [#_"CoinSelector" selector (or (:coin-selector req) (:coin-selector this))]
-                                            (§ ass __bestCoinSelection (CoinSelector'''select selector, (NetworkParameters''get-max-money (:params this)), candidates))
-                                            (§ ass candidates nil) ;; Selector took ownership and might have changed candidates.  Don't access again.
-                                            (TransactionOutput''set-value (Transaction''get-output (:tx req), 0), (:value-gathered __bestCoinSelection))
-                                            (log/info (str "  emptying " (Coin''to-friendly-string (:value-gathered __bestCoinSelection))))
-                                        )
-                                    )
-                                )
-
-                                (doseq [#_"TransactionOutput" output (:gathered __bestCoinSelection)]
-                                    (Transaction''add-input-o (:tx req), output)
-                                )
-
-                                (when (:empty-wallet req)
-                                    (let [#_"Coin" __feePerKb (or (:fee-per-kb req) Coin'ZERO)]
-                                        (when-not (Wallet''adjust-output-downwards-for-fee this, (:tx req), __bestCoinSelection, __feePerKb, (:ensure-min-required-fee req))
-                                            (throw (CouldNotAdjustDownwards'new))
-                                        )
-                                    )
-                                )
-
-                                (when (some? __updatedOutputValues)
-                                    (loop-when-recur [#_"int" i 0] (< i (.size __updatedOutputValues)) [(inc i)]
-                                        (TransactionOutput''set-value (Transaction''get-output (:tx req), i), (.get __updatedOutputValues, i))
-                                    )
-                                )
-
-                                (when (some? __bestChangeOutput)
-                                    (Transaction''add-output-o (:tx req), __bestChangeOutput)
-                                    (log/info (str "  with " (Coin''to-friendly-string (TransactionOutput''get-value __bestChangeOutput)) " change"))
-                                )
-
-                                ;; Now shuffle the outputs to obfuscate which is the change.
-                                (when (:shuffle-outputs req)
-                                    (Transaction''shuffle-outputs (:tx req))
-                                )
-
-                                ;; Now sign the inputs, thus proving that we are entitled to redeem the connected outputs.
-                                (when (:sign-inputs req)
-                                    (Wallet''sign-transaction this, req)
-                                )
-
-                                ;; Check size.
-                                (let [#_"int" size (alength (Message''unsafe-bitcoin-serialize (:tx req)))]
-                                    (when (< Transaction'MAX_STANDARD_TX_SIZE size)
-                                        (throw (ExceededMaxTransactionSize'new))
-                                    )
-
-                                    ;; Label the transaction as being self created.  We can use this later to spend its change output even before
-                                    ;; the transaction is confirmed.  We deliberately won't bother notifying listeners here as there's not much
-                                    ;; point - the user isn't interested in a confidence transition they made themselves.
-                                    (TransactionConfidence''set-source (Transaction''get-confidence-t (:tx req)), :ConfidenceSource'SELF)
-                                    ;; Label the transaction as being a user requested payment.  This can be used to render GUI wallet
-                                    ;; transaction lists more appropriately, especially when the wallet starts to generate transactions itself
-                                    ;; for internal purposes.
-                                    (Transaction''set-purpose (:tx req), :TransactionPurpose'USER_PAYMENT)
-                                    ;; Record the exchange rate that was valid when the transaction was completed.
-                                    (Transaction''set-exchange-rate (:tx req), (:exchange-rate req))
-                                    (Transaction''set-memo (:tx req), (:memo req))
-                                    (§ assoc req :completed true)
-                                    (log/info (str "  completed: " (:tx req)))
-                                )
+                        (when (some? __updatedOutputValues)
+                            (loop-when-recur [#_"int" i 0] (< i (.size __updatedOutputValues)) [(inc i)]
+                                (TransactionOutput''set-value (Transaction''get-output (:tx req), i), (.get __updatedOutputValues, i))
                             )
+                        )
+
+                        (when (some? __bestChangeOutput)
+                            (Transaction''add-output-o (:tx req), __bestChangeOutput)
+                            (log/info (str "  with " (Coin''to-friendly-string (TransactionOutput''get-value __bestChangeOutput)) " change"))
+                        )
+
+                        ;; Now shuffle the outputs to obfuscate which is the change.
+                        (when (:shuffle-outputs req)
+                            (Transaction''shuffle-outputs (:tx req))
+                        )
+
+                        ;; Now sign the inputs, thus proving that we are entitled to redeem the connected outputs.
+                        (when (:sign-inputs req)
+                            (Wallet''sign-transaction this, req)
+                        )
+
+                        ;; Check size.
+                        (let [#_"int" size (alength (Message''unsafe-bitcoin-serialize (:tx req)))]
+                            (when (< Transaction'MAX_STANDARD_TX_SIZE size)
+                                (throw (ExceededMaxTransactionSize'new))
+                            )
+
+                            ;; Label the transaction as being self created.  We can use this later to spend its change output even before
+                            ;; the transaction is confirmed.  We deliberately won't bother notifying listeners here as there's not much
+                            ;; point - the user isn't interested in a confidence transition they made themselves.
+                            (TransactionConfidence''set-source (Transaction''get-confidence-t (:tx req)), :ConfidenceSource'SELF)
+                            ;; Label the transaction as being a user requested payment.  This can be used to render GUI wallet
+                            ;; transaction lists more appropriately, especially when the wallet starts to generate transactions itself
+                            ;; for internal purposes.
+                            (Transaction''set-purpose (:tx req), :TransactionPurpose'USER_PAYMENT)
+                            ;; Record the exchange rate that was valid when the transaction was completed.
+                            (Transaction''set-exchange-rate (:tx req), (:exchange-rate req))
+                            (Transaction''set-memo (:tx req), (:memo req))
+                            (§ assoc req :completed true)
+                            (log/info (str "  completed: " (:tx req)))
                         )
                     )
                 )
@@ -35486,9 +35339,9 @@
                                         (log/warn (str "Input " i " already correctly spends output, assuming SIGHASH type used will be safe and skipping signing."))
                                         (§ catch ScriptException e
                                             (log/debug e, "Input contained an incorrect signature")
-                                            (let [#_"RedeemData" redeem (TransactionInput''get-connected-redeem-data in, this)]
-                                                (ensure some? redeem, (str "Transaction exists in wallet that we cannot redeem: " (Message'''get-hash (:outpoint in))))
-                                                (TransactionInput''set-script-sig in, (Script''create-empty-input-script outKey, (.get (:keys redeem), 0), (:redeem-script redeem)))
+                                            (let [#_"RedeemData" data (TransactionInput''get-connected-redeem-data in, this)]
+                                                (ensure some? data, (str "Transaction exists in wallet that we cannot redeem: " (Message'''get-hash (:outpoint in))))
+                                                (TransactionInput''set-script-sig in, (Script''create-empty-input-script outKey, (first (:redeem-keys data)), (:redeem-script data)))
                                             )
                                         )
                                     )
@@ -35949,132 +35802,110 @@
 
     #_throws #_[ "InsufficientMoneyException" ]
     #_method
-    (defn- #_"FeeCalculation" Wallet''calculate-fee [#_"Wallet" this, #_"SendRequest" req, #_"Coin" value, #_"List<TransactionInput>" __originalInputs, #_"boolean" __needAtLeastReferenceFee, #_"List<TransactionOutput>" candidates]
+    (defn- #_"FeeCalculation" Wallet''calculate-fee [#_"Wallet" this, #_"SendRequest" req, #_"Coin" value, #_"boolean" quantum?, #_"List<TransactionOutput>" candidates]
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
 
-        (§ let [#_"FeeCalculation" result
-              #_"Coin" fee Coin'ZERO]
-            (§ while true
-                (§ ass result (FeeCalculation'new))
-                (let [#_"Transaction" tx (Transaction'new-1 (:params this))]
-                    (Wallet''add-supplied-inputs this, tx, (Transaction''get-inputs (:tx req)))
+        (loop [#_"Coin" fee Coin'ZERO]
+            (let [#_"FeeCalculation" calc (FeeCalculation'new) #_"Transaction" tx (Transaction'new-1 (:params this))]
+                (Wallet''add-supplied-inputs this, tx, (Transaction''get-inputs (:tx req)))
 
-                    (let [#_"Coin" __valueNeeded value]
-                        (when (not (:recipients-pay-fees req))
-                            (§ ass __valueNeeded (Coin''add __valueNeeded, fee))
-                        )
-                        (when (:recipients-pay-fees req)
-                            (§ assoc result :updated-output-values (ArrayList. #_"<Coin>"))
-                        )
+                (let [#_"Coin" __valueNeeded (if (:recipients-pay-fees req) value (Coin''add value, fee))
+                      calc (if (:recipients-pay-fees req) (assoc calc :updated-output-values (ArrayList. #_"<Coin>")) calc)
+                      #_"List<TransactionOutput>" outputs (Transaction''get-outputs (:tx req))]
 
-                        (loop-when-recur [#_"int" i 0] (< i (.size (Transaction''get-outputs (:tx req)))) [(inc i)]
-                            (let [#_"TransactionOutput" output (TransactionOutput'new-4-bytes (:params this), tx, (Message'''bitcoin-serialize-1 (.get (Transaction''get-outputs (:tx req)), i)), 0)]
-                                (when (:recipients-pay-fees req)
+                    (loop-when-recur [#_"int" i 0] (< i (.size outputs)) [(inc i)]
+                        (let [#_"TransactionOutput" output (TransactionOutput'new-4-bytes (:params this), tx, (Message'''bitcoin-serialize-1 (.get outputs, i)), 0)]
+                            (when (:recipients-pay-fees req)
+                                ;; Subtract fee equally from each selected recipient.
+                                (TransactionOutput''set-value output, (Coin''subtract (TransactionOutput''get-value output), (Coin''divide-l fee, (.size outputs))))
+                                ;; First receiver pays the remainder not divisible by output count.
+                                (when (zero? i)
                                     ;; Subtract fee equally from each selected recipient.
-                                    (TransactionOutput''set-value output, (Coin''subtract (TransactionOutput''get-value output), (Coin''divide-l fee, (.size (Transaction''get-outputs (:tx req))))))
-                                    ;; First receiver pays the remainder not divisible by output count.
-                                    (when (= i 0)
-                                        ;; Subtract fee equally from each selected recipient.
-                                        (TransactionOutput''set-value output, (Coin''subtract (TransactionOutput''get-value output), (aget (Coin''divide-and-remainder fee, (.size (Transaction''get-outputs (:tx req)))) 1)))
-                                    )
-                                    (.add (:updated-output-values result), (TransactionOutput''get-value output))
-                                    (when (Coin''is-greater-than (TransactionOutput''get-min-non-dust-value-1 output), (TransactionOutput''get-value output))
-                                        (throw (CouldNotAdjustDownwards'new))
-                                    )
+                                    (TransactionOutput''set-value output, (Coin''subtract (TransactionOutput''get-value output), (aget (Coin''divide-and-remainder fee, (.size outputs)) 1)))
                                 )
-                                (Transaction''add-output-o tx, output)
+                                (.add (:updated-output-values calc), (TransactionOutput''get-value output))
+                                (when (Coin''is-greater-than (TransactionOutput''get-min-non-dust-value-1 output), (TransactionOutput''get-value output))
+                                    (throw (CouldNotAdjustDownwards'new))
+                                )
+                            )
+                            (Transaction''add-output-o tx, output)
+                        )
+                    )
+
+                    (let [#_"CoinSelector" selector (or (:coin-selector req) (:coin-selector this))
+                          ;; selector is allowed to modify candidates list.
+                          #_"CoinSelection" selection (CoinSelector'''select selector, __valueNeeded, (LinkedList. candidates))
+                          calc (assoc calc :best-coin-selection selection)]
+                        ;; Can we afford this?
+                        (when (neg? (.compareTo (:value-gathered selection), __valueNeeded))
+                            (let [#_"Coin" missing (Coin''subtract __valueNeeded, (:value-gathered selection))]
+                                (throw (InsufficientMoneyException'new-1 missing))
                             )
                         )
 
-                        (let [#_"CoinSelector" selector (or (:coin-selector req) (:coin-selector this))]
-                            ;; selector is allowed to modify candidates list.
-                            (let [#_"CoinSelection" selection (CoinSelector'''select selector, __valueNeeded, (LinkedList. candidates))]
-                                (§ assoc result :best-coin-selection selection)
-                                ;; Can we afford this?
-                                (when (< (.compareTo (:value-gathered selection), __valueNeeded) 0)
-                                    (let [#_"Coin" __valueMissing (Coin''subtract __valueNeeded, (:value-gathered selection))]
-                                        (throw (InsufficientMoneyException'new-1 __valueMissing))
+                        (let [#_"Coin" change (Coin''subtract (:value-gathered selection), __valueNeeded)
+                              [fee calc]
+                                (when' (Coin''is-greater-than change, Coin'ZERO) => [fee calc]
+                                    ;; The value of the inputs is greater than what we want to send.  Just like in real life then,
+                                    ;; we need to take back some coins ... this is called "change".  Add another output that sends the change
+                                    ;; back to us.  The address comes either from the request or currentChangeAddress() as a default.
+                                    (let [#_"Address" __changeAddress (or (:change-address req) (Wallet''current-change-address this))
+                                          #_"TransactionOutput" __changeOutput (TransactionOutput'new-4ca (:params this), tx, change, __changeAddress)]
+                                        (when (and (:recipients-pay-fees req) (TransactionOutput''is-dust __changeOutput))
+                                            ;; We do not move dust-change to fees, because the sender would end up paying more than requested.
+                                            ;; This would be against the purpose of the all-inclusive feature.
+                                            ;; So instead we raise the change and deduct from the first recipient.
+                                            (let [#_"Coin" __missingToNotBeDust (Coin''subtract (TransactionOutput''get-min-non-dust-value-1 __changeOutput), (TransactionOutput''get-value __changeOutput))]
+                                                (TransactionOutput''set-value __changeOutput, (Coin''add (TransactionOutput''get-value __changeOutput), __missingToNotBeDust))
+                                                (let [#_"TransactionOutput" __firstOutput (.get (Transaction''get-outputs tx), 0)]
+                                                    (TransactionOutput''set-value __firstOutput, (Coin''subtract (TransactionOutput''get-value __firstOutput), __missingToNotBeDust))
+                                                    (.set (:updated-output-values calc), 0, (TransactionOutput''get-value __firstOutput))
+                                                    (when (TransactionOutput''is-dust __firstOutput)
+                                                        (throw (CouldNotAdjustDownwards'new))
+                                                    )
+                                                )
+                                            )
+                                        )
+
+                                        (cond (TransactionOutput''is-dust __changeOutput)
+                                            (do
+                                                ;; Never create dust outputs; if we would, just add the dust to the fee.
+                                                ;; Oscar comment: This seems like a way to make the condition below "if (!fee.isLessThan(feeNeeded))" to become true.
+                                                ;; This is a non-easy to understand way to do that.
+                                                ;; Maybe there are other effects I am missing.
+                                                [(Coin''add fee, (TransactionOutput''get-value __changeOutput)) calc]
+                                            )
+                                            :else
+                                            (do
+                                                (Transaction''add-output-o tx, __changeOutput)
+                                                [fee (assoc calc :best-change-output __changeOutput)]
+                                            )
+                                        )
                                     )
+                                )]
+
+                            (doseq [#_"TransactionOutput" __selectedOutput (:gathered selection)]
+                                (let [#_"TransactionInput" input (Transaction''add-input-o tx, __selectedOutput)]
+                                    ;; If the scriptBytes don't default to none, our size calculations will be thrown off.
+                                    (assert-state (zero? (alength (:script-bytes input))))
                                 )
+                            )
 
-                                (let [#_"Coin" change (Coin''subtract (:value-gathered selection), __valueNeeded)]
-                                    (when (Coin''is-greater-than change, Coin'ZERO)
-                                        ;; The value of the inputs is greater than what we want to send.  Just like in real life then,
-                                        ;; we need to take back some coins ... this is called "change".  Add another output that sends the change
-                                        ;; back to us.  The address comes either from the request or currentChangeAddress() as a default.
-                                        (let [#_"Address" __changeAddress (:change-address req)]
-                                            (when (nil? __changeAddress)
-                                                (§ ass __changeAddress (Wallet''current-change-address this))
-                                            )
-
-                                            (let [#_"TransactionOutput" __changeOutput (TransactionOutput'new-4ca (:params this), tx, change, __changeAddress)]
-                                                (when (and (:recipients-pay-fees req) (TransactionOutput''is-dust __changeOutput))
-                                                    ;; We do not move dust-change to fees, because the sender would end up paying more than requested.
-                                                    ;; This would be against the purpose of the all-inclusive feature.
-                                                    ;; So instead we raise the change and deduct from the first recipient.
-                                                    (let [#_"Coin" __missingToNotBeDust (Coin''subtract (TransactionOutput''get-min-non-dust-value-1 __changeOutput), (TransactionOutput''get-value __changeOutput))]
-                                                        (TransactionOutput''set-value __changeOutput, (Coin''add (TransactionOutput''get-value __changeOutput), __missingToNotBeDust))
-                                                        (let [#_"TransactionOutput" __firstOutput (.get (Transaction''get-outputs tx), 0)]
-                                                            (TransactionOutput''set-value __firstOutput, (Coin''subtract (TransactionOutput''get-value __firstOutput), __missingToNotBeDust))
-                                                            (.set (:updated-output-values result), 0, (TransactionOutput''get-value __firstOutput))
-                                                            (when (TransactionOutput''is-dust __firstOutput)
-                                                                (throw (CouldNotAdjustDownwards'new))
-                                                            )
-                                                        )
-                                                    )
-                                                )
-
-                                                (cond (TransactionOutput''is-dust __changeOutput)
-                                                    (do
-                                                        ;; Never create dust outputs; if we would, just add the dust to the fee.
-                                                        ;; Oscar comment: This seems like a way to make the condition below "if (!fee.isLessThan(feeNeeded))" to become true.
-                                                        ;; This is a non-easy to understand way to do that.
-                                                        ;; Maybe there are other effects I am missing.
-                                                        (§ ass fee (Coin''add fee, (TransactionOutput''get-value __changeOutput)))
-                                                    )
-                                                    :else
-                                                    (do
-                                                        (Transaction''add-output-o tx, __changeOutput)
-                                                        (§ assoc result :best-change-output __changeOutput)
-                                                    )
-                                                )
-                                            )
-                                        )
+                            (let [#_"int" size (+ (alength (Message''unsafe-bitcoin-serialize tx)) (Wallet''estimate-bytes-for-signing this, selection))
+                                  #_"Coin" __feePerKb (:fee-per-kb req)
+                                  __feePerKb (if (and quantum? (neg? (.compareTo __feePerKb, Transaction'REFERENCE_DEFAULT_MIN_TX_FEE)))
+                                        Transaction'REFERENCE_DEFAULT_MIN_TX_FEE
+                                        __feePerKb
                                     )
+                                  #_"Coin" __feeNeeded (Coin''divide-l (Coin''multiply __feePerKb, size), 1000)]
 
-                                    (doseq [#_"TransactionOutput" __selectedOutput (:gathered selection)]
-                                        (let [#_"TransactionInput" input (Transaction''add-input-o tx, __selectedOutput)]
-                                            ;; If the scriptBytes don't default to none, our size calculations will be thrown off.
-                                            (assert-state (= (alength (:script-bytes input)) 0))
-                                        )
-                                    )
-
-                                    (let [#_"int" size (+ (alength (Message''unsafe-bitcoin-serialize tx)) (Wallet''estimate-bytes-for-signing this, selection))]
-
-                                        (let [#_"Coin" __feePerKb (:fee-per-kb req)]
-                                            (when (and __needAtLeastReferenceFee (< (.compareTo __feePerKb, Transaction'REFERENCE_DEFAULT_MIN_TX_FEE) 0))
-                                                (§ ass __feePerKb Transaction'REFERENCE_DEFAULT_MIN_TX_FEE)
-                                            )
-
-                                            (let [#_"Coin" __feeNeeded (Coin''divide-l (Coin''multiply __feePerKb, size), 1000)]
-
-                                                (when-not (Coin''is-less-than fee, __feeNeeded)
-                                                    ;; Done, enough fee included.
-                                                    (§ break )
-                                                )
-
-                                                ;; Include more fee and try again.
-                                                (§ ass fee __feeNeeded)
-                                            )
-                                        )
-                                    )
-                                )
+                                ;; Include more fee and try again.  ;; Done, enough fee included.
+                                (recur-if (Coin''is-less-than fee, __feeNeeded) __feeNeeded => calc)
                             )
                         )
                     )
                 )
             )
-            result
         )
     )
 
