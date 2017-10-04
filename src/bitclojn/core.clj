@@ -48,6 +48,23 @@
 
 (defmacro sync [lock & _] `(do (ensure some? ~lock) ~@_))
 
+(class-ns RuntimeException
+    (defn #_"RuntimeException" RuntimeException'new
+        ([] (RuntimeException'new nil))
+        ([#_"String" message]
+            (hash-map
+                #_"String" :message message
+            )
+        )
+    )
+)
+
+(class-ns IllegalArgumentException (§ extends RuntimeException)
+    (defn #_"IllegalArgumentException" IllegalArgumentException'new [#_"String" message]
+        (RuntimeException'new message)
+    )
+)
+
 (ns bitclojn.core
     (:refer-clojure :exclude [ensure sync])
     (:import [com.google.common.base Charsets Joiner MoreObjects Splitter Stopwatch Throwables]
@@ -98,7 +115,7 @@
 (declare AbstractIdleService'''shutDown AbstractIdleService'''startUp)
 (declare AbstractTimeoutHandler'''timeout-occurred AbstractTimeoutHandler''reset-timeout AbstractTimeoutHandler''set-socket-timeout AbstractTimeoutHandler''set-timeout-enabled AbstractTimeoutHandler'TIMEOUT_TIMER AbstractTimeoutHandler'new)
 (declare Address''get-hash160 Address''is-p2sh-address Address'LENGTH Address'from-base58 Address'from-p2sh-hash Address'from-p2sh-script Address'get-parameters-from-address Address'init Address'is-acceptable-version Address'from-hash160 Address'new-3)
-(declare AddressFormatException'new-0 AddressFormatException'new-1)
+(declare AddressFormatException'new)
 (declare AddressMessage''add-address AddressMessage''get-addresses AddressMessage''remove-address AddressMessage'MAX_ADDRESSES AddressMessage'init AddressMessage'new-2 AddressMessage'new-3 AddressMessage'new-4 AddressMessage'new-5)
 (declare AlertMessage''is-signature-valid AlertMessage'MAX_SET_SIZE AlertMessage'new)
 (declare AllRandomKeysRotating'new)
@@ -112,14 +129,14 @@
 (declare Block''add-transaction-2 Block''add-transaction-3 Block''build-merkle-tree Block''calculate-hash Block''calculate-merkle-root Block''check-merkle-root Block''check-proof-of-work Block''check-sig-ops Block''check-timestamp Block''check-transactions Block''clone-as-header Block''copy-bitcoin-header-to Block''get-block-inflation Block''get-difficulty-target Block''get-difficulty-target-as-integer Block''get-hash-as-string Block''get-merkle-root Block''get-nonce Block''get-optimal-encoding-message-size Block''get-prev-block-hash Block''get-time Block''get-time-seconds Block''get-transactions Block''get-version Block''get-work Block''guess-transactions-length Block''has-transactions Block''is-bip34 Block''is-bip65 Block''is-bip66 Block''parse-transactions Block''set-difficulty-target Block''set-merkle-root Block''set-nonce Block''set-prev-block-hash Block''set-time Block''solve Block''un-cache-header Block''un-cache-transactions Block''verify-3 Block''verify-header Block''verify-transactions Block''write-header Block''write-transactions Block'ALLOWED_TIME_DRIFT Block'BLOCK_HEIGHT_GENESIS Block'BLOCK_HEIGHT_UNKNOWN Block'BLOCK_VERSION_BIP34 Block'BLOCK_VERSION_BIP65 Block'BLOCK_VERSION_BIP66 Block'BLOCK_VERSION_GENESIS Block'EASIEST_DIFFICULTY_TARGET Block'HEADER_SIZE Block'LARGEST_HASH Block'MAX_BLOCK_SIGOPS Block'MAX_BLOCK_SIZE Block'init Block'new-2 Block'new-2-bytes Block'new-4 Block'new-5 Block'new-6 Block'new-8)
 (declare BlockChain'''add-filtered-block BlockChain'''add-to-block-store-3 BlockChain'''add-to-block-store-4 BlockChain'''connect-transactions-2 BlockChain'''connect-transactions-3 BlockChain'''disconnect-transactions BlockChain'''do-set-chain-head BlockChain'''get-stored-block-in-current-scope BlockChain'''not-setting-chain-head BlockChain'''rollback-block-store BlockChain'''should-verify-transactions BlockChain''add-5 BlockChain''add-b BlockChain''add-new-best-block-listener-2 BlockChain''add-new-best-block-listener-3 BlockChain''add-reorganize-listener-2 BlockChain''add-reorganize-listener-3 BlockChain''add-transaction-received-listener-2 BlockChain''add-transaction-received-listener-3 BlockChain''add-wallet BlockChain''connect-block BlockChain''drain-orphan-blocks BlockChain''estimate-block-time BlockChain''get-best-chain-height BlockChain''get-block-store BlockChain''get-chain-head BlockChain''get-false-positive-rate BlockChain''get-height-future BlockChain''get-orphan-root BlockChain''get-version-tally BlockChain''handle-new-best-chain BlockChain''inform-listeners-for-new-block BlockChain''is-orphan BlockChain''remove-new-best-block-listener BlockChain''remove-reorganize-listener BlockChain''remove-transaction-received-listener BlockChain''remove-wallet BlockChain''reset-false-positive-estimate BlockChain''set-chain-head BlockChain''track-false-positives BlockChain''track-filtered-transactions BlockChain''try-connecting-orphans BlockChain'FP_ESTIMATOR_ALPHA BlockChain'FP_ESTIMATOR_BETA BlockChain'find-split BlockChain'get-median-timestamp-of-recent-blocks BlockChain'get-partial-chain BlockChain'inform-listener-for-new-transactions BlockChain'new BlockChain'send-transactions-to-listener)
 (declare BlockStore'''close BlockStore'''get-2 BlockStore'''get-chain-head BlockStore'''put-2 BlockStore'''set-chain-head)
-(declare BlockStoreException'new-1 BlockStoreException'new-1x)
+(declare BlockStoreException'new)
 (declare BlockVerifyFlag'enum-set)
 (declare BlocksDownloadedEventListener'''on-blocks-downloaded)
 (declare BloomFilter''apply-and-update-b BloomFilter''apply-and-update-t BloomFilter''contains BloomFilter''get-false-positive-rate BloomFilter''get-update-flag BloomFilter''insert-b BloomFilter''insert-e BloomFilter''matches-all BloomFilter''merge BloomFilter''set-match-all BloomFilter'MAX_FILTER_SIZE BloomFilter'MAX_HASH_FUNCS BloomFilter'init BloomFilter'murmur-hash3 BloomFilter'new-2 BloomFilter'new-3 BloomFilter'new-4 BloomFilter'rotate-left32)
 (declare BloomUpdate'enum-map BloomUpdate'for-code)
 (declare ChainDownloadSpeedCalculator''calculate ChainDownloadSpeedCalculator''count-and-measure-size ChainDownloadSpeedCalculator'new)
 (declare ChainDownloadStartedEventListener'''on-chain-download-started)
-(declare ChainFileLockedException'new-1 ChainFileLockedException'new-1x)
+(declare ChainFileLockedException'new)
 (declare CheckpointManager''get-checkpoint-before CheckpointManager''get-data-hash CheckpointManager''num-checkpoints CheckpointManager''read-textual CheckpointManager'BASE64 CheckpointManager'checkpoint CheckpointManager'new)
 (declare ChildMessage''adjust-length-2 ChildMessage''set-parent ChildMessage'init ChildMessage'new-1 ChildMessage'new-3 ChildMessage'new-4 ChildMessage'new-6 ChildMessage'new-7)
 (declare ChildNumber''i ChildNumber''is-hardened ChildNumber''num ChildNumber'HARDENED_BIT ChildNumber'ONE ChildNumber'ZERO ChildNumber'ZERO_HARDENED ChildNumber'has-hardened-bit ChildNumber'init ChildNumber'new-1 ChildNumber'new-2)
@@ -146,7 +163,7 @@
 (declare DeterministicKeyChain'''find-redeem-data-by-script-hash DeterministicKeyChain'''format-addresses DeterministicKeyChain'''fresh-output-script DeterministicKeyChain'''get-redeem-data DeterministicKeyChain'''is-married DeterministicKeyChain'''maybe-look-ahead-scripts DeterministicKeyChain'''set-lookahead-size DeterministicKeyChain''calc-default-lookahead-threshold DeterministicKeyChain''check-for-bit-flip DeterministicKeyChain''find-key-from-pub-hash DeterministicKeyChain''find-key-from-pub-key DeterministicKeyChain''get-account-path DeterministicKeyChain''get-issued-external-keys DeterministicKeyChain''get-issued-internal-keys DeterministicKeyChain''get-issued-receive-keys DeterministicKeyChain''get-key-by-path-2 DeterministicKeyChain''get-key-by-path-3 DeterministicKeyChain''get-key-lookahead-epoch DeterministicKeyChain''get-keys-3b DeterministicKeyChain''get-leaf-keys DeterministicKeyChain''get-lookahead-size DeterministicKeyChain''get-lookahead-threshold DeterministicKeyChain''get-mnemonic-code DeterministicKeyChain''get-seed DeterministicKeyChain''get-sigs-required-to-spend DeterministicKeyChain''get-watching-key DeterministicKeyChain''initialize-hierarchy DeterministicKeyChain''is-following DeterministicKeyChain''is-watching DeterministicKeyChain''mark-key-as-used DeterministicKeyChain''mark-pub-hash-as-used DeterministicKeyChain''mark-pub-key-as-used DeterministicKeyChain''maybe-look-ahead-1 DeterministicKeyChain''maybe-look-ahead-3 DeterministicKeyChain''maybe-look-ahead-5 DeterministicKeyChain''num-leaf-keys-issued DeterministicKeyChain''set-lookahead-threshold DeterministicKeyChain''set-sigs-required-to-spend DeterministicKeyChain''to-string-3 DeterministicKeyChain'ACCOUNT_ZERO_PATH DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC DeterministicKeyChain'EXTERNAL_PATH DeterministicKeyChain'EXTERNAL_SUBPATH DeterministicKeyChain'INTERNAL_PATH DeterministicKeyChain'INTERNAL_SUBPATH DeterministicKeyChain'LAZY_CALCULATE_LOOKAHEAD DeterministicKeyChain'init DeterministicKeyChain'from-seed DeterministicKeyChain'from-entropy DeterministicKeyChain'from-random DeterministicKeyChain'watch DeterministicKeyChain'watch-and-follow)
 (declare DeterministicSeed''check DeterministicSeed''get-creation-time-seconds DeterministicSeed''get-entropy-bytes DeterministicSeed''get-mnemonic-as-bytes DeterministicSeed''get-mnemonic-code DeterministicSeed''get-secret-bytes DeterministicSeed''get-seed-bytes DeterministicSeed''set-creation-time-seconds DeterministicSeed''to-hex-string DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS DeterministicSeed'MAX_SEED_ENTROPY_BITS DeterministicSeed'decode-mnemonic-code-1 DeterministicSeed'decode-mnemonic-code-1-bytes DeterministicSeed'get-entropy DeterministicSeed'init DeterministicSeed'new-3ls DeterministicSeed'new-3s DeterministicSeed'new-4-random DeterministicSeed'new-4ls DeterministicSeed'new-4s)
 (declare DeterministicUpgradeRequiredException'new)
-(declare DnsDiscovery'build-discoveries DnsDiscovery'new-1 DnsDiscovery'new-2)
+(declare DnsDiscovery'new)
 (declare DnsSeedDiscovery'new)
 (declare DownloadProgressTracker''await DownloadProgressTracker''done-download DownloadProgressTracker''get-future DownloadProgressTracker''progress DownloadProgressTracker''start-download DownloadProgressTracker'new)
 (declare DustySendRequested'new)
@@ -177,7 +194,7 @@
 (declare HDKeyDerivation'MAX_CHILD_DERIVATION_ATTEMPTS HDKeyDerivation'RAND_INT HDKeyDerivation'assert-less-than-n HDKeyDerivation'assert-non-infinity HDKeyDerivation'assert-non-zero HDKeyDerivation'create-master-priv-key-from-bytes HDKeyDerivation'create-master-private-key HDKeyDerivation'create-master-pub-key-from-bytes HDKeyDerivation'derive-child-key-2c HDKeyDerivation'derive-child-key-2i HDKeyDerivation'derive-child-key-bytes-from-private HDKeyDerivation'derive-child-key-bytes-from-public HDKeyDerivation'derive-this-or-next-child-key)
 (declare HDUtils'PATH_JOINER HDUtils'append HDUtils'concat HDUtils'create-hmac-sha512-digest HDUtils'format-path HDUtils'hmac-sha512-2 HDUtils'hmac-sha512-2-bytes HDUtils'parse-path HDUtils'to-compressed)
 (declare HeadersMessage'MAX_HEADERS HeadersMessage'init HeadersMessage'new-2 HeadersMessage'new-2-bytes)
-(declare InsufficientMoneyException'new-1 InsufficientMoneyException'new-2)
+(declare InsufficientMoneyException'new)
 (declare InventoryItem'MESSAGE_LENGTH InventoryItem'new)
 (declare InventoryItemType'enum-map InventoryItemType'for-code)
 (declare InventoryMessage''add-block InventoryMessage''add-transaction-2 InventoryMessage'MAX_INV_SIZE InventoryMessage'new-1 InventoryMessage'new-2 InventoryMessage'new-4 InventoryMessage'with)
@@ -206,7 +223,7 @@
 (declare MissingSigsMode'enum-set)
 (declare MnemonicChecksumException'new)
 (declare MnemonicCode''check MnemonicCode''to-entropy MnemonicCode''to-mnemonic MnemonicCode'BIP39_ENGLISH_SHA256 MnemonicCode'BIP39_ENGLISH_WORDLIST MnemonicCode'BIP39_STANDARDISATION_TIME_SECS MnemonicCode'INSTANCE MnemonicCode'PBKDF2_ROUNDS MnemonicCode'bytes-to-bits MnemonicCode'new-0 MnemonicCode'new-2 MnemonicCode'to-seed)
-(declare MnemonicException'new-0 MnemonicException'new-1)
+(declare MnemonicException'new)
 (declare MnemonicLengthException'new)
 (declare MnemonicWordException'new)
 (declare Monetary'''signum Monetary'''smallest-unit-exponent)
@@ -230,7 +247,7 @@
 (declare PeerConnectedEventListener'''on-peer-connected)
 (declare PeerDisconnectedEventListener'''on-peer-disconnected)
 (declare PeerDiscovery'''get-peers PeerDiscovery'''shutdown)
-(declare PeerDiscoveryException'new-1 PeerDiscoveryException'new-1x)
+(declare PeerDiscoveryException'new)
 (declare PeerFilterProvider'''begin-bloom-filter-calculation PeerFilterProvider'''end-bloom-filter-calculation PeerFilterProvider'''get-bloom-filter-4 PeerFilterProvider'''get-bloom-filter-element-count PeerFilterProvider'''get-earliest-key-creation-time)
 (declare PeerGroup''add-address-i PeerGroup''add-address-p PeerGroup''add-blocks-downloaded-event-listener-2 PeerGroup''add-blocks-downloaded-event-listener-3 PeerGroup''add-chain-download-started-event-listener-2 PeerGroup''add-chain-download-started-event-listener-3 PeerGroup''add-connected-event-listener-2 PeerGroup''add-connected-event-listener-3 PeerGroup''add-disconnected-event-listener-2 PeerGroup''add-disconnected-event-listener-3 PeerGroup''add-discovered-event-listener-2 PeerGroup''add-discovered-event-listener-3 PeerGroup''add-get-data-event-listener-2 PeerGroup''add-get-data-event-listener-3 PeerGroup''add-inactive PeerGroup''add-on-transaction-broadcast-listener-2 PeerGroup''add-on-transaction-broadcast-listener-3 PeerGroup''add-peer-discovery PeerGroup''add-peer-filter-provider PeerGroup''add-pre-message-received-event-listener-2 PeerGroup''add-pre-message-received-event-listener-3 PeerGroup''add-wallet PeerGroup''await-running PeerGroup''await-terminated PeerGroup''broadcast-transaction-3 PeerGroup''connect-to-2 PeerGroup''connect-to-4 PeerGroup''connect-to-local-host PeerGroup''count-connected-and-pending-peers PeerGroup''create-peer PeerGroup''create-private-executor PeerGroup''discover-peers PeerGroup''download-block-chain PeerGroup''find-peers-of-at-least-version PeerGroup''find-peers-with-service-mask PeerGroup''get-connected-peers PeerGroup''get-download-peer PeerGroup''get-fast-catchup-time-secs PeerGroup''get-max-connections PeerGroup''get-max-peers-to-discover-count PeerGroup''get-min-broadcast-connections PeerGroup''get-min-required-protocol-version PeerGroup''get-most-common-chain-height PeerGroup''get-pending-peers PeerGroup''get-ping-interval-msec PeerGroup''get-use-localhost-peer-when-possible PeerGroup''get-version-message PeerGroup''handle-get-data PeerGroup''handle-new-peer PeerGroup''handle-peer-death PeerGroup''is-bloom-filtering-enabled PeerGroup''is-running PeerGroup''maybe-check-for-localhost-peer PeerGroup''num-connected-peers PeerGroup''recalculate-fast-catchup-and-filter PeerGroup''remove-blocks-downloaded-event-listener PeerGroup''remove-chain-download-started-event-listener PeerGroup''remove-connected-event-listener PeerGroup''remove-disconnected-event-listener PeerGroup''remove-discovered-event-listener PeerGroup''remove-get-data-event-listener PeerGroup''remove-on-transaction-broadcast-listener PeerGroup''remove-peer-filter-provider PeerGroup''remove-pre-message-received-event-listener PeerGroup''remove-wallet PeerGroup''select-download-peer PeerGroup''set-bloom-filter-false-positive-rate PeerGroup''set-bloom-filtering-enabled PeerGroup''set-connect-timeout-millis PeerGroup''set-download-peer PeerGroup''set-download-tx-dependencies PeerGroup''set-fast-catchup-time-secs PeerGroup''set-max-connections PeerGroup''set-max-peers-to-discover-count PeerGroup''set-min-broadcast-connections PeerGroup''set-min-required-protocol-version PeerGroup''set-peer-discovery-timeout-millis PeerGroup''set-ping-interval-msec PeerGroup''set-required-services PeerGroup''set-stall-threshold PeerGroup''set-use-localhost-peer-when-possible PeerGroup''set-version-message PeerGroup''setup-pinging PeerGroup''start PeerGroup''start-async PeerGroup''start-block-chain-download PeerGroup''start-block-chain-download-from-peer PeerGroup''stop PeerGroup''stop-async PeerGroup''trigger-connections PeerGroup''update-version-message-relay-txes-before-filter PeerGroup''wait-for-job-queue PeerGroup''wait-for-peers PeerGroup''wait-for-peers-of-version PeerGroup''wait-for-peers-with-service-mask PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE PeerGroup'DEFAULT_CONNECTIONS PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS PeerGroup'DEFAULT_PING_INTERVAL_MSEC PeerGroup'MAX_FP_RATE_INCREASE PeerGroup'MIN_PEER_DISCOVERY_INTERVAL PeerGroup'add-data-event-listener-to-peer PeerGroup'get-most-common-chain-height* PeerGroup'new-1-context PeerGroup'new-1-params PeerGroup'new-2-context PeerGroup'new-2-params PeerGroup'new-3-context PeerGroup'new-3-params PeerGroup'remove-data-event-listener-from-peer)
 (declare PeerListener'new)
@@ -243,7 +260,7 @@
 (declare PoolType'enum-set)
 (declare PreMessageReceivedEventListener'''on-pre-message-received)
 (declare ProposedTransaction'new)
-(declare ProtocolException'new-1 ProtocolException'new-1x ProtocolException'new-2)
+(declare ProtocolException'new)
 (declare ProtocolVersion'BLOOM_FILTER ProtocolVersion'CURRENT ProtocolVersion'MINIMUM ProtocolVersion'PONG)
 (declare PrunedException'new)
 (declare PublicDerivationMode'enum-set)
@@ -304,8 +321,8 @@
 (declare Utils'BITCOIN_SIGNED_MESSAGE_HEADER Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES Utils'BIT_MASK Utils'HEX Utils'SPACE_JOINER Utils'UTC Utils'big-integer-to-bytes Utils'check-bit-le Utils'current-time-millis Utils'current-time-seconds Utils'date-time-format-1-date Utils'date-time-format-1-time Utils'decode-compact-bits Utils'decode-mpi Utils'encode-compact-bits Utils'encode-mpi Utils'format-message-for-signing Utils'int64-to-byte-stream-le Utils'max-of-most-freq Utils'now Utils'parse-as-hex-or-base58 Utils'read-int64 Utils'read-uint32 Utils'read-uint32be Utils'reverse-bytes Utils'set-bit-le Utils'sha256hash160 Utils'sleep Utils'uint32-to-byte-array-be Utils'uint32-to-byte-array-le Utils'uint32-to-byte-stream-le Utils'uint64-to-byte-array-le Utils'uint64-to-byte-stream-le)
 (declare ValuesUsed'new)
 (declare VarInt''encode VarInt''get-original-size-in-bytes VarInt''get-size-in-bytes VarInt'init VarInt'new-1 VarInt'new-2 VarInt'size-of)
-(declare VerificationException'new-1 VerificationException'new-1x VerificationException'new-2)
-(declare VersionAck'new-0 VersionAck'new-2)
+(declare VerificationException'new)
+(declare VersionAck'new)
 (declare VersionMessage''duplicate VersionMessage''has-block-chain VersionMessage''is-bloom-filtering-supported VersionMessage''is-ping-pong-supported VersionMessage'NODE_NETWORK VersionMessage'init VersionMessage'new-2 VersionMessage'new-2-bytes)
 (declare VersionTally''add VersionTally''get-count-at-or-above VersionTally''initialize VersionTally''size VersionTally'new)
 (declare VersionedChecksummedBytes''get-version VersionedChecksummedBytes''to-base58 VersionedChecksummedBytes'init VersionedChecksummedBytes'new-1 VersionedChecksummedBytes'new-2)
@@ -1006,7 +1023,7 @@
             (.decode Utils'HEX, data)
             (catch Exception _
                 ;; Didn't decode as hex, try base58.
-                (try
+                (try+
                     (Base58'decode-checked data)
                     (§ catch AddressFormatException _
                         nil
@@ -2100,7 +2117,7 @@
                 ;; block store to persist, but not the wallet.  In order to fix the issue, we roll back the block store to
                 ;; the wallet height to make it look like as if the block has never been received.
                 (when (< 0 __walletHeight __chainHeight)
-                    (try
+                    (try+
                         (BlockChain'''rollback-block-store this, __walletHeight)
                         (log/info (str "Rolled back block store to height " __walletHeight "."))
                         (§ catch BlockStoreException _
@@ -2282,11 +2299,11 @@
     #_throws #_[ "BlockStoreException", "VerificationException", "PrunedException" ]
     #_method
     (defn #_"boolean" BlockChain''add-b [#_"BlockChain" this, #_"Block" block]
-        (try
+        (try+
             (BlockChain''add-5 this, block, true, nil, nil)
             (§ catch VerificationException e
                 (BlockChain'''not-setting-chain-head this)
-                (throw (VerificationException'new-2 (str "Could not verify block:\n" block), e))
+                (throw+ (VerificationException'new (str "Could not verify block:\n" block)) e)
             )
         )
     )
@@ -2299,7 +2316,7 @@
     #_throws #_[ "BlockStoreException", "VerificationException", "PrunedException" ]
     #_abstract
     (defn #_"boolean" BlockChain'''add-filtered-block [#_"BlockChain" this, #_"FilteredBlock" block]
-        (try
+        (try+
             ;; The block has a list of hashes of transactions that matched the Bloom filter, and a list of associated
             ;; Transaction objects.  There may be fewer Transaction objects than hashes, this is expected.  It can happen
             ;; in the case where we were already around to witness the initial broadcast, so we downloaded the
@@ -2310,7 +2327,7 @@
             (BlockChain''add-5 this, (FilteredBlock''get-block-header block), true, (FilteredBlock''get-transaction-hashes block), (FilteredBlock''get-associated-transactions block))
             (§ catch VerificationException e
                 (BlockChain'''not-setting-chain-head this)
-                (throw (VerificationException'new-2 (str "Could not verify block " (Message'''get-hash block) "\n" block), e))
+                (throw+ (VerificationException'new (str "Could not verify block " (Message'''get-hash block) "\n" block)) e)
             )
         )
     )
@@ -2365,7 +2382,7 @@
                     false
                 ;; If we want to verify transactions (i.e. we are running with full blocks), verify that block has transactions.
                 (and (BlockChain'''should-verify-transactions this) (nil? (:transactions block)))
-                    (throw (VerificationException'new-1 "Got a block header while running in full-block mode"))
+                    (throw+ (VerificationException'new "Got a block header while running in full-block mode"))
                 ;; Check for already-seen block, but only for full pruned mode, where the DB is
                 ;; more likely able to handle these queries quickly.
                 (and (BlockChain'''should-verify-transactions this) (some? (BlockStore'''get-2 (:block-store this), (Message'''get-hash block))))
@@ -2376,7 +2393,7 @@
                 ;; are only lightly verified: presence in a valid connecting block is taken as proof of validity.  See the
                 ;; article here for more details: https://bitcoinj.github.io/security-model
                 (let [#_"StoredBlock" prior
-                        (try
+                        (try+
                             (Block''verify-header block)
                             (let [prior (BlockChain'''get-stored-block-in-current-scope this, (Block''get-prev-block-hash block))
                                   #_"int" height (if (some? prior) (inc (:stored-height prior)) Block'BLOCK_HEIGHT_UNKNOWN)
@@ -2388,7 +2405,7 @@
                             )
                             (§ catch VerificationException e
                                 (log/error e, (str "Failed to verify block: " (Block''get-hash-as-string block)))
-                                (throw e)
+                                (throw+)
                             )
                         )]
 
@@ -2446,13 +2463,13 @@
         (§ let [#_"boolean" filtered (and (some? __filteredTxHashList) (some? __filteredTxn))]
             ;; Check that we aren't connecting a block that fails a checkpoint check.
             (when-not (NetworkParameters''passes-checkpoint (:params this), (inc (:stored-height __storedPrev)), (Message'''get-hash block))
-                (throw (VerificationException'new-1 (str "Block failed checkpoint lockin at " (inc (:stored-height __storedPrev)))))
+                (throw+ (VerificationException'new (str "Block failed checkpoint lockin at " (inc (:stored-height __storedPrev)))))
             )
             (when (BlockChain'''should-verify-transactions this)
                 (ensure some? (:transactions block))
                 (doseq [#_"Transaction" tx (:transactions block)]
                     (when-not (Transaction''is-final tx, (inc (:stored-height __storedPrev)), (Block''get-time-seconds block))
-                        (throw (VerificationException'new-1 "Block contains non-final transaction"))
+                        (throw+ (VerificationException'new "Block contains non-final transaction"))
                     )
                 )
             )
@@ -2467,7 +2484,7 @@
                             )
                         )
                         (when (and __expensiveChecks (<= (Block''get-time-seconds block) (BlockChain'get-median-timestamp-of-recent-blocks head, (:block-store this))))
-                            (throw (VerificationException'new-1 "Block's timestamp is too early"))
+                            (throw+ (VerificationException'new "Block's timestamp is too early"))
                         )
 
                         ;; BIP 66 & 65: Enforce block version 3/4 once they are a supermajority of blocks.
@@ -2476,7 +2493,7 @@
                         (when (any = (Block''get-version block) Block'BLOCK_VERSION_BIP34 Block'BLOCK_VERSION_BIP66)
                             (let [#_"Integer" count (VersionTally''get-count-at-or-above (:version-tally this), (inc (Block''get-version block)))]
                                 (when (and (some? count) (<= (-> this :params :majority-reject-block-outdated) count))
-                                    (throw (VerificationException'new-1 (str "Block version #" (Block''get-version block) " is outdated.")))
+                                    (throw+ (VerificationException'new (str "Block version #" (Block''get-version block) " is outdated.")))
                                 )
                             )
                         )
@@ -2517,7 +2534,7 @@
                                             (do
                                                 ;; This should absolutely never happen.
                                                 ;; (lets not write the full block to disk to keep any bugs which allow this to happen from writing unreasonable amounts of data to disk)
-                                                (throw (VerificationException'new-1 "Block forks the chain but splitPoint is nil"))
+                                                (throw+ (VerificationException'new "Block forks the chain but splitPoint is nil"))
                                             )
                                             :else
                                             (do
@@ -2569,12 +2586,12 @@
                     ;; Listener wants to be run on some other thread, so marshal it across here.
                     (let [#_"boolean" __notFirst (not first?)]
                         (.execute (:executor registration),
-                            #(try
+                            #(try+
                                 ;; We can't do false-positive handling when executing on another thread.
                                 (let [#_"Set<Sha256Hash>" __ignoredFalsePositives (HashSet.)]
                                     (BlockChain'inform-listener-for-new-transactions block, __newBlockType, __filteredTxHashList, __filteredTxn, __newStoredBlock, __notFirst, (:listener registration), __ignoredFalsePositives)
                                 )
-                                (§ catch VerificationException e
+                                (catch VerificationException e
                                     (log/error e, "Block chain listener threw exception")
                                     ;; Don't attempt to relay this back to the original peer thread if this was an async listener invocation.
                                     ;; TODO: Make exception reporting a global feature and use it here.
@@ -2594,9 +2611,9 @@
                         (f)
                         ;; Listener wants to be run on some other thread, so marshal it across here.
                         (.execute (:executor registration),
-                            #(try
+                            #(try+
                                 (f)
-                                (§ catch VerificationException e
+                                (catch VerificationException e
                                     (log/error e, "Block chain listener threw exception")
                                     ;; Don't attempt to relay this back to the original peer thread if this was an async listener invocation.
                                     ;; TODO: Make exception reporting a global feature and use it here.
@@ -2711,14 +2728,14 @@
                     (cond (BlockChain'''should-verify-transactions this)
                         (do
                             (doseq [#_"StoredBlock" __oldBlock __oldBlocks]
-                                (try
+                                (try+
                                     (BlockChain'''disconnect-transactions this, __oldBlock)
-                                    (§ catch PrunedException e
+                                    (§ catch PrunedException _
                                         ;; We threw away the data we need to re-org this deep!  We need to go back to a peer with full
                                         ;; block contents and ask them for the relevant data then rebuild the indexs.  Or we could just
                                         ;; give up and ask the human operator to help get us unstuck (e.g. rescan from the genesis block).
                                         ;; TODO: retry adding this block when we get a block with hash e.getHash()
-                                        (throw e)
+                                        (throw+)
                                     )
                                 )
                             )
@@ -2727,7 +2744,7 @@
                             (loop-when-recur [#_"Iterator<StoredBlock>" it (.descendingIterator __newBlocks)] (.hasNext it) []
                                 (let [#_"StoredBlock" cursor (.next it) #_"Block" __cursorBlock (:stored-header cursor)]
                                     (when (and __expensiveChecks (<= (Block''get-time-seconds __cursorBlock) (BlockChain'get-median-timestamp-of-recent-blocks (StoredBlock''get-prev cursor, (:block-store this)), (:block-store this))))
-                                        (throw (VerificationException'new-1 "Block's timestamp is too early during reorg"))
+                                        (throw+ (VerificationException'new "Block's timestamp is too early during reorg"))
                                     )
                                     (let [#_"TransactionOutputChanges" changes
                                             (if (and (= cursor __newChainHead) (some? block))
@@ -2757,9 +2774,9 @@
                                 (ReorganizeListener'''reorganize (:listener registration), __splitPoint, __oldBlocks, __newBlocks)
                             )
                             (.execute (:executor registration),
-                                #(try
+                                #(try+
                                     (ReorganizeListener'''reorganize (:listener registration), __splitPoint, __oldBlocks, __newBlocks)
-                                    (§ catch VerificationException e
+                                    (catch VerificationException e
                                         (log/error e, "Block chain listener threw exception during reorg")
                                     )
                                 )
@@ -2827,7 +2844,7 @@
     #_throws #_[ "VerificationException" ]
     (defn- #_"void" BlockChain'send-transactions-to-listener [#_"StoredBlock" block, #_"NewBlockType" type, #_"TransactionReceivedInBlockListener" listener, #_"int" offset, #_"List<Transaction>" transactions, #_"boolean" clone?, #_"Set<Sha256Hash>" __falsePositives]
         (§ doseq [#_"Transaction" tx transactions]
-            (try
+            (try+
                 (.remove __falsePositives, (Message'''get-hash tx))
                 (when clone?
                     (§ ass tx (BitcoinSerializer''make-transaction-2 (-> tx :params :default-serializer), (Message'''bitcoin-serialize-1 tx)))
@@ -3087,7 +3104,7 @@
             (assert-argument (= (alength hash160) 20), "Addresses are 160-bit hashes, so you must provide 20 bytes")
 
             (when-not (Address'is-acceptable-version params, version)
-                (throw (WrongNetworkException'new version, (:acceptable-address-codes params)))
+                (throw+ (WrongNetworkException'new version, (:acceptable-address-codes params)))
             )
             (assoc this :params params)
         )
@@ -3123,12 +3140,12 @@
             (if (some? params)
                 (if (Address'is-acceptable-version params, (:version this))
                     (assoc this :params params)
-                    (throw (WrongNetworkException'new (:version this), (:acceptable-address-codes params)))
+                    (throw+ (WrongNetworkException'new (:version this), (:acceptable-address-codes params)))
                 )
                 (let [params (first (filter #(Address'is-acceptable-version %, (:version this)) Networks'NETWORKS))]
                     (if (some? params)
                         (assoc this :params params)
-                        (throw (AddressFormatException'new-1 (str "No network found for " base58)))
+                        (throw+ (AddressFormatException'new (str "No network found for " base58)))
                     )
                 )
             )
@@ -3180,17 +3197,13 @@
      ; Check if a given address version is valid given the NetworkParameters.
      ;;
     (defn- #_"boolean" Address'is-acceptable-version [#_"NetworkParameters" params, #_"int" version]
-        (some? (some #(= % version) (:acceptable-address-codes params)))
+        (boolean (some #(= % version) (:acceptable-address-codes params)))
     )
 )
 
 (class-ns AddressFormatException (§ extends IllegalArgumentException)
-    (defn #_"AddressFormatException" AddressFormatException'new-0 []
-        (§ super IllegalArgumentException'new)
-    )
-
-    (defn #_"AddressFormatException" AddressFormatException'new-1 [#_"String" message]
-        (§ super IllegalArgumentException'new message)
+    (defn #_"AddressFormatException" AddressFormatException'new [#_"String" message]
+        (IllegalArgumentException'new message)
     )
 )
 
@@ -3257,7 +3270,7 @@
         (let [#_"long" n (Message''read-var-int-1 this)]
             ;; Guard against ultra large messages that will crash us.
             (when (< AddressMessage'MAX_ADDRESSES n)
-                (throw (ProtocolException'new-1 "Address message too large."))
+                (throw+ (ProtocolException'new "Address message too large."))
             )
             (§ assoc this :addresses (ArrayList. n))
             (dotimes [#_"int" i n]
@@ -3440,7 +3453,7 @@
             ;; Sets are serialized as <len><item><item><item>....
             (let [#_"long" __cancelSetSize (Message''read-var-int-1 this)]
                 (when (or (< __cancelSetSize 0) (< AlertMessage'MAX_SET_SIZE __cancelSetSize))
-                    (throw (ProtocolException'new-1 (str "Bad cancel set size: " __cancelSetSize)))
+                    (throw+ (ProtocolException'new (str "Bad cancel set size: " __cancelSetSize)))
                 )
                 ;; Using a hashset here is very inefficient given that this will normally be only one item.  But Java doesn't
                 ;; make it easy to do better.  What we really want is just an array-backed set.
@@ -3453,7 +3466,7 @@
                     ;; Read the subver matching set.
                     (let [#_"long" __subverSetSize (Message''read-var-int-1 this)]
                         (when (or (< __subverSetSize 0) (< AlertMessage'MAX_SET_SIZE __subverSetSize))
-                            (throw (ProtocolException'new-1 (str "Bad subver set size: " __subverSetSize)))
+                            (throw+ (ProtocolException'new (str "Bad subver set size: " __subverSetSize)))
                         )
                         (let [#_"Set<String>" __matchingSubVers (HashSet. __subverSetSize)]
                             (loop-when-recur [#_"long" i 0] (< i __subverSetSize) [(inc i)]
@@ -3561,7 +3574,7 @@
                 (dotimes [i m]
                     (let [c (.charAt input, i) digit (if (< c 128) (aget Base58'INDEXES c) -1)]
                         (if (< digit 0)
-                            (throw (AddressFormatException'new-1 (str "Illegal character " c " at position " i)))
+                            (throw+ (AddressFormatException'new (str "Illegal character " c " at position " i)))
                             (aset input58 i (byte digit))
                         )
                     )
@@ -3602,13 +3615,13 @@
     (defn #_"byte[]" Base58'decode-checked [#_"String" input]
         (let [#_"byte[]" decoded (Base58'decode input) #_"int" n (alength decoded)]
             (when (< n 4)
-                (throw (AddressFormatException'new-1 "Input too short"))
+                (throw+ (AddressFormatException'new "Input too short"))
             )
             (let [#_"byte[]" data (Arrays/copyOfRange decoded, 0, (- n 4))
                   #_"byte[]" checksum (Arrays/copyOfRange decoded, (- n 4), n)
                   #_"byte[]" expected (Arrays/copyOfRange (Sha256Hash'hash-twice-1 data), 0, 4)]
                 (when-not (Arrays/equals checksum, expected)
-                    (throw (AddressFormatException'new-1 "Checksum does not validate"))
+                    (throw+ (AddressFormatException'new "Checksum does not validate"))
                 )
                 data
             )
@@ -3650,7 +3663,7 @@
               #_"byte[]" command (byte-array i) _ (System/arraycopy header, 0, command, 0, i)
               #_"int" size (int (Utils'read-uint32 header, n))]
             (when-not (<= 0 size Message'MAX_SIZE)
-                (throw (ProtocolException'new-1 (str "Message size too large: " size)))
+                (throw+ (ProtocolException'new (str "Message size too large: " size)))
             )
             ;; Old clients don't send the checksum.
             ;; Note that the size read above includes the checksum bytes.
@@ -3795,13 +3808,13 @@
               #_"byte[]" hash (Sha256Hash'hash-twice-1 payload) #_"byte[]" checksum (:checksum header)]
             ;; Verify the checksum.
             (when-not (and (= (aget checksum 0) (aget hash 0)) (= (aget checksum 1) (aget hash 1)) (= (aget checksum 2) (aget hash 2)) (= (aget checksum 3) (aget hash 3)))
-                (throw (ProtocolException'new-1 (str "Checksum failed to verify, actual " (VarInt''encode Utils'HEX, hash) " vs " (VarInt''encode Utils'HEX, checksum))))
+                (throw+ (ProtocolException'new (str "Checksum failed to verify, actual " (VarInt''encode Utils'HEX, hash) " vs " (VarInt''encode Utils'HEX, checksum))))
             )
 
             (try
                 (BitcoinSerializer''make-message this, (:command header), (:size header), payload, hash)
                 (catch Exception e
-                    (throw (ProtocolException'new-2 (str "Error deserializing message " (VarInt''encode Utils'HEX, payload) "\n"), e))
+                    (throw+ (ProtocolException'new (str "Error deserializing message " (VarInt''encode Utils'HEX, payload) "\n")) e)
                 )
             )
         )
@@ -3823,7 +3836,7 @@
                 "addr"        (AddressMessage'new-4 params, payload, this, length)
                 "ping"        (Ping'new-2 params, payload)
                 "pong"        (Pong'new-2 params, payload)
-                "verack"      (VersionAck'new-2 params, payload)
+                "verack"      (VersionAck'new)
                 "headers"     (HeadersMessage'new-2-bytes params, payload)
                 "alert"       (AlertMessage'new params, payload)
                 "filterload"  (BloomFilter'new-2 params, payload)
@@ -4447,7 +4460,7 @@
     (defn #_"BigInteger" Block''get-difficulty-target-as-integer [#_"Block" this]
         (let [#_"BigInteger" target (Utils'decode-compact-bits (:difficulty-target this))]
             (when (or (<= (.signum target) 0) (< 0 (.compareTo target, (-> this :params :max-target))))
-                (throw (VerificationException'new-1 (str "Difficulty target is bad: " target)))
+                (throw+ (VerificationException'new (str "Difficulty target is bad: " target)))
             )
             target
         )
@@ -4469,7 +4482,7 @@
             (when' (< 0 (.compareTo hash, target)) => true
                 ;; Proof of work check failed!
                 (when' throw? => false
-                    (throw (VerificationException'new-1 (str "Hash is higher than target: " (Block''get-hash-as-string this) " vs " (.toString target, 16))))
+                    (throw+ (VerificationException'new (str "Hash is higher than target: " (Block''get-hash-as-string this) " vs " (.toString target, 16))))
                 )
             )
         )
@@ -4480,7 +4493,7 @@
     (defn- #_"void" Block''check-timestamp [#_"Block" this]
         (let [#_"long" drift (+ (Utils'current-time-seconds) Block'ALLOWED_TIME_DRIFT)]
             (when (< drift (:time this))
-                (throw (VerificationException'new-1 (str "Block too far in future: " (Utils'date-time-format-1-time (* (:time this) 1000)) " (" (:time this) ") vs allowed " (Utils'date-time-format-1-time (* drift 1000)) " (" drift ")")))
+                (throw+ (VerificationException'new (str "Block too far in future: " (Utils'date-time-format-1-time (* (:time this) 1000)) " (" (:time this) ") vs allowed " (Utils'date-time-format-1-time (* drift 1000)) " (" drift ")")))
             )
         )
         nil
@@ -4492,7 +4505,7 @@
         ;; Ensure that there aren't too many signature verifications in the block.
         ;; This is an anti-DoS measure, see the comments for MAX_BLOCK_SIGOPS.
         (when (< Block'MAX_BLOCK_SIGOPS (reduce + (map Transaction''get-sig-op-count (:transactions this))))
-            (throw (VerificationException'new-1 "Block had too many Signature Operations"))
+            (throw+ (VerificationException'new "Block had too many Signature Operations"))
         )
         nil
     )
@@ -4503,7 +4516,7 @@
         (let [#_"Sha256Hash" root (Block''calculate-merkle-root this)]
             (when-not (.equals root, (:merkle-root this))
                 (log/error "Merkle tree did not verify")
-                (throw (VerificationException'new-1 (str "Merkle hashes do not match: " root " vs " (:merkle-root this))))
+                (throw+ (VerificationException'new (str "Merkle hashes do not match: " root " vs " (:merkle-root this))))
             )
         )
         nil
@@ -4582,7 +4595,7 @@
     (defn- #_"void" Block''check-transactions [#_"Block" this, #_"int" height, #_"EnumSet<BlockVerifyFlag>" flags]
         ;; The first transaction in a block must always be a coinbase transaction.
         (when-not (Transaction''is-coin-base (.get (:transactions this), 0))
-            (throw (VerificationException'new-1 "First tx is not coinbase"))
+            (throw+ (VerificationException'new "First tx is not coinbase"))
         )
 
         (when (and (.contains flags, :BlockVerifyFlag'HEIGHT_IN_COINBASE) (<= Block'BLOCK_HEIGHT_GENESIS height))
@@ -4592,7 +4605,7 @@
         ;; The rest must not be.
         (loop-when-recur [#_"int" i 1] (< i (.size (:transactions this))) [(inc i)]
             (when (Transaction''is-coin-base (.get (:transactions this), i))
-                (throw (VerificationException'new-1 (str "TX " i " is coinbase when it should not be.")))
+                (throw+ (VerificationException'new (str "TX " i " is coinbase when it should not be.")))
             )
         )
         nil
@@ -4635,10 +4648,10 @@
         ;; valid block from the network and simply replace the transactions in it with their own fictional
         ;; transactions that reference spent or non-existant inputs.
         (when (empty? (:transactions this))
-            (throw (VerificationException'new-1 "Block had no transactions"))
+            (throw+ (VerificationException'new "Block had no transactions"))
         )
         (when (< Block'MAX_BLOCK_SIZE (Block''get-optimal-encoding-message-size this))
-            (throw (VerificationException'new-1 "Block larger than MAX_BLOCK_SIZE"))
+            (throw+ (VerificationException'new "Block larger than MAX_BLOCK_SIZE"))
         )
         (Block''check-transactions this, height, flags)
         (Block''check-merkle-root this)
@@ -4955,7 +4968,7 @@
                     (let [#_"StoredBlock" head
                             (loop-when [head (BlockStore'''get-chain-head (:block-store this))] (< height (:stored-height head)) => head
                                 (let [head (StoredBlock''get-prev head, (:block-store this))]
-                                    (recur-if (some? head) head => (throw (BlockStoreException'new-1 "Unreachable height")))
+                                    (recur-if (some? head) head => (throw+ (BlockStoreException'new "Unreachable height")))
                                 )
                             )]
                         ;; Modify store directly.
@@ -5145,11 +5158,11 @@
     (defn #_"void" Message'''parse-message [#_"BloomFilter" this]
         (§ assoc this :data (Message''read-byte-array this))
         (when (< BloomFilter'MAX_FILTER_SIZE (alength (:data this)))
-            (throw (ProtocolException'new-1 "Bloom filter out of size range."))
+            (throw+ (ProtocolException'new "Bloom filter out of size range."))
         )
         (§ assoc this :hash-funcs (Message''read-uint32 this))
         (when (< BloomFilter'MAX_HASH_FUNCS (:hash-funcs this))
-            (throw (ProtocolException'new-1 "Bloom filter hash function count out of range"))
+            (throw+ (ProtocolException'new "Bloom filter hash function count out of range"))
         )
         (§ assoc this :n-tweak (Message''read-uint32 this))
         (§ assoc this :n-flags (aget (Message''read-bytes this, 1) 0))
@@ -5898,8 +5911,8 @@
 )
 
 (class-ns MissingPrivateKeyException (§ extends RuntimeException)
-    (defn #_"MissingPrivateKeyException" MissingPrivateKeyException'new []
-        (§ super RuntimeException'new)
+    (defn #_"MissingPrivateKeyException" MissingPrivateKeyException'new []
+        (RuntimeException'new)
     )
 )
 
@@ -6134,7 +6147,7 @@
     (defn #_"ECKey" ECKey'new-2-lazy [#_"BigInteger" priv, #_"LazyECPoint" pub]
         (let [this (ECKey'init)]
             (when (some? priv)
-                (assert-argument (<= (.bitLength priv) (<< 32 3)), "private key exceeds 32 bytes: {} bits", (.bitLength priv))
+                (assert-argument (<= (.bitLength priv) (<< 32 3)), (str "private key exceeds 32 bytes: " (.bitLength priv) " bits"))
                 ;; Try and catch buggy callers or bad key imports, etc.  Zero and one are special because these are often
                 ;; used as sentinel values and because scripting languages have a habit of auto-casting true and false to
                 ;; 1 and 0 or vice-versa.  Type confusion bugs could therefore result in private keys with these values.
@@ -6367,7 +6380,7 @@
     #_abstract
     (defn #_"BigInteger" ECKey'''get-priv-key [#_"ECKey" this]
         (when (nil? (:priv this))
-            (throw (MissingPrivateKeyException'new))
+            (throw+ (MissingPrivateKeyException'new))
         )
 
         (:priv this)
@@ -6400,7 +6413,7 @@
      ;;
     #_abstract
     (defn #_"ECDSASignature" ECKey'''sign [#_"ECKey" this, #_"Sha256Hash" input]
-        (when' (some? (:priv this)) => (throw (MissingPrivateKeyException'new))
+        (when' (some? (:priv this)) => (throw+ (MissingPrivateKeyException'new))
             (ECKey''do-sign this, input, (:priv this))
         )
     )
@@ -6914,7 +6927,7 @@
                         (§ assoc this :cached-transaction-hashes matches)
                         (Collections/unmodifiableList (:cached-transaction-hashes this))
                     )
-                    (throw (VerificationException'new-1 "Merkle root of block header does not match merkle root of partial merkle tree."))
+                    (throw+ (VerificationException'new "Merkle root of block header does not match merkle root of partial merkle tree."))
                 )
             )
         )
@@ -7009,7 +7022,7 @@
     #_foreign
     #_override
     (defn #_"VerificationException" Callable'''call [#_"FullPrunedVerifier" this]
-        (try
+        (try+
             (let [#_"ListIterator<Script>" it (.listIterator (:prev-out-scripts this))]
                 (dotimes [#_"int" i (.size (Transaction''get-inputs (:tx this)))]
                     (Script''correctly-spends-5 (TransactionInput''get-script-sig (.get (Transaction''get-inputs (:tx this)), i)), (:tx this), i, (.next it), (:verify-flags this))
@@ -7121,7 +7134,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"void" BlockChain'''rollback-block-store [#_"FullPrunedBlockChain" __, #_"int" height]
-        (throw (BlockStoreException'new-1 "Unsupported"))
+        (throw+ (BlockStoreException'new "Unsupported"))
     )
 
     #_override
@@ -7186,7 +7199,7 @@
             (throw (RuntimeException. "connectTransactions called with Block that didn't have transactions!"))
         )
         (when-not (NetworkParameters''passes-checkpoint (:params this), height, (Message'''get-hash block))
-            (throw (VerificationException'new-1 (str "Block failed checkpoint lockin at " height)))
+            (throw+ (VerificationException'new (str "Block failed checkpoint lockin at " height)))
         )
 
         (FullPrunedBlockStore'''begin-database-batch-write (:block-store this))
@@ -7200,7 +7213,7 @@
             )
 
             (let [#_"List<Future<VerificationException>>" __listScriptVerificationResults (ArrayList. (.size (:transactions block)))]
-                (try
+                (try+
                     (when (not (NetworkParameters''is-checkpoint (:params this), height))
                         ;; BIP30 violator blocks are ones that contain a duplicated transaction.  They are all in the checkpoints list
                         ;; and we therefore only check non-checkpoints for duplicated transactions here.  See the BIP30 document
@@ -7211,7 +7224,7 @@
                                 ;; If we already have unspent outputs for this hash, we saw the tx already.
                                 ;; Either the block is being added twice (bug) or the block is a BIP30 violator.
                                 (when (FullPrunedBlockStore'''has-unspent-outputs (:block-store this), hash, (.size (Transaction''get-outputs tx)))
-                                    (throw (VerificationException'new-1 "Block failed BIP30 test!"))
+                                    (throw+ (VerificationException'new "Block failed BIP30 test!"))
                                 )
                                 ;; We already check non-BIP16 sigops in Block.verifyTransactions(true).
                                 (when (.contains __verifyFlags, :ScriptVerifyFlag'P2SH)
@@ -7234,13 +7247,13 @@
                                         (let [#_"TransactionInput" in (.get (Transaction''get-inputs tx), index)
                                               #_"UTXO" __prevOut (FullPrunedBlockStore'''get-transaction-output (:block-store this), (Message'''get-hash (:outpoint in)), (:index (:outpoint in)))]
                                             (when (nil? __prevOut)
-                                                (throw (VerificationException'new-1 "Attempted to spend a non-existent or already spent output!"))
+                                                (throw+ (VerificationException'new "Attempted to spend a non-existent or already spent output!"))
                                             )
                                             ;; Coinbases can't be spent until they mature, to avoid re-orgs destroying entire transaction chains.
                                             ;; The assumption is there will ~never be re-orgs deeper than the spendable coinbase chain depth.
                                             (when (:coinbase? __prevOut)
                                                 (when (< (- height (:utxo-height __prevOut)) (-> this :params :spendable-coinbase-depth))
-                                                    (throw (VerificationException'new-1 (str "Tried to spend coinbase at depth " (- height (:utxo-height __prevOut)))))
+                                                    (throw+ (VerificationException'new (str "Tried to spend coinbase at depth " (- height (:utxo-height __prevOut)))))
                                                 )
                                             )
                                             ;; TODO: Check we're not spending the genesis transaction here. Bitcoin Core won't allow it.
@@ -7250,7 +7263,7 @@
                                                     (§ ass __sigOps (+ __sigOps (Script'get-p2sh-sig-op-count (:script-bytes in))))
                                                 )
                                                 (when (< Block'MAX_BLOCK_SIGOPS __sigOps)
-                                                    (throw (VerificationException'new-1 "Too many P2SH SigOps in block"))
+                                                    (throw+ (VerificationException'new "Too many P2SH SigOps in block"))
                                                 )
                                             )
 
@@ -7273,7 +7286,7 @@
                                     ;; All values were already checked for being non-negative (as it is verified in Transaction.verify()),
                                     ;; but we check again here just for defence in depth.  Transactions with zero output value are OK.
                                     (when (or (< (Monetary'''signum __valueOut) 0) (< 0 (.compareTo __valueOut, (NetworkParameters''get-max-money (:params this)))))
-                                        (throw (VerificationException'new-1 "Transaction output value out of range"))
+                                        (throw+ (VerificationException'new "Transaction output value out of range"))
                                     )
 
                                     (cond __isCoinBase
@@ -7283,7 +7296,7 @@
                                         :else
                                         (do
                                             (when (or (< (.compareTo __valueIn, __valueOut) 0) (< 0 (.compareTo __valueIn, (NetworkParameters''get-max-money (:params this)))))
-                                                (throw (VerificationException'new-1 "Transaction input value out of range"))
+                                                (throw+ (VerificationException'new "Transaction input value out of range"))
                                             )
                                             (§ ass __totalFees (Coin''add __totalFees, (Coin''subtract __valueIn, __valueOut)))
                                         )
@@ -7300,7 +7313,7 @@
                             )
                         )
                         (when (or (< 0 (.compareTo __totalFees, (NetworkParameters''get-max-money (:params this)))) (< (.compareTo (Coin''add (Block''get-block-inflation block, height), __totalFees), __coinbaseValue) 0))
-                            (throw (VerificationException'new-1 "Transaction fees out of range"))
+                            (throw+ (VerificationException'new "Transaction fees out of range"))
                         )
 
                         (doseq [#_"Future<VerificationException>" future __listScriptVerificationResults]
@@ -7312,7 +7325,7 @@
                                     )
                                     (catch ExecutionException ee
                                         (log/error (.getCause ee), "Script.correctlySpends threw an unexpected exception")
-                                        (throw (VerificationException'new-2 "Bug in Script.correctlySpends, likely script malformed in some new and interesting way.", ee))
+                                        (throw+ (VerificationException'new "Bug in Script.correctlySpends, likely script malformed in some new and interesting way.") ee)
                                     )
                                 )
                                 (when (some? e)
@@ -7321,15 +7334,15 @@
                             )
                         )
                     )
-                    (§ catch VerificationException e
+                    (§ catch VerificationException _
                         (.shutdownNow (:script-verification-executor this))
                         (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
-                        (throw e)
+                        (throw+)
                     )
-                    (§ catch BlockStoreException e
+                    (§ catch BlockStoreException _
                         (.shutdownNow (:script-verification-executor this))
                         (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
-                        (throw e)
+                        (throw+)
                     )
                 )
 
@@ -7347,7 +7360,7 @@
         (§ sync this
             (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
             (when-not (NetworkParameters''passes-checkpoint (:params this), (:stored-height __newBlock), (Message'''get-hash (:stored-header __newBlock)))
-                (throw (VerificationException'new-1 (str "Block failed checkpoint lockin at " (:stored-height __newBlock))))
+                (throw+ (VerificationException'new (str "Block failed checkpoint lockin at " (:stored-height __newBlock))))
             )
 
             (FullPrunedBlockStore'''begin-database-batch-write (:block-store this))
@@ -7355,11 +7368,11 @@
                 (when (nil? block)
                     ;; We're trying to re-org too deep and the data needed has been deleted.
                     (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
-                    (throw (PrunedException'new (Message'''get-hash (:stored-header __newBlock))))
+                    (throw+ (PrunedException'new (Message'''get-hash (:stored-header __newBlock))))
                 )
 
                 (let [#_"TransactionOutputChanges" changes]
-                    (try
+                    (try+
                         (let [#_"List<Transaction>" transactions (StoredUndoableBlock''get-transactions block)]
                             (cond (some? transactions)
                                 (do
@@ -7371,7 +7384,7 @@
                                             (doseq [#_"Transaction" tx transactions]
                                                 (let [#_"Sha256Hash" hash (Message'''get-hash tx)]
                                                     (when (FullPrunedBlockStore'''has-unspent-outputs (:block-store this), hash, (.size (Transaction''get-outputs tx)))
-                                                        (throw (VerificationException'new-1 "Block failed BIP30 test!"))
+                                                        (throw+ (VerificationException'new "Block failed BIP30 test!"))
                                                     )
                                                 )
                                             )
@@ -7397,10 +7410,10 @@
                                                                 (let [#_"TransactionInput" in (.get (Transaction''get-inputs tx), index)
                                                                       #_"UTXO" __prevOut (FullPrunedBlockStore'''get-transaction-output (:block-store this), (Message'''get-hash (:outpoint in)), (:index (:outpoint in)))]
                                                                     (when (nil? __prevOut)
-                                                                        (throw (VerificationException'new-1 "Attempted spend of a non-existent or already spent output!"))
+                                                                        (throw+ (VerificationException'new "Attempted spend of a non-existent or already spent output!"))
                                                                     )
                                                                     (when (and (:coinbase? __prevOut) (< (- (:stored-height __newBlock) (:utxo-height __prevOut)) (-> this :params :spendable-coinbase-depth)))
-                                                                        (throw (VerificationException'new-1 (str "Tried to spend coinbase at depth " (- (:stored-height __newBlock) (:utxo-height __prevOut)))))
+                                                                        (throw+ (VerificationException'new (str "Tried to spend coinbase at depth " (- (:stored-height __newBlock) (:utxo-height __prevOut)))))
                                                                     )
                                                                     (§ ass __valueIn (Coin''add __valueIn, (:value __prevOut)))
                                                                     (when (.contains __verifyFlags, :ScriptVerifyFlag'P2SH)
@@ -7408,7 +7421,7 @@
                                                                             (§ ass __sigOps (+ __sigOps (Script'get-p2sh-sig-op-count (:script-bytes in))))
                                                                         )
                                                                         (when (< Block'MAX_BLOCK_SIGOPS __sigOps)
-                                                                            (throw (VerificationException'new-1 "Too many P2SH SigOps in block"))
+                                                                            (throw+ (VerificationException'new "Too many P2SH SigOps in block"))
                                                                         )
                                                                     )
 
@@ -7433,7 +7446,7 @@
                                                             ;; All values were already checked for being non-negative (as it is verified in Transaction.verify())
                                                             ;; but we check again here just for defence in depth.  Transactions with zero output value are OK.
                                                             (when (or (< (Monetary'''signum __valueOut) 0) (< 0 (.compareTo __valueOut, (NetworkParameters''get-max-money (:params this)))))
-                                                                (throw (VerificationException'new-1 "Transaction output value out of range"))
+                                                                (throw+ (VerificationException'new "Transaction output value out of range"))
                                                             )
 
                                                             (cond __isCoinBase
@@ -7443,7 +7456,7 @@
                                                                 :else
                                                                 (do
                                                                     (when (or (< (.compareTo __valueIn, __valueOut) 0) (< 0 (.compareTo __valueIn, (NetworkParameters''get-max-money (:params this)))))
-                                                                        (throw (VerificationException'new-1 "Transaction input value out of range"))
+                                                                        (throw+ (VerificationException'new "Transaction input value out of range"))
                                                                     )
                                                                     (§ ass __totalFees (Coin''add __totalFees, (Coin''subtract __valueIn, __valueOut)))
                                                                 )
@@ -7460,7 +7473,7 @@
                                                     )
                                                 )
                                                 (when (or (< 0 (.compareTo __totalFees, (NetworkParameters''get-max-money (:params this)))) (< (.compareTo (Coin''add (Block''get-block-inflation (:stored-header __newBlock), (:stored-height __newBlock)), __totalFees), __coinbaseValue) 0))
-                                                    (throw (VerificationException'new-1 "Transaction fees out of range"))
+                                                    (throw+ (VerificationException'new "Transaction fees out of range"))
                                                 )
 
                                                 (§ ass changes (TransactionOutputChanges'new __txOutsCreated, __txOutsSpent))
@@ -7473,7 +7486,7 @@
                                                             )
                                                             (catch ExecutionException ee
                                                                 (log/error (.getCause ee), "Script.correctlySpends threw an unexpected exception")
-                                                                (throw (VerificationException'new-2 "Bug in Script.correctlySpends, likely script malformed in some new and interesting way.", ee))
+                                                                (throw+ (VerificationException'new "Bug in Script.correctlySpends, likely script malformed in some new and interesting way.") ee)
                                                             )
                                                         )
                                                         (when (some? e)
@@ -7491,7 +7504,7 @@
                                     (when (not (NetworkParameters''is-checkpoint (:params this), (:stored-height __newBlock)))
                                         (doseq [#_"UTXO" out (-> this :tx-out-changes :tx-outs-created)]
                                             (when (some? (FullPrunedBlockStore'''get-transaction-output (:block-store this), (:hash out), (:index out)))
-                                                (throw (VerificationException'new-1 "Block failed BIP30 test!"))
+                                                (throw+ (VerificationException'new "Block failed BIP30 test!"))
                                             )
                                         )
                                     )
@@ -7504,15 +7517,15 @@
                                 )
                             )
                         )
-                        (§ catch VerificationException e
+                        (§ catch VerificationException _
                             (.shutdownNow (:script-verification-executor this))
                             (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
-                            (throw e)
+                            (throw+)
                         )
-                        (§ catch BlockStoreException e
+                        (§ catch BlockStoreException _
                             (.shutdownNow (:script-verification-executor this))
                             (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
-                            (throw e)
+                            (throw+)
                         )
                     )
                     (:tx-out-changes this)
@@ -7531,10 +7544,10 @@
         (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
 
         (FullPrunedBlockStore'''begin-database-batch-write (:block-store this))
-        (try
+        (try+
             (let [#_"StoredUndoableBlock" __undoBlock (FullPrunedBlockStore'''get-undo-block (:block-store this), (Message'''get-hash (:stored-header __oldBlock)))]
                 (when (nil? __undoBlock)
-                    (throw (PrunedException'new (Message'''get-hash (:stored-header __oldBlock))))
+                    (throw+ (PrunedException'new (Message'''get-hash (:stored-header __oldBlock))))
                 )
 
                 (let [#_"TransactionOutputChanges" changes (StoredUndoableBlock''get-tx-out-changes __undoBlock)]
@@ -7546,13 +7559,13 @@
                     )
                 )
             )
-            (§ catch PrunedException e
+            (§ catch PrunedException _
                 (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
-                (throw e)
+                (throw+)
             )
-            (§ catch BlockStoreException e
+            (§ catch BlockStoreException _
                 (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
-                (throw e)
+                (throw+)
             )
         )
         nil
@@ -7631,7 +7644,7 @@
         (§ assoc this :version (Message''read-uint32 this))
         (let [#_"int" n (int (Message''read-var-int-1 this))]
             (when (< 500 n)
-                (throw (ProtocolException'new-1 (str "Number of locators cannot be > 500, received: " n)))
+                (throw+ (ProtocolException'new (str "Number of locators cannot be > 500, received: " n)))
             )
 
             (§ assoc this :length (+ (- (:cursor this) (:offset this)) (* (inc n) 32)))
@@ -7845,7 +7858,7 @@
     (defn #_"void" Message'''parse-message [#_"HeadersMessage" this]
         (let [#_"long" n (Message''read-var-int-1 this)]
             (when (< HeadersMessage'MAX_HEADERS n)
-                (throw (ProtocolException'new-1 (str "Too many headers: got " n " which is larger than " HeadersMessage'MAX_HEADERS)))
+                (throw+ (ProtocolException'new (str "Too many headers: got " n " which is larger than " HeadersMessage'MAX_HEADERS)))
             )
 
             (§ assoc this :block-headers (ArrayList.))
@@ -7854,7 +7867,7 @@
                 (dotimes [#_"int" i n]
                     (let [#_"Block" header (BitcoinSerializer''make-block-4 serializer, (:payload this), (:cursor this), Message'UNKNOWN_LENGTH)]
                         (when (Block''has-transactions header)
-                            (throw (ProtocolException'new-1 "Block header does not end with a nil byte"))
+                            (throw+ (ProtocolException'new "Block header does not end with a nil byte"))
                         )
 
                         (§ update this :cursor + (:optimal-encoding-message-size header))
@@ -7875,17 +7888,15 @@
  ; Thrown to indicate that you don't have enough money available to perform the requested operation.
  ;;
 (class-ns InsufficientMoneyException (§ extends RuntimeException)
-    (defn #_"InsufficientMoneyException" InsufficientMoneyException'new-1 [#_"Coin" missing]
-        (InsufficientMoneyException'new-2 missing, (str "Insufficient money, missing " (Coin''to-friendly-string missing)))
-    )
+    (defn #_"InsufficientMoneyException" InsufficientMoneyException'new [#_"Coin" missing]
+        (ensure some? missing)
 
-    (defn #_"InsufficientMoneyException" InsufficientMoneyException'new-2 [#_"Coin" missing, #_"String" message]
-        (merge (§ super RuntimeException'new message)
+        (merge (RuntimeException'new (str "Insufficient money, missing " (Coin''to-friendly-string missing)))
             (hash-map
                 ;;;
                  ; Contains the number of satoshis that would have been required to complete the operation.
                  ;;
-                #_"Coin" :missing (ensure some? missing)
+                #_"Coin" :missing missing
             )
         )
     )
@@ -8047,7 +8058,7 @@
     (defn #_"void" Message'''parse-message [#_"ListMessage" this]
         (§ assoc this :array-len (Message''read-var-int-1 this))
         (when (< ListMessage'MAX_INVENTORY_ITEMS (:array-len this))
-            (throw (ProtocolException'new-1 (str "Too many items in INV message: " (:array-len this))))
+            (throw+ (ProtocolException'new (str "Too many items in INV message: " (:array-len this))))
         )
 
         (§ assoc this :length (int (+ (- (:cursor this) (:offset this)) (* (:array-len this) InventoryItem'MESSAGE_LENGTH))))
@@ -8056,12 +8067,12 @@
         (§ assoc this :items (ArrayList. (:array-len this)))
         (loop-when-recur [#_"int" i 0] (< i (:array-len this)) [(inc i)]
             (when (< (alength (:payload this)) (+ (:cursor this) InventoryItem'MESSAGE_LENGTH))
-                (throw (ProtocolException'new-1 "Ran off the end of the INV"))
+                (throw+ (ProtocolException'new "Ran off the end of the INV"))
             )
 
             (let [#_"int" code (int (Message''read-uint32 this)) #_"InventoryItemType" type (InventoryItemType'for-code code)]
                 (when (nil? type)
-                    (throw (ProtocolException'new-1 (str "Unknown CInv type: " code)))
+                    (throw+ (ProtocolException'new (str "Unknown CInv type: " code)))
                 )
                 (.add (:items this), (InventoryItem'new type, (Message''read-hash this)))
             )
@@ -8406,7 +8417,7 @@
                 u
             )
             (catch IndexOutOfBoundsException e
-                (throw (ProtocolException'new-1x e))
+                (throw+ (ProtocolException'new) e)
             )
         )
     )
@@ -8420,7 +8431,7 @@
                 u
             )
             (catch IndexOutOfBoundsException e
-                (throw (ProtocolException'new-1x e))
+                (throw+ (ProtocolException'new) e)
             )
         )
     )
@@ -8447,7 +8458,7 @@
                 (:value varint)
             )
             (catch IndexOutOfBoundsException e
-                (throw (ProtocolException'new-1x e))
+                (throw+ (ProtocolException'new) e)
             )
         )
     )
@@ -8456,7 +8467,7 @@
     #_method
     (defn #_"byte[]" Message''read-bytes [#_"Message" this, #_"int" length]
         (when (< Message'MAX_SIZE length)
-            (throw (ProtocolException'new-1 (str "Claimed value length too large: " length)))
+            (throw+ (ProtocolException'new (str "Claimed value length too large: " length)))
         )
 
         (try
@@ -8465,7 +8476,7 @@
                 bytes
             )
             (catch IndexOutOfBoundsException e
-                (throw (ProtocolException'new-1x e))
+                (throw+ (ProtocolException'new) e)
             )
         )
     )
@@ -8744,7 +8755,7 @@
             (if (not (NetworkParameters''is-difficulty-transition-point this, (:stored-height __storedPrev)))
                 ;; No ... so check the difficulty didn't actually change.
                 (when (not= (Block''get-difficulty-target __nextBlock) (Block''get-difficulty-target prev))
-                    (throw (VerificationException'new-1 (str "Unexpected change in difficulty at height " (:stored-height __storedPrev) ": " (Long/toHexString (Block''get-difficulty-target __nextBlock)) " vs " (Long/toHexString (Block''get-difficulty-target prev)))))
+                    (throw+ (VerificationException'new (str "Unexpected change in difficulty at height " (:stored-height __storedPrev) ": " (Long/toHexString (Block''get-difficulty-target __nextBlock)) " vs " (Long/toHexString (Block''get-difficulty-target prev)))))
                 )
                 ;; We need to find a block far back in the chain.  It's OK that this is expensive because it only occurs every
                 ;; two weeks after the initial block chain download.
@@ -8755,7 +8766,7 @@
                         (§ ass cursor (BlockStore'''get-2 store, hash))
                         (when (nil? cursor)
                             ;; This should never happen.  If it does, it means we are following an incorrect or busted chain.
-                            (throw (VerificationException'new-1 (str "Difficulty transition point but we did not find a way back to the last transition point. Not found: " hash)))
+                            (throw+ (VerificationException'new (str "Difficulty transition point but we did not find a way back to the last transition point. Not found: " hash)))
                         )
                         (§ ass hash (Block''get-prev-block-hash (:stored-header cursor)))
                     )
@@ -8783,7 +8794,7 @@
                               #_"long" __newTargetCompact (Utils'encode-compact-bits __newTarget)]
 
                             (when (not= __newTargetCompact __receivedTargetCompact)
-                                (throw (VerificationException'new-1 (str "Network provided difficulty bits do not match what was calculated: " (Long/toHexString __newTargetCompact) " vs " (Long/toHexString __receivedTargetCompact))))
+                                (throw+ (VerificationException'new (str "Network provided difficulty bits do not match what was calculated: " (Long/toHexString __newTargetCompact) " vs " (Long/toHexString __receivedTargetCompact))))
                             )
                         )
                     )
@@ -9093,7 +9104,7 @@
     (defn- #_"Sha256Hash" PartialMerkleTree''recursive-extract-hashes [#_"PartialMerkleTree" this, #_"int" height, #_"int" pos, #_"ValuesUsed" used, #_"List<Sha256Hash>" __matchedHashes]
         ;; overflowed bits array - failure
         (when (<= (* (alength (:matched-child-bits this)) 8) (:bits-used used))
-            (throw (VerificationException'new-1 "PartialMerkleTree overflowed its bits array"))
+            (throw+ (VerificationException'new "PartialMerkleTree overflowed its bits array"))
         )
 
         (§ let [#_"boolean" __parentOfMatch (Utils'check-bit-le (:matched-child-bits this), (:bits-used used))]
@@ -9104,7 +9115,7 @@
                 (do
                     ;; overflowed hash array - failure
                     (when (<= (.size (:hashes this)) (:hashes-used used))
-                        (throw (VerificationException'new-1 "PartialMerkleTree overflowed its hash array"))
+                        (throw+ (VerificationException'new "PartialMerkleTree overflowed its hash array"))
                     )
 
                     (let [#_"Sha256Hash" hash (.get (:hashes this), (:hashes-used used))]
@@ -9126,7 +9137,7 @@
                             (do
                                 (§ ass right (Sha256Hash''get-bytes (PartialMerkleTree''recursive-extract-hashes this, (dec height), (inc (* pos 2)), used, __matchedHashes)))
                                 (when (Arrays/equals right, left)
-                                    (throw (VerificationException'new-1 "Invalid merkle tree with duplicated left/right branches"))
+                                    (throw+ (VerificationException'new "Invalid merkle tree with duplicated left/right branches"))
                                 )
                             )
                             :else
@@ -9162,19 +9173,19 @@
 
         ;; an empty set will not work
         (when (zero? (:transaction-count this))
-            (throw (VerificationException'new-1 "Got a CPartialMerkleTree with 0 transactions"))
+            (throw+ (VerificationException'new "Got a CPartialMerkleTree with 0 transactions"))
         )
         ;; check for excessively high numbers of transactions
         (when (< (quot Block'MAX_BLOCK_SIZE 60) (:transaction-count this)) ;; 60 is the lower bound for the size of a serialized CTransaction
-            (throw (VerificationException'new-1 "Got a CPartialMerkleTree with more transactions than is possible"))
+            (throw+ (VerificationException'new "Got a CPartialMerkleTree with more transactions than is possible"))
         )
         ;; there can never be more hashes provided than one for every txid
         (when (< (:transaction-count this) (.size (:hashes this)))
-            (throw (VerificationException'new-1 "Got a CPartialMerkleTree with more hashes than transactions"))
+            (throw+ (VerificationException'new "Got a CPartialMerkleTree with more hashes than transactions"))
         )
         ;; there must be at least one bit per node in the partial tree, and at least one node per hash
         (when (< (* (alength (:matched-child-bits this)) 8) (.size (:hashes this)))
-            (throw (VerificationException'new-1 "Got a CPartialMerkleTree with fewer matched bits than hashes"))
+            (throw+ (VerificationException'new "Got a CPartialMerkleTree with fewer matched bits than hashes"))
         )
 
         ;; calculate height of tree
@@ -9185,7 +9196,7 @@
             ;; verify that all bits were consumed (except for the padding caused by serializing it as a byte sequence)
             ;; verify that all hashes were consumed
             (when (or (not= (quot (+ (:bits-used used) 7) 8) (alength (:matched-child-bits this))) (not= (:hashes-used used) (.size (:hashes this))))
-                (throw (VerificationException'new-1 "Got a CPartialMerkleTree that didn't need all the data it provided"))
+                (throw+ (VerificationException'new "Got a CPartialMerkleTree that didn't need all the data it provided"))
             )
             root
         )
@@ -9471,7 +9482,7 @@
                                                 ;; In cases where the buff is just really small, we could create a second largeReadBuffer
                                                 ;; that we use to deserialize the magic+header, but that is rather complicated when the buff
                                                 ;; should probably be at least that big anyway (for efficiency).
-                                                (throw (ProtocolException'new-1 (str "No magic bytes+header after reading " (.capacity buff) " bytes")))
+                                                (throw+ (ProtocolException'new (str "No magic bytes+header after reading " (.capacity buff) " bytes")))
                                             )
                                         )
                                     )
@@ -9938,7 +9949,7 @@
 
             ;; No further communication is possible until version handshake is complete.
             (when-not (or (§ instance? VersionMessage m) (§ instance? VersionAck m) (and (.isDone (:version-handshake-future this)) (not (.isCancelled (:version-handshake-future this)))))
-                (throw (ProtocolException'new-1 (str "Received " (.getSimpleName (.getClass m)) " before version handshake is complete.")))
+                (throw+ (ProtocolException'new (str "Received " (.getSimpleName (.getClass m)) " before version handshake is complete.")))
             )
 
             (condp instance? m
@@ -9983,7 +9994,7 @@
     #_method
     (defn- #_"void" Peer''process-version-message [#_"Peer" this, #_"VersionMessage" m]
         (when (some? (:v-peer-version-message this))
-            (throw (ProtocolException'new-1 "Got two version messages from peer"))
+            (throw+ (ProtocolException'new "Got two version messages from peer"))
         )
 
         (§ assoc this :v-peer-version-message m)
@@ -10003,11 +10014,11 @@
                 (do
                     (when (neg? (:best-height m))
                         ;; In this case, it's a protocol violation.
-                        (throw (ProtocolException'new-1 (str "Peer reports invalid best height: " (:best-height m))))
+                        (throw+ (ProtocolException'new (str "Peer reports invalid best height: " (:best-height m))))
                     )
                     ;; Now it's our turn ...
                     ;; Send an ACK message stating we accept the peers protocol version.
-                    (PeerSocketHandler''send-message this, (VersionAck'new-0))
+                    (PeerSocketHandler''send-message this, (VersionAck'new))
                     (log/debug (str this ": Incoming version handshake complete."))
                     (.set (:incoming-version-handshake-future this), this)
                 )
@@ -10020,10 +10031,10 @@
     #_method
     (defn- #_"void" Peer''process-version-ack [#_"Peer" this, #_"VersionAck" m]
         (when (nil? (:v-peer-version-message this))
-            (throw (ProtocolException'new-1 "got a version ack before version"))
+            (throw+ (ProtocolException'new "got a version ack before version"))
         )
         (when (.isDone (:outgoing-version-handshake-future this))
-            (throw (ProtocolException'new-1 "got more than one version ack"))
+            (throw+ (ProtocolException'new "got more than one version ack"))
         )
         (log/debug (str this ": Outgoing version handshake complete."))
         (.set (:outgoing-version-handshake-future this), this)
@@ -10123,7 +10134,7 @@
                 (§ ass __downloadBlockBodies (:download-block-bodies this))
             )
 
-            (try
+            (try+
                 (assert-state (not __downloadBlockBodies), (.toString this))
 
                 (loop-when-recur [#_"int" i 0] (< i (.size (:block-headers m))) [(inc i)]
@@ -10150,7 +10161,7 @@
                                             ;; This block is unconnected - we don't know how to get from it back to the genesis block yet.
                                             ;; That must mean that the peer is buggy or malicious because we specifically requested for
                                             ;; headers that are part of the best chain.
-                                            (throw (ProtocolException'new-1 (str "Got unconnected header from peer: " (Block''get-hash-as-string header))))
+                                            (throw+ (ProtocolException'new (str "Got unconnected header from peer: " (Block''get-hash-as-string header))))
                                         )
                                     )
                                 )
@@ -10241,7 +10252,7 @@
 
                 ;; It's a broadcast transaction.  Tell all wallets about this tx so they can check if it's relevant or not.
                 (doseq [#_"Wallet" wallet (:wallets this)]
-                    (try
+                    (try+
                         (when (Wallet''is-pending-transaction-relevant wallet, tx)
                             (cond (< 0 (:v-download-tx-dependency-depth this))
                                 (do
@@ -10265,7 +10276,7 @@
                                             #_foreign
                                             #_override
                                             (#_"void" onSuccess [#_"FutureCallback" __, #_"List<Transaction>" dependencies]
-                                                (try
+                                                (try+
                                                     (log/info (str (PeerSocketHandler''get-address this) ": Dependency download complete!"))
                                                     (Wallet''receive-pending-3 wallet, tx, dependencies)
                                                     (§ catch VerificationException e
@@ -10473,7 +10484,7 @@
                 (do
                     (.remove (:pending-block-downloads this), (Message'''get-hash m))
 
-                    (try
+                    (try+
                         ;; Otherwise it's a block sent to us because the peer thought we needed it, so add it to the block chain.
                         (if (BlockChain''add-b (:block-chain this), m)
                             ;; The block was successfully linked into the chain.  Notify the user of our progress.
@@ -10530,7 +10541,7 @@
                     ;; by cross-checking peers against each other.
                     (.remove (:pending-block-downloads this), (Message'''get-hash (FilteredBlock''get-block-header m)))
 
-                    (try
+                    (try+
                         ;; It's a block sent to us because the peer thought we needed it, so maybe add it to the block chain.
                         ;; The FilteredBlock m here contains a list of hashes, and may contain Transaction objects for a subset
                         ;; of the hashes (those that were sent to us by the remote peer).  Any hashes that haven't had a tx
@@ -10602,11 +10613,11 @@
                             ;; We don't want verification failures to kill the thread.
                             (log/warn e, (str (PeerSocketHandler''get-address this) ": FilteredBlock verification failed"))
                         )
-                        (§ catch PrunedException e
+                        (§ catch PrunedException _
                             ;; We pruned away some of the data we need to properly handle this block.  We need to
                             ;; request the needed data from the remote peer and fix things.  Or just give up.
                             ;; TODO: Request e.getHash() and submit it to the block store before any other blocks.
-                            (throw e)
+                            (throw+)
                         )
                     )
                 )
@@ -10616,7 +10627,7 @@
 
     #_method
     (defn- #_"boolean" Peer''check-for-filter-exhaustion [#_"Peer" this, #_"FilteredBlock" filtered]
-        (some? (some identity (doall (map #(Wallet''check-for-filter-exhaustion %, filtered) (:wallets this)))))
+        (boolean (some identity (doall (map #(Wallet''check-for-filter-exhaustion %, filtered) (:wallets this)))))
     )
 
     #_method
@@ -10970,11 +10981,11 @@
                 (let [#_"StoredBlock" cursor head]
                     (loop-when-recur [#_"int" i 100] (and (some? cursor) (< 0 i)) [(dec i)]
                         (.add __blockLocator, (Message'''get-hash (:stored-header cursor)))
-                        (try
+                        (try+
                             (§ ass cursor (StoredBlock''get-prev cursor, store))
-                            (§ catch BlockStoreException e
+                            (§ catch BlockStoreException _
                                 (log/error "Failed to walk the block chain whilst constructing a locator")
-                                (throw e)
+                                (throw+)
                             )
                         )
                     )
@@ -11062,7 +11073,7 @@
     (defn #_"ListenableFuture<Long>" Peer''ping-2 [#_"Peer" this, #_"long" nonce]
         (let [#_"VersionMessage" ver (:v-peer-version-message this)]
             (when-not (VersionMessage''is-ping-pong-supported ver)
-                (throw (ProtocolException'new-1 (str "Peer version is too low for measurable pings: " ver)))
+                (throw+ (ProtocolException'new (str "Peer version is too low for measurable pings: " ver)))
             )
 
             (let [#_"PendingPing" pending (PendingPing'new this, nonce)]
@@ -11604,7 +11615,7 @@
 #_non-static #_"PeerGroup"
 (class-ns PeerListener (§ implements GetDataEventListener, BlocksDownloadedEventListener)
     (defn #_"PeerListener" PeerListener'new []
-        {}
+        (hash-map)
     )
 
     #_override
@@ -11632,7 +11643,7 @@
 #_non-static #_"PeerGroup"
 (class-ns PeerStartupListener (§ implements PeerConnectedEventListener, PeerDisconnectedEventListener)
     (defn- #_"PeerStartupListener" PeerStartupListener'new []
-        {}
+        (hash-map)
     )
 
     #_override
@@ -11875,7 +11886,7 @@
                 ;; Don't hold the lock across discovery as this process can be very slow.
                 (let [#_"boolean" __discoverySuccess false]
                     (when __doDiscovery
-                        (try
+                        (try+
                             (§ ass __discoverySuccess (< 0 (PeerGroup''discover-peers this)))
                             (§ catch PeerDiscoveryException e
                                 (log/error e, "Peer discovery failure")
@@ -14001,10 +14012,10 @@
     #_throws #_[ "ProtocolException" ]
     #_override
     (defn #_"void" Message'''parse-message [#_"Ping" this]
-        (try
+        (try+
             (§ assoc this :nonce (Message''read-int64 this))
             (§ assoc this :has-nonce true)
-            (§ catch ProtocolException e
+            (§ catch ProtocolException _
                 (§ assoc this :has-nonce false)
             )
         )
@@ -14070,16 +14081,10 @@
 )
 
 (class-ns ProtocolException (§ extends VerificationException)
-    (defn #_"ProtocolException" ProtocolException'new-1 [#_"String" msg]
-        (VerificationException'new-1 msg)
-    )
-
-    (defn #_"ProtocolException" ProtocolException'new-1x [#_"Exception" e]
-        (VerificationException'new-1x e)
-    )
-
-    (defn #_"ProtocolException" ProtocolException'new-2 [#_"String" msg, #_"Exception" e]
-        (VerificationException'new-2 msg, e)
+    (defn #_"ProtocolException" ProtocolException'new
+        ([] (ProtocolException'new nil))
+        ([#_"String" message]
+            (VerificationException'new message))
     )
 )
 
@@ -14092,8 +14097,8 @@
  ; required to trigger it.
  ;;
 (class-ns PrunedException (§ extends RuntimeException)
-    (defn #_"PrunedException" PrunedException'new [#_"Sha256Hash" hash]
-        (merge (§ super RuntimeException'new (.toString hash))
+    (defn #_"PrunedException" PrunedException'new [#_"Sha256Hash" hash]
+        (merge (RuntimeException'new (.toString hash))
             (hash-map
                 #_"Sha256Hash" :hash hash
             )
@@ -14272,23 +14277,23 @@
  ; some peers may never do so.
  ;;
 (class-ns RejectedTransactionException (§ extends RuntimeException)
-    (defn #_"RejectedTransactionException" RejectedTransactionException'new [#_"Transaction" tx, #_"RejectMessage" message]
-        (merge (§ super RuntimeException'new (.toString message))
+    (defn #_"RejectedTransactionException" RejectedTransactionException'new [#_"Transaction" tx, #_"RejectMessage" reject]
+        (merge (RuntimeException'new (.toString reject))
             (hash-map
                 ;;; The original Transaction object whose broadcast was rejected. ;;
                 #_"Transaction" :tx tx
                 ;;; The RejectMessage object representing the broadcast rejection. ;;
-                #_"RejectMessage" :reject-message message
+                #_"RejectMessage" :reject-message reject
             )
         )
     )
 )
 
 (class-ns ScriptException (§ extends VerificationException)
-    (defn #_"ScriptException" ScriptException'new [#_"ScriptError" err, #_"String" msg]
-        (merge (VerificationException'new-1 msg)
+    (defn #_"ScriptException" ScriptException'new [#_"ScriptError" error, #_"String" message]
+        (merge (VerificationException'new message)
             (hash-map
-                #_"ScriptError" :err err
+                #_"ScriptError" :error error
             )
         )
     )
@@ -15321,7 +15326,7 @@
             )
             (if (Transaction''is-coin-base this)
                 (let [[#_"Script" script1 #_"Script" script2]
-                        (try
+                        (try+
                             [(TransactionInput''get-script-sig (.get (:inputs this), 0)) (TransactionOutput''get-script-pub-key (.get (:outputs this), 0))]
                             (§ catch ScriptException _
                                 ["???" "???"]
@@ -15483,7 +15488,7 @@
                     (Script''is-sent-to-address __scriptPubKey)
                         (TransactionInput''set-script-sig input, (ScriptBuilder'create-input-script-2 __txSig, __sigKey))
                     :else
-                        (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Don't know how to sign for this kind of scriptPubKey: " __scriptPubKey)))
+                        (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Don't know how to sign for this kind of scriptPubKey: " __scriptPubKey)))
                 )
                 input
             )
@@ -15938,12 +15943,12 @@
               #_"byte[]" expected (Script''get-program (-> (ScriptBuilder'new-0) (ScriptBuilder''number-2 height) (ScriptBuilder''build)))
               #_"byte[]" actual (:script-bytes in)]
             (when (< (alength actual) (alength expected))
-                (throw (VerificationException'new-1 "Block height mismatch in coinbase."))
+                (throw+ (VerificationException'new "Block height mismatch in coinbase."))
             )
 
             (dotimes [#_"int" i (alength expected)]
                 (when (not= (aget actual i) (aget expected i))
-                    (throw (VerificationException'new-1 "Block height mismatch in coinbase."))
+                    (throw+ (VerificationException'new "Block height mismatch in coinbase."))
                 )
             )
         )
@@ -15970,23 +15975,23 @@
     #_method
     (defn #_"void" Transaction''verify-1 [#_"Transaction" this]
         (when (or (zero? (.size (:inputs this))) (zero? (.size (:outputs this))))
-            (throw (VerificationException'new-1 "Transaction had no inputs or no outputs."))
+            (throw+ (VerificationException'new "Transaction had no inputs or no outputs."))
         )
         (when (< Block'MAX_BLOCK_SIZE (Message''get-message-size this))
-            (throw (VerificationException'new-1 "Transaction larger than MAX_BLOCK_SIZE"))
+            (throw+ (VerificationException'new "Transaction larger than MAX_BLOCK_SIZE"))
         )
 
         (§ let [#_"Coin" __valueOut Coin'ZERO #_"HashSet<TransactionOutPoint>" outpoints (HashSet.)]
             (doseq [#_"TransactionInput" input (:inputs this)]
                 (when (.contains outpoints, (:outpoint input))
-                    (throw (VerificationException'new-1 "Duplicated outpoint"))
+                    (throw+ (VerificationException'new "Duplicated outpoint"))
                 )
                 (.add outpoints, (:outpoint input))
             )
             (try
                 (doseq [#_"TransactionOutput" output (:outputs this)]
                     (when (< (Monetary'''signum (TransactionOutput''coin-value output)) 0)
-                        (throw (VerificationException'new-1 "Transaction output negative"))
+                        (throw+ (VerificationException'new "Transaction output negative"))
                     )
 
                     (§ ass __valueOut (Coin''add __valueOut, (TransactionOutput''coin-value output)))
@@ -15995,22 +16000,22 @@
                     )
                 )
                 (catch IllegalStateException _
-                    (throw (VerificationException'new-1 "Total transaction output value greater than possible"))
+                    (throw+ (VerificationException'new "Total transaction output value greater than possible"))
                 )
                 (catch IllegalArgumentException _
-                    (throw (VerificationException'new-1 "Total transaction output value greater than possible"))
+                    (throw+ (VerificationException'new "Total transaction output value greater than possible"))
                 )
             )
 
             (if (Transaction''is-coin-base this)
                 (let [#_"int" n (alength (:script-bytes (.get (:inputs this), 0)))]
                     (when-not (<= 2 n 100)
-                        (throw (VerificationException'new-1 "Coinbase script size out of range"))
+                        (throw+ (VerificationException'new "Coinbase script size out of range"))
                     )
                 )
                 (doseq [#_"TransactionInput" input (:inputs this)]
                     (when (TransactionInput''is-coin-base input)
-                        (throw (VerificationException'new-1 "Coinbase input as input in non-coinbase transaction"))
+                        (throw+ (VerificationException'new "Coinbase input as input in non-coinbase transaction"))
                     )
                 )
             )
@@ -16025,7 +16030,7 @@
      ;;
     #_method
     (defn #_"boolean" Transaction''is-time-locked [#_"Transaction" this]
-        (and (not= (Transaction''get-lock-time this) 0) (some? (some #(TransactionInput''has-sequence %) (Transaction''get-inputs this))))
+        (and (not= (Transaction''get-lock-time this) 0) (boolean (some #(TransactionInput''has-sequence %) (Transaction''get-inputs this))))
     )
 
     ;;;
@@ -16034,7 +16039,7 @@
      ;;
     #_method
     (defn #_"boolean" Transaction''is-opt-in-full-rbf [#_"Transaction" this]
-        (some? (some #(TransactionInput''is-opt-in-full-rbf %) (Transaction''get-inputs this)))
+        (boolean (some #(TransactionInput''is-opt-in-full-rbf %) (Transaction''get-inputs this)))
     )
 
     ;;;
@@ -16167,7 +16172,7 @@
 #_non-static #_"TransactionBroadcast"
 (class-ns ConfidenceChange (§ implements TransactionConfidenceListener)
     (defn- #_"ConfidenceChange" ConfidenceChange'new []
-        {}
+        (hash-map)
     )
 
     #_override
@@ -17124,7 +17129,7 @@
     #_method
     (defn #_"Address" TransactionInput''get-from-address [#_"TransactionInput" this]
         (when (TransactionInput''is-coin-base this)
-            (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, "This is a coinbase transaction which generates new coins. It does not have a from address."))
+            (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "This is a coinbase transaction which generates new coins. It does not have a from address."))
         )
 
         (Script''get-from-address (TransactionInput''get-script-sig this), (:params this))
@@ -17371,10 +17376,10 @@
     (defn #_"void" TransactionInput''verify-2 [#_"TransactionInput" this, #_"TransactionOutput" output]
         (when (some? (:parent output))
             (when-not (.equals (Message'''get-hash (:outpoint this)), (Message'''get-hash (TransactionOutput''get-parent-transaction output)))
-                (throw (VerificationException'new-1 "This input does not refer to the tx containing the output."))
+                (throw+ (VerificationException'new "This input does not refer to the tx containing the output."))
             )
             (when (not= (:index (:outpoint this)) (TransactionOutput'''get-index output))
-                (throw (VerificationException'new-1 "This input refers to a different output on the given tx."))
+                (throw+ (VerificationException'new "This input refers to a different output on the given tx."))
             )
         )
         (let [#_"Script" __pubKey (TransactionOutput''get-script-pub-key output)
@@ -17596,7 +17601,7 @@
                 (Script''is-sent-to-address script)     (KeyBag'''find-key-from-pub-hash bag, (Script''get-pub-key-hash script))
                 (Script''is-sent-to-raw-pub-key script) (KeyBag'''find-key-from-pub-key bag, (Script''get-pub-key script))
                 :else
-                    (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Could not understand form of connected output script: " script)))
+                    (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Could not understand form of connected output script: " script)))
             )
         )
     )
@@ -17617,7 +17622,7 @@
                 (Script''is-sent-to-raw-pub-key script) (RedeemData'of script, (KeyBag'''find-key-from-pub-key bag, (Script''get-pub-key script)))
                 (Script''is-pay-to-script-hash script)  (KeyBag'''find-redeem-data-from-script-hash bag, (Script''get-pub-key-hash script))
                 :else
-                    (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Could not understand form of connected output script: " script)))
+                    (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Could not understand form of connected output script: " script)))
             )
         )
     )
@@ -17929,7 +17934,7 @@
      ;;
     #_method
     (defn #_"boolean" TransactionOutput''is-mine [#_"TransactionOutput" this, #_"TransactionBag" bag]
-        (try
+        (try+
             (let [#_"Script" script (TransactionOutput''get-script-pub-key this)]
                 (cond
                     (Script''is-sent-to-raw-pub-key script) (TransactionBag'''is-pub-key-mine bag, (Script''get-pub-key script))
@@ -18401,16 +18406,8 @@
 )
 
 (class-ns VerificationException (§ extends RuntimeException)
-    (defn #_"VerificationException" VerificationException'new-1 [#_"String" msg]
-        (§ super RuntimeException'new msg)
-    )
-
-    (defn #_"VerificationException" VerificationException'new-1x [#_"Exception" e]
-        (§ super RuntimeException'new e)
-    )
-
-    (defn #_"VerificationException" VerificationException'new-2 [#_"String" msg, #_"Throwable" t]
-        (§ super RuntimeException'new msg, t)
+    (defn #_"VerificationException" VerificationException'new [#_"String" message]
+        (RuntimeException'new message)
     )
 )
 
@@ -18421,12 +18418,7 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (class-ns VersionAck (§ extends EmptyMessage)
-    (defn #_"VersionAck" VersionAck'new-0 []
-        (EmptyMessage'new-0)
-    )
-
-    ;; this is needed by the BitcoinSerializer
-    (defn #_"VersionAck" VersionAck'new-2 [#_"NetworkParameters" params, #_"byte[]" payload]
+    (defn #_"VersionAck" VersionAck'new []
         (EmptyMessage'new-0)
     )
 )
@@ -18769,7 +18761,7 @@
  ;;
 (class-ns WrongNetworkException (§ extends AddressFormatException)
     (defn #_"WrongNetworkException" WrongNetworkException'new [#_"int" code, #_"int[]" versions]
-        (merge (AddressFormatException'new-1 (str "Version code of address did not match acceptable versions for network: " code " not in " (Arrays/toString versions)))
+        (merge (AddressFormatException'new (str "Version code of address did not match acceptable versions for network: " code " not in " (Arrays/toString versions)))
             (hash-map
                 ;;; The version code that was provided in the address. ;;
                 #_"int" :ver-code code
@@ -18955,7 +18947,7 @@
     (defn #_"DeterministicKey" DeterministicHierarchy''derive-next-child [#_"DeterministicHierarchy" this, #_"ImmutableList<ChildNumber>" __parentPath, #_"boolean" relative?, #_"boolean" __createParent, #_"boolean" private?]
         (§ let [#_"DeterministicKey" parent (DeterministicHierarchy''get-4 this, __parentPath, relative?, __createParent)]
             (loop-when-recur [#_"int" i 0] (< i HDKeyDerivation'MAX_CHILD_DERIVATION_ATTEMPTS) [(inc i)]
-                (try
+                (try+
                     (let [#_"ChildNumber" __createChildNumber (DeterministicHierarchy''get-next-child-number-to-derive this, (DeterministicKey''get-path parent), private?)]
                         (§ return (DeterministicHierarchy''derive-child-3 this, parent, __createChildNumber))
                     )
@@ -18963,7 +18955,7 @@
                     )
                 )
             )
-            (throw (HDDerivationException'new "Maximum number of child derivation attempts reached, this is probably an indication of a bug."))
+            (throw+ (HDDerivationException'new "Maximum number of child derivation attempts reached, this is probably an indication of a bug."))
         )
     )
 
@@ -19289,7 +19281,7 @@
     #_override
     (defn #_"ECDSASignature" ECKey'''sign [#_"DeterministicKey" this, #_"Sha256Hash" input]
         ;; Else this key is a part of a public-key only heirarchy and cannot be used for signing.
-        (let-when [#_"BigInteger" priv (DeterministicKey''find-or-derive-private-key this)] (some? priv) => (throw (MissingPrivateKeyException'new))
+        (let-when [#_"BigInteger" priv (DeterministicKey''find-or-derive-private-key this)] (some? priv) => (throw+ (MissingPrivateKeyException'new))
             (ECKey''do-sign (§ this super), input, priv)
         )
     )
@@ -19534,8 +19526,8 @@
 )
 
 (class-ns HDDerivationException (§ extends RuntimeException)
-    (defn #_"HDDerivationException" HDDerivationException'new [#_"String" message]
-        (§ super RuntimeException'new message)
+    (defn #_"HDDerivationException" HDDerivationException'new [#_"String" message]
+        (RuntimeException'new message)
     )
 )
 
@@ -19640,14 +19632,14 @@
         (§ let [#_"ChildNumber" child (ChildNumber'new-1 cn)
               #_"boolean" hardened? (ChildNumber''is-hardened child)]
             (loop-when-recur [#_"int" i 0] (< i HDKeyDerivation'MAX_CHILD_DERIVATION_ATTEMPTS) [(inc i)]
-                (try
+                (try+
                     (§ ass child (ChildNumber'new-2 (+ (ChildNumber''num child) i), hardened?))
                     (§ return (HDKeyDerivation'derive-child-key-2c parent, child))
                     (§ catch HDDerivationException _
                     )
                 )
             )
-            (throw (HDDerivationException'new "Maximum number of child derivation attempts reached, this is probably an indication of a bug."))
+            (throw+ (HDDerivationException'new "Maximum number of child derivation attempts reached, this is probably an indication of a bug."))
         )
     )
 
@@ -19739,21 +19731,21 @@
 
     (defn- #_"void" HDKeyDerivation'assert-non-zero [#_"BigInteger" i, #_"String" message]
         (when (= i BigInteger/ZERO)
-            (throw (HDDerivationException'new message))
+            (throw+ (HDDerivationException'new message))
         )
         nil
     )
 
     (defn- #_"void" HDKeyDerivation'assert-non-infinity [#_"ECPoint" point, #_"String" message]
         (when (.equals point, (.getInfinity (LazyECPoint''get-curve ECKey'CURVE)))
-            (throw (HDDerivationException'new message))
+            (throw+ (HDDerivationException'new message))
         )
         nil
     )
 
     (defn- #_"void" HDKeyDerivation'assert-less-than-n [#_"BigInteger" i, #_"String" message]
         (when (pos? (.compareTo i, (.getN ECKey'CURVE)))
-            (throw (HDDerivationException'new message))
+            (throw+ (HDDerivationException'new message))
         )
         nil
     )
@@ -20157,10 +20149,10 @@
     #_method
     (defn #_"byte[]" MnemonicCode''to-entropy [#_"MnemonicCode" this, #_"List<String>" words]
         (when (zero? (.size words))
-            (throw (MnemonicLengthException'new "Word list is empty."))
+            (throw+ (MnemonicLengthException'new "Word list is empty."))
         )
         (when-not (zero? (rem (.size words) 3))
-            (throw (MnemonicLengthException'new "Word list size must be multiple of three words."))
+            (throw+ (MnemonicLengthException'new "Word list size must be multiple of three words."))
         )
 
         ;; Look up all the words in the list and construct the concatenation of the original entropy and the checksum.
@@ -20172,7 +20164,7 @@
                 ;; Find the words index in the wordlist.
                 (let [#_"int" ndx (Collections/binarySearch (:word-list this), word)]
                     (when (< ndx 0)
-                        (throw (MnemonicWordException'new word))
+                        (throw+ (MnemonicWordException'new word))
                     )
 
                     ;; Set the next 11 bits to the value of the index.
@@ -20203,7 +20195,7 @@
                         ;; Check all the checksum bits.
                         (loop-when-recur [#_"int" i 0] (< i __checksumLengthBits) [(inc i)]
                             (when (not= (aget __concatBits (+ __entropyLengthBits i)) (aget __hashBits i))
-                                (throw (MnemonicChecksumException'new))
+                                (throw+ (MnemonicChecksumException'new))
                             )
                         )
 
@@ -20221,10 +20213,10 @@
     #_method
     (defn #_"List<String>" MnemonicCode''to-mnemonic [#_"MnemonicCode" this, #_"byte[]" entropy]
         (when (zero? (alength entropy))
-            (throw (MnemonicLengthException'new "Entropy is empty."))
+            (throw+ (MnemonicLengthException'new "Entropy is empty."))
         )
         (when-not (zero? (rem (alength entropy) 4))
-            (throw (MnemonicLengthException'new "Entropy length not multiple of 32 bits."))
+            (throw+ (MnemonicLengthException'new "Entropy length not multiple of 32 bits."))
         )
 
         ;; We take initial entropy of ENT bits and compute its checksum by taking first ENT / 32 bits of its SHA256 hash.
@@ -20278,12 +20270,11 @@
  ; Exceptions thrown by the MnemonicCode module.
  ;;
 (class-ns MnemonicException (§ extends RuntimeException)
-    (defn #_"MnemonicException" MnemonicException'new-0 []
-        (§ super RuntimeException'new)
-    )
-
-    (defn #_"MnemonicException" MnemonicException'new-1 [#_"String" msg]
-        (§ super RuntimeException'new msg)
+    (defn #_"MnemonicException" MnemonicException'new
+        ([] (MnemonicException'new nil))
+        ([#_"String" message]
+            (RuntimeException'new message)
+        )
     )
 )
 
@@ -20291,8 +20282,8 @@
  ; Thrown when an argument to MnemonicCode is the wrong length.
  ;;
 (class-ns MnemonicLengthException (§ extends MnemonicException)
-    (defn #_"MnemonicLengthException" MnemonicLengthException'new [#_"String" msg]
-        (MnemonicException'new-1 msg)
+    (defn #_"MnemonicLengthException" MnemonicLengthException'new [#_"String" message]
+        (MnemonicException'new message)
     )
 )
 
@@ -20300,8 +20291,8 @@
  ; Thrown when a list of MnemonicCode words fails the checksum check.
  ;;
 (class-ns MnemonicChecksumException (§ extends MnemonicException)
-    (defn #_"MnemonicChecksumException" MnemonicChecksumException'new []
-        (MnemonicException'new-0)
+    (defn #_"MnemonicChecksumException" MnemonicChecksumException'new []
+        (MnemonicException'new)
     )
 )
 
@@ -20309,10 +20300,12 @@
  ; Thrown when a word is encountered which is not in the MnemonicCode's word list.
  ;;
 (class-ns MnemonicWordException (§ extends MnemonicException)
-    (defn #_"MnemonicWordException" MnemonicWordException'new [#_"String" word]
-        (merge (MnemonicException'new-0)
+    (defn #_"MnemonicWordException" MnemonicWordException'new [#_"String" word]
+        (merge (MnemonicException'new)
             (hash-map
-                ;;; Contains the word that was not found in the word list. ;;
+                ;;;
+                 ; Contains the word that was not found in the word list.
+                 ;;
                 #_"String" :bad-word word
             )
         )
@@ -20539,18 +20532,18 @@
     (defn #_"TransactionSignature" TransactionSignature'decode-from-bitcoin-3 [#_"byte[]" bytes, #_"boolean" canon?, #_"boolean" canon-s?]
         ;; Bitcoin encoding is DER signature + sighash byte.
         (when (and canon? (not (TransactionSignature'is-encoding-canonical bytes)))
-            (throw (VerificationException'new-1 "Signature encoding is not canonical."))
+            (throw+ (VerificationException'new "Signature encoding is not canonical."))
         )
 
         (let [#_"ECDSASignature" sig
                 (try
                     (ECDSASignature'decode-from-der bytes)
                     (catch IllegalArgumentException e
-                        (throw (VerificationException'new-2 "Could not decode DER", e))
+                        (throw+ (VerificationException'new "Could not decode DER") e)
                     )
                 )]
             (when (and canon-s? (not (ECDSASignature''is-canonical sig)))
-                (throw (VerificationException'new-1 "S-value is not canonical."))
+                (throw+ (VerificationException'new "S-value is not canonical."))
             )
 
             ;; In Bitcoin, any value of the final byte is valid, but not necessarily canonical.  See javadocs
@@ -20723,7 +20716,7 @@
         )
 
         (log/info (str "Starting up with directory = " (:directory this)))
-        (try
+        (try+
             (let [#_"File" __chainFile (File. (:directory this), (str (:file-prefix this) ".spvchain"))
                   #_"boolean" __chainFileExists (.exists __chainFile)
                   #_"Wallet" wallet (WalletAppKit''create-wallet this)]
@@ -20772,7 +20765,7 @@
                     )
                     :else
                     (do
-                        (PeerGroup''add-peer-discovery (:v-peer-group this), (or (:discovery this) (DnsDiscovery'new-1 (:params this))))
+                        (PeerGroup''add-peer-discovery (:v-peer-group this), (or (:discovery this) (DnsDiscovery'new (:params this))))
                     )
                 )
                 (BlockChain''add-wallet (:v-chain this), (:v-wallet this))
@@ -20852,7 +20845,7 @@
     #_override
     (defn #_"void" AbstractIdleService'''shutDown [#_"WalletAppKit" this]
         ;; Runs in a separate thread.
-        (try
+        (try+
             (Context'propagate (:context this))
             (PeerGroup''stop (:v-peer-group this))
             (Wallet''save (:v-wallet this))
@@ -21842,7 +21835,7 @@
     #_override
     (defn #_"InetSocketAddress[]" PeerDiscovery'''get-peers [#_"DnsSeedDiscovery" this, #_"long" services, #_"long" _timeout, #_"TimeUnit" _unit]
         (when (not= services 0)
-            (throw (PeerDiscoveryException'new-1 (str "DNS seeds cannot filter by services: " services)))
+            (throw+ (PeerDiscoveryException'new (str "DNS seeds cannot filter by services: " services)))
         )
 
         (try
@@ -21854,7 +21847,7 @@
                 result
             )
             (catch UnknownHostException e
-                (throw (PeerDiscoveryException'new-1x e))
+                (throw+ (PeerDiscoveryException'new) e)
             )
         )
     )
@@ -21884,32 +21877,18 @@
  ;;
 (class-ns DnsDiscovery (§ extends MultiplexingDiscovery)
     ;;;
-     ; Supports finding peers through DNS A records.  Community run DNS entry points will be used.
-     ;
-     ; @param netParams Network parameters to be used for port information.
-     ;;
-    (defn #_"DnsDiscovery" DnsDiscovery'new-1 [#_"NetworkParameters" params]
-        (DnsDiscovery'new-2 (:dns-seeds params), params)
-    )
-
-    ;;;
      ; Supports finding peers through DNS A records.
+     ; Without seeds, community run DNS entry points will be used.
      ;
-     ; @param dnsSeeds Host names to be examined for seed addresses.
+     ; @param seeds Host names to be examined for seed addresses.
      ; @param params Network parameters to be used for port information.
      ;;
-    (defn #_"DnsDiscovery" DnsDiscovery'new-2 [#_"String[]" seeds, #_"NetworkParameters" params]
-        (merge (MultiplexingDiscovery'new params, (DnsDiscovery'build-discoveries params, seeds)) {})
-    )
-
-    (defn- #_"List<PeerDiscovery>" DnsDiscovery'build-discoveries [#_"NetworkParameters" params, #_"String[]" seeds]
-        (let [#_"List<PeerDiscovery>" discoveries (ArrayList.)]
-            (when (some? seeds)
-                (doseq [#_"String" seed seeds]
-                    (.add discoveries, (DnsSeedDiscovery'new params, seed))
-                )
+    (defn #_"DnsDiscovery" DnsDiscovery'new
+        ([#_"NetworkParameters" params] (DnsDiscovery'new params, (:dns-seeds params)))
+        ([#_"NetworkParameters" params, #_"String[]" seeds]
+            (merge (MultiplexingDiscovery'new params, (map #(DnsSeedDiscovery'new params, %) seeds))
+                (hash-map)
             )
-            discoveries
         )
     )
 
@@ -21998,7 +21977,7 @@
                         )
                     )
                     (when (= (.size addrs) 0)
-                        (throw (PeerDiscoveryException'new-1 (str "No peer discovery returned any results in " (.toMillis __timeoutUnit, __timeoutValue) "ms. Check internet connection?")))
+                        (throw+ (PeerDiscoveryException'new (str "No peer discovery returned any results in " (.toMillis __timeoutUnit, __timeoutValue) "ms. Check internet connection?")))
                     )
 
                     (Collections/shuffle addrs)
@@ -22007,7 +21986,7 @@
                 )
             )
             (catch InterruptedException e
-                (throw (PeerDiscoveryException'new-1x e))
+                (throw+ (PeerDiscoveryException'new) e)
             )
             (finally
                 (PeerDiscovery'''shutdown (:v-thread-pool this))
@@ -22030,12 +22009,11 @@
 )
 
 (class-ns PeerDiscoveryException (§ extends RuntimeException)
-    (defn #_"PeerDiscoveryException" PeerDiscoveryException'new-1 [#_"String" message]
-        (§ super RuntimeException'new message)
-    )
-
-    (defn #_"PeerDiscoveryException" PeerDiscoveryException'new-1x [#_"Throwable" t]
-        (§ super RuntimeException'new t)
+    (defn #_"PeerDiscoveryException" PeerDiscoveryException'new
+        ([] (PeerDiscoveryException'new nil))
+        ([#_"String" message]
+            (RuntimeException'new message)
+        )
     )
 )
 
@@ -22076,7 +22054,7 @@
         (try
             (SeedPeers''next-peer this)
             (catch UnknownHostException e
-                (throw (PeerDiscoveryException'new-1x e))
+                (throw+ (PeerDiscoveryException'new) e)
             )
         )
     )
@@ -22085,7 +22063,7 @@
     #_method
     (defn- #_"InetSocketAddress" SeedPeers''next-peer [#_"SeedPeers" this]
         (when (or (nil? (:seed-addrs this)) (zero? (alength (:seed-addrs this))))
-            (throw (PeerDiscoveryException'new-1 "No IP address seeds configured; unable to find any peers"))
+            (throw+ (PeerDiscoveryException'new "No IP address seeds configured; unable to find any peers"))
         )
         (when (< (:pnseed-index this) (alength (:seed-addrs this)))
             (let [#_"int" i (:pnseed-index this)]
@@ -22102,12 +22080,12 @@
     #_override
     (defn #_"InetSocketAddress[]" PeerDiscovery'''get-peers [#_"SeedPeers" this, #_"long" services, #_"long" __timeoutValue, #_"TimeUnit" __timeoutUnit]
         (when (not= services 0)
-            (throw (PeerDiscoveryException'new-1 (str "Pre-determined peers cannot be filtered by services: " services)))
+            (throw+ (PeerDiscoveryException'new (str "Pre-determined peers cannot be filtered by services: " services)))
         )
         (try
             (SeedPeers''all-peers this)
             (catch UnknownHostException e
-                (throw (PeerDiscoveryException'new-1x e))
+                (throw+ (PeerDiscoveryException'new) e)
             )
         )
     )
@@ -22542,7 +22520,7 @@
                                 (let [#_"BigInteger" __cursorTarget (Block''get-difficulty-target-as-integer (:stored-header cursor))
                                       #_"BigInteger" __newTarget (Block''get-difficulty-target-as-integer __nextBlock)]
                                     (when-not (.equals __cursorTarget, __newTarget)
-                                        (throw (VerificationException'new-1 (str "Testnet block transition that is not allowed: " (Long/toHexString (Block''get-difficulty-target (:stored-header cursor))) " vs " (Long/toHexString (Block''get-difficulty-target __nextBlock)))))
+                                        (throw+ (VerificationException'new (str "Testnet block transition that is not allowed: " (Long/toHexString (Block''get-difficulty-target (:stored-header cursor))) " vs " (Long/toHexString (Block''get-difficulty-target __nextBlock)))))
                                     )
                                 )
                             )
@@ -23356,7 +23334,7 @@
                             (= opcode ScriptOpCodes'OP_PUSHDATA1)
                             (do
                                 (when (< (.available bais) 1)
-                                    (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Unexpected end of script"))
+                                    (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Unexpected end of script"))
                                 )
                                 (§ ass __dataToRead (.read bais))
                             )
@@ -23364,7 +23342,7 @@
                             (do
                                 ;; Read a short, then read that many bytes of data.
                                 (when (< (.available bais) 2)
-                                    (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Unexpected end of script"))
+                                    (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Unexpected end of script"))
                                 )
                                 (§ ass __dataToRead (| (.read bais) (<< (.read bais) 8)))
                             )
@@ -23373,7 +23351,7 @@
                                 ;; Read a uint32, then read that many bytes of data.
                                 ;; Though this is allowed, because its value cannot be > 520, it should never actually be used.
                                 (when (< (.available bais) 4)
-                                    (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Unexpected end of script"))
+                                    (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Unexpected end of script"))
                                 )
                                 (§ ass __dataToRead (| (long (.read bais)) (<< (long (.read bais)) 8) (<< (long (.read bais)) 16) (<< (long (.read bais)) 24)))
                             )
@@ -23387,7 +23365,7 @@
                                 :else
                                 (do
                                     (when (< (.available bais) __dataToRead)
-                                        (throw (ScriptException'new :ScriptError'BAD_OPCODE, "Push of data element that is larger than remaining data"))
+                                        (throw+ (ScriptException'new :ScriptError'BAD_OPCODE, "Push of data element that is larger than remaining data"))
                                     )
 
                                     (let [#_"byte[]" data (byte-array (int __dataToRead))]
@@ -23459,7 +23437,7 @@
         (cond
             (Script''is-sent-to-address this)    (:data (.get (:chunks this), 2))
             (Script''is-pay-to-script-hash this) (:data (.get (:chunks this), 1))
-            :else (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Script not in the standard scriptPubKey form"))
+            :else (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Script not in the standard scriptPubKey form"))
         )
     )
 
@@ -23475,7 +23453,7 @@
     #_method
     (defn #_"byte[]" Script''get-pub-key [#_"Script" this]
         (when (not= (.size (:chunks this)) 2)
-            (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script not of right size, expecting 2 but got " (.size (:chunks this)))))
+            (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script not of right size, expecting 2 but got " (.size (:chunks this)))))
         )
 
         (let [#_"ScriptChunk" chunk0 (.get (:chunks this), 0) #_"byte[]" data0 (:data chunk0)
@@ -23485,7 +23463,7 @@
                 (and (some? data0) (< 2 (alength data0)) (some? data1) (< 2 (alength data1))) data1
                 ;; A large constant followed by an OP_CHECKSIG is the key.
                 (and (ScriptChunk''equals-op-code chunk1, ScriptOpCodes'OP_CHECKSIG) (some? data0) (< 2 (alength data0))) data0
-                :else (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script did not match expected form: " this)))
+                :else (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script did not match expected form: " this)))
             )
         )
     )
@@ -23500,7 +23478,7 @@
     (defn #_"byte[]" Script''get-cltv-payment-channel-sender-pub-key [#_"Script" this]
         (if (Script''is-sent-to-cltv-payment-channel this)
             (:data (.get (:chunks this), 8))
-            (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script not a standard CHECKLOCKTIMVERIFY transaction: " this)))
+            (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script not a standard CHECKLOCKTIMVERIFY transaction: " this)))
         )
     )
 
@@ -23514,7 +23492,7 @@
     (defn #_"byte[]" Script''get-cltv-payment-channel-recipient-pub-key [#_"Script" this]
         (if (Script''is-sent-to-cltv-payment-channel this)
             (:data (.get (:chunks this), 1))
-            (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script not a standard CHECKLOCKTIMVERIFY transaction: " this)))
+            (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script not a standard CHECKLOCKTIMVERIFY transaction: " this)))
         )
     )
 
@@ -23522,7 +23500,7 @@
     (defn #_"BigInteger" Script''get-cltv-payment-channel-expiry [#_"Script" this]
         (if (Script''is-sent-to-cltv-payment-channel this)
             (Script'cast-to-big-integer-3 (:data (.get (:chunks this), 4)), 5, false)
-            (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script not a standard CHECKLOCKTIMEVERIFY transaction: " this)))
+            (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script not a standard CHECKLOCKTIMEVERIFY transaction: " this)))
         )
     )
 
@@ -23560,7 +23538,7 @@
             (Script''is-sent-to-address this)                  (Address'from-hash160 params, (Script''get-pub-key-hash this))
             (Script''is-pay-to-script-hash this)               (Address'from-p2sh-script params, this)
             (and force? (Script''is-sent-to-raw-pub-key this)) (ECKey''to-address (ECKey'from-public-only-1-bytes (Script''get-pub-key this)), params)
-            :else (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Cannot cast this script to a pay-to-address type"))
+            :else (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Cannot cast this script to a pay-to-address type"))
         )
     )
 
@@ -23656,7 +23634,7 @@
                 (ScriptBuilder'create-p2sh-multi-sig-input-script nil, redeem)
             )
             :else
-                (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Do not understand script type: " this)))
+                (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Do not understand script type: " this)))
         )
     )
 
@@ -23722,7 +23700,7 @@
     #_method
     (defn #_"List<ECKey>" Script''get-pub-keys [#_"Script" this]
         (when-not (Script''is-sent-to-multi-sig this)
-            (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Only usable for multisig scripts."))
+            (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Only usable for multisig scripts."))
         )
 
         (let [#_"List<ECKey>" keys (ArrayList.)
@@ -23790,7 +23768,7 @@
     #_throws #_[ "ScriptException" ]
     (defn #_"int" Script'get-sig-op-count-1 [#_"byte[]" program]
         (let [#_"Script" script (Script'new-0)]
-            (try
+            (try+
                 (Script''parse script, program)
                 (§ catch ScriptException _
                     ;; Ignore errors and count up to the parse-able length.
@@ -23806,7 +23784,7 @@
     #_throws #_[ "ScriptException" ]
     (defn #_"long" Script'get-p2sh-sig-op-count [#_"byte[]" __scriptSig]
         (let [#_"Script" script (Script'new-0)]
-            (try
+            (try+
                 (Script''parse script, __scriptSig)
                 (§ catch ScriptException _
                     ;; Ignore errors and count up to the parse-able length.
@@ -24031,7 +24009,7 @@
     #_throws #_[ "ScriptException" ]
     (defn- #_"BigInteger" Script'cast-to-big-integer-3 [#_"byte[]" chunk, #_"int" __maxLength, #_"boolean" __requireMinimal]
         (when (< __maxLength (alength chunk))
-            (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script attempted to use an integer larger than " __maxLength " bytes")))
+            (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script attempted to use an integer larger than " __maxLength " bytes")))
         )
 
         (when (and __requireMinimal (< 0 (alength chunk)))
@@ -24045,7 +24023,7 @@
                 ;; An example of this case is +-255, which encode to 0xff00 and 0xff80 respectively.
                 ;; (big-endian)
                 (when (or (<= (alength chunk) 1) (zero? (& 0x80 (aget chunk (- (alength chunk) 2)))))
-                    (throw (ScriptException'new :ScriptError'UNKNOWN_ERROR, "non-minimally encoded script number"))
+                    (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "non-minimally encoded script number"))
                 )
             )
         )
@@ -24078,27 +24056,27 @@
 
                         ;; Check stack element size.
                         (when (and (some? (:data chunk)) (< Script'MAX_SCRIPT_ELEMENT_SIZE (alength (:data chunk))))
-                            (throw (ScriptException'new :ScriptError'PUSH_SIZE, "Attempted to push a data string larger than 520 bytes"))
+                            (throw+ (ScriptException'new :ScriptError'PUSH_SIZE, "Attempted to push a data string larger than 520 bytes"))
                         )
 
                         ;; Note how OP_RESERVED does not count towards the opcode limit.
                         (when (< ScriptOpCodes'OP_16 opcode)
                             (§ ass __opCount (inc __opCount))
                             (when (< Script'MAX_OPS_PER_SCRIPT __opCount)
-                                (throw (ScriptException'new :ScriptError'OP_COUNT, "More script operations than is allowed"))
+                                (throw+ (ScriptException'new :ScriptError'OP_COUNT, "More script operations than is allowed"))
                             )
                         )
 
                         ;; Disabled opcodes.
                         (when (any = opcode ScriptOpCodes'OP_CAT ScriptOpCodes'OP_SUBSTR ScriptOpCodes'OP_LEFT ScriptOpCodes'OP_RIGHT ScriptOpCodes'OP_INVERT ScriptOpCodes'OP_AND ScriptOpCodes'OP_OR ScriptOpCodes'OP_XOR ScriptOpCodes'OP_2MUL ScriptOpCodes'OP_2DIV ScriptOpCodes'OP_MUL ScriptOpCodes'OP_DIV ScriptOpCodes'OP_MOD ScriptOpCodes'OP_LSHIFT ScriptOpCodes'OP_RSHIFT)
-                            (throw (ScriptException'new :ScriptError'DISABLED_OPCODE, "Script included a disabled Script Op."))
+                            (throw+ (ScriptException'new :ScriptError'DISABLED_OPCODE, "Script included a disabled Script Op."))
                         )
 
                         (cond (and __shouldExecute (<= ScriptOpCodes'OP_0 opcode ScriptOpCodes'OP_PUSHDATA4))
                             (do
                                 ;; Check minimal push.
                                 (when (and (.contains __verifyFlags, :ScriptVerifyFlag'MINIMALDATA) (not (ScriptChunk''is-shortest-possible-push-data chunk)))
-                                    (throw (ScriptException'new :ScriptError'MINIMALDATA, "Script included a not minimal push operation."))
+                                    (throw+ (ScriptException'new :ScriptError'MINIMALDATA, "Script included a not minimal push operation."))
                                 )
 
                                 (if (= opcode ScriptOpCodes'OP_0)
@@ -24116,7 +24094,7 @@
                                                 (§ continue )
                                             )
                                             (when (< (.size stack) 1)
-                                                (throw (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_IF on an empty stack"))
+                                                (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_IF on an empty stack"))
                                             )
                                             (.add __ifStack, (Script'cast-to-bool (.pollLast stack)))
                                             (§ continue )
@@ -24128,7 +24106,7 @@
                                                 (§ continue )
                                             )
                                             (when (< (.size stack) 1)
-                                                (throw (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_NOTIF on an empty stack"))
+                                                (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_NOTIF on an empty stack"))
                                             )
                                             (.add __ifStack, (not (Script'cast-to-bool (.pollLast stack))))
                                             (§ continue )
@@ -24136,7 +24114,7 @@
                                     ScriptOpCodes'OP_ELSE
                                         (do
                                             (when (empty? __ifStack)
-                                                (throw (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_ELSE without OP_IF/NOTIF"))
+                                                (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_ELSE without OP_IF/NOTIF"))
                                             )
                                             (.add __ifStack, (not (.pollLast __ifStack)))
                                             (§ continue )
@@ -24144,7 +24122,7 @@
                                     ScriptOpCodes'OP_ENDIF
                                         (do
                                             (when (empty? __ifStack)
-                                                (throw (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_ENDIF without OP_IF/NOTIF"))
+                                                (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_ENDIF without OP_IF/NOTIF"))
                                             )
                                             (.pollLast __ifStack)
                                             (§ continue )
@@ -24182,27 +24160,27 @@
                                     ScriptOpCodes'OP_VERIFY
                                         (do
                                             (when (< (.size stack) 1)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_VERIFY on an empty stack"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_VERIFY on an empty stack"))
                                             )
                                             (when-not (Script'cast-to-bool (.pollLast stack))
-                                                (throw (ScriptException'new :ScriptError'VERIFY, "OP_VERIFY failed"))
+                                                (throw+ (ScriptException'new :ScriptError'VERIFY, "OP_VERIFY failed"))
                                             )
                                         )
 
                                     ScriptOpCodes'OP_RETURN
-                                        (throw (ScriptException'new :ScriptError'OP_RETURN, "Script called OP_RETURN"))
+                                        (throw+ (ScriptException'new :ScriptError'OP_RETURN, "Script called OP_RETURN"))
 
                                     ScriptOpCodes'OP_TOALTSTACK
                                         (do
                                             (when (< (.size stack) 1)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_TOALTSTACK on an empty stack"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_TOALTSTACK on an empty stack"))
                                             )
                                             (.add altstack, (.pollLast stack))
                                         )
                                     ScriptOpCodes'OP_FROMALTSTACK
                                         (do
                                             (when (< (.size altstack) 1)
-                                                (throw (ScriptException'new :ScriptError'INVALID_ALTSTACK_OPERATION, "Attempted OP_FROMALTSTACK on an empty altstack"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_ALTSTACK_OPERATION, "Attempted OP_FROMALTSTACK on an empty altstack"))
                                             )
                                             (.add stack, (.pollLast altstack))
                                         )
@@ -24210,7 +24188,7 @@
                                     ScriptOpCodes'OP_2DROP
                                         (do
                                             (when (< (.size stack) 2)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2DROP on a stack with size < 2"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2DROP on a stack with size < 2"))
                                             )
                                             (.pollLast stack)
                                             (.pollLast stack)
@@ -24218,7 +24196,7 @@
                                     ScriptOpCodes'OP_2DUP
                                         (do
                                             (when (< (.size stack) 2)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2DUP on a stack with size < 2"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2DUP on a stack with size < 2"))
                                             )
                                             (let [#_"Iterator<byte[]>" it (.descendingIterator stack) #_"byte[]" data2 (.next it)]
                                                 (.add stack, (.next it))
@@ -24228,7 +24206,7 @@
                                     ScriptOpCodes'OP_3DUP
                                         (do
                                             (when (< (.size stack) 3)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_3DUP on a stack with size < 3"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_3DUP on a stack with size < 3"))
                                             )
                                             (let [#_"Iterator<byte[]>" it (.descendingIterator stack) #_"byte[]" data3 (.next it) #_"byte[]" data2 (.next it)]
                                                 (.add stack, (.next it))
@@ -24239,7 +24217,7 @@
                                     ScriptOpCodes'OP_2OVER
                                         (do
                                             (when (< (.size stack) 4)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2OVER on a stack with size < 4"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2OVER on a stack with size < 4"))
                                             )
                                             (let [#_"Iterator<byte[]>" it (.descendingIterator stack)]
                                                 (.next it)
@@ -24253,7 +24231,7 @@
                                     ScriptOpCodes'OP_2ROT
                                         (do
                                             (when (< (.size stack) 6)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2ROT on a stack with size < 6"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2ROT on a stack with size < 6"))
                                             )
                                             (let [#_"byte[]" data6 (.pollLast stack)
                                                   #_"byte[]" data5 (.pollLast stack)
@@ -24272,7 +24250,7 @@
                                     ScriptOpCodes'OP_2SWAP
                                         (do
                                             (when (< (.size stack) 4)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2SWAP on a stack with size < 4"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2SWAP on a stack with size < 4"))
                                             )
                                             (let [#_"byte[]" data4 (.pollLast stack)
                                                   #_"byte[]" data3 (.pollLast stack)
@@ -24288,7 +24266,7 @@
                                     ScriptOpCodes'OP_IFDUP
                                         (do
                                             (when (< (.size stack) 1)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_IFDUP on an empty stack"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_IFDUP on an empty stack"))
                                             )
                                             (when (Script'cast-to-bool (.getLast stack))
                                                 (.add stack, (.getLast stack))
@@ -24303,21 +24281,21 @@
                                     ScriptOpCodes'OP_DROP
                                         (do
                                             (when (< (.size stack) 1)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_DROP on an empty stack"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_DROP on an empty stack"))
                                             )
                                             (.pollLast stack)
                                         )
                                     ScriptOpCodes'OP_DUP
                                         (do
                                             (when (< (.size stack) 1)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_DUP on an empty stack"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_DUP on an empty stack"))
                                             )
                                             (.add stack, (.getLast stack))
                                         )
                                     ScriptOpCodes'OP_NIP
                                         (do
                                             (when (< (.size stack) 2)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_NIP on a stack with size < 2"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_NIP on a stack with size < 2"))
                                             )
                                             (let [#_"byte[]" data (.pollLast stack)]
                                                 (.pollLast stack)
@@ -24327,7 +24305,7 @@
                                     ScriptOpCodes'OP_OVER
                                         (do
                                             (when (< (.size stack) 2)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_OVER on a stack with size < 2"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_OVER on a stack with size < 2"))
                                             )
                                             (let [#_"Iterator<byte[]>" it (.descendingIterator stack)]
                                                 (.next it)
@@ -24338,11 +24316,11 @@
                                     ScriptOpCodes'OP_ROLL]
                                         (do
                                             (when (< (.size stack) 1)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_PICK/OP_ROLL on an empty stack"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_PICK/OP_ROLL on an empty stack"))
                                             )
                                             (let [#_"long" n (.longValue (Script'cast-to-big-integer-2 (.pollLast stack), (.contains __verifyFlags, :ScriptVerifyFlag'MINIMALDATA)))]
                                                 (when-not (< -1 n (.size stack))
-                                                    (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "OP_PICK/OP_ROLL attempted to get data deeper than stack size"))
+                                                    (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "OP_PICK/OP_ROLL attempted to get data deeper than stack size"))
                                                 )
                                                 (let [#_"Iterator<byte[]>" it (.descendingIterator stack)]
                                                     (dotimes [_ n]
@@ -24360,7 +24338,7 @@
                                     ScriptOpCodes'OP_ROT
                                         (do
                                             (when (< (.size stack) 3)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_ROT on a stack with size < 3"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_ROT on a stack with size < 3"))
                                             )
                                             (let [#_"byte[]" data3 (.pollLast stack)
                                                   #_"byte[]" data2 (.pollLast stack)
@@ -24374,7 +24352,7 @@
                                     ScriptOpCodes'OP_TUCK]
                                         (do
                                             (when (< (.size stack) 2)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SWAP on a stack with size < 2"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SWAP on a stack with size < 2"))
                                             )
                                             (let [#_"byte[]" data2 (.pollLast stack) #_"byte[]" data1 (.pollLast stack)]
                                                 (.add stack, data2)
@@ -24388,24 +24366,24 @@
                                     ScriptOpCodes'OP_SIZE
                                         (do
                                             (when (< (.size stack) 1)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SIZE on an empty stack"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SIZE on an empty stack"))
                                             )
                                             (.add stack, (Utils'reverse-bytes (Utils'encode-mpi (BigInteger/valueOf (alength (.getLast stack))), false)))
                                         )
                                     ScriptOpCodes'OP_EQUAL
                                         (do
                                             (when (< (.size stack) 2)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_EQUAL on a stack with size < 2"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_EQUAL on a stack with size < 2"))
                                             )
                                             (.add stack, (if (Arrays/equals (.pollLast stack), (.pollLast stack)) (byte-array [ 1 ]) (byte-array 0)))
                                         )
                                     ScriptOpCodes'OP_EQUALVERIFY
                                         (do
                                             (when (< (.size stack) 2)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_EQUALVERIFY on a stack with size < 2"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_EQUALVERIFY on a stack with size < 2"))
                                             )
                                             (when-not (Arrays/equals (.pollLast stack), (.pollLast stack))
-                                                (throw (ScriptException'new :ScriptError'EQUALVERIFY, "OP_EQUALVERIFY: non-equal data"))
+                                                (throw+ (ScriptException'new :ScriptError'EQUALVERIFY, "OP_EQUALVERIFY: non-equal data"))
                                             )
                                         )
 
@@ -24417,7 +24395,7 @@
                                     ScriptOpCodes'OP_0NOTEQUAL]
                                         (do
                                             (when (< (.size stack) 1)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted a numeric op on an empty stack"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted a numeric op on an empty stack"))
                                             )
                                             (let [#_"BigInteger" n (Script'cast-to-big-integer-2 (.pollLast stack), (.contains __verifyFlags, :ScriptVerifyFlag'MINIMALDATA))
                                                   n (condp = opcode
@@ -24445,7 +24423,7 @@
                                     ScriptOpCodes'OP_MAX]
                                         (do
                                             (when (< (.size stack) 2)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted a numeric op on a stack with size < 2"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted a numeric op on a stack with size < 2"))
                                             )
                                             (let [#_"BigInteger" n2 (Script'cast-to-big-integer-2 (.pollLast stack), (.contains __verifyFlags, :ScriptVerifyFlag'MINIMALDATA))
                                                   #_"BigInteger" n1 (Script'cast-to-big-integer-2 (.pollLast stack), (.contains __verifyFlags, :ScriptVerifyFlag'MINIMALDATA))
@@ -24472,13 +24450,13 @@
                                     ScriptOpCodes'OP_NUMEQUALVERIFY
                                         (do
                                             (when (< (.size stack) 2)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_NUMEQUALVERIFY on a stack with size < 2"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_NUMEQUALVERIFY on a stack with size < 2"))
                                             )
                                             (let [#_"BigInteger" n2 (Script'cast-to-big-integer-2 (.pollLast stack), (.contains __verifyFlags, :ScriptVerifyFlag'MINIMALDATA))
                                                   #_"BigInteger" n1 (Script'cast-to-big-integer-2 (.pollLast stack), (.contains __verifyFlags, :ScriptVerifyFlag'MINIMALDATA))]
 
                                                 (when-not (.equals n1, n2)
-                                                    (throw (ScriptException'new :ScriptError'NUMEQUALVERIFY, "OP_NUMEQUALVERIFY failed"))
+                                                    (throw+ (ScriptException'new :ScriptError'NUMEQUALVERIFY, "OP_NUMEQUALVERIFY failed"))
                                                 )
                                             )
                                         )
@@ -24486,7 +24464,7 @@
                                     ScriptOpCodes'OP_WITHIN
                                         (do
                                             (when (< (.size stack) 3)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_WITHIN on a stack with size < 3"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_WITHIN on a stack with size < 3"))
                                             )
                                             (let [#_"BigInteger" n3 (Script'cast-to-big-integer-2 (.pollLast stack), (.contains __verifyFlags, :ScriptVerifyFlag'MINIMALDATA))
                                                   #_"BigInteger" n2 (Script'cast-to-big-integer-2 (.pollLast stack), (.contains __verifyFlags, :ScriptVerifyFlag'MINIMALDATA))
@@ -24501,7 +24479,7 @@
                                     ScriptOpCodes'OP_RIPEMD160
                                         (do
                                             (when (< (.size stack) 1)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_RIPEMD160 on an empty stack"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_RIPEMD160 on an empty stack"))
                                             )
                                             (let [#_"RIPEMD160Digest" digest (RIPEMD160Digest.) #_"byte[]" __dataToHash (.pollLast stack)]
                                                 (.update digest, __dataToHash, 0, (alength __dataToHash))
@@ -24514,7 +24492,7 @@
                                     ScriptOpCodes'OP_SHA1
                                         (do
                                             (when (< (.size stack) 1)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA1 on an empty stack"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA1 on an empty stack"))
                                             )
                                             (try
                                                 (.add stack, (.digest (MessageDigest/getInstance "SHA-1"), (.pollLast stack)))
@@ -24526,21 +24504,21 @@
                                     ScriptOpCodes'OP_SHA256
                                         (do
                                             (when (< (.size stack) 1)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
                                             )
                                             (.add stack, (Sha256Hash'hash-1 (.pollLast stack)))
                                         )
                                     ScriptOpCodes'OP_HASH160
                                         (do
                                             (when (< (.size stack) 1)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_HASH160 on an empty stack"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_HASH160 on an empty stack"))
                                             )
                                             (.add stack, (Utils'sha256hash160 (.pollLast stack)))
                                         )
                                     ScriptOpCodes'OP_HASH256
                                         (do
                                             (when (< (.size stack) 1)
-                                                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
+                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
                                             )
                                             (.add stack, (Sha256Hash'hash-twice-1 (.pollLast stack)))
                                         )
@@ -24570,7 +24548,7 @@
                                         (if (not (.contains __verifyFlags, :ScriptVerifyFlag'CHECKLOCKTIMEVERIFY))
                                             ;; not enabled; treat as a NOP2
                                             (when (.contains __verifyFlags, :ScriptVerifyFlag'DISCOURAGE_UPGRADABLE_NOPS)
-                                                (throw (ScriptException'new :ScriptError'DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " opcode)))
+                                                (throw+ (ScriptException'new :ScriptError'DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " opcode)))
                                             )
                                             (Script'execute-check-lock-time-verify __txContainingThis, (int index), stack, __verifyFlags)
                                         )
@@ -24578,7 +24556,7 @@
                                         (if (not (.contains __verifyFlags, :ScriptVerifyFlag'CHECKSEQUENCEVERIFY))
                                             ;; not enabled; treat as a NOP3
                                             (when (.contains __verifyFlags, :ScriptVerifyFlag'DISCOURAGE_UPGRADABLE_NOPS)
-                                                (throw (ScriptException'new :ScriptError'DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " opcode)))
+                                                (throw+ (ScriptException'new :ScriptError'DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " opcode)))
                                             )
                                             (Script'execute-check-sequence-verify __txContainingThis, (int index), stack, __verifyFlags)
                                         )
@@ -24593,23 +24571,23 @@
                                     ScriptOpCodes'OP_NOP10]
                                         (do
                                             (when (.contains __verifyFlags, :ScriptVerifyFlag'DISCOURAGE_UPGRADABLE_NOPS)
-                                                (throw (ScriptException'new :ScriptError'DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " opcode)))
+                                                (throw+ (ScriptException'new :ScriptError'DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " opcode)))
                                             )
                                         )
 
-                                    (throw (ScriptException'new :ScriptError'BAD_OPCODE, (str "Script used a reserved or disabled opcode: " opcode)))
+                                    (throw+ (ScriptException'new :ScriptError'BAD_OPCODE, (str "Script used a reserved or disabled opcode: " opcode)))
                                 )
                             )
                         )
 
                         (when-not (<= 0 (+ (.size stack) (.size altstack)) Script'MAX_STACK_SIZE)
-                            (throw (ScriptException'new :ScriptError'STACK_SIZE, "Stack size exceeded range"))
+                            (throw+ (ScriptException'new :ScriptError'STACK_SIZE, "Stack size exceeded range"))
                         )
                     )
                 )
 
                 (when-not (empty? __ifStack)
-                    (throw (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "OP_IF/OP_NOTIF without OP_ENDIF"))
+                    (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "OP_IF/OP_NOTIF without OP_ENDIF"))
                 )
             )
         )
@@ -24620,23 +24598,23 @@
     #_throws #_[ "ScriptException" ]
     (defn- #_"void" Script'execute-check-lock-time-verify [#_"Transaction" tx, #_"int" index, #_"LinkedList<byte[]>" stack, #_"Set<ScriptVerifyFlag>" flags]
         (when (< (.size stack) 1)
-            (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKLOCKTIMEVERIFY on a stack with size < 1"))
+            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKLOCKTIMEVERIFY on a stack with size < 1"))
         )
         ;; Thus as a special case we tell CScriptNum to accept up to 5-byte bignums to avoid year 2038 issue.
         (let [#_"BigInteger" time (Script'cast-to-big-integer-3 (.getLast stack), 5, (.contains flags, :ScriptVerifyFlag'MINIMALDATA))]
             (cond
                 (neg? (.compareTo time, BigInteger/ZERO))
-                    (throw (ScriptException'new :ScriptError'NEGATIVE_LOCKTIME, "Negative locktime"))
+                    (throw+ (ScriptException'new :ScriptError'NEGATIVE_LOCKTIME, "Negative locktime"))
 
                 ;; There are two kinds of nLockTime, need to ensure we're comparing apples-to-apples.
                 (let [#_"boolean" a? (< (Transaction''get-lock-time tx) Transaction'LOCKTIME_THRESHOLD)
                       #_"boolean" b? (neg? (.compareTo time, Transaction'LOCKTIME_THRESHOLD_BIG))]
                         (not (or (and a? b?) (and (not a?) (not b?)))))
-                    (throw (ScriptException'new :ScriptError'UNSATISFIED_LOCKTIME, "Locktime requirement type mismatch"))
+                    (throw+ (ScriptException'new :ScriptError'UNSATISFIED_LOCKTIME, "Locktime requirement type mismatch"))
 
                 ;; Now that we know we're comparing apples-to-apples, the comparison is a simple numeric one.
                 (pos? (.compareTo time, (BigInteger/valueOf (Transaction''get-lock-time tx))))
-                    (throw (ScriptException'new :ScriptError'UNSATISFIED_LOCKTIME, "Locktime requirement not satisfied"))
+                    (throw+ (ScriptException'new :ScriptError'UNSATISFIED_LOCKTIME, "Locktime requirement not satisfied"))
 
                 ;; Finally the nLockTime feature can be disabled and thus CHECKLOCKTIMEVERIFY bypassed if every txin has been
                 ;; finalized by setting nSequence to maxint.  The transaction would be allowed into the blockchain, making
@@ -24645,7 +24623,7 @@
                 ;; Testing if this vin is not final is sufficient to prevent this condition.  Alternatively we could test all
                 ;; inputs, but testing just this input minimizes the data required to prove correct CHECKLOCKTIMEVERIFY execution.
                 (not (TransactionInput''has-sequence (Transaction''get-input tx, index)))
-                    (throw (ScriptException'new :ScriptError'UNSATISFIED_LOCKTIME, "Transaction contains a final transaction input for a CHECKLOCKTIMEVERIFY script."))
+                    (throw+ (ScriptException'new :ScriptError'UNSATISFIED_LOCKTIME, "Transaction contains a final transaction input for a CHECKLOCKTIMEVERIFY script."))
             )
         )
         nil
@@ -24654,7 +24632,7 @@
     #_throws #_[ "ScriptException" ]
     (defn- #_"void" Script'execute-check-sequence-verify [#_"Transaction" tx, #_"int" index, #_"LinkedList<byte[]>" stack, #_"Set<ScriptVerifyFlag>" flags]
         (if (< (.size stack) 1)
-            (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKSEQUENCEVERIFY on a stack with size < 1"))
+            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKSEQUENCEVERIFY on a stack with size < 1"))
             ;; Note that elsewhere numeric opcodes are limited to operands in the range -2**31+1 to 2**31-1,
             ;; however it is legal for opcodes to produce results exceeding that range.  This limitation is
             ;; implemented by CScriptNum's default 4-byte limit.
@@ -24666,7 +24644,7 @@
                     ;; In the rare event that the argument may be < 0 due to some arithmetic being done first,
                     ;; you can always use 0 MAX CHECKSEQUENCEVERIFY.
                     (neg? n)
-                        (throw (ScriptException'new :ScriptError'NEGATIVE_LOCKTIME, "Negative sequence"))
+                        (throw+ (ScriptException'new :ScriptError'NEGATIVE_LOCKTIME, "Negative sequence"))
 
                     ;; To provide for future soft-fork extensibility, if the operand has the disabled lock-time
                     ;; flag set, CHECKSEQUENCEVERIFY behaves as a NOP.
@@ -24675,7 +24653,7 @@
 
                     ;; Compare the specified sequence number with the input.
                     (not (Script'check-sequence n, tx, index))
-                        (throw (ScriptException'new :ScriptError'UNSATISFIED_LOCKTIME, "Unsatisfied CHECKLOCKTIMEVERIFY lock time"))
+                        (throw+ (ScriptException'new :ScriptError'UNSATISFIED_LOCKTIME, "Unsatisfied CHECKLOCKTIMEVERIFY lock time"))
                 )
             )
         )
@@ -24718,7 +24696,7 @@
     (defn- #_"void" Script'execute-check-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" __lastCodeSepLocation, #_"int" opcode, #_"Set<ScriptVerifyFlag>" flags]
         (§ let [#_"boolean" __requireCanonical (or (.contains flags, :ScriptVerifyFlag'STRICTENC) (.contains flags, :ScriptVerifyFlag'DERSIG) (.contains flags, :ScriptVerifyFlag'LOW_S))]
             (when (< (.size stack) 2)
-                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKSIG(VERIFY) on a stack with size < 2"))
+                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKSIG(VERIFY) on a stack with size < 2"))
             )
 
             (let [#_"byte[]" __pubKey (.pollLast stack)
@@ -24759,7 +24737,7 @@
                                 )
                                 (and (= opcode ScriptOpCodes'OP_CHECKSIGVERIFY) (not __sigValid))
                                 (do
-                                    (throw (ScriptException'new :ScriptError'CHECKSIGVERIFY, "Script failed OP_CHECKSIGVERIFY"))
+                                    (throw+ (ScriptException'new :ScriptError'CHECKSIGVERIFY, "Script failed OP_CHECKSIGVERIFY"))
                                 )
                             )
                         )
@@ -24774,20 +24752,20 @@
     (defn- #_"int" Script'execute-multi-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" __opCount, #_"int" __lastCodeSepLocation, #_"int" opcode, #_"Set<ScriptVerifyFlag>" flags]
         (§ let [#_"boolean" __requireCanonical (or (.contains flags, :ScriptVerifyFlag'STRICTENC) (.contains flags, :ScriptVerifyFlag'DERSIG) (.contains flags, :ScriptVerifyFlag'LOW_S))]
             (when (< (.size stack) 1)
-                (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < 2"))
+                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < 2"))
             )
 
             (let [#_"int" __pubKeyCount (.intValue (Script'cast-to-big-integer-2 (.pollLast stack), (.contains flags, :ScriptVerifyFlag'MINIMALDATA)))]
                 (when (or (< __pubKeyCount 0) (< Script'MAX_PUBKEYS_PER_MULTISIG __pubKeyCount))
-                    (throw (ScriptException'new :ScriptError'PUBKEY_COUNT, "OP_CHECKMULTISIG(VERIFY) with pubkey count out of range"))
+                    (throw+ (ScriptException'new :ScriptError'PUBKEY_COUNT, "OP_CHECKMULTISIG(VERIFY) with pubkey count out of range"))
                 )
 
                 (§ ass __opCount (+ __opCount __pubKeyCount))
                 (when (< Script'MAX_OPS_PER_SCRIPT __opCount)
-                    (throw (ScriptException'new :ScriptError'OP_COUNT, "Total op count > 201 during OP_CHECKMULTISIG(VERIFY)"))
+                    (throw+ (ScriptException'new :ScriptError'OP_COUNT, "Total op count > 201 during OP_CHECKMULTISIG(VERIFY)"))
                 )
                 (when (< (.size stack) (inc __pubKeyCount))
-                    (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + 2"))
+                    (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + 2"))
                 )
 
                 (let [#_"LinkedList<byte[]>" pubkeys (LinkedList.)]
@@ -24797,10 +24775,10 @@
 
                     (let [#_"int" __sigCount (.intValue (Script'cast-to-big-integer-2 (.pollLast stack), (.contains flags, :ScriptVerifyFlag'MINIMALDATA)))]
                         (when (or (< __sigCount 0) (< __pubKeyCount __sigCount))
-                            (throw (ScriptException'new :ScriptError'SIG_COUNT, "OP_CHECKMULTISIG(VERIFY) with sig count out of range"))
+                            (throw+ (ScriptException'new :ScriptError'SIG_COUNT, "OP_CHECKMULTISIG(VERIFY) with sig count out of range"))
                         )
                         (when (< (.size stack) (inc __sigCount))
-                            (throw (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + num_of_signatures + 3"))
+                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + num_of_signatures + 3"))
                         )
 
                         (let [#_"LinkedList<byte[]>" sigs (LinkedList.)]
@@ -24846,7 +24824,7 @@
                                     ;; We uselessly remove a stack object to emulate a Bitcoin Core bug.
                                     (let [#_"byte[]" __nullDummy (.pollLast stack)]
                                         (when (and (.contains flags, :ScriptVerifyFlag'NULLDUMMY) (< 0 (alength __nullDummy)))
-                                            (throw (ScriptException'new :ScriptError'SIG_NULLFAIL, (str "OP_CHECKMULTISIG(VERIFY) with non-null nulldummy: " (Arrays/toString __nullDummy))))
+                                            (throw+ (ScriptException'new :ScriptError'SIG_NULLFAIL, (str "OP_CHECKMULTISIG(VERIFY) with non-null nulldummy: " (Arrays/toString __nullDummy))))
                                         )
 
                                         (cond (= opcode ScriptOpCodes'OP_CHECKMULTISIG)
@@ -24855,7 +24833,7 @@
                                             )
                                             (and (= opcode ScriptOpCodes'OP_CHECKMULTISIGVERIFY) (not valid))
                                             (do
-                                                (throw (ScriptException'new :ScriptError'SIG_NULLFAIL, "Script failed OP_CHECKMULTISIGVERIFY"))
+                                                (throw+ (ScriptException'new :ScriptError'SIG_NULLFAIL, "Script failed OP_CHECKMULTISIGVERIFY"))
                                             )
                                         )
 
@@ -24905,7 +24883,7 @@
         ;; the tx half broken (also it's not so thread safe to work on it directly).
         (let [tx (BitcoinSerializer''make-transaction-2 (:default-serializer (:params tx)), (Message'''bitcoin-serialize-1 tx))]
             (when (or (< Script'MAX_SCRIPT_SIZE (alength (Script''get-program this))) (< Script'MAX_SCRIPT_SIZE (alength (Script''get-program __scriptPubKey))))
-                (throw (ScriptException'new :ScriptError'SCRIPT_SIZE, "Script larger than 10,000 bytes"))
+                (throw+ (ScriptException'new :ScriptError'SCRIPT_SIZE, "Script larger than 10,000 bytes"))
             )
 
             (let [#_"LinkedList<byte[]>" stack (LinkedList.)]
@@ -24915,10 +24893,10 @@
                     (Script'execute-script-5 tx, index, __scriptPubKey, stack, flags)
 
                     (when (zero? (.size stack))
-                        (throw (ScriptException'new :ScriptError'EVAL_FALSE, "Stack empty at end of script execution."))
+                        (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, "Stack empty at end of script execution."))
                     )
                     (when-not (Script'cast-to-bool (.pollLast stack))
-                        (throw (ScriptException'new :ScriptError'EVAL_FALSE, (str "Script resulted in a non-true stack: " stack)))
+                        (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, (str "Script resulted in a non-true stack: " stack)))
                     )
 
                     ;; P2SH is pay to script hash.  It means that the scriptPubKey has a special form which is a valid
@@ -24937,7 +24915,7 @@
                     (when (and (.contains flags, :ScriptVerifyFlag'P2SH) (Script''is-pay-to-script-hash __scriptPubKey))
                         (doseq [#_"ScriptChunk" chunk (:chunks this)]
                             (when (and (ScriptChunk''is-op-code chunk) (< ScriptOpCodes'OP_16 (:opcode chunk)))
-                                (throw (ScriptException'new :ScriptError'SIG_PUSHONLY, "Attempted to spend a P2SH scriptPubKey with a script that contained script ops"))
+                                (throw+ (ScriptException'new :ScriptError'SIG_PUSHONLY, "Attempted to spend a P2SH scriptPubKey with a script that contained script ops"))
                             )
                         )
 
@@ -24945,10 +24923,10 @@
                             (Script'execute-script-5 tx, index, __scriptPubKeyP2SH, __p2shStack, flags)
 
                             (when (zero? (.size __p2shStack))
-                                (throw (ScriptException'new :ScriptError'EVAL_FALSE, "P2SH stack empty at end of script execution."))
+                                (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, "P2SH stack empty at end of script execution."))
                             )
                             (when-not (Script'cast-to-bool (.pollLast __p2shStack))
-                                (throw (ScriptException'new :ScriptError'EVAL_FALSE, "P2SH script execution resulted in a non-true stack"))
+                                (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, "P2SH script execution resulted in a non-true stack"))
                             )
                         )
                     )
@@ -25977,7 +25955,7 @@
 #_abstract
 (class-ns CustomTransactionSigner (§ implements TransactionSigner)
     (defn #_"CustomTransactionSigner" CustomTransactionSigner'new []
-        {}
+        (hash-map)
     )
 
     #_override
@@ -25989,7 +25967,7 @@
                         (let [#_"Script" __outKey (TransactionOutput''get-script-pub-key out)]
                             (if (Script''is-pay-to-script-hash __outKey)
                                 (let [#_"Script" __inSig (ensure some? (TransactionInput''get-script-sig in))]
-                                    (try
+                                    (try+
                                         ;; We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
                                         ;; we sign missing pieces (to check this would require either assuming any signatures are signing
                                         ;; standard output types or a way to get processed signatures out of script execution).
@@ -26040,7 +26018,7 @@
  ;;
 (class-ns LocalTransactionSigner (§ implements TransactionSigner)
     (defn #_"LocalTransactionSigner" LocalTransactionSigner'new []
-        {}
+        (hash-map)
     )
 
     ;;;
@@ -26056,7 +26034,7 @@
                     (if (nil? out)
                         (log/warn (str "Missing connected output, assuming input " i " is already signed."))
                         (let [#_"Script" inSig (TransactionInput''get-script-sig in) #_"Script" outKey (TransactionOutput''get-script-pub-key out)]
-                            (try
+                            (try+
                                 ;; We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
                                 ;; we sign missing pieces (to check this would require either assuming any signatures are signing
                                 ;; standard output types or a way to get processed signatures out of script execution).
@@ -26087,7 +26065,7 @@
                                                         ;; position relative to other signers.  Since we don't have that information at this point, and since
                                                         ;; we always run first, we have to depend on the other signers rearranging the signatures as needed.
                                                         ;; Therefore, always place as first signature.
-                                                        (try
+                                                        (try+
                                                             (let [#_"TransactionSignature" sig (Transaction''calculate-signature-b tx, i, key, script, SigHash'ALL, false)]
                                                                 (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature outKey, inSig, (TransactionSignature''encode-to-bitcoin sig), 0))
                                                             )
@@ -26141,7 +26119,7 @@
                                             (when (ScriptChunk''equals-op-code (.get (Script''get-chunks inSig), j), 0)
                                                 (condp = (:missing-sigs-mode this)
                                                     :MissingSigsMode'THROW
-                                                        (throw (MissingSignatureException'new))
+                                                        (throw+ (MissingSignatureException'new))
                                                     :MissingSigsMode'USE_DUMMY_SIG
                                                         (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature outKey, inSig, dummy, (dec j)))
                                                     nil
@@ -26152,7 +26130,7 @@
                                     (when (ScriptChunk''equals-op-code (.get (Script''get-chunks inSig), 0), 0)
                                         (condp = (:missing-sigs-mode this)
                                             :MissingSigsMode'THROW
-                                                (throw (MissingPrivateKeyException'new))
+                                                (throw+ (MissingPrivateKeyException'new))
                                             :MissingSigsMode'USE_DUMMY_SIG
                                                 (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature outKey, inSig, dummy, 0))
                                             nil
@@ -26191,8 +26169,8 @@
 )
 
 (class-ns MissingSignatureException (§ extends RuntimeException)
-    (defn #_"MissingSignatureException" MissingSignatureException'new []
-        (§ super RuntimeException'new)
+    (defn #_"MissingSignatureException" MissingSignatureException'new []
+        (RuntimeException'new)
     )
 )
 
@@ -26256,12 +26234,11 @@
  ; Thrown when something goes wrong with storing a block.  Examples: out of disk space.
  ;;
 (class-ns BlockStoreException (§ extends RuntimeException)
-    (defn #_"BlockStoreException" BlockStoreException'new-1 [#_"String" message]
-        (§ super RuntimeException'new message)
-    )
-
-    (defn #_"BlockStoreException" BlockStoreException'new-1x [#_"Throwable" t]
-        (§ super RuntimeException'new t)
+    (defn #_"BlockStoreException" BlockStoreException'new
+        ([] (BlockStoreException'new nil))
+        ([#_"String" message]
+            (RuntimeException'new message)
+        )
     )
 )
 
@@ -26269,12 +26246,8 @@
  ; Thrown by {@link SPVBlockStore} when the process cannot gain exclusive access to the chain file.
  ;;
 (class-ns ChainFileLockedException (§ extends BlockStoreException)
-    (defn #_"ChainFileLockedException" ChainFileLockedException'new-1 [#_"String" message]
-        (BlockStoreException'new-1 message)
-    )
-
-    (defn #_"ChainFileLockedException" ChainFileLockedException'new-1x [#_"Throwable" t]
-        (BlockStoreException'new-1x t)
+    (defn #_"ChainFileLockedException" ChainFileLockedException'new [#_"String" message]
+        (BlockStoreException'new message)
     )
 )
 
@@ -26453,7 +26426,7 @@
     (defn #_"void" BlockStore'''put-2 [#_"MemoryBlockStore" this, #_"StoredBlock" block]
         (sync this
             (when (nil? (:block-map this))
-                (throw (BlockStoreException'new-1 "MemoryBlockStore is closed"))
+                (throw+ (BlockStoreException'new "MemoryBlockStore is closed"))
             )
 
             (let [#_"Sha256Hash" hash (Message'''get-hash (:stored-header block))]
@@ -26468,7 +26441,7 @@
     (defn #_"StoredBlock" BlockStore'''get-2 [#_"MemoryBlockStore" this, #_"Sha256Hash" hash]
         (sync this
             (when (nil? (:block-map this))
-                (throw (BlockStoreException'new-1 "MemoryBlockStore is closed"))
+                (throw+ (BlockStoreException'new "MemoryBlockStore is closed"))
             )
 
             (.get (:block-map this), hash)
@@ -26479,7 +26452,7 @@
     #_override
     (defn #_"StoredBlock" BlockStore'''get-chain-head [#_"MemoryBlockStore" this]
         (when (nil? (:block-map this))
-            (throw (BlockStoreException'new-1 "MemoryBlockStore is closed"))
+            (throw+ (BlockStoreException'new "MemoryBlockStore is closed"))
         )
 
         (:chain-head this)
@@ -26489,7 +26462,7 @@
     #_override
     (defn #_"void" BlockStore'''set-chain-head [#_"MemoryBlockStore" this, #_"StoredBlock" head]
         (when (nil? (:block-map this))
-            (throw (BlockStoreException'new-1 "MemoryBlockStore is closed"))
+            (throw+ (BlockStoreException'new "MemoryBlockStore is closed"))
         )
 
         (§ assoc this :chain-head head)
@@ -26882,7 +26855,7 @@
         (sync this
             (ensure some? (:transaction-output-map this), "MemoryFullPrunedBlockStore is closed")
             (when (nil? (TransactionalHashMap''remove (:transaction-output-map this), (StoredTransactionOutPoint'new (:hash out), (:index out))))
-                (throw (BlockStoreException'new-1 "Tried to remove a UTXO from MemoryFullPrunedBlockStore that it didn't have!"))
+                (throw+ (BlockStoreException'new "Tried to remove a UTXO from MemoryFullPrunedBlockStore that it didn't have!"))
             )
         )
         nil
@@ -26962,14 +26935,14 @@
                         (.setLength raf, size)
                     )
                     (when-not (= (.length raf) size)
-                        (throw (BlockStoreException'new-1 (str "File size on disk does not match expected size: " (.length raf) " vs " size)))
+                        (throw+ (BlockStoreException'new (str "File size on disk does not match expected size: " (.length raf) " vs " size)))
                     )
                 )
 
                 (let [this (assoc this :random-access-file raf) #_"FileChannel" channel (.getChannel raf)
                       this (assoc this :file-lock (.tryLock channel))]
                     (when (nil? (:file-lock this))
-                        (throw (ChainFileLockedException'new-1 "Store file is already locked by another process"))
+                        (throw+ (ChainFileLockedException'new "Store file is already locked by another process"))
                     )
 
                     ;; Map it into memory read/write.  The kernel will take care of flushing writes to disk at the most
@@ -26983,7 +26956,7 @@
                         (if exists?
                             (let [#_"byte[]" magic (byte-array 4) _ (.get (:buffer this), magic)]
                                 (when-not (= (String. magic, Charsets/US_ASCII) SPVBlockStore'HEADER_MAGIC)
-                                    (throw (BlockStoreException'new-1 (str "Magic bytes do not match " SPVBlockStore'HEADER_MAGIC)))
+                                    (throw+ (BlockStoreException'new (str "Magic bytes do not match " SPVBlockStore'HEADER_MAGIC)))
                                 )
                             )
                             (do
@@ -27009,10 +26982,10 @@
                         (.close (:random-access-file this))
                     )
                     (catch IOException e'
-                        (throw (BlockStoreException'new-1x e'))
+                        (throw+ (BlockStoreException'new) e')
                     )
                 )
-                (throw (BlockStoreException'new-1x e))
+                (throw+ (BlockStoreException'new) e)
             )
         )
     )
@@ -27088,7 +27061,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"void" BlockStore'''put-2 [#_"SPVBlockStore" this, #_"StoredBlock" block]
-        (let-when [#_"MappedByteBuffer" buffer (:buffer this)] (some? buffer) => (throw (BlockStoreException'new-1 "Store closed"))
+        (let-when [#_"MappedByteBuffer" buffer (:buffer this)] (some? buffer) => (throw+ (BlockStoreException'new "Store closed"))
             (sync (:blockstore-lock this)
                 (let [#_"int" i (SPVBlockStore''get-ring-cursor this, buffer)
                       ;; Probably wrapped around.
@@ -27110,7 +27083,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"StoredBlock" BlockStore'''get-2 [#_"SPVBlockStore" this, #_"Sha256Hash" hash]
-        (let-when [#_"MappedByteBuffer" buffer (:buffer this)] (some? buffer) => (throw (BlockStoreException'new-1 "Store closed"))
+        (let-when [#_"MappedByteBuffer" buffer (:buffer this)] (some? buffer) => (throw+ (BlockStoreException'new "Store closed"))
             (sync (:blockstore-lock this)
                 (let [#_"StoredBlock" cached (.get (:block-cache this), hash)]
                     (cond
@@ -27152,7 +27125,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"StoredBlock" BlockStore'''get-chain-head [#_"SPVBlockStore" this]
-        (let-when [#_"MappedByteBuffer" buffer (:buffer this)] (some? buffer) => (throw (BlockStoreException'new-1 "Store closed"))
+        (let-when [#_"MappedByteBuffer" buffer (:buffer this)] (some? buffer) => (throw+ (BlockStoreException'new "Store closed"))
             (sync (:blockstore-lock this)
                 (when (nil? (:last-chain-head this))
                     (let [#_"byte[]" bytes (byte-array 32)]
@@ -27161,7 +27134,7 @@
                         (let [#_"Sha256Hash" hash (Sha256Hash'wrap-1-bytes bytes)
                               #_"StoredBlock" block (BlockStore'''get-2 this, hash)]
                             (when (nil? block)
-                                (throw (BlockStoreException'new-1 (str "Corrupted block store: could not find chain head: " hash)))
+                                (throw+ (BlockStoreException'new (str "Corrupted block store: could not find chain head: " hash)))
                             )
 
                             (§ assoc this :last-chain-head block)
@@ -27176,7 +27149,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_override
     (defn #_"void" BlockStore'''set-chain-head [#_"SPVBlockStore" this, #_"StoredBlock" head]
-        (let-when [#_"MappedByteBuffer" buffer (:buffer this)] (some? buffer) => (throw (BlockStoreException'new-1 "Store closed"))
+        (let-when [#_"MappedByteBuffer" buffer (:buffer this)] (some? buffer) => (throw+ (BlockStoreException'new "Store closed"))
             (sync (:blockstore-lock this)
                 (§ assoc this :last-chain-head head)
                 (let [#_"byte[]" bytes (Sha256Hash''get-bytes (Message'''get-hash (:stored-header head)))]
@@ -27196,7 +27169,7 @@
             (§ assoc this :buffer nil) ;; Allow it to be GCd and the underlying file mapping to go away.
             (.close (:random-access-file this))
             (catch IOException e
-                (throw (BlockStoreException'new-1x e))
+                (throw+ (BlockStoreException'new) e)
             )
         )
         nil
@@ -27788,8 +27761,8 @@
  ; random keys to use as source material for the seed.  Add a non-compromised key first!
  ;;
 (class-ns AllRandomKeysRotating (§ extends RuntimeException)
-    (defn #_"AllRandomKeysRotating" AllRandomKeysRotating'new []
-        (§ super RuntimeException'new)
+    (defn #_"AllRandomKeysRotating" AllRandomKeysRotating'new []
+        (RuntimeException'new)
     )
 )
 
@@ -28977,7 +28950,7 @@
  ;;
 (class-ns DefaultCoinSelector (§ implements CoinSelector)
     (defn #_"DefaultCoinSelector" DefaultCoinSelector'new []
-        {}
+        (hash-map)
     )
 
     #_override
@@ -29472,8 +29445,8 @@
  ; pre-HD random wallet without calling upgradeToDeterministic() beforehand.
  ;;
 (class-ns DeterministicUpgradeRequiredException (§ extends RuntimeException)
-    (defn #_"DeterministicUpgradeRequiredException" DeterministicUpgradeRequiredException'new []
-        (§ super RuntimeException'new)
+    (defn #_"DeterministicUpgradeRequiredException" DeterministicUpgradeRequiredException'new []
+        (RuntimeException'new)
     )
 )
 
@@ -29765,7 +29738,7 @@
             (when (< 0 (KeyChain'''num-keys (:basic this)))
                 (log/warn "No HD chain present but random keys are: you probably deserialized an old wallet.")
                 ;; If called from the wallet (most likely) it'll try to upgrade us, as it knows the rotation time but not the password.
-                (throw (DeterministicUpgradeRequiredException'new))
+                (throw+ (DeterministicUpgradeRequiredException'new))
             )
             ;; Otherwise we have no HD chains and no random keys: we are a new born!  So a random seed is fine.
             (KeyChainGroup''create-and-activate-new-hd-chain this)
@@ -29898,7 +29871,7 @@
     #_method
     (defn #_"boolean" KeyChainGroup''has-key [#_"KeyChainGroup" this, #_"ECKey" key]
         (or (KeyChain'''has-key (:basic this), key)
-            (some? (some #(KeyChain'''has-key %, key) (:chains this))))
+            (boolean (some #(KeyChain'''has-key %, key) (:chains this))))
     )
 
     #_override
@@ -30068,7 +30041,7 @@
 
         ;; Subtract one because the key rotation time might have been set to the creation time of the first known
         ;; good key, in which case, that's the one we want to find.
-        (let-when [#_"ECKey" key (BasicKeyChain''find-oldest-key-after (:basic this), (dec secs))] (some? key) => (throw (AllRandomKeysRotating'new))
+        (let-when [#_"ECKey" key (BasicKeyChain''find-oldest-key-after (:basic this), (dec secs))] (some? key) => (throw+ (AllRandomKeysRotating'new))
             (if (empty? (:chains this))
                 (log/info (str "Auto-upgrading pre-HD wallet to HD!\n"
                                "Wallet with existing HD chain is being re-upgraded due to change in key rotation time."))
@@ -30829,8 +30802,8 @@
   ; Class of exceptions thrown in {@link Wallet#completeTx(SendRequest)}.
   ;;
 (class-ns CompletionException (§ extends RuntimeException)
-    (defn #_"CompletionException" CompletionException'new []
-        (§ super RuntimeException'new)
+    (defn #_"CompletionException" CompletionException'new []
+        (RuntimeException'new)
     )
 )
 
@@ -30838,7 +30811,7 @@
   ; Thrown if the resultant transaction would violate the dust rules (an output that's too small to be worthwhile).
   ;;
 (class-ns DustySendRequested (§ extends CompletionException)
-    (defn #_"DustySendRequested" DustySendRequested'new []
+    (defn #_"DustySendRequested" DustySendRequested'new []
         (CompletionException'new)
     )
 )
@@ -30847,7 +30820,7 @@
   ; Thrown if there is more than one OP_RETURN output for the resultant transaction.
   ;;
 (class-ns MultipleOpReturnRequested (§ extends CompletionException)
-    (defn #_"MultipleOpReturnRequested" MultipleOpReturnRequested'new []
+    (defn #_"MultipleOpReturnRequested" MultipleOpReturnRequested'new []
         (CompletionException'new)
     )
 )
@@ -30858,7 +30831,7 @@
   ; Note that the missing field will be null in this case.
   ;;
 (class-ns CouldNotAdjustDownwards (§ extends CompletionException)
-    (defn #_"CouldNotAdjustDownwards" CouldNotAdjustDownwards'new []
+    (defn #_"CouldNotAdjustDownwards" CouldNotAdjustDownwards'new []
         (CompletionException'new)
     )
 )
@@ -30867,7 +30840,7 @@
   ; Thrown if the resultant transaction is too big for Bitcoin to process.  Try breaking up the amounts of value.
   ;;
 (class-ns ExceededMaxTransactionSize (§ extends CompletionException)
-    (defn #_"ExceededMaxTransactionSize" ExceededMaxTransactionSize'new []
+    (defn #_"ExceededMaxTransactionSize" ExceededMaxTransactionSize'new []
         (CompletionException'new)
     )
 )
@@ -31577,7 +31550,7 @@
     (defn- #_"void" Wallet''mark-keys-as-used [#_"Wallet" this, #_"Transaction" tx]
         (sync (:keychaingroup-lock this)
             (doseq [#_"TransactionOutput" output (Transaction''get-outputs tx)]
-                (try
+                (try+
                     (let [#_"Script" script (TransactionOutput''get-script-pub-key output)]
                         (cond
                             (Script''is-sent-to-raw-pub-key script)
@@ -31614,7 +31587,7 @@
         (sync (:keychaingroup-lock this)
             (let [#_"DeterministicSeed" seed (DeterministicKeyChain''get-seed (KeyChainGroup''get-active-key-chain (:key-chain-group this)))]
                 (when (nil? seed)
-                    (throw (MissingPrivateKeyException'new))
+                    (throw+ (MissingPrivateKeyException'new))
                 )
                 seed
             )
@@ -32267,7 +32240,7 @@
     ;;; Finds whether txA spends txB. ;;
     #_method
     (defn #_"boolean" Wallet''spends [#_"Wallet" __, #_"Transaction" a, #_"Transaction" b]
-        (some? (some #(.equals (Message'''get-hash (:outpoint %)), (Message'''get-hash b)) (Transaction''get-inputs a)))
+        (boolean (some #(.equals (Message'''get-hash (:outpoint %)), (Message'''get-hash b)) (Transaction''get-inputs a)))
     )
 
     #_method
@@ -33310,7 +33283,7 @@
             )
 
             (doseq [#_"Transaction" tx txns]
-                (try
+                (try+
                     (.. sb (append (Coin''to-friendly-string (Transaction''get-value-2 tx, this))))
                     (.. sb (append " total value (sends "))
                     (.. sb (append (Coin''to-friendly-string (Transaction''get-value-sent-from-me tx, this))))
@@ -33861,14 +33834,14 @@
                         (let [#_"int" __opReturnCount 0]
                             (doseq [#_"TransactionOutput" output outputs]
                                 (when (TransactionOutput''is-dust output)
-                                    (throw (DustySendRequested'new))
+                                    (throw+ (DustySendRequested'new))
                                 )
                                 (when (Script''is-op-return (TransactionOutput''get-script-pub-key output))
                                     (§ ass __opReturnCount (inc __opReturnCount))
                                 )
                             )
                             (when (< 1 __opReturnCount) ;; Only 1 OP_RETURN per transaction allowed.
-                                (throw (MultipleOpReturnRequested'new))
+                                (throw+ (MultipleOpReturnRequested'new))
                             )
                         )
                     )
@@ -33905,7 +33878,7 @@
                         (when (:empty-wallet req)
                             (let [#_"Coin" __feePerKb (or (:fee-per-kb req) Coin'ZERO)]
                                 (when-not (Wallet''adjust-output-downwards-for-fee this, (:tx req), __bestCoinSelection, __feePerKb, (:ensure-min-required-fee req))
-                                    (throw (CouldNotAdjustDownwards'new))
+                                    (throw+ (CouldNotAdjustDownwards'new))
                                 )
                             )
                         )
@@ -33934,7 +33907,7 @@
                         ;; Check size.
                         (let [#_"int" size (alength (Message''unsafe-bitcoin-serialize (:tx req)))]
                             (when (< Transaction'MAX_STANDARD_TX_SIZE size)
-                                (throw (ExceededMaxTransactionSize'new))
+                                (throw+ (ExceededMaxTransactionSize'new))
                             )
 
                             ;; Label the transaction as being self created.  We can use this later to spend its change output even before
@@ -33976,7 +33949,7 @@
                         (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output-1 in)]
                             (when (some? out) ;; Else missing connected output, assuming already signed.
                                 (let [#_"Script" inSig (TransactionInput''get-script-sig in) #_"Script" outKey (TransactionOutput''get-script-pub-key out)]
-                                    (try
+                                    (try+
                                         ;; We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
                                         ;; we sign missing pieces (to check this would require either assuming any signatures are signing
                                         ;; standard output types or a way to get processed signatures out of script execution).
@@ -34459,7 +34432,7 @@
                                 )
                                 (.add (:updated-output-values calc), (TransactionOutput''coin-value output))
                                 (when (Coin''is-greater-than (TransactionOutput''get-min-non-dust-value-1 output), (TransactionOutput''coin-value output))
-                                    (throw (CouldNotAdjustDownwards'new))
+                                    (throw+ (CouldNotAdjustDownwards'new))
                                 )
                             )
                             (Transaction''add-output-o tx, output)
@@ -34473,7 +34446,7 @@
                         ;; Can we afford this?
                         (when (neg? (.compareTo (:value-gathered selection), __valueNeeded))
                             (let [#_"Coin" missing (Coin''subtract __valueNeeded, (:value-gathered selection))]
-                                (throw (InsufficientMoneyException'new-1 missing))
+                                (throw+ (InsufficientMoneyException'new missing))
                             )
                         )
 
@@ -34495,7 +34468,7 @@
                                                     (TransactionOutput''set-value __firstOutput, (Coin''subtract (TransactionOutput''coin-value __firstOutput), __missingToNotBeDust))
                                                     (.set (:updated-output-values calc), 0, (TransactionOutput''coin-value __firstOutput))
                                                     (when (TransactionOutput''is-dust __firstOutput)
-                                                        (throw (CouldNotAdjustDownwards'new))
+                                                        (throw+ (CouldNotAdjustDownwards'new))
                                                     )
                                                 )
                                             )
@@ -34555,7 +34528,7 @@
     (defn- #_"int" Wallet''estimate-bytes-for-signing [#_"Wallet" this, #_"CoinSelection" selection]
         (§ let [#_"int" size 0]
             (doseq [#_"TransactionOutput" output (:gathered selection)]
-                (try
+                (try+
                     (let [#_"Script" script (TransactionOutput''get-script-pub-key output)
                           #_"ECKey" key nil
                           #_"Script" redeem nil]
@@ -34761,7 +34734,7 @@
                         )
                     )
                     (when __allChainsRotating
-                        (try
+                        (try+
                             (cond (empty? (KeyChainGroup''get-imported-keys (:key-chain-group this)))
                                 (do
                                     (log/info "All HD chains are currently rotating and we have no random keys, creating fresh HD chain ...")
