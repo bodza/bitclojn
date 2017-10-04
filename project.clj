@@ -1,6 +1,7 @@
 (defproject bitclojn "x.y.z"
     :dependencies [[org.clojure/clojure "1.8.0"]
                    [org.clojure/tools.logging "0.4.0"]
+                   [slingshot "0.12.2"]
                    [com.madgag.spongycastle/core "1.52.0.0"]
                    [com.google.guava/guava "22.0-android"]]
     :plugins [[lein-try "0.4.3"]]

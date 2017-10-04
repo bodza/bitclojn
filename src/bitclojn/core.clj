@@ -1,5 +1,5 @@
 (ns bitclojn.slang
-    (:refer-clojure :exclude [defn- ensure sync]))
+    (:refer-clojure :exclude [ensure sync]))
 
 (defmacro § [& _])
 (defmacro ß [& _])
@@ -7,9 +7,6 @@
 (defmacro def-
     ([s] `(def ~(vary-meta s assoc :private true)))
     ([s i] `(def ~(vary-meta s assoc :private true) ~i)))
-
-(defmacro def- [& _] `(def ~@_))
-(defmacro defn- [& _] `(defn ~@_))
 
 (defmacro any
     ([f x y] `(~f ~x ~y))
@@ -52,7 +49,7 @@
 (defmacro sync [lock & _] `(do (ensure some? ~lock) ~@_))
 
 (ns bitclojn.core
-    (:refer-clojure :exclude [defn- ensure sync])
+    (:refer-clojure :exclude [ensure sync])
     (:import [com.google.common.base Charsets Joiner MoreObjects Splitter Stopwatch Throwables]
              [com.google.common.collect ArrayListMultimap ImmutableList ImmutableMap ImmutableSet Iterables]
              [com.google.common.hash HashCode Hasher Hashing]
@@ -62,12 +59,12 @@
              [com.google.common.primitives Ints UnsignedBytes]
              [com.google.common.util.concurrent AbstractExecutionThreadService AbstractIdleService FutureCallback Futures ListenableFuture ListeningExecutorService MoreExecutors Runnables Service SettableFuture Uninterruptibles]
            #_[com.google.protobuf ByteString]
-             [java.io ByteArrayInputStream ByteArrayOutputStream File IOException RandomAccessFile UnsupportedEncodingException]
+             [java.io ByteArrayInputStream ByteArrayOutputStream File IOException RandomAccessFile]
              [java.lang.ref ReferenceQueue WeakReference]
              [java.math BigDecimal BigInteger RoundingMode]
              [java.net ConnectException Inet6Address InetAddress InetSocketAddress NoRouteToHostException Socket SocketAddress UnknownHostException]
              [java.nio BufferUnderflowException ByteBuffer ByteOrder]
-             [java.nio.channels CancelledKeyException ClosedChannelException FileChannel NotYetConnectedException SelectionKey ServerSocketChannel SocketChannel]
+             [java.nio.channels CancelledKeyException ClosedChannelException FileChannel FileChannel$MapMode NotYetConnectedException SelectionKey ServerSocketChannel SocketChannel]
              [java.nio.channels.spi SelectorProvider]
              [java.nio.charset Charset]
              [java.security MessageDigest NoSuchAlgorithmException SecureRandom SignatureException]
@@ -93,7 +90,8 @@
     )
     (:require [clojure set]
               [clojure.tools.logging :as log])
-    (:use [bitclojn slang])
+    (:use [slingshot slingshot]
+          [bitclojn slang])
 )
 
 (declare AbstractExecutionThreadService'''executor AbstractExecutionThreadService'''triggerShutdown)
@@ -114,7 +112,7 @@
 (declare Block''add-transaction-2 Block''add-transaction-3 Block''build-merkle-tree Block''calculate-hash Block''calculate-merkle-root Block''check-merkle-root Block''check-proof-of-work Block''check-sig-ops Block''check-timestamp Block''check-transactions Block''clone-as-header Block''copy-bitcoin-header-to Block''get-block-inflation Block''get-difficulty-target Block''get-difficulty-target-as-integer Block''get-hash-as-string Block''get-merkle-root Block''get-nonce Block''get-optimal-encoding-message-size Block''get-prev-block-hash Block''get-time Block''get-time-seconds Block''get-transactions Block''get-version Block''get-work Block''guess-transactions-length Block''has-transactions Block''is-bip34 Block''is-bip65 Block''is-bip66 Block''parse-transactions Block''set-difficulty-target Block''set-merkle-root Block''set-nonce Block''set-prev-block-hash Block''set-time Block''solve Block''un-cache-header Block''un-cache-transactions Block''verify-3 Block''verify-header Block''verify-transactions Block''write-header Block''write-transactions Block'ALLOWED_TIME_DRIFT Block'BLOCK_HEIGHT_GENESIS Block'BLOCK_HEIGHT_UNKNOWN Block'BLOCK_VERSION_BIP34 Block'BLOCK_VERSION_BIP65 Block'BLOCK_VERSION_BIP66 Block'BLOCK_VERSION_GENESIS Block'EASIEST_DIFFICULTY_TARGET Block'HEADER_SIZE Block'LARGEST_HASH Block'MAX_BLOCK_SIGOPS Block'MAX_BLOCK_SIZE Block'init Block'new-2 Block'new-2-bytes Block'new-4 Block'new-5 Block'new-6 Block'new-8)
 (declare BlockChain'''add-filtered-block BlockChain'''add-to-block-store-3 BlockChain'''add-to-block-store-4 BlockChain'''connect-transactions-2 BlockChain'''connect-transactions-3 BlockChain'''disconnect-transactions BlockChain'''do-set-chain-head BlockChain'''get-stored-block-in-current-scope BlockChain'''not-setting-chain-head BlockChain'''rollback-block-store BlockChain'''should-verify-transactions BlockChain''add-5 BlockChain''add-b BlockChain''add-new-best-block-listener-2 BlockChain''add-new-best-block-listener-3 BlockChain''add-reorganize-listener-2 BlockChain''add-reorganize-listener-3 BlockChain''add-transaction-received-listener-2 BlockChain''add-transaction-received-listener-3 BlockChain''add-wallet BlockChain''connect-block BlockChain''drain-orphan-blocks BlockChain''estimate-block-time BlockChain''get-best-chain-height BlockChain''get-block-store BlockChain''get-chain-head BlockChain''get-false-positive-rate BlockChain''get-height-future BlockChain''get-orphan-root BlockChain''get-version-tally BlockChain''handle-new-best-chain BlockChain''inform-listeners-for-new-block BlockChain''is-orphan BlockChain''remove-new-best-block-listener BlockChain''remove-reorganize-listener BlockChain''remove-transaction-received-listener BlockChain''remove-wallet BlockChain''reset-false-positive-estimate BlockChain''set-chain-head BlockChain''track-false-positives BlockChain''track-filtered-transactions BlockChain''try-connecting-orphans BlockChain'FP_ESTIMATOR_ALPHA BlockChain'FP_ESTIMATOR_BETA BlockChain'find-split BlockChain'get-median-timestamp-of-recent-blocks BlockChain'get-partial-chain BlockChain'inform-listener-for-new-transactions BlockChain'new BlockChain'send-transactions-to-listener)
 (declare BlockStore'''close BlockStore'''get-2 BlockStore'''get-chain-head BlockStore'''put-2 BlockStore'''set-chain-head)
-(declare BlockStoreException'new-1 BlockStoreException'new-1x BlockStoreException'new-2)
+(declare BlockStoreException'new-1 BlockStoreException'new-1x)
 (declare BlockVerifyFlag'enum-set)
 (declare BlocksDownloadedEventListener'''on-blocks-downloaded)
 (declare BloomFilter''apply-and-update-b BloomFilter''apply-and-update-t BloomFilter''contains BloomFilter''get-false-positive-rate BloomFilter''get-update-flag BloomFilter''insert-b BloomFilter''insert-e BloomFilter''matches-all BloomFilter''merge BloomFilter''set-match-all BloomFilter'MAX_FILTER_SIZE BloomFilter'MAX_HASH_FUNCS BloomFilter'init BloomFilter'murmur-hash3 BloomFilter'new-2 BloomFilter'new-3 BloomFilter'new-4 BloomFilter'rotate-left32)
@@ -179,7 +177,7 @@
 (declare HDKeyDerivation'MAX_CHILD_DERIVATION_ATTEMPTS HDKeyDerivation'RAND_INT HDKeyDerivation'assert-less-than-n HDKeyDerivation'assert-non-infinity HDKeyDerivation'assert-non-zero HDKeyDerivation'create-master-priv-key-from-bytes HDKeyDerivation'create-master-private-key HDKeyDerivation'create-master-pub-key-from-bytes HDKeyDerivation'derive-child-key-2c HDKeyDerivation'derive-child-key-2i HDKeyDerivation'derive-child-key-bytes-from-private HDKeyDerivation'derive-child-key-bytes-from-public HDKeyDerivation'derive-this-or-next-child-key)
 (declare HDUtils'PATH_JOINER HDUtils'append HDUtils'concat HDUtils'create-hmac-sha512-digest HDUtils'format-path HDUtils'hmac-sha512-2 HDUtils'hmac-sha512-2-bytes HDUtils'parse-path HDUtils'to-compressed)
 (declare HeadersMessage'MAX_HEADERS HeadersMessage'init HeadersMessage'new-2 HeadersMessage'new-2-bytes)
-(declare InsufficientMoneyException'init InsufficientMoneyException'new-0 InsufficientMoneyException'new-1 InsufficientMoneyException'new-2)
+(declare InsufficientMoneyException'new-1 InsufficientMoneyException'new-2)
 (declare InventoryItem'MESSAGE_LENGTH InventoryItem'new)
 (declare InventoryItemType'enum-map InventoryItemType'for-code)
 (declare InventoryMessage''add-block InventoryMessage''add-transaction-2 InventoryMessage'MAX_INV_SIZE InventoryMessage'new-1 InventoryMessage'new-2 InventoryMessage'new-4 InventoryMessage'with)
@@ -232,7 +230,7 @@
 (declare PeerConnectedEventListener'''on-peer-connected)
 (declare PeerDisconnectedEventListener'''on-peer-disconnected)
 (declare PeerDiscovery'''get-peers PeerDiscovery'''shutdown)
-(declare PeerDiscoveryException'new-0 PeerDiscoveryException'new-1 PeerDiscoveryException'new-1x PeerDiscoveryException'new-2)
+(declare PeerDiscoveryException'new-1 PeerDiscoveryException'new-1x)
 (declare PeerFilterProvider'''begin-bloom-filter-calculation PeerFilterProvider'''end-bloom-filter-calculation PeerFilterProvider'''get-bloom-filter-4 PeerFilterProvider'''get-bloom-filter-element-count PeerFilterProvider'''get-earliest-key-creation-time)
 (declare PeerGroup''add-address-i PeerGroup''add-address-p PeerGroup''add-blocks-downloaded-event-listener-2 PeerGroup''add-blocks-downloaded-event-listener-3 PeerGroup''add-chain-download-started-event-listener-2 PeerGroup''add-chain-download-started-event-listener-3 PeerGroup''add-connected-event-listener-2 PeerGroup''add-connected-event-listener-3 PeerGroup''add-disconnected-event-listener-2 PeerGroup''add-disconnected-event-listener-3 PeerGroup''add-discovered-event-listener-2 PeerGroup''add-discovered-event-listener-3 PeerGroup''add-get-data-event-listener-2 PeerGroup''add-get-data-event-listener-3 PeerGroup''add-inactive PeerGroup''add-on-transaction-broadcast-listener-2 PeerGroup''add-on-transaction-broadcast-listener-3 PeerGroup''add-peer-discovery PeerGroup''add-peer-filter-provider PeerGroup''add-pre-message-received-event-listener-2 PeerGroup''add-pre-message-received-event-listener-3 PeerGroup''add-wallet PeerGroup''await-running PeerGroup''await-terminated PeerGroup''broadcast-transaction-3 PeerGroup''connect-to-2 PeerGroup''connect-to-4 PeerGroup''connect-to-local-host PeerGroup''count-connected-and-pending-peers PeerGroup''create-peer PeerGroup''create-private-executor PeerGroup''discover-peers PeerGroup''download-block-chain PeerGroup''find-peers-of-at-least-version PeerGroup''find-peers-with-service-mask PeerGroup''get-connected-peers PeerGroup''get-download-peer PeerGroup''get-fast-catchup-time-secs PeerGroup''get-max-connections PeerGroup''get-max-peers-to-discover-count PeerGroup''get-min-broadcast-connections PeerGroup''get-min-required-protocol-version PeerGroup''get-most-common-chain-height PeerGroup''get-pending-peers PeerGroup''get-ping-interval-msec PeerGroup''get-use-localhost-peer-when-possible PeerGroup''get-version-message PeerGroup''handle-get-data PeerGroup''handle-new-peer PeerGroup''handle-peer-death PeerGroup''is-bloom-filtering-enabled PeerGroup''is-running PeerGroup''maybe-check-for-localhost-peer PeerGroup''num-connected-peers PeerGroup''recalculate-fast-catchup-and-filter PeerGroup''remove-blocks-downloaded-event-listener PeerGroup''remove-chain-download-started-event-listener PeerGroup''remove-connected-event-listener PeerGroup''remove-disconnected-event-listener PeerGroup''remove-discovered-event-listener PeerGroup''remove-get-data-event-listener PeerGroup''remove-on-transaction-broadcast-listener PeerGroup''remove-peer-filter-provider PeerGroup''remove-pre-message-received-event-listener PeerGroup''remove-wallet PeerGroup''select-download-peer PeerGroup''set-bloom-filter-false-positive-rate PeerGroup''set-bloom-filtering-enabled PeerGroup''set-connect-timeout-millis PeerGroup''set-download-peer PeerGroup''set-download-tx-dependencies PeerGroup''set-fast-catchup-time-secs PeerGroup''set-max-connections PeerGroup''set-max-peers-to-discover-count PeerGroup''set-min-broadcast-connections PeerGroup''set-min-required-protocol-version PeerGroup''set-peer-discovery-timeout-millis PeerGroup''set-ping-interval-msec PeerGroup''set-required-services PeerGroup''set-stall-threshold PeerGroup''set-use-localhost-peer-when-possible PeerGroup''set-version-message PeerGroup''setup-pinging PeerGroup''start PeerGroup''start-async PeerGroup''start-block-chain-download PeerGroup''start-block-chain-download-from-peer PeerGroup''stop PeerGroup''stop-async PeerGroup''trigger-connections PeerGroup''update-version-message-relay-txes-before-filter PeerGroup''wait-for-job-queue PeerGroup''wait-for-peers PeerGroup''wait-for-peers-of-version PeerGroup''wait-for-peers-with-service-mask PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE PeerGroup'DEFAULT_CONNECTIONS PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS PeerGroup'DEFAULT_PING_INTERVAL_MSEC PeerGroup'MAX_FP_RATE_INCREASE PeerGroup'MIN_PEER_DISCOVERY_INTERVAL PeerGroup'add-data-event-listener-to-peer PeerGroup'get-most-common-chain-height* PeerGroup'new-1-context PeerGroup'new-1-params PeerGroup'new-2-context PeerGroup'new-2-params PeerGroup'new-3-context PeerGroup'new-3-params PeerGroup'remove-data-event-listener-from-peer)
 (declare PeerListener'new)
@@ -259,7 +257,7 @@
 (declare RiskAnalysisResult'enum-set)
 (declare RuleViolation'enum-set)
 (declare SPVBlockChain'new-2-context SPVBlockChain'new-2-params SPVBlockChain'new-3-context SPVBlockChain'new-3-context* SPVBlockChain'new-3-params SPVBlockChain'new-3-params*)
-(declare SPVBlockStore''get-ring-cursor SPVBlockStore''init-new-store SPVBlockStore''set-ring-cursor SPVBlockStore'DEFAULT_CAPACITY SPVBlockStore'FILE_PROLOGUE_BYTES SPVBlockStore'HEADER_MAGIC SPVBlockStore'NOT_FOUND_MARKER SPVBlockStore'RECORD_SIZE SPVBlockStore'get-file-size SPVBlockStore'init SPVBlockStore'new-2 SPVBlockStore'new-3)
+(declare SPVBlockStore''get-ring-cursor SPVBlockStore''init-store SPVBlockStore''set-ring-cursor SPVBlockStore'DEFAULT_CAPACITY SPVBlockStore'FILE_PROLOGUE_BYTES SPVBlockStore'HEADER_MAGIC SPVBlockStore'NOT_FOUND_MARKER SPVBlockStore'RECORD_SIZE SPVBlockStore'get-file-size SPVBlockStore'new)
 (declare Script''correctly-spends-4 Script''correctly-spends-5 Script''create-empty-input-script Script''find-key-in-redeem Script''find-sig-in-redeem Script''get-chunks Script''get-cltv-payment-channel-expiry Script''get-cltv-payment-channel-recipient-pub-key Script''get-cltv-payment-channel-sender-pub-key Script''get-creation-time-seconds Script''get-from-address Script''get-number-of-bytes-required-to-spend Script''get-number-of-signatures-required-to-spend Script''get-program Script''get-pub-key Script''get-pub-key-hash Script''get-pub-keys Script''get-quick-program Script''get-script-sig-with-signature Script''get-script-type Script''get-sig-insertion-index Script''get-to-address-2 Script''get-to-address-3 Script''is-op-return Script''is-pay-to-script-hash Script''is-sent-to-address Script''is-sent-to-cltv-payment-channel Script''is-sent-to-multi-sig Script''is-sent-to-raw-pub-key Script''parse Script''set-creation-time-seconds Script'ALL_VERIFY_FLAGS Script'MAX_OPS_PER_SCRIPT Script'MAX_P2SH_SIGOPS Script'MAX_PUBKEYS_PER_MULTISIG Script'MAX_SCRIPT_ELEMENT_SIZE Script'MAX_SCRIPT_SIZE Script'MAX_STACK_SIZE Script'SIG_SIZE Script'STANDARD_TRANSACTION_SCRIPT_CHUNKS Script'cast-to-big-integer-2 Script'cast-to-big-integer-3 Script'cast-to-bool Script'check-sequence Script'create-input-script-1 Script'create-input-script-2 Script'create-multi-sig-output-script Script'decode-from-op-n Script'encode-to-op-n Script'equals-range Script'execute-check-lock-time-verify Script'execute-check-sequence-verify Script'execute-check-sig Script'execute-multi-sig Script'execute-script-5 Script'get-p2sh-sig-op-count Script'get-sig-op-count-1 Script'get-sig-op-count-2 Script'init Script'new-0 Script'new-1 Script'new-1-bytes Script'new-2 Script'remove-all-instances-of Script'remove-all-instances-of-op Script'write-bytes)
 (declare ScriptBuilder''add-chunk-2 ScriptBuilder''add-chunk-3 ScriptBuilder''big-num-2 ScriptBuilder''big-num-3 ScriptBuilder''build ScriptBuilder''data-2 ScriptBuilder''data-3 ScriptBuilder''number-2 ScriptBuilder''number-3 ScriptBuilder''op-2 ScriptBuilder''op-3 ScriptBuilder''small-num-2 ScriptBuilder''small-num-3 ScriptBuilder'create-cltv-payment-channel-input-2 ScriptBuilder'create-cltv-payment-channel-input-2-bytes ScriptBuilder'create-cltv-payment-channel-output ScriptBuilder'create-cltv-payment-channel-p2sh-input ScriptBuilder'create-cltv-payment-channel-p2sh-refund ScriptBuilder'create-cltv-payment-channel-refund ScriptBuilder'create-input-script-1 ScriptBuilder'create-input-script-2 ScriptBuilder'create-multi-sig-input-script ScriptBuilder'create-multi-sig-input-script-bytes-1 ScriptBuilder'create-multi-sig-input-script-bytes-2 ScriptBuilder'create-multi-sig-output-script ScriptBuilder'create-op-return-script ScriptBuilder'create-output-script-1a ScriptBuilder'create-output-script-1e ScriptBuilder'create-p2sh-multi-sig-input-script ScriptBuilder'create-p2sh-output-script-1 ScriptBuilder'create-p2sh-output-script-1-bytes ScriptBuilder'create-p2sh-output-script-2 ScriptBuilder'create-redeem-script ScriptBuilder'init ScriptBuilder'new-0 ScriptBuilder'new-1 ScriptBuilder'update-script-with-signature)
 (declare ScriptChunk''decode-op-n ScriptChunk''equals-op-code ScriptChunk''get-start-location-in-program ScriptChunk''is-op-code ScriptChunk''is-push-data ScriptChunk''is-shortest-possible-push-data ScriptChunk''write-chunk ScriptChunk'new)
@@ -302,8 +300,8 @@
 (declare TxOffsetPair'new)
 (declare UTXO'new)
 (declare UnknownMessage'new)
-(declare UserThread'WARNING_THRESHOLD UserThread'init UserThread'new)
-(declare Utils'BITCOIN_SIGNED_MESSAGE_HEADER Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES Utils'BIT_MASK Utils'HEX Utils'SPACE_JOINER Utils'UTC Utils'big-integer-to-bytes Utils'check-bit-le Utils'current-time-millis Utils'current-time-seconds Utils'date-time-format-1-date Utils'date-time-format-1-time Utils'decode-compact-bits Utils'decode-mpi Utils'encode-compact-bits Utils'encode-mpi Utils'format-message-for-signing Utils'int64-to-byte-stream-le Utils'max-of-most-freq Utils'now Utils'parse-as-hex-or-base58 Utils'read-int64 Utils'read-uint32 Utils'read-uint32be Utils'reverse-bytes Utils'set-bit-le Utils'sha256hash160 Utils'sleep Utils'to-bytes Utils'to-string Utils'uint32-to-byte-array-be Utils'uint32-to-byte-array-le Utils'uint32-to-byte-stream-le Utils'uint64-to-byte-array-le Utils'uint64-to-byte-stream-le)
+(declare UserThread'WARNING_THRESHOLD UserThread'new)
+(declare Utils'BITCOIN_SIGNED_MESSAGE_HEADER Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES Utils'BIT_MASK Utils'HEX Utils'SPACE_JOINER Utils'UTC Utils'big-integer-to-bytes Utils'check-bit-le Utils'current-time-millis Utils'current-time-seconds Utils'date-time-format-1-date Utils'date-time-format-1-time Utils'decode-compact-bits Utils'decode-mpi Utils'encode-compact-bits Utils'encode-mpi Utils'format-message-for-signing Utils'int64-to-byte-stream-le Utils'max-of-most-freq Utils'now Utils'parse-as-hex-or-base58 Utils'read-int64 Utils'read-uint32 Utils'read-uint32be Utils'reverse-bytes Utils'set-bit-le Utils'sha256hash160 Utils'sleep Utils'uint32-to-byte-array-be Utils'uint32-to-byte-array-le Utils'uint32-to-byte-stream-le Utils'uint64-to-byte-array-le Utils'uint64-to-byte-stream-le)
 (declare ValuesUsed'new)
 (declare VarInt''encode VarInt''get-original-size-in-bytes VarInt''get-size-in-bytes VarInt'init VarInt'new-1 VarInt'new-2 VarInt'size-of)
 (declare VerificationException'new-1 VerificationException'new-1x VerificationException'new-2)
@@ -318,7 +316,7 @@
 (declare WrongNetworkException'new)
 
 (§ ns bitclojn.base-listeners
-    (:refer-clojure :exclude [defn- ensure sync])
+    (:refer-clojure :exclude [ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -692,7 +690,7 @@
 )
 
 (§ ns bitclojn.base
-    (:refer-clojure :exclude [defn- ensure sync])
+    (:refer-clojure :exclude [ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -996,46 +994,6 @@
         (let [#_"DateFormat" iso8601 (SimpleDateFormat. "yyyy-MM-dd'T'HH:mm:ss'Z'", Locale/US)]
             (.setTimeZone iso8601, Utils'UTC)
             (.format iso8601, time)
-        )
-    )
-
-    ;;;
-     ; Constructs a new String by decoding the given bytes using the specified charset.
-     ;
-     ; This is a convenience method which wraps the checked exception with a RuntimeException.
-     ; The exception can never occur given the charsets
-     ; US-ASCII, ISO-8859-1, UTF-8, UTF-16, UTF-16LE or UTF-16BE.
-     ;
-     ; @param bytes The bytes to be decoded into characters.
-     ; @param charsetName The name of a supported {@linkplain java.nio.charset.Charset charset}.
-     ; @return the decoded String.
-     ;;
-    (defn #_"String" Utils'to-string [#_"byte[]" bytes, #_"String" charset]
-        (try
-            (String. bytes, charset)
-            (catch UnsupportedEncodingException e
-                (throw (RuntimeException. e))
-            )
-        )
-    )
-
-    ;;;
-     ; Encodes the given string into a sequence of bytes using the named charset.
-     ;
-     ; This is a convenience method which wraps the checked exception with a RuntimeException.
-     ; The exception can never occur given the charsets
-     ; US-ASCII, ISO-8859-1, UTF-8, UTF-16, UTF-16LE or UTF-16BE.
-     ;
-     ; @param str The string to encode into bytes.
-     ; @param charsetName The name of a supported {@linkplain java.nio.charset.Charset charset}.
-     ; @return the encoded bytes.
-     ;;
-    (defn #_"byte[]" Utils'to-bytes [#_"CharSequence" s, #_"String" charset]
-        (try
-            (.getBytes (.toString s), charset)
-            (catch UnsupportedEncodingException e
-                (throw (RuntimeException. e))
-            )
         )
     )
 
@@ -3698,7 +3656,7 @@
             ;; Note that the size read above includes the checksum bytes.
             (let [#_"byte[]" checksum (byte-array 4) _ (System/arraycopy header, (+ n 4), checksum, 0, 4)]
                 (hash-map
-                    #_"String" :command (Utils'to-string command, "US-ASCII")
+                    #_"String" :command (String. command, Charsets/US_ASCII)
                     #_"int" :size size
                     #_"byte[]" :checksum checksum
                 )
@@ -5940,7 +5898,7 @@
 )
 
 (class-ns MissingPrivateKeyException (§ extends RuntimeException)
-    (defn #_"MissingPrivateKeyException" MissingPrivateKeyException'new []
+    (defn #_"MissingPrivateKeyException" MissingPrivateKeyException'new []
         (§ super RuntimeException'new)
     )
 )
@@ -6576,7 +6534,7 @@
             (aset bytes 0 (byte (+ id 27 (if (ECKey''is-compressed this) 4 0))))
             (System/arraycopy (Utils'big-integer-to-bytes (:r sig), 32), 0, bytes, 1, 32)
             (System/arraycopy (Utils'big-integer-to-bytes (:s sig), 32), 0, bytes, 33, 32)
-            (String. (Base64/encode bytes), (Charset/forName "UTF-8"))
+            (String. (Base64/encode bytes), Charsets/UTF_8)
         )
     )
 
@@ -7917,28 +7875,18 @@
  ; Thrown to indicate that you don't have enough money available to perform the requested operation.
  ;;
 (class-ns InsufficientMoneyException (§ extends RuntimeException)
-    (defn- #_"InsufficientMoneyException" InsufficientMoneyException'init []
-        (hash-map
-            ;;;
-             ; Contains the number of satoshis that would have been required to complete the operation.
-             ;;
-            #_"Coin" :missing nil
-        )
-    )
-
-    (defn #_"InsufficientMoneyException" InsufficientMoneyException'new-0 []
-        (let [this (merge (§ super RuntimeException'new) (InsufficientMoneyException'init))]
-            (assoc this :missing nil)
-        )
-    )
-
-    (defn #_"InsufficientMoneyException" InsufficientMoneyException'new-1 [#_"Coin" missing]
+    (defn #_"InsufficientMoneyException" InsufficientMoneyException'new-1 [#_"Coin" missing]
         (InsufficientMoneyException'new-2 missing, (str "Insufficient money, missing " (Coin''to-friendly-string missing)))
     )
 
-    (defn #_"InsufficientMoneyException" InsufficientMoneyException'new-2 [#_"Coin" missing, #_"String" message]
-        (let [this (merge (§ super RuntimeException'new message) (InsufficientMoneyException'init))]
-            (assoc this :missing (ensure some? missing))
+    (defn #_"InsufficientMoneyException" InsufficientMoneyException'new-2 [#_"Coin" missing, #_"String" message]
+        (merge (§ super RuntimeException'new message)
+            (hash-map
+                ;;;
+                 ; Contains the number of satoshis that would have been required to complete the operation.
+                 ;;
+                #_"Coin" :missing (ensure some? missing)
+            )
         )
     )
 )
@@ -8534,7 +8482,7 @@
     #_method
     (defn #_"String" Message''read-str [#_"Message" this]
         (let [#_"long" n (Message''read-var-int-1 this)]
-            (if (zero? n) "" (Utils'to-string (Message''read-bytes this, (int n)), "UTF-8")) ;; optimization for empty strings
+            (if (zero? n) "" (String. (Message''read-bytes this, (int n)), Charsets/UTF_8)) ;; optimization for empty strings
         )
     )
 
@@ -9591,7 +9539,7 @@
     (defn- #_"void" PeerSocketHandler''exception-caught [#_"PeerSocketHandler" this, #_"Exception" e]
         (let [#_"PeerAddress" addr (PeerSocketHandler''get-address this)
               #_"String" s (if (some? addr) (.toString addr) "?")]
-            (cond (or (instance? ConnectException e) (instance? IOException e))
+            (cond (instance? IOException e)
                 (do
                     ;; Short message for network errors
                     (log/info (str s " - " (.getMessage e)))
@@ -14122,15 +14070,15 @@
 )
 
 (class-ns ProtocolException (§ extends VerificationException)
-    (defn #_"ProtocolException" ProtocolException'new-1 [#_"String" msg]
+    (defn #_"ProtocolException" ProtocolException'new-1 [#_"String" msg]
         (VerificationException'new-1 msg)
     )
 
-    (defn #_"ProtocolException" ProtocolException'new-1x [#_"Exception" e]
+    (defn #_"ProtocolException" ProtocolException'new-1x [#_"Exception" e]
         (VerificationException'new-1x e)
     )
 
-    (defn #_"ProtocolException" ProtocolException'new-2 [#_"String" msg, #_"Exception" e]
+    (defn #_"ProtocolException" ProtocolException'new-2 [#_"String" msg, #_"Exception" e]
         (VerificationException'new-2 msg, e)
     )
 )
@@ -14144,7 +14092,7 @@
  ; required to trigger it.
  ;;
 (class-ns PrunedException (§ extends RuntimeException)
-    (defn #_"PrunedException" PrunedException'new [#_"Sha256Hash" hash]
+    (defn #_"PrunedException" PrunedException'new [#_"Sha256Hash" hash]
         (merge (§ super RuntimeException'new (.toString hash))
             (hash-map
                 #_"Sha256Hash" :hash hash
@@ -14235,11 +14183,11 @@
 
     #_override
     (defn #_"void" Message'''bitcoin-serialize-to-stream [#_"RejectMessage" this, #_"ByteArrayOutputStream" baos]
-        (let [#_"byte[]" __messageBytes (.getBytes (:message this), "UTF-8")]
+        (let [#_"byte[]" __messageBytes (.getBytes (:message this), Charsets/UTF_8)]
             (.write baos, (VarInt''encode (VarInt'new-1 (alength __messageBytes))))
             (.write baos, __messageBytes)
             (.write baos, (-> this :code :code))
-            (let [#_"byte[]" __reasonBytes (.getBytes (:reason this), "UTF-8")]
+            (let [#_"byte[]" __reasonBytes (.getBytes (:reason this), Charsets/UTF_8)]
                 (.write baos, (VarInt''encode (VarInt'new-1 (alength __reasonBytes))))
                 (.write baos, __reasonBytes)
                 (when (any = (:message this) "block" "tx")
@@ -14324,7 +14272,7 @@
  ; some peers may never do so.
  ;;
 (class-ns RejectedTransactionException (§ extends RuntimeException)
-    (defn #_"RejectedTransactionException" RejectedTransactionException'new [#_"Transaction" tx, #_"RejectMessage" message]
+    (defn #_"RejectedTransactionException" RejectedTransactionException'new [#_"Transaction" tx, #_"RejectMessage" message]
         (merge (§ super RuntimeException'new (.toString message))
             (hash-map
                 ;;; The original Transaction object whose broadcast was rejected. ;;
@@ -14337,7 +14285,7 @@
 )
 
 (class-ns ScriptException (§ extends VerificationException)
-    (defn #_"ScriptException" ScriptException'new [#_"ScriptError" err, #_"String" msg]
+    (defn #_"ScriptException" ScriptException'new [#_"ScriptError" err, #_"String" msg]
         (merge (VerificationException'new-1 msg)
             (hash-map
                 #_"ScriptError" :err err
@@ -18150,10 +18098,10 @@
                 #_"Object" :confidence-lock (Object.)
 
                 #_"LinkedHashMap<Sha256Hash, WeakConfidenceReference>" :table
-                    (§ reify LinkedHashMap #_"<Sha256Hash, WeakConfidenceReference>"
+                    (proxy [LinkedHashMap #_"<Sha256Hash, WeakConfidenceReference>"] []
                         #_foreign
                         #_override
-                        (#_"boolean" removeEldestEntry [#_"LinkedHashMap" this, #_"Map.Entry<Sha256Hash, WeakConfidenceReference>" _eldest]
+                        (#_"boolean" removeEldestEntry [#_"LinkedHashMap" #_this, #_"Map.Entry<Sha256Hash, WeakConfidenceReference>" _eldest]
                             ;; An arbitrary choice to stop the memory used by tracked transactions getting too huge in the event
                             ;; of some kind of DoS attack.
                             (< size (.size this))
@@ -18453,15 +18401,15 @@
 )
 
 (class-ns VerificationException (§ extends RuntimeException)
-    (defn #_"VerificationException" VerificationException'new-1 [#_"String" msg]
+    (defn #_"VerificationException" VerificationException'new-1 [#_"String" msg]
         (§ super RuntimeException'new msg)
     )
 
-    (defn #_"VerificationException" VerificationException'new-1x [#_"Exception" e]
+    (defn #_"VerificationException" VerificationException'new-1x [#_"Exception" e]
         (§ super RuntimeException'new e)
     )
 
-    (defn #_"VerificationException" VerificationException'new-2 [#_"String" msg, #_"Throwable" t]
+    (defn #_"VerificationException" VerificationException'new-2 [#_"String" msg, #_"Throwable" t]
         (§ super RuntimeException'new msg, t)
     )
 )
@@ -18626,7 +18574,7 @@
         (Utils'uint32-to-byte-stream-le 0, baos)
         (Utils'uint32-to-byte-stream-le 0, baos)
         ;; Now comes subVer.
-        (let [#_"byte[]" bytes (.getBytes (:sub-ver this), "UTF-8")]
+        (let [#_"byte[]" bytes (.getBytes (:sub-ver this), Charsets/UTF_8)]
             (.write baos, (VarInt''encode (VarInt'new-1 (alength bytes))))
             (.write baos, bytes)
             ;; Size of known block chain.
@@ -18833,7 +18781,7 @@
 )
 
 (§ ns bitclojn.crypto
-    (:refer-clojure :exclude [defn- ensure sync])
+    (:refer-clojure :exclude [ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -19586,7 +19534,7 @@
 )
 
 (class-ns HDDerivationException (§ extends RuntimeException)
-    (defn #_"HDDerivationException" HDDerivationException'new [#_"String" message]
+    (defn #_"HDDerivationException" HDDerivationException'new [#_"String" message]
         (§ super RuntimeException'new message)
     )
 )
@@ -20330,11 +20278,11 @@
  ; Exceptions thrown by the MnemonicCode module.
  ;;
 (class-ns MnemonicException (§ extends RuntimeException)
-    (defn #_"MnemonicException" MnemonicException'new-0 []
+    (defn #_"MnemonicException" MnemonicException'new-0 []
         (§ super RuntimeException'new)
     )
 
-    (defn #_"MnemonicException" MnemonicException'new-1 [#_"String" msg]
+    (defn #_"MnemonicException" MnemonicException'new-1 [#_"String" msg]
         (§ super RuntimeException'new msg)
     )
 )
@@ -20343,7 +20291,7 @@
  ; Thrown when an argument to MnemonicCode is the wrong length.
  ;;
 (class-ns MnemonicLengthException (§ extends MnemonicException)
-    (defn #_"MnemonicLengthException" MnemonicLengthException'new [#_"String" msg]
+    (defn #_"MnemonicLengthException" MnemonicLengthException'new [#_"String" msg]
         (MnemonicException'new-1 msg)
     )
 )
@@ -20352,7 +20300,7 @@
  ; Thrown when a list of MnemonicCode words fails the checksum check.
  ;;
 (class-ns MnemonicChecksumException (§ extends MnemonicException)
-    (defn #_"MnemonicChecksumException" MnemonicChecksumException'new []
+    (defn #_"MnemonicChecksumException" MnemonicChecksumException'new []
         (MnemonicException'new-0)
     )
 )
@@ -20361,7 +20309,7 @@
  ; Thrown when a word is encountered which is not in the MnemonicCode's word list.
  ;;
 (class-ns MnemonicWordException (§ extends MnemonicException)
-    (defn #_"MnemonicWordException" MnemonicWordException'new [#_"String" word]
+    (defn #_"MnemonicWordException" MnemonicWordException'new [#_"String" word]
         (merge (MnemonicException'new-0)
             (hash-map
                 ;;; Contains the word that was not found in the word list. ;;
@@ -20385,12 +20333,12 @@
 (class-ns PBKDF2SHA512
     #_throws #_[ "Exception" ]
     (defn- #_"byte[]" PBKDF2SHA512'f [#_"String" p, #_"String" s, #_"int" c, #_"int" i]
-        (let [#_"SecretKeySpec" key (SecretKeySpec. (.getBytes p, "UTF-8"), "HmacSHA512")
+        (let [#_"SecretKeySpec" key (SecretKeySpec. (.getBytes p, Charsets/UTF_8), "HmacSHA512")
               #_"Mac" mac (Mac/getInstance (.getAlgorithm key)) _ (.init mac, key)]
 
             (loop-when [#_"byte[]" xor' nil #_"byte[]" xor nil #_"int" j 0] (< j c) => xor
                 (if (zero? j)
-                    (let [#_"byte[]" s* (.getBytes s, "UTF-8")
+                    (let [#_"byte[]" s* (.getBytes s, Charsets/UTF_8)
                           #_"byte[]" i* (let [#_"ByteBuffer" b* (ByteBuffer/allocate 4)] (.order b*, ByteOrder/BIG_ENDIAN) (.putInt b*, i) (.array b*))
                           #_"byte[]" u* (byte-array (+ (alength s*) (alength i*)))]
 
@@ -20613,7 +20561,7 @@
 )
 
 (§ ns bitclojn.kits
-    (:refer-clojure :exclude [defn- ensure sync])
+    (:refer-clojure :exclude [ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -20752,7 +20700,7 @@
     #_throws #_[ "BlockStoreException" ]
     #_method
     (defn #_"BlockStore" WalletAppKit''provide-block-store [#_"WalletAppKit" this, #_"File" file]
-        (SPVBlockStore'new-2 (:params this), file)
+        (SPVBlockStore'new (:params this), file)
     )
 
     ;;;
@@ -20805,7 +20753,7 @@
                                 (throw (IOException. "Failed to delete chain file in preparation for restore."))
                             )
 
-                            (§ assoc this :v-store (SPVBlockStore'new-2 (:params this), __chainFile))
+                            (§ assoc this :v-store (SPVBlockStore'new (:params this), __chainFile))
                         )
                     )
                 )
@@ -20944,7 +20892,7 @@
 )
 
 (§ ns bitclojn.net
-    (:refer-clojure :exclude [defn- ensure sync])
+    (:refer-clojure :exclude [ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -21856,7 +21804,7 @@
 )
 
 (§ ns bitclojn.net-discovery
-    (:refer-clojure :exclude [defn- ensure sync])
+    (:refer-clojure :exclude [ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -22082,20 +22030,12 @@
 )
 
 (class-ns PeerDiscoveryException (§ extends RuntimeException)
-    (defn #_"PeerDiscoveryException" PeerDiscoveryException'new-0 []
-        (§ super RuntimeException'new)
-    )
-
-    (defn #_"PeerDiscoveryException" PeerDiscoveryException'new-1 [#_"String" message]
+    (defn #_"PeerDiscoveryException" PeerDiscoveryException'new-1 [#_"String" message]
         (§ super RuntimeException'new message)
     )
 
-    (defn #_"PeerDiscoveryException" PeerDiscoveryException'new-1x [#_"Throwable" t]
+    (defn #_"PeerDiscoveryException" PeerDiscoveryException'new-1x [#_"Throwable" t]
         (§ super RuntimeException'new t)
-    )
-
-    (defn #_"PeerDiscoveryException" PeerDiscoveryException'new-2 [#_"String" message, #_"Throwable" t]
-        (§ super RuntimeException'new message, t)
     )
 )
 
@@ -22202,7 +22142,7 @@
 )
 
 (§ ns bitclojn.params
-    (:refer-clojure :exclude [defn- ensure sync])
+    (:refer-clojure :exclude [ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -23073,7 +23013,7 @@
 )
 
 (§ ns bitclojn.script
-    (:refer-clojure :exclude [defn- ensure sync])
+    (:refer-clojure :exclude [ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -25992,7 +25932,7 @@
 )
 
 (§ ns bitclojn.signers
-    (:refer-clojure :exclude [defn- ensure sync])
+    (:refer-clojure :exclude [ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -26251,13 +26191,13 @@
 )
 
 (class-ns MissingSignatureException (§ extends RuntimeException)
-    (defn #_"MissingSignatureException" MissingSignatureException'new []
+    (defn #_"MissingSignatureException" MissingSignatureException'new []
         (§ super RuntimeException'new)
     )
 )
 
 (§ ns bitclojn.store
-    (:refer-clojure :exclude [defn- ensure sync])
+    (:refer-clojure :exclude [ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -26316,16 +26256,12 @@
  ; Thrown when something goes wrong with storing a block.  Examples: out of disk space.
  ;;
 (class-ns BlockStoreException (§ extends RuntimeException)
-    (defn #_"BlockStoreException" BlockStoreException'new-1 [#_"String" message]
+    (defn #_"BlockStoreException" BlockStoreException'new-1 [#_"String" message]
         (§ super RuntimeException'new message)
     )
 
-    (defn #_"BlockStoreException" BlockStoreException'new-1x [#_"Throwable" t]
+    (defn #_"BlockStoreException" BlockStoreException'new-1x [#_"Throwable" t]
         (§ super RuntimeException'new t)
-    )
-
-    (defn #_"BlockStoreException" BlockStoreException'new-2 [#_"String" message, #_"Throwable" t]
-        (§ super RuntimeException'new message, t)
     )
 )
 
@@ -26333,11 +26269,11 @@
  ; Thrown by {@link SPVBlockStore} when the process cannot gain exclusive access to the chain file.
  ;;
 (class-ns ChainFileLockedException (§ extends BlockStoreException)
-    (defn #_"ChainFileLockedException" ChainFileLockedException'new-1 [#_"String" message]
+    (defn #_"ChainFileLockedException" ChainFileLockedException'new-1 [#_"String" message]
         (BlockStoreException'new-1 message)
     )
 
-    (defn #_"ChainFileLockedException" ChainFileLockedException'new-1x [#_"Throwable" t]
+    (defn #_"ChainFileLockedException" ChainFileLockedException'new-1x [#_"Throwable" t]
         (BlockStoreException'new-1x t)
     )
 )
@@ -26487,10 +26423,10 @@
     (defn- #_"MemoryBlockStore" MemoryBlockStore'init []
         (hash-map
             #_"LinkedHashMap<Sha256Hash, StoredBlock>" :block-map
-                (§ reify LinkedHashMap #_"<Sha256Hash, StoredBlock>"
+                (proxy [LinkedHashMap #_"<Sha256Hash, StoredBlock>"] []
                     #_foreign
                     #_override
-                    (#_"boolean" removeEldestEntry [#_"LinkedHashMap" this, #_"Map.Entry<Sha256Hash, StoredBlock>" _eldest]
+                    (#_"boolean" removeEldestEntry [#_"LinkedHashMap" #_this, #_"Map.Entry<Sha256Hash, StoredBlock>" _eldest]
                         (< 5000 (.size this))
                     )
                 )
@@ -27014,58 +26950,71 @@
     ;; not provide the removeEldestEntry control.
     (def- #_"Object" SPVBlockStore'NOT_FOUND_MARKER (Object.))
 
-    (defn- #_"SPVBlockStore" SPVBlockStore'init []
-        (hash-map
-            #_volatile
-            #_"MappedByteBuffer" :buffer nil
-            #_"int" :capacity 0
-            #_"NetworkParameters" :params nil
-
-            #_"Object" :blockstore-lock (Object.)
-
-            ;; The entire ring-buffer is mmapped and accessing it should be as fast as accessing regular memory once it's
-            ;; faulted in.  Unfortunately, in theory practice and theory are the same.  In practice they aren't.
-            ;;
-            ;; MMapping a file in Java does not give us a byte[] as you may expect but rather a ByteBuffer, and whilst on
-            ;; the OpenJDK/Oracle JVM calls into the get() methods are compiled down to inlined native code on Android each
-            ;; get() call is actually a full-blown JNI method under the hood, meaning it's unbelievably slow.  The caches
-            ;; below let us stay in the JIT-compiled Java world without expensive JNI transitions and make a 10x difference!
-            #_"LinkedHashMap<Sha256Hash, StoredBlock>" :block-cache
-                (§ reify LinkedHashMap #_"<Sha256Hash, StoredBlock>"
-                    #_foreign
-                    #_override
-                    (#_"boolean" removeEldestEntry [#_"LinkedHashMap" this, #_"Map.Entry<Sha256Hash, StoredBlock>" _eldest]
-                        (< 2050 (.size this)) ;; Slightly more than the difficulty transition period.
-                    )
-                )
-
-            #_"LinkedHashMap<Sha256Hash, Object>" :not-found-cache
-                (§ reify LinkedHashMap #_"<Sha256Hash, Object>"
-                    #_foreign
-                    #_override
-                    (#_"boolean" removeEldestEntry [#_"LinkedHashMap" this, #_"Map.Entry<Sha256Hash, Object>" _eldest]
-                        (< 100 (.size this)) ;; This was chosen arbitrarily.
-                    )
-                )
-
-            ;; Used to stop other applications/processes from opening the store.
-            #_"FileLock" :file-lock nil
-            #_"RandomAccessFile" :random-access-file nil
-
-            #_"StoredBlock" :last-chain-head nil
-        )
-    )
-
-    ;;;
-     ; Creates and initializes an SPV block store that can hold {@link #DEFAULT_CAPACITY} blocks.
-     ; Will create the given file if it's missing.  This operation will block on disk.
-     ;
-     ; @param file File to use for the block store.
-     ; @throws BlockStoreException if something goes wrong.
-     ;;
     #_throws #_[ "BlockStoreException" ]
-    (defn #_"SPVBlockStore" SPVBlockStore'new-2 [#_"NetworkParameters" params, #_"File" file]
-        (SPVBlockStore'new-3 params, file, SPVBlockStore'DEFAULT_CAPACITY)
+    #_method
+    (defn- #_"SPVBlockStore" SPVBlockStore''init-store [#_"SPVBlockStore" this, #_"File" file]
+        (try
+            (let [#_"boolean" exists? (.exists file) #_"RandomAccessFile" raf (RandomAccessFile. file, "rw")
+                  #_"long" size (SPVBlockStore'get-file-size (:capacity this))]
+                (if (not exists?)
+                    (do
+                        (log/info (str "Creating new SPV block chain file " file))
+                        (.setLength raf, size)
+                    )
+                    (when-not (= (.length raf) size)
+                        (throw (BlockStoreException'new-1 (str "File size on disk does not match expected size: " (.length raf) " vs " size)))
+                    )
+                )
+
+                (let [this (assoc this :random-access-file raf) #_"FileChannel" channel (.getChannel raf)
+                      this (assoc this :file-lock (.tryLock channel))]
+                    (when (nil? (:file-lock this))
+                        (throw (ChainFileLockedException'new-1 "Store file is already locked by another process"))
+                    )
+
+                    ;; Map it into memory read/write.  The kernel will take care of flushing writes to disk at the most
+                    ;; efficient times, which may mean that until the map is deallocated the data on disk is randomly
+                    ;; inconsistent.  However the only process accessing it is us, via this mapping, so our own view will
+                    ;; always be correct.  Once we establish the mmap the underlying file and channel can go away.  Note
+                    ;; that the details of mmapping vary between platforms.
+                    (let [this (assoc this :buffer (.map channel, FileChannel$MapMode/READ_WRITE, 0, size))]
+
+                        ;; Check or initialize the header bytes to ensure we don't try to open some random file.
+                        (if exists?
+                            (let [#_"byte[]" magic (byte-array 4) _ (.get (:buffer this), magic)]
+                                (when-not (= (String. magic, Charsets/US_ASCII) SPVBlockStore'HEADER_MAGIC)
+                                    (throw (BlockStoreException'new-1 (str "Magic bytes do not match " SPVBlockStore'HEADER_MAGIC)))
+                                )
+                            )
+                            (do
+                                (.put (:buffer this), (.getBytes SPVBlockStore'HEADER_MAGIC, Charsets/US_ASCII))
+                                ;; Insert the genesis block.
+                                (sync (:blockstore-lock this)
+                                    (SPVBlockStore''set-ring-cursor this, (:buffer this), SPVBlockStore'FILE_PROLOGUE_BYTES)
+                                )
+                                (let [#_"Block" header (Block''clone-as-header (:genesis-block (:params this)))
+                                      #_"StoredBlock" genesis (StoredBlock'new header, (Block''get-work header), 0)]
+                                    (BlockStore'''put-2 this, genesis)
+                                    (BlockStore'''set-chain-head this, genesis)
+                                )
+                            )
+                        )
+                        this
+                    )
+                )
+            )
+            (catch Exception e
+                (try
+                    (when (some? (:random-access-file this))
+                        (.close (:random-access-file this))
+                    )
+                    (catch IOException e'
+                        (throw (BlockStoreException'new-1x e'))
+                    )
+                )
+                (throw (BlockStoreException'new-1x e))
+            )
+        )
     )
 
     ;;;
@@ -27077,85 +27026,58 @@
      ; @throws BlockStoreException if something goes wrong.
      ;;
     #_throws #_[ "BlockStoreException" ]
-    (defn #_"SPVBlockStore" SPVBlockStore'new-3 [#_"NetworkParameters" params, #_"File" file, #_"int" capacity]
-        (ensure some? params)
-        (ensure some? file)
-        (assert-argument (< 0 capacity))
+    (defn #_"SPVBlockStore" SPVBlockStore'new
+        ([#_"NetworkParameters" params, #_"File" file] (SPVBlockStore'new params, file, SPVBlockStore'DEFAULT_CAPACITY))
+        ([#_"NetworkParameters" params, #_"File" file, #_"int" capacity]
+            (ensure some? params)
+            (ensure some? file)
+            (assert-argument (< 0 capacity))
 
-        (let [this (SPVBlockStore'init)]
-            (§ assoc this :params params, :capacity capacity)
-            (try
-                (let [#_"boolean" exists? (.exists file)]
-                    ;; Set up the backing file.
-                    (§ assoc this :random-access-file (RandomAccessFile. file, "rw"))
-                    (let [#_"long" size (SPVBlockStore'get-file-size capacity)]
-                        (cond (not exists?)
-                            (do
-                                (log/info (str "Creating new SPV block chain file " file))
-                                (.setLength (:random-access-file this), size)
-                            )
-                            (not= (.length (:random-access-file this)) size)
-                            (do
-                                (throw (BlockStoreException'new-1 (str "File size on disk does not match expected size: " (.length (:random-access-file this)) " vs " size)))
-                            )
-                        )
+            (let [this
+                    (hash-map
+                        #_"NetworkParameters" :params params
+                        #_"int" :capacity capacity
 
-                        (let [#_"FileChannel" channel (.getChannel (:random-access-file this))]
-                            (§ assoc this :file-lock (.tryLock channel))
-                            (when (nil? (:file-lock this))
-                                (throw (ChainFileLockedException'new-1 "Store file is already locked by another process"))
-                            )
+                        #_volatile
+                        #_"MappedByteBuffer" :buffer nil
 
-                            ;; Map it into memory read/write.  The kernel will take care of flushing writes to disk at the most
-                            ;; efficient times, which may mean that until the map is deallocated the data on disk is randomly
-                            ;; inconsistent.  However the only process accessing it is us, via this mapping, so our own view will
-                            ;; always be correct.  Once we establish the mmap the underlying file and channel can go away.  Note
-                            ;; that the details of mmapping vary between platforms.
-                            (§ assoc this :buffer (.map channel, FileChannel$MapMode/READ_WRITE, 0, size))
+                        #_"Object" :blockstore-lock (Object.)
 
-                            ;; Check or initialize the header bytes to ensure we don't try to open some random file.
-                            (when' exists? => (SPVBlockStore''init-new-store this, params)
-                                (let [#_"byte[]" header (byte-array 4) _ (.get (:buffer this), header)]
-                                    (when-not (= (String. header, Charsets/US_ASCII) SPVBlockStore'HEADER_MAGIC)
-                                        (throw (BlockStoreException'new-1 (str "Header bytes do not equal " SPVBlockStore'HEADER_MAGIC)))
-                                    )
+                        ;; The entire ring-buffer is mmapped and accessing it should be as fast as accessing regular memory once it's
+                        ;; faulted in.  Unfortunately, in theory practice and theory are the same.  In practice they aren't.
+                        ;;
+                        ;; MMapping a file in Java does not give us a byte[] as you may expect but rather a ByteBuffer, and whilst on
+                        ;; the OpenJDK/Oracle JVM calls into the get() methods are compiled down to inlined native code on Android each
+                        ;; get() call is actually a full-blown JNI method under the hood, meaning it's unbelievably slow.  The caches
+                        ;; below let us stay in the JIT-compiled Java world without expensive JNI transitions and make a 10x difference!
+                        #_"LinkedHashMap<Sha256Hash, StoredBlock>" :block-cache
+                            (proxy [LinkedHashMap #_"<Sha256Hash, StoredBlock>"] []
+                                #_foreign
+                                #_override
+                                (#_"boolean" removeEldestEntry [#_"LinkedHashMap" #_this, #_"Map.Entry<Sha256Hash, StoredBlock>" _eldest]
+                                    (< 2050 (.size this)) ;; Slightly more than the difficulty transition period.
                                 )
                             )
-                        )
-                    )
-                )
-                (catch Exception e
-                    (try
-                        (when (some? (:random-access-file this))
-                            (.close (:random-access-file this))
-                        )
-                        (catch IOException e'
-                            (throw (BlockStoreException'new-1x e'))
-                        )
-                    )
-                    (throw (BlockStoreException'new-1x e))
-                )
-            )
-            this
-        )
-    )
 
-    #_throws #_[ "Exception" ]
-    #_method
-    (defn- #_"void" SPVBlockStore''init-new-store [#_"SPVBlockStore" this, #_"NetworkParameters" params]
-        (let [#_"byte[]" magic (.getBytes SPVBlockStore'HEADER_MAGIC, "US-ASCII")]
-            (.put (:buffer this), magic)
-            ;; Insert the genesis block.
-            (sync (:blockstore-lock this)
-                (SPVBlockStore''set-ring-cursor this, (:buffer this), SPVBlockStore'FILE_PROLOGUE_BYTES)
-            )
-            (let [#_"Block" header (Block''clone-as-header (:genesis-block params))
-                  #_"StoredBlock" genesis (StoredBlock'new header, (Block''get-work header), 0)]
-                (BlockStore'''put-2 this, genesis)
-                (BlockStore'''set-chain-head this, genesis)
+                        #_"LinkedHashMap<Sha256Hash, Object>" :not-found-cache
+                            (proxy [LinkedHashMap #_"<Sha256Hash, Object>"] []
+                                #_foreign
+                                #_override
+                                (#_"boolean" removeEldestEntry [#_"LinkedHashMap" #_this, #_"Map.Entry<Sha256Hash, Object>" _eldest]
+                                    (< 100 (.size this)) ;; This was chosen arbitrarily.
+                                )
+                            )
+
+                        ;; Used to stop other applications/processes from opening the store.
+                        #_"FileLock" :file-lock nil
+                        #_"RandomAccessFile" :random-access-file nil
+
+                        #_"StoredBlock" :last-chain-head nil
+                    )]
+
+                (SPVBlockStore''init-store this, file)
             )
         )
-        nil
     )
 
     ;;; Returns the size in bytes of the file that is used to store the chain with the current parameters. ;;
@@ -27312,7 +27234,7 @@
 )
 
 (§ ns bitclojn.utils
-    (:refer-clojure :exclude [defn- ensure sync])
+    (:refer-clojure :exclude [ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -27533,16 +27455,14 @@
     ;; 10,000 pending tasks is entirely arbitrary and may or may not be appropriate for the device we're running on.
     (def #_"int" UserThread'WARNING_THRESHOLD 10000)
 
-    (defn- #_"UserThread" UserThread'init []
-        (hash-map
-            #_"LinkedBlockingQueue<Runnable>" :tasks nil
-        )
-    )
-
     (defn #_"UserThread" UserThread'new []
-        (let [this (merge (§ super Thread'new "bitcoinj user thread") (UserThread'init))]
+        (let [this
+                (merge (§ super Thread'new "bitcoinj user thread")
+                    (hash-map
+                        #_"LinkedBlockingQueue<Runnable>" :tasks (LinkedBlockingQueue.)
+                    )
+                )]
             (.setDaemon this, true)
-            (§ assoc this :tasks (LinkedBlockingQueue.))
             (.start this)
             this
         )
@@ -27751,7 +27671,7 @@
 )
 
 (§ ns bitclojn.wallet-listeners
-    (:refer-clojure :exclude [defn- ensure sync])
+    (:refer-clojure :exclude [ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -27859,7 +27779,7 @@
 )
 
 (§ ns bitclojn.wallet
-    (:refer-clojure :exclude [defn- ensure sync])
+    (:refer-clojure :exclude [ensure sync])
     (:use [bitclojn slang])
 )
 
@@ -27868,7 +27788,7 @@
  ; random keys to use as source material for the seed.  Add a non-compromised key first!
  ;;
 (class-ns AllRandomKeysRotating (§ extends RuntimeException)
-    (defn #_"AllRandomKeysRotating" AllRandomKeysRotating'new []
+    (defn #_"AllRandomKeysRotating" AllRandomKeysRotating'new []
         (§ super RuntimeException'new)
     )
 )
@@ -29539,7 +29459,7 @@
     )
 
     (defn- #_"List<String>" DeterministicSeed'decode-mnemonic-code-1-bytes [#_"byte[]" __mnemonicCode]
-        (DeterministicSeed'decode-mnemonic-code-1 (Utils'to-string __mnemonicCode, "UTF-8"))
+        (DeterministicSeed'decode-mnemonic-code-1 (String. __mnemonicCode, Charsets/UTF_8))
     )
 
     (defn- #_"List<String>" DeterministicSeed'decode-mnemonic-code-1 [#_"String" __mnemonicCode]
@@ -29552,7 +29472,7 @@
  ; pre-HD random wallet without calling upgradeToDeterministic() beforehand.
  ;;
 (class-ns DeterministicUpgradeRequiredException (§ extends RuntimeException)
-    (defn #_"DeterministicUpgradeRequiredException" DeterministicUpgradeRequiredException'new []
+    (defn #_"DeterministicUpgradeRequiredException" DeterministicUpgradeRequiredException'new []
         (§ super RuntimeException'new)
     )
 )
@@ -30909,7 +30829,7 @@
   ; Class of exceptions thrown in {@link Wallet#completeTx(SendRequest)}.
   ;;
 (class-ns CompletionException (§ extends RuntimeException)
-    (defn #_"CompletionException" CompletionException'new []
+    (defn #_"CompletionException" CompletionException'new []
         (§ super RuntimeException'new)
     )
 )
@@ -30918,7 +30838,7 @@
   ; Thrown if the resultant transaction would violate the dust rules (an output that's too small to be worthwhile).
   ;;
 (class-ns DustySendRequested (§ extends CompletionException)
-    (defn #_"DustySendRequested" DustySendRequested'new []
+    (defn #_"DustySendRequested" DustySendRequested'new []
         (CompletionException'new)
     )
 )
@@ -30927,7 +30847,7 @@
   ; Thrown if there is more than one OP_RETURN output for the resultant transaction.
   ;;
 (class-ns MultipleOpReturnRequested (§ extends CompletionException)
-    (defn #_"MultipleOpReturnRequested" MultipleOpReturnRequested'new []
+    (defn #_"MultipleOpReturnRequested" MultipleOpReturnRequested'new []
         (CompletionException'new)
     )
 )
@@ -30938,7 +30858,7 @@
   ; Note that the missing field will be null in this case.
   ;;
 (class-ns CouldNotAdjustDownwards (§ extends CompletionException)
-    (defn #_"CouldNotAdjustDownwards" CouldNotAdjustDownwards'new []
+    (defn #_"CouldNotAdjustDownwards" CouldNotAdjustDownwards'new []
         (CompletionException'new)
     )
 )
@@ -30947,7 +30867,7 @@
   ; Thrown if the resultant transaction is too big for Bitcoin to process.  Try breaking up the amounts of value.
   ;;
 (class-ns ExceededMaxTransactionSize (§ extends CompletionException)
-    (defn #_"ExceededMaxTransactionSize" ExceededMaxTransactionSize'new []
+    (defn #_"ExceededMaxTransactionSize" ExceededMaxTransactionSize'new []
         (CompletionException'new)
     )
 )
@@ -31059,10 +30979,10 @@
                     ;; connections then the remote peers will forget that we were sent the tx data previously and send it again
                     ;; when relaying a filtered merkleblock.
                     #_"LinkedHashMap<Sha256Hash, Transaction>" :risk-dropped
-                        (§ reify LinkedHashMap #_"<Sha256Hash, Transaction>"
+                        (proxy [LinkedHashMap #_"<Sha256Hash, Transaction>"] []
                             #_foreign
                             #_override
-                            (#_"boolean" removeEldestEntry [#_"LinkedHashMap" this, #_"Map.Entry<Sha256Hash, Transaction>" _eldest]
+                            (#_"boolean" removeEldestEntry [#_"LinkedHashMap" #_this, #_"Map.Entry<Sha256Hash, Transaction>" _eldest]
                                 (< 1000 (.size this))
                             )
                         )
@@ -34931,7 +34851,7 @@
 )
 
 (§ ns bitclojn.core
-    (:refer-clojure :exclude [defn- ensure sync])
+    (:refer-clojure :exclude [ensure sync])
     (:use [bitclojn slang])
 )
 
