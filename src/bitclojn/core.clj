@@ -152,8 +152,6 @@
 (declare ConnectionHandler''connection-closed ConnectionHandler''set-write-ops ConnectionHandler''try-write-bytes ConnectionHandler'BUFFER_SIZE_LOWER_BOUND ConnectionHandler'BUFFER_SIZE_UPPER_BOUND ConnectionHandler'OUTBOUND_BUFFER_BYTE_COUNT ConnectionHandler'handle-key ConnectionHandler'new-2c ConnectionHandler'new-2f ConnectionHandler'new-3)
 (declare ConnectionMode'enum-set)
 (declare ConnectionResult'enum-set)
-(declare Context'LAST_CONSTRUCTED Context'SLOT Context'get Context'get-or-create Context'new Context'propagate)
-(declare ContextPropagatingThreadFactory'new)
 (declare CouldNotAdjustDownwards'new)
 (declare CustomTransactionSigner'''get-signature CustomTransactionSigner'new)
 (declare DaemonThreadFactory'new)
@@ -249,7 +247,7 @@
 (declare PeerDiscovery'''get-peers PeerDiscovery'''shutdown)
 (declare PeerDiscoveryException'new)
 (declare PeerFilterProvider'''begin-bloom-filter-calculation PeerFilterProvider'''end-bloom-filter-calculation PeerFilterProvider'''get-bloom-filter-4 PeerFilterProvider'''get-bloom-filter-element-count PeerFilterProvider'''get-earliest-key-creation-time)
-(declare PeerGroup''add-address-i PeerGroup''add-address-p PeerGroup''add-blocks-downloaded-event-listener-2 PeerGroup''add-blocks-downloaded-event-listener-3 PeerGroup''add-chain-download-started-event-listener-2 PeerGroup''add-chain-download-started-event-listener-3 PeerGroup''add-connected-event-listener-2 PeerGroup''add-connected-event-listener-3 PeerGroup''add-disconnected-event-listener-2 PeerGroup''add-disconnected-event-listener-3 PeerGroup''add-discovered-event-listener-2 PeerGroup''add-discovered-event-listener-3 PeerGroup''add-get-data-event-listener-2 PeerGroup''add-get-data-event-listener-3 PeerGroup''add-inactive PeerGroup''add-on-transaction-broadcast-listener-2 PeerGroup''add-on-transaction-broadcast-listener-3 PeerGroup''add-peer-discovery PeerGroup''add-peer-filter-provider PeerGroup''add-pre-message-received-event-listener-2 PeerGroup''add-pre-message-received-event-listener-3 PeerGroup''add-wallet PeerGroup''await-running PeerGroup''await-terminated PeerGroup''broadcast-transaction-3 PeerGroup''connect-to-2 PeerGroup''connect-to-4 PeerGroup''connect-to-local-host PeerGroup''count-connected-and-pending-peers PeerGroup''create-peer PeerGroup''create-private-executor PeerGroup''discover-peers PeerGroup''download-block-chain PeerGroup''find-peers-of-at-least-version PeerGroup''find-peers-with-service-mask PeerGroup''get-connected-peers PeerGroup''get-download-peer PeerGroup''get-fast-catchup-time-secs PeerGroup''get-max-connections PeerGroup''get-max-peers-to-discover-count PeerGroup''get-min-broadcast-connections PeerGroup''get-min-required-protocol-version PeerGroup''get-most-common-chain-height PeerGroup''get-pending-peers PeerGroup''get-ping-interval-msec PeerGroup''get-use-localhost-peer-when-possible PeerGroup''get-version-message PeerGroup''handle-get-data PeerGroup''handle-new-peer PeerGroup''handle-peer-death PeerGroup''is-bloom-filtering-enabled PeerGroup''is-running PeerGroup''maybe-check-for-localhost-peer PeerGroup''num-connected-peers PeerGroup''recalculate-fast-catchup-and-filter PeerGroup''remove-blocks-downloaded-event-listener PeerGroup''remove-chain-download-started-event-listener PeerGroup''remove-connected-event-listener PeerGroup''remove-disconnected-event-listener PeerGroup''remove-discovered-event-listener PeerGroup''remove-get-data-event-listener PeerGroup''remove-on-transaction-broadcast-listener PeerGroup''remove-peer-filter-provider PeerGroup''remove-pre-message-received-event-listener PeerGroup''remove-wallet PeerGroup''select-download-peer PeerGroup''set-bloom-filter-false-positive-rate PeerGroup''set-bloom-filtering-enabled PeerGroup''set-connect-timeout-millis PeerGroup''set-download-peer PeerGroup''set-download-tx-dependencies PeerGroup''set-fast-catchup-time-secs PeerGroup''set-max-connections PeerGroup''set-max-peers-to-discover-count PeerGroup''set-min-broadcast-connections PeerGroup''set-min-required-protocol-version PeerGroup''set-peer-discovery-timeout-millis PeerGroup''set-ping-interval-msec PeerGroup''set-required-services PeerGroup''set-stall-threshold PeerGroup''set-use-localhost-peer-when-possible PeerGroup''set-version-message PeerGroup''setup-pinging PeerGroup''start PeerGroup''start-async PeerGroup''start-block-chain-download PeerGroup''start-block-chain-download-from-peer PeerGroup''stop PeerGroup''stop-async PeerGroup''trigger-connections PeerGroup''update-version-message-relay-txes-before-filter PeerGroup''wait-for-job-queue PeerGroup''wait-for-peers PeerGroup''wait-for-peers-of-version PeerGroup''wait-for-peers-with-service-mask PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE PeerGroup'DEFAULT_CONNECTIONS PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS PeerGroup'DEFAULT_PING_INTERVAL_MSEC PeerGroup'MAX_FP_RATE_INCREASE PeerGroup'MIN_PEER_DISCOVERY_INTERVAL PeerGroup'add-data-event-listener-to-peer PeerGroup'get-most-common-chain-height* PeerGroup'new-1-context PeerGroup'new-1-params PeerGroup'new-2-context PeerGroup'new-2-params PeerGroup'new-3-context PeerGroup'new-3-params PeerGroup'remove-data-event-listener-from-peer)
+(declare PeerGroup''add-address-i PeerGroup''add-address-p PeerGroup''add-blocks-downloaded-event-listener-2 PeerGroup''add-blocks-downloaded-event-listener-3 PeerGroup''add-chain-download-started-event-listener-2 PeerGroup''add-chain-download-started-event-listener-3 PeerGroup''add-connected-event-listener-2 PeerGroup''add-connected-event-listener-3 PeerGroup''add-disconnected-event-listener-2 PeerGroup''add-disconnected-event-listener-3 PeerGroup''add-discovered-event-listener-2 PeerGroup''add-discovered-event-listener-3 PeerGroup''add-get-data-event-listener-2 PeerGroup''add-get-data-event-listener-3 PeerGroup''add-inactive PeerGroup''add-on-transaction-broadcast-listener-2 PeerGroup''add-on-transaction-broadcast-listener-3 PeerGroup''add-peer-discovery PeerGroup''add-peer-filter-provider PeerGroup''add-pre-message-received-event-listener-2 PeerGroup''add-pre-message-received-event-listener-3 PeerGroup''add-wallet PeerGroup''await-running PeerGroup''await-terminated PeerGroup''broadcast-transaction-3 PeerGroup''connect-to-2 PeerGroup''connect-to-4 PeerGroup''connect-to-local-host PeerGroup''count-connected-and-pending-peers PeerGroup''create-peer PeerGroup''create-private-executor PeerGroup''discover-peers PeerGroup''download-block-chain PeerGroup''find-peers-of-at-least-version PeerGroup''find-peers-with-service-mask PeerGroup''get-connected-peers PeerGroup''get-download-peer PeerGroup''get-fast-catchup-time-secs PeerGroup''get-max-connections PeerGroup''get-max-peers-to-discover-count PeerGroup''get-min-broadcast-connections PeerGroup''get-min-required-protocol-version PeerGroup''get-most-common-chain-height PeerGroup''get-pending-peers PeerGroup''get-ping-interval-msec PeerGroup''get-use-localhost-peer-when-possible PeerGroup''get-version-message PeerGroup''handle-get-data PeerGroup''handle-new-peer PeerGroup''handle-peer-death PeerGroup''is-bloom-filtering-enabled PeerGroup''is-running PeerGroup''maybe-check-for-localhost-peer PeerGroup''num-connected-peers PeerGroup''recalculate-fast-catchup-and-filter PeerGroup''remove-blocks-downloaded-event-listener PeerGroup''remove-chain-download-started-event-listener PeerGroup''remove-connected-event-listener PeerGroup''remove-disconnected-event-listener PeerGroup''remove-discovered-event-listener PeerGroup''remove-get-data-event-listener PeerGroup''remove-on-transaction-broadcast-listener PeerGroup''remove-peer-filter-provider PeerGroup''remove-pre-message-received-event-listener PeerGroup''remove-wallet PeerGroup''select-download-peer PeerGroup''set-bloom-filter-false-positive-rate PeerGroup''set-bloom-filtering-enabled PeerGroup''set-connect-timeout-millis PeerGroup''set-download-peer PeerGroup''set-download-tx-dependencies PeerGroup''set-fast-catchup-time-secs PeerGroup''set-max-connections PeerGroup''set-max-peers-to-discover-count PeerGroup''set-min-broadcast-connections PeerGroup''set-min-required-protocol-version PeerGroup''set-peer-discovery-timeout-millis PeerGroup''set-ping-interval-msec PeerGroup''set-required-services PeerGroup''set-stall-threshold PeerGroup''set-use-localhost-peer-when-possible PeerGroup''set-version-message PeerGroup''setup-pinging PeerGroup''start PeerGroup''start-async PeerGroup''start-block-chain-download PeerGroup''start-block-chain-download-from-peer PeerGroup''stop PeerGroup''stop-async PeerGroup''trigger-connections PeerGroup''update-version-message-relay-txes-before-filter PeerGroup''wait-for-job-queue PeerGroup''wait-for-peers PeerGroup''wait-for-peers-of-version PeerGroup''wait-for-peers-with-service-mask PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE PeerGroup'DEFAULT_CONNECTIONS PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS PeerGroup'DEFAULT_PING_INTERVAL_MSEC PeerGroup'MAX_FP_RATE_INCREASE PeerGroup'MIN_PEER_DISCOVERY_INTERVAL PeerGroup'add-data-event-listener-to-peer PeerGroup'get-most-common-chain-height* PeerGroup'new PeerGroup'remove-data-event-listener-from-peer)
 (declare PeerListener'new)
 (declare PeerSocketHandler'''process-message PeerSocketHandler''close PeerSocketHandler''exception-caught PeerSocketHandler''get-address PeerSocketHandler''send-message PeerSocketHandler'init PeerSocketHandler'new-2isa PeerSocketHandler'new-2pa)
 (declare PeerStartupListener'new)
@@ -296,7 +294,7 @@
 (declare StreamConnection'''connection-closed StreamConnection'''connection-opened StreamConnection'''get-max-message-size StreamConnection'''receive-bytes StreamConnection'''set-write-target)
 (declare TestNetParams'INSTANCE TestNetParams'TESTNET_DIFF_DATE TestNetParams'TEXTUAL_CHECKPOINTS TestNetParams'new)
 (declare ThreadFactory'''newThread)
-(declare Threading'SAME_THREAD Threading'THREAD_POOL Threading'UNCAUGHT_EXCEPTION_HANDLER Threading'USER_THREAD Threading'wait-for-user-code)
+(declare Threading'SAME_THREAD Threading'THREAD_POOL Threading'USER_THREAD Threading'wait-for-user-code)
 (declare Transaction''add-block-appearance Transaction''add-input-i Transaction''add-input-o Transaction''add-input-s Transaction''add-output-ca Transaction''add-output-ce Transaction''add-output-cs Transaction''add-output-o Transaction''add-signed-input-3 Transaction''add-signed-input-4 Transaction''add-signed-input-5 Transaction''add-signed-input-6 Transaction''calculate-signature-b Transaction''calculate-signature-s Transaction''check-coin-base-height Transaction''clear-inputs Transaction''clear-outputs Transaction''estimate-lock-time Transaction''get-appears-in-hashes Transaction''get-confidence-t Transaction''get-confidence-tct Transaction''get-exchange-rate Transaction''get-fee Transaction''get-hash-as-string Transaction''get-input Transaction''get-input-sum Transaction''get-inputs Transaction''get-lock-time Transaction''get-memo Transaction''get-message-size-for-priority-calc Transaction''get-optimal-encoding-message-size Transaction''get-output Transaction''get-output-sum Transaction''get-outputs Transaction''get-purpose Transaction''get-sig-op-count Transaction''get-update-time Transaction''get-value-2 Transaction''get-value-sent-from-me Transaction''get-value-sent-to-me Transaction''get-version Transaction''get-wallet-outputs Transaction''has-confidence Transaction''hash-for-signature-4b Transaction''hash-for-signature-5b Transaction''hash-for-signature-5s Transaction''is-any-output-spent Transaction''is-coin-base Transaction''is-every-owned-output-spent Transaction''is-final Transaction''is-mature Transaction''is-opt-in-full-rbf Transaction''is-pending Transaction''is-time-locked Transaction''set-block-appearance Transaction''set-exchange-rate Transaction''set-lock-time Transaction''set-memo Transaction''set-purpose Transaction''set-update-time Transaction''set-version Transaction''shuffle-outputs Transaction''to-string-2 Transaction''verify-1 Transaction'DEFAULT_TX_FEE Transaction'LOCKTIME_THRESHOLD Transaction'LOCKTIME_THRESHOLD_BIG Transaction'MAX_STANDARD_TX_SIZE Transaction'MIN_NONDUST_OUTPUT Transaction'REFERENCE_DEFAULT_MIN_TX_FEE Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG Transaction'SEQUENCE_LOCKTIME_MASK Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG Transaction'SORT_TX_BY_HEIGHT Transaction'SORT_TX_BY_UPDATE_TIME Transaction'calc-length Transaction'init Transaction'new Transaction'from-wire)
 (declare TransactionBag'''get-transaction-pool TransactionBag'''is-pay-to-script-hash-mine TransactionBag'''is-pub-key-hash-mine TransactionBag'''is-pub-key-mine)
 (declare TransactionBroadcast''broadcast TransactionBroadcast''future TransactionBroadcast''invoke-and-record TransactionBroadcast''invoke-progress-callback TransactionBroadcast''set-min-connections TransactionBroadcast''set-progress-callback-2 TransactionBroadcast''set-progress-callback-3 TransactionBroadcast'RANDOM TransactionBroadcast'new)
@@ -313,7 +311,7 @@
 (declare TransactionSigner'''sign-inputs)
 (declare TransactionalHashMap''abort-database-batch-write TransactionalHashMap''begin-database-batch-write TransactionalHashMap''commit-database-batch-write TransactionalHashMap''get-2 TransactionalHashMap''put-3 TransactionalHashMap''remove TransactionalHashMap''values TransactionalHashMap'new)
 (declare TransactionalMultiKeyHashMap''abort-transaction TransactionalMultiKeyHashMap''begin-transaction TransactionalMultiKeyHashMap''commit-transaction TransactionalMultiKeyHashMap''get-2 TransactionalMultiKeyHashMap''put-4 TransactionalMultiKeyHashMap''remove-by-multi-key TransactionalMultiKeyHashMap''remove-by-unique-key TransactionalMultiKeyHashMap'new)
-(declare TxConfidenceTable''clean-table TxConfidenceTable''get-2 TxConfidenceTable''get-or-create TxConfidenceTable''num-broadcast-peers TxConfidenceTable''seen TxConfidenceTable'MAX_SIZE TxConfidenceTable'new)
+(declare TxConfidenceTable''clean-table TxConfidenceTable''get-2 TxConfidenceTable''get-or-create TxConfidenceTable''num-broadcast-peers TxConfidenceTable''seen TxConfidenceTable'MAX_SIZE TxConfidenceTable'new TxConfidenceTable'INSTANCE)
 (declare TxOffsetPair'new)
 (declare UTXO'new)
 (declare UnknownMessage'from-wire)
@@ -5782,118 +5780,6 @@
     )
 )
 
-;; TODO: Auto-register the block chain object here, and then use it in the (newly deprecated) TransactionConfidence.getDepthInBlocks() method:
-;;       the new version should take a BlockChain specifically.
-;;       Also use the block chain object reference from the context in PeerGroup and remove the other constructors, as it's easy to forget to wire things up.
-;; TODO: Move Threading.USER_THREAD to here and leave behind just a source code stub.  Allow different instantiations of the library to use different user threads.
-;; TODO: Keep a URI to where library internal data files can be found, to abstract over the lack of JAR files on Android.
-;; TODO: Stash anything else that resembles global library configuration in here and use it to clean up the rest of the API without breaking people.
-
-;;;
- ; The Context object holds various objects and pieces of configuration that are scoped to a specific instantiation of
- ; bitcoinj for a specific network.  You can get an instance of this class through calling {@link #get()}.
- ;
- ; Context is new in 0.13 and the library is currently in a transitional period: you should create a Context that
- ; wraps your chosen network parameters before using the rest of the library.  However if you don't, things will still
- ; work as a Context will be created for you and stashed in thread local storage.  The context is then propagated between
- ; library created threads as needed.  This automagical propagation and creation is a temporary mechanism: one day it
- ; will be removed to avoid confusing edge cases that could occur if the developer does not fully understand it e.g.
- ; in the case where multiple instances of the library are in use simultaneously.
- ;;
-(class-ns Context
-    ;;;
-     ; Creates a new context object.  For now, this will be done for you by the framework.  Eventually you will be
-     ; expected to do this yourself in the same manner as fetching a NetworkParameters object (at the start of your app).
-     ;;
-    (defn #_"Context" Context'new [#_"NetworkParameters" params]
-        (let [this
-                (hash-map
-                    #_"NetworkParameters" :params params
-                    ;;;
-                     ; The {@link TxConfidenceTable} created by this context.  The pool tracks advertised and downloaded
-                     ; transactions so their confidence can be measured as a proportion of how many peers announced it.
-                     ; With an un-tampered internet connection, the more peers announce a transaction, the more confidence
-                     ; you can have that it's really valid.
-                     ;;
-                    #_"TxConfidenceTable" :confidence-table (TxConfidenceTable'new)
-                    ;;;
-                     ; Whether to ensure the minimum required fee by default when completing transactions.
-                     ; For details, see {@link SendRequest#ensureMinRequiredFee}.
-                     ;;
-                    #_"boolean" :ensure-min-required-fee true
-                    ;;;
-                     ; The default fee per 1000 bytes of transaction data to pay when completing transactions.
-                     ; For details, see {@link SendRequest#feePerKb}.
-                     ;;
-                    #_"Coin" :fee-per-kb Transaction'DEFAULT_TX_FEE
-                )]
-            (§ ass Context'LAST_CONSTRUCTED this)
-            (.set Context'SLOT, this)
-            this
-        )
-    )
-
-    #_volatile
-    (def- #_"Context" Context'LAST_CONSTRUCTED)
-    (def- #_"ThreadLocal<Context>" Context'SLOT (ThreadLocal.))
-
-    ;;;
-     ; Returns the current context that is associated with the <b>calling thread</b>.  BitcoinJ is an API that has thread
-     ; affinity: much like OpenGL it expects each thread that accesses it to have been configured with a global Context
-     ; object.  This method returns that.  Note that to help you develop, this method will <i>also</i> propagate whichever
-     ; context was created last onto the current thread, if it's missing.  However it will print an error when doing so
-     ; because propagation of contexts is meant to be done manually: this is so two libraries or subsystems that
-     ; independently use bitcoinj (or possibly alt coin forks of it) can operate correctly.
-     ;
-     ; @throws IllegalStateException if no context exists at all or if we are in strict mode and there is no context.
-     ;;
-    (defn #_"Context" Context'get []
-        (or (.get Context'SLOT)
-            (do
-                (when (nil? Context'LAST_CONSTRUCTED)
-                    (throw (IllegalStateException. "You must construct a Context object before using bitcoinj!"))
-                )
-                (.set Context'SLOT, Context'LAST_CONSTRUCTED)
-                (log/error (str "Performing thread fixup: you are accessing bitcoinj via a thread that has not had any context set on it.\n"
-                                "This error has been corrected for, but doing this makes your app less robust.\n"
-                                "You should use Context.propagate() or a ContextPropagatingThreadFactory.\n"
-                                "Please refer to the user guide for more information about this.\n"
-                                "Thread name is " (.getName (Thread/currentThread)) "."))
-                ;; TODO: Actually write the user guide section about this.
-                Context'LAST_CONSTRUCTED
-            )
-        )
-    )
-
-    ;; A temporary internal shim designed to help us migrate internally in a way that doesn't wreck source compatibility.
-    (defn #_"Context" Context'get-or-create [#_"NetworkParameters" params]
-        (§ let [#_"Context" context]
-            (try
-                (§ ass context (Context'get))
-                (catch IllegalStateException e
-                    (log/warn "Implicitly creating context.  This is a migration step and this message will eventually go away.")
-                    (§ return (Context'new params))
-                )
-            )
-            (when-not (= (:params context) params)
-                (throw (IllegalStateException. (str "Context does not match implicit network params: " (:params context) " vs " params)))
-            )
-            context
-        )
-    )
-
-    ;;;
-     ; Sets the given context as the current thread context.  You should use this if you create your own threads that
-     ; want to create core BitcoinJ objects.  Generally, if a class can accept a Context in its constructor and might
-     ; be used (even indirectly) by a thread, you will want to call this first.  Your task may be simplified by using
-     ; a {@link ContextPropagatingThreadFactory}.
-     ;;
-    (defn #_"void" Context'propagate [#_"Context" context]
-        (.set Context'SLOT, (ensure some? context))
-        nil
-    )
-)
-
 ;;;
  ; Groups the two components that make up a signature, and provides a way to encode to DER form, which is
  ; how ECDSA signatures are represented when embedded in other data structures in the Bitcoin protocol.
@@ -7110,7 +6996,7 @@
                         #_"boolean" :run-scripts true
 
                         ;; TODO: Execute in order of largest transaction (by input count) first.
-                        #_"ExecutorService" :script-verification-executor (Executors/newFixedThreadPool (.availableProcessors (Runtime/getRuntime)), (ContextPropagatingThreadFactory'new "Script verification"))
+                        #_"ExecutorService" :script-verification-executor (Executors/newFixedThreadPool (.availableProcessors (Runtime/getRuntime)), (DaemonThreadFactory'new "Script verification"))
                     )
                 )]
             ;; Ignore upgrading for now.
@@ -9036,25 +8922,16 @@
         (:peer-address this)
     )
 
-    ;;; Catch any exceptions, logging them and then closing the channel. ;;
+    ;;;
+     ; Catch any exceptions, logging them and then closing the channel.
+     ;;
     #_method
     (defn- #_"void" PeerSocketHandler''exception-caught [#_"PeerSocketHandler" this, #_"Exception" e]
         (let [#_"PeerAddress" addr (PeerSocketHandler''get-address this)
               #_"String" s (if (some? addr) (.toString addr) "?")]
-            (cond (instance? IOException e)
-                (do
-                    ;; Short message for network errors
-                    (log/info (str s " - " (.getMessage e)))
-                )
-                :else
-                (do
-                    (log/warn e, s)
-                    (let [#_"Thread.UncaughtExceptionHandler" handler Threading'UNCAUGHT_EXCEPTION_HANDLER]
-                        (when (some? handler)
-                            (.uncaughtException handler, (Thread/currentThread), e)
-                        )
-                    )
-                )
+            (if (instance? IOException e)
+                (log/info (str s " - " (.getMessage e)))
+                (log/warn e, s)
             )
             (PeerSocketHandler''close this)
         )
@@ -10197,7 +10074,7 @@
                                     ;; sending us the transaction: currently we'll never try to re-fetch after a timeout.
                                     ;;
                                     ;; The line below can trigger confidence listeners.
-                                    (let [#_"TransactionConfidence" conf (TxConfidenceTable''seen (:confidence-table (Context'get)), (:hash item), (PeerSocketHandler''get-address this))]
+                                    (let [#_"TransactionConfidence" conf (TxConfidenceTable''seen TxConfidenceTable'INSTANCE, (:hash item), (PeerSocketHandler''get-address this))]
                                         (cond (< 1 (TransactionConfidence''num-broadcast-peers conf))
                                             (do
                                                 ;; Some other peer already announced this so don't download.
@@ -11414,268 +11291,245 @@
     )
 
     ;;;
-     ; Creates a PeerGroup with the given context.  No chain is provided so this node will report its chain height
-     ; as zero to other peers.  This constructor is useful if you just want to explore the network but aren't interested
-     ; in downloading block data.
-     ;;
-    (defn #_"PeerGroup" PeerGroup'new-1-context [#_"Context" context]
-        (PeerGroup'new-2-context context, nil)
-    )
-
-    ;;;
-     ; Creates a PeerGroup for the given context and chain.  Blocks will be passed to the chain as they are broadcast
-     ; and downloaded.  This is probably the constructor you want to use.
-     ;;
-    (defn #_"PeerGroup" PeerGroup'new-2-context [#_"Context" context, #_"BlockChain" chain]
-        (PeerGroup'new-3-context context, chain, (NioClientManager'new))
-    )
-
-    ;;;
+     ; Creates a PeerGroup.  No chain is provided, so this node will report its chain height as zero to other peers.
+     ; This constructor is useful if you just want to explore the network, but aren't interested in downloading block data.
+     ;
+     ; Creates a PeerGroup for the given chain.  Blocks will be passed to the chain as they are broadcast and downloaded.
+     ; This is probably the constructor you want to use.
+     ;
      ; Creates a new PeerGroup allowing you to specify the {@link ClientConnectionManager} which is used to create new
      ; connections and keep track of existing ones.
      ;;
-    (defn- #_"PeerGroup" PeerGroup'new-3-context [#_"Context" context, #_"BlockChain" chain, #_"ClientConnectionManager" manager]
-        (ensure some? context)
+    (defn- #_"PeerGroup" PeerGroup'new
+        ([#_"NetworkParameters" params] (PeerGroup'new params, nil))
+        ([#_"NetworkParameters" params, #_"BlockChain" chain] (PeerGroup'new params, chain, nil))
+        ([#_"NetworkParameters" params, #_"BlockChain" chain, #_"ClientConnectionManager" manager]
+            (ensure some? params)
 
-        (let [#_"NetworkParameters" params (:params context)
-              #_"int" height (if (some? chain) (BlockChain''get-best-chain-height chain) 0)
-              this
-                (hash-map
-                    #_"Object" :peergroup-lock (Object.)
+            (let [#_"int" height (if (some? chain) (BlockChain''get-best-chain-height chain) 0)
+                  this
+                    (hash-map
+                        #_"Object" :peergroup-lock (Object.)
 
-                    #_"NetworkParameters" :params params
-                    #_"BlockChain" :chain chain
+                        #_"NetworkParameters" :params params
+                        #_"BlockChain" :chain chain
+                        #_"ClientConnectionManager" :channels (or manager (NioClientManager'new))
 
-                    ;; By default we don't require any services because any peer will do.
-                    #_"long" :required-services 0
-                    #_volatile
-                    #_"int" :v-max-peers-to-discover-count 100
-                    #_volatile
-                    #_"long" :v-peer-discovery-timeout-millis PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS
+                        ;; By default we don't require any services because any peer will do.
+                        #_"long" :required-services 0
+                        #_volatile
+                        #_"int" :v-max-peers-to-discover-count 100
+                        #_volatile
+                        #_"long" :v-peer-discovery-timeout-millis PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS
 
-                    ;; This executor is used to queue up jobs: it's used when we don't want to use locks for mutual exclusion,
-                    ;; typically because the job might call in to user provided code that needs/wants the freedom to use the API
-                    ;; however it wants, or because a job needs to be ordered relative to other jobs like that.
-                    #_"ListeningScheduledExecutorService" :executor nil
+                        ;; This executor is used to queue up jobs: it's used when we don't want to use locks for mutual exclusion,
+                        ;; typically because the job might call in to user provided code that needs/wants the freedom to use the API
+                        ;; however it wants, or because a job needs to be ordered relative to other jobs like that.
+                        #_"ListeningScheduledExecutorService" :executor nil
 
-                    ;; Whether the peer group is currently running.  Once shut down it cannot be restarted.
-                    #_volatile
-                    #_"boolean" :v-running false
-                    ;; Whether the peer group has been started or not.  An unstarted PG does not try to access the network.
-                    #_volatile
-                    #_"boolean" :v-used-up false
+                        ;; Whether the peer group is currently running.  Once shut down it cannot be restarted.
+                        #_volatile
+                        #_"boolean" :v-running false
+                        ;; Whether the peer group has been started or not.  An unstarted PG does not try to access the network.
+                        #_volatile
+                        #_"boolean" :v-used-up false
 
-                    ;; Addresses to try to connect to, excluding active peers.
-                    #_"PriorityQueue<PeerAddress>" :inactives nil
-                    #_"Map<PeerAddress, ExponentialBackoff>" :backoff-map (HashMap.)
+                        ;; Addresses to try to connect to, excluding active peers.
+                        #_"PriorityQueue<PeerAddress>" :inactives nil
+                        #_"Map<PeerAddress, ExponentialBackoff>" :backoff-map (HashMap.)
 
-                    ;; Currently active peers.  This is an ordered list rather than a set to make unit tests predictable.
-                    #_"CopyOnWriteArrayList<Peer>" :peers (CopyOnWriteArrayList.)
-                    ;; Currently connecting peers.
-                    #_"CopyOnWriteArrayList<Peer>" :pending-peers (CopyOnWriteArrayList.)
-                    #_"ClientConnectionManager" :channels manager
+                        ;; Currently active peers.  This is an ordered list rather than a set to make unit tests predictable.
+                        #_"CopyOnWriteArrayList<Peer>" :peers (CopyOnWriteArrayList.)
+                        ;; Currently connecting peers.
+                        #_"CopyOnWriteArrayList<Peer>" :pending-peers (CopyOnWriteArrayList.)
 
-                    ;; The peer that has been selected for the purposes of downloading announced data.
-                    #_"Peer" :download-peer nil
-                    ;; Callback for events related to chain download.
-                    #_"PeerDataEventListener" :download-listener nil
+                        ;; The peer that has been selected for the purposes of downloading announced data.
+                        #_"Peer" :download-peer nil
+                        ;; Callback for events related to chain download.
+                        #_"PeerDataEventListener" :download-listener nil
 
-                    #_"CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>" :peers-blocks-downloaded-event-listeners (CopyOnWriteArrayList.)
-                    #_"CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>" :peers-chain-download-started-event-listeners (CopyOnWriteArrayList.)
-                    ;;; Callbacks for events related to peers connecting. ;;
-                    #_"CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>" :peer-connected-event-listeners (CopyOnWriteArrayList.)
-                    ;;; Callbacks for events related to peer connection/disconnection. ;;
-                    #_"CopyOnWriteArrayList<ListenerRegistration<PeerDiscoveredEventListener>>" :peer-discovered-event-listeners (CopyOnWriteArrayList.)
-                    ;;; Callbacks for events related to peers disconnecting. ;;
-                    #_"CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>" :peer-disconnected-event-listeners (CopyOnWriteArrayList.)
-                    ;;; Callbacks for events related to peer data being received. ;;
-                    #_"CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>" :peer-get-data-event-listeners (CopyOnWriteArrayList.)
-                    #_"CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>" :peers-pre-message-received-event-listeners (CopyOnWriteArrayList.)
-                    #_"CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>" :peers-transaction-broadast-event-listeners (CopyOnWriteArrayList.)
+                        #_"CopyOnWriteArrayList<ListenerRegistration<BlocksDownloadedEventListener>>" :peers-blocks-downloaded-event-listeners (CopyOnWriteArrayList.)
+                        #_"CopyOnWriteArrayList<ListenerRegistration<ChainDownloadStartedEventListener>>" :peers-chain-download-started-event-listeners (CopyOnWriteArrayList.)
+                        ;;; Callbacks for events related to peers connecting. ;;
+                        #_"CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>" :peer-connected-event-listeners (CopyOnWriteArrayList.)
+                        ;;; Callbacks for events related to peer connection/disconnection. ;;
+                        #_"CopyOnWriteArrayList<ListenerRegistration<PeerDiscoveredEventListener>>" :peer-discovered-event-listeners (CopyOnWriteArrayList.)
+                        ;;; Callbacks for events related to peers disconnecting. ;;
+                        #_"CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>" :peer-disconnected-event-listeners (CopyOnWriteArrayList.)
+                        ;;; Callbacks for events related to peer data being received. ;;
+                        #_"CopyOnWriteArrayList<ListenerRegistration<GetDataEventListener>>" :peer-get-data-event-listeners (CopyOnWriteArrayList.)
+                        #_"CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>" :peers-pre-message-received-event-listeners (CopyOnWriteArrayList.)
+                        #_"CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>" :peers-transaction-broadast-event-listeners (CopyOnWriteArrayList.)
 
-                    ;; Peer discovery sources, will be polled occasionally if there aren't enough inactives.
-                    #_"CopyOnWriteArraySet<PeerDiscovery>" :peer-discoverers (CopyOnWriteArraySet.)
+                        ;; Peer discovery sources, will be polled occasionally if there aren't enough inactives.
+                        #_"CopyOnWriteArraySet<PeerDiscovery>" :peer-discoverers (CopyOnWriteArraySet.)
 
-                    ;; The version message to use for new connections.
-                    ;; We never request that the remote node wait for a bloom filter yet, as we have no wallets.
-                    #_"VersionMessage" :version-message (assoc (VersionMessage'new params, height) :relay-txes-before-filter true)
+                        ;; The version message to use for new connections.
+                        ;; We never request that the remote node wait for a bloom filter yet, as we have no wallets.
+                        #_"VersionMessage" :version-message (assoc (VersionMessage'new params, height) :relay-txes-before-filter true)
 
-                    ;; Maximum depth up to which pending transaction dependencies are downloaded, or 0 for disabled.
-                    #_"int" :download-tx-dependency-depth Integer/MAX_VALUE
+                        ;; Maximum depth up to which pending transaction dependencies are downloaded, or 0 for disabled.
+                        #_"int" :download-tx-dependency-depth Integer/MAX_VALUE
 
-                    ;; How many connections we want to have open at the current time.
-                    ;; If we lose connections, we'll try opening more until we reach this count.
-                    ;;
-                    ;; This default sentinel value will be overridden by one of two actions:
-                    ;;   - adding a peer discovery source sets it to the default.
-                    ;;   - using connectTo() will increment it by one.
-                    #_"int" :max-connections 0
+                        ;; How many connections we want to have open at the current time.
+                        ;; If we lose connections, we'll try opening more until we reach this count.
+                        ;;
+                        ;; This default sentinel value will be overridden by one of two actions:
+                        ;;   - adding a peer discovery source sets it to the default.
+                        ;;   - using connectTo() will increment it by one.
+                        #_"int" :max-connections 0
 
-                    ;; Minimum protocol version we will allow ourselves to connect to: require Bloom filtering.
-                    #_volatile
-                    #_"int" :v-min-required-protocol-version ProtocolVersion'BLOOM_FILTER
+                        ;; Minimum protocol version we will allow ourselves to connect to: require Bloom filtering.
+                        #_volatile
+                        #_"int" :v-min-required-protocol-version ProtocolVersion'BLOOM_FILTER
 
-                    #_"long" :ping-interval-msec PeerGroup'DEFAULT_PING_INTERVAL_MSEC
+                        #_"long" :ping-interval-msec PeerGroup'DEFAULT_PING_INTERVAL_MSEC
 
-                    #_"boolean" :use-localhost-peer-when-possible true
-                    #_"boolean" :ipv6-unreachable false
+                        #_"boolean" :use-localhost-peer-when-possible true
+                        #_"boolean" :ipv6-unreachable false
 
-                    #_"long" :fast-catchup-time-secs (Block''get-time-seconds (:genesis-block params))
-                    #_"CopyOnWriteArrayList<Wallet>" :wallets (CopyOnWriteArrayList.)
-                    #_"CopyOnWriteArrayList<PeerFilterProvider>" :peer-filter-providers (CopyOnWriteArrayList.)
+                        #_"long" :fast-catchup-time-secs (Block''get-time-seconds (:genesis-block params))
+                        #_"CopyOnWriteArrayList<Wallet>" :wallets (CopyOnWriteArrayList.)
+                        #_"CopyOnWriteArrayList<PeerFilterProvider>" :peer-filter-providers (CopyOnWriteArrayList.)
 
-                    ;; This event listener is added to every peer.
-                    ;; It's here so when we announce transactions via an "inv", every peer can fetch them.
-                    #_"PeerListener" :peer-listener (PeerListener'new)
+                        ;; This event listener is added to every peer.
+                        ;; It's here so when we announce transactions via an "inv", every peer can fetch them.
+                        #_"PeerListener" :peer-listener (PeerListener'new)
 
-                    #_"int" :min-broadcast-connections 0
+                        #_"int" :min-broadcast-connections 0
 
-                    #_"KeyChainEventListener" :wallet-key-event-listener nil
+                        #_"KeyChainEventListener" :wallet-key-event-listener nil
 
-                    #_"WalletCoinsReceivedEventListener" :wallet-coins-received-event-listener nil
+                        #_"WalletCoinsReceivedEventListener" :wallet-coins-received-event-listener nil
 
-                    ;; Exponential backoff for peers starts at 1 second and maxes at 10 minutes.
-                    #_"BackoffParams" :peer-backoff-params (BackoffParams'new 1000, 1.5, (* 10 60 1000))
-                    ;; Tracks failures globally in case of a network failure.
-                    #_"ExponentialBackoff" :group-backoff (ExponentialBackoff'new (BackoffParams'new 1000, 1.5, (* 10 1000)))
+                        ;; Exponential backoff for peers starts at 1 second and maxes at 10 minutes.
+                        #_"BackoffParams" :peer-backoff-params (BackoffParams'new 1000, 1.5, (* 10 60 1000))
+                        ;; Tracks failures globally in case of a network failure.
+                        #_"ExponentialBackoff" :group-backoff (ExponentialBackoff'new (BackoffParams'new 1000, 1.5, (* 10 1000)))
 
-                    ;; This is a synchronized set, so it locks on itself.  We use it to prevent TransactionBroadcast objects from
-                    ;; being garbage collected if nothing in the apps code holds on to them transitively.  See the discussion
-                    ;; in broadcastTransaction.
-                    #_"Set<TransactionBroadcast>" :running-broadcasts (Collections/synchronizedSet (HashSet. #_"<TransactionBroadcast>"))
+                        ;; This is a synchronized set, so it locks on itself.  We use it to prevent TransactionBroadcast objects from
+                        ;; being garbage collected if nothing in the apps code holds on to them transitively.  See the discussion
+                        ;; in broadcastTransaction.
+                        #_"Set<TransactionBroadcast>" :running-broadcasts (Collections/synchronizedSet (HashSet. #_"<TransactionBroadcast>"))
 
-                    #_"PeerStartupListener" :startup-listener (PeerStartupListener'new)
+                        #_"PeerStartupListener" :startup-listener (PeerStartupListener'new)
 
-                    ;; An object that calculates bloom filters given a list of filter providers, whilst tracking some state useful
-                    ;; for privacy purposes.
-                    #_"FilterMerger" :bloom-filter-merger (FilterMerger'new PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE)
+                        ;; An object that calculates bloom filters given a list of filter providers, whilst tracking some state useful
+                        ;; for privacy purposes.
+                        #_"FilterMerger" :bloom-filter-merger (FilterMerger'new PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE)
 
-                    #_volatile
-                    #_"int" :v-connect-timeout-millis PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS
+                        #_volatile
+                        #_"int" :v-connect-timeout-millis PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS
 
-                    ;;; Whether bloom filter support is enabled when using a non FullPrunedBlockchain. ;;
-                    #_volatile
-                    #_"boolean" :v-bloom-filtering-enabled true
+                        ;;; Whether bloom filter support is enabled when using a non FullPrunedBlockchain. ;;
+                        #_volatile
+                        #_"boolean" :v-bloom-filtering-enabled true
 
-                    #_"CountDownLatch" :executor-startup-latch (CountDownLatch. 1)
+                        #_"CountDownLatch" :executor-startup-latch (CountDownLatch. 1)
 
-                    #_"Runnable" :trigger-connections-job nil
+                        #_"Runnable" :trigger-connections-job nil
 
-                    #_"LocalhostCheckState" :localhost-check-state :LocalhostCheckState'NOT_TRIED
+                        #_"LocalhostCheckState" :localhost-check-state :LocalhostCheckState'NOT_TRIED
 
-                    #_"Map<FilterRecalculateMode, SettableFuture<BloomFilter>>" :in-flight-recalculations (HashMap.)
+                        #_"Map<FilterRecalculateMode, SettableFuture<BloomFilter>>" :in-flight-recalculations (HashMap.)
 
-                    #_volatile
-                    #_"ListenableScheduledFuture<?>" :v-ping-task nil
+                        #_volatile
+                        #_"ListenableScheduledFuture<?>" :v-ping-task nil
 
-                    #_"int" :stall-period-seconds 10
-                    #_"int" :stall-min-speed-bytes-sec (* Block'HEADER_SIZE 20)
+                        #_"int" :stall-period-seconds 10
+                        #_"int" :stall-min-speed-bytes-sec (* Block'HEADER_SIZE 20)
 
-                    #_"ChainDownloadSpeedCalculator" :chain-download-speed-calculator nil
-                )
-              this
-                (assoc this :wallet-key-event-listener
-                    (§ reify KeyChainEventListener
-                        #_override
-                        (#_"void" KeyChainEventListener'''on-keys-added [#_"KeyChainEventListener" __, #_"List<ECKey>" keys]
-                            (PeerGroup''recalculate-fast-catchup-and-filter this, :FilterRecalculateMode'SEND_IF_CHANGED)
-                            nil
-                        )
+                        #_"ChainDownloadSpeedCalculator" :chain-download-speed-calculator nil
                     )
-                )
-              this
-                (assoc this :wallet-coins-received-event-listener
-                    (§ reify WalletCoinsReceivedEventListener
-                        #_override
-                        (#_"void" WalletCoinsReceivedEventListener'''on-coins-received [#_"WalletCoinsReceivedEventListener" __, #_"Wallet" wallet, #_"Transaction" tx, #_"Coin" _before, #_"Coin" _after]
-                            ;; We received a relevant transaction.  We MAY need to recalculate and resend the Bloom filter, but only
-                            ;; if we have received a transaction that includes a relevant pay-to-pubkey output.
-                            ;;
-                            ;; The reason is that pay-to-pubkey outputs, when spent, will not repeat any data we can predict in their
-                            ;; inputs.  So a remote peer will update the Bloom filter for us when such an output is seen matching the
-                            ;; existing filter, so that it includes the tx hash in which the pay-to-pubkey output was observed.  Thus
-                            ;; the spending transaction will always match (due to the outpoint structure).
-                            ;;
-                            ;; Unfortunately, whilst this is required for correct sync of the chain in blocks, there are two edge cases.
-                            ;;
-                            ;; (1) If a wallet receives a relevant, confirmed p2pubkey output that was not broadcast across the network,
-                            ;; for example in a coinbase transaction, then the node that's serving us the chain will update its filter
-                            ;; but the rest will not.  If another transaction then spends it, the other nodes won't match/relay it.
-                            ;;
-                            ;; (2) If we receive a p2pubkey output broadcast across the network, all currently connected nodes will see
-                            ;; it and update their filter themselves, but any newly connected nodes will receive the last filter we
-                            ;; calculated, which would not include this transaction.
-                            ;;
-                            ;; For this reason we check if the transaction contained any relevant pay to pubkeys and force a recalc
-                            ;; and possibly retransmit if so.  The recalculation process will end up including the tx hash into the
-                            ;; filter.  In case (1), we need to retransmit the filter to the connected peers.  In case (2), we don't
-                            ;; and shouldn't, we should just recalculate and cache the new filter for next time.
-                            (when (seq (filter #(and (Script''is-sent-to-raw-pub-key (TransactionOutput''get-script-pub-key %)) (TransactionOutput''is-mine %, wallet)) (Transaction''get-outputs tx)))
-                                (PeerGroup''recalculate-fast-catchup-and-filter this, (if (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence-t tx)) :ConfidenceType'BUILDING) :FilterRecalculateMode'SEND_IF_CHANGED :FilterRecalculateMode'DONT_SEND))
+                  this
+                    (assoc this :wallet-key-event-listener
+                        (§ reify KeyChainEventListener
+                            #_override
+                            (#_"void" KeyChainEventListener'''on-keys-added [#_"KeyChainEventListener" __, #_"List<ECKey>" keys]
+                                (PeerGroup''recalculate-fast-catchup-and-filter this, :FilterRecalculateMode'SEND_IF_CHANGED)
+                                nil
                             )
-                            nil
                         )
                     )
-                )
-              this
-                (assoc this :trigger-connections-job
-                    (§ reify Runnable
-                        (§ field #_"boolean" :first-run true)
+                  this
+                    (assoc this :wallet-coins-received-event-listener
+                        (§ reify WalletCoinsReceivedEventListener
+                            #_override
+                            (#_"void" WalletCoinsReceivedEventListener'''on-coins-received [#_"WalletCoinsReceivedEventListener" __, #_"Wallet" wallet, #_"Transaction" tx, #_"Coin" _before, #_"Coin" _after]
+                                ;; We received a relevant transaction.  We MAY need to recalculate and resend the Bloom filter, but only
+                                ;; if we have received a transaction that includes a relevant pay-to-pubkey output.
+                                ;;
+                                ;; The reason is that pay-to-pubkey outputs, when spent, will not repeat any data we can predict in their
+                                ;; inputs.  So a remote peer will update the Bloom filter for us when such an output is seen matching the
+                                ;; existing filter, so that it includes the tx hash in which the pay-to-pubkey output was observed.  Thus
+                                ;; the spending transaction will always match (due to the outpoint structure).
+                                ;;
+                                ;; Unfortunately, whilst this is required for correct sync of the chain in blocks, there are two edge cases.
+                                ;;
+                                ;; (1) If a wallet receives a relevant, confirmed p2pubkey output that was not broadcast across the network,
+                                ;; for example in a coinbase transaction, then the node that's serving us the chain will update its filter
+                                ;; but the rest will not.  If another transaction then spends it, the other nodes won't match/relay it.
+                                ;;
+                                ;; (2) If we receive a p2pubkey output broadcast across the network, all currently connected nodes will see
+                                ;; it and update their filter themselves, but any newly connected nodes will receive the last filter we
+                                ;; calculated, which would not include this transaction.
+                                ;;
+                                ;; For this reason we check if the transaction contained any relevant pay to pubkeys and force a recalc
+                                ;; and possibly retransmit if so.  The recalculation process will end up including the tx hash into the
+                                ;; filter.  In case (1), we need to retransmit the filter to the connected peers.  In case (2), we don't
+                                ;; and shouldn't, we should just recalculate and cache the new filter for next time.
+                                (when (seq (filter #(and (Script''is-sent-to-raw-pub-key (TransactionOutput''get-script-pub-key %)) (TransactionOutput''is-mine %, wallet)) (Transaction''get-outputs tx)))
+                                    (PeerGroup''recalculate-fast-catchup-and-filter this, (if (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence-t tx)) :ConfidenceType'BUILDING) :FilterRecalculateMode'SEND_IF_CHANGED :FilterRecalculateMode'DONT_SEND))
+                                )
+                                nil
+                            )
+                        )
+                    )
+                  this
+                    (assoc this :trigger-connections-job
+                        (§ reify Runnable
+                            (§ field #_"boolean" :first-run true)
 
-                        #_foreign
-                        #_override
-                        (#_"void" run [#_"Runnable" self]
-                            (try
-                                (PeerGroup''go-connect this, self)
-                                (catch Throwable e
-                                    (log/error e, "Exception when trying to build connections") ;; The executor swallows exceptions :( ;; )
+                            #_foreign
+                            #_override
+                            (#_"void" run [#_"Runnable" self]
+                                (try
+                                    (PeerGroup''go-connect this, self)
+                                    (catch Throwable e
+                                        (log/error e, "Exception when trying to build connections") ;; The executor swallows exceptions :( ;; )
+                                    )
+                                )
+                                nil
+                            )
+                        )
+                    )
+                  this
+                    (assoc this :executor (PeerGroup''create-private-executor this))
+                  this
+                    (assoc this :inactives (PriorityQueue. 1,
+                        (reify Comparator #_"<PeerAddress>"
+                            #_suppress #_[ "FieldAccessNotGuarded" ] ;; Only called when inactives is accessed, and lock is held then.
+                            #_foreign
+                            #_override
+                            (#_"int" compare [#_"Comparator" __, #_"PeerAddress" a, #_"PeerAddress" b]
+                                (assert-state (.isHeldByCurrentThread (:peergroup-lock this)))
+
+                                (let [#_"int" cmp (.compareTo (.get (:backoff-map this), a), (.get (:backoff-map this), b))]
+                                    ;; Sort by port if otherwise equals - for testing.
+                                    (if (= cmp 0) (compare (PeerAddress''get-port a), (PeerAddress''get-port b)) cmp)
                                 )
                             )
-                            nil
                         )
-                    )
-                )
-              this
-                (assoc this :executor (PeerGroup''create-private-executor this))
-              this
-                (assoc this :inactives (PriorityQueue. 1,
-                    (reify Comparator #_"<PeerAddress>"
-                        #_suppress #_[ "FieldAccessNotGuarded" ] ;; Only called when inactives is accessed, and lock is held then.
-                        #_foreign
-                        #_override
-                        (#_"int" compare [#_"Comparator" __, #_"PeerAddress" a, #_"PeerAddress" b]
-                            (assert-state (.isHeldByCurrentThread (:peergroup-lock this)))
+                    ))]
 
-                            (let [#_"int" cmp (.compareTo (.get (:backoff-map this), a), (.get (:backoff-map this), b))]
-                                ;; Sort by port if otherwise equals - for testing.
-                                (if (= cmp 0) (compare (PeerAddress''get-port a), (PeerAddress''get-port b)) cmp)
-                            )
-                        )
-                    )
-                ))]
-
-            this
+                this
+            )
         )
-    )
-
-    ;;; See {@link #PeerGroup(Context)}. ;;
-    (defn #_"PeerGroup" PeerGroup'new-1-params [#_"NetworkParameters" params]
-        (PeerGroup'new-2-params params, nil)
-    )
-
-    ;;; See {@link #PeerGroup(Context, BlockChain)}. ;;
-    (defn #_"PeerGroup" PeerGroup'new-2-params [#_"NetworkParameters" params, #_"BlockChain" chain]
-        (PeerGroup'new-3-context (Context'get-or-create params), chain, (NioClientManager'new))
-    )
-
-    ;;; See {@link #PeerGroup(Context, BlockChain, ClientConnectionManager)}. ;;
-    (defn #_"PeerGroup" PeerGroup'new-3-params [#_"NetworkParameters" params, #_"BlockChain" chain, #_"ClientConnectionManager" manager]
-        (PeerGroup'new-3-context (Context'get-or-create params), chain, manager)
     )
 
     #_method
     (defn #_"ListeningScheduledExecutorService" PeerGroup''create-private-executor [#_"PeerGroup" this]
-        (let [#_"ListeningScheduledExecutorService" x (MoreExecutors/listeningDecorator (ScheduledThreadPoolExecutor. 1, (ContextPropagatingThreadFactory'new "PeerGroup Thread")))]
+        (let [#_"ListeningScheduledExecutorService" x (MoreExecutors/listeningDecorator (ScheduledThreadPoolExecutor. 1, (DaemonThreadFactory'new "PeerGroup Thread")))]
             ;; Hack: jam the executor so jobs just queue up until the user calls start() on us.  For example, adding a wallet
             ;; results in a bloom filter recalc being queued, but we don't want to do that until we're actually started.
             (.execute x, #(Uninterruptibles/awaitUninterruptibly (:executor-startup-latch this)))
@@ -15275,12 +15129,11 @@
     )
 
     ;;;
-     ; Returns the confidence object for this transaction from the {@link TxConfidenceTable}
-     ; referenced by the implicit {@link Context}.
+     ; Returns the confidence object for this transaction from the {@link TxConfidenceTable}.
      ;;
     #_method
     (defn #_"TransactionConfidence" Transaction''get-confidence-t [#_"Transaction" this]
-        (Transaction''get-confidence-tct this, (:confidence-table (Context'get)))
+        (Transaction''get-confidence-tct this, TxConfidenceTable'INSTANCE)
     )
 
     ;;;
@@ -17513,6 +17366,8 @@
         )
     )
 
+    (def #_"TxConfidenceTable" TxConfidenceTable'INSTANCE (TxConfidenceTable'new))
+
     ;;;
      ; If any transactions have expired due to being only weakly reachable through us, go ahead and delete their
      ; table entries - it means we downloaded the transaction and sent it to various event listeners, none of
@@ -17561,7 +17416,7 @@
         (let [[#_"TransactionConfidence" confidence #_"boolean" fresh?]
                 (sync (:confidence-lock this)
                     (TxConfidenceTable''clean-table this)
-                    (let [confidence (Context'get-or-create hash)]
+                    (let [confidence (TxConfidenceTable''get-or-create this, hash)]
                         [confidence (TransactionConfidence''mark-broadcast-by confidence, __byPeer)]
                     )
                 )]
@@ -19890,14 +19745,12 @@
  ;;
 (class-ns WalletAppKit (§ extends AbstractIdleService)
     ;;;
-     ; Creates a new WalletAppKit, with the given {@link Context}.  Files will be stored in the given directory.
+     ; Creates a new WalletAppKit.
      ;;
-    (defn #_"WalletAppKit" WalletAppKit'new [#_"Context" context, #_"File" directory, #_"String" prefix]
+    (defn #_"WalletAppKit" WalletAppKit'new [#_"NetworkParameters" params, #_"File" directory, #_"String" prefix]
         (merge (§ super AbstractIdleService'new)
             (hash-map
-                #_volatile
-                #_"Context" :context context
-                #_"NetworkParameters" :params (ensure some? (:params context))
+                #_"NetworkParameters" :params (ensure some? params)
 
                 #_"File" :directory (ensure some? directory)
                 #_"String" :file-prefix (ensure some? prefix)
@@ -20010,13 +19863,12 @@
     #_foreign
     #_override
     (defn #_"void" AbstractIdleService'''startUp [#_"WalletAppKit" this]
-        ;; Runs in a separate thread.
-        (Context'propagate (:context this))
         (when (and (not (.exists (:directory this))) (not (.mkdirs (:directory this))))
             (throw (IOException. (str "Could not create directory " (.getAbsolutePath (:directory this)))))
         )
 
         (log/info (str "Starting up with directory = " (:directory this)))
+        ;; Runs in a separate thread.
         (try+
             (let [#_"File" __chainFile (File. (:directory this), (str (:file-prefix this) ".spvchain"))
                   #_"boolean" __chainFileExists (.exists __chainFile)
@@ -20120,7 +19972,7 @@
     #_throws #_[ "TimeoutException" ]
     #_method
     (defn #_"PeerGroup" WalletAppKit''create-peer-group [#_"WalletAppKit" this]
-        (PeerGroup'new-2-params (:params this), (:v-chain this))
+        (PeerGroup'new (:params this), (:v-chain this))
     )
 
     #_method
@@ -20147,7 +19999,6 @@
     (defn #_"void" AbstractIdleService'''shutDown [#_"WalletAppKit" this]
         ;; Runs in a separate thread.
         (try+
-            (Context'propagate (:context this))
             (PeerGroup''stop (:v-peer-group this))
             (Wallet''save (:v-wallet this))
             (BlockStore'''close (:v-store this))
@@ -20864,6 +20715,7 @@
     (defn #_"void" Runnable'''run [#_"NioClientManager" this]
         (try
             (.setPriority (Thread/currentThread), Thread/MIN_PRIORITY)
+
             (while (PeerGroup''is-running this)
                 (loop []
                     (let-when [#_"PendingConnection" conn (.poll (:new-connection-channels this))] (some? conn)
@@ -20973,7 +20825,7 @@
             #_foreign
             #_override
             (#_"void" execute [#_"Executor" __, #_"Runnable" runnable]
-                (.start (.newThread (ContextPropagatingThreadFactory'new "NioClientManager"), runnable))
+                (.start (.newThread (DaemonThreadFactory'new "NioClientManager"), runnable))
                 nil
             )
         )
@@ -21297,7 +21149,7 @@
 
     #_abstract
     (defn #_"ExecutorService" MultiplexingDiscovery'''create-executor [#_"MultiplexingDiscovery" this]
-        (Executors/newFixedThreadPool (.size (:seeds this)), (ContextPropagatingThreadFactory'new "Multiplexing discovery"))
+        (Executors/newFixedThreadPool (.size (:seeds this)), (DaemonThreadFactory'new "Multiplexing discovery"))
     )
 
     #_override
@@ -26496,47 +26348,8 @@
 )
 
 ;;;
- ; A {@link java.util.concurrent.ThreadFactory} that propagates a {@link Context}
- ; from the creating thread into the new thread.  This factory creates daemon threads.
+ ; Thread factory whose threads are marked as daemon and won't prevent process exit.
  ;;
-(class-ns ContextPropagatingThreadFactory (§ implements ThreadFactory)
-    (defn #_"ContextPropagatingThreadFactory" ContextPropagatingThreadFactory'new
-        ([#_"String" name] (ContextPropagatingThreadFactory'new name, Thread/NORM_PRIORITY))
-
-        ([#_"String" name, #_"int" priority]
-            (hash-map
-                #_"String" :name name
-                #_"int" :priority priority
-            )
-        )
-    )
-
-    #_foreign
-    #_override
-    (defn #_"Thread" ThreadFactory'''newThread [#_"ContextPropagatingThreadFactory" this, #_"Runnable" r]
-        (let [#_"Context" context (Context'get)
-              #_"Thread" thread (Thread.
-                #(try
-                    (Context'propagate context)
-                    (.run r)
-                    (catch Exception e
-                        (log/error e, "Exception in thread")
-                        (Throwables/propagate e)
-                    )
-                ), (:name this))]
-            (.setPriority thread, (:priority this))
-            (.setDaemon thread, true)
-            (let [#_"Thread.UncaughtExceptionHandler" handler Threading'UNCAUGHT_EXCEPTION_HANDLER]
-                (when (some? handler)
-                    (.setUncaughtExceptionHandler thread, handler)
-                )
-                thread
-            )
-        )
-    )
-)
-
-;;; Thread factory whose threads are marked as daemon and won't prevent process exit. ;;
 (class-ns DaemonThreadFactory (§ implements ThreadFactory)
     (defn #_"DaemonThreadFactory" DaemonThreadFactory'new [#_"String" name]
         (hash-map
@@ -26735,11 +26548,6 @@
                     (.run task)
                     (catch Throwable t
                         (log/warn t, "Exception in user thread")
-                        (let [#_"Thread.UncaughtExceptionHandler" handler Threading'UNCAUGHT_EXCEPTION_HANDLER]
-                            (when (some? handler)
-                                (.uncaughtException handler, this, t)
-                            )
-                        )
                     )
                 )
             )
@@ -26808,16 +26616,6 @@
         )
         nil
     )
-
-    ;;;
-     ; An exception handler that will be invoked for any exceptions that occur in the user thread, and any unhandled
-     ; exceptions that are caught whilst the framework is processing network traffic or doing other background tasks.
-     ; The purpose of this is to allow you to report back unanticipated crashes from your users to a central collection
-     ; center for analysis and debugging.  You should configure this <b>before</b> any bitcoinj library code is run,
-     ; setting it after you started network traffic and other forms of processing may result in the change not taking effect.
-     ;;
-    #_volatile
-    (def #_"Thread.UncaughtExceptionHandler" Threading'UNCAUGHT_EXCEPTION_HANDLER)
 
     ;;; A caching thread pool that creates daemon threads, which won't keep the JVM alive waiting for more work. ;;
     (def #_"ListeningExecutorService" Threading'THREAD_POOL (MoreExecutors/listeningDecorator (Executors/newCachedThreadPool
@@ -29705,7 +29503,7 @@
              ; when choosing which transactions to add to a block.  Note that, to keep this equivalent to Bitcoin Core
              ; definition, a kilobyte is defined as 1000 bytes, not 1024.
              ;;
-            #_"Coin" :fee-per-kb (:fee-per-kb (Context'get))
+            #_"Coin" :fee-per-kb Transaction'DEFAULT_TX_FEE
 
             ;;;
              ; Requires that there be enough fee for a default Bitcoin Core to at least relay the transaction.
@@ -29716,7 +29514,7 @@
              ; than 26,000 bytes.  If you get a transaction which is that large, you should set a feePerKb of at least
              ; {@link Transaction#REFERENCE_DEFAULT_MIN_TX_FEE}.
              ;;
-            #_"boolean" :ensure-min-required-fee (:ensure-min-required-fee (Context'get))
+            #_"boolean" :ensure-min-required-fee true
 
             ;;;
              ; If true (the default), the inputs will be signed.
