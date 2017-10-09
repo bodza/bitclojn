@@ -155,8 +155,8 @@
 (declare DaemonThreadFactory'new)
 (declare DefaultCoinSelector''should-select DefaultCoinSelector'is-selectable DefaultCoinSelector'new DefaultCoinSelector'sort-outputs)
 (declare DeterministicHierarchy''derive-child-3 DeterministicHierarchy''derive-child-5 DeterministicHierarchy''derive-next-child DeterministicHierarchy''get-4 DeterministicHierarchy''get-next-child-number-to-derive DeterministicHierarchy''get-num-children DeterministicHierarchy''get-root-key DeterministicHierarchy''put-key DeterministicHierarchy'BIP32_STANDARDISATION_TIME_SECS DeterministicHierarchy'new)
-(declare DeterministicKey''derive DeterministicKey''derive-private-key-downwards DeterministicKey''drop-parent DeterministicKey''drop-private-bytes DeterministicKey''find-or-derive-private-key DeterministicKey''find-parent-with-priv-key DeterministicKey''get-chain-code DeterministicKey''get-child-number DeterministicKey''get-depth DeterministicKey''get-fingerprint DeterministicKey''get-identifier DeterministicKey''get-parent DeterministicKey''get-parent-fingerprint DeterministicKey''get-path DeterministicKey''get-path-as-string DeterministicKey''get-priv-key-bytes33 DeterministicKey''serialize DeterministicKey''serialize-priv-b58 DeterministicKey''serialize-private DeterministicKey''serialize-pub-b58 DeterministicKey''serialize-public DeterministicKey'CHILDNUM_ORDER DeterministicKey'add-checksum DeterministicKey'ascertain-parent-fingerprint DeterministicKey'deserialize-2 DeterministicKey'deserialize-3 DeterministicKey'deserialize-b58-2 DeterministicKey'deserialize-b58-3 DeterministicKey'init DeterministicKey'new-2 DeterministicKey'new-4 DeterministicKey'new-5-lazy DeterministicKey'new-5-pert DeterministicKey'new-6-lazy DeterministicKey'new-6i DeterministicKey'to-base58)
-(declare DeterministicKeyChain'''find-redeem-data-by-script-hash DeterministicKeyChain'''format-addresses DeterministicKeyChain'''fresh-output-script DeterministicKeyChain'''get-redeem-data DeterministicKeyChain'''is-married DeterministicKeyChain'''maybe-look-ahead-scripts DeterministicKeyChain'''set-lookahead-size DeterministicKeyChain''calc-default-lookahead-threshold DeterministicKeyChain''check-for-bit-flip DeterministicKeyChain''find-key-from-pub-hash DeterministicKeyChain''find-key-from-pub-key DeterministicKeyChain''get-account-path DeterministicKeyChain''get-issued-external-keys DeterministicKeyChain''get-issued-internal-keys DeterministicKeyChain''get-issued-receive-keys DeterministicKeyChain''get-key-by-path-2 DeterministicKeyChain''get-key-by-path-3 DeterministicKeyChain''get-key-lookahead-epoch DeterministicKeyChain''get-keys-3b DeterministicKeyChain''get-leaf-keys DeterministicKeyChain''get-lookahead-size DeterministicKeyChain''get-lookahead-threshold DeterministicKeyChain''get-mnemonic-code DeterministicKeyChain''get-seed DeterministicKeyChain''get-sigs-required-to-spend DeterministicKeyChain''get-watching-key DeterministicKeyChain''initialize-hierarchy DeterministicKeyChain''is-following DeterministicKeyChain''is-watching DeterministicKeyChain''mark-key-as-used DeterministicKeyChain''mark-pub-hash-as-used DeterministicKeyChain''mark-pub-key-as-used DeterministicKeyChain''maybe-look-ahead-1 DeterministicKeyChain''maybe-look-ahead-3 DeterministicKeyChain''maybe-look-ahead-5 DeterministicKeyChain''num-leaf-keys-issued DeterministicKeyChain''set-lookahead-threshold DeterministicKeyChain''set-sigs-required-to-spend DeterministicKeyChain''to-string DeterministicKeyChain'ACCOUNT_ZERO_PATH DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC DeterministicKeyChain'EXTERNAL_PATH DeterministicKeyChain'EXTERNAL_SUBPATH DeterministicKeyChain'INTERNAL_PATH DeterministicKeyChain'INTERNAL_SUBPATH DeterministicKeyChain'LAZY_CALCULATE_LOOKAHEAD DeterministicKeyChain'init DeterministicKeyChain'from-seed DeterministicKeyChain'from-entropy DeterministicKeyChain'from-random DeterministicKeyChain'watch DeterministicKeyChain'watch-and-follow)
+(declare DeterministicKey''derive DeterministicKey''derive-private-key-downwards DeterministicKey''drop-parent DeterministicKey''drop-private-bytes DeterministicKey''find-or-derive-private-key DeterministicKey''find-parent-with-priv-key DeterministicKey''get-chain-code DeterministicKey''get-child-number DeterministicKey''get-depth DeterministicKey''get-fingerprint DeterministicKey''get-identifier DeterministicKey''get-parent DeterministicKey''get-parent-fingerprint DeterministicKey''get-path DeterministicKey''get-path-as-string DeterministicKey''get-priv-key-bytes33 DeterministicKey''serialize DeterministicKey''serialize-priv-b58 DeterministicKey''serialize-private DeterministicKey''serialize-pub-b58 DeterministicKey''serialize-public DeterministicKey'CHILDNUM_ORDER DeterministicKey'add-checksum DeterministicKey'ascertain-parent-fingerprint DeterministicKey'deserialize-2 DeterministicKey'deserialize-3 DeterministicKey'deserialize-b58-2 DeterministicKey'deserialize-b58-3 DeterministicKey'init DeterministicKey'new-2 DeterministicKey'new-4 DeterministicKey'new-5 DeterministicKey'new-6p DeterministicKey'new-6i DeterministicKey'to-base58)
+(declare DeterministicKeyChain'''find-redeem-data-by-script-hash DeterministicKeyChain'''format-addresses DeterministicKeyChain'''fresh-output-script DeterministicKeyChain'''get-redeem-data DeterministicKeyChain'''is-married DeterministicKeyChain'''maybe-look-ahead-scripts DeterministicKeyChain'''set-lookahead-size DeterministicKeyChain''calc-default-lookahead-threshold DeterministicKeyChain''check-for-bit-flip DeterministicKeyChain''find-key-from-pub-hash DeterministicKeyChain''find-key-from-pub-key DeterministicKeyChain''get-account-path DeterministicKeyChain''get-issued-external-keys DeterministicKeyChain''get-issued-internal-keys DeterministicKeyChain''get-issued-receive-keys DeterministicKeyChain''get-key-by-path-2 DeterministicKeyChain''get-key-by-path-3 DeterministicKeyChain''get-key-lookahead-epoch DeterministicKeyChain''get-keys-3b DeterministicKeyChain''get-leaf-keys DeterministicKeyChain''get-lookahead-size DeterministicKeyChain''get-lookahead-threshold DeterministicKeyChain''get-mnemonic-code DeterministicKeyChain''get-seed DeterministicKeyChain''get-sigs-required-to-spend DeterministicKeyChain''get-watching-key DeterministicKeyChain''initialize-hierarchy DeterministicKeyChain''is-following DeterministicKeyChain''is-watching DeterministicKeyChain''mark-key-as-used DeterministicKeyChain''mark-pub-hash-as-used DeterministicKeyChain''mark-pub-key-as-used DeterministicKeyChain''maybe-look-ahead-1 DeterministicKeyChain''maybe-look-ahead-3 DeterministicKeyChain''maybe-look-ahead-5 DeterministicKeyChain''num-leaf-keys-issued DeterministicKeyChain''set-lookahead-threshold DeterministicKeyChain''set-sigs-required-to-spend DeterministicKeyChain''to-string DeterministicKeyChain'ACCOUNT_ZERO_PATH DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC DeterministicKeyChain'EXTERNAL_PATH DeterministicKeyChain'EXTERNAL_SUBPATH DeterministicKeyChain'INTERNAL_PATH DeterministicKeyChain'INTERNAL_SUBPATH DeterministicKeyChain'init DeterministicKeyChain'from-seed DeterministicKeyChain'from-entropy DeterministicKeyChain'from-random DeterministicKeyChain'watch DeterministicKeyChain'watch-and-follow)
 (declare DeterministicSeed''to-hex-string DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS DeterministicSeed'MAX_SEED_ENTROPY_BITS DeterministicSeed'next-entropy DeterministicSeed'from-entropy DeterministicSeed'from-random DeterministicSeed'new)
 (declare DeterministicUpgradeRequiredException'new)
 (declare DnsDiscovery'new)
@@ -164,7 +164,7 @@
 (declare DownloadProgressTracker''await DownloadProgressTracker''done-download DownloadProgressTracker''get-future DownloadProgressTracker''progress DownloadProgressTracker''start-download DownloadProgressTracker'new)
 (declare DustySendRequested'new)
 (declare ECDSASignature'''to-canonicalised ECDSASignature''der-byte-stream ECDSASignature''encode-to-der ECDSASignature''is-canonical ECDSASignature'decode-from-der ECDSASignature'new)
-(declare ECKey'''format-key-with-address ECKey'''get-creation-time-seconds ECKey'''get-priv-key ECKey'''get-secret-bytes ECKey'''has-priv-key ECKey'''is-pub-key-only ECKey'''set-creation-time-seconds ECKey'''sign ECKey''decompress ECKey''do-sign ECKey''get-priv-key-bytes ECKey''get-private-key-as-hex ECKey''get-pub-key ECKey''get-pub-key-hash ECKey''get-pub-key-point ECKey''get-public-key-as-hex ECKey''is-compressed ECKey''is-watching ECKey''sign-message ECKey''to-address ECKey''to-string ECKey''to-string-with-private ECKey''verify-3b ECKey''verify-3s ECKey''verify-message ECKey''verify-or-throw-3b ECKey''verify-or-throw-3s ECKey'AGE_COMPARATOR ECKey'CURVE ECKey'CURVE_PARAMS ECKey'HALF_CURVE_ORDER ECKey'PUBKEY_COMPARATOR ECKey'SECURE_RANDOM ECKey'compress-point-1-lazy ECKey'compress-point-1-pert ECKey'decompress-key ECKey'decompress-point-1-lazy ECKey'decompress-point-1-pert ECKey'from-private-1 ECKey'from-private-1-bytes ECKey'from-private-2 ECKey'from-private-2-bytes ECKey'from-private-and-precalculated-public-2 ECKey'from-private-and-precalculated-public-2-bytes ECKey'from-public-only-1 ECKey'from-public-only-1-bytes ECKey'get-point-with-compression ECKey'init ECKey'is-pub-key-canonical ECKey'new-0 ECKey'new-1 ECKey'new-2-lazy ECKey'new-2-pert ECKey'new-3 ECKey'public-key-from-private ECKey'public-point-from-private ECKey'recover-from-signature ECKey'signed-message-to-key ECKey'verify-3-bytes ECKey'verify-3e)
+(declare ECKey'''format-key-with-address ECKey'''get-creation-time-seconds ECKey'''get-priv-key ECKey'''get-secret-bytes ECKey'''has-priv-key ECKey'''is-pub-key-only ECKey'''set-creation-time-seconds ECKey'''sign ECKey''decompress ECKey''do-sign ECKey''get-priv-key-bytes ECKey''get-private-key-as-hex ECKey''get-pub-key ECKey''get-pub-key-hash ECKey''get-pub-key-point ECKey''get-public-key-as-hex ECKey''is-compressed ECKey''is-watching ECKey''sign-message ECKey''to-address ECKey''to-string ECKey''to-string-with-private ECKey''verify-3b ECKey''verify-3s ECKey''verify-message ECKey''verify-or-throw-3b ECKey''verify-or-throw-3s ECKey'AGE_COMPARATOR ECKey'CURVE ECKey'CURVE_PARAMS ECKey'HALF_CURVE_ORDER ECKey'PUBKEY_COMPARATOR ECKey'SECURE_RANDOM ECKey'compress-point ECKey'decompress-key ECKey'decompress-point ECKey'from-private-1 ECKey'from-private-1-bytes ECKey'from-private-2 ECKey'from-private-2-bytes ECKey'from-private-and-precalculated-public-2 ECKey'from-private-and-precalculated-public-2-bytes ECKey'from-public-only-1 ECKey'from-public-only-1-bytes ECKey'get-point-with-compression ECKey'init ECKey'is-pub-key-canonical ECKey'new-0 ECKey'new-1 ECKey'new-2 ECKey'new-3 ECKey'public-key-from-private ECKey'public-point-from-private ECKey'recover-from-signature ECKey'signed-message-to-key ECKey'verify-3-bytes ECKey'verify-3e)
 (declare EmptyMessage'new-1 EmptyMessage'from-wire)
 (declare ExceededMaxTransactionSize'new)
 (declare ExchangeRate''coin-to-fiat ExchangeRate''fiat-to-coin ExchangeRate'new)
@@ -201,7 +201,6 @@
 (declare KeyChainState'enum-set)
 (declare KeyPurpose'enum-set)
 (declare KeyTimeCoinSelector''is-confirmed KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS KeyTimeCoinSelector'new)
-(declare LazyECPoint''get-1 LazyECPoint''get-affine-x-coord LazyECPoint''get-affine-y-coord LazyECPoint''get-canonical-encoding LazyECPoint''get-curve LazyECPoint''get-encoded-1 LazyECPoint''get-encoded-2 LazyECPoint''is-compressed LazyECPoint''is-infinity LazyECPoint''is-valid LazyECPoint''normalize LazyECPoint'init LazyECPoint'new-1 LazyECPoint'new-2)
 (declare ListMessage''add-item ListMessage''get-items ListMessage''remove-item ListMessage'MAX_INVENTORY_ITEMS ListMessage'init ListMessage'new ListMessage'from-wire)
 (declare ListenerRegistration'new ListenerRegistration'remove-from-list)
 (declare LocalTransactionSigner'MINIMUM_VERIFY_FLAGS LocalTransactionSigner'new)
@@ -5571,116 +5570,6 @@
 )
 
 ;;;
- ; A wrapper around ECPoint that delays decoding of the point for as long as possible.  This is useful because point
- ; encode/decode in Bouncy Castle is quite slow especially on Dalvik, as it often involves decompression/recompression.
- ;;
-(class-ns LazyECPoint
-    (defn- #_"LazyECPoint" LazyECPoint'init []
-        (hash-map
-            ;; If curve is set, bits is also set.  If curve is unset, point is set and bits is unset.  Point can be set along
-            ;; with curve and bits when the cached form has been accessed and thus must have been converted.
-            #_"ECCurve" :curve nil
-            #_"byte[]" :bits nil
-
-            ;; This field is effectively final - once set it won't change again.  However it can be set after construction.
-            #_"ECPoint" :point nil
-        )
-    )
-
-    (defn #_"LazyECPoint" LazyECPoint'new-2 [#_"ECCurve" curve, #_"byte[]" bits]
-        (let [this (LazyECPoint'init)]
-            (assoc this :curve curve, :bits bits)
-        )
-    )
-
-    (defn #_"LazyECPoint" LazyECPoint'new-1 [#_"ECPoint" point]
-        (let [this (LazyECPoint'init)]
-            (assoc this :point (ensure some? point), :curve nil, :bits nil)
-        )
-    )
-
-    #_method
-    (defn #_"ECPoint" LazyECPoint''get-1 [#_"LazyECPoint" this]
-        (when (nil? (:point this))
-            (§ assoc this :point (.decodePoint (:curve this), (:bits this)))
-        )
-        (:point this)
-    )
-
-    #_method
-    (defn #_"byte[]" LazyECPoint''get-encoded-1 [#_"LazyECPoint" this]
-        (if (some? (:bits this))
-            (Arrays/copyOf (:bits this), (alength (:bits this)))
-            (.getEncoded (LazyECPoint''get-1 this))
-        )
-    )
-
-    #_method
-    (defn #_"boolean" LazyECPoint''is-infinity [#_"LazyECPoint" this]
-        (.isInfinity (LazyECPoint''get-1 this))
-    )
-
-    #_method
-    (defn #_"boolean" LazyECPoint''is-compressed [#_"LazyECPoint" this]
-        (if (some? (:bits this)) (any = (aget (:bits this) 0) 2 3) (.isCompressed (LazyECPoint''get-1 this)))
-    )
-
-    #_method
-    (defn #_"boolean" LazyECPoint''is-valid [#_"LazyECPoint" this]
-        (.isValid (LazyECPoint''get-1 this))
-    )
-
-    #_method
-    (defn #_"byte[]" LazyECPoint''get-encoded-2 [#_"LazyECPoint" this, #_"boolean" compressed?]
-        (if (and (= compressed? (LazyECPoint''is-compressed this)) (some? (:bits this)))
-            (Arrays/copyOf (:bits this), (alength (:bits this)))
-            (.getEncoded (LazyECPoint''get-1 this), compressed?)
-        )
-    )
-
-    #_method
-    (defn #_"ECCurve" LazyECPoint''get-curve [#_"LazyECPoint" this]
-        (.getCurve (LazyECPoint''get-1 this))
-    )
-
-    #_method
-    (defn #_"ECPoint" LazyECPoint''normalize [#_"LazyECPoint" this]
-        (.normalize (LazyECPoint''get-1 this))
-    )
-
-    #_method
-    (defn #_"ECFieldElement" LazyECPoint''get-affine-y-coord [#_"LazyECPoint" this]
-        (.getAffineYCoord (LazyECPoint''get-1 this))
-    )
-
-    #_method
-    (defn #_"ECFieldElement" LazyECPoint''get-affine-x-coord [#_"LazyECPoint" this]
-        (.getAffineXCoord (LazyECPoint''get-1 this))
-    )
-
-    #_method
-    (defn- #_"byte[]" LazyECPoint''get-canonical-encoding [#_"LazyECPoint" this]
-        (LazyECPoint''get-encoded-2 this, true)
-    )
-
-    #_foreign
-    #_override
-    (defn #_"boolean" Object'''equals [#_"LazyECPoint" this, #_"Object" o]
-        (cond
-            (= this o) true
-            (or (nil? o) (not= (.getClass this) (.getClass o))) false
-            :else (Arrays/equals (LazyECPoint''get-canonical-encoding this), (LazyECPoint''get-canonical-encoding (§ cast LazyECPoint o)))
-        )
-    )
-
-    #_foreign
-    #_override
-    (defn #_"int" Object'''hashCode [#_"LazyECPoint" this]
-        (Arrays/hashCode (LazyECPoint''get-canonical-encoding this))
-    )
-)
-
-;;;
  ; Represents an elliptic curve public and (optionally) private key, usable for digital signatures but not encryption.
  ; Creating a new ECKey with the empty constructor will generate a new random keypair.  Other static methods can be used
  ; when you already have the public or private parts.  If you create a key with only the public part, you can check
@@ -5740,7 +5629,7 @@
     )
 
     ;;; The parameters of the secp256k1 curve that Bitcoin uses. ;;
-    (§ def #_"ECDomainParameters" ECKey'CURVE (ECDomainParameters. (LazyECPoint''get-curve ECKey'CURVE_PARAMS), (.getG ECKey'CURVE_PARAMS), (.getN ECKey'CURVE_PARAMS), (.getH ECKey'CURVE_PARAMS)))
+    (def #_"ECDomainParameters" ECKey'CURVE (ECDomainParameters. (.getCurve ECKey'CURVE_PARAMS), (.getG ECKey'CURVE_PARAMS), (.getN ECKey'CURVE_PARAMS), (.getH ECKey'CURVE_PARAMS)))
 
     ;;;
      ; Equal to CURVE.getN().shiftRight(1), used for canonicalising the S value of a signature.
@@ -5752,13 +5641,13 @@
 
     (defn- #_"ECKey" ECKey'init []
         (hash-map
-            ;; The two parts of the key.  If "priv" is set, "pub" can always be calculated.  If "pub" is set but not "priv",
-            ;; we can only verify signatures not make them.
+            ;; The two parts of the key.  If "priv" is set, "pub" can always be calculated.
+            ;; If "pub" is set, but not "priv", we can only verify signatures, not make them.
             #_"BigInteger" :priv nil ;; A field element.
-            #_"LazyECPoint" :pub nil
+            #_"ECPoint" :pub nil
 
-            ;; Creation time of the key in seconds since the epoch, or zero if the key was deserialized from a version that
-            ;; did not have this field.
+            ;; Creation time of the key in seconds since the epoch, or zero if the key was
+            ;; deserialized from a version that did not have this field.
             #_"long" :creation-time-seconds 0
 
             #_"byte[]" :pub-key-hash nil
@@ -5786,7 +5675,7 @@
                       #_"ECPrivateKeyParameters" __privParams (cast ECPrivateKeyParameters (.getPrivate keypair))
                       #_"ECPublicKeyParameters" __pubParams (cast ECPublicKeyParameters (.getPublic keypair))]
                     (§ assoc this :priv (.getD __privParams))
-                    (§ assoc this :pub (LazyECPoint'new-2 (LazyECPoint''get-curve ECKey'CURVE), (LazyECPoint''get-encoded-2 (.getQ __pubParams), true)))
+                    (§ assoc this :pub (.decodePoint (.getCurve ECKey'CURVE), (.getEncoded (.getQ __pubParams), true)))
                     (§ assoc this :creation-time-seconds (Utils'current-time-seconds))
                     this
                 )
@@ -5794,11 +5683,7 @@
         )
     )
 
-    (defn #_"ECKey" ECKey'new-2-pert [#_"BigInteger" priv, #_"ECPoint" pub]
-        (ECKey'new-2-lazy priv, (LazyECPoint'new-1 (ensure some? pub)))
-    )
-
-    (defn #_"ECKey" ECKey'new-2-lazy [#_"BigInteger" priv, #_"LazyECPoint" pub]
+    (defn #_"ECKey" ECKey'new-2 [#_"BigInteger" priv, #_"ECPoint" pub]
         (let [this (ECKey'init)]
             (when (some? priv)
                 (assert-argument (<= (.bitLength priv) (<< 32 3)), (str "private key exceeds 32 bytes: " (.bitLength priv) " bits"))
@@ -5818,33 +5703,25 @@
      ; Utility for compressing an elliptic curve point.  Returns the same point if it's already compressed.
      ; See the ECKey class docs for a discussion of point compression.
      ;;
-    (defn #_"ECPoint" ECKey'compress-point-1-pert [#_"ECPoint" point]
+    (defn #_"ECPoint" ECKey'compress-point [#_"ECPoint" point]
         (ECKey'get-point-with-compression point, true)
-    )
-
-    (defn #_"LazyECPoint" ECKey'compress-point-1-lazy [#_"LazyECPoint" point]
-        (if (LazyECPoint''is-compressed point) point (LazyECPoint'new-1 (ECKey'compress-point-1-pert (LazyECPoint''get-1 point))))
     )
 
     ;;;
      ; Utility for decompressing an elliptic curve point.  Returns the same point if it's already compressed.
      ; See the ECKey class docs for a discussion of point compression.
      ;;
-    (defn #_"ECPoint" ECKey'decompress-point-1-pert [#_"ECPoint" point]
+    (defn #_"ECPoint" ECKey'decompress-point [#_"ECPoint" point]
         (ECKey'get-point-with-compression point, false)
-    )
-
-    (defn #_"LazyECPoint" ECKey'decompress-point-1-lazy [#_"LazyECPoint" point]
-        (if (not (LazyECPoint''is-compressed point)) point (LazyECPoint'new-1 (ECKey'decompress-point-1-pert (LazyECPoint''get-1 point))))
     )
 
     (defn- #_"ECPoint" ECKey'get-point-with-compression [#_"ECPoint" point, #_"boolean" compressed?]
         (if (= (.isCompressed point) compressed?)
             point
-            (let [point (LazyECPoint''normalize point)
-                  #_"BigInteger" x (Sha256Hash''to-big-integer (LazyECPoint''get-affine-x-coord point))
-                  #_"BigInteger" y (Sha256Hash''to-big-integer (LazyECPoint''get-affine-y-coord point))]
-                (.createPoint (LazyECPoint''get-curve ECKey'CURVE), x, y, compressed?)
+            (let [point (.normalize point)
+                  #_"BigInteger" x (Sha256Hash''to-big-integer (.getAffineXCoord point))
+                  #_"BigInteger" y (Sha256Hash''to-big-integer (.getAffineYCoord point))]
+                (.createPoint (.getCurve ECKey'CURVE), x, y, compressed?)
             )
         )
     )
@@ -5863,7 +5740,7 @@
      ;;
     (defn #_"ECKey" ECKey'from-private-2 [#_"BigInteger" __privKey, #_"boolean" compressed?]
         (let [#_"ECPoint" point (ECKey'public-point-from-private __privKey)]
-            (ECKey'new-2-pert __privKey, (ECKey'get-point-with-compression point, compressed?))
+            (ECKey'new-2 __privKey, (ECKey'get-point-with-compression point, compressed?))
         )
     )
 
@@ -5889,7 +5766,7 @@
      ; already.  The compression state of pub will be preserved.
      ;;
     (defn #_"ECKey" ECKey'from-private-and-precalculated-public-2 [#_"BigInteger" priv, #_"ECPoint" pub]
-        (ECKey'new-2-pert priv, pub)
+        (ECKey'new-2 priv, pub)
     )
 
     ;;;
@@ -5900,7 +5777,7 @@
     (defn #_"ECKey" ECKey'from-private-and-precalculated-public-2-bytes [#_"byte[]" priv, #_"byte[]" pub]
         (ensure some? priv)
         (ensure some? pub)
-        (ECKey'new-2-pert (BigInteger. 1, priv), (.decodePoint (LazyECPoint''get-curve ECKey'CURVE), pub))
+        (ECKey'new-2 (BigInteger. 1, priv), (.decodePoint (.getCurve ECKey'CURVE), pub))
     )
 
     ;;;
@@ -5908,7 +5785,7 @@
      ; The compression state of pub will be preserved.
      ;;
     (defn #_"ECKey" ECKey'from-public-only-1 [#_"ECPoint" pub]
-        (ECKey'new-2-pert nil, pub)
+        (ECKey'new-2 nil, pub)
     )
 
     ;;;
@@ -5916,7 +5793,7 @@
      ; The compression state of pub will be preserved.
      ;;
     (defn #_"ECKey" ECKey'from-public-only-1-bytes [#_"byte[]" pub]
-        (ECKey'new-2-pert nil, (.decodePoint (LazyECPoint''get-curve ECKey'CURVE), pub))
+        (ECKey'new-2 nil, (.decodePoint (.getCurve ECKey'CURVE), pub))
     )
 
     ;;;
@@ -5925,7 +5802,7 @@
      ;;
     #_method
     (defn #_"ECKey" ECKey''decompress [#_"ECKey" this]
-        (if (LazyECPoint''is-compressed (:pub this)) (ECKey'new-2-lazy (:priv this), (ECKey'decompress-point-1-pert (LazyECPoint''get-1 (:pub this)))) this)
+        (if (.isCompressed (:pub this)) (ECKey'new-2 (:priv this), (ECKey'decompress-point (:pub this))) this)
     )
 
     ;;;
@@ -5946,12 +5823,12 @@
             (if (nil? __pubKey)
                 ;; Derive public from private.
                 (let [#_"ECPoint" point (ECKey'public-point-from-private __privKey) point (ECKey'get-point-with-compression point, compressed?)]
-                    (§ assoc this :pub (LazyECPoint'new-1 point))
+                    (§ assoc this :pub point)
                 )
                 ;; We expect the pubkey to be in regular encoded form, just as a BigInteger.
                 ;; Therefore the first byte is a special marker byte.
                 ;; TODO: This is probably not a useful API and may be confusing.
-                (§ assoc this :pub (LazyECPoint'new-2 (LazyECPoint''get-curve ECKey'CURVE), __pubKey))
+                (§ assoc this :pub (.decodePoint (.getCurve ECKey'CURVE), __pubKey))
             )
             this
         )
@@ -5986,7 +5863,7 @@
      ; Returns public key bytes from the given private key.  To convert a byte array into a BigInteger, use <tt>new BigInteger(1, bytes)</tt>.
      ;;
     (defn #_"byte[]" ECKey'public-key-from-private [#_"BigInteger" priv, #_"boolean" compressed?]
-        (LazyECPoint''get-encoded-2 (ECKey'public-point-from-private priv), compressed?)
+        (.getEncoded (ECKey'public-point-from-private priv), compressed?)
     )
 
     ;;;
@@ -6000,34 +5877,38 @@
         )
     )
 
-    ;;; Gets the hash160 form of the public key (as seen in addresses). ;;
+    ;;;
+     ; Gets the hash160 form of the public key (as seen in addresses).
+     ;;
     #_method
     (defn #_"byte[]" ECKey''get-pub-key-hash [#_"ECKey" this]
         (when (nil? (:pub-key-hash this))
-            (§ assoc this :pub-key-hash (Utils'sha256hash160 (LazyECPoint''get-encoded-1 (:pub this))))
+            (§ assoc this :pub-key-hash (Utils'sha256hash160 (.getEncoded (:pub this))))
         )
 
         (:pub-key-hash this)
     )
 
     ;;;
-     ; Gets the raw public key value.  This appears in transaction scriptSigs.  Note that this is <b>not</b> the same
-     ; as the pubKeyHash/address.
+     ; Gets the raw public key value.  This appears in transaction scriptSigs.  Note that this is <b>not</b>
+     ; the same as the pubKeyHash/address.
      ;;
     #_method
     (defn #_"byte[]" ECKey''get-pub-key [#_"ECKey" this]
-        (LazyECPoint''get-encoded-1 (:pub this))
-    )
-
-    ;;; Gets the public key in the form of an elliptic curve point object from Bouncy Castle. ;;
-    #_method
-    (defn #_"ECPoint" ECKey''get-pub-key-point [#_"ECKey" this]
-        (LazyECPoint''get-1 (:pub this))
+        (.getEncoded (:pub this))
     )
 
     ;;;
-     ; Gets the private key in the form of an integer field element.  The public key is derived by performing EC
-     ; point addition this number of times (i.e. point multiplying).
+     ; Gets the public key in the form of an elliptic curve point object from Bouncy Castle.
+     ;;
+    #_method
+    (defn #_"ECPoint" ECKey''get-pub-key-point [#_"ECKey" this]
+        (:pub this)
+    )
+
+    ;;;
+     ; Gets the private key in the form of an integer field element.  The public key is derived by performing
+     ; EC point addition this number of times (i.e. point multiplying).
      ;
      ; @throws IllegalStateException if the private key bytes are not available.
      ;;
@@ -6045,7 +5926,7 @@
      ;;
     #_method
     (defn #_"boolean" ECKey''is-compressed [#_"ECKey" this]
-        (LazyECPoint''is-compressed (:pub this))
+        (.isCompressed (:pub this))
     )
 
     ;;;
@@ -6096,7 +5977,7 @@
      ;;
     (defn #_"boolean" ECKey'verify-3e [#_"byte[]" data, #_"ECDSASignature" signature, #_"byte[]" pub]
         (let [#_"ECDSASigner" signer (ECDSASigner.)]
-            (.init signer, false, (ECPublicKeyParameters. (.decodePoint (LazyECPoint''get-curve ECKey'CURVE), pub), ECKey'CURVE))
+            (.init signer, false, (ECPublicKeyParameters. (.decodePoint (.getCurve ECKey'CURVE), pub), ECKey'CURVE))
             (try
                 (.verifySignature signer, data, (:r signature), (:s signature))
                 (catch NullPointerException e
@@ -6306,7 +6187,7 @@
                             ;; So it's encoded in the recId.
                 (let [#_"ECPoint" __R (ECKey'decompress-key x, (= (& __recId 1) 1))]
                             ;;   1.4 If nR != point at infinity, then do another iteration of Step 1 (callers responsibility).
-                    (when (LazyECPoint''is-infinity (.multiply __R, n))
+                    (when (.isInfinity (.multiply __R, n))
                             ;;   1.5 Compute e from M using Steps 2 and 3 of ECDSA signature verification.
                         (let [#_"BigInteger" e (Sha256Hash''to-big-integer message)]
                             ;;   1.6 For k from 1 to 2 do the following.   (loop is outside this function via iterating recId)
@@ -6325,7 +6206,7 @@
                                   #_"BigInteger" sr' (.mod (.multiply r', (:s sig)), n)
                                   #_"BigInteger" e'r' (.mod (.multiply r', e'), n)
                                   #_"ECPoint" q (ECAlgorithms/sumOfTwoMultiplies (.getG ECKey'CURVE), e'r', __R, sr')]
-                                (ECKey'from-public-only-1-bytes (LazyECPoint''get-encoded-2 q, compressed?))
+                                (ECKey'from-public-only-1-bytes (.getEncoded q, compressed?))
                             )
                         )
                     )
@@ -6337,9 +6218,9 @@
     ;;; Decompress a compressed public key (x co-ord and low-bit of y-coord). ;;
     (defn- #_"ECPoint" ECKey'decompress-key [#_"BigInteger" __xBN, #_"boolean" __yBit]
         (let [#_"X9IntegerConverter" x9 (X9IntegerConverter.)
-              #_"byte[]" bytes (.integerToBytes x9, __xBN, (inc (.getByteLength x9, (LazyECPoint''get-curve ECKey'CURVE))))]
+              #_"byte[]" bytes (.integerToBytes x9, __xBN, (inc (.getByteLength x9, (.getCurve ECKey'CURVE))))]
             (aset bytes 0 (byte (if __yBit 0x03 0x02)))
-            (.decodePoint (LazyECPoint''get-curve ECKey'CURVE), bytes)
+            (.decodePoint (.getCurve ECKey'CURVE), bytes)
         )
     )
 
@@ -6424,7 +6305,7 @@
 
     #_method
     (defn #_"String" ECKey''get-public-key-as-hex [#_"ECKey" this]
-        (.encode Utils'HEX, (LazyECPoint''get-encoded-1 (:pub this)))
+        (.encode Utils'HEX, (.getEncoded (:pub this)))
     )
 
     #_method
@@ -17435,8 +17316,8 @@
     )
 
     ;;; Constructs a key from its components.  This is not normally something you should use. ;;
-    (defn #_"DeterministicKey" DeterministicKey'new-5-lazy [#_"ImmutableList<ChildNumber>" path, #_"byte[]" code, #_"LazyECPoint" __publicAsPoint, #_"BigInteger" priv, #_"DeterministicKey" parent]
-        (let [this (merge (ECKey'new-2-lazy priv, (ECKey'compress-point-1-lazy (ensure some? __publicAsPoint))) (DeterministicKey'init))]
+    (defn #_"DeterministicKey" DeterministicKey'new-5 [#_"ImmutableList<ChildNumber>" path, #_"byte[]" code, #_"ECPoint" __publicAsPoint, #_"BigInteger" priv, #_"DeterministicKey" parent]
+        (let [this (merge (ECKey'new-2 priv, (ECKey'compress-point (ensure some? __publicAsPoint))) (DeterministicKey'init))]
 
             (assert-argument (= (alength code) 32))
 
@@ -17449,13 +17330,9 @@
         )
     )
 
-    (defn #_"DeterministicKey" DeterministicKey'new-5-pert [#_"ImmutableList<ChildNumber>" path, #_"byte[]" code, #_"ECPoint" __publicAsPoint, #_"BigInteger" priv, #_"DeterministicKey" parent]
-        (DeterministicKey'new-5-lazy path, code, (LazyECPoint'new-1 __publicAsPoint), priv, parent)
-    )
-
     ;;; Constructs a key from its components.  This is not normally something you should use. ;;
     (defn #_"DeterministicKey" DeterministicKey'new-4 [#_"ImmutableList<ChildNumber>" path, #_"byte[]" code, #_"BigInteger" priv, #_"DeterministicKey" parent]
-        (let [this (merge (ECKey'new-2-pert priv, (ECKey'compress-point-1-pert (ECKey'public-point-from-private priv))) (DeterministicKey'init))]
+        (let [this (merge (ECKey'new-2 priv, (ECKey'compress-point (ECKey'public-point-from-private priv))) (DeterministicKey'init))]
 
             (assert-argument (= (alength code) 32))
 
@@ -17486,9 +17363,8 @@
      ; information about its parent key.  Invoked when deserializing, but otherwise not something
      ; that you normally should use.
      ;;
-    (defn #_"DeterministicKey" DeterministicKey'new-6-lazy [#_"ImmutableList<ChildNumber>" path, #_"byte[]" code, #_"LazyECPoint" __publicAsPoint, #_"DeterministicKey" parent, #_"int" depth, #_"int" fing]
-        (let [this (merge (ECKey'new-2-lazy nil, (ECKey'compress-point-1-lazy (ensure some? __publicAsPoint))) (DeterministicKey'init))]
-
+    (defn #_"DeterministicKey" DeterministicKey'new-6p [#_"ImmutableList<ChildNumber>" path, #_"byte[]" code, #_"ECPoint" __publicAsPoint, #_"DeterministicKey" parent, #_"int" depth, #_"int" fing]
+        (let [this (merge (ECKey'new-2 nil, (ECKey'compress-point (ensure some? __publicAsPoint))) (DeterministicKey'init))]
             (assert-argument (= (alength code) 32))
 
             (§ assoc this :parent parent)
@@ -17502,12 +17378,11 @@
 
     ;;;
      ; Constructs a key from its components, including its private key data and possibly-redundant
-     ; information about its parent key.  Invoked when deserializing, but otherwise not something that
-     ; you normally should use.
+     ; information about its parent key.  Invoked when deserializing, but otherwise not something
+     ; that you normally should use.
      ;;
     (defn #_"DeterministicKey" DeterministicKey'new-6i [#_"ImmutableList<ChildNumber>" path, #_"byte[]" code, #_"BigInteger" priv, #_"DeterministicKey" parent, #_"int" depth, #_"int" fing]
-        (let [this (merge (ECKey'new-2-pert priv, (ECKey'compress-point-1-pert (ECKey'public-point-from-private priv))) (DeterministicKey'init))]
-
+        (let [this (merge (ECKey'new-2 priv, (ECKey'compress-point (ECKey'public-point-from-private priv))) (DeterministicKey'init))]
             (assert-argument (= (alength code) 32))
 
             (§ assoc this :parent parent)
@@ -17519,13 +17394,15 @@
         )
     )
 
-    ;;; Clones the key. ;;
-    (defn #_"DeterministicKey" DeterministicKey'new-2 [#_"DeterministicKey" __keyToClone, #_"DeterministicKey" parent]
-        (let [this (merge (ECKey'new-2-pert (:priv __keyToClone), (LazyECPoint''get-1 (:pub __keyToClone))) (DeterministicKey'init))]
+    ;;;
+     ; Clones the key.
+     ;;
+    (defn #_"DeterministicKey" DeterministicKey'new-2 [#_"DeterministicKey" key, #_"DeterministicKey" parent]
+        (let [this (merge (ECKey'new-2 (:priv key), (:pub key)) (DeterministicKey'init))]
 
             (§ assoc this :parent parent)
-            (§ assoc this :child-number-path (:child-number-path __keyToClone))
-            (§ assoc this :chain-code (:chain-code __keyToClone))
+            (§ assoc this :child-number-path (:child-number-path key))
+            (§ assoc this :chain-code (:chain-code key))
             (§ assoc this :depth (.size (:child-number-path this)))
             (§ assoc this :parent-fingerprint (DeterministicKey''get-fingerprint (:parent this)))
             this
@@ -17626,7 +17503,7 @@
      ;;
     #_method
     (defn #_"DeterministicKey" DeterministicKey''drop-private-bytes [#_"DeterministicKey" this]
-        (if (ECKey'''is-pub-key-only this) this (DeterministicKey'new-5-lazy (DeterministicKey''get-path this), (DeterministicKey''get-chain-code this), (:pub this), nil, (:parent this)))
+        (if (ECKey'''is-pub-key-only this) this (DeterministicKey'new-5 (DeterministicKey''get-path this), (DeterministicKey''get-chain-code this), (:pub this), nil, (:parent this)))
     )
 
     ;;;
@@ -17639,7 +17516,7 @@
      ;;
     #_method
     (defn #_"DeterministicKey" DeterministicKey''drop-parent [#_"DeterministicKey" this]
-        (let [#_"DeterministicKey" key (DeterministicKey'new-5-lazy (DeterministicKey''get-path this), (DeterministicKey''get-chain-code this), (:pub this), (:priv this), nil)]
+        (let [#_"DeterministicKey" key (DeterministicKey'new-5 (DeterministicKey''get-path this), (DeterministicKey''get-chain-code this), (:pub this), (:priv this), nil)]
             (assoc key :parent-fingerprint (:parent-fingerprint this))
         )
     )
@@ -17698,7 +17575,7 @@
         ;; That path can be found by just truncating our path with the length of the parents path.
         (let [#_"BigInteger" priv (BigInteger. 1, bytes)
               key (reduce HDKeyDerivation'derive-child-key-2c
-                    (DeterministicKey'new-5-lazy (:child-number-path key), (:chain-code key), (:pub key), priv, (:parent key))
+                    (DeterministicKey'new-5 (:child-number-path key), (:chain-code key), (:pub key), priv, (:parent key))
                     (.subList (:child-number-path this), (.size (DeterministicKey''get-path key)), (.size (:child-number-path this))))]
             ;; downCursor is now the same key as us, but with private key bytes.
             ;; If it's not, it means we tried decrypting with an invalid password and earlier checks e.g. for padding didn't catch it.
@@ -17806,11 +17683,11 @@
                 (throw (IllegalArgumentException. (str "Unknown header bytes: " (.substring (DeterministicKey'to-base58 __serializedKey), 0, 4))))
             )
 
-            (let [#_"boolean" pub (= header (:bip32-header-pub params))
+            (let [#_"boolean" pub? (= header (:bip32-header-pub params))
                   #_"int" depth (& (.get buffer) 0xff) ;; convert signed byte to positive int since depth cannot be negative
                   #_"int" fing (.getInt buffer)
                   #_"int" i (.getInt buffer)
-                  #_"ChildNumber" __childNumber (ChildNumber'new i)
+                  #_"ChildNumber" child (ChildNumber'new i)
                   #_"ImmutableList<ChildNumber>" path]
                 (cond (some? parent)
                     (do
@@ -17820,7 +17697,7 @@
                         (when (not= (DeterministicKey''get-fingerprint parent) fing)
                             (throw (IllegalArgumentException. "Parent fingerprints don't match"))
                         )
-                        (§ ass path (HDUtils'append (DeterministicKey''get-path parent), __childNumber))
+                        (§ ass path (HDUtils'append (DeterministicKey''get-path parent), child))
                         (when (not= (.size path) depth)
                             (throw (IllegalArgumentException. "Depth does not match"))
                         )
@@ -17831,14 +17708,14 @@
                         ;; This can happen when deserializing an account key for a watching wallet.  In this case, we assume
                         ;; that the client wants to conceal the key's position in the hierarchy.  The path is truncated at
                         ;; the parent's node.
-                        (§ ass path (if (<= 1 depth) (ImmutableList/of __childNumber) (ImmutableList/of)))
+                        (§ ass path (if (<= 1 depth) (ImmutableList/of child) (ImmutableList/of)))
                     )
                 )
                 (let [#_"byte[]" code (byte-array 32) _ (.get buffer, code)
                       #_"byte[]" data (byte-array 33) _ (.get buffer, data)]
                     (assert-argument (not (.hasRemaining buffer)), "Found unexpected data in key")
-                    (if pub
-                        (DeterministicKey'new-6-lazy path, code, (LazyECPoint'new-2 (LazyECPoint''get-curve ECKey'CURVE), data), parent, depth, fing)
+                    (if pub?
+                        (DeterministicKey'new-6p path, code, (.decodePoint (.getCurve ECKey'CURVE), data), parent, depth, fing)
                         (DeterministicKey'new-6i path, code, (BigInteger. 1, data), parent, depth, fing)
                     )
                 )
@@ -17894,7 +17771,7 @@
     #_override
     (defn #_"String" Object'''toString [#_"DeterministicKey" this]
         (let [#_"MoreObjects.ToStringHelper" helper (.omitNullValues (MoreObjects/toStringHelper this))]
-            (.add helper, "pub", (.encode Utils'HEX, (LazyECPoint''get-encoded-1 (:pub this))))
+            (.add helper, "pub", (.encode Utils'HEX, (.getEncoded (:pub this))))
             (.add helper, "chainCode", (.encode Utils'HEX, (:chain-code this)))
             (.add helper, "path", (DeterministicKey''get-path-as-string this))
             (when (pos? (:creation-time-seconds this))
@@ -18003,7 +17880,7 @@
     )
 
     (defn #_"DeterministicKey" HDKeyDerivation'create-master-pub-key-from-bytes [#_"byte[]" bytes, #_"byte[]" code]
-        (DeterministicKey'new-5-lazy (ImmutableList/of #_"ImmutableList<ChildNumber>"), code, (LazyECPoint'new-2 (LazyECPoint''get-curve ECKey'CURVE), bytes), nil, nil)
+        (DeterministicKey'new-5 (ImmutableList/of #_"ImmutableList<ChildNumber>"), code, (.decodePoint (.getCurve ECKey'CURVE), bytes), nil, nil)
     )
 
     ;;;
@@ -18045,7 +17922,7 @@
     (defn #_"DeterministicKey" HDKeyDerivation'derive-child-key-2c [#_"DeterministicKey" parent, #_"ChildNumber" child]
         (if (not (ECKey'''has-priv-key parent))
             (let [#_"RawKeyBytes" raw (HDKeyDerivation'derive-child-key-bytes-from-public parent, child, :PublicDerivationMode'NORMAL)]
-                (DeterministicKey'new-5-lazy (HDUtils'append (DeterministicKey''get-path parent), child), (:chain-code raw), (LazyECPoint'new-2 (LazyECPoint''get-curve ECKey'CURVE), (:key-bytes raw)), nil, parent)
+                (DeterministicKey'new-5 (HDUtils'append (DeterministicKey''get-path parent), child), (:chain-code raw), (.decodePoint (.getCurve ECKey'CURVE), (:key-bytes raw)), nil, parent)
             )
             (let [#_"RawKeyBytes" raw (HDKeyDerivation'derive-child-key-bytes-from-private parent, child)]
                 (DeterministicKey'new-4 (HDUtils'append (DeterministicKey''get-path parent), child), (:chain-code raw), (BigInteger. 1, (:key-bytes raw)), parent)
@@ -18057,7 +17934,7 @@
     (defn #_"RawKeyBytes" HDKeyDerivation'derive-child-key-bytes-from-private [#_"DeterministicKey" parent, #_"ChildNumber" child]
         (assert-argument (ECKey'''has-priv-key parent), "Parent key must have private key bytes for this method.")
 
-        (let [#_"byte[]" __parentPublicKey (LazyECPoint''get-encoded-2 (ECKey''get-pub-key-point parent), true)]
+        (let [#_"byte[]" __parentPublicKey (.getEncoded (ECKey''get-pub-key-point parent), true)]
             (assert-state (= (alength __parentPublicKey) 33), (str "Parent pubkey must be 33 bytes, but is " (alength __parentPublicKey)))
 
             (let [#_"ByteBuffer" buff (ByteBuffer/allocate 37)]
@@ -18086,7 +17963,7 @@
     (defn #_"RawKeyBytes" HDKeyDerivation'derive-child-key-bytes-from-public [#_"DeterministicKey" parent, #_"ChildNumber" child, #_"PublicDerivationMode" mode]
         (assert-argument (not (ChildNumber''is-hardened child)), "Can't use private derivation with public keys only.")
 
-        (let [#_"byte[]" __parentPublicKey (LazyECPoint''get-encoded-2 (ECKey''get-pub-key-point parent), true)]
+        (let [#_"byte[]" __parentPublicKey (.getEncoded (ECKey''get-pub-key-point parent), true)]
             (assert-state (= (alength __parentPublicKey) 33), (str "Parent pubkey must be 33 bytes, but is " (alength __parentPublicKey)))
 
             (let [#_"ByteBuffer" buff (ByteBuffer/allocate 37)]
@@ -18131,7 +18008,7 @@
     )
 
     (defn- #_"void" HDKeyDerivation'assert-non-infinity [#_"ECPoint" point, #_"String" message]
-        (when (.equals point, (.getInfinity (LazyECPoint''get-curve ECKey'CURVE)))
+        (when (.equals point, (.getInfinity (.getCurve ECKey'CURVE)))
             (throw+ (HDDerivationException'new message))
         )
         nil
@@ -18173,12 +18050,12 @@
     )
 
     (defn #_"byte[]" HDUtils'to-compressed [#_"byte[]" __uncompressedPoint]
-        (LazyECPoint''get-encoded-2 (.decodePoint (LazyECPoint''get-curve ECKey'CURVE), __uncompressedPoint), true)
+        (.getEncoded (.decodePoint (.getCurve ECKey'CURVE), __uncompressedPoint), true)
     )
 
     ;;; Append a derivation level to an existing path. ;;
-    (defn #_"ImmutableList<ChildNumber>" HDUtils'append [#_"List<ChildNumber>" path, #_"ChildNumber" __childNumber]
-        (.. (ImmutableList/builder #_"ImmutableList<ChildNumber>") (addAll path) (add __childNumber) (build))
+    (defn #_"ImmutableList<ChildNumber>" HDUtils'append [#_"List<ChildNumber>" path, #_"ChildNumber" child]
+        (.. (ImmutableList/builder #_"ImmutableList<ChildNumber>") (addAll path) (add child) (build))
     )
 
     ;;; Concatenate two derivation paths. ;;
@@ -26491,12 +26368,6 @@
     (def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'INTERNAL_PATH (HDUtils'concat DeterministicKeyChain'ACCOUNT_ZERO_PATH, DeterministicKeyChain'INTERNAL_SUBPATH))
     ;; m / 44' / 0' / 0'
     (def #_"ImmutableList<ChildNumber>" DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH (ImmutableList/of (ChildNumber'compose 44, true), ChildNumber'ZERO_HARDENED, ChildNumber'ZERO_HARDENED))
-
-    ;; We try to ensure we have at least this many keys ready and waiting to be handed out via getKey().  See docs
-    ;; for getLookaheadSize() for more info on what this is for.  The -1 value means it hasn't been calculated yet.
-    ;; For new chains it's set to whatever the default is, unless overridden by setLookaheadSize.  For deserialized
-    ;; chains, it will be calculated on demand from the number of loaded keys.
-    (def- #_"int" DeterministicKeyChain'LAZY_CALCULATE_LOOKAHEAD -1)
 
     (defn- #_"DeterministicKeyChain" DeterministicKeyChain'init []
         (hash-map
