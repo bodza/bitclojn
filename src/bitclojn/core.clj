@@ -125,7 +125,7 @@
 (declare BasicKeyChain''find-key-from-pub-hash BasicKeyChain''find-key-from-pub-key BasicKeyChain''find-keys-before BasicKeyChain''find-oldest-key-after BasicKeyChain''get-keys-1 BasicKeyChain''get-listeners BasicKeyChain''import-key BasicKeyChain''import-key-locked BasicKeyChain''import-keys BasicKeyChain''import-keys-locked BasicKeyChain''is-watching BasicKeyChain''queue-on-keys-added BasicKeyChain''remove-key BasicKeyChain'new)
 (declare BitcoinPacketHeader'HEADER_LENGTH BitcoinPacketHeader'new)
 (declare BitcoinSerializer'deserialize BitcoinSerializer'deserialize-header BitcoinSerializer'deserialize-payload BitcoinSerializer'make-message BitcoinSerializer'seek-past-magic-bytes BitcoinSerializer'serialize-3 BitcoinSerializer'serialize-4 BitcoinSerializer'COMMAND_LEN BitcoinSerializer'name-of)
-(declare Block''add-transaction-2 Block''add-transaction-3 Block''build-merkle-tree Block''calculate-hash Block''calculate-merkle-root Block''check-proof-of-work Block''check-sig-ops Block''check-timestamp Block''check-transactions Block''clone-as-header Block''get-block-inflation Block''get-difficulty-target Block''get-difficulty-target-as-integer Block''get-hash-as-string Block''get-merkle-root Block''get-nonce Block''get-time Block''get-time-seconds Block''get-transactions Block''get-work Block''has-transactions Block''is-bip34 Block''is-bip65 Block''is-bip66 Block''parse-transactions Block''set-difficulty-target Block''set-nonce Block''set-time Block''solve Block''verify Block''verify-header Block''verify-transactions Block''write-header Block''write-transactions Block'ALLOWED_TIME_DRIFT Block'BLOCK_HEIGHT_GENESIS Block'BLOCK_HEIGHT_UNKNOWN Block'BLOCK_VERSION_BIP34 Block'BLOCK_VERSION_BIP65 Block'BLOCK_VERSION_BIP66 Block'BLOCK_VERSION_GENESIS Block'EASIEST_DIFFICULTY_TARGET Block'HEADER_SIZE Block'LARGEST_HASH Block'MAX_BLOCK_SIGOPS Block'MAX_BLOCK_SIZE Block'init Block'new-genesis Block'from-wire Block'new)
+(declare Block''add-transaction-2 Block''add-transaction-3 Block''build-merkle-tree Block''calculate-hash Block''calculate-merkle-root Block''check-proof-of-work Block''check-sig-ops Block''check-timestamp Block''check-transactions Block''clone-as-header Block''get-block-inflation Block''get-difficulty-target Block''get-difficulty-target-as-integer Block''get-hash-as-string Block''get-merkle-root Block''get-nonce Block''get-time Block''get-time-seconds Block''get-transactions Block''get-work Block''has-transactions Block''is-bip34 Block''is-bip65 Block''is-bip66 Block''set-difficulty-target Block''set-nonce Block''set-time Block''solve Block''verify Block''verify-header Block''verify-transactions Block''write-header Block''write-transactions Block'ALLOWED_TIME_DRIFT Block'BLOCK_HEIGHT_GENESIS Block'BLOCK_HEIGHT_UNKNOWN Block'BLOCK_VERSION_BIP34 Block'BLOCK_VERSION_BIP65 Block'BLOCK_VERSION_BIP66 Block'BLOCK_VERSION_GENESIS Block'EASIEST_DIFFICULTY_TARGET Block'HEADER_SIZE Block'LARGEST_HASH Block'MAX_BLOCK_SIGOPS Block'MAX_BLOCK_SIZE Block'init Block'new-genesis Block'from-wire Block'new)
 (declare BlockChain'''add-filtered-block BlockChain'''add-to-block-store-3 BlockChain'''add-to-block-store-4 BlockChain'''connect-transactions-2 BlockChain'''connect-transactions-3 BlockChain'''disconnect-transactions BlockChain'''do-set-chain-head BlockChain'''get-stored-block-in-current-scope BlockChain'''not-setting-chain-head BlockChain'''rollback-block-store BlockChain'''should-verify-transactions BlockChain''add-5 BlockChain''add-b BlockChain''add-new-best-block-listener-2 BlockChain''add-new-best-block-listener-3 BlockChain''add-reorganize-listener-2 BlockChain''add-reorganize-listener-3 BlockChain''add-transaction-received-listener-2 BlockChain''add-transaction-received-listener-3 BlockChain''add-wallet BlockChain''connect-block BlockChain''drain-orphan-blocks BlockChain''estimate-block-time BlockChain''get-best-chain-height BlockChain''get-block-store BlockChain''get-chain-head BlockChain''get-false-positive-rate BlockChain''get-height-future BlockChain''get-orphan-root BlockChain''get-version-tally BlockChain''handle-new-best-chain BlockChain''inform-listeners-for-new-block BlockChain''is-orphan BlockChain''remove-new-best-block-listener BlockChain''remove-reorganize-listener BlockChain''remove-transaction-received-listener BlockChain''remove-wallet BlockChain''reset-false-positive-estimate BlockChain''set-chain-head BlockChain''track-false-positives BlockChain''track-filtered-transactions BlockChain''try-connecting-orphans BlockChain'FP_ESTIMATOR_ALPHA BlockChain'FP_ESTIMATOR_BETA BlockChain'find-split BlockChain'get-median-timestamp-of-recent-blocks BlockChain'get-partial-chain BlockChain'inform-listener-for-new-transactions BlockChain'new BlockChain'send-transactions-to-listener)
 (declare BlockStore'''close BlockStore'''get-2 BlockStore'''get-chain-head BlockStore'''put-2 BlockStore'''set-chain-head)
 (declare BlockStoreException'new)
@@ -136,7 +136,7 @@
 (declare ChainDownloadStartedEventListener'''on-chain-download-started)
 (declare ChainFileLockedException'new)
 (declare CheckpointManager''get-checkpoint-before CheckpointManager''get-data-hash CheckpointManager''num-checkpoints CheckpointManager''read-textual CheckpointManager'BASE64 CheckpointManager'checkpoint CheckpointManager'new)
-(declare ChildMessage'init ChildMessage'new ChildMessage'from-wire)
+(declare ChildMessage'new)
 (declare ChildNumber''i ChildNumber''is-hardened ChildNumber''num ChildNumber'HARDENED_BIT ChildNumber'ONE ChildNumber'ZERO ChildNumber'ZERO_HARDENED ChildNumber'has-hardened-bit ChildNumber'new ChildNumber'compose)
 (declare ClientConnectionManager'''close-connections ClientConnectionManager'''get-connected-client-count ClientConnectionManager'''open-connection)
 (declare Coin''add Coin''div-i Coin''div-l Coin''divide-and-remainder Coin''divide-c Coin''divide-l Coin''is-greater-than Coin''is-less-than Coin''is-negative Coin''is-positive Coin''is-zero Coin''long-value Coin''minus Coin''multiply Coin''negate Coin''plus Coin''shift-left Coin''shift-right Coin''subtract Coin''times-i Coin''times-l Coin''to-friendly-string Coin''to-plain-string Coin'CENT Coin'COIN Coin'COIN_VALUE Coin'FIFTY_COINS Coin'FRIENDLY_FORMAT Coin'MICROCOIN Coin'MILLICOIN Coin'NEGATIVE_SATOSHI Coin'PLAIN_FORMAT Coin'SATOSHI Coin'SMALLEST_UNIT_EXPONENT Coin'ZERO Coin'new Coin'parse-coin Coin'parse-coin-inexact Coin'value-of)
@@ -164,8 +164,8 @@
 (declare DownloadProgressTracker''await DownloadProgressTracker''done-download DownloadProgressTracker''get-future DownloadProgressTracker''progress DownloadProgressTracker''start-download DownloadProgressTracker'new)
 (declare DustySendRequested'new)
 (declare ECDSASignature'''to-canonicalised ECDSASignature''der-byte-stream ECDSASignature''encode-to-der ECDSASignature''is-canonical ECDSASignature'decode-from-der ECDSASignature'new)
-(declare ECKey'''format-key-with-address ECKey'''get-creation-time-seconds ECKey'''get-priv-key ECKey'''get-secret-bytes ECKey'''has-priv-key ECKey'''is-pub-key-only ECKey'''set-creation-time-seconds ECKey'''sign ECKey''decompress ECKey''do-sign ECKey''get-priv-key-bytes ECKey''get-private-key-as-hex ECKey''get-pub-key ECKey''get-pub-key-hash ECKey''get-pub-key-point ECKey''get-public-key-as-hex ECKey''is-compressed ECKey''is-watching ECKey''sign-message ECKey''to-address ECKey''to-string ECKey''to-string-with-private ECKey''verify-3b ECKey''verify-3s ECKey''verify-message ECKey''verify-or-throw-3b ECKey''verify-or-throw-3s ECKey'AGE_COMPARATOR ECKey'CURVE ECKey'CURVE_PARAMS ECKey'HALF_CURVE_ORDER ECKey'PUBKEY_COMPARATOR ECKey'SECURE_RANDOM ECKey'compress-point ECKey'decompress-key ECKey'decompress-point ECKey'from-private-1 ECKey'from-private-1-bytes ECKey'from-private-2 ECKey'from-private-2-bytes ECKey'from-private-and-precalculated-public-2 ECKey'from-private-and-precalculated-public-2-bytes ECKey'from-public-only-1 ECKey'from-public-only-1-bytes ECKey'get-point-with-compression ECKey'init ECKey'is-pub-key-canonical ECKey'new-0 ECKey'new-1 ECKey'new-2 ECKey'new-3 ECKey'public-key-from-private ECKey'public-point-from-private ECKey'recover-from-signature ECKey'signed-message-to-key ECKey'verify-3-bytes ECKey'verify-3e)
-(declare EmptyMessage'new EmptyMessage'from-wire)
+(declare ECKey'''format-key-with-address ECKey'''get-creation-time-seconds ECKey'''get-priv-key ECKey'''get-secret-bytes ECKey'''has-priv-key ECKey'''is-pub-key-only ECKey'''set-creation-time-seconds ECKey'''sign ECKey''decompress ECKey''do-sign ECKey''get-priv-key-bytes ECKey''get-private-key-as-hex ECKey''get-pub-key ECKey''get-pub-key-hash ECKey''get-pub-key-point ECKey''get-public-key-as-hex ECKey''is-compressed ECKey''is-watching ECKey''sign-message ECKey''to-address ECKey''to-string ECKey''to-string-with-private ECKey''verify-3b ECKey''verify-3s ECKey''verify-message ECKey''verify-or-throw-3b ECKey''verify-or-throw-3s ECKey'AGE_COMPARATOR ECKey'CURVE ECKey'CURVE_PARAMS ECKey'HALF_CURVE_ORDER ECKey'PUBKEY_COMPARATOR ECKey'SECURE_RANDOM ECKey'compress-point ECKey'decompress-key ECKey'decompress-point ECKey'from-private-1 ECKey'from-private-1-bytes ECKey'from-private-2 ECKey'from-private-2-bytes ECKey'from-private-and-precalculated-public-2 ECKey'from-private-and-precalculated-public-2-bytes ECKey'from-public-only-1 ECKey'from-public-only-1-bytes ECKey'get-point-with-compression ECKey'init ECKey'is-pub-key-canonical ECKey'new-0 ECKey'new-1 ECKey'new-2 ECKey'public-key-from-private ECKey'public-point-from-private ECKey'recover-from-signature ECKey'signed-message-to-key ECKey'verify-3-bytes ECKey'verify-3e)
+(declare EmptyMessage'new)
 (declare ExceededMaxTransactionSize'new)
 (declare ExchangeRate''coin-to-fiat ExchangeRate''fiat-to-coin ExchangeRate'new)
 (declare ExponentialBackoff''track-failure ExponentialBackoff''track-success ExponentialBackoff'new)
@@ -201,7 +201,7 @@
 (declare KeyChainState'enum-set)
 (declare KeyPurpose'enum-set)
 (declare KeyTimeCoinSelector''is-confirmed KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS KeyTimeCoinSelector'new)
-(declare ListMessage''add-item ListMessage''get-items ListMessage''remove-item ListMessage'MAX_INVENTORY_ITEMS ListMessage'init ListMessage'new ListMessage'from-wire)
+(declare ListMessage''add-item ListMessage''get-items ListMessage''remove-item ListMessage'MAX_INVENTORY_ITEMS ListMessage'new ListMessage'from-wire)
 (declare ListenerRegistration'new ListenerRegistration'remove-from-list)
 (declare LocalTransactionSigner'MINIMUM_VERIFY_FLAGS LocalTransactionSigner'new)
 (declare LoopbackCheckState'enum-set)
@@ -210,7 +210,7 @@
 (declare MemoryBlockStore'new)
 (declare MemoryFullPrunedBlockStore'new)
 (declare MemoryPoolMessage'new)
-(declare Message'''bitcoin-serialize Message'''bitcoin-serialize-to-stream Message'''get-hash Message'''parse-message Message'read-byte-array Message'read-bytes Message'read-hash Message'read-int64 Message'read-string Message'read-uint32 Message'read-uint64 Message'read-var-int Message''unsafe-bitcoin-serialize Message'MAX_SIZE Message'new Message'from-wire)
+(declare Message'''bitcoin-serialize Message'''bitcoin-serialize-to-stream Message'''get-hash Message'read-byte-array Message'read-bytes Message'read-hash Message'read-int64 Message'read-string Message'read-uint32 Message'read-uint64 Message'read-var-int Message''unsafe-bitcoin-serialize Message'MAX_SIZE Message'new)
 (declare MessageWriteTarget'''close-connection MessageWriteTarget'''write-bytes)
 (declare MissingPrivateKeyException'new)
 (declare MissingSigResolutionSigner'new)
@@ -238,7 +238,7 @@
 (declare PBKDF2SHA512'f PBKDF2SHA512'derive)
 (declare PartialMerkleTree''get-transaction-count PartialMerkleTree''get-txn-hash-and-merkle-root PartialMerkleTree''recursive-extract-hashes PartialMerkleTree'build-from-leaves PartialMerkleTree'calc-hash PartialMerkleTree'combine-left-right PartialMerkleTree'get-tree-width PartialMerkleTree'init PartialMerkleTree'from-wire PartialMerkleTree'new PartialMerkleTree'traverse-and-build)
 (declare Peer''add-blocks-downloaded-event-listener-2 Peer''add-blocks-downloaded-event-listener-3 Peer''add-chain-download-started-event-listener-2 Peer''add-chain-download-started-event-listener-3 Peer''add-connected-event-listener-2 Peer''add-connected-event-listener-3 Peer''add-disconnected-event-listener-2 Peer''add-disconnected-event-listener-3 Peer''add-get-data-event-listener-2 Peer''add-get-data-event-listener-3 Peer''add-on-transaction-broadcast-listener-2 Peer''add-on-transaction-broadcast-listener-3 Peer''add-ping-time-data Peer''add-pre-message-received-event-listener-2 Peer''add-pre-message-received-event-listener-3 Peer''add-wallet Peer''block-chain-download-locked Peer''check-for-filter-exhaustion Peer''download-dependencies Peer''download-dependencies-internal Peer''end-filtered-block Peer''get-addr Peer''get-best-height Peer''get-block Peer''get-bloom-filter-1 Peer''get-connection-open-future Peer''get-last-ping-time Peer''get-peer-block-height-difference Peer''get-peer-mempool-transaction Peer''get-peer-version-message Peer''get-ping-time Peer''get-version-handshake-future Peer''get-version-message Peer''invoke-on-blocks-downloaded Peer''is-download-data Peer''is-download-tx-dependencies Peer''is-not-found-message-supported Peer''maybe-handle-requested-data Peer''maybe-restart-chain-download Peer''ping-1 Peer''ping-2 Peer''process-address-message Peer''process-alert Peer''process-block Peer''process-get-data Peer''process-headers Peer''process-inv Peer''process-not-found-message Peer''process-ping Peer''process-pong Peer''process-transaction Peer''process-version-ack Peer''process-version-message Peer''remove-blocks-downloaded-event-listener Peer''remove-chain-download-started-event-listener Peer''remove-connected-event-listener Peer''remove-disconnected-event-listener Peer''remove-get-data-event-listener Peer''remove-on-transaction-broadcast-listener Peer''remove-pre-message-received-event-listener Peer''remove-wallet Peer''send-single-get-data Peer''set-bloom-filter-2 Peer''set-bloom-filter-3 Peer''set-download-data Peer''set-download-parameters Peer''set-download-tx-dependencies-b Peer''set-download-tx-dependencies-i Peer''set-min-protocol-version Peer''start-block-chain-download Peer''start-filtered-block Peer''version-handshake-complete Peer'PING_MOVING_AVERAGE_WINDOW Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT Peer'new)
-(declare PeerAddress''to-socket-address PeerAddress''to-socket-address PeerAddress'MESSAGE_SIZE PeerAddress'init PeerAddress'loopback PeerAddress'from-socket-address PeerAddress'from-host-port PeerAddress'from-inet-port PeerAddress'from-wire)
+(declare PeerAddress''to-socket-address PeerAddress'MESSAGE_SIZE PeerAddress'init PeerAddress'loopback PeerAddress'from-socket-address PeerAddress'from-host-port PeerAddress'from-inet-port PeerAddress'from-wire)
 (declare PeerConnectedEventListener'''on-peer-connected)
 (declare PeerDisconnectedEventListener'''on-peer-disconnected)
 (declare PeerDiscovery'''get-peers PeerDiscovery'''shutdown)
@@ -2852,8 +2852,8 @@
                 (TransactionReceivedInBlockListener'''receive-from-block listener, tx, block, type, offset)
                 (§ ass offset (inc offset))
                 (§ catch ScriptException e
-                    ;; We don't want scripts we don't understand to break the block chain so just note that this tx was
-                    ;; not scanned here and continue.
+                    ;; We don't want scripts we don't understand to break the block chain,
+                    ;; so just note that this tx was not scanned here and continue.
                     (log/warn (str "Failed to parse a script: " e))
                 )
             )
@@ -3086,20 +3086,6 @@
     )
 
     ;;;
-     ; @param payload Bitcoin protocol formatted byte array containing message content.
-     ;;
-    #_throws #_[ "ProtocolException" ]
-    (defn #_"Message" Message'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload]
-        (-> (Message'new params) (Message'''parse-message payload))
-    )
-
-    ;; These methods handle the serialization/deserialization using the custom Bitcoin protocol.
-
-    #_throws #_[ "ProtocolException" ]
-    #_abstract
-    (defn #_"Message" Message'''parse-message [#_"Message" this, #_"ByteBuffer" payload])
-
-    ;;;
      ; Serializes this message to the provided stream.  If you just want the raw bytes use bitcoinSerialize().
      ;;
     #_abstract
@@ -3249,17 +3235,6 @@
         (Message'new params)
     )
 
-    #_throws #_[ "ProtocolException" ]
-    (defn #_"EmptyMessage" EmptyMessage'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload]
-        (Message'from-wire params, payload)
-    )
-
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"EmptyMessage" Message'''parse-message [#_"EmptyMessage" this, #_"ByteBuffer" _payload]
-        this
-    )
-
     #_override
     (defn #_"void" Message'''bitcoin-serialize-to-stream [#_"EmptyMessage" __, #_"ByteArrayOutputStream" _baos]
         nil
@@ -3279,19 +3254,12 @@
  ;;
 #_abstract
 (class-ns ChildMessage (§ extends Message)
-    (defn- #_"ChildMessage" ChildMessage'init [#_"Message" parent]
-        (hash-map
-            #_"Message" :parent parent
-        )
-    )
-
     (defn #_"ChildMessage" ChildMessage'new [#_"NetworkParameters" params, #_"Message" parent]
-        (merge (Message'new params) (ChildMessage'init parent))
-    )
-
-    #_throws #_[ "ProtocolException" ]
-    (defn #_"ChildMessage" ChildMessage'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload, #_"Message" parent]
-        (merge (Message'from-wire params, payload) (ChildMessage'init parent))
+        (merge (Message'new params)
+            (hash-map
+                #_"Message" :parent parent
+            )
+        )
     )
 )
 
@@ -3304,43 +3272,33 @@
 (class-ns ListMessage (§ extends Message)
     (def #_"long" ListMessage'MAX_INVENTORY_ITEMS 50000)
 
-    (defn- #_"ListMessage" ListMessage'init []
-        (hash-map
-            #_"List<InventoryItem>" :items nil
-        )
-    )
-
     (defn #_"ListMessage" ListMessage'new [#_"NetworkParameters" params]
-        (let [this (merge (Message'new params) (ListMessage'init))]
-
-            (§ assoc this :items (ArrayList.))
-            this
+        (merge (Message'new params)
+            (hash-map
+                #_"List<InventoryItem>" :items (ArrayList.)
+            )
         )
     )
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"ListMessage" ListMessage'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload]
-        (merge (Message'from-wire params, payload) (ListMessage'init))
-    )
-
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"ListMessage" Message'''parse-message [#_"ListMessage" this, #_"ByteBuffer" payload]
-        (§ let [#_"long" n (Message'read-var-int payload)]
-            (when (< ListMessage'MAX_INVENTORY_ITEMS n)
-                (throw+ (ProtocolException'new (str "Too many items in INV message: " n)))
-            )
-
-            (§ assoc this :items (ArrayList. n))
-            (dotimes [_ n]
-                (let [#_"int" code (int (Message'read-uint32 payload)) #_"InventoryItemType" type (InventoryItemType'for-code code)]
-                    (when (nil? type)
-                        (throw+ (ProtocolException'new (str "Unknown CInv type: " code)))
-                    )
-                    (.add (:items this), (InventoryItem'new type, (Message'read-hash payload)))
+        (let [this (ListMessage'new params)]
+            (let [#_"long" n (Message'read-var-int payload)]
+                (when (< ListMessage'MAX_INVENTORY_ITEMS n)
+                    (throw+ (ProtocolException'new (str "Too many items in INV message: " n)))
                 )
+
+                (§ assoc this :items (ArrayList. n))
+                (dotimes [_ n]
+                    (let [#_"int" code (int (Message'read-uint32 payload)) #_"InventoryItemType" type (InventoryItemType'for-code code)]
+                        (when (nil? type)
+                            (throw+ (ProtocolException'new (str "Unknown CInv type: " code)))
+                        )
+                        (.add (:items this), (InventoryItem'new type, (Message'read-hash payload)))
+                    )
+                )
+                this
             )
-            this
         )
     )
 
@@ -3454,11 +3412,12 @@
      ; @param base58 The textual form of the address, such as "17kzeh4N8g49GFvdDzSf8PjaPfyoD1MndL".
      ;
      ; @throws AddressFormatException if the given base58 doesn't parse or the checksum is invalid.
-     ; @throws WrongNetworkException if the given address is valid but for a different chain (e.g. testnet vs. mainnet).
+     ; @throws WrongNetworkException if the given address is valid but for a different chain (e.g. testnet vs mainnet).
      ;;
     #_throws #_[ "AddressFormatException" ]
     (defn #_"Address" Address'from-base58 [#_"NetworkParameters" params, #_"String" base58]
         (let [this (merge (VersionedChecksummedBytes'from-base58 base58) (Address'init))]
+
             (if (some? params)
                 (if (Address'is-acceptable-version params, (:version this))
                     (assoc this :params params)
@@ -3541,28 +3500,25 @@
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"AddressMessage" AddressMessage'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload]
-        (merge (Message'from-wire params, payload)
-            (hash-map
-                #_"List<PeerAddress>" :addresses nil
-            )
-        )
-    )
-
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"AddressMessage" Message'''parse-message [#_"AddressMessage" this, #_"ByteBuffer" payload]
-        (§ let [#_"long" n (Message'read-var-int payload)]
-            ;; Guard against ultra large messages that will crash us.
-            (when (< AddressMessage'MAX_ADDRESSES n)
-                (throw+ (ProtocolException'new "Address message too large."))
-            )
-            (§ assoc this :addresses (ArrayList. n))
-            (dotimes [_ n]
-                (let [#_"PeerAddress" addr (PeerAddress'from-wire (:params this), payload, this)]
-                    (.add (:addresses this), addr)
+        (let [this
+                (merge (Message'new params)
+                    (hash-map
+                        #_"List<PeerAddress>" :addresses nil
+                    )
+                )]
+            (let [#_"long" n (Message'read-var-int payload)]
+                ;; Guard against ultra large messages that will crash us.
+                (when (< AddressMessage'MAX_ADDRESSES n)
+                    (throw+ (ProtocolException'new "Address message too large."))
                 )
+                (§ assoc this :addresses (ArrayList. n))
+                (dotimes [_ n]
+                    (let [#_"PeerAddress" addr (PeerAddress'from-wire params, payload, this)]
+                        (.add (:addresses this), addr)
+                    )
+                )
+                this
             )
-            this
         )
     )
 
@@ -3629,115 +3585,112 @@
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"AlertMessage" AlertMessage'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload]
-        (merge (Message'from-wire params, payload)
-            (hash-map
-                #_"byte[]" :content nil
-                #_"byte[]" :signature nil
+        (let [this
+                (merge (Message'new params)
+                    (hash-map
+                        #_"byte[]" :content nil
+                        #_"byte[]" :signature nil
 
-                #_"long" :version 1
-                ;;;
-                 ; The time at which the alert should stop being broadcast across the network.  Note that you can still receive
-                 ; the alert after this time from other nodes if the alert still applies to them or to you.
-                 ;;
-                #_"Date" :relay-until nil
-                ;;;
-                 ; The time at which the alert ceases to be relevant.  It should not be presented to the user or app administrator
-                 ; after this time.
-                 ;;
-                #_"Date" :expiration nil
-                ;;;
-                 ; The numeric identifier of this alert.  Each alert should have a unique ID, but the signer can choose any number.
-                 ; If an alert is broadcast with a cancel field higher than this ID, this alert is considered cancelled.
-                 ;
-                 ; @return uint32
-                 ;;
-                #_"long" :id 0
-                ;;;
-                 ; A marker that results in any alerts with an ID lower than this value to be considered cancelled.
-                 ;
-                 ; @return uint32
-                 ;;
-                #_"long" :cancel 0
-                ;;;
-                 ; The inclusive lower bound on software versions that are considered for the purposes of this alert.  Bitcoin Core
-                 ; compares this against a protocol version field, but as long as the subVer field is used to restrict it your
-                 ; alerts could use any version numbers.
-                 ;
-                 ; @return uint32
-                 ;;
-                #_"long" :min-ver 0
-                ;;;
-                 ; The inclusive upper bound on software versions considered for the purposes of this alert.  Bitcoin Core
-                 ; compares this against a protocol version field, but as long as the subVer field is used to restrict it your
-                 ; alerts could use any version numbers.
-                 ;;
-                #_"long" :max-ver 0
-                ;;;
-                 ; Provides an integer ordering amongst simultaneously active alerts.
-                 ;
-                 ; @return uint32
-                 ;;
-                #_"long" :priority 0
-                ;;;
-                 ; This field is unused.  It is presumably intended for the author of the alert to provide a justification for it
-                 ; visible to protocol developers but not users.
-                 ;;
-                #_"String" :comment nil
-                ;;;
-                 ; A string that is intended to display in the status bar of Bitcoin Core's GUI client.
-                 ; It contains the user-visible message.  English only.
-                 ;;
-                #_"String" :status-bar nil
-                ;;;
-                 ; This field is never used.
-                 ;;
-                #_"String" :reserved nil
-            )
-        )
-    )
+                        #_"long" :version 1
+                        ;;;
+                         ; The time at which the alert should stop being broadcast across the network.  Note that you can still receive
+                         ; the alert after this time from other nodes if the alert still applies to them or to you.
+                         ;;
+                        #_"Date" :relay-until nil
+                        ;;;
+                         ; The time at which the alert ceases to be relevant.  It should not be presented to the user or app administrator
+                         ; after this time.
+                         ;;
+                        #_"Date" :expiration nil
+                        ;;;
+                         ; The numeric identifier of this alert.  Each alert should have a unique ID, but the signer can choose any number.
+                         ; If an alert is broadcast with a cancel field higher than this ID, this alert is considered cancelled.
+                         ;
+                         ; @return uint32
+                         ;;
+                        #_"long" :id 0
+                        ;;;
+                         ; A marker that results in any alerts with an ID lower than this value to be considered cancelled.
+                         ;
+                         ; @return uint32
+                         ;;
+                        #_"long" :cancel 0
+                        ;;;
+                         ; The inclusive lower bound on software versions that are considered for the purposes of this alert.  Bitcoin Core
+                         ; compares this against a protocol version field, but as long as the subVer field is used to restrict it your
+                         ; alerts could use any version numbers.
+                         ;
+                         ; @return uint32
+                         ;;
+                        #_"long" :min-ver 0
+                        ;;;
+                         ; The inclusive upper bound on software versions considered for the purposes of this alert.  Bitcoin Core
+                         ; compares this against a protocol version field, but as long as the subVer field is used to restrict it your
+                         ; alerts could use any version numbers.
+                         ;;
+                        #_"long" :max-ver 0
+                        ;;;
+                         ; Provides an integer ordering amongst simultaneously active alerts.
+                         ;
+                         ; @return uint32
+                         ;;
+                        #_"long" :priority 0
+                        ;;;
+                         ; This field is unused.  It is presumably intended for the author of the alert to provide a justification for it
+                         ; visible to protocol developers but not users.
+                         ;;
+                        #_"String" :comment nil
+                        ;;;
+                         ; A string that is intended to display in the status bar of Bitcoin Core's GUI client.
+                         ; It contains the user-visible message.  English only.
+                         ;;
+                        #_"String" :status-bar nil
+                        ;;;
+                         ; This field is never used.
+                         ;;
+                        #_"String" :reserved nil
+                    )
+                )]
+            ;; Alerts are formatted in two levels.  The top level contains two byte arrays: a signature, and a serialized
+            ;; data structure containing the actual alert data.
+            (.mark payload)
+            (§ assoc this :content (Message'read-byte-array payload))
+            (§ assoc this :signature (Message'read-byte-array payload))
 
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"AlertMessage" Message'''parse-message [#_"AlertMessage" this, #_"ByteBuffer" payload]
-        ;; Alerts are formatted in two levels.  The top level contains two byte arrays: a signature, and a serialized
-        ;; data structure containing the actual alert data.
-        (.mark payload)
-        (§ assoc this :content (Message'read-byte-array payload))
-        (§ assoc this :signature (Message'read-byte-array payload))
-
-        ;; Now we need to parse out the contents of the embedded structure.  Rewind back to the start of the message.
-        (.reset payload)
-        (Message'read-var-int payload) ;; Skip the length field on the content array.
-        ;; We're inside the embedded structure.
-        (§ assoc this :version (Message'read-uint32 payload))
-        ;; Read the timestamps.  Bitcoin uses seconds since the epoch.
-        (§ assoc this :relay-until (Date. (* (.longValue (Message'read-uint64 payload)) 1000)))
-        (§ assoc this :expiration (Date. (* (.longValue (Message'read-uint64 payload)) 1000)))
-        (§ assoc this :id (Message'read-uint32 payload))
-        (§ assoc this :cancel (Message'read-uint32 payload))
-        ;; Sets are serialized as <len><item><item><item>....
-        (let-when [#_"long" n (Message'read-var-int payload)] (<= 0 n AlertMessage'MAX_SET_SIZE) => (throw+ (ProtocolException'new (str "Bad cancel set size: " n)))
-            (let [#_"Set<Long>" __cancelSet (HashSet. n)]
-                (dotimes [_ n]
-                    (.add __cancelSet, (Message'read-uint32 payload))
+            ;; Now we need to parse out the contents of the embedded structure.  Rewind back to the start of the message.
+            (.reset payload)
+            (Message'read-var-int payload) ;; Skip the length field on the content array.
+            ;; We're inside the embedded structure.
+            (§ assoc this :version (Message'read-uint32 payload))
+            ;; Read the timestamps.  Bitcoin uses seconds since the epoch.
+            (§ assoc this :relay-until (Date. (* (.longValue (Message'read-uint64 payload)) 1000)))
+            (§ assoc this :expiration (Date. (* (.longValue (Message'read-uint64 payload)) 1000)))
+            (§ assoc this :id (Message'read-uint32 payload))
+            (§ assoc this :cancel (Message'read-uint32 payload))
+            ;; Sets are serialized as <len><item><item><item>....
+            (let-when [#_"long" n (Message'read-var-int payload)] (<= 0 n AlertMessage'MAX_SET_SIZE) => (throw+ (ProtocolException'new (str "Bad cancel set size: " n)))
+                (let [#_"Set<Long>" __cancelSet (HashSet. n)]
+                    (dotimes [_ n]
+                        (.add __cancelSet, (Message'read-uint32 payload))
+                    )
                 )
             )
-        )
-        (§ assoc this :min-ver (Message'read-uint32 payload))
-        (§ assoc this :max-ver (Message'read-uint32 payload))
-        ;; Read the subver matching set.
-        (let-when [#_"long" n (Message'read-var-int payload)] (<= 0 n AlertMessage'MAX_SET_SIZE) => (throw+ (ProtocolException'new (str "Bad subver set size: " n)))
-            (let [#_"Set<String>" __matchingSubVers (HashSet. n)]
-                (dotimes [_ n]
-                    (.add __matchingSubVers, (Message'read-string payload))
+            (§ assoc this :min-ver (Message'read-uint32 payload))
+            (§ assoc this :max-ver (Message'read-uint32 payload))
+            ;; Read the subver matching set.
+            (let-when [#_"long" n (Message'read-var-int payload)] (<= 0 n AlertMessage'MAX_SET_SIZE) => (throw+ (ProtocolException'new (str "Bad subver set size: " n)))
+                (let [#_"Set<String>" __matchingSubVers (HashSet. n)]
+                    (dotimes [_ n]
+                        (.add __matchingSubVers, (Message'read-string payload))
+                    )
                 )
             )
+            (§ assoc this :priority (Message'read-uint32 payload))
+            (§ assoc this :comment (Message'read-string payload))
+            (§ assoc this :status-bar (Message'read-string payload))
+            (§ assoc this :reserved (Message'read-string payload))
+            this
         )
-        (§ assoc this :priority (Message'read-uint32 payload))
-        (§ assoc this :comment (Message'read-string payload))
-        (§ assoc this :status-bar (Message'read-string payload))
-        (§ assoc this :reserved (Message'read-string payload))
-        this
     )
 
     ;;;
@@ -4220,47 +4173,32 @@
         )
     )
 
-    ;;;
-     ; Construct a block object from the Bitcoin wire format.
-     ;;
     #_throws #_[ "ProtocolException" ]
     (defn #_"Block" Block'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload]
-        (merge (Message'from-wire params, payload) (Block'init))
-    )
+        (let [this (merge (Message'new params) (Block'init))]
 
-    #_throws #_[ "ProtocolException" ]
-    #_method
-    (defn #_"void" Block''parse-transactions [#_"Block" this, #_"ByteBuffer" payload]
-        (when (.hasRemaining payload)
-            ;; This message is just a header, it has no transactions.
-            (let [#_"int" n (int (Message'read-var-int payload))]
-                (§ assoc this :transactions (ArrayList. n))
-                (dotimes [_ n]
-                    (let [#_"Transaction" tx (Transaction'from-wire (:params this), payload, this)]
-                        ;; Label the transaction as coming from the P2P network, so code that cares where we first saw it knows.
-                        (TransactionConfidence''set-source (Transaction''get-confidence-t tx), :ConfidenceSource'NETWORK)
-                        (.add (:transactions this), tx)
+            ;; header
+            (let [this (assoc this :version (Message'read-uint32 payload))
+                  this (assoc this :prev-block-hash (Message'read-hash payload))
+                  _ (Message'read-hash payload) ;; merkle root
+                  this (assoc this :time-seconds (Message'read-uint32 payload))
+                  this (assoc this :difficulty-target (Message'read-uint32 payload))
+                  this (assoc this :nonce (Message'read-uint32 payload))]
+                ;; transactions
+                (when (.hasRemaining payload)
+                    (let [#_"int" n (int (Message'read-var-int payload))]
+                        (§ assoc this :transactions (ArrayList. n))
+                        (dotimes [_ n]
+                            (let [#_"Transaction" tx (Transaction'from-wire params, payload, this)]
+                                ;; Label the transaction as coming from the P2P network, so code that cares where we first saw it knows.
+                                (TransactionConfidence''set-source (Transaction''get-confidence-t tx), :ConfidenceSource'NETWORK)
+                                (.add (:transactions this), tx)
+                            )
+                        )
                     )
                 )
+                this
             )
-        )
-        nil
-    )
-
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"Block" Message'''parse-message [#_"Block" this, #_"ByteBuffer" payload]
-        ;; header
-        (let [this (assoc this :version (Message'read-uint32 payload))
-              this (assoc this :prev-block-hash (Message'read-hash payload))
-              _ (Message'read-hash payload) ;; merkle root
-              this (assoc this :time-seconds (Message'read-uint32 payload))
-              this (assoc this :difficulty-target (Message'read-uint32 payload))
-              this (assoc this :nonce (Message'read-uint32 payload))]
-
-            ;; transactions
-            (Block''parse-transactions this, payload)
-            this
         )
     )
 
@@ -4998,6 +4936,7 @@
      ;;
     (defn #_"BloomFilter" BloomFilter'new [#_"NetworkParameters" params, #_"int" elements, #_"double" rate, #_"long" tweak, #_"BloomUpdate" flag]
         (let [this (merge (Message'new params) (BloomFilter'init))]
+
             ;; The following formulas were stolen from Wikipedia's page on Bloom Filters (with the addition of min(..., MAX_...)).
             ;; Size required for a given number of elements and false-positive rate.
             (let [n (int (* (quot -1 (Math/pow (Math/log 2), 2)) elements (Math/log rate)))
@@ -5013,33 +4952,24 @@
         )
     )
 
-    ;;;
-     ; Construct a BloomFilter by deserializing payload.
-     ;;
     #_throws #_[ "ProtocolException" ]
     (defn #_"BloomFilter" BloomFilter'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload]
-        (merge (Message'from-wire params, payload) (BloomFilter'init))
-    )
+        (let [this (merge (Message'new params) (BloomFilter'init))]
 
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"BloomFilter" Message'''parse-message [#_"BloomFilter" this, #_"ByteBuffer" payload]
-        (let [this (assoc this :data (Message'read-byte-array payload))]
-            (when (< BloomFilter'MAX_FILTER_SIZE (alength (:data this)))
-                (throw+ (ProtocolException'new "Bloom filter out of size range."))
-            )
-            (let [this (assoc this :hash-funcs (Message'read-uint32 payload))]
-                (when (< BloomFilter'MAX_HASH_FUNCS (:hash-funcs this))
-                    (throw+ (ProtocolException'new "Bloom filter hash function count out of range."))
+            (let [this (assoc this :data (Message'read-byte-array payload))]
+                (when (< BloomFilter'MAX_FILTER_SIZE (alength (:data this)))
+                    (throw+ (ProtocolException'new "Bloom filter out of size range."))
                 )
-                (assoc this :n-tweak (Message'read-uint32 payload), :n-flags (aget (Message'read-bytes payload, 1) 0))
+                (let [this (assoc this :hash-funcs (Message'read-uint32 payload))]
+                    (when (< BloomFilter'MAX_HASH_FUNCS (:hash-funcs this))
+                        (throw+ (ProtocolException'new "Bloom filter hash function count out of range."))
+                    )
+                    (assoc this :n-tweak (Message'read-uint32 payload), :n-flags (aget (Message'read-bytes payload, 1) 0))
+                )
             )
         )
     )
 
-    ;;;
-     ; Serializes this message to the provided stream.  If you just want the raw bytes use bitcoinSerialize().
-     ;;
     #_override
     (defn #_"void" Message'''bitcoin-serialize-to-stream [#_"BloomFilter" this, #_"ByteArrayOutputStream" baos]
         (.write baos, (VarInt''encode (VarInt'new (alength (:data this)))))
@@ -5708,17 +5638,17 @@
      ; Creates an ECKey given the private key only.  The public key is calculated from it (this is slow).  The resulting
      ; public key is compressed.
      ;;
-    (defn #_"ECKey" ECKey'from-private-1 [#_"BigInteger" __privKey]
-        (ECKey'from-private-2 __privKey, true)
+    (defn #_"ECKey" ECKey'from-private-1 [#_"BigInteger" priv]
+        (ECKey'from-private-2 priv, true)
     )
 
     ;;;
      ; Creates an ECKey given the private key only.  The public key is calculated from it (this is slow), either
      ; compressed or not.
      ;;
-    (defn #_"ECKey" ECKey'from-private-2 [#_"BigInteger" __privKey, #_"boolean" compressed?]
-        (let [#_"ECPoint" point (ECKey'public-point-from-private __privKey)]
-            (ECKey'new-2 __privKey, (ECKey'get-point-with-compression point, compressed?))
+    (defn #_"ECKey" ECKey'from-private-2 [#_"BigInteger" priv, #_"boolean" compressed?]
+        (let [#_"ECPoint" point (ECKey'public-point-from-private priv)]
+            (ECKey'new-2 priv, (ECKey'get-point-with-compression point, compressed?))
         )
     )
 
@@ -5781,35 +5711,6 @@
     #_method
     (defn #_"ECKey" ECKey''decompress [#_"ECKey" this]
         (if (.isCompressed (:pub this)) (ECKey'new-2 (:priv this), (ECKey'decompress-point (:pub this))) this)
-    )
-
-    ;;;
-     ; Creates an ECKey given either the private key only, the public key only, or both.  If only the private key
-     ; is supplied, the public key will be calculated from it (this is slow).  If both are supplied, it's assumed
-     ; the public key already correctly matches the private key.  If only the public key is supplied, this ECKey
-     ; cannot be used for signing.
-     ;
-     ; @param compressed If set to true and pubKey is null, the derived public key will be in compressed form.
-     ;;
-    #_deprecated
-    (defn #_"ECKey" ECKey'new-3 [#_"BigInteger" __privKey, #_"byte[]" __pubKey, #_"boolean" compressed?]
-        (let [this (ECKey'init)]
-            (when (and (nil? __privKey) (nil? __pubKey))
-                (throw (IllegalArgumentException. "ECKey requires at least private or public key"))
-            )
-            (§ assoc this :priv __privKey)
-            (if (nil? __pubKey)
-                ;; Derive public from private.
-                (let [#_"ECPoint" point (ECKey'public-point-from-private __privKey) point (ECKey'get-point-with-compression point, compressed?)]
-                    (§ assoc this :pub point)
-                )
-                ;; We expect the pubkey to be in regular encoded form, just as a BigInteger.
-                ;; Therefore the first byte is a special marker byte.
-                ;; TODO: This is probably not a useful API and may be confusing.
-                (§ assoc this :pub (.decodePoint (.getCurve ECKey'CURVE), __pubKey))
-            )
-            this
-        )
     )
 
     ;;;
@@ -6350,21 +6251,19 @@
 
     (defn #_"FilteredBlock" FilteredBlock'new [#_"NetworkParameters" params, #_"Block" header, #_"PartialMerkleTree" merkle]
         (let [this (merge (Message'new params) (FilteredBlock'init))]
+
             (assoc this :filtered-header header, :merkle-tree merkle)
         )
     )
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"FilteredBlock" FilteredBlock'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload]
-        (merge (Message'from-wire params, payload) (FilteredBlock'init))
-    )
+        (let [this (merge (Message'new params) (FilteredBlock'init))]
 
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"FilteredBlock" Message'''parse-message [#_"FilteredBlock" this, #_"ByteBuffer" payload]
-        (§ assoc this :filtered-header (Block'from-wire (:params this), payload))
-        (§ assoc this :merkle-tree (PartialMerkleTree'from-wire (:params this), payload))
-        this
+            (§ assoc this :filtered-header (Block'from-wire params, payload))
+            (§ assoc this :merkle-tree (PartialMerkleTree'from-wire params, payload))
+            this
+        )
     )
 
     #_override
@@ -7060,24 +6959,21 @@
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"GetBlocksMessage" GetBlocksMessage'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload]
-        (merge (Message'from-wire params, payload) (GetBlocksMessage'init))
-    )
+        (let [this (merge (Message'new params) (GetBlocksMessage'init))]
 
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"GetBlocksMessage" Message'''parse-message [#_"GetBlocksMessage" this, #_"ByteBuffer" payload]
-        (§ assoc this :version (Message'read-uint32 payload))
-        (§ let [#_"int" n (int (Message'read-var-int payload))]
-            (when (< 500 n)
-                (throw+ (ProtocolException'new (str "Number of locators cannot be > 500, received: " n)))
-            )
+            (§ assoc this :version (Message'read-uint32 payload))
+            (let [#_"int" n (int (Message'read-var-int payload))]
+                (when (< 500 n)
+                    (throw+ (ProtocolException'new (str "Number of locators cannot be > 500, received: " n)))
+                )
 
-            (§ assoc this :locator (ArrayList. n))
-            (loop-when-recur [#_"int" i 0] (< i n) [(inc i)]
-                (.add (:locator this), (Message'read-hash payload))
+                (§ assoc this :locator (ArrayList. n))
+                (loop-when-recur [#_"int" i 0] (< i n) [(inc i)]
+                    (.add (:locator this), (Message'read-hash payload))
+                )
+                (§ assoc this :stop-hash (Message'read-hash payload))
+                this
             )
-            (§ assoc this :stop-hash (Message'read-hash payload))
-            this
         )
     )
 
@@ -7246,35 +7142,30 @@
     #_throws #_[ "ProtocolException" ]
     (defn #_"HeadersMessage" HeadersMessage'new [#_"NetworkParameters" params, #_"List<Block>" headers]
         (let [this (merge (Message'new params) (HeadersMessage'init))]
+
             (assoc this :block-headers headers)
         )
     )
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"HeadersMessage" HeadersMessage'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload]
-        (merge (Message'from-wire params, payload) (HeadersMessage'init))
-    )
+        (let [this (merge (Message'new params) (HeadersMessage'init))]
 
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"HeadersMessage" Message'''parse-message [#_"HeadersMessage" this, #_"ByteBuffer" payload]
-        (§ let [#_"long" n (Message'read-var-int payload)]
-            (when (< HeadersMessage'MAX_HEADERS n)
-                (throw+ (ProtocolException'new (str "Too many headers: got " n " which is larger than " HeadersMessage'MAX_HEADERS)))
-            )
-
-            (§ assoc this :block-headers (ArrayList.))
-
-            (dotimes [_ n]
-                (let [#_"Block" header (Block'from-wire (:params this), payload)]
-                    (when (Block''has-transactions header)
-                        (throw+ (ProtocolException'new "Block header does not end with a nil byte"))
-                    )
-
-                    (.add (:block-headers this), header)
+            (let [#_"long" n (Message'read-var-int payload)]
+                (when (< HeadersMessage'MAX_HEADERS n)
+                    (throw+ (ProtocolException'new (str "Too many headers: " n " vs " HeadersMessage'MAX_HEADERS)))
                 )
+                (§ assoc this :block-headers (ArrayList.))
+                (dotimes [_ n]
+                    (let [#_"Block" header (Block'from-wire params, payload)]
+                        (when (Block''has-transactions header)
+                            (throw+ (ProtocolException'new "Block header does not end with a nil byte"))
+                        )
+                        (.add (:block-headers this), header)
+                    )
+                )
+                this
             )
-            this
         )
     )
 
@@ -7860,29 +7751,25 @@
      ;;
     (defn #_"PartialMerkleTree" PartialMerkleTree'new [#_"NetworkParameters" params, #_"byte[]" bits, #_"List<Sha256Hash>" hashes, #_"int" __origTxCount]
         (let [this (merge (Message'new params) (PartialMerkleTree'init))]
+
             (assoc this :matched-child-bits bits, :hashes hashes, :transaction-count __origTxCount)
         )
     )
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"PartialMerkleTree" PartialMerkleTree'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload]
-        (merge (Message'from-wire params, payload) (PartialMerkleTree'init))
-    )
+        (let [this (merge (Message'new params) (PartialMerkleTree'init))]
 
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"PartialMerkleTree" Message'''parse-message [#_"PartialMerkleTree" this, #_"ByteBuffer" payload]
-        (§ assoc this :transaction-count (int (Message'read-uint32 payload)))
-
-        (§ let [#_"int" __nHashes (int (Message'read-var-int payload))]
-            (§ assoc this :hashes (ArrayList. __nHashes))
-            (loop-when-recur [#_"int" i 0] (< i __nHashes) [(inc i)]
-                (.add (:hashes this), (Message'read-hash payload))
-            )
-
-            (let [#_"int" __nFlagBytes (int (Message'read-var-int payload))]
-                (§ assoc this :matched-child-bits (Message'read-bytes payload, __nFlagBytes))
-                this
+            (§ assoc this :transaction-count (int (Message'read-uint32 payload)))
+            (let [#_"int" n (int (Message'read-var-int payload))]
+                (§ assoc this :hashes (ArrayList. n))
+                (dotimes [_ n]
+                    (.add (:hashes this), (Message'read-hash payload))
+                )
+                (let [#_"int" m (int (Message'read-var-int payload))]
+                    (§ assoc this :matched-child-bits (Message'read-bytes payload, m))
+                    this
+                )
             )
         )
     )
@@ -7890,12 +7777,10 @@
     #_override
     (defn #_"void" Message'''bitcoin-serialize-to-stream [#_"PartialMerkleTree" this, #_"ByteArrayOutputStream" baos]
         (Utils'uint32-to-byte-stream-le (:transaction-count this), baos)
-
         (.write baos, (VarInt''encode (VarInt'new (.size (:hashes this)))))
         (doseq [#_"Sha256Hash" hash (:hashes this)]
             (.write baos, (Sha256Hash''get-reversed-bytes hash))
         )
-
         (.write baos, (VarInt''encode (VarInt'new (alength (:matched-child-bits this)))))
         (.write baos, (:matched-child-bits this))
         nil
@@ -8233,6 +8118,7 @@
 
     (defn #_"PeerSocketHandler" PeerSocketHandler'for-socket-address [#_"NetworkParameters" params, #_"InetSocketAddress" __remoteIp]
         (let [this (merge (AbstractTimeoutHandler'new) (PeerSocketHandler'init))]
+
             (§ assoc this :params (ensure some? params))
             (§ assoc this :peer-address (PeerAddress'from-socket-address params, __remoteIp))
             this
@@ -8241,6 +8127,7 @@
 
     (defn #_"PeerSocketHandler" PeerSocketHandler'for-peer-address [#_"NetworkParameters" params, #_"PeerAddress" __peerAddress]
         (let [this (merge (AbstractTimeoutHandler'new) (PeerSocketHandler'init))]
+
             (§ assoc this :params (ensure some? params))
             (§ assoc this :peer-address (ensure some? __peerAddress))
             this
@@ -10216,28 +10103,25 @@
      ;;
     #_throws #_[ "ProtocolException" ]
     (defn #_"PeerAddress" PeerAddress'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload, #_"Message" parent]
-        (merge (ChildMessage'from-wire params, payload, parent) (PeerAddress'init))
-    )
+        (let [this (merge (ChildMessage'new params, parent) (PeerAddress'init))]
 
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"PeerAddress" Message'''parse-message [#_"PeerAddress" this, #_"ByteBuffer" payload]
-        ;; Format of a serialized address:
-        ;;   uint32 timestamp
-        ;;   uint64 services (flags determining what the node can do)
-        ;;   16 bytes ip address
-        ;;   2 bytes port num
-        (§ assoc this :timestamp (Message'read-uint32 payload))
-        (§ assoc this :services (Message'read-uint64 payload))
-        (§ let [#_"byte[]" bytes (Message'read-bytes payload, 16)]
-            (try
-                (§ assoc this :inet-addr (InetAddress/getByAddress bytes))
-                (catch UnknownHostException e
-                    (throw (RuntimeException. e)) ;; Cannot happen.
+            ;; Format of a serialized address:
+            ;;   uint32 timestamp
+            ;;   uint64 services (flags determining what the node can do)
+            ;;   16 bytes ip address
+            ;;   2 bytes port num
+            (§ assoc this :timestamp (Message'read-uint32 payload))
+            (§ assoc this :services (Message'read-uint64 payload))
+            (let [#_"byte[]" bytes (Message'read-bytes payload, 16)]
+                (try
+                    (§ assoc this :inet-addr (InetAddress/getByAddress bytes))
+                    (catch UnknownHostException e
+                        (throw (RuntimeException. e)) ;; Cannot happen.
+                    )
                 )
+                (§ assoc this :port (| (<< (& 0xff (.get payload)) 8) (& 0xff (.get payload))))
+                this
             )
-            (§ assoc this :port (| (<< (& 0xff (.get payload)) 8) (& 0xff (.get payload))))
-            this
         )
     )
 
@@ -10303,12 +10187,7 @@
     )
 
     #_method
-    (defn #_"InetSocketAddress" PeerAddress''to-socket-address [#_"PeerAddress" this]
-        (InetSocketAddress. (:inet-addr this), (:port this))
-    )
-
-    #_method
-    (defn #_"InetSocketAddress" PeerAddress''to-socket-address [#_"PeerAddress" this]
+    (defn #_"InetSocketAddress" PeerAddress''to-socket-address [#_"PeerAddress" this]
         ;; Reconstruct the InetSocketAddress properly.
         (if (some? (:hostname this)) (InetSocketAddress/createUnresolved (:hostname this), (:port this)) (InetSocketAddress. (:inet-addr this), (:port this)))
     )
@@ -12608,19 +12487,10 @@
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"Ping" Ping'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload]
-        (merge (Message'from-wire params, payload) (Ping'init))
-    )
-
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"Ping" Message'''parse-message [#_"Ping" this, #_"ByteBuffer" payload]
-        (§ try+
-            (§ assoc this :nonce (Message'read-int64 payload))
-            (§ assoc this :has-nonce true)
-            this
-            (§ catch ProtocolException _
-                (§ assoc this :has-nonce false)
-                this
+        (let [this (merge (Message'new params) (Ping'init))]
+            (if (.hasRemaining payload)
+                (assoc this :nonce (Message'read-int64 payload), :has-nonce true)
+                (assoc this :has-nonce false)
             )
         )
     )
@@ -12666,13 +12536,9 @@
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"Pong" Pong'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload]
-        (merge (Message'from-wire params, payload) (Pong'init))
-    )
-
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"Pong" Message'''parse-message [#_"Pong" this, #_"ByteBuffer" payload]
-        (assoc this :nonce (Message'read-int64 payload))
+        (let [this (merge (Message'new params) (Pong'init))]
+            (assoc this :nonce (Message'read-int64 payload))
+        )
     )
 
     #_override
@@ -12780,19 +12646,16 @@
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"RejectMessage" RejectMessage'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload]
-        (merge (Message'from-wire params, payload) (RejectMessage'init))
-    )
+        (let [this (merge (Message'new params) (RejectMessage'init))]
 
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"RejectMessage" Message'''parse-message [#_"RejectMessage" this, #_"ByteBuffer" payload]
-        (§ assoc this :message (Message'read-string payload))
-        (§ assoc this :code (RejectCode'for-code (aget (Message'read-bytes payload, 1) 0), :RejectCode'OTHER))
-        (§ assoc this :reason (Message'read-string payload))
-        (when (any = (:message this) "block" "tx")
-            (§ assoc this :message-hash (Message'read-hash payload))
+            (§ assoc this :message (Message'read-string payload))
+            (§ assoc this :code (RejectCode'for-code (aget (Message'read-bytes payload, 1) 0), :RejectCode'OTHER))
+            (§ assoc this :reason (Message'read-string payload))
+            (when (any = (:message this) "block" "tx")
+                (§ assoc this :message-hash (Message'read-hash payload))
+            )
+            this
         )
-        this
     )
 
     #_override
@@ -13468,32 +13331,29 @@
     (defn #_"Transaction" Transaction'from-wire
         ([#_"NetworkParameters" params, #_"ByteBuffer" payload] (Transaction'from-wire params, payload, nil))
         ([#_"NetworkParameters" params, #_"ByteBuffer" payload, #_"Message" parent]
-            (merge (ChildMessage'from-wire params, payload, parent) (Transaction'init))
-        )
-    )
+            (let [this (merge (ChildMessage'new params, parent) (Transaction'init))]
 
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"Transaction" Message'''parse-message [#_"Transaction" this, #_"ByteBuffer" payload]
-        (§ assoc this :version (Message'read-uint32 payload))
-        (let [#_"long" n (Message'read-var-int payload)]
-            (§ assoc this :inputs (ArrayList. n))
-            (dotimes [_ n]
-                (let [#_"TransactionInput" input (TransactionInput'from-wire (:params this), payload, this)]
-                    (.add (:inputs this), input)
+                (§ assoc this :version (Message'read-uint32 payload))
+                (let [#_"long" n (Message'read-var-int payload)]
+                    (§ assoc this :inputs (ArrayList. n))
+                    (dotimes [_ n]
+                        (let [#_"TransactionInput" input (TransactionInput'from-wire params, payload, this)]
+                            (.add (:inputs this), input)
+                        )
+                    )
                 )
+                (let [#_"long" n (Message'read-var-int payload)]
+                    (§ assoc this :outputs (ArrayList. n))
+                    (dotimes [_ n]
+                        (let [#_"TransactionOutput" output (TransactionOutput'from-wire params, payload, this)]
+                            (.add (:outputs this), output)
+                        )
+                    )
+                )
+                (§ assoc this :lock-time (Message'read-uint32 payload))
+                this
             )
         )
-        (let [#_"long" n (Message'read-var-int payload)]
-            (§ assoc this :outputs (ArrayList. n))
-            (dotimes [_ n]
-                (let [#_"TransactionOutput" output (TransactionOutput'from-wire (:params this), payload, this)]
-                    (.add (:outputs this), output)
-                )
-            )
-        )
-        (§ assoc this :lock-time (Message'read-uint32 payload))
-        this
     )
 
     #_override
@@ -15431,20 +15291,14 @@
      ;;
     #_throws #_[ "ProtocolException" ]
     (defn #_"TransactionInput" TransactionInput'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload, #_"Transaction" parent]
-        (let [this (merge (ChildMessage'from-wire params, payload, parent) (TransactionInput'init))]
+        (let [this (merge (ChildMessage'new params, parent) (TransactionInput'init))]
 
+            (§ assoc this :outpoint (TransactionOutPoint'from-wire params, payload, this))
+            (let [#_"int" n (int (Message'read-var-int payload))]
+                (§ assoc this :script-bytes (Message'read-bytes payload, n))
+                (§ assoc this :sequence (Message'read-uint32 payload))
+            )
             (assoc this :value nil)
-        )
-    )
-
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"TransactionInput" Message'''parse-message [#_"TransactionInput" this, #_"ByteBuffer" payload]
-        (§ assoc this :outpoint (TransactionOutPoint'from-wire (:params this), payload, this))
-        (§ let [#_"int" __scriptLen (int (Message'read-var-int payload))]
-            (§ assoc this :script-bytes (Message'read-bytes payload, __scriptLen))
-            (§ assoc this :sequence (Message'read-uint32 payload))
-            this
         )
     )
 
@@ -15893,15 +15747,12 @@
      ;;
     #_throws #_[ "ProtocolException" ]
     (defn #_"TransactionOutPoint" TransactionOutPoint'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload, #_"Message" parent]
-        (merge (ChildMessage'from-wire params, payload, parent) (TransactionOutPoint'init))
-    )
+        (let [this (merge (ChildMessage'new params, parent) (TransactionOutPoint'init))]
 
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"TransactionOutPoint" Message'''parse-message [#_"TransactionOutPoint" this, #_"ByteBuffer" payload]
-        (§ assoc this :from-tx-hash (Message'read-hash payload))
-        (§ assoc this :index (Message'read-uint32 payload))
-        this
+            (§ assoc this :from-tx-hash (Message'read-hash payload))
+            (§ assoc this :index (Message'read-uint32 payload))
+            this
+        )
     )
 
     #_override
@@ -16071,19 +15922,13 @@
      ;;
     #_throws #_[ "ProtocolException" ]
     (defn #_"TransactionOutput" TransactionOutput'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload, #_"Transaction" parent]
-        (let [this (merge (ChildMessage'from-wire params, payload, parent) (TransactionOutput'init))]
+        (let [this (merge (ChildMessage'new params, parent) (TransactionOutput'init))]
 
+            (§ assoc this :value (Message'read-int64 payload))
+            (§ assoc this :script-len (int (Message'read-var-int payload)))
+            (§ assoc this :script-bytes (Message'read-bytes payload, (:script-len this)))
             (assoc this :available-for-spending true)
         )
-    )
-
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"TransactionOutput" Message'''parse-message [#_"TransactionOutput" this, #_"ByteBuffer" payload]
-        (§ assoc this :value (Message'read-int64 payload))
-        (§ assoc this :script-len (int (Message'read-var-int payload)))
-        (§ assoc this :script-bytes (Message'read-bytes payload, (:script-len this)))
-        this
     )
 
     #_override
@@ -16598,7 +16443,7 @@
 (class-ns UnknownMessage (§ extends EmptyMessage)
     #_throws #_[ "ProtocolException" ]
     (defn #_"UnknownMessage" UnknownMessage'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload, #_"String" command]
-        (merge (EmptyMessage'from-wire params, payload)
+        (merge (EmptyMessage'new params)
             (hash-map
                 #_"String" :command command
                 ;; The raw message payload bytes themselves.
@@ -16645,10 +16490,10 @@
     (defn #_"VarInt" VarInt'parse [#_"byte[]" bytes]
         (let [#_"int" i (& 0xff (aget bytes 0))]
             (cond
-                (< i 253) (VarInt'init i, 1)                            ;; 1 data byte (8 bits)
-                (= i 253) (VarInt'init (Utils'read-uint16 bytes, 1), 3) ;; 1 marker + 2 data bytes (16 bits)
-                (= i 254) (VarInt'init (Utils'read-uint32 bytes, 1), 5) ;; 1 marker + 4 data bytes (32 bits)
-                :else     (VarInt'init (Utils'read-int64 bytes, 1), 9)  ;; 1 marker + 8 data bytes (64 bits)
+                (< i 253) (VarInt'new i)
+                (= i 253) (VarInt'new (Utils'read-uint16 bytes, 1))
+                (= i 254) (VarInt'new (Utils'read-uint32 bytes, 1))
+                :else     (VarInt'new (Utils'read-int64 bytes, 1))
             )
         )
     )
@@ -16660,10 +16505,10 @@
     (defn #_"VarInt" VarInt'from-wire [#_"ByteBuffer" payload]
         (let [#_"int" i (& 0xff (.get payload)) read- #(let [#_"byte[]" bytes (byte-array %)] (.get payload, bytes) bytes)]
             (cond
-                (< i 253) (VarInt'init i, 1)                                ;; 1 data byte (8 bits)
-                (= i 253) (VarInt'init (Utils'read-uint16 (read- 2), 1), 3) ;; 1 marker + 2 data bytes (16 bits)
-                (= i 254) (VarInt'init (Utils'read-uint32 (read- 4), 1), 5) ;; 1 marker + 4 data bytes (32 bits)
-                :else     (VarInt'init (Utils'read-int64 (read- 8), 1), 9)  ;; 1 marker + 8 data bytes (64 bits)
+                (< i 253) (VarInt'new i)
+                (= i 253) (VarInt'new (Utils'read-uint16 (read- 2), 1))
+                (= i 254) (VarInt'new (Utils'read-uint32 (read- 4), 1))
+                :else     (VarInt'new (Utils'read-int64 (read- 8), 1))
             )
         )
     )
@@ -16674,12 +16519,12 @@
      ; @param value the unsigned long value (beware widening conversion of negatives!)
      ;;
     (defn #_"int" VarInt'size-of [#_"long" value]
-        (cond ;; if negative, it's actually a very large unsigned long value
-            (< value 0)           9 ;; 1 marker + 8 data bytes
-            (< value 253)         1 ;; 1 data byte
-            (<= value 0xffff)     3 ;; 1 marker + 2 data bytes
-            (<= value 0xffffffff) 5 ;; 1 marker + 4 data bytes
-            :else                 9 ;; 1 marker + 8 data bytes
+        (cond
+            (< value 0)           9 ;; negative is actually a very large unsigned long value
+            (< value 253)         1 ;; 1 data byte (8 bits)
+            (<= value 0xffff)     3 ;; 1 marker + 2 data bytes (16 bits)
+            (<= value 0xffffffff) 5 ;; 1 marker + 4 data bytes (32 bits)
+            :else                 9 ;; 1 marker + 8 data bytes (64 bits)
         )
     )
 
@@ -16791,37 +16636,34 @@
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"VersionMessage" VersionMessage'from-wire [#_"NetworkParameters" params, #_"ByteBuffer" payload]
-        (merge (Message'from-wire params, payload) (VersionMessage'init))
-    )
+        (let [this (merge (Message'new params) (VersionMessage'init))]
 
-    #_throws #_[ "ProtocolException" ]
-    #_override
-    (defn #_"VersionMessage" Message'''parse-message [#_"VersionMessage" this, #_"ByteBuffer" payload]
-        (§ assoc this :client-version (int (Message'read-uint32 payload)))
-        (§ assoc this :local-services (.longValue (Message'read-uint64 payload)))
-        (§ assoc this :time-seconds (.longValue (Message'read-uint64 payload)))
-        (§ assoc this :my-addr (PeerAddress'from-wire (:params this), payload, nil))
-        (§ assoc this :their-addr (PeerAddress'from-wire (:params this), payload, nil))
-        ;; uint64 localHostNonce (random data)
-        ;; We don't care about the localhost nonce.  It's used to detect connecting back to yourself in cases where
-        ;; there are NATs and proxies in the way.  However we don't listen for inbound connections so it's irrelevant.
-        (Message'read-uint64 payload)
-        ;; Initialize default values for flags which may not be sent by old nodes.
-        (§ assoc this :sub-ver "")
-        (§ assoc this :best-height 0)
-        (§ assoc this :relay-txes-before-filter true)
-        (when (.hasRemaining payload)
-            ;; string subVer (currently "")
-            (§ assoc this :sub-ver (Message'read-string payload))
+            (§ assoc this :client-version (int (Message'read-uint32 payload)))
+            (§ assoc this :local-services (.longValue (Message'read-uint64 payload)))
+            (§ assoc this :time-seconds (.longValue (Message'read-uint64 payload)))
+            (§ assoc this :my-addr (PeerAddress'from-wire params, payload, nil))
+            (§ assoc this :their-addr (PeerAddress'from-wire params, payload, nil))
+            ;; uint64 localHostNonce (random data)
+            ;; We don't care about the localhost nonce.  It's used to detect connecting back to yourself in cases where
+            ;; there are NATs and proxies in the way.  However we don't listen for inbound connections so it's irrelevant.
+            (Message'read-uint64 payload)
+            ;; Initialize default values for flags which may not be sent by old nodes.
+            (§ assoc this :sub-ver "")
+            (§ assoc this :best-height 0)
+            (§ assoc this :relay-txes-before-filter true)
             (when (.hasRemaining payload)
-                ;; int bestHeight (size of known block chain)
-                (§ assoc this :best-height (Message'read-uint32 payload))
+                ;; string subVer (currently "")
+                (§ assoc this :sub-ver (Message'read-string payload))
                 (when (.hasRemaining payload)
-                    (§ assoc this :relay-txes-before-filter (not= (aget (Message'read-bytes payload, 1) 0) 0))
+                    ;; int bestHeight (size of known block chain)
+                    (§ assoc this :best-height (Message'read-uint32 payload))
+                    (when (.hasRemaining payload)
+                        (§ assoc this :relay-txes-before-filter (not= (aget (Message'read-bytes payload, 1) 0) 0))
+                    )
                 )
             )
+            this
         )
-        this
     )
 
     #_override
