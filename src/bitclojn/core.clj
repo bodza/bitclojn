@@ -298,8 +298,8 @@
 (declare TransactionBroadcaster'''broadcast-transaction-2)
 (declare TransactionConfidence''add-event-listener-2 TransactionConfidence''add-event-listener-3 TransactionConfidence''clear-broadcast-by TransactionConfidence''duplicate TransactionConfidence''get-appeared-at-chain-height TransactionConfidence''get-broadcast-by TransactionConfidence''get-confidence-type TransactionConfidence''get-depth-future-2 TransactionConfidence''get-depth-future-3 TransactionConfidence''get-depth-in-blocks TransactionConfidence''get-last-broadcasted-at TransactionConfidence''get-overriding-transaction TransactionConfidence''get-source TransactionConfidence''increment-depth-in-blocks TransactionConfidence''mark-broadcast-by TransactionConfidence''num-broadcast-peers TransactionConfidence''queue-listeners TransactionConfidence''remove-event-listener-2 TransactionConfidence''set-appeared-at-chain-height TransactionConfidence''set-confidence-type TransactionConfidence''set-depth-in-blocks TransactionConfidence''set-last-broadcasted-at TransactionConfidence''set-overriding-transaction TransactionConfidence''set-source TransactionConfidence''was-broadcast-by TransactionConfidence'PINNED_CONFIDENCE_OBJECTS TransactionConfidence'new)
 (declare TransactionConfidenceListener'''on-confidence-changed)
-(declare TransactionInput''clear-script-bytes TransactionInput''connect-3m TransactionInput''connect-3t TransactionInput''connect-o TransactionInput''disconnect TransactionInput''duplicate-detached TransactionInput''get-connected-output-1 TransactionInput''get-connected-output-2 TransactionInput''get-connected-redeem-data TransactionInput''get-connected-transaction TransactionInput''get-from-address TransactionInput''get-parent-transaction TransactionInput''get-script-sig TransactionInput''get-sequence-number TransactionInput''get-value TransactionInput''has-sequence TransactionInput''is-coin-base TransactionInput''is-opt-in-full-rbf TransactionInput''is-standard TransactionInput''set-script-bytes TransactionInput''set-script-sig TransactionInput''set-sequence-number TransactionInput''verify-1 TransactionInput''verify-2 TransactionInput'EMPTY_ARRAY TransactionInput'NO_SEQUENCE TransactionInput'UNCONNECTED TransactionInput'init TransactionInput'new-unconnected TransactionInput'for-output TransactionInput'for-script TransactionInput'from-wire)
-(declare TransactionOutPoint''get-connected-key TransactionOutPoint''get-connected-output-1 TransactionOutPoint''get-connected-pub-key-script TransactionOutPoint''get-connected-redeem-data TransactionOutPoint'init TransactionOutPoint'for-output TransactionOutPoint'for-hash TransactionOutPoint'for-transaction TransactionOutPoint'from-wire)
+(declare TransactionInput''clear-script-bytes TransactionInput''connect-3m TransactionInput''connect-3t TransactionInput''connect-o TransactionInput''disconnect TransactionInput''get-connected-output TransactionInput''get-connected-output-2 TransactionInput''get-connected-redeem-data TransactionInput''get-connected-transaction TransactionInput''get-from-address TransactionInput''get-parent-transaction TransactionInput''get-script-sig TransactionInput''get-sequence-number TransactionInput''get-value TransactionInput''has-sequence TransactionInput''is-coin-base TransactionInput''is-opt-in-full-rbf TransactionInput''is-standard TransactionInput''set-script-bytes TransactionInput''set-script-sig TransactionInput''set-sequence-number TransactionInput''verify-1 TransactionInput''verify-2 TransactionInput'EMPTY_ARRAY TransactionInput'NO_SEQUENCE TransactionInput'UNCONNECTED TransactionInput'init TransactionInput'new-unconnected TransactionInput'for-output TransactionInput'for-script TransactionInput'from-wire)
+(declare TransactionOutPoint''get-connected-key TransactionOutPoint''get-connected-output TransactionOutPoint''get-connected-pub-key-script TransactionOutPoint''get-connected-redeem-data TransactionOutPoint'init TransactionOutPoint'for-output TransactionOutPoint'for-hash TransactionOutPoint'for-transaction TransactionOutPoint'from-wire)
 (declare TransactionOutput'''get-index TransactionOutput'''get-parent-transaction-depth-in-blocks TransactionOutput'''get-parent-transaction-hash TransactionOutput''duplicate-detached TransactionOutput''get-address-from-p2pkh-script TransactionOutput''get-address-from-p2sh TransactionOutput''get-min-non-dust-value-1 TransactionOutput''get-min-non-dust-value-2 TransactionOutput''get-out-point-for TransactionOutput''get-parent-transaction TransactionOutput''get-script-pub-key TransactionOutput''get-spent-by TransactionOutput''coin-value TransactionOutput''is-available-for-spending TransactionOutput''is-dust TransactionOutput''is-mine TransactionOutput''mark-as-spent TransactionOutput''mark-as-unspent TransactionOutput''set-value TransactionOutput'init TransactionOutput'for-address TransactionOutput'for-script TransactionOutput'for-pubkey TransactionOutput'from-wire)
 (declare TransactionOutputChanges'new)
 (declare TransactionPurpose'enum-set)
@@ -318,7 +318,7 @@
 (declare VarInt''encode VarInt'init VarInt'new VarInt'parse VarInt'from-wire VarInt'size-of)
 (declare VerificationException'new)
 (declare VersionAck'new)
-(declare VersionMessage''duplicate VersionMessage''has-block-chain VersionMessage''is-bloom-filtering-supported VersionMessage''is-ping-pong-supported VersionMessage'NODE_NETWORK VersionMessage'init VersionMessage'new VersionMessage'from-wire)
+(declare VersionMessage''has-block-chain VersionMessage''is-bloom-filtering-supported VersionMessage''is-ping-pong-supported VersionMessage'NODE_NETWORK VersionMessage'init VersionMessage'new VersionMessage'from-wire)
 (declare VersionTally''add VersionTally''get-count-at-or-above VersionTally''initialize VersionTally''size VersionTally'new)
 (declare VersionedChecksummedBytes''to-base58 VersionedChecksummedBytes'from-base58 VersionedChecksummedBytes'new)
 (declare Wallet'DEFAULT_EVENT_HORIZON Wallet''add-and-activate-hd-chain Wallet''add-change-event-listener-2 Wallet''add-change-event-listener-3 Wallet''add-coins-received-event-listener-2 Wallet''add-coins-received-event-listener-3 Wallet''add-coins-sent-event-listener-2 Wallet''add-coins-sent-event-listener-3 Wallet''add-key-chain-event-listener-2 Wallet''add-key-chain-event-listener-3 Wallet''add-reorganize-event-listener-2 Wallet''add-reorganize-event-listener-3 Wallet''add-supplied-inputs Wallet''add-transaction-confidence-event-listener-2 Wallet''add-transaction-confidence-event-listener-3 Wallet''add-transaction-signer Wallet''add-transactions-depending-on Wallet''add-wallet-transaction Wallet''adjust-output-downwards-for-fee Wallet''calc-bloom-out-points-locked Wallet''calculate-all-spend-candidates-1 Wallet''calculate-all-spend-candidates-3 Wallet''calculate-fee Wallet''can-sign-for Wallet''check-balance-futures-locked Wallet''check-for-filter-exhaustion Wallet''check-no-deterministic-keys Wallet''cleanup Wallet''clear-transactions-1 Wallet''clear-transactions-2 Wallet''commit-tx Wallet''complete-tx Wallet''create-send Wallet''create-transient-state Wallet''current-address Wallet''current-change-address Wallet''current-key Wallet''current-receive-address Wallet''current-receive-key Wallet''do-maintenance Wallet''estimate-bytes-for-signing Wallet''find-double-spends-against Wallet''fresh-address Wallet''fresh-key Wallet''fresh-keys Wallet''fresh-receive-address Wallet''fresh-receive-key Wallet''get-active-key-chain Wallet''get-balance-1 Wallet''get-balance-2s Wallet''get-balance-2t Wallet''get-balance-future Wallet''get-bloom-filter-2 Wallet''get-coin-selector Wallet''get-containing-pools Wallet''get-description Wallet''get-imported-keys Wallet''get-issued-receive-addresses Wallet''get-issued-receive-keys Wallet''get-key-by-path-2 Wallet''get-key-chain-group-combined-key-lookahead-epochs Wallet''get-key-chain-group-lookahead-size Wallet''get-key-chain-group-lookahead-threshold Wallet''get-key-chain-group-size Wallet''get-key-chain-seed Wallet''get-key-rotation-time Wallet''get-last-block-seen-hash Wallet''get-last-block-seen-height Wallet''get-last-block-seen-time Wallet''get-last-block-seen-time-secs Wallet''get-pending-transactions Wallet''get-recent-transactions Wallet''get-total-received Wallet''get-total-sent Wallet''get-transaction Wallet''get-transaction-signers Wallet''get-transactions Wallet''get-transactions-by-time Wallet''get-unspents Wallet''get-watching-key Wallet''has-key Wallet''import-key Wallet''import-keys Wallet''inform-confidence-listeners-if-not-reorganizing Wallet''is-accept-risky-transactions Wallet''is-consistent Wallet''is-consistent-or-throw Wallet''is-deterministic-upgrade-required Wallet''is-key-rotating Wallet''is-not-spending-txns-in-confidence-type Wallet''is-pending-transaction-relevant Wallet''is-transaction-relevant Wallet''is-transaction-risky Wallet''is-tx-consistent Wallet''is-tx-output-bloom-filterable Wallet''is-watching Wallet''kill-txns Wallet''mark-keys-as-used Wallet''maybe-commit-tx Wallet''maybe-move-pool Wallet''maybe-queue-on-wallet-changed Wallet''maybe-rotate-keys Wallet''maybe-upgrade-to-hd Wallet''process-tx-from-best-chain Wallet''queue-on-coins-received Wallet''queue-on-coins-sent Wallet''queue-on-reorganize Wallet''queue-on-transaction-confidence-changed Wallet''receive Wallet''receive-pending-3 Wallet''receive-pending-4 Wallet''rekey-one-batch Wallet''remove-change-event-listener Wallet''remove-coins-received-event-listener Wallet''remove-coins-sent-event-listener Wallet''remove-key Wallet''remove-key-chain-event-listener Wallet''remove-reorganize-event-listener Wallet''remove-transaction-confidence-event-listener Wallet''reset Wallet''save Wallet''save-later Wallet''save-now Wallet''send-coins-2 Wallet''send-coins-3b Wallet''send-coins-3p Wallet''send-coins-4 Wallet''send-coins-offline Wallet''set-accept-risky-transactions Wallet''set-coin-selector Wallet''set-description Wallet''set-key-chain-group-lookahead-size Wallet''set-key-chain-group-lookahead-threshold Wallet''set-key-rotation-time-d Wallet''set-key-rotation-time-l Wallet''set-last-block-seen-hash Wallet''set-last-block-seen-height Wallet''set-last-block-seen-time-secs Wallet''set-transaction-broadcaster Wallet''sign-transaction Wallet''sort-txns-by-dependency Wallet''spends Wallet''subtract-depth Wallet''to-string Wallet''to-string-helper Wallet''update-for-spends Wallet''upgrade-to-deterministic Wallet'from-keys Wallet'from-seed Wallet'from-watching-key Wallet'from-watching-key-b58 Wallet'new)
@@ -8627,7 +8627,7 @@
         ;; Announce ourselves.  This has to come first to connect to clients beyond v0.3.20.2 which wait to hear
         ;; from us until they send their version message back.
         (let [#_"PeerAddress" address (PeerSocketHandler''get-address this)]
-            (log/info (str "Announcing to " (if (some? address) (PeerAddress''to-socket-address address) "Peer") " as: " (-> this :version-message :sub-ver)))
+            (log/info (str "Announcing to " (if (some? address) (PeerAddress''to-socket-address address) "Peer")))
             (PeerSocketHandler''send-message this, (:version-message this))
             (.set (:connection-open-future this), this)
             ;; When connecting, the remote peer sends us a version message with various bits of useful data in it.
@@ -8695,7 +8695,7 @@
                 AlertMessage     (Peer''process-alert this, (§ cast AlertMessage m))
                 VersionMessage   (Peer''process-version-message this, (§ cast VersionMessage m))
                 VersionAck       (Peer''process-version-ack this, (§ cast VersionAck m))
-                RejectMessage    (log/error (str this " " (:sub-ver (Peer''get-peer-version-message this)) ": Received " m))
+                RejectMessage    (log/error (str this ": Received " m))
                                  (log/warn (str this ": Received unhandled message: " m))
             )
         )
@@ -8726,7 +8726,7 @@
 
         ;; Switch to the new protocol version.
         (let [#_"long" __peerTime (* (:time-seconds m) 1000)]
-            (log/info (str this ": Got version=" (:client-version m) ", subVer='" (:sub-ver m) "', services=0x" (:local-services m) ", time=" (format "%tF %tT", __peerTime, __peerTime) ", blocks=" (:best-height m)))
+            (log/info (str this ": Got version=" (:client-version m) ", services=0x" (:local-services m) ", time=" (format "%tF %tT", __peerTime, __peerTime) ", blocks=" (:best-height m)))
             ;; bitcoinj is a client mode implementation.  That means there's not much point in us talking to other client mode
             ;; nodes because we can't download the data from them we need to find/verify transactions.  Some bogus implementations
             ;; claim to have a block chain in their services field but then report a height of zero, filter them out here.
@@ -10549,8 +10549,7 @@
                         #_"CopyOnWriteArraySet<PeerDiscovery>" :peer-discoverers (CopyOnWriteArraySet.)
 
                         ;; The version message to use for new connections.
-                        ;; We never request that the remote node wait for a bloom filter yet, as we have no wallets.
-                        #_"VersionMessage" :version-message (assoc (VersionMessage'new params, height) :relay-txes-before-filter true)
+                        #_"VersionMessage" :version-message (VersionMessage'new params, height)
 
                         ;; Maximum depth up to which pending transaction dependencies are downloaded, or 0 for disabled.
                         #_"int" :download-tx-dependency-depth Integer/MAX_VALUE
@@ -11647,11 +11646,11 @@
     (defn #_"Peer" PeerGroup''connect-to-peer-address [#_"PeerGroup" this, #_"PeerAddress" address, #_"boolean" increment?, #_"int" timeout]
         (assert-state (.isHeldByCurrentThread (:peergroup-lock this)))
 
-        (§ let [#_"VersionMessage" ver (VersionMessage''duplicate (PeerGroup''get-version-message this))]
-            (§ assoc ver :best-height (if (some? (:chain this)) (BlockChain''get-best-chain-height (:chain this)) 0))
-            (§ assoc ver :time-seconds (Utils'current-time-seconds))
+        (let [#_"VersionMessage" ver (PeerGroup''get-version-message this)
+              ver (assoc ver :best-height (if (some? (:chain this)) (BlockChain''get-best-chain-height (:chain this)) 0))
+              ver (assoc ver :time-seconds (Utils'current-time-seconds))]
 
-            (let [#_"Peer" peer (PeerGroup''create-peer this, address, ver)]
+            (§ let [#_"Peer" peer (PeerGroup''create-peer this, address, ver)]
                 (Peer''add-connected-event-listener-3 peer, Threading'SAME_THREAD, (:startup-listener this))
                 (Peer''add-disconnected-event-listener-3 peer, Threading'SAME_THREAD, (:startup-listener this))
                 (Peer''set-min-protocol-version peer, (:v-min-required-protocol-version this))
@@ -13639,7 +13638,7 @@
      ;;
     #_method
     (defn #_"TransactionInput" Transaction''add-input-s [#_"Transaction" this, #_"Sha256Hash" __spendTxHash, #_"long" index, #_"Script" script]
-        (Transaction''add-input-i this, (TransactionInput'for-script (:params this), this, (Script''get-program script), (TransactionOutPoint'for-hash (:params this), index, __spendTxHash)))
+        (Transaction''add-input-i this, (TransactionInput'for-script (:params this), this, (Script''get-program script), (TransactionOutPoint'for-hash (:params this), __spendTxHash, index)))
     )
 
     ;;;
@@ -14321,7 +14320,7 @@
                                         (.. sb (append "\n          outpoint:"))
                                         (let [#_"TransactionOutPoint" outpoint (:outpoint in)]
                                             (.. sb (append outpoint))
-                                            (let [#_"TransactionOutput" __connectedOutput (TransactionOutPoint''get-connected-output-1 outpoint)]
+                                            (let [#_"TransactionOutput" __connectedOutput (TransactionOutPoint''get-connected-output outpoint)]
                                                 (when (some? __connectedOutput)
                                                     (let [#_"Script" __scriptPubKey (TransactionOutput''get-script-pub-key __connectedOutput)]
                                                         (when (or (Script''is-sent-to-address __scriptPubKey) (Script''is-pay-to-script-hash __scriptPubKey))
@@ -15255,7 +15254,7 @@
      ; Creates an input that connects to nothing - used only in creation of coinbase transactions.
      ;;
     (defn #_"TransactionInput" TransactionInput'new-unconnected [#_"NetworkParameters" params, #_"Transaction" parent, #_"byte[]" script]
-        (TransactionInput'for-script params, parent, script, (TransactionOutPoint'for-transaction params, TransactionInput'UNCONNECTED, nil))
+        (TransactionInput'for-script params, parent, script, (TransactionOutPoint'for-transaction params, nil, TransactionInput'UNCONNECTED))
     )
 
     (defn #_"TransactionInput" TransactionInput'for-script [#_"NetworkParameters" params, #_"Transaction" parent, #_"byte[]" script, #_"TransactionOutPoint" outpoint]
@@ -15276,7 +15275,7 @@
         (let [this (merge (ChildMessage'new params, parent) (TransactionInput'init))]
 
             (if (some? (TransactionOutput''get-parent-transaction output))
-                (§ assoc this :outpoint (TransactionOutPoint'for-transaction params, (TransactionOutput'''get-index output), (TransactionOutput''get-parent-transaction output)))
+                (§ assoc this :outpoint (TransactionOutPoint'for-transaction params, (TransactionOutput''get-parent-transaction output), (TransactionOutput'''get-index output)))
                 (§ assoc this :outpoint (TransactionOutPoint'for-output params, output))
             )
             (§ assoc this :script-bytes TransactionInput'EMPTY_ARRAY)
@@ -15573,10 +15572,10 @@
     #_throws #_[ "VerificationException" ]
     #_method
     (defn #_"void" TransactionInput''verify-1 [#_"TransactionInput" this]
-        (let [#_"Transaction" __fromTx (-> this :outpoint :from-tx)]
-            (ensure some? __fromTx, "Not connected")
+        (let [#_"Transaction" tx (-> this :outpoint :from-tx)]
+            (ensure some? tx, "Not connected")
 
-            (let [#_"TransactionOutput" output (Transaction''get-output __fromTx, (int (:index (:outpoint this))))]
+            (let [#_"TransactionOutput" output (Transaction''get-output tx, (int (:index (:outpoint this))))]
                 (TransactionInput''verify-2 this, output)
             )
         )
@@ -15615,8 +15614,8 @@
      ; If it wasn't connected, then this method returns null.
      ;;
     #_method
-    (defn #_"TransactionOutput" TransactionInput''get-connected-output-1 [#_"TransactionInput" this]
-        (TransactionOutPoint''get-connected-output-1 (:outpoint this))
+    (defn #_"TransactionOutput" TransactionInput''get-connected-output [#_"TransactionInput" this]
+        (TransactionOutPoint''get-connected-output (:outpoint this))
     )
 
     ;;;
@@ -15627,14 +15626,6 @@
     #_method
     (defn #_"Transaction" TransactionInput''get-connected-transaction [#_"TransactionInput" this]
         (-> this :outpoint :from-tx)
-    )
-
-    ;;;
-     ; Returns a copy of the input detached from its containing transaction, if need be.
-     ;;
-    #_method
-    (defn #_"TransactionInput" TransactionInput''duplicate-detached [#_"TransactionInput" this]
-        (TransactionInput'from-wire (:params this), (ByteBuffer/wrap (Message'''bitcoin-serialize this)), nil)
     )
 
     ;;;
@@ -15710,34 +15701,27 @@
         )
     )
 
-    (defn #_"TransactionOutPoint" TransactionOutPoint'for-transaction [#_"NetworkParameters" params, #_"long" index, #_"Transaction" __fromTx]
+    (defn #_"TransactionOutPoint" TransactionOutPoint'for-transaction [#_"NetworkParameters" params, #_"Transaction" tx, #_"long" index]
         (let [this (merge (ChildMessage'new params, nil) (TransactionOutPoint'init))]
 
-            (§ assoc this :index index)
-            (cond (some? __fromTx)
-                (do
-                    (§ assoc this :from-tx-hash (Message'''get-hash __fromTx))
-                    (§ assoc this :from-tx __fromTx)
-                )
-                :else
-                (do
-                    ;; This happens when constructing the genesis block.
-                    (§ assoc this :from-tx-hash Sha256Hash'ZERO_HASH)
-                )
+            (if (some? tx)
+                (§ assoc this :from-tx-hash (Message'''get-hash tx), :from-tx tx)
+                ;; This happens when constructing the genesis block.
+                (§ assoc this :from-tx-hash Sha256Hash'ZERO_HASH)
             )
-            this
+            (assoc this :index index)
         )
     )
 
-    (defn #_"TransactionOutPoint" TransactionOutPoint'for-hash [#_"NetworkParameters" params, #_"long" index, #_"Sha256Hash" hash]
+    (defn #_"TransactionOutPoint" TransactionOutPoint'for-hash [#_"NetworkParameters" params, #_"Sha256Hash" hash, #_"long" index]
         (let [this (merge (ChildMessage'new params, nil) (TransactionOutPoint'init))]
 
-            (assoc this :index index, :from-tx-hash hash)
+            (assoc this :from-tx-hash hash, :index index)
         )
     )
 
     (defn #_"TransactionOutPoint" TransactionOutPoint'for-output [#_"NetworkParameters" params, #_"TransactionOutput" output]
-        (let [this (TransactionOutPoint'for-hash params, (TransactionOutput'''get-index output), (TransactionOutput'''get-parent-transaction-hash output))]
+        (let [this (TransactionOutPoint'for-hash params, (TransactionOutput'''get-parent-transaction-hash output), (TransactionOutput'''get-index output))]
             (assoc this :connected-output output)
         )
     )
@@ -15768,7 +15752,7 @@
      ; if there is no such connection.
      ;;
     #_method
-    (defn #_"TransactionOutput" TransactionOutPoint''get-connected-output-1 [#_"TransactionOutPoint" this]
+    (defn #_"TransactionOutput" TransactionOutPoint''get-connected-output [#_"TransactionOutPoint" this]
         (if (some? (:from-tx this)) (.get (Transaction''get-outputs (:from-tx this)), (int (:index this))) (:connected-output this))
     )
 
@@ -15779,7 +15763,7 @@
      ;;
     #_method
     (defn #_"byte[]" TransactionOutPoint''get-connected-pub-key-script [#_"TransactionOutPoint" this]
-        (let [#_"byte[]" bytes (:script-bytes (ensure some? (TransactionOutPoint''get-connected-output-1 this)))]
+        (let [#_"byte[]" bytes (:script-bytes (ensure some? (TransactionOutPoint''get-connected-output this)))]
             (assert-state (pos? (alength bytes)))
             bytes
         )
@@ -15795,7 +15779,7 @@
     #_throws #_[ "ScriptException" ]
     #_method
     (defn #_"ECKey" TransactionOutPoint''get-connected-key [#_"TransactionOutPoint" this, #_"KeyBag" bag]
-        (let [#_"TransactionOutput" output (ensure some? (TransactionOutPoint''get-connected-output-1 this), "Input is not connected, so cannot retrieve key")
+        (let [#_"TransactionOutput" output (ensure some? (TransactionOutPoint''get-connected-output this), "Input is not connected, so cannot retrieve key")
               #_"Script" script (TransactionOutput''get-script-pub-key output)]
             (cond
                 (Script''is-sent-to-address script)     (KeyBag'''find-key-from-pub-hash bag, (Script''get-pub-key-hash script))
@@ -15815,7 +15799,7 @@
     #_throws #_[ "ScriptException" ]
     #_method
     (defn #_"RedeemData" TransactionOutPoint''get-connected-redeem-data [#_"TransactionOutPoint" this, #_"KeyBag" bag]
-        (let [#_"TransactionOutput" output (ensure some? (TransactionOutPoint''get-connected-output-1 this), "Input is not connected, so cannot retrieve key")
+        (let [#_"TransactionOutput" output (ensure some? (TransactionOutPoint''get-connected-output this), "Input is not connected, so cannot retrieve key")
               #_"Script" script (TransactionOutput''get-script-pub-key output)]
             (cond
                 (Script''is-sent-to-address script)     (RedeemData'of script, (KeyBag'''find-key-from-pub-hash bag, (Script''get-pub-key-hash script)))
@@ -16165,7 +16149,7 @@
      ;;
     #_method
     (defn #_"TransactionOutPoint" TransactionOutput''get-out-point-for [#_"TransactionOutput" this]
-        (TransactionOutPoint'for-transaction (:params this), (TransactionOutput'''get-index this), (TransactionOutput''get-parent-transaction this))
+        (TransactionOutPoint'for-transaction (:params this), (TransactionOutput''get-parent-transaction this), (TransactionOutput'''get-index this))
     )
 
     ;;; Returns a copy of the output detached from its containing transaction, if need be. ;;
@@ -16597,17 +16581,6 @@
              ;;
             #_"long" :time-seconds (quot (System/currentTimeMillis) 1000)
             ;;;
-             ; What the other side believes the address of this program is.  Not used.
-             ; What the other side believes their own address is.  Not used.
-             ;;
-            #_"PeerAddress" :my-addr nil
-            #_"PeerAddress" :their-addr nil
-            ;;;
-             ; User-Agent as defined in <a href="https://github.com/bitcoin/bips/blob/master/bip-0014.mediawiki">BIP 14</a>.
-             ; Bitcoin Core sets it to something like "/Satoshi:0.9.1/".
-             ;;
-            #_"String" :sub-ver nil
-            ;;;
              ; How many blocks are in the chain, according to the other side.
              ;;
             #_"long" :best-height 0
@@ -16615,22 +16588,14 @@
              ; Whether or not to relay tx invs before a filter is received.
              ; See <a href="https://github.com/bitcoin/bips/blob/master/bip-0037.mediawiki#extensions-to-existing-messages">BIP 37</a>.
              ;;
-            #_"boolean" :relay-txes-before-filter false
+            #_"boolean" :relay-txes-before-filter true
         )
     )
 
-    (defn #_"VersionMessage" VersionMessage'new [#_"NetworkParameters" params, #_"int" __newBestHeight]
-        (let [this (merge (Message'new params) (VersionMessage'init))
+    (defn #_"VersionMessage" VersionMessage'new [#_"NetworkParameters" params, #_"int" height]
+        (let [this (merge (Message'new params) (VersionMessage'init))]
 
-              ;; Note that the Bitcoin Core doesn't do anything with these, and finding out your own external IP address
-              ;; is kind of tricky anyway, so we just put nonsense here for now.
-              this (assoc this :my-addr (PeerAddress'from-inet-port params, (InetAddress/getLoopbackAddress), (:port params)))
-              this (assoc this :their-addr (PeerAddress'from-inet-port params, (InetAddress/getLoopbackAddress), (:port params)))
-
-              this (assoc this :best-height __newBestHeight)
-              this (assoc this :relay-txes-before-filter true)]
-
-            this
+            (assoc this :best-height height)
         )
     )
 
@@ -16641,19 +16606,15 @@
             (§ assoc this :client-version (int (Message'read-uint32 payload)))
             (§ assoc this :local-services (.longValue (Message'read-uint64 payload)))
             (§ assoc this :time-seconds (.longValue (Message'read-uint64 payload)))
-            (§ assoc this :my-addr (PeerAddress'from-wire params, payload, nil))
-            (§ assoc this :their-addr (PeerAddress'from-wire params, payload, nil))
+            (PeerAddress'from-wire params, payload, nil) ;; my address
+            (PeerAddress'from-wire params, payload, nil) ;; their address
             ;; uint64 localHostNonce (random data)
             ;; We don't care about the localhost nonce.  It's used to detect connecting back to yourself in cases where
             ;; there are NATs and proxies in the way.  However we don't listen for inbound connections so it's irrelevant.
             (Message'read-uint64 payload)
-            ;; Initialize default values for flags which may not be sent by old nodes.
-            (§ assoc this :sub-ver "")
-            (§ assoc this :best-height 0)
-            (§ assoc this :relay-txes-before-filter true)
+            ;; The rest of the flags may not be sent by old nodes.
             (when (.hasRemaining payload)
-                ;; string subVer (currently "")
-                (§ assoc this :sub-ver (Message'read-string payload))
+                (Message'read-string payload) ;; user agent
                 (when (.hasRemaining payload)
                     ;; int bestHeight (size of known block chain)
                     (§ assoc this :best-height (Message'read-uint32 payload))
@@ -16673,20 +16634,19 @@
         (Utils'uint32-to-byte-stream-le (>> (:local-services this) 32), baos)
         (Utils'uint32-to-byte-stream-le (:time-seconds this), baos)
         (Utils'uint32-to-byte-stream-le (>> (:time-seconds this) 32), baos)
-        (Message'''bitcoin-serialize-to-stream (:my-addr this), baos)
-        (Message'''bitcoin-serialize-to-stream (:their-addr this), baos)
+        ;; Note that Bitcoin Core doesn't do anything with these, and finding out our own external
+        ;; IP address is kind of tricky anyway, so we just put nonsense here for now.
+        (Message'''bitcoin-serialize-to-stream (PeerAddress'loopback (:params this)), baos)
+        (Message'''bitcoin-serialize-to-stream (PeerAddress'loopback (:params this)), baos)
         ;; Next up is the "local host nonce", this is to detect the case of connecting back to yourself.
         ;; We don't care about this as we won't be accepting inbound connections.
         (Utils'uint32-to-byte-stream-le 0, baos)
         (Utils'uint32-to-byte-stream-le 0, baos)
         ;; Now comes subVer.
-        (let [#_"byte[]" bytes (.getBytes (:sub-ver this), Charsets/UTF_8)]
-            (.write baos, (VarInt''encode (VarInt'new (alength bytes))))
-            (.write baos, bytes)
-            ;; Size of known block chain.
-            (Utils'uint32-to-byte-stream-le (:best-height this), baos)
-            (.write baos, (if (:relay-txes-before-filter this) 1 0))
-        )
+        (.write baos, (VarInt''encode (VarInt'new 0)))
+        ;; Size of known block chain.
+        (Utils'uint32-to-byte-stream-le (:best-height this), baos)
+        (.write baos, (if (:relay-txes-before-filter this) 1 0))
         nil
     )
 
@@ -16697,20 +16657,6 @@
     #_method
     (defn #_"boolean" VersionMessage''has-block-chain [#_"VersionMessage" this]
         (= (& (:local-services this) VersionMessage'NODE_NETWORK) VersionMessage'NODE_NETWORK)
-    )
-
-    #_method
-    (defn #_"VersionMessage" VersionMessage''duplicate [#_"VersionMessage" this]
-        (let [#_"VersionMessage" v (VersionMessage'new (:params this), (int (:best-height this)))]
-            (§ assoc v :client-version (:client-version this))
-            (§ assoc v :local-services (:local-services this))
-            (§ assoc v :time-seconds (:time-seconds this))
-            (§ assoc v :my-addr (:my-addr this))
-            (§ assoc v :their-addr (:their-addr this))
-            (§ assoc v :sub-ver (:sub-ver this))
-            (§ assoc v :relay-txes-before-filter (:relay-txes-before-filter this))
-            v
-        )
     )
 
     ;;;
@@ -16737,7 +16683,7 @@
             (= this o) true
             (or (nil? o) (not= (.getClass this) (.getClass o))) false
             :else (let [#_"VersionMessage" that (§ cast VersionMessage o)]
-                (and (= (:best-height that) (:best-height this)) (= (:client-version that) (:client-version this)) (= (:local-services that) (:local-services this)) (= (:time-seconds that) (:time-seconds this)) (.equals (:sub-ver that), (:sub-ver this)) (.equals (:my-addr that), (:my-addr this)) (.equals (:their-addr that), (:their-addr this)) (= (:relay-txes-before-filter that) (:relay-txes-before-filter this)))
+                (and (= (:best-height that) (:best-height this)) (= (:client-version that) (:client-version this)) (= (:local-services that) (:local-services this)) (= (:time-seconds that) (:time-seconds this)) (= (:relay-txes-before-filter that) (:relay-txes-before-filter this)))
             )
         )
     )
@@ -16745,7 +16691,7 @@
     #_foreign
     #_override
     (defn #_"int" Object'''hashCode [#_"VersionMessage" this]
-        (Objects/hash (object-array [ (:best-height this), (:client-version this), (:local-services this), (:time-seconds this), (:sub-ver this), (:my-addr this), (:their-addr this), (:relay-txes-before-filter this) ]))
+        (Objects/hash (object-array [ (:best-height this), (:client-version this), (:local-services this), (:time-seconds this), (:relay-txes-before-filter this) ]))
     )
 
     #_foreign
@@ -16756,9 +16702,6 @@
             (.. sb (append "client version: ") (append (:client-version this)) (append "\n"))
             (.. sb (append "local services: ") (append (:local-services this)) (append "\n"))
             (.. sb (append "time:           ") (append (:time-seconds this)) (append "\n"))
-            (.. sb (append "my addr:        ") (append (:my-addr this)) (append "\n"))
-            (.. sb (append "their addr:     ") (append (:their-addr this)) (append "\n"))
-            (.. sb (append "sub version:    ") (append (:sub-ver this)) (append "\n"))
             (.. sb (append "best height:    ") (append (:best-height this)) (append "\n"))
             (.. sb (append "delay tx relay: ") (append (not (:relay-txes-before-filter this))) (append "\n"))
             (.toString sb)
@@ -24025,7 +23968,7 @@
     (defn #_"boolean" TransactionSigner'''sign-inputs [#_"CustomTransactionSigner" this, #_"ProposedTransaction" __propTx, #_"KeyBag" bag]
         (let [#_"Transaction" tx (:partial-tx __propTx) #_"int" n (.size (Transaction''get-inputs tx))]
             (loop-when [#_"int" i 0] (< i n) => true
-                (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output-1 in)]
+                (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
                     (when' (some? out) => (recur (inc i))
                         (let [#_"Script" __outKey (TransactionOutput''get-script-pub-key out)]
                             (if (Script''is-pay-to-script-hash __outKey)
@@ -24093,7 +24036,7 @@
     (defn #_"boolean" TransactionSigner'''sign-inputs [#_"LocalTransactionSigner" this, #_"ProposedTransaction" __propTx, #_"KeyBag" bag]
         (§ let [#_"Transaction" tx (:partial-tx __propTx) #_"int" n (.size (Transaction''get-inputs tx))]
             (loop-when-recur [#_"int" i 0] (< i n) [(inc i)]
-                (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output-1 in)]
+                (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
                     (if (nil? out)
                         (log/warn (str "Missing connected output, assuming input " i " is already signed."))
                         (let [#_"Script" inSig (TransactionInput''get-script-sig in) #_"Script" outKey (TransactionOutput''get-script-pub-key out)]
@@ -24171,7 +24114,7 @@
             (let [#_"Transaction" tx (:partial-tx __propTx)
                   #_"byte[]" dummy (TransactionSignature''encode-to-bitcoin (TransactionSignature'dummy))]
                 (dotimes [#_"int" i (.size (Transaction''get-inputs tx))]
-                    (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output-1 in)]
+                    (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
                         (if (nil? out)
                             (log/warn (str "Missing connected output, assuming input " i " is already signed."))
                             (let [#_"Script" inSig (TransactionInput''get-script-sig in) #_"Script" outKey (TransactionOutput''get-script-pub-key out)]
@@ -30289,7 +30232,7 @@
                     (when (and (not __hasOutputsToMe) (not __hasOutputsFromMe) (not __forceAddToPool) (seq (Wallet''find-double-spends-against this, tx, (:transactions this))))
                         ;; Disconnect irrelevant inputs (otherwise might cause protobuf serialization issue).
                         (doseq [#_"TransactionInput" input (Transaction''get-inputs tx)]
-                            (let [#_"TransactionOutput" output (TransactionInput''get-connected-output-1 input)]
+                            (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
                                 (when (and (some? output) (not (TransactionOutput''is-mine output, this)))
                                     (TransactionInput''disconnect input)
                                 )
@@ -30343,7 +30286,7 @@
                     )
                 )
 
-                (let [#_"TransactionOutput" output (ensure some? (TransactionInput''get-connected-output-1 input))]
+                (let [#_"TransactionOutput" output (ensure some? (TransactionInput''get-connected-output input))]
                     (cond (= result :ConnectionResult'ALREADY_SPENT)
                         (do
                             (cond __fromChain
@@ -30405,8 +30348,8 @@
                     (log/info (str "Connected pending tx input " (Transaction''get-hash-as-string pending) ":" (.indexOf (Transaction''get-inputs pending), input)))
                     ;; The unspents map might not have it if we never saw this tx until it was included in the chain
                     ;; and thus becomes spent the moment we become aware of it.
-                    (when (.remove (:my-unspents this), (TransactionInput''get-connected-output-1 input))
-                        (log/info (str "Removed from UNSPENTS: " (TransactionInput''get-connected-output-1 input)))
+                    (when (.remove (:my-unspents this), (TransactionInput''get-connected-output input))
+                        (log/info (str "Removed from UNSPENTS: " (TransactionInput''get-connected-output input)))
                     )
                 )
             )
@@ -30436,9 +30379,9 @@
                     (doseq [#_"TransactionInput" dead (Transaction''get-inputs tx)]
                         (let [#_"Transaction" connected (TransactionInput''get-connected-transaction dead)]
                             (when (some? connected)
-                                (when (and (not= (TransactionConfidence''get-confidence-type (Transaction''get-confidence-t connected)) :ConfidenceType'DEAD) (some? (TransactionOutput''get-spent-by (TransactionInput''get-connected-output-1 dead))) (.equals (TransactionOutput''get-spent-by (TransactionInput''get-connected-output-1 dead)), dead))
-                                    (assert-state (.add (:my-unspents this), (TransactionInput''get-connected-output-1 dead)))
-                                    (log/info (str "Added to UNSPENTS: " (TransactionInput''get-connected-output-1 dead) " in " (Message'''get-hash (TransactionOutput''get-parent-transaction (TransactionInput''get-connected-output-1 dead)))))
+                                (when (and (not= (TransactionConfidence''get-confidence-type (Transaction''get-confidence-t connected)) :ConfidenceType'DEAD) (some? (TransactionOutput''get-spent-by (TransactionInput''get-connected-output dead))) (.equals (TransactionOutput''get-spent-by (TransactionInput''get-connected-output dead)), dead))
+                                    (assert-state (.add (:my-unspents this), (TransactionInput''get-connected-output dead)))
+                                    (log/info (str "Added to UNSPENTS: " (TransactionInput''get-connected-output dead) " in " (Message'''get-hash (TransactionOutput''get-parent-transaction (TransactionInput''get-connected-output dead)))))
                                 )
                                 (TransactionInput''disconnect dead)
                                 (Wallet''maybe-move-pool this, connected, "kill")
@@ -30470,14 +30413,14 @@
                         (if (= result :ConnectionResult'SUCCESS)
                             (do
                                 (Wallet''maybe-move-pool this, (TransactionInput''get-connected-transaction input), "kill")
-                                (.remove (:my-unspents this), (TransactionInput''get-connected-output-1 input))
-                                (log/info (str "Removing from UNSPENTS: " (TransactionInput''get-connected-output-1 input)))
+                                (.remove (:my-unspents this), (TransactionInput''get-connected-output input))
+                                (log/info (str "Removing from UNSPENTS: " (TransactionInput''get-connected-output input)))
                             )
                             (let [result (TransactionInput''connect-3m input, (:spent this), :ConnectionMode'DISCONNECT_ON_CONFLICT)]
                                 (when (= result :ConnectionResult'SUCCESS)
                                     (Wallet''maybe-move-pool this, (TransactionInput''get-connected-transaction input), "kill")
-                                    (.remove (:my-unspents this), (TransactionInput''get-connected-output-1 input))
-                                    (log/info (str "Removing from UNSPENTS: " (TransactionInput''get-connected-output-1 input)))
+                                    (.remove (:my-unspents this), (TransactionInput''get-connected-output input))
+                                    (log/info (str "Removing from UNSPENTS: " (TransactionInput''get-connected-output input)))
                                 )
                             )
                         )
@@ -31023,7 +30966,7 @@
                                 (do
                                     ;; Sync myUnspents with the change.
                                     (doseq [#_"TransactionInput" input (Transaction''get-inputs tx)]
-                                        (let [#_"TransactionOutput" output (TransactionInput''get-connected-output-1 input)]
+                                        (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
                                             (when (some? output)
                                                 (when (TransactionOutput''is-mine output, this)
                                                     (assert-state (.add (:my-unspents this), output))
@@ -31322,7 +31265,7 @@
                             (map TransactionOutput''coin-value)
                             (reduce Coin''add sum))
                       sum (->> (Transaction''get-inputs tx)
-                            (map TransactionInput''get-connected-output-1)
+                            (map TransactionInput''get-connected-output)
                             (filter #(and (some? %) (TransactionOutput''is-mine %, this)))
                             (map TransactionOutput''coin-value)
                             (reduce Coin''subtract sum))]
@@ -31360,7 +31303,7 @@
                     ;; Count the input values to us
                     (let [#_"Coin" __txOwnedInputsTotal Coin'ZERO]
                         (doseq [#_"TransactionInput" in (Transaction''get-inputs tx)]
-                            (let [#_"TransactionOutput" out (TransactionInput''get-connected-output-1 in)]
+                            (let [#_"TransactionOutput" out (TransactionInput''get-connected-output in)]
                                 (when (and (some? out) (TransactionOutput''is-mine out, this))
                                     (§ ass __txOwnedInputsTotal (Coin''add __txOwnedInputsTotal, (TransactionOutput''coin-value out)))
                                 )
@@ -31598,8 +31541,8 @@
                 ;; If any inputs have already been added, we don't need to get their value from wallet.
                 (§ let [#_"Coin" __totalInput Coin'ZERO]
                     (doseq [#_"TransactionInput" input (Transaction''get-inputs (:tx req))]
-                        (if (some? (TransactionInput''get-connected-output-1 input))
-                            (§ ass __totalInput (Coin''add __totalInput, (TransactionOutput''coin-value (TransactionInput''get-connected-output-1 input))))
+                        (if (some? (TransactionInput''get-connected-output input))
+                            (§ ass __totalInput (Coin''add __totalInput, (TransactionOutput''coin-value (TransactionInput''get-connected-output input))))
                             (log/warn "SendRequest transaction already has inputs but we don't know how much they are worth - they will be added to fee.")
                         )
                     )
@@ -31722,7 +31665,7 @@
 
                 (let [#_"int" n (.size (Transaction''get-inputs tx))]
                     (loop-when-recur [#_"int" i 0] (< i n) [(inc i)]
-                        (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output-1 in)]
+                        (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
                             (when (some? out) ;; Else missing connected output, assuming already signed.
                                 (let [#_"Script" inSig (TransactionInput''get-script-sig in) #_"Script" outKey (TransactionOutput''get-script-pub-key out)]
                                     (try+
