@@ -125,7 +125,7 @@
 (declare BasicKeyChain''find-key-from-pub-hash BasicKeyChain''find-key-from-pub-key BasicKeyChain''find-keys-before BasicKeyChain''find-oldest-key-after BasicKeyChain''get-keys-1 BasicKeyChain''get-listeners BasicKeyChain''import-key BasicKeyChain''import-key-locked BasicKeyChain''import-keys BasicKeyChain''import-keys-locked BasicKeyChain''is-watching BasicKeyChain''queue-on-keys-added BasicKeyChain''remove-key BasicKeyChain'new)
 (declare BitcoinPacketHeader'HEADER_LENGTH BitcoinPacketHeader'new)
 (declare Wire'deserialize Wire'deserialize-header Wire'deserialize-payload Wire'make-message Wire'seek-past-magic-bytes Wire'serialize-3 Wire'serialize-4 Wire'COMMAND_LEN)
-(declare Block''add-transaction-2 Block''add-transaction-3 Block''build-merkle-tree Block''calculate-hash Block''calculate-merkle-root Block''check-proof-of-work Block''check-sig-ops Block''check-timestamp Block''check-transactions Block''clone-as-header Block''get-block-inflation Block''get-difficulty-target Block''get-difficulty-target-as-integer Block''get-hash Block''get-hash-as-string Block''get-merkle-root Block''get-nonce Block''get-time Block''get-time-seconds Block''get-transactions Block''get-work Block''has-transactions Block''is-bip34 Block''is-bip65 Block''is-bip66 Block''set-difficulty-target Block''set-nonce Block''set-time Block''solve Block''verify Block''verify-header Block''verify-transactions Block''write-header Block''write-transactions Block'ALLOWED_TIME_DRIFT Block'BLOCK_HEIGHT_GENESIS Block'BLOCK_HEIGHT_UNKNOWN Block'BLOCK_VERSION_BIP34 Block'BLOCK_VERSION_BIP65 Block'BLOCK_VERSION_BIP66 Block'BLOCK_VERSION_GENESIS Block'EASIEST_DIFFICULTY_TARGET Block'HEADER_SIZE Block'LARGEST_HASH Block'MAX_BLOCK_SIGOPS Block'MAX_BLOCK_SIZE Block'init Block'new-genesis Block'from-wire Block''to-wire Block'new)
+(declare Block''add-transaction-2 Block''add-transaction-3 Block''build-merkle-tree Block''calculate-hash Block''calculate-merkle-root Block''check-proof-of-work Block''check-sig-ops Block''check-timestamp Block''check-transactions Block''clone-as-header Block''get-block-inflation Block''get-difficulty-target-as-integer Block''get-hash Block''get-hash-as-string Block''get-merkle-root Block''get-transactions Block''get-work Block''has-transactions Block''is-bip34 Block''is-bip65 Block''is-bip66 Block''solve Block''verify Block''verify-header Block''verify-transactions Block''write-header Block''write-transactions Block'ALLOWED_TIME_DRIFT Block'BLOCK_HEIGHT_GENESIS Block'BLOCK_HEIGHT_UNKNOWN Block'BLOCK_VERSION_BIP34 Block'BLOCK_VERSION_BIP65 Block'BLOCK_VERSION_BIP66 Block'BLOCK_VERSION_GENESIS Block'EASIEST_DIFFICULTY_TARGET Block'HEADER_SIZE Block'LARGEST_HASH Block'MAX_BLOCK_SIGOPS Block'MAX_BLOCK_SIZE Block'init Block'new-genesis Block'from-wire Block''to-wire Block'new)
 (declare BlockChain'''add-filtered-block BlockChain'''add-to-block-store-3 BlockChain'''add-to-block-store-4 BlockChain'''connect-transactions-2 BlockChain'''connect-transactions-3 BlockChain'''disconnect-transactions BlockChain'''do-set-chain-head BlockChain'''get-stored-block-in-current-scope BlockChain'''not-setting-chain-head BlockChain'''rollback-block-store BlockChain'''should-verify-transactions BlockChain''add-5 BlockChain''add-b BlockChain''add-new-best-block-listener-2 BlockChain''add-new-best-block-listener-3 BlockChain''add-reorganize-listener-2 BlockChain''add-reorganize-listener-3 BlockChain''add-transaction-received-listener-2 BlockChain''add-transaction-received-listener-3 BlockChain''add-wallet BlockChain''connect-block BlockChain''drain-orphan-blocks BlockChain''estimate-block-time BlockChain''get-best-chain-height BlockChain''get-block-store BlockChain''get-chain-head BlockChain''get-false-positive-rate BlockChain''get-height-future BlockChain''get-orphan-root BlockChain''get-version-tally BlockChain''handle-new-best-chain BlockChain''inform-listeners-for-new-block BlockChain''is-orphan BlockChain''remove-new-best-block-listener BlockChain''remove-reorganize-listener BlockChain''remove-transaction-received-listener BlockChain''remove-wallet BlockChain''reset-false-positive-estimate BlockChain''set-chain-head BlockChain''track-false-positives BlockChain''track-filtered-transactions BlockChain''try-connecting-orphans BlockChain'FP_ESTIMATOR_ALPHA BlockChain'FP_ESTIMATOR_BETA BlockChain'find-split BlockChain'get-median-timestamp-of-recent-blocks BlockChain'get-partial-chain BlockChain'inform-listener-for-new-transactions BlockChain'new BlockChain'send-transactions-to-listener)
 (declare BlockStore'''close BlockStore'''get-2 BlockStore'''get-chain-head BlockStore'''put-2 BlockStore'''set-chain-head)
 (declare BlockStoreException'new)
@@ -299,7 +299,7 @@
 (declare TransactionConfidence''add-event-listener-2 TransactionConfidence''add-event-listener-3 TransactionConfidence''clear-broadcast-by TransactionConfidence''duplicate TransactionConfidence''get-appeared-at-chain-height TransactionConfidence''get-broadcast-by TransactionConfidence''get-confidence-type TransactionConfidence''get-depth-future-2 TransactionConfidence''get-depth-future-3 TransactionConfidence''get-depth-in-blocks TransactionConfidence''get-last-broadcasted-at TransactionConfidence''get-overriding-transaction TransactionConfidence''get-source TransactionConfidence''increment-depth-in-blocks TransactionConfidence''mark-broadcast-by TransactionConfidence''num-broadcast-peers TransactionConfidence''queue-listeners TransactionConfidence''remove-event-listener-2 TransactionConfidence''set-appeared-at-chain-height TransactionConfidence''set-confidence-type TransactionConfidence''set-depth-in-blocks TransactionConfidence''set-last-broadcasted-at TransactionConfidence''set-overriding-transaction TransactionConfidence''set-source TransactionConfidence''was-broadcast-by TransactionConfidence'PINNED_CONFIDENCE_OBJECTS TransactionConfidence'new)
 (declare TransactionConfidenceListener'''on-confidence-changed)
 (declare TransactionInput''clear-script-bytes TransactionInput''connect-3m TransactionInput''connect-3t TransactionInput''connect-o TransactionInput''disconnect TransactionInput''get-connected-output TransactionInput''get-connected-output-2 TransactionInput''get-connected-redeem-data TransactionInput''get-connected-transaction TransactionInput''get-from-address TransactionInput''get-script-sig TransactionInput''get-sequence-number TransactionInput''has-sequence TransactionInput''is-coin-base TransactionInput''is-opt-in-full-rbf TransactionInput''is-standard TransactionInput''set-script-bytes TransactionInput''set-script-sig TransactionInput''set-sequence-number TransactionInput''verify-1 TransactionInput''verify-2 TransactionInput'NO_SEQUENCE TransactionInput'UNCONNECTED TransactionInput'new TransactionInput'new-unconnected TransactionInput'for-output TransactionInput'for-outpoint TransactionInput'from-wire TransactionInput''to-wire)
-(declare TransactionOutPoint''get-connected-key TransactionOutPoint''get-connected-output TransactionOutPoint''get-connected-pub-key-script TransactionOutPoint''get-connected-redeem-data TransactionOutPoint'new TransactionOutPoint'for-output TransactionOutPoint'for-hash TransactionOutPoint'for-transaction TransactionOutPoint'from-wire TransactionOutPoint''to-wire TransactionOutPoint''get-hash)
+(declare TransactionOutPoint''get-connected-key TransactionOutPoint''get-connected-output TransactionOutPoint''get-connected-pub-key-script TransactionOutPoint''get-connected-redeem-data TransactionOutPoint'new TransactionOutPoint'for-output TransactionOutPoint'for-hash TransactionOutPoint'for-transaction TransactionOutPoint'from-wire TransactionOutPoint''to-wire)
 (declare TransactionOutput''get-index TransactionOutput''get-parent-transaction-depth-in-blocks TransactionOutput''get-parent-transaction-hash TransactionOutput''get-address-from-p2pkh-script TransactionOutput''get-address-from-p2sh TransactionOutput''get-min-non-dust-value-1 TransactionOutput''get-min-non-dust-value-2 TransactionOutput''get-outpoint-for TransactionOutput''get-script-pub-key TransactionOutput''is-available-for-spending TransactionOutput''is-dust TransactionOutput''is-mine TransactionOutput''mark-as-spent TransactionOutput''mark-as-unspent TransactionOutput''set-value TransactionOutput'new TransactionOutput'for-address TransactionOutput'for-script TransactionOutput'for-pubkey TransactionOutput'from-wire TransactionOutput''to-wire)
 (declare TransactionOutputChanges'new)
 (declare TransactionPurpose'enum-set)
@@ -635,7 +635,7 @@
             (when-not (or (< __blocksLeft 0) (<= (:original-blocks-left this) 0))
                 (let [#_"double" pct (- 100.0 (* 100.0 (/ __blocksLeft (double (:original-blocks-left this)))))]
                     (when (not= (int pct) (:last-percent this))
-                        (DownloadProgressTracker''progress this, pct, __blocksLeft, (Date. (* (Block''get-time-seconds block) 1000)))
+                        (DownloadProgressTracker''progress this, pct, __blocksLeft, (Date. (* (:time-seconds block) 1000)))
                         (§ assoc this :last-percent (int pct))
                     )
                 )
@@ -2360,8 +2360,7 @@
     #_throws #_[ "BlockStoreException", "VerificationException", "PrunedException" ]
     #_method
     (defn- #_"boolean" BlockChain''add-5 [#_"BlockChain" this, #_"Block" block, #_"boolean" __tryConnecting, #_"List<Sha256Hash>" __filteredTxHashList, #_"Map<Sha256Hash, Transaction>" __filteredTxn]
-        ;; TODO: Use read/write locks to ensure that during chain download properties are still low latency.
-        (§ sync (:blockchain-lock this)
+        (sync (:blockchain-lock this)
             (cond
                 ;; Quick check for duplicates to avoid an expensive check further down (in findSplit).
                 ;; This can happen a lot when connecting orphan transactions due to the dumb brute force algorithm we use.
@@ -2397,9 +2396,7 @@
                                 (throw+)
                             )
                         )]
-
                     ;; Try linking it to a place in the currently known blocks.
-
                     (if (some? prior)
                         (do
                             (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
@@ -2446,18 +2443,17 @@
     ;; It could be exposed, but for now we just set it to shouldVerifyTransactions()
     #_throws #_[ "BlockStoreException", "VerificationException", "PrunedException" ]
     #_method
-    (defn- #_"void" BlockChain''connect-block [#_"BlockChain" this, #_"Block" block, #_"StoredBlock" __storedPrev, #_"boolean" __expensiveChecks, #_"List<Sha256Hash>" __filteredTxHashList, #_"Map<Sha256Hash, Transaction>" __filteredTxn]
+    (defn- #_"void" BlockChain''connect-block [#_"BlockChain" this, #_"Block" block, #_"StoredBlock" __storedPrev, #_"boolean" expensive?, #_"List<Sha256Hash>" __filteredTxHashList, #_"Map<Sha256Hash, Transaction>" __filteredTxn]
         (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
 
-        (§ let [#_"boolean" filtered? (and (some? __filteredTxHashList) (some? __filteredTxn))]
+        (let [#_"boolean" filtered? (and (some? __filteredTxHashList) (some? __filteredTxn))]
             ;; Check that we aren't connecting a block that fails a checkpoint check.
             (when-not (Ledger''passes-checkpoint (:ledger this), (inc (:stored-height __storedPrev)), (Block''get-hash block))
                 (throw+ (VerificationException'new (str "Block failed checkpoint lockin at " (inc (:stored-height __storedPrev)))))
             )
             (when (BlockChain'''should-verify-transactions this)
-                (ensure some? (:transactions block))
-                (doseq [#_"Transaction" tx (:transactions block)]
-                    (when-not (Transaction''is-final tx, (inc (:stored-height __storedPrev)), (Block''get-time-seconds block))
+                (doseq [#_"Transaction" tx (ensure some? (:transactions block))]
+                    (when-not (Transaction''is-final tx, (inc (:stored-height __storedPrev)), (:time-seconds block))
                         (throw+ (VerificationException'new "Block contains non-final transaction"))
                     )
                 )
@@ -2466,13 +2462,13 @@
             (let [#_"StoredBlock" head (BlockChain''get-chain-head this)]
                 (cond (.equals __storedPrev, head)
                     (do
-                        (when (and filtered? (< 0 (.size __filteredTxn)))
+                        (when (and filtered? (pos? (.size __filteredTxn)))
                             (log/debug (str "Block " (Block''get-hash block) " connects to top of best chain with " (.size __filteredTxHashList) " transaction(s) of which we were sent " (.size __filteredTxn)))
                             (doseq [#_"Sha256Hash" hash __filteredTxHashList]
                                 (log/debug (str "  matched tx " hash))
                             )
                         )
-                        (when (and __expensiveChecks (<= (Block''get-time-seconds block) (BlockChain'get-median-timestamp-of-recent-blocks head, (:block-store this))))
+                        (when (and expensive? (<= (:time-seconds block) (BlockChain'get-median-timestamp-of-recent-blocks head, (:block-store this))))
                             (throw+ (VerificationException'new "Block's timestamp is too early"))
                         )
 
@@ -2480,8 +2476,8 @@
                         ;; NOTE: This requires 1,000 blocks since the last checkpoint (on main net, less on test) in order to be applied.
                         ;; It is also limited to stopping addition of new v2/3 blocks to the tip of the chain.
                         (when (any = (:version block) Block'BLOCK_VERSION_BIP34 Block'BLOCK_VERSION_BIP66)
-                            (let [#_"Integer" count (VersionTally''get-count-at-or-above (:version-tally this), (inc (:version block)))]
-                                (when (and (some? count) (<= (-> this :ledger :majority-reject-block-outdated) count))
+                            (let [#_"Integer" n (VersionTally''get-count-at-or-above (:version-tally this), (inc (:version block)))]
+                                (when (and (some? n) (<= (-> this :ledger :majority-reject-block-outdated) n))
                                     (throw+ (VerificationException'new (str "Block version #" (:version block) " is outdated.")))
                                 )
                             )
@@ -2497,54 +2493,49 @@
                         )
                     )
                     :else
-                    (do
-                        ;; This block connects to somewhere other than the top of the best known chain.  We treat these differently.
-                        ;;
-                        ;; Note that we send the transactions to the wallet FIRST, even if we're about to re-organize this block
-                        ;; to become the new best chain head.  This simplifies handling of the re-org in the Wallet class.
-                        (let [#_"StoredBlock" __newBlock (StoredBlock''build __storedPrev, block)
-                              #_"boolean" __haveNewBestChain (StoredBlock''more-work-than __newBlock, head)]
-                            (cond __haveNewBestChain
-                                (do
-                                    (log/info "Block is causing a re-organize")
-                                )
-                                :else
-                                (do
-                                    (let [#_"StoredBlock" __splitPoint (BlockChain'find-split __newBlock, head, (:block-store this))]
-                                        (when (and (some? __splitPoint) (.equals __splitPoint, __newBlock))
+                    ;; This block connects to somewhere other than the top of the best known chain.  We treat these differently.
+                    ;;
+                    ;; Note that we send the transactions to the wallet FIRST, even if we're about to re-organize this block
+                    ;; to become the new best chain head.  This simplifies handling of the re-org in the Wallet class.
+                    (let [#_"StoredBlock" __newBlock (StoredBlock''build __storedPrev, block)
+                          #_"boolean" reorg? (StoredBlock''more-work-than __newBlock, head)
+                          #_"boolean" abort?
+                            (when' (not reorg?) => false
+                                (let [#_"StoredBlock" __splitPoint (BlockChain'find-split __newBlock, head, (:block-store this))]
+                                    (cond (and (some? __splitPoint) (.equals __splitPoint, __newBlock))
+                                        (do
                                             ;; newStoredBlock is a part of the same chain, there's no fork.  This happens when we receive a block
                                             ;; that we already saw and linked into the chain previously, which isn't the chain head.
                                             ;; Re-processing it is confusing for the wallet so just skip.
                                             (log/warn (str "Saw duplicated block in main chain at height " (:stored-height __newBlock) ": " (Block''get-hash (:stored-header __newBlock))))
-                                            (§ return nil)
+                                            true
                                         )
-
-                                        (cond (nil? __splitPoint)
-                                            (do
-                                                ;; This should absolutely never happen.
-                                                ;; (lets not write the full block to disk to keep any bugs which allow this to happen from writing unreasonable amounts of data to disk)
-                                                (throw+ (VerificationException'new "Block forks the chain but splitPoint is nil"))
-                                            )
-                                            :else
-                                            (do
-                                                ;; We aren't actually spending any transactions (yet) because we are on a fork.
-                                                (BlockChain'''add-to-block-store-3 this, __storedPrev, block)
-                                                (log/info (str "Block forks the chain at height " (:stored-height __splitPoint) "/block " (Block''get-hash (:stored-header __splitPoint)) ", but it did not cause a reorganize:\n" (Block''get-hash (:stored-header __newBlock))))
-                                            )
+                                        (some? __splitPoint)
+                                        (do
+                                            ;; We aren't actually spending any transactions (yet) because we are on a fork.
+                                            (BlockChain'''add-to-block-store-3 this, __storedPrev, block)
+                                            (log/info (str "Block forks the chain at height " (:stored-height __splitPoint) "/block " (Block''get-hash (:stored-header __splitPoint)) ", but it did not cause a reorganize:\n" (Block''get-hash (:stored-header __newBlock))))
+                                            false
+                                        )
+                                        :else
+                                        (do
+                                            ;; This should absolutely never happen.
+                                            (throw+ (VerificationException'new "Block forks the chain but splitPoint is nil"))
                                         )
                                     )
                                 )
-                            )
+                            )]
 
+                        (when-not abort?
                             ;; We may not have any transactions if we received only a header, which can happen during fast catchup.
                             ;; If we do, send them to the wallet but state that they are on a side chain so it knows not to try and
                             ;; spend them until they become activated.
                             (when (or (some? (:transactions block)) filtered?)
                                 (BlockChain''inform-listeners-for-new-block this, block, :NewBlockType'SIDE_CHAIN, __filteredTxHashList, __filteredTxn, __newBlock)
                             )
-
-                            (when __haveNewBestChain
-                                (BlockChain''handle-new-best-chain this, __storedPrev, __newBlock, block, __expensiveChecks)
+                            (when reorg?
+                                (log/info "Block is causing a re-organize")
+                                (BlockChain''handle-new-best-chain this, __storedPrev, __newBlock, block, expensive?)
                             )
                         )
                     )
@@ -2577,7 +2568,7 @@
                                 (let [#_"Set<Sha256Hash>" __ignoredFalsePositives (HashSet.)]
                                     (BlockChain'inform-listener-for-new-transactions block, __newBlockType, __filteredTxHashList, __filteredTxn, __newStoredBlock, __notFirst, (:listener registration), __ignoredFalsePositives)
                                 )
-                                (catch VerificationException e
+                                (§ catch VerificationException e
                                     (log/error e, "Block chain listener threw exception")
                                     ;; Don't attempt to relay this back to the original peer thread if this was an async listener invocation.
                                     ;; TODO: Make exception reporting a global feature and use it here.
@@ -2599,7 +2590,7 @@
                         (.execute (:executor registration),
                             #(try+
                                 (f)
-                                (catch VerificationException e
+                                (§ catch VerificationException e
                                     (log/error e, "Block chain listener threw exception")
                                     ;; Don't attempt to relay this back to the original peer thread if this was an async listener invocation.
                                     ;; TODO: Make exception reporting a global feature and use it here.
@@ -2661,9 +2652,9 @@
     (defn- #_"long" BlockChain'get-median-timestamp-of-recent-blocks [#_"StoredBlock" stored, #_"BlockStore" store]
         (§ let [#_"long[]" timestamps (long-array 11)
               #_"int" unused 9]
-            (aset timestamps 10 (Block''get-time-seconds (:stored-header stored)))
+            (aset timestamps 10 (:time-seconds (:stored-header stored)))
             (loop-when-recur [] (and (<= 0 unused) (some? (§ ass stored (StoredBlock''get-prev stored, store)))) [(§ ass unused (dec unused))]
-                (aset timestamps unused (Block''get-time-seconds (:stored-header stored)))
+                (aset timestamps unused (:time-seconds (:stored-header stored)))
             )
 
             (Arrays/sort timestamps, (inc unused), 11)
@@ -2690,7 +2681,7 @@
      ;;
     #_throws #_[ "BlockStoreException", "VerificationException", "PrunedException" ]
     #_method
-    (defn- #_"void" BlockChain''handle-new-best-chain [#_"BlockChain" this, #_"StoredBlock" __storedPrev, #_"StoredBlock" __newChainHead, #_"Block" block, #_"boolean" __expensiveChecks]
+    (defn- #_"void" BlockChain''handle-new-best-chain [#_"BlockChain" this, #_"StoredBlock" __storedPrev, #_"StoredBlock" __newChainHead, #_"Block" block, #_"boolean" expensive?]
         (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
 
         ;; This chain has overtaken the one we currently believe is best.  Reorganize is required.
@@ -2698,7 +2689,7 @@
         ;; Firstly, calculate the block at which the chain diverged.  We only need to examine the
         ;; chain from beyond this block to find differences.
 
-        (§ let [#_"StoredBlock" head (BlockChain''get-chain-head this)
+        (let [#_"StoredBlock" head (BlockChain''get-chain-head this)
               #_"StoredBlock" __splitPoint (BlockChain'find-split __newChainHead, head, (:block-store this))]
             (log/info (str "Re-organize after split at height " (:stored-height __splitPoint)))
             (log/info (str "Old chain head: " (Block''get-hash (:stored-header head))))
@@ -2710,44 +2701,45 @@
                   #_"LinkedList<StoredBlock>" __newBlocks (BlockChain'get-partial-chain __newChainHead, __splitPoint, (:block-store this))]
 
                 ;; Disconnect each transaction in the previous main chain that is no longer in the new main chain.
-                (let [#_"StoredBlock" __storedNewHead __splitPoint]
-                    (cond (BlockChain'''should-verify-transactions this)
-                        (do
-                            (doseq [#_"StoredBlock" __oldBlock __oldBlocks]
-                                (try+
-                                    (BlockChain'''disconnect-transactions this, __oldBlock)
-                                    (§ catch PrunedException _
-                                        ;; We threw away the data we need to re-org this deep!  We need to go back to a peer with full
-                                        ;; block contents and ask them for the relevant data then rebuild the indexs.  Or we could just
-                                        ;; give up and ask the human operator to help get us unstuck (e.g. rescan from the genesis block).
-                                        ;; TODO: retry adding this block when we get a block with hash e.getHash()
-                                        (throw+)
+                (let [#_"StoredBlock" __storedNewHead
+                        (cond (BlockChain'''should-verify-transactions this)
+                            (do
+                                (doseq [#_"StoredBlock" __oldBlock __oldBlocks]
+                                    (try+
+                                        (BlockChain'''disconnect-transactions this, __oldBlock)
+                                        (§ catch PrunedException _
+                                            ;; We threw away the data we need to re-org this deep!  We need to go back to a peer with full
+                                            ;; block contents and ask them for the relevant data then rebuild the indexs.  Or we could just
+                                            ;; give up and ask the human operator to help get us unstuck (e.g. rescan from the genesis block).
+                                            ;; TODO: retry adding this block when we get a block with hash e.getHash()
+                                            (throw+)
+                                        )
+                                    )
+                                )
+                                ;; Walk in ascending chronological order.
+                                (let [#_"Iterator<StoredBlock>" it (.descendingIterator __newBlocks)]
+                                    (loop-when [__storedNewHead __splitPoint] (.hasNext it) => __storedNewHead
+                                        (let [#_"StoredBlock" cursor (.next it)]
+                                            (when (and expensive? (<= (:time-seconds (:stored-header cursor)) (BlockChain'get-median-timestamp-of-recent-blocks (StoredBlock''get-prev cursor, (:block-store this)), (:block-store this))))
+                                                (throw+ (VerificationException'new "Block's timestamp is too early during reorg"))
+                                            )
+                                            (let [#_"TransactionOutputChanges" changes
+                                                    (if (and (= cursor __newChainHead) (some? block))
+                                                        (BlockChain'''connect-transactions-3 this, (:stored-height __newChainHead), block)
+                                                        (BlockChain'''connect-transactions-2 this, cursor)
+                                                    )]
+                                                (recur (BlockChain'''add-to-block-store-4 this, __storedNewHead, (Block''clone-as-header (:stored-header cursor)), changes))
+                                            )
+                                        )
                                     )
                                 )
                             )
-
-                            ;; Walk in ascending chronological order.
-                            (loop-when-recur [#_"Iterator<StoredBlock>" it (.descendingIterator __newBlocks)] (.hasNext it) []
-                                (let [#_"StoredBlock" cursor (.next it) #_"Block" __cursorBlock (:stored-header cursor)]
-                                    (when (and __expensiveChecks (<= (Block''get-time-seconds __cursorBlock) (BlockChain'get-median-timestamp-of-recent-blocks (StoredBlock''get-prev cursor, (:block-store this)), (:block-store this))))
-                                        (throw+ (VerificationException'new "Block's timestamp is too early during reorg"))
-                                    )
-                                    (let [#_"TransactionOutputChanges" changes
-                                            (if (and (= cursor __newChainHead) (some? block))
-                                                (BlockChain'''connect-transactions-3 this, (:stored-height __newChainHead), block)
-                                                (BlockChain'''connect-transactions-2 this, cursor)
-                                            )]
-                                        (§ ass __storedNewHead (BlockChain'''add-to-block-store-4 this, __storedNewHead, (Block''clone-as-header __cursorBlock), changes))
-                                    )
-                                )
+                            :else
+                            (do
+                                ;; (Finally) write block to block store.
+                                (BlockChain'''add-to-block-store-3 this, __storedPrev, (:stored-header __newChainHead))
                             )
-                        )
-                        :else
-                        (do
-                            ;; (Finally) write block to block store.
-                            (§ ass __storedNewHead (BlockChain'''add-to-block-store-3 this, __storedPrev, (:stored-header __newChainHead)))
-                        )
-                    )
+                        )]
 
                     ;; Now inform the listeners.  This is necessary so the set of currently active transactions (that we can spend)
                     ;; can be updated to take into account the re-organize.  We might also have received new coins we didn't have
@@ -2762,7 +2754,7 @@
                             (.execute (:executor registration),
                                 #(try+
                                     (ReorganizeListener'''reorganize (:listener registration), __splitPoint, __oldBlocks, __newBlocks)
-                                    (catch VerificationException e
+                                    (§ catch VerificationException e
                                         (log/error e, "Block chain listener threw exception during reorg")
                                     )
                                 )
@@ -2832,11 +2824,12 @@
         (§ doseq [#_"Transaction" tx transactions]
             (try+
                 (.remove __falsePositives, (Transaction''get-hash tx))
-                (when clone?
-                    (§ ass tx (Transaction'from-wire (:ledger tx), (ByteBuffer/wrap (Message''to-bytes tx, Transaction''to-wire))))
+                (let [tx (when' clone? => tx
+                            (Transaction'from-wire (:ledger tx), (ByteBuffer/wrap (Message''to-bytes tx, Transaction''to-wire)))
+                        )]
+                    (TransactionReceivedInBlockListener'''receive-from-block listener, tx, block, type, offset)
+                    (§ ass offset (inc offset))
                 )
-                (TransactionReceivedInBlockListener'''receive-from-block listener, tx, block, type, offset)
-                (§ ass offset (inc offset))
                 (§ catch ScriptException e
                     ;; We don't want scripts we don't understand to break the block chain,
                     ;; so just note that this tx was not scanned here and continue.
@@ -2954,7 +2947,7 @@
     (defn #_"Date" BlockChain''estimate-block-time [#_"BlockChain" this, #_"int" height]
         (sync (:chain-head-lock this)
             (let [#_"long" offset (- height (:stored-height (:chain-head this)))
-                  #_"long" time (Block''get-time-seconds (:stored-header (:chain-head this)))
+                  #_"long" time (:time-seconds (:stored-header (:chain-head this)))
                   #_"long" estimated (+ (* time 1000) (* 1000 60 10 offset))]
                 (Date. estimated)
             )
@@ -4046,8 +4039,24 @@
              ; The hash of the previous block in the chain.
              ;;
             #_"Sha256Hash" :prev-block-hash nil
+            ;;;
+             ; The time at which the block was solved and broadcast according to the clock of the solving node.
+             ; This is measured in seconds since the UNIX epoch (midnight Jan 1st 1970).
+             ;;
             #_"long" :time-seconds 0
+            ;;;
+             ; The difficulty of the proof of work that this block should meet (encoded in <b>compact form</b>).
+             ; The block chain verifies that this is not too easy by looking at the length of the chain when the block is added.
+             ; To find the actual value the hash should be compared against, use {@link Block#getDifficultyTargetAsInteger()}.
+             ; Note that this is <b>not</b> the same as the difficulty value reported by the Bitcoin "getdifficulty" RPC
+             ; that you may see on various block explorers.
+             ; That number is the result of applying a formula to the underlying difficulty to normalize the minimum to 1.
+             ; Calculating the difficulty that way is currently unsupported.
+             ;;
             #_"long" :difficulty-target 0 ;; "nBits"
+            ;;;
+             ; The nonce, an arbitrary value that exists only to make the hash of the block header fall below the difficulty target.
+             ;;
             #_"long" :nonce 0
             ;;;
              ; If null, it means this object holds only the headers.
@@ -4250,7 +4259,7 @@
                 false
                 (do
                     ;; No, so increment the nonce and try again.
-                    (Block''set-nonce this, (inc (Block''get-nonce this)))
+                    (§ update this :nonce inc)
                     true
                 )
             )
@@ -4287,7 +4296,7 @@
         ;; To prevent this attack from being possible, elsewhere we check that the difficultyTarget
         ;; field is of the right value.  This requires us to have the preceeding blocks.
         (let [#_"BigInteger" target (Block''get-difficulty-target-as-integer this) #_"BigInteger" hash (Sha256Hash''to-big-integer (Block''get-hash this))]
-            (when' (< 0 (.compareTo hash, target)) => true
+            (when' (pos? (.compareTo hash, target)) => true
                 ;; Proof of work check failed!
                 (when' throw? => false
                     (throw+ (VerificationException'new (str "Hash is higher than target: " (Block''get-hash this) " vs " (.toString target, 16))))
@@ -4498,66 +4507,6 @@
             (throw (RuntimeException. (str "Attempted to add a coinbase transaction when there already is one: " tx)))
         )
         (.add (:transactions this), tx)
-        nil
-    )
-
-    ;;;
-     ; Returns the time at which the block was solved and broadcast, according to the clock of the solving node.
-     ; This is measured in seconds since the UNIX epoch (midnight Jan 1st 1970).
-     ;;
-    #_method
-    (defn #_"long" Block''get-time-seconds [#_"Block" this]
-        (:time-seconds this)
-    )
-
-    ;;;
-     ; Returns the time at which the block was solved and broadcast, according to the clock of the solving node.
-     ;;
-    #_method
-    (defn #_"Date" Block''get-time [#_"Block" this]
-        (Date. (* (Block''get-time-seconds this) 1000))
-    )
-
-    #_method
-    (defn #_"void" Block''set-time [#_"Block" this, #_"long" time]
-        (§ assoc this :time-seconds time)
-        nil
-    )
-
-    ;;;
-     ; Returns the difficulty of the proof of work that this block should meet encoded <b>in compact form</b>.
-     ; The {@link SPVBlockChain} verifies that this is not too easy by looking at the length of the chain when the block is added.
-     ; To find the actual value the hash should be compared against, use {@link Block#getDifficultyTargetAsInteger()}.
-     ; Note that this is <b>not</b> the same as the difficulty value reported by the Bitcoin "getdifficulty" RPC that you may see on various block explorers.
-     ; That number is the result of applying a formula to the underlying difficulty to normalize the minimum to 1.
-     ; Calculating the difficulty that way is currently unsupported.
-     ;;
-    #_method
-    (defn #_"long" Block''get-difficulty-target [#_"Block" this]
-        (:difficulty-target this)
-    )
-
-    ;;; Sets the difficulty target in compact form. ;;
-    #_method
-    (defn #_"void" Block''set-difficulty-target [#_"Block" this, #_"long" __compactForm]
-        (§ assoc this :difficulty-target __compactForm)
-        nil
-    )
-
-    ;;;
-     ; Returns the nonce, an arbitrary value that exists only to make the hash of the block header fall below the difficulty target.
-     ;;
-    #_method
-    (defn #_"long" Block''get-nonce [#_"Block" this]
-        (:nonce this)
-    )
-
-    ;;;
-     ; Sets the nonce and clears any cached data.
-     ;;
-    #_method
-    (defn #_"void" Block''set-nonce [#_"Block" this, #_"long" nonce]
-        (§ assoc this :nonce nonce)
         nil
     )
 
@@ -5216,7 +5165,7 @@
                         (.put buffer, bytes)
                         (.position buffer, 0)
                         (let [#_"StoredBlock" block (StoredBlock'deserialize-compact (:ledger this), buffer)]
-                            (.put (:checkpoints this), (Block''get-time-seconds (:stored-header block)), block)
+                            (.put (:checkpoints this), (:time-seconds (:stored-header block)), block)
                         )
                     )
                 )
@@ -5234,7 +5183,7 @@
      ;;
     #_method
     (defn #_"StoredBlock" CheckpointManager''get-checkpoint-before [#_"CheckpointManager" this, #_"long" time]
-        (assert-argument (< (Block''get-time-seconds (-> this :ledger :genesis-block)) time))
+        (assert-argument (< (:time-seconds (-> this :ledger :genesis-block)) time))
 
         ;; This is thread safe because the map never changes after creation.
         (let [#_"Map.Entry<Long, StoredBlock>" entry (.floorEntry (:checkpoints this), time)]
@@ -6494,7 +6443,7 @@
                                     ;; For each input of the transaction remove the corresponding output from the set of unspent outputs.
                                     (loop-when-recur [#_"int" index 0] (< index (.size (Transaction''get-inputs tx))) [(inc index)]
                                         (let [#_"TransactionInput" in (.get (Transaction''get-inputs tx), index)
-                                              #_"UTXO" __prevOut (FullPrunedBlockStore'''get-transaction-output (:block-store this), (TransactionOutPoint''get-hash (:outpoint in)), (:index (:outpoint in)))]
+                                              #_"UTXO" __prevOut (FullPrunedBlockStore'''get-transaction-output (:block-store this), (:from-tx-hash (:outpoint in)), (:index (:outpoint in)))]
                                             (when (nil? __prevOut)
                                                 (throw+ (VerificationException'new "Attempted to spend a non-existent or already spent output!"))
                                             )
@@ -6657,7 +6606,7 @@
                                                         (when (not __isCoinBase)
                                                             (loop-when-recur [#_"int" index 0] (< index (.size (Transaction''get-inputs tx))) [(inc index)]
                                                                 (let [#_"TransactionInput" in (.get (Transaction''get-inputs tx), index)
-                                                                      #_"UTXO" __prevOut (FullPrunedBlockStore'''get-transaction-output (:block-store this), (TransactionOutPoint''get-hash (:outpoint in)), (:index (:outpoint in)))]
+                                                                      #_"UTXO" __prevOut (FullPrunedBlockStore'''get-transaction-output (:block-store this), (:from-tx-hash (:outpoint in)), (:index (:outpoint in)))]
                                                                     (when (nil? __prevOut)
                                                                         (throw+ (VerificationException'new "Attempted spend of a non-existent or already spent output!"))
                                                                     )
@@ -7473,54 +7422,45 @@
     #_throws #_[ "VerificationException", "BlockStoreException" ]
     #_abstract
     (defn #_"void" Ledger'''check-difficulty-transitions [#_"Ledger" this, #_"StoredBlock" __storedPrev, #_"Block" __nextBlock, #_"BlockStore" store]
-        (§ let [#_"Block" prev (:stored-header __storedPrev)]
-
-            ;; Is this supposed to be a difficulty transition point?
-            (if (not (Ledger''is-difficulty-transition-point this, (:stored-height __storedPrev)))
-                ;; No ... so check the difficulty didn't actually change.
-                (when (not= (Block''get-difficulty-target __nextBlock) (Block''get-difficulty-target prev))
-                    (throw+ (VerificationException'new (str "Unexpected change in difficulty at height " (:stored-height __storedPrev) ": " (Long/toHexString (Block''get-difficulty-target __nextBlock)) " vs " (Long/toHexString (Block''get-difficulty-target prev)))))
-                )
-                ;; We need to find a block far back in the chain.  It's OK that this is expensive because it only occurs every
-                ;; two weeks after the initial block chain download.
-                (let [#_"Stopwatch" watch (Stopwatch/createStarted)
-                      #_"Sha256Hash" hash (Block''get-hash prev) #_"StoredBlock" cursor nil #_"int" interval (:interval this)]
-
-                    (loop-when-recur [#_"int" i 0] (< i interval) [(inc i)]
-                        (§ ass cursor (BlockStore'''get-2 store, hash))
-                        (when (nil? cursor)
-                            ;; This should never happen.  If it does, it means we are following an incorrect or busted chain.
-                            (throw+ (VerificationException'new (str "Difficulty transition point but we did not find a way back to the last transition point. Not found: " hash)))
-                        )
-                        (§ ass hash (:prev-block-hash (:stored-header cursor)))
-                    )
-                    (assert-state (and (some? cursor) (Ledger''is-difficulty-transition-point this, (dec (:stored-height cursor)))), "Didn't arrive at a transition point.")
-
-                    (.stop watch)
-                    (when (< 50 (.elapsed watch, TimeUnit/MILLISECONDS))
-                        (log/info (str "Difficulty transition traversal took " watch))
-                    )
-
-                    (let [#_"int" timespan (int (- (Block''get-time-seconds prev) (Block''get-time-seconds (:stored-header cursor))))
-                          ;; Limit the adjustment step.
-                          #_"int" tts (:target-timespan this) timespan (min (max (quot tts 4) timespan) (* tts 4))
-                          #_"BigInteger" __newTarget (.divide (.multiply (Utils'decode-compact-bits (Block''get-difficulty-target prev)), (BigInteger/valueOf timespan)), (BigInteger/valueOf tts))]
-
-                        (when (< 0 (.compareTo __newTarget, (:max-target this)))
-                            (log/info (str "Difficulty hit proof of work limit: " (.toString __newTarget, 16)))
-                            (§ ass __newTarget (:max-target this))
-                        )
-
-                        (let [#_"int" accuracy (- (int (>>> (Block''get-difficulty-target __nextBlock) 24)) 3)
-                              #_"long" __receivedTargetCompact (Block''get-difficulty-target __nextBlock)
-                              ;; The calculated difficulty is to a higher precision than received, so reduce here.
-                              __newTarget (and __newTarget, (.shiftLeft (BigInteger/valueOf 0xffffff), (* accuracy 8)))
-                              #_"long" __newTargetCompact (Utils'encode-compact-bits __newTarget)]
-
-                            (when (not= __newTargetCompact __receivedTargetCompact)
-                                (throw+ (VerificationException'new (str "Network provided difficulty bits do not match what was calculated: " (Long/toHexString __newTargetCompact) " vs " (Long/toHexString __receivedTargetCompact))))
+        ;; Is this supposed to be a difficulty transition point?
+        (if-not (Ledger''is-difficulty-transition-point this, (:stored-height __storedPrev))
+            ;; No ... so check the difficulty didn't actually change.
+            (when-not (= (:difficulty-target __nextBlock) (:difficulty-target (:stored-header __storedPrev)))
+                (throw+ (VerificationException'new (str "Unexpected change in difficulty at height " (:stored-height __storedPrev) ": " (Long/toHexString (:difficulty-target __nextBlock)) " vs " (Long/toHexString (:difficulty-target (:stored-header __storedPrev))))))
+            )
+            ;; We need to find a block far back in the chain.  It's OK that this is expensive because it only occurs every
+            ;; two weeks after the initial block chain download.
+            (let [#_"Stopwatch" watch (Stopwatch/createStarted)
+                  [#_"StoredBlock" cursor #_"Sha256Hash" hash]
+                    (loop-when [cursor nil hash (Block''get-hash (:stored-header __storedPrev)) #_"int" i 0] (< i (:interval this)) => [cursor hash]
+                        (let [cursor (BlockStore'''get-2 store, hash)]
+                            (recur-if (some? cursor) [cursor (:prev-block-hash (:stored-header cursor)) (inc i)]
+                                ;; This should never happen.  If it does, it means we are following an incorrect or busted chain.
+                                => (throw+ (VerificationException'new (str "Difficulty transition point, but we did not find a way back to the last transition point.  Not found: " hash)))
                             )
                         )
+                    )]
+                (assert-state (and (some? cursor) (Ledger''is-difficulty-transition-point this, (dec (:stored-height cursor)))), "Didn't arrive at a transition point.")
+                (.stop watch)
+                (when (< 50 (.elapsed watch, TimeUnit/MILLISECONDS))
+                    (log/info (str "Difficulty transition traversal took " watch))
+                )
+                (let [#_"int" timespan (int (- (:time-seconds (:stored-header __storedPrev)) (:time-seconds (:stored-header cursor))))
+                      ;; Limit the adjustment step.
+                      #_"int" tts (:target-timespan this) timespan (min (max (quot tts 4) timespan) (* tts 4))
+                      #_"BigInteger" __newTarget (.divide (.multiply (Utils'decode-compact-bits (:difficulty-target (:stored-header __storedPrev))), (BigInteger/valueOf timespan)), (BigInteger/valueOf tts))
+                      __newTarget
+                        (when' (pos? (.compareTo __newTarget, (:max-target this))) => __newTarget
+                            (log/info (str "Difficulty hit proof of work limit: " (.toString __newTarget, 16)))
+                            (:max-target this)
+                        )
+                      #_"long" __receivedTargetCompact (:difficulty-target __nextBlock)
+                      #_"int" accuracy (- (int (>>> __receivedTargetCompact 24)) 3)
+                      ;; The calculated difficulty is to a higher precision than received, so reduce here.
+                      __newTarget (.and __newTarget, (.shiftLeft (BigInteger/valueOf 0xffffff), (* accuracy 8)))
+                      #_"long" __newTargetCompact (Utils'encode-compact-bits __newTarget)]
+                    (when-not (= __newTargetCompact __receivedTargetCompact)
+                        (throw+ (VerificationException'new (str "Network provided difficulty bits do not match what was calculated: " (Long/toHexString __newTargetCompact) " vs " (Long/toHexString __receivedTargetCompact))))
                     )
                 )
             )
@@ -7619,7 +7559,7 @@
     #_method
     (defn #_"EnumSet<ScriptVerifyFlag>" Ledger''get-transaction-verification-flags [#_"Ledger" this, #_"Block" block, #_"Transaction" _tx, #_"VersionTally" tally, #_"Integer" height]
         (let [#_"EnumSet<ScriptVerifyFlag>" flags (§ EnumSet/noneOf ScriptVerifyFlag)]
-            (when (<= Ledger'BIP16_ENFORCE_TIME (Block''get-time-seconds block))
+            (when (<= Ledger'BIP16_ENFORCE_TIME (:time-seconds block))
                 (.add flags, :ScriptVerifyFlag'P2SH)
             )
 
@@ -8367,7 +8307,7 @@
                             ;; Each wallet added to the peer will be notified of downloaded transaction data.
                             #_"CopyOnWriteArrayList<Wallet>" :wallets (CopyOnWriteArrayList.)
                             ;; A time before which we only download block headers, after that point we download block bodies.
-                            #_"long" :fast-catchup-time-secs (Block''get-time-seconds (:genesis-block ledger))
+                            #_"long" :fast-catchup-time-secs (:time-seconds (:genesis-block ledger))
                             ;; Whether we are currently downloading headers only or block bodies.  Starts at true.  If the fast catchup time is
                             ;; set AND our best block is before that date, switch to false until block headers beyond that point have been
                             ;; received at which point it gets set to true again.  This isn't relevant unless vDownloadData is true.
@@ -8849,7 +8789,7 @@
                         ;; Process headers until we pass the fast catchup time, or are about to catch up with the head
                         ;; of the chain - always process the last block as a full/filtered block to kick us out of the
                         ;; fast catchup mode (in which we ignore new blocks).
-                        (let [#_"boolean" __passedTime (<= __fastCatchupTimeSecs (Block''get-time-seconds header))
+                        (let [#_"boolean" __passedTime (<= __fastCatchupTimeSecs (:time-seconds header))
                               #_"boolean" __reachedTop (<= (-> this :v-peer-version-message :best-height) (BlockChain''get-best-chain-height (:block-chain this)))]
                             (cond (and (not __passedTime) (not __reachedTop))
                                 (do
@@ -9085,7 +9025,7 @@
               #_"Set<Sha256Hash>" __needToRequest (CopyOnWriteArraySet.)]
             (doseq [#_"TransactionInput" input (Transaction''get-inputs tx)]
                 ;; There may be multiple inputs that connect to the same transaction.
-                (.add __needToRequest, (TransactionOutPoint''get-hash (:outpoint input)))
+                (.add __needToRequest, (:from-tx-hash (:outpoint input)))
             )
 
             (sync (:peer-lock this)
@@ -9587,7 +9527,7 @@
         (sync (:peer-lock this)
             (cond (zero? secs)
                 (do
-                    (§ assoc this :fast-catchup-time-secs (Block''get-time-seconds (-> this :ledger :genesis-block)))
+                    (§ assoc this :fast-catchup-time-secs (:time-seconds (-> this :ledger :genesis-block)))
                     (§ assoc this :download-block-bodies true)
                 )
                 :else
@@ -9595,7 +9535,7 @@
                     (§ assoc this :fast-catchup-time-secs secs)
                     ;; If the given time is before the current chains head block time, then this has no effect (we already
                     ;; downloaded everything we need).
-                    (when (and (some? (:block-chain this)) (< (Block''get-time-seconds (:stored-header (BlockChain''get-chain-head (:block-chain this)))) secs))
+                    (when (and (some? (:block-chain this)) (< (:time-seconds (:stored-header (BlockChain''get-chain-head (:block-chain this)))) secs))
                         (§ assoc this :download-block-bodies false)
                     )
                 )
@@ -10556,7 +10496,7 @@
                         #_"boolean" :use-loopback-peer-when-possible true
                         #_"boolean" :ipv6-unreachable false
 
-                        #_"long" :fast-catchup-time-secs (Block''get-time-seconds (:genesis-block ledger))
+                        #_"long" :fast-catchup-time-secs (:time-seconds (:genesis-block ledger))
                         #_"CopyOnWriteArrayList<Wallet>" :wallets (CopyOnWriteArrayList.)
                         #_"CopyOnWriteArrayList<PeerFilterProvider>" :peer-filter-providers (CopyOnWriteArrayList.)
 
@@ -13425,7 +13365,7 @@
      ;;
     #_method
     (defn #_"void" Transaction''set-block-appearance [#_"Transaction" this, #_"StoredBlock" block, #_"boolean" best?, #_"int" offset]
-        (let [#_"long" time (* (Block''get-time-seconds (:stored-header block)) 1000)]
+        (let [#_"long" time (* (:time-seconds (:stored-header block)) 1000)]
             (when (and best? (or (nil? (:updated-at this)) (zero? (.getTime (:updated-at this))) (< time (.getTime (:updated-at this)))))
                 (§ assoc this :updated-at (Date. time))
             )
@@ -15261,10 +15201,9 @@
      ; Creates an UNSIGNED input that links to the given output.
      ;;
     (defn #_"TransactionInput" TransactionInput'for-output [#_"Ledger" ledger, #_"Transaction" parent, #_"TransactionOutput" output]
-        (let [#_"Transaction" parent' (:parent output)
-              #_"TransactionOutPoint" outpoint
-                (if (some? parent')
-                    (TransactionOutPoint'for-transaction ledger, parent', (TransactionOutput''get-index output))
+        (let [#_"TransactionOutPoint" outpoint
+                (if (some? (:parent output))
+                    (TransactionOutPoint'for-transaction ledger, (:parent output), (TransactionOutput''get-index output))
                     (TransactionOutPoint'for-output ledger, output)
                 )]
             (TransactionInput'new ledger, parent, TransactionInput'NO_SEQUENCE, outpoint, (byte-array 0), (:coin-value output))
@@ -15300,7 +15239,7 @@
      ;;
     #_method
     (defn #_"boolean" TransactionInput''is-coin-base [#_"TransactionInput" this]
-        (and (.equals (TransactionOutPoint''get-hash (:outpoint this)), Sha256Hash'ZERO_HASH) (= (& (:index (:outpoint this)) 0xffffffff) 0xffffffff)) ;; -1 but all is serialized to the wire as unsigned int.
+        (and (.equals (:from-tx-hash (:outpoint this)), Sha256Hash'ZERO_HASH) (= (& (:index (:outpoint this)) 0xffffffff) 0xffffffff)) ;; -1 but all is serialized to the wire as unsigned int.
     )
 
     ;;;
@@ -15324,10 +15263,10 @@
 
     ;;; Set the given program as the scriptSig that is supposed to satisfy the connected output script. ;;
     #_method
-    (defn #_"void" TransactionInput''set-script-sig [#_"TransactionInput" this, #_"Script" __scriptSig]
-        (§ assoc this :script-sig (WeakReference. (ensure some? __scriptSig)))
+    (defn #_"void" TransactionInput''set-script-sig [#_"TransactionInput" this, #_"Script" script]
+        (§ assoc this :script-sig (WeakReference. (ensure some? script)))
         ;; TODO: This should all be cleaned up so we have a consistent internal representation.
-        (TransactionInput''set-script-bytes this, (Script''get-program __scriptSig))
+        (TransactionInput''set-script-bytes this, (Script''get-program script))
         nil
     )
 
@@ -15396,7 +15335,7 @@
      ;;
     #_method
     (defn #_"TransactionOutput" TransactionInput''get-connected-output-2 [#_"TransactionInput" this, #_"Map<Sha256Hash, Transaction>" transactions]
-        (let [#_"Transaction" tx (.get transactions, (TransactionOutPoint''get-hash (:outpoint this)))]
+        (let [#_"Transaction" tx (.get transactions, (:from-tx-hash (:outpoint this)))]
             (when (some? tx) (.get (Transaction''get-outputs tx), (int (:index (:outpoint this)))))
         )
     )
@@ -15423,7 +15362,7 @@
      ;;
     #_method
     (defn #_"ConnectionResult" TransactionInput''connect-3m [#_"TransactionInput" this, #_"Map<Sha256Hash, Transaction>" transactions, #_"ConnectionMode" mode]
-        (let [#_"Transaction" tx (.get transactions, (TransactionOutPoint''get-hash (:outpoint this)))]
+        (let [#_"Transaction" tx (.get transactions, (:from-tx-hash (:outpoint this)))]
             (if (some? tx) (TransactionInput''connect-3t this, tx, mode) :ConnectionResult'NO_SUCH_TX)
         )
     )
@@ -15439,7 +15378,7 @@
      ;;
     #_method
     (defn #_"ConnectionResult" TransactionInput''connect-3t [#_"TransactionInput" this, #_"Transaction" tx, #_"ConnectionMode" mode]
-        (when' (.equals (Transaction''get-hash tx), (TransactionOutPoint''get-hash (:outpoint this))) => :ConnectionResult'NO_SUCH_TX
+        (when' (.equals (Transaction''get-hash tx), (:from-tx-hash (:outpoint this))) => :ConnectionResult'NO_SUCH_TX
             (assert-state (< -1 (:index (:outpoint this)) (.size (Transaction''get-outputs tx))), "Corrupt transaction")
 
             (let [#_"TransactionOutput" output (Transaction''get-output tx, (int (:index (:outpoint this))))
@@ -15563,7 +15502,7 @@
     #_method
     (defn #_"void" TransactionInput''verify-2 [#_"TransactionInput" this, #_"TransactionOutput" output]
         (when (some? (:parent output))
-            (when-not (.equals (TransactionOutPoint''get-hash (:outpoint this)), (Transaction''get-hash (:parent output)))
+            (when-not (.equals (:from-tx-hash (:outpoint this)), (Transaction''get-hash (:parent output)))
                 (throw+ (VerificationException'new "This input does not refer to the tx containing the output."))
             )
             (when (not= (:index (:outpoint this)) (TransactionOutput''get-index output))
@@ -15772,14 +15711,6 @@
         )
     )
 
-    ;;;
-     ; Returns the hash of the transaction this outpoint references/spends/is connected to.
-     ;;
-    #_method
-    (defn #_"Sha256Hash" TransactionOutPoint''get-hash [#_"TransactionOutPoint" this]
-        (:from-tx-hash this)
-    )
-
     #_foreign
     #_override
     (defn #_"boolean" Object'''equals [#_"TransactionOutPoint" this, #_"Object" o]
@@ -15787,7 +15718,7 @@
             (= this o) true
             (or (nil? o) (not= (.getClass this) (.getClass o))) false
             :else (let [#_"TransactionOutPoint" that (§ cast TransactionOutPoint o)]
-                (and (= (:index this) (:index that)) (.equals (TransactionOutPoint''get-hash this), (TransactionOutPoint''get-hash that)))
+                (and (= (:index this) (:index that)) (.equals (:from-tx-hash this), (:from-tx-hash that)))
             )
         )
     )
@@ -15795,7 +15726,7 @@
     #_foreign
     #_override
     (defn #_"int" Object'''hashCode [#_"TransactionOutPoint" this]
-        (Objects/hash (object-array [ (:index this), (TransactionOutPoint''get-hash this) ]))
+        (Objects/hash (object-array [ (:index this), (:from-tx-hash this) ]))
     )
 )
 
@@ -20096,9 +20027,8 @@
             (§ assoc this :majority-reject-block-outdated 950)
             (§ assoc this :majority-window 1000)
 
-            (Block''set-difficulty-target (:genesis-block this), 0x1d00ffff)
-            (Block''set-time (:genesis-block this), 1231006505)
-            (Block''set-nonce (:genesis-block this), 2083236893)
+            (§ update this :genesis-block assoc :time-seconds 1231006505, :difficulty-target 0x1d00ffff, :nonce 2083236893)
+
             (§ assoc this :id Ledger'ID_MAINNET)
             (§ assoc this :subsidy-decrease-block-count 210000)
             (§ assoc this :spendable-coinbase-depth 100)
@@ -20114,7 +20044,7 @@
             (.put (:checkpoints this), 91880, (Sha256Hash'wrap-hex "00000000000743f190a18c5577a3c2d2a1f610ae9601ac046a38084ccb7cd721"))
             (.put (:checkpoints this), 200000, (Sha256Hash'wrap-hex "000000000000034a7dedef4a161fa058a2d67a173a90155f3a2fe6fc132e0ebf"))
 
-            (§ assoc this :dns-seeds (§ into-array String
+            (§ assoc this :dns-seeds (into-array String
             [
                 "seed.bitcoin.sipa.be",          ;; Pieter Wuille
                 "dnsseed.bluematt.me",           ;; Matt Corallo
@@ -20175,7 +20105,7 @@
 
     (§ def- #_"MainNetParams" MainNetParams'INSTANCE (MainNetParams'new))
 
-    (def #_"String[]" MainNetParams'TEXTUAL_CHECKPOINTS (§ into-array String
+    (def #_"String[]" MainNetParams'TEXTUAL_CHECKPOINTS (into-array String
     [
         "AAAAAAAAB+EH4QfhAAAH4AEAAABjl7tqvU/FIcDT9gcbVlA4nwtFUbxAtOawZzBpAAAAAKzkcK7NqciBjI/ldojNKncrWleVSgDfBCCn3VRrbSxXaw5/Sf//AB0z8Bkv",
         "AAAAAAAAD8EPwQ/BAAAPwAEAAADfP83Sx8MZ9RsrnZCvqzAwqB2Ma+ZesNAJrTfwAAAAACwESaNKhvRgz6WuE7UFdFk1xwzfRY/OIdIOPzX5yaAdjnWUSf//AB0GrNq5",
@@ -20416,15 +20346,15 @@
             (§ assoc this :address-header 111)
             (§ assoc this :p2sh-header 196)
             (§ assoc this :acceptable-address-codes (int-array [ (:address-header this), (:p2sh-header this) ]))
-            (Block''set-time (:genesis-block this), 1296688602)
-            (Block''set-difficulty-target (:genesis-block this), 0x1d00ffff)
-            (Block''set-nonce (:genesis-block this), 414098458)
+
+            (§ update this :genesis-block assoc :time-seconds 1296688602, :difficulty-target 0x1d00ffff, :nonce 414098458)
+
             (§ assoc this :spendable-coinbase-depth 100)
             (§ assoc this :subsidy-decrease-block-count 210000)
             (assert-state (= (Block''get-hash-as-string (:genesis-block this)) "000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"))
             (§ assoc this :alert-signing-key (.decode Utils'HEX, "04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a"))
 
-            (§ assoc this :dns-seeds (§ into-array String
+            (§ assoc this :dns-seeds (into-array String
             [
                 "testnet-seed.bitcoin.jonasschnelli.ch", ;; Jonas Schnelli
                 "testnet-seed.bluematt.me",              ;; Matt Corallo
@@ -20450,43 +20380,39 @@
     #_throws #_[ "VerificationException", "BlockStoreException" ]
     #_override
     (defn #_"void" Ledger'''check-difficulty-transitions [#_"TestNetParams" this, #_"StoredBlock" __storedPrev, #_"Block" __nextBlock, #_"BlockStore" store]
-        (§ cond (and (not (Ledger''is-difficulty-transition-point this, (:stored-height __storedPrev))) (.after (Block''get-time __nextBlock), TestNetParams'TESTNET_DIFF_DATE))
-            (do
-                (let [#_"Block" prev (:stored-header __storedPrev)]
-
-                    ;; After 15th February 2012 the rules on the testnet change to avoid people running up the difficulty
-                    ;; and then leaving, making it too hard to mine a block.  On non-difficulty transition points, easy
-                    ;; blocks are allowed if there has been a span of 20 minutes without one.
-                    (let [#_"long" __timeDelta (- (Block''get-time-seconds __nextBlock) (Block''get-time-seconds prev))]
-                        ;; There is an integer underflow bug in bitcoin-qt that means mindiff blocks are accepted when time
-                        ;; goes backwards.
-                        (when (and (<= 0 __timeDelta) (<= __timeDelta (* 2 Ledger'TARGET_SPACING)))
-                            ;; Walk backwards until we find a block that doesn't have the easiest proof of work, then check
-                            ;; that difficulty is equal to that one.
-                            (let [#_"StoredBlock" cursor __storedPrev]
-                                (loop-when-recur [] (and (not (.equals (:stored-header cursor), (:genesis-block this))) (not= (rem (:stored-height cursor) (:interval this)) 0) (.equals (Block''get-difficulty-target-as-integer (:stored-header cursor)), (:max-target this))) []
-                                    (§ ass cursor (StoredBlock''get-prev cursor, store))
-                                )
-                                (let [#_"BigInteger" __cursorTarget (Block''get-difficulty-target-as-integer (:stored-header cursor))
-                                      #_"BigInteger" __newTarget (Block''get-difficulty-target-as-integer __nextBlock)]
-                                    (when-not (.equals __cursorTarget, __newTarget)
-                                        (throw+ (VerificationException'new (str "Testnet block transition that is not allowed: " (Long/toHexString (Block''get-difficulty-target (:stored-header cursor))) " vs " (Long/toHexString (Block''get-difficulty-target __nextBlock)))))
-                                    )
-                                )
+        (let [#_"boolean" transition? (Ledger''is-difficulty-transition-point this, (:stored-height __storedPrev))]
+            (if (and (not transition?) (.after (Date. (* (:time-seconds __nextBlock) 1000)), TestNetParams'TESTNET_DIFF_DATE))
+                ;; After 15th February 2012 the rules on the testnet change to avoid people running up the difficulty
+                ;; and then leaving, making it too hard to mine a block.  On non-difficulty transition points, easy
+                ;; blocks are allowed if there has been a span of 20 minutes without one.
+                (let [#_"long" delta (- (:time-seconds __nextBlock) (:time-seconds (:stored-header __storedPrev)))]
+                    ;; There is an integer underflow bug in bitcoin-qt that means mindiff blocks are accepted when time
+                    ;; goes backwards.
+                    (when (<= 0 delta (* 2 Ledger'TARGET_SPACING))
+                        ;; Walk backwards until we find a block that doesn't have the easiest proof of work, then check
+                        ;; that difficulty is equal to that one.
+                        (let [#_"StoredBlock" cursor
+                                (loop-when-recur [cursor __storedPrev]
+                                                 (and (not (.equals (:stored-header cursor), (:genesis-block this)))
+                                                      (not (zero? (rem (:stored-height cursor) (:interval this))))
+                                                      (.equals (Block''get-difficulty-target-as-integer (:stored-header cursor)), (:max-target this)))
+                                                 [(StoredBlock''get-prev cursor, store)]
+                                              => cursor)
+                              #_"BigInteger" __cursorTarget (Block''get-difficulty-target-as-integer (:stored-header cursor))
+                              #_"BigInteger" __newTarget (Block''get-difficulty-target-as-integer __nextBlock)]
+                            (when-not (.equals __cursorTarget, __newTarget)
+                                (throw+ (VerificationException'new (str "Testnet block transition that is not allowed: " (Long/toHexString (:difficulty-target (:stored-header cursor))) " vs " (Long/toHexString (:difficulty-target __nextBlock)))))
                             )
                         )
                     )
                 )
-            )
-            :else
-            (do
                 (Ledger'''check-difficulty-transitions (§ this super), __storedPrev, __nextBlock, store)
             )
         )
         nil
     )
 
-    (def #_"String[]" TestNetParams'TEXTUAL_CHECKPOINTS (§ into-array String
+    (def #_"String[]" TestNetParams'TEXTUAL_CHECKPOINTS (into-array String
     [
         "AAAAAAAAB+EH4QfhAAAH4AEAAAApmwX6UCEnJcYIKTa7HO3pFkqqNhAzJVBMdEuGAAAAAPSAvVCBUypCbBW/OqU0oIF7ISF84h2spOqHrFCWN9Zw6r6/T///AB0E5oOO",
         "AAAAAAAAD8QPxA/EAAAPwAEAAADHtJ8Nq3z30grJ9lTH6bLhKSHX+MxmkZn8z5wuAAAAAK0gXcQFtYSj/IB2KZ38+itS1Da0Dn/3XosOFJntz7A8OsC/T8D/Pxwf0no+",
@@ -29762,7 +29688,7 @@
                     (doseq [#_"Transaction" ty pool]
                         (when-not (.equals ty, tx)
                             (doseq [#_"TransactionInput" input (Transaction''get-inputs ty)]
-                                (when (.equals (TransactionOutPoint''get-hash (:outpoint input)), (Transaction''get-hash tx))
+                                (when (.equals (:from-tx-hash (:outpoint input)), (Transaction''get-hash tx))
                                     (let-when [#_"Sha256Hash" hy (Transaction''get-hash ty)] (nil? (.get queue, hy))
                                         (.put queue, hy, ty)
                                         (.add __txSet, ty)
@@ -29974,7 +29900,7 @@
     #_method
     (defn- #_"boolean" Wallet''is-not-spending-txns-in-confidence-type [#_"Wallet" this, #_"Transaction" tx, #_"ConfidenceType" type]
         (§ doseq [#_"TransactionInput" in (Transaction''get-inputs tx)]
-            (let [#_"Transaction" tx' (Wallet''get-transaction this, (TransactionOutPoint''get-hash (:outpoint in)))]
+            (let [#_"Transaction" tx' (Wallet''get-transaction this, (:from-tx-hash (:outpoint in)))]
                 (when (and (some? tx') (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence-t tx')), type))
                     (§ return false)
                 )
@@ -30012,7 +29938,7 @@
     ;;; Finds whether txA spends txB. ;;
     #_method
     (defn #_"boolean" Wallet''spends [#_"Wallet" __, #_"Transaction" a, #_"Transaction" b]
-        (boolean (some #(.equals (TransactionOutPoint''get-hash (:outpoint %)), (Transaction''get-hash b)) (Transaction''get-inputs a)))
+        (boolean (some #(.equals (:from-tx-hash (:outpoint %)), (Transaction''get-hash b)) (Transaction''get-inputs a)))
     )
 
     #_method
@@ -30048,7 +29974,7 @@
                     ;; Store the new block hash.
                     (Wallet''set-last-block-seen-hash this, __newBlockHash)
                     (Wallet''set-last-block-seen-height this, (:stored-height block))
-                    (Wallet''set-last-block-seen-time-secs this, (Block''get-time-seconds (:stored-header block)))
+                    (Wallet''set-last-block-seen-time-secs this, (:time-seconds (:stored-header block)))
                     ;; Notify all the BUILDING transactions of the new block.
                     ;; This is so that they can update their depth.
                     (let [#_"Set<Transaction>" transactions (Wallet''get-transactions this, true)]
@@ -31619,7 +31545,7 @@
                                         (§ catch ScriptException e
                                             (log/debug e, "Input contained an incorrect signature")
                                             (let [#_"RedeemData" data (TransactionInput''get-connected-redeem-data in, this)]
-                                                (ensure some? data, (str "Transaction exists in wallet that we cannot redeem: " (TransactionOutPoint''get-hash (:outpoint in))))
+                                                (ensure some? data, (str "Transaction exists in wallet that we cannot redeem: " (:from-tx-hash (:outpoint in))))
                                                 (TransactionInput''set-script-sig in, (Script''create-empty-input-script outKey, (first (:redeem-keys data)), (:redeem-script data)))
                                             )
                                         )
