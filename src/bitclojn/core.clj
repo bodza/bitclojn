@@ -131,7 +131,7 @@
 (declare BlockStoreException'new)
 (declare BlockVerifyFlag'enum-set)
 (declare BlocksDownloadedEventListener'''on-blocks-downloaded)
-(declare BloomFilter''apply-and-update-b BloomFilter''apply-and-update-t BloomFilter''contains BloomFilter''get-false-positive-rate BloomFilter''get-update-flag BloomFilter''insert-b BloomFilter''insert-e BloomFilter''matches-all BloomFilter''merge BloomFilter''set-match-all BloomFilter'MAX_FILTER_SIZE BloomFilter'MAX_HASH_FUNCS BloomFilter'init BloomFilter'murmur-hash3 BloomFilter'from-wire BloomFilter''to-wire BloomFilter'new BloomFilter'rotate-left32)
+(declare BloomFilter''apply-and-update-b BloomFilter''apply-and-update-t BloomFilter''contains BloomFilter''get-false-positive-rate BloomFilter''get-update-flag BloomFilter''insert-data BloomFilter''insert-key BloomFilter''matches-all BloomFilter''merge BloomFilter''set-match-all BloomFilter'MAX_FILTER_SIZE BloomFilter'MAX_HASH_FUNCS BloomFilter'init BloomFilter'murmur-hash3 BloomFilter'from-wire BloomFilter''to-wire BloomFilter'new BloomFilter'rotate-left32)
 (declare BloomUpdate'enum-map BloomUpdate'for-code)
 (declare ChainDownloadStartedEventListener'''on-chain-download-started)
 (declare ChainFileLockedException'new)
@@ -174,22 +174,22 @@
 (declare FilterMerger''calculate FilterMerger''get-bloom-filter-fp-rate FilterMerger''set-bloom-filter-fp-rate FilterMerger'new)
 (declare FilterMergerResult'new)
 (declare FilterRecalculateMode'enum-set)
-(declare FilteredBlock''get-associated-transactions FilteredBlock''get-block-header FilteredBlock''get-hash FilteredBlock''get-partial-merkle-tree FilteredBlock''get-transaction-count FilteredBlock''get-transaction-hashes FilteredBlock''provide-transaction FilteredBlock'init FilteredBlock'from-wire FilteredBlock''to-wire FilteredBlock'new)
+(declare FilteredBlock''get-associated-transactions FilteredBlock''get-block-header FilteredBlock''get-hash FilteredBlock''get-transaction-count FilteredBlock''get-transaction-hashes FilteredBlock''provide-transaction FilteredBlock'from-wire FilteredBlock''to-wire FilteredBlock'new)
 (declare FilteringCoinSelector''exclude-outputs-spent-by FilteringCoinSelector'new)
 (declare FreeStandingTransactionOutput''get-utxo FreeStandingTransactionOutput'init FreeStandingTransactionOutput'new)
 (declare FullPrunedBlockChain''get-script FullPrunedBlockChain''get-script-address FullPrunedBlockChain''set-run-scripts FullPrunedBlockChain'new)
 (declare FullPrunedBlockStore'''abort-database-batch-write FullPrunedBlockStore'''add-unspent-transaction-output FullPrunedBlockStore'''begin-database-batch-write FullPrunedBlockStore'''commit-database-batch-write FullPrunedBlockStore'''get-once-undoable-stored-block FullPrunedBlockStore'''get-transaction-output FullPrunedBlockStore'''get-undo-block FullPrunedBlockStore'''get-verified-chain-head FullPrunedBlockStore'''has-unspent-outputs FullPrunedBlockStore'''put-3 FullPrunedBlockStore'''remove-unspent-transaction-output FullPrunedBlockStore'''set-verified-chain-head)
 (declare FullPrunedVerifier'new)
 (declare GetAddrMessage'new GetAddrMessage''to-wire)
-(declare GetBlocksMessage''get-locator GetBlocksMessage''get-stop-hash GetBlocksMessage'init GetBlocksMessage'from-wire GetBlocksMessage''to-wire GetBlocksMessage'new)
+(declare GetBlocksMessage'from-wire GetBlocksMessage''to-wire GetBlocksMessage'new)
 (declare GetDataEventListener'''get-data)
-(declare GetDataMessage''add-block GetDataMessage''add-filtered-block GetDataMessage''add-transaction-2 GetDataMessage''get-hash-of GetDataMessage'new GetDataMessage'from-wire GetDataMessage''to-wire)
+(declare GetDataMessage''add-block GetDataMessage''add-filtered-block GetDataMessage''add-transaction GetDataMessage''get-hash-of GetDataMessage'new GetDataMessage'from-wire GetDataMessage''to-wire)
 (declare GetDataRequest'new)
 (declare GetHeadersMessage'from-wire GetHeadersMessage''to-wire GetHeadersMessage'new)
 (declare HDDerivationException'new)
 (declare HDKeyDerivation'MAX_CHILD_DERIVATION_ATTEMPTS HDKeyDerivation'RAND_INT HDKeyDerivation'assert-less-than-n HDKeyDerivation'assert-non-infinity HDKeyDerivation'assert-non-zero HDKeyDerivation'create-master-priv-key-from-bytes HDKeyDerivation'create-master-private-key HDKeyDerivation'create-master-pub-key-from-bytes HDKeyDerivation'derive-child-key-2c HDKeyDerivation'derive-child-key-2i HDKeyDerivation'derive-child-key-bytes-from-private HDKeyDerivation'derive-child-key-bytes-from-public HDKeyDerivation'derive-this-or-next-child-key)
 (declare HDUtils'PATH_JOINER HDUtils'append HDUtils'concat HDUtils'create-hmac-sha512-digest HDUtils'format-path HDUtils'hmac-sha512-2 HDUtils'hmac-sha512-2-bytes HDUtils'parse-path HDUtils'to-compressed)
-(declare HeadersMessage'MAX_HEADERS HeadersMessage'init HeadersMessage'new HeadersMessage'from-wire HeadersMessage''to-wire)
+(declare HeadersMessage'MAX_HEADERS HeadersMessage'new HeadersMessage'from-wire HeadersMessage''to-wire)
 (declare InsufficientMoneyException'new)
 (declare InventoryItem'new)
 (declare InventoryItemType'enum-map InventoryItemType'for-code)
@@ -236,7 +236,7 @@
 (declare NotFoundMessage'MIN_PROTOCOL_VERSION NotFoundMessage'new NotFoundMessage'from-wire NotFoundMessage''to-wire)
 (declare OrphanBlock'new)
 (declare PBKDF2SHA512'f PBKDF2SHA512'derive)
-(declare PartialMerkleTree''get-transaction-count PartialMerkleTree''get-txn-hash-and-merkle-root PartialMerkleTree''recursive-extract-hashes PartialMerkleTree'build-from-leaves PartialMerkleTree'calc-hash PartialMerkleTree'combine-left-right PartialMerkleTree'get-tree-width PartialMerkleTree'init PartialMerkleTree'from-wire PartialMerkleTree''to-wire PartialMerkleTree'new PartialMerkleTree'traverse-and-build)
+(declare PartialMerkleTree''get-txn-hash-and-merkle-root PartialMerkleTree''recursive-extract-hashes PartialMerkleTree'build-from-leaves PartialMerkleTree'calc-hash PartialMerkleTree'combine-left-right PartialMerkleTree'get-tree-width PartialMerkleTree'from-wire PartialMerkleTree''to-wire PartialMerkleTree'new PartialMerkleTree'traverse-and-build)
 (declare Peer''add-blocks-downloaded-event-listener-2 Peer''add-blocks-downloaded-event-listener-3 Peer''add-chain-download-started-event-listener-2 Peer''add-chain-download-started-event-listener-3 Peer''add-connected-event-listener-2 Peer''add-connected-event-listener-3 Peer''add-disconnected-event-listener-2 Peer''add-disconnected-event-listener-3 Peer''add-get-data-event-listener-2 Peer''add-get-data-event-listener-3 Peer''add-on-transaction-broadcast-listener-2 Peer''add-on-transaction-broadcast-listener-3 Peer''add-ping-time-data Peer''add-pre-message-received-event-listener-2 Peer''add-pre-message-received-event-listener-3 Peer''add-wallet Peer''block-chain-download-locked Peer''check-for-filter-exhaustion Peer''download-dependencies Peer''download-dependencies-internal Peer''end-filtered-block Peer''get-addr Peer''get-best-height Peer''get-block Peer''get-bloom-filter-1 Peer''get-connection-open-future Peer''get-last-ping-time Peer''get-peer-block-height-difference Peer''get-peer-mempool-transaction Peer''get-peer-version-message Peer''get-ping-time Peer''get-version-handshake-future Peer''get-version-message Peer''invoke-on-blocks-downloaded Peer''is-download-data Peer''is-download-tx-dependencies Peer''is-not-found-message-supported Peer''maybe-handle-requested-data Peer''maybe-restart-chain-download Peer''ping-1 Peer''ping-2 Peer''process-address-message Peer''process-alert Peer''process-block Peer''process-get-data Peer''process-headers Peer''process-inv Peer''process-not-found-message Peer''process-ping Peer''process-pong Peer''process-transaction Peer''process-version-ack Peer''process-version-message Peer''remove-blocks-downloaded-event-listener Peer''remove-chain-download-started-event-listener Peer''remove-connected-event-listener Peer''remove-disconnected-event-listener Peer''remove-get-data-event-listener Peer''remove-on-transaction-broadcast-listener Peer''remove-pre-message-received-event-listener Peer''remove-wallet Peer''send-single-get-data Peer''set-bloom-filter-2 Peer''set-bloom-filter-3 Peer''set-download-data Peer''set-download-parameters Peer''set-download-tx-dependencies-b Peer''set-download-tx-dependencies-i Peer''set-min-protocol-version Peer''start-block-chain-download Peer''start-filtered-block Peer''version-handshake-complete Peer'PING_MOVING_AVERAGE_WINDOW Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT Peer'new)
 (declare PeerAddress''to-socket-address PeerAddress'init PeerAddress'loopback PeerAddress'from-socket-address PeerAddress'from-host-port PeerAddress'from-inet-port PeerAddress'from-wire PeerAddress''to-wire)
 (declare PeerConnectedEventListener'''on-peer-connected)
@@ -3238,33 +3238,38 @@
 (class-ns ListMessage (§ extends Message)
     (def #_"long" ListMessage'MAX_INVENTORY_ITEMS 50000)
 
-    (defn #_"ListMessage" ListMessage'new [#_"Ledger" ledger]
-        (merge (Message'new ledger)
-            (hash-map
-                #_"List<InventoryItem>" :items (ArrayList.)
+    (defn #_"ListMessage" ListMessage'new
+        ([#_"Ledger" ledger] (ListMessage'new ledger, (ArrayList.)))
+        ([#_"Ledger" ledger, #_"List<InventoryItem>" items]
+            (merge (Message'new ledger)
+                (hash-map
+                    #_"List<InventoryItem>" :items items
+                )
             )
         )
     )
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"ListMessage" ListMessage'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload]
-        (let [this (ListMessage'new ledger)]
-            (let [#_"long" n (Wire'read-var-int payload)]
-                (when (< ListMessage'MAX_INVENTORY_ITEMS n)
-                    (throw+ (ProtocolException'new (str "Too many items in INV message: " n)))
-                )
-
-                (§ assoc this :items (ArrayList. n))
-                (dotimes [_ n]
-                    (let [#_"int" code (int (Wire'read-uint32 payload)) #_"InventoryItemType" type (InventoryItemType'for-code code)]
-                        (when (nil? type)
-                            (throw+ (ProtocolException'new (str "Unknown CInv type: " code)))
-                        )
-                        (.add (:items this), (InventoryItem'new type, (Wire'read-hash payload)))
+        (let [#_"List<InventoryItem>" items
+                (let [#_"long" n (Wire'read-var-int payload)]
+                    (when (< ListMessage'MAX_INVENTORY_ITEMS n)
+                        (throw+ (ProtocolException'new (str "Too many items in INV message: " n)))
                     )
-                )
-                this
-            )
+                    (let [items (ArrayList. n)]
+                        (dotimes [_ n]
+                            (let [#_"int" code (int (Wire'read-uint32 payload)) #_"InventoryItemType" type (InventoryItemType'for-code code)]
+                                (when (nil? type)
+                                    (throw+ (ProtocolException'new (str "Unknown CInv type: " code)))
+                                )
+                                (.add items, (InventoryItem'new type, (Wire'read-hash payload)))
+                            )
+                        )
+                        items
+                    )
+                )]
+
+            (ListMessage'new ledger, items)
         )
     )
 
@@ -3467,27 +3472,33 @@
 (class-ns AddressMessage (§ extends Message)
     (def- #_"long" AddressMessage'MAX_ADDRESSES 1024)
 
+    (defn- #_"AddressMessage" AddressMessage'new [#_"Ledger" ledger, #_"List<PeerAddress>" addrs]
+        (merge (Message'new ledger)
+            (hash-map
+                #_"List<PeerAddress>" :addresses addrs
+            )
+        )
+    )
+
     #_throws #_[ "ProtocolException" ]
     (defn #_"AddressMessage" AddressMessage'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload]
-        (let [this
-                (merge (Message'new ledger)
-                    (hash-map
-                        #_"List<PeerAddress>" :addresses nil
+        (let [#_"List<PeerAddress>" addrs
+                (let [#_"long" n (Wire'read-var-int payload)]
+                    ;; Guard against ultra large messages that will crash us.
+                    (when (< AddressMessage'MAX_ADDRESSES n)
+                        (throw+ (ProtocolException'new "Address message too large."))
+                    )
+                    (let [addrs (ArrayList. n)]
+                        (dotimes [_ n]
+                            (let [#_"PeerAddress" addr (PeerAddress'from-wire ledger, payload, (§ this))]
+                                (.add addrs, addr)
+                            )
+                        )
+                        addrs
                     )
                 )]
-            (let [#_"long" n (Wire'read-var-int payload)]
-                ;; Guard against ultra large messages that will crash us.
-                (when (< AddressMessage'MAX_ADDRESSES n)
-                    (throw+ (ProtocolException'new "Address message too large."))
-                )
-                (§ assoc this :addresses (ArrayList. n))
-                (dotimes [_ n]
-                    (let [#_"PeerAddress" addr (PeerAddress'from-wire ledger, payload, this)]
-                        (.add (:addresses this), addr)
-                    )
-                )
-                this
-            )
+
+            (AddressMessage'new ledger, addrs)
         )
     )
 
@@ -3555,112 +3566,119 @@
     ;; Chosen arbitrarily to avoid memory blowups.
     (def- #_"long" AlertMessage'MAX_SET_SIZE 100)
 
+    (defn- #_"AlertMessage" AlertMessage'new [#_"Ledger" ledger]
+        (merge (Message'new ledger)
+            (hash-map
+                #_"byte[]" :content nil
+                #_"byte[]" :signature nil
+
+                #_"long" :version 1
+                ;;;
+                 ; The time at which the alert should stop being broadcast across the network.  Note that you can still receive
+                 ; the alert after this time from other nodes if the alert still applies to them or to you.
+                 ;;
+                #_"Date" :relay-until nil
+                ;;;
+                 ; The time at which the alert ceases to be relevant.  It should not be presented to the user or app administrator
+                 ; after this time.
+                 ;;
+                #_"Date" :expiration nil
+                ;;;
+                 ; The numeric identifier of this alert.  Each alert should have a unique ID, but the signer can choose any number.
+                 ; If an alert is broadcast with a cancel field higher than this ID, this alert is considered cancelled.
+                 ;
+                 ; @return uint32
+                 ;;
+                #_"long" :id 0
+                ;;;
+                 ; A marker that results in any alerts with an ID lower than this value to be considered cancelled.
+                 ;
+                 ; @return uint32
+                 ;;
+                #_"long" :cancel 0
+                ;;;
+                 ; The inclusive lower bound on software versions that are considered for the purposes of this alert.  Bitcoin Core
+                 ; compares this against a protocol version field, but as long as the subVer field is used to restrict it your
+                 ; alerts could use any version numbers.
+                 ;
+                 ; @return uint32
+                 ;;
+                #_"long" :min-ver 0
+                ;;;
+                 ; The inclusive upper bound on software versions considered for the purposes of this alert.  Bitcoin Core
+                 ; compares this against a protocol version field, but as long as the subVer field is used to restrict it your
+                 ; alerts could use any version numbers.
+                 ;;
+                #_"long" :max-ver 0
+                ;;;
+                 ; Provides an integer ordering amongst simultaneously active alerts.
+                 ;
+                 ; @return uint32
+                 ;;
+                #_"long" :priority 0
+                ;;;
+                 ; This field is unused.  It is presumably intended for the author of the alert to provide a justification for it
+                 ; visible to protocol developers but not users.
+                 ;;
+                #_"String" :comment nil
+                ;;;
+                 ; A string that is intended to display in the status bar of Bitcoin Core's GUI client.
+                 ; It contains the user-visible message.  English only.
+                 ;;
+                #_"String" :status-bar nil
+                ;;;
+                 ; This field is never used.
+                 ;;
+                #_"String" :reserved nil
+            )
+        )
+    )
+
     #_throws #_[ "ProtocolException" ]
     (defn #_"AlertMessage" AlertMessage'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload]
-        (let [this
-                (merge (Message'new ledger)
-                    (hash-map
-                        #_"byte[]" :content nil
-                        #_"byte[]" :signature nil
-
-                        #_"long" :version 1
-                        ;;;
-                         ; The time at which the alert should stop being broadcast across the network.  Note that you can still receive
-                         ; the alert after this time from other nodes if the alert still applies to them or to you.
-                         ;;
-                        #_"Date" :relay-until nil
-                        ;;;
-                         ; The time at which the alert ceases to be relevant.  It should not be presented to the user or app administrator
-                         ; after this time.
-                         ;;
-                        #_"Date" :expiration nil
-                        ;;;
-                         ; The numeric identifier of this alert.  Each alert should have a unique ID, but the signer can choose any number.
-                         ; If an alert is broadcast with a cancel field higher than this ID, this alert is considered cancelled.
-                         ;
-                         ; @return uint32
-                         ;;
-                        #_"long" :id 0
-                        ;;;
-                         ; A marker that results in any alerts with an ID lower than this value to be considered cancelled.
-                         ;
-                         ; @return uint32
-                         ;;
-                        #_"long" :cancel 0
-                        ;;;
-                         ; The inclusive lower bound on software versions that are considered for the purposes of this alert.  Bitcoin Core
-                         ; compares this against a protocol version field, but as long as the subVer field is used to restrict it your
-                         ; alerts could use any version numbers.
-                         ;
-                         ; @return uint32
-                         ;;
-                        #_"long" :min-ver 0
-                        ;;;
-                         ; The inclusive upper bound on software versions considered for the purposes of this alert.  Bitcoin Core
-                         ; compares this against a protocol version field, but as long as the subVer field is used to restrict it your
-                         ; alerts could use any version numbers.
-                         ;;
-                        #_"long" :max-ver 0
-                        ;;;
-                         ; Provides an integer ordering amongst simultaneously active alerts.
-                         ;
-                         ; @return uint32
-                         ;;
-                        #_"long" :priority 0
-                        ;;;
-                         ; This field is unused.  It is presumably intended for the author of the alert to provide a justification for it
-                         ; visible to protocol developers but not users.
-                         ;;
-                        #_"String" :comment nil
-                        ;;;
-                         ; A string that is intended to display in the status bar of Bitcoin Core's GUI client.
-                         ; It contains the user-visible message.  English only.
-                         ;;
-                        #_"String" :status-bar nil
-                        ;;;
-                         ; This field is never used.
-                         ;;
-                        #_"String" :reserved nil
-                    )
-                )]
-            ;; Alerts are formatted in two levels.  The top level contains two byte arrays: a signature, and a serialized
-            ;; data structure containing the actual alert data.
-            (.mark payload)
-            (§ assoc this :content (Wire'read-byte-array payload))
-            (§ assoc this :signature (Wire'read-byte-array payload))
-
-            ;; Now we need to parse out the contents of the embedded structure.  Rewind back to the start of the message.
-            (.reset payload)
-            (Wire'read-var-int payload) ;; Skip the length field on the content array.
-            ;; We're inside the embedded structure.
-            (§ assoc this :version (Wire'read-uint32 payload))
-            ;; Read the timestamps.  Bitcoin uses seconds since the epoch.
-            (§ assoc this :relay-until (Date. (* (.longValue (Wire'read-uint64 payload)) 1000)))
-            (§ assoc this :expiration (Date. (* (.longValue (Wire'read-uint64 payload)) 1000)))
-            (§ assoc this :id (Wire'read-uint32 payload))
-            (§ assoc this :cancel (Wire'read-uint32 payload))
-            ;; Sets are serialized as <len><item><item><item>....
-            (let-when [#_"long" n (Wire'read-var-int payload)] (<= 0 n AlertMessage'MAX_SET_SIZE) => (throw+ (ProtocolException'new (str "Bad cancel set size: " n)))
-                (let [#_"Set<Long>" __cancelSet (HashSet. n)]
-                    (dotimes [_ n]
-                        (.add __cancelSet, (Wire'read-uint32 payload))
+        (let [this (AlertMessage'new ledger)
+              ;; Alerts are formatted in two levels.  The top level contains two byte arrays: a signature, and a serialized
+              ;; data structure containing the actual alert data.
+              _ (.mark payload)
+              this (assoc this :content (Wire'read-byte-array payload))
+              this (assoc this :signature (Wire'read-byte-array payload))
+              ;; Now we need to parse out the contents of the embedded structure.  Rewind back to the start of the message.
+              _ (.reset payload)
+              ;; Skip the length field on the content array.
+              _ (Wire'read-var-int payload)
+              ;; We're inside the embedded structure.
+              this (assoc this :version (Wire'read-uint32 payload))
+              ;; Read the timestamps.  Bitcoin uses seconds since the epoch.
+              this (assoc this :relay-until (Date. (* (.longValue (Wire'read-uint64 payload)) 1000)))
+              this (assoc this :expiration (Date. (* (.longValue (Wire'read-uint64 payload)) 1000)))
+              this (assoc this :id (Wire'read-uint32 payload))
+              this (assoc this :cancel (Wire'read-uint32 payload))
+              ;; Sets are serialized as <len><item><item><item>....
+              _ (let [#_"long" n (Wire'read-var-int payload)]
+                    (when' (<= 0 n AlertMessage'MAX_SET_SIZE) => (throw+ (ProtocolException'new (str "Bad cancel set size: " n)))
+                        (let [#_"Set<Long>" __cancelSet (HashSet. n)]
+                            (dotimes [_ n]
+                                (.add __cancelSet, (Wire'read-uint32 payload))
+                            )
+                        )
                     )
                 )
-            )
-            (§ assoc this :min-ver (Wire'read-uint32 payload))
-            (§ assoc this :max-ver (Wire'read-uint32 payload))
-            ;; Read the subver matching set.
-            (let-when [#_"long" n (Wire'read-var-int payload)] (<= 0 n AlertMessage'MAX_SET_SIZE) => (throw+ (ProtocolException'new (str "Bad subver set size: " n)))
-                (let [#_"Set<String>" __matchingSubVers (HashSet. n)]
-                    (dotimes [_ n]
-                        (.add __matchingSubVers, (Wire'read-string payload))
+              this (assoc this :min-ver (Wire'read-uint32 payload))
+              this (assoc this :max-ver (Wire'read-uint32 payload))
+              ;; Read the subver matching set.
+              _ (let [#_"long" n (Wire'read-var-int payload)]
+                    (when' (<= 0 n AlertMessage'MAX_SET_SIZE) => (throw+ (ProtocolException'new (str "Bad subver set size: " n)))
+                        (let [#_"Set<String>" __matchingSubVers (HashSet. n)]
+                            (dotimes [_ n]
+                                (.add __matchingSubVers, (Wire'read-string payload))
+                            )
+                        )
                     )
                 )
-            )
-            (§ assoc this :priority (Wire'read-uint32 payload))
-            (§ assoc this :comment (Wire'read-string payload))
-            (§ assoc this :status-bar (Wire'read-string payload))
-            (§ assoc this :reserved (Wire'read-string payload))
+              this (assoc this :priority (Wire'read-uint32 payload))
+              this (assoc this :comment (Wire'read-string payload))
+              this (assoc this :status-bar (Wire'read-string payload))
+              this (assoc this :reserved (Wire'read-string payload))]
             this
         )
     )
@@ -4102,14 +4120,13 @@
      ; Special case constructor, used for the genesis node, cloneAsHeader and unit tests.
      ;;
     (defn #_"Block" Block'new-genesis [#_"Ledger" ledger, #_"long" version]
-        (let [this (merge (Message'new ledger) (Block'init))]
+        (let [this (merge (Message'new ledger) (Block'init))
 
-            ;; Set up a few basic things.  We are not complete after this though.
-            (§ assoc this :version version)
-            (§ assoc this :prev-block-hash Sha256Hash'ZERO_HASH)
-            (§ assoc this :time-seconds (Time'seconds))
-            (§ assoc this :difficulty-target 0x1d07fff8)
-
+              ;; Set up a few basic things.  We are not complete after this though.
+              this (assoc this :version version)
+              this (assoc this :prev-block-hash Sha256Hash'ZERO_HASH)
+              this (assoc this :time-seconds (Time'seconds))
+              this (assoc this :difficulty-target 0x1d07fff8)]
             this
         )
     )
@@ -4126,15 +4143,14 @@
      ; @param transactions List of transactions including the coinbase.
      ;;
     (defn #_"Block" Block'new [#_"Ledger" ledger, #_"long" version, #_"Sha256Hash" prior, #_"long" time, #_"long" difficulty, #_"long" nonce, #_"List<Transaction>" transactions]
-        (let [this (merge (Message'new ledger) (Block'init))]
+        (let [this (merge (Message'new ledger) (Block'init))
 
-            (§ assoc this :version version)
-            (§ assoc this :prev-block-hash prior)
-            (§ assoc this :time-seconds time)
-            (§ assoc this :difficulty-target difficulty)
-            (§ assoc this :nonce nonce)
-            (§ assoc this :transactions (LinkedList.))
-            (.addAll (:transactions this), transactions)
+              this (assoc this :version version)
+              this (assoc this :prev-block-hash prior)
+              this (assoc this :time-seconds time)
+              this (assoc this :difficulty-target difficulty)
+              this (assoc this :nonce nonce)
+              this (assoc this :transactions (LinkedList.)) _ (.addAll (:transactions this), transactions)]
             this
         )
     )
@@ -4150,6 +4166,7 @@
                   this (assoc this :time-seconds (Wire'read-uint32 payload))
                   this (assoc this :difficulty-target (Wire'read-uint32 payload))
                   this (assoc this :nonce (Wire'read-uint32 payload))]
+
                 ;; transactions
                 (when (.hasRemaining payload)
                     (let [#_"int" n (int (Wire'read-var-int payload))]
@@ -4791,6 +4808,12 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (class-ns BloomFilter (§ extends Message)
+    ;; Same value as of Bitcoin Core.
+    ;; A filter of 20,000 items and a false positive rate of 0.1% or one of 10,000 items and 0.0001% is just under 36,000 bytes.
+    (def- #_"long" BloomFilter'MAX_FILTER_SIZE 36000)
+    ;; There is little reason to ever have more hash functions than 50 given a limit of 36,000 bytes.
+    (def- #_"int" BloomFilter'MAX_HASH_FUNCS 50)
+
     (defn- #_"BloomFilter" BloomFilter'init []
         (hash-map
             #_"byte[]" :data nil
@@ -4799,12 +4822,6 @@
             #_"byte" :n-flags 0
         )
     )
-
-    ;; Same value as of Bitcoin Core.
-    ;; A filter of 20,000 items and a false positive rate of 0.1% or one of 10,000 items and 0.0001% is just under 36,000 bytes.
-    (def- #_"long" BloomFilter'MAX_FILTER_SIZE 36000)
-    ;; There is little reason to ever have more hash functions than 50 given a limit of 36,000 bytes.
-    (def- #_"int" BloomFilter'MAX_HASH_FUNCS 50)
 
     ;;;
      ; Constructs a new Bloom Filter which will provide approximately the given false positive rate when the given
@@ -4839,14 +4856,16 @@
 
             ;; The following formulas were stolen from Wikipedia's page on Bloom Filters (with the addition of min(..., MAX_...)).
             ;; Size required for a given number of elements and false-positive rate.
-            (let [n (int (* (quot -1 (Math/pow (Math/log 2), 2)) elements (Math/log rate)))
-                  n (max 1, (quot (min n, (* (int BloomFilter'MAX_FILTER_SIZE) 8)) 8))]
-                (§ assoc this :data (byte-array n))
-                ;; Optimal number of hash functions for a given filter size and element count.
-                (§ assoc this :hash-funcs (int (* (/ (* (alength (:data this)) 8) (double elements)) (Math/log 2))))
-                (§ assoc this :hash-funcs (max 1 (min (:hash-funcs this) BloomFilter'MAX_HASH_FUNCS)))
-                (§ assoc this :n-tweak tweak)
-                (§ assoc this :n-flags (byte (& 0xff (BloomUpdate'enum-map flag))))
+            (let [#_"int" n (int (* (quot -1 (Math/pow (Math/log 2), 2)) elements (Math/log rate)))
+                  n (max 1 (quot (min n (* (int BloomFilter'MAX_FILTER_SIZE) 8)) 8))
+                  ;; Optimal number of hash functions for a given filter size and element count.
+                  #_"int" m (int (* (/ (* n 8) (double elements)) (Math/log 2)))
+                  m (max 1 (min m BloomFilter'MAX_HASH_FUNCS))
+
+                  this (assoc this :data (byte-array n))
+                  this (assoc this :hash-funcs m)
+                  this (assoc this :n-tweak tweak)
+                  this (assoc this :n-flags (byte (& 0xff (BloomUpdate'enum-map flag))))]
                 this
             )
         )
@@ -4958,9 +4977,11 @@
         )
     )
 
-    ;;; Insert the given arbitrary data into the filter. ;;
+    ;;;
+     ; Insert the given arbitrary data into the filter.
+     ;;
     #_method
-    (defn #_"void" BloomFilter''insert-b [#_"BloomFilter" this, #_"byte[]" object]
+    (defn #_"void" BloomFilter''insert-data [#_"BloomFilter" this, #_"byte[]" object]
         (sync this
             (loop-when-recur [#_"int" i 0] (< i (:hash-funcs this)) [(inc i)]
                 (Utils'set-bit-le (:data this), (BloomFilter'murmur-hash3 (:data this), (:n-tweak this), i, object))
@@ -4969,12 +4990,14 @@
         nil
     )
 
-    ;;; Inserts the given key and equivalent hashed form (for the address). ;;
+    ;;;
+     ; Inserts the given key and equivalent hashed form (for the address).
+     ;;
     #_method
-    (defn #_"void" BloomFilter''insert-e [#_"BloomFilter" this, #_"ECKey" key]
+    (defn #_"void" BloomFilter''insert-key [#_"BloomFilter" this, #_"ECKey" key]
         (sync this
-            (BloomFilter''insert-b this, (ECKey''get-pub-key key))
-            (BloomFilter''insert-b this, (ECKey''get-pub-key-hash key))
+            (BloomFilter''insert-data this, (ECKey''get-pub-key key))
+            (BloomFilter''insert-data this, (ECKey''get-pub-key-hash key))
         )
         nil
     )
@@ -5080,7 +5103,7 @@
                                 (when (and (ScriptChunk''is-push-data chunk) (BloomFilter''contains this, (:data chunk)))
                                     (let [#_"boolean" __isSendingToPubKeys (or (Script''is-sent-to-raw-pub-key script) (Script''is-sent-to-multi-sig script))]
                                         (when (or (= flag :BloomUpdate'UPDATE_ALL) (and (= flag :BloomUpdate'UPDATE_P2PUBKEY_ONLY) __isSendingToPubKeys))
-                                            (BloomFilter''insert-b this, (Message''to-bytes (TransactionOutput''get-outpoint-for output), TransactionOutPoint''to-wire))
+                                            (BloomFilter''insert-data this, (Message''to-bytes (TransactionOutput''get-outpoint-for output), TransactionOutPoint''to-wire))
                                         )
                                         (§ ass found? true)
                                     )
@@ -6138,34 +6161,26 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (class-ns FilteredBlock (§ extends Message)
-    (defn- #_"FilteredBlock" FilteredBlock'init []
-        (hash-map
-            #_"Block" :filtered-header nil
-
-            #_"PartialMerkleTree" :merkle-tree nil
-            #_"List<Sha256Hash>" :cached-transaction-hashes nil
-
-            ;; A set of transactions whose hashes are a subset of getTransactionHashes().
-            ;; These were relayed as a part of the filteredblock getdata, i.e. likely weren't previously received as loose transactions.
-            #_"Map<Sha256Hash, Transaction>" :associated-transactions (HashMap.)
-        )
-    )
-
     (defn #_"FilteredBlock" FilteredBlock'new [#_"Ledger" ledger, #_"Block" header, #_"PartialMerkleTree" merkle]
-        (let [this (merge (Message'new ledger) (FilteredBlock'init))]
+        (merge (Message'new ledger)
+            (hash-map
+                #_"Block" :filtered-header header
+                ;;;
+                 ; The {@link PartialMerkleTree} that provides the mathematical proof of transaction inclusion in the block.
+                 ;;
+                #_"PartialMerkleTree" :merkle-tree merkle
 
-            (assoc this :filtered-header header, :merkle-tree merkle)
+                #_"List<Sha256Hash>" :cached-transaction-hashes nil
+                ;; A set of transactions whose hashes are a subset of getTransactionHashes().
+                ;; These were relayed as a part of the filteredblock getdata, i.e. likely weren't previously received as loose transactions.
+                #_"Map<Sha256Hash, Transaction>" :associated-transactions (HashMap.)
+            )
         )
     )
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"FilteredBlock" FilteredBlock'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload]
-        (let [this (merge (Message'new ledger) (FilteredBlock'init))]
-
-            (§ assoc this :filtered-header (Block'from-wire ledger, payload))
-            (§ assoc this :merkle-tree (PartialMerkleTree'from-wire ledger, payload))
-            this
-        )
+        (FilteredBlock'new ledger, (Block'from-wire ledger, payload), (PartialMerkleTree'from-wire ledger, payload))
     )
 
     #_method
@@ -6235,12 +6250,6 @@
         )
     )
 
-    ;;; Returns the {@link PartialMerkleTree} object that provides the mathematical proof of transaction inclusion in the block. ;;
-    #_method
-    (defn #_"PartialMerkleTree" FilteredBlock''get-partial-merkle-tree [#_"FilteredBlock" this]
-        (:merkle-tree this)
-    )
-
     ;;; Gets the set of transactions which were provided using provideTransaction() which match in getTransactionHashes(). ;;
     #_method
     (defn #_"Map<Sha256Hash, Transaction>" FilteredBlock''get-associated-transactions [#_"FilteredBlock" this]
@@ -6250,7 +6259,7 @@
     ;;; Number of transactions in this block, before it was filtered. ;;
     #_method
     (defn #_"int" FilteredBlock''get-transaction-count [#_"FilteredBlock" this]
-        (PartialMerkleTree''get-transaction-count (:merkle-tree this))
+        (:transaction-count (:merkle-tree this))
     )
 
     #_foreign
@@ -6853,41 +6862,40 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (class-ns GetBlocksMessage (§ extends Message)
-    (defn- #_"GetBlocksMessage" GetBlocksMessage'init []
-        (hash-map
-            #_"long" :version 0
-            #_"List<Sha256Hash>" :locator nil
-            #_"Sha256Hash" :stop-hash nil
-        )
-    )
+    (def- #_"long" GetBlocksMessage'MAX_BLOCKS 500)
 
-    (defn #_"GetBlocksMessage" GetBlocksMessage'new [#_"Ledger" ledger, #_"List<Sha256Hash>" locator, #_"Sha256Hash" __stopHash]
-        (let [this (merge (Message'new ledger) (GetBlocksMessage'init))]
-
-            (§ assoc this :version ProtocolVersion'CURRENT)
-            (§ assoc this :locator locator)
-            (§ assoc this :stop-hash __stopHash)
-            this
+    (defn #_"GetBlocksMessage" GetBlocksMessage'new
+        ([#_"Ledger" ledger, #_"List<Sha256Hash>" locator, #_"Sha256Hash" stop]
+            (GetBlocksMessage'new ledger, ProtocolVersion'CURRENT, locator, stop))
+        ([#_"Ledger" ledger, #_"long" version, #_"List<Sha256Hash>" locator, #_"Sha256Hash" stop]
+            (merge (Message'new ledger)
+                (hash-map
+                    #_"long" :version version
+                    #_"List<Sha256Hash>" :locator locator
+                    #_"Sha256Hash" :stop-hash stop
+                )
+            )
         )
     )
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"GetBlocksMessage" GetBlocksMessage'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload]
-        (let [this (merge (Message'new ledger) (GetBlocksMessage'init))]
-
-            (§ assoc this :version (Wire'read-uint32 payload))
-            (let [#_"int" n (int (Wire'read-var-int payload))]
-                (when (< 500 n)
-                    (throw+ (ProtocolException'new (str "Number of locators cannot be > 500, received: " n)))
+        (let [#_"long" version (Wire'read-uint32 payload)
+              #_"List<Sha256Hash>" locator
+                (let [#_"int" n (int (Wire'read-var-int payload))]
+                    (when (< GetBlocksMessage'MAX_BLOCKS n)
+                        (throw+ (ProtocolException'new (str "Number of locators cannot be > " GetBlocksMessage'MAX_BLOCKS ", received: " n)))
+                    )
+                    (let [locator (ArrayList. n)]
+                        (dotimes [_ n]
+                            (.add locator, (Wire'read-hash payload))
+                        )
+                        locator
+                    )
                 )
+              #_"Sha256Hash" stop (Wire'read-hash payload)]
 
-                (§ assoc this :locator (ArrayList. n))
-                (loop-when-recur [#_"int" i 0] (< i n) [(inc i)]
-                    (.add (:locator this), (Wire'read-hash payload))
-                )
-                (§ assoc this :stop-hash (Wire'read-hash payload))
-                this
-            )
+            (GetBlocksMessage'new ledger, version, locator, stop)
         )
     )
 
@@ -6909,16 +6917,6 @@
             (.write baos, (Sha256Hash''get-reversed-bytes (:stop-hash this)))
             nil
         )
-    )
-
-    #_method
-    (defn #_"List<Sha256Hash>" GetBlocksMessage''get-locator [#_"GetBlocksMessage" this]
-        (:locator this)
-    )
-
-    #_method
-    (defn #_"Sha256Hash" GetBlocksMessage''get-stop-hash [#_"GetBlocksMessage" this]
-        (:stop-hash this)
     )
 
     #_foreign
@@ -6976,7 +6974,7 @@
     )
 
     #_method
-    (defn #_"void" GetDataMessage''add-transaction-2 [#_"GetDataMessage" this, #_"Sha256Hash" hash]
+    (defn #_"void" GetDataMessage''add-transaction [#_"GetDataMessage" this, #_"Sha256Hash" hash]
         (ListMessage''add-item this, (InventoryItem'new :InventoryItemType'TRANSACTION, hash))
         nil
     )
@@ -7008,8 +7006,8 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (class-ns GetHeadersMessage (§ extends GetBlocksMessage)
-    (defn #_"GetHeadersMessage" GetHeadersMessage'new [#_"Ledger" ledger, #_"List<Sha256Hash>" locator, #_"Sha256Hash" __stopHash]
-        (GetBlocksMessage'new ledger, locator, __stopHash)
+    (defn #_"GetHeadersMessage" GetHeadersMessage'new [#_"Ledger" ledger, #_"List<Sha256Hash>" locator, #_"Sha256Hash" stop]
+        (GetBlocksMessage'new ledger, locator, stop)
     )
 
     #_throws #_[ "ProtocolException" ]
@@ -7068,39 +7066,35 @@
     ;; The main client will never send us more than this number of headers.
     (def #_"int" HeadersMessage'MAX_HEADERS 2000)
 
-    (defn- #_"HeadersMessage" HeadersMessage'init []
-        (hash-map
-            #_"List<Block>" :block-headers nil
-        )
-    )
-
-    #_throws #_[ "ProtocolException" ]
     (defn #_"HeadersMessage" HeadersMessage'new [#_"Ledger" ledger, #_"List<Block>" headers]
-        (let [this (merge (Message'new ledger) (HeadersMessage'init))]
-
-            (assoc this :block-headers headers)
+        (merge (Message'new ledger)
+            (hash-map
+                #_"List<Block>" :block-headers headers
+            )
         )
     )
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"HeadersMessage" HeadersMessage'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload]
-        (let [this (merge (Message'new ledger) (HeadersMessage'init))]
-
-            (let [#_"long" n (Wire'read-var-int payload)]
-                (when (< HeadersMessage'MAX_HEADERS n)
-                    (throw+ (ProtocolException'new (str "Too many headers: " n " vs " HeadersMessage'MAX_HEADERS)))
-                )
-                (§ assoc this :block-headers (ArrayList.))
-                (dotimes [_ n]
-                    (let [#_"Block" header (Block'from-wire ledger, payload)]
-                        (when (Block''has-transactions header)
-                            (throw+ (ProtocolException'new "Block header does not end with a nil byte"))
-                        )
-                        (.add (:block-headers this), header)
+        (let [#_"List<Block>" headers
+                (let [#_"long" n (Wire'read-var-int payload)]
+                    (when (< HeadersMessage'MAX_HEADERS n)
+                        (throw+ (ProtocolException'new (str "Too many headers: " n " vs " HeadersMessage'MAX_HEADERS)))
                     )
-                )
-                this
-            )
+                    (let [headers (ArrayList. n)]
+                        (dotimes [_ n]
+                            (let [#_"Block" header (Block'from-wire ledger, payload)]
+                                (when (Block''has-transactions header)
+                                    (throw+ (ProtocolException'new "Block header does not end with a nil byte"))
+                                )
+                                (.add headers, header)
+                            )
+                        )
+                        headers
+                    )
+                )]
+
+            (HeadersMessage'new ledger, headers)
         )
     )
 
@@ -7165,7 +7159,9 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (class-ns InventoryMessage (§ extends ListMessage)
-    ;;; A hard coded constant in the protocol. ;;
+    ;;;
+     ; A hard coded constant in the protocol.
+     ;;
     (def #_"int" InventoryMessage'MAX_INV_SIZE 50000)
 
     (defn #_"InventoryMessage" InventoryMessage'new [#_"Ledger" ledger]
@@ -7203,7 +7199,7 @@
 
     ;;; Creates a new inv message for the given transactions. ;;
     (defn #_"InventoryMessage" InventoryMessage'with [#_"Transaction..." transactions]
-        (assert-argument (< 0 (alength transactions)))
+        (assert-argument (pos? (alength transactions)))
 
         (let [#_"InventoryMessage" inventory (InventoryMessage'new (:ledger (aget transactions 0)))]
             (doseq [#_"Transaction" tx transactions]
@@ -7687,43 +7683,38 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (class-ns PartialMerkleTree (§ extends Message)
-    (defn- #_"PartialMerkleTree" PartialMerkleTree'init []
-        (hash-map
-            ;; the total number of transactions in the block
-            #_"int" :transaction-count 0
-
-            ;; node-is-parent-of-matched-txid bits
-            #_"byte[]" :matched-child-bits nil
-
-            ;; txids and internal hashes
-            #_"List<Sha256Hash>" :hashes nil
-        )
-    )
-
     ;;;
      ; Constructs a new PMT with the given bit set (little endian) and the raw list of hashes including internal hashes,
      ; taking ownership of the list.
      ;;
-    (defn #_"PartialMerkleTree" PartialMerkleTree'new [#_"Ledger" ledger, #_"byte[]" bits, #_"List<Sha256Hash>" hashes, #_"int" __origTxCount]
-        (let [this (merge (Message'new ledger) (PartialMerkleTree'init))]
+    (defn #_"PartialMerkleTree" PartialMerkleTree'new [#_"Ledger" ledger, #_"byte[]" bits, #_"List<Sha256Hash>" hashes, #_"int" count]
+        (merge (Message'new ledger)
+            (hash-map
+                ;; the total number of transactions in the block
+                #_"int" :transaction-count count
 
-            (assoc this :matched-child-bits bits, :hashes hashes, :transaction-count __origTxCount)
+                ;; txids and internal hashes
+                #_"List<Sha256Hash>" :hashes hashes
+
+                ;; node-is-parent-of-matched-txid bits
+                #_"byte[]" :matched-child-bits bits
+            )
         )
     )
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"PartialMerkleTree" PartialMerkleTree'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload]
-        (let [this (merge (Message'new ledger) (PartialMerkleTree'init))]
-
-            (§ assoc this :transaction-count (int (Wire'read-uint32 payload)))
-            (let [#_"int" n (int (Wire'read-var-int payload))]
-                (§ assoc this :hashes (ArrayList. n))
-                (dotimes [_ n]
-                    (.add (:hashes this), (Wire'read-hash payload))
+        (let [#_"int" count (int (Wire'read-uint32 payload))
+              #_"List<Sha256Hash>" hashes
+                (let [#_"int" n (int (Wire'read-var-int payload)) hashes (ArrayList. n)]
+                    (dotimes [_ n]
+                        (.add hashes, (Wire'read-hash payload))
+                    )
+                    hashes
                 )
-                (§ assoc this :matched-child-bits (Wire'read-byte-array payload))
-                this
-            )
+              #_"byte[]" bits (Wire'read-byte-array payload)]
+
+            (PartialMerkleTree'new ledger, bits, hashes, count)
         )
     )
 
@@ -7761,36 +7752,36 @@
         )
     )
 
-    ;; Based on CPartialMerkleTree::TraverseAndBuild in Bitcoin Core.
-    (defn- #_"void" PartialMerkleTree'traverse-and-build [#_"int" height, #_"int" pos, #_"List<Sha256Hash>" __allLeafHashes, #_"byte[]" __includeBits, #_"List<Boolean>" __matchedChildBits, #_"List<Sha256Hash>" __resultHashes]
-        (§ let [#_"boolean" __parentOfMatch false]
-            ;; Is this node a parent of at least one matched hash?
-            (loop-when-recur [#_"int" p (<< pos height)] (and (< p (<< (inc pos) height)) (< p (.size __allLeafHashes))) [(inc p)]
-                (when (Utils'check-bit-le __includeBits, p)
-                    (§ ass __parentOfMatch true)
-                    (§ break )
-                )
-            )
+    (defn- #_"void" PartialMerkleTree'traverse-and-build [#_"int" height, #_"int" pos, #_"List<Sha256Hash>" leaves, #_"byte[]" __includeBits, #_"List<Boolean>" __bitList, #_"List<Sha256Hash>" hashes]
+        ;; Is this node a parent of at least one matched hash?
+        (let [#_"boolean" parent?
+                (loop-when [#_"int" p (<< pos height)] (and (< p (<< (inc pos) height)) (< p (.size leaves))) => false
+                    (or (Utils'check-bit-le __includeBits, p) (recur (inc p)))
+                )]
             ;; Store as a flag bit.
-            (.add __matchedChildBits, __parentOfMatch)
-            (cond (or (= height 0) (not __parentOfMatch))
-                (do
-                    ;; If at height 0, or nothing interesting below, store hash and stop.
-                    (.add __resultHashes, (PartialMerkleTree'calc-hash height, pos, __allLeafHashes))
-                )
-                :else
-                (do
-                    ;; Otherwise descend into the subtrees.
-                    (let [#_"int" h (dec height) #_"int" p (* pos 2)]
-                        (PartialMerkleTree'traverse-and-build h, p, __allLeafHashes, __includeBits, __matchedChildBits, __resultHashes)
-                        (when (< (inc p) (PartialMerkleTree'get-tree-width (.size __allLeafHashes), h))
-                            (PartialMerkleTree'traverse-and-build h, (inc p), __allLeafHashes, __includeBits, __matchedChildBits, __resultHashes)
-                        )
+            (.add __bitList, parent?)
+            (if (or (zero? height) (not parent?))
+                ;; If at height 0, or nothing interesting below, store hash and stop.
+                (.add hashes, (PartialMerkleTree'calc-hash height, pos, leaves))
+                ;; Otherwise descend into the subtrees.
+                (let [#_"int" h (dec height) #_"int" p (* pos 2)]
+                    (PartialMerkleTree'traverse-and-build h, p, leaves, __includeBits, __bitList, hashes)
+                    (when (< (inc p) (PartialMerkleTree'get-tree-width (.size leaves), h))
+                        (PartialMerkleTree'traverse-and-build h, (inc p), leaves, __includeBits, __bitList, hashes)
                     )
                 )
             )
         )
         nil
+    )
+
+    ;; Helper function to efficiently calculate the number of nodes at given height in the merkle tree.
+    (defn- #_"int" PartialMerkleTree'get-tree-width [#_"int" __transactionCount, #_"int" height]
+        (>> (dec (+ __transactionCount (<< 1 height))) height)
+    )
+
+    (defn- #_"Sha256Hash" PartialMerkleTree'combine-left-right [#_"byte[]" left, #_"byte[]" right]
+        (Sha256Hash'wrap-reversed (Sha256Hash'hash-twice-6 (Wire'reverse-bytes left), 0, 32, (Wire'reverse-bytes right), 0, 32))
     )
 
     (defn- #_"Sha256Hash" PartialMerkleTree'calc-hash [#_"int" height, #_"int" pos, #_"List<Sha256Hash>" hashes]
@@ -7806,69 +7797,51 @@
         )
     )
 
-    ;; Helper function to efficiently calculate the number of nodes at given height in the merkle tree.
-    (defn- #_"int" PartialMerkleTree'get-tree-width [#_"int" __transactionCount, #_"int" height]
-        (>> (dec (+ __transactionCount (<< 1 height))) height)
-    )
-
     ;; Recursive function that traverses tree nodes, consuming the bits and hashes produced by TraverseAndBuild.
     ;; It returns the hash of the respective node.
     #_throws #_[ "VerificationException" ]
     #_method
-    (defn- #_"Sha256Hash" PartialMerkleTree''recursive-extract-hashes [#_"PartialMerkleTree" this, #_"int" height, #_"int" pos, #_"ValuesUsed" used, #_"List<Sha256Hash>" __matchedHashes]
+    (defn- #_"Sha256Hash" PartialMerkleTree''recursive-extract-hashes [#_"PartialMerkleTree" this, #_"int" height, #_"int" pos, #_"ValuesUsed" used, #_"List<Sha256Hash>" hashes]
         ;; overflowed bits array - failure
         (when (<= (* (alength (:matched-child-bits this)) 8) (:bits-used used))
             (throw+ (VerificationException'new "PartialMerkleTree overflowed its bits array"))
         )
-
-        (§ let [#_"boolean" __parentOfMatch (Utils'check-bit-le (:matched-child-bits this), (:bits-used used))]
+        (let [#_"boolean" parent? (Utils'check-bit-le (:matched-child-bits this), (:bits-used used))]
             (§ update used :bits-used inc)
-
             ;; if at height 0, or nothing interesting below, use stored hash and do not descend
-            (cond (or (= height 0) (not __parentOfMatch))
+            (if (or (zero? height) (not parent?))
                 (do
                     ;; overflowed hash array - failure
                     (when (<= (.size (:hashes this)) (:hashes-used used))
                         (throw+ (VerificationException'new "PartialMerkleTree overflowed its hash array"))
                     )
-
                     (let [#_"Sha256Hash" hash (.get (:hashes this), (:hashes-used used))]
                         (§ update used :hashes-used inc)
                         ;; in case of height 0, we have a matched txid
-                        (when (and (= height 0) __parentOfMatch)
-                            (.add __matchedHashes, hash)
+                        (when (and (zero? height) parent?)
+                            (.add hashes, hash)
                         )
-
                         hash
                     )
                 )
-                :else
-                (do
-                    ;; otherwise, descend into the subtrees to extract matched txids and hashes
-                    (let [#_"byte[]" left (Sha256Hash''get-bytes (PartialMerkleTree''recursive-extract-hashes this, (dec height), (* pos 2), used, __matchedHashes))
-                          #_"byte[]" right]
-                        (cond (< (inc (* pos 2)) (PartialMerkleTree'get-tree-width (:transaction-count this), (dec height)))
-                            (do
-                                (§ ass right (Sha256Hash''get-bytes (PartialMerkleTree''recursive-extract-hashes this, (dec height), (inc (* pos 2)), used, __matchedHashes)))
+                ;; otherwise, descend into the subtrees to extract matched txids and hashes
+                (let [#_"int" h (dec height) #_"int" p (* pos 2)
+                      #_"byte[]" left (Sha256Hash''get-bytes (PartialMerkleTree''recursive-extract-hashes this, h, p, used, hashes))
+                      #_"byte[]" right
+                        (if (< (inc p) (PartialMerkleTree'get-tree-width (:transaction-count this), h))
+                            (let [right (Sha256Hash''get-bytes (PartialMerkleTree''recursive-extract-hashes this, h, (inc p), used, hashes))]
                                 (when (Arrays/equals right, left)
                                     (throw+ (VerificationException'new "Invalid merkle tree with duplicated left/right branches"))
                                 )
+                                right
                             )
-                            :else
-                            (do
-                                (§ ass right left)
-                            )
-                        )
-                        ;; and combine them before returning
-                        (PartialMerkleTree'combine-left-right left, right)
-                    )
+                            left
+                        )]
+                    ;; and combine them before returning
+                    (PartialMerkleTree'combine-left-right left, right)
                 )
             )
         )
-    )
-
-    (defn- #_"Sha256Hash" PartialMerkleTree'combine-left-right [#_"byte[]" left, #_"byte[]" right]
-        (Sha256Hash'wrap-reversed (Sha256Hash'hash-twice-6 (Wire'reverse-bytes left), 0, 32, (Wire'reverse-bytes right), 0, 32))
     )
 
     ;;;
@@ -7876,14 +7849,13 @@
      ;
      ; The returned root should be checked against the merkle root contained in the block header for security.
      ;
-     ; @param matchedHashesOut A list which will contain the matched txn (will be cleared).
+     ; @param matches A list which will contain the matched txn (will be cleared).
      ; @return the merkle root of this merkle tree.
-     ; @throws ProtocolException if this partial merkle tree is invalid.
      ;;
     #_throws #_[ "VerificationException" ]
     #_method
-    (defn #_"Sha256Hash" PartialMerkleTree''get-txn-hash-and-merkle-root [#_"PartialMerkleTree" this, #_"List<Sha256Hash>" __matchedHashesOut]
-        (.clear __matchedHashesOut)
+    (defn #_"Sha256Hash" PartialMerkleTree''get-txn-hash-and-merkle-root [#_"PartialMerkleTree" this, #_"List<Sha256Hash>" matches]
+        (.clear matches)
 
         ;; an empty set will not work
         (when (zero? (:transaction-count this))
@@ -7906,7 +7878,7 @@
         (let [#_"int" height (loop-when-recur [h 0] (< 1 (PartialMerkleTree'get-tree-width (:transaction-count this), h)) [(inc h)] => h)
               ;; traverse the partial tree
               #_"ValuesUsed" used (ValuesUsed'new)
-              #_"Sha256Hash" root (PartialMerkleTree''recursive-extract-hashes this, height, 0, used, __matchedHashesOut)]
+              #_"Sha256Hash" root (PartialMerkleTree''recursive-extract-hashes this, height, 0, used, matches)]
             ;; verify that all bits were consumed (except for the padding caused by serializing it as a byte sequence)
             ;; verify that all hashes were consumed
             (when (or (not= (quot (+ (:bits-used used) 7) 8) (alength (:matched-child-bits this))) (not= (:hashes-used used) (.size (:hashes this))))
@@ -7914,11 +7886,6 @@
             )
             root
         )
-    )
-
-    #_method
-    (defn #_"int" PartialMerkleTree''get-transaction-count [#_"PartialMerkleTree" this]
-        (:transaction-count this)
     )
 
     #_foreign
@@ -9072,7 +9039,7 @@
                         )
 
                         (doseq [#_"Sha256Hash" hash __needToRequest]
-                            (GetDataMessage''add-transaction-2 getdata, hash)
+                            (GetDataMessage''add-transaction getdata, hash)
                             (let [#_"GetDataRequest" req (GetDataRequest'new hash, (SettableFuture/create))]
                                 (.add futures, (:future req))
                                 (.add (:get-data-futures this), req)
@@ -9516,7 +9483,7 @@
         ;; This does not need to be locked.
         (log/info (str "Request to fetch peer mempool tx  " hash))
         (let [#_"GetDataMessage" getdata (GetDataMessage'new (:ledger this))]
-            (GetDataMessage''add-transaction-2 getdata, hash)
+            (GetDataMessage''add-transaction getdata, hash)
             (Peer''send-single-get-data this, getdata)
         )
     )
@@ -25844,7 +25811,7 @@
         (sync (:b-keychain-lock this)
             (let [#_"BloomFilter" filter (BloomFilter'new nil, size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)]
                 (doseq [#_"ECKey" key (.values (:hash-to-keys this))]
-                    (BloomFilter''insert-e filter, key)
+                    (BloomFilter''insert-key filter, key)
                 )
                 filter
             )
@@ -28086,8 +28053,8 @@
         (sync (:d-keychain-lock this)
             (let [#_"BloomFilter" filter (BloomFilter'new nil, size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)]
                 (doseq [#_"Map.Entry<ByteString, RedeemData>" entry (.entrySet (:married-keys-redeem-data this))]
-                    (BloomFilter''insert-b filter, (.toByteArray (.getKey entry)))
-                    (BloomFilter''insert-b filter, (Script''get-program (:redeem-script (.getValue entry))))
+                    (BloomFilter''insert-data filter, (.toByteArray (.getKey entry)))
+                    (BloomFilter''insert-data filter, (Script''get-program (:redeem-script (.getValue entry))))
                 )
                 filter
             )
@@ -31918,7 +31885,7 @@
         (try
             (let [#_"BloomFilter" filter (KeyChainGroup''get-bloom-filter-4 (:key-chain-group this), size, rate, tweak)]
                 (doseq [#_"TransactionOutPoint" point (:bloom-out-points this)]
-                    (BloomFilter''insert-b filter, (Message''to-bytes point, TransactionOutPoint''to-wire))
+                    (BloomFilter''insert-data filter, (Message''to-bytes point, TransactionOutPoint''to-wire))
                 )
                 filter
             )
