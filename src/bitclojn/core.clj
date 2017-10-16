@@ -210,7 +210,7 @@
 (declare MemoryBlockStore'new)
 (declare MemoryFullPrunedBlockStore'new)
 (declare MemoryPoolMessage'new MemoryPoolMessage''to-wire)
-(declare Message''to-bytes Wire'read-byte-array Wire'write-byte-array Wire'read-byte Wire'read-bytes Wire'read-hash Wire'read-int64 Wire'read-string Wire'read-uint32 Wire'read-uint64 Wire'read-var-int Message'MAX_SIZE Message'new)
+(declare Message'MAX_SIZE Message'new Message''to-bytes Wire'read-uint32 Wire'write-uint32 Wire'read-int64 Wire'write-int64 Wire'read-uint64 Wire'write-uint64 Wire'read-var-int Wire'read-byte Wire'read-bytes Wire'read-byte-array Wire'write-byte-array Wire'read-string Wire'write-string Wire'read-hash Wire'write-hash)
 (declare MessageWriteTarget'''close-connection MessageWriteTarget'''write-bytes)
 (declare MissingPrivateKeyException'new)
 (declare MissingSigResolutionSigner'new)
@@ -238,7 +238,7 @@
 (declare PBKDF2SHA512'f PBKDF2SHA512'derive)
 (declare PartialMerkleTree''get-transaction-count PartialMerkleTree''get-txn-hash-and-merkle-root PartialMerkleTree''recursive-extract-hashes PartialMerkleTree'build-from-leaves PartialMerkleTree'calc-hash PartialMerkleTree'combine-left-right PartialMerkleTree'get-tree-width PartialMerkleTree'init PartialMerkleTree'from-wire PartialMerkleTree''to-wire PartialMerkleTree'new PartialMerkleTree'traverse-and-build)
 (declare Peer''add-blocks-downloaded-event-listener-2 Peer''add-blocks-downloaded-event-listener-3 Peer''add-chain-download-started-event-listener-2 Peer''add-chain-download-started-event-listener-3 Peer''add-connected-event-listener-2 Peer''add-connected-event-listener-3 Peer''add-disconnected-event-listener-2 Peer''add-disconnected-event-listener-3 Peer''add-get-data-event-listener-2 Peer''add-get-data-event-listener-3 Peer''add-on-transaction-broadcast-listener-2 Peer''add-on-transaction-broadcast-listener-3 Peer''add-ping-time-data Peer''add-pre-message-received-event-listener-2 Peer''add-pre-message-received-event-listener-3 Peer''add-wallet Peer''block-chain-download-locked Peer''check-for-filter-exhaustion Peer''download-dependencies Peer''download-dependencies-internal Peer''end-filtered-block Peer''get-addr Peer''get-best-height Peer''get-block Peer''get-bloom-filter-1 Peer''get-connection-open-future Peer''get-last-ping-time Peer''get-peer-block-height-difference Peer''get-peer-mempool-transaction Peer''get-peer-version-message Peer''get-ping-time Peer''get-version-handshake-future Peer''get-version-message Peer''invoke-on-blocks-downloaded Peer''is-download-data Peer''is-download-tx-dependencies Peer''is-not-found-message-supported Peer''maybe-handle-requested-data Peer''maybe-restart-chain-download Peer''ping-1 Peer''ping-2 Peer''process-address-message Peer''process-alert Peer''process-block Peer''process-get-data Peer''process-headers Peer''process-inv Peer''process-not-found-message Peer''process-ping Peer''process-pong Peer''process-transaction Peer''process-version-ack Peer''process-version-message Peer''remove-blocks-downloaded-event-listener Peer''remove-chain-download-started-event-listener Peer''remove-connected-event-listener Peer''remove-disconnected-event-listener Peer''remove-get-data-event-listener Peer''remove-on-transaction-broadcast-listener Peer''remove-pre-message-received-event-listener Peer''remove-wallet Peer''send-single-get-data Peer''set-bloom-filter-2 Peer''set-bloom-filter-3 Peer''set-download-data Peer''set-download-parameters Peer''set-download-tx-dependencies-b Peer''set-download-tx-dependencies-i Peer''set-min-protocol-version Peer''start-block-chain-download Peer''start-filtered-block Peer''version-handshake-complete Peer'PING_MOVING_AVERAGE_WINDOW Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT Peer'new)
-(declare PeerAddress''to-socket-address PeerAddress'MESSAGE_SIZE PeerAddress'init PeerAddress'loopback PeerAddress'from-socket-address PeerAddress'from-host-port PeerAddress'from-inet-port PeerAddress'from-wire PeerAddress''to-wire)
+(declare PeerAddress''to-socket-address PeerAddress'init PeerAddress'loopback PeerAddress'from-socket-address PeerAddress'from-host-port PeerAddress'from-inet-port PeerAddress'from-wire PeerAddress''to-wire)
 (declare PeerConnectedEventListener'''on-peer-connected)
 (declare PeerDisconnectedEventListener'''on-peer-disconnected)
 (declare PeerDiscovery'''get-peers PeerDiscovery'''shutdown)
@@ -250,8 +250,8 @@
 (declare PeerStartupListener'new)
 (declare PendingConnection'new)
 (declare PendingPing''complete PendingPing'new)
-(declare Ping''get-nonce Ping''has-nonce Ping'init Ping'new-0 Ping'new-1 Ping'from-wire Ping''to-wire)
-(declare Pong''get-nonce Pong'init Pong'new Pong'from-wire Pong''to-wire)
+(declare Ping'new Ping'from-wire Ping''to-wire)
+(declare Pong'new Pong'from-wire Pong''to-wire)
 (declare PoolType'enum-set)
 (declare PreMessageReceivedEventListener'''on-pre-message-received)
 (declare ProposedTransaction'new)
@@ -262,7 +262,7 @@
 (declare RawKeyBytes'new)
 (declare RedeemData''get-full-key RedeemData'new RedeemData'of)
 (declare RejectCode'enum-map RejectCode'for-code)
-(declare RejectMessage''get-reason-code RejectMessage''get-reason-string RejectMessage''get-rejected-message RejectMessage''get-rejected-object-hash RejectMessage'init RejectMessage'from-wire RejectMessage''to-wire RejectMessage'new)
+(declare RejectMessage'from-wire RejectMessage''to-wire RejectMessage'new)
 (declare RejectedTransactionException'new)
 (declare ReorganizeListener'''reorganize)
 (declare RiskAnalysis''analyze RiskAnalysis''analyze-is-final RiskAnalysis''analyze-is-standard RiskAnalysis'MIN_ANALYSIS_NONDUST_OUTPUT RiskAnalysis'is-input-standard RiskAnalysis'is-output-standard RiskAnalysis'is-standard RiskAnalysis'new)
@@ -313,7 +313,7 @@
 (declare UTXO'new)
 (declare UnknownMessage'from-wire)
 (declare UserThread'WARNING_THRESHOLD UserThread'new)
-(declare Utils'BITCOIN_SIGNED_MESSAGE_HEADER Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES Utils'BIT_MASK Utils'HEX Utils'SPACE_JOINER Time'UTC Utils'big-integer-to-bytes Utils'check-bit-le Time'millis Time'seconds Time'format-date Time'format-millis Utils'decode-compact-bits Wire'decode-mpi Utils'encode-compact-bits Wire'encode-mpi Utils'format-message-for-signing Wire'int64-to-byte-stream-le Utils'max-of-most-freq Time'now Utils'parse-as-hex-or-base58 Wire'read-int64 Wire'read-uint32 Wire'read-uint32be Wire'reverse-bytes Utils'set-bit-le Utils'sha256hash160 Utils'sleep Wire'uint32-to-byte-array-be Wire'uint32-to-byte-array-le Wire'write-uint32 Wire'uint64-to-byte-array-le Wire'write-uint64)
+(declare Utils'SPACE_JOINER Wire'bget-uint16 Wire'bget-uint32 Wire'bget-int64 Wire'bget-uint16be Wire'bget-uint32be Wire'bset-uint32be Wire'bset-uint32 Wire'bset-uint64 Utils'big-integer-to-bytes Wire'reverse-bytes Utils'sha256hash160 Wire'decode-mpi Wire'encode-mpi Utils'decode-compact-bits Utils'encode-compact-bits Time'now Time'millis Time'seconds Time'UTC Time'format-date Time'format-millis Time'format-seconds Time'sleep Utils'HEX Utils'parse-as-hex-or-base58 Utils'BITCOIN_SIGNED_MESSAGE_HEADER Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES Utils'format-message-for-signing Utils'BIT_MASK Utils'check-bit-le Utils'set-bit-le Utils'max-of-most-freq)
 (declare ValuesUsed'new)
 (declare VarInt''encode VarInt'init VarInt'new VarInt'parse VarInt'from-wire VarInt'size-of)
 (declare VerificationException'new)
@@ -710,11 +710,75 @@
  ;;
 #_stateless
 (class-ns Utils
-    ;;; The string that prefixes all text messages signed using Bitcoin keys. ;;
-    (def #_"String" Utils'BITCOIN_SIGNED_MESSAGE_HEADER "Bitcoin Signed Message:\n")
-    (def #_"byte[]" Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES (.getBytes Utils'BITCOIN_SIGNED_MESSAGE_HEADER, Charsets/UTF_8))
-
     (def #_"Joiner" Utils'SPACE_JOINER (Joiner/on " "))
+
+    ;;; Parse 2 bytes from the byte array (starting at the offset) as unsigned 16-bit integer in little endian format. ;;
+    (defn #_"int" Wire'bget-uint16 [#_"byte[]" bytes, #_"int" offset]
+        (| (& 0xff (aget bytes offset))
+       (<< (& 0xff (aget bytes (inc offset))) 8))
+    )
+
+    ;;; Parse 4 bytes from the byte array (starting at the offset) as unsigned 32-bit integer in little endian format. ;;
+    (defn #_"long" Wire'bget-uint32 [#_"byte[]" bytes, #_"int" offset]
+        (| (& 0xff (aget bytes offset))
+       (<< (& 0xff (aget bytes (inc offset))) 8)
+       (<< (& 0xff (aget bytes (+ offset 2))) 16)
+       (<< (& 0xff (aget bytes (+ offset 3))) 24))
+    )
+
+    ;;; Parse 8 bytes from the byte array (starting at the offset) as signed 64-bit integer in little endian format. ;;
+    (defn #_"long" Wire'bget-int64 [#_"byte[]" bytes, #_"int" offset]
+        (| (& 0xff (aget bytes offset))
+       (<< (& 0xff (aget bytes (inc offset))) 8)
+       (<< (& 0xff (aget bytes (+ offset 2))) 16)
+       (<< (& 0xff (aget bytes (+ offset 3))) 24)
+       (<< (& 0xff (aget bytes (+ offset 4))) 32)
+       (<< (& 0xff (aget bytes (+ offset 5))) 40)
+       (<< (& 0xff (aget bytes (+ offset 6))) 48)
+       (<< (& 0xff (aget bytes (+ offset 7))) 56))
+    )
+
+    ;;; Parse 2 bytes from the byte array (starting at the offset) as unsigned 16-bit integer in big endian format. ;;
+    (defn #_"int" Wire'bget-uint16be [#_"byte[]" bytes, #_"int" offset]
+        (| (<< (& 0xff (aget bytes offset)) 8)
+               (& 0xff (aget bytes (inc offset))))
+    )
+
+    ;;; Parse 4 bytes from the byte array (starting at the offset) as unsigned 32-bit integer in big endian format. ;;
+    (defn #_"long" Wire'bget-uint32be [#_"byte[]" bytes, #_"int" offset]
+        (| (<< (& 0xff (aget bytes offset)) 24)
+           (<< (& 0xff (aget bytes (inc offset))) 16)
+           (<< (& 0xff (aget bytes (+ offset 2))) 8)
+               (& 0xff (aget bytes (+ offset 3))))
+    )
+
+    (defn #_"void" Wire'bset-uint32be [#_"long" val, #_"byte[]" out, #_"int" offset]
+        (aset out offset (byte (& 0xff (>> val 24))))
+        (aset out (inc offset) (byte (& 0xff (>> val 16))))
+        (aset out (+ offset 2) (byte (& 0xff (>> val 8))))
+        (aset out (+ offset 3) (byte (& 0xff val)))
+        nil
+    )
+
+    (defn #_"void" Wire'bset-uint32 [#_"long" val, #_"byte[]" out, #_"int" offset]
+        (aset out offset (byte (& 0xff val)))
+        (aset out (inc offset) (byte (& 0xff (>> val 8))))
+        (aset out (+ offset 2) (byte (& 0xff (>> val 16))))
+        (aset out (+ offset 3) (byte (& 0xff (>> val 24))))
+        nil
+    )
+
+    (defn #_"void" Wire'bset-uint64 [#_"long" val, #_"byte[]" out, #_"int" offset]
+        (aset out offset (byte (& 0xff val)))
+        (aset out (inc offset) (byte (& 0xff (>> val 8))))
+        (aset out (+ offset 2) (byte (& 0xff (>> val 16))))
+        (aset out (+ offset 3) (byte (& 0xff (>> val 24))))
+        (aset out (+ offset 4) (byte (& 0xff (>> val 32))))
+        (aset out (+ offset 5) (byte (& 0xff (>> val 40))))
+        (aset out (+ offset 6) (byte (& 0xff (>> val 48))))
+        (aset out (+ offset 7) (byte (& 0xff (>> val 56))))
+        nil
+    )
 
     ;;;
      ; The regular {@link java.math.BigInteger#toByteArray()} includes the sign bit of the number and might result
@@ -733,86 +797,17 @@
         (assert-argument (<= 0 (.signum i)), "i must be positive or zero")
         (assert-argument (< 0 m), "numBytes must be positive")
 
-        (let [#_"byte[]" src (.toByteArray i)
-              #_"byte[]" dest (byte-array m)
-              #_"boolean" __isFirstByteOnlyForSign (zero? (aget src 0))
-              #_"int" n (if __isFirstByteOnlyForSign (dec (alength src)) (alength src))]
+        (let [#_"byte[]" a (.toByteArray i)
+              #_"boolean" sign? (zero? (aget a 0))
+              #_"int" n (- (alength a) (if sign? 1 0))]
             (assert-argument (<= n m), (str "The given number does not fit in " m))
 
-            (System/arraycopy src, (if __isFirstByteOnlyForSign 1 0), dest, (- m n), n)
-            dest
-        )
-    )
-
-    (defn #_"void" Wire'uint32-to-byte-array-be [#_"long" val, #_"byte[]" out, #_"int" offset]
-        (aset out offset (byte (& 0xff (>> val 24))))
-        (aset out (inc offset) (byte (& 0xff (>> val 16))))
-        (aset out (+ offset 2) (byte (& 0xff (>> val 8))))
-        (aset out (+ offset 3) (byte (& 0xff val)))
-        nil
-    )
-
-    (defn #_"void" Wire'uint32-to-byte-array-le [#_"long" val, #_"byte[]" out, #_"int" offset]
-        (aset out offset (byte (& 0xff val)))
-        (aset out (inc offset) (byte (& 0xff (>> val 8))))
-        (aset out (+ offset 2) (byte (& 0xff (>> val 16))))
-        (aset out (+ offset 3) (byte (& 0xff (>> val 24))))
-        nil
-    )
-
-    (defn #_"void" Wire'uint64-to-byte-array-le [#_"long" val, #_"byte[]" out, #_"int" offset]
-        (aset out offset (byte (& 0xff val)))
-        (aset out (inc offset) (byte (& 0xff (>> val 8))))
-        (aset out (+ offset 2) (byte (& 0xff (>> val 16))))
-        (aset out (+ offset 3) (byte (& 0xff (>> val 24))))
-        (aset out (+ offset 4) (byte (& 0xff (>> val 32))))
-        (aset out (+ offset 5) (byte (& 0xff (>> val 40))))
-        (aset out (+ offset 6) (byte (& 0xff (>> val 48))))
-        (aset out (+ offset 7) (byte (& 0xff (>> val 56))))
-        nil
-    )
-
-    (defn #_"void" Wire'write-uint32 [#_"long" val, #_"ByteArrayOutputStream" baos]
-        (.write baos, (int (& 0xff val)))
-        (.write baos, (int (& 0xff (>> val 8))))
-        (.write baos, (int (& 0xff (>> val 16))))
-        (.write baos, (int (& 0xff (>> val 24))))
-        nil
-    )
-
-    (defn #_"void" Wire'int64-to-byte-stream-le [#_"long" val, #_"ByteArrayOutputStream" baos]
-        (.write baos, (int (& 0xff val)))
-        (.write baos, (int (& 0xff (>> val 8))))
-        (.write baos, (int (& 0xff (>> val 16))))
-        (.write baos, (int (& 0xff (>> val 24))))
-        (.write baos, (int (& 0xff (>> val 32))))
-        (.write baos, (int (& 0xff (>> val 40))))
-        (.write baos, (int (& 0xff (>> val 48))))
-        (.write baos, (int (& 0xff (>> val 56))))
-        nil
-    )
-
-    (defn #_"void" Wire'write-uint64 [#_"BigInteger" val, #_"ByteArrayOutputStream" baos]
-        (let [#_"byte[]" bytes (.toByteArray val)]
-            (when (< 8 (alength bytes))
-                (throw (RuntimeException. "Input too large to encode into a uint64"))
-            )
-            (let [bytes (Wire'reverse-bytes bytes)]
-                (.write baos, bytes)
-                (when (< (alength bytes) 8)
-                    (dotimes [_ (- 8 (alength bytes))]
-                        (.write baos, 0)
-                    )
-                )
+            (let [#_"byte[]" bytes (byte-array m)]
+                (System/arraycopy a, (if sign? 1 0), bytes, (- m n), n)
+                bytes
             )
         )
-        nil
     )
-
-    ;;;
-     ; Hex encoding used throughout the framework.  Use with HEX.encode(byte[]) or HEX.decode(CharSequence).
-     ;;
-    (def #_"BaseEncoding" Utils'HEX (.lowerCase (BaseEncoding/base16)))
 
     ;;;
      ; Returns a copy of the given byte array in reverse order.
@@ -826,26 +821,6 @@
             )
             reverse
         )
-    )
-
-    ;;; Parse 2 bytes from the byte array (starting at the offset) as unsigned 16-bit integer in little endian format. ;;
-    (defn #_"long" Wire'read-uint16 [#_"byte[]" bytes, #_"int" offset]
-        (| (& 0xff (aget bytes offset)) (<< (& 0xff (aget bytes (inc offset))) 8))
-    )
-
-    ;;; Parse 4 bytes from the byte array (starting at the offset) as unsigned 32-bit integer in little endian format. ;;
-    (defn #_"long" Wire'read-uint32 [#_"byte[]" bytes, #_"int" offset]
-        (| (& 0xff (aget bytes offset)) (<< (& 0xff (aget bytes (inc offset))) 8) (<< (& 0xff (aget bytes (+ offset 2))) 16) (<< (& 0xff (aget bytes (+ offset 3))) 24))
-    )
-
-    ;;; Parse 8 bytes from the byte array (starting at the offset) as signed 64-bit integer in little endian format. ;;
-    (defn #_"long" Wire'read-int64 [#_"byte[]" bytes, #_"int" offset]
-        (| (& 0xff (aget bytes offset)) (<< (& 0xff (aget bytes (inc offset))) 8) (<< (& 0xff (aget bytes (+ offset 2))) 16) (<< (& 0xff (aget bytes (+ offset 3))) 24) (<< (& 0xff (aget bytes (+ offset 4))) 32) (<< (& 0xff (aget bytes (+ offset 5))) 40) (<< (& 0xff (aget bytes (+ offset 6))) 48) (<< (& 0xff (aget bytes (+ offset 7))) 56))
-    )
-
-    ;;; Parse 4 bytes from the byte array (starting at the offset) as unsigned 32-bit integer in big endian format. ;;
-    (defn #_"long" Wire'read-uint32be [#_"byte[]" bytes, #_"int" offset]
-        (| (<< (& 0xff (aget bytes offset)) 24) (<< (& 0xff (aget bytes (inc offset))) 16) (<< (& 0xff (aget bytes (+ offset 2))) 8) (& 0xff (aget bytes (+ offset 3))))
     )
 
     ;;;
@@ -871,7 +846,7 @@
     (defn #_"BigInteger" Wire'decode-mpi [#_"byte[]" mpi, #_"boolean" len?]
         (let [#_"byte[]" bytes
                 (when' len? => mpi
-                    (let [#_"int" n (int (Wire'read-uint32be mpi, 0))
+                    (let [#_"int" n (int (Wire'bget-uint32be mpi, 0))
                           bytes (byte-array n) _ (System/arraycopy mpi, 4, bytes, 0, n)]
                         bytes
                     )
@@ -904,7 +879,7 @@
                 (if len?
                     (let [#_"byte[]" bytes (byte-array (+ n 4))]
                         (System/arraycopy array, 0, bytes, (+ (- n m) 3), m)
-                        (Wire'uint32-to-byte-array-be n, bytes, 0)
+                        (Wire'bset-uint32be n, bytes, 0)
                         (when (neg? i)
                             (aset bytes 4 (| (aget bytes 4) 0x80))
                         )
@@ -1021,6 +996,19 @@
     )
 
     ;;;
+     ; Sleep for a span of time.
+     ;;
+    (defn #_"void" Time'sleep [#_"long" millis]
+        (Uninterruptibles/sleepUninterruptibly millis, TimeUnit/MILLISECONDS)
+        nil
+    )
+
+    ;;;
+     ; Hex encoding used throughout the framework.  Use with HEX.encode(byte[]) or HEX.decode(CharSequence).
+     ;;
+    (def #_"BaseEncoding" Utils'HEX (.lowerCase (BaseEncoding/base16)))
+
+    ;;;
      ; Attempts to parse the given string as arbitrary-length hex or base58 and then return the results,
      ; or null if neither parse was successful.
      ;;
@@ -1040,6 +1028,12 @@
     )
 
     ;;;
+     ; The string that prefixes all text messages signed using Bitcoin keys.
+     ;;
+    (def #_"String" Utils'BITCOIN_SIGNED_MESSAGE_HEADER "Bitcoin Signed Message:\n")
+    (def #_"byte[]" Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES (.getBytes Utils'BITCOIN_SIGNED_MESSAGE_HEADER, Charsets/UTF_8))
+
+    ;;;
      ; Given a textual message, returns a byte buffer formatted as follows:
      ;
      ; <tt>[24] "Bitcoin Signed Message:\n" [message.length as a varint] message</tt>.
@@ -1048,10 +1042,8 @@
         (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
             (.write baos, (alength Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES))
             (.write baos, Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES)
-            (let [#_"byte[]" bytes (.getBytes message, Charsets/UTF_8)]
-                (Wire'write-byte-array bytes, baos)
-                (.toByteArray baos)
-            )
+            (Wire'write-string message, baos)
+            (.toByteArray baos)
         )
     )
 
@@ -1066,12 +1058,6 @@
     ;;; Sets the given bit in data to one, using little endian (not the same as Java native big endian). ;;
     (defn #_"void" Utils'set-bit-le [#_"byte[]" data, #_"int" index]
         (aset data (>>> index 3) (| (aget data (>>> index 3)) (aget Utils'BIT_MASK (& 7 index))))
-        nil
-    )
-
-    ;;; Sleep for a span of time. ;;
-    (defn #_"void" Utils'sleep [#_"long" millis]
-        (Uninterruptibles/sleepUninterruptibly millis, TimeUnit/MILLISECONDS)
         nil
     )
 
@@ -3079,19 +3065,27 @@
     (defn #_"long" Wire'read-uint32 [#_"ByteBuffer" payload]
         (try
             (let [#_"byte[]" bytes (byte-array 4) _ (.get payload, bytes)]
-                (Wire'read-uint32 bytes, 0)
+                (Wire'bget-uint32 bytes, 0)
             )
             (catch BufferUnderflowException e
                 (throw+ (ProtocolException'new) e)
             )
         )
+    )
+
+    (defn #_"void" Wire'write-uint32 [#_"long" val, #_"ByteArrayOutputStream" baos]
+        (.write baos, (int (& 0xff val)))
+        (.write baos, (int (& 0xff (>> val 8))))
+        (.write baos, (int (& 0xff (>> val 16))))
+        (.write baos, (int (& 0xff (>> val 24))))
+        nil
     )
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"long" Wire'read-int64 [#_"ByteBuffer" payload]
         (try
             (let [#_"byte[]" bytes (byte-array 8) _ (.get payload, bytes)]
-                (Wire'read-int64 bytes, 0)
+                (Wire'bget-int64 bytes, 0)
             )
             (catch BufferUnderflowException e
                 (throw+ (ProtocolException'new) e)
@@ -3099,10 +3093,39 @@
         )
     )
 
+    (defn #_"void" Wire'write-int64 [#_"long" val, #_"ByteArrayOutputStream" baos]
+        (.write baos, (int (& 0xff val)))
+        (.write baos, (int (& 0xff (>> val 8))))
+        (.write baos, (int (& 0xff (>> val 16))))
+        (.write baos, (int (& 0xff (>> val 24))))
+        (.write baos, (int (& 0xff (>> val 32))))
+        (.write baos, (int (& 0xff (>> val 40))))
+        (.write baos, (int (& 0xff (>> val 48))))
+        (.write baos, (int (& 0xff (>> val 56))))
+        nil
+    )
+
     #_throws #_[ "ProtocolException" ]
     (defn #_"BigInteger" Wire'read-uint64 [#_"ByteBuffer" payload]
         ;; Java does not have an unsigned 64 bit type. So scrape it off the wire then flip.
         (BigInteger. (Wire'reverse-bytes (Wire'read-bytes payload, 8)))
+    )
+
+    (defn #_"void" Wire'write-uint64 [#_"BigInteger" val, #_"ByteArrayOutputStream" baos]
+        (let [#_"byte[]" bytes (.toByteArray val)]
+            (when (< 8 (alength bytes))
+                (throw (RuntimeException. "Input too large to encode into a uint64"))
+            )
+            (let [bytes (Wire'reverse-bytes bytes)]
+                (.write baos, bytes)
+                (when (< (alength bytes) 8)
+                    (dotimes [_ (- 8 (alength bytes))]
+                        (.write baos, 0)
+                    )
+                )
+            )
+        )
+        nil
     )
 
     #_throws #_[ "ProtocolException" ]
@@ -3159,11 +3182,21 @@
         (String. (Wire'read-byte-array payload), Charsets/UTF_8)
     )
 
+    (defn #_"void" Wire'write-string [#_"String" string, #_"ByteArrayOutputStream" baos]
+        (Wire'write-byte-array (.getBytes string, Charsets/UTF_8), baos)
+        nil
+    )
+
     #_throws #_[ "ProtocolException" ]
     (defn #_"Sha256Hash" Wire'read-hash [#_"ByteBuffer" payload]
         ;; We have to flip it around, as it's been read off the wire in little endian.
         ;; Not the most efficient way to do this but the clearest.
         (Sha256Hash'wrap-reversed (Wire'read-bytes payload, 32))
+    )
+
+    (defn #_"void" Wire'write-hash [#_"Sha256Hash" hash, #_"ByteArrayOutputStream" baos]
+        (.write baos, (Sha256Hash''get-reversed-bytes hash))
+        nil
     )
 )
 
@@ -3813,7 +3846,7 @@
               ;; The command is a NUL terminated string, unless the command fills all twelve bytes, in which case the termination is implicit.
               #_"int" n Wire'COMMAND_LEN #_"int" i (loop-when-recur [i 0] (and (< i n) (not= (aget header i) 0)) [(inc i)] => i)
               #_"byte[]" command (byte-array i) _ (System/arraycopy header, 0, command, 0, i)
-              #_"int" size (int (Wire'read-uint32 header, n))]
+              #_"int" size (int (Wire'bget-uint32 header, n))]
             (when-not (<= 0 size Message'MAX_SIZE)
                 (throw+ (ProtocolException'new (str "Message size too large: " size)))
             )
@@ -3843,7 +3876,7 @@
      ;;
     (defn #_"void" Wire'serialize-4 [#_"Ledger" ledger, #_"String" name, #_"byte[]" message, #_"ByteArrayOutputStream" baos]
         (let [#_"byte[]" header (byte-array (+ 4 Wire'COMMAND_LEN 4 4))] ;; checksum
-            (Wire'uint32-to-byte-array-be (:packet-magic ledger), header, 0)
+            (Wire'bset-uint32be (:packet-magic ledger), header, 0)
 
             ;; The header array is initialized to zero by Java so we don't have to worry
             ;; about NULL terminating the string here.
@@ -3851,7 +3884,7 @@
                 (aset header (+ 4 i) (byte (& (.codePointAt name, i) 0xff)))
             )
 
-            (Wire'uint32-to-byte-array-le (alength message), header, (+ 4 Wire'COMMAND_LEN))
+            (Wire'bset-uint32 (alength message), header, (+ 4 Wire'COMMAND_LEN))
 
             (let [#_"byte[]" hash (Sha256Hash'hash-twice message)]
                 (System/arraycopy hash, 0, header, (+ 4 Wire'COMMAND_LEN 4), 4)
@@ -9439,7 +9472,7 @@
                                 )
 
                                 (when __pingAfterGetData
-                                    (PeerSocketHandler''send-message this, (Ping'new-1 (:ledger this), (long (* (Math/random) Long/MAX_VALUE))), Ping''to-wire)
+                                    (PeerSocketHandler''send-message this, (Ping'new (:ledger this), (long (* (Math/random) Long/MAX_VALUE))), Ping''to-wire)
                                 )
                             )
                         )
@@ -9725,7 +9758,7 @@
 
             (let [#_"PendingPing" pending (PendingPing'new this, nonce)]
                 (.add (:pending-pings this), pending)
-                (PeerSocketHandler''send-message this, (Ping'new-1 (:ledger this), (:nonce pending)), Ping''to-wire)
+                (PeerSocketHandler''send-message this, (Ping'new (:ledger this), (:nonce pending)), Ping''to-wire)
 
                 (:future pending)
             )
@@ -9761,8 +9794,8 @@
 
     #_method
     (defn- #_"void" Peer''process-ping [#_"Peer" this, #_"Ping" m]
-        (when (Ping''has-nonce m)
-            (PeerSocketHandler''send-message this, (Pong'new (:ledger this), (Ping''get-nonce m)), Pong''to-wire)
+        (when (some? (:nonce m))
+            (PeerSocketHandler''send-message this, (Pong'new (:ledger this), (:nonce m)), Pong''to-wire)
         )
         nil
     )
@@ -9771,7 +9804,7 @@
     (defn #_"void" Peer''process-pong [#_"Peer" this, #_"Pong" m]
         ;; Iterates over a snapshot of the list, so we can run unlocked here.
         (§ doseq [#_"PendingPing" ping (:pending-pings this)]
-            (when (= (Pong''get-nonce m) (:nonce ping))
+            (when (= (:nonce m) (:nonce ping))
                 (.remove (:pending-pings this), ping)
                 ;; This line may trigger an event listener that re-runs ping().
                 (PendingPing''complete ping)
@@ -9940,7 +9973,7 @@
                                 ;; TODO: This bizarre ping-after-getdata hack probably isn't necessary.
                                 ;; It's to ensure we know when the end of a filtered block stream of txns is, but we should just be
                                 ;; able to match txns with the merkleblock.  Ask Matt why it's written this way.
-                                (PeerSocketHandler''send-message this, (Ping'new-1 (:ledger this), (long (* (Math/random) Long/MAX_VALUE))), Ping''to-wire)
+                                (PeerSocketHandler''send-message this, (Ping'new (:ledger this), (long (* (Math/random) Long/MAX_VALUE))), Ping''to-wire)
                             )
                         ), Threading'SAME_THREAD
                     )
@@ -10008,68 +10041,13 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (class-ns PeerAddress (§ extends ChildMessage)
-    (def #_"int" PeerAddress'MESSAGE_SIZE 30)
-
     (defn- #_"PeerAddress" PeerAddress'init []
         (hash-map
+            #_"long" :timestamp 0
+            #_"BigInteger" :services nil
             #_"InetAddress" :inet-addr nil
             #_"String" :hostname nil ;; Used for .onion addresses.
             #_"int" :port 0
-            #_"BigInteger" :services nil
-            #_"long" :timestamp 0
-        )
-    )
-
-    ;;;
-     ; Construct a peer address from a serialized payload.
-     ;;
-    #_throws #_[ "ProtocolException" ]
-    (defn #_"PeerAddress" PeerAddress'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload, #_"Message" parent]
-        (let [this (merge (ChildMessage'new ledger, parent) (PeerAddress'init))]
-
-            ;; Format of a serialized address:
-            ;;   uint32 timestamp
-            ;;   uint64 services (flags determining what the node can do)
-            ;;   16 bytes ip address
-            ;;   2 bytes port num
-            (§ assoc this :timestamp (Wire'read-uint32 payload))
-            (§ assoc this :services (Wire'read-uint64 payload))
-            (let [#_"byte[]" bytes (Wire'read-bytes payload, 16)]
-                (try
-                    (§ assoc this :inet-addr (InetAddress/getByAddress bytes))
-                    (catch UnknownHostException e
-                        (throw (RuntimeException. e)) ;; Cannot happen.
-                    )
-                )
-                (§ assoc this :port (| (<< (& 0xff (.get payload)) 8) (& 0xff (.get payload))))
-                this
-            )
-        )
-    )
-
-    #_method
-    (defn PeerAddress''to-wire
-        (#_"String" [] nil)
-        (#_"void" [#_"PeerAddress" this, #_"ByteArrayOutputStream" baos]
-            ;; TODO: This appears to be dynamic because the client only ever sends out it's own address so assumes itself
-            ;; to be up.  For a fuller implementation this needs to be dynamic only if the address refers to this client.
-            (Wire'write-uint32 (int (Time'seconds)), baos)
-            (Wire'write-uint64 (:services this), baos) ;; nServices.
-            ;; Java does not provide any utility to map an IPv4 address into IPv6 space, so we have to do it by hand.
-            (let [#_"byte[]" bytes (.getAddress (:inet-addr this))
-                bytes (when' (= (alength bytes) 4) => bytes
-                        (let [#_"byte[]" v6addr (byte-array 16) _ (System/arraycopy bytes, 0, v6addr, 12, 4)]
-                            (aset v6addr 10 (byte 0xff))
-                            (aset v6addr 11 (byte 0xff))
-                            v6addr
-                        )
-                    )]
-                (.write baos, bytes)
-                ;; And write out the port.  Unlike the rest of the protocol, address and port is in big endian byte order.
-                (.write baos, (byte (& 0xff (>> (:port this) 8))))
-                (.write baos, (byte (& 0xff (:port this))))
-            )
-            nil
         )
     )
 
@@ -10084,6 +10062,10 @@
             (§ assoc this :services BigInteger/ZERO)
             this
         )
+    )
+
+    (defn #_"PeerAddress" PeerAddress'loopback [#_"Ledger" ledger]
+        (PeerAddress'from-inet-port ledger, (InetAddress/getLoopbackAddress), (:port ledger))
     )
 
     ;;;
@@ -10107,14 +10089,67 @@
         )
     )
 
-    (defn #_"PeerAddress" PeerAddress'loopback [#_"Ledger" ledger]
-        (PeerAddress'from-inet-port ledger, (InetAddress/getLoopbackAddress), (:port ledger))
+    ;;;
+     ; Construct a peer address from a serialized payload.
+     ;;
+    #_throws #_[ "ProtocolException" ]
+    (defn #_"PeerAddress" PeerAddress'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload, #_"Message" parent]
+        (let [this (merge (ChildMessage'new ledger, parent) (PeerAddress'init))
+
+              ;; Format of a serialized address:
+              ;;   uint32 timestamp
+              ;;   uint64 services (flags determining what the node can do)
+              ;;   16 bytes ip address
+              ;;   2 bytes port num
+              this (assoc this :timestamp (Wire'read-uint32 payload))
+              this (assoc this :services (Wire'read-uint64 payload))
+              this
+                (let [#_"byte[]" bytes (Wire'read-bytes payload, 16)]
+                    (try
+                        (assoc this :inet-addr (InetAddress/getByAddress bytes))
+                        (catch UnknownHostException e
+                            (throw (RuntimeException. e)) ;; Cannot happen.
+                        )
+                    )
+                )
+              this (assoc this :port (| (<< (& 0xff (.get payload)) 8) (& 0xff (.get payload))))]
+            this
+        )
+    )
+
+    #_method
+    (defn PeerAddress''to-wire
+        (#_"String" [] nil)
+        (#_"void" [#_"PeerAddress" this, #_"ByteArrayOutputStream" baos]
+            ;; TODO: This appears to be dynamic because the client only ever sends out it's own address so assumes itself
+            ;; to be up.  For a fuller implementation this needs to be dynamic only if the address refers to this client.
+            (Wire'write-uint32 (int (Time'seconds)), baos)
+            (Wire'write-uint64 (:services this), baos) ;; nServices.
+            ;; Java does not provide any utility to map an IPv4 address into IPv6 space, so we have to do it by hand.
+            (let [#_"byte[]" bytes (.getAddress (:inet-addr this))
+                  bytes (when' (= (alength bytes) 4) => bytes
+                        (let [#_"byte[]" v6addr (byte-array 16) _ (System/arraycopy bytes, 0, v6addr, 12, 4)]
+                            (aset v6addr 10 (byte 0xff))
+                            (aset v6addr 11 (byte 0xff))
+                            v6addr
+                        )
+                    )]
+                (.write baos, bytes)
+                ;; And write out the port.  Unlike the rest of the protocol, address and port is in big endian byte order.
+                (.write baos, (byte (& 0xff (>> (:port this) 8))))
+                (.write baos, (byte (& 0xff (:port this))))
+            )
+            nil
+        )
     )
 
     #_method
     (defn #_"InetSocketAddress" PeerAddress''to-socket-address [#_"PeerAddress" this]
         ;; Reconstruct the InetSocketAddress properly.
-        (if (some? (:hostname this)) (InetSocketAddress/createUnresolved (:hostname this), (:port this)) (InetSocketAddress. (:inet-addr this), (:port this)))
+        (if (some? (:hostname this))
+            (InetSocketAddress/createUnresolved (:hostname this), (:port this))
+            (InetSocketAddress. (:inet-addr this), (:port this))
+        )
     )
 
     #_foreign
@@ -12382,62 +12417,31 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (class-ns Ping (§ extends Message)
-    (defn- #_"Ping" Ping'init []
-        (hash-map
-            #_"long" :nonce 0
-            #_"boolean" :has-nonce false
-        )
-    )
-
     ;;;
-     ; Create a Ping without a nonce value.
-     ; Only use this if the remote node has a protocol version <= 60000.
+     ; Create a Ping without (protocol version <= 60000) or with (protocol version > 60000) a nonce value.
      ;;
-    (defn #_"Ping" Ping'new-0 [#_"Ledger" ledger]
-        (let [this (merge (Message'new ledger) (Ping'init))]
-            (assoc this :has-nonce false)
-        )
-    )
-
-    ;;;
-     ; Create a Ping with a nonce value.
-     ; Only use this if the remote node has a protocol version > 60000.
-     ;;
-    (defn #_"Ping" Ping'new-1 [#_"Ledger" ledger, #_"long" nonce]
-        (let [this (merge (Message'new ledger) (Ping'init))]
-            (assoc this :nonce nonce, :has-nonce true)
+    (defn #_"Ping" Ping'new [#_"Ledger" ledger, #_"long" nonce]
+        (merge (Message'new ledger)
+            (hash-map
+                #_"long" :nonce nonce
+            )
         )
     )
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"Ping" Ping'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload]
-        (let [this (merge (Message'new ledger) (Ping'init))]
-            (if (.hasRemaining payload)
-                (assoc this :nonce (Wire'read-int64 payload), :has-nonce true)
-                (assoc this :has-nonce false)
-            )
-        )
+        (Ping'new ledger (when (.hasRemaining payload) (Wire'read-int64 payload)))
     )
 
     #_method
     (defn Ping''to-wire
         (#_"String" [] "ping")
         (#_"void" [#_"Ping" this, #_"ByteArrayOutputStream" baos]
-            (when (:has-nonce this)
-                (Wire'int64-to-byte-stream-le (:nonce this), baos)
+            (when (some? (:nonce this))
+                (Wire'write-int64 (:nonce this), baos)
             )
             nil
         )
-    )
-
-    #_method
-    (defn #_"boolean" Ping''has-nonce [#_"Ping" this]
-        (:has-nonce this)
-    )
-
-    #_method
-    (defn #_"long" Ping''get-nonce [#_"Ping" this]
-        (:nonce this)
     )
 )
 
@@ -12445,42 +12449,33 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (class-ns Pong (§ extends Message)
-    (defn- #_"Pong" Pong'init []
-        (hash-map
-            #_"long" :nonce 0
-        )
-    )
-
     ;;;
      ; Create a Pong with a nonce value.
      ; Only use this if the remote node has a protocol version > 60000.
      ;;
     (defn #_"Pong" Pong'new [#_"Ledger" ledger, #_"long" nonce]
-        (let [this (merge (Message'new ledger) (Pong'init))]
-            (assoc this :nonce nonce)
+        (merge (Message'new ledger)
+            (hash-map
+                ;;;
+                 ; The nonce sent by the remote peer.
+                 ;;
+                #_"long" :nonce nonce
+            )
         )
     )
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"Pong" Pong'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload]
-        (let [this (merge (Message'new ledger) (Pong'init))]
-            (assoc this :nonce (Wire'read-int64 payload))
-        )
+        (Pong'new ledger, (Wire'read-int64 payload))
     )
 
     #_method
     (defn Pong''to-wire
         (#_"String" [] "pong")
         (#_"void" [#_"Pong" this, #_"ByteArrayOutputStream" baos]
-            (Wire'int64-to-byte-stream-le (:nonce this), baos)
+            (Wire'write-int64 (:nonce this), baos)
             nil
         )
-    )
-
-    ;;; Returns the nonce sent by the remote peer. ;;
-    #_method
-    (defn #_"long" Pong''get-nonce [#_"Pong" this]
-        (:nonce this)
     )
 )
 
@@ -12553,38 +12548,42 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (class-ns RejectMessage (§ extends Message)
-    (defn- #_"RejectMessage" RejectMessage'init []
-        (hash-map
-            #_"String" :message nil
-            #_"String" :reason nil
-
-            #_"RejectCode" :code nil
-            #_"Sha256Hash" :message-hash nil
-        )
-    )
-
     ;;;
      ; Constructs a reject message that fingers the object with the given hash as rejected for the given reason.
      ;;
-    #_throws #_[ "ProtocolException" ]
-    (defn #_"RejectMessage" RejectMessage'new [#_"Ledger" ledger, #_"RejectCode" code, #_"Sha256Hash" hash, #_"String" message, #_"String" reason]
-        (let [this (merge (Message'new ledger) (RejectMessage'init))]
-
-            (assoc this :code code, :message-hash hash, :message message, :reason reason)
+    (defn #_"RejectMessage" RejectMessage'new [#_"Ledger" ledger, #_"String" type, #_"RejectCode" code, #_"String" reason, #_"Sha256Hash" hash]
+        (merge (Message'new ledger)
+            (hash-map
+                ;;;
+                 ; Provides the type of message which was rejected by the peer.
+                 ; Note that this is ENTIRELY UNTRUSTED and should be sanity-checked before it is printed or processed.
+                 ;;
+                #_"String" :reject-type type
+                ;;;
+                 ; The reason code given for why the peer rejected the message.
+                 ;;
+                #_"RejectCode" :reject-code code
+                ;;;
+                 ; The reason message given for rejection.
+                 ; Note that this is ENTIRELY UNTRUSTED and should be sanity-checked before it is printed or processed.
+                 ;;
+                #_"String" :reject-reason reason
+                ;;;
+                 ; Provides the hash of the rejected object (if getRejectedMessage() is either "tx" or "block"), otherwise null.
+                 ;;
+                #_"Sha256Hash" :reject-hash hash
+            )
         )
     )
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"RejectMessage" RejectMessage'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload]
-        (let [this (merge (Message'new ledger) (RejectMessage'init))]
+        (let [#_"String" type (Wire'read-string payload)
+              #_"RejectCode" code (RejectCode'for-code (Wire'read-byte payload), :RejectCode'OTHER)
+              #_"String" reason (Wire'read-string payload)
+              #_"Sha256Hash" hash (when (any = type "block" "tx") (Wire'read-hash payload))]
 
-            (§ assoc this :message (Wire'read-string payload))
-            (§ assoc this :code (RejectCode'for-code (Wire'read-byte payload), :RejectCode'OTHER))
-            (§ assoc this :reason (Wire'read-string payload))
-            (when (any = (:message this) "block" "tx")
-                (§ assoc this :message-hash (Wire'read-hash payload))
-            )
-            this
+            (RejectMessage'new ledger, type, code, reason, hash)
         )
     )
 
@@ -12592,53 +12591,14 @@
     (defn RejectMessage''to-wire
         (#_"String" [] "reject")
         (#_"void" [#_"RejectMessage" this, #_"ByteArrayOutputStream" baos]
-            (let [#_"byte[]" bytes (.getBytes (:message this), Charsets/UTF_8)]
-                (Wire'write-byte-array bytes, baos)
-                (.write baos, (-> this :code :code))
-            )
-
-            (let [#_"byte[]" bytes (.getBytes (:reason this), Charsets/UTF_8)]
-                (Wire'write-byte-array bytes, baos)
-                (when (any = (:message this) "block" "tx")
-                    (.write baos, (Sha256Hash''get-reversed-bytes (:message-hash this)))
-                )
+            (Wire'write-string (:reject-type this), baos)
+            (.write baos, (RejectCode'enum-map (:reject-code this)))
+            (Wire'write-string (:reject-reason this), baos)
+            (when (any = (:reject-type this) "block" "tx")
+                (Wire'write-hash (:reject-hash this), baos)
             )
             nil
         )
-    )
-
-    ;;;
-     ; Provides the type of message which was rejected by the peer.
-     ; Note that this is ENTIRELY UNTRUSTED and should be sanity-checked before it is printed or processed.
-     ;;
-    #_method
-    (defn #_"String" RejectMessage''get-rejected-message [#_"RejectMessage" this]
-        (:message this)
-    )
-
-    ;;;
-     ; Provides the hash of the rejected object (if getRejectedMessage() is either "tx" or "block"), otherwise null.
-     ;;
-    #_method
-    (defn #_"Sha256Hash" RejectMessage''get-rejected-object-hash [#_"RejectMessage" this]
-        (:message-hash this)
-    )
-
-    ;;;
-     ; The reason code given for why the peer rejected the message.
-     ;;
-    #_method
-    (defn #_"RejectCode" RejectMessage''get-reason-code [#_"RejectMessage" this]
-        (:code this)
-    )
-
-    ;;;
-     ; The reason message given for rejection.
-     ; Note that this is ENTIRELY UNTRUSTED and should be sanity-checked before it is printed or processed.
-     ;;
-    #_method
-    (defn #_"String" RejectMessage''get-reason-string [#_"RejectMessage" this]
-        (:reason this)
     )
 
     #_foreign
@@ -12648,7 +12608,7 @@
             (= this o) true
             (or (nil? o) (not= (.getClass this) (.getClass o))) false
             :else (let [#_"RejectMessage" that (§ cast RejectMessage o)]
-                (and (.equals (:message this), (:message that)) (.equals (:code this), (:code that)) (.equals (:reason this), (:reason that)) (.equals (:message-hash this), (:message-hash that)))
+                (and (= (:reject-type this) (:reject-type that)) (.equals (:reject-code this), (:reject-code that)) (= (:reject-reason this) (:reject-reason that)) (.equals (:reject-hash this), (:reject-hash that)))
             )
         )
     )
@@ -12656,7 +12616,7 @@
     #_foreign
     #_override
     (defn #_"int" Object'''hashCode [#_"RejectMessage" this]
-        (Objects/hash (object-array [ (:message this), (:code this), (:reason this), (:message-hash this) ]))
+        (Objects/hash (object-array [ (:reject-type this), (:reject-code this), (:reject-reason this), (:reject-hash this) ]))
     )
 
     ;;;
@@ -12668,8 +12628,8 @@
     #_foreign
     #_override
     (defn #_"String" Object'''toString [#_"RejectMessage" this]
-        (let [#_"Sha256Hash" hash (RejectMessage''get-rejected-object-hash this)]
-            (str "Reject: " (RejectMessage''get-rejected-message this) " " (or hash "") " for reason '" (RejectMessage''get-reason-string this) "' (" (:code (RejectMessage''get-reason-code this)) ")")
+        (let [#_"Sha256Hash" hash (:reject-hash this)]
+            (str "Reject: " (:reject-type this) " " (or hash "") " for reason '" (:reject-reason this) "' (" (RejectCode'enum-map (:reject-code this)) ")")
         )
     )
 )
@@ -13142,7 +13102,9 @@
             )
         ))
 
-    ;;; A comparator that can be used to sort transactions by their chain height. ;;
+    ;;;
+     ; A comparator that can be used to sort transactions by their chain height.
+     ;;
     (def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_HEIGHT
         (reify Comparator #_"<Transaction>"
             #_foreign
@@ -13159,12 +13121,18 @@
             )
         ))
 
-    ;;; Threshold for lockTime: below this value it is interpreted as block number, otherwise as timestamp. ;;
+    ;;;
+     ; Threshold for lockTime: below this value it is interpreted as block number, otherwise as timestamp.
+     ;;
     (def #_"int" Transaction'LOCKTIME_THRESHOLD 500000000) ;; Tue Nov  5 00:53:20 1985 UTC
-    ;;; Same, but as a BigInteger for CHECKLOCKTIMEVERIFY. ;;
+    ;;;
+     ; Same, but as a BigInteger for CHECKLOCKTIMEVERIFY.
+     ;;
     (def #_"BigInteger" Transaction'LOCKTIME_THRESHOLD_BIG (BigInteger/valueOf Transaction'LOCKTIME_THRESHOLD))
 
-    ;;; How many bytes a transaction can be before it won't be relayed anymore.  Currently 100kb. ;;
+    ;;;
+     ; How many bytes a transaction can be before it won't be relayed anymore.  Currently 100kb.
+     ;;
     (def #_"int" Transaction'MAX_STANDARD_TX_SIZE 100000)
 
     ;;;
@@ -13185,13 +13153,28 @@
      ;;
     (def #_"Coin" Transaction'MIN_NONDUST_OUTPUT (Coin'new 2730)) ;; satoshis
 
+    ;; Below flags apply in the context of BIP 68.
+     ; If this flag set, CTxIn::nSequence is NOT interpreted as a relative lock-time.
+     ;;
+    (def #_"long" Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG (<< 1 31))
+
+    ;; If CTxIn::nSequence encodes a relative lock-time and this flag
+     ; is set, the relative lock-time has units of 512 seconds,
+     ; otherwise it specifies blocks with a granularity of 1.
+     ;;
+    (def #_"long" Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG (<< 1 22))
+
+    ;; If CTxIn::nSequence encodes a relative lock-time, this mask is
+     ; applied to extract that lock-time from the sequence field.
+     ;;
+    (def #_"long" Transaction'SEQUENCE_LOCKTIME_MASK 0x0000ffff)
+
     (defn- #_"Transaction" Transaction'init []
         (hash-map
             ;; These are bitcoin serialized.
             #_"long" :version 0
             #_"ArrayList<TransactionInput>" :inputs nil
             #_"ArrayList<TransactionOutput>" :outputs nil
-
             #_"long" :lock-time 0
 
             ;; This is either the time the transaction was broadcast as measured from the local clock, or the time from the
@@ -13228,28 +13211,12 @@
         )
     )
 
-    ;; Below flags apply in the context of BIP 68.
-     ; If this flag set, CTxIn::nSequence is NOT interpreted as a relative lock-time.
-     ;;
-    (def #_"long" Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG (<< 1 31))
-
-    ;; If CTxIn::nSequence encodes a relative lock-time and this flag
-     ; is set, the relative lock-time has units of 512 seconds,
-     ; otherwise it specifies blocks with a granularity of 1.
-     ;;
-    (def #_"long" Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG (<< 1 22))
-
-    ;; If CTxIn::nSequence encodes a relative lock-time, this mask is
-     ; applied to extract that lock-time from the sequence field.
-     ;;
-    (def #_"long" Transaction'SEQUENCE_LOCKTIME_MASK 0x0000ffff)
-
     (defn #_"Transaction" Transaction'new [#_"Ledger" ledger]
-        (let [this (merge (ChildMessage'new ledger, nil) (Transaction'init))]
+        (let [this (merge (ChildMessage'new ledger, nil) (Transaction'init))
 
-            (§ assoc this :version 1)
-            (§ assoc this :inputs (ArrayList.))
-            (§ assoc this :outputs (ArrayList.))
+              this (assoc this :version 1)
+              this (assoc this :inputs (ArrayList.))
+              this (assoc this :outputs (ArrayList.))]
             ;; We don't initialize appearsIn deliberately as it's only useful for transactions stored in the wallet.
             this
         )
@@ -13262,26 +13229,28 @@
     (defn #_"Transaction" Transaction'from-wire
         ([#_"Ledger" ledger, #_"ByteBuffer" payload] (Transaction'from-wire ledger, payload, nil))
         ([#_"Ledger" ledger, #_"ByteBuffer" payload, #_"Message" parent]
-            (let [this (merge (ChildMessage'new ledger, parent) (Transaction'init))]
+            (let [this (merge (ChildMessage'new ledger, parent) (Transaction'init))
 
-                (§ assoc this :version (Wire'read-uint32 payload))
-                (let [#_"long" n (Wire'read-var-int payload)]
-                    (§ assoc this :inputs (ArrayList. n))
-                    (dotimes [_ n]
-                        (let [#_"TransactionInput" input (TransactionInput'from-wire ledger, payload, this)]
-                            (.add (:inputs this), input)
+                  this (assoc this :version (Wire'read-uint32 payload))
+                  this
+                    (let [#_"long" n (Wire'read-var-int payload) #_"ArrayList<TransactionInput>" inputs (ArrayList. n)]
+                        (dotimes [_ n]
+                            (let [#_"TransactionInput" input (TransactionInput'from-wire ledger, payload, (§ this))]
+                                (.add inputs, input)
+                            )
                         )
+                        (assoc this :inputs inputs)
                     )
-                )
-                (let [#_"long" n (Wire'read-var-int payload)]
-                    (§ assoc this :outputs (ArrayList. n))
-                    (dotimes [_ n]
-                        (let [#_"TransactionOutput" output (TransactionOutput'from-wire ledger, payload, this)]
-                            (.add (:outputs this), output)
+                  this
+                    (let [#_"long" n (Wire'read-var-int payload) #_"ArrayList<TransactionOutput>" outputs (ArrayList. n)]
+                        (dotimes [_ n]
+                            (let [#_"TransactionOutput" output (TransactionOutput'from-wire ledger, payload, (§ this))]
+                                (.add outputs, output)
+                            )
                         )
+                        (assoc this :outputs outputs)
                     )
-                )
-                (§ assoc this :lock-time (Wire'read-uint32 payload))
+                  this (assoc this :lock-time (Wire'read-uint32 payload))]
                 this
             )
         )
@@ -13774,7 +13743,7 @@
 
         ;; Create a copy of this transaction to operate upon because we need make changes to the inputs and outputs.
         ;; It would not be thread-safe to change the attributes of the transaction object itself.
-        (§ let [#_"Transaction" tx (Transaction'from-wire (:ledger this), (ByteBuffer/wrap (Message''to-bytes this, Transaction''to-wire)))]
+        (let [#_"Transaction" tx (Transaction'from-wire (:ledger this), (ByteBuffer/wrap (Message''to-bytes this, Transaction''to-wire)))]
 
             ;; Clear input scripts in preparation for signing.  If we're signing a fresh transaction that step isn't very
             ;; helpful, but it doesn't add much cost relative to the actual EC math so we'll do it anyway.
@@ -13789,68 +13758,69 @@
             ;; OP_CODESEPARATOR instruction having no purpose as it was only meant to be used internally, not actually
             ;; ever put into scripts.  Deleting OP_CODESEPARATOR is a step that should never be required but if we don't
             ;; do it, we could split off the main chain.
-            (§ ass script (Script'remove-all-instances-of-op script, ScriptOpCodes'OP_CODESEPARATOR))
+            (let [script (Script'remove-all-instances-of-op script, ScriptOpCodes'OP_CODESEPARATOR)]
 
-            ;; Set the input to the script of its output.  Bitcoin Core does this but the step has no obvious purpose as
-            ;; the signature covers the hash of the prevout transaction which obviously includes the output script
-            ;; already.  Perhaps it felt safer to him in some way, or is another leftover from how the code was written.
-            (let [#_"TransactionInput" input (.get (:inputs tx), index)]
-                (TransactionInput''set-script-bytes input, script)
+                ;; Set the input to the script of its output.  Bitcoin Core does this but the step has no obvious purpose as
+                ;; the signature covers the hash of the prevout transaction which obviously includes the output script
+                ;; already.  Perhaps it felt safer to him in some way, or is another leftover from how the code was written.
+                (let [#_"TransactionInput" input (.get (:inputs tx), index)]
+                    (TransactionInput''set-script-bytes input, script)
 
-                (cond (= (& mode 0x1f) SigHash'NONE)
-                    (do
-                        ;; SIGHASH_NONE means no outputs are signed at all - the signature is effectively for a "blank cheque".
-                        (§ assoc tx :outputs (ArrayList. 0))
-                        ;; The signature isn't broken by new versions of the transaction issued by other parties.
-                        (dotimes [#_"int" i (.size (:inputs tx))]
-                            (when (not= i index)
-                                (TransactionInput''set-sequence-number (.get (:inputs tx), i), 0)
+                    (cond (= (& mode 0x1f) SigHash'NONE)
+                        (do
+                            ;; SIGHASH_NONE means no outputs are signed at all - the signature is effectively for a "blank cheque".
+                            (§ assoc tx :outputs (ArrayList. 0))
+                            ;; The signature isn't broken by new versions of the transaction issued by other parties.
+                            (dotimes [#_"int" i (.size (:inputs tx))]
+                                (when (not= i index)
+                                    (TransactionInput''set-sequence-number (.get (:inputs tx), i), 0)
+                                )
                             )
                         )
-                    )
-                    (= (& mode 0x1f) SigHash'SINGLE)
-                    (do
-                        ;; SIGHASH_SINGLE means only sign the output at the same index as the input (i.e. my output).
-                        (when (<= (.size (:outputs tx)) index)
-                            ;; The input index is beyond the number of outputs, it's a buggy signature made by a broken
-                            ;; Bitcoin implementation.  Bitcoin Core also contains a bug in handling this case:
-                            ;; any transaction output that is signed in this case will result in both the signed output
-                            ;; and any future outputs to this public key being steal-able by anyone who has
-                            ;; the resulting signature and the public key (both of which are part of the signed tx input).
+                        (= (& mode 0x1f) SigHash'SINGLE)
+                            ;; SIGHASH_SINGLE means only sign the output at the same index as the input (i.e. my output).
+                            (if (< index (.size (:outputs tx)))
+                                (do
+                                    ;; In SIGHASH_SINGLE the outputs after the matching input index are deleted, and the outputs before
+                                    ;; that position are "nulled out".  Unintuitively, the value in a "null" transaction is set to -1.
+                                    (§ assoc tx :outputs (ArrayList. (.subList (:outputs tx), 0, (inc index))))
+                                    (dotimes [#_"int" i index]
+                                        (.set (:outputs tx), i, (TransactionOutput'for-script (:ledger tx), tx, Coin'NEGATIVE_SATOSHI, (byte-array 0)))
+                                    )
+                                    ;; The signature isn't broken by new versions of the transaction issued by other parties.
+                                    (dotimes [#_"int" i (.size (:inputs tx))]
+                                        (when (not= i index)
+                                            (TransactionInput''set-sequence-number (.get (:inputs tx), i), 0)
+                                        )
+                                    )
+                                )
+                                ;; The input index is beyond the number of outputs, it's a buggy signature made by a broken
+                                ;; Bitcoin implementation.  Bitcoin Core also contains a bug in handling this case:
+                                ;; any transaction output that is signed in this case will result in both the signed output
+                                ;; and any future outputs to this public key being steal-able by anyone who has
+                                ;; the resulting signature and the public key (both of which are part of the signed tx input).
 
-                            ;; Bitcoin Core's bug is that SignatureHash was supposed to return a hash and on this codepath it
-                            ;; actually returns the constant "1" to indicate an error, which is never checked for.  Oops.
-                            (§ return (Sha256Hash'wrap-hex "0100000000000000000000000000000000000000000000000000000000000000"))
-                        )
-                        ;; In SIGHASH_SINGLE the outputs after the matching input index are deleted, and the outputs before
-                        ;; that position are "nulled out".  Unintuitively, the value in a "null" transaction is set to -1.
-                        (§ assoc tx :outputs (ArrayList. (.subList (:outputs tx), 0, (inc index))))
-                        (dotimes [#_"int" i index]
-                            (.set (:outputs tx), i, (TransactionOutput'for-script (:ledger tx), tx, Coin'NEGATIVE_SATOSHI, (byte-array 0)))
-                        )
-                        ;; The signature isn't broken by new versions of the transaction issued by other parties.
-                        (dotimes [#_"int" i (.size (:inputs tx))]
-                            (when (not= i index)
-                                (TransactionInput''set-sequence-number (.get (:inputs tx), i), 0)
+                                ;; Bitcoin Core's bug is that SignatureHash was supposed to return a hash and on this codepath it
+                                ;; actually returns the constant "1" to indicate an error, which is never checked for.  Oops.
+                                (§ return (Sha256Hash'wrap-hex "0100000000000000000000000000000000000000000000000000000000000000"))
                             )
-                        )
                     )
-                )
 
-                (when (= (& mode SigHash'ANYONECANPAY) SigHash'ANYONECANPAY)
-                    ;; SIGHASH_ANYONECANPAY means the signature in the input is not broken by changes/additions/removals
-                    ;; of other inputs.  For example, this is useful for building assurance contracts.
-                    (§ assoc tx :inputs (ArrayList. #_"<TransactionInput>"))
-                    (.add (:inputs tx), input)
-                )
+                    (when (= (& mode SigHash'ANYONECANPAY) SigHash'ANYONECANPAY)
+                        ;; SIGHASH_ANYONECANPAY means the signature in the input is not broken by changes/additions/removals
+                        ;; of other inputs.  For example, this is useful for building assurance contracts.
+                        (§ assoc tx :inputs (ArrayList. #_"<TransactionInput>"))
+                        (.add (:inputs tx), input)
+                    )
 
-                (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (<< 1 8))]
-                    (Transaction''to-wire tx, baos)
-                    ;; We also have to write a hash type (sigHashType is actually an unsigned char).
-                    (Wire'write-uint32 (& 0x000000ff mode), baos)
-                    ;; Note that this is NOT reversed to ensure it will be signed correctly.  If it were to be printed out
-                    ;; however then we would expect that it is IS reversed.
-                    (Sha256Hash'twice-of (.toByteArray baos))
+                    (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (<< 1 8))]
+                        (Transaction''to-wire tx, baos)
+                        ;; We also have to write a hash type (sigHashType is actually an unsigned char).
+                        (Wire'write-uint32 (& 0x000000ff mode), baos)
+                        ;; Note that this is NOT reversed to ensure it will be signed correctly.  If it were to be printed out
+                        ;; however then we would expect that it is IS reversed.
+                        (Sha256Hash'twice-of (.toByteArray baos))
+                    )
                 )
             )
         )
@@ -14434,7 +14404,7 @@
                     (#_"Message" PreMessageReceivedEventListener'''on-pre-message-received [#_"PreMessageReceivedEventListener" self, #_"Peer" peer, #_"Message" m]
                         (when (§ instance? RejectMessage m)
                             (let [#_"RejectMessage" reject (§ cast RejectMessage m)]
-                                (when (.equals (Transaction''get-hash (:tx (§ this))), (RejectMessage''get-rejected-object-hash reject))
+                                (when (.equals (Transaction''get-hash (:tx (§ this))), (:reject-hash reject))
                                     (.put (:rejects (§ this)), peer, reject)
                                     (let [#_"int" size (.size (:rejects (§ this)))
                                           #_"long" threshold (Math/round (/ (:num-waiting-for (§ this)) 2.0))]
@@ -15807,7 +15777,7 @@
         (#_"void" [#_"TransactionOutput" this, #_"ByteArrayOutputStream" baos]
             (ensure some? (:script-bytes this))
 
-            (Wire'int64-to-byte-stream-le (-> this :coin-value :value), baos)
+            (Wire'write-int64 (-> this :coin-value :value), baos)
             (Wire'write-byte-array (:script-bytes this), baos)
             nil
         )
@@ -16338,9 +16308,9 @@
         (let [#_"int" i (& 0xff (aget bytes 0))]
             (cond
                 (< i 253) (VarInt'new i)
-                (= i 253) (VarInt'new (Wire'read-uint16 bytes, 1))
-                (= i 254) (VarInt'new (Wire'read-uint32 bytes, 1))
-                :else     (VarInt'new (Wire'read-int64 bytes, 1))
+                (= i 253) (VarInt'new (Wire'bget-uint16 bytes, 1))
+                (= i 254) (VarInt'new (Wire'bget-uint32 bytes, 1))
+                :else     (VarInt'new (Wire'bget-int64 bytes, 1))
             )
         )
     )
@@ -16353,9 +16323,9 @@
         (let [#_"int" i (& 0xff (.get payload)) read- #(let [#_"byte[]" bytes (byte-array %)] (.get payload, bytes) bytes)]
             (cond
                 (< i 253) (VarInt'new i)
-                (= i 253) (VarInt'new (Wire'read-uint16 (read- 2), 1))
-                (= i 254) (VarInt'new (Wire'read-uint32 (read- 4), 1))
-                :else     (VarInt'new (Wire'read-int64 (read- 8), 1))
+                (= i 253) (VarInt'new (Wire'bget-uint16 (read- 2), 1))
+                (= i 254) (VarInt'new (Wire'bget-uint32 (read- 4), 1))
+                :else     (VarInt'new (Wire'bget-int64 (read- 8), 1))
             )
         )
     )
@@ -16387,11 +16357,11 @@
             3 (byte-array [ (byte 253), (byte (:value this)), (byte (>> (:value this) 8)) ])
             5 (let [#_"byte[]" bytes (byte-array 5)]
                     (aset bytes 0 (byte 254))
-                    (Wire'uint32-to-byte-array-le (:value this), bytes, 1)
+                    (Wire'bset-uint32 (:value this), bytes, 1)
                     bytes)
               (let [#_"byte[]" bytes (byte-array 9)]
                     (aset bytes 0 (byte 255))
-                    (Wire'uint64-to-byte-array-le (:value this), bytes, 1)
+                    (Wire'bset-uint64 (:value this), bytes, 1)
                     bytes)
         )
     )
