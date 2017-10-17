@@ -124,7 +124,7 @@
 (declare Base58'ALPHABET Base58'ENCODED_ZERO Base58'INDEXES Base58'decode Base58'decode-checked Base58'decode-to-big-integer Base58'divmod Base58'encode)
 (declare BasicKeyChain''find-key-from-pub-hash BasicKeyChain''find-key-from-pub-key BasicKeyChain''find-keys-before BasicKeyChain''find-oldest-key-after BasicKeyChain''get-keys-1 BasicKeyChain''get-listeners BasicKeyChain''import-key BasicKeyChain''import-key-locked BasicKeyChain''import-keys BasicKeyChain''import-keys-locked BasicKeyChain''is-watching BasicKeyChain''queue-on-keys-added BasicKeyChain''remove-key BasicKeyChain'new)
 (declare BitcoinPacketHeader'HEADER_LENGTH BitcoinPacketHeader'new)
-(declare Wire'deserialize Wire'deserialize-header Wire'deserialize-payload Wire'make-message Wire'seek-past-magic-bytes Wire'serialize-3 Wire'serialize-4 Wire'COMMAND_LEN)
+(declare Wire'deserialize Wire'deserialize-payload Wire'make-message Wire'seek-past-magic-bytes Wire'serialize-3 Wire'serialize-4 Wire'COMMAND_LEN)
 (declare Block''add-transaction-2 Block''add-transaction-3 Block''build-merkle-tree Block''calculate-hash Block''calculate-merkle-root Block''check-proof-of-work Block''check-sig-ops Block''check-timestamp Block''check-transactions Block''clone-as-header Block''get-block-inflation Block''get-difficulty-target-as-integer Block''get-hash Block''get-hash-as-string Block''get-merkle-root Block''get-transactions Block''get-work Block''has-transactions Block''is-bip34 Block''is-bip65 Block''is-bip66 Block''solve Block''verify Block''verify-header Block''verify-transactions Block''write-header Block''write-transactions Block'ALLOWED_TIME_DRIFT Block'BLOCK_HEIGHT_GENESIS Block'BLOCK_HEIGHT_UNKNOWN Block'BLOCK_VERSION_BIP34 Block'BLOCK_VERSION_BIP65 Block'BLOCK_VERSION_BIP66 Block'BLOCK_VERSION_GENESIS Block'EASIEST_DIFFICULTY_TARGET Block'HEADER_SIZE Block'LARGEST_HASH Block'MAX_BLOCK_SIGOPS Block'MAX_BLOCK_SIZE Block'init Block'new-genesis Block'from-wire Block''to-wire Block'new)
 (declare BlockChain'''add-filtered-block BlockChain'''add-to-block-store-3 BlockChain'''add-to-block-store-4 BlockChain'''connect-transactions-2 BlockChain'''connect-transactions-3 BlockChain'''disconnect-transactions BlockChain'''do-set-chain-head BlockChain'''get-stored-block-in-current-scope BlockChain'''not-setting-chain-head BlockChain'''rollback-block-store BlockChain'''should-verify-transactions BlockChain''add-5 BlockChain''add-b BlockChain''add-new-best-block-listener-2 BlockChain''add-new-best-block-listener-3 BlockChain''add-reorganize-listener-2 BlockChain''add-reorganize-listener-3 BlockChain''add-transaction-received-listener-2 BlockChain''add-transaction-received-listener-3 BlockChain''add-wallet BlockChain''connect-block BlockChain''drain-orphan-blocks BlockChain''estimate-block-time BlockChain''get-best-chain-height BlockChain''get-block-store BlockChain''get-chain-head BlockChain''get-false-positive-rate BlockChain''get-height-future BlockChain''get-orphan-root BlockChain''get-version-tally BlockChain''handle-new-best-chain BlockChain''inform-listeners-for-new-block BlockChain''is-orphan BlockChain''remove-new-best-block-listener BlockChain''remove-reorganize-listener BlockChain''remove-transaction-received-listener BlockChain''remove-wallet BlockChain''reset-false-positive-estimate BlockChain''set-chain-head BlockChain''track-false-positives BlockChain''track-filtered-transactions BlockChain''try-connecting-orphans BlockChain'FP_ESTIMATOR_ALPHA BlockChain'FP_ESTIMATOR_BETA BlockChain'find-split BlockChain'get-median-timestamp-of-recent-blocks BlockChain'get-partial-chain BlockChain'inform-listener-for-new-transactions BlockChain'new BlockChain'send-transactions-to-listener)
 (declare BlockStore'''close BlockStore'''get-2 BlockStore'''get-chain-head BlockStore'''put-2 BlockStore'''set-chain-head)
@@ -246,7 +246,7 @@
 (declare PeerFilterProvider'''begin-bloom-filter-calculation PeerFilterProvider'''end-bloom-filter-calculation PeerFilterProvider'''get-bloom-filter-4 PeerFilterProvider'''get-bloom-filter-element-count PeerFilterProvider'''get-earliest-key-creation-time)
 (declare PeerGroup''add-address-i PeerGroup''add-address-p PeerGroup''add-blocks-downloaded-event-listener-2 PeerGroup''add-blocks-downloaded-event-listener-3 PeerGroup''add-chain-download-started-event-listener-2 PeerGroup''add-chain-download-started-event-listener-3 PeerGroup''add-connected-event-listener-2 PeerGroup''add-connected-event-listener-3 PeerGroup''add-disconnected-event-listener-2 PeerGroup''add-disconnected-event-listener-3 PeerGroup''add-discovered-event-listener-2 PeerGroup''add-discovered-event-listener-3 PeerGroup''add-get-data-event-listener-2 PeerGroup''add-get-data-event-listener-3 PeerGroup''add-inactive PeerGroup''add-on-transaction-broadcast-listener-2 PeerGroup''add-on-transaction-broadcast-listener-3 PeerGroup''add-peer-discovery PeerGroup''add-peer-filter-provider PeerGroup''add-pre-message-received-event-listener-2 PeerGroup''add-pre-message-received-event-listener-3 PeerGroup''add-wallet PeerGroup''await-running PeerGroup''await-terminated PeerGroup''broadcast-transaction-3 PeerGroup''connect-to-socket-address PeerGroup''connect-to-peer-address PeerGroup''connect-to-loopback PeerGroup''count-connected-and-pending-peers PeerGroup''create-peer PeerGroup''create-private-executor PeerGroup''discover-peers PeerGroup''download-block-chain PeerGroup''find-peers-of-at-least-version PeerGroup''find-peers-with-service-mask PeerGroup''get-connected-peers PeerGroup''get-download-peer PeerGroup''get-fast-catchup-time-secs PeerGroup''get-max-connections PeerGroup''get-max-peers-to-discover-count PeerGroup''get-min-broadcast-connections PeerGroup''get-min-required-protocol-version PeerGroup''get-most-common-chain-height PeerGroup''get-pending-peers PeerGroup''get-ping-interval-msec PeerGroup''get-use-loopback-peer-when-possible PeerGroup''get-version-message PeerGroup''handle-get-data PeerGroup''handle-new-peer PeerGroup''handle-peer-death PeerGroup''is-bloom-filtering-enabled PeerGroup''is-running PeerGroup''maybe-check-for-loopback-peer PeerGroup''num-connected-peers PeerGroup''recalculate-fast-catchup-and-filter PeerGroup''remove-blocks-downloaded-event-listener PeerGroup''remove-chain-download-started-event-listener PeerGroup''remove-connected-event-listener PeerGroup''remove-disconnected-event-listener PeerGroup''remove-discovered-event-listener PeerGroup''remove-get-data-event-listener PeerGroup''remove-on-transaction-broadcast-listener PeerGroup''remove-peer-filter-provider PeerGroup''remove-pre-message-received-event-listener PeerGroup''remove-wallet PeerGroup''select-download-peer PeerGroup''set-bloom-filter-false-positive-rate PeerGroup''set-bloom-filtering-enabled PeerGroup''set-connect-timeout-millis PeerGroup''set-download-peer PeerGroup''set-download-tx-dependencies PeerGroup''set-fast-catchup-time-secs PeerGroup''set-max-connections PeerGroup''set-max-peers-to-discover-count PeerGroup''set-min-broadcast-connections PeerGroup''set-min-required-protocol-version PeerGroup''set-peer-discovery-timeout-millis PeerGroup''set-ping-interval-msec PeerGroup''set-required-services PeerGroup''set-stall-threshold PeerGroup''set-use-loopback-peer-when-possible PeerGroup''set-version-message PeerGroup''setup-pinging PeerGroup''start PeerGroup''start-async PeerGroup''start-block-chain-download PeerGroup''start-block-chain-download-from-peer PeerGroup''stop PeerGroup''stop-async PeerGroup''trigger-connections PeerGroup''update-version-message-relay-txes-before-filter PeerGroup''wait-for-job-queue PeerGroup''wait-for-peers PeerGroup''wait-for-peers-of-version PeerGroup''wait-for-peers-with-service-mask PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE PeerGroup'DEFAULT_CONNECTIONS PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS PeerGroup'DEFAULT_PING_INTERVAL_MSEC PeerGroup'MAX_FP_RATE_INCREASE PeerGroup'MIN_PEER_DISCOVERY_INTERVAL PeerGroup'add-data-event-listener-to-peer PeerGroup'get-most-common-chain-height* PeerGroup'new PeerGroup'remove-data-event-listener-from-peer)
 (declare PeerListener'new)
-(declare PeerSocketHandler'''process-message PeerSocketHandler''close PeerSocketHandler''exception-caught PeerSocketHandler''get-address PeerSocketHandler''send-message PeerSocketHandler'init PeerSocketHandler'for-socket-address PeerSocketHandler'for-peer-address)
+(declare PeerSocketHandler'''process-message PeerSocketHandler''close PeerSocketHandler''exception-caught PeerSocketHandler''get-address PeerSocketHandler''send-message PeerSocketHandler'new)
 (declare PeerStartupListener'new)
 (declare PendingConnection'new)
 (declare PendingPing''complete PendingPing'new)
@@ -3926,58 +3926,19 @@
         nil
     )
 
-    ;;;
-     ; Reads a message from the given ByteBuffer and returns it.
-     ;;
-    #_throws #_[ "ProtocolException", "IOException" ]
-    (defn #_"Message" Wire'deserialize [#_"Ledger" ledger, #_"ByteBuffer" in]
-        ;; A Bitcoin protocol message has the following format:
-        ;;
-        ;;   - 4 byte magic number: 0xfabfb5da for the testnet or 0xf9beb4d9 for production
-        ;;   - 12 byte command in ASCII
-        ;;   - 4 byte payload size
-        ;;   - 4 byte checksum
-        ;;   - Payload data
-        ;;
-        ;; The checksum is the first 4 bytes of a SHA256 hash of the message payload. It isn't
-        ;; present for all messages, notably, the first one on a connection.
-        ;;
-        ;; Bitcoin Core ignores garbage before the magic header bytes. We have to do the same because
-        ;; sometimes it sends us stuff that isn't part of any message.
-        (Wire'seek-past-magic-bytes ledger, in)
-        ;; Now try to read the whole message.
-        (Wire'deserialize-payload ledger, (BitcoinPacketHeader'new in), in)
-    )
-
-    ;;;
-     ; Deserializes only the header in case packet meta data is needed before decoding
-     ; the payload.  This method assumes you have already called seekPastMagicBytes().
-     ;;
-    #_throws #_[ "ProtocolException", "IOException" ]
-    (defn #_"BitcoinPacketHeader" Wire'deserialize-header [#_"Ledger" _params, #_"ByteBuffer" in]
-        (BitcoinPacketHeader'new in)
-    )
-
-    ;;;
-     ; Deserialize payload only.  You must provide a header, typically obtained by calling
-     ; {@link Wire#deserializeHeader}.
-     ;;
-    #_throws #_[ "ProtocolException", "BufferUnderflowException" ]
-    (defn #_"Message" Wire'deserialize-payload [#_"Ledger" ledger, #_"BitcoinPacketHeader" header, #_"ByteBuffer" in]
-        (let [#_"byte[]" payload (byte-array (:size header)) _ (.get in, payload)
-              #_"byte[]" hash (Sha256Hash'hash-twice payload) #_"byte[]" checksum (:checksum header)]
-            ;; Verify the checksum.
-            (when-not (and (= (aget checksum 0) (aget hash 0)) (= (aget checksum 1) (aget hash 1)) (= (aget checksum 2) (aget hash 2)) (= (aget checksum 3) (aget hash 3)))
-                (throw+ (ProtocolException'new (str "Checksum failed to verify, actual " (.encode Utils'HEX, hash) " vs " (.encode Utils'HEX, checksum))))
-            )
-
-            (try
-                (Wire'make-message ledger, (:command header), (ByteBuffer/wrap payload))
-                (catch Exception e
-                    (throw+ (ProtocolException'new (str "Error deserializing message " (.encode Utils'HEX, payload) "\n")) e)
+    #_throws #_[ "BufferUnderflowException" ]
+    (defn #_"void" Wire'seek-past-magic-bytes [#_"Ledger" ledger, #_"ByteBuffer" in]
+        ;; We're looking for a run of bytes that is the same as the packet magic but we want to ignore
+        ;; incomplete patterns, so we keep track of where we're up to with 'i.
+        (let [#_"long" magic (:packet-magic ledger)]
+            (loop [i 3]
+                (if (= (.get in) (byte (& 0xff (>>> magic (<< i 3)))))
+                    (recur-if (< 0 i) (dec i)) ;; Else we found the magic sequence.
+                    (recur 3)
                 )
             )
         )
+        nil
     )
 
     #_throws #_[ "ProtocolException" ]
@@ -4008,19 +3969,49 @@
         )
     )
 
-    #_throws #_[ "BufferUnderflowException" ]
-    (defn #_"void" Wire'seek-past-magic-bytes [#_"Ledger" ledger, #_"ByteBuffer" in]
-        ;; We're looking for a run of bytes that is the same as the packet magic but we want to ignore
-        ;; incomplete patterns, so we keep track of where we're up to with 'i.
-        (let [#_"long" magic (:packet-magic ledger)]
-            (loop [i 3]
-                (if (= (.get in) (byte (& 0xff (>>> magic (<< i 3)))))
-                    (recur-if (< 0 i) (dec i)) ;; Else we found the magic sequence.
-                    (recur 3)
+    ;;;
+     ; Deserialize payload only.  You must provide a header, typically obtained by calling
+     ; {@link Wire#deserializeHeader}.
+     ;;
+    #_throws #_[ "ProtocolException", "BufferUnderflowException" ]
+    (defn #_"Message" Wire'deserialize-payload [#_"Ledger" ledger, #_"BitcoinPacketHeader" header, #_"ByteBuffer" in]
+        (let [#_"byte[]" payload (byte-array (:size header)) _ (.get in, payload)
+              #_"byte[]" hash (Sha256Hash'hash-twice payload) #_"byte[]" checksum (:checksum header)]
+            ;; Verify the checksum.
+            (when-not (and (= (aget checksum 0) (aget hash 0)) (= (aget checksum 1) (aget hash 1)) (= (aget checksum 2) (aget hash 2)) (= (aget checksum 3) (aget hash 3)))
+                (throw+ (ProtocolException'new (str "Checksum failed to verify, actual " (.encode Utils'HEX, hash) " vs " (.encode Utils'HEX, checksum))))
+            )
+
+            (try
+                (Wire'make-message ledger, (:command header), (ByteBuffer/wrap payload))
+                (catch Exception e
+                    (throw+ (ProtocolException'new (str "Error deserializing message " (.encode Utils'HEX, payload) "\n")) e)
                 )
             )
         )
-        nil
+    )
+
+    ;;;
+     ; Reads a message from the given ByteBuffer and returns it.
+     ;;
+    #_throws #_[ "ProtocolException", "IOException" ]
+    (defn #_"Message" Wire'deserialize [#_"Ledger" ledger, #_"ByteBuffer" in]
+        ;; A Bitcoin protocol message has the following format:
+        ;;
+        ;;   - 4 byte magic number: 0xfabfb5da for the testnet or 0xf9beb4d9 for production
+        ;;   - 12 byte command in ASCII
+        ;;   - 4 byte payload size
+        ;;   - 4 byte checksum
+        ;;   - Payload data
+        ;;
+        ;; The checksum is the first 4 bytes of a SHA256 hash of the message payload. It isn't
+        ;; present for all messages, notably, the first one on a connection.
+        ;;
+        ;; Bitcoin Core ignores garbage before the magic header bytes. We have to do the same because
+        ;; sometimes it sends us stuff that isn't part of any message.
+        (Wire'seek-past-magic-bytes ledger, in)
+        ;; Now try to read the whole message.
+        (Wire'deserialize-payload ledger, (BitcoinPacketHeader'new in), in)
     )
 )
 
@@ -8017,42 +8008,20 @@
  ;;
 #_abstract
 (class-ns PeerSocketHandler (§ extends AbstractTimeoutHandler) (§ implements StreamConnection)
-    (defn- #_"PeerSocketHandler" PeerSocketHandler'init []
-        (hash-map
-            #_"Ledger" :ledger nil
-            #_"PeerAddress" :peer-address nil
-            ;; If we close() before we know our writeTarget, set this to true to call writeTarget.closeConnection() right away.
-            #_"boolean" :close-pending false
-            ;; writeTarget will be thread-safe, and may call into PeerGroup, which calls us, so we should call it unlocked.
-            #_testing
-            #_"MessageWriteTarget" :write-target nil
+    (defn #_"PeerSocketHandler" PeerSocketHandler'new [#_"Ledger" ledger, #_"PeerAddress" address]
+        (merge (AbstractTimeoutHandler'new)
+            (hash-map
+                #_"Ledger" :ledger (ensure some? ledger)
+                #_"PeerAddress" :peer-address (ensure some? address)
 
-            ;; The ByteBuffers passed to us from the writeTarget are static in size, and usually smaller than some messages we
-            ;; will receive.  For SPV clients, this should be rare (i.e. we're mostly dealing with small transactions), but for
-            ;; messages which are larger than the read buffer, we have to keep a temporary buffer with its bytes.
-            #_"byte[]" :large-read-buffer nil
-            #_"int" :large-read-buffer-pos 0
-            #_"BitcoinPacketHeader" :packet-header nil
+                ;; If we close() before we know our writeTarget, set this to true to call writeTarget.closeConnection() right away.
+                #_"boolean" :close-pending false
+                ;; writeTarget will be thread-safe, and may call into PeerGroup, which calls us, so we should call it unlocked.
+                #_testing
+                #_"MessageWriteTarget" :write-target nil
 
-            #_"Object" :peersocket-lock (Object.)
-        )
-    )
-
-    (defn #_"PeerSocketHandler" PeerSocketHandler'for-socket-address [#_"Ledger" ledger, #_"InetSocketAddress" __remoteIp]
-        (let [this (merge (AbstractTimeoutHandler'new) (PeerSocketHandler'init))]
-
-            (§ assoc this :ledger (ensure some? ledger))
-            (§ assoc this :peer-address (PeerAddress'from-socket-address ledger, __remoteIp))
-            this
-        )
-    )
-
-    (defn #_"PeerSocketHandler" PeerSocketHandler'for-peer-address [#_"Ledger" ledger, #_"PeerAddress" __peerAddress]
-        (let [this (merge (AbstractTimeoutHandler'new) (PeerSocketHandler'init))]
-
-            (§ assoc this :ledger (ensure some? ledger))
-            (§ assoc this :peer-address (ensure some? __peerAddress))
-            this
+                #_"Object" :peersocket-lock (Object.)
+            )
         )
     )
 
@@ -8107,77 +8076,31 @@
     (defn #_"void" PeerSocketHandler'''process-message [#_"PeerSocketHandler" this, #_"Message" m])
 
     #_override
-    (defn #_"int" StreamConnection'''receive-bytes [#_"PeerSocketHandler" this, #_"ByteBuffer" buff]
-        (assert-argument (and (= (.position buff) 0) (<= (+ BitcoinPacketHeader'HEADER_LENGTH 4) (.capacity buff))))
+    (defn #_"int" StreamConnection'''receive-bytes [#_"PeerSocketHandler" this, #_"ByteBuffer" wire]
+        (assert-argument (and (zero? (.position wire)) (<= (+ BitcoinPacketHeader'HEADER_LENGTH 4) (.capacity wire))))
 
-        (§ try
+        (try
             ;; Repeatedly try to deserialize messages until we hit a BufferUnderflowException.
-            (let [#_"boolean" __firstMessage true]
-                (§ while true
-                    ;; If we are in the middle of reading a message, try to fill that one first, before we expect another.
-                    (when (some? (:large-read-buffer this))
-                        ;; This can only happen in the first iteration.
-                        (assert-state __firstMessage)
-                        ;; Read new bytes into the largeReadBuffer.
-                        (let [#_"int" __bytesToGet (min (.remaining buff), (- (alength (:large-read-buffer this)) (:large-read-buffer-pos this)))]
-                            (.get buff, (:large-read-buffer this), (:large-read-buffer-pos this), __bytesToGet)
-                            (§ update this :large-read-buffer-pos + __bytesToGet)
-                            ;; Check the largeReadBuffer's status.
-                            (cond (= (:large-read-buffer-pos this) (alength (:large-read-buffer this)))
-                                (do
-                                    ;; ...processing a message if one is available.
-                                    (PeerSocketHandler'''process-message this, (Wire'deserialize-payload (:ledger this), (:packet-header this), (ByteBuffer/wrap (:large-read-buffer this))))
-                                    (§ assoc this :large-read-buffer nil)
-                                    (§ assoc this :packet-header nil)
-                                    (§ ass __firstMessage false)
-                                )
-                                :else ;; ...or just returning if we don't have enough bytes yet.
-                                (do
-                                    (§ return (.position buff))
-                                )
-                            )
-                        )
-                    )
-                    ;; Now try to deserialize any messages left in buff.
-                    (let [#_"Message" message
-                          #_"int" __preSerializePosition (.position buff)]
+            (loop [#_"boolean" first? true]
+                (let [#_"int" mark (.position wire)
+                      #_"Message" message
                         (try
-                            (§ ass message (Wire'deserialize (:ledger this), buff))
+                            (Wire'deserialize (:ledger this), wire)
                             (catch BufferUnderflowException _
-                                ;; If we went through the whole buffer without a full message, we need to use the largeReadBuffer.
-                                (cond (and __firstMessage (= (.limit buff) (.capacity buff)))
-                                    (do
-                                        ;; ...so reposition the buffer to 0 and read the next message header.
-                                        (.position buff, 0)
-                                        (try
-                                            (Wire'seek-past-magic-bytes (:ledger this), buff)
-                                            (§ assoc this :packet-header (Wire'deserialize-header (:ledger this), buff))
-                                            ;; Initialize the largeReadBuffer with the next message's size and fill it with any bytes left in buff.
-                                            (§ assoc this :large-read-buffer (byte-array (-> this :packet-header :size)))
-                                            (§ assoc this :large-read-buffer-pos (.remaining buff))
-                                            (.get buff, (:large-read-buffer this), 0, (:large-read-buffer-pos this))
-                                            (catch BufferUnderflowException _
-                                                ;; If we went through a whole buffer's worth of bytes without getting a header, give up.
-                                                ;; In cases where the buff is just really small, we could create a second largeReadBuffer
-                                                ;; that we use to deserialize the magic+header, but that is rather complicated when the buff
-                                                ;; should probably be at least that big anyway (for efficiency).
-                                                (throw+ (ProtocolException'new (str "No magic bytes+header after reading " (.capacity buff) " bytes")))
-                                            )
-                                        )
-                                    )
-                                    :else
-                                    (do
-                                        ;; Reposition the buffer to its original position, which saves us from skipping messages by
-                                        ;; seeking past part of the magic bytes before all of them are in the buffer.
-                                        (.position buff, __preSerializePosition)
-                                    )
+                                ;; If we went through the whole buffer without a full message, we might need to use a larger buffer.
+                                (when (and first? (= (.limit wire) (.capacity wire)))
+                                    (throw+ (ProtocolException'new (str "Fat packet does not fit in " (.capacity wire) " bytes")))
                                 )
-                                (§ return (.position buff))
+                                ;; Reposition the buffer to its original position, which saves us from skipping messages by
+                                ;; seeking past part of the magic bytes before all of them are in the buffer.
+                                (.position wire, mark)
+                                nil
                             )
-                        )
+                        )]
+                    (when' (some? message) => (.position wire)
                         ;; Process our freshly deserialized message.
                         (PeerSocketHandler'''process-message this, message)
-                        (§ ass __firstMessage false)
+                        (recur false)
                     )
                 )
             )
@@ -8274,7 +8197,7 @@
             (Peer'new ledger, ver, address, chain, Integer/MAX_VALUE))
         ([#_"Ledger" ledger, #_"VersionMessage" ver, #_"PeerAddress" address, #_"BlockChain" chain, #_"int" depth]
             (let [this
-                    (merge (PeerSocketHandler'for-peer-address ledger, address)
+                    (merge (PeerSocketHandler'new ledger, address)
                         (hash-map
                             #_"Object" :peer-lock (Object.)
 
@@ -8576,49 +8499,51 @@
     #_override
     (defn #_"void" PeerSocketHandler'''process-message [#_"Peer" this, #_"Message" m]
         ;; Allow event listeners to filter the message stream.  Listeners are allowed to drop messages by returning null.
-        (§ doseq [#_"ListenerRegistration<PreMessageReceivedEventListener>" registration (:pre-message-received-event-listeners this)]
-            ;; Skip any listeners that are supposed to run in another thread as we don't want to block waiting for it,
-            ;; which might cause circular deadlock.
-            (when (= (:executor registration) Threading'SAME_THREAD)
-                (§ ass m (PreMessageReceivedEventListener'''on-pre-message-received (:listener registration), this, m))
-                (when (nil? m)
-                    (§ break )
+        (let [m (loop-when [m m #_"CopyOnWriteArrayList<ListenerRegistration<PreMessageReceivedEventListener>>" s (:pre-message-received-event-listeners this)] (seq s) => m
+                    (let [#_"ListenerRegistration<PreMessageReceivedEventListener>" r (first s)]
+                        ;; Skip any listeners that are supposed to run in another thread as we don't want to block waiting for it,
+                        ;; which might cause circular deadlock.
+                        (when' (= (:executor r) Threading'SAME_THREAD) => (recur m (next s))
+                            (let [m (PreMessageReceivedEventListener'''on-pre-message-received (:listener r), this, m)]
+                                (recur-if (some? m) [m (next s)] => m)
+                            )
+                        )
+                    )
+                )]
+            (when (some? m)
+                ;; If we are in the middle of receiving transactions as part of a filtered block push from the remote node,
+                ;; and we receive something that's not a transaction, then we're done.
+                (when (and (some? (:current-filtered-block this)) (not (§ instance? Transaction m)))
+                    (Peer''end-filtered-block this, (:current-filtered-block this))
+                    (§ assoc this :current-filtered-block nil)
                 )
-            )
-        )
-        (§ when (some? m)
-            ;; If we are in the middle of receiving transactions as part of a filtered block push from the remote node,
-            ;; and we receive something that's not a transaction, then we're done.
-            (when (and (some? (:current-filtered-block this)) (not (§ instance? Transaction m)))
-                (Peer''end-filtered-block this, (:current-filtered-block this))
-                (§ assoc this :current-filtered-block nil)
-            )
 
-            ;; No further communication is possible until version handshake is complete.
-            (when-not (or (§ instance? VersionMessage m) (§ instance? VersionAck m) (and (.isDone (:version-handshake-future this)) (not (.isCancelled (:version-handshake-future this)))))
-                (throw+ (ProtocolException'new (str "Received " (.getSimpleName (.getClass m)) " before version handshake is complete.")))
-            )
+                ;; No further communication is possible until version handshake is complete.
+                (when-not (or (§ instance? VersionMessage m) (§ instance? VersionAck m) (and (.isDone (:version-handshake-future this)) (not (.isCancelled (:version-handshake-future this)))))
+                    (throw+ (ProtocolException'new (str "Received " (.getSimpleName (.getClass m)) " before version handshake is complete.")))
+                )
 
-            (condp instance? m
-                Ping             (Peer''process-ping this, (§ cast Ping m))
-                Pong             (Peer''process-pong this, (§ cast Pong m))
-                ;; This is sent to us when we did a getdata on some transactions that aren't in the peers memory pool.
-                ;; Because NotFoundMessage is a subclass of InventoryMessage, the test for it must come before the next.
-                NotFoundMessage  (Peer''process-not-found-message this, (§ cast NotFoundMessage m))
-                InventoryMessage (Peer''process-inv this, (§ cast InventoryMessage m))
-                Block            (Peer''process-block this, (§ cast Block m))
-                FilteredBlock    (Peer''start-filtered-block this, (§ cast FilteredBlock m))
-                Transaction      (Peer''process-transaction this, (§ cast Transaction m))
-                GetDataMessage   (Peer''process-get-data this, (§ cast GetDataMessage m))
-                ;; We don't care about addresses of the network right now.  But in future, we should save them
-                ;; in the wallet so we don't put too much load on the seed nodes and can properly explore the network.
-                AddressMessage   (Peer''process-address-message this, (§ cast AddressMessage m))
-                HeadersMessage   (Peer''process-headers this, (§ cast HeadersMessage m))
-                AlertMessage     (Peer''process-alert this, (§ cast AlertMessage m))
-                VersionMessage   (Peer''process-version-message this, (§ cast VersionMessage m))
-                VersionAck       (Peer''process-version-ack this, (§ cast VersionAck m))
-                RejectMessage    (log/error (str this ": Received " m))
-                                 (log/warn (str this ": Received unhandled message: " m))
+                (condp instance? m
+                    (§ Ping)             (Peer''process-ping this, (§ cast Ping m))
+                    (§ Pong)             (Peer''process-pong this, (§ cast Pong m))
+                    ;; This is sent to us when we did a getdata on some transactions that aren't in the peers memory pool.
+                    ;; Because NotFoundMessage is a subclass of InventoryMessage, the test for it must come before the next.
+                    (§ NotFoundMessage)  (Peer''process-not-found-message this, (§ cast NotFoundMessage m))
+                    (§ InventoryMessage) (Peer''process-inv this, (§ cast InventoryMessage m))
+                    (§ Block)            (Peer''process-block this, (§ cast Block m))
+                    (§ FilteredBlock)    (Peer''start-filtered-block this, (§ cast FilteredBlock m))
+                    (§ Transaction)      (Peer''process-transaction this, (§ cast Transaction m))
+                    (§ GetDataMessage)   (Peer''process-get-data this, (§ cast GetDataMessage m))
+                    ;; We don't care about addresses of the network right now.  But in future, we should save them
+                    ;; in the wallet so we don't put too much load on the seed nodes and can properly explore the network.
+                    (§ AddressMessage)   (Peer''process-address-message this, (§ cast AddressMessage m))
+                    (§ HeadersMessage)   (Peer''process-headers this, (§ cast HeadersMessage m))
+                    (§ AlertMessage)     (Peer''process-alert this, (§ cast AlertMessage m))
+                    (§ VersionMessage)   (Peer''process-version-message this, (§ cast VersionMessage m))
+                    (§ VersionAck)       (Peer''process-version-ack this, (§ cast VersionAck m))
+                    (§ RejectMessage)    (log/error (str this ": Received " m))
+                                     (log/warn (str this ": Received unhandled message: " m))
+                )
             )
         )
         nil
@@ -19633,7 +19558,7 @@
      ;;
     #_throws #_[ "PeerDiscoveryException" ]
     #_abstract
-    (#_"InetSocketAddress[]" PeerDiscovery'''get-peers [#_"PeerDiscovery" this, #_"long" services, #_"long" __timeoutValue, #_"TimeUnit" __timeoutUnit])
+    (#_"InetSocketAddress[]" PeerDiscovery'''get-peers [#_"PeerDiscovery" this, #_"long" services, #_"long" timeout, #_"TimeUnit" unit])
 
     ;;; Stops any discovery in progress when we want to shut down quickly. ;;
     #_abstract
@@ -19758,9 +19683,9 @@
 
     #_throws #_[ "PeerDiscoveryException" ]
     #_override
-    (defn #_"InetSocketAddress[]" PeerDiscovery'''get-peers [#_"MultiplexingDiscovery" this, #_"long" services, #_"long" __timeoutValue, #_"TimeUnit" __timeoutUnit]
+    (defn #_"InetSocketAddress[]" PeerDiscovery'''get-peers [#_"MultiplexingDiscovery" this, #_"long" services, #_"long" timeout, #_"TimeUnit" unit]
         (§ assoc this :v-thread-pool (MultiplexingDiscovery'''create-executor this))
-        (§ try
+        (try
             (let [#_"List<Callable<InetSocketAddress[]>>" tasks (ArrayList.)]
                 (doseq [#_"PeerDiscovery" seed (:seeds this)]
                     (.add tasks,
@@ -19769,33 +19694,28 @@
                             #_foreign
                             #_override
                             (#_"InetSocketAddress[]" call [#_"Callable" __]
-                                (PeerDiscovery'''get-peers seed, services, __timeoutValue, __timeoutUnit)
+                                (PeerDiscovery'''get-peers seed, services, timeout, unit)
                             )
                         )
                     )
                 )
-                (let [#_"List<Future<InetSocketAddress[]>>" futures (.invokeAll (:v-thread-pool this), tasks, __timeoutValue, __timeoutUnit)
+                (let [#_"List<Future<InetSocketAddress[]>>" futures (.invokeAll (:v-thread-pool this), tasks, timeout, unit)
                       #_"List<InetSocketAddress>" addrs (ArrayList.)]
-                    (loop-when-recur [#_"int" i 0] (< i (.size futures)) [(inc i)]
+                    (dotimes [#_"int" i (.size futures)]
                         (let [#_"Future<InetSocketAddress[]>" future (.get futures, i)]
-                            (when (.isCancelled future)
+                            (if (.isCancelled future)
                                 (log/warn (str "Seed " (.get (:seeds this), i) ": timed out"))
-                                (§ continue ) ;; Timed out.
-                            )
-                            (let [#_"InetSocketAddress[]" __inetAddresses]
                                 (try
-                                    (§ ass __inetAddresses (.get future))
+                                    (Collections/addAll addrs, (.get future))
                                     (catch ExecutionException e
                                         (log/warn (str "Seed " (.get (:seeds this), i) ": failed to look up: " (.getMessage e)))
-                                        (§ continue )
                                     )
                                 )
-                                (Collections/addAll addrs, __inetAddresses)
                             )
                         )
                     )
-                    (when (= (.size addrs) 0)
-                        (throw+ (PeerDiscoveryException'new (str "No peer discovery returned any results in " (.toMillis __timeoutUnit, __timeoutValue) "ms. Check internet connection?")))
+                    (when (zero? (.size addrs))
+                        (throw+ (PeerDiscoveryException'new (str "No peer discovery returned any results in " (.toMillis unit, timeout) "ms.  Check internet connection?")))
                     )
 
                     (Collections/shuffle addrs)
@@ -19896,8 +19816,8 @@
      ;;
     #_throws #_[ "PeerDiscoveryException" ]
     #_override
-    (defn #_"InetSocketAddress[]" PeerDiscovery'''get-peers [#_"SeedPeers" this, #_"long" services, #_"long" __timeoutValue, #_"TimeUnit" __timeoutUnit]
-        (when (not= services 0)
+    (defn #_"InetSocketAddress[]" PeerDiscovery'''get-peers [#_"SeedPeers" this, #_"long" services, #_"long" _timeout, #_"TimeUnit" _unit]
+        (when-not (zero? services)
             (throw+ (PeerDiscoveryException'new (str "Pre-determined peers cannot be filtered by services: " services)))
         )
         (try
@@ -21891,27 +21811,21 @@
                                 (condp =? opcode
                                     ScriptOpCodes'OP_IF
                                         (do
-                                            (when (not __shouldExecute)
-                                                (.add __ifStack, false)
-                                                (§ continue )
+                                            (when' __shouldExecute => (.add __ifStack, false)
+                                                (when (< (.size stack) 1)
+                                                    (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_IF on an empty stack"))
+                                                )
+                                                (.add __ifStack, (Script'cast-to-bool (.pollLast stack)))
                                             )
-                                            (when (< (.size stack) 1)
-                                                (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_IF on an empty stack"))
-                                            )
-                                            (.add __ifStack, (Script'cast-to-bool (.pollLast stack)))
-                                            (§ continue )
                                         )
                                     ScriptOpCodes'OP_NOTIF
                                         (do
-                                            (when (not __shouldExecute)
-                                                (.add __ifStack, false)
-                                                (§ continue )
+                                            (when' __shouldExecute => (.add __ifStack, false)
+                                                (when (< (.size stack) 1)
+                                                    (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_NOTIF on an empty stack"))
+                                                )
+                                                (.add __ifStack, (not (Script'cast-to-bool (.pollLast stack))))
                                             )
-                                            (when (< (.size stack) 1)
-                                                (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_NOTIF on an empty stack"))
-                                            )
-                                            (.add __ifStack, (not (Script'cast-to-bool (.pollLast stack))))
-                                            (§ continue )
                                         )
                                     ScriptOpCodes'OP_ELSE
                                         (do
@@ -21919,7 +21833,6 @@
                                                 (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_ELSE without OP_IF/NOTIF"))
                                             )
                                             (.add __ifStack, (not (.pollLast __ifStack)))
-                                            (§ continue )
                                         )
                                     ScriptOpCodes'OP_ENDIF
                                         (do
@@ -21927,7 +21840,6 @@
                                                 (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_ENDIF without OP_IF/NOTIF"))
                                             )
                                             (.pollLast __ifStack)
-                                            (§ continue )
                                         )
 
                                     ;; OP_0 is no opcode
@@ -26686,40 +26598,6 @@
         (hash-map)
     )
 
-    #_override
-    (defn #_"CoinSelection" CoinSelector'''select [#_"DefaultCoinSelector" this, #_"Coin" target, #_"List<TransactionOutput>" candidates]
-        (§ let [#_"List<TransactionOutput>" selected (ArrayList.)]
-            ;; Sort the inputs by age * value, so we get the highest "coindays" spent.
-            ;; TODO: Consider changing the wallets internal format to track just outputs and keep them ordered.
-            (let [#_"List<TransactionOutput>" __sortedOutputs (ArrayList. candidates)]
-                ;; When calculating the wallet balance, we may be asked to select all possible coins, if so, avoid
-                ;; sorting them in order to improve performance.
-                ;; TODO: Take in network parameters when instanatiated, and then test against the current network.
-                ;; Or just have a boolean parameter for "give me everything".
-                (when (not (.equals target, Ledger'MAX_MONEY))
-                    (DefaultCoinSelector'sort-outputs __sortedOutputs)
-                )
-                ;; Now iterate over the sorted outputs until we have got as close to the target as possible or
-                ;; a little bit over (excessive value will be change).
-                (let [#_"long" total 0]
-                    (doseq [#_"TransactionOutput" output __sortedOutputs]
-                        (when (<= (:value target) total)
-                            (§ break )
-                        )
-                        ;; Only pick chain-included transactions, or transactions that are ours and pending.
-                        (when (DefaultCoinSelector''should-select this, (:parent output))
-                            (.add selected, output)
-                            (§ ass total (+ total (-> output :coin-value :value)))
-                        )
-                    )
-                    ;; Total may be lower than the target here if the given candidates were insufficient to create
-                    ;; the requested transaction.
-                    (CoinSelection'new (Coin'new total), selected)
-                )
-            )
-        )
-    )
-
     #_testing
     (defn #_"void" DefaultCoinSelector'sort-outputs [#_"List<TransactionOutput>" outputs]
         (Collections/sort outputs,
@@ -26753,17 +26631,60 @@
         nil
     )
 
-    ;;; Sub-classes can override this to just customize whether transactions are usable, but keep age sorting. ;;
+    (defn #_"boolean" DefaultCoinSelector'is-selectable [#_"Transaction" tx]
+        ;; Only pick chain-included transactions, or transactions that are ours and pending.
+        (let [#_"TransactionConfidence" confidence (Transaction''get-confidence-t tx)
+              #_"ConfidenceType" type (TransactionConfidence''get-confidence-type confidence)]
+            ;; TODO: The value 1 below dates from a time when transactions we broadcast *to* were counted, set to 0.
+            (or (= type :ConfidenceType'BUILDING)
+                (and (= type :ConfidenceType'PENDING)
+                     (= (TransactionConfidence''get-source confidence) :ConfidenceSource'SELF)
+                     (< 1 (TransactionConfidence''num-broadcast-peers confidence))))
+        )
+    )
+
+    ;;;
+     ; Sub-classes can override this to just customize whether transactions are usable, but keep age sorting.
+     ;;
     #_method
     (defn #_"boolean" DefaultCoinSelector''should-select [#_"DefaultCoinSelector" __, #_"Transaction" tx]
         (or (nil? tx) (DefaultCoinSelector'is-selectable tx))
     )
 
-    (defn #_"boolean" DefaultCoinSelector'is-selectable [#_"Transaction" tx]
-        ;; Only pick chain-included transactions, or transactions that are ours and pending.
-        (let [#_"TransactionConfidence" confidence (Transaction''get-confidence-t tx) #_"ConfidenceType" type (TransactionConfidence''get-confidence-type confidence)]
-            ;; TODO: The value 1 below dates from a time when transactions we broadcast *to* were counted, set to 0.
-            (or (= type :ConfidenceType'BUILDING) (and (= type :ConfidenceType'PENDING) (= (TransactionConfidence''get-source confidence) :ConfidenceSource'SELF) (< 1 (TransactionConfidence''num-broadcast-peers confidence))))
+    #_override
+    (defn #_"CoinSelection" CoinSelector'''select [#_"DefaultCoinSelector" this, #_"Coin" target, #_"List<TransactionOutput>" candidates]
+        ;; Sort the inputs by age * value, so we get the highest "coindays" spent.
+        ;; TODO: Consider changing the wallets internal format to track just outputs and keep them ordered.
+        (let [#_"List<TransactionOutput>" sorted (ArrayList. candidates)]
+            ;; When calculating the wallet balance, we may be asked to select all possible coins, if so, avoid
+            ;; sorting them in order to improve performance.
+            ;; TODO: Take in network parameters when instantiated, and then test against the current network.
+            ;; Or just have a boolean parameter for "give me everything".
+            (when-not (.equals target, Ledger'MAX_MONEY)
+                (DefaultCoinSelector'sort-outputs sorted)
+            )
+            ;; Now iterate over the sorted outputs until we have got as close to the target as possible or
+            ;; a little bit over (excessive value will be change).
+            (let [#_"List<TransactionOutput>" selected (ArrayList.)
+                  #_"long" total
+                    (loop-when [total 0 sorted sorted] (seq sorted) => total
+                        (let [#_"TransactionOutput" output (first sorted)]
+                            (when' (< total (:value target)) => total
+                                ;; Only pick chain-included transactions, or transactions that are ours and pending.
+                                (let [total
+                                        (when' (DefaultCoinSelector''should-select this, (:parent output)) => total
+                                            (.add selected, output)
+                                            (+ total (-> output :coin-value :value))
+                                        )]
+                                    (recur total (next sorted))
+                                )
+                            )
+                        )
+                    )]
+                ;; Total may be lower than the target here if the given candidates were insufficient to create
+                ;; the requested transaction.
+                (CoinSelection'new (Coin'new total), selected)
+            )
         )
     )
 )
@@ -31658,11 +31579,10 @@
             (let [#_"ArrayListMultimap<Sha256Hash, TxOffsetPair>" __mapBlockTx (ArrayListMultimap/create)]
                 (doseq [#_"Transaction" tx (Wallet''get-transactions this, true)]
                     (let [#_"Map<Sha256Hash, Integer>" __appearsIn (Transaction''get-appears-in-hashes tx)]
-                        (when (nil? __appearsIn)
-                            (§ continue ) ;; Pending.
-                        )
-                        (doseq [#_"Map.Entry<Sha256Hash, Integer>" block (.entrySet __appearsIn)]
-                            (.put __mapBlockTx, (.getKey block), (TxOffsetPair'new tx, (.getValue block)))
+                        (when (some? __appearsIn) ;; Else pending.
+                            (doseq [#_"Map.Entry<Sha256Hash, Integer>" block (.entrySet __appearsIn)]
+                                (.put __mapBlockTx, (.getKey block), (TxOffsetPair'new tx, (.getValue block)))
+                            )
                         )
                     )
                 )
