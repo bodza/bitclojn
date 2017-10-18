@@ -133,7 +133,7 @@
 (declare BlockStoreException'new)
 (declare BlockVerifyFlag'enum-set)
 (declare BlocksDownloadedEventListener'''on-blocks-downloaded)
-(declare BloomFilter''apply-and-update-b BloomFilter''apply-and-update-t BloomFilter''contains BloomFilter''get-false-positive-rate BloomFilter''get-update-flag BloomFilter''insert-data BloomFilter''insert-key BloomFilter''matches-all BloomFilter''merge BloomFilter''set-match-all BloomFilter'MAX_FILTER_SIZE BloomFilter'MAX_HASH_FUNCS BloomFilter'init BloomFilter'murmur-hash3 BloomFilter'from-wire BloomFilter''to-wire BloomFilter'new BloomFilter'rotate-left32)
+(declare BloomFilter''apply-and-update-b BloomFilter''apply-and-update-t BloomFilter''contains BloomFilter''get-false-positive-rate BloomFilter''get-update-flag BloomFilter''insert-data BloomFilter''insert-key BloomFilter''matches-all BloomFilter''merge BloomFilter''set-match-all BloomFilter'MAX_FILTER_SIZE BloomFilter'MAX_HASH_FUNCS BloomFilter'init BloomFilter'murmur-hash3 BloomFilter'from-wire BloomFilter''to-wire BloomFilter'new)
 (declare BloomUpdate'enum-map BloomUpdate'for-code)
 (declare ChainDownloadStartedEventListener'''on-chain-download-started)
 (declare ChainFileLockedException'new)
@@ -272,7 +272,7 @@
 (declare RuleViolation'enum-set)
 (declare SPVBlockChain'new)
 (declare SPVBlockStore''get-ring-cursor SPVBlockStore''init-store SPVBlockStore''set-ring-cursor SPVBlockStore'DEFAULT_CAPACITY SPVBlockStore'FILE_PROLOGUE_BYTES SPVBlockStore'HEADER_MAGIC SPVBlockStore'NOT_FOUND_MARKER SPVBlockStore'RECORD_SIZE SPVBlockStore'get-file-size SPVBlockStore'new)
-(declare Script''correctly-spends-4 Script''correctly-spends-5 Script''create-empty-input-script Script''find-key-in-redeem Script''find-sig-in-redeem Script''get-chunks Script''get-cltv-payment-channel-expiry Script''get-cltv-payment-channel-recipient-pub-key Script''get-cltv-payment-channel-sender-pub-key Script''get-creation-time-seconds Script''get-from-address Script''get-number-of-bytes-required-to-spend Script''get-number-of-signatures-required-to-spend Script''get-program Script''get-pub-key Script''get-pub-key-hash Script''get-pub-keys Script''get-quick-program Script''get-script-sig-with-signature Script''get-script-type Script''get-sig-insertion-index Script''get-to-address-2 Script''get-to-address-3 Script''is-op-return Script''is-pay-to-script-hash Script''is-sent-to-address Script''is-sent-to-cltv-payment-channel Script''is-sent-to-multi-sig Script''is-sent-to-raw-pub-key Script''parse Script''set-creation-time-seconds Script'ALL_VERIFY_FLAGS Script'MAX_OPS_PER_SCRIPT Script'MAX_P2SH_SIGOPS Script'MAX_PUBKEYS_PER_MULTISIG Script'MAX_SCRIPT_ELEMENT_SIZE Script'MAX_SCRIPT_SIZE Script'MAX_STACK_SIZE Script'SIG_SIZE Script'STANDARD_TRANSACTION_SCRIPT_CHUNKS Script'cast-to-big-integer-2 Script'cast-to-big-integer-3 Script'cast-to-bool Script'check-sequence Script'create-input-script-1 Script'create-input-script-2 Script'create-multi-sig-output-script Script'decode-from-op-n Script'encode-to-op-n Script'equals-range Script'execute-check-lock-time-verify Script'execute-check-sequence-verify Script'execute-check-sig Script'execute-multi-sig Script'execute-script-5 Script'get-p2sh-sig-op-count Script'get-sig-op-count-1 Script'get-sig-op-count-2 Script'init Script'new Script'from-chunks Script'from-bytes Script'remove-all-instances-of Script'remove-all-instances-of-op Script'write-bytes)
+(declare Script''correctly-spends-4 Script''correctly-spends-5 Script''create-empty-input-script Script''find-key-in-redeem Script''find-sig-in-redeem Script''get-chunks Script''get-cltv-payment-channel-expiry Script''get-cltv-payment-channel-recipient-pub-key Script''get-cltv-payment-channel-sender-pub-key Script''get-creation-time-seconds Script''get-from-address Script''get-number-of-bytes-required-to-spend Script''get-number-of-signatures-required-to-spend Script''get-program Script''get-pub-key Script''get-pub-key-hash Script''get-pub-keys Script''get-quick-program Script''get-script-sig-with-signature Script''get-script-type Script''get-sig-insertion-index Script''get-to-address-2 Script''get-to-address-3 Script''is-op-return Script''is-pay-to-script-hash Script''is-sent-to-address Script''is-sent-to-cltv-payment-channel Script''is-sent-to-multi-sig Script''is-sent-to-raw-pub-key Script''parse Script''set-creation-time-seconds Script'ALL_VERIFY_FLAGS Script'MAX_OPS_PER_SCRIPT Script'MAX_P2SH_SIGOPS Script'MAX_PUBKEYS_PER_MULTISIG Script'MAX_SCRIPT_ELEMENT_SIZE Script'MAX_SCRIPT_SIZE Script'MAX_STACK_SIZE Script'SIG_SIZE Script'cast-to-big-integer-2 Script'cast-to-big-integer-3 Script'cast-to-bool Script'check-sequence Script'create-input-script-1 Script'create-input-script-2 Script'create-multi-sig-output-script Script'decode-from-op-n Script'encode-to-op-n Script'equals-range Script'execute-check-lock-time-verify Script'execute-check-sequence-verify Script'execute-check-sig Script'execute-multi-sig Script'execute-script-5 Script'get-p2sh-sig-op-count Script'get-sig-op-count-1 Script'get-sig-op-count-2 Script'init Script'new Script'from-chunks Script'from-bytes Script'remove-all-instances-of Script'remove-all-instances-of-op Script'write-bytes)
 (declare ScriptBuilder''add-chunk-2 ScriptBuilder''add-chunk-3 ScriptBuilder''big-num-2 ScriptBuilder''big-num-3 ScriptBuilder''build ScriptBuilder''data-2 ScriptBuilder''data-3 ScriptBuilder''number-2 ScriptBuilder''number-3 ScriptBuilder''op-2 ScriptBuilder''op-3 ScriptBuilder''small-num-2 ScriptBuilder''small-num-3 ScriptBuilder'create-cltv-payment-channel-input-2 ScriptBuilder'create-cltv-payment-channel-input-2-bytes ScriptBuilder'create-cltv-payment-channel-output ScriptBuilder'create-cltv-payment-channel-p2sh-input ScriptBuilder'create-cltv-payment-channel-p2sh-refund ScriptBuilder'create-cltv-payment-channel-refund ScriptBuilder'create-input-script-1 ScriptBuilder'create-input-script-2 ScriptBuilder'create-multi-sig-input-script ScriptBuilder'create-multi-sig-input-script-bytes-1 ScriptBuilder'create-multi-sig-input-script-bytes-2 ScriptBuilder'create-multi-sig-output-script ScriptBuilder'create-op-return-script ScriptBuilder'create-output-script-1a ScriptBuilder'create-output-script-1e ScriptBuilder'create-p2sh-multi-sig-input-script ScriptBuilder'create-p2sh-output-script-1 ScriptBuilder'create-p2sh-output-script-1-bytes ScriptBuilder'create-p2sh-output-script-2 ScriptBuilder'create-redeem-script ScriptBuilder'init ScriptBuilder'new-0 ScriptBuilder'new-1 ScriptBuilder'update-script-with-signature)
 (declare ScriptChunk''decode-op-n ScriptChunk''equals-op-code ScriptChunk''get-start-location-in-program ScriptChunk''is-op-code ScriptChunk''is-push-data ScriptChunk''is-shortest-possible-push-data ScriptChunk''write-chunk ScriptChunk'new)
 (declare ScriptError'enum-set)
@@ -2535,47 +2535,42 @@
 
     #_throws #_[ "VerificationException" ]
     #_method
-    (defn- #_"void" BlockChain''inform-listeners-for-new-block [#_"BlockChain" this, #_"Block" block, #_"NewBlockType" __newBlockType, #_"List<Sha256Hash>" __filteredTxHashList, #_"Map<Sha256Hash, Transaction>" __filteredTxn, #_"StoredBlock" __newStoredBlock]
+    (defn- #_"void" BlockChain''inform-listeners-for-new-block [#_"BlockChain" this, #_"Block" block, #_"NewBlockType" type, #_"List<Sha256Hash>" __filteredTxHashList, #_"Map<Sha256Hash, Transaction>" __filteredTxn, #_"StoredBlock" stored]
         ;; Notify the listeners of the new block, so the depth and workDone of stored transactions can be updated
         ;; (in the case of the listener being a wallet).  Wallets need to know how deep each transaction is, so
         ;; coinbases aren't used before maturity.
-        (§ let [#_"boolean" first? true
-              #_"Set<Sha256Hash>" __falsePositives (HashSet.)]
-            (when (some? __filteredTxHashList)
-                (.addAll __falsePositives, __filteredTxHashList)
-            )
+        (let [#_"Set<Sha256Hash>" __falsePositives (HashSet.) _ (when (some? __filteredTxHashList) (.addAll __falsePositives, __filteredTxHashList))]
 
-            (doseq [#_"ListenerRegistration<TransactionReceivedInBlockListener>" registration (:transaction-received-listeners this)]
-                (if (= (:executor registration) Threading'SAME_THREAD)
-                    (BlockChain'inform-listener-for-new-transactions block, __newBlockType, __filteredTxHashList, __filteredTxn, __newStoredBlock, first?, (:listener registration), __falsePositives)
-                    ;; Listener wants to be run on some other thread, so marshal it across here.
-                    (let [#_"boolean" __notFirst (not first?)]
-                        (.execute (:executor registration),
-                            #(try+
-                                ;; We can't do false-positive handling when executing on another thread.
-                                (let [#_"Set<Sha256Hash>" __ignoredFalsePositives (HashSet.)]
-                                    (BlockChain'inform-listener-for-new-transactions block, __newBlockType, __filteredTxHashList, __filteredTxn, __newStoredBlock, __notFirst, (:listener registration), __ignoredFalsePositives)
-                                )
-                                (§ catch VerificationException e
-                                    (log/error e, "Block chain listener threw exception")
-                                    ;; Don't attempt to relay this back to the original peer thread if this was an async listener invocation.
-                                    ;; TODO: Make exception reporting a global feature and use it here.
+            (loop-when-recur [#_"boolean" first? true #_"CopyOnWriteArrayList<ListenerRegistration<TransactionReceivedInBlockListener>>" s (:transaction-received-listeners this)] (seq s) [false (next s)]
+                (let [#_"ListenerRegistration<TransactionReceivedInBlockListener>" r (first s)]
+                    (if (= (:executor r) Threading'SAME_THREAD)
+                        (BlockChain'inform-listener-for-new-transactions block, type, __filteredTxHashList, __filteredTxn, stored, (not first?), (:listener r), __falsePositives)
+                        ;; Listener wants to be run on some other thread, so marshal it across here.
+                        (let [#_"boolean" clone? (not first?)]
+                            (.execute (:executor r),
+                                #(try+
+                                    ;; We can't do false-positive handling when executing on another thread.
+                                    (BlockChain'inform-listener-for-new-transactions block, type, __filteredTxHashList, __filteredTxn, stored, (not clone?), (:listener r), (HashSet.))
+                                    (§ catch VerificationException e
+                                        (log/error e, "Block chain listener threw exception")
+                                        ;; Don't attempt to relay this back to the original peer thread if this was an async listener invocation.
+                                        ;; TODO: Make exception reporting a global feature and use it here.
+                                    )
                                 )
                             )
                         )
                     )
                 )
-                (§ ass first? false)
             )
 
-            (doseq [#_"ListenerRegistration<NewBestBlockListener>" registration (:new-best-block-listeners this)]
-                (let [f #(when (= __newBlockType :NewBlockType'BEST_CHAIN)
-                            (NewBestBlockListener'''notify-new-best-block (:listener registration), __newStoredBlock)
+            (doseq [#_"ListenerRegistration<NewBestBlockListener>" r (:new-best-block-listeners this)]
+                (let [f #(when (= type :NewBlockType'BEST_CHAIN)
+                            (NewBestBlockListener'''notify-new-best-block (:listener r), stored)
                         )]
-                    (if (= (:executor registration) Threading'SAME_THREAD)
+                    (if (= (:executor r) Threading'SAME_THREAD)
                         (f)
                         ;; Listener wants to be run on some other thread, so marshal it across here.
-                        (.execute (:executor registration),
+                        (.execute (:executor r),
                             #(try+
                                 (f)
                                 (§ catch VerificationException e
@@ -2586,7 +2581,6 @@
                             )
                         )
                     )
-                    (§ ass first? false)
                 )
             )
 
@@ -2596,15 +2590,15 @@
     )
 
     #_throws #_[ "VerificationException" ]
-    (defn- #_"void" BlockChain'inform-listener-for-new-transactions [#_"Block" block, #_"NewBlockType" __newBlockType, #_"List<Sha256Hash>" __filteredTxHashList, #_"Map<Sha256Hash, Transaction>" __filteredTxn, #_"StoredBlock" __newStoredBlock, #_"boolean" first, #_"TransactionReceivedInBlockListener" listener, #_"Set<Sha256Hash>" __falsePositives]
-        (§ cond (some? (:transactions block))
+    (defn- #_"void" BlockChain'inform-listener-for-new-transactions [#_"Block" block, #_"NewBlockType" type, #_"List<Sha256Hash>" __filteredTxHashList, #_"Map<Sha256Hash, Transaction>" __filteredTxn, #_"StoredBlock" stored, #_"boolean" clone?, #_"TransactionReceivedInBlockListener" listener, #_"Set<Sha256Hash>" __falsePositives]
+        (cond (some? (:transactions block))
             (do
                 ;; If this is not the first wallet, ask for the transactions to be duplicated before being given
                 ;; to the wallet when relevant.  This ensures that if we have two connected wallets and a tx that
                 ;; is relevant to both of them, they don't end up accidentally sharing the same object (which can
                 ;; result in temporary in-memory corruption during re-orgs).  See bug 257.  We only duplicate in
                 ;; the case of multiple wallets to avoid an unnecessary efficiency hit in the common case.
-                (BlockChain'send-transactions-to-listener __newStoredBlock, __newBlockType, listener, 0, (:transactions block), (not first), __falsePositives)
+                (BlockChain'send-transactions-to-listener stored, type, listener, 0, (:transactions block), clone?, __falsePositives)
             )
             (some? __filteredTxHashList)
             (do
@@ -2612,19 +2606,13 @@
                 ;; We must send transactions to listeners in the order they appeared in the block - thus we iterate over the
                 ;; set of hashes and call sendTransactionsToListener with individual txn when they have not already been
                 ;; seen in loose broadcasts - otherwise notifyTransactionIsInBlock on the hash.
-                (let [#_"int" offset 0]
-                    (doseq [#_"Sha256Hash" hash __filteredTxHashList]
-                        (let [#_"Transaction" tx (.get __filteredTxn, hash)]
-                            (cond (some? tx)
-                                (do
-                                    (BlockChain'send-transactions-to-listener __newStoredBlock, __newBlockType, listener, offset, (Collections/singletonList tx), (not first), __falsePositives)
-                                )
-                                (TransactionReceivedInBlockListener'''notify-transaction-is-in-block listener, hash, __newStoredBlock, __newBlockType, offset)
-                                (do
-                                    (.remove __falsePositives, hash)
-                                )
+                (loop-when-recur [#_"int" offset 0 #_"List<Sha256Hash>" s __filteredTxHashList] (seq s) [(inc offset) (next s)]
+                    (let [#_"Sha256Hash" hash (first s) #_"Transaction" tx (.get __filteredTxn, hash)]
+                        (if (some? tx)
+                            (BlockChain'send-transactions-to-listener stored, type, listener, offset, (Collections/singletonList tx), clone?, __falsePositives)
+                            (when (TransactionReceivedInBlockListener'''notify-transaction-is-in-block listener, hash, stored, type, offset)
+                                (.remove __falsePositives, hash)
                             )
-                            (§ ass offset (inc offset))
                         )
                     )
                 )
@@ -2638,15 +2626,20 @@
      ;;
     #_throws #_[ "BlockStoreException" ]
     (defn- #_"long" BlockChain'get-median-timestamp-of-recent-blocks [#_"StoredBlock" stored, #_"BlockStore" store]
-        (§ let [#_"long[]" timestamps (long-array 11)
-              #_"int" unused 9]
+        (let [#_"long[]" timestamps (long-array 11)]
             (aset timestamps 10 (:time-seconds (:stored-header stored)))
-            (loop-when-recur [] (and (<= 0 unused) (some? (§ ass stored (StoredBlock''get-prev stored, store)))) [(§ ass unused (dec unused))]
-                (aset timestamps unused (:time-seconds (:stored-header stored)))
-            )
 
-            (Arrays/sort timestamps, (inc unused), 11)
-            (aget timestamps (+ unused (quot (- 11 unused) 2)))
+            (let [#_"int" i
+                    (loop-when [i 9] (<= 0 i) => i
+                        (let-when [stored (StoredBlock''get-prev stored, store)] (some? stored) => i
+                            (aset timestamps i (:time-seconds (:stored-header stored)))
+                            (recur (dec i))
+                        )
+                    )]
+
+                (Arrays/sort timestamps, (inc i), 11)
+                (aget timestamps (+ i (quot (- 11 i) 2)))
+            )
         )
     )
 
@@ -2809,20 +2802,24 @@
 
     #_throws #_[ "VerificationException" ]
     (defn- #_"void" BlockChain'send-transactions-to-listener [#_"StoredBlock" block, #_"NewBlockType" type, #_"TransactionReceivedInBlockListener" listener, #_"int" offset, #_"List<Transaction>" transactions, #_"boolean" clone?, #_"Set<Sha256Hash>" __falsePositives]
-        (§ doseq [#_"Transaction" tx transactions]
-            (try+
-                (.remove __falsePositives, (Transaction''get-hash tx))
-                (let [tx (when' clone? => tx
-                            (Transaction'from-wire (:ledger tx), (ByteBuffer/wrap (Message''to-bytes tx, Transaction''to-wire)))
-                        )]
-                    (TransactionReceivedInBlockListener'''receive-from-block listener, tx, block, type, offset)
-                    (§ ass offset (inc offset))
-                )
-                (§ catch ScriptException e
-                    ;; We don't want scripts we don't understand to break the block chain,
-                    ;; so just note that this tx was not scanned here and continue.
-                    (log/warn (str "Failed to parse a script: " e))
-                )
+        (loop-when [#_"int" i offset #_"List<Transaction>" s transactions] (seq s)
+            (let [#_"Transaction" tx (first s)
+                  i (try+
+                        (.remove __falsePositives, (Transaction''get-hash tx))
+                        (let [tx (when' clone? => tx
+                                    (Transaction'from-wire (:ledger tx), (ByteBuffer/wrap (Message''to-bytes tx, Transaction''to-wire)))
+                                )]
+                            (TransactionReceivedInBlockListener'''receive-from-block listener, tx, block, type, i)
+                            (inc i)
+                        )
+                        (§ catch ScriptException e
+                            ;; We don't want scripts we don't understand to break the block chain,
+                            ;; so just note that this tx was not scanned here and continue.
+                            (log/warn (str "Failed to parse a script: " e))
+                            i
+                        )
+                    )]
+                (recur i (next s))
             )
         )
         nil
@@ -4902,59 +4899,38 @@
         (Math/pow (- 1 (Math/pow Math/E, (/ (* -1.0 (:hash-funcs this) elements) (* (alength (:data this)) 8)))), (:hash-funcs this))
     )
 
-    (defn- #_"int" BloomFilter'rotate-left32 [#_"int" x, #_"int" r]
-        (| (<< x r) (>>> x (- 32 r)))
-    )
-
     ;;;
      ; Applies the MurmurHash3 (x86_32) algorithm to the given data.
      ; See <a href="https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp">this C++ code</a> for the original.
      ;;
-    (defn #_"int" BloomFilter'murmur-hash3 [#_"byte[]" data, #_"long" tweak, #_"int" __hashNum, #_"byte[]" object]
-        (§ let [#_"int" h1 (int (+ (* __hashNum 0xfba4c795) tweak)) #_"int" c1 0xcc9e2d51 #_"int" c2 0x1b873593]
-
-            (let [#_"int" __numBlocks (* (quot (alength object) 4) 4)]
-
-                ;; body
-                (loop-when-recur [#_"int" i 0] (< i __numBlocks) [(+ i 4)]
-                    (let [#_"int" k1 (| (& 0xff (aget object i)) (<< (& 0xff (aget object (inc i))) 8) (<< (& 0xff (aget object (+ i 2))) 16) (<< (& 0xff (aget object (+ i 3))) 24))]
-
-                        (§ ass k1 (* k1 c1))
-                        (§ ass k1 (BloomFilter'rotate-left32 k1, 15))
-                        (§ ass k1 (* k1 c2))
-
-                        (§ ass h1 (bit-xor h1 k1))
-                        (§ ass h1 (BloomFilter'rotate-left32 h1, 13))
-                        (§ ass h1 (+ (* h1 5) 0xe6546b64))
+    (defn #_"int" BloomFilter'murmur-hash3 [#_"byte[]" data, #_"long" tweak, #_"int" h, #_"byte[]" a]
+        (§ let [#_"int" m (* (quot (alength a) 4) 4) #_"int" n (& (alength a) 3)
+              read- #_"int" (fn [#_"byte[]" a, #_"int" i] (| (& 0xff (aget a i))
+                                                         (<< (& 0xff (aget a (inc i))) 8)
+                                                         (<< (& 0xff (aget a (+ i 2))) 16)
+                                                         (<< (& 0xff (aget a (+ i 3))) 24)))
+              swap- #_"int" (fn [#_"int" x, #_"int" r] (| (<< x r) (>>> x (- 32 r))))
+              h (loop-when [h (-> h (* 0xfba4c795) (+ tweak) (int)) #_"int" i 0] (< i m) => h
+                    (let [#_"int" k (-> (read- a, i) (* 0xcc9e2d51) (swap- 15) (* 0x1b873593))]
+                        (recur (-> h (bit-xor k) (swap- 13) (* 5) (+ 0xe6546b64)) (+ i 4))
                     )
                 )
-
-                (let [#_"int" k1 0 #_"int" n (& (alength object) 3)]
-                    (when (< 2 n)
-                        (§ ass k1 (bit-xor k1 (<< (& 0xff (aget object (+ __numBlocks 2))) 16)))
+              h (when' (< 0 n) => h
+                    (let [#_"int" k 0
+                          k (if (< 2 n) (bit-xor k (<< (& 0xff (aget a (+ m 2))) 16)) k)
+                          k (if (< 1 n) (bit-xor k (<< (& 0xff (aget a (inc m))) 8)) k)
+                          k (-> k (bit-xor (& 0xff (aget a m))) (* 0xcc9e2d51) (swap- 15) (* 0x1b873593))]
+                        (bit-xor h k)
                     )
-                    (when (< 1 n)
-                        (§ ass k1 (bit-xor k1 (<< (& 0xff (aget object (inc __numBlocks))) 8)))
-                    )
-                    (when (< 0 n)
-                        (§ ass k1 (bit-xor k1 (& 0xff (aget object __numBlocks))))
-                        (§ ass k1 (* k1 c1))
-                        (§ ass k1 (BloomFilter'rotate-left32 k1, 15))
-                        (§ ass k1 (* k1 c2))
-                        (§ ass h1 (bit-xor h1 k1))
-                    )
-
-                    ;; finalization
-                    (§ ass h1 (bit-xor h1 (alength object)))
-                    (§ ass h1 (bit-xor h1 (>>> h1 16)))
-                    (§ ass h1 (* h1 0x85ebca6b))
-                    (§ ass h1 (bit-xor h1 (>>> h1 13)))
-                    (§ ass h1 (* h1 0xc2b2ae35))
-                    (§ ass h1 (bit-xor h1 (>>> h1 16)))
-
-                    (int (rem (& h1 0xffffffff) (* (alength data) 8)))
                 )
-            )
+              h (bit-xor h (alength a))
+              h (bit-xor h (>>> h 16))
+              h (* h 0x85ebca6b)
+              h (bit-xor h (>>> h 13))
+              h (* h 0xc2b2ae35)
+              h (bit-xor h (>>> h 16))]
+
+            (int (rem (& h 0xffffffff) (* (alength data) 8)))
         )
     )
 
@@ -17353,26 +17329,24 @@
      ; <code>deriveChildKey(parent, new ChildNumber(childNumber, true))</code>
      ; where the value of the hardened bit of <code>childNumber</code> is zero.
      ;;
-    (defn #_"DeterministicKey" HDKeyDerivation'derive-child-key-2i [#_"DeterministicKey" parent, #_"int" cn]
-        (HDKeyDerivation'derive-child-key-2c parent, (ChildNumber'new cn))
+    (defn #_"DeterministicKey" HDKeyDerivation'derive-child-key-2i [#_"DeterministicKey" parent, #_"int" i]
+        (HDKeyDerivation'derive-child-key-2c parent, (ChildNumber'new i))
     )
 
     ;;;
      ; Derives a key of the "extended" child number, i.e. with the 0x80000000 bit specifying whether
      ; to use hardened derivation or not.  If derivation fails, tries a next child.
      ;;
-    (defn #_"DeterministicKey" HDKeyDerivation'derive-this-or-next-child-key [#_"DeterministicKey" parent, #_"int" cn]
-        (§ let [#_"ChildNumber" child (ChildNumber'new cn)
-              #_"boolean" hardened? (ChildNumber''is-hardened child)]
-            (loop-when-recur [#_"int" i 0] (< i HDKeyDerivation'MAX_CHILD_DERIVATION_ATTEMPTS) [(inc i)]
+    (defn #_"DeterministicKey" HDKeyDerivation'derive-this-or-next-child-key [#_"DeterministicKey" parent, #_"int" i]
+        (let [#_"ChildNumber" child (ChildNumber'new i) #_"int" n (ChildNumber''num child) #_"boolean" hardened? (ChildNumber''is-hardened child)]
+            (loop-when [#_"int" i 0] (< i HDKeyDerivation'MAX_CHILD_DERIVATION_ATTEMPTS) => (throw+ (HDDerivationException'new "Maximum number of child derivation attempts reached, this is probably an indication of a bug."))
                 (try+
-                    (§ ass child (ChildNumber'compose (+ (ChildNumber''num child) i), hardened?))
-                    (§ return (HDKeyDerivation'derive-child-key-2c parent, child))
+                    (HDKeyDerivation'derive-child-key-2c parent, (ChildNumber'compose (+ n i), hardened?))
                     (§ catch HDDerivationException _
+                        (recur (inc i))
                     )
                 )
             )
-            (throw+ (HDDerivationException'new "Maximum number of child derivation attempts reached, this is probably an indication of a bug."))
         )
     )
 
@@ -17892,21 +17866,20 @@
 
         ;; Look up all the words in the list and construct the concatenation of the original entropy and the checksum.
 
-        (§ let [#_"int" __concatLenBits (* (.size words) 11)
-              #_"boolean[]" __concatBits (boolean-array __concatLenBits)
-              #_"int" wordindex 0]
-            (doseq [#_"String" word words]
-                ;; Find the words index in the wordlist.
-                (let [#_"int" ndx (Collections/binarySearch (:word-list this), word)]
-                    (when (< ndx 0)
+        (let [#_"int" __concatLenBits (* (.size words) 11)
+              #_"boolean[]" __concatBits (boolean-array __concatLenBits)]
+
+            (loop-when-recur [#_"int" index 0 words words] (seq words) [(inc index) (next words)]
+                ;; Find the word's index in the wordlist.
+                (let [#_"String" word (first words) #_"int" at (Collections/binarySearch (:word-list this), word)]
+                    (when (neg? at)
                         (throw+ (MnemonicWordException'new word))
                     )
 
                     ;; Set the next 11 bits to the value of the index.
-                    (loop-when-recur [#_"int" i 0] (< i 11) [(inc i)]
-                        (aset __concatBits (+ (* wordindex 11) i) (not= (& ndx (<< 1 (- 10 i))) 0))
+                    (dotimes [#_"int" i 11]
+                        (aset __concatBits (+ (* index 11) i) (not= (& at (<< 1 (- 10 i))) 0))
                     )
-                    (§ ass wordindex (inc wordindex))
                 )
             )
 
@@ -17915,8 +17888,8 @@
 
                 ;; Extract original entropy as bytes.
                 (let [#_"byte[]" entropy (byte-array (quot __entropyLengthBits 8))]
-                    (loop-when-recur [#_"int" i 0] (< i (alength entropy)) [(inc i)]
-                        (loop-when-recur [#_"int" j 0] (< j 8) [(inc j)]
+                    (dotimes [#_"int" i (alength entropy)]
+                        (dotimes [#_"int" j 8]
                             (when (aget __concatBits (+ (* i 8) j))
                                 (aset entropy i (| (aget entropy i) (<< 1 (- 7 j))))
                             )
@@ -17928,7 +17901,7 @@
                           #_"boolean[]" __hashBits (MnemonicCode'bytes-to-bits hash)]
 
                         ;; Check all the checksum bits.
-                        (loop-when-recur [#_"int" i 0] (< i __checksumLengthBits) [(inc i)]
+                        (dotimes [#_"int" i __checksumLengthBits]
                             (when (not= (aget __concatBits (+ __entropyLengthBits i)) (aget __hashBits i))
                                 (throw+ (MnemonicChecksumException'new))
                             )
@@ -20996,14 +20969,6 @@
         (Collections/unmodifiableList (:chunks this))
     )
 
-    (§ def- #_"ScriptChunk[]" Script'STANDARD_TRANSACTION_SCRIPT_CHUNKS (§ into-array ScriptChunk
-    [
-        (ScriptChunk'new ScriptOpCodes'OP_DUP, nil, 0)
-        (ScriptChunk'new ScriptOpCodes'OP_HASH160, nil, 1)
-        (ScriptChunk'new ScriptOpCodes'OP_EQUALVERIFY, nil, 23)
-        (ScriptChunk'new ScriptOpCodes'OP_CHECKSIG, nil, 24)
-    ]))
-
     ;;;
      ; To run a script, first we parse it which breaks it up into chunks representing pushes of data
      ; or logical opcodes.  Then we can run the parsed chunks.
@@ -21017,24 +20982,22 @@
     #_method
     (defn- #_"void" Script''parse [#_"Script" this, #_"byte[]" program]
         (§ assoc this :chunks (ArrayList. 5)) ;; Common size.
-        (§ let [#_"ByteArrayInputStream" bais (ByteArrayInputStream. program)
-              #_"int" __initialSize (.available bais)]
-            (while (< 0 (.available bais))
+        (let [#_"ByteArrayInputStream" bais (ByteArrayInputStream. program) #_"int" __initialSize (.available bais)]
+            (while (pos? (.available bais))
                 (let [#_"int" start (- __initialSize (.available bais))
-                      #_"int" opcode (.read bais)]
-
-                    (let [#_"long" __dataToRead -1]
+                      #_"int" opcode (.read bais)
+                      #_"long" n
                         (cond (< -1 opcode ScriptOpCodes'OP_PUSHDATA1)
                             (do
                                 ;; Read some bytes of data, where how many is the opcode value itself.
-                                (§ ass __dataToRead opcode)
+                                opcode
                             )
                             (= opcode ScriptOpCodes'OP_PUSHDATA1)
                             (do
                                 (when (< (.available bais) 1)
                                     (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Unexpected end of script"))
                                 )
-                                (§ ass __dataToRead (.read bais))
+                                (.read bais)
                             )
                             (= opcode ScriptOpCodes'OP_PUSHDATA2)
                             (do
@@ -21042,7 +21005,7 @@
                                 (when (< (.available bais) 2)
                                     (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Unexpected end of script"))
                                 )
-                                (§ ass __dataToRead (| (.read bais) (<< (.read bais) 8)))
+                                (| (.read bais) (<< (.read bais) 8))
                             )
                             (= opcode ScriptOpCodes'OP_PUSHDATA4)
                             (do
@@ -21051,36 +21014,21 @@
                                 (when (< (.available bais) 4)
                                     (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Unexpected end of script"))
                                 )
-                                (§ ass __dataToRead (| (long (.read bais)) (<< (long (.read bais)) 8) (<< (long (.read bais)) 16) (<< (long (.read bais)) 24)))
+                                (| (long (.read bais)) (<< (long (.read bais)) 8) (<< (long (.read bais)) 16) (<< (long (.read bais)) 24))
                             )
                         )
-
-                        (let [#_"ScriptChunk" chunk]
-                            (cond (= __dataToRead -1)
-                                (do
-                                    (§ ass chunk (ScriptChunk'new opcode, nil, start))
-                                )
-                                :else
-                                (do
-                                    (when (< (.available bais) __dataToRead)
-                                        (throw+ (ScriptException'new :ScriptError'BAD_OPCODE, "Push of data element that is larger than remaining data"))
-                                    )
-
-                                    (let [#_"byte[]" data (byte-array (int __dataToRead))]
-                                        (assert-state (or (= __dataToRead 0) (= (.read bais, data, 0, (int __dataToRead)) __dataToRead)))
-                                        (§ ass chunk (ScriptChunk'new opcode, data, start))
-                                    )
-                                )
+                      #_"ScriptChunk" chunk
+                        (when' (some? n) => (ScriptChunk'new opcode, nil, start)
+                            (when (< (.available bais) n)
+                                (throw+ (ScriptException'new :ScriptError'BAD_OPCODE, "Push of data element that is larger than remaining data"))
                             )
-                            ;; Save some memory by eliminating redundant copies of the same chunk objects.
-                            (doseq [#_"ScriptChunk" c Script'STANDARD_TRANSACTION_SCRIPT_CHUNKS]
-                                (when (.equals c, chunk)
-                                    (§ ass chunk c)
-                                )
+                            (let [#_"byte[]" data (byte-array n) #_"int" m (.read bais, data)]
+                                (assert-state (= m n))
+                                (ScriptChunk'new opcode, data, start)
                             )
-                            (.add (:chunks this), chunk)
-                        )
-                    )
+                        )]
+
+                    (.add (:chunks this), chunk)
                 )
             )
         )
