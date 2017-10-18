@@ -4904,7 +4904,7 @@
      ; See <a href="https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp">this C++ code</a> for the original.
      ;;
     (defn #_"int" BloomFilter'murmur-hash3 [#_"byte[]" data, #_"long" tweak, #_"int" h, #_"byte[]" a]
-        (§ let [#_"int" m (* (quot (alength a) 4) 4) #_"int" n (& (alength a) 3)
+        (§ let [#_"int" m (& (alength a) (bit-not 3)) #_"int" n (& (alength a) 3)
               read- #_"int" (fn [#_"byte[]" a, #_"int" i] (| (& 0xff (aget a i))
                                                          (<< (& 0xff (aget a (inc i))) 8)
                                                          (<< (& 0xff (aget a (+ i 2))) 16)
@@ -4930,7 +4930,7 @@
               h (* h 0xc2b2ae35)
               h (bit-xor h (>>> h 16))]
 
-            (int (rem (& h 0xffffffff) (* (alength data) 8)))
+            (int (rem (& h 0xffffffff) (<< (alength data) 3)))
         )
     )
 
@@ -5315,23 +5315,20 @@
 
     #_throws #_[ "IllegalArgumentException" ]
     (defn #_"ECDSASignature" ECDSASignature'decode-from-der [#_"byte[]" bytes]
-        (§ let [#_"ASN1InputStream" decoder nil]
+        (let [#_"ASN1InputStream" decoder (ASN1InputStream. bytes)]
             (try
-                (§ ass decoder (ASN1InputStream. bytes))
                 (let [#_"DLSequence" seq (cast DLSequence (.readObject decoder))]
                     (when (nil? seq)
                         (throw (IllegalArgumentException. "Reached past end of ASN.1 stream."))
                     )
 
-                    (let [#_"ASN1Integer" r
-                          #_"ASN1Integer" s]
-                        (try
-                            (§ ass r (cast ASN1Integer (.getObjectAt seq, 0)))
-                            (§ ass s (cast ASN1Integer (.getObjectAt seq, 1)))
-                            (catch ClassCastException e
-                                (throw (IllegalArgumentException. e))
-                            )
-                        )
+                    (let [[#_"ASN1Integer" r #_"ASN1Integer" s]
+                            (try
+                                [(cast ASN1Integer (.getObjectAt seq, 0)) (cast ASN1Integer (.getObjectAt seq, 1))]
+                                (catch ClassCastException e
+                                    (throw (IllegalArgumentException. e))
+                                )
+                            )]
                         ;; OpenSSL deviates from the DER spec by interpreting these values as unsigned, though they should not be.
                         ;; Thus, we always use the positive versions.  See http://r6.ca/blog/20111119T211504Z.html
                         (ECDSASignature'new (.getPositiveValue r), (.getPositiveValue s))
@@ -5341,11 +5338,9 @@
                     (throw (IllegalArgumentException. e))
                 )
                 (finally
-                    (when (some? decoder)
-                        (try
-                            (.close decoder)
-                            (catch IOException _
-                            )
+                    (try
+                        (.close decoder)
+                        (catch IOException _
                         )
                     )
                 )
@@ -6414,121 +6409,121 @@
 
         (FullPrunedBlockStore'''begin-database-batch-write (:block-store this))
 
-        (§ let [#_"LinkedList<UTXO>" __txOutsSpent (LinkedList.)
-              #_"LinkedList<UTXO>" __txOutsCreated (LinkedList.)
-              #_"long" __sigOps 0]
+        (when (.isShutdown (:script-verification-executor this))
+            (§ assoc this :script-verification-executor (Executors/newFixedThreadPool (.availableProcessors (Runtime/getRuntime))))
+        )
 
-            (when (.isShutdown (:script-verification-executor this))
-                (§ assoc this :script-verification-executor (Executors/newFixedThreadPool (.availableProcessors (Runtime/getRuntime))))
-            )
-
-            (let [#_"List<Future<VerificationException>>" __listScriptVerificationResults (ArrayList. (.size (:transactions block)))]
-                (try+
-                    (when (not (Ledger''is-checkpoint (:ledger this), height))
-                        ;; BIP30 violator blocks are ones that contain a duplicated transaction.  They are all in the checkpoints list
-                        ;; and we therefore only check non-checkpoints for duplicated transactions here.  See the BIP30 document
-                        ;; for more details on this: https://github.com/bitcoin/bips/blob/master/bip-0030.mediawiki
-                        (doseq [#_"Transaction" tx (:transactions block)]
-                            (let [#_"Set<ScriptVerifyFlag>" __verifyFlags (Ledger''get-transaction-verification-flags (:ledger this), block, tx, (BlockChain''get-version-tally this), height)]
-                                ;; If we already have unspent outputs for this hash, we saw the tx already.
-                                ;; Either the block is being added twice (bug) or the block is a BIP30 violator.
-                                (when (FullPrunedBlockStore'''has-unspent-outputs (:block-store this), (Transaction''get-hash tx), (.size (Transaction''get-outputs tx)))
-                                    (throw+ (VerificationException'new "Block failed BIP30 test!"))
+        (let [#_"LinkedList<UTXO>" __txOutsCreated (LinkedList.) #_"LinkedList<UTXO>" __txOutsSpent (LinkedList.)]
+            (try+
+                (let [#_"long" __sigOps
+                        (when' (not (Ledger''is-checkpoint (:ledger this), height)) => 0
+                            ;; BIP30 violator blocks are ones that contain a duplicated transaction.  They are all in the checkpoints list
+                            ;; and we therefore only check non-checkpoints for duplicated transactions here.  See the BIP30 document
+                            ;; for more details on this: https://github.com/bitcoin/bips/blob/master/bip-0030.mediawiki
+                            (loop-when [__sigOps 0 #_"List<Transaction>" s (:transactions block)] (seq s) => __sigOps
+                                (let [#_"Transaction" tx (first s)
+                                      #_"Set<ScriptVerifyFlag>" flags (Ledger''get-transaction-verification-flags (:ledger this), block, tx, (BlockChain''get-version-tally this), height)]
+                                    ;; If we already have unspent outputs for this hash, we saw the tx already.
+                                    ;; Either the block is being added twice (bug) or the block is a BIP30 violator.
+                                    (when (FullPrunedBlockStore'''has-unspent-outputs (:block-store this), (Transaction''get-hash tx), (.size (Transaction''get-outputs tx)))
+                                        (throw+ (VerificationException'new "Block failed BIP30 test!"))
+                                    )
+                                    ;; We already check non-BIP16 sigops in Block.verifyTransactions(true).
+                                    (let [__sigOps (+ __sigOps (if (.contains flags, :ScriptVerifyFlag'P2SH) (Transaction''get-sig-op-count tx) 0))]
+                                        (recur __sigOps (next s))
+                                    )
                                 )
-                                ;; We already check non-BIP16 sigops in Block.verifyTransactions(true).
-                                (when (.contains __verifyFlags, :ScriptVerifyFlag'P2SH)
-                                    (§ ass __sigOps (+ __sigOps (Transaction''get-sig-op-count tx)))
+                            )
+                        )
+                      #_"List<Future<VerificationException>>" __listScriptVerificationResults (ArrayList. (.size (:transactions block)))
+                      #_"Coin" __totalFees Coin'ZERO #_"Coin" __coinbaseValue nil]
+
+                    (§ doseq [#_"Transaction" tx (:transactions block)]
+                        (let [#_"boolean" __isCoinBase (Transaction''is-coin-base tx)
+                              #_"Coin" __valueIn Coin'ZERO
+                              #_"Coin" __valueOut Coin'ZERO
+                              #_"List<Script>" __prevOutScripts (LinkedList.)
+                              #_"Set<ScriptVerifyFlag>" __verifyFlags (Ledger''get-transaction-verification-flags (:ledger this), block, tx, (BlockChain''get-version-tally this), height)]
+                            (when (not __isCoinBase)
+                                ;; For each input of the transaction remove the corresponding output from the set of unspent outputs.
+                                (loop-when-recur [#_"int" index 0] (< index (.size (Transaction''get-inputs tx))) [(inc index)]
+                                    (let [#_"TransactionInput" in (.get (Transaction''get-inputs tx), index)
+                                          #_"UTXO" __prevOut (FullPrunedBlockStore'''get-transaction-output (:block-store this), (:from-tx-hash (:outpoint in)), (:index (:outpoint in)))]
+                                        (when (nil? __prevOut)
+                                            (throw+ (VerificationException'new "Attempted to spend a non-existent or already spent output!"))
+                                        )
+                                        ;; Coinbases can't be spent until they mature, to avoid re-orgs destroying entire transaction chains.
+                                        ;; The assumption is there will ~never be re-orgs deeper than the spendable coinbase chain depth.
+                                        (when (:coinbase? __prevOut)
+                                            (when (< (- height (:utxo-height __prevOut)) (-> this :ledger :spendable-coinbase-depth))
+                                                (throw+ (VerificationException'new (str "Tried to spend coinbase at depth " (- height (:utxo-height __prevOut)))))
+                                            )
+                                        )
+                                        ;; TODO: Check we're not spending the genesis transaction here. Bitcoin Core won't allow it.
+                                        (§ ass __valueIn (Coin''add __valueIn, (:utxo-value __prevOut)))
+                                        (when (.contains __verifyFlags, :ScriptVerifyFlag'P2SH)
+                                            (when (Script''is-pay-to-script-hash (:script __prevOut))
+                                                (§ ass __sigOps (+ __sigOps (Script'get-p2sh-sig-op-count (:script-bytes in))))
+                                            )
+                                            (when (< Block'MAX_BLOCK_SIGOPS __sigOps)
+                                                (throw+ (VerificationException'new "Too many P2SH SigOps in block"))
+                                            )
+                                        )
+
+                                        (.add __prevOutScripts, (:script __prevOut))
+                                        (FullPrunedBlockStore'''remove-unspent-transaction-output (:block-store this), __prevOut)
+                                        (.add __txOutsSpent, __prevOut)
+                                    )
+                                )
+                            )
+                            (let [#_"Sha256Hash" hash (Transaction''get-hash tx)]
+                                (doseq [#_"TransactionOutput" out (Transaction''get-outputs tx)]
+                                    (§ ass __valueOut (Coin''add __valueOut, (:coin-value out)))
+                                    ;; For each output, add it to the set of unspent outputs so it can be consumed in future.
+                                    (let [#_"Script" script (FullPrunedBlockChain''get-script this, (:script-bytes out))
+                                          #_"UTXO" __newOut (UTXO'new hash, (TransactionOutput''get-index out), (:coin-value out), height, __isCoinBase, script, (FullPrunedBlockChain''get-script-address this, script))]
+                                        (FullPrunedBlockStore'''add-unspent-transaction-output (:block-store this), __newOut)
+                                        (.add __txOutsCreated, __newOut)
+                                    )
+                                )
+                                ;; All values were already checked for being non-negative (as it is verified in Transaction.verify()),
+                                ;; but we check again here just for defence in depth.  Transactions with zero output value are OK.
+                                (when (or (< (Monetary'''signum __valueOut) 0) (< 0 (.compareTo __valueOut, (Ledger''get-max-money (:ledger this)))))
+                                    (throw+ (VerificationException'new "Transaction output value out of range"))
+                                )
+
+                                (cond __isCoinBase
+                                    (do
+                                        (§ ass __coinbaseValue __valueOut)
+                                    )
+                                    :else
+                                    (do
+                                        (when (or (< (.compareTo __valueIn, __valueOut) 0) (< 0 (.compareTo __valueIn, (Ledger''get-max-money (:ledger this)))))
+                                            (throw+ (VerificationException'new "Transaction input value out of range"))
+                                        )
+                                        (§ ass __totalFees (Coin''add __totalFees, (Coin''subtract __valueIn, __valueOut)))
+                                    )
+                                )
+
+                                (when (and (not __isCoinBase) (:run-scripts this))
+                                    ;; Because correctlySpends modifies transactions, this must come after we are done with tx.
+                                    (let [#_"FutureTask<VerificationException>" future (FutureTask. (FullPrunedVerifier'new tx, __prevOutScripts, __verifyFlags))]
+                                        (.execute (:script-verification-executor this), future)
+                                        (.add __listScriptVerificationResults, future)
+                                    )
                                 )
                             )
                         )
                     )
-                    (let [#_"Coin" __totalFees Coin'ZERO
-                          #_"Coin" __coinbaseValue nil]
-                        (doseq [#_"Transaction" tx (:transactions block)]
-                            (let [#_"boolean" __isCoinBase (Transaction''is-coin-base tx)
-                                  #_"Coin" __valueIn Coin'ZERO
-                                  #_"Coin" __valueOut Coin'ZERO
-                                  #_"List<Script>" __prevOutScripts (LinkedList.)
-                                  #_"Set<ScriptVerifyFlag>" __verifyFlags (Ledger''get-transaction-verification-flags (:ledger this), block, tx, (BlockChain''get-version-tally this), height)]
-                                (when (not __isCoinBase)
-                                    ;; For each input of the transaction remove the corresponding output from the set of unspent outputs.
-                                    (loop-when-recur [#_"int" index 0] (< index (.size (Transaction''get-inputs tx))) [(inc index)]
-                                        (let [#_"TransactionInput" in (.get (Transaction''get-inputs tx), index)
-                                              #_"UTXO" __prevOut (FullPrunedBlockStore'''get-transaction-output (:block-store this), (:from-tx-hash (:outpoint in)), (:index (:outpoint in)))]
-                                            (when (nil? __prevOut)
-                                                (throw+ (VerificationException'new "Attempted to spend a non-existent or already spent output!"))
-                                            )
-                                            ;; Coinbases can't be spent until they mature, to avoid re-orgs destroying entire transaction chains.
-                                            ;; The assumption is there will ~never be re-orgs deeper than the spendable coinbase chain depth.
-                                            (when (:coinbase? __prevOut)
-                                                (when (< (- height (:utxo-height __prevOut)) (-> this :ledger :spendable-coinbase-depth))
-                                                    (throw+ (VerificationException'new (str "Tried to spend coinbase at depth " (- height (:utxo-height __prevOut)))))
-                                                )
-                                            )
-                                            ;; TODO: Check we're not spending the genesis transaction here. Bitcoin Core won't allow it.
-                                            (§ ass __valueIn (Coin''add __valueIn, (:utxo-value __prevOut)))
-                                            (when (.contains __verifyFlags, :ScriptVerifyFlag'P2SH)
-                                                (when (Script''is-pay-to-script-hash (:script __prevOut))
-                                                    (§ ass __sigOps (+ __sigOps (Script'get-p2sh-sig-op-count (:script-bytes in))))
-                                                )
-                                                (when (< Block'MAX_BLOCK_SIGOPS __sigOps)
-                                                    (throw+ (VerificationException'new "Too many P2SH SigOps in block"))
-                                                )
-                                            )
 
-                                            (.add __prevOutScripts, (:script __prevOut))
-                                            (FullPrunedBlockStore'''remove-unspent-transaction-output (:block-store this), __prevOut)
-                                            (.add __txOutsSpent, __prevOut)
-                                        )
-                                    )
-                                )
-                                (let [#_"Sha256Hash" hash (Transaction''get-hash tx)]
-                                    (doseq [#_"TransactionOutput" out (Transaction''get-outputs tx)]
-                                        (§ ass __valueOut (Coin''add __valueOut, (:coin-value out)))
-                                        ;; For each output, add it to the set of unspent outputs so it can be consumed in future.
-                                        (let [#_"Script" script (FullPrunedBlockChain''get-script this, (:script-bytes out))
-                                              #_"UTXO" __newOut (UTXO'new hash, (TransactionOutput''get-index out), (:coin-value out), height, __isCoinBase, script, (FullPrunedBlockChain''get-script-address this, script))]
-                                            (FullPrunedBlockStore'''add-unspent-transaction-output (:block-store this), __newOut)
-                                            (.add __txOutsCreated, __newOut)
-                                        )
-                                    )
-                                    ;; All values were already checked for being non-negative (as it is verified in Transaction.verify()),
-                                    ;; but we check again here just for defence in depth.  Transactions with zero output value are OK.
-                                    (when (or (< (Monetary'''signum __valueOut) 0) (< 0 (.compareTo __valueOut, (Ledger''get-max-money (:ledger this)))))
-                                        (throw+ (VerificationException'new "Transaction output value out of range"))
-                                    )
+                    (when (or (< 0 (.compareTo __totalFees, (Ledger''get-max-money (:ledger this)))) (< (.compareTo (Coin''add (Block''get-block-inflation block, height), __totalFees), __coinbaseValue) 0))
+                        (throw+ (VerificationException'new "Transaction fees out of range"))
+                    )
 
-                                    (cond __isCoinBase
-                                        (do
-                                            (§ ass __coinbaseValue __valueOut)
-                                        )
-                                        :else
-                                        (do
-                                            (when (or (< (.compareTo __valueIn, __valueOut) 0) (< 0 (.compareTo __valueIn, (Ledger''get-max-money (:ledger this)))))
-                                                (throw+ (VerificationException'new "Transaction input value out of range"))
-                                            )
-                                            (§ ass __totalFees (Coin''add __totalFees, (Coin''subtract __valueIn, __valueOut)))
-                                        )
-                                    )
-
-                                    (when (and (not __isCoinBase) (:run-scripts this))
-                                        ;; Because correctlySpends modifies transactions, this must come after we are done with tx.
-                                        (let [#_"FutureTask<VerificationException>" future (FutureTask. (FullPrunedVerifier'new tx, __prevOutScripts, __verifyFlags))]
-                                            (.execute (:script-verification-executor this), future)
-                                            (.add __listScriptVerificationResults, future)
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                        (when (or (< 0 (.compareTo __totalFees, (Ledger''get-max-money (:ledger this)))) (< (.compareTo (Coin''add (Block''get-block-inflation block, height), __totalFees), __coinbaseValue) 0))
-                            (throw+ (VerificationException'new "Transaction fees out of range"))
-                        )
-
-                        (doseq [#_"Future<VerificationException>" future __listScriptVerificationResults]
-                            (let [#_"VerificationException" e]
+                    (doseq [#_"Future<VerificationException>" future __listScriptVerificationResults]
+                        (let [#_"VerificationException" e
                                 (try
-                                    (§ ass e (.get future))
+                                    (.get future)
                                     (catch InterruptedException ie
                                         (throw (RuntimeException. ie)) ;; Shouldn't happen.
                                     )
@@ -6536,27 +6531,26 @@
                                         (log/error (.getCause ee), "Script.correctlySpends threw an unexpected exception")
                                         (throw+ (VerificationException'new "Bug in Script.correctlySpends, likely script malformed in some new and interesting way.") ee)
                                     )
-                                )
-                                (when (some? e)
-                                    (throw e)
-                                )
+                                )]
+                            (when (some? e)
+                                (throw e)
                             )
                         )
                     )
-                    (§ catch VerificationException _
-                        (.shutdownNow (:script-verification-executor this))
-                        (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
-                        (throw+)
-                    )
-                    (§ catch BlockStoreException _
-                        (.shutdownNow (:script-verification-executor this))
-                        (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
-                        (throw+)
-                    )
                 )
-
-                (TransactionOutputChanges'new __txOutsCreated, __txOutsSpent)
+                (§ catch VerificationException _
+                    (.shutdownNow (:script-verification-executor this))
+                    (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
+                    (throw+)
+                )
+                (§ catch BlockStoreException _
+                    (.shutdownNow (:script-verification-executor this))
+                    (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
+                    (throw+)
+                )
             )
+
+            (TransactionOutputChanges'new __txOutsCreated, __txOutsSpent)
         )
     )
 
@@ -9173,16 +9167,19 @@
 
     #_method
     (defn- #_"boolean" Peer''maybe-handle-requested-data [#_"Peer" this, #_"Message" m, f'get-hash]
-        (§ let [#_"boolean" found? false #_"Sha256Hash" hash (f'get-hash m)]
-            (doseq [#_"GetDataRequest" req (:get-data-futures this)]
-                (when (.equals hash, (:request-hash req))
-                    (.set (:future req), m)
-                    (.remove (:get-data-futures this), req)
-                    (§ ass found? true)
-                    ;; Keep going in case there are more.
+        (let [#_"Sha256Hash" hash (f'get-hash m)]
+            (loop-when [#_"boolean" found? false #_"CopyOnWriteArrayList<GetDataRequest>" s (:get-data-futures this)] (seq s) => found?
+                (let [#_"GetDataRequest" req (first s)
+                      found?
+                        (when' (.equals hash, (:request-hash req)) => found?
+                            (.set (:future req), m)
+                            (.remove (:get-data-futures this), req)
+                            true
+                            ;; Keep going in case there are more.
+                        )]
+                    (recur found? (next s))
                 )
             )
-            found?
         )
     )
 
@@ -9201,96 +9198,84 @@
 
     #_method
     (defn #_"void" Peer''process-inv [#_"Peer" this, #_"InventoryMessage" inv]
-        (§ let [#_"List<InventoryItem>" items (ListMessage''get-items inv)]
+        ;; Separate out the blocks and transactions, we'll handle them differently.
+        (let [#_"List<InventoryItem>" transactions (LinkedList.) #_"List<InventoryItem>" blocks (LinkedList.)]
 
-            ;; Separate out the blocks and transactions, we'll handle them differently.
-            (let [#_"List<InventoryItem>" transactions (LinkedList.)
-                  #_"List<InventoryItem>" blocks (LinkedList.)]
+            (doseq [#_"InventoryItem" item (ListMessage''get-items inv)]
+                (condp = (:item-type item)
+                    :InventoryItemType'TRANSACTION (.add transactions, item)
+                    :InventoryItemType'BLOCK       (.add blocks, item)
+                    (throw (IllegalStateException. (str "Not implemented: " (:item-type item))))
+                )
+            )
 
-                (doseq [#_"InventoryItem" item items]
-                    (condp = (:item-type item)
-                        Transaction (.add transactions, item)
-                        Block       (.add blocks, item)
-                        (throw (IllegalStateException. (str "Not implemented: " (:item-type item))))
+            (let [#_"boolean" download? (:v-download-data this)]
+
+                (when (and (= (.size transactions) 0) (= (.size blocks) 1))
+                    ;; Single block announcement.  If we're downloading the chain this is just a tickle to make us continue
+                    ;; (the block chain download protocol is very implicit and not well thought out).  If we're not downloading
+                    ;; the chain then this probably means a new block was solved and the peer believes it connects to the best
+                    ;; chain, so count it.  This way getBestChainHeight() can be accurate.
+                    (if (and download? (some? (:block-chain this)))
+                        (when (not (BlockChain''is-orphan (:block-chain this), (:item-hash (.get blocks, 0))))
+                            (.incrementAndGet (:blocks-announced this))
+                        )
+                        (.incrementAndGet (:blocks-announced this))
                     )
                 )
 
-                (let [#_"boolean" download? (:v-download-data this)]
+                (let [#_"GetDataMessage" getdata (GetDataMessage'new (:ledger this))]
 
-                    (when (and (= (.size transactions) 0) (= (.size blocks) 1))
-                        ;; Single block announcement.  If we're downloading the chain this is just a tickle to make us continue
-                        ;; (the block chain download protocol is very implicit and not well thought out).  If we're not downloading
-                        ;; the chain then this probably means a new block was solved and the peer believes it connects to the best
-                        ;; chain, so count it.  This way getBestChainHeight() can be accurate.
-                        (cond (and download? (some? (:block-chain this)))
-                            (do
-                                (when (not (BlockChain''is-orphan (:block-chain this), (:item-hash (.get blocks, 0))))
-                                    (.incrementAndGet (:blocks-announced this))
+                    (loop-when-recur [#_"Iterator<InventoryItem>" it (.iterator transactions)] (.hasNext it) [it]
+                        (let [#_"InventoryItem" item (.next it)
+                              ;; Only download the transaction if we are the first peer that saw it be advertised.  Other peers will also
+                              ;; see it be advertised in inv packets asynchronously, they co-ordinate via the memory pool.  We could
+                              ;; potentially download transactions faster by always asking every peer for a tx when advertised, as remote
+                              ;; peers run at different speeds.  However to conserve bandwidth on mobile devices we try to only download a
+                              ;; transaction once.  This means we can miss broadcasts if the peer disconnects between sending us an inv and
+                              ;; sending us the transaction: currently we'll never try to re-fetch after a timeout.
+                              ;;
+                              ;; The line below can trigger confidence listeners.
+                              #_"TransactionConfidence" conf (TxConfidenceTable''seen TxConfidenceTable'INSTANCE, (:item-hash item), (PeerSocketHandler''get-address this))]
+                            (cond (< 1 (TransactionConfidence''num-broadcast-peers conf))
+                                (do
+                                    ;; Some other peer already announced this so don't download.
+                                    (.remove it)
                                 )
-                            )
-                            :else
-                            (do
-                                (.incrementAndGet (:blocks-announced this))
+                                (= (TransactionConfidence''get-source conf) :ConfidenceSource'SELF)
+                                (do
+                                    ;; We created this transaction ourselves, so don't download.
+                                    (.remove it)
+                                )
+                                :else
+                                (do
+                                    (log/debug (str (PeerSocketHandler''get-address this) ": getdata on tx " (:item-hash item)))
+                                    (ListMessage''add-item getdata, item)
+                                    ;; Register with the garbage collector that we care about the confidence data for a while.
+                                    (.add (:pending-tx-downloads this), conf)
+                                )
                             )
                         )
                     )
 
-                    (let [#_"GetDataMessage" getdata (GetDataMessage'new (:ledger this))]
-
-                        (let [#_"Iterator<InventoryItem>" it (.iterator transactions)]
-                            (while (.hasNext it)
-                                (let [#_"InventoryItem" item (.next it)]
-                                    ;; Only download the transaction if we are the first peer that saw it be advertised.  Other peers will also
-                                    ;; see it be advertised in inv packets asynchronously, they co-ordinate via the memory pool.  We could
-                                    ;; potentially download transactions faster by always asking every peer for a tx when advertised, as remote
-                                    ;; peers run at different speeds.  However to conserve bandwidth on mobile devices we try to only download a
-                                    ;; transaction once.  This means we can miss broadcasts if the peer disconnects between sending us an inv and
-                                    ;; sending us the transaction: currently we'll never try to re-fetch after a timeout.
-                                    ;;
-                                    ;; The line below can trigger confidence listeners.
-                                    (let [#_"TransactionConfidence" conf (TxConfidenceTable''seen TxConfidenceTable'INSTANCE, (:item-hash item), (PeerSocketHandler''get-address this))]
-                                        (cond (< 1 (TransactionConfidence''num-broadcast-peers conf))
-                                            (do
-                                                ;; Some other peer already announced this so don't download.
-                                                (.remove it)
-                                            )
-                                            (= (TransactionConfidence''get-source conf) :ConfidenceSource'SELF)
-                                            (do
-                                                ;; We created this transaction ourselves, so don't download.
-                                                (.remove it)
-                                            )
-                                            :else
-                                            (do
-                                                (log/debug (str (PeerSocketHandler''get-address this) ": getdata on tx " (:item-hash item)))
-                                                (ListMessage''add-item getdata, item)
-                                                ;; Register with the garbage collector that we care about the confidence data for a while.
-                                                (.add (:pending-tx-downloads this), conf)
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-
-                            ;; If we are requesting filteredblocks, we have to send a ping after the getdata so that we have a clear
-                            ;; end to the final FilteredBlock's transactions (in the form of a pong) sent to us.
-                            (let [#_"boolean" __pingAfterGetData false]
-
-                                (§ sync (:peer-lock this)
-                                    (when (and (< 0 (.size blocks)) download? (some? (:block-chain this)))
-                                        ;; Ideally, we'd only ask for the data here if we actually needed it.  However that can imply a lot of
-                                        ;; disk IO to figure out what we've got.  Normally peers will not send us inv for things we already have
-                                        ;; so we just re-request it here, and if we get duplicates the block chain / wallet will filter them out.
-                                        (doseq [#_"InventoryItem" item blocks]
-                                            (cond (and (BlockChain''is-orphan (:block-chain this), (:item-hash item)) (:download-block-bodies this))
-                                                (do
+                    ;; If we are requesting filteredblocks, we have to send a ping after the getdata so that we have a clear
+                    ;; end to the final FilteredBlock's transactions (in the form of a pong) sent to us.
+                    (let [#_"boolean" ping?
+                            (§ sync (:peer-lock this)
+                                (when' (and (pos? (.size blocks)) download? (some? (:block-chain this))) => false
+                                    ;; Ideally, we'd only ask for the data here if we actually needed it.  However that can imply a lot of
+                                    ;; disk IO to figure out what we've got.  Normally peers will not send us inv for things we already have
+                                    ;; so we just re-request it here, and if we get duplicates the block chain / wallet will filter them out.
+                                    (loop-when [ping? false blocks blocks] (seq blocks) => ping?
+                                        (let [#_"InventoryItem" item (first blocks)
+                                              ping?
+                                                (if (and (BlockChain''is-orphan (:block-chain this), (:item-hash item)) (:download-block-bodies this))
                                                     ;; If an orphan was re-advertised, ask for more blocks unless we are not currently downloading
                                                     ;; full block data because we have a getheaders outstanding.
                                                     (let [#_"Block" root (ensure some? (BlockChain''get-orphan-root (:block-chain this), (:item-hash item)))]
                                                         (Peer''block-chain-download-locked this, (Block''get-hash root))
+                                                        ping?
                                                     )
-                                                )
-                                                :else
-                                                (do
                                                     ;; Don't re-request blocks we already requested.  Normally this should not happen.  However there is
                                                     ;; an edge case: if a block is solved and we complete the inv<->getdata<->block<->getblocks cycle
                                                     ;; whilst other parts of the chain are streaming in, then the new getblocks request won't match the
@@ -9303,39 +9288,41 @@
                                                     ;; part of chain download with newly announced blocks, so it should always be taken care of by
                                                     ;; the duplicate check in blockChainDownloadLocked().  But Bitcoin Core may change in future so
                                                     ;; it's better to be safe here.
-                                                    (when (not (.contains (:pending-block-downloads this), (:item-hash item)))
-                                                        (cond (and (VersionMessage''is-bloom-filtering-supported (:v-peer-version-message this)) (:use-filtered-blocks this))
-                                                            (do
-                                                                (GetDataMessage''add-filtered-block getdata, (:item-hash item))
-                                                                (§ ass __pingAfterGetData true)
-                                                            )
-                                                            :else
-                                                            (do
-                                                                (ListMessage''add-item getdata, item)
-                                                            )
+                                                    (when' (not (.contains (:pending-block-downloads this), (:item-hash item))) => ping?
+                                                        (let [ping?
+                                                                (if (and (VersionMessage''is-bloom-filtering-supported (:v-peer-version-message this)) (:use-filtered-blocks this))
+                                                                    (do
+                                                                        (GetDataMessage''add-filtered-block getdata, (:item-hash item))
+                                                                        true
+                                                                    )
+                                                                    (do
+                                                                        (ListMessage''add-item getdata, item)
+                                                                        ping?
+                                                                    )
+                                                                )]
+                                                            (.add (:pending-block-downloads this), (:item-hash item))
+                                                            ping?
                                                         )
-                                                        (.add (:pending-block-downloads this), (:item-hash item))
                                                     )
-                                                )
-                                            )
+                                                )]
+                                            (recur ping? (next blocks))
                                         )
-                                        ;; If we're downloading the chain, doing a getdata on the last block we were told about will cause the
-                                        ;; peer to advertize the head block to us in a single-item inv.  When we download THAT, it will be an
-                                        ;; orphan block, meaning we'll re-enter blockChainDownloadLocked() to trigger another getblocks between the
-                                        ;; current best block we have and the orphan block.  If more blocks arrive in the meantime they'll also
-                                        ;; become orphan.
                                     )
+                                    ;; If we're downloading the chain, doing a getdata on the last block we were told about will cause the
+                                    ;; peer to advertize the head block to us in a single-item inv.  When we download THAT, it will be an
+                                    ;; orphan block, meaning we'll re-enter blockChainDownloadLocked() to trigger another getblocks between the
+                                    ;; current best block we have and the orphan block.  If more blocks arrive in the meantime they'll also
+                                    ;; become orphan.
                                 )
+                            )]
 
-                                (when (seq (ListMessage''get-items getdata))
-                                    ;; This will cause us to receive a bunch of block or tx messages.
-                                    (PeerSocketHandler''send-message this, getdata, GetDataMessage''to-wire)
-                                )
+                        (when (seq (ListMessage''get-items getdata))
+                            ;; This will cause us to receive a bunch of block or tx messages.
+                            (PeerSocketHandler''send-message this, getdata, GetDataMessage''to-wire)
+                        )
 
-                                (when __pingAfterGetData
-                                    (PeerSocketHandler''send-message this, (Ping'new (:ledger this), (long (* (Math/random) Long/MAX_VALUE))), Ping''to-wire)
-                                )
-                            )
+                        (when ping?
+                            (PeerSocketHandler''send-message this, (Ping'new (:ledger this), (long (* (Math/random) Long/MAX_VALUE))), Ping''to-wire)
                         )
                     )
                 )
@@ -11470,36 +11457,42 @@
               ver (assoc ver :best-height (if (some? (:chain this)) (BlockChain''get-best-chain-height (:chain this)) 0))
               ver (assoc ver :time-seconds (Time'seconds))]
 
-            (§ let [#_"Peer" peer (PeerGroup''create-peer this, address, ver)]
+            (let [#_"Peer" peer (PeerGroup''create-peer this, address, ver)]
                 (Peer''add-connected-event-listener-3 peer, Threading'SAME_THREAD, (:startup-listener this))
                 (Peer''add-disconnected-event-listener-3 peer, Threading'SAME_THREAD, (:startup-listener this))
                 (Peer''set-min-protocol-version peer, (:v-min-required-protocol-version this))
                 (.add (:pending-peers this), peer)
 
-                (try
-                    (log/info (str "Attempting connection to " address "     (" (.size (:peers this)) " connected, " (.size (:pending-peers this)) " pending, " (:max-connections this) " max)"))
-                    (let [#_"ListenableFuture<SocketAddress>" future (ClientConnectionManager'''open-connection (:channels this), (PeerAddress''to-socket-address address), peer)]
-                        (when (.isDone future)
-                            (Uninterruptibles/getUninterruptibly future)
+                (let [#_"boolean" abort?
+                        (try
+                            (log/info (str "Attempting connection to " address "     (" (.size (:peers this)) " connected, " (.size (:pending-peers this)) " pending, " (:max-connections this) " max)"))
+                            (let [#_"ListenableFuture<SocketAddress>" future (ClientConnectionManager'''open-connection (:channels this), (PeerAddress''to-socket-address address), peer)]
+                                (when (.isDone future)
+                                    (Uninterruptibles/getUninterruptibly future)
+                                )
+                                false
+                            )
+                            (catch ExecutionException e
+                                (let [#_"Throwable" cause (Throwables/getRootCause e)]
+                                    (log/warn (str "Failed to connect to " address ": " (.getMessage cause)))
+                                    (PeerGroup''handle-peer-death this, peer, cause)
+                                    true
+                                )
+                            )
+                        )]
+
+                    (when' (not abort?) => nil
+                        (AbstractTimeoutHandler''set-socket-timeout peer, timeout)
+                        ;; When the channel has connected and version negotiated successfully, handleNewPeer will end up being called
+                        ;; on a worker thread.
+                        (when increment?
+                            ;; We don't use setMaxConnections here as that would trigger a recursive attempt to establish a new
+                            ;; outbound connection.
+                            (§ update this :max-connections inc)
                         )
-                    )
-                    (catch ExecutionException e
-                        (let [#_"Throwable" cause (Throwables/getRootCause e)]
-                            (log/warn (str "Failed to connect to " address ": " (.getMessage cause)))
-                            (PeerGroup''handle-peer-death this, peer, cause)
-                            (§ return nil)
-                        )
+                        peer
                     )
                 )
-                (AbstractTimeoutHandler''set-socket-timeout peer, timeout)
-                ;; When the channel has connected and version negotiated successfully, handleNewPeer will end up being called
-                ;; on a worker thread.
-                (when increment?
-                    ;; We don't use setMaxConnections here as that would trigger a recursive attempt to establish a new
-                    ;; outbound connection.
-                    (§ update this :max-connections inc)
-                )
-                peer
             )
         )
     )
@@ -13233,22 +13226,22 @@
     #_throws #_[ "ScriptException" ]
     #_method
     (defn #_"Coin" Transaction''get-value-sent-from-me [#_"Transaction" this, #_"TransactionBag" wallet]
-        (§ let [#_"Coin" v Coin'ZERO]
-            (doseq [#_"TransactionInput" input (:inputs this)]
-                ;; This input is taking value from a transaction in our wallet.
-                ;; To discover the value, we must find the connected transaction.
-                (let [#_"TransactionOutput" output (TransactionInput''get-connected-output-2 input, (TransactionBag'''get-transaction-pool wallet, :PoolType'UNSPENT))
-                      output (or output (TransactionInput''get-connected-output-2 input, (TransactionBag'''get-transaction-pool wallet, :PoolType'SPENT)))
-                      output (or output (TransactionInput''get-connected-output-2 input, (TransactionBag'''get-transaction-pool wallet, :PoolType'PENDING)))]
-
-                    ;; The connected output may be the change to the sender of a previous input sent to this wallet.
-                    ;; In this case we ignore it.
-                    (when (and (some? output) (TransactionOutput''is-mine output, wallet))
-                        (§ ass v (Coin''add v, (:coin-value output)))
+        (loop-when [#_"Coin" v Coin'ZERO #_"List<TransactionInput>" inputs (:inputs this)] (seq inputs) => v
+            (let [#_"TransactionInput" input (first inputs)
+                  ;; This input is taking value from a transaction in our wallet.
+                  ;; To discover the value, we must find the connected transaction.
+                  #_"TransactionOutput" output
+                    (or (TransactionInput''get-connected-output-2 input, (TransactionBag'''get-transaction-pool wallet, :PoolType'UNSPENT))
+                        (TransactionInput''get-connected-output-2 input, (TransactionBag'''get-transaction-pool wallet, :PoolType'SPENT))
+                        (TransactionInput''get-connected-output-2 input, (TransactionBag'''get-transaction-pool wallet, :PoolType'PENDING))
                     )
-                )
+                  ;; The connected output may be the change to the sender of a previous input sent to this wallet.
+                  ;; In this case we ignore it.
+                  v (when' (and (some? output) (TransactionOutput''is-mine output, wallet)) => v
+                        (Coin''add v, (:coin-value output))
+                    )]
+                (recur v (next inputs))
             )
-            v
         )
     )
 
@@ -13280,12 +13273,11 @@
     #_method
     (defn #_"Coin" Transaction''get-fee [#_"Transaction" this]
         (when (and (seq (:inputs this)) (seq (:outputs this))) ;; Else incomplete transaction.
-            (§ let [#_"Coin" fee Coin'ZERO
-                    (doseq [#_"TransactionInput" input (:inputs this)]
-                        (when (nil? (:coin-value input))
-                            (§ return nil)
+            (let [#_"Coin" fee
+                    (loop-when [fee Coin'ZERO #_"List<TransactionInput>" inputs (:inputs this)] (seq inputs) => fee
+                        (let-when [#_"Coin" value (:coin-value (first inputs))] (some? value)
+                            (recur (Coin''add fee, value) (next inputs))
                         )
-                        (§ ass fee (Coin''add fee, (:coin-value input)))
                     )]
                 (when (some? fee)
                     (reduce Coin''subtract fee (map :coin-value (:outputs this)))
@@ -13868,42 +13860,46 @@
             (throw+ (VerificationException'new "Transaction had no inputs or no outputs."))
         )
 
-        (§ let [#_"Coin" __valueOut Coin'ZERO #_"HashSet<TransactionOutPoint>" outpoints (HashSet.)]
+        (let [#_"HashSet<TransactionOutPoint>" outpoints (HashSet.)]
             (doseq [#_"TransactionInput" input (:inputs this)]
                 (when (.contains outpoints, (:outpoint input))
                     (throw+ (VerificationException'new "Duplicated outpoint"))
                 )
                 (.add outpoints, (:outpoint input))
             )
-            (try
-                (doseq [#_"TransactionOutput" output (:outputs this)]
-                    (when (< (Monetary'''signum (:coin-value output)) 0)
+        )
+
+        (try
+            (loop-when [#_"Coin" value Coin'ZERO #_"ArrayList<TransactionOutput>" outputs (:outputs this)] (seq outputs)
+                (let [#_"TransactionOutput" output (first outputs)]
+                    (when (neg? (Monetary'''signum (:coin-value output)))
                         (throw+ (VerificationException'new "Transaction output negative"))
                     )
-
-                    (§ ass __valueOut (Coin''add __valueOut, (:coin-value output)))
-                    (when (and (Ledger''has-max-money (:ledger this)) (< 0 (.compareTo __valueOut, (Ledger''get-max-money (:ledger this)))))
-                        (throw (IllegalArgumentException.))
+                    (let [value (Coin''add value, (:coin-value output))]
+                        (when (and (Ledger''has-max-money (:ledger this)) (pos? (.compareTo value, (Ledger''get-max-money (:ledger this)))))
+                            (throw (IllegalArgumentException.))
+                        )
+                        (recur value (next outputs))
                     )
-                )
-                (catch IllegalStateException _
-                    (throw+ (VerificationException'new "Total transaction output value greater than possible"))
-                )
-                (catch IllegalArgumentException _
-                    (throw+ (VerificationException'new "Total transaction output value greater than possible"))
                 )
             )
+            (catch IllegalStateException _
+                (throw+ (VerificationException'new "Total transaction output value greater than possible"))
+            )
+            (catch IllegalArgumentException _
+                (throw+ (VerificationException'new "Total transaction output value greater than possible"))
+            )
+        )
 
-            (if (Transaction''is-coin-base this)
-                (let [#_"int" n (alength (:script-bytes (.get (:inputs this), 0)))]
-                    (when-not (<= 2 n 100)
-                        (throw+ (VerificationException'new "Coinbase script size out of range"))
-                    )
+        (if (Transaction''is-coin-base this)
+            (let [#_"int" n (alength (:script-bytes (.get (:inputs this), 0)))]
+                (when-not (<= 2 n 100)
+                    (throw+ (VerificationException'new "Coinbase script size out of range"))
                 )
-                (doseq [#_"TransactionInput" input (:inputs this)]
-                    (when (TransactionInput''is-coin-base input)
-                        (throw+ (VerificationException'new "Coinbase input as input in non-coinbase transaction"))
-                    )
+            )
+            (doseq [#_"TransactionInput" input (:inputs this)]
+                (when (TransactionInput''is-coin-base input)
+                    (throw+ (VerificationException'new "Coinbase input as input in non-coinbase transaction"))
                 )
             )
         )
@@ -14204,14 +14200,14 @@
     #_override
     (defn #_"void" TransactionConfidenceListener'''on-confidence-changed [#_"ConfidenceChange" this, #_"TransactionConfidence" conf, #_"ConfidenceChangeReason" reason]
         ;; The number of peers that announced this tx has gone up.
-        (§ let [#_"int" __numSeenPeers (+ (TransactionConfidence''num-broadcast-peers conf) (.size (:rejects this)))
-              #_"boolean" mined (some? (Transaction''get-appears-in-hashes (:tx this)))]
-            (log/info (str "broadcastTransaction: " reason ":  TX " (Transaction''get-hash (:tx this)) " seen by " __numSeenPeers " peers" (if mined " and mined" "")))
+        (let [#_"int" seen (+ (TransactionConfidence''num-broadcast-peers conf) (.size (:rejects this)))
+              #_"boolean" mined? (some? (Transaction''get-appears-in-hashes (:tx this)))]
+            (log/info (str "broadcastTransaction: " reason ":  TX " (Transaction''get-hash (:tx this)) " seen by " seen " peers" (if mined? " and mined" "")))
 
             ;; Progress callback on the requested thread.
-            (TransactionBroadcast''invoke-and-record this, __numSeenPeers, mined)
+            (TransactionBroadcast''invoke-and-record this, seen, mined?)
 
-            (when (or (<= (:num-waiting-for this) __numSeenPeers) mined)
+            (when (or (<= (:num-waiting-for this) seen) mined?)
                 ;; We've seen the min required number of peers announce the transaction, or it was included
                 ;; in a block.  Normally we'd expect to see it fully propagate before it gets mined, but
                 ;; it can be that a block is solved very soon after broadcast, and it's also possible that
@@ -15245,29 +15241,25 @@
      ;;
     #_method
     (defn #_"boolean" TransactionInput''disconnect [#_"TransactionInput" this]
-        (§ let [#_"TransactionOutput" __connectedOutput]
-            (cond (some? (-> this :outpoint :from-tx))
-                (do
-                    ;; The outpoint is connected using a "standard" wallet, disconnect it.
-                    (§ ass __connectedOutput (Transaction''get-output (-> this :outpoint :from-tx), (int (:index (:outpoint this)))))
-                    (§ assoc-in this [:outpoint :from-tx] nil)
-                )
-                (some? (-> this :outpoint :connected-output))
-                (do
-                    ;; The outpoint is connected using a UTXO based wallet, disconnect it.
-                    (§ ass __connectedOutput (-> this :outpoint :connected-output))
-                    (§ assoc-in this [:outpoint :connected-output] nil)
-                )
-                :else
-                (do
-                    ;; The outpoint is not connected, do nothing.
-                    (§ return false)
-                )
-            )
+        (let [#_"TransactionOutput" output
+                (cond
+                    (some? (-> this :outpoint :from-tx))
+                        ;; The outpoint is connected using a "standard" wallet, disconnect it.
+                        (let [output (Transaction''get-output (-> this :outpoint :from-tx), (int (:index (:outpoint this))))]
+                            (§ assoc-in this [:outpoint :from-tx] nil)
+                            output
+                        )
+                    (some? (-> this :outpoint :connected-output))
+                        ;; The outpoint is connected using a UTXO based wallet, disconnect it.
+                        (let [output (-> this :outpoint :connected-output)]
+                            (§ assoc-in this [:outpoint :connected-output] nil)
+                            output
+                        )
+                )]
 
-            (when' (and (some? __connectedOutput) (= (:spent-by __connectedOutput) this)) => false
+            (when' (and (some? output) (= (:spent-by output) this)) => false
                 ;; The outpoint was connected to an output, disconnect the output.
-                (TransactionOutput''mark-as-unspent __connectedOutput)
+                (TransactionOutput''mark-as-unspent output)
                 true
             )
         )
@@ -21307,20 +21299,19 @@
     #_method
     (defn #_"int" Script''get-sig-insertion-index [#_"Script" this, #_"Sha256Hash" hash, #_"ECKey" key]
         ;; Iterate over existing signatures, skipping the initial OP_0, the final redeem script and any placeholder OP_0 sigs.
-        (§ let [#_"int" n (dec (.size (:chunks this)))
-              #_"List<ScriptChunk>" chunks (.subList (:chunks this), 1, n)
+        (let [#_"int" n (dec (.size (:chunks this)))
               #_"Script" redeem (Script'from-bytes (ensure some? (:data (.get (:chunks this), n))))
-              #_"int" m (Script''find-key-in-redeem redeem, key)
-              #_"int" i 0]
-            (doseq [#_"ScriptChunk" chunk chunks]
-                (when' (not= (:opcode chunk) ScriptOpCodes'OP_0) ;; => OP_0, skip
-                    (when (< m (Script''find-sig-in-redeem redeem, (ensure some? (:data chunk)), hash))
-                        (§ return i)
+              #_"int" m (Script''find-key-in-redeem redeem, key)]
+            (loop-when [#_"int" i 0 #_"List<ScriptChunk>" chunks (.subList (:chunks this), 1, n)] (seq chunks) => i
+                (let [#_"ScriptChunk" chunk (first chunks)]
+                    (when' (not= (:opcode chunk) ScriptOpCodes'OP_0) => (recur i (next chunks))
+                        (if (< m (Script''find-sig-in-redeem redeem, (ensure some? (:data chunk)), hash))
+                            i
+                            (recur (inc i) (next chunks))
+                        )
                     )
-                    (§ ass i (inc i))
                 )
             )
-            i
         )
     )
 
@@ -21374,27 +21365,27 @@
     )
 
     #_throws #_[ "ScriptException" ]
-    (defn- #_"int" Script'get-sig-op-count-2 [#_"List<ScriptChunk>" chunks, #_"boolean" accurate]
-        (§ let [#_"int" __sigOps 0
-              #_"int" __lastOpCode ScriptOpCodes'OP_INVALIDOPCODE]
-            (doseq [#_"ScriptChunk" chunk chunks]
-                (when (ScriptChunk''is-op-code chunk)
-                    (§ ass __sigOps
-                        (condp =? (:opcode chunk)
-                            [ScriptOpCodes'OP_CHECKSIG ScriptOpCodes'OP_CHECKSIGVERIFY]
-                                (inc __sigOps)
-                            [ScriptOpCodes'OP_CHECKMULTISIG ScriptOpCodes'OP_CHECKMULTISIGVERIFY]
-                                (if (and accurate (<= ScriptOpCodes'OP_1 __lastOpCode ScriptOpCodes'OP_16))
-                                    (+ __sigOps (Script'decode-from-op-n __lastOpCode))
-                                    (+ __sigOps 20)
-                                )
-                            __sigOps
+    (defn- #_"int" Script'get-sig-op-count-2 [#_"List<ScriptChunk>" chunks, #_"boolean" accurate?]
+        (loop-when [#_"int" ops 0 #_"int" prior ScriptOpCodes'OP_INVALIDOPCODE chunks chunks] (seq chunks) => ops
+            (let [#_"ScriptChunk" chunk (first chunks)
+                  [ops prior]
+                    (when' (ScriptChunk''is-op-code chunk) => [ops prior]
+                        (let [ops
+                                (condp =? (:opcode chunk)
+                                    [ScriptOpCodes'OP_CHECKSIG ScriptOpCodes'OP_CHECKSIGVERIFY]
+                                        (inc ops)
+                                    [ScriptOpCodes'OP_CHECKMULTISIG ScriptOpCodes'OP_CHECKMULTISIGVERIFY]
+                                        (if (and accurate? (<= ScriptOpCodes'OP_1 prior ScriptOpCodes'OP_16))
+                                            (+ ops (Script'decode-from-op-n prior))
+                                            (+ ops 20)
+                                        )
+                                    ops
+                                )]
+                            [ops (:opcode chunk)]
                         )
-                    )
-                    (§ ass __lastOpCode (:opcode chunk))
-                )
+                    )]
+                (recur ops prior (next chunks))
             )
-            __sigOps
         )
     )
 
@@ -22298,9 +22289,9 @@
         nil
     )
 
-    (defn- #_"boolean" Script'check-sequence [#_"long" __nSequence, #_"Transaction" tx, #_"int" index]
+    (defn- #_"boolean" Script'check-sequence [#_"long" __nSeq, #_"Transaction" tx, #_"int" index]
         ;; Relative lock times are supported by comparing the passed in operand to the sequence number of the input.
-        (§ let [#_"long" __txToSequence (:sequence (Transaction''get-input tx, index))]
+        (let [#_"long" __tSeq (:sequence (Transaction''get-input tx, index))]
             (and
                 ;; Fail if the transaction's version number is not set high enough to trigger BIP 68 rules.
                 (<= 2 (Transaction''get-version tx))
@@ -22308,22 +22299,23 @@
                 ;; Sequence numbers with their most significant bit set are not consensus constrained.  Testing
                 ;; that the transaction's sequence number do not have this bit set prevents using this property
                 ;; to get around a CHECKSEQUENCEVERIFY check.
-                (= (& __txToSequence Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG) 0)
+                (zero? (& __tSeq Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG))
 
                 ;; Mask off any bits that do not have consensus-enforced meaning before doing the integer comparisons.
-                (let [#_"long" __nLockTimeMask (| Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG Transaction'SEQUENCE_LOCKTIME_MASK)
-                      #_"long" __txToSequenceMasked (& __txToSequence __nLockTimeMask)
-                      #_"long" __nSequenceMasked (& __nSequence __nLockTimeMask)]
+                (let [#_"long" mask (| Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG Transaction'SEQUENCE_LOCKTIME_MASK)
+                      #_"long" __tSeq' (& __tSeq mask)
+                      #_"long" __nSeq' (& __nSeq mask)]
                     (and
                         ;; There are two kinds of nSequence: lock-by-blockheight and lock-by-blocktime, distinguished by
                         ;; whether nSequenceMasked < CTxIn::SEQUENCE_LOCKTIME_TYPE_FLAG.
                         ;;
                         ;; We want to compare apples to apples, so fail the script unless the type of nSequenceMasked
                         ;; being tested is the same as the nSequenceMasked in the transaction.
-                        (or (and (< __txToSequenceMasked Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG) (< __nSequenceMasked Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG)) (and (<= Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG __txToSequenceMasked) (<= Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG __nSequenceMasked)))
+                        (or (and (< __tSeq' Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG) (< __nSeq' Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG))
+                            (and (<= Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG __tSeq') (<= Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG __nSeq')))
 
                         ;; Now that we know we're comparing apples-to-apples, the comparison is a simple numeric one.
-                        (<= __nSequenceMasked __txToSequenceMasked)
+                        (<= __nSeq' __tSeq')
                     )
                 )
             )
@@ -22332,53 +22324,45 @@
 
     #_throws #_[ "ScriptException" ]
     (defn- #_"void" Script'execute-check-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" __lastCodeSepLocation, #_"int" opcode, #_"Set<ScriptVerifyFlag>" flags]
-        (§ let [#_"boolean" canon? (or (.contains flags, :ScriptVerifyFlag'STRICTENC) (.contains flags, :ScriptVerifyFlag'DERSIG) (.contains flags, :ScriptVerifyFlag'LOW_S))]
+        (let [#_"boolean" canon? (or (.contains flags, :ScriptVerifyFlag'STRICTENC) (.contains flags, :ScriptVerifyFlag'DERSIG) (.contains flags, :ScriptVerifyFlag'LOW_S))]
             (when (< (.size stack) 2)
                 (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKSIG(VERIFY) on a stack with size < 2"))
             )
 
-            (let [#_"byte[]" __pubKey (.pollLast stack)
-                  #_"byte[]" __sigBytes (.pollLast stack)]
-
-                (let [#_"byte[]" prog (Script''get-program script)
-                      #_"byte[]" __connectedScript (Arrays/copyOfRange prog, __lastCodeSepLocation, (alength prog))]
-
-                    (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (inc (alength __sigBytes)))]
-                        (Script'write-bytes baos, __sigBytes)
-                        (§ ass __connectedScript (Script'remove-all-instances-of __connectedScript, (.toByteArray baos)))
-
-                        ;; TODO: Use int for indexes everywhere, we can't have that many inputs/outputs.
-                        (let [#_"boolean" __sigValid false]
-                            (try
-                                (let [#_"TransactionSignature" sig (TransactionSignature'decode-from-bitcoin-3 __sigBytes, canon?, (.contains flags, :ScriptVerifyFlag'LOW_S))]
-
-                                    ;; TODO: Should check hash type is known.
-                                    (let [#_"Sha256Hash" hash (Transaction''hash-for-signature-4b tx, index, __connectedScript, (byte (:sighash-flags sig)))]
-                                        (§ ass __sigValid (ECKey'verify-3e (Sha256Hash''get-bytes hash), sig, __pubKey))
-                                    )
-                                )
-                                (catch Exception e
-                                    ;; There is (at least) one exception that could be hit here (EOFException, if the sig is too short).
-                                    ;; Because I can't verify there aren't more, we use a very generic Exception catch.
-
-                                    ;; This RuntimeException occurs when signing as we run partial/invalid scripts to see if they need more
-                                    ;; signing work to be done inside LocalTransactionSigner.signInputs().
-                                    (when-not (.contains (.getMessage e), "Reached past end of ASN.1 stream")
-                                        (log/warn e, "Signature checking failed!")
-                                    )
-                                )
-                            )
-
-                            (cond (= opcode ScriptOpCodes'OP_CHECKSIG)
-                                (do
-                                    (.add stack, (if __sigValid (byte-array [ 1 ]) (byte-array 0)))
-                                )
-                                (and (= opcode ScriptOpCodes'OP_CHECKSIGVERIFY) (not __sigValid))
-                                (do
-                                    (throw+ (ScriptException'new :ScriptError'CHECKSIGVERIFY, "Script failed OP_CHECKSIGVERIFY"))
-                                )
-                            )
+            (let [#_"byte[]" __pubKey (.pollLast stack) #_"byte[]" __sigBytes (.pollLast stack)
+                  rem- #(let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (inc (alength %2))) _ (Script'write-bytes baos, %2)]
+                            (Script'remove-all-instances-of %1, (.toByteArray baos))
                         )
+                  #_"byte[]" prog (Script''get-program script)
+                  #_"byte[]" __connectedScript (rem- (Arrays/copyOfRange prog, __lastCodeSepLocation, (alength prog)), __sigBytes)
+                  ;; TODO: Use int for indexes everywhere, we can't have that many inputs/outputs.
+                  #_"boolean" valid?
+                    (try
+                        (let [#_"TransactionSignature" sig (TransactionSignature'decode-from-bitcoin-3 __sigBytes, canon?, (.contains flags, :ScriptVerifyFlag'LOW_S))
+                              ;; TODO: Should check hash type is known.
+                              #_"Sha256Hash" hash (Transaction''hash-for-signature-4b tx, index, __connectedScript, (byte (:sighash-flags sig)))]
+                            (ECKey'verify-3e (Sha256Hash''get-bytes hash), sig, __pubKey)
+                        )
+                        (catch Exception e
+                            ;; There is (at least) one exception that could be hit here (EOFException, if the sig is too short).
+                            ;; Because I can't verify there aren't more, we use a very generic Exception catch.
+
+                            ;; This RuntimeException occurs when signing as we run partial/invalid scripts to see if they need more
+                            ;; signing work to be done inside LocalTransactionSigner.signInputs().
+                            (when-not (.contains (.getMessage e), "Reached past end of ASN.1 stream")
+                                (log/warn e, "Signature checking failed!")
+                            )
+                            false
+                        )
+                    )]
+
+                (cond (= opcode ScriptOpCodes'OP_CHECKSIG)
+                    (do
+                        (.add stack, (if valid? (byte-array [ 1 ]) (byte-array 0)))
+                    )
+                    (and (= opcode ScriptOpCodes'OP_CHECKSIGVERIFY) (not valid?))
+                    (do
+                        (throw+ (ScriptException'new :ScriptError'CHECKSIGVERIFY, "Script failed OP_CHECKSIGVERIFY"))
                     )
                 )
             )
@@ -22390,7 +22374,7 @@
     (defn- #_"int" Script'execute-multi-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" __opCount, #_"int" __lastCodeSepLocation, #_"int" opcode, #_"Set<ScriptVerifyFlag>" flags]
         (let [#_"boolean" canon? (or (.contains flags, :ScriptVerifyFlag'STRICTENC) (.contains flags, :ScriptVerifyFlag'DERSIG) (.contains flags, :ScriptVerifyFlag'LOW_S))]
             (when (< (.size stack) 1)
-                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < 2"))
+                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < 1"))
             )
 
             (let [#_"int" __pubKeyCount (.intValue (Script'cast-to-big-integer-2 (.pollLast stack), (.contains flags, :ScriptVerifyFlag'MINIMALDATA)))]
@@ -22662,7 +22646,7 @@
     #_method
     (defn #_"ScriptBuilder" ScriptBuilder''data-3 [#_"ScriptBuilder" this, #_"int" index, #_"byte[]" data]
         ;; implements BIP62
-        (§ let [#_"int" n (alength data) #_"byte[]" copy (Arrays/copyOf data, n)
+        (let [#_"int" n (alength data) #_"byte[]" copy (Arrays/copyOf data, n)
               #_"int" opcode
                 (cond
                     (= n 0)     ScriptOpCodes'OP_0
@@ -25497,7 +25481,7 @@
     #_method
     (defn- #_"void" BasicKeyChain''import-key-locked [#_"BasicKeyChain" this, #_"ECKey" key]
         (cond
-            (empty? (:hash-to-keys this))                          (§ assoc this :is-watching (ECKey''is-watching key))
+            (empty? (:hash-to-keys this))                            (§ assoc this :is-watching (ECKey''is-watching key))
             (and (ECKey''is-watching key) (not (:is-watching this))) (throw (IllegalArgumentException. "Key is watching but chain is not"))
             (and (not (ECKey''is-watching key)) (:is-watching this)) (throw (IllegalArgumentException. "Key is not watching but chain is"))
         )
@@ -25642,15 +25626,14 @@
     #_method
     (defn #_"ECKey" BasicKeyChain''find-oldest-key-after [#_"BasicKeyChain" this, #_"long" secs]
         (sync (:b-keychain-lock this)
-            (§ let [#_"ECKey" oldest nil]
-                (doseq [#_"ECKey" key (.values (:hash-to-keys this))]
-                    (let [#_"long" time (ECKey'''get-creation-time-seconds key)]
-                        (when (and (< secs time) (or (nil? oldest) (< time (ECKey'''get-creation-time-seconds oldest))))
-                            (§ ass oldest key)
-                        )
-                    )
+            (loop-when [#_"ECKey" oldest nil #_"Collection<ECKey>" keys (.values (:hash-to-keys this))] (seq keys) => oldest
+                (let [#_"ECKey" key (first keys) #_"long" time (ECKey'''get-creation-time-seconds key)
+                      oldest
+                        (when' (and (< secs time) (or (nil? oldest) (< time (ECKey'''get-creation-time-seconds oldest)))) => oldest
+                            key
+                        )]
+                    (recur oldest (next keys))
                 )
-                oldest
             )
         )
     )
@@ -29731,57 +29714,52 @@
     #_override
     (defn #_"void" NewBestBlockListener'''notify-new-best-block [#_"Wallet" this, #_"StoredBlock" block]
         ;; Check to see if this block has been seen before.
-        (§ let [#_"Sha256Hash" __newBlockHash (Block''get-hash (:stored-header block))]
+        (let [#_"Sha256Hash" __newBlockHash (Block''get-hash (:stored-header block))]
             (when-not (.equals __newBlockHash, (Wallet''get-last-block-seen-hash this))
-                (§ sync (:wallet-lock this)
+                (sync (:wallet-lock this)
                     ;; Store the new block hash.
                     (Wallet''set-last-block-seen-hash this, __newBlockHash)
                     (Wallet''set-last-block-seen-height this, (:stored-height block))
                     (Wallet''set-last-block-seen-time-secs this, (:time-seconds (:stored-header block)))
+
                     ;; Notify all the BUILDING transactions of the new block.
                     ;; This is so that they can update their depth.
-                    (let [#_"Set<Transaction>" transactions (Wallet''get-transactions this, true)]
-                        (doseq [#_"Transaction" tx transactions]
-                            (cond (.contains (:ignore-next-new-block this), (Transaction''get-hash tx))
-                                (do
-                                    ;; tx was already processed in receive() due to it appearing in this block, so we don't want
-                                    ;; to increment the tx confidence depth twice, it'd result in miscounting.
-                                    (.remove (:ignore-next-new-block this), (Transaction''get-hash tx))
-                                )
-                                :else
-                                (do
-                                    (let [#_"TransactionConfidence" confidence (Transaction''get-confidence-t tx)]
-                                        (when (= (TransactionConfidence''get-confidence-type confidence) :ConfidenceType'BUILDING)
-                                            ;; Erase the set of seen peers once the tx is so deep that it seems unlikely to ever go
-                                            ;; pending again.  We could clear this data the moment a tx is seen in the block chain,
-                                            ;; but in cases where the chain re-orgs, this would mean that wallets would perceive a
-                                            ;; newly pending tx has zero confidence at all, which would not be right: we expect it to
-                                            ;; be included once again.  We could have a separate was-in-chain-and-now-isn't confidence
-                                            ;; type, but this way is backwards compatible with existing software, and the new state
-                                            ;; probably wouldn't mean anything different to just remembering peers anyway.
-                                            (when (< (:event-horizon this) (TransactionConfidence''increment-depth-in-blocks confidence))
-                                                (TransactionConfidence''clear-broadcast-by confidence)
-                                            )
-                                            (.put (:confidence-changed this), tx, :ConfidenceChangeReason'DEPTH)
-                                        )
+                    (doseq [#_"Transaction" tx (Wallet''get-transactions this, true)]
+                        (cond (.contains (:ignore-next-new-block this), (Transaction''get-hash tx))
+                                ;; tx was already processed in receive() due to it appearing in this block, so we don't want
+                                ;; to increment the tx confidence depth twice, it'd result in miscounting.
+                                (.remove (:ignore-next-new-block this), (Transaction''get-hash tx))
+                            :else
+                            (let [#_"TransactionConfidence" confidence (Transaction''get-confidence-t tx)]
+                                (when (= (TransactionConfidence''get-confidence-type confidence) :ConfidenceType'BUILDING)
+                                    ;; Erase the set of seen peers once the tx is so deep that it seems unlikely to ever go
+                                    ;; pending again.  We could clear this data the moment a tx is seen in the block chain,
+                                    ;; but in cases where the chain re-orgs, this would mean that wallets would perceive a
+                                    ;; newly pending tx has zero confidence at all, which would not be right: we expect it to
+                                    ;; be included once again.  We could have a separate was-in-chain-and-now-isn't confidence
+                                    ;; type, but this way is backwards compatible with existing software, and the new state
+                                    ;; probably wouldn't mean anything different to just remembering peers anyway.
+                                    (when (< (:event-horizon this) (TransactionConfidence''increment-depth-in-blocks confidence))
+                                        (TransactionConfidence''clear-broadcast-by confidence)
                                     )
+                                    (.put (:confidence-changed this), tx, :ConfidenceChangeReason'DEPTH)
                                 )
                             )
                         )
+                    )
 
-                        (Wallet''inform-confidence-listeners-if-not-reorganizing this)
-                        (Wallet''maybe-queue-on-wallet-changed this)
+                    (Wallet''inform-confidence-listeners-if-not-reorganizing this)
+                    (Wallet''maybe-queue-on-wallet-changed this)
 
-                        (cond (:hard-save-on-next-block this)
-                            (do
-                                (Wallet''save-now this)
-                                (§ assoc this :hard-save-on-next-block false)
-                            )
-                            :else
-                            (do
-                                ;; Coalesce writes to avoid throttling on disk access when catching up with the chain.
-                                (Wallet''save-later this)
-                            )
+                    (cond (:hard-save-on-next-block this)
+                        (do
+                            (Wallet''save-now this)
+                            (§ assoc this :hard-save-on-next-block false)
+                        )
+                        :else
+                        (do
+                            ;; Coalesce writes to avoid throttling on disk access when catching up with the chain.
+                            (Wallet''save-later this)
                         )
                     )
                 )
@@ -29796,77 +29774,72 @@
      ;;
     #_throws #_[ "VerificationException" ]
     #_method
-    (defn- #_"void" Wallet''process-tx-from-best-chain [#_"Wallet" this, #_"Transaction" tx, #_"boolean" __forceAddToPool]
+    (defn- #_"void" Wallet''process-tx-from-best-chain [#_"Wallet" this, #_"Transaction" tx, #_"boolean" force?]
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
         (assert-state (not (.containsKey (:pending this), (Transaction''get-hash tx))))
 
         ;; This TX may spend our existing outputs even though it was not pending.  This can happen in unit tests,
         ;; if keys are moved between wallets, if we're catching up to the chain given only a set of keys,
         ;; or if a dead coinbase transaction has moved back onto the main chain.
-        (§ let [#_"boolean" __isDeadCoinbase (and (Transaction''is-coin-base tx) (.containsKey (:dead this), (Transaction''get-hash tx)))]
-            (when __isDeadCoinbase
-                ;; There is a dead coinbase tx being received on the best chain.  A coinbase tx is made dead when it moves
-                ;; to a side chain but it can be switched back on a reorg and resurrected back to spent or unspent.
-                ;; So take it out of the dead pool.  Note that we don't resurrect dependent transactions here, even though
-                ;; we could.  Bitcoin Core nodes on the network have deleted the dependent transactions from their mempools
-                ;; entirely by this point.  We could and maybe should rebroadcast them so the network remembers and tries
-                ;; to confirm them again.  But this is a deeply unusual edge case that due to the maturity rule should never
-                ;; happen in practice, thus for simplicities sake we ignore it here.
-                (log/info (str "  coinbase tx <-dead: confidence " (Transaction''get-hash tx), (.name (TransactionConfidence''get-confidence-type (Transaction''get-confidence-t tx)))))
-                (.remove (:dead this), (Transaction''get-hash tx))
-            )
+        (when (and (Transaction''is-coin-base tx) (.containsKey (:dead this), (Transaction''get-hash tx)))
+            ;; There is a dead coinbase tx being received on the best chain.  A coinbase tx is made dead when it moves
+            ;; to a side chain but it can be switched back on a reorg and resurrected back to spent or unspent.
+            ;; So take it out of the dead pool.  Note that we don't resurrect dependent transactions here, even though
+            ;; we could.  Bitcoin Core nodes on the network have deleted the dependent transactions from their mempools
+            ;; entirely by this point.  We could and maybe should rebroadcast them so the network remembers and tries
+            ;; to confirm them again.  But this is a deeply unusual edge case that due to the maturity rule should never
+            ;; happen in practice, thus for simplicities sake we ignore it here.
+            (log/info (str "  coinbase tx " (Transaction''get-hash tx) " <-dead: confidence " (TransactionConfidence''get-confidence-type (Transaction''get-confidence-t tx))))
+            (.remove (:dead this), (Transaction''get-hash tx))
+        )
 
-            ;; Update tx and other unspent/pending transactions by connecting inputs/outputs.
-            (Wallet''update-for-spends this, tx, true)
+        ;; Update tx and other unspent/pending transactions by connecting inputs/outputs.
+        (Wallet''update-for-spends this, tx, true)
 
-            ;; Now make sure it ends up in the right pool.  Also, handle the case where this TX is double-spending
-            ;; against our pending transactions.  Note that a tx may double spend our pending transactions and also
-            ;; send us money/spend our money.
-            (let [#_"boolean" __hasOutputsToMe (< 0 (Monetary'''signum (Transaction''get-value-sent-to-me tx, this)))
-                  #_"boolean" __hasOutputsFromMe false]
+        ;; Now make sure it ends up in the right pool.  Also, handle the case where this TX is double-spending
+        ;; against our pending transactions.  Note that a tx may double spend our pending transactions and also
+        ;; send us money/spend our money.
+        (let [#_"boolean" __hasOutputsToMe (pos? (Monetary'''signum (Transaction''get-value-sent-to-me tx, this)))
+              #_"boolean" __hasOutputsFromMe
                 (cond __hasOutputsToMe
-                    (do
+                    (let [#_"boolean" spent? (Transaction''is-every-owned-output-spent tx, this)]
                         ;; Needs to go into either unspent or spent (if the outputs were already spent by a pending tx).
-                        (cond (Transaction''is-every-owned-output-spent tx, this)
-                            (do
-                                (log/info (str "  tx " (Transaction''get-hash tx) " ->spent (by pending)"))
-                                (Wallet''add-wallet-transaction this, :PoolType'SPENT, tx)
-                            )
-                            :else
-                            (do
-                                (log/info (str "  tx " (Transaction''get-hash tx) " ->unspent"))
-                                (Wallet''add-wallet-transaction this, :PoolType'UNSPENT, tx)
-                            )
-                        )
+                        (log/info (str "  tx " (Transaction''get-hash tx) (if spent? " ->spent (by pending)" " ->unspent")))
+                        (Wallet''add-wallet-transaction this, (if spent? :PoolType'SPENT :PoolType'UNSPENT), tx)
+                        false
                     )
-                    (< 0 (Monetary'''signum (Transaction''get-value-sent-from-me tx, this)))
+                    (pos? (Monetary'''signum (Transaction''get-value-sent-from-me tx, this)))
                     (do
-                        (§ ass __hasOutputsFromMe true)
                         ;; Didn't send us any money, but did spend some.  Keep it around for record keeping purposes.
                         (log/info (str "  tx " (Transaction''get-hash tx) " ->spent"))
                         (Wallet''add-wallet-transaction this, :PoolType'SPENT, tx)
+                        true
                     )
-                    __forceAddToPool
+                    force?
                     (do
                         ;; Was manually added to pending, so we should keep it to notify the user of confidence information.
                         (log/info (str "  tx " (Transaction''get-hash tx) " ->spent (manually added)"))
                         (Wallet''add-wallet-transaction this, :PoolType'SPENT, tx)
+                        false
                     )
-                )
+                    :else
+                    (do
+                        false
+                    )
+                )]
 
-                ;; Kill txns in conflict with this tx.
-                (let [#_"Set<Transaction>" __doubleSpendTxns (Wallet''find-double-spends-against this, tx, (:pending this))]
-                    (when (seq __doubleSpendTxns)
-                        ;; No need to addTransactionsDependingOn(doubleSpendTxns), because killTxns() already kills dependencies.
-                        (Wallet''kill-txns this, __doubleSpendTxns, tx)
-                    )
-                    (when (and (not __hasOutputsToMe) (not __hasOutputsFromMe) (not __forceAddToPool) (seq (Wallet''find-double-spends-against this, tx, (:transactions this))))
-                        ;; Disconnect irrelevant inputs (otherwise might cause protobuf serialization issue).
-                        (doseq [#_"TransactionInput" input (Transaction''get-inputs tx)]
-                            (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
-                                (when (and (some? output) (not (TransactionOutput''is-mine output, this)))
-                                    (TransactionInput''disconnect input)
-                                )
+            ;; Kill txns in conflict with this tx.
+            (let [#_"Set<Transaction>" __doubleSpendTxns (Wallet''find-double-spends-against this, tx, (:pending this))]
+                (when (seq __doubleSpendTxns)
+                    ;; No need to addTransactionsDependingOn(doubleSpendTxns), because killTxns() already kills dependencies.
+                    (Wallet''kill-txns this, __doubleSpendTxns, tx)
+                )
+                (when (and (not __hasOutputsToMe) (not __hasOutputsFromMe) (not force?) (seq (Wallet''find-double-spends-against this, tx, (:transactions this))))
+                    ;; Disconnect irrelevant inputs (otherwise might cause protobuf serialization issue).
+                    (doseq [#_"TransactionInput" input (Transaction''get-inputs tx)]
+                        (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
+                            (when (and (some? output) (not (TransactionOutput''is-mine output, this)))
+                                (TransactionInput''disconnect input)
                             )
                         )
                     )
