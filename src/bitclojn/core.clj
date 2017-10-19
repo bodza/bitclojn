@@ -323,7 +323,7 @@
 (declare VersionMessage''has-block-chain VersionMessage''is-bloom-filtering-supported VersionMessage''is-ping-pong-supported VersionMessage'NODE_NETWORK VersionMessage'init VersionMessage'new VersionMessage'from-wire VersionMessage''to-wire)
 (declare VersionTally''add VersionTally''get-count-at-or-above VersionTally''initialize VersionTally''size VersionTally'new)
 (declare VersionedChecksummedBytes''to-base58 VersionedChecksummedBytes'from-base58 VersionedChecksummedBytes'new)
-(declare Wallet'DEFAULT_EVENT_HORIZON Wallet''add-and-activate-hd-chain Wallet''add-change-event-listener-2 Wallet''add-change-event-listener-3 Wallet''add-coins-received-event-listener-2 Wallet''add-coins-received-event-listener-3 Wallet''add-coins-sent-event-listener-2 Wallet''add-coins-sent-event-listener-3 Wallet''add-key-chain-event-listener-2 Wallet''add-key-chain-event-listener-3 Wallet''add-reorganize-event-listener-2 Wallet''add-reorganize-event-listener-3 Wallet''add-supplied-inputs Wallet''add-transaction-confidence-event-listener-2 Wallet''add-transaction-confidence-event-listener-3 Wallet''add-transaction-signer Wallet''add-transactions-depending-on Wallet''add-wallet-transaction Wallet''adjust-output-downwards-for-fee Wallet''calc-bloom-out-points-locked Wallet''calculate-all-spend-candidates-1 Wallet''calculate-all-spend-candidates-3 Wallet''calculate-fee Wallet''can-sign-for Wallet''check-balance-futures-locked Wallet''check-for-filter-exhaustion Wallet''check-no-deterministic-keys Wallet''cleanup Wallet''clear-transactions-1 Wallet''clear-transactions-2 Wallet''commit-tx Wallet''complete-tx Wallet''create-send Wallet''create-transient-state Wallet''current-address Wallet''current-change-address Wallet''current-key Wallet''current-receive-address Wallet''current-receive-key Wallet''do-maintenance Wallet''estimate-bytes-for-signing Wallet''find-double-spends-against Wallet''fresh-address Wallet''fresh-key Wallet''fresh-keys Wallet''fresh-receive-address Wallet''fresh-receive-key Wallet''get-active-key-chain Wallet''get-balance-1 Wallet''get-balance-2s Wallet''get-balance-2t Wallet''get-balance-future Wallet''get-bloom-filter-2 Wallet''get-coin-selector Wallet''get-containing-pools Wallet''get-description Wallet''get-imported-keys Wallet''get-issued-receive-addresses Wallet''get-issued-receive-keys Wallet''get-key-by-path-2 Wallet''get-key-chain-group-combined-key-lookahead-epochs Wallet''get-key-chain-group-lookahead-size Wallet''get-key-chain-group-lookahead-threshold Wallet''get-key-chain-group-size Wallet''get-key-chain-seed Wallet''get-key-rotation-time Wallet''get-last-block-seen-hash Wallet''get-last-block-seen-height Wallet''get-last-block-seen-time Wallet''get-last-block-seen-time-secs Wallet''get-pending-transactions Wallet''get-recent-transactions Wallet''get-total-received Wallet''get-total-sent Wallet''get-transaction Wallet''get-transaction-signers Wallet''get-transactions Wallet''get-transactions-by-time Wallet''get-unspents Wallet''get-watching-key Wallet''has-key Wallet''import-key Wallet''import-keys Wallet''inform-confidence-listeners-if-not-reorganizing Wallet''is-accept-risky-transactions Wallet''is-consistent Wallet''is-consistent-or-throw Wallet''is-deterministic-upgrade-required Wallet''is-key-rotating Wallet''is-not-spending-txns-in-confidence-type Wallet''is-pending-transaction-relevant Wallet''is-transaction-relevant Wallet''is-transaction-risky Wallet''is-tx-consistent Wallet''is-tx-output-bloom-filterable Wallet''is-watching Wallet''kill-txns Wallet''mark-keys-as-used Wallet''maybe-commit-tx Wallet''maybe-move-pool Wallet''maybe-queue-on-wallet-changed Wallet''maybe-rotate-keys Wallet''maybe-upgrade-to-hd Wallet''process-tx-from-best-chain Wallet''queue-on-coins-received Wallet''queue-on-coins-sent Wallet''queue-on-reorganize Wallet''queue-on-transaction-confidence-changed Wallet''receive Wallet''receive-pending-3 Wallet''receive-pending-4 Wallet''rekey-one-batch Wallet''remove-change-event-listener Wallet''remove-coins-received-event-listener Wallet''remove-coins-sent-event-listener Wallet''remove-key Wallet''remove-key-chain-event-listener Wallet''remove-reorganize-event-listener Wallet''remove-transaction-confidence-event-listener Wallet''reset Wallet''save Wallet''save-later Wallet''save-now Wallet''send-coins-2 Wallet''send-coins-3b Wallet''send-coins-3p Wallet''send-coins-4 Wallet''send-coins-offline Wallet''set-accept-risky-transactions Wallet''set-coin-selector Wallet''set-description Wallet''set-key-chain-group-lookahead-size Wallet''set-key-chain-group-lookahead-threshold Wallet''set-key-rotation-time-d Wallet''set-key-rotation-time-l Wallet''set-last-block-seen-hash Wallet''set-last-block-seen-height Wallet''set-last-block-seen-time-secs Wallet''set-transaction-broadcaster Wallet''sign-transaction Wallet''sort-txns-by-dependency Wallet''spends Wallet''subtract-depth Wallet''to-string Wallet''to-string-helper Wallet''update-for-spends Wallet''upgrade-to-deterministic Wallet'from-keys Wallet'from-seed Wallet'from-watching-key Wallet'from-watching-key-b58 Wallet'new)
+(declare Wallet'DEFAULT_EVENT_HORIZON Wallet''add-and-activate-hd-chain Wallet''add-change-event-listener-2 Wallet''add-change-event-listener-3 Wallet''add-coins-received-event-listener-2 Wallet''add-coins-received-event-listener-3 Wallet''add-coins-sent-event-listener-2 Wallet''add-coins-sent-event-listener-3 Wallet''add-key-chain-event-listener-2 Wallet''add-key-chain-event-listener-3 Wallet''add-reorganize-event-listener-2 Wallet''add-reorganize-event-listener-3 Wallet''add-supplied-inputs Wallet''add-transaction-confidence-event-listener-2 Wallet''add-transaction-confidence-event-listener-3 Wallet''add-transaction-signer Wallet''add-transactions-depending-on Wallet''add-wallet-transaction Wallet''adjust-output-downwards-for-fee Wallet''calc-bloom-out-points-locked Wallet''calculate-all-spend-candidates-1 Wallet''calculate-all-spend-candidates-3 Wallet''calculate-fee Wallet''can-sign-for Wallet''check-balance-futures-locked Wallet''check-for-filter-exhaustion Wallet''check-no-deterministic-keys Wallet''cleanup Wallet''clear-transactions-1 Wallet''clear-transactions-2 Wallet''commit-tx Wallet''complete-tx Wallet''create-send Wallet''create-transient-state Wallet''current-address Wallet''current-change-address Wallet''current-key Wallet''current-receive-address Wallet''current-receive-key Wallet''do-maintenance Wallet''estimate-bytes-for-signing Wallet''find-double-spends-against Wallet''fresh-address Wallet''fresh-key Wallet''fresh-keys Wallet''fresh-receive-address Wallet''fresh-receive-key Wallet''get-active-key-chain Wallet''get-balance-1 Wallet''get-balance-2s Wallet''get-balance-2t Wallet''get-balance-future Wallet''get-bloom-filter-2 Wallet''get-coin-selector Wallet''get-containing-pools Wallet''get-description Wallet''get-imported-keys Wallet''get-issued-receive-addresses Wallet''get-issued-receive-keys Wallet''get-key-by-path-2 Wallet''get-key-chain-group-combined-key-lookahead-epochs Wallet''get-key-chain-group-lookahead-size Wallet''get-key-chain-group-lookahead-threshold Wallet''get-key-chain-group-size Wallet''get-key-chain-seed Wallet''get-key-rotation-time Wallet''get-last-block-seen-hash Wallet''get-last-block-seen-height Wallet''get-last-block-seen-time Wallet''get-last-block-seen-time-secs Wallet''get-pending-transactions Wallet''get-recent-transactions Wallet''get-total-received Wallet''get-total-sent Wallet''get-transaction Wallet''get-transaction-signers Wallet''get-transactions Wallet''get-transactions-by-time Wallet''get-unspents Wallet''get-watching-key Wallet''has-key Wallet''import-key Wallet''import-keys Wallet''inform-confidence-listeners-if-not-reorganizing Wallet''is-accept-risky-transactions Wallet''is-consistent Wallet''is-consistent-or-throw Wallet''is-deterministic-upgrade-required Wallet''is-key-rotating Wallet''is-spending-txns-in-confidence-type Wallet''is-pending-transaction-relevant Wallet''is-transaction-relevant Wallet''is-transaction-risky Wallet''is-tx-consistent Wallet''is-tx-output-bloom-filterable Wallet''is-watching Wallet''kill-txns Wallet''mark-keys-as-used Wallet''maybe-commit-tx Wallet''maybe-move-pool Wallet''maybe-queue-on-wallet-changed Wallet''maybe-rotate-keys Wallet''maybe-upgrade-to-hd Wallet''process-tx-from-best-chain Wallet''queue-on-coins-received Wallet''queue-on-coins-sent Wallet''queue-on-reorganize Wallet''queue-on-transaction-confidence-changed Wallet''receive Wallet''receive-pending-3 Wallet''receive-pending-4 Wallet''rekey-one-batch Wallet''remove-change-event-listener Wallet''remove-coins-received-event-listener Wallet''remove-coins-sent-event-listener Wallet''remove-key Wallet''remove-key-chain-event-listener Wallet''remove-reorganize-event-listener Wallet''remove-transaction-confidence-event-listener Wallet''reset Wallet''save Wallet''save-later Wallet''save-now Wallet''send-coins-2 Wallet''send-coins-3b Wallet''send-coins-3p Wallet''send-coins-4 Wallet''send-coins-offline Wallet''set-accept-risky-transactions Wallet''set-coin-selector Wallet''set-description Wallet''set-key-chain-group-lookahead-size Wallet''set-key-chain-group-lookahead-threshold Wallet''set-key-rotation-time-d Wallet''set-key-rotation-time-l Wallet''set-last-block-seen-hash Wallet''set-last-block-seen-height Wallet''set-last-block-seen-time-secs Wallet''set-transaction-broadcaster Wallet''sign-transaction Wallet''sort-txns-by-dependency Wallet''spends Wallet''subtract-depth Wallet''to-string Wallet''to-string-helper Wallet''update-for-spends Wallet''upgrade-to-deterministic Wallet'from-keys Wallet'from-seed Wallet'from-watching-key Wallet'from-watching-key-b58 Wallet'new)
 (declare WalletAppKit''chain WalletAppKit''connect-to-loopback WalletAppKit''create-peer-group WalletAppKit''create-wallet WalletAppKit''install-shutdown-hook WalletAppKit''on-setup-completed WalletAppKit''peer-group WalletAppKit''provide-block-store WalletAppKit''set-auto-stop WalletAppKit''set-blocking-startup WalletAppKit''set-checkpoints WalletAppKit''set-discovery WalletAppKit''set-download-listener WalletAppKit''set-peer-nodes WalletAppKit''store WalletAppKit''wallet WalletAppKit'new)
 (declare WalletCoinsReceivedEventListener'''on-coins-received)
 (declare WeakConfidenceReference'new)
@@ -5063,38 +5063,27 @@
 
     #_method
     (defn #_"boolean" BloomFilter''apply-and-update-t [#_"BloomFilter" this, #_"Transaction" tx]
-        (§ sync this
-            (or (BloomFilter''contains this, (Sha256Hash''get-bytes (Transaction''get-hash tx)))
-                (let [#_"boolean" found? false #_"BloomUpdate" flag (BloomFilter''get-update-flag this)]
-                    (doseq [#_"TransactionOutput" output (Transaction''get-outputs tx)]
-                        (let [#_"Script" script (TransactionOutput''get-script-pub-key output)]
-                            (doseq [#_"ScriptChunk" chunk (Script''get-chunks script)]
-                                (when (and (ScriptChunk''is-push-data chunk) (BloomFilter''contains this, (:data chunk)))
-                                    (let [#_"boolean" __isSendingToPubKeys (or (Script''is-sent-to-raw-pub-key script) (Script''is-sent-to-multi-sig script))]
-                                        (when (or (= flag :BloomUpdate'UPDATE_ALL) (and (= flag :BloomUpdate'UPDATE_P2PUBKEY_ONLY) __isSendingToPubKeys))
-                                            (BloomFilter''insert-data this, (Message''to-bytes (TransactionOutput''get-outpoint-for output), TransactionOutPoint''to-wire))
-                                        )
-                                        (§ ass found? true)
-                                    )
-                                )
-                            )
-                        )
+        (letfn [#_"boolean" (chunk-found? [#_"ScriptChunk" %] (and (ScriptChunk''is-push-data %) (BloomFilter''contains this, (:data %))))
+                #_"boolean" (input-found? [#_"TransactionInput" %]
+                    (or (BloomFilter''contains this, (Message''to-bytes (:outpoint %), TransactionOutPoint''to-wire))
+                        (some chunk-found? (Script''get-chunks (TransactionInput''get-script-sig %)))
                     )
-                    (or found?
-                        (do
-                            (doseq [#_"TransactionInput" input (Transaction''get-inputs tx)]
-                                (when (BloomFilter''contains this, (Message''to-bytes (:outpoint input), TransactionOutPoint''to-wire))
-                                    (§ return true)
-                                )
-
-                                (doseq [#_"ScriptChunk" chunk (Script''get-chunks (TransactionInput''get-script-sig input))]
-                                    (when (and (ScriptChunk''is-push-data chunk) (BloomFilter''contains this, (:data chunk)))
-                                        (§ return true)
+                )]
+            (sync this
+                (or (BloomFilter''contains this, (Sha256Hash''get-bytes (Transaction''get-hash tx)))
+                    (let [#_"BloomUpdate" flag (BloomFilter''get-update-flag this)
+                          #_"boolean" found? (atom false)]
+                        (doseq [#_"TransactionOutput" output (Transaction''get-outputs tx)]
+                            (let [#_"Script" script (TransactionOutput''get-script-pub-key output)]
+                                (when (some chunk-found? (Script''get-chunks script))
+                                    (when (or (= flag :BloomUpdate'UPDATE_ALL) (and (= flag :BloomUpdate'UPDATE_P2PUBKEY_ONLY) (or (Script''is-sent-to-raw-pub-key script) (Script''is-sent-to-multi-sig script))))
+                                        (BloomFilter''insert-data this, (Message''to-bytes (TransactionOutput''get-outpoint-for output), TransactionOutPoint''to-wire))
                                     )
+                                    (reset! found? true)
                                 )
                             )
-                            false
                         )
+                        (or @found? (some input-found? (Transaction''get-inputs tx)))
                     )
                 )
             )
@@ -6560,7 +6549,7 @@
     #_throws #_[ "VerificationException", "BlockStoreException", "PrunedException" ]
     #_override
     (defn #_"TransactionOutputChanges" BlockChain'''connect-transactions-2 [#_"FullPrunedBlockChain" this, #_"StoredBlock" stored]
-        (§ sync this
+        (sync this
             (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
             (when-not (Ledger''passes-checkpoint (:ledger this), (:stored-height stored), (Block''get-hash (:stored-header stored)))
                 (throw+ (VerificationException'new (str "Block failed checkpoint lockin at " (:stored-height stored))))
@@ -6574,164 +6563,161 @@
                     (throw+ (PrunedException'new (Block''get-hash (:stored-header stored))))
                 )
 
-                (let [#_"TransactionOutputChanges" changes]
-                    (try+
-                        (let [#_"List<Transaction>" transactions (:transactions block)]
-                            (cond (some? transactions)
-                                (do
-                                    (let [#_"LinkedList<UTXO>" __txOutsSpent (LinkedList.)
-                                          #_"LinkedList<UTXO>" __txOutsCreated (LinkedList.)
-                                          #_"long" __sigOps 0]
-
-                                        (when (not (Ledger''is-checkpoint (:ledger this), (:stored-height stored)))
-                                            (doseq [#_"Transaction" tx transactions]
-                                                (let [#_"Sha256Hash" hash (Transaction''get-hash tx)]
-                                                    (when (FullPrunedBlockStore'''has-unspent-outputs (:block-store this), hash, (.size (Transaction''get-outputs tx)))
-                                                        (throw+ (VerificationException'new "Block failed BIP30 test!"))
-                                                    )
-                                                )
-                                            )
-                                        )
-
-                                        (let [#_"Coin" __totalFees Coin'ZERO
-                                              #_"Coin" __coinbaseValue nil]
-
-                                            (when (.isShutdown (:script-verification-executor this))
-                                                (§ assoc this :script-verification-executor (Executors/newFixedThreadPool (.availableProcessors (Runtime/getRuntime))))
-                                            )
-
-                                            (let [#_"List<Future<VerificationException>>" __listScriptVerificationResults (ArrayList. (.size transactions))]
-                                                (doseq [#_"Transaction" tx (:transactions this)]
-                                                    (let [#_"Set<ScriptVerifyFlag>" __verifyFlags (Ledger''get-transaction-verification-flags (:ledger this), (:stored-header stored), tx, (BlockChain''get-version-tally this), Integer/SIZE)
-                                                          #_"boolean" __isCoinBase (Transaction''is-coin-base tx)
-                                                          #_"Coin" __valueIn Coin'ZERO
-                                                          #_"Coin" __valueOut Coin'ZERO
-                                                          #_"List<Script>" __prevOutScripts (LinkedList.)]
-
-                                                        (when (not __isCoinBase)
-                                                            (loop-when-recur [#_"int" index 0] (< index (.size (Transaction''get-inputs tx))) [(inc index)]
-                                                                (let [#_"TransactionInput" in (.get (Transaction''get-inputs tx), index)
-                                                                      #_"UTXO" __prevOut (FullPrunedBlockStore'''get-transaction-output (:block-store this), (:from-tx-hash (:outpoint in)), (:index (:outpoint in)))]
-                                                                    (when (nil? __prevOut)
-                                                                        (throw+ (VerificationException'new "Attempted spend of a non-existent or already spent output!"))
-                                                                    )
-                                                                    (when (and (:coinbase? __prevOut) (< (- (:stored-height stored) (:utxo-height __prevOut)) (-> this :ledger :spendable-coinbase-depth)))
-                                                                        (throw+ (VerificationException'new (str "Tried to spend coinbase at depth " (- (:stored-height stored) (:utxo-height __prevOut)))))
-                                                                    )
-                                                                    (§ ass __valueIn (Coin''add __valueIn, (:utxo-value __prevOut)))
-                                                                    (when (.contains __verifyFlags, :ScriptVerifyFlag'P2SH)
-                                                                        (when (Script''is-pay-to-script-hash (:script __prevOut))
-                                                                            (§ ass __sigOps (+ __sigOps (Script'get-p2sh-sig-op-count (:script-bytes in))))
-                                                                        )
-                                                                        (when (< Block'MAX_BLOCK_SIGOPS __sigOps)
-                                                                            (throw+ (VerificationException'new "Too many P2SH SigOps in block"))
-                                                                        )
-                                                                    )
-
-                                                                    ;; TODO: Enforce DER signature format.
-
-                                                                    (.add __prevOutScripts, (:script __prevOut))
-
-                                                                    (FullPrunedBlockStore'''remove-unspent-transaction-output (:block-store this), __prevOut)
-                                                                    (.add __txOutsSpent, __prevOut)
-                                                                )
-                                                            )
-                                                        )
-                                                        (let [#_"Sha256Hash" hash (Transaction''get-hash tx)]
-                                                            (doseq [#_"TransactionOutput" out (Transaction''get-outputs tx)]
-                                                                (§ ass __valueOut (Coin''add __valueOut, (:coin-value out)))
-                                                                (let [#_"Script" script (FullPrunedBlockChain''get-script this, (:script-bytes out))
-                                                                      #_"UTXO" __newOut (UTXO'new hash, (TransactionOutput''get-index out), (:coin-value out), (:stored-height stored), __isCoinBase, script, (FullPrunedBlockChain''get-script-address this, script))]
-                                                                    (FullPrunedBlockStore'''add-unspent-transaction-output (:block-store this), __newOut)
-                                                                    (.add __txOutsCreated, __newOut)
-                                                                )
-                                                            )
-                                                            ;; All values were already checked for being non-negative (as it is verified in Transaction.verify())
-                                                            ;; but we check again here just for defence in depth.  Transactions with zero output value are OK.
-                                                            (when (or (< (Monetary'''signum __valueOut) 0) (< 0 (.compareTo __valueOut, (Ledger''get-max-money (:ledger this)))))
-                                                                (throw+ (VerificationException'new "Transaction output value out of range"))
-                                                            )
-
-                                                            (cond __isCoinBase
-                                                                (do
-                                                                    (§ ass __coinbaseValue __valueOut)
-                                                                )
-                                                                :else
-                                                                (do
-                                                                    (when (or (< (.compareTo __valueIn, __valueOut) 0) (< 0 (.compareTo __valueIn, (Ledger''get-max-money (:ledger this)))))
-                                                                        (throw+ (VerificationException'new "Transaction input value out of range"))
-                                                                    )
-                                                                    (§ ass __totalFees (Coin''add __totalFees, (Coin''subtract __valueIn, __valueOut)))
-                                                                )
-                                                            )
-
-                                                            (when (not __isCoinBase)
-                                                                ;; Because correctlySpends modifies transactions, this must come after we are done with tx.
-                                                                (let [#_"FutureTask<VerificationException>" future (FutureTask. (FullPrunedVerifier'new tx, (:prev-out-scripts this), __verifyFlags))]
-                                                                    (.execute (:script-verification-executor this), future)
-                                                                    (.add __listScriptVerificationResults, future)
-                                                                )
-                                                            )
-                                                        )
-                                                    )
-                                                )
-                                                (when (or (< 0 (.compareTo __totalFees, (Ledger''get-max-money (:ledger this)))) (< (.compareTo (Coin''add (Block''get-block-inflation (:stored-header stored), (:stored-height stored)), __totalFees), __coinbaseValue) 0))
-                                                    (throw+ (VerificationException'new "Transaction fees out of range"))
-                                                )
-
-                                                (§ ass changes (TransactionOutputChanges'new __txOutsCreated, __txOutsSpent))
-                                                (doseq [#_"Future<VerificationException>" future __listScriptVerificationResults]
-                                                    (let [#_"VerificationException" e]
-                                                        (try
-                                                            (§ ass e (.get future))
-                                                            (catch InterruptedException ie
-                                                                (throw (RuntimeException. ie)) ;; Shouldn't happen.
-                                                            )
-                                                            (catch ExecutionException ee
-                                                                (log/error (.getCause ee), "Script.correctlySpends threw an unexpected exception")
-                                                                (throw+ (VerificationException'new "Bug in Script.correctlySpends, likely script malformed in some new and interesting way.") ee)
-                                                            )
-                                                        )
-                                                        (when (some? e)
-                                                            (throw e)
-                                                        )
-                                                    )
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                                :else
-                                (do
-                                    (§ ass changes (:tx-out-changes block))
-                                    (when (not (Ledger''is-checkpoint (:ledger this), (:stored-height stored)))
-                                        (doseq [#_"UTXO" out (-> this :tx-out-changes :tx-outs-created)]
-                                            (when (some? (FullPrunedBlockStore'''get-transaction-output (:block-store this), (:utxo-hash out), (:utxo-index out)))
-                                                (throw+ (VerificationException'new "Block failed BIP30 test!"))
-                                            )
-                                        )
-                                    )
-                                    (doseq [#_"UTXO" out (-> this :tx-out-changes :tx-outs-created)]
-                                        (FullPrunedBlockStore'''add-unspent-transaction-output (:block-store this), out)
-                                    )
-                                    (doseq [#_"UTXO" out (-> this :tx-out-changes :tx-outs-spent)]
-                                        (FullPrunedBlockStore'''remove-unspent-transaction-output (:block-store this), out)
+                (try+
+                    (cond (some? (:transactions block))
+                        (do
+                            (when-not (Ledger''is-checkpoint (:ledger this), (:stored-height stored))
+                                (doseq [#_"Transaction" tx (:transactions block)]
+                                    (when (FullPrunedBlockStore'''has-unspent-outputs (:block-store this), (Transaction''get-hash tx), (.size (Transaction''get-outputs tx)))
+                                        (throw+ (VerificationException'new "Block failed BIP30 test!"))
                                     )
                                 )
                             )
+
+                            (when (.isShutdown (:script-verification-executor this))
+                                (§ assoc this :script-verification-executor (Executors/newFixedThreadPool (.availableProcessors (Runtime/getRuntime))))
+                            )
+
+                            (§ let [#_"LinkedList<UTXO>" __txOutsCreated (LinkedList.)
+                                  #_"LinkedList<UTXO>" __txOutsSpent (LinkedList.)
+                                  #_"long" __sigOps 0
+                                  #_"Coin" __totalFees Coin'ZERO
+                                  #_"Coin" __coinbaseValue nil
+                                  #_"List<Future<VerificationException>>" __listScriptVerificationResults (ArrayList. (.size (:transactions block)))]
+
+                                (doseq [#_"Transaction" tx (:transactions this)]
+                                    (let [#_"Set<ScriptVerifyFlag>" __verifyFlags (Ledger''get-transaction-verification-flags (:ledger this), (:stored-header stored), tx, (BlockChain''get-version-tally this), Integer/SIZE)
+                                            #_"boolean" __isCoinBase (Transaction''is-coin-base tx)
+                                            #_"Coin" __valueIn Coin'ZERO
+                                            #_"Coin" __valueOut Coin'ZERO
+                                            #_"List<Script>" __prevOutScripts (LinkedList.)]
+
+                                        (when (not __isCoinBase)
+                                            (loop-when-recur [#_"int" index 0] (< index (.size (Transaction''get-inputs tx))) [(inc index)]
+                                                (let [#_"TransactionInput" in (.get (Transaction''get-inputs tx), index)
+                                                        #_"UTXO" __prevOut (FullPrunedBlockStore'''get-transaction-output (:block-store this), (:from-tx-hash (:outpoint in)), (:index (:outpoint in)))]
+                                                    (when (nil? __prevOut)
+                                                        (throw+ (VerificationException'new "Attempted spend of a non-existent or already spent output!"))
+                                                    )
+                                                    (when (and (:coinbase? __prevOut) (< (- (:stored-height stored) (:utxo-height __prevOut)) (-> this :ledger :spendable-coinbase-depth)))
+                                                        (throw+ (VerificationException'new (str "Tried to spend coinbase at depth " (- (:stored-height stored) (:utxo-height __prevOut)))))
+                                                    )
+                                                    (§ ass __valueIn (Coin''add __valueIn, (:utxo-value __prevOut)))
+                                                    (when (.contains __verifyFlags, :ScriptVerifyFlag'P2SH)
+                                                        (when (Script''is-pay-to-script-hash (:script __prevOut))
+                                                            (§ ass __sigOps (+ __sigOps (Script'get-p2sh-sig-op-count (:script-bytes in))))
+                                                        )
+                                                        (when (< Block'MAX_BLOCK_SIGOPS __sigOps)
+                                                            (throw+ (VerificationException'new "Too many P2SH SigOps in block"))
+                                                        )
+                                                    )
+
+                                                    ;; TODO: Enforce DER signature format.
+
+                                                    (.add __prevOutScripts, (:script __prevOut))
+
+                                                    (FullPrunedBlockStore'''remove-unspent-transaction-output (:block-store this), __prevOut)
+                                                    (.add __txOutsSpent, __prevOut)
+                                                )
+                                            )
+                                        )
+                                        (let [#_"Sha256Hash" hash (Transaction''get-hash tx)]
+                                            (doseq [#_"TransactionOutput" out (Transaction''get-outputs tx)]
+                                                (§ ass __valueOut (Coin''add __valueOut, (:coin-value out)))
+                                                (let [#_"Script" script (FullPrunedBlockChain''get-script this, (:script-bytes out))
+                                                        #_"UTXO" __newOut (UTXO'new hash, (TransactionOutput''get-index out), (:coin-value out), (:stored-height stored), __isCoinBase, script, (FullPrunedBlockChain''get-script-address this, script))]
+                                                    (FullPrunedBlockStore'''add-unspent-transaction-output (:block-store this), __newOut)
+                                                    (.add __txOutsCreated, __newOut)
+                                                )
+                                            )
+                                            ;; All values were already checked for being non-negative (as it is verified in Transaction.verify())
+                                            ;; but we check again here just for defence in depth.  Transactions with zero output value are OK.
+                                            (when (or (< (Monetary'''signum __valueOut) 0) (< 0 (.compareTo __valueOut, (Ledger''get-max-money (:ledger this)))))
+                                                (throw+ (VerificationException'new "Transaction output value out of range"))
+                                            )
+
+                                            (cond __isCoinBase
+                                                (do
+                                                    (§ ass __coinbaseValue __valueOut)
+                                                )
+                                                :else
+                                                (do
+                                                    (when (or (< (.compareTo __valueIn, __valueOut) 0) (< 0 (.compareTo __valueIn, (Ledger''get-max-money (:ledger this)))))
+                                                        (throw+ (VerificationException'new "Transaction input value out of range"))
+                                                    )
+                                                    (§ ass __totalFees (Coin''add __totalFees, (Coin''subtract __valueIn, __valueOut)))
+                                                )
+                                            )
+
+                                            (when (not __isCoinBase)
+                                                ;; Because correctlySpends modifies transactions, this must come after we are done with tx.
+                                                (let [#_"FutureTask<VerificationException>" future (FutureTask. (FullPrunedVerifier'new tx, (:prev-out-scripts this), __verifyFlags))]
+                                                    (.execute (:script-verification-executor this), future)
+                                                    (.add __listScriptVerificationResults, future)
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+
+                                (when (or (pos? (.compareTo __totalFees, (Ledger''get-max-money (:ledger this)))) (neg? (.compareTo (Coin''add (Block''get-block-inflation (:stored-header stored), (:stored-height stored)), __totalFees), __coinbaseValue)))
+                                    (throw+ (VerificationException'new "Transaction fees out of range"))
+                                )
+
+                                (let [#_"TransactionOutputChanges" changes (TransactionOutputChanges'new __txOutsCreated, __txOutsSpent)]
+                                    (doseq [#_"Future<VerificationException>" future __listScriptVerificationResults]
+                                        (let [#_"VerificationException" e]
+                                            (try
+                                                (§ ass e (.get future))
+                                                (catch InterruptedException ie
+                                                    (throw (RuntimeException. ie)) ;; Shouldn't happen.
+                                                )
+                                                (catch ExecutionException ee
+                                                    (log/error (.getCause ee), "Script.correctlySpends threw an unexpected exception")
+                                                    (throw+ (VerificationException'new "Bug in Script.correctlySpends, likely script malformed in some new and interesting way.") ee)
+                                                )
+                                            )
+                                            (when (some? e)
+                                                (throw e)
+                                            )
+                                        )
+                                    )
+                                    changes
+                                )
+                            )
                         )
-                        (§ catch VerificationException _
-                            (.shutdownNow (:script-verification-executor this))
-                            (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
-                            (throw+)
-                        )
-                        (§ catch BlockStoreException _
-                            (.shutdownNow (:script-verification-executor this))
-                            (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
-                            (throw+)
+                        :else
+                        (do
+                            (ensure some? (:tx-out-changes block))
+
+                            (let [#_"TransactionOutputChanges" changes (:tx-out-changes block)]
+                                (when (not (Ledger''is-checkpoint (:ledger this), (:stored-height stored)))
+                                    (doseq [#_"UTXO" out (:tx-outs-created changes)]
+                                        (when (some? (FullPrunedBlockStore'''get-transaction-output (:block-store this), (:utxo-hash out), (:utxo-index out)))
+                                            (throw+ (VerificationException'new "Block failed BIP30 test!"))
+                                        )
+                                    )
+                                )
+                                (doseq [#_"UTXO" out (:tx-outs-created changes)]
+                                    (FullPrunedBlockStore'''add-unspent-transaction-output (:block-store this), out)
+                                )
+                                (doseq [#_"UTXO" out (:tx-outs-spent changes)]
+                                    (FullPrunedBlockStore'''remove-unspent-transaction-output (:block-store this), out)
+                                )
+                                changes
+                            )
                         )
                     )
-                    (:tx-out-changes this)
+                    (§ catch VerificationException _
+                        (.shutdownNow (:script-verification-executor this))
+                        (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
+                        (throw+)
+                    )
+                    (§ catch BlockStoreException _
+                        (.shutdownNow (:script-verification-executor this))
+                        (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
+                        (throw+)
+                    )
                 )
             )
         )
@@ -26739,28 +26725,30 @@
                 (log/warn (str "TX considered non-standard due to unknown version number " (Transaction''get-version tx)))
                 :RuleViolation'VERSION
             )
-            (§ let [#_"List<TransactionOutput>" outputs (Transaction''get-outputs tx)]
-                (loop-when-recur [#_"int" i 0] (< i (.size outputs)) [(inc i)]
-                    (let [#_"TransactionOutput" output (.get outputs, i) #_"RuleViolation" violation (RiskAnalysis'is-output-standard output)]
-                        (when (not= violation :RuleViolation'NONE)
-                            (log/warn (str "TX considered non-standard due to output " i " violating rule " violation))
-                            (§ return violation)
+            (or
+                (let [#_"List<TransactionOutput>" outputs (Transaction''get-outputs tx)]
+                    (loop-when [#_"int" i 0] (< i (.size outputs))
+                        (let [#_"TransactionOutput" output (.get outputs, i) #_"RuleViolation" violation (RiskAnalysis'is-output-standard output)]
+                            (when' (not= violation :RuleViolation'NONE) => (recur (inc i))
+                                (log/warn (str "TX considered non-standard due to output " i " violating rule " violation))
+                                violation
+                            )
                         )
                     )
                 )
 
                 (let [#_"List<TransactionInput>" inputs (Transaction''get-inputs tx)]
-                    (loop-when-recur [#_"int" i 0] (< i (.size inputs)) [(inc i)]
+                    (loop-when [#_"int" i 0] (< i (.size inputs))
                         (let [#_"TransactionInput" input (.get inputs, i) #_"RuleViolation" violation (RiskAnalysis'is-input-standard input)]
-                            (when (not= violation :RuleViolation'NONE)
+                            (when' (not= violation :RuleViolation'NONE) => (recur (inc i))
                                 (log/warn (str "TX considered non-standard due to input " i " violating rule " violation))
-                                (§ return violation)
+                                violation
                             )
                         )
                     )
-
-                    :RuleViolation'NONE
                 )
+
+                :RuleViolation'NONE
             )
         )
     )
@@ -29527,175 +29515,153 @@
         ;; Runs in a peer thread.
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
 
-        (§ let [#_"Coin" before (Wallet''get-balance-1 this)
+        (let [#_"Coin" before (Wallet''get-balance-1 this)
               #_"Sha256Hash" __txHash (Transaction''get-hash tx)
-              #_"boolean" __bestChain (= type :NewBlockType'BEST_CHAIN)
-              #_"boolean" __sideChain (= type :NewBlockType'SIDE_CHAIN)]
+              #_"boolean" best? (= type :NewBlockType'BEST_CHAIN)
+              #_"boolean" side? (= type :NewBlockType'SIDE_CHAIN)
+              #_"Coin" spent (Transaction''get-value-sent-from-me tx, this)
+              #_"Coin" earned (Transaction''get-value-sent-to-me tx, this)
+              #_"Coin" difference (Coin''subtract earned, spent)]
 
-            (let [#_"Coin" spent (Transaction''get-value-sent-from-me tx, this)
-                  #_"Coin" earned (Transaction''get-value-sent-to-me tx, this)
-                  #_"Coin" __valueDifference (Coin''subtract earned, spent)]
+            (log/info (str "Received tx" (if side? " on a side chain" "") " for " (Coin''to-friendly-string difference) ": " __txHash " [" offset "] in block " (if (some? block) (Block''get-hash (:stored-header block)) "(unit test)")))
 
-                (log/info (str "Received tx" (if __sideChain " on a side chain" "") " for " (Coin''to-friendly-string __valueDifference) ": " (Transaction''get-hash tx) " [" offset "] in block " (if (some? block) (Block''get-hash (:stored-header block)) "(unit test)")))
+            ;; Inform the key chains that the issued keys were observed in a transaction, so they know to
+            ;; calculate more keys for the next Bloom filters.
+            (Wallet''mark-keys-as-used this, tx)
 
-                ;; Inform the key chains that the issued keys were observed in a transaction, so they know to
-                ;; calculate more keys for the next Bloom filters.
-                (Wallet''mark-keys-as-used this, tx)
+            (§ update this :on-wallet-changed-suppressions inc)
 
-                (§ update this :on-wallet-changed-suppressions inc)
+            ;; If this transaction is already in the wallet, we may need to move it into a different pool.
+            ;; At the very least we need to ensure we're manipulating the canonical object rather than a duplicate.
+            (let [tx (or (.get (:transactions this), __txHash) tx)
+                  #_"boolean" pending? (some? (.remove (:pending this), __txHash))]
+                (when pending?
+                    (log/info "  <-pending")
+                )
 
-                ;; If this transaction is already in the wallet, we may need to move it into a different pool.
-                ;; At the very least we need to ensure we're manipulating the canonical object rather than a duplicate.
-                (let [#_"Transaction" tmp (.get (:transactions this), (Transaction''get-hash tx))]
-                    (when (some? tmp)
-                        (§ ass tx tmp)
+                (cond best?
+                    (let [#_"boolean" dead? (some? (.remove (:dead this), __txHash))]
+                        (when dead?
+                            (log/info "  <-dead")
+                        )
+                        (when pending?
+                            ;; Was pending and is now confirmed.  Disconnect the outputs in case we spent any already:
+                            ;; they will be re-connected by processTxFromBestChain below.
+                            (doseq [#_"TransactionOutput" output (Transaction''get-outputs tx)]
+                                (let-when [#_"TransactionInput" __spentBy (:spent-by output)] (some? __spentBy)
+                                    (let [#_"boolean" added? (.add (:my-unspents this), output)]
+                                        (assert-state added?)
+                                        (TransactionInput''disconnect __spentBy)
+                                    )
+                                )
+                            )
+                        )
+                        (Wallet''process-tx-from-best-chain this, tx, (or pending? dead?))
+                    )
+                    :else
+                    (do
+                        (assert-state side?)
+                        ;; Transactions that appear in a side chain will have that appearance recorded below - we assume
+                        ;; that some miners are also trying to include the transaction into the current best chain too,
+                        ;; so let's treat it as pending, except we don't need to do any risk analysis on it.
+                        (if pending?
+                            (do
+                                ;; Just put it back in without touching the connections or confidence.
+                                (Wallet''add-wallet-transaction this, :PoolType'PENDING, tx)
+                                (log/info "  ->pending")
+                            )
+                            ;; Ignore the case where a tx appears on a side chain at the same time as the best chain
+                            ;; (this is quite normal and expected).
+                            (let [#_"Sha256Hash" hash (Transaction''get-hash tx)]
+                                (when-not (or (.containsKey (:unspent this), hash) (.containsKey (:spent this), hash) (.containsKey (:dead this), hash))
+                                    ;; Otherwise put it (possibly back) into pending.
+                                    ;; Committing it updates the spent flags and inserts into the pool as well.
+                                    (Wallet''commit-tx this, tx)
+                                )
+                            )
+                        )
                     )
                 )
 
-                (let [#_"boolean" __wasPending (some? (.remove (:pending this), __txHash))]
-                    (when __wasPending
-                        (log/info "  <-pending")
-                    )
+                (when (some? block)
+                    ;; Mark the tx as appearing in this block so we can find it later after a re-org.  This also tells
+                    ;; the tx confidence object about the block and sets its depth appropriately.
+                    (Transaction''set-block-appearance tx, block, best?, offset)
+                    (when best?
+                        ;; Don't notify this tx of work done in notifyNewBestBlock which will be called immediately
+                        ;; after this method has been called by SPVBlockChain for all relevant transactions.  Otherwise
+                        ;; we'd double count.
+                        (.add (:ignore-next-new-block this), __txHash)
 
-                    (cond __bestChain
-                        (do
-                            (let [#_"boolean" __wasDead (some? (.remove (:dead this), __txHash))]
-                                (when __wasDead
-                                    (log/info "  <-dead")
-                                )
-                                (when __wasPending
-                                    ;; Was pending and is now confirmed.  Disconnect the outputs in case we spent any already:
-                                    ;; they will be re-connected by processTxFromBestChain below.
-                                    (doseq [#_"TransactionOutput" output (Transaction''get-outputs tx)]
-                                        (let [#_"TransactionInput" __spentBy (:spent-by output)]
-                                            (when (some? __spentBy)
-                                                (assert-state (.add (:my-unspents this), output))
-                                                (TransactionInput''disconnect __spentBy)
-                                            )
-                                        )
-                                    )
-                                )
-                                (Wallet''process-tx-from-best-chain this, tx, (or __wasPending __wasDead))
-                            )
-                        )
-                        :else
-                        (do
-                            (assert-state __sideChain)
-                            ;; Transactions that appear in a side chain will have that appearance recorded below - we assume
-                            ;; that some miners are also trying to include the transaction into the current best chain too,
-                            ;; so let's treat it as pending, except we don't need to do any risk analysis on it.
-                            (cond __wasPending
-                                (do
-                                    ;; Just put it back in without touching the connections or confidence.
-                                    (Wallet''add-wallet-transaction this, :PoolType'PENDING, tx)
-                                    (log/info "  ->pending")
-                                )
-                                :else
-                                (do
-                                    ;; Ignore the case where a tx appears on a side chain at the same time as the best chain
-                                    ;; (this is quite normal and expected).
-                                    (let [#_"Sha256Hash" hash (Transaction''get-hash tx)]
-                                        (when (and (not (.containsKey (:unspent this), hash)) (not (.containsKey (:spent this), hash)) (not (.containsKey (:dead this), hash)))
-                                            ;; Otherwise put it (possibly back) into pending.
-                                            ;; Committing it updates the spent flags and inserts into the pool as well.
-                                            (Wallet''commit-tx this, tx)
-                                        )
-                                    )
+                        ;; When a tx is received from the best chain, if other txns that spend this tx are IN_CONFLICT,
+                        ;; change its confidence to PENDING (Unless they are also spending other txns IN_CONFLICT).
+                        ;; Consider dependency chains.
+                        (let [#_"Set<Transaction>" deps (HashSet. (Collections/singleton tx))]
+                            (Wallet''add-transactions-depending-on this, deps, (Wallet''get-transactions this, true))
+                            (.remove deps, tx)
+                            (doseq [#_"Transaction" dep (Wallet''sort-txns-by-dependency this, deps)]
+                                (when (and (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence-t dep)) :ConfidenceType'IN_CONFLICT)
+                                           (not (Wallet''is-spending-txns-in-confidence-type this, dep, :ConfidenceType'IN_CONFLICT)))
+                                    (TransactionConfidence''set-confidence-type (Transaction''get-confidence-t dep), :ConfidenceType'PENDING)
+                                    (.put (:confidence-changed this), dep, :ConfidenceChangeReason'TYPE)
                                 )
                             )
                         )
                     )
-
-                    (when (some? block)
-                        ;; Mark the tx as appearing in this block so we can find it later after a re-org.  This also tells
-                        ;; the tx confidence object about the block and sets its depth appropriately.
-                        (Transaction''set-block-appearance tx, block, __bestChain, offset)
-                        (when __bestChain
-                            ;; Don't notify this tx of work done in notifyNewBestBlock which will be called immediately
-                            ;; after this method has been called by SPVBlockChain for all relevant transactions.  Otherwise
-                            ;; we'd double count.
-                            (.add (:ignore-next-new-block this), __txHash)
-
-                            ;; When a tx is received from the best chain, if other txns that spend this tx are IN_CONFLICT,
-                            ;; change its confidence to PENDING (Unless they are also spending other txns IN_CONFLICT).
-                            ;; Consider dependency chains.
-                            (let [#_"Set<Transaction>" __currentTxDependencies (HashSet. (Collections/singleton tx))]
-                                (Wallet''add-transactions-depending-on this, __currentTxDependencies, (Wallet''get-transactions this, true))
-                                (.remove __currentTxDependencies, tx)
-                                (let [#_"List<Transaction>" __currentTxDependenciesSorted (Wallet''sort-txns-by-dependency this, __currentTxDependencies)]
-                                    (doseq [#_"Transaction" __txDependency __currentTxDependenciesSorted]
-                                        (when (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence-t __txDependency)) :ConfidenceType'IN_CONFLICT)
-                                            (when (Wallet''is-not-spending-txns-in-confidence-type this, __txDependency, :ConfidenceType'IN_CONFLICT)
-                                                (TransactionConfidence''set-confidence-type (Transaction''get-confidence-t __txDependency), :ConfidenceType'PENDING)
-                                                (.put (:confidence-changed this), __txDependency, :ConfidenceChangeReason'TYPE)
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
-
-                    (§ update this :on-wallet-changed-suppressions dec)
-
-                    ;; Side chains don't affect confidence.
-                    (cond __bestChain
-                        (do
-                            ;; notifyNewBestBlock will be invoked next and will then call maybeQueueOnWalletChanged for us.
-                            (.put (:confidence-changed this), tx, :ConfidenceChangeReason'TYPE)
-                        )
-                        :else
-                        (do
-                            (Wallet''maybe-queue-on-wallet-changed this)
-                        )
-                    )
-
-                    ;; Inform anyone interested that we have received or sent coins but only if:
-                    ;;  - This is not due to a re-org.
-                    ;;  - The coins appeared on the best chain.
-                    ;;  - We did in fact receive some new money.
-                    ;;  - We have not already informed the user about the coins when we received the tx broadcast,
-                    ;;    or for our own spends.  If users want to know when a broadcast tx becomes confirmed,
-                    ;;    they need to use tx confidence listeners.
-                    (when (and (not (:inside-reorg this)) __bestChain)
-                        (let [#_"Coin" after (Wallet''get-balance-1 this)] ;; This is slow.
-                            (log/info (str "Balance is now: " (Coin''to-friendly-string after)))
-                            (when (not __wasPending)
-                                (let [#_"int" diff (Monetary'''signum __valueDifference)]
-                                    ;; We pick one callback based on the value difference, though a tx can of course both
-                                    ;; send and receive coins from the wallet.
-                                    (cond
-                                        (< 0 diff) (Wallet''queue-on-coins-received this, tx, before, after)
-                                        (< diff 0) (Wallet''queue-on-coins-sent this, tx, before, after)
-                                    )
-                                )
-                            )
-                            (Wallet''check-balance-futures-locked this)
-                        )
-                    )
-
-                    (Wallet''inform-confidence-listeners-if-not-reorganizing this)
-                    (Wallet''is-consistent-or-throw this)
-                    ;; Optimization for the case where a block has tons of relevant transactions.
-                    (Wallet''save-later this)
-                    (§ assoc this :hard-save-on-next-block true)
                 )
+
+                (§ update this :on-wallet-changed-suppressions dec)
+
+                ;; Side chains don't affect confidence.
+                (if best?
+                    ;; notifyNewBestBlock will be invoked next and will then call maybeQueueOnWalletChanged for us.
+                    (.put (:confidence-changed this), tx, :ConfidenceChangeReason'TYPE)
+                    (Wallet''maybe-queue-on-wallet-changed this)
+                )
+
+                ;; Inform anyone interested that we have received or sent coins but only if:
+                ;;  - This is not due to a re-org.
+                ;;  - The coins appeared on the best chain.
+                ;;  - We did in fact receive some new money.
+                ;;  - We have not already informed the user about the coins when we received the tx broadcast,
+                ;;    or for our own spends.  If users want to know when a broadcast tx becomes confirmed,
+                ;;    they need to use tx confidence listeners.
+                (when (and (not (:inside-reorg this)) best?)
+                    (let [#_"Coin" after (Wallet''get-balance-1 this)] ;; This is slow.
+                        (log/info (str "Balance is now: " (Coin''to-friendly-string after)))
+                        (when-not pending?
+                            (let [#_"int" sign (Monetary'''signum difference)]
+                                ;; We pick one callback based on the value difference, though a tx can of course both
+                                ;; send and receive coins from the wallet.
+                                (cond
+                                    (pos? sign) (Wallet''queue-on-coins-received this, tx, before, after)
+                                    (neg? sign) (Wallet''queue-on-coins-sent this, tx, before, after)
+                                )
+                            )
+                        )
+                        (Wallet''check-balance-futures-locked this)
+                    )
+                )
+
+                (Wallet''inform-confidence-listeners-if-not-reorganizing this)
+                (Wallet''is-consistent-or-throw this)
+                ;; Optimization for the case where a block has tons of relevant transactions.
+                (Wallet''save-later this)
+                (§ assoc this :hard-save-on-next-block true)
             )
         )
         nil
     )
 
-    ;;; Finds if tx is NOT spending other txns which are in the specified confidence type. ;;
+    ;;;
+     ; Finds if tx is spending other txns which are in the specified confidence type.
+     ;;
     #_method
-    (defn- #_"boolean" Wallet''is-not-spending-txns-in-confidence-type [#_"Wallet" this, #_"Transaction" tx, #_"ConfidenceType" type]
-        (§ doseq [#_"TransactionInput" in (Transaction''get-inputs tx)]
-            (let [#_"Transaction" tx' (Wallet''get-transaction this, (:from-tx-hash (:outpoint in)))]
-                (when (and (some? tx') (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence-t tx')), type))
-                    (§ return false)
-                )
-            )
+    (defn- #_"boolean" Wallet''is-spending-txns-in-confidence-type [#_"Wallet" this, #_"Transaction" tx, #_"ConfidenceType" type]
+        (->> (Transaction''get-inputs tx)
+             (map #(Wallet''get-transaction this, (:from-tx-hash (:outpoint %))))
+             (some #(and (some? %) (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence-t %)), type)))
         )
-        true
     )
 
     ;;;
@@ -30121,7 +30087,7 @@
                               #_"Set<Transaction>" __doubleUnspent (Wallet''find-double-spends-against this, tx, (:unspent this))
                               #_"Set<Transaction>" __doubleSpent (Wallet''find-double-spends-against this, tx, (:spent this))]
 
-                            (cond (or (seq __doubleUnspent) (seq __doubleSpent) (not (Wallet''is-not-spending-txns-in-confidence-type this, tx, :ConfidenceType'DEAD)))
+                            (cond (or (seq __doubleUnspent) (seq __doubleSpent) (Wallet''is-spending-txns-in-confidence-type this, tx, :ConfidenceType'DEAD))
                                 (do
                                     ;; tx is a double spend against a tx already in the best chain or spends outputs of a DEAD tx.
                                     ;; Add tx to the dead pool and schedule confidence listener notifications.
@@ -30130,7 +30096,7 @@
                                     (.put (:confidence-changed this), tx, :ConfidenceChangeReason'TYPE)
                                     (Wallet''add-wallet-transaction this, :PoolType'DEAD, tx)
                                 )
-                                (or (seq __doublePending) (not (Wallet''is-not-spending-txns-in-confidence-type this, tx, :ConfidenceType'IN_CONFLICT)))
+                                (or (seq __doublePending) (Wallet''is-spending-txns-in-confidence-type this, tx, :ConfidenceType'IN_CONFLICT))
                                 (do
                                     ;; tx is a double spend against a pending tx or spends outputs of a tx already IN_CONFLICT.
                                     ;; Add tx to the pending pool.  Update the confidence type of tx, the txns in conflict with tx
@@ -31174,27 +31140,23 @@
                 (log/info (str "Completing send tx with " (.size outputs) " outputs totalling " (Coin''to-friendly-string value) " and a fee of " (Coin''to-friendly-string (:fee-per-kb req)) "/kB"))
 
                 ;; If any inputs have already been added, we don't need to get their value from wallet.
-                (§ let [#_"Coin" __totalInput Coin'ZERO]
-                    (doseq [#_"TransactionInput" input (Transaction''get-inputs (:tx req))]
-                        (if (some? (TransactionInput''get-connected-output input))
-                            (§ ass __totalInput (Coin''add __totalInput, (:coin-value (TransactionInput''get-connected-output input))))
-                            (log/warn "SendRequest transaction already has inputs but we don't know how much they are worth - they will be added to fee.")
+                (let [#_"Coin" sum
+                        (->> (Transaction''get-inputs (:tx req))
+                            (map TransactionInput''get-connected-output)
+                            (filter #(or (some? %) (do (log/warn "SendRequest tx already has inputs, but we don't know how much they are worth - will be added to fee.") false)))
+                            (map :coin-value)
+                            (reduce Coin''add Coin'ZERO)
                         )
-                    )
-                    (§ ass value (Coin''subtract value, __totalInput))
+                      value (Coin''subtract value, sum)]
 
                     ;; Check for dusty sends and the OP_RETURN limit.
                     (when (and (:ensure-min-required-fee req) (not (:empty-wallet req))) ;; Min fee checking is handled later for emptyWallet.
-                        (let [#_"int" __opReturnCount 0]
-                            (doseq [#_"TransactionOutput" output outputs]
-                                (when (TransactionOutput''is-dust output)
-                                    (throw+ (DustySendRequested'new))
-                                )
-                                (when (Script''is-op-return (TransactionOutput''get-script-pub-key output))
-                                    (§ ass __opReturnCount (inc __opReturnCount))
-                                )
-                            )
-                            (when (< 1 __opReturnCount) ;; Only 1 OP_RETURN per transaction allowed.
+                        (let [#_"int" n
+                                (->> outputs
+                                    (filter #(if (TransactionOutput''is-dust %) (throw+ (DustySendRequested'new)) (Script''is-op-return (TransactionOutput''get-script-pub-key %))))
+                                    (count)
+                                )]
+                            (when (< 1 n) ;; Only 1 OP_RETURN per transaction allowed.
                                 (throw+ (MultipleOpReturnRequested'new))
                             )
                         )
@@ -31206,7 +31168,7 @@
                     ;; we don't have the keys for.
                     (let [#_"List<TransactionOutput>" candidates (Wallet''calculate-all-spend-candidates-3 this, true, (= (:missing-sigs-mode req) :MissingSigsMode'THROW))
                           [candidates #_"CoinSelection" __bestCoinSelection #_"TransactionOutput" __bestChangeOutput #_"List<Coin>" __updatedOutputValues]
-                            (if (not (:empty-wallet req))
+                            (if-not (:empty-wallet req)
                                 ;; This can throw InsufficientMoneyException.
                                 (let [#_"FeeCalculation" calc (Wallet''calculate-fee this, req, value, (:ensure-min-required-fee req), candidates)]
                                     [candidates (:best-coin-selection calc) (:best-change-output calc) (:updated-output-values calc)]
@@ -31238,7 +31200,7 @@
                         )
 
                         (when (some? __updatedOutputValues)
-                            (loop-when-recur [#_"int" i 0] (< i (.size __updatedOutputValues)) [(inc i)]
+                            (dotimes [#_"int" i (.size __updatedOutputValues)]
                                 (TransactionOutput''set-value (Transaction''get-output (:tx req), i), (.get __updatedOutputValues, i))
                             )
                         )
@@ -31294,43 +31256,41 @@
      ;;
     #_method
     (defn #_"void" Wallet''sign-transaction [#_"Wallet" this, #_"SendRequest" req]
-        (§ sync (:wallet-lock this)
+        (sync (:wallet-lock this)
             (let [#_"Transaction" tx (:tx req) #_"List<TransactionInput>" inputs (Transaction''get-inputs tx) #_"List<TransactionOutput>" outputs (Transaction''get-outputs tx)]
-                (assert-state (and (< 0 (.size inputs)) (< 0 (.size outputs))))
+                (assert-state (and (pos? (.size inputs)) (pos? (.size outputs))))
 
-                (let [#_"int" n (.size (Transaction''get-inputs tx))]
-                    (loop-when-recur [#_"int" i 0] (< i n) [(inc i)]
-                        (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
-                            (when (some? out) ;; Else missing connected output, assuming already signed.
-                                (let [#_"Script" inSig (TransactionInput''get-script-sig in) #_"Script" outKey (TransactionOutput''get-script-pub-key out)]
-                                    (try+
-                                        ;; We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
-                                        ;; we sign missing pieces (to check this would require either assuming any signatures are signing
-                                        ;; standard output types or a way to get processed signatures out of script execution).
-                                        (Script''correctly-spends-4 inSig, tx, i, outKey)
-                                        (log/warn (str "Input " i " already correctly spends output, assuming SIGHASH type used will be safe and skipping signing."))
-                                        (§ catch ScriptException e
-                                            (log/debug e, "Input contained an incorrect signature")
-                                            (let [#_"RedeemData" data (TransactionInput''get-connected-redeem-data in, this)]
-                                                (ensure some? data, (str "Transaction exists in wallet that we cannot redeem: " (:from-tx-hash (:outpoint in))))
-                                                (TransactionInput''set-script-sig in, (Script''create-empty-input-script outKey, (first (:redeem-keys data)), (:redeem-script data)))
-                                            )
+                (dotimes [#_"int" i (.size inputs)]
+                    (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
+                        (when (some? out) ;; Else missing connected output, assuming already signed.
+                            (let [#_"Script" inSig (TransactionInput''get-script-sig in) #_"Script" outKey (TransactionOutput''get-script-pub-key out)]
+                                (try+
+                                    ;; We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
+                                    ;; we sign missing pieces (to check this would require either assuming any signatures are signing
+                                    ;; standard output types or a way to get processed signatures out of script execution).
+                                    (Script''correctly-spends-4 inSig, tx, i, outKey)
+                                    (log/warn (str "Input " i " already correctly spends output, assuming SIGHASH type used will be safe and skipping signing."))
+                                    (§ catch ScriptException e
+                                        (log/debug e, "Input contained an incorrect signature")
+                                        (let [#_"RedeemData" data (TransactionInput''get-connected-redeem-data in, this)]
+                                            (ensure some? data, (str "Transaction exists in wallet that we cannot redeem: " (:from-tx-hash (:outpoint in))))
+                                            (TransactionInput''set-script-sig in, (Script''create-empty-input-script outKey, (first (:redeem-keys data)), (:redeem-script data)))
                                         )
                                     )
                                 )
                             )
                         )
                     )
+                )
 
-                    (let [#_"ProposedTransaction" proposal (ProposedTransaction'new tx)]
-                        (doseq [#_"TransactionSigner" signer (:signers this)]
-                            (when-not (TransactionSigner'''sign-inputs signer, proposal, this)
-                                (log/info (str (.getName (.getClass signer)) " returned false for the tx"))
-                            )
+                (let [#_"ProposedTransaction" proposal (ProposedTransaction'new tx)]
+                    (doseq [#_"TransactionSigner" signer (:signers this)]
+                        (when-not (TransactionSigner'''sign-inputs signer, proposal, this)
+                            (log/info (str (.getName (.getClass signer)) " returned false for the tx"))
                         )
-                        ;; Resolve missing sigs if any.
-                        (TransactionSigner'''sign-inputs (MissingSigResolutionSigner'new (:missing-sigs-mode req)), proposal, this)
                     )
+                    ;; Resolve missing sigs if any.
+                    (TransactionSigner'''sign-inputs (MissingSigResolutionSigner'new (:missing-sigs-mode req)), proposal, this)
                 )
             )
         )
