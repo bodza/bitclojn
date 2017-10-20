@@ -308,7 +308,7 @@
 (declare TransactionReceivedInBlockListener'''notify-transaction-is-in-block TransactionReceivedInBlockListener'''receive-from-block)
 (declare TransactionSignature''anyone-can-pay TransactionSignature''encode-to-bitcoin TransactionSignature''sig-hash-mode TransactionSignature'calc-sig-hash-value TransactionSignature'decode-from-bitcoin-2 TransactionSignature'decode-from-bitcoin-3 TransactionSignature'dummy TransactionSignature'init TransactionSignature'is-encoding-canonical TransactionSignature'new TransactionSignature'from-ecdsa)
 (declare TransactionSigner'''sign-inputs)
-(declare TransactionalHashMap''abort-database-batch-write TransactionalHashMap''begin-database-batch-write TransactionalHashMap''commit-database-batch-write TransactionalHashMap''get-2 TransactionalHashMap''put-3 TransactionalHashMap''remove TransactionalHashMap''values TransactionalHashMap'new)
+(declare TransactionalHashMap''abort-database-batch-write TransactionalHashMap''begin-database-batch-write TransactionalHashMap''commit-database-batch-write TransactionalHashMap''get TransactionalHashMap''put TransactionalHashMap''remove TransactionalHashMap''values TransactionalHashMap'new)
 (declare TransactionalMultiKeyHashMap''abort-transaction TransactionalMultiKeyHashMap''begin-transaction TransactionalMultiKeyHashMap''commit-transaction TransactionalMultiKeyHashMap''get-2 TransactionalMultiKeyHashMap''put-4 TransactionalMultiKeyHashMap''remove-by-multi-key TransactionalMultiKeyHashMap''remove-by-unique-key TransactionalMultiKeyHashMap'new)
 (declare TxConfidenceTable''clean-table TxConfidenceTable''get-2 TxConfidenceTable''get-or-create TxConfidenceTable''num-broadcast-peers TxConfidenceTable''seen TxConfidenceTable'MAX_SIZE TxConfidenceTable'new TxConfidenceTable'INSTANCE)
 (declare TxOffsetPair'new)
@@ -4152,7 +4152,7 @@
 
     #_method
     (defn- #_"void" Block''write-transactions [#_"Block" this, #_"ByteArrayOutputStream" baos]
-        (let-when [#_"List<Transaction>" transactions (:transactions this)] (some? transactions)
+        (when-let [#_"List<Transaction>" transactions (:transactions this)]
             (.write baos, (VarInt''encode (VarInt'new (.size transactions))))
             (doseq [#_"Transaction" tx transactions]
                 (Transaction''to-wire tx, baos)
@@ -8621,51 +8621,55 @@
                     )
                 )] (some? _)
 
-            (§ try+
+            (try+
                 (assert-state (not __downloadBlockBodies), (.toString this))
 
-                (loop-when-recur [#_"int" i 0] (< i (.size (:block-headers m))) [(inc i)]
-                    (let [#_"Block" header (.get (:block-headers m), i) #_"int" best (BlockChain''get-best-chain-height (:block-chain this))]
-                        ;; Process headers until we pass the fast catchup time, or are about to catch up with the head
-                        ;; of the chain - always process the last block as a full/filtered block to kick us out of the
-                        ;; fast catchup mode (in which we ignore new blocks).
-                        (cond (or (<= __fastCatchupTimeSecs (:time-seconds header)) (<= (-> this :v-peer-version-message :best-height) best))
-                            (do
-                                (sync (:peer-lock this)
-                                    (log/info (str "Passed the fast catchup time (" (Time'format-seconds __fastCatchupTimeSecs) ") at height " (inc best) ", discarding " (- (.size (:block-headers m)) i) " headers and requesting full blocks"))
-                                    (§ assoc this :download-block-bodies true)
-                                    ;; Prevent this request being seen as a duplicate.
-                                    (§ assoc this :last-get-blocks-begin Sha256Hash'ZERO_HASH)
-                                    (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH)
+                (or
+                    (loop-when [#_"int" i 0] (< i (.size (:block-headers m)))
+                        (let [#_"Block" header (.get (:block-headers m), i) #_"int" best (BlockChain''get-best-chain-height (:block-chain this))]
+                            ;; Process headers until we pass the fast catchup time, or are about to catch up with the head
+                            ;; of the chain - always process the last block as a full/filtered block to kick us out of the
+                            ;; fast catchup mode (in which we ignore new blocks).
+                            (cond (or (<= __fastCatchupTimeSecs (:time-seconds header)) (<= (-> this :v-peer-version-message :best-height) best))
+                                (do
+                                    (sync (:peer-lock this)
+                                        (log/info (str "Passed the fast catchup time (" (Time'format-seconds __fastCatchupTimeSecs) ") at height " (inc best) ", discarding " (- (.size (:block-headers m)) i) " headers and requesting full blocks"))
+                                        (§ assoc this :download-block-bodies true)
+                                        ;; Prevent this request being seen as a duplicate.
+                                        (§ assoc this :last-get-blocks-begin Sha256Hash'ZERO_HASH)
+                                        (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH)
+                                    )
+                                    :done
                                 )
-                                (§ return )
-                            )
-                            (not (:v-download-data this))
-                            (do
-                                ;; Not download peer anymore, some other peer probably became better.
-                                (log/info "Lost download peer status, throwing away downloaded headers.")
-                                (§ return )
-                            )
-                            (BlockChain''add-b (:block-chain this), header)
-                            (do
-                                ;; The block was successfully linked into the chain. Notify the user of our progress.
-                                (Peer''invoke-on-blocks-downloaded this, header, nil)
-                            )
-                            :else
-                            (do
-                                ;; This block is unconnected - we don't know how to get from it back to the genesis block yet.
-                                ;; That must mean that the peer is buggy or malicious because we specifically requested for
-                                ;; headers that are part of the best chain.
-                                (throw+ (ProtocolException'new (str "Got unconnected header from peer: " (Block''get-hash header))))
+                                (not (:v-download-data this))
+                                (do
+                                    ;; Not download peer anymore, some other peer probably became better.
+                                    (log/info "Lost download peer status, throwing away downloaded headers.")
+                                    :done
+                                )
+                                (BlockChain''add-b (:block-chain this), header)
+                                (do
+                                    ;; The block was successfully linked into the chain. Notify the user of our progress.
+                                    (Peer''invoke-on-blocks-downloaded this, header, nil)
+                                    (recur (inc i))
+                                )
+                                :else
+                                (do
+                                    ;; This block is unconnected - we don't know how to get from it back to the genesis block yet.
+                                    ;; That must mean that the peer is buggy or malicious because we specifically requested for
+                                    ;; headers that are part of the best chain.
+                                    (throw+ (ProtocolException'new (str "Got unconnected header from peer: " (Block''get-hash header))))
+                                )
                             )
                         )
                     )
-                )
-                ;; We added all headers in the message to the chain.
-                ;; Request some more if we got up to the limit, otherwise we are at the end of the chain.
-                (when (<= HeadersMessage'MAX_HEADERS (.size (:block-headers m)))
-                    (sync (:peer-lock this)
-                        (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH)
+
+                    ;; We added all headers in the message to the chain.
+                    ;; Request some more if we got up to the limit, otherwise we are at the end of the chain.
+                    (when (<= HeadersMessage'MAX_HEADERS (.size (:block-headers m)))
+                        (sync (:peer-lock this)
+                            (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH)
+                        )
                     )
                 )
                 (§ catch VerificationException e
@@ -13232,7 +13236,7 @@
         (when (and (seq (:inputs this)) (seq (:outputs this))) ;; Else incomplete transaction.
             (let [#_"Coin" fee
                     (loop-when [fee Coin'ZERO #_"List<TransactionInput>" inputs (:inputs this)] (seq inputs) => fee
-                        (let-when [#_"Coin" value (:coin-value (first inputs))] (some? value)
+                        (when-let [#_"Coin" value (:coin-value (first inputs))]
                             (recur (Coin''add fee, value) (next inputs))
                         )
                     )]
@@ -13576,60 +13580,65 @@
                 (let [#_"TransactionInput" input (.get (:inputs tx), index)]
                     (TransactionInput''set-script-bytes input, script)
 
-                    (cond (= (& mode 0x1f) SigHash'NONE)
-                        (do
-                            ;; SIGHASH_NONE means no outputs are signed at all - the signature is effectively for a "blank cheque".
-                            (§ assoc tx :outputs (ArrayList. 0))
-                            ;; The signature isn't broken by new versions of the transaction issued by other parties.
-                            (dotimes [#_"int" i (.size (:inputs tx))]
-                                (when (not= i index)
-                                    (TransactionInput''set-sequence-number (.get (:inputs tx), i), 0)
-                                )
-                            )
-                        )
-                        (= (& mode 0x1f) SigHash'SINGLE)
-                            ;; SIGHASH_SINGLE means only sign the output at the same index as the input (i.e. my output).
-                            (if (< index (.size (:outputs tx)))
+                    (let-when [#_"Sha256Hash" hash
+                            (condp = (& mode 0x1f)
+                                SigHash'NONE ;; means no outputs are signed at all - the signature is effectively for a "blank cheque".
                                 (do
-                                    ;; In SIGHASH_SINGLE the outputs after the matching input index are deleted, and the outputs before
-                                    ;; that position are "nulled out".  Unintuitively, the value in a "null" transaction is set to -1.
-                                    (§ assoc tx :outputs (ArrayList. (.subList (:outputs tx), 0, (inc index))))
-                                    (dotimes [#_"int" i index]
-                                        (.set (:outputs tx), i, (TransactionOutput'for-script (:ledger tx), tx, Coin'NEGATIVE_SATOSHI, (byte-array 0)))
-                                    )
+                                    (§ assoc tx :outputs (ArrayList. 0))
                                     ;; The signature isn't broken by new versions of the transaction issued by other parties.
                                     (dotimes [#_"int" i (.size (:inputs tx))]
                                         (when (not= i index)
                                             (TransactionInput''set-sequence-number (.get (:inputs tx), i), 0)
                                         )
                                     )
+                                    nil
                                 )
-                                ;; The input index is beyond the number of outputs, it's a buggy signature made by a broken
-                                ;; Bitcoin implementation.  Bitcoin Core also contains a bug in handling this case:
-                                ;; any transaction output that is signed in this case will result in both the signed output
-                                ;; and any future outputs to this public key being steal-able by anyone who has
-                                ;; the resulting signature and the public key (both of which are part of the signed tx input).
+                                SigHash'SINGLE ;; means only sign the output at the same index as the input (i.e. my output).
+                                (if (< index (.size (:outputs tx)))
+                                    (do
+                                        ;; In SIGHASH_SINGLE the outputs after the matching input index are deleted, and the outputs before
+                                        ;; that position are "nulled out".  Unintuitively, the value in a "null" transaction is set to -1.
+                                        (§ assoc tx :outputs (ArrayList. (.subList (:outputs tx), 0, (inc index))))
+                                        (dotimes [#_"int" i index]
+                                            (.set (:outputs tx), i, (TransactionOutput'for-script (:ledger tx), tx, Coin'NEGATIVE_SATOSHI, (byte-array 0)))
+                                        )
+                                        ;; The signature isn't broken by new versions of the transaction issued by other parties.
+                                        (dotimes [#_"int" i (.size (:inputs tx))]
+                                            (when (not= i index)
+                                                (TransactionInput''set-sequence-number (.get (:inputs tx), i), 0)
+                                            )
+                                        )
+                                        nil
+                                    )
+                                    ;; The input index is beyond the number of outputs, it's a buggy signature made by a broken
+                                    ;; Bitcoin implementation.  Bitcoin Core also contains a bug in handling this case:
+                                    ;; any transaction output that is signed in this case will result in both the signed output
+                                    ;; and any future outputs to this public key being steal-able by anyone who has
+                                    ;; the resulting signature and the public key (both of which are part of the signed tx input).
 
-                                ;; Bitcoin Core's bug is that SignatureHash was supposed to return a hash and on this codepath it
-                                ;; actually returns the constant "1" to indicate an error, which is never checked for.  Oops.
-                                (§ return (Sha256Hash'wrap-hex "0100000000000000000000000000000000000000000000000000000000000000"))
+                                    ;; Bitcoin Core's bug is that SignatureHash was supposed to return a hash and on this codepath it
+                                    ;; actually returns the constant "1" to indicate an error, which is never checked for.  Oops.
+                                    (Sha256Hash'wrap-hex "0100000000000000000000000000000000000000000000000000000000000000")
+                                )
+                                nil
                             )
-                    )
+                    ] (nil? hash) => hash
 
-                    (when (= (& mode SigHash'ANYONECANPAY) SigHash'ANYONECANPAY)
-                        ;; SIGHASH_ANYONECANPAY means the signature in the input is not broken by changes/additions/removals
-                        ;; of other inputs.  For example, this is useful for building assurance contracts.
-                        (§ assoc tx :inputs (ArrayList. #_"<TransactionInput>"))
-                        (.add (:inputs tx), input)
-                    )
+                        (when (= (& mode SigHash'ANYONECANPAY) SigHash'ANYONECANPAY)
+                            ;; SIGHASH_ANYONECANPAY means the signature in the input is not broken by changes/additions/removals
+                            ;; of other inputs.  For example, this is useful for building assurance contracts.
+                            (§ assoc tx :inputs (ArrayList. #_"<TransactionInput>"))
+                            (.add (:inputs tx), input)
+                        )
 
-                    (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (<< 1 8))]
-                        (Transaction''to-wire tx, baos)
-                        ;; We also have to write a hash type (sigHashType is actually an unsigned char).
-                        (Wire'write-uint32 (& 0x000000ff mode), baos)
-                        ;; Note that this is NOT reversed to ensure it will be signed correctly.  If it were to be printed out
-                        ;; however then we would expect that it is IS reversed.
-                        (Sha256Hash'twice-of (.toByteArray baos))
+                        (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (<< 1 8))]
+                            (Transaction''to-wire tx, baos)
+                            ;; We also have to write a hash type (sigHashType is actually an unsigned char).
+                            (Wire'write-uint32 (& 0x000000ff mode), baos)
+                            ;; Note that this is NOT reversed to ensure it will be signed correctly.  If it were to be printed out
+                            ;; however then we would expect that it is IS reversed.
+                            (Sha256Hash'twice-of (.toByteArray baos))
+                        )
                     )
                 )
             )
@@ -15913,7 +15922,7 @@
     (defn- #_"void" TxConfidenceTable''clean-table [#_"TxConfidenceTable" this]
         (sync (:confidence-lock this)
             (loop [] ;; Find which transaction got deleted by the GC,
-                (let-when [#_"Reference<TransactionConfidence>" ref (.poll (:reference-queue this))] (some? ref)
+                (when-let [#_"Reference<TransactionConfidence>" ref (.poll (:reference-queue this))]
                     ;; and remove the associated map entry, so the other bits of memory can also be reclaimed.
                     (.remove (:table this), (:weak-hash (cast' WeakConfidenceReference ref)))
                     (recur)
@@ -16956,7 +16965,7 @@
 
     #_method
     (defn- #_"BigInteger" DeterministicKey''find-or-derive-private-key [#_"DeterministicKey" this]
-        (let-when [#_"DeterministicKey" cursor (DeterministicKey''find-parent-with-priv-key this)] (some? cursor)
+        (when-let [#_"DeterministicKey" cursor (DeterministicKey''find-parent-with-priv-key this)]
             (DeterministicKey''derive-private-key-downwards this, cursor, (.toByteArray (:priv cursor)))
         )
     )
@@ -18835,44 +18844,46 @@
     ;; Runs unlocked as the caller is single-threaded (or if not, should enforce that handleKey is only called
     ;; atomically for a given ConnectionHandler).
     (defn #_"void" ConnectionHandler'handle-key [#_"SelectionKey" key]
-        (let-when [#_"ConnectionHandler" handler (cast' ConnectionHandler (.attachment key))] (some? handler)
+        (when-let [#_"ConnectionHandler" handler (cast' ConnectionHandler (.attachment key))]
             (try
                 ;; Else the key has been cancelled, make sure the socket gets closed.
                 (when' (.isValid key) => (MessageWriteTarget'''close-connection handler)
-                    (§ when (.isReadable key)
-                        ;; Do a socket read and invoke the connection's receiveBytes message.
-                        (let [#_"int" n (.read (:channel handler), (:read-buff handler))]
-                            (cond (= n 0)
-                                (do
-                                    (§ return ) ;; Was probably waiting on a write.
+                    (or
+                        (when (.isReadable key)
+                            ;; Do a socket read and invoke the connection's receiveBytes message.
+                            (let [#_"int" n (.read (:channel handler), (:read-buff handler))]
+                                (condp = n
+                                    0 ;; Was probably waiting on a write.
+                                        :abort
+                                    -1 ;; Socket was closed.
+                                    (do
+                                        (.cancel key)
+                                        (MessageWriteTarget'''close-connection handler)
+                                        :abort
+                                    )
+                                    (do
+                                        (.flip (:read-buff handler))
+                                        ;; Use connection.receiveBytes's return value as a check that it stopped reading at the right location.
+                                        (let [#_"int" m (StreamConnection'''receive-bytes (ensure some? (:connection handler)), (:read-buff handler))]
+                                            (assert-state (= (.position (:read-buff handler)) m))
+                                            ;; Now drop the bytes which were read by compacting readBuff (resetting limit and keeping relative position).
+                                            (.compact (:read-buff handler))
+                                        )
+                                        nil
+                                    )
                                 )
-                                (= n -1) ;; Socket was closed.
-                                (do
-                                    (.cancel key)
-                                    (MessageWriteTarget'''close-connection handler)
-                                    (§ return )
-                                )
-                            )
-                            (.flip (:read-buff handler))
-                            ;; Use connection.receiveBytes's return value as a check that it stopped reading at the right location.
-                            (let [#_"int" m (StreamConnection'''receive-bytes (ensure some? (:connection handler)), (:read-buff handler))]
-                                (assert-state (= (.position (:read-buff handler)) m))
-                                ;; Now drop the bytes which were read by compacting readBuff (resetting limit and keeping relative position).
-                                (.compact (:read-buff handler))
                             )
                         )
-                    )
-                    (when (.isWritable key)
-                        (ConnectionHandler''try-write-bytes handler)
+                        (when (.isWritable key)
+                            (ConnectionHandler''try-write-bytes handler)
+                        )
                     )
                 )
                 (catch Exception e
                     ;; This can happen e.g. if the channel closes while the thread is about to get killed
                     ;; (ClosedByInterruptException), or if handler.connection.receiveBytes throws something.
-                    (let [#_"Throwable" t (Throwables/getRootCause e)]
-                        (log/warn e, (str "Error handling SelectionKey: " (.getName (.getClass t)) " " (or (.getMessage t) "")))
-                        (MessageWriteTarget'''close-connection handler)
-                    )
+                    (log/warn e, (str "Error handling SelectionKey: " (Throwables/getRootCause e)))
+                    (MessageWriteTarget'''close-connection handler)
                 )
             )
         )
@@ -19208,7 +19219,7 @@
 
             (while (PeerGroup''is-running this)
                 (loop []
-                    (let-when [#_"PendingConnection" conn (.poll (:new-connection-channels this))] (some? conn)
+                    (when-let [#_"PendingConnection" conn (.poll (:new-connection-channels this))]
                         (try
                             (let [#_"SelectionKey" key (.register (:sc conn), (:selector this), SelectionKey/OP_CONNECT)]
                                 (.attach key, conn)
@@ -19637,7 +19648,7 @@
 
     #_override
     (defn #_"void" PeerDiscovery'''shutdown [#_"MultiplexingDiscovery" this]
-        (let-when [#_"ExecutorService" threads (:v-thread-pool this)] (some? threads)
+        (when-let [#_"ExecutorService" threads (:v-thread-pool this)]
             (PeerDiscovery'''shutdown threads)
         )
         nil
@@ -24123,13 +24134,13 @@
 
     #_method
     (defn #_"void" TransactionalHashMap''commit-database-batch-write [#_"TransactionalHashMap" this]
-        (when (some? (.get (:temp-set-removed this)))
-            (doseq [#_"KeyType" key (.get (:temp-set-removed this))]
+        (when-let [#_"HashSet<KeyType>" s (.get (:temp-set-removed this))]
+            (doseq [#_"KeyType" key s]
                 (.remove (:map this), key)
             )
         )
-        (when (some? (.get (:temp-map this)))
-            (doseq [#_"Map.Entry<KeyType, ValueType>" entry (.entrySet (.get (:temp-map this)))]
+        (when-let [#_"HashMap<KeyType, ValueType>" m (.get (:temp-map this))]
+            (doseq [#_"Map.Entry<KeyType, ValueType>" entry (.entrySet m)]
                 (.put (:map this), (.getKey entry), (.getValue entry))
             )
         )
@@ -24146,37 +24157,34 @@
     )
 
     #_method
-    (defn #_"ValueType" TransactionalHashMap''get-2 [#_"TransactionalHashMap" this, #_"KeyType" key]
-        (§ when (true? (.get (:in-transaction this)))
-            (when (some? (.get (:temp-map this)))
-                (let [#_"ValueType" value (.get (.get (:temp-map this)), key)]
-                    (when (some? value)
-                        (§ return value)
-                    )
+    (defn #_"ValueType" TransactionalHashMap''get [#_"TransactionalHashMap" this, #_"KeyType" key]
+        (when' (true? (.get (:in-transaction this))) => (.get (:map this), key)
+            (or
+                (when-let [#_"HashMap<KeyType, ValueType>" m (.get (:temp-map this))]
+                    (.get m, key)
+                )
+                (let-when [#_"HashSet<KeyType>" s (.get (:temp-set-removed this))] (and (some? s) (.contains s, key)) => (.get (:map this), key)
+                    nil
                 )
             )
-            (when (and (some? (.get (:temp-set-removed this))) (.contains (.get (:temp-set-removed this)), key))
-                (§ return nil)
-            )
         )
-        (.get (:map this), key)
     )
 
     #_method
     (defn #_"List<ValueType>" TransactionalHashMap''values [#_"TransactionalHashMap" this]
         (let [#_"List<ValueType>" values (ArrayList.)]
             (doseq [#_"KeyType" key (.keySet (:map this))]
-                (.add values, (TransactionalHashMap''get-2 this, key))
+                (.add values, (TransactionalHashMap''get this, key))
             )
             values
         )
     )
 
     #_method
-    (defn #_"void" TransactionalHashMap''put-3 [#_"TransactionalHashMap" this, #_"KeyType" key, #_"ValueType" value]
+    (defn #_"void" TransactionalHashMap''put [#_"TransactionalHashMap" this, #_"KeyType" key, #_"ValueType" value]
         (when' (true? (.get (:in-transaction this))) => (.put (:map this), key, value)
-            (when (some? (.get (:temp-set-removed this)))
-                (.remove (.get (:temp-set-removed this)), key)
+            (when-let [#_"HashSet<KeyType>" s (.get (:temp-set-removed this))]
+                (.remove s, key)
             )
             (when (nil? (.get (:temp-map this)))
                 (.set (:temp-map this), (HashMap. #_"<KeyType, ValueType>"))
@@ -25162,7 +25170,7 @@
             (.push versions, (:version (:stored-header head)))
 
             (loop-when [#_"StoredBlock" v head #_"int" i 0] (< i (alength (:version-window this)))
-                (let-when [v (StoredBlock''get-prev v, store)] (some? v)
+                (when-let [v (StoredBlock''get-prev v, store)]
                     (.push versions, (:version (:stored-header v)))
                     (recur v (inc i))
                 )
@@ -26645,23 +26653,21 @@
 
     #_method
     (defn- #_"RiskAnalysisResult" RiskAnalysis''analyze-is-final [#_"RiskAnalysis" this]
-        (§ cond
+        (or
             ;; Transactions we create ourselves are, by definition, not at risk of double spending against us.
-            (= (TransactionConfidence''get-source (Transaction''get-confidence-t (:tx this))) :ConfidenceSource'SELF)
+            (when (= (TransactionConfidence''get-source (Transaction''get-confidence-t (:tx this))) :ConfidenceSource'SELF)
                 :RiskAnalysisResult'OK
-
+            )
             ;; We consider transactions that opt into replace-by-fee at risk of double spending.
-            (Transaction''is-opt-in-full-rbf (:tx this))
-                (do
-                    (§ assoc this :non-final (:tx this))
-                    :RiskAnalysisResult'NON_FINAL
-                )
-
-            (some? (:wallet this))
+            (when (Transaction''is-opt-in-full-rbf (:tx this))
+                (§ assoc this :non-final (:tx this))
+                :RiskAnalysisResult'NON_FINAL
+            )
+            (§ when (some? (:wallet this))
                 (let [#_"int" height (Wallet''get-last-block-seen-height (:wallet this))
                       #_"long" time (Wallet''get-last-block-seen-time-secs (:wallet this))
-                      ;; If the transaction has a lock time specified in blocks, we consider that if the tx would become final
-                      ;; in the next block, it is not risky (as it would confirm normally).
+                      ;; If the transaction has a lock time specified in blocks, we consider that if the tx would
+                      ;; become final in the next block, it is not risky (as it would confirm normally).
                       #_"int" __adjustedHeight (inc height)]
 
                     (if (not (Transaction''is-final (:tx this), __adjustedHeight, time))
@@ -26681,6 +26687,7 @@
                         )
                     )
                 )
+            )
         )
     )
 
@@ -26690,37 +26697,32 @@
      ; Note that this method currently only implements a minimum of checks.  More to be added later.
      ;;
     (defn #_"RuleViolation" RiskAnalysis'is-standard [#_"Transaction" tx]
-        ;; TODO: Finish this function off.
-        (if-not (<= 1 (Transaction''get-version tx) 1)
-            (do
-                (log/warn (str "TX considered non-standard due to unknown version number " (Transaction''get-version tx)))
+        (or
+            (let-when [#_"long" version (Transaction''get-version tx)] (not (<= 1 version 1))
+                (log/warn (str "TX considered non-standard due to unknown version number " version))
                 :RuleViolation'VERSION
             )
-            (or
-                (let [#_"List<TransactionOutput>" outputs (Transaction''get-outputs tx)]
-                    (loop-when [#_"int" i 0] (< i (.size outputs))
-                        (let [#_"TransactionOutput" output (.get outputs, i) #_"RuleViolation" violation (RiskAnalysis'is-output-standard output)]
-                            (when' (not= violation :RuleViolation'NONE) => (recur (inc i))
-                                (log/warn (str "TX considered non-standard due to output " i " violating rule " violation))
-                                violation
-                            )
+            (let [#_"List<TransactionOutput>" outputs (Transaction''get-outputs tx)]
+                (loop-when [#_"int" i 0] (< i (.size outputs))
+                    (let [#_"TransactionOutput" output (.get outputs, i) #_"RuleViolation" violation (RiskAnalysis'is-output-standard output)]
+                        (when' (not= violation :RuleViolation'NONE) => (recur (inc i))
+                            (log/warn (str "TX considered non-standard due to output " i " violating rule " violation))
+                            violation
                         )
                     )
                 )
-
-                (let [#_"List<TransactionInput>" inputs (Transaction''get-inputs tx)]
-                    (loop-when [#_"int" i 0] (< i (.size inputs))
-                        (let [#_"TransactionInput" input (.get inputs, i) #_"RuleViolation" violation (RiskAnalysis'is-input-standard input)]
-                            (when' (not= violation :RuleViolation'NONE) => (recur (inc i))
-                                (log/warn (str "TX considered non-standard due to input " i " violating rule " violation))
-                                violation
-                            )
-                        )
-                    )
-                )
-
-                :RuleViolation'NONE
             )
+            (let [#_"List<TransactionInput>" inputs (Transaction''get-inputs tx)]
+                (loop-when [#_"int" i 0] (< i (.size inputs))
+                    (let [#_"TransactionInput" input (.get inputs, i) #_"RuleViolation" violation (RiskAnalysis'is-input-standard input)]
+                        (when' (not= violation :RuleViolation'NONE) => (recur (inc i))
+                            (log/warn (str "TX considered non-standard due to input " i " violating rule " violation))
+                            violation
+                        )
+                    )
+                )
+            )
+            :RuleViolation'NONE
         )
     )
 
@@ -26728,72 +26730,69 @@
      ; Checks the output to see if the script violates a standardness rule.  Not complete.
      ;;
     (defn #_"RuleViolation" RiskAnalysis'is-output-standard [#_"TransactionOutput" output]
-        (when' (<= 0 (.compareTo (:coin-value output), RiskAnalysis'MIN_ANALYSIS_NONDUST_OUTPUT)) => :RuleViolation'DUST
-            (doseq [#_"ScriptChunk" chunk (Script''get-chunks (TransactionOutput''get-script-pub-key output))]
-                (when (and (ScriptChunk''is-push-data chunk) (not (ScriptChunk''is-shortest-possible-push-data chunk)))
-                    (§ return :RuleViolation'SHORTEST_POSSIBLE_PUSHDATA)
-                )
+        (or
+            (when (neg? (.compareTo (:coin-value output), RiskAnalysis'MIN_ANALYSIS_NONDUST_OUTPUT))
+                :RuleViolation'DUST
             )
-
+            (when (some #(and (ScriptChunk''is-push-data %) (not (ScriptChunk''is-shortest-possible-push-data %))) (Script''get-chunks (TransactionOutput''get-script-pub-key output)))
+                :RuleViolation'SHORTEST_POSSIBLE_PUSHDATA
+            )
             :RuleViolation'NONE
         )
     )
 
-    ;;; Checks if the given input passes some of the AreInputsStandard checks.  Not complete. ;;
+    ;;;
+     ; Checks if the given input passes some of the AreInputsStandard checks.  Not complete.
+     ;;
     (defn #_"RuleViolation" RiskAnalysis'is-input-standard [#_"TransactionInput" input]
-        (§ doseq [#_"ScriptChunk" chunk (Script''get-chunks (TransactionInput''get-script-sig input))]
-            (when (and (some? (:data chunk)) (not (ScriptChunk''is-shortest-possible-push-data chunk)))
-                (§ return :RuleViolation'SHORTEST_POSSIBLE_PUSHDATA)
-            )
-
-            (when (ScriptChunk''is-push-data chunk)
-                (let [#_"ECDSASignature" signature
-                        (try
-                            (ECDSASignature'decode-from-der (:data chunk))
-                            (catch IllegalArgumentException _
-                                ;; Doesn't look like a signature.
-                                nil
+        (loop-when [#_"List<ScriptChunk>" chunks (Script''get-chunks (TransactionInput''get-script-sig input))] (seq chunks) => :RuleViolation'NONE
+            (let [#_"ScriptChunk" chunk (first chunks)]
+                (or
+                    (when (and (some? (:data chunk)) (not (ScriptChunk''is-shortest-possible-push-data chunk)))
+                        :RuleViolation'SHORTEST_POSSIBLE_PUSHDATA
+                    )
+                    (when (ScriptChunk''is-push-data chunk)
+                        (let [#_"ECDSASignature" signature
+                                (try
+                                    (ECDSASignature'decode-from-der (:data chunk))
+                                    (catch IllegalArgumentException _
+                                        ;; Doesn't look like a signature.
+                                        nil
+                                    )
+                                )]
+                            (when (some? signature)
+                                (when-not (TransactionSignature'is-encoding-canonical (:data chunk))
+                                    :RuleViolation'SIGNATURE_CANONICAL_ENCODING
+                                )
+                                (when-not (ECDSASignature''is-canonical signature)
+                                    :RuleViolation'SIGNATURE_CANONICAL_ENCODING
+                                )
                             )
-                        )]
-                    (when (some? signature)
-                        (when-not (TransactionSignature'is-encoding-canonical (:data chunk))
-                            (§ return :RuleViolation'SIGNATURE_CANONICAL_ENCODING)
-                        )
-                        (when-not (ECDSASignature''is-canonical signature)
-                            (§ return :RuleViolation'SIGNATURE_CANONICAL_ENCODING)
                         )
                     )
+                    (recur (next chunks))
                 )
             )
         )
-        :RuleViolation'NONE
     )
 
     #_method
     (defn- #_"RiskAnalysisResult" RiskAnalysis''analyze-is-standard [#_"RiskAnalysis" this]
-        ;; The IsStandard rules don't apply on testnet, because they're just a safety mechanism and we don't
-        ;; want to crush innovation with valueless test coins.
-        (§ cond
-            (and (some? (:wallet this)) (not= (-> this :wallet :ledger :id) Ledger'ID_MAINNET))
-            (do
+        ;; The IsStandard rules don't apply on testnet, because they're just a safety mechanism
+        ;; and we don't want to crush innovation with valueless test coins.
+        (or
+            (when (and (some? (:wallet this)) (not= (-> this :wallet :ledger :id) Ledger'ID_MAINNET))
                 :RiskAnalysisResult'OK
             )
-            (not= (RiskAnalysis'is-standard (:tx this)) :RuleViolation'NONE)
-            (do
+            (when-not (= (RiskAnalysis'is-standard (:tx this)) :RuleViolation'NONE)
                 (§ assoc this :non-standard (:tx this))
                 :RiskAnalysisResult'NON_STANDARD
             )
-            :else
-            (do
-                (doseq [#_"Transaction" dep (:dependencies this)]
-                    (when (not= (RiskAnalysis'is-standard dep) :RuleViolation'NONE)
-                        (§ assoc this :non-standard dep)
-                        (§ return :RiskAnalysisResult'NON_STANDARD)
-                    )
-                )
-
-                :RiskAnalysisResult'OK
+            (when-let [#_"Transaction" tx (first (remove #(= (RiskAnalysis'is-standard %) :RuleViolation'NONE) (:dependencies this)))]
+                (§ assoc this :non-standard tx)
+                :RiskAnalysisResult'NON_STANDARD
             )
+            :RiskAnalysisResult'OK
         )
     )
 
@@ -27311,7 +27310,7 @@
     (defn- #_"void" KeyChainGroup''maybe-mark-current-address-as-used [#_"KeyChainGroup" this, #_"Address" address]
         (assert-argument (Address''is-p2sh-address address))
 
-        (let-when [#_"Map.Entry<KeyPurpose, Address>" entry (first (filter #(and (some? (.getValue %)) (.equals (.getValue %), address)) (.entrySet (:current-addresses this))))] (some? entry)
+        (when-let [#_"Map.Entry<KeyPurpose, Address>" entry (first (filter #(and (some? (.getValue %)) (.equals (.getValue %), address)) (.entrySet (:current-addresses this))))]
             (log/info (str "Marking P2SH address as used: " address))
             (.put (:current-addresses this), (.getKey entry), (KeyChainGroup''fresh-address this, (.getKey entry)))
         )
@@ -27322,7 +27321,7 @@
     #_method
     (defn- #_"void" KeyChainGroup''maybe-mark-current-key-as-used [#_"KeyChainGroup" this, #_"DeterministicKey" key]
         ;; It's OK for :current-keys to be empty here: it means we're a married wallet and the key may be a part of a rotating chain.
-        (let-when [#_"Map.Entry<KeyPurpose, DeterministicKey>" entry (first (filter #(and (some? (.getValue %)) (.equals (.getValue %), key)) (.entrySet (:current-keys this))))] (some? entry)
+        (when-let [#_"Map.Entry<KeyPurpose, DeterministicKey>" entry (first (filter #(and (some? (.getValue %)) (.equals (.getValue %), key)) (.entrySet (:current-keys this))))]
             (log/info (str "Marking key as used: " key))
             (.put (:current-keys this), (.getKey entry), (KeyChainGroup''fresh-key this, (.getKey entry)))
         )
@@ -29516,7 +29515,7 @@
                             ;; Was pending and is now confirmed.  Disconnect the outputs in case we spent any already:
                             ;; they will be re-connected by processTxFromBestChain below.
                             (doseq [#_"TransactionOutput" output (Transaction''get-outputs tx)]
-                                (let-when [#_"TransactionInput" __spentBy (:spent-by output)] (some? __spentBy)
+                                (when-let [#_"TransactionInput" __spentBy (:spent-by output)]
                                     (let [#_"boolean" added? (.add (:my-unspents this), output)]
                                         (assert-state added?)
                                         (TransactionInput''disconnect __spentBy)
@@ -29952,7 +29951,7 @@
                     (.remove (:spent this), hash)
                     (Wallet''add-wallet-transaction this, :PoolType'DEAD, dead)
                     (doseq [#_"TransactionInput" input (Transaction''get-inputs dead)]
-                        (let-when [#_"Transaction" zombie (TransactionInput''get-connected-transaction input)] (some? zombie)
+                        (when-let [#_"Transaction" zombie (TransactionInput''get-connected-transaction input)]
                             (when-not (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence-t zombie)) :ConfidenceType'DEAD)
                                 (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
                                     (when (and (some? (:spent-by output)) (.equals (:spent-by output), input))
@@ -29972,7 +29971,7 @@
                         (when (.remove (:my-unspents this), output)
                             (log/info (str "Removed from UNSPENTS: " output))
                         )
-                        (let-when [#_"TransactionInput" input (:spent-by output)] (some? input)
+                        (when-let [#_"TransactionInput" input (:spent-by output)]
                             (log/info (str "This death invalidated dependent tx " (Transaction''get-hash (:parent input))))
                             (.push work, (:parent input))
                         )
@@ -30549,7 +30548,7 @@
                                     (do
                                         ;; Sync myUnspents with the change.
                                         (doseq [#_"TransactionInput" input (Transaction''get-inputs tx)]
-                                            (let-when [#_"TransactionOutput" output (TransactionInput''get-connected-output input)] (some? output)
+                                            (when-let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
                                                 (when (TransactionOutput''is-mine output, this)
                                                     (assert-state (.add (:my-unspents this), output))
                                                 )
@@ -31460,7 +31459,7 @@
                                     :else
                                     (do
                                         (doseq [#_"TransactionOutput" output (Transaction''get-outputs tx)]
-                                            (let-when [#_"TransactionInput" input (:spent-by output)] (some? input)
+                                            (when-let [#_"TransactionInput" input (:spent-by output)]
                                                 (when (TransactionOutput''is-mine output, this)
                                                     (assert-state (.add (:my-unspents this), output))
                                                 )
@@ -32029,7 +32028,7 @@
                     ;; around here until we no longer produce transactions with the max number of inputs.  That means we're fully
                     ;; done, at least for now (we may still get more transactions later and this method will be reinvoked).
                     (loop []
-                        (let-when [#_"Transaction" tx (Wallet''rekey-one-batch this, stamp, results, sign?)] (some? tx)
+                        (when-let [#_"Transaction" tx (Wallet''rekey-one-batch this, stamp, results, sign?)]
                             (.add results, tx)
                             (recur-if (= (.size (Transaction''get-inputs tx)) KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS) [])
                         )
@@ -32153,7 +32152,7 @@
                     ;; Do the keys.
                     (.. sb (append "\nKeys:\n"))
                     (.. sb (append "Earliest creation time: ") (append (Time'format-seconds (PeerFilterProvider'''get-earliest-key-creation-time this))) (append "\n"))
-                    (let-when [#_"Date" time (Wallet''get-key-rotation-time this)] (some? time)
+                    (when-let [#_"Date" time (Wallet''get-key-rotation-time this)]
                         (.. sb (append "Key rotation time:      ") (append (Time'format-date time)) (append "\n"))
                     )
                     (.. sb (append (KeyChainGroup''to-string (:key-chain-group this), private?)))
