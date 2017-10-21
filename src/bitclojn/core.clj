@@ -70,7 +70,7 @@
 (ns bitclojn.core
     (:refer-clojure :exclude [ensure sync])
     (:import [com.google.common.base Charsets Joiner MoreObjects Stopwatch Throwables]
-             [com.google.common.collect ArrayListMultimap ImmutableList ImmutableMap ImmutableSet Iterables]
+             [com.google.common.collect ArrayListMultimap ImmutableList ImmutableSet Iterables]
              [com.google.common.hash HashCode Hasher Hashing]
              [com.google.common.io BaseEncoding]
              [com.google.common.math LongMath]
@@ -107,6 +107,7 @@
              [org.spongycastle.util.encoders Base64]
     )
     (:require [clojure set]
+              [clojure.core.rrb-vector :as rrb]
               [clojure.tools.logging :as log])
     (:use [slingshot slingshot]
           [bitclojn slang])
@@ -277,10 +278,10 @@
 (declare ScriptChunk''decode-op-n ScriptChunk''equals-op-code ScriptChunk''get-start-location-in-program ScriptChunk''is-op-code ScriptChunk''is-push-data ScriptChunk''is-shortest-possible-push-data ScriptChunk''write-chunk ScriptChunk'new)
 (declare ScriptError'enum-set)
 (declare ScriptException'new)
-(declare ScriptOpCodes'OP_0 ScriptOpCodes'OP_0NOTEQUAL ScriptOpCodes'OP_1 ScriptOpCodes'OP_10 ScriptOpCodes'OP_11 ScriptOpCodes'OP_12 ScriptOpCodes'OP_13 ScriptOpCodes'OP_14 ScriptOpCodes'OP_15 ScriptOpCodes'OP_16 ScriptOpCodes'OP_1ADD ScriptOpCodes'OP_1NEGATE ScriptOpCodes'OP_1SUB ScriptOpCodes'OP_2 ScriptOpCodes'OP_2DIV ScriptOpCodes'OP_2DROP ScriptOpCodes'OP_2DUP ScriptOpCodes'OP_2MUL ScriptOpCodes'OP_2OVER ScriptOpCodes'OP_2ROT ScriptOpCodes'OP_2SWAP ScriptOpCodes'OP_3 ScriptOpCodes'OP_3DUP ScriptOpCodes'OP_4 ScriptOpCodes'OP_5 ScriptOpCodes'OP_6 ScriptOpCodes'OP_7 ScriptOpCodes'OP_8 ScriptOpCodes'OP_9 ScriptOpCodes'OP_ABS ScriptOpCodes'OP_ADD ScriptOpCodes'OP_AND ScriptOpCodes'OP_BOOLAND ScriptOpCodes'OP_BOOLOR ScriptOpCodes'OP_CAT ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY ScriptOpCodes'OP_CHECKMULTISIG ScriptOpCodes'OP_CHECKMULTISIGVERIFY ScriptOpCodes'OP_CHECKSEQUENCEVERIFY ScriptOpCodes'OP_CHECKSIG ScriptOpCodes'OP_CHECKSIGVERIFY ScriptOpCodes'OP_CODESEPARATOR ScriptOpCodes'OP_CODE_MAP ScriptOpCodes'OP_CODE_NAME_MAP ScriptOpCodes'OP_DEPTH ScriptOpCodes'OP_DIV ScriptOpCodes'OP_DROP ScriptOpCodes'OP_DUP ScriptOpCodes'OP_ELSE ScriptOpCodes'OP_ENDIF ScriptOpCodes'OP_EQUAL ScriptOpCodes'OP_EQUALVERIFY ScriptOpCodes'OP_FALSE ScriptOpCodes'OP_FROMALTSTACK ScriptOpCodes'OP_GREATERTHAN ScriptOpCodes'OP_GREATERTHANOREQUAL ScriptOpCodes'OP_HASH160 ScriptOpCodes'OP_HASH256 ScriptOpCodes'OP_IF ScriptOpCodes'OP_IFDUP ScriptOpCodes'OP_INVALIDOPCODE ScriptOpCodes'OP_INVERT ScriptOpCodes'OP_LEFT ScriptOpCodes'OP_LESSTHAN ScriptOpCodes'OP_LESSTHANOREQUAL ScriptOpCodes'OP_LSHIFT ScriptOpCodes'OP_MAX ScriptOpCodes'OP_MIN ScriptOpCodes'OP_MOD ScriptOpCodes'OP_MUL ScriptOpCodes'OP_NEGATE ScriptOpCodes'OP_NIP ScriptOpCodes'OP_NOP ScriptOpCodes'OP_NOP1 ScriptOpCodes'OP_NOP10 ScriptOpCodes'OP_NOP2 ScriptOpCodes'OP_NOP3 ScriptOpCodes'OP_NOP4 ScriptOpCodes'OP_NOP5 ScriptOpCodes'OP_NOP6 ScriptOpCodes'OP_NOP7 ScriptOpCodes'OP_NOP8 ScriptOpCodes'OP_NOP9 ScriptOpCodes'OP_NOT ScriptOpCodes'OP_NOTIF ScriptOpCodes'OP_NUMEQUAL ScriptOpCodes'OP_NUMEQUALVERIFY ScriptOpCodes'OP_NUMNOTEQUAL ScriptOpCodes'OP_OR ScriptOpCodes'OP_OVER ScriptOpCodes'OP_PICK ScriptOpCodes'OP_PUSHDATA1 ScriptOpCodes'OP_PUSHDATA2 ScriptOpCodes'OP_PUSHDATA4 ScriptOpCodes'OP_RESERVED ScriptOpCodes'OP_RESERVED1 ScriptOpCodes'OP_RESERVED2 ScriptOpCodes'OP_RETURN ScriptOpCodes'OP_RIGHT ScriptOpCodes'OP_RIPEMD160 ScriptOpCodes'OP_ROLL ScriptOpCodes'OP_ROT ScriptOpCodes'OP_RSHIFT ScriptOpCodes'OP_SHA1 ScriptOpCodes'OP_SHA256 ScriptOpCodes'OP_SIZE ScriptOpCodes'OP_SUB ScriptOpCodes'OP_SUBSTR ScriptOpCodes'OP_SWAP ScriptOpCodes'OP_TOALTSTACK ScriptOpCodes'OP_TRUE ScriptOpCodes'OP_TUCK ScriptOpCodes'OP_VER ScriptOpCodes'OP_VERIF ScriptOpCodes'OP_VERIFY ScriptOpCodes'OP_VERNOTIF ScriptOpCodes'OP_WITHIN ScriptOpCodes'OP_XOR ScriptOpCodes'get-op-code ScriptOpCodes'get-op-code-name ScriptOpCodes'get-push-data-name)
+(declare Script'OP_0 Script'OP_0NOTEQUAL Script'OP_1 Script'OP_10 Script'OP_11 Script'OP_12 Script'OP_13 Script'OP_14 Script'OP_15 Script'OP_16 Script'OP_1ADD Script'OP_1NEGATE Script'OP_1SUB Script'OP_2 Script'OP_2DIV Script'OP_2DROP Script'OP_2DUP Script'OP_2MUL Script'OP_2OVER Script'OP_2ROT Script'OP_2SWAP Script'OP_3 Script'OP_3DUP Script'OP_4 Script'OP_5 Script'OP_6 Script'OP_7 Script'OP_8 Script'OP_9 Script'OP_ABS Script'OP_ADD Script'OP_AND Script'OP_BOOLAND Script'OP_BOOLOR Script'OP_CAT Script'OP_CHECKLOCKTIMEVERIFY Script'OP_CHECKMULTISIG Script'OP_CHECKMULTISIGVERIFY Script'OP_CHECKSEQUENCEVERIFY Script'OP_CHECKSIG Script'OP_CHECKSIGVERIFY Script'OP_CODESEPARATOR Script'OP_CODE_MAP Script'OP_CODE_NAME_MAP Script'OP_DEPTH Script'OP_DIV Script'OP_DROP Script'OP_DUP Script'OP_ELSE Script'OP_ENDIF Script'OP_EQUAL Script'OP_EQUALVERIFY Script'OP_FALSE Script'OP_FROMALTSTACK Script'OP_GREATERTHAN Script'OP_GREATERTHANOREQUAL Script'OP_HASH160 Script'OP_HASH256 Script'OP_IF Script'OP_IFDUP Script'OP_INVALIDOPCODE Script'OP_INVERT Script'OP_LEFT Script'OP_LESSTHAN Script'OP_LESSTHANOREQUAL Script'OP_LSHIFT Script'OP_MAX Script'OP_MIN Script'OP_MOD Script'OP_MUL Script'OP_NEGATE Script'OP_NIP Script'OP_NOP Script'OP_NOP1 Script'OP_NOP10 Script'OP_NOP2 Script'OP_NOP3 Script'OP_NOP4 Script'OP_NOP5 Script'OP_NOP6 Script'OP_NOP7 Script'OP_NOP8 Script'OP_NOP9 Script'OP_NOT Script'OP_NOTIF Script'OP_NUMEQUAL Script'OP_NUMEQUALVERIFY Script'OP_NUMNOTEQUAL Script'OP_OR Script'OP_OVER Script'OP_PICK Script'OP_PUSHDATA1 Script'OP_PUSHDATA2 Script'OP_PUSHDATA4 Script'OP_RESERVED Script'OP_RESERVED1 Script'OP_RESERVED2 Script'OP_RETURN Script'OP_RIGHT Script'OP_RIPEMD160 Script'OP_ROLL Script'OP_ROT Script'OP_RSHIFT Script'OP_SHA1 Script'OP_SHA256 Script'OP_SIZE Script'OP_SUB Script'OP_SUBSTR Script'OP_SWAP Script'OP_TOALTSTACK Script'OP_TRUE Script'OP_TUCK Script'OP_VER Script'OP_VERIF Script'OP_VERIFY Script'OP_VERNOTIF Script'OP_WITHIN Script'OP_XOR ScriptOpCodes'get-op-code ScriptOpCodes'get-op-code-name ScriptOpCodes'get-push-data-name)
 (declare ScriptType'enum-set)
 (declare ScriptVerifyFlag'enum-set)
-(declare SeedPeers''all-peers SeedPeers''convert-address SeedPeers''get-peer SeedPeers''next-peer SeedPeers'new)
+(declare SeedPeers''all-peers SeedPeers'convert-address SeedPeers''get-peer SeedPeers''next-peer SeedPeers'new)
 (declare SendRequest'child-pays-for-parent SendRequest'empty-wallet SendRequest'for-tx SendRequest'new SendRequest'to-2 SendRequest'to-3 SendRequest'to-cltv-payment-channel-5bi SendRequest'to-cltv-payment-channel-5d SendRequest'to-cltv-payment-channel-5i)
 (declare SendResult'new)
 (declare Sha256Hash''get-bytes Sha256Hash''get-reversed-bytes Sha256Hash''to-big-integer Sha256Hash'LENGTH Sha256Hash'ZERO_HASH Sha256Hash'create-digest Sha256Hash'hash Sha256Hash'hash-twice Sha256Hash'hash-twice-6 Sha256Hash'new Sha256Hash'of Sha256Hash'twice-of Sha256Hash'wrap-hex Sha256Hash'wrap Sha256Hash'wrap-reversed)
@@ -321,7 +322,7 @@
 (declare VerificationException'new)
 (declare VersionAck'new VersionAck''to-wire)
 (declare VersionMessage''has-block-chain VersionMessage''is-bloom-filtering-supported VersionMessage''is-ping-pong-supported VersionMessage'NODE_NETWORK VersionMessage'init VersionMessage'new VersionMessage'from-wire VersionMessage''to-wire)
-(declare VersionTally''add VersionTally''get-count-at-or-above VersionTally''initialize VersionTally''size VersionTally'new)
+(declare VersionTally''add VersionTally''get-count-at-or-above VersionTally'from-store VersionTally'new)
 (declare VersionedChecksummedBytes''to-base58 VersionedChecksummedBytes'from-base58 VersionedChecksummedBytes'new)
 (declare Wallet'DEFAULT_EVENT_HORIZON Wallet''add-and-activate-hd-chain Wallet''add-change-event-listener-2 Wallet''add-change-event-listener-3 Wallet''add-coins-received-event-listener-2 Wallet''add-coins-received-event-listener-3 Wallet''add-coins-sent-event-listener-2 Wallet''add-coins-sent-event-listener-3 Wallet''add-key-chain-event-listener-2 Wallet''add-key-chain-event-listener-3 Wallet''add-reorganize-event-listener-2 Wallet''add-reorganize-event-listener-3 Wallet''add-supplied-inputs Wallet''add-transaction-confidence-event-listener-2 Wallet''add-transaction-confidence-event-listener-3 Wallet''add-transaction-signer Wallet''add-transactions-depending-on Wallet''add-wallet-transaction Wallet''adjust-output-downwards-for-fee Wallet''calc-bloom-out-points-locked Wallet''calculate-all-spend-candidates-1 Wallet''calculate-all-spend-candidates-3 Wallet''calculate-fee Wallet''can-sign-for Wallet''check-balance-futures-locked Wallet''check-for-filter-exhaustion Wallet''check-no-deterministic-keys Wallet''cleanup Wallet''clear-transactions-1 Wallet''clear-transactions-2 Wallet''commit-tx Wallet''complete-tx Wallet''create-send Wallet''create-transient-state Wallet''current-address Wallet''current-change-address Wallet''current-key Wallet''current-receive-address Wallet''current-receive-key Wallet''do-maintenance Wallet''estimate-bytes-for-signing Wallet''find-double-spends-against Wallet''fresh-address Wallet''fresh-key Wallet''fresh-keys Wallet''fresh-receive-address Wallet''fresh-receive-key Wallet''get-active-key-chain Wallet''get-balance-1 Wallet''get-balance-2s Wallet''get-balance-2t Wallet''get-balance-future Wallet''get-bloom-filter-2 Wallet''get-coin-selector Wallet''get-containing-pools Wallet''get-description Wallet''get-imported-keys Wallet''get-issued-receive-addresses Wallet''get-issued-receive-keys Wallet''get-key-by-path-2 Wallet''get-key-chain-group-combined-key-lookahead-epochs Wallet''get-key-chain-group-lookahead-size Wallet''get-key-chain-group-lookahead-threshold Wallet''get-key-chain-group-size Wallet''get-key-chain-seed Wallet''get-key-rotation-time Wallet''get-last-block-seen-hash Wallet''get-last-block-seen-height Wallet''get-last-block-seen-time Wallet''get-last-block-seen-time-secs Wallet''get-pending-transactions Wallet''get-recent-transactions Wallet''get-total-received Wallet''get-total-sent Wallet''get-transaction Wallet''get-transaction-signers Wallet''get-transactions Wallet''get-transactions-by-time Wallet''get-unspents Wallet''get-watching-key Wallet''has-key Wallet''import-key Wallet''import-keys Wallet''inform-confidence-listeners-if-not-reorganizing Wallet''is-accept-risky-transactions Wallet''is-consistent Wallet''is-consistent-or-throw Wallet''is-deterministic-upgrade-required Wallet''is-key-rotating Wallet''is-spending-txns-in-confidence-type Wallet''is-pending-transaction-relevant Wallet''is-transaction-relevant Wallet''is-transaction-risky Wallet''is-tx-consistent Wallet''is-tx-output-bloom-filterable Wallet''is-watching Wallet''kill-txns Wallet''mark-keys-as-used Wallet''maybe-commit-tx Wallet''maybe-move-pool Wallet''maybe-queue-on-wallet-changed Wallet''maybe-rotate-keys Wallet''maybe-upgrade-to-hd Wallet''process-tx-from-best-chain Wallet''queue-on-coins-received Wallet''queue-on-coins-sent Wallet''queue-on-reorganize Wallet''queue-on-transaction-confidence-changed Wallet''receive Wallet''receive-pending-3 Wallet''receive-pending-4 Wallet''rekey-one-batch Wallet''remove-change-event-listener Wallet''remove-coins-received-event-listener Wallet''remove-coins-sent-event-listener Wallet''remove-key Wallet''remove-key-chain-event-listener Wallet''remove-reorganize-event-listener Wallet''remove-transaction-confidence-event-listener Wallet''reset Wallet''save Wallet''save-later Wallet''save-now Wallet''send-coins-2 Wallet''send-coins-3b Wallet''send-coins-3p Wallet''send-coins-4 Wallet''send-coins-offline Wallet''set-accept-risky-transactions Wallet''set-coin-selector Wallet''set-description Wallet''set-key-chain-group-lookahead-size Wallet''set-key-chain-group-lookahead-threshold Wallet''set-key-rotation-time-d Wallet''set-key-rotation-time-l Wallet''set-last-block-seen-hash Wallet''set-last-block-seen-height Wallet''set-last-block-seen-time-secs Wallet''set-transaction-broadcaster Wallet''sign-transaction Wallet''sort-txns-by-dependency Wallet''spends Wallet''subtract-depth Wallet''to-string Wallet''to-string-helper Wallet''update-for-spends Wallet''upgrade-to-deterministic Wallet'from-keys Wallet'from-seed Wallet'from-watching-key Wallet'from-watching-key-b58 Wallet'new)
 (declare WalletAppKit''chain WalletAppKit''connect-to-loopback WalletAppKit''create-peer-group WalletAppKit''create-wallet WalletAppKit''install-shutdown-hook WalletAppKit''on-setup-completed WalletAppKit''peer-group WalletAppKit''provide-block-store WalletAppKit''set-auto-stop WalletAppKit''set-blocking-startup WalletAppKit''set-checkpoints WalletAppKit''set-discovery WalletAppKit''set-download-listener WalletAppKit''set-peer-nodes WalletAppKit''store WalletAppKit''wallet WalletAppKit'new)
@@ -1933,14 +1934,13 @@
     (defn #_"BlockChain" BlockChain'new [#_"Ledger" ledger, #_"BlockStore" store, #_"List<Wallet>" wallets]
         (let [this
                 (hash-map
-                    #_"Object" :blockchain-lock (Object.)
-
                     #_"Ledger" :ledger ledger
-
                     ;;;
                      ; Keeps a map of block hashes to StoredBlocks.
                      ;;
                     #_"BlockStore" :block-store store
+
+                    #_"Object" :blockchain-lock (Object.)
 
                     ;;;
                      ; Tracks the top of the best known chain.
@@ -1971,8 +1971,9 @@
                     #_"double" :false-positive-trend 0.0
                     #_"double" :previous-false-positive-rate 0.0
 
-                    #_"VersionTally" :version-tally (VersionTally'new ledger)
+                    #_"VersionTally" :version-tally nil
                 )]
+
             (log/info (str "chain head is at height " (:stored-height (:chain-head this)) ":\n" (:stored-header (:chain-head this))))
 
             (doseq [#_"NewBestBlockListener" l wallets]
@@ -1985,8 +1986,7 @@
                 (BlockChain''add-transaction-received-listener-3 this, Threading'SAME_THREAD, l)
             )
 
-            (VersionTally''initialize (:version-tally this), store, (:chain-head this))
-            this
+            (assoc this :version-tally (VersionTally'from-store ledger, store, (:chain-head this)))
         )
     )
 
@@ -2392,7 +2392,7 @@
                         ;; This block connects to the best known block, it is a normal continuation of the system.
                         (let [#_"TransactionOutputChanges" changes (when (BlockChain'''should-verify-transactions this) (BlockChain'''connect-transactions-3 this, (inc (:stored-height __storedPrev)), block))
                               #_"StoredBlock" __newStoredBlock (BlockChain'''add-to-block-store-4 this, __storedPrev, (if (some? (:transactions block)) (Block''clone-as-header block) block), changes)]
-                            (VersionTally''add (:version-tally this), (:version block))
+                            (§ update this :version-tally VersionTally''add (:version block))
                             (BlockChain''set-chain-head this, __newStoredBlock)
                             (log/debug (str "Chain is now " (:stored-height __newStoredBlock) " blocks high, running listeners"))
                             (BlockChain''inform-listeners-for-new-block this, block, :NewBlockType'BEST_CHAIN, __filteredTxHashList, __filteredTxn, __newStoredBlock)
@@ -7066,7 +7066,22 @@
     ;;; The string id of the testnet. ;;
     (def #_"String" Ledger'ID_TESTNET "org.bitcoin.test")
 
-    ;; TODO: Seed nodes should be here as well.
+    (defn- #_"Block" Ledger'create-genesis [#_"Ledger" param]
+        (let [#_"Transaction" tx (Transaction'new param)
+              ;; A script containing the difficulty bits and the following message: "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks".
+              #_"byte[]" bytes (.decode Utils'HEX, "04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73")]
+            (Transaction''add-input-i tx, (TransactionInput'new-unconnected param, tx, bytes))
+            (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
+                (Script'write-bytes baos, (.decode Utils'HEX, "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f"))
+                (.write baos, Script'OP_CHECKSIG)
+                (Transaction''add-output-o tx, (TransactionOutput'for-script param, tx, Coin'FIFTY_COINS, (.toByteArray baos)))
+                (let [#_"Block" genesis (Block'new-genesis param, Block'BLOCK_VERSION_GENESIS)]
+                    (Block''add-transaction-2 genesis, tx)
+                    genesis
+                )
+            )
+        )
+    )
 
     (defn #_"Ledger" Ledger'new []
         (let [this
@@ -7164,38 +7179,21 @@
                      ; to be used for "versioning", in fact they are today used to discriminate what kind of data is contained in the
                      ; address and to prevent accidentally sending coins across chains which would destroy them.
                      ;;
-                    #_"int[]" :acceptable-address-codes nil
+                    #_"int*" :acceptable-address-codes nil
                     ;;;
                      ; DNS names that when resolved, give IP addresses of active peers.
                      ;;
-                    #_"String[]" :dns-seeds nil
+                    #_"String*" :dns-seeds nil
                     ;;;
                      ; IP address of active peers.
                      ;;
-                    #_"int[]" :addr-seeds nil
+                    #_"int*" :addr-seeds nil
 
                     #_"String[]" :textual-checkpoints nil
                     #_"Map<Integer, Sha256Hash>" :checkpoints (HashMap.)
                 )]
 
             (assoc this :genesis-block (Ledger'create-genesis this))
-        )
-    )
-
-    (defn- #_"Block" Ledger'create-genesis [#_"Ledger" param]
-        (let [#_"Transaction" tx (Transaction'new param)
-              ;; A script containing the difficulty bits and the following message: "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks".
-              #_"byte[]" bytes (.decode Utils'HEX, "04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73")]
-            (Transaction''add-input-i tx, (TransactionInput'new-unconnected param, tx, bytes))
-            (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
-                (Script'write-bytes baos, (.decode Utils'HEX, "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f"))
-                (.write baos, ScriptOpCodes'OP_CHECKSIG)
-                (Transaction''add-output-o tx, (TransactionOutput'for-script param, tx, Coin'FIFTY_COINS, (.toByteArray baos)))
-                (let [#_"Block" genesis (Block'new-genesis param, Block'BLOCK_VERSION_GENESIS)]
-                    (Block''add-transaction-2 genesis, tx)
-                    genesis
-                )
-            )
         )
     )
 
@@ -11016,7 +11014,7 @@
                         )
                     )
                 )]
-            (PeerDiscovery'''shutdown (:executor this))
+            (.shutdown (:executor this))
             (:future this)
         )
     )
@@ -13449,7 +13447,7 @@
             ;; OP_CODESEPARATOR instruction having no purpose as it was only meant to be used internally, not actually
             ;; ever put into scripts.  Deleting OP_CODESEPARATOR is a step that should never be required but if we don't
             ;; do it, we could split off the main chain.
-            (let [script (Script'remove-all-instances-of-op script, ScriptOpCodes'OP_CODESEPARATOR)]
+            (let [script (Script'remove-all-instances-of-op script, Script'OP_CODESEPARATOR)]
 
                 ;; Set the input to the script of its output.  Bitcoin Core does this but the step has no obvious purpose as
                 ;; the signature covers the hash of the prevout transaction which obviously includes the output script
@@ -16306,13 +16304,13 @@
  ; different chains, an operation that is guaranteed to destroy the money.
  ;;
 (class-ns WrongNetworkException (§ extends AddressFormatException)
-    (defn #_"WrongNetworkException" WrongNetworkException'new [#_"int" code, #_"int[]" versions]
-        (merge (AddressFormatException'new (str "Version code of address did not match acceptable versions for network: " code " not in " (Arrays/toString versions)))
+    (defn #_"WrongNetworkException" WrongNetworkException'new [#_"int" code, #_"int*" versions]
+        (merge (AddressFormatException'new (str "Version code of address did not match acceptable versions for network: " code " not in " versions))
             (hash-map
                 ;;; The version code that was provided in the address. ;;
-                #_"int" :ver-code code
+                #_"int" :version-code code
                 ;;; The list of acceptable versions that were expected given the addresses network parameters. ;;
-                #_"int[]" :acceptable-versions versions
+                #_"int*" :acceptable-versions versions
             )
         )
     )
@@ -19325,9 +19323,11 @@
      ;;
     #_throws #_[ "PeerDiscoveryException" ]
     #_abstract
-    (#_"InetSocketAddress[]" PeerDiscovery'''get-peers [#_"PeerDiscovery" this, #_"long" services, #_"long" timeout, #_"TimeUnit" unit])
+    (#_"InetSocketAddress*" PeerDiscovery'''get-peers [#_"PeerDiscovery" this, #_"long" services, #_"long" timeout, #_"TimeUnit" unit])
 
-    ;;; Stops any discovery in progress when we want to shut down quickly. ;;
+    ;;;
+     ; Stops any discovery in progress when we want to shut down quickly.
+     ;;
     #_abstract
     (#_"void" PeerDiscovery'''shutdown [#_"PeerDiscovery" this])
 )
@@ -19345,18 +19345,13 @@
 
     #_throws #_[ "PeerDiscoveryException" ]
     #_override
-    (defn #_"InetSocketAddress[]" PeerDiscovery'''get-peers [#_"DnsSeedDiscovery" this, #_"long" services, #_"long" _timeout, #_"TimeUnit" _unit]
-        (when (not= services 0)
+    (defn #_"InetSocketAddress*" PeerDiscovery'''get-peers [#_"DnsSeedDiscovery" this, #_"long" services, #_"long" _timeout, #_"TimeUnit" _unit]
+        (when-not (zero? services)
             (throw+ (PeerDiscoveryException'new (str "DNS seeds cannot filter by services: " services)))
         )
-
         (try
-            (let [#_"InetAddress[]" response (InetAddress/getAllByName (:hostname this))
-                  #_"InetSocketAddress[]" result (make-array InetSocketAddress (alength response))]
-                (dotimes [#_"int" i (alength response)]
-                    (aset result i (InetSocketAddress. (aget response i), (-> this :ledger :port)))
-                )
-                result
+            (let [#_"int" port (-> this :ledger :port)]
+                (map #(InetSocketAddress. %, port) (InetAddress/getAllByName (:hostname this)))
             )
             (catch UnknownHostException e
                 (throw+ (PeerDiscoveryException'new) e)
@@ -19397,7 +19392,7 @@
      ;;
     (defn #_"DnsDiscovery" DnsDiscovery'new
         ([#_"Ledger" ledger] (DnsDiscovery'new ledger, (:dns-seeds ledger)))
-        ([#_"Ledger" ledger, #_"String[]" seeds]
+        ([#_"Ledger" ledger, #_"String*" seeds]
             (merge (MultiplexingDiscovery'new ledger, (map #(DnsSeedDiscovery'new ledger, %) seeds))
                 (hash-map)
             )
@@ -19450,26 +19445,26 @@
 
     #_throws #_[ "PeerDiscoveryException" ]
     #_override
-    (defn #_"InetSocketAddress[]" PeerDiscovery'''get-peers [#_"MultiplexingDiscovery" this, #_"long" services, #_"long" timeout, #_"TimeUnit" unit]
+    (defn #_"InetSocketAddress*" PeerDiscovery'''get-peers [#_"MultiplexingDiscovery" this, #_"long" services, #_"long" timeout, #_"TimeUnit" unit]
         (§ assoc this :v-thread-pool (MultiplexingDiscovery'''create-executor this))
         (try
-            (let [#_"List<Callable<InetSocketAddress[]>>" tasks (ArrayList.)]
+            (let [#_"List<Callable<InetSocketAddress*>>" tasks (ArrayList.)]
                 (doseq [#_"PeerDiscovery" seed (:seeds this)]
                     (.add tasks,
-                        (reify Callable #_"<InetSocketAddress[]>"
+                        (reify Callable #_"<InetSocketAddress*>"
                             #_throws #_[ "Exception" ]
                             #_foreign
                             #_override
-                            (#_"InetSocketAddress[]" call [#_"Callable" __]
+                            (#_"InetSocketAddress*" call [#_"Callable" __]
                                 (PeerDiscovery'''get-peers seed, services, timeout, unit)
                             )
                         )
                     )
                 )
-                (let [#_"List<Future<InetSocketAddress[]>>" futures (.invokeAll (:v-thread-pool this), tasks, timeout, unit)
+                (let [#_"List<Future<InetSocketAddress*>>" futures (.invokeAll (:v-thread-pool this), tasks, timeout, unit)
                       #_"List<InetSocketAddress>" addrs (ArrayList.)]
                     (dotimes [#_"int" i (.size futures)]
-                        (let [#_"Future<InetSocketAddress[]>" future (.get futures, i)]
+                        (let [#_"Future<InetSocketAddress*>" future (.get futures, i)]
                             (if (.isCancelled future)
                                 (log/warn (str "Seed " (.get (:seeds this), i) ": timed out"))
                                 (try
@@ -19485,16 +19480,15 @@
                         (throw+ (PeerDiscoveryException'new (str "No peer discovery returned any results in " (.toMillis unit, timeout) "ms.  Check internet connection?")))
                     )
 
-                    (Collections/shuffle addrs)
                     (.shutdownNow (:v-thread-pool this))
-                    (.toArray addrs, (make-array InetSocketAddress (.size addrs)))
+                    (shuffle addrs)
                 )
             )
             (catch InterruptedException e
                 (throw+ (PeerDiscoveryException'new) e)
             )
             (finally
-                (PeerDiscovery'''shutdown (:v-thread-pool this))
+                (.shutdown (:v-thread-pool this))
             )
         )
     )
@@ -19507,7 +19501,7 @@
     #_override
     (defn #_"void" PeerDiscovery'''shutdown [#_"MultiplexingDiscovery" this]
         (when-let [#_"ExecutorService" threads (:v-thread-pool this)]
-            (PeerDiscovery'''shutdown threads)
+            (.shutdown threads)
         )
         nil
     )
@@ -19531,27 +19525,49 @@
     ;;;
      ; Supports finding peers by IP addresses.
      ;
-     ; @param seedAddrs IP addresses for seed addresses.
      ; @param ledger Network parameters to be used for port information.
+     ; @param seeds IP addresses for seed addresses.
      ;;
     (defn #_"SeedPeers" SeedPeers'new
         ([#_"Ledger" ledger] (SeedPeers'new ledger, (:addr-seeds ledger)))
-
-        ([#_"Ledger" ledger, #_"int[]" addrs]
+        ([#_"Ledger" ledger, #_"int*" seeds]
             (hash-map
                 #_"Ledger" :ledger ledger
-                #_"int[]" :seed-addrs addrs
-                #_"int" :pnseed-index 0
+                #_"int*" :seeds seeds
             )
+        )
+    )
+
+    (defn- #_"InetAddress" SeedPeers'convert-address [#_"int" seed]
+        (let [#_"byte[]" a4 (byte-array 4)]
+            (aset a4 0 (byte (& 0xff seed)))
+            (aset a4 1 (byte (& 0xff (>> seed 8))))
+            (aset a4 2 (byte (& 0xff (>> seed 16))))
+            (aset a4 3 (byte (& 0xff (>> seed 24))))
+            (InetAddress/getByAddress a4)
+        )
+    )
+
+    #_throws #_[ "UnknownHostException" ]
+    #_method
+    (defn- #_"InetSocketAddress" SeedPeers''next-peer [#_"SeedPeers" this]
+        (when-let [#_"int" seed (first (:seeds this))]
+            (§ update this :seeds next)
+            (InetSocketAddress. (SeedPeers'convert-address seed), (-> this :ledger :port))
+        )
+    )
+
+    #_throws #_[ "UnknownHostException" ]
+    #_method
+    (defn- #_"InetSocketAddress*" SeedPeers''all-peers [#_"SeedPeers" this]
+        (let [#_"int" port (-> this :ledger :port)]
+            (map #(InetSocketAddress. (SeedPeers'convert-address %), port) (:seeds this))
         )
     )
 
     ;;;
      ; Acts as an iterator, returning the address of each node in the list sequentially.
      ; Once all the list has been iterated, null will be returned for each subsequent query.
-     ;
-     ; @return InetSocketAddress - the address/port of the next node.
-     ; @throws PeerDiscoveryException
      ;;
     #_throws #_[ "PeerDiscoveryException" ]
     #_method
@@ -19564,26 +19580,12 @@
         )
     )
 
-    #_throws #_[ "UnknownHostException", "PeerDiscoveryException" ]
-    #_method
-    (defn- #_"InetSocketAddress" SeedPeers''next-peer [#_"SeedPeers" this]
-        (when (or (nil? (:seed-addrs this)) (zero? (alength (:seed-addrs this))))
-            (throw+ (PeerDiscoveryException'new "No IP address seeds configured; unable to find any peers"))
-        )
-        (when (< (:pnseed-index this) (alength (:seed-addrs this)))
-            (let [#_"int" i (:pnseed-index this)]
-                (§ update this :pnseed-index inc)
-                (InetSocketAddress. (SeedPeers''convert-address this, (aget (:seed-addrs this) i)), (-> this :ledger :port))
-            )
-        )
-    )
-
     ;;;
      ; Returns an array containing all the Bitcoin nodes within the list.
      ;;
     #_throws #_[ "PeerDiscoveryException" ]
     #_override
-    (defn #_"InetSocketAddress[]" PeerDiscovery'''get-peers [#_"SeedPeers" this, #_"long" services, #_"long" _timeout, #_"TimeUnit" _unit]
+    (defn #_"InetSocketAddress*" PeerDiscovery'''get-peers [#_"SeedPeers" this, #_"long" services, #_"long" _timeout, #_"TimeUnit" _unit]
         (when-not (zero? services)
             (throw+ (PeerDiscoveryException'new (str "Pre-determined peers cannot be filtered by services: " services)))
         )
@@ -19592,29 +19594,6 @@
             (catch UnknownHostException e
                 (throw+ (PeerDiscoveryException'new) e)
             )
-        )
-    )
-
-    #_throws #_[ "UnknownHostException" ]
-    #_method
-    (defn- #_"InetSocketAddress[]" SeedPeers''all-peers [#_"SeedPeers" this]
-        (let [#_"InetSocketAddress[]" all (make-array InetSocketAddress (alength (:seed-addrs this)))]
-            (dotimes [#_"int" i (alength (:seed-addrs this))]
-                (aset all i (InetSocketAddress. (SeedPeers''convert-address this, (aget (:seed-addrs this) i)), (-> this :ledger :port)))
-            )
-            all
-        )
-    )
-
-    #_throws #_[ "UnknownHostException" ]
-    #_method
-    (defn- #_"InetAddress" SeedPeers''convert-address [#_"SeedPeers" this, #_"int" seed]
-        (let [#_"byte[]" v4addr (byte-array 4)]
-            (aset v4addr 0 (byte (& 0xff seed)))
-            (aset v4addr 1 (byte (& 0xff (>> seed 8))))
-            (aset v4addr 2 (byte (& 0xff (>> seed 16))))
-            (aset v4addr 3 (byte (& 0xff (>> seed 24))))
-            (InetAddress/getByAddress v4addr)
         )
     )
 
@@ -19634,28 +19613,84 @@
  ;;
 (class-ns MainNetParams (§ extends Ledger)
     (defn #_"MainNetParams" MainNetParams'new []
-        (let [this (Ledger'new)]
+        (let [this (Ledger'new)
 
-            (§ assoc this :interval Ledger'INTERVAL)
-            (§ assoc this :target-timespan Ledger'TARGET_TIMESPAN)
-            (§ assoc this :max-target (Utils'decode-compact-bits 0x1d00ffff))
-            (§ assoc this :address-header 0)
-            (§ assoc this :p2sh-header 5)
-            (§ assoc this :acceptable-address-codes (int-array [ (:address-header this), (:p2sh-header this) ]))
-            (§ assoc this :port 8333)
-            (§ assoc this :packet-magic 0xf9beb4d9)
-            (§ assoc this :bip32-header-pub 0x0488b21e) ;; 4 byte header that serializes in base58 to "xpub"
-            (§ assoc this :bip32-header-priv 0x0488ade4) ;; 4 byte header that serializes in base58 to "xprv"
+              this (assoc this :interval Ledger'INTERVAL)
+              this (assoc this :target-timespan Ledger'TARGET_TIMESPAN)
+              this (assoc this :max-target (Utils'decode-compact-bits 0x1d00ffff))
+              this (assoc this :address-header 0)
+              this (assoc this :p2sh-header 5)
+              this (assoc this :acceptable-address-codes [ (:address-header this), (:p2sh-header this) ])
+              this (assoc this :port 8333)
+              this (assoc this :packet-magic 0xf9beb4d9)
+              this (assoc this :bip32-header-pub 0x0488b21e) ;; 4 byte header that serializes in base58 to "xpub"
+              this (assoc this :bip32-header-priv 0x0488ade4) ;; 4 byte header that serializes in base58 to "xprv"
 
-            (§ assoc this :majority-enforce-block-upgrade 750)
-            (§ assoc this :majority-reject-block-outdated 950)
-            (§ assoc this :majority-window 1000)
+              this (assoc this :majority-enforce-block-upgrade 750)
+              this (assoc this :majority-reject-block-outdated 950)
+              this (assoc this :majority-window 1000)
 
-            (§ update this :genesis-block assoc :time-seconds 1231006505, :difficulty-target 0x1d00ffff, :nonce 2083236893)
+              this (update this :genesis-block assoc :time-seconds 1231006505, :difficulty-target 0x1d00ffff, :nonce 2083236893)
 
-            (§ assoc this :id Ledger'ID_MAINNET)
-            (§ assoc this :subsidy-decrease-block-count 210000)
-            (§ assoc this :spendable-coinbase-depth 100)
+              this (assoc this :id Ledger'ID_MAINNET)
+              this (assoc this :subsidy-decrease-block-count 210000)
+              this (assoc this :spendable-coinbase-depth 100)
+
+              this (assoc this :dns-seeds
+                [
+                    "seed.bitcoin.sipa.be",          ;; Pieter Wuille
+                    "dnsseed.bluematt.me",           ;; Matt Corallo
+                    "dnsseed.bitcoin.dashjr.org",    ;; Luke Dashjr
+                    "seed.bitcoinstats.com",         ;; Chris Decker
+                    "seed.bitnodes.io",              ;; Addy Yeow
+                    "bitseed.xf2.org",               ;; Jeff Garzik
+                    "seed.bitcoin.jonasschnelli.ch", ;; Jonas Schnelli
+                ])
+
+              this (assoc this :addr-seeds
+                [
+                    0x1ddb1032, 0x6242ce40, 0x52d6a445, 0x2dd7a445, 0x8a53cd47, 0x73263750, 0xda23c257, 0xecd4ed57,
+                    0x0a40ec59, 0x75dce160, 0x7df76791, 0x89370bad, 0xa4f214ad, 0x767700ae, 0x638b0418, 0x868a1018,
+                    0xcd9f332e, 0x0129653e, 0xcc92dc3e, 0x96671640, 0x56487e40, 0x5b66f440, 0xb1d01f41, 0xf1dc6041,
+                    0xc1d12b42, 0x86ba1243, 0x6be4df43, 0x6d4cef43, 0xd18e0644, 0x1ab0b344, 0x6584a345, 0xe7c1a445,
+                    0x58cea445, 0xc5daa445, 0x21dda445, 0x3d3b5346, 0x13e55347, 0x1080d24a, 0x8e611e4b, 0x81518e4b,
+                    0x6c839e4b, 0xe2ad0a4c, 0xfbbc0a4c, 0x7f5b6e4c, 0x7244224e, 0x1300554e, 0x20690652, 0x5a48b652,
+                    0x75c5c752, 0x4335cc54, 0x340fd154, 0x87c07455, 0x087b2b56, 0x8a133a57, 0xac23c257, 0x70374959,
+                    0xfb63d45b, 0xb9a1685c, 0x180d765c, 0x674f645d, 0x04d3495e, 0x1de44b5e, 0x4ee8a362, 0x0ded1b63,
+                    0xc1b04b6d, 0x8d921581, 0x97b7ea82, 0x1cf83a8e, 0x91490bad, 0x09dc75ae, 0x9a6d79ae, 0xa26d79ae,
+                    0x0fd08fae, 0x0f3e3fb2, 0x4f944fb2, 0xcca448b8, 0x3ecd6ab8, 0xa9d5a5bc, 0x8d0119c1, 0x045997d5,
+                    0xca019dd9, 0x0d526c4d, 0xabf1ba44, 0x66b1ab55, 0x1165f462, 0x3ed7cbad, 0xa38fae6e, 0x3bd2cbad,
+                    0xd36f0547, 0x20df7840, 0x7a337742, 0x549f8e4b, 0x9062365c, 0xd399f562, 0x2b5274a1, 0x8edfa153,
+                    0x3bffb347, 0x7074bf58, 0xb74fcbad, 0x5b5a795b, 0x02fa29ce, 0x5a6738d4, 0xe8a1d23e, 0xef98c445,
+                    0x4b0f494c, 0xa2bc1e56, 0x7694ad63, 0xa4a800c3, 0x05fda6cd, 0x9f22175e, 0x364a795b, 0x536285d5,
+                    0xac44c9d4, 0x0b06254d, 0x150c2fd4, 0x32a50dcc, 0xfd79ce48, 0xf15cfa53, 0x66c01e60, 0x6bc26661,
+                    0xc03b47ae, 0x4dda1b81, 0x3285a4c1, 0x883ca96d, 0x35d60a4c, 0xdae09744, 0x2e314d61, 0x84e247cf,
+                    0x6c814552, 0x3a1cc658, 0x98d8f382, 0xe584cb5b, 0x15e86057, 0x7b01504e, 0xd852dd48, 0x56382f56,
+                    0x0a5df454, 0xa0d18d18, 0x2e89b148, 0xa79c114c, 0xcbdcd054, 0x5523bc43, 0xa9832640, 0x8a066144,
+                    0x3894c3bc, 0xab76bf58, 0x6a018ac1, 0xfebf4f43, 0x2f26c658, 0x31102f4e, 0x85e929d5, 0x2a1c175e,
+                    0xfc6c2cd1, 0x27b04b6d, 0xdf024650, 0x161748b8, 0x28be6580, 0x57be6580, 0x1cee677a, 0xaa6bb742,
+                    0x9a53964b, 0x0a5a2d4d, 0x2434c658, 0x9a494f57, 0x1ebb0e48, 0xf610b85d, 0x077ecf44, 0x085128bc,
+                    0x5ba17a18, 0x27ca1b42, 0xf8a00b56, 0xfcd4c257, 0xcf2fc15e, 0xd897e052, 0x4cada04f, 0x2f35f6d5,
+                    0x382ce8c9, 0xe523984b, 0x3f946846, 0x60c8be43, 0x41da6257, 0xde0be142, 0xae8a544b, 0xeff0c254,
+                    0x1e0f795b, 0xaeb28890, 0xca16acd9, 0x1e47ddd8, 0x8c8c4829, 0xd27dc747, 0xd53b1663, 0x4096b163,
+                    0x9c8dd958, 0xcb12f860, 0x9e79305c, 0x40c1a445, 0x4a90c2bc, 0x2c3a464d, 0x2727f23c, 0x30b04b6d,
+                    0x59024cb8, 0xa091e6ad, 0x31b04b6d, 0xc29d46a6, 0x63934fb2, 0xd9224dbe, 0x9f5910d8, 0x7f530a6b,
+                    0x752e9c95, 0x65453548, 0xa484be46, 0xce5a1b59, 0x710e0718, 0x46a13d18, 0xdaaf5318, 0xc4a8ff53,
+                    0x87abaa52, 0xb764cf51, 0xb2025d4a, 0x6d351e41, 0xc035c33e, 0xa432c162, 0x61ef34ae, 0xd16fddbc,
+                    0x0870e8c1, 0x3070e8c1, 0x9c71e8c1, 0xa4992363, 0x85a1f663, 0x4184e559, 0x18d96ed8, 0x17b8dbd5,
+                    0x60e7cd18, 0xe5ee104c, 0xab17ac62, 0x1e786e1b, 0x5d23b762, 0xf2388fae, 0x88270360, 0x9e5b3d80,
+                    0x7da518b2, 0xb5613b45, 0x1ad41f3e, 0xd550854a, 0x8617e9a9, 0x925b229c, 0xf2e92542, 0x47af0544,
+                    0x73b5a843, 0xb9b7a0ad, 0x03a748d0, 0x0a6ff862, 0x6694df62, 0x3bfac948, 0x8e098f4f, 0x746916c3,
+                    0x02f38e4f, 0x40bb1243, 0x6a54d162, 0x6008414b, 0xa513794c, 0x514aa343, 0x63781747, 0xdbb6795b,
+                    0xed065058, 0x42d24b46, 0x1518794c, 0x9b271681, 0x73e4ffad, 0x0654784f, 0x438dc945, 0x641846a6,
+                    0x2d1b0944, 0x94b59148, 0x8d369558, 0xa5a97662, 0x8b705b42, 0xce9204ae, 0x8d584450, 0x2df61555,
+                    0xeebff943, 0x2e75fb4d, 0x3ef8fc57, 0x9921135e, 0x8e31042e, 0xb5afad43, 0x89ecedd1, 0x9cfcc047,
+                    0x8fcd0f4c, 0xbe49f5ad, 0x146a8d45, 0x98669ab8, 0x98d9175e, 0xd1a8e46d, 0x839a3ab8, 0x40a0016c,
+                    0x6d27c257, 0x977fffad, 0x7baa5d5d, 0x1213be43, 0xb167e5a9, 0x640fe8ca, 0xbc9ea655, 0x0f820a4c,
+                    0x0f097059, 0x69ac957c, 0x366d8453, 0xb1ba2844, 0x8857f081, 0x70b5be63, 0xc545454b, 0xaf36ded1,
+                    0xb5a4b052, 0x21f062d1, 0x72ab89b2, 0x74a45318, 0x8312e6bc, 0xb916965f, 0x8aa7c858, 0xfe7effad,
+                ])]
+
             (assert-state (= (Block''get-hash-as-string (:genesis-block this)) "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"))
 
             ;; This contains (at a minimum) the blocks which are not BIP30 compliant.  BIP30 changed how duplicate
@@ -19668,66 +19703,9 @@
             (.put (:checkpoints this), 91880, (Sha256Hash'wrap-hex "00000000000743f190a18c5577a3c2d2a1f610ae9601ac046a38084ccb7cd721"))
             (.put (:checkpoints this), 200000, (Sha256Hash'wrap-hex "000000000000034a7dedef4a161fa058a2d67a173a90155f3a2fe6fc132e0ebf"))
 
-            (§ assoc this :dns-seeds (into-array String
-            [
-                "seed.bitcoin.sipa.be",          ;; Pieter Wuille
-                "dnsseed.bluematt.me",           ;; Matt Corallo
-                "dnsseed.bitcoin.dashjr.org",    ;; Luke Dashjr
-                "seed.bitcoinstats.com",         ;; Chris Decker
-                "seed.bitnodes.io",              ;; Addy Yeow
-                "bitseed.xf2.org",               ;; Jeff Garzik
-                "seed.bitcoin.jonasschnelli.ch", ;; Jonas Schnelli
-            ]))
-
-            (§ assoc this :addr-seeds (int-array
-            [
-                0x1ddb1032, 0x6242ce40, 0x52d6a445, 0x2dd7a445, 0x8a53cd47, 0x73263750, 0xda23c257, 0xecd4ed57,
-                0x0a40ec59, 0x75dce160, 0x7df76791, 0x89370bad, 0xa4f214ad, 0x767700ae, 0x638b0418, 0x868a1018,
-                0xcd9f332e, 0x0129653e, 0xcc92dc3e, 0x96671640, 0x56487e40, 0x5b66f440, 0xb1d01f41, 0xf1dc6041,
-                0xc1d12b42, 0x86ba1243, 0x6be4df43, 0x6d4cef43, 0xd18e0644, 0x1ab0b344, 0x6584a345, 0xe7c1a445,
-                0x58cea445, 0xc5daa445, 0x21dda445, 0x3d3b5346, 0x13e55347, 0x1080d24a, 0x8e611e4b, 0x81518e4b,
-                0x6c839e4b, 0xe2ad0a4c, 0xfbbc0a4c, 0x7f5b6e4c, 0x7244224e, 0x1300554e, 0x20690652, 0x5a48b652,
-                0x75c5c752, 0x4335cc54, 0x340fd154, 0x87c07455, 0x087b2b56, 0x8a133a57, 0xac23c257, 0x70374959,
-                0xfb63d45b, 0xb9a1685c, 0x180d765c, 0x674f645d, 0x04d3495e, 0x1de44b5e, 0x4ee8a362, 0x0ded1b63,
-                0xc1b04b6d, 0x8d921581, 0x97b7ea82, 0x1cf83a8e, 0x91490bad, 0x09dc75ae, 0x9a6d79ae, 0xa26d79ae,
-                0x0fd08fae, 0x0f3e3fb2, 0x4f944fb2, 0xcca448b8, 0x3ecd6ab8, 0xa9d5a5bc, 0x8d0119c1, 0x045997d5,
-                0xca019dd9, 0x0d526c4d, 0xabf1ba44, 0x66b1ab55, 0x1165f462, 0x3ed7cbad, 0xa38fae6e, 0x3bd2cbad,
-                0xd36f0547, 0x20df7840, 0x7a337742, 0x549f8e4b, 0x9062365c, 0xd399f562, 0x2b5274a1, 0x8edfa153,
-                0x3bffb347, 0x7074bf58, 0xb74fcbad, 0x5b5a795b, 0x02fa29ce, 0x5a6738d4, 0xe8a1d23e, 0xef98c445,
-                0x4b0f494c, 0xa2bc1e56, 0x7694ad63, 0xa4a800c3, 0x05fda6cd, 0x9f22175e, 0x364a795b, 0x536285d5,
-                0xac44c9d4, 0x0b06254d, 0x150c2fd4, 0x32a50dcc, 0xfd79ce48, 0xf15cfa53, 0x66c01e60, 0x6bc26661,
-                0xc03b47ae, 0x4dda1b81, 0x3285a4c1, 0x883ca96d, 0x35d60a4c, 0xdae09744, 0x2e314d61, 0x84e247cf,
-                0x6c814552, 0x3a1cc658, 0x98d8f382, 0xe584cb5b, 0x15e86057, 0x7b01504e, 0xd852dd48, 0x56382f56,
-                0x0a5df454, 0xa0d18d18, 0x2e89b148, 0xa79c114c, 0xcbdcd054, 0x5523bc43, 0xa9832640, 0x8a066144,
-                0x3894c3bc, 0xab76bf58, 0x6a018ac1, 0xfebf4f43, 0x2f26c658, 0x31102f4e, 0x85e929d5, 0x2a1c175e,
-                0xfc6c2cd1, 0x27b04b6d, 0xdf024650, 0x161748b8, 0x28be6580, 0x57be6580, 0x1cee677a, 0xaa6bb742,
-                0x9a53964b, 0x0a5a2d4d, 0x2434c658, 0x9a494f57, 0x1ebb0e48, 0xf610b85d, 0x077ecf44, 0x085128bc,
-                0x5ba17a18, 0x27ca1b42, 0xf8a00b56, 0xfcd4c257, 0xcf2fc15e, 0xd897e052, 0x4cada04f, 0x2f35f6d5,
-                0x382ce8c9, 0xe523984b, 0x3f946846, 0x60c8be43, 0x41da6257, 0xde0be142, 0xae8a544b, 0xeff0c254,
-                0x1e0f795b, 0xaeb28890, 0xca16acd9, 0x1e47ddd8, 0x8c8c4829, 0xd27dc747, 0xd53b1663, 0x4096b163,
-                0x9c8dd958, 0xcb12f860, 0x9e79305c, 0x40c1a445, 0x4a90c2bc, 0x2c3a464d, 0x2727f23c, 0x30b04b6d,
-                0x59024cb8, 0xa091e6ad, 0x31b04b6d, 0xc29d46a6, 0x63934fb2, 0xd9224dbe, 0x9f5910d8, 0x7f530a6b,
-                0x752e9c95, 0x65453548, 0xa484be46, 0xce5a1b59, 0x710e0718, 0x46a13d18, 0xdaaf5318, 0xc4a8ff53,
-                0x87abaa52, 0xb764cf51, 0xb2025d4a, 0x6d351e41, 0xc035c33e, 0xa432c162, 0x61ef34ae, 0xd16fddbc,
-                0x0870e8c1, 0x3070e8c1, 0x9c71e8c1, 0xa4992363, 0x85a1f663, 0x4184e559, 0x18d96ed8, 0x17b8dbd5,
-                0x60e7cd18, 0xe5ee104c, 0xab17ac62, 0x1e786e1b, 0x5d23b762, 0xf2388fae, 0x88270360, 0x9e5b3d80,
-                0x7da518b2, 0xb5613b45, 0x1ad41f3e, 0xd550854a, 0x8617e9a9, 0x925b229c, 0xf2e92542, 0x47af0544,
-                0x73b5a843, 0xb9b7a0ad, 0x03a748d0, 0x0a6ff862, 0x6694df62, 0x3bfac948, 0x8e098f4f, 0x746916c3,
-                0x02f38e4f, 0x40bb1243, 0x6a54d162, 0x6008414b, 0xa513794c, 0x514aa343, 0x63781747, 0xdbb6795b,
-                0xed065058, 0x42d24b46, 0x1518794c, 0x9b271681, 0x73e4ffad, 0x0654784f, 0x438dc945, 0x641846a6,
-                0x2d1b0944, 0x94b59148, 0x8d369558, 0xa5a97662, 0x8b705b42, 0xce9204ae, 0x8d584450, 0x2df61555,
-                0xeebff943, 0x2e75fb4d, 0x3ef8fc57, 0x9921135e, 0x8e31042e, 0xb5afad43, 0x89ecedd1, 0x9cfcc047,
-                0x8fcd0f4c, 0xbe49f5ad, 0x146a8d45, 0x98669ab8, 0x98d9175e, 0xd1a8e46d, 0x839a3ab8, 0x40a0016c,
-                0x6d27c257, 0x977fffad, 0x7baa5d5d, 0x1213be43, 0xb167e5a9, 0x640fe8ca, 0xbc9ea655, 0x0f820a4c,
-                0x0f097059, 0x69ac957c, 0x366d8453, 0xb1ba2844, 0x8857f081, 0x70b5be63, 0xc545454b, 0xaf36ded1,
-                0xb5a4b052, 0x21f062d1, 0x72ab89b2, 0x74a45318, 0x8312e6bc, 0xb916965f, 0x8aa7c858, 0xfe7effad,
-            ]))
-
             (assoc this :textual-checkpoints MainNetParams'TEXTUAL_CHECKPOINTS)
         )
     )
-
-    (§ def- #_"MainNetParams" MainNetParams'INSTANCE (MainNetParams'new))
 
     (def #_"String[]" MainNetParams'TEXTUAL_CHECKPOINTS (into-array String
     [
@@ -19941,16 +19919,8 @@
         "AB6mfdbrgpnwJCwPAAZmAAAAACBCLsOepCYOv0JCHb+GM1fEmFLawrQEGAUAAAAAAAAAAPnen2pzKIQ99/GjckUdhUzoQxvp3eaGMNlal3NweVcOMe56V/0mBRi+cadQ",
         "ACAtxfsiGV2z0xFqAAZt4AAAACDh2VuHjAFXFHz3IpMZ8BFDKffxiHj/SwMAAAAAAAAAAGA+JCR1kdW3pIFA/zuSI+PMFCTWoRZ0YDqTbhQyQcoHwmSNV2kmBRh4+yfw",
     ]))
-)
 
-;;;
- ; Utility class that holds all the registered Ledger types used for Address auto discovery.
- ; By default only MainNetParams and TestNetParams are used.
- ;;
-#_stateless
-(class-ns Networks
-    ;;; Registered networks. ;;
-    (def- #_"Set<Ledger>" Networks'NETWORKS (ImmutableSet/of TestNetParams'INSTANCE, MainNetParams'INSTANCE))
+    (§ def- #_"MainNetParams" MainNetParams'INSTANCE (MainNetParams'new))
 )
 
 ;;;
@@ -19959,81 +19929,43 @@
  ;;
 (class-ns TestNetParams (§ extends Ledger)
     (defn #_"TestNetParams" TestNetParams'new []
-        (let [this (Ledger'new)]
+        (let [this (Ledger'new)
 
-            (§ assoc this :id Ledger'ID_TESTNET)
-            (§ assoc this :packet-magic 0x0b110907)
-            (§ assoc this :interval Ledger'INTERVAL)
-            (§ assoc this :target-timespan Ledger'TARGET_TIMESPAN)
-            (§ assoc this :max-target (Utils'decode-compact-bits 0x1d00ffff))
-            (§ assoc this :port 18333)
-            (§ assoc this :address-header 111)
-            (§ assoc this :p2sh-header 196)
-            (§ assoc this :acceptable-address-codes (int-array [ (:address-header this), (:p2sh-header this) ]))
+              this (assoc this :id Ledger'ID_TESTNET)
+              this (assoc this :packet-magic 0x0b110907)
+              this (assoc this :interval Ledger'INTERVAL)
+              this (assoc this :target-timespan Ledger'TARGET_TIMESPAN)
+              this (assoc this :max-target (Utils'decode-compact-bits 0x1d00ffff))
+              this (assoc this :port 18333)
+              this (assoc this :address-header 111)
+              this (assoc this :p2sh-header 196)
+              this (assoc this :acceptable-address-codes [ (:address-header this), (:p2sh-header this) ])
 
-            (§ update this :genesis-block assoc :time-seconds 1296688602, :difficulty-target 0x1d00ffff, :nonce 414098458)
+              this (update this :genesis-block assoc :time-seconds 1296688602, :difficulty-target 0x1d00ffff, :nonce 414098458)
 
-            (§ assoc this :spendable-coinbase-depth 100)
-            (§ assoc this :subsidy-decrease-block-count 210000)
+              this (assoc this :spendable-coinbase-depth 100)
+              this (assoc this :subsidy-decrease-block-count 210000)
+              this (assoc this :alert-signing-key (.decode Utils'HEX, "04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a"))
+
+              this (assoc this :dns-seeds
+                [
+                    "testnet-seed.bitcoin.jonasschnelli.ch", ;; Jonas Schnelli
+                    "testnet-seed.bluematt.me",              ;; Matt Corallo
+                    "testnet-seed.bitcoin.petertodd.org",    ;; Peter Todd
+                    "testnet-seed.bitcoin.schildbach.de",    ;; Andreas Schildbach
+                ])
+              this (assoc this :addr-seeds nil)
+              this (assoc this :bip32-header-pub 0x043587cf)
+              this (assoc this :bip32-header-priv 0x04358394)
+
+              this (assoc this :majority-enforce-block-upgrade 51)
+              this (assoc this :majority-reject-block-outdated 75)
+              this (assoc this :majority-window 100)]
+
             (assert-state (= (Block''get-hash-as-string (:genesis-block this)) "000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"))
-            (§ assoc this :alert-signing-key (.decode Utils'HEX, "04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a"))
-
-            (§ assoc this :dns-seeds (into-array String
-            [
-                "testnet-seed.bitcoin.jonasschnelli.ch", ;; Jonas Schnelli
-                "testnet-seed.bluematt.me",              ;; Matt Corallo
-                "testnet-seed.bitcoin.petertodd.org",    ;; Peter Todd
-                "testnet-seed.bitcoin.schildbach.de",    ;; Andreas Schildbach
-            ]))
-            (§ assoc this :addr-seeds nil)
-            (§ assoc this :bip32-header-pub 0x043587cf)
-            (§ assoc this :bip32-header-priv 0x04358394)
-
-            (§ assoc this :majority-enforce-block-upgrade 51)
-            (§ assoc this :majority-reject-block-outdated 75)
-            (§ assoc this :majority-window 100)
 
             (assoc this :textual-checkpoints TestNetParams'TEXTUAL_CHECKPOINTS)
         )
-    )
-
-    (§ def- #_"TestNetParams" TestNetParams'INSTANCE (TestNetParams'new))
-
-    (def- #_"Date" TestNetParams'TESTNET_DIFF_DATE (Date. 1329264000000)) ;; February 16th 2012
-
-    #_throws #_[ "VerificationException", "BlockStoreException" ]
-    #_override
-    (defn #_"void" Ledger'''check-difficulty-transitions [#_"TestNetParams" this, #_"StoredBlock" __storedPrev, #_"Block" __nextBlock, #_"BlockStore" store]
-        (let [#_"boolean" transition? (Ledger''is-difficulty-transition-point this, (:stored-height __storedPrev))]
-            (if (and (not transition?) (.after (Date. (* (:time-seconds __nextBlock) 1000)), TestNetParams'TESTNET_DIFF_DATE))
-                ;; After 15th February 2012 the rules on the testnet change to avoid people running up the difficulty
-                ;; and then leaving, making it too hard to mine a block.  On non-difficulty transition points, easy
-                ;; blocks are allowed if there has been a span of 20 minutes without one.
-                (let [#_"long" delta (- (:time-seconds __nextBlock) (:time-seconds (:stored-header __storedPrev)))]
-                    ;; There is an integer underflow bug in bitcoin-qt that means mindiff blocks are accepted when time
-                    ;; goes backwards.
-                    (when (<= 0 delta (* 2 Ledger'TARGET_SPACING))
-                        ;; Walk backwards until we find a block that doesn't have the easiest proof of work, then check
-                        ;; that difficulty is equal to that one.
-                        (let [#_"StoredBlock" cursor
-                                (loop-when-recur [cursor __storedPrev]
-                                                 (and (not (.equals (:stored-header cursor), (:genesis-block this)))
-                                                      (not (zero? (rem (:stored-height cursor) (:interval this))))
-                                                      (.equals (Block''get-difficulty-target-as-integer (:stored-header cursor)), (:max-target this)))
-                                                 [(StoredBlock''get-prev cursor, store)]
-                                              => cursor)
-                              #_"BigInteger" __cursorTarget (Block''get-difficulty-target-as-integer (:stored-header cursor))
-                              #_"BigInteger" __newTarget (Block''get-difficulty-target-as-integer __nextBlock)]
-                            (when-not (.equals __cursorTarget, __newTarget)
-                                (throw+ (VerificationException'new (str "Testnet block transition that is not allowed: " (Long/toHexString (:difficulty-target (:stored-header cursor))) " vs " (Long/toHexString (:difficulty-target __nextBlock)))))
-                            )
-                        )
-                    )
-                )
-                (Ledger'''check-difficulty-transitions (§ this super), __storedPrev, __nextBlock, store)
-            )
-        )
-        nil
     )
 
     (def #_"String[]" TestNetParams'TEXTUAL_CHECKPOINTS (into-array String
@@ -20488,14 +20420,61 @@
         "AAAADrk8NriDDuZHAA3IAAAAADCZH856VE1BGiD12cdt4NmjE9RDCGLxabi6vgoAAAAAAPie4AXBNxLSCyYCCt7ErCHHsQkzlYXi8FSQ+zf6/LB1n7yZV/D/DxzPVkWm",
         "AAAADrk8tOkBP2R3AA3P4AAAADBllXxbXovWrc28z6uOnfRyI70usegvXPDaCwsAAAAAAKzAOx7IjWpUiBEpyBDDI71RFAQr5NDEXzYN7YY0KDEbusaZV/z/AxyKY55a",
     ]))
+
+    (def- #_"Date" TestNetParams'TESTNET_DIFF_DATE (Date. 1329264000000)) ;; February 16th 2012
+
+    #_throws #_[ "VerificationException", "BlockStoreException" ]
+    #_override
+    (defn #_"void" Ledger'''check-difficulty-transitions [#_"TestNetParams" this, #_"StoredBlock" __storedPrev, #_"Block" __nextBlock, #_"BlockStore" store]
+        (let [#_"boolean" transition? (Ledger''is-difficulty-transition-point this, (:stored-height __storedPrev))]
+            (if (and (not transition?) (.after (Date. (* (:time-seconds __nextBlock) 1000)), TestNetParams'TESTNET_DIFF_DATE))
+                ;; After 15th February 2012 the rules on the testnet change to avoid people running up the difficulty
+                ;; and then leaving, making it too hard to mine a block.  On non-difficulty transition points, easy
+                ;; blocks are allowed if there has been a span of 20 minutes without one.
+                (let [#_"long" delta (- (:time-seconds __nextBlock) (:time-seconds (:stored-header __storedPrev)))]
+                    ;; There is an integer underflow bug in bitcoin-qt that means mindiff blocks are accepted when time
+                    ;; goes backwards.
+                    (when (<= 0 delta (* 2 Ledger'TARGET_SPACING))
+                        ;; Walk backwards until we find a block that doesn't have the easiest proof of work, then check
+                        ;; that difficulty is equal to that one.
+                        (let [#_"StoredBlock" cursor
+                                (loop-when-recur [cursor __storedPrev]
+                                                 (and (not (.equals (:stored-header cursor), (:genesis-block this)))
+                                                      (not (zero? (rem (:stored-height cursor) (:interval this))))
+                                                      (.equals (Block''get-difficulty-target-as-integer (:stored-header cursor)), (:max-target this)))
+                                                 [(StoredBlock''get-prev cursor, store)]
+                                              => cursor)
+                              #_"BigInteger" __cursorTarget (Block''get-difficulty-target-as-integer (:stored-header cursor))
+                              #_"BigInteger" __newTarget (Block''get-difficulty-target-as-integer __nextBlock)]
+                            (when-not (.equals __cursorTarget, __newTarget)
+                                (throw+ (VerificationException'new (str "Testnet block transition that is not allowed: " (Long/toHexString (:difficulty-target (:stored-header cursor))) " vs " (Long/toHexString (:difficulty-target __nextBlock)))))
+                            )
+                        )
+                    )
+                )
+                (Ledger'''check-difficulty-transitions (§ this super), __storedPrev, __nextBlock, store)
+            )
+        )
+        nil
+    )
+
+    (§ def- #_"TestNetParams" TestNetParams'INSTANCE (TestNetParams'new))
+)
+
+;;;
+ ; Utility class that holds all the registered Ledger types used for Address auto discovery.
+ ; By default only MainNetParams and TestNetParams are used.
+ ;;
+#_stateless
+(class-ns Networks
+    ;;; Registered networks. ;;
+    (def- #_"Set<Ledger>" Networks'NETWORKS (ImmutableSet/of TestNetParams'INSTANCE, MainNetParams'INSTANCE))
 )
 
 (§ ns bitclojn.script
     (:refer-clojure :exclude [ensure sync])
     (:use [bitclojn slang])
 )
-
-;; TODO: Redesign this entire API to be more type safe and organised.
 
 ;;;
  ; Enumeration to encapsulate the type of this script.
@@ -20563,7 +20542,7 @@
      ;;
     #_method
     (defn #_"boolean" ScriptChunk''is-op-code [#_"ScriptChunk" this]
-        (< ScriptOpCodes'OP_PUSHDATA4 (:opcode this))
+        (< Script'OP_PUSHDATA4 (:opcode this))
     )
 
     ;;;
@@ -20571,7 +20550,7 @@
      ;;
     #_method
     (defn #_"boolean" ScriptChunk''is-push-data [#_"ScriptChunk" this]
-        (<= (:opcode this) ScriptOpCodes'OP_16)
+        (<= (:opcode this) Script'OP_16)
     )
 
     #_method
@@ -20600,24 +20579,24 @@
             (let [op (:opcode this) al (alength (:data this))]
                 (cond
                     (= al 0)
-                        (= op ScriptOpCodes'OP_0)
+                        (= op Script'OP_0)
                     (= al 1)
                         (let [#_"byte" b (aget (:data this) 0)]
                             (cond
-                                (<= 0x01 b 0x10) (= op (dec (+ ScriptOpCodes'OP_1 b)))
-                                (= (& b 0xff) 0x81) (= op ScriptOpCodes'OP_1NEGATE)
+                                (<= 0x01 b 0x10) (= op (dec (+ Script'OP_1 b)))
+                                (= (& b 0xff) 0x81) (= op Script'OP_1NEGATE)
                                 :else false
                             )
                         )
-                    (< al ScriptOpCodes'OP_PUSHDATA1)
+                    (< al Script'OP_PUSHDATA1)
                         (= op al)
                     (< al 256)
-                        (= op ScriptOpCodes'OP_PUSHDATA1)
+                        (= op Script'OP_PUSHDATA1)
                     (< al 65536)
-                        (= op ScriptOpCodes'OP_PUSHDATA2)
+                        (= op Script'OP_PUSHDATA2)
                     :else
                         ;; Can never be used, but implemented for completeness.
-                        (= op ScriptOpCodes'OP_PUSHDATA4)
+                        (= op Script'OP_PUSHDATA4)
                 )
             )
         )
@@ -20632,28 +20611,28 @@
             )
             (some? (:data this))
             (do
-                (cond (< (:opcode this) ScriptOpCodes'OP_PUSHDATA1)
+                (cond (< (:opcode this) Script'OP_PUSHDATA1)
                     (do
                         (assert-state (= (alength (:data this)) (:opcode this)))
                         (.write baos, (:opcode this))
                     )
-                    (= (:opcode this) ScriptOpCodes'OP_PUSHDATA1)
+                    (= (:opcode this) Script'OP_PUSHDATA1)
                     (do
                         (assert-state (<= (alength (:data this)) 0xff))
-                        (.write baos, ScriptOpCodes'OP_PUSHDATA1)
+                        (.write baos, Script'OP_PUSHDATA1)
                         (.write baos, (alength (:data this)))
                     )
-                    (= (:opcode this) ScriptOpCodes'OP_PUSHDATA2)
+                    (= (:opcode this) Script'OP_PUSHDATA2)
                     (do
                         (assert-state (<= (alength (:data this)) 0xffff))
-                        (.write baos, ScriptOpCodes'OP_PUSHDATA2)
+                        (.write baos, Script'OP_PUSHDATA2)
                         (.write baos, (& 0xff (alength (:data this))))
                         (.write baos, (& 0xff (>> (alength (:data this)) 8)))
                     )
-                    (= (:opcode this) ScriptOpCodes'OP_PUSHDATA4)
+                    (= (:opcode this) Script'OP_PUSHDATA4)
                     (do
                         (assert-state (<= (alength (:data this)) Script'MAX_SCRIPT_ELEMENT_SIZE))
-                        (.write baos, ScriptOpCodes'OP_PUSHDATA4)
+                        (.write baos, Script'OP_PUSHDATA4)
                         (Wire'write-uint32 (alength (:data this)), baos)
                     )
                     :else
@@ -20799,19 +20778,19 @@
                 (let [#_"int" start (- __initialSize (.available bais))
                       #_"int" opcode (.read bais)
                       #_"long" n
-                        (cond (< -1 opcode ScriptOpCodes'OP_PUSHDATA1)
+                        (cond (< -1 opcode Script'OP_PUSHDATA1)
                             (do
                                 ;; Read some bytes of data, where how many is the opcode value itself.
                                 opcode
                             )
-                            (= opcode ScriptOpCodes'OP_PUSHDATA1)
+                            (= opcode Script'OP_PUSHDATA1)
                             (do
                                 (when (< (.available bais) 1)
                                     (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Unexpected end of script"))
                                 )
                                 (.read bais)
                             )
-                            (= opcode ScriptOpCodes'OP_PUSHDATA2)
+                            (= opcode Script'OP_PUSHDATA2)
                             (do
                                 ;; Read a short, then read that many bytes of data.
                                 (when (< (.available bais) 2)
@@ -20819,7 +20798,7 @@
                                 )
                                 (| (.read bais) (<< (.read bais) 8))
                             )
-                            (= opcode ScriptOpCodes'OP_PUSHDATA4)
+                            (= opcode Script'OP_PUSHDATA4)
                             (do
                                 ;; Read a uint32, then read that many bytes of data.
                                 ;; Though this is allowed, because its value cannot be > 520, it should never actually be used.
@@ -20856,7 +20835,7 @@
     #_method
     (defn #_"boolean" Script''is-sent-to-raw-pub-key [#_"Script" this]
         (and (= (.size (:chunks this)) 2)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 1), ScriptOpCodes'OP_CHECKSIG)
+             (ScriptChunk''equals-op-code (.get (:chunks this), 1), Script'OP_CHECKSIG)
              (not (ScriptChunk''is-op-code (.get (:chunks this), 0)))
              (< 1 (alength (:data (.get (:chunks this), 0)))))
     )
@@ -20870,11 +20849,11 @@
     #_method
     (defn #_"boolean" Script''is-sent-to-address [#_"Script" this]
         (and (= (.size (:chunks this)) 5)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 0), ScriptOpCodes'OP_DUP)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 1), ScriptOpCodes'OP_HASH160)
+             (ScriptChunk''equals-op-code (.get (:chunks this), 0), Script'OP_DUP)
+             (ScriptChunk''equals-op-code (.get (:chunks this), 1), Script'OP_HASH160)
              (= (alength (:data (.get (:chunks this), 2))) Address'LENGTH)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 3), ScriptOpCodes'OP_EQUALVERIFY)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 4), ScriptOpCodes'OP_CHECKSIG))
+             (ScriptChunk''equals-op-code (.get (:chunks this), 3), Script'OP_EQUALVERIFY)
+             (ScriptChunk''equals-op-code (.get (:chunks this), 4), Script'OP_CHECKSIG))
     )
 
     ;;;
@@ -20920,7 +20899,7 @@
                 ;; If we have two large constants assume the input to a pay-to-address output.
                 (and (some? data0) (< 2 (alength data0)) (some? data1) (< 2 (alength data1))) data1
                 ;; A large constant followed by an OP_CHECKSIG is the key.
-                (and (ScriptChunk''equals-op-code chunk1, ScriptOpCodes'OP_CHECKSIG) (some? data0) (< 2 (alength data0))) data0
+                (and (ScriptChunk''equals-op-code chunk1, Script'OP_CHECKSIG) (some? data0) (< 2 (alength data0))) data0
                 :else (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script did not match expected form: " this)))
             )
         )
@@ -21007,20 +20986,20 @@
     (defn #_"void" Script'write-bytes [#_"ByteArrayOutputStream" baos, #_"byte[]" bytes]
         (let [#_"int" n (alength bytes)]
             (cond
-                (< n ScriptOpCodes'OP_PUSHDATA1)
+                (< n Script'OP_PUSHDATA1)
                 (do
                     (.write baos, n)
                     (.write baos, bytes)
                 )
                 (< n 256)
                 (do
-                    (.write baos, ScriptOpCodes'OP_PUSHDATA1)
+                    (.write baos, Script'OP_PUSHDATA1)
                     (.write baos, n)
                     (.write baos, bytes)
                 )
                 (< n 65536)
                 (do
-                    (.write baos, ScriptOpCodes'OP_PUSHDATA2)
+                    (.write baos, Script'OP_PUSHDATA2)
                     (.write baos, (& 0xff n))
                     (.write baos, (& 0xff (>> n 8)))
                     (.write baos, bytes)
@@ -21048,7 +21027,7 @@
                 (Script'write-bytes baos, (ECKey''get-pub-key key))
             )
             (.write baos, (Script'encode-to-op-n (.size pubkeys)))
-            (.write baos, ScriptOpCodes'OP_CHECKMULTISIG)
+            (.write baos, Script'OP_CHECKMULTISIG)
             (.toByteArray baos)
         )
     )
@@ -21124,7 +21103,7 @@
               #_"int" m (Script''find-key-in-redeem redeem, key)]
             (loop-when [#_"int" i 0 #_"List<ScriptChunk>" chunks (.subList (:chunks this), 1, n)] (seq chunks) => i
                 (let [#_"ScriptChunk" chunk (first chunks)]
-                    (when' (not= (:opcode chunk) ScriptOpCodes'OP_0) => (recur i (next chunks))
+                    (when' (not= (:opcode chunk) Script'OP_0) => (recur i (next chunks))
                         (if (< m (Script''find-sig-in-redeem redeem, (ensure some? (:data chunk)), hash))
                             i
                             (recur (inc i) (next chunks))
@@ -21186,16 +21165,16 @@
 
     #_throws #_[ "ScriptException" ]
     (defn- #_"int" Script'get-sig-op-count-2 [#_"List<ScriptChunk>" chunks, #_"boolean" accurate?]
-        (loop-when [#_"int" ops 0 #_"int" prior ScriptOpCodes'OP_INVALIDOPCODE chunks chunks] (seq chunks) => ops
+        (loop-when [#_"int" ops 0 #_"int" prior Script'OP_INVALIDOPCODE chunks chunks] (seq chunks) => ops
             (let [#_"ScriptChunk" chunk (first chunks)
                   [ops prior]
                     (when' (ScriptChunk''is-op-code chunk) => [ops prior]
                         (let [ops
                                 (condp =? (:opcode chunk)
-                                    [ScriptOpCodes'OP_CHECKSIG ScriptOpCodes'OP_CHECKSIGVERIFY]
+                                    [Script'OP_CHECKSIG Script'OP_CHECKSIGVERIFY]
                                         (inc ops)
-                                    [ScriptOpCodes'OP_CHECKMULTISIG ScriptOpCodes'OP_CHECKMULTISIGVERIFY]
-                                        (if (and accurate? (<= ScriptOpCodes'OP_1 prior ScriptOpCodes'OP_16))
+                                    [Script'OP_CHECKMULTISIG Script'OP_CHECKMULTISIGVERIFY]
+                                        (if (and accurate? (<= Script'OP_1 prior Script'OP_16))
                                             (+ ops (Script'decode-from-op-n prior))
                                             (+ ops 20)
                                         )
@@ -21210,13 +21189,13 @@
     )
 
     (defn #_"int" Script'decode-from-op-n [#_"int" opcode]
-        (assert-argument (or (= opcode ScriptOpCodes'OP_0) (= opcode ScriptOpCodes'OP_1NEGATE) (<= ScriptOpCodes'OP_1 opcode ScriptOpCodes'OP_16)), "decodeFromOpN called on non OP_N opcode")
-        (condp = opcode ScriptOpCodes'OP_0 0 ScriptOpCodes'OP_1NEGATE -1 (- (inc opcode) ScriptOpCodes'OP_1))
+        (assert-argument (or (= opcode Script'OP_0) (= opcode Script'OP_1NEGATE) (<= Script'OP_1 opcode Script'OP_16)), "decodeFromOpN called on non OP_N opcode")
+        (condp = opcode Script'OP_0 0 Script'OP_1NEGATE -1 (- (inc opcode) Script'OP_1))
     )
 
     (defn #_"int" Script'encode-to-op-n [#_"int" value]
         (assert-argument (<= -1 value 16), (str "encodeToOpN called for " value " which we cannot encode in an opcode"))
-        (condp = value 0 ScriptOpCodes'OP_0 -1 ScriptOpCodes'OP_1NEGATE (+ (dec value) ScriptOpCodes'OP_1))
+        (condp = value 0 Script'OP_0 -1 Script'OP_1NEGATE (+ (dec value) Script'OP_1))
     )
 
     ;;;
@@ -21328,9 +21307,9 @@
         ;; printed out but one is a P2SH script and the other isn't! :( ;; )
         (let [#_"byte[]" prog (Script''get-program this)]
             (and (= (alength prog) 23)
-                 (= (& 0xff (aget prog 0)) ScriptOpCodes'OP_HASH160)
+                 (= (& 0xff (aget prog 0)) Script'OP_HASH160)
                  (= (& 0xff (aget prog 1)) 0x14)
-                 (= (& 0xff (aget prog 22)) ScriptOpCodes'OP_EQUAL))
+                 (= (& 0xff (aget prog 22)) Script'OP_EQUAL))
         )
     )
 
@@ -21344,8 +21323,8 @@
                 (let [#_"ScriptChunk" c1 (.get chunks, (dec m))]
                     ;; Must end in OP_CHECKMULTISIG[VERIFY].
                     (and (ScriptChunk''is-op-code c1)
-                        (or (ScriptChunk''equals-op-code c1, ScriptOpCodes'OP_CHECKMULTISIG)
-                            (ScriptChunk''equals-op-code c1, ScriptOpCodes'OP_CHECKMULTISIGVERIFY))
+                        (or (ScriptChunk''equals-op-code c1, Script'OP_CHECKMULTISIG)
+                            (ScriptChunk''equals-op-code c1, Script'OP_CHECKMULTISIGVERIFY))
                         (try
                             ;; Second to last chunk must be an OP_N opcode and there should be that many data chunks (keys).
                             (let [#_"ScriptChunk" c2 (.get chunks, (- m 2))]
@@ -21381,13 +21360,13 @@
         ;; chunk[4] = locktime
         ;; chunk[8] = sender pubkey
         (and (= (.size (:chunks this)) 10)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 0), ScriptOpCodes'OP_IF)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 2), ScriptOpCodes'OP_CHECKSIGVERIFY)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 3), ScriptOpCodes'OP_ELSE)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 5), ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 6), ScriptOpCodes'OP_DROP)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 7), ScriptOpCodes'OP_ENDIF)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 9), ScriptOpCodes'OP_CHECKSIG))
+             (ScriptChunk''equals-op-code (.get (:chunks this), 0), Script'OP_IF)
+             (ScriptChunk''equals-op-code (.get (:chunks this), 2), Script'OP_CHECKSIGVERIFY)
+             (ScriptChunk''equals-op-code (.get (:chunks this), 3), Script'OP_ELSE)
+             (ScriptChunk''equals-op-code (.get (:chunks this), 5), Script'OP_CHECKLOCKTIMEVERIFY)
+             (ScriptChunk''equals-op-code (.get (:chunks this), 6), Script'OP_DROP)
+             (ScriptChunk''equals-op-code (.get (:chunks this), 7), Script'OP_ENDIF)
+             (ScriptChunk''equals-op-code (.get (:chunks this), 9), Script'OP_CHECKSIG))
     )
 
     (defn- #_"boolean" Script'equals-range [#_"byte[]" a, #_"int" start, #_"byte[]" b]
@@ -21409,14 +21388,14 @@
                       #_"int" opcode (& 0xff (aget script i)) i (inc i)
                       #_"int" m
                         (cond
-                            (<= 0 opcode (dec ScriptOpCodes'OP_PUSHDATA1))
+                            (<= 0 opcode (dec Script'OP_PUSHDATA1))
                                 opcode
-                            (= opcode ScriptOpCodes'OP_PUSHDATA1)
+                            (= opcode Script'OP_PUSHDATA1)
                                 (inc (& 0xff (aget script i)))
-                            (= opcode ScriptOpCodes'OP_PUSHDATA2)
+                            (= opcode Script'OP_PUSHDATA2)
                                 (+ (| (& 0xff (aget script i))
                                   (<< (& 0xff (aget script (inc i))) 8)) 2)
-                            (= opcode ScriptOpCodes'OP_PUSHDATA4)
+                            (= opcode Script'OP_PUSHDATA4)
                                 (+ (| (& 0xff (aget script i))
                                   (<< (& 0xff (aget script (inc i))) 8)
                                   (<< (& 0xff (aget script (inc i))) 16)
@@ -21495,7 +21474,7 @@
 
     #_method
     (defn #_"boolean" Script''is-op-return [#_"Script" this]
-        (and (pos? (.size (:chunks this))) (ScriptChunk''equals-op-code (.get (:chunks this), 0), ScriptOpCodes'OP_RETURN))
+        (and (pos? (.size (:chunks this))) (ScriptChunk''equals-op-code (.get (:chunks this), 0), Script'OP_RETURN))
     )
 
     ;;;
@@ -21519,7 +21498,7 @@
                     (let [#_"int" opcode (:opcode chunk)
                           __opCount
                             ;; Note how OP_RESERVED does not count towards the opcode limit.
-                            (when' (< ScriptOpCodes'OP_16 opcode) => __opCount
+                            (when' (< Script'OP_16 opcode) => __opCount
                                 (when-not (< __opCount Script'MAX_OPS_PER_SCRIPT)
                                     (throw+ (ScriptException'new :ScriptError'OP_COUNT, "More script operations than is allowed"))
                                 )
@@ -21527,24 +21506,24 @@
                             )]
 
                         ;; Disabled opcodes.
-                        (when (any = opcode ScriptOpCodes'OP_CAT ScriptOpCodes'OP_SUBSTR ScriptOpCodes'OP_LEFT ScriptOpCodes'OP_RIGHT ScriptOpCodes'OP_INVERT ScriptOpCodes'OP_AND ScriptOpCodes'OP_OR ScriptOpCodes'OP_XOR ScriptOpCodes'OP_2MUL ScriptOpCodes'OP_2DIV ScriptOpCodes'OP_MUL ScriptOpCodes'OP_DIV ScriptOpCodes'OP_MOD ScriptOpCodes'OP_LSHIFT ScriptOpCodes'OP_RSHIFT)
+                        (when (any = opcode Script'OP_CAT Script'OP_SUBSTR Script'OP_LEFT Script'OP_RIGHT Script'OP_INVERT Script'OP_AND Script'OP_OR Script'OP_XOR Script'OP_2MUL Script'OP_2DIV Script'OP_MUL Script'OP_DIV Script'OP_MOD Script'OP_LSHIFT Script'OP_RSHIFT)
                             (throw+ (ScriptException'new :ScriptError'DISABLED_OPCODE, "Script included a disabled Script Op."))
                         )
 
                         (let [#_"boolean" exec? (not (.contains ifstack, false))
-                              _ (cond (and exec? (<= ScriptOpCodes'OP_0 opcode ScriptOpCodes'OP_PUSHDATA4))
+                              _ (cond (and exec? (<= Script'OP_0 opcode Script'OP_PUSHDATA4))
                                     (do
                                         ;; Check minimal push.
                                         (when (and (.contains flags, :ScriptVerifyFlag'MINIMALDATA) (not (ScriptChunk''is-shortest-possible-push-data chunk)))
                                             (throw+ (ScriptException'new :ScriptError'MINIMALDATA, "Script included a not minimal push operation."))
                                         )
-                                        (.add stack, (if (= opcode ScriptOpCodes'OP_0) (byte-array 0) (:data chunk)))
+                                        (.add stack, (if (= opcode Script'OP_0) (byte-array 0) (:data chunk)))
                                         nil
                                     )
-                                    (or exec? (<= ScriptOpCodes'OP_IF opcode ScriptOpCodes'OP_ENDIF))
+                                    (or exec? (<= Script'OP_IF opcode Script'OP_ENDIF))
                                     (do
                                         (condp =? opcode
-                                            ScriptOpCodes'OP_IF
+                                            Script'OP_IF
                                                 (do
                                                     (when' exec? => (.add ifstack, false)
                                                         (when (< (.size stack) 1)
@@ -21554,7 +21533,7 @@
                                                     )
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_NOTIF
+                                            Script'OP_NOTIF
                                                 (do
                                                     (when' exec? => (.add ifstack, false)
                                                         (when (< (.size stack) 1)
@@ -21564,7 +21543,7 @@
                                                     )
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_ELSE
+                                            Script'OP_ELSE
                                                 (do
                                                     (when (empty? ifstack)
                                                         (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_ELSE without OP_IF/NOTIF"))
@@ -21572,7 +21551,7 @@
                                                     (.add ifstack, (not (.pollLast ifstack)))
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_ENDIF
+                                            Script'OP_ENDIF
                                                 (do
                                                     (when (empty? ifstack)
                                                         (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_ENDIF without OP_IF/NOTIF"))
@@ -21582,38 +21561,38 @@
                                                 )
 
                                             ;; OP_0 is no opcode
-                                            ScriptOpCodes'OP_1NEGATE
+                                            Script'OP_1NEGATE
                                                 (do
                                                     (.add stack, (Wire'reverse-bytes (Wire'encode-mpi (.negate BigInteger/ONE), false)))
                                                     nil
                                                 )
-                                           [ScriptOpCodes'OP_1
-                                            ScriptOpCodes'OP_2
-                                            ScriptOpCodes'OP_3
-                                            ScriptOpCodes'OP_4
-                                            ScriptOpCodes'OP_5
-                                            ScriptOpCodes'OP_6
-                                            ScriptOpCodes'OP_7
-                                            ScriptOpCodes'OP_8
-                                            ScriptOpCodes'OP_9
-                                            ScriptOpCodes'OP_10
-                                            ScriptOpCodes'OP_11
-                                            ScriptOpCodes'OP_12
-                                            ScriptOpCodes'OP_13
-                                            ScriptOpCodes'OP_14
-                                            ScriptOpCodes'OP_15
-                                            ScriptOpCodes'OP_16]
+                                           [Script'OP_1
+                                            Script'OP_2
+                                            Script'OP_3
+                                            Script'OP_4
+                                            Script'OP_5
+                                            Script'OP_6
+                                            Script'OP_7
+                                            Script'OP_8
+                                            Script'OP_9
+                                            Script'OP_10
+                                            Script'OP_11
+                                            Script'OP_12
+                                            Script'OP_13
+                                            Script'OP_14
+                                            Script'OP_15
+                                            Script'OP_16]
                                                 (do
                                                     (.add stack, (Wire'reverse-bytes (Wire'encode-mpi (BigInteger/valueOf (Script'decode-from-op-n opcode)), false)))
                                                     nil
                                                 )
 
-                                            ScriptOpCodes'OP_NOP
+                                            Script'OP_NOP
                                                 (do
                                                     nil
                                                 )
 
-                                            ScriptOpCodes'OP_VERIFY
+                                            Script'OP_VERIFY
                                                 (do
                                                     (when (< (.size stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_VERIFY on an empty stack"))
@@ -21624,10 +21603,10 @@
                                                     nil
                                                 )
 
-                                            ScriptOpCodes'OP_RETURN
+                                            Script'OP_RETURN
                                                 (throw+ (ScriptException'new :ScriptError'OP_RETURN, "Script called OP_RETURN"))
 
-                                            ScriptOpCodes'OP_TOALTSTACK
+                                            Script'OP_TOALTSTACK
                                                 (do
                                                     (when (< (.size stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_TOALTSTACK on an empty stack"))
@@ -21635,7 +21614,7 @@
                                                     (.add altstack, (.pollLast stack))
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_FROMALTSTACK
+                                            Script'OP_FROMALTSTACK
                                                 (do
                                                     (when (< (.size altstack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_ALTSTACK_OPERATION, "Attempted OP_FROMALTSTACK on an empty altstack"))
@@ -21644,7 +21623,7 @@
                                                     nil
                                                 )
 
-                                            ScriptOpCodes'OP_2DROP
+                                            Script'OP_2DROP
                                                 (do
                                                     (when (< (.size stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2DROP on a stack with size < 2"))
@@ -21653,7 +21632,7 @@
                                                     (.pollLast stack)
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_2DUP
+                                            Script'OP_2DUP
                                                 (do
                                                     (when (< (.size stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2DUP on a stack with size < 2"))
@@ -21664,7 +21643,7 @@
                                                     )
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_3DUP
+                                            Script'OP_3DUP
                                                 (do
                                                     (when (< (.size stack) 3)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_3DUP on a stack with size < 3"))
@@ -21676,7 +21655,7 @@
                                                     )
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_2OVER
+                                            Script'OP_2OVER
                                                 (do
                                                     (when (< (.size stack) 4)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2OVER on a stack with size < 4"))
@@ -21691,7 +21670,7 @@
                                                     )
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_2ROT
+                                            Script'OP_2ROT
                                                 (do
                                                     (when (< (.size stack) 6)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2ROT on a stack with size < 6"))
@@ -21711,7 +21690,7 @@
                                                     )
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_2SWAP
+                                            Script'OP_2SWAP
                                                 (do
                                                     (when (< (.size stack) 4)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2SWAP on a stack with size < 4"))
@@ -21728,7 +21707,7 @@
                                                     nil
                                                 )
 
-                                            ScriptOpCodes'OP_IFDUP
+                                            Script'OP_IFDUP
                                                 (do
                                                     (when (< (.size stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_IFDUP on an empty stack"))
@@ -21739,13 +21718,13 @@
                                                     nil
                                                 )
 
-                                            ScriptOpCodes'OP_DEPTH
+                                            Script'OP_DEPTH
                                                 (do
                                                     (.add stack, (Wire'reverse-bytes (Wire'encode-mpi (BigInteger/valueOf (.size stack)), false)))
                                                     nil
                                                 )
 
-                                            ScriptOpCodes'OP_DROP
+                                            Script'OP_DROP
                                                 (do
                                                     (when (< (.size stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_DROP on an empty stack"))
@@ -21753,7 +21732,7 @@
                                                     (.pollLast stack)
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_DUP
+                                            Script'OP_DUP
                                                 (do
                                                     (when (< (.size stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_DUP on an empty stack"))
@@ -21761,7 +21740,7 @@
                                                     (.add stack, (.getLast stack))
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_NIP
+                                            Script'OP_NIP
                                                 (do
                                                     (when (< (.size stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_NIP on a stack with size < 2"))
@@ -21772,7 +21751,7 @@
                                                     )
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_OVER
+                                            Script'OP_OVER
                                                 (do
                                                     (when (< (.size stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_OVER on a stack with size < 2"))
@@ -21783,8 +21762,8 @@
                                                     )
                                                     nil
                                                 )
-                                           [ScriptOpCodes'OP_PICK
-                                            ScriptOpCodes'OP_ROLL]
+                                           [Script'OP_PICK
+                                            Script'OP_ROLL]
                                                 (do
                                                     (when (< (.size stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_PICK/OP_ROLL on an empty stack"))
@@ -21798,7 +21777,7 @@
                                                                 (.next it)
                                                             )
                                                             (let [#_"byte[]" data (.next it)]
-                                                                (when (= opcode ScriptOpCodes'OP_ROLL)
+                                                                (when (= opcode Script'OP_ROLL)
                                                                     (.remove it)
                                                                 )
                                                                 (.add stack, data)
@@ -21807,7 +21786,7 @@
                                                     )
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_ROT
+                                            Script'OP_ROT
                                                 (do
                                                     (when (< (.size stack) 3)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_ROT on a stack with size < 3"))
@@ -21821,8 +21800,8 @@
                                                     )
                                                     nil
                                                 )
-                                           [ScriptOpCodes'OP_SWAP
-                                            ScriptOpCodes'OP_TUCK]
+                                           [Script'OP_SWAP
+                                            Script'OP_TUCK]
                                                 (do
                                                     (when (< (.size stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SWAP on a stack with size < 2"))
@@ -21830,14 +21809,14 @@
                                                     (let [#_"byte[]" data2 (.pollLast stack) #_"byte[]" data1 (.pollLast stack)]
                                                         (.add stack, data2)
                                                         (.add stack, data1)
-                                                        (when (= opcode ScriptOpCodes'OP_TUCK)
+                                                        (when (= opcode Script'OP_TUCK)
                                                             (.add stack, data2)
                                                         )
                                                     )
                                                     nil
                                                 )
 
-                                            ScriptOpCodes'OP_SIZE
+                                            Script'OP_SIZE
                                                 (do
                                                     (when (< (.size stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SIZE on an empty stack"))
@@ -21845,7 +21824,7 @@
                                                     (.add stack, (Wire'reverse-bytes (Wire'encode-mpi (BigInteger/valueOf (alength (.getLast stack))), false)))
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_EQUAL
+                                            Script'OP_EQUAL
                                                 (do
                                                     (when (< (.size stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_EQUAL on a stack with size < 2"))
@@ -21853,7 +21832,7 @@
                                                     (.add stack, (if (Arrays/equals (.pollLast stack), (.pollLast stack)) (byte-array [ 1 ]) (byte-array 0)))
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_EQUALVERIFY
+                                            Script'OP_EQUALVERIFY
                                                 (do
                                                     (when (< (.size stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_EQUALVERIFY on a stack with size < 2"))
@@ -21864,41 +21843,41 @@
                                                     nil
                                                 )
 
-                                           [ScriptOpCodes'OP_1ADD
-                                            ScriptOpCodes'OP_1SUB
-                                            ScriptOpCodes'OP_NEGATE
-                                            ScriptOpCodes'OP_ABS
-                                            ScriptOpCodes'OP_NOT
-                                            ScriptOpCodes'OP_0NOTEQUAL]
+                                           [Script'OP_1ADD
+                                            Script'OP_1SUB
+                                            Script'OP_NEGATE
+                                            Script'OP_ABS
+                                            Script'OP_NOT
+                                            Script'OP_0NOTEQUAL]
                                                 (do
                                                     (when (< (.size stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted a numeric op on an empty stack"))
                                                     )
                                                     (let [#_"BigInteger" n (Script'cast-to-big-integer-2 (.pollLast stack), (.contains flags, :ScriptVerifyFlag'MINIMALDATA))
                                                           n (condp = opcode
-                                                                ScriptOpCodes'OP_1ADD      (.add n, BigInteger/ONE)
-                                                                ScriptOpCodes'OP_1SUB      (.subtract n, BigInteger/ONE)
-                                                                ScriptOpCodes'OP_NEGATE    (.negate n)
-                                                                ScriptOpCodes'OP_ABS       (if (neg? (.signum n)) (.negate n) n)
-                                                                ScriptOpCodes'OP_NOT       (if (.equals n, BigInteger/ZERO) BigInteger/ONE BigInteger/ZERO)
-                                                                ScriptOpCodes'OP_0NOTEQUAL (if (.equals n, BigInteger/ZERO) BigInteger/ZERO BigInteger/ONE)
+                                                                Script'OP_1ADD      (.add n, BigInteger/ONE)
+                                                                Script'OP_1SUB      (.subtract n, BigInteger/ONE)
+                                                                Script'OP_NEGATE    (.negate n)
+                                                                Script'OP_ABS       (if (neg? (.signum n)) (.negate n) n)
+                                                                Script'OP_NOT       (if (.equals n, BigInteger/ZERO) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_0NOTEQUAL (if (.equals n, BigInteger/ZERO) BigInteger/ZERO BigInteger/ONE)
                                                             )]
                                                         (.add stack, (Wire'reverse-bytes (Wire'encode-mpi n, false)))
                                                     )
                                                     nil
                                                 )
-                                           [ScriptOpCodes'OP_ADD
-                                            ScriptOpCodes'OP_SUB
-                                            ScriptOpCodes'OP_BOOLAND
-                                            ScriptOpCodes'OP_BOOLOR
-                                            ScriptOpCodes'OP_NUMEQUAL
-                                            ScriptOpCodes'OP_NUMNOTEQUAL
-                                            ScriptOpCodes'OP_LESSTHAN
-                                            ScriptOpCodes'OP_GREATERTHAN
-                                            ScriptOpCodes'OP_LESSTHANOREQUAL
-                                            ScriptOpCodes'OP_GREATERTHANOREQUAL
-                                            ScriptOpCodes'OP_MIN
-                                            ScriptOpCodes'OP_MAX]
+                                           [Script'OP_ADD
+                                            Script'OP_SUB
+                                            Script'OP_BOOLAND
+                                            Script'OP_BOOLOR
+                                            Script'OP_NUMEQUAL
+                                            Script'OP_NUMNOTEQUAL
+                                            Script'OP_LESSTHAN
+                                            Script'OP_GREATERTHAN
+                                            Script'OP_LESSTHANOREQUAL
+                                            Script'OP_GREATERTHANOREQUAL
+                                            Script'OP_MIN
+                                            Script'OP_MAX]
                                                 (do
                                                     (when (< (.size stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted a numeric op on a stack with size < 2"))
@@ -21907,18 +21886,18 @@
                                                           #_"BigInteger" n1 (Script'cast-to-big-integer-2 (.pollLast stack), (.contains flags, :ScriptVerifyFlag'MINIMALDATA))
                                                           #_"BigInteger" n
                                                             (condp = opcode
-                                                                ScriptOpCodes'OP_ADD                (.add n1, n2)
-                                                                ScriptOpCodes'OP_SUB                (.subtract n1, n2)
-                                                                ScriptOpCodes'OP_BOOLAND            (if (and (not (.equals n1, BigInteger/ZERO)) (not (.equals n2, BigInteger/ZERO))) BigInteger/ONE BigInteger/ZERO)
-                                                                ScriptOpCodes'OP_BOOLOR             (if (or (not (.equals n1, BigInteger/ZERO)) (not (.equals n2, BigInteger/ZERO))) BigInteger/ONE BigInteger/ZERO)
-                                                                ScriptOpCodes'OP_NUMEQUAL           (if (.equals n1, n2) BigInteger/ONE BigInteger/ZERO)
-                                                                ScriptOpCodes'OP_NUMNOTEQUAL        (if (not (.equals n1, n2)) BigInteger/ONE BigInteger/ZERO)
-                                                                ScriptOpCodes'OP_LESSTHAN           (if (< (.compareTo n1, n2) 0) BigInteger/ONE BigInteger/ZERO)
-                                                                ScriptOpCodes'OP_GREATERTHAN        (if (> (.compareTo n1, n2) 0) BigInteger/ONE BigInteger/ZERO)
-                                                                ScriptOpCodes'OP_LESSTHANOREQUAL    (if (<= (.compareTo n1, n2) 0) BigInteger/ONE BigInteger/ZERO)
-                                                                ScriptOpCodes'OP_GREATERTHANOREQUAL (if (>= (.compareTo n1, n2) 0) BigInteger/ONE BigInteger/ZERO)
-                                                                ScriptOpCodes'OP_MIN                (if (< (.compareTo n1, n2) 0) n1 n2)
-                                                                ScriptOpCodes'OP_MAX                (if (> (.compareTo n1, n2) 0) n1 n2)
+                                                                Script'OP_ADD                (.add n1, n2)
+                                                                Script'OP_SUB                (.subtract n1, n2)
+                                                                Script'OP_BOOLAND            (if (and (not (.equals n1, BigInteger/ZERO)) (not (.equals n2, BigInteger/ZERO))) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_BOOLOR             (if (or (not (.equals n1, BigInteger/ZERO)) (not (.equals n2, BigInteger/ZERO))) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_NUMEQUAL           (if (.equals n1, n2) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_NUMNOTEQUAL        (if (not (.equals n1, n2)) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_LESSTHAN           (if (< (.compareTo n1, n2) 0) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_GREATERTHAN        (if (> (.compareTo n1, n2) 0) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_LESSTHANOREQUAL    (if (<= (.compareTo n1, n2) 0) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_GREATERTHANOREQUAL (if (>= (.compareTo n1, n2) 0) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_MIN                (if (< (.compareTo n1, n2) 0) n1 n2)
+                                                                Script'OP_MAX                (if (> (.compareTo n1, n2) 0) n1 n2)
                                                                 (throw (RuntimeException. "Opcode switched at runtime?"))
                                                             )]
                                                         (.add stack, (Wire'reverse-bytes (Wire'encode-mpi n, false)))
@@ -21926,7 +21905,7 @@
                                                     nil
                                                 )
 
-                                            ScriptOpCodes'OP_NUMEQUALVERIFY
+                                            Script'OP_NUMEQUALVERIFY
                                                 (do
                                                     (when (< (.size stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_NUMEQUALVERIFY on a stack with size < 2"))
@@ -21941,7 +21920,7 @@
                                                     nil
                                                 )
 
-                                            ScriptOpCodes'OP_WITHIN
+                                            Script'OP_WITHIN
                                                 (do
                                                     (when (< (.size stack) 3)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_WITHIN on a stack with size < 3"))
@@ -21957,7 +21936,7 @@
                                                     nil
                                                 )
 
-                                            ScriptOpCodes'OP_RIPEMD160
+                                            Script'OP_RIPEMD160
                                                 (do
                                                     (when (< (.size stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_RIPEMD160 on an empty stack"))
@@ -21971,7 +21950,7 @@
                                                     )
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_SHA1
+                                            Script'OP_SHA1
                                                 (do
                                                     (when (< (.size stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA1 on an empty stack"))
@@ -21984,7 +21963,7 @@
                                                     )
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_SHA256
+                                            Script'OP_SHA256
                                                 (do
                                                     (when (< (.size stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
@@ -21992,7 +21971,7 @@
                                                     (.add stack, (Sha256Hash'hash (.pollLast stack)))
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_HASH160
+                                            Script'OP_HASH160
                                                 (do
                                                     (when (< (.size stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_HASH160 on an empty stack"))
@@ -22000,7 +21979,7 @@
                                                     (.add stack, (Utils'sha256hash160 (.pollLast stack)))
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_HASH256
+                                            Script'OP_HASH256
                                                 (do
                                                     (when (< (.size stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
@@ -22009,13 +21988,13 @@
                                                     nil
                                                 )
 
-                                            ScriptOpCodes'OP_CODESEPARATOR
+                                            Script'OP_CODESEPARATOR
                                                 (do
                                                     [__opCount (inc (ScriptChunk''get-start-location-in-program chunk))]
                                                 )
 
-                                           [ScriptOpCodes'OP_CHECKSIG
-                                            ScriptOpCodes'OP_CHECKSIGVERIFY]
+                                           [Script'OP_CHECKSIG
+                                            Script'OP_CHECKSIGVERIFY]
                                                 (do
                                                     (when (nil? tx)
                                                         (throw (IllegalStateException. "Script attempted signature check but no tx was provided"))
@@ -22023,15 +22002,15 @@
                                                     (Script'execute-check-sig tx, (int index), script, stack, __lastCodeSepLocation, opcode, flags)
                                                     nil
                                                 )
-                                           [ScriptOpCodes'OP_CHECKMULTISIG
-                                            ScriptOpCodes'OP_CHECKMULTISIGVERIFY]
+                                           [Script'OP_CHECKMULTISIG
+                                            Script'OP_CHECKMULTISIGVERIFY]
                                                 (do
                                                     (when (nil? tx)
                                                         (throw (IllegalStateException. "Script attempted signature check but no tx was provided"))
                                                     )
                                                     [(Script'execute-multi-sig tx, (int index), script, stack, __opCount, __lastCodeSepLocation, opcode, flags) __lastCodeSepLocation]
                                                 )
-                                            ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY
+                                            Script'OP_CHECKLOCKTIMEVERIFY
                                                 (do
                                                     (if (not (.contains flags, :ScriptVerifyFlag'CHECKLOCKTIMEVERIFY))
                                                         ;; not enabled; treat as a NOP2
@@ -22042,7 +22021,7 @@
                                                     )
                                                     nil
                                                 )
-                                            ScriptOpCodes'OP_CHECKSEQUENCEVERIFY
+                                            Script'OP_CHECKSEQUENCEVERIFY
                                                 (do
                                                     (if (not (.contains flags, :ScriptVerifyFlag'CHECKSEQUENCEVERIFY))
                                                         ;; not enabled; treat as a NOP3
@@ -22054,14 +22033,14 @@
                                                     nil
                                                 )
 
-                                           [ScriptOpCodes'OP_NOP1
-                                            ScriptOpCodes'OP_NOP4
-                                            ScriptOpCodes'OP_NOP5
-                                            ScriptOpCodes'OP_NOP6
-                                            ScriptOpCodes'OP_NOP7
-                                            ScriptOpCodes'OP_NOP8
-                                            ScriptOpCodes'OP_NOP9
-                                            ScriptOpCodes'OP_NOP10]
+                                           [Script'OP_NOP1
+                                            Script'OP_NOP4
+                                            Script'OP_NOP5
+                                            Script'OP_NOP6
+                                            Script'OP_NOP7
+                                            Script'OP_NOP8
+                                            Script'OP_NOP9
+                                            Script'OP_NOP10]
                                                 (do
                                                     (when (.contains flags, :ScriptVerifyFlag'DISCOURAGE_UPGRADABLE_NOPS)
                                                         (throw+ (ScriptException'new :ScriptError'DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " opcode)))
@@ -22225,11 +22204,11 @@
                         )
                     )]
 
-                (cond (= opcode ScriptOpCodes'OP_CHECKSIG)
+                (cond (= opcode Script'OP_CHECKSIG)
                     (do
                         (.add stack, (if valid? (byte-array [ 1 ]) (byte-array 0)))
                     )
-                    (and (= opcode ScriptOpCodes'OP_CHECKSIGVERIFY) (not valid?))
+                    (and (= opcode Script'OP_CHECKSIGVERIFY) (not valid?))
                     (do
                         (throw+ (ScriptException'new :ScriptError'CHECKSIGVERIFY, "Script failed OP_CHECKSIGVERIFY"))
                     )
@@ -22300,11 +22279,11 @@
                                 (throw+ (ScriptException'new :ScriptError'SIG_NULLFAIL, (str "OP_CHECKMULTISIG(VERIFY) with non-null nulldummy: " (Arrays/toString __nullDummy))))
                             )
 
-                            (cond (= opcode ScriptOpCodes'OP_CHECKMULTISIG)
+                            (cond (= opcode Script'OP_CHECKMULTISIG)
                                 (do
                                     (.add stack, (if valid? (byte-array [ 1 ]) (byte-array 0)))
                                 )
-                                (and (= opcode ScriptOpCodes'OP_CHECKMULTISIGVERIFY) (not valid?))
+                                (and (= opcode Script'OP_CHECKMULTISIGVERIFY) (not valid?))
                                 (do
                                     (throw+ (ScriptException'new :ScriptError'SIG_NULLFAIL, "Script failed OP_CHECKMULTISIGVERIFY"))
                                 )
@@ -22384,7 +22363,7 @@
                     ;; TODO: Check if we can take out enforceP2SH if there's a checkpoint at the enforcement block.
                     (when (and (.contains flags, :ScriptVerifyFlag'P2SH) (Script''is-pay-to-script-hash __scriptPubKey))
                         (doseq [#_"ScriptChunk" chunk (:chunks this)]
-                            (when (and (ScriptChunk''is-op-code chunk) (< ScriptOpCodes'OP_16 (:opcode chunk)))
+                            (when (and (ScriptChunk''is-op-code chunk) (< Script'OP_16 (:opcode chunk)))
                                 (throw+ (ScriptException'new :ScriptError'SIG_PUSHONLY, "Attempted to spend a P2SH scriptPubKey with a script that contained script ops"))
                             )
                         )
@@ -22501,7 +22480,7 @@
     ;;; Adds the given opcode to the given index in the program. ;;
     #_method
     (defn #_"ScriptBuilder" ScriptBuilder''op-3 [#_"ScriptBuilder" this, #_"int" index, #_"int" opcode]
-        (assert-argument (< ScriptOpCodes'OP_PUSHDATA4 opcode))
+        (assert-argument (< Script'OP_PUSHDATA4 opcode))
         (ScriptBuilder''add-chunk-3 this, index, (ScriptChunk'new opcode, nil))
     )
 
@@ -22518,11 +22497,11 @@
         (let [#_"int" n (alength data) #_"byte[]" copy (Arrays/copyOf data, n)
               #_"int" opcode
                 (cond
-                    (= n 0)     ScriptOpCodes'OP_0
+                    (= n 0)     Script'OP_0
                     (= n 1)     (let [#_"byte" b (aget data 0)] (if (<= 1 b 16) (Script'encode-to-op-n b) 1))
-                    (< n ScriptOpCodes'OP_PUSHDATA1) n
-                    (< n 256)   ScriptOpCodes'OP_PUSHDATA1
-                    (< n 65536) ScriptOpCodes'OP_PUSHDATA2
+                    (< n Script'OP_PUSHDATA1) n
+                    (< n 256)   Script'OP_PUSHDATA1
+                    (< n 65536) Script'OP_PUSHDATA2
                     :else (throw (RuntimeException. "Unimplemented"))
                 )]
             (ScriptBuilder''add-chunk-3 this, index, (ScriptChunk'new opcode, copy))
@@ -22634,24 +22613,24 @@
         (if (Address''is-p2sh-address to)
             ;; OP_HASH160 <scriptHash> OP_EQUAL
             (-> (ScriptBuilder'new-0)
-                (ScriptBuilder''op-2 ScriptOpCodes'OP_HASH160)
+                (ScriptBuilder''op-2 Script'OP_HASH160)
                 (ScriptBuilder''data-2 (Address''get-hash160 to))
-                (ScriptBuilder''op-2 ScriptOpCodes'OP_EQUAL)
+                (ScriptBuilder''op-2 Script'OP_EQUAL)
                 (ScriptBuilder''build))
             ;; OP_DUP OP_HASH160 <pubKeyHash> OP_EQUALVERIFY OP_CHECKSIG
             (-> (ScriptBuilder'new-0)
-                (ScriptBuilder''op-2 ScriptOpCodes'OP_DUP)
-                (ScriptBuilder''op-2 ScriptOpCodes'OP_HASH160)
+                (ScriptBuilder''op-2 Script'OP_DUP)
+                (ScriptBuilder''op-2 Script'OP_HASH160)
                 (ScriptBuilder''data-2 (Address''get-hash160 to))
-                (ScriptBuilder''op-2 ScriptOpCodes'OP_EQUALVERIFY)
-                (ScriptBuilder''op-2 ScriptOpCodes'OP_CHECKSIG)
+                (ScriptBuilder''op-2 Script'OP_EQUALVERIFY)
+                (ScriptBuilder''op-2 Script'OP_CHECKSIG)
                 (ScriptBuilder''build))
         )
     )
 
     ;;; Creates a scriptPubKey that encodes payment to the given raw public key. ;;
     (defn #_"Script" ScriptBuilder'create-output-script-1e [#_"ECKey" key]
-        (-> (ScriptBuilder'new-0) (ScriptBuilder''data-2 (ECKey''get-pub-key key)) (ScriptBuilder''op-2 ScriptOpCodes'OP_CHECKSIG) (ScriptBuilder''build))
+        (-> (ScriptBuilder'new-0) (ScriptBuilder''data-2 (ECKey''get-pub-key key)) (ScriptBuilder''op-2 Script'OP_CHECKSIG) (ScriptBuilder''build))
     )
 
     ;;;
@@ -22685,7 +22664,7 @@
                 (ScriptBuilder''data-2 builder, (ECKey''get-pub-key key))
             )
             (ScriptBuilder''small-num-2 builder, (.size pubkeys))
-            (ScriptBuilder''op-2 builder, ScriptOpCodes'OP_CHECKMULTISIG)
+            (ScriptBuilder''op-2 builder, Script'OP_CHECKMULTISIG)
             (ScriptBuilder''build builder)
         )
     )
@@ -22760,7 +22739,7 @@
             ;; Check if we have a place to insert, otherwise just return given scriptSig unchanged.
             ;; We assume here that OP_0 placeholders always go after the sigs, so
             ;; to find if we have sigs missing, we can just check the chunk in latest sig position.
-            (let [#_"boolean" missing? (ScriptChunk''equals-op-code (.get chunks, (- m suffix 1)), ScriptOpCodes'OP_0)]
+            (let [#_"boolean" missing? (ScriptChunk''equals-op-code (.get chunks, (- m suffix 1)), Script'OP_0)]
                 (assert-argument missing?, "ScriptSig is already filled with signatures")
 
                 ;; Copy the prefix.
@@ -22778,7 +22757,7 @@
                                             (ScriptBuilder''data-2 builder, signature)
                                             [(inc i) true]
                                         )
-                                      i (when' (not (ScriptChunk''equals-op-code chunk, ScriptOpCodes'OP_0)) => i
+                                      i (when' (not (ScriptChunk''equals-op-code chunk, Script'OP_0)) => i
                                             (ScriptBuilder''add-chunk-2 builder, chunk)
                                             (inc i)
                                         )]
@@ -22795,7 +22774,7 @@
                                                 true
                                             )
                                             (do
-                                                (ScriptBuilder''add-chunk-2 builder, (ScriptChunk'new ScriptOpCodes'OP_0, nil))
+                                                (ScriptBuilder''add-chunk-2 builder, (ScriptChunk'new Script'OP_0, nil))
                                                 inserted?
                                             )
                                         )]
@@ -22825,9 +22804,9 @@
         (assert-argument (= (alength hash) 20))
 
         (-> (ScriptBuilder'new-0)
-            (ScriptBuilder''op-2 ScriptOpCodes'OP_HASH160)
+            (ScriptBuilder''op-2 Script'OP_HASH160)
             (ScriptBuilder''data-2 hash)
-            (ScriptBuilder''op-2 ScriptOpCodes'OP_EQUAL)
+            (ScriptBuilder''op-2 Script'OP_EQUAL)
             (ScriptBuilder''build))
     )
 
@@ -22869,7 +22848,7 @@
     (defn #_"Script" ScriptBuilder'create-op-return-script [#_"byte[]" data]
         (assert-argument (<= (alength data) 80))
 
-        (-> (ScriptBuilder'new-0) (ScriptBuilder''op-2 ScriptOpCodes'OP_RETURN) (ScriptBuilder''data-2 data) (ScriptBuilder''build))
+        (-> (ScriptBuilder'new-0) (ScriptBuilder''op-2 Script'OP_RETURN) (ScriptBuilder''data-2 data) (ScriptBuilder''build))
     )
 
     (defn #_"Script" ScriptBuilder'create-cltv-payment-channel-output [#_"BigInteger" time, #_"ECKey" from, #_"ECKey" to]
@@ -22879,16 +22858,16 @@
             )
 
             (-> (ScriptBuilder'new-0)
-                (ScriptBuilder''op-2 ScriptOpCodes'OP_IF)
+                (ScriptBuilder''op-2 Script'OP_IF)
                 (ScriptBuilder''data-2 (ECKey''get-pub-key to))
-                (ScriptBuilder''op-2 ScriptOpCodes'OP_CHECKSIGVERIFY)
-                (ScriptBuilder''op-2 ScriptOpCodes'OP_ELSE)
+                (ScriptBuilder''op-2 Script'OP_CHECKSIGVERIFY)
+                (ScriptBuilder''op-2 Script'OP_ELSE)
                 (ScriptBuilder''data-2 bytes)
-                (ScriptBuilder''op-2 ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY)
-                (ScriptBuilder''op-2 ScriptOpCodes'OP_DROP)
-                (ScriptBuilder''op-2 ScriptOpCodes'OP_ENDIF)
+                (ScriptBuilder''op-2 Script'OP_CHECKLOCKTIMEVERIFY)
+                (ScriptBuilder''op-2 Script'OP_DROP)
+                (ScriptBuilder''op-2 Script'OP_ENDIF)
                 (ScriptBuilder''data-2 (ECKey''get-pub-key from))
-                (ScriptBuilder''op-2 ScriptOpCodes'OP_CHECKSIG)
+                (ScriptBuilder''op-2 Script'OP_CHECKSIG)
                 (ScriptBuilder''build))
         )
     )
@@ -23001,393 +22980,395 @@
 #_stateless
 (class-ns ScriptOpCodes
     ;; push value
-    (def #_"int" ScriptOpCodes'OP_0 0x00) ;; push empty vector
-    (def #_"int" ScriptOpCodes'OP_FALSE ScriptOpCodes'OP_0)
-    (def #_"int" ScriptOpCodes'OP_PUSHDATA1 0x4c)
-    (def #_"int" ScriptOpCodes'OP_PUSHDATA2 0x4d)
-    (def #_"int" ScriptOpCodes'OP_PUSHDATA4 0x4e)
-    (def #_"int" ScriptOpCodes'OP_1NEGATE 0x4f)
-    (def #_"int" ScriptOpCodes'OP_RESERVED 0x50)
-    (def #_"int" ScriptOpCodes'OP_1 0x51)
-    (def #_"int" ScriptOpCodes'OP_TRUE ScriptOpCodes'OP_1)
-    (def #_"int" ScriptOpCodes'OP_2 0x52)
-    (def #_"int" ScriptOpCodes'OP_3 0x53)
-    (def #_"int" ScriptOpCodes'OP_4 0x54)
-    (def #_"int" ScriptOpCodes'OP_5 0x55)
-    (def #_"int" ScriptOpCodes'OP_6 0x56)
-    (def #_"int" ScriptOpCodes'OP_7 0x57)
-    (def #_"int" ScriptOpCodes'OP_8 0x58)
-    (def #_"int" ScriptOpCodes'OP_9 0x59)
-    (def #_"int" ScriptOpCodes'OP_10 0x5a)
-    (def #_"int" ScriptOpCodes'OP_11 0x5b)
-    (def #_"int" ScriptOpCodes'OP_12 0x5c)
-    (def #_"int" ScriptOpCodes'OP_13 0x5d)
-    (def #_"int" ScriptOpCodes'OP_14 0x5e)
-    (def #_"int" ScriptOpCodes'OP_15 0x5f)
-    (def #_"int" ScriptOpCodes'OP_16 0x60)
+    (def #_"int" Script'OP_0 0x00) ;; push empty vector
+    (def #_"int" Script'OP_FALSE Script'OP_0)
+    (def #_"int" Script'OP_PUSHDATA1 0x4c)
+    (def #_"int" Script'OP_PUSHDATA2 0x4d)
+    (def #_"int" Script'OP_PUSHDATA4 0x4e)
+    (def #_"int" Script'OP_1NEGATE 0x4f)
+    (def #_"int" Script'OP_RESERVED 0x50)
+    (def #_"int" Script'OP_1 0x51)
+    (def #_"int" Script'OP_TRUE Script'OP_1)
+    (def #_"int" Script'OP_2 0x52)
+    (def #_"int" Script'OP_3 0x53)
+    (def #_"int" Script'OP_4 0x54)
+    (def #_"int" Script'OP_5 0x55)
+    (def #_"int" Script'OP_6 0x56)
+    (def #_"int" Script'OP_7 0x57)
+    (def #_"int" Script'OP_8 0x58)
+    (def #_"int" Script'OP_9 0x59)
+    (def #_"int" Script'OP_10 0x5a)
+    (def #_"int" Script'OP_11 0x5b)
+    (def #_"int" Script'OP_12 0x5c)
+    (def #_"int" Script'OP_13 0x5d)
+    (def #_"int" Script'OP_14 0x5e)
+    (def #_"int" Script'OP_15 0x5f)
+    (def #_"int" Script'OP_16 0x60)
 
     ;; control
-    (def #_"int" ScriptOpCodes'OP_NOP 0x61)
-    (def #_"int" ScriptOpCodes'OP_VER 0x62)
-    (def #_"int" ScriptOpCodes'OP_IF 0x63)
-    (def #_"int" ScriptOpCodes'OP_NOTIF 0x64)
-    (def #_"int" ScriptOpCodes'OP_VERIF 0x65)
-    (def #_"int" ScriptOpCodes'OP_VERNOTIF 0x66)
-    (def #_"int" ScriptOpCodes'OP_ELSE 0x67)
-    (def #_"int" ScriptOpCodes'OP_ENDIF 0x68)
-    (def #_"int" ScriptOpCodes'OP_VERIFY 0x69)
-    (def #_"int" ScriptOpCodes'OP_RETURN 0x6a)
+    (def #_"int" Script'OP_NOP 0x61)
+    (def #_"int" Script'OP_VER 0x62)
+    (def #_"int" Script'OP_IF 0x63)
+    (def #_"int" Script'OP_NOTIF 0x64)
+    (def #_"int" Script'OP_VERIF 0x65)
+    (def #_"int" Script'OP_VERNOTIF 0x66)
+    (def #_"int" Script'OP_ELSE 0x67)
+    (def #_"int" Script'OP_ENDIF 0x68)
+    (def #_"int" Script'OP_VERIFY 0x69)
+    (def #_"int" Script'OP_RETURN 0x6a)
 
     ;; stack ops
-    (def #_"int" ScriptOpCodes'OP_TOALTSTACK 0x6b)
-    (def #_"int" ScriptOpCodes'OP_FROMALTSTACK 0x6c)
-    (def #_"int" ScriptOpCodes'OP_2DROP 0x6d)
-    (def #_"int" ScriptOpCodes'OP_2DUP 0x6e)
-    (def #_"int" ScriptOpCodes'OP_3DUP 0x6f)
-    (def #_"int" ScriptOpCodes'OP_2OVER 0x70)
-    (def #_"int" ScriptOpCodes'OP_2ROT 0x71)
-    (def #_"int" ScriptOpCodes'OP_2SWAP 0x72)
-    (def #_"int" ScriptOpCodes'OP_IFDUP 0x73)
-    (def #_"int" ScriptOpCodes'OP_DEPTH 0x74)
-    (def #_"int" ScriptOpCodes'OP_DROP 0x75)
-    (def #_"int" ScriptOpCodes'OP_DUP 0x76)
-    (def #_"int" ScriptOpCodes'OP_NIP 0x77)
-    (def #_"int" ScriptOpCodes'OP_OVER 0x78)
-    (def #_"int" ScriptOpCodes'OP_PICK 0x79)
-    (def #_"int" ScriptOpCodes'OP_ROLL 0x7a)
-    (def #_"int" ScriptOpCodes'OP_ROT 0x7b)
-    (def #_"int" ScriptOpCodes'OP_SWAP 0x7c)
-    (def #_"int" ScriptOpCodes'OP_TUCK 0x7d)
+    (def #_"int" Script'OP_TOALTSTACK 0x6b)
+    (def #_"int" Script'OP_FROMALTSTACK 0x6c)
+    (def #_"int" Script'OP_2DROP 0x6d)
+    (def #_"int" Script'OP_2DUP 0x6e)
+    (def #_"int" Script'OP_3DUP 0x6f)
+    (def #_"int" Script'OP_2OVER 0x70)
+    (def #_"int" Script'OP_2ROT 0x71)
+    (def #_"int" Script'OP_2SWAP 0x72)
+    (def #_"int" Script'OP_IFDUP 0x73)
+    (def #_"int" Script'OP_DEPTH 0x74)
+    (def #_"int" Script'OP_DROP 0x75)
+    (def #_"int" Script'OP_DUP 0x76)
+    (def #_"int" Script'OP_NIP 0x77)
+    (def #_"int" Script'OP_OVER 0x78)
+    (def #_"int" Script'OP_PICK 0x79)
+    (def #_"int" Script'OP_ROLL 0x7a)
+    (def #_"int" Script'OP_ROT 0x7b)
+    (def #_"int" Script'OP_SWAP 0x7c)
+    (def #_"int" Script'OP_TUCK 0x7d)
 
     ;; splice ops
-    (def #_"int" ScriptOpCodes'OP_CAT 0x7e)
-    (def #_"int" ScriptOpCodes'OP_SUBSTR 0x7f)
-    (def #_"int" ScriptOpCodes'OP_LEFT 0x80)
-    (def #_"int" ScriptOpCodes'OP_RIGHT 0x81)
-    (def #_"int" ScriptOpCodes'OP_SIZE 0x82)
+    (def #_"int" Script'OP_CAT 0x7e)
+    (def #_"int" Script'OP_SUBSTR 0x7f)
+    (def #_"int" Script'OP_LEFT 0x80)
+    (def #_"int" Script'OP_RIGHT 0x81)
+    (def #_"int" Script'OP_SIZE 0x82)
 
     ;; bit logic
-    (def #_"int" ScriptOpCodes'OP_INVERT 0x83)
-    (def #_"int" ScriptOpCodes'OP_AND 0x84)
-    (def #_"int" ScriptOpCodes'OP_OR 0x85)
-    (def #_"int" ScriptOpCodes'OP_XOR 0x86)
-    (def #_"int" ScriptOpCodes'OP_EQUAL 0x87)
-    (def #_"int" ScriptOpCodes'OP_EQUALVERIFY 0x88)
-    (def #_"int" ScriptOpCodes'OP_RESERVED1 0x89)
-    (def #_"int" ScriptOpCodes'OP_RESERVED2 0x8a)
+    (def #_"int" Script'OP_INVERT 0x83)
+    (def #_"int" Script'OP_AND 0x84)
+    (def #_"int" Script'OP_OR 0x85)
+    (def #_"int" Script'OP_XOR 0x86)
+    (def #_"int" Script'OP_EQUAL 0x87)
+    (def #_"int" Script'OP_EQUALVERIFY 0x88)
+    (def #_"int" Script'OP_RESERVED1 0x89)
+    (def #_"int" Script'OP_RESERVED2 0x8a)
 
     ;; numeric
-    (def #_"int" ScriptOpCodes'OP_1ADD 0x8b)
-    (def #_"int" ScriptOpCodes'OP_1SUB 0x8c)
-    (def #_"int" ScriptOpCodes'OP_2MUL 0x8d)
-    (def #_"int" ScriptOpCodes'OP_2DIV 0x8e)
-    (def #_"int" ScriptOpCodes'OP_NEGATE 0x8f)
-    (def #_"int" ScriptOpCodes'OP_ABS 0x90)
-    (def #_"int" ScriptOpCodes'OP_NOT 0x91)
-    (def #_"int" ScriptOpCodes'OP_0NOTEQUAL 0x92)
-    (def #_"int" ScriptOpCodes'OP_ADD 0x93)
-    (def #_"int" ScriptOpCodes'OP_SUB 0x94)
-    (def #_"int" ScriptOpCodes'OP_MUL 0x95)
-    (def #_"int" ScriptOpCodes'OP_DIV 0x96)
-    (def #_"int" ScriptOpCodes'OP_MOD 0x97)
-    (def #_"int" ScriptOpCodes'OP_LSHIFT 0x98)
-    (def #_"int" ScriptOpCodes'OP_RSHIFT 0x99)
-    (def #_"int" ScriptOpCodes'OP_BOOLAND 0x9a)
-    (def #_"int" ScriptOpCodes'OP_BOOLOR 0x9b)
-    (def #_"int" ScriptOpCodes'OP_NUMEQUAL 0x9c)
-    (def #_"int" ScriptOpCodes'OP_NUMEQUALVERIFY 0x9d)
-    (def #_"int" ScriptOpCodes'OP_NUMNOTEQUAL 0x9e)
-    (def #_"int" ScriptOpCodes'OP_LESSTHAN 0x9f)
-    (def #_"int" ScriptOpCodes'OP_GREATERTHAN 0xa0)
-    (def #_"int" ScriptOpCodes'OP_LESSTHANOREQUAL 0xa1)
-    (def #_"int" ScriptOpCodes'OP_GREATERTHANOREQUAL 0xa2)
-    (def #_"int" ScriptOpCodes'OP_MIN 0xa3)
-    (def #_"int" ScriptOpCodes'OP_MAX 0xa4)
-    (def #_"int" ScriptOpCodes'OP_WITHIN 0xa5)
+    (def #_"int" Script'OP_1ADD 0x8b)
+    (def #_"int" Script'OP_1SUB 0x8c)
+    (def #_"int" Script'OP_2MUL 0x8d)
+    (def #_"int" Script'OP_2DIV 0x8e)
+    (def #_"int" Script'OP_NEGATE 0x8f)
+    (def #_"int" Script'OP_ABS 0x90)
+    (def #_"int" Script'OP_NOT 0x91)
+    (def #_"int" Script'OP_0NOTEQUAL 0x92)
+    (def #_"int" Script'OP_ADD 0x93)
+    (def #_"int" Script'OP_SUB 0x94)
+    (def #_"int" Script'OP_MUL 0x95)
+    (def #_"int" Script'OP_DIV 0x96)
+    (def #_"int" Script'OP_MOD 0x97)
+    (def #_"int" Script'OP_LSHIFT 0x98)
+    (def #_"int" Script'OP_RSHIFT 0x99)
+    (def #_"int" Script'OP_BOOLAND 0x9a)
+    (def #_"int" Script'OP_BOOLOR 0x9b)
+    (def #_"int" Script'OP_NUMEQUAL 0x9c)
+    (def #_"int" Script'OP_NUMEQUALVERIFY 0x9d)
+    (def #_"int" Script'OP_NUMNOTEQUAL 0x9e)
+    (def #_"int" Script'OP_LESSTHAN 0x9f)
+    (def #_"int" Script'OP_GREATERTHAN 0xa0)
+    (def #_"int" Script'OP_LESSTHANOREQUAL 0xa1)
+    (def #_"int" Script'OP_GREATERTHANOREQUAL 0xa2)
+    (def #_"int" Script'OP_MIN 0xa3)
+    (def #_"int" Script'OP_MAX 0xa4)
+    (def #_"int" Script'OP_WITHIN 0xa5)
 
     ;; crypto
-    (def #_"int" ScriptOpCodes'OP_RIPEMD160 0xa6)
-    (def #_"int" ScriptOpCodes'OP_SHA1 0xa7)
-    (def #_"int" ScriptOpCodes'OP_SHA256 0xa8)
-    (def #_"int" ScriptOpCodes'OP_HASH160 0xa9)
-    (def #_"int" ScriptOpCodes'OP_HASH256 0xaa)
-    (def #_"int" ScriptOpCodes'OP_CODESEPARATOR 0xab)
-    (def #_"int" ScriptOpCodes'OP_CHECKSIG 0xac)
-    (def #_"int" ScriptOpCodes'OP_CHECKSIGVERIFY 0xad)
-    (def #_"int" ScriptOpCodes'OP_CHECKMULTISIG 0xae)
-    (def #_"int" ScriptOpCodes'OP_CHECKMULTISIGVERIFY 0xaf)
+    (def #_"int" Script'OP_RIPEMD160 0xa6)
+    (def #_"int" Script'OP_SHA1 0xa7)
+    (def #_"int" Script'OP_SHA256 0xa8)
+    (def #_"int" Script'OP_HASH160 0xa9)
+    (def #_"int" Script'OP_HASH256 0xaa)
+    (def #_"int" Script'OP_CODESEPARATOR 0xab)
+    (def #_"int" Script'OP_CHECKSIG 0xac)
+    (def #_"int" Script'OP_CHECKSIGVERIFY 0xad)
+    (def #_"int" Script'OP_CHECKMULTISIG 0xae)
+    (def #_"int" Script'OP_CHECKMULTISIGVERIFY 0xaf)
 
     ;; block state
     ;;; Check lock time of the block.  Introduced in BIP 65, replacing OP_NOP2 ;;
-    (def #_"int" ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY 0xb1)
-    (def #_"int" ScriptOpCodes'OP_CHECKSEQUENCEVERIFY 0xb2)
+    (def #_"int" Script'OP_CHECKLOCKTIMEVERIFY 0xb1)
+    (def #_"int" Script'OP_CHECKSEQUENCEVERIFY 0xb2)
 
     ;; expansion
-    (def #_"int" ScriptOpCodes'OP_NOP1 0xb0)
+    (def #_"int" Script'OP_NOP1 0xb0)
     ;;; Deprecated by BIP 65 ;;
     #_deprecated
-    (def #_"int" ScriptOpCodes'OP_NOP2 ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY)
+    (def #_"int" Script'OP_NOP2 Script'OP_CHECKLOCKTIMEVERIFY)
     ;;; Deprecated by BIP 112 ;;
     #_deprecated
-    (def #_"int" ScriptOpCodes'OP_NOP3 ScriptOpCodes'OP_CHECKSEQUENCEVERIFY)
-    (def #_"int" ScriptOpCodes'OP_NOP4 0xb3)
-    (def #_"int" ScriptOpCodes'OP_NOP5 0xb4)
-    (def #_"int" ScriptOpCodes'OP_NOP6 0xb5)
-    (def #_"int" ScriptOpCodes'OP_NOP7 0xb6)
-    (def #_"int" ScriptOpCodes'OP_NOP8 0xb7)
-    (def #_"int" ScriptOpCodes'OP_NOP9 0xb8)
-    (def #_"int" ScriptOpCodes'OP_NOP10 0xb9)
-    (def #_"int" ScriptOpCodes'OP_INVALIDOPCODE 0xff)
+    (def #_"int" Script'OP_NOP3 Script'OP_CHECKSEQUENCEVERIFY)
+    (def #_"int" Script'OP_NOP4 0xb3)
+    (def #_"int" Script'OP_NOP5 0xb4)
+    (def #_"int" Script'OP_NOP6 0xb5)
+    (def #_"int" Script'OP_NOP7 0xb6)
+    (def #_"int" Script'OP_NOP8 0xb7)
+    (def #_"int" Script'OP_NOP9 0xb8)
+    (def #_"int" Script'OP_NOP10 0xb9)
+    (def #_"int" Script'OP_INVALIDOPCODE 0xff)
 
-    (def- #_"Map<Integer, String>" ScriptOpCodes'OP_CODE_MAP (.. (ImmutableMap/builder #_"Map<Integer, String>")
-        (put ScriptOpCodes'OP_0, "0")
-        (put ScriptOpCodes'OP_PUSHDATA1, "PUSHDATA1")
-        (put ScriptOpCodes'OP_PUSHDATA2, "PUSHDATA2")
-        (put ScriptOpCodes'OP_PUSHDATA4, "PUSHDATA4")
-        (put ScriptOpCodes'OP_1NEGATE, "1NEGATE")
-        (put ScriptOpCodes'OP_RESERVED, "RESERVED")
-        (put ScriptOpCodes'OP_1, "1")
-        (put ScriptOpCodes'OP_2, "2")
-        (put ScriptOpCodes'OP_3, "3")
-        (put ScriptOpCodes'OP_4, "4")
-        (put ScriptOpCodes'OP_5, "5")
-        (put ScriptOpCodes'OP_6, "6")
-        (put ScriptOpCodes'OP_7, "7")
-        (put ScriptOpCodes'OP_8, "8")
-        (put ScriptOpCodes'OP_9, "9")
-        (put ScriptOpCodes'OP_10, "10")
-        (put ScriptOpCodes'OP_11, "11")
-        (put ScriptOpCodes'OP_12, "12")
-        (put ScriptOpCodes'OP_13, "13")
-        (put ScriptOpCodes'OP_14, "14")
-        (put ScriptOpCodes'OP_15, "15")
-        (put ScriptOpCodes'OP_16, "16")
-        (put ScriptOpCodes'OP_NOP, "NOP")
-        (put ScriptOpCodes'OP_VER, "VER")
-        (put ScriptOpCodes'OP_IF, "IF")
-        (put ScriptOpCodes'OP_NOTIF, "NOTIF")
-        (put ScriptOpCodes'OP_VERIF, "VERIF")
-        (put ScriptOpCodes'OP_VERNOTIF, "VERNOTIF")
-        (put ScriptOpCodes'OP_ELSE, "ELSE")
-        (put ScriptOpCodes'OP_ENDIF, "ENDIF")
-        (put ScriptOpCodes'OP_VERIFY, "VERIFY")
-        (put ScriptOpCodes'OP_RETURN, "RETURN")
-        (put ScriptOpCodes'OP_TOALTSTACK, "TOALTSTACK")
-        (put ScriptOpCodes'OP_FROMALTSTACK, "FROMALTSTACK")
-        (put ScriptOpCodes'OP_2DROP, "2DROP")
-        (put ScriptOpCodes'OP_2DUP, "2DUP")
-        (put ScriptOpCodes'OP_3DUP, "3DUP")
-        (put ScriptOpCodes'OP_2OVER, "2OVER")
-        (put ScriptOpCodes'OP_2ROT, "2ROT")
-        (put ScriptOpCodes'OP_2SWAP, "2SWAP")
-        (put ScriptOpCodes'OP_IFDUP, "IFDUP")
-        (put ScriptOpCodes'OP_DEPTH, "DEPTH")
-        (put ScriptOpCodes'OP_DROP, "DROP")
-        (put ScriptOpCodes'OP_DUP, "DUP")
-        (put ScriptOpCodes'OP_NIP, "NIP")
-        (put ScriptOpCodes'OP_OVER, "OVER")
-        (put ScriptOpCodes'OP_PICK, "PICK")
-        (put ScriptOpCodes'OP_ROLL, "ROLL")
-        (put ScriptOpCodes'OP_ROT, "ROT")
-        (put ScriptOpCodes'OP_SWAP, "SWAP")
-        (put ScriptOpCodes'OP_TUCK, "TUCK")
-        (put ScriptOpCodes'OP_CAT, "CAT")
-        (put ScriptOpCodes'OP_SUBSTR, "SUBSTR")
-        (put ScriptOpCodes'OP_LEFT, "LEFT")
-        (put ScriptOpCodes'OP_RIGHT, "RIGHT")
-        (put ScriptOpCodes'OP_SIZE, "SIZE")
-        (put ScriptOpCodes'OP_INVERT, "INVERT")
-        (put ScriptOpCodes'OP_AND, "AND")
-        (put ScriptOpCodes'OP_OR, "OR")
-        (put ScriptOpCodes'OP_XOR, "XOR")
-        (put ScriptOpCodes'OP_EQUAL, "EQUAL")
-        (put ScriptOpCodes'OP_EQUALVERIFY, "EQUALVERIFY")
-        (put ScriptOpCodes'OP_RESERVED1, "RESERVED1")
-        (put ScriptOpCodes'OP_RESERVED2, "RESERVED2")
-        (put ScriptOpCodes'OP_1ADD, "1ADD")
-        (put ScriptOpCodes'OP_1SUB, "1SUB")
-        (put ScriptOpCodes'OP_2MUL, "2MUL")
-        (put ScriptOpCodes'OP_2DIV, "2DIV")
-        (put ScriptOpCodes'OP_NEGATE, "NEGATE")
-        (put ScriptOpCodes'OP_ABS, "ABS")
-        (put ScriptOpCodes'OP_NOT, "NOT")
-        (put ScriptOpCodes'OP_0NOTEQUAL, "0NOTEQUAL")
-        (put ScriptOpCodes'OP_ADD, "ADD")
-        (put ScriptOpCodes'OP_SUB, "SUB")
-        (put ScriptOpCodes'OP_MUL, "MUL")
-        (put ScriptOpCodes'OP_DIV, "DIV")
-        (put ScriptOpCodes'OP_MOD, "MOD")
-        (put ScriptOpCodes'OP_LSHIFT, "LSHIFT")
-        (put ScriptOpCodes'OP_RSHIFT, "RSHIFT")
-        (put ScriptOpCodes'OP_BOOLAND, "BOOLAND")
-        (put ScriptOpCodes'OP_BOOLOR, "BOOLOR")
-        (put ScriptOpCodes'OP_NUMEQUAL, "NUMEQUAL")
-        (put ScriptOpCodes'OP_NUMEQUALVERIFY, "NUMEQUALVERIFY")
-        (put ScriptOpCodes'OP_NUMNOTEQUAL, "NUMNOTEQUAL")
-        (put ScriptOpCodes'OP_LESSTHAN, "LESSTHAN")
-        (put ScriptOpCodes'OP_GREATERTHAN, "GREATERTHAN")
-        (put ScriptOpCodes'OP_LESSTHANOREQUAL, "LESSTHANOREQUAL")
-        (put ScriptOpCodes'OP_GREATERTHANOREQUAL, "GREATERTHANOREQUAL")
-        (put ScriptOpCodes'OP_MIN, "MIN")
-        (put ScriptOpCodes'OP_MAX, "MAX")
-        (put ScriptOpCodes'OP_WITHIN, "WITHIN")
-        (put ScriptOpCodes'OP_RIPEMD160, "RIPEMD160")
-        (put ScriptOpCodes'OP_SHA1, "SHA1")
-        (put ScriptOpCodes'OP_SHA256, "SHA256")
-        (put ScriptOpCodes'OP_HASH160, "HASH160")
-        (put ScriptOpCodes'OP_HASH256, "HASH256")
-        (put ScriptOpCodes'OP_CODESEPARATOR, "CODESEPARATOR")
-        (put ScriptOpCodes'OP_CHECKSIG, "CHECKSIG")
-        (put ScriptOpCodes'OP_CHECKSIGVERIFY, "CHECKSIGVERIFY")
-        (put ScriptOpCodes'OP_CHECKMULTISIG, "CHECKMULTISIG")
-        (put ScriptOpCodes'OP_CHECKMULTISIGVERIFY, "CHECKMULTISIGVERIFY")
-        (put ScriptOpCodes'OP_NOP1, "NOP1")
-        (put ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY, "CHECKLOCKTIMEVERIFY")
-        (put ScriptOpCodes'OP_CHECKSEQUENCEVERIFY, "CHECKSEQUENCEVERIFY")
-        (put ScriptOpCodes'OP_NOP4, "NOP4")
-        (put ScriptOpCodes'OP_NOP5, "NOP5")
-        (put ScriptOpCodes'OP_NOP6, "NOP6")
-        (put ScriptOpCodes'OP_NOP7, "NOP7")
-        (put ScriptOpCodes'OP_NOP8, "NOP8")
-        (put ScriptOpCodes'OP_NOP9, "NOP9")
-        (put ScriptOpCodes'OP_NOP10, "NOP10")
-        (build)))
+    (def- #_"Map<Integer, String>" Script'OP_CODE_MAP
+    {
+        Script'OP_0 "0",
+        Script'OP_PUSHDATA1 "PUSHDATA1",
+        Script'OP_PUSHDATA2 "PUSHDATA2",
+        Script'OP_PUSHDATA4 "PUSHDATA4",
+        Script'OP_1NEGATE "1NEGATE",
+        Script'OP_RESERVED "RESERVED",
+        Script'OP_1 "1",
+        Script'OP_2 "2",
+        Script'OP_3 "3",
+        Script'OP_4 "4",
+        Script'OP_5 "5",
+        Script'OP_6 "6",
+        Script'OP_7 "7",
+        Script'OP_8 "8",
+        Script'OP_9 "9",
+        Script'OP_10 "10",
+        Script'OP_11 "11",
+        Script'OP_12 "12",
+        Script'OP_13 "13",
+        Script'OP_14 "14",
+        Script'OP_15 "15",
+        Script'OP_16 "16",
+        Script'OP_NOP "NOP",
+        Script'OP_VER "VER",
+        Script'OP_IF "IF",
+        Script'OP_NOTIF "NOTIF",
+        Script'OP_VERIF "VERIF",
+        Script'OP_VERNOTIF "VERNOTIF",
+        Script'OP_ELSE "ELSE",
+        Script'OP_ENDIF "ENDIF",
+        Script'OP_VERIFY "VERIFY",
+        Script'OP_RETURN "RETURN",
+        Script'OP_TOALTSTACK "TOALTSTACK",
+        Script'OP_FROMALTSTACK "FROMALTSTACK",
+        Script'OP_2DROP "2DROP",
+        Script'OP_2DUP "2DUP",
+        Script'OP_3DUP "3DUP",
+        Script'OP_2OVER "2OVER",
+        Script'OP_2ROT "2ROT",
+        Script'OP_2SWAP "2SWAP",
+        Script'OP_IFDUP "IFDUP",
+        Script'OP_DEPTH "DEPTH",
+        Script'OP_DROP "DROP",
+        Script'OP_DUP "DUP",
+        Script'OP_NIP "NIP",
+        Script'OP_OVER "OVER",
+        Script'OP_PICK "PICK",
+        Script'OP_ROLL "ROLL",
+        Script'OP_ROT "ROT",
+        Script'OP_SWAP "SWAP",
+        Script'OP_TUCK "TUCK",
+        Script'OP_CAT "CAT",
+        Script'OP_SUBSTR "SUBSTR",
+        Script'OP_LEFT "LEFT",
+        Script'OP_RIGHT "RIGHT",
+        Script'OP_SIZE "SIZE",
+        Script'OP_INVERT "INVERT",
+        Script'OP_AND "AND",
+        Script'OP_OR "OR",
+        Script'OP_XOR "XOR",
+        Script'OP_EQUAL "EQUAL",
+        Script'OP_EQUALVERIFY "EQUALVERIFY",
+        Script'OP_RESERVED1 "RESERVED1",
+        Script'OP_RESERVED2 "RESERVED2",
+        Script'OP_1ADD "1ADD",
+        Script'OP_1SUB "1SUB",
+        Script'OP_2MUL "2MUL",
+        Script'OP_2DIV "2DIV",
+        Script'OP_NEGATE "NEGATE",
+        Script'OP_ABS "ABS",
+        Script'OP_NOT "NOT",
+        Script'OP_0NOTEQUAL "0NOTEQUAL",
+        Script'OP_ADD "ADD",
+        Script'OP_SUB "SUB",
+        Script'OP_MUL "MUL",
+        Script'OP_DIV "DIV",
+        Script'OP_MOD "MOD",
+        Script'OP_LSHIFT "LSHIFT",
+        Script'OP_RSHIFT "RSHIFT",
+        Script'OP_BOOLAND "BOOLAND",
+        Script'OP_BOOLOR "BOOLOR",
+        Script'OP_NUMEQUAL "NUMEQUAL",
+        Script'OP_NUMEQUALVERIFY "NUMEQUALVERIFY",
+        Script'OP_NUMNOTEQUAL "NUMNOTEQUAL",
+        Script'OP_LESSTHAN "LESSTHAN",
+        Script'OP_GREATERTHAN "GREATERTHAN",
+        Script'OP_LESSTHANOREQUAL "LESSTHANOREQUAL",
+        Script'OP_GREATERTHANOREQUAL "GREATERTHANOREQUAL",
+        Script'OP_MIN "MIN",
+        Script'OP_MAX "MAX",
+        Script'OP_WITHIN "WITHIN",
+        Script'OP_RIPEMD160 "RIPEMD160",
+        Script'OP_SHA1 "SHA1",
+        Script'OP_SHA256 "SHA256",
+        Script'OP_HASH160 "HASH160",
+        Script'OP_HASH256 "HASH256",
+        Script'OP_CODESEPARATOR "CODESEPARATOR",
+        Script'OP_CHECKSIG "CHECKSIG",
+        Script'OP_CHECKSIGVERIFY "CHECKSIGVERIFY",
+        Script'OP_CHECKMULTISIG "CHECKMULTISIG",
+        Script'OP_CHECKMULTISIGVERIFY "CHECKMULTISIGVERIFY",
+        Script'OP_NOP1 "NOP1",
+        Script'OP_CHECKLOCKTIMEVERIFY "CHECKLOCKTIMEVERIFY",
+        Script'OP_CHECKSEQUENCEVERIFY "CHECKSEQUENCEVERIFY",
+        Script'OP_NOP4 "NOP4",
+        Script'OP_NOP5 "NOP5",
+        Script'OP_NOP6 "NOP6",
+        Script'OP_NOP7 "NOP7",
+        Script'OP_NOP8 "NOP8",
+        Script'OP_NOP9 "NOP9",
+        Script'OP_NOP10 "NOP10",
+    })
 
-    (def- #_"Map<String, Integer>" ScriptOpCodes'OP_CODE_NAME_MAP (.. (ImmutableMap/builder #_"Map<String, Integer>")
-        (put "0", ScriptOpCodes'OP_0)
-        (put "PUSHDATA1", ScriptOpCodes'OP_PUSHDATA1)
-        (put "PUSHDATA2", ScriptOpCodes'OP_PUSHDATA2)
-        (put "PUSHDATA4", ScriptOpCodes'OP_PUSHDATA4)
-        (put "1NEGATE", ScriptOpCodes'OP_1NEGATE)
-        (put "RESERVED", ScriptOpCodes'OP_RESERVED)
-        (put "1", ScriptOpCodes'OP_1)
-        (put "2", ScriptOpCodes'OP_2)
-        (put "3", ScriptOpCodes'OP_3)
-        (put "4", ScriptOpCodes'OP_4)
-        (put "5", ScriptOpCodes'OP_5)
-        (put "6", ScriptOpCodes'OP_6)
-        (put "7", ScriptOpCodes'OP_7)
-        (put "8", ScriptOpCodes'OP_8)
-        (put "9", ScriptOpCodes'OP_9)
-        (put "10", ScriptOpCodes'OP_10)
-        (put "11", ScriptOpCodes'OP_11)
-        (put "12", ScriptOpCodes'OP_12)
-        (put "13", ScriptOpCodes'OP_13)
-        (put "14", ScriptOpCodes'OP_14)
-        (put "15", ScriptOpCodes'OP_15)
-        (put "16", ScriptOpCodes'OP_16)
-        (put "NOP", ScriptOpCodes'OP_NOP)
-        (put "VER", ScriptOpCodes'OP_VER)
-        (put "IF", ScriptOpCodes'OP_IF)
-        (put "NOTIF", ScriptOpCodes'OP_NOTIF)
-        (put "VERIF", ScriptOpCodes'OP_VERIF)
-        (put "VERNOTIF", ScriptOpCodes'OP_VERNOTIF)
-        (put "ELSE", ScriptOpCodes'OP_ELSE)
-        (put "ENDIF", ScriptOpCodes'OP_ENDIF)
-        (put "VERIFY", ScriptOpCodes'OP_VERIFY)
-        (put "RETURN", ScriptOpCodes'OP_RETURN)
-        (put "TOALTSTACK", ScriptOpCodes'OP_TOALTSTACK)
-        (put "FROMALTSTACK", ScriptOpCodes'OP_FROMALTSTACK)
-        (put "2DROP", ScriptOpCodes'OP_2DROP)
-        (put "2DUP", ScriptOpCodes'OP_2DUP)
-        (put "3DUP", ScriptOpCodes'OP_3DUP)
-        (put "2OVER", ScriptOpCodes'OP_2OVER)
-        (put "2ROT", ScriptOpCodes'OP_2ROT)
-        (put "2SWAP", ScriptOpCodes'OP_2SWAP)
-        (put "IFDUP", ScriptOpCodes'OP_IFDUP)
-        (put "DEPTH", ScriptOpCodes'OP_DEPTH)
-        (put "DROP", ScriptOpCodes'OP_DROP)
-        (put "DUP", ScriptOpCodes'OP_DUP)
-        (put "NIP", ScriptOpCodes'OP_NIP)
-        (put "OVER", ScriptOpCodes'OP_OVER)
-        (put "PICK", ScriptOpCodes'OP_PICK)
-        (put "ROLL", ScriptOpCodes'OP_ROLL)
-        (put "ROT", ScriptOpCodes'OP_ROT)
-        (put "SWAP", ScriptOpCodes'OP_SWAP)
-        (put "TUCK", ScriptOpCodes'OP_TUCK)
-        (put "CAT", ScriptOpCodes'OP_CAT)
-        (put "SUBSTR", ScriptOpCodes'OP_SUBSTR)
-        (put "LEFT", ScriptOpCodes'OP_LEFT)
-        (put "RIGHT", ScriptOpCodes'OP_RIGHT)
-        (put "SIZE", ScriptOpCodes'OP_SIZE)
-        (put "INVERT", ScriptOpCodes'OP_INVERT)
-        (put "AND", ScriptOpCodes'OP_AND)
-        (put "OR", ScriptOpCodes'OP_OR)
-        (put "XOR", ScriptOpCodes'OP_XOR)
-        (put "EQUAL", ScriptOpCodes'OP_EQUAL)
-        (put "EQUALVERIFY", ScriptOpCodes'OP_EQUALVERIFY)
-        (put "RESERVED1", ScriptOpCodes'OP_RESERVED1)
-        (put "RESERVED2", ScriptOpCodes'OP_RESERVED2)
-        (put "1ADD", ScriptOpCodes'OP_1ADD)
-        (put "1SUB", ScriptOpCodes'OP_1SUB)
-        (put "2MUL", ScriptOpCodes'OP_2MUL)
-        (put "2DIV", ScriptOpCodes'OP_2DIV)
-        (put "NEGATE", ScriptOpCodes'OP_NEGATE)
-        (put "ABS", ScriptOpCodes'OP_ABS)
-        (put "NOT", ScriptOpCodes'OP_NOT)
-        (put "0NOTEQUAL", ScriptOpCodes'OP_0NOTEQUAL)
-        (put "ADD", ScriptOpCodes'OP_ADD)
-        (put "SUB", ScriptOpCodes'OP_SUB)
-        (put "MUL", ScriptOpCodes'OP_MUL)
-        (put "DIV", ScriptOpCodes'OP_DIV)
-        (put "MOD", ScriptOpCodes'OP_MOD)
-        (put "LSHIFT", ScriptOpCodes'OP_LSHIFT)
-        (put "RSHIFT", ScriptOpCodes'OP_RSHIFT)
-        (put "BOOLAND", ScriptOpCodes'OP_BOOLAND)
-        (put "BOOLOR", ScriptOpCodes'OP_BOOLOR)
-        (put "NUMEQUAL", ScriptOpCodes'OP_NUMEQUAL)
-        (put "NUMEQUALVERIFY", ScriptOpCodes'OP_NUMEQUALVERIFY)
-        (put "NUMNOTEQUAL", ScriptOpCodes'OP_NUMNOTEQUAL)
-        (put "LESSTHAN", ScriptOpCodes'OP_LESSTHAN)
-        (put "GREATERTHAN", ScriptOpCodes'OP_GREATERTHAN)
-        (put "LESSTHANOREQUAL", ScriptOpCodes'OP_LESSTHANOREQUAL)
-        (put "GREATERTHANOREQUAL", ScriptOpCodes'OP_GREATERTHANOREQUAL)
-        (put "MIN", ScriptOpCodes'OP_MIN)
-        (put "MAX", ScriptOpCodes'OP_MAX)
-        (put "WITHIN", ScriptOpCodes'OP_WITHIN)
-        (put "RIPEMD160", ScriptOpCodes'OP_RIPEMD160)
-        (put "SHA1", ScriptOpCodes'OP_SHA1)
-        (put "SHA256", ScriptOpCodes'OP_SHA256)
-        (put "HASH160", ScriptOpCodes'OP_HASH160)
-        (put "HASH256", ScriptOpCodes'OP_HASH256)
-        (put "CODESEPARATOR", ScriptOpCodes'OP_CODESEPARATOR)
-        (put "CHECKSIG", ScriptOpCodes'OP_CHECKSIG)
-        (put "CHECKSIGVERIFY", ScriptOpCodes'OP_CHECKSIGVERIFY)
-        (put "CHECKMULTISIG", ScriptOpCodes'OP_CHECKMULTISIG)
-        (put "CHECKMULTISIGVERIFY", ScriptOpCodes'OP_CHECKMULTISIGVERIFY)
-        (put "NOP1", ScriptOpCodes'OP_NOP1)
-        (put "CHECKLOCKTIMEVERIFY", ScriptOpCodes'OP_CHECKLOCKTIMEVERIFY)
-        (put "CHECKSEQUENCEVERIFY", ScriptOpCodes'OP_CHECKSEQUENCEVERIFY)
-        (put "NOP2", ScriptOpCodes'OP_NOP2)
-        (put "NOP3", ScriptOpCodes'OP_NOP3)
-        (put "NOP4", ScriptOpCodes'OP_NOP4)
-        (put "NOP5", ScriptOpCodes'OP_NOP5)
-        (put "NOP6", ScriptOpCodes'OP_NOP6)
-        (put "NOP7", ScriptOpCodes'OP_NOP7)
-        (put "NOP8", ScriptOpCodes'OP_NOP8)
-        (put "NOP9", ScriptOpCodes'OP_NOP9)
-        (put "NOP10", ScriptOpCodes'OP_NOP10)
-        (build)))
+    (def- #_"Map<String, Integer>" Script'OP_CODE_NAME_MAP
+    {
+        "0" Script'OP_0,
+        "PUSHDATA1" Script'OP_PUSHDATA1,
+        "PUSHDATA2" Script'OP_PUSHDATA2,
+        "PUSHDATA4" Script'OP_PUSHDATA4,
+        "1NEGATE" Script'OP_1NEGATE,
+        "RESERVED" Script'OP_RESERVED,
+        "1" Script'OP_1,
+        "2" Script'OP_2,
+        "3" Script'OP_3,
+        "4" Script'OP_4,
+        "5" Script'OP_5,
+        "6" Script'OP_6,
+        "7" Script'OP_7,
+        "8" Script'OP_8,
+        "9" Script'OP_9,
+        "10" Script'OP_10,
+        "11" Script'OP_11,
+        "12" Script'OP_12,
+        "13" Script'OP_13,
+        "14" Script'OP_14,
+        "15" Script'OP_15,
+        "16" Script'OP_16,
+        "NOP" Script'OP_NOP,
+        "VER" Script'OP_VER,
+        "IF" Script'OP_IF,
+        "NOTIF" Script'OP_NOTIF,
+        "VERIF" Script'OP_VERIF,
+        "VERNOTIF" Script'OP_VERNOTIF,
+        "ELSE" Script'OP_ELSE,
+        "ENDIF" Script'OP_ENDIF,
+        "VERIFY" Script'OP_VERIFY,
+        "RETURN" Script'OP_RETURN,
+        "TOALTSTACK" Script'OP_TOALTSTACK,
+        "FROMALTSTACK" Script'OP_FROMALTSTACK,
+        "2DROP" Script'OP_2DROP,
+        "2DUP" Script'OP_2DUP,
+        "3DUP" Script'OP_3DUP,
+        "2OVER" Script'OP_2OVER,
+        "2ROT" Script'OP_2ROT,
+        "2SWAP" Script'OP_2SWAP,
+        "IFDUP" Script'OP_IFDUP,
+        "DEPTH" Script'OP_DEPTH,
+        "DROP" Script'OP_DROP,
+        "DUP" Script'OP_DUP,
+        "NIP" Script'OP_NIP,
+        "OVER" Script'OP_OVER,
+        "PICK" Script'OP_PICK,
+        "ROLL" Script'OP_ROLL,
+        "ROT" Script'OP_ROT,
+        "SWAP" Script'OP_SWAP,
+        "TUCK" Script'OP_TUCK,
+        "CAT" Script'OP_CAT,
+        "SUBSTR" Script'OP_SUBSTR,
+        "LEFT" Script'OP_LEFT,
+        "RIGHT" Script'OP_RIGHT,
+        "SIZE" Script'OP_SIZE,
+        "INVERT" Script'OP_INVERT,
+        "AND" Script'OP_AND,
+        "OR" Script'OP_OR,
+        "XOR" Script'OP_XOR,
+        "EQUAL" Script'OP_EQUAL,
+        "EQUALVERIFY" Script'OP_EQUALVERIFY,
+        "RESERVED1" Script'OP_RESERVED1,
+        "RESERVED2" Script'OP_RESERVED2,
+        "1ADD" Script'OP_1ADD,
+        "1SUB" Script'OP_1SUB,
+        "2MUL" Script'OP_2MUL,
+        "2DIV" Script'OP_2DIV,
+        "NEGATE" Script'OP_NEGATE,
+        "ABS" Script'OP_ABS,
+        "NOT" Script'OP_NOT,
+        "0NOTEQUAL" Script'OP_0NOTEQUAL,
+        "ADD" Script'OP_ADD,
+        "SUB" Script'OP_SUB,
+        "MUL" Script'OP_MUL,
+        "DIV" Script'OP_DIV,
+        "MOD" Script'OP_MOD,
+        "LSHIFT" Script'OP_LSHIFT,
+        "RSHIFT" Script'OP_RSHIFT,
+        "BOOLAND" Script'OP_BOOLAND,
+        "BOOLOR" Script'OP_BOOLOR,
+        "NUMEQUAL" Script'OP_NUMEQUAL,
+        "NUMEQUALVERIFY" Script'OP_NUMEQUALVERIFY,
+        "NUMNOTEQUAL" Script'OP_NUMNOTEQUAL,
+        "LESSTHAN" Script'OP_LESSTHAN,
+        "GREATERTHAN" Script'OP_GREATERTHAN,
+        "LESSTHANOREQUAL" Script'OP_LESSTHANOREQUAL,
+        "GREATERTHANOREQUAL" Script'OP_GREATERTHANOREQUAL,
+        "MIN" Script'OP_MIN,
+        "MAX" Script'OP_MAX,
+        "WITHIN" Script'OP_WITHIN,
+        "RIPEMD160" Script'OP_RIPEMD160,
+        "SHA1" Script'OP_SHA1,
+        "SHA256" Script'OP_SHA256,
+        "HASH160" Script'OP_HASH160,
+        "HASH256" Script'OP_HASH256,
+        "CODESEPARATOR" Script'OP_CODESEPARATOR,
+        "CHECKSIG" Script'OP_CHECKSIG,
+        "CHECKSIGVERIFY" Script'OP_CHECKSIGVERIFY,
+        "CHECKMULTISIG" Script'OP_CHECKMULTISIG,
+        "CHECKMULTISIGVERIFY" Script'OP_CHECKMULTISIGVERIFY,
+        "NOP1" Script'OP_NOP1,
+        "CHECKLOCKTIMEVERIFY" Script'OP_CHECKLOCKTIMEVERIFY,
+        "CHECKSEQUENCEVERIFY" Script'OP_CHECKSEQUENCEVERIFY,
+        "NOP2" Script'OP_NOP2,
+        "NOP3" Script'OP_NOP3,
+        "NOP4" Script'OP_NOP4,
+        "NOP5" Script'OP_NOP5,
+        "NOP6" Script'OP_NOP6,
+        "NOP7" Script'OP_NOP7,
+        "NOP8" Script'OP_NOP8,
+        "NOP9" Script'OP_NOP9,
+        "NOP10" Script'OP_NOP10,
+    })
 
     ;;;
      ; Converts the given OpCode into a string (e.g. "0", "PUSHDATA", or "NON_OP(10)")
      ;;
     (defn #_"String" ScriptOpCodes'get-op-code-name [#_"int" code]
-        (if (.containsKey ScriptOpCodes'OP_CODE_MAP, code) (.get ScriptOpCodes'OP_CODE_MAP, code) (str "NON_OP(" code ")"))
+        (get Script'OP_CODE_MAP code (str "NON_OP(" code ")"))
     )
 
     ;;;
      ; Converts the given pushdata OpCode into a string (e.g. "PUSHDATA2", or "PUSHDATA(23)")
      ;;
     (defn #_"String" ScriptOpCodes'get-push-data-name [#_"int" code]
-        (if (.containsKey ScriptOpCodes'OP_CODE_MAP, code) (.get ScriptOpCodes'OP_CODE_MAP, code) (str "PUSHDATA(" code ")"))
+        (get Script'OP_CODE_MAP code (str "PUSHDATA(" code ")"))
     )
 
     ;;;
      ; Converts the given OpCodeName into an int.
      ;;
     (defn #_"int" ScriptOpCodes'get-op-code [#_"String" name]
-        (if (.containsKey ScriptOpCodes'OP_CODE_NAME_MAP, name) (.get ScriptOpCodes'OP_CODE_NAME_MAP, name) ScriptOpCodes'OP_INVALIDOPCODE)
+        (get Script'OP_CODE_NAME_MAP name Script'OP_INVALIDOPCODE)
     )
 )
 
@@ -24954,8 +24935,8 @@
 )
 
 ;;;
- ; Caching counter for the block versions within a moving window.  This class is NOT thread safe
- ; (as if two threads are trying to use it concurrently, there's risk of getting versions out of sequence).
+ ; Caching counter for block versions within a moving window.
+ ; NOT thread safe as there's risk of getting versions out of sequence.
  ;
  ; @see Ledger#getMajorityWindow()
  ;;
@@ -24963,85 +24944,58 @@
     (defn #_"VersionTally" VersionTally'new [#_"Ledger" ledger]
         (hash-map
             ;;;
+             ; Number of versions to be accumulated.  Until it matches the size of
+             ; the version window, we do not have sufficient data to return values.
+             ;;
+            #_"int" :capacity (:majority-window ledger)
+            ;;;
              ; Cache of version numbers.
              ;;
-            #_"long[]" :version-window (long-array (:majority-window ledger))
-            ;;;
-             ; Offset within the version window at which the next version will be written.
-             ;;
-            #_"int" :version-write-head 0
-            ;;;
-             ; Number of versions written into the tally.  Until this matches the length
-             ; of the version window, we do not have sufficient data to return values.
-             ;;
-            #_"int" :versions-stored 0
+            #_"long*" :version-window (rrb/vector-of :long)
         )
     )
 
     ;;;
-     ; Add a new block version to the tally, and return the count for that version within the window.
-     ;
-     ; @param version The block version to add.
+     ; Add a new block version to the tally.
      ;;
     #_method
-    (defn #_"void" VersionTally''add [#_"VersionTally" this, #_"long" version]
-        (aset (:version-window this) (:version-write-head this) version)
-        (§ update this :version-write-head inc)
-        (when (= (:version-write-head this) (alength (:version-window this)))
-            (§ assoc this :version-write-head 0)
-        )
-        (§ update this :versions-stored inc)
-        nil
+    (defn #_"VersionTally" VersionTally''add [#_"VersionTally" this, #_"long" version]
+        (update this :version-window #(conj (if (= (count %) (:capacity this)) (rrb/subvec % 1) %) version))
     )
 
     ;;;
-     ; Get the count of blocks at or above the given version, within the window.
+     ; Create a version tally for a block store.  Note this does not search backwards past
+     ; the start of the block store, so if starting from a checkpoint, this may not fill the window.
+     ;
+     ; @param store Block store to load blocks from.
+     ; @param block Chain head.
+     ;;
+    #_throws #_[ "BlockStoreException" ]
+    (defn #_"VersionTally" VersionTally'from-store [#_"Ledger" ledger, #_"BlockStore" store, #_"StoredBlock" block]
+        (let [#_"VersionTally" this (VersionTally'new ledger)
+              ;; We don't know how many blocks back we can go, so load what we can first.
+              #_"Stack<Long>" stack (->>
+                    (iterate #(StoredBlock''get-prev %, store) block)
+                    (take-while some?)
+                    (take (:capacity this))
+                    (map #(:version (:stored-header %)))
+                    (reduce conj (list))
+              )]
+            ;; Replay the versions into the tally.
+            (reduce VersionTally''add this stack)
+        )
+    )
+
+    ;;;
+     ; Count the blocks at or above the given version within the window, or null if the window is not yet full.
      ;
      ; @param version The block version to query.
-     ; @return the count for the block version, or null if the window is not yet full.
      ;;
     #_method
     (defn #_"Integer" VersionTally''get-count-at-or-above [#_"VersionTally" this, #_"long" version]
-        (let-when [#_"int" m (alength (:version-window this))] (<= m (:versions-stored this))
-            (loop-when-recur [#_"int" n 0 #_"int" i 0] (< i m) [(if (<= version (aget (:version-window this) i)) (inc n) n) (inc i)] => n)
+        (when (= (count (:version-window this)) (:capacity this))
+            (count (filter #(<= version %) (:version-window this)))
         )
-    )
-
-    ;;;
-     ; Initialize the version tally from the block store.  Note this does not search backwards past
-     ; the start of the block store, so if starting from a checkpoint this may not fill the window.
-     ;
-     ; @param blockStore Block store to load blocks from.
-     ; @param chainHead Current chain tip.
-     ;;
-    #_throws #_[ "BlockStoreException" ]
-    #_method
-    (defn #_"void" VersionTally''initialize [#_"VersionTally" this, #_"BlockStore" store, #_"StoredBlock" head]
-        (let [#_"Stack<Long>" versions (Stack.)]
-            ;; We don't know how many blocks back we can go, so load what we can first.
-            (.push versions, (:version (:stored-header head)))
-
-            (loop-when [#_"StoredBlock" v head #_"int" i 0] (< i (alength (:version-window this)))
-                (when-let [v (StoredBlock''get-prev v, store)]
-                    (.push versions, (:version (:stored-header v)))
-                    (recur v (inc i))
-                )
-            )
-
-            ;; Replay the versions into the tally.
-            (while (seq versions)
-                (VersionTally''add this, (.pop versions))
-            )
-        )
-        nil
-    )
-
-    ;;;
-     ; Get the size of the version window.
-     ;;
-    #_method
-    (defn #_"int" VersionTally''size [#_"VersionTally" this]
-        (alength (:version-window this))
     )
 )
 
@@ -31687,12 +31641,12 @@
      ;;
     #_method
     (defn #_"void" Wallet''set-transaction-broadcaster [#_"Wallet" this, #_"TransactionBroadcaster" broadcaster]
-        (when-let [#_"Transaction[]" __toBroadcast
+        (when-let [#_"Transaction*" __toBroadcast
                 (sync (:wallet-lock this)
                     (when-not (= (:v-transaction-broadcaster this) broadcaster)
                         (§ assoc this :v-transaction-broadcaster broadcaster)
                         (when (some? broadcaster)
-                            (.toArray (.values (:pending this)), (§ make-array Transaction 0))
+                            (vals (:pending this))
                         )
                     )
                 )]
