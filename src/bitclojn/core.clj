@@ -1,5 +1,5 @@
 (ns bitclojn.slang
-    (:refer-clojure :exclude [ensure sync]))
+    (:refer-clojure :exclude [ensure sync when when-not]))
 
 (defmacro § [& _])
 (defmacro ß [& _])
@@ -15,21 +15,21 @@
     ([x y] (if (sequential? x) (if (seq x) (or (=? (first x) y) (recur (rest x) y)) false) (if (sequential? y) (recur y x) (= x y))))
     ([x y & z] (=? x (cons y z))))
 
-(defmacro when' [y & w]
-    (let [[_ & w] (if (= '=> (first w)) (rest w) (cons nil w))]
-        `(if ~y (do ~@w) ~_)))
-(defmacro let-when [x y & w]
-    (let [[_ & w] (if (= '=> (first w)) (rest w) (cons nil w))]
-        `(let [~@x] (if ~y (do ~@w) ~_))))
+(letfn [(w' [w] (if (= '=> (first w)) (rest w) (cons nil w)))]
+    (defmacro     when       [y & w] (let [[_ & w] (w' w)]            `(if     ~y (do ~@w) ~_)))
+    (defmacro     when-not   [y & w] (let [[_ & w] (w' w)]            `(if-not ~y (do ~@w) ~_)))
+    (defmacro let-when     [x y & w] (let [[_ & w] (w' w)] `(let [~@x] (if     ~y (do ~@w) ~_))))
+    (defmacro let-when-not [x y & w] (let [[_ & w] (w' w)] `(let [~@x] (if-not ~y (do ~@w) ~_)))))
 
-(letfn [(l' [x y z w]
-    (let [x (cond (vector? x) x (symbol? x) [x x] :else [`_# x]) z (cond (vector? z) `((recur ~@z)) (some? z) `((recur ~z))) [_ & w] (if (= '=> (first w)) (rest w) (cons nil w))]
-        `(loop [~@x] (if ~y (do ~@w ~@z) ~_))))]
-            (defmacro loop-when [x y & w] (l' x y nil w))
-            (defmacro loop-when-recur [x y z & w] (l' x y z w)))
-(defmacro recur-if [y z & w]
-    (let [z (cond (vector? z) `(recur ~@z) (some? z) `(recur ~z)) _ (if (= '=> (first w)) (second w))]
-        `(if ~y ~z ~_)))
+(letfn [(z' [z] (cond (vector? z) `((recur ~@z)) (some? z) `((recur ~z))))
+        (w' [w] (if (= '=> (first w)) (rest w) (cons nil w)))
+        (l' [x y z w] (let [x (cond (vector? x) x (symbol? x) [x x] :else [`_# x]) z (z' z) [_ & w] (w' w)] `(loop [~@x] (if ~y (do ~@w ~@z) ~_))))]
+    (defmacro loop-when [x y & w] (l' x y nil w))
+    (defmacro loop-when-recur [x y z & w] (l' x y z w)))
+
+(letfn [(z' [z] (cond (vector? z) `(recur ~@z) (some? z) `(recur ~z)))
+        (w' [w] (if (= '=> (first w)) (second w)))]
+    (defmacro recur-if [y z & w] (let [z (z' z) _ (w' w)] `(if ~y ~z ~_))))
 
 (defmacro assert-argument [a & m]
     (when *assert* `(when-not ~a (throw (IllegalArgumentException. ~(if (seq m) `(pr-str ~@m) `(pr-str '~a)))))))
@@ -68,7 +68,7 @@
 )
 
 (ns bitclojn.core
-    (:refer-clojure :exclude [ensure sync])
+    (:refer-clojure :exclude [ensure sync when when-not])
     (:import [com.google.common.base Charsets Joiner MoreObjects Stopwatch Throwables]
              [com.google.common.collect ArrayListMultimap ImmutableList ImmutableSet Iterables]
              [com.google.common.hash HashCode Hasher Hashing]
@@ -331,7 +331,7 @@
 (declare WrongNetworkException'new)
 
 (§ ns bitclojn.base-listeners
-    (:refer-clojure :exclude [ensure sync])
+    (:refer-clojure :exclude [ensure sync when when-not])
     (:use [bitclojn slang])
 )
 
@@ -704,7 +704,7 @@
 )
 
 (§ ns bitclojn.base
-    (:refer-clojure :exclude [ensure sync])
+    (:refer-clojure :exclude [ensure sync when when-not])
     (:use [bitclojn slang])
 )
 
@@ -848,7 +848,7 @@
      ;;
     (defn #_"BigInteger" Wire'decode-mpi [#_"byte[]" mpi, #_"boolean" len?]
         (let [#_"byte[]" bytes
-                (when' len? => mpi
+                (when len? => mpi
                     (let [#_"int" n (int (Wire'bget-uint32be mpi, 0))
                           bytes (byte-array n) _ (System/arraycopy mpi, 4, bytes, 0, n)]
                         bytes
@@ -876,7 +876,7 @@
      ; @param includeLength indicates whether the 4 byte length field should be included.
      ;;
     (defn #_"byte[]" Wire'encode-mpi [#_"BigInteger" i, #_"boolean" len?]
-        (when' (not= i BigInteger/ZERO) => (byte-array (if len? 4 0))
+        (when-not (= i BigInteger/ZERO) => (byte-array (if len? 4 0))
             (let [#_"byte[]" array (.toByteArray (.abs i)) #_"int" m (alength array)
                   #_"int" n (if (= (& (aget array 0) 0x80) 0x80) (inc m) m)]
                 (if len?
@@ -889,7 +889,7 @@
                         bytes
                     )
                     (let [#_"byte[]" bytes
-                            (when' (not= n m) => array
+                            (when-not (= n m) => array
                                 (let [bytes (byte-array n)]
                                     (System/arraycopy array, 0, bytes, 1, m)
                                     bytes
@@ -1065,7 +1065,7 @@
     )
 
     (defn #_"int" Utils'max-of-most-freq [#_"List<Integer>" items]
-        (when' (seq items) => 0
+        (when (seq items) => 0
             (let [pairs (frequencies items)]
                 ;; Pick the max of the most frequent items.
                 (let [pairs (sort-by second (comp - compare) pairs) #_"int" m (second (first pairs))]
@@ -1309,7 +1309,7 @@
                         )
                         (loop-when [#_"int" i (:min-decimals this) #_"List<Integer>" groups (:decimal-groups this)] (seq groups)
                             (let [#_"int" group (first groups)]
-                                (when' (< i (.length sb) (+ i group)) => (recur (+ i group) (next groups))
+                                (when (< i (.length sb) (+ i group)) => (recur (+ i group) (next groups))
                                     (while (< (.length sb) (+ i group))
                                         (.append sb, "0")
                                     )
@@ -1332,7 +1332,7 @@
                         )
 
                         ;; Convert to non-arabic digits.
-                        (when (not= (:zero-digit this) \0)
+                        (when-not (= (:zero-digit this) \0)
                             (let [#_"int" offset (- (:zero-digit this) \0)]
                                 (dotimes [#_"int" i (.length sb)]
                                     (let [#_"char" c (.charAt sb, i)]
@@ -1383,7 +1383,7 @@
         (let [#_"char" s0 (.charAt s, 0) s (if (any = s0 (:negative-sign this) (:positive-sign this)) (.substring s, 1) s)
               #_"int" i (.indexOf s, (:decimal-mark this))
               [#_"String" numbers #_"String" decimals]
-                (when' (not= i -1) => [s MonetaryFormat'DECIMALS_PADDING]
+                (when-not (= i -1) => [s MonetaryFormat'DECIMALS_PADDING]
                     (let [numbers (.substring s, 0, i) decimals (.substring (str s MonetaryFormat'DECIMALS_PADDING), (inc i))]
                         (when-not (= (.indexOf decimals, (:decimal-mark this)) -1)
                             (throw (NumberFormatException. "more than one decimal mark"))
@@ -2004,7 +2004,7 @@
 
         (let [#_"int" __walletHeight (Wallet''get-last-block-seen-height wallet)
               #_"int" __chainHeight (BlockChain''get-best-chain-height this)]
-            (when (not= __walletHeight __chainHeight)
+            (when-not (= __walletHeight __chainHeight)
                 (log/warn (str "Wallet/chain height mismatch: " __walletHeight " vs " __chainHeight))
                 (log/warn (str "Hashes: " (Wallet''get-last-block-seen-hash wallet) " vs " (Block''get-hash (:stored-header (BlockChain''get-chain-head this)))))
 
@@ -2368,8 +2368,8 @@
             (let [#_"StoredBlock" head (BlockChain''get-chain-head this)]
                 (cond (.equals __storedPrev, head)
                     (do
-                        (when (and filtered? (pos? (.size __filteredTxn)))
-                            (log/debug (str "Block " (Block''get-hash block) " connects to top of best chain with " (.size __filteredTxHashList) " transaction(s) of which we were sent " (.size __filteredTxn)))
+                        (when (and filtered? (pos? (count __filteredTxn)))
+                            (log/debug (str "Block " (Block''get-hash block) " connects to top of best chain with " (count __filteredTxHashList) " transaction(s) of which we were sent " (count __filteredTxn)))
                             (doseq [#_"Sha256Hash" hash __filteredTxHashList]
                                 (log/debug (str "  matched tx " hash))
                             )
@@ -2406,7 +2406,7 @@
                     (let [#_"StoredBlock" __newBlock (StoredBlock''build __storedPrev, block)
                           #_"boolean" reorg? (StoredBlock''more-work-than __newBlock, head)
                           #_"boolean" abort?
-                            (when' (not reorg?) => false
+                            (when (not reorg?) => false
                                 (let [#_"StoredBlock" __splitPoint (BlockChain'find-split __newBlock, head, (:block-store this))]
                                     (cond (and (some? __splitPoint) (.equals __splitPoint, __newBlock))
                                         (do
@@ -2502,7 +2502,7 @@
                 )
             )
 
-            (§ ass this (BlockChain''track-false-positives this, (.size __falsePositives)))
+            (§ ass this (BlockChain''track-false-positives this, (count __falsePositives)))
         )
         this
     )
@@ -2525,7 +2525,7 @@
                 ;; set of hashes and call sendTransactionsToListener with individual txn when they have not already been
                 ;; seen in loose broadcasts - otherwise notifyTransactionIsInBlock on the hash.
                 (loop-when-recur [#_"int" offset 0 #_"List<Sha256Hash>" s __filteredTxHashList] (seq s) [(inc offset) (next s)]
-                    (let [#_"Sha256Hash" hash (first s) #_"Transaction" tx (.get __filteredTxn, hash)]
+                    (let [#_"Sha256Hash" hash (first s) #_"Transaction" tx (get __filteredTxn hash)]
                         (if (some? tx)
                             (BlockChain'send-transactions-to-listener stored, type, listener, offset, (Collections/singletonList tx), clone?, __falsePositives)
                             (when (TransactionReceivedInBlockListener'''notify-transaction-is-in-block listener, hash, stored, type, offset)
@@ -2719,7 +2719,7 @@
             (let [#_"Transaction" tx (first s)
                   i (try+
                         (.remove __falsePositives, (Transaction''get-hash tx))
-                        (let [tx (when' clone? => tx
+                        (let [tx (when clone? => tx
                                     (Transaction'from-wire (:ledger tx), (ByteBuffer/wrap (Message''to-bytes tx, Transaction''to-wire)))
                                 )]
                             (TransactionReceivedInBlockListener'''receive-from-block listener, tx, block, type, i)
@@ -2814,7 +2814,7 @@
     #_method
     (defn #_"Block" BlockChain''get-orphan-root [#_"BlockChain" this, #_"Sha256Hash" from]
         (sync (:blockchain-lock this)
-            (let [#_"OrphanBlock" cursor (.get (:orphan-blocks this), from)]
+            (let [#_"OrphanBlock" cursor (get (:orphan-blocks this) from)]
                 (when (some? cursor)
                     (loop [cursor cursor]
                         (let [#_"Block" block (:block cursor) cursor (.get (:orphan-blocks this), (:prev-block-hash block))]
@@ -3186,7 +3186,7 @@
     (defn ListMessage''to-wire
         (#_"String" [] nil)
         (#_"void" [#_"ListMessage" this, #_"ByteArrayOutputStream" baos]
-            (.write baos, (VarInt''encode (VarInt'new (.size (:items this)))))
+            (.write baos, (VarInt''encode (VarInt'new (count (:items this)))))
             (doseq [#_"InventoryItem" item (:items this)]
                 ;; Write out the type code.
                 (Wire'write-uint32 (InventoryItemType'enum-map (:item-type item)), baos)
@@ -3395,7 +3395,7 @@
         (#_"String" [] "addr")
         (#_"void" [#_"AddressMessage" this, #_"ByteArrayOutputStream" baos]
             (when (some? (:addresses this))
-                (.write baos, (VarInt''encode (VarInt'new (.size (:addresses this)))))
+                (.write baos, (VarInt''encode (VarInt'new (count (:addresses this)))))
                 (doseq [#_"PeerAddress" addr (:addresses this)]
                     (PeerAddress''to-wire addr, baos)
                 )
@@ -3529,7 +3529,7 @@
               this (assoc this :cancel (Wire'read-uint32 payload))
               ;; Sets are serialized as <len><item><item><item>....
               _ (let [#_"long" n (Wire'read-var-int payload)]
-                    (when' (<= 0 n AlertMessage'MAX_SET_SIZE) => (throw+ (ProtocolException'new (str "Bad cancel set size: " n)))
+                    (when (<= 0 n AlertMessage'MAX_SET_SIZE) => (throw+ (ProtocolException'new (str "Bad cancel set size: " n)))
                         (let [#_"Set<Long>" __cancelSet (HashSet. n)]
                             (dotimes [_ n]
                                 (.add __cancelSet, (Wire'read-uint32 payload))
@@ -3541,7 +3541,7 @@
               this (assoc this :max-ver (Wire'read-uint32 payload))
               ;; Read the subver matching set.
               _ (let [#_"long" n (Wire'read-var-int payload)]
-                    (when' (<= 0 n AlertMessage'MAX_SET_SIZE) => (throw+ (ProtocolException'new (str "Bad subver set size: " n)))
+                    (when (<= 0 n AlertMessage'MAX_SET_SIZE) => (throw+ (ProtocolException'new (str "Bad subver set size: " n)))
                         (let [#_"Set<String>" __matchingSubVers (HashSet. n)]
                             (dotimes [_ n]
                                 (.add __matchingSubVers, (Wire'read-string payload))
@@ -4066,7 +4066,7 @@
     #_method
     (defn- #_"void" Block''write-transactions [#_"Block" this, #_"ByteArrayOutputStream" baos]
         (when-let [#_"List<Transaction>" transactions (:transactions this)]
-            (.write baos, (VarInt''encode (VarInt'new (.size transactions))))
+            (.write baos, (VarInt''encode (VarInt'new (count transactions))))
             (doseq [#_"Transaction" tx transactions]
                 (Transaction''to-wire tx, baos)
             )
@@ -4213,9 +4213,9 @@
         ;; To prevent this attack from being possible, elsewhere we check that the difficultyTarget
         ;; field is of the right value.  This requires us to have the preceeding blocks.
         (let [#_"BigInteger" target (Block''get-difficulty-target-as-integer this) #_"BigInteger" hash (Sha256Hash''to-big-integer (Block''get-hash this))]
-            (when' (pos? (.compareTo hash, target)) => true
+            (when (pos? (.compareTo hash, target)) => true
                 ;; Proof of work check failed!
-                (when' throw? => false
+                (when throw? => false
                     (throw+ (VerificationException'new (str "Hash is higher than target: " (Block''get-hash this) " vs " (.toString target, 16))))
                 )
             )
@@ -4247,7 +4247,7 @@
     #_method
     (defn- #_"Sha256Hash" Block''calculate-merkle-root [#_"Block" this]
         (let [#_"List<byte[]>" tree (Block''build-merkle-tree this)]
-            (Sha256Hash'wrap (.get tree, (dec (.size tree))))
+            (Sha256Hash'wrap (.get tree, (dec (count tree))))
         )
     )
 
@@ -4290,7 +4290,7 @@
             )
             ;; Offset in the list is where the currently processed level starts.
             ;; Step through each level, stopping when we reach the root (size == 1).                  ;; Move to the next level.
-            (loop-when-recur [#_"int" offset 0 #_"int" size (.size (:transactions this))] (< 1 size) [(+ offset size) (quot (inc size) 2)]
+            (loop-when-recur [#_"int" offset 0 #_"int" size (count (:transactions this))] (< 1 size) [(+ offset size) (quot (inc size) 2)]
                 ;; For each pair of nodes on that level:
                 (loop-when-recur [#_"int" left 0] (< left size) [(+ left 2)]
                     ;; The right hand node can be the same as the left hand, in the case where we don't have enough transactions.
@@ -4316,17 +4316,17 @@
     #_method
     (defn- #_"void" Block''check-transactions [#_"Block" this, #_"int" height, #_"EnumSet<BlockVerifyFlag>" flags]
         ;; The first transaction in a block must always be a coinbase transaction.
-        (when-not (Transaction''is-coin-base (.get (:transactions this), 0))
+        (when-not (Transaction''is-coin-base (nth (:transactions this) 0))
             (throw+ (VerificationException'new "First tx is not coinbase"))
         )
 
         (when (and (.contains flags, :BlockVerifyFlag'HEIGHT_IN_COINBASE) (<= Block'BLOCK_HEIGHT_GENESIS height))
-            (Transaction''check-coin-base-height (.get (:transactions this), 0), height)
+            (Transaction''check-coin-base-height (nth (:transactions this) 0), height)
         )
 
         ;; The rest must not be.
-        (loop-when-recur [#_"int" i 1] (< i (.size (:transactions this))) [(inc i)]
-            (when (Transaction''is-coin-base (.get (:transactions this), i))
+        (loop-when-recur [#_"int" i 1] (< i (count (:transactions this))) [(inc i)]
+            (when (Transaction''is-coin-base (nth (:transactions this) i))
                 (throw+ (VerificationException'new (str "TX " i " is coinbase when it should not be.")))
             )
         )
@@ -4416,10 +4416,10 @@
             (§ ass this (assoc this :transactions (ArrayList.)))
         )
         (§ ass tx (assoc tx :parent this))
-        (when (and check? (= (.size (:transactions this)) 0) (not (Transaction''is-coin-base tx)))
+        (when (and check? (= (count (:transactions this)) 0) (not (Transaction''is-coin-base tx)))
             (throw (RuntimeException. (str "Attempted to add a non-coinbase transaction as the first transaction: " tx)))
         )
-        (when (and check? (< 0 (.size (:transactions this))) (Transaction''is-coin-base tx))
+        (when (and check? (< 0 (count (:transactions this))) (Transaction''is-coin-base tx))
             (throw (RuntimeException. (str "Attempted to add a coinbase transaction when there already is one: " tx)))
         )
         (.add (:transactions this), tx)
@@ -4493,8 +4493,8 @@
                 (.. sb (append "   time: ") (append (:time-seconds this)) (append " (") (append (Time'format-seconds (:time-seconds this))) (append ")\n"))
                 (.. sb (append "   difficulty target (nBits): ") (append (:difficulty-target this)) (append "\n"))
                 (.. sb (append "   nonce: ") (append (:nonce this)) (append "\n"))
-                (when (and (some? (:transactions this)) (pos? (.size (:transactions this))))
-                    (.. sb (append "   with ") (append (.size (:transactions this))) (append " transaction(s):\n"))
+                (when (and (some? (:transactions this)) (pos? (count (:transactions this))))
+                    (.. sb (append "   with ") (append (count (:transactions this))) (append " transaction(s):\n"))
                     (doseq [#_"Transaction" tx (:transactions this)]
                         (.. sb (append tx))
                     )
@@ -4557,7 +4557,7 @@
             (let [#_"int" best (BlockChain''get-best-chain-height this)]
                 (assert-argument (<= 0 height best), (str "Bad height: " height))
 
-                (when (not= height best)
+                (when-not (= height best)
                     ;; Look for the block we want to be the new chain head.
                     (let [#_"StoredBlock" head
                             (loop-when [head (BlockStore'''get-chain-head (:block-store this))] (< height (:stored-height head)) => head
@@ -4775,7 +4775,7 @@
                         (recur (-> h (bit-xor k) (swap- 13) (* 5) (+ 0xe6546b64)) (+ i 4))
                     )
                 )
-              h (when' (< 0 n) => h
+              h (when (< 0 n) => h
                     (let [#_"int" k 0
                           k (if (< 2 n) (bit-xor k (<< (& 0xff (aget a (+ m 2))) 16)) k)
                           k (if (< 1 n) (bit-xor k (<< (& 0xff (aget a (inc m))) 8)) k)
@@ -4853,7 +4853,7 @@
     #_method
     (defn #_"BloomFilter" BloomFilter''merge [#_"BloomFilter" this, #_"BloomFilter" filter]
         (sync this
-            (when' (and (not (BloomFilter''matches-all this)) (not (BloomFilter''matches-all filter))) => (§ ass this (assoc this :data (byte-array [ (byte 0xff) ])))
+            (when (and (not (BloomFilter''matches-all this)) (not (BloomFilter''matches-all filter))) => (§ ass this (assoc this :data (byte-array [ (byte 0xff) ])))
                 (assert-argument (and (= (alength (:data filter)) (alength (:data this)))
                                       (= (:hash-funcs filter) (:hash-funcs this))
                                       (= (:n-tweak filter) (:n-tweak this))))
@@ -4898,11 +4898,11 @@
     (defn #_"FilteredBlock" BloomFilter''apply-and-update-b [#_"BloomFilter" this, #_"Block" block]
         (sync this
             (let [#_"List<Transaction>" txns (:transactions block)
-                  #_"List<Sha256Hash>" hashes (ArrayList. (.size txns))
+                  #_"List<Sha256Hash>" hashes (ArrayList. (count txns))
                   #_"List<Transaction>" matched (ArrayList.)
-                  #_"byte[]" bits (byte-array (int (Math/ceil (/ (.size txns) 8.0))))]
-                (dotimes [#_"int" i (.size txns)]
-                    (let [#_"Transaction" tx (.get txns, i)]
+                  #_"byte[]" bits (byte-array (int (Math/ceil (/ (count txns) 8.0))))]
+                (dotimes [#_"int" i (count txns)]
+                    (let [#_"Transaction" tx (nth txns i)]
                         (.add hashes, (Transaction''get-hash tx))
                         (when (BloomFilter''apply-and-update-t this, tx)
                             (Utils'set-bit-le bits, i)
@@ -5044,7 +5044,7 @@
                     )
                 )
                 (let [#_"HashCode" hash (.hash hasher)]
-                    (log/info (str "Read " (.size (:checkpoints this)) " checkpoints, hash is " hash))
+                    (log/info (str "Read " (count (:checkpoints this)) " checkpoints, hash is " hash))
                     (Sha256Hash'wrap (.asBytes hash))
                 )
             )
@@ -5073,7 +5073,7 @@
     ;;; Returns the number of checkpoints that were loaded. ;;
     #_method
     (defn #_"int" CheckpointManager''num-checkpoints [#_"CheckpointManager" this]
-        (.size (:checkpoints this))
+        (count (:checkpoints this))
     )
 
     ;;; Returns a hash of the concatenated checkpoint data. ;;
@@ -5535,7 +5535,7 @@
      ;;
     #_abstract
     (defn #_"ECDSASignature" ECKey'''sign [#_"ECKey" this, #_"Sha256Hash" input]
-        (when' (some? (:priv this)) => (throw+ (MissingPrivateKeyException'new))
+        (when (some? (:priv this)) => (throw+ (MissingPrivateKeyException'new))
             (ECKey''do-sign this, input, (:priv this))
         )
     )
@@ -6025,7 +6025,7 @@
     #_method
     (defn #_"boolean" FilteredBlock''provide-transaction [#_"FilteredBlock" this, #_"Transaction" tx]
         (let [#_"Sha256Hash" hash (Transaction''get-hash tx)]
-            (when' (.contains (FilteredBlock''get-transaction-hashes this), hash) => false
+            (when (.contains (FilteredBlock''get-transaction-hashes this), hash) => false
                 (.put (:associated-transactions this), hash, tx)
                 true
             )
@@ -6083,7 +6083,7 @@
     (defn #_"VerificationException" Callable'''call [#_"FullPrunedVerifier" this]
         (try+
             (let [#_"ListIterator<Script>" it (.listIterator (:prev-out-scripts this))]
-                (dotimes [#_"int" i (.size (:inputs (:tx this)))]
+                (dotimes [#_"int" i (count (:inputs (:tx this)))]
                     (Script''correctly-spends (TransactionInput''get-script-sig (Transaction''get-input (:tx this), i)), (:tx this), i, (.next it), (:verify-flags this))
                 )
                 nil
@@ -6229,7 +6229,7 @@
         (let [#_"LinkedList<UTXO>" __txOutsCreated (LinkedList.) #_"LinkedList<UTXO>" __txOutsSpent (LinkedList.)]
             (try+
                 (let [#_"long" ops
-                        (when' (not (Ledger''is-checkpoint (:ledger this), height)) => 0
+                        (when (not (Ledger''is-checkpoint (:ledger this), height)) => 0
                             ;; BIP30 violator blocks are ones that contain a duplicated transaction.  They are all in the checkpoints list
                             ;; and we therefore only check non-checkpoints for duplicated transactions here.  See the BIP30 document
                             ;; for more details on this: https://github.com/bitcoin/bips/blob/master/bip-0030.mediawiki
@@ -6238,7 +6238,7 @@
                                       #_"Set<ScriptVerifyFlag>" flags (Ledger''get-transaction-verification-flags (:ledger this), block, tx, (:version-tally this))]
                                     ;; If we already have unspent outputs for this hash, we saw the tx already.
                                     ;; Either the block is being added twice (bug) or the block is a BIP30 violator.
-                                    (when (FullPrunedBlockStore'''has-unspent-outputs (:block-store this), (Transaction''get-hash tx), (.size (:outputs tx)))
+                                    (when (FullPrunedBlockStore'''has-unspent-outputs (:block-store this), (Transaction''get-hash tx), (count (:outputs tx)))
                                         (throw+ (VerificationException'new "Block failed BIP30 test!"))
                                     )
                                     ;; We already check non-BIP16 sigops in Block.verifyTransactions(true).
@@ -6246,7 +6246,7 @@
                                 )
                             )
                         )
-                      #_"List<Future<VerificationException>>" results (ArrayList. (.size (:transactions block)))
+                      #_"List<Future<VerificationException>>" results (ArrayList. (count (:transactions block)))
                       [#_"Coin" fees #_"Coin" __coinbaseValue]
                         (loop-when [ops ops fees Coin'ZERO __coinbaseValue nil #_"List<Transaction>" s (:transactions block)] (seq s) => [fees __coinbaseValue]
                             (let [#_"Transaction" tx (first s)
@@ -6254,7 +6254,7 @@
                                   #_"boolean" coinbase? (Transaction''is-coin-base tx)
                                   #_"List<Script>" scripts (LinkedList.)
                                   [ops #_"Coin" __valueIn]
-                                    (when' (not coinbase?) => [ops Coin'ZERO]
+                                    (when (not coinbase?) => [ops Coin'ZERO]
                                         ;; For each input of the transaction remove the corresponding output from the set of unspent outputs.
                                         (loop-when [ops ops __valueIn Coin'ZERO #_"List<TransactionInput>" inputs (:inputs tx)] (seq inputs) => [ops __valueIn]
                                             (let [#_"TransactionInput" input (first inputs)
@@ -6272,9 +6272,9 @@
                                                 ;; TODO: Check we're not spending the genesis transaction here. Bitcoin Core won't allow it.
                                                 (let [__valueIn (Coin''add __valueIn, (:utxo-value out))
                                                       ops
-                                                        (when' (.contains flags, :ScriptVerifyFlag'P2SH) => ops
+                                                        (when (.contains flags, :ScriptVerifyFlag'P2SH) => ops
                                                             (let [ops
-                                                                    (when' (Script''is-pay-to-script-hash (:script out)) => ops
+                                                                    (when (Script''is-pay-to-script-hash (:script out)) => ops
                                                                         (+ ops (Script'get-p2sh-sig-op-count (:script-bytes input)))
                                                                     )]
                                                                 (when (< Block'MAX_BLOCK_SIGOPS ops)
@@ -6310,7 +6310,7 @@
                                         (throw+ (VerificationException'new "Transaction output value out of range"))
                                     )
                                     (let [[fees __coinbaseValue]
-                                            (when' (not coinbase?) => [fees __valueOut]
+                                            (when (not coinbase?) => [fees __valueOut]
                                                 (when (or (neg? (.compareTo __valueIn, __valueOut)) (pos? (.compareTo __valueIn, (Ledger''get-max-money (:ledger this)))))
                                                     (throw+ (VerificationException'new "Transaction input value out of range"))
                                                 )
@@ -6392,7 +6392,7 @@
                         (do
                             (when-not (Ledger''is-checkpoint (:ledger this), (:stored-height stored))
                                 (doseq [#_"Transaction" tx (:transactions block)]
-                                    (when (FullPrunedBlockStore'''has-unspent-outputs (:block-store this), (Transaction''get-hash tx), (.size (:outputs tx)))
+                                    (when (FullPrunedBlockStore'''has-unspent-outputs (:block-store this), (Transaction''get-hash tx), (count (:outputs tx)))
                                         (throw+ (VerificationException'new "Block failed BIP30 test!"))
                                     )
                                 )
@@ -6403,7 +6403,7 @@
                             )
 
                             (let [#_"LinkedList<UTXO>" __txOutsCreated (LinkedList.) #_"LinkedList<UTXO>" __txOutsSpent (LinkedList.)
-                                  #_"List<Future<VerificationException>>" results (ArrayList. (.size (:transactions block)))
+                                  #_"List<Future<VerificationException>>" results (ArrayList. (count (:transactions block)))
                                   [#_"Coin" fees #_"Coin" __coinbaseValue]
                                     (loop-when [#_"long" ops 0 fees Coin'ZERO __coinbaseValue nil #_"List<Transaction>" s (:transactions this)] (seq s) => [fees __coinbaseValue]
                                         (let [#_"Transaction" tx (first s)
@@ -6411,7 +6411,7 @@
                                               #_"boolean" coinbase? (Transaction''is-coin-base tx)
                                               #_"List<Script>" _scripts (LinkedList.)
                                               [ops #_"Coin" __valueIn]
-                                                (when' (not coinbase?) => [ops Coin'ZERO]
+                                                (when (not coinbase?) => [ops Coin'ZERO]
                                                     (loop-when [ops ops __valueIn Coin'ZERO #_"List<TransactionInput>" inputs (:inputs tx)] (seq inputs) => [ops __valueIn]
                                                         (let [#_"TransactionInput" input (first inputs)
                                                               #_"UTXO" out (FullPrunedBlockStore'''get-transaction-output (:block-store this), (:from-tx-hash (:outpoint input)), (:index (:outpoint input)))]
@@ -6425,9 +6425,9 @@
                                                             )
                                                             (let [__valueIn (Coin''add __valueIn, (:utxo-value out))
                                                                   ops
-                                                                    (when' (.contains flags, :ScriptVerifyFlag'P2SH) => ops
+                                                                    (when (.contains flags, :ScriptVerifyFlag'P2SH) => ops
                                                                         (let [ops
-                                                                                (when' (Script''is-pay-to-script-hash (:script out)) => ops
+                                                                                (when (Script''is-pay-to-script-hash (:script out)) => ops
                                                                                     (+ ops (Script'get-p2sh-sig-op-count (:script-bytes input)))
                                                                                 )]
                                                                             (when (< Block'MAX_BLOCK_SIGOPS ops)
@@ -6463,7 +6463,7 @@
                                                     (throw+ (VerificationException'new "Transaction output value out of range"))
                                                 )
                                                 (let [[fees __coinbaseValue]
-                                                        (when' (not coinbase?) => [fees __valueOut]
+                                                        (when (not coinbase?) => [fees __valueOut]
                                                             (when (or (neg? (.compareTo __valueIn, __valueOut)) (pos? (.compareTo __valueIn, (Ledger''get-max-money (:ledger this)))))
                                                                 (throw+ (VerificationException'new "Transaction input value out of range"))
                                                             )
@@ -6678,7 +6678,7 @@
             ;; Then a vector of block hashes.  This is actually a "block locator", a set of block
             ;; identifiers that spans the entire chain with exponentially increasing gaps between
             ;; them, until we end up at the genesis block.  See CBlockLocator::Set().
-            (.write baos, (VarInt''encode (VarInt'new (.size (:locator this)))))
+            (.write baos, (VarInt''encode (VarInt'new (count (:locator this)))))
             (doseq [#_"Sha256Hash" hash (:locator this)]
                 ;; Have to reverse as wire format is little endian.
                 (.write baos, (Sha256Hash''get-reversed-bytes hash))
@@ -6696,7 +6696,7 @@
             (= this o) true
             (or (nil? o) (not= (.getClass this) (.getClass o))) false
             :else (let [#_"GetBlocksMessage" that (cast' GetBlocksMessage o)]
-                (and (= (:version this) (:version that)) (.equals (:stop-hash this), (:stop-hash that)) (= (.size (:locator this)) (.size (:locator that))) (.containsAll (:locator this), (:locator that))) ;; ignores locator ordering
+                (and (= (:version this) (:version that)) (.equals (:stop-hash this), (:stop-hash that)) (= (count (:locator this)) (count (:locator that))) (.containsAll (:locator this), (:locator that))) ;; ignores locator ordering
             )
         )
     )
@@ -6763,7 +6763,7 @@
 
     #_method
     (defn #_"Sha256Hash" GetDataMessage''get-hash-of [#_"GetDataMessage" this, #_"int" i]
-        (:item-hash (.get (:items this), i))
+        (:item-hash (nth (:items this) i))
     )
 )
 
@@ -6805,7 +6805,7 @@
             (= this o) true
             (or (nil? o) (not= (.getClass this) (.getClass o))) false
             :else (let [#_"GetHeadersMessage" that (cast' GetHeadersMessage o)]
-                (and (= (:version this) (:version that)) (.equals (:stop-hash this), (:stop-hash that)) (= (.size (:locator this)) (.size (:locator that))) (.containsAll (:locator this), (:locator that))) ;; ignores locator ordering
+                (and (= (:version this) (:version that)) (.equals (:stop-hash this), (:stop-hash that)) (= (count (:locator this)) (count (:locator that))) (.containsAll (:locator this), (:locator that))) ;; ignores locator ordering
             )
         )
     )
@@ -6872,7 +6872,7 @@
     (defn HeadersMessage''to-wire
         (#_"String" [] "headers")
         (#_"void" [#_"HeadersMessage" this, #_"ByteArrayOutputStream" baos]
-            (.write baos, (VarInt''encode (VarInt'new (.size (:block-headers this)))))
+            (.write baos, (VarInt''encode (VarInt'new (count (:block-headers this)))))
             (doseq [#_"Block" header (:block-headers this)]
                 (Block''to-wire (Block''clone-as-header header), baos)
                 (.write baos, 0)
@@ -7247,7 +7247,7 @@
                       #_"int" tts (:target-timespan this) timespan (min (max (quot tts 4) timespan) (* tts 4))
                       #_"BigInteger" __newTarget (.divide (.multiply (Utils'decode-compact-bits (:difficulty-target (:stored-header __storedPrev))), (BigInteger/valueOf timespan)), (BigInteger/valueOf tts))
                       __newTarget
-                        (when' (pos? (.compareTo __newTarget, (:max-target this))) => __newTarget
+                        (when (pos? (.compareTo __newTarget, (:max-target this))) => __newTarget
                             (log/info (str "Difficulty hit proof of work limit: " (.toString __newTarget, 16)))
                             (:max-target this)
                         )
@@ -7270,7 +7270,7 @@
      ;;
     #_method
     (defn #_"boolean" Ledger''passes-checkpoint [#_"Ledger" this, #_"int" height, #_"Sha256Hash" hash]
-        (let [#_"Sha256Hash" hash (.get (:checkpoints this), height)]
+        (let [#_"Sha256Hash" hash (nth (:checkpoints this) height)]
             (or (nil? hash) (.equals hash, hash))
         )
     )
@@ -7280,7 +7280,7 @@
      ;;
     #_method
     (defn #_"boolean" Ledger''is-checkpoint [#_"Ledger" this, #_"int" height]
-        (let [#_"Sha256Hash" hash (.get (:checkpoints this), height)]
+        (let [#_"Sha256Hash" hash (nth (:checkpoints this) height)]
             (some? hash)
         )
     )
@@ -7487,7 +7487,7 @@
         (#_"String" [] nil)
         (#_"void" [#_"PartialMerkleTree" this, #_"ByteArrayOutputStream" baos]
             (Wire'write-uint32 (:transaction-count this), baos)
-            (.write baos, (VarInt''encode (VarInt'new (.size (:hashes this)))))
+            (.write baos, (VarInt''encode (VarInt'new (count (:hashes this)))))
             (doseq [#_"Sha256Hash" hash (:hashes this)]
                 (.write baos, (Sha256Hash''get-reversed-bytes hash))
             )
@@ -7502,16 +7502,16 @@
      ;;
     (defn #_"PartialMerkleTree" PartialMerkleTree'build-from-leaves [#_"Ledger" ledger, #_"byte[]" __includeBits, #_"List<Sha256Hash>" leaves]
         ;; Calculate height of the tree.
-        (let [#_"int" height (loop-when-recur [h 0] (< 1 (PartialMerkleTree'get-tree-width (.size leaves), h)) [(inc h)] => h)
+        (let [#_"int" height (loop-when-recur [h 0] (< 1 (PartialMerkleTree'get-tree-width (count leaves), h)) [(inc h)] => h)
               #_"List<Boolean>" __bitList (ArrayList.) #_"List<Sha256Hash>" hashes (ArrayList.)]
             (PartialMerkleTree'traverse-and-build height, 0, leaves, __includeBits, __bitList, hashes)
-            (let [#_"int" n (.size __bitList) #_"byte[]" bits (byte-array (int (Math/ceil (/ n 8.0))))]
+            (let [#_"int" n (count __bitList) #_"byte[]" bits (byte-array (int (Math/ceil (/ n 8.0))))]
                 (dotimes [#_"int" i n]
-                    (when (.get __bitList, i)
+                    (when (nth __bitList i)
                         (Utils'set-bit-le bits, i)
                     )
                 )
-                (PartialMerkleTree'new ledger, bits, hashes, (.size leaves))
+                (PartialMerkleTree'new ledger, bits, hashes, (count leaves))
             )
         )
     )
@@ -7519,7 +7519,7 @@
     (defn- #_"void" PartialMerkleTree'traverse-and-build [#_"int" height, #_"int" pos, #_"List<Sha256Hash>" leaves, #_"byte[]" __includeBits, #_"List<Boolean>" __bitList, #_"List<Sha256Hash>" hashes]
         ;; Is this node a parent of at least one matched hash?
         (let [#_"boolean" parent?
-                (loop-when [#_"int" p (<< pos height)] (and (< p (<< (inc pos) height)) (< p (.size leaves))) => false
+                (loop-when [#_"int" p (<< pos height)] (and (< p (<< (inc pos) height)) (< p (count leaves))) => false
                     (or (Utils'check-bit-le __includeBits, p) (recur (inc p)))
                 )]
             ;; Store as a flag bit.
@@ -7530,7 +7530,7 @@
                 ;; Otherwise descend into the subtrees.
                 (let [#_"int" h (dec height) #_"int" p (* pos 2)]
                     (PartialMerkleTree'traverse-and-build h, p, leaves, __includeBits, __bitList, hashes)
-                    (when (< (inc p) (PartialMerkleTree'get-tree-width (.size leaves), h))
+                    (when (< (inc p) (PartialMerkleTree'get-tree-width (count leaves), h))
                         (PartialMerkleTree'traverse-and-build h, (inc p), leaves, __includeBits, __bitList, hashes)
                     )
                 )
@@ -7551,11 +7551,11 @@
     (defn- #_"Sha256Hash" PartialMerkleTree'calc-hash [#_"int" height, #_"int" pos, #_"List<Sha256Hash>" hashes]
         ;; Hash at height 0 is just the regular tx hash itself.
         (if (zero? height)
-            (.get hashes, pos)
+            (nth hashes pos)
             (let [#_"int" h (dec height) #_"int" p (* pos 2)
                   #_"Sha256Hash" l (PartialMerkleTree'calc-hash h, p, hashes)
                   ;; Calculate right hash if not beyond the end of the array - copy left hash otherwise.
-                  #_"Sha256Hash" r (if (< (inc p) (PartialMerkleTree'get-tree-width (.size hashes), h)) (PartialMerkleTree'calc-hash h, (inc p), hashes) l)]
+                  #_"Sha256Hash" r (if (< (inc p) (PartialMerkleTree'get-tree-width (count hashes), h)) (PartialMerkleTree'calc-hash h, (inc p), hashes) l)]
                 (PartialMerkleTree'combine-left-right (Sha256Hash''get-bytes l), (Sha256Hash''get-bytes r))
             )
         )
@@ -7576,7 +7576,7 @@
             (if (or (zero? height) (not parent?))
                 (do
                     ;; overflowed hash array - failure
-                    (when (<= (.size (:hashes this)) (:hashes-used used))
+                    (when (<= (count (:hashes this)) (:hashes-used used))
                         (throw+ (VerificationException'new "PartialMerkleTree overflowed its hash array"))
                     )
                     (let [#_"Sha256Hash" hash (.get (:hashes this), (:hashes-used used))]
@@ -7630,11 +7630,11 @@
             (throw+ (VerificationException'new "Got a PartialMerkleTree with more transactions than is possible"))
         )
         ;; there can never be more hashes provided than one for every txid
-        (when (< (:transaction-count this) (.size (:hashes this)))
+        (when (< (:transaction-count this) (count (:hashes this)))
             (throw+ (VerificationException'new "Got a PartialMerkleTree with more hashes than transactions"))
         )
         ;; there must be at least one bit per node in the partial tree, and at least one node per hash
-        (when (< (<< (alength (:matched-child-bits this)) 3) (.size (:hashes this)))
+        (when (< (<< (alength (:matched-child-bits this)) 3) (count (:hashes this)))
             (throw+ (VerificationException'new "Got a PartialMerkleTree with fewer matched bits than hashes"))
         )
 
@@ -7645,7 +7645,7 @@
               #_"Sha256Hash" root (PartialMerkleTree''recursive-extract-hashes this, height, 0, used, matches)]
             ;; verify that all bits were consumed (except for the padding caused by serializing it as a byte sequence)
             ;; verify that all hashes were consumed
-            (when-not (and (= (quot (+ (:bits-used used) 7) 8) (alength (:matched-child-bits this))) (= (:hashes-used used) (.size (:hashes this))))
+            (when-not (and (= (quot (+ (:bits-used used) 7) 8) (alength (:matched-child-bits this))) (= (:hashes-used used) (count (:hashes this))))
                 (throw+ (VerificationException'new "Got a PartialMerkleTree that didn't need all the data it provided"))
             )
             root
@@ -7871,7 +7871,7 @@
                                 nil
                             )
                         )]
-                    (when' (some? message) => (.position wire)
+                    (when (some? message) => (.position wire)
                         ;; Process our freshly deserialized message.
                         (PeerSocketHandler'''process-message this, message)
                         (recur false)
@@ -8081,8 +8081,8 @@
                                 #_override
                                 (#_"Peer" apply [#_"Function" __, #_"List<Peer>" peers]
                                     (ensure some? peers)
-                                    (assert-state (and (= (.size peers) 2) (= (.get peers, 0) (.get peers, 1))))
-                                    (.get peers, 0)
+                                    (assert-state (and (= (count peers) 2) (= (nth peers 0) (nth peers 1))))
+                                    (nth peers 0)
                                 )
                             )
                         )
@@ -8268,7 +8268,7 @@
                     (let [#_"ListenerRegistration<PreMessageReceivedEventListener>" r (first s)]
                         ;; Skip any listeners that are supposed to run in another thread as we don't want to block waiting for it,
                         ;; which might cause circular deadlock.
-                        (when' (= (:executor r) Threading'SAME_THREAD) => (recur m (next s))
+                        (when (= (:executor r) Threading'SAME_THREAD) => (recur m (next s))
                             (let [m (PreMessageReceivedEventListener'''on-pre-message-received (:listener r), this, m)]
                                 (recur-if (some? m) [m (next s)] => m)
                             )
@@ -8461,7 +8461,7 @@
         ;; request the full blocks from that point on instead.
         (let-when [[#_"boolean" __downloadBlockBodies #_"long" __fastCatchupTimeSecs :as _]
                 (sync (:peer-lock this)
-                    (when' (nil? (:block-chain this)) => [(:download-block-bodies this) (:fast-catchup-time-secs this)]
+                    (when (nil? (:block-chain this)) => [(:download-block-bodies this) (:fast-catchup-time-secs this)]
                         ;; Can happen if we are receiving unrequested data, or due to programmer error.
                         (log/warn "Received headers when Peer is not configured with a chain.")
                         nil
@@ -8472,15 +8472,15 @@
                 (assert-state (not __downloadBlockBodies), (.toString this))
 
                 (or
-                    (loop-when [#_"int" i 0] (< i (.size (:block-headers m)))
-                        (let [#_"Block" header (.get (:block-headers m), i) #_"int" best (BlockChain''get-best-chain-height (:block-chain this))]
+                    (loop-when [#_"int" i 0] (< i (count (:block-headers m)))
+                        (let [#_"Block" header (nth (:block-headers m) i) #_"int" best (BlockChain''get-best-chain-height (:block-chain this))]
                             ;; Process headers until we pass the fast catchup time, or are about to catch up with the head
                             ;; of the chain - always process the last block as a full/filtered block to kick us out of the
                             ;; fast catchup mode (in which we ignore new blocks).
                             (cond (or (<= __fastCatchupTimeSecs (:time-seconds header)) (<= (-> this :v-peer-version-message :best-height) best))
                                 (do
                                     (sync (:peer-lock this)
-                                        (log/info (str "Passed the fast catchup time (" (Time'format-seconds __fastCatchupTimeSecs) ") at height " (inc best) ", discarding " (- (.size (:block-headers m)) i) " headers and requesting full blocks"))
+                                        (log/info (str "Passed the fast catchup time (" (Time'format-seconds __fastCatchupTimeSecs) ") at height " (inc best) ", discarding " (- (count (:block-headers m)) i) " headers and requesting full blocks"))
                                         (§ ass this (assoc this :download-block-bodies true))
                                         ;; Prevent this request being seen as a duplicate.
                                         (§ ass this (assoc this :last-get-blocks-begin Sha256Hash'ZERO_HASH))
@@ -8513,7 +8513,7 @@
 
                     ;; We added all headers in the message to the chain.
                     ;; Request some more if we got up to the limit, otherwise we are at the end of the chain.
-                    (when (<= HeadersMessage'MAX_HEADERS (.size (:block-headers m)))
+                    (when (<= HeadersMessage'MAX_HEADERS (count (:block-headers m)))
                         (sync (:peer-lock this)
                             (§ ass this (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH))
                         )
@@ -8541,7 +8541,7 @@
                 )
             )
             (when (seq items)
-                (log/info (str (PeerSocketHandler''get-address this) ": Sending " (.size items) " items gathered from listeners to peer"))
+                (log/info (str (PeerSocketHandler''get-address this) ": Sending " (count items) " items gathered from listeners to peer"))
                 (doseq [#_"Transaction" item items]
                     (PeerSocketHandler''send-message this, item, Transaction''to-wire)
                 )
@@ -8721,8 +8721,8 @@
                     (let [#_"List<ListenableFuture<Transaction>>" futures (ArrayList.)
                           #_"GetDataMessage" getdata (GetDataMessage'new (:ledger this))]
 
-                        (when (< 1 (.size __needToRequest))
-                            (log/info (str (PeerSocketHandler''get-address this) ": Requesting " (.size __needToRequest) " transactions for depth " (inc depth) " dep resolution"))
+                        (when (< 1 (count __needToRequest))
+                            (log/info (str (PeerSocketHandler''get-address this) ": Requesting " (count __needToRequest) " transactions for depth " (inc depth) " dep resolution"))
                         )
 
                         (doseq [#_"Sha256Hash" hash __needToRequest]
@@ -8752,7 +8752,7 @@
                                                     )
                                                 )
                                             )
-                                            (if (zero? (.size __childFutures))
+                                            (if (zero? (count __childFutures))
                                                 ;; Short-circuit: we're at the bottom of this part of the tree.
                                                 (.set __resultFuture, marker)
                                                 ;; There are some children to download.  Wait until it's done (and their children,
@@ -8976,7 +8976,7 @@
             (loop-when [#_"boolean" found? false #_"ArrayList<GetDataRequest>" s (:get-data-futures this)] (seq s) => found?
                 (let [#_"GetDataRequest" req (first s)
                       found?
-                        (when' (.equals hash, (:request-hash req)) => found?
+                        (when (.equals hash, (:request-hash req)) => found?
                             (.set (:future req), m)
                             (.remove (:get-data-futures this), req)
                             true
@@ -9016,13 +9016,13 @@
 
             (let [#_"boolean" download? (:v-download-data this)]
 
-                (when (and (= (.size transactions) 0) (= (.size blocks) 1))
+                (when (and (= (count transactions) 0) (= (count blocks) 1))
                     ;; Single block announcement.  If we're downloading the chain this is just a tickle to make us continue
                     ;; (the block chain download protocol is very implicit and not well thought out).  If we're not downloading
                     ;; the chain then this probably means a new block was solved and the peer believes it connects to the best
                     ;; chain, so count it.  This way getBestChainHeight() can be accurate.
                     (if (and download? (some? (:block-chain this)))
-                        (when (not (BlockChain''is-orphan (:block-chain this), (:item-hash (.get blocks, 0))))
+                        (when (not (BlockChain''is-orphan (:block-chain this), (:item-hash (nth blocks 0))))
                             (.incrementAndGet (:blocks-announced this))
                         )
                         (.incrementAndGet (:blocks-announced this))
@@ -9067,7 +9067,7 @@
                     ;; end to the final FilteredBlock's transactions (in the form of a pong) sent to us.
                     (let [#_"boolean" ping?
                             (sync (:peer-lock this)
-                                (when' (and (pos? (.size blocks)) download? (some? (:block-chain this))) => false
+                                (when (and (pos? (count blocks)) download? (some? (:block-chain this))) => false
                                     ;; Ideally, we'd only ask for the data here if we actually needed it.  However that can imply a lot of
                                     ;; disk IO to figure out what we've got.  Normally peers will not send us inv for things we already have
                                     ;; so we just re-request it here, and if we get duplicates the block chain / wallet will filter them out.
@@ -9093,7 +9093,7 @@
                                                     ;; part of chain download with newly announced blocks, so it should always be taken care of by
                                                     ;; the duplicate check in blockChainDownloadLocked().  But Bitcoin Core may change in future so
                                                     ;; it's better to be safe here.
-                                                    (when' (not (.contains (:pending-block-downloads this), (:item-hash item))) => ping?
+                                                    (when (not (.contains (:pending-block-downloads this), (:item-hash item))) => ping?
                                                         (let [ping?
                                                                 (if (and (VersionMessage''is-bloom-filtering-supported (:v-peer-version-message this)) (:use-filtered-blocks this))
                                                                     (do
@@ -9178,7 +9178,7 @@
     #_method
     (defn- #_"ListenableFuture" Peer''send-single-get-data [#_"Peer" this, #_"GetDataMessage" getdata]
         ;; This does not need to be locked.
-        (assert-argument (= (.size (:items getdata)) 1))
+        (assert-argument (= (count (:items getdata)) 1))
 
         (let [#_"GetDataRequest" req (GetDataRequest'new (:item-hash (first (:items getdata))), (SettableFuture/create))]
             (.add (:get-data-futures this), req)
@@ -9524,7 +9524,7 @@
         (§ ass this (assoc this :v-min-protocol-version __minProtocolVersion))
 
         (let [#_"VersionMessage" ver (Peer''get-peer-version-message this)]
-            (when' (and (some? ver) (< (:client-version ver) __minProtocolVersion)) => false
+            (when (and (some? ver) (< (:client-version ver) __minProtocolVersion)) => false
                 (log/warn (str this ": Disconnecting due to new min protocol version " __minProtocolVersion ", got: " (:client-version ver)))
                 (§ ass this (PeerSocketHandler''close this))
                 true
@@ -9751,7 +9751,7 @@
             (Wire'write-uint64 (:services this), baos) ;; nServices.
             ;; Java does not provide any utility to map an IPv4 address into IPv6 space, so we have to do it by hand.
             (let [#_"byte[]" bytes (.getAddress (:inet-addr this))
-                  bytes (when' (= (alength bytes) 4) => bytes
+                  bytes (when (= (alength bytes) 4) => bytes
                         (let [#_"byte[]" a6 (byte-array 16) _ (System/arraycopy bytes, 0, a6, 12, 4)]
                             (aset a6 10 (byte 0xff))
                             (aset a6 11 (byte 0xff))
@@ -9995,7 +9995,7 @@
 
                 ;; Don't hold the lock across discovery as this process can be very slow.
                 (let [#_"boolean" success?
-                        (when' discover? => false
+                        (when discover? => false
                             (try+
                                 (pos? (PeerGroup''discover-peers this))
                                 (§ catch PeerDiscoveryException e
@@ -10023,7 +10023,7 @@
                                                 (recur-if (and (:ipv6-unreachable this) (instance? Inet6Address (:inet-addr addr))) [] => addr)
                                             )
                                         )
-                                      #_"long" retry (max (:retry-time (.get (:backoff-map this), addr)) (:retry-time (:group-backoff this)))]
+                                      #_"long" retry (max (:retry-time (get (:backoff-map this) addr)) (:retry-time (:group-backoff this)))]
                                     (if (< now retry)
                                         (let [#_"long" delay (- retry now)]
                                             (log/info (str "Waiting " delay " msec before next connect attempt" (if (some? addr) (str " to " addr) "")))
@@ -10283,7 +10283,7 @@
                             (#_"int" compare [#_"Comparator" __, #_"PeerAddress" a, #_"PeerAddress" b]
                                 (assert-state (.isHeldByCurrentThread (:peergroup-lock this)))
 
-                                (let [#_"int" cmp (.compareTo (.get (:backoff-map this), a), (.get (:backoff-map this), b))]
+                                (let [#_"int" cmp (.compareTo (get (:backoff-map this) a), (get (:backoff-map this) b))]
                                     ;; Sort by port if otherwise equals - for testing.
                                     (if (= cmp 0) (compare (:port a), (:port b)) cmp)
                                 )
@@ -10381,7 +10381,7 @@
                         (loop-when [#_"ArrayList<Wallet>" wallets (:wallets this)] (seq wallets)
                             (let [#_"Wallet" w (first wallets)
                                   #_"Transaction" tx (Wallet''get-transaction w, (:item-hash item))]
-                                (when' (some? tx) => (recur (next wallets))
+                                (when (some? tx) => (recur (next wallets))
                                     (.add transactions, tx)
                                     (.remove it)
                                 )
@@ -10429,7 +10429,7 @@
         ;; Note that the default here means that no tx invs will be received if no wallet is ever added.
         (sync (:peergroup-lock this)
             (let [#_"boolean" __spvMode (and (some? (:chain this)) (not (BlockChain'''should-verify-transactions (:chain this))))
-                  #_"boolean" __willSendFilter (and __spvMode (< 0 (.size (:peer-filter-providers this))) (:v-bloom-filtering-enabled this))]
+                  #_"boolean" __willSendFilter (and __spvMode (< 0 (count (:peer-filter-providers this))) (:v-bloom-filtering-enabled this))]
                 (§ ass ver (assoc ver :relay-txes-before-filter (not __willSendFilter)))
             )
         )
@@ -10815,7 +10815,7 @@
                     (doseq [#_"InetSocketAddress" address (PeerDiscovery'''get-peers discovery, (:required-services this), timeout, TimeUnit/MILLISECONDS)]
                         (.add addresses, (PeerAddress'from-socket-address (:ledger this), address))
                     )
-                    (recur-if (< (.size addresses) n) [(next discoveries)])
+                    (recur-if (< (count addresses) n) [(next discoveries)])
                 )
             )
 
@@ -10829,8 +10829,8 @@
                 )
             )
             (.stop watch)
-            (log/info (str "Peer discovery took " watch " and returned " (.size addresses) " items"))
-            (.size addresses)
+            (log/info (str "Peer discovery took " watch " and returned " (count addresses) " items"))
+            (count addresses)
         )
     )
 
@@ -10844,7 +10844,7 @@
     #_method
     (defn- #_"int" PeerGroup''count-connected-and-pending-peers [#_"PeerGroup" this]
         (sync (:peergroup-lock this)
-            (+ (.size (:peers this)) (.size (:pending-peers this)))
+            (+ (count (:peers this)) (count (:pending-peers this)))
         )
     )
 
@@ -10852,7 +10852,7 @@
     (defn- #_"boolean" PeerGroup''maybe-check-for-loopback-peer [#_"PeerGroup" this]
         (assert-state (.isHeldByCurrentThread (:peergroup-lock this)))
 
-        (when' (= (:loopback-check-state this) :LoopbackCheckState'NOT_TRIED) => false
+        (when (= (:loopback-check-state this) :LoopbackCheckState'NOT_TRIED) => false
             ;; Do a fast blocking connect to see if anything is listening.
             (let [#_"Socket" socket (Socket.)]
                 (try
@@ -11132,14 +11132,14 @@
     (defn #_"ListenableFuture<BloomFilter>" PeerGroup''recalculate-fast-catchup-and-filter [#_"PeerGroup" this, #_"FilterRecalculateMode" mode]
         (let [[#_"SettableFuture<BloomFilter>" past #_"SettableFuture<BloomFilter>" future]
                 (sync (:in-flight-recalculations this)
-                    (let-when [past (.get (:in-flight-recalculations this), mode)] (nil? past) => [past nil]
+                    (let-when [past (get (:in-flight-recalculations this) mode)] (nil? past) => [past nil]
                         (let [future (SettableFuture/create)]
                             (.put (:in-flight-recalculations this), mode, future)
                             [nil future]
                         )
                     )
                 )]
-            (when' (some? future) => past
+            (when (some? future) => past
                 (try
                     (.execute (:executor this),
                         #(try
@@ -11183,7 +11183,7 @@
      ;;
     #_method
     (defn #_"int" PeerGroup''num-connected-peers [#_"PeerGroup" this]
-        (.size (:peers this))
+        (count (:peers this))
     )
 
     ;;;
@@ -11242,7 +11242,7 @@
 
                 (let [#_"boolean" abort?
                         (try
-                            (log/info (str "Attempting connection to " address "     (" (.size (:peers this)) " connected, " (.size (:pending-peers this)) " pending, " (:max-connections this) " max)"))
+                            (log/info (str "Attempting connection to " address "     (" (count (:peers this)) " connected, " (count (:pending-peers this)) " pending, " (:max-connections this) " max)"))
                             (let [#_"ListenableFuture<SocketAddress>" future (ClientConnectionManager'''open-connection (:channels this), (PeerAddress''to-socket-address address), peer)]
                                 (when (.isDone future)
                                     (Uninterruptibles/getUninterruptibly future)
@@ -11258,7 +11258,7 @@
                             )
                         )]
 
-                    (when' (not abort?) => nil
+                    (when (not abort?) => nil
                         (§ ass peer (AbstractTimeoutHandler''set-socket-timeout peer, timeout))
                         ;; When the channel has connected and version negotiated successfully, handleNewPeer will end up being called
                         ;; on a worker thread.
@@ -11374,8 +11374,8 @@
                     ;; Sets up the newly connected peer so it can do everything it needs to.
                     (.remove (:pending-peers this), peer)
                     (.add (:peers this), peer)
-                    (let [__newSize (.size (:peers this))]
-                        (log/info (str peer ": New peer      (" __newSize " connected, " (.size (:pending-peers this)) " pending, " (:max-connections this) " max)"))
+                    (let [__newSize (count (:peers this))]
+                        (log/info (str peer ": New peer      (" __newSize " connected, " (count (:pending-peers this)) " pending, " (:max-connections this) " max)"))
                         ;; Give the peer a filter that can be used to probabilistically drop transactions that
                         ;; aren't relevant to our wallet.  We may still receive some false positives, which is
                         ;; OK because it helps improve wallet privacy.  Old nodes will just ignore the message.
@@ -11528,7 +11528,7 @@
                         (.remove (:peers this), peer)
 
                         (let [#_"PeerAddress" address (PeerSocketHandler''get-address peer)]
-                            (log/info (str address ": Peer died      (" (.size (:peers this)) " connected, " (.size (:pending-peers this)) " pending, " (:max-connections this) " max)"))
+                            (log/info (str address ": Peer died      (" (count (:peers this)) " connected, " (count (:pending-peers this)) " pending, " (:max-connections this) " max)"))
                             (when (= peer (:download-peer this))
                                 (log/info "Download peer died.  Picking a new one.")
                                 (§ ass this (PeerGroup''set-download-peer this, nil))
@@ -11542,7 +11542,7 @@
                                     )
                                 )
                             )
-                            (let [n (.size (:peers this)) #_"int" m (+ n (.size (:pending-peers this)))]
+                            (let [n (count (:peers this)) #_"int" m (+ n (count (:pending-peers this)))]
 
                                 (§ ass (:group-backoff this) (ExponentialBackoff''track-failure (:group-backoff this)))
 
@@ -11555,7 +11555,7 @@
                                     )
                                     :else
                                     (do
-                                        (§ ass (.get (:backoff-map this), address) (ExponentialBackoff''track-failure (.get (:backoff-map this), address)))
+                                        (§ ass (get (:backoff-map this) address) (ExponentialBackoff''track-failure (get (:backoff-map this) address)))
                                         ;; Put back on inactive list.
                                         (.offer (:inactives this), address)
                                     )
@@ -11654,7 +11654,7 @@
     #_method
     (defn #_"ListenableFuture<List<Peer>>" PeerGroup''wait-for-peers-of-version [#_"PeerGroup" this, #_"int" n, #_"long" version]
         (let [#_"List<Peer>" peers (PeerGroup''find-peers-of-at-least-version this, version)]
-            (if (<= n (.size peers))
+            (if (<= n (count peers))
                 (Futures/immediateFuture peers)
                 (let [#_"SettableFuture<List<Peer>>" future (SettableFuture/create)]
                     (PeerGroup''add-connected-event-listener-2 this,
@@ -11662,7 +11662,7 @@
                             #_override
                             (#_"void" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" self, #_"Peer" _peer, #_"int" _n]
                                 (let [#_"List<Peer>" peers (PeerGroup''find-peers-of-at-least-version this, version)]
-                                    (when (<= n (.size peers))
+                                    (when (<= n (count peers))
                                         (.set future, peers)
                                         (PeerGroup''remove-connected-event-listener this, self)
                                     )
@@ -11683,7 +11683,7 @@
     #_method
     (defn #_"List<Peer>" PeerGroup''find-peers-of-at-least-version [#_"PeerGroup" this, #_"long" version]
         (sync (:peergroup-lock this)
-            (let [#_"List<Peer>" peers (ArrayList. #_"<Peer>" (.size (:peers this)))]
+            (let [#_"List<Peer>" peers (ArrayList. #_"<Peer>" (count (:peers this)))]
                 (doseq [#_"Peer" peer (:peers this)]
                     (when (<= version (:client-version (Peer''get-peer-version-message peer)))
                         (.add peers, peer)
@@ -11706,7 +11706,7 @@
     (defn #_"ListenableFuture<List<Peer>>" PeerGroup''wait-for-peers-with-service-mask [#_"PeerGroup" this, #_"int" n, #_"int" mask]
         (sync (:peergroup-lock this)
             (let [#_"List<Peer>" peers (PeerGroup''find-peers-with-service-mask this, mask)]
-                (if (<= n (.size peers))
+                (if (<= n (count peers))
                     (Futures/immediateFuture peers)
                     (let [#_"SettableFuture<List<Peer>>" future (SettableFuture/create)]
                         (PeerGroup''add-connected-event-listener-2 this,
@@ -11714,7 +11714,7 @@
                                 #_override
                                 (#_"void" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" self, #_"Peer" _peer, #_"int" _n]
                                     (let [#_"List<Peer>" peers (PeerGroup''find-peers-with-service-mask this, mask)]
-                                        (when (<= n (.size peers))
+                                        (when (<= n (count peers))
                                             (.set future, peers)
                                             (PeerGroup''remove-connected-event-listener this, self)
                                         )
@@ -11736,7 +11736,7 @@
     #_method
     (defn #_"List<Peer>" PeerGroup''find-peers-with-service-mask [#_"PeerGroup" this, #_"int" mask]
         (sync (:peergroup-lock this)
-            (let [#_"List<Peer>" peers (ArrayList. #_"<Peer>" (.size (:peers this)))]
+            (let [#_"List<Peer>" peers (ArrayList. #_"<Peer>" (count (:peers this)))]
                 (doseq [#_"Peer" peer (:peers this)]
                     (when (= (& (:local-services (Peer''get-peer-version-message peer)) mask) mask)
                         (.add peers, peer)
@@ -11918,7 +11918,7 @@
     (defn #_"int" PeerGroup'get-most-common-chain-height* [#_"List<Peer>" peers]
         (if (empty? peers)
             0
-            (let [#_"List<Integer>" heights (ArrayList. (.size peers))]
+            (let [#_"List<Integer>" heights (ArrayList. (count peers))]
                 (doseq [#_"Peer" peer peers]
                     (.add heights, (int (Peer''get-best-height peer)))
                 )
@@ -11951,15 +11951,13 @@
                 ;; better then we'll settle for the highest we found instead.
                 (let [#_"int" highest (reduce max 0 (map #(:client-version (Peer''get-peer-version-message %)) candidates))
                       #_"int" preferred (min highest ProtocolVersion'BLOOM_FILTER)
-                      #_"List<Peer>" candidates2 (ArrayList. (.size candidates))]
+                      #_"List<Peer>" candidates2 (ArrayList. (count candidates))]
                     (doseq [#_"Peer" peer candidates]
                         (when (<= preferred (:client-version (Peer''get-peer-version-message peer)))
                             (.add candidates2, peer)
                         )
                     )
-                    (let [#_"int" index (int (* (Math/random) (.size candidates2)))]
-                        (.get candidates2, index)
-                    )
+                    (nth candidates2 (int (* (Math/random) (count candidates2))))
                 )
             )
         )
@@ -12888,11 +12886,11 @@
         (#_"String" [] "tx")
         (#_"void" [#_"Transaction" this, #_"ByteArrayOutputStream" baos]
             (Wire'write-uint32 (:version this), baos)
-            (.write baos, (VarInt''encode (VarInt'new (.size (:inputs this)))))
+            (.write baos, (VarInt''encode (VarInt'new (count (:inputs this)))))
             (doseq [#_"TransactionInput" input (:inputs this)]
                 (TransactionInput''to-wire input, baos)
             )
-            (.write baos, (VarInt''encode (VarInt'new (.size (:outputs this)))))
+            (.write baos, (VarInt''encode (VarInt'new (count (:outputs this)))))
             (doseq [#_"TransactionOutput" output (:outputs this)]
                 (TransactionOutput''to-wire output, baos)
             )
@@ -13000,7 +12998,7 @@
                     )
                   ;; The connected output may be the change to the sender of a previous input sent to this wallet.
                   ;; In this case we ignore it.
-                  v (when' (and (some? output) (TransactionOutput''is-mine output, wallet)) => v
+                  v (when (and (some? output) (TransactionOutput''is-mine output, wallet)) => v
                         (Coin''add v, (:coin-value output))
                     )]
                 (recur v (next inputs))
@@ -13092,7 +13090,7 @@
      ;;
     #_method
     (defn #_"boolean" Transaction''is-coin-base [#_"Transaction" this]
-        (and (= (.size (:inputs this)) 1) (TransactionInput''is-coin-base (Transaction''get-input this, 0)))
+        (and (= (count (:inputs this)) 1) (TransactionInput''is-coin-base (Transaction''get-input this, 0)))
     )
 
     ;;;
@@ -13171,7 +13169,7 @@
 
         (let [#_"TransactionInput" input (TransactionInput'for-outpoint (:ledger this), this, __prevOut, (byte-array 0))]
             (Transaction''add-input-i this, input)
-            (let [#_"Sha256Hash" hash (Transaction''hash-for-signature-5s this, (dec (.size (:inputs this))), __scriptPubKey, mode, anyone?)
+            (let [#_"Sha256Hash" hash (Transaction''hash-for-signature-5s this, (dec (count (:inputs this))), __scriptPubKey, mode, anyone?)
                   #_"ECDSASignature" __ecSig (ECKey'''sign __sigKey, hash)
                   #_"TransactionSignature" __txSig (TransactionSignature'from-ecdsa __ecSig, mode, anyone?)]
                 (cond
@@ -13362,7 +13360,7 @@
 
             ;; Clear input scripts in preparation for signing.  If we're signing a fresh transaction that step isn't very
             ;; helpful, but it doesn't add much cost relative to the actual EC math so we'll do it anyway.
-            (dotimes [#_"int" i (.size (:inputs tx))]
+            (dotimes [#_"int" i (count (:inputs tx))]
                 (§ ass (Transaction''get-input tx, i) (TransactionInput''clear-script-bytes (Transaction''get-input tx, i)))
             )
 
@@ -13387,15 +13385,15 @@
                                 (do
                                     (§ ass tx (assoc tx :outputs (ArrayList. 0)))
                                     ;; The signature isn't broken by new versions of the transaction issued by other parties.
-                                    (dotimes [#_"int" i (.size (:inputs tx))]
-                                        (when (not= i index)
+                                    (dotimes [#_"int" i (count (:inputs tx))]
+                                        (when-not (= i index)
                                             (§ ass (Transaction''get-input tx, i) (TransactionInput''set-sequence-number (Transaction''get-input tx, i), 0))
                                         )
                                     )
                                     nil
                                 )
                                 SigHash'SINGLE ;; means only sign the output at the same index as the input (i.e. my output).
-                                (if (< index (.size (:outputs tx)))
+                                (if (< index (count (:outputs tx)))
                                     (do
                                         ;; In SIGHASH_SINGLE the outputs after the matching input index are deleted, and the outputs before
                                         ;; that position are "nulled out".  Unintuitively, the value in a "null" transaction is set to -1.
@@ -13404,8 +13402,8 @@
                                             (.set (:outputs tx), i, (TransactionOutput'for-script (:ledger tx), tx, Coin'NEGATIVE_SATOSHI, (byte-array 0)))
                                         )
                                         ;; The signature isn't broken by new versions of the transaction issued by other parties.
-                                        (dotimes [#_"int" i (.size (:inputs tx))]
-                                            (when (not= i index)
+                                        (dotimes [#_"int" i (count (:inputs tx))]
+                                            (when-not (= i index)
                                                 (§ ass (Transaction''get-input tx, i) (TransactionInput''set-sequence-number (Transaction''get-input tx, i), 0))
                                             )
                                         )
@@ -13577,7 +13575,7 @@
             )
 
             (dotimes [#_"int" i (alength expected)]
-                (when (not= (aget actual i) (aget expected i))
+                (when-not (= (aget actual i) (aget expected i))
                     (throw+ (VerificationException'new "Block height mismatch in coinbase."))
                 )
             )
@@ -13604,7 +13602,7 @@
     #_throws #_[ "VerificationException" ]
     #_method
     (defn #_"void" Transaction''verify [#_"Transaction" this]
-        (when (or (zero? (.size (:inputs this))) (zero? (.size (:outputs this))))
+        (when (or (zero? (count (:inputs this))) (zero? (count (:outputs this))))
             (throw+ (VerificationException'new "Transaction had no inputs or no outputs."))
         )
 
@@ -13777,7 +13775,7 @@
             (when (some? (:updated-at this))
                 (.. sb (append "  updated: ") (append (Time'format-date (:updated-at this))) (append "\n"))
             )
-            (when (not= (:version this) 1)
+            (when-not (= (:version this) 1)
                 (.. sb (append "  version ") (append (:version this)) (append "\n"))
             )
             (when (Transaction''is-time-locked this)
@@ -13808,7 +13806,7 @@
                     (.toString sb)
                 )
                 (do
-                    (when' (seq (:inputs this)) => (.. sb (append "     INCOMPLETE: No inputs!\n"))
+                    (when (seq (:inputs this)) => (.. sb (append "     INCOMPLETE: No inputs!\n"))
                         (doseq [#_"TransactionInput" in (:inputs this)]
                             (.. sb (append "     in   "))
                             (try
@@ -13945,7 +13943,7 @@
     #_override
     (defn #_"void" TransactionConfidenceListener'''on-confidence-changed [#_"ConfidenceChange" this, #_"TransactionConfidence" conf, #_"ConfidenceChangeReason" reason]
         ;; The number of peers that announced this tx has gone up.
-        (let [#_"int" seen (+ (TransactionConfidence''num-broadcast-peers conf) (.size (:rejects this)))
+        (let [#_"int" seen (+ (TransactionConfidence''num-broadcast-peers conf) (count (:rejects this)))
               #_"boolean" mined? (some? (:appears-in-hashes (:tx this)))]
             (log/info (str "broadcastTransaction: " reason ":  TX " (Transaction''get-hash (:tx this)) " seen by " seen " peers" (if mined? " and mined" "")))
 
@@ -14007,7 +14005,7 @@
                             (let [#_"RejectMessage" reject (cast' RejectMessage m)]
                                 (when (.equals (Transaction''get-hash (:tx (§ this))), (:reject-hash reject))
                                     (.put (:rejects (§ this)), peer, reject)
-                                    (let [#_"int" size (.size (:rejects (§ this)))
+                                    (let [#_"int" size (count (:rejects (§ this)))
                                           #_"long" threshold (Math/round (/ (:num-waiting-for (§ this)) 2.0))]
                                         (when (< threshold size)
                                             (log/warn (str "Threshold for considering broadcast rejected has been reached (" size "/" threshold ")"))
@@ -14064,9 +14062,9 @@
             ;; transaction or not.  However, we are not a fully validating node and this is advertised in
             ;; our version message, as SPV nodes cannot relay it doesn't give away any additional information
             ;; to skip the inv here - we wouldn't send invs anyway.
-            (let [#_"int" __numConnected (.size peers)
-                  #_"int" __numToBroadcastTo (int (max 1 (Math/round (Math/ceil (/ (.size peers) 2.0)))))]
-                (§ ass this (assoc this :num-waiting-for (int (Math/ceil (/ (- (.size peers) __numToBroadcastTo) 2.0)))))
+            (let [#_"int" __numConnected (count peers)
+                  #_"int" __numToBroadcastTo (int (max 1 (Math/round (Math/ceil (/ (count peers) 2.0)))))]
+                (§ ass this (assoc this :num-waiting-for (int (Math/ceil (/ (- (count peers) __numToBroadcastTo) 2.0)))))
                 (Collections/shuffle peers, TransactionBroadcast'RANDOM)
                 (let [peers (.subList peers, 0, __numToBroadcastTo)]
                     (log/info (str "broadcastTransaction: We have " __numConnected " peers, adding " (Transaction''get-hash (:tx this)) " to the memory pool"))
@@ -14098,7 +14096,7 @@
     #_method
     (defn #_"ListenableFuture<Transaction>" TransactionBroadcast''broadcast [#_"TransactionBroadcast" this]
         (PeerGroup''add-pre-message-received-event-listener-3 (:peer-group this), Threading'SAME_THREAD, (:rejection-listener this))
-        (log/info (str "Waiting for " (:min-connections this) " peers required for broadcast, we have " (.size (PeerGroup''get-connected-peers (:peer-group this))) " ..."))
+        (log/info (str "Waiting for " (:min-connections this) " peers required for broadcast, we have " (count (PeerGroup''get-connected-peers (:peer-group this))) " ..."))
         (.addListener (PeerGroup''wait-for-peers (:peer-group this), (:min-connections this)), #(§ non-void TransactionBroadcast''enough-available-peers this), Threading'SAME_THREAD)
         (:future this)
     )
@@ -14122,7 +14120,7 @@
                 (let [#_"double" progress (min 1.0 (if mined? 1.0 (/ seen (double (:num-waiting-for this)))))]
                     (assert-state (<= 0.0 progress 1.0), progress)
                     (try
-                        (when' (some? executor) => (ProgressCallback'''on-broadcast-progress callback, progress)
+                        (when (some? executor) => (ProgressCallback'''on-broadcast-progress callback, progress)
                             (.execute executor, #(ProgressCallback'''on-broadcast-progress callback, progress))
                         )
                         (catch Throwable e
@@ -14418,7 +14416,7 @@
         (sync this
             (when-not (= type (:confidence-type this))
                 (§ ass this (assoc this :confidence-type type))
-                (when (not= type :ConfidenceType'DEAD)
+                (when-not (= type :ConfidenceType'DEAD)
                     (§ ass this (assoc this :overriding-transaction nil))
                 )
                 (when (any = type :ConfidenceType'PENDING :ConfidenceType'IN_CONFLICT)
@@ -14441,7 +14439,7 @@
     #_method
     (defn #_"boolean" TransactionConfidence''mark-broadcast-by [#_"TransactionConfidence" this, #_"PeerAddress" address]
         (§ ass this (assoc this :last-broadcasted-at (Time'now)))
-        (when' (.addIfAbsent (:broadcast-by this), address) => false ;; Duplicate.
+        (when (.addIfAbsent (:broadcast-by this), address) => false ;; Duplicate.
             (sync this
                 (when (= (TransactionConfidence''get-confidence-type this) :ConfidenceType'UNKNOWN)
                     (§ ass this (assoc this :confidence-type :ConfidenceType'PENDING))
@@ -14456,7 +14454,7 @@
      ;;
     #_method
     (defn #_"int" TransactionConfidence''num-broadcast-peers [#_"TransactionConfidence" this]
-        (.size (:broadcast-by this))
+        (count (:broadcast-by this))
     )
 
     ;;;
@@ -14685,7 +14683,7 @@
                     :ConfidenceType'IN_CONFLICT (.. sb (append "In conflict."))
                     :ConfidenceType'BUILDING    (.. sb (append "Appeared in best chain at height ") (append (TransactionConfidence''get-appeared-at-chain-height this)) (append ", depth ") (append (TransactionConfidence''get-depth-in-blocks this)) (append "."))
                 )
-                (when (not= (:source this) :ConfidenceSource'UNKNOWN)
+                (when-not (= (:source this) :ConfidenceSource'UNKNOWN)
                     (.. sb (append " Source: ") (append (:source this)))
                 )
                 (.toString sb)
@@ -14929,8 +14927,8 @@
      ;;
     #_method
     (defn #_"ConnectionResult" TransactionInput''connect-3t [#_"TransactionInput" this, #_"Transaction" tx, #_"ConnectionMode" mode]
-        (when' (.equals (Transaction''get-hash tx), (:from-tx-hash (:outpoint this))) => :ConnectionResult'NO_SUCH_TX
-            (assert-state (< -1 (:index (:outpoint this)) (.size (:outputs tx))), "Corrupt transaction")
+        (when (.equals (Transaction''get-hash tx), (:from-tx-hash (:outpoint this))) => :ConnectionResult'NO_SUCH_TX
+            (assert-state (< -1 (:index (:outpoint this)) (count (:outputs tx))), "Corrupt transaction")
 
             (let [#_"TransactionOutput" output (Transaction''get-output tx, (int (:index (:outpoint this))))
                   #_"ConnectionResult" result
@@ -14952,7 +14950,7 @@
                             )
                         )
                     )]
-                (when' (nil? result) => result
+                (when (nil? result) => result
                     (§ ass this (TransactionInput''connect-o this, output))
                     :ConnectionResult'SUCCESS
                 )
@@ -14992,7 +14990,7 @@
                         )
                 )]
 
-            (when' (and (some? output) (= (:spent-by output) this)) => false
+            (when (and (some? output) (= (:spent-by output) this)) => false
                 ;; The outpoint was connected to an output, disconnect the output.
                 (§ ass output (TransactionOutput''mark-as-unspent output))
                 true
@@ -15051,7 +15049,7 @@
             (when-not (.equals (:from-tx-hash (:outpoint this)), (Transaction''get-hash (:parent output)))
                 (throw+ (VerificationException'new "This input does not refer to the tx containing the output."))
             )
-            (when (not= (:index (:outpoint this)) (TransactionOutput''get-index output))
+            (when-not (= (:index (:outpoint this)) (TransactionOutput''get-index output))
                 (throw+ (VerificationException'new "This input refers to a different output on the given tx."))
             )
         )
@@ -15421,8 +15419,8 @@
     #_method
     (defn #_"int" TransactionOutput''get-index [#_"TransactionOutput" this]
         (let [#_"List<TransactionOutput>" outputs (:outputs (:parent this))]
-            (loop-when [#_"int" i 0] (< i (.size outputs)) => (throw (IllegalStateException. "Output linked to wrong parent transaction?"))
-                (if (= (.get outputs, i) this)
+            (loop-when [#_"int" i 0] (< i (count outputs)) => (throw (IllegalStateException. "Output linked to wrong parent transaction?"))
+                (if (= (nth outputs i) this)
                     i
                     (recur (inc i))
                 )
@@ -15548,7 +15546,7 @@
     (defn #_"int" TransactionOutput''get-parent-transaction-depth-in-blocks [#_"TransactionOutput" this]
         (let-when [#_"Transaction" tx (:parent this)] (some? tx) => -1
             (let [#_"TransactionConfidence" confidence (Transaction''get-confidence-t tx)]
-                (when' (= (TransactionConfidence''get-confidence-type confidence) :ConfidenceType'BUILDING) => -1
+                (when (= (TransactionConfidence''get-confidence-type confidence) :ConfidenceType'BUILDING) => -1
                     (TransactionConfidence''get-depth-in-blocks confidence)
                 )
             )
@@ -15705,7 +15703,7 @@
     (defn #_"int" TxConfidenceTable''num-broadcast-peers [#_"TxConfidenceTable" this, #_"Sha256Hash" hash]
         (sync (:confidence-lock this)
             (TxConfidenceTable''clean-table this)
-            (let-when [#_"WeakConfidenceReference" entry (.get (:table this), hash)] (some? entry) => 0 ;; No such TX known.
+            (let-when [#_"WeakConfidenceReference" entry (get (:table this) hash)] (some? entry) => 0 ;; No such TX known.
                 (let-when [#_"TransactionConfidence" confidence (.get entry)] (nil? confidence) => (TransactionConfidence''num-broadcast-peers confidence)
                     ;; Such a TX hash was seen, but nothing seemed to care, so we ended up throwing away the data.
                     (.remove (:table this), hash)
@@ -15746,9 +15744,9 @@
         (ensure some? hash)
 
         (sync (:confidence-lock this)
-            (let [#_"WeakConfidenceReference" ref (.get (:table this), hash)
+            (let [#_"WeakConfidenceReference" ref (get (:table this) hash)
                   #_"TransactionConfidence" confidence (when (some? ref) (.get ref))]
-                (when' (nil? confidence) => confidence
+                (when (nil? confidence) => confidence
                     (let [confidence (TransactionConfidence'new hash)]
                         (.put (:table this), hash, (WeakConfidenceReference'new confidence, (:reference-queue this)))
                         confidence
@@ -15765,7 +15763,7 @@
     #_method
     (defn #_"TransactionConfidence" TxConfidenceTable''get-2 [#_"TxConfidenceTable" this, #_"Sha256Hash" hash]
         (sync (:confidence-lock this)
-            (let [#_"WeakConfidenceReference" ref (.get (:table this), hash)]
+            (let [#_"WeakConfidenceReference" ref (get (:table this) hash)]
                 (when (some? ref) (.get ref))
             )
         )
@@ -16027,12 +16025,12 @@
               ;; there are NATs and proxies in the way.  However we don't listen for inbound connections so it's irrelevant.
               _ (Wire'read-uint64 payload)]
             ;; The rest of the flags may not be sent by old nodes.
-            (when' (.hasRemaining payload) => this
+            (when (.hasRemaining payload) => this
                 (Wire'read-string payload) ;; user agent
-                (when' (.hasRemaining payload) => this
+                (when (.hasRemaining payload) => this
                     ;; int bestHeight (size of known block chain)
                     (let [this (assoc this :best-height (Wire'read-uint32 payload))]
-                        (when' (.hasRemaining payload) => this
+                        (when (.hasRemaining payload) => this
                             (assoc this :relay-txes-before-filter (not= (Wire'read-byte payload) 0))
                         )
                     )
@@ -16227,7 +16225,7 @@
 )
 
 (§ ns bitclojn.crypto
-    (:refer-clojure :exclude [ensure sync])
+    (:refer-clojure :exclude [ensure sync when when-not])
     (:use [bitclojn slang])
 )
 
@@ -16368,12 +16366,12 @@
                 (when-not create?
                     (throw (IllegalArgumentException. (str "No key found for " (if relative? "relative" "absolute") " path " (HDUtils'format-path path) ".")))
                 )
-                (assert-argument (pos? (.size abs)), "Can't derive the master key: nothing to derive from.")
-                (let [#_"DeterministicKey" parent (DeterministicHierarchy''get-4 this, (.subList abs, 0, (dec (.size abs))), false, true)]
-                    (DeterministicHierarchy''put-key this, (HDKeyDerivation'derive-child-key-2c parent, (.get abs, (dec (.size abs)))))
+                (assert-argument (pos? (count abs)), "Can't derive the master key: nothing to derive from.")
+                (let [#_"DeterministicKey" parent (DeterministicHierarchy''get-4 this, (.subList abs, 0, (dec (count abs))), false, true)]
+                    (DeterministicHierarchy''put-key this, (HDKeyDerivation'derive-child-key-2c parent, (.get abs, (dec (count abs)))))
                 )
             )
-            (.get (:keys this), abs)
+            (get (:keys this) abs)
         )
     )
 
@@ -16406,7 +16404,7 @@
 
     #_method
     (defn- #_"ChildNumber" DeterministicHierarchy''get-next-child-number-to-derive [#_"DeterministicHierarchy" this, #_"List<ChildNumber>" path, #_"boolean" private?]
-        (let [#_"ChildNumber" last (.get (:last-child-numbers this), path)
+        (let [#_"ChildNumber" last (get (:last-child-numbers this) path)
               #_"ChildNumber" next (ChildNumber'compose (if (some? last) (inc (ChildNumber''num last)) 0), private?)]
             (.put (:last-child-numbers this), path, next)
             next
@@ -16415,7 +16413,7 @@
 
     #_method
     (defn #_"int" DeterministicHierarchy''get-num-children [#_"DeterministicHierarchy" this, #_"List<ChildNumber>" path]
-        (let [#_"ChildNumber" child (.get (:last-child-numbers this), path)]
+        (let [#_"ChildNumber" child (get (:last-child-numbers this) path)]
             ;; Children start with zero based childnumbers.
             (if (some? child) (inc (ChildNumber''num child)) 0)
         )
@@ -16589,7 +16587,7 @@
     ;;; Returns the last element of the path returned by {@link DeterministicKey#getPath()}. ;;
     #_method
     (defn #_"ChildNumber" DeterministicKey''get-child-number [#_"DeterministicKey" this]
-        (if (= (.size (:child-number-path this)) 0) ChildNumber'ZERO (.get (:child-number-path this), (dec (.size (:child-number-path this)))))
+        (if (= (count (:child-number-path this)) 0) ChildNumber'ZERO (.get (:child-number-path this), (dec (count (:child-number-path this)))))
     )
 
     ;;;
@@ -16724,7 +16722,7 @@
         (let [#_"BigInteger" priv (BigInteger. 1, bytes)
               key (reduce HDKeyDerivation'derive-child-key-2c
                     (DeterministicKey'new-5 (:child-number-path key), (:chain-code key), (:pub key), priv, (:parent key))
-                    (.subList (:child-number-path this), (.size (DeterministicKey''get-path key)), (.size (:child-number-path this))))]
+                    (.subList (:child-number-path this), (count (DeterministicKey''get-path key)), (count (:child-number-path this))))]
             ;; downCursor is now the same key as us, but with private key bytes.
             ;; If it's not, it means we tried decrypting with an invalid password and earlier checks e.g. for padding didn't catch it.
             (when-not (.equals (:pub key), (:pub this))
@@ -16840,7 +16838,7 @@
                                     (throw (IllegalArgumentException. "Parent fingerprints don't match"))
                                 )
                                 (let [path (HDUtils'append (DeterministicKey''get-path parent), child)]
-                                    (when-not (= (.size path) depth)
+                                    (when-not (= (count path) depth)
                                         (throw (IllegalArgumentException. "Depth does not match"))
                                     )
                                     path
@@ -17515,7 +17513,7 @@
                 (.update md, (Sha256Hash''get-bytes word))
                 (.add word-list, word)
             )
-            (when-not (= (.size word-list) 2048)
+            (when-not (= (count word-list) 2048)
                 (throw (IllegalArgumentException. "input stream did not contain 2048 words"))
             )
             ;; If a digest is supplied, check to make sure it matches.
@@ -17562,16 +17560,16 @@
     #_throws #_[ "MnemonicLengthException", "MnemonicWordException", "MnemonicChecksumException" ]
     #_method
     (defn #_"byte[]" MnemonicCode''to-entropy [#_"MnemonicCode" this, #_"List<String>" words]
-        (when (zero? (.size words))
+        (when (zero? (count words))
             (throw+ (MnemonicLengthException'new "Word list is empty."))
         )
-        (when-not (zero? (rem (.size words) 3))
+        (when-not (zero? (rem (count words) 3))
             (throw+ (MnemonicLengthException'new "Word list size must be multiple of three words."))
         )
 
         ;; Look up all the words in the list and construct the concatenation of the original entropy and the checksum.
 
-        (let [#_"int" __concatLenBits (* (.size words) 11)
+        (let [#_"int" __concatLenBits (* (count words) 11)
               #_"boolean[]" __concatBits (boolean-array __concatLenBits)]
 
             (loop-when-recur [#_"int" index 0 words words] (seq words) [(inc index) (next words)]
@@ -17607,7 +17605,7 @@
 
                         ;; Check all the checksum bits.
                         (dotimes [#_"int" i __checksumLengthBits]
-                            (when (not= (aget __concatBits (+ __entropyLengthBits i)) (aget __hashBits i))
+                            (when-not (= (aget __concatBits (+ __entropyLengthBits i)) (aget __hashBits i))
                                 (throw+ (MnemonicChecksumException'new))
                             )
                         )
@@ -17649,7 +17647,7 @@
             (let [#_"List<String>" words (ArrayList.)]
                 (dotimes [#_"int" i (quot (alength bits) 11)]
                     (let [#_"int" x (loop-when-recur [x 0 #_"int" j 0] (< j 11) [(| (<< x 1) (if (aget bits (+ (* i 11) j)) 1 0)) (inc j)] => x)]
-                        (.add words, (.get (:word-list this), x))
+                        (.add words, (nth (:word-list this) x))
                     )
                 )
                 words
@@ -17961,7 +17959,7 @@
 )
 
 (§ ns bitclojn.kits
-    (:refer-clojure :exclude [ensure sync])
+    (:refer-clojure :exclude [ensure sync when when-not])
     (:use [bitclojn slang])
 )
 
@@ -18281,7 +18279,7 @@
 )
 
 (§ ns bitclojn.net
-    (:refer-clojure :exclude [ensure sync])
+    (:refer-clojure :exclude [ensure sync when when-not])
     (:use [bitclojn slang])
 )
 
@@ -18443,7 +18441,7 @@
                     #_"Set<ConnectionHandler>" :connected-handlers nil
                 )]
 
-            (when' (some? connection) => this
+            (when (some? connection) => this
                 (let [#_"int" size (min (max ConnectionHandler'BUFFER_SIZE_LOWER_BOUND (StreamConnection'''get-max-message-size connection)) ConnectionHandler'BUFFER_SIZE_UPPER_BOUND)
                       this (assoc this :connection connection, :read-buff (ByteBuffer/allocateDirect size))]
                     (StreamConnection'''set-write-target connection, this) ;; May callback into us (e.g. closeConnection() now).
@@ -18498,7 +18496,7 @@
             (loop-when [#_"Iterator<ByteBuffer>" it (.iterator (:bytes-to-write this))] (.hasNext it)
                 (let [#_"ByteBuffer" buff (.next it)]
                     (§ ass this (assoc this :bytes-to-write-remaining (- (:bytes-to-write-remaining this) (.write (:channel this), buff))))
-                    (when' (not (.hasRemaining buff)) => (ConnectionHandler''set-write-ops this)
+                    (when (not (.hasRemaining buff)) => (ConnectionHandler''set-write-ops this)
                         (.remove it)
                         (recur it)
                     )
@@ -18594,7 +18592,7 @@
         (when-let [#_"ConnectionHandler" handler (cast' ConnectionHandler (.attachment key))]
             (try
                 ;; Else the key has been cancelled, make sure the socket gets closed.
-                (when' (.isValid key) => (MessageWriteTarget'''close-connection handler)
+                (when (.isValid key) => (MessageWriteTarget'''close-connection handler)
                     (or
                         (when (.isReadable key)
                             ;; Do a socket read and invoke the connection's receiveBytes message.
@@ -18694,7 +18692,7 @@
                             [Long/MAX_VALUE 0] providers)
                       #_"FilterMergerResult" result (FilterMergerResult'new earliest)
                       result
-                        (when' (pos? elements) => result
+                        (when (pos? elements) => result
                             ;; We stair-step our element count so that we avoid creating a filter with different parameters
                             ;; as much as possible as that results in a loss of privacy.
                             ;; The constant 100 here is somewhat arbitrary, but makes sense for small to medium wallets -
@@ -18917,7 +18915,7 @@
     (defn- #_"void" NioClientManager''handle-key [#_"NioClientManager" this, #_"SelectionKey" key]
         ;; We could have a !isValid() key here if the connection is already closed at this point,
         ;; i.e. a client connection which has finished the initial connect process.
-        (when' (and (.isValid key) (.isConnectable key)) => (ConnectionHandler'handle-key key) ;; Process bytes read.
+        (when (and (.isValid key) (.isConnectable key)) => (ConnectionHandler'handle-key key) ;; Process bytes read.
             ;; Create a ConnectionHandler and hook everything together.
             (let [#_"PendingConnection" data (cast' PendingConnection (.attachment key))
                   #_"StreamConnection" connection (:connection data)
@@ -19046,7 +19044,7 @@
 
     #_override
     (defn #_"int" ClientConnectionManager'''get-connected-client-count [#_"NioClientManager" this]
-        (.size (:connected-handlers this))
+        (count (:connected-handlers this))
     )
 
     #_override
@@ -19109,7 +19107,7 @@
     #_method
     (defn- #_"void" NioServer''handle-key [#_"NioServer" this, #_"Selector" selector, #_"SelectionKey" key]
         ;; Else got a closing channel or a channel to a client connection.
-        (when' (and (.isValid key) (.isAcceptable key)) => (ConnectionHandler'handle-key key)
+        (when (and (.isValid key) (.isAcceptable key)) => (ConnectionHandler'handle-key key)
             ;; Accept a new connection, give it a stream connection as an attachment.
             (let [#_"SocketChannel" channel (.accept (:sc this)) _ (.configureBlocking channel, false)
                   #_"SelectionKey" key (.register channel, selector, SelectionKey/OP_READ)]
@@ -19196,7 +19194,7 @@
 )
 
 (§ ns bitclojn.net-discovery
-    (:refer-clojure :exclude [ensure sync])
+    (:refer-clojure :exclude [ensure sync when when-not])
     (:use [bitclojn slang])
 )
 
@@ -19290,7 +19288,7 @@
 
     #_override
     (defn #_"ExecutorService" MultiplexingDiscovery'''create-executor [#_"DnsDiscovery" this]
-        (Executors/newFixedThreadPool (.size (:seeds this)), (DaemonThreadFactory'new "DNS seed lookups"))
+        (Executors/newFixedThreadPool (count (:seeds this)), (DaemonThreadFactory'new "DNS seed lookups"))
     )
 )
 
@@ -19352,20 +19350,20 @@
                 )
                 (let [#_"List<Future<InetSocketAddress*>>" futures (.invokeAll (:v-thread-pool this), tasks, timeout, unit)
                       #_"List<InetSocketAddress>" addrs (ArrayList.)]
-                    (dotimes [#_"int" i (.size futures)]
-                        (let [#_"Future<InetSocketAddress*>" future (.get futures, i)]
+                    (dotimes [#_"int" i (count futures)]
+                        (let [#_"Future<InetSocketAddress*>" future (nth futures i)]
                             (if (.isCancelled future)
-                                (log/warn (str "Seed " (.get (:seeds this), i) ": timed out"))
+                                (log/warn (str "Seed " (nth (:seeds this) i) ": timed out"))
                                 (try
                                     (Collections/addAll addrs, (.get future))
                                     (catch ExecutionException e
-                                        (log/warn (str "Seed " (.get (:seeds this), i) ": failed to look up: " (.getMessage e)))
+                                        (log/warn (str "Seed " (nth (:seeds this) i) ": failed to look up: " (.getMessage e)))
                                     )
                                 )
                             )
                         )
                     )
-                    (when (zero? (.size addrs))
+                    (when (zero? (count addrs))
                         (throw+ (PeerDiscoveryException'new (str "No peer discovery returned any results in " (.toMillis unit, timeout) "ms.  Check internet connection?")))
                     )
 
@@ -19384,7 +19382,7 @@
 
     #_abstract
     (defn #_"ExecutorService" MultiplexingDiscovery'''create-executor [#_"MultiplexingDiscovery" this]
-        (Executors/newFixedThreadPool (.size (:seeds this)), (DaemonThreadFactory'new "Multiplexing discovery"))
+        (Executors/newFixedThreadPool (count (:seeds this)), (DaemonThreadFactory'new "Multiplexing discovery"))
     )
 
     #_override
@@ -19493,7 +19491,7 @@
 )
 
 (§ ns bitclojn.params
-    (:refer-clojure :exclude [ensure sync])
+    (:refer-clojure :exclude [ensure sync when when-not])
     (:use [bitclojn slang])
 )
 
@@ -20361,7 +20359,7 @@
 )
 
 (§ ns bitclojn.script
-    (:refer-clojure :exclude [ensure sync])
+    (:refer-clojure :exclude [ensure sync when when-not])
     (:use [bitclojn slang])
 )
 
@@ -20640,7 +20638,7 @@
                             )
                         )
                       #_"ScriptChunk" chunk
-                        (when' (some? n) => (ScriptChunk'new opcode, nil, start)
+                        (when (some? n) => (ScriptChunk'new opcode, nil, start)
                             (when (< (.available bais) n)
                                 (throw+ (ScriptException'new :ScriptError'BAD_OPCODE, "Push of data element that is larger than remaining data"))
                             )
@@ -20672,7 +20670,7 @@
     #_method
     (defn #_"byte[]" Script''get-program [#_"Script" this]
         ;; Don't round-trip as Bitcoin Core doesn't and it would introduce a mismatch.
-        (when' (nil? (:program this)) => (Arrays/copyOf (:program this), (alength (:program this)))
+        (when (nil? (:program this)) => (Arrays/copyOf (:program this), (alength (:program this)))
             (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
                 (doseq [#_"ScriptChunk" chunk (:chunks this)]
                     (ScriptChunk''write-chunk chunk, baos)
@@ -20691,10 +20689,10 @@
      ;;
     #_method
     (defn #_"boolean" Script''is-sent-to-raw-pub-key [#_"Script" this]
-        (and (= (.size (:chunks this)) 2)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 1), Script'OP_CHECKSIG)
-             (not (ScriptChunk''is-op-code (.get (:chunks this), 0)))
-             (< 1 (alength (:data (.get (:chunks this), 0))))
+        (and (= (count (:chunks this)) 2)
+             (ScriptChunk''equals-op-code (nth (:chunks this) 1), Script'OP_CHECKSIG)
+             (not (ScriptChunk''is-op-code (nth (:chunks this) 0)))
+             (< 1 (alength (:data (nth (:chunks this) 0))))
         )
     )
 
@@ -20706,12 +20704,12 @@
      ;;
     #_method
     (defn #_"boolean" Script''is-sent-to-address [#_"Script" this]
-        (and (= (.size (:chunks this)) 5)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 0), Script'OP_DUP)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 1), Script'OP_HASH160)
-             (= (alength (:data (.get (:chunks this), 2))) Address'LENGTH)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 3), Script'OP_EQUALVERIFY)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 4), Script'OP_CHECKSIG)
+        (and (= (count (:chunks this)) 5)
+             (ScriptChunk''equals-op-code (nth (:chunks this) 0), Script'OP_DUP)
+             (ScriptChunk''equals-op-code (nth (:chunks this) 1), Script'OP_HASH160)
+             (= (alength (:data (nth (:chunks this) 2))) Address'LENGTH)
+             (ScriptChunk''equals-op-code (nth (:chunks this) 3), Script'OP_EQUALVERIFY)
+             (ScriptChunk''equals-op-code (nth (:chunks this) 4), Script'OP_CHECKSIG)
         )
     )
 
@@ -20731,8 +20729,8 @@
     #_method
     (defn #_"byte[]" Script''get-pub-key-hash [#_"Script" this]
         (cond
-            (Script''is-sent-to-address this)    (:data (.get (:chunks this), 2))
-            (Script''is-pay-to-script-hash this) (:data (.get (:chunks this), 1))
+            (Script''is-sent-to-address this)    (:data (nth (:chunks this) 2))
+            (Script''is-pay-to-script-hash this) (:data (nth (:chunks this) 1))
             :else (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Script not in the standard scriptPubKey form"))
         )
     )
@@ -20748,12 +20746,12 @@
     #_throws #_[ "ScriptException" ]
     #_method
     (defn #_"byte[]" Script''get-pub-key [#_"Script" this]
-        (when (not= (.size (:chunks this)) 2)
-            (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script not of right size, expecting 2 but got " (.size (:chunks this)))))
+        (when-not (= (count (:chunks this)) 2)
+            (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script not of right size, expecting 2 but got " (count (:chunks this)))))
         )
 
-        (let [#_"ScriptChunk" chunk0 (.get (:chunks this), 0) #_"byte[]" data0 (:data chunk0)
-              #_"ScriptChunk" chunk1 (.get (:chunks this), 1) #_"byte[]" data1 (:data chunk1)]
+        (let [#_"ScriptChunk" chunk0 (nth (:chunks this) 0) #_"byte[]" data0 (:data chunk0)
+              #_"ScriptChunk" chunk1 (nth (:chunks this) 1) #_"byte[]" data1 (:data chunk1)]
             (cond
                 ;; If we have two large constants assume the input to a pay-to-address output.
                 (and (some? data0) (< 2 (alength data0)) (some? data1) (< 2 (alength data1))) data1
@@ -20773,7 +20771,7 @@
     #_method
     (defn #_"byte[]" Script''get-cltv-payment-channel-sender-pub-key [#_"Script" this]
         (if (Script''is-sent-to-cltv-payment-channel this)
-            (:data (.get (:chunks this), 8))
+            (:data (nth (:chunks this) 8))
             (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script not a standard CHECKLOCKTIMVERIFY transaction: " this)))
         )
     )
@@ -20787,7 +20785,7 @@
     #_method
     (defn #_"byte[]" Script''get-cltv-payment-channel-recipient-pub-key [#_"Script" this]
         (if (Script''is-sent-to-cltv-payment-channel this)
-            (:data (.get (:chunks this), 1))
+            (:data (nth (:chunks this) 1))
             (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script not a standard CHECKLOCKTIMVERIFY transaction: " this)))
         )
     )
@@ -20795,7 +20793,7 @@
     #_method
     (defn #_"BigInteger" Script''get-cltv-payment-channel-expiry [#_"Script" this]
         (if (Script''is-sent-to-cltv-payment-channel this)
-            (Script'cast-to-big-integer-3 (:data (.get (:chunks this), 4)), 5, false)
+            (Script'cast-to-big-integer-3 (:data (nth (:chunks this) 4)), 5, false)
             (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Script not a standard CHECKLOCKTIMEVERIFY transaction: " this)))
         )
     )
@@ -20874,10 +20872,10 @@
 
     ;;; Creates a program that requires at least N of the given keys to sign, using OP_CHECKMULTISIG. ;;
     (defn #_"byte[]" Script'create-multi-sig-output-script [#_"int" threshold, #_"List<ECKey>" pubkeys]
-        (assert-argument (<= 1 threshold (.size pubkeys) 16)) ;; That's the max we can represent with a single opcode.
+        (assert-argument (<= 1 threshold (count pubkeys) 16)) ;; That's the max we can represent with a single opcode.
 
-        (when (< 3 (.size pubkeys))
-            (log/warn (str "Creating a multi-signature output that is non-standard: " (.size pubkeys) " pubkeys, should be <= 3"))
+        (when (< 3 (count pubkeys))
+            (log/warn (str "Creating a multi-signature output that is non-standard: " (count pubkeys) " pubkeys, should be <= 3"))
         )
 
         (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
@@ -20885,7 +20883,7 @@
             (doseq [#_"ECKey" key pubkeys]
                 (Script'write-bytes baos, (ECKey''get-pub-key key))
             )
-            (.write baos, (Script'encode-to-op-n (.size pubkeys)))
+            (.write baos, (Script'encode-to-op-n (count pubkeys)))
             (.write baos, Script'OP_CHECKMULTISIG)
             (.toByteArray baos)
         )
@@ -20957,12 +20955,12 @@
     #_method
     (defn #_"int" Script''get-sig-insertion-index [#_"Script" this, #_"Sha256Hash" hash, #_"ECKey" key]
         ;; Iterate over existing signatures, skipping the initial OP_0, the final redeem script and any placeholder OP_0 sigs.
-        (let [#_"int" n (dec (.size (:chunks this)))
-              #_"Script" redeem (Script'from-bytes (ensure some? (:data (.get (:chunks this), n))))
+        (let [#_"int" n (dec (count (:chunks this)))
+              #_"Script" redeem (Script'from-bytes (ensure some? (:data (nth (:chunks this) n))))
               #_"int" m (Script''find-key-in-redeem redeem, key)]
             (loop-when [#_"int" i 0 #_"List<ScriptChunk>" chunks (.subList (:chunks this), 1, n)] (seq chunks) => i
                 (let [#_"ScriptChunk" chunk (first chunks)]
-                    (when' (not= (:opcode chunk) Script'OP_0) => (recur i (next chunks))
+                    (when-not (= (:opcode chunk) Script'OP_0) => (recur i (next chunks))
                         (if (< m (Script''find-sig-in-redeem redeem, (ensure some? (:data chunk)), hash))
                             i
                             (recur (inc i) (next chunks))
@@ -20975,9 +20973,9 @@
 
     #_method
     (defn- #_"int" Script''find-key-in-redeem [#_"Script" this, #_"ECKey" key]
-        (assert-argument (ScriptChunk''is-op-code (.get (:chunks this), 0))) ;; P2SH scriptSig
+        (assert-argument (ScriptChunk''is-op-code (nth (:chunks this) 0))) ;; P2SH scriptSig
 
-        (let [#_"int" n (Script'decode-from-op-n (:opcode (.get (:chunks this), (- (.size (:chunks this)) 2))))]
+        (let [#_"int" n (Script'decode-from-op-n (:opcode (.get (:chunks this), (- (count (:chunks this)) 2))))]
             (loop-when [#_"int" i 0] (< i n) => (throw (IllegalStateException. (str "Could not find matching key " key " in script " this)))
                 (if (Arrays/equals (:data (.get (:chunks this), (inc i))), (ECKey''get-pub-key key))
                     i
@@ -20999,7 +20997,7 @@
         )
 
         (let [#_"List<ECKey>" keys (ArrayList.)]
-            (dotimes [#_"int" i (Script'decode-from-op-n (:opcode (.get (:chunks this), (- (.size (:chunks this)) 2))))]
+            (dotimes [#_"int" i (Script'decode-from-op-n (:opcode (.get (:chunks this), (- (count (:chunks this)) 2))))]
                 (.add keys, (ECKey'from-public-only-bytes (:data (.get (:chunks this), (inc i)))))
             )
             keys
@@ -21008,9 +21006,9 @@
 
     #_method
     (defn- #_"int" Script''find-sig-in-redeem [#_"Script" this, #_"byte[]" bytes, #_"Sha256Hash" hash]
-        (assert-argument (ScriptChunk''is-op-code (.get (:chunks this), 0))) ;; P2SH scriptSig
+        (assert-argument (ScriptChunk''is-op-code (nth (:chunks this) 0))) ;; P2SH scriptSig
 
-        (let [#_"int" n (Script'decode-from-op-n (:opcode (.get (:chunks this), (- (.size (:chunks this)) 2))))
+        (let [#_"int" n (Script'decode-from-op-n (:opcode (.get (:chunks this), (- (count (:chunks this)) 2))))
               #_"TransactionSignature" signature (TransactionSignature'decode-from-bitcoin-2 bytes, true)]
             (loop-when [#_"int" i 0] (< i n) => (throw (IllegalStateException. (str "Could not find matching key for signature on " hash " sig " (.encode Utils'HEX, bytes))))
                 (if (ECKey''verify-3s (ECKey'from-public-only-bytes (:data (.get (:chunks this), (inc i)))), hash, signature)
@@ -21026,7 +21024,7 @@
         (loop-when [#_"int" ops 0 #_"int" prior Script'OP_INVALIDOPCODE chunks chunks] (seq chunks) => ops
             (let [#_"ScriptChunk" chunk (first chunks)
                   [ops prior]
-                    (when' (ScriptChunk''is-op-code chunk) => [ops prior]
+                    (when (ScriptChunk''is-op-code chunk) => [ops prior]
                         (let [ops
                                 (condp =? (:opcode chunk)
                                     [Script'OP_CHECKSIG Script'OP_CHECKSIGVERIFY]
@@ -21100,7 +21098,7 @@
         (cond
             ;; For N of M CHECKMULTISIG script we will need N signatures to spend.
             (Script''is-sent-to-multi-sig this)
-                (Script'decode-from-op-n (:opcode (.get (:chunks this), 0)))
+                (Script'decode-from-op-n (:opcode (nth (:chunks this) 0)))
             ;; pay-to-address and pay-to-pubkey require single sig
             (or (Script''is-sent-to-address this) (Script''is-sent-to-raw-pub-key this))
                 1
@@ -21173,7 +21171,7 @@
      ;;
     #_method
     (defn #_"boolean" Script''is-sent-to-multi-sig [#_"Script" this]
-        (let [#_"List<ScriptChunk>" chunks (:chunks this) #_"int" m (.size chunks)]
+        (let [#_"List<ScriptChunk>" chunks (:chunks this) #_"int" m (count chunks)]
             (and (<= 4 m)
                 (let [#_"ScriptChunk" c1 (.get chunks, (dec m))]
                     ;; Must end in OP_CHECKMULTISIG[VERIFY].
@@ -21187,13 +21185,13 @@
                                     (let [#_"int" n (Script'decode-from-op-n (:opcode c2))]
                                         (and (<= 1 n) (= (+ n 3) m)
                                             (loop-when [#_"int" i 1] (< i (- m 2)) => true
-                                                (if (ScriptChunk''is-op-code (.get chunks, i))
+                                                (if (ScriptChunk''is-op-code (nth chunks i))
                                                     false
                                                     (recur (inc i))
                                                 )
                                             )
                                             ;; First chunk must be an OP_N opcode too.
-                                            (<= 1 (Script'decode-from-op-n (:opcode (.get chunks, 0))))
+                                            (<= 1 (Script'decode-from-op-n (:opcode (nth chunks 0))))
                                         )
                                     )
                                 )
@@ -21214,14 +21212,14 @@
         ;; chunk[1] = recipient pubkey
         ;; chunk[4] = locktime
         ;; chunk[8] = sender pubkey
-        (and (= (.size (:chunks this)) 10)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 0), Script'OP_IF)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 2), Script'OP_CHECKSIGVERIFY)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 3), Script'OP_ELSE)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 5), Script'OP_CHECKLOCKTIMEVERIFY)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 6), Script'OP_DROP)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 7), Script'OP_ENDIF)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 9), Script'OP_CHECKSIG))
+        (and (= (count (:chunks this)) 10)
+             (ScriptChunk''equals-op-code (nth (:chunks this) 0), Script'OP_IF)
+             (ScriptChunk''equals-op-code (nth (:chunks this) 2), Script'OP_CHECKSIGVERIFY)
+             (ScriptChunk''equals-op-code (nth (:chunks this) 3), Script'OP_ELSE)
+             (ScriptChunk''equals-op-code (nth (:chunks this) 5), Script'OP_CHECKLOCKTIMEVERIFY)
+             (ScriptChunk''equals-op-code (nth (:chunks this) 6), Script'OP_DROP)
+             (ScriptChunk''equals-op-code (nth (:chunks this) 7), Script'OP_ENDIF)
+             (ScriptChunk''equals-op-code (nth (:chunks this) 9), Script'OP_CHECKSIG))
     )
 
     (defn- #_"boolean" Script'equals-range [#_"byte[]" a, #_"int" start, #_"byte[]" b]
@@ -21329,7 +21327,7 @@
 
     #_method
     (defn #_"boolean" Script''is-op-return [#_"Script" this]
-        (and (pos? (.size (:chunks this))) (ScriptChunk''equals-op-code (.get (:chunks this), 0), Script'OP_RETURN))
+        (and (pos? (count (:chunks this))) (ScriptChunk''equals-op-code (nth (:chunks this) 0), Script'OP_RETURN))
     )
 
     ;;;
@@ -21353,7 +21351,7 @@
                     (let [#_"int" opcode (:opcode chunk)
                           __opCount
                             ;; Note how OP_RESERVED does not count towards the opcode limit.
-                            (when' (< Script'OP_16 opcode) => __opCount
+                            (when (< Script'OP_16 opcode) => __opCount
                                 (when-not (< __opCount Script'MAX_OPS_PER_SCRIPT)
                                     (throw+ (ScriptException'new :ScriptError'OP_COUNT, "More script operations than is allowed"))
                                 )
@@ -21380,8 +21378,8 @@
                                         (condp =? opcode
                                             Script'OP_IF
                                                 (do
-                                                    (when' exec? => (.add ifstack, false)
-                                                        (when (< (.size stack) 1)
+                                                    (when exec? => (.add ifstack, false)
+                                                        (when (< (count stack) 1)
                                                             (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_IF on an empty stack"))
                                                         )
                                                         (.add ifstack, (Script'cast-to-bool (.pollLast stack)))
@@ -21390,8 +21388,8 @@
                                                 )
                                             Script'OP_NOTIF
                                                 (do
-                                                    (when' exec? => (.add ifstack, false)
-                                                        (when (< (.size stack) 1)
+                                                    (when exec? => (.add ifstack, false)
+                                                        (when (< (count stack) 1)
                                                             (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_NOTIF on an empty stack"))
                                                         )
                                                         (.add ifstack, (not (Script'cast-to-bool (.pollLast stack))))
@@ -21449,7 +21447,7 @@
 
                                             Script'OP_VERIFY
                                                 (do
-                                                    (when (< (.size stack) 1)
+                                                    (when (< (count stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_VERIFY on an empty stack"))
                                                     )
                                                     (when-not (Script'cast-to-bool (.pollLast stack))
@@ -21463,7 +21461,7 @@
 
                                             Script'OP_TOALTSTACK
                                                 (do
-                                                    (when (< (.size stack) 1)
+                                                    (when (< (count stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_TOALTSTACK on an empty stack"))
                                                     )
                                                     (.add altstack, (.pollLast stack))
@@ -21471,7 +21469,7 @@
                                                 )
                                             Script'OP_FROMALTSTACK
                                                 (do
-                                                    (when (< (.size altstack) 1)
+                                                    (when (< (count altstack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_ALTSTACK_OPERATION, "Attempted OP_FROMALTSTACK on an empty altstack"))
                                                     )
                                                     (.add stack, (.pollLast altstack))
@@ -21480,7 +21478,7 @@
 
                                             Script'OP_2DROP
                                                 (do
-                                                    (when (< (.size stack) 2)
+                                                    (when (< (count stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2DROP on a stack with size < 2"))
                                                     )
                                                     (.pollLast stack)
@@ -21489,7 +21487,7 @@
                                                 )
                                             Script'OP_2DUP
                                                 (do
-                                                    (when (< (.size stack) 2)
+                                                    (when (< (count stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2DUP on a stack with size < 2"))
                                                     )
                                                     (let [#_"Iterator<byte[]>" it (.descendingIterator stack) #_"byte[]" data2 (.next it)]
@@ -21500,7 +21498,7 @@
                                                 )
                                             Script'OP_3DUP
                                                 (do
-                                                    (when (< (.size stack) 3)
+                                                    (when (< (count stack) 3)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_3DUP on a stack with size < 3"))
                                                     )
                                                     (let [#_"Iterator<byte[]>" it (.descendingIterator stack) #_"byte[]" data3 (.next it) #_"byte[]" data2 (.next it)]
@@ -21512,7 +21510,7 @@
                                                 )
                                             Script'OP_2OVER
                                                 (do
-                                                    (when (< (.size stack) 4)
+                                                    (when (< (count stack) 4)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2OVER on a stack with size < 4"))
                                                     )
                                                     (let [#_"Iterator<byte[]>" it (.descendingIterator stack)]
@@ -21527,7 +21525,7 @@
                                                 )
                                             Script'OP_2ROT
                                                 (do
-                                                    (when (< (.size stack) 6)
+                                                    (when (< (count stack) 6)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2ROT on a stack with size < 6"))
                                                     )
                                                     (let [#_"byte[]" data6 (.pollLast stack)
@@ -21547,7 +21545,7 @@
                                                 )
                                             Script'OP_2SWAP
                                                 (do
-                                                    (when (< (.size stack) 4)
+                                                    (when (< (count stack) 4)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2SWAP on a stack with size < 4"))
                                                     )
                                                     (let [#_"byte[]" data4 (.pollLast stack)
@@ -21564,7 +21562,7 @@
 
                                             Script'OP_IFDUP
                                                 (do
-                                                    (when (< (.size stack) 1)
+                                                    (when (< (count stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_IFDUP on an empty stack"))
                                                     )
                                                     (when (Script'cast-to-bool (.getLast stack))
@@ -21575,13 +21573,13 @@
 
                                             Script'OP_DEPTH
                                                 (do
-                                                    (.add stack, (Wire'reverse-bytes (Wire'encode-mpi (BigInteger/valueOf (.size stack)), false)))
+                                                    (.add stack, (Wire'reverse-bytes (Wire'encode-mpi (BigInteger/valueOf (count stack)), false)))
                                                     nil
                                                 )
 
                                             Script'OP_DROP
                                                 (do
-                                                    (when (< (.size stack) 1)
+                                                    (when (< (count stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_DROP on an empty stack"))
                                                     )
                                                     (.pollLast stack)
@@ -21589,7 +21587,7 @@
                                                 )
                                             Script'OP_DUP
                                                 (do
-                                                    (when (< (.size stack) 1)
+                                                    (when (< (count stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_DUP on an empty stack"))
                                                     )
                                                     (.add stack, (.getLast stack))
@@ -21597,7 +21595,7 @@
                                                 )
                                             Script'OP_NIP
                                                 (do
-                                                    (when (< (.size stack) 2)
+                                                    (when (< (count stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_NIP on a stack with size < 2"))
                                                     )
                                                     (let [#_"byte[]" data (.pollLast stack)]
@@ -21608,7 +21606,7 @@
                                                 )
                                             Script'OP_OVER
                                                 (do
-                                                    (when (< (.size stack) 2)
+                                                    (when (< (count stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_OVER on a stack with size < 2"))
                                                     )
                                                     (let [#_"Iterator<byte[]>" it (.descendingIterator stack)]
@@ -21620,11 +21618,11 @@
                                            [Script'OP_PICK
                                             Script'OP_ROLL]
                                                 (do
-                                                    (when (< (.size stack) 1)
+                                                    (when (< (count stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_PICK/OP_ROLL on an empty stack"))
                                                     )
                                                     (let [#_"long" n (.longValue (Script'cast-to-big-integer-2 (.pollLast stack), (.contains flags, :ScriptVerifyFlag'MINIMALDATA)))]
-                                                        (when-not (< -1 n (.size stack))
+                                                        (when-not (< -1 n (count stack))
                                                             (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "OP_PICK/OP_ROLL attempted to get data deeper than stack size"))
                                                         )
                                                         (let [#_"Iterator<byte[]>" it (.descendingIterator stack)]
@@ -21643,7 +21641,7 @@
                                                 )
                                             Script'OP_ROT
                                                 (do
-                                                    (when (< (.size stack) 3)
+                                                    (when (< (count stack) 3)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_ROT on a stack with size < 3"))
                                                     )
                                                     (let [#_"byte[]" data3 (.pollLast stack)
@@ -21658,7 +21656,7 @@
                                            [Script'OP_SWAP
                                             Script'OP_TUCK]
                                                 (do
-                                                    (when (< (.size stack) 2)
+                                                    (when (< (count stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SWAP on a stack with size < 2"))
                                                     )
                                                     (let [#_"byte[]" data2 (.pollLast stack) #_"byte[]" data1 (.pollLast stack)]
@@ -21673,7 +21671,7 @@
 
                                             Script'OP_SIZE
                                                 (do
-                                                    (when (< (.size stack) 1)
+                                                    (when (< (count stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SIZE on an empty stack"))
                                                     )
                                                     (.add stack, (Wire'reverse-bytes (Wire'encode-mpi (BigInteger/valueOf (alength (.getLast stack))), false)))
@@ -21681,7 +21679,7 @@
                                                 )
                                             Script'OP_EQUAL
                                                 (do
-                                                    (when (< (.size stack) 2)
+                                                    (when (< (count stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_EQUAL on a stack with size < 2"))
                                                     )
                                                     (.add stack, (if (Arrays/equals (.pollLast stack), (.pollLast stack)) (byte-array [ 1 ]) (byte-array 0)))
@@ -21689,7 +21687,7 @@
                                                 )
                                             Script'OP_EQUALVERIFY
                                                 (do
-                                                    (when (< (.size stack) 2)
+                                                    (when (< (count stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_EQUALVERIFY on a stack with size < 2"))
                                                     )
                                                     (when-not (Arrays/equals (.pollLast stack), (.pollLast stack))
@@ -21705,7 +21703,7 @@
                                             Script'OP_NOT
                                             Script'OP_0NOTEQUAL]
                                                 (do
-                                                    (when (< (.size stack) 1)
+                                                    (when (< (count stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted a numeric op on an empty stack"))
                                                     )
                                                     (let [#_"BigInteger" n (Script'cast-to-big-integer-2 (.pollLast stack), (.contains flags, :ScriptVerifyFlag'MINIMALDATA))
@@ -21734,7 +21732,7 @@
                                             Script'OP_MIN
                                             Script'OP_MAX]
                                                 (do
-                                                    (when (< (.size stack) 2)
+                                                    (when (< (count stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted a numeric op on a stack with size < 2"))
                                                     )
                                                     (let [#_"BigInteger" n2 (Script'cast-to-big-integer-2 (.pollLast stack), (.contains flags, :ScriptVerifyFlag'MINIMALDATA))
@@ -21762,7 +21760,7 @@
 
                                             Script'OP_NUMEQUALVERIFY
                                                 (do
-                                                    (when (< (.size stack) 2)
+                                                    (when (< (count stack) 2)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_NUMEQUALVERIFY on a stack with size < 2"))
                                                     )
                                                     (let [#_"BigInteger" n2 (Script'cast-to-big-integer-2 (.pollLast stack), (.contains flags, :ScriptVerifyFlag'MINIMALDATA))
@@ -21777,7 +21775,7 @@
 
                                             Script'OP_WITHIN
                                                 (do
-                                                    (when (< (.size stack) 3)
+                                                    (when (< (count stack) 3)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_WITHIN on a stack with size < 3"))
                                                     )
                                                     (let [#_"BigInteger" n3 (Script'cast-to-big-integer-2 (.pollLast stack), (.contains flags, :ScriptVerifyFlag'MINIMALDATA))
@@ -21793,7 +21791,7 @@
 
                                             Script'OP_RIPEMD160
                                                 (do
-                                                    (when (< (.size stack) 1)
+                                                    (when (< (count stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_RIPEMD160 on an empty stack"))
                                                     )
                                                     (let [#_"RIPEMD160Digest" digest (RIPEMD160Digest.) #_"byte[]" data (.pollLast stack)]
@@ -21807,7 +21805,7 @@
                                                 )
                                             Script'OP_SHA1
                                                 (do
-                                                    (when (< (.size stack) 1)
+                                                    (when (< (count stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA1 on an empty stack"))
                                                     )
                                                     (try
@@ -21820,7 +21818,7 @@
                                                 )
                                             Script'OP_SHA256
                                                 (do
-                                                    (when (< (.size stack) 1)
+                                                    (when (< (count stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
                                                     )
                                                     (.add stack, (Sha256Hash'hash (.pollLast stack)))
@@ -21828,7 +21826,7 @@
                                                 )
                                             Script'OP_HASH160
                                                 (do
-                                                    (when (< (.size stack) 1)
+                                                    (when (< (count stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_HASH160 on an empty stack"))
                                                     )
                                                     (.add stack, (Utils'sha256hash160 (.pollLast stack)))
@@ -21836,7 +21834,7 @@
                                                 )
                                             Script'OP_HASH256
                                                 (do
-                                                    (when (< (.size stack) 1)
+                                                    (when (< (count stack) 1)
                                                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
                                                     )
                                                     (.add stack, (Sha256Hash'hash-twice (.pollLast stack)))
@@ -21909,7 +21907,7 @@
                                 )
                               [__opCount __lastCodeSepLocation] (or _ [__opCount __lastCodeSepLocation])]
 
-                            (when-not (<= 0 (+ (.size stack) (.size altstack)) Script'MAX_STACK_SIZE)
+                            (when-not (<= 0 (+ (count stack) (count altstack)) Script'MAX_STACK_SIZE)
                                 (throw+ (ScriptException'new :ScriptError'STACK_SIZE, "Stack size exceeded range"))
                             )
 
@@ -21929,7 +21927,7 @@
     ;; This is more or less a direct translation of the code in Bitcoin Core.
     #_throws #_[ "ScriptException" ]
     (defn- #_"void" Script'execute-check-lock-time-verify [#_"Transaction" tx, #_"int" index, #_"LinkedList<byte[]>" stack, #_"Set<ScriptVerifyFlag>" flags]
-        (when (< (.size stack) 1)
+        (when (< (count stack) 1)
             (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKLOCKTIMEVERIFY on a stack with size < 1"))
         )
         ;; Thus as a special case we tell CScriptNum to accept up to 5-byte bignums to avoid year 2038 issue.
@@ -21963,7 +21961,7 @@
 
     #_throws #_[ "ScriptException" ]
     (defn- #_"void" Script'execute-check-sequence-verify [#_"Transaction" tx, #_"int" index, #_"LinkedList<byte[]>" stack, #_"Set<ScriptVerifyFlag>" flags]
-        (if (< (.size stack) 1)
+        (if (< (count stack) 1)
             (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKSEQUENCEVERIFY on a stack with size < 1"))
             ;; Note that elsewhere numeric opcodes are limited to operands in the range -2**31+1 to 2**31-1,
             ;; however it is legal for opcodes to produce results exceeding that range.  This limitation is
@@ -22028,7 +22026,7 @@
     #_throws #_[ "ScriptException" ]
     (defn- #_"void" Script'execute-check-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" __lastCodeSepLocation, #_"int" opcode, #_"Set<ScriptVerifyFlag>" flags]
         (let [#_"boolean" canon? (or (.contains flags, :ScriptVerifyFlag'STRICTENC) (.contains flags, :ScriptVerifyFlag'DERSIG) (.contains flags, :ScriptVerifyFlag'LOW_S))]
-            (when (< (.size stack) 2)
+            (when (< (count stack) 2)
                 (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKSIG(VERIFY) on a stack with size < 2"))
             )
 
@@ -22076,7 +22074,7 @@
     #_throws #_[ "ScriptException" ]
     (defn- #_"int" Script'execute-multi-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" __opCount, #_"int" __lastCodeSepLocation, #_"int" opcode, #_"Set<ScriptVerifyFlag>" flags]
         (let [#_"boolean" canon? (or (.contains flags, :ScriptVerifyFlag'STRICTENC) (.contains flags, :ScriptVerifyFlag'DERSIG) (.contains flags, :ScriptVerifyFlag'LOW_S))]
-            (when (< (.size stack) 1)
+            (when (< (count stack) 1)
                 (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < 1"))
             )
 
@@ -22089,7 +22087,7 @@
                     (when (< Script'MAX_OPS_PER_SCRIPT __opCount)
                         (throw+ (ScriptException'new :ScriptError'OP_COUNT, "Total op count > 201 during OP_CHECKMULTISIG(VERIFY)"))
                     )
-                    (when (< (.size stack) (inc __pubKeyCount))
+                    (when (< (count stack) (inc __pubKeyCount))
                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + 2"))
                     )
 
@@ -22098,7 +22096,7 @@
                         (when-not (<= 0 __sigCount __pubKeyCount)
                             (throw+ (ScriptException'new :ScriptError'SIG_COUNT, "OP_CHECKMULTISIG(VERIFY) with sig count out of range"))
                         )
-                        (when (< (.size stack) (inc __sigCount))
+                        (when (< (count stack) (inc __sigCount))
                             (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + num_of_signatures + 3"))
                         )
 
@@ -22109,7 +22107,7 @@
                               #_"byte[]" prog (Script''get-program script)
                               #_"byte[]" __connectedScript (reduce rem- (Arrays/copyOfRange prog, __lastCodeSepLocation, (alength prog)) sigs)
                               #_"boolean" valid?
-                                (loop-when [] (pos? (.size sigs)) => true
+                                (loop-when [] (pos? (count sigs)) => true
                                     (let [#_"byte[]" __pubKey (.pollFirst pubkeys)]
                                         ;; We could reasonably move this out of the loop, but because signature verification is significantly
                                         ;; more expensive than hashing, its not a big deal.
@@ -22125,7 +22123,7 @@
                                                 ;; Because I can't verify there aren't more, we use a very generic Exception catch.
                                             )
                                         )
-                                        (recur-if (<= (.size sigs) (.size pubkeys)) [] => false)
+                                        (recur-if (<= (count sigs) (count pubkeys)) [] => false)
                                     )
                                 )
                               ;; We uselessly remove a stack object to emulate a Bitcoin Core bug.
@@ -22177,7 +22175,7 @@
                 (let [#_"LinkedList<byte[]>" __p2shStack (when (.contains flags, :ScriptVerifyFlag'P2SH) (LinkedList. stack))]
                     (Script'execute-script-5 tx, index, __scriptPubKey, stack, flags)
 
-                    (when (zero? (.size stack))
+                    (when (zero? (count stack))
                         (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, "Stack empty at end of script execution."))
                     )
                     (when-not (Script'cast-to-bool (.pollLast stack))
@@ -22206,7 +22204,7 @@
 
                         (Script'execute-script-5 tx, index, (Script'from-bytes (.pollLast __p2shStack)), __p2shStack, flags)
 
-                        (when (zero? (.size __p2shStack))
+                        (when (zero? (count __p2shStack))
                             (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, "P2SH stack empty at end of script execution."))
                         )
                         (when-not (Script'cast-to-bool (.pollLast __p2shStack))
@@ -22291,7 +22289,7 @@
     ;;; Adds the given chunk to the end of the program. ;;
     #_method
     (defn #_"ScriptBuilder" ScriptBuilder''add-chunk-2 [#_"ScriptBuilder" this, #_"ScriptChunk" chunk]
-        (ScriptBuilder''add-chunk-3 this, (.size (:chunks this)), chunk)
+        (ScriptBuilder''add-chunk-3 this, (count (:chunks this)), chunk)
     )
 
     ;;; Adds the given chunk at the given index in the program. ;;
@@ -22304,7 +22302,7 @@
     ;;; Adds the given opcode to the end of the program. ;;
     #_method
     (defn #_"ScriptBuilder" ScriptBuilder''op-2 [#_"ScriptBuilder" this, #_"int" opcode]
-        (ScriptBuilder''op-3 this, (.size (:chunks this)), opcode)
+        (ScriptBuilder''op-3 this, (count (:chunks this)), opcode)
     )
 
     ;;; Adds the given opcode to the given index in the program. ;;
@@ -22317,7 +22315,7 @@
     ;;; Adds a copy of the given byte array as a data element (i.e. PUSHDATA) at the end of the program. ;;
     #_method
     (defn #_"ScriptBuilder" ScriptBuilder''data-2 [#_"ScriptBuilder" this, #_"byte[]" data]
-        (if (= (alength data) 0) (ScriptBuilder''small-num-2 this, 0) (ScriptBuilder''data-3 this, (.size (:chunks this)), data))
+        (if (zero? (alength data)) (ScriptBuilder''small-num-2 this, 0) (ScriptBuilder''data-3 this, (count (:chunks this)), data))
     )
 
     ;;; Adds a copy of the given byte array as a data element (i.e. PUSHDATA) at the given index in the program. ;;
@@ -22364,7 +22362,7 @@
      ;;
     #_method
     (defn #_"ScriptBuilder" ScriptBuilder''small-num-2 [#_"ScriptBuilder" this, #_"int" num]
-        (ScriptBuilder''small-num-3 this, (.size (:chunks this)), num)
+        (ScriptBuilder''small-num-3 this, (count (:chunks this)), num)
     )
 
     ;;;
@@ -22377,7 +22375,7 @@
      ;;
     #_method
     (defn #_"ScriptBuilder" ScriptBuilder''big-num-2 [#_"ScriptBuilder" this, #_"long" num]
-        (ScriptBuilder''big-num-3 this, (.size (:chunks this)), num)
+        (ScriptBuilder''big-num-3 this, (count (:chunks this)), num)
     )
 
     ;;;
@@ -22405,7 +22403,7 @@
     #_method
     (defn #_"ScriptBuilder" ScriptBuilder''big-num-3 [#_"ScriptBuilder" this, #_"int" index, #_"long" num]
         (let [#_"byte[]" data
-                (when' (not= num 0) => (byte-array 0)
+                (when-not (zero? num) => (byte-array 0)
                     (let [#_"Stack<Byte>" stack (Stack.)]
                         (loop-when-recur [#_"long" a (Math/abs num)] (not= a 0) [(>> a 8)]
                             (.push stack, (byte (& a 0xff)))
@@ -22419,9 +22417,9 @@
                             ;; negative when converting back to an integral.
                             (< num 0)                       (.push stack, (byte (| (.pop stack) 0x80)))
                         )
-                        (let [data (byte-array (.size stack))]
+                        (let [data (byte-array (count stack))]
                             (dotimes [#_"int" i (alength data)]
-                                (aset data i (.get stack, i))
+                                (aset data i (nth stack i))
                             )
                             data
                         )
@@ -22487,14 +22485,14 @@
 
     ;;; Creates a program that requires at least N of the given keys to sign, using OP_CHECKMULTISIG. ;;
     (defn #_"Script" ScriptBuilder'create-multi-sig-output-script [#_"int" threshold, #_"List<ECKey>" pubkeys]
-        (assert-argument (<= 1 threshold (.size pubkeys) 16)) ;; That's the max we can represent with a single opcode.
+        (assert-argument (<= 1 threshold (count pubkeys) 16)) ;; That's the max we can represent with a single opcode.
 
         (let [#_"ScriptBuilder" builder (ScriptBuilder'new-0)]
             (ScriptBuilder''small-num-2 builder, threshold)
             (doseq [#_"ECKey" key pubkeys]
                 (ScriptBuilder''data-2 builder, (ECKey''get-pub-key key))
             )
-            (ScriptBuilder''small-num-2 builder, (.size pubkeys))
+            (ScriptBuilder''small-num-2 builder, (count pubkeys))
             (ScriptBuilder''op-2 builder, Script'OP_CHECKMULTISIG)
             (ScriptBuilder''build builder)
         )
@@ -22502,7 +22500,7 @@
 
     ;;; Create a program that satisfies an OP_CHECKMULTISIG program. ;;
     (defn #_"Script" ScriptBuilder'create-multi-sig-input-script [#_"List<TransactionSignature>" signatures]
-        (let [#_"List<byte[]>" sigs (ArrayList. (.size signatures))]
+        (let [#_"List<byte[]>" sigs (ArrayList. (count signatures))]
             (doseq [#_"TransactionSignature" signature signatures]
                 (.add sigs, (TransactionSignature''encode-to-bitcoin signature))
             )
@@ -22540,7 +22538,7 @@
      ; Optionally, appends the script program bytes if spending a P2SH output.
      ;;
     (defn #_"Script" ScriptBuilder'create-multi-sig-input-script-bytes-2 [#_"List<byte[]>" signatures, #_"byte[]" program]
-        (assert-argument (<= (.size signatures) 16))
+        (assert-argument (<= (count signatures) 16))
 
         (let [#_"ScriptBuilder" builder (ScriptBuilder'new-0)]
             (ScriptBuilder''small-num-2 builder, 0) ;; Work around a bug in CHECKMULTISIG that is now a required part of the protocol.
@@ -22565,7 +22563,7 @@
      ; @param sigsSuffixCount How many items to copy verbatim at end (e.g. redeemScript for P2SH).
      ;;
     (defn #_"Script" ScriptBuilder'update-script-with-signature [#_"Script" __scriptSig, #_"byte[]" signature, #_"int" target, #_"int" prefix, #_"int" suffix]
-        (let [#_"List<ScriptChunk>" chunks (:chunks __scriptSig) #_"int" m (.size chunks)]
+        (let [#_"List<ScriptChunk>" chunks (:chunks __scriptSig) #_"int" m (count chunks)]
 
             ;; Check if we have a place to insert, otherwise just return given scriptSig unchanged.
             ;; We assume here that OP_0 placeholders always go after the sigs, so
@@ -22584,11 +22582,11 @@
                             (loop-when [i 0 inserted? false #_"List<ScriptChunk>" s (.subList chunks, prefix, (- m suffix))] (seq s) => [i inserted?]
                                 (let [#_"ScriptChunk" chunk (first s)
                                       [i inserted?]
-                                        (when' (= i target) => [i inserted?]
+                                        (when (= i target) => [i inserted?]
                                             (ScriptBuilder''data-2 builder, signature)
                                             [(inc i) true]
                                         )
-                                      i (when' (not (ScriptChunk''equals-op-code chunk, Script'OP_0)) => i
+                                      i (when (not (ScriptChunk''equals-op-code chunk, Script'OP_0)) => i
                                             (ScriptBuilder''add-chunk-2 builder, chunk)
                                             (inc i)
                                         )]
@@ -23204,7 +23202,7 @@
 )
 
 (§ ns bitclojn.signers
-    (:refer-clojure :exclude [ensure sync])
+    (:refer-clojure :exclude [ensure sync when when-not])
     (:use [bitclojn slang])
 )
 
@@ -23254,10 +23252,10 @@
 
     #_override
     (defn #_"boolean" TransactionSigner'''sign-inputs [#_"CustomTransactionSigner" this, #_"ProposedTransaction" __propTx, #_"KeyBag" bag]
-        (let [#_"Transaction" tx (:partial-tx __propTx) #_"int" n (.size (:inputs tx))]
+        (let [#_"Transaction" tx (:partial-tx __propTx) #_"int" n (count (:inputs tx))]
             (loop-when [#_"int" i 0] (< i n) => true
                 (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
-                    (when' (some? out) => (recur (inc i))
+                    (when (some? out) => (recur (inc i))
                         (let [#_"Script" __outKey (TransactionOutput''get-script-pub-key out)]
                             (if (Script''is-pay-to-script-hash __outKey)
                                 (let [#_"Script" __inSig (ensure some? (TransactionInput''get-script-sig in))]
@@ -23269,7 +23267,7 @@
                                         (log/warn "Input" i "already correctly spends output, assuming SIGHASH type used will be safe and skipping signing.")
                                         (§ catch ScriptException _
                                             (let [#_"RedeemData" data (TransactionInput''get-connected-redeem-data in, bag)]
-                                                (when' (some? data) => (log/warn (str "No redeem data found for input " i))
+                                                (when (some? data) => (log/warn (str "No redeem data found for input " i))
                                                     (let [#_"Sha256Hash" hash (Transaction''hash-for-signature-5s tx, i, (:redeem-script data), SigHash'ALL, false)
                                                           #_"SignatureAndKey" sig+key (CustomTransactionSigner'''get-signature this, hash, (.get (:key-paths __propTx), __outKey))]
                                                         (§ ass in (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature __outKey, __inSig, (TransactionSignature''encode-to-bitcoin (TransactionSignature'from-ecdsa (:sig sig+key), SigHash'ALL, false)), (Script''get-sig-insertion-index __inSig, hash, (:pub-key sig+key)))))
@@ -23323,9 +23321,9 @@
     #_override
     (defn #_"boolean" TransactionSigner'''sign-inputs [#_"LocalTransactionSigner" this, #_"ProposedTransaction" __propTx, #_"KeyBag" bag]
         (let [#_"Transaction" tx (:partial-tx __propTx)]
-            (dotimes [#_"int" i (.size (:inputs tx))]
+            (dotimes [#_"int" i (count (:inputs tx))]
                 (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
-                    (when' (some? out) => (log/warn (str "Missing connected output, assuming input " i " is already signed."))
+                    (when (some? out) => (log/warn (str "Missing connected output, assuming input " i " is already signed."))
                         (let [#_"Script" inSig (TransactionInput''get-script-sig in) #_"Script" outKey (TransactionOutput''get-script-pub-key out)]
                             (try+
                                 ;; We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
@@ -23396,16 +23394,16 @@
         (when-not (= (:missing-sigs-mode this) :MissingSigsMode'USE_OP_ZERO)
             (let [#_"Transaction" tx (:partial-tx __propTx)
                   #_"byte[]" dummy (TransactionSignature''encode-to-bitcoin (TransactionSignature'dummy))]
-                (dotimes [#_"int" i (.size (:inputs tx))]
+                (dotimes [#_"int" i (count (:inputs tx))]
                     (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
                         (if (nil? out)
                             (log/warn (str "Missing connected output, assuming input " i " is already signed."))
                             (let [#_"Script" inSig (TransactionInput''get-script-sig in) #_"Script" outKey (TransactionOutput''get-script-pub-key out)]
                                 (if (or (Script''is-pay-to-script-hash outKey) (Script''is-sent-to-multi-sig outKey))
-                                    (let [#_"int" x (if (Script''is-pay-to-script-hash outKey) 1 0) #_"int" n (.size (:chunks inSig))]
+                                    (let [#_"int" x (if (Script''is-pay-to-script-hash outKey) 1 0) #_"int" n (count (:chunks inSig))]
                                         ;; All chunks except the first one (OP_0) and the last (redeem script) are signatures.
                                         (loop-when-recur [#_"int" j 1] (< j (- n x)) [(inc j)]
-                                            (when (ScriptChunk''equals-op-code (.get (:chunks inSig), j), 0)
+                                            (when (ScriptChunk''equals-op-code (nth (:chunks inSig) j), 0)
                                                 (condp = (:missing-sigs-mode this)
                                                     :MissingSigsMode'THROW
                                                         (throw+ (MissingSignatureException'new))
@@ -23416,7 +23414,7 @@
                                             )
                                         )
                                     )
-                                    (when (ScriptChunk''equals-op-code (.get (:chunks inSig), 0), 0)
+                                    (when (ScriptChunk''equals-op-code (nth (:chunks inSig) 0), 0)
                                         (condp = (:missing-sigs-mode this)
                                             :MissingSigsMode'THROW
                                                 (throw+ (MissingPrivateKeyException'new))
@@ -23464,7 +23462,7 @@
 )
 
 (§ ns bitclojn.store
-    (:refer-clojure :exclude [ensure sync])
+    (:refer-clojure :exclude [ensure sync when when-not])
     (:use [bitclojn slang])
 )
 
@@ -23728,7 +23726,7 @@
                 (throw+ (BlockStoreException'new "MemoryBlockStore is closed"))
             )
 
-            (.get (:block-map this), hash)
+            (get (:block-map this) hash)
         )
     )
 
@@ -23822,12 +23820,12 @@
 
     #_method
     (defn #_"ValueType" TransactionalHashMap''get [#_"TransactionalHashMap" this, #_"KeyType" key]
-        (when' (true? (.get (:in-transaction this))) => (.get (:map this), key)
+        (when (true? (.get (:in-transaction this))) => (get (:map this) key)
             (or
                 (when-let [#_"HashMap<KeyType, ValueType>" m (.get (:temp-map this))]
-                    (.get m, key)
+                    (get m key)
                 )
-                (let-when [#_"HashSet<KeyType>" s (.get (:temp-set-removed this))] (and (some? s) (.contains s, key)) => (.get (:map this), key)
+                (let-when [#_"HashSet<KeyType>" s (.get (:temp-set-removed this))] (and (some? s) (.contains s, key)) => (get (:map this) key)
                     nil
                 )
             )
@@ -23846,7 +23844,7 @@
 
     #_method
     (defn #_"void" TransactionalHashMap''put [#_"TransactionalHashMap" this, #_"KeyType" key, #_"ValueType" value]
-        (when' (true? (.get (:in-transaction this))) => (.put (:map this), key, value)
+        (when (true? (.get (:in-transaction this))) => (.put (:map this), key, value)
             (when-let [#_"HashSet<KeyType>" s (.get (:temp-set-removed this))]
                 (.remove s, key)
             )
@@ -23860,8 +23858,8 @@
 
     #_method
     (defn #_"ValueType" TransactionalHashMap''remove [#_"TransactionalHashMap" this, #_"KeyType" key]
-        (when' (true? (.get (:in-transaction this))) => (.remove (:map this), key)
-            (let [#_"ValueType" value (.get (:map this), key)]
+        (when (true? (.get (:in-transaction this))) => (.remove (:map this), key)
+            (let [#_"ValueType" value (get (:map this) key)]
                 (when (some? value)
                     (when (nil? (.get (:temp-set-removed this)))
                         (.set (:temp-set-removed this), (HashSet. #_"<KeyType>"))
@@ -23912,14 +23910,14 @@
 
     #_method
     (defn #_"ValueType" TransactionalMultiKeyHashMap''get-2 [#_"TransactionalMultiKeyHashMap" this, #_"UniqueKeyType" key]
-        (.get (:map-values this), key)
+        (get (:map-values this) key)
     )
 
     #_method
     (defn #_"void" TransactionalMultiKeyHashMap''put-4 [#_"TransactionalMultiKeyHashMap" this, #_"UniqueKeyType" unique, #_"MultiKeyType" multi, #_"ValueType" value]
         (.put (:map-values this), unique, value)
-        (let [#_"Set<UniqueKeyType>" set (.get (:map-keys this), multi)]
-            (when' (nil? set) => (.add set, unique)
+        (let [#_"Set<UniqueKeyType>" set (get (:map-keys this) multi)]
+            (when (nil? set) => (.add set, unique)
                 (let [set (HashSet.)]
                     (.add set, unique)
                     (.put (:map-keys this), multi, set)
@@ -24019,7 +24017,7 @@
     (defn #_"StoredBlock" BlockStore'''get-2 [#_"MemoryFullPrunedBlockStore" this, #_"Sha256Hash" hash]
         (sync this
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
-            (let [#_"StoredBlockAndWasUndoableFlag" stored (.get (:block-map this), hash)]
+            (let [#_"StoredBlockAndWasUndoableFlag" stored (get (:block-map this) hash)]
                 (when (some? stored) (:block stored))
             )
         )
@@ -24030,7 +24028,7 @@
     (defn #_"StoredBlock" FullPrunedBlockStore'''get-once-undoable-stored-block [#_"MemoryFullPrunedBlockStore" this, #_"Sha256Hash" hash]
         (sync this
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
-            (let [#_"StoredBlockAndWasUndoableFlag" stored (.get (:block-map this), hash)]
+            (let [#_"StoredBlockAndWasUndoableFlag" stored (get (:block-map this) hash)]
                 (when (and (some? stored) (:was-undoable stored)) (:block stored))
             )
         )
@@ -24041,7 +24039,7 @@
     (defn #_"StoredUndoableBlock" FullPrunedBlockStore'''get-undo-block [#_"MemoryFullPrunedBlockStore" this, #_"Sha256Hash" hash]
         (sync this
             (ensure some? (:full-block-map this), "MemoryFullPrunedBlockStore is closed")
-            (.get (:full-block-map this), hash)
+            (get (:full-block-map this) hash)
         )
     )
 
@@ -24350,11 +24348,11 @@
     (defn #_"StoredBlock" BlockStore'''get-2 [#_"SPVBlockStore" this, #_"Sha256Hash" hash]
         (let-when [#_"MappedByteBuffer" buffer (:buffer this)] (some? buffer) => (throw+ (BlockStoreException'new "Store closed"))
             (sync (:blockstore-lock this)
-                (let [#_"StoredBlock" cached (.get (:block-cache this), hash)]
+                (let [#_"StoredBlock" cached (get (:block-cache this) hash)]
                     (cond
                         (some? cached)
                             cached
-                        (some? (.get (:not-found-cache this), hash))
+                        (some? (get (:not-found-cache this) hash))
                             nil
                         :else
                             ;; Starting from the current tip of the ring work backwards until we have either
@@ -24369,7 +24367,7 @@
                                             ;; Cursor is now at the start of the next record to check, so read the hash and compare it.
                                             (.position buffer, i)
                                             (.get buffer, scratch)
-                                            (when' (Arrays/equals scratch, target) => (recur-if (not= i i0) i => nil)
+                                            (when (Arrays/equals scratch, target) => (recur-if (not= i i0) i => nil)
                                                 ;; Found the target.
                                                 (StoredBlock'deserialize-compact (:ledger this), buffer)
                                             )
@@ -24472,7 +24470,7 @@
 )
 
 (§ ns bitclojn.utils
-    (:refer-clojure :exclude [ensure sync])
+    (:refer-clojure :exclude [ensure sync when when-not])
     (:use [bitclojn slang])
 )
 
@@ -24681,7 +24679,7 @@
     #_foreign
     #_override
     (defn #_"void" Executor'''execute [#_"UserThread" this, #_"Runnable" runnable]
-        (let [#_"int" size (.size (:tasks this))]
+        (let [#_"int" size (count (:tasks this))]
             (when (= size UserThread'WARNING_THRESHOLD)
                 (log/warn (str "User thread has " size " pending tasks, memory exhaustion may occur.\n"
                                "If you see this message, check your memory consumption and see if it's problematic or excessively spikey.\n"
@@ -24823,7 +24821,7 @@
 )
 
 (§ ns bitclojn.wallet-listeners
-    (:refer-clojure :exclude [ensure sync])
+    (:refer-clojure :exclude [ensure sync when when-not])
     (:use [bitclojn slang])
 )
 
@@ -24931,7 +24929,7 @@
 )
 
 (§ ns bitclojn.wallet
-    (:refer-clojure :exclude [ensure sync])
+    (:refer-clojure :exclude [ensure sync when when-not])
     (:use [bitclojn slang])
 )
 
@@ -25069,7 +25067,7 @@
         (assert-argument (< 0 n))
 
         (sync (:b-keychain-lock this)
-            (let [#_"int" m (.size (:hash-to-keys this))]
+            (let [#_"int" m (count (:hash-to-keys this))]
                 (when (< m n)
                     (let [#_"List<ECKey>" keys (ArrayList. (- n m))]
                         (loop-when-recur [#_"int" i 0] (< i (- n m)) [(inc i)]
@@ -25102,17 +25100,17 @@
     #_method
     (defn #_"int" BasicKeyChain''import-keys [#_"BasicKeyChain" this, #_"List<ECKey>" keys]
         (sync (:b-keychain-lock this)
-            (let [#_"List<ECKey>" added (ArrayList. (.size keys))]
+            (let [#_"List<ECKey>" added (ArrayList. (count keys))]
                 (doseq [#_"ECKey" key keys]
                     (when (not (KeyChain'''has-key this, key))
                         (.add added, key)
                         (§ ass this (BasicKeyChain''import-key-locked this, key))
                     )
                 )
-                (when (< 0 (.size added))
+                (when (< 0 (count added))
                     (BasicKeyChain''queue-on-keys-added this, added)
                 )
-                (.size added)
+                (count added)
             )
         )
     )
@@ -25174,7 +25172,7 @@
 
     #_override
     (defn #_"int" KeyChain'''num-keys [#_"BasicKeyChain" this]
-        (.size (:pubkey-to-keys this))
+        (count (:pubkey-to-keys this))
     )
 
     ;;;
@@ -25268,7 +25266,7 @@
             (loop-when [#_"ECKey" oldest nil #_"Collection<ECKey>" keys (.values (:hash-to-keys this))] (seq keys) => oldest
                 (let [#_"ECKey" key (first keys) #_"long" time (ECKey'''get-creation-time-seconds key)
                       oldest
-                        (when' (and (< secs time) (or (nil? oldest) (< time (ECKey'''get-creation-time-seconds oldest)))) => oldest
+                        (when (and (< secs time) (or (nil? oldest) (< time (ECKey'''get-creation-time-seconds oldest)))) => oldest
                             key
                         )]
                     (recur oldest (next keys))
@@ -25445,7 +25443,7 @@
             (assert-argument (ECKey'''is-pub-key-only key), "Private subtrees are not supported yet: do .dropPrivate().dropParent() at first.")
 
             (let [this (DeterministicKeyChain'init)]
-                (assert-argument (= (.size (DeterministicKey''get-path key)) (.size (DeterministicKeyChain''get-account-path this))), "You can only watch an account key currently")
+                (assert-argument (= (count (DeterministicKey''get-path key)) (count (DeterministicKeyChain''get-account-path this))), "You can only watch an account key currently")
 
                 (let [this (assoc this :basic-key-chain (BasicKeyChain'new))
                       this (assoc this :seed nil)
@@ -25481,7 +25479,7 @@
               this (update this :basic-key-chain BasicKeyChain''import-key (:root-key this))
               this (assoc this :hierarchy (DeterministicHierarchy'new (:root-key this)))
               #_"List<ChildNumber>" path (DeterministicKeyChain''get-account-path this)]
-            (loop-when-recur [#_"int" i 1] (<= i (.size path)) [(inc i)]
+            (loop-when-recur [#_"int" i 1] (<= i (count path)) [(inc i)]
                 (§ ass (:basic-key-chain this) (BasicKeyChain''import-key (:basic-key-chain this), (DeterministicHierarchy''get-4 (:hierarchy this), (.subList path, 0, i), false, true)))
             )
             (DeterministicKeyChain''initialize-hierarchy this, (:root-key this))
@@ -25872,7 +25870,7 @@
         (let [#_"int" m (DeterministicHierarchy''get-num-children (:hierarchy this), (DeterministicKey''get-path parent))
               #_"int" needed (- (+ issued __lookaheadSize __lookaheadThreshold) m)]
 
-            (when' (< __lookaheadThreshold needed) => (ArrayList.)
+            (when (< __lookaheadThreshold needed) => (ArrayList.)
                 (log/info (str needed " keys needed for " (DeterministicKey''get-path-as-string parent) " = " issued " issued + " __lookaheadSize " lookahead size + " __lookaheadThreshold " lookahead threshold - " m " num children"))
 
                 (let [#_"List<DeterministicKey>" keys (ArrayList. needed)
@@ -25932,14 +25930,14 @@
     #_method
     (defn #_"List<ECKey>" DeterministicKeyChain''get-keys-3b [#_"DeterministicKeyChain" this, #_"boolean" lookahead?, #_"boolean" parents?]
         (let [#_"List<ECKey>" keys (BasicKeyChain''get-keys-1 (:basic-key-chain this))]
-            (when' (not lookahead?) => keys
-                (let [#_"int" size (.size (DeterministicKey''get-path (:internal-parent-key this))) #_"List<ECKey>" __issuedKeys (LinkedList.)]
+            (when (not lookahead?) => keys
+                (let [#_"int" size (count (DeterministicKey''get-path (:internal-parent-key this))) #_"List<ECKey>" __issuedKeys (LinkedList.)]
                     (doseq [#_"ECKey" key keys]
                         (let [#_"DeterministicKey" detkey (cast' DeterministicKey key) #_"DeterministicKey" parent (DeterministicKey''get-parent detkey)]
                             (let-when [i (ChildNumber''i (DeterministicKey''get-child-number detkey))]
                                 (and
                                     (or parents? (some? parent))
-                                    (or parents? (< size (.size (DeterministicKey''get-path detkey))))
+                                    (or parents? (< size (count (DeterministicKey''get-path detkey))))
                                     (or (not (.equals (:internal-parent-key this), parent)) (< i (:issued-internal-keys this)))
                                     (or (not (.equals (:external-parent-key this), parent)) (< i (:issued-external-keys this)))
                                 )
@@ -25978,7 +25976,7 @@
         (let [#_"ImmutableList.Builder<DeterministicKey>" keys (ImmutableList/builder)]
             (doseq [#_"ECKey" key (DeterministicKeyChain''get-keys-3b this, true, false)]
                 (let [#_"DeterministicKey" __dKey (cast' DeterministicKey key)]
-                    (when (= (.size (DeterministicKey''get-path __dKey)) (+ (.size (DeterministicKeyChain''get-account-path this)) 2))
+                    (when (= (count (DeterministicKey''get-path __dKey)) (+ (count (DeterministicKeyChain''get-account-path this)) 2))
                         (.add keys, __dKey)
                     )
                 )
@@ -26136,10 +26134,10 @@
                           #_"BigInteger" depth1 (.multiply (BigInteger/valueOf (:value coin1)), (BigInteger/valueOf prior1))
                           #_"BigInteger" depth2 (.multiply (BigInteger/valueOf (:value coin2)), (BigInteger/valueOf prior2))
                           #_"int" c1 (.compareTo depth2, depth1)]
-                        (when' (= c1 0) => c1
+                        (when (= c1 0) => c1
                             ;; The "coin * days" destroyed are equal, sort by value alone to get the lowest transaction size.
                             (let [#_"int" c2 (.compareTo coin2, coin1)]
-                                (when' (= c2 0) => c2
+                                (when (= c2 0) => c2
                                     ;; They are entirely equivalent (possibly pending) so sort by hash to ensure a total ordering.
                                     (let [#_"BigInteger" hash1 (Sha256Hash''to-big-integer (TransactionOutput''get-parent-transaction-hash a))
                                           #_"BigInteger" hash2 (Sha256Hash''to-big-integer (TransactionOutput''get-parent-transaction-hash b))]
@@ -26193,10 +26191,10 @@
                   #_"long" total
                     (loop-when [total 0 sorted sorted] (seq sorted) => total
                         (let [#_"TransactionOutput" output (first sorted)]
-                            (when' (< total (:value target)) => total
+                            (when (< total (:value target)) => total
                                 ;; Only pick chain-included transactions, or transactions that are ours and pending.
                                 (let [total
-                                        (when' (DefaultCoinSelector''should-select this, (:parent output)) => total
+                                        (when (DefaultCoinSelector''should-select this, (:parent output)) => total
                                             (.add selected, output)
                                             (+ total (-> output :coin-value :value))
                                         )]
@@ -26323,9 +26321,9 @@
                 :RuleViolation'VERSION
             )
             (let [#_"List<TransactionOutput>" outputs (:outputs tx)]
-                (loop-when [#_"int" i 0] (< i (.size outputs))
-                    (let [#_"TransactionOutput" output (.get outputs, i) #_"RuleViolation" violation (RiskAnalysis'is-output-standard output)]
-                        (when' (not= violation :RuleViolation'NONE) => (recur (inc i))
+                (loop-when [#_"int" i 0] (< i (count outputs))
+                    (let [#_"TransactionOutput" output (nth outputs i) #_"RuleViolation" violation (RiskAnalysis'is-output-standard output)]
+                        (when-not (= violation :RuleViolation'NONE) => (recur (inc i))
                             (log/warn (str "TX considered non-standard due to output " i " violating rule " violation))
                             violation
                         )
@@ -26333,9 +26331,9 @@
                 )
             )
             (let [#_"List<TransactionInput>" inputs (:inputs tx)]
-                (loop-when [#_"int" i 0] (< i (.size inputs))
-                    (let [#_"TransactionInput" input (.get inputs, i) #_"RuleViolation" violation (RiskAnalysis'is-input-standard input)]
-                        (when' (not= violation :RuleViolation'NONE) => (recur (inc i))
+                (loop-when [#_"int" i 0] (< i (count inputs))
+                    (let [#_"TransactionInput" input (nth inputs i) #_"RuleViolation" violation (RiskAnalysis'is-input-standard input)]
+                        (when-not (= violation :RuleViolation'NONE) => (recur (inc i))
                             (log/warn (str "TX considered non-standard due to input " i " violating rule " violation))
                             violation
                         )
@@ -26724,7 +26722,7 @@
         (let [#_"DeterministicKeyChain" chain (KeyChainGroup''get-active-key-chain this)]
             (if (DeterministicKeyChain'''is-married chain)
                 (throw (UnsupportedOperationException. "Key is not suitable to receive coins for married keychains.  Use freshAddress to get P2SH address instead."))
-                (let-when [#_"DeterministicKey" key (.get (:current-keys this), purpose)] (nil? key) => key
+                (let-when [#_"DeterministicKey" key (get (:current-keys this) purpose)] (nil? key) => key
                     (let [key (KeyChainGroup''fresh-key this, purpose)]
                         (.put (:current-keys this), purpose, key)
                         key
@@ -26741,7 +26739,7 @@
     (defn #_"Address" KeyChainGroup''current-address [#_"KeyChainGroup" this, #_"KeyPurpose" purpose]
         (let [#_"DeterministicKeyChain" chain (KeyChainGroup''get-active-key-chain this)]
             (if (DeterministicKeyChain'''is-married chain)
-                (let-when [#_"Address" addr (.get (:current-addresses this), purpose)] (nil? addr) => addr
+                (let-when [#_"Address" addr (get (:current-addresses this) purpose)] (nil? addr) => addr
                     (let [addr (KeyChainGroup''fresh-address this, purpose)]
                         (.put (:current-addresses this), purpose, addr)
                         addr
@@ -26765,7 +26763,7 @@
      ;;
     #_method
     (defn #_"DeterministicKey" KeyChainGroup''fresh-key [#_"KeyChainGroup" this, #_"KeyPurpose" purpose]
-        (.get (KeyChainGroup''fresh-keys this, purpose, 1), 0)
+        (nth (KeyChainGroup''fresh-keys this, purpose, 1) 0)
     )
 
     ;;;
@@ -26823,7 +26821,7 @@
             ;; Otherwise we have no HD chains and no random keys: we are a new born!  So a random seed is fine.
             (§ ass this (KeyChainGroup''create-and-activate-new-hd-chain this))
         )
-        (.get (:chains this), (dec (.size (:chains this))))
+        (.get (:chains this), (dec (count (:chains this))))
     )
 
     ;;;
@@ -27021,7 +27019,7 @@
               #_"KeyChainState" basic (BasicKeyChain''is-watching (:basic this))]
             (cond
                 (= basic :KeyChainState'EMPTY)
-                    (when' (= active :KeyChainState'EMPTY) => (= active :KeyChainState'WATCHING)
+                    (when (= active :KeyChainState'EMPTY) => (= active :KeyChainState'WATCHING)
                         (throw (IllegalStateException. "Empty key chain group: cannot answer isWatching() query"))
                     )
                 (= active :KeyChainState'EMPTY)
@@ -27151,7 +27149,7 @@
     )
 
     (defn- #_"EnumMap<KeyPurpose, DeterministicKey>" KeyChainGroup'create-current-keys-map [#_"List<DeterministicKeyChain>" chains]
-        (let [#_"DeterministicKeyChain" active (.get chains, (dec (.size chains)))
+        (let [#_"DeterministicKeyChain" active (.get chains, (dec (count chains)))
               #_"EnumMap<KeyPurpose, DeterministicKey>" keys (§ EnumMap. KeyPurpose)]
 
             ;; Assuming that only RECEIVE and CHANGE keys are being used at the moment, we will treat the latest issued
@@ -27259,7 +27257,7 @@
               #_"Coin" value
                 (loop-when [value Coin'ZERO candidates candidates] (seq candidates) => value
                     (let [#_"TransactionOutput" output (first candidates)]
-                        (when' (or (not (:ignore-pending this)) (KeyTimeCoinSelector''is-confirmed this, output)) => (recur value (next candidates))
+                        (when (or (not (:ignore-pending this)) (KeyTimeCoinSelector''is-confirmed this, output)) => (recur value (next candidates))
                             ;; Find the key that controls output, assuming it's a regular pay-to-pubkey or pay-to-address output.
                             ;; We ignore any other kind of exotic output on the assumption we can't spend it ourselves.
                             (let [#_"Script" script (TransactionOutput''get-script-pub-key output)
@@ -27272,15 +27270,15 @@
                                         :else
                                             [true (log/info (str "Skipping tx output " output " because it's not of simple form."))]
                                     )]
-                                (when' (not skip?) => (recur value (next candidates))
+                                (when (not skip?) => (recur value (next candidates))
                                     (ensure some? key, "Coin selector given output as candidate for which we lack the key")
 
-                                    (when' (< (ECKey'''get-creation-time-seconds key) (:unix-time-seconds this)) => (recur value (next candidates))
+                                    (when (< (ECKey'''get-creation-time-seconds key) (:unix-time-seconds this)) => (recur value (next candidates))
                                         ;; It's older than the cutoff time, so select it.
                                         (let [value (Coin''add value, (:coin-value output))]
                                             (.push gathered, output)
-                                            (when' (<= KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS (.size gathered)) => (recur value (next candidates))
-                                                (log/warn (str "Reached " (.size gathered) " inputs, going further would yield a tx that is too large, stopping here."))
+                                            (when (<= KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS (count gathered)) => (recur value (next candidates))
+                                                (log/warn (str "Reached " (count gathered) " inputs, going further would yield a tx that is too large, stopping here."))
                                                 value
                                             )
                                         )
@@ -27395,14 +27393,14 @@
 
     #_method
     (defn- #_"MarriedKeyChain" MarriedKeyChain''add-following-account-keys [#_"MarriedKeyChain" this, #_"List<DeterministicKey>" __followingAccountKeys, #_"int" __sigsRequiredToSpend]
-        (assert-argument (<= __sigsRequiredToSpend (inc (.size __followingAccountKeys))), "Multisig threshold can't exceed total number of keys")
+        (assert-argument (<= __sigsRequiredToSpend (inc (count __followingAccountKeys))), "Multisig threshold can't exceed total number of keys")
         (assert-state (zero? (DeterministicKeyChain''num-leaf-keys-issued this)), "Active keychain already has keys in use")
         (assert-state (nil? (:following-key-chains this)))
 
         (let [#_"List<DeterministicKeyChain>" __followingKeyChains (ArrayList.)]
 
             (doseq [#_"DeterministicKey" key __followingAccountKeys]
-                (assert-argument (= (.size (DeterministicKey''get-path key)) (.size (DeterministicKeyChain''get-account-path this))), "Following keys have to be account keys")
+                (assert-argument (= (count (DeterministicKey''get-path key)) (count (DeterministicKeyChain''get-account-path this))), "Following keys have to be account keys")
 
                 (let [#_"DeterministicKeyChain" chain (DeterministicKeyChain'watch-and-follow key)]
                     (when (<= 0 (:lookahead-size this))
@@ -27458,10 +27456,10 @@
     (defn #_"void" DeterministicKeyChain'''maybe-look-ahead-scripts [#_"MarriedKeyChain" this]
         (DeterministicKeyChain'''maybe-look-ahead-scripts (§ this super))
 
-        (let [#_"int" n (.size (DeterministicKeyChain''get-leaf-keys this))]
-            (assert-state (<= (.size (:married-keys-redeem-data this)) n), "Number of scripts is greater than number of leaf keys")
+        (let [#_"int" n (count (DeterministicKeyChain''get-leaf-keys this))]
+            (assert-state (<= (count (:married-keys-redeem-data this)) n), "Number of scripts is greater than number of leaf keys")
 
-            (when (not= (.size (:married-keys-redeem-data this)) n)
+            (when-not (= (count (:married-keys-redeem-data this)) n)
                 (§ ass this (DeterministicKeyChain''maybe-look-ahead-1 this))
                 (doseq [#_"DeterministicKey" leaf (DeterministicKeyChain''get-leaf-keys this)]
                     (let [#_"RedeemData" redeem (DeterministicKeyChain'''get-redeem-data this, leaf)
@@ -27476,7 +27474,7 @@
 
     #_override
     (defn #_"RedeemData" DeterministicKeyChain'''find-redeem-data-by-script-hash [#_"MarriedKeyChain" this, #_"ByteString" bytes]
-        (.get (:married-keys-redeem-data this), bytes)
+        (get (:married-keys-redeem-data this) bytes)
     )
 
     #_override
@@ -27495,7 +27493,7 @@
     #_override
     (defn #_"int" KeyChain'''num-bloom-filter-entries [#_"MarriedKeyChain" this]
         (§ ass this (DeterministicKeyChain''maybe-look-ahead-1 this))
-        (* (.size (DeterministicKeyChain''get-leaf-keys this)) 2)
+        (* (count (DeterministicKeyChain''get-leaf-keys this)) 2)
     )
 )
 
@@ -28262,7 +28260,7 @@
      ;;
     #_method
     (defn #_"DeterministicKey" Wallet''fresh-key [#_"Wallet" this, #_"KeyPurpose" purpose]
-        (.get (Wallet''fresh-keys this, purpose, 1), 0)
+        (nth (Wallet''fresh-keys this, purpose, 1) 0)
     )
 
     ;;;
@@ -28336,7 +28334,7 @@
     #_method
     (defn #_"List<Address>" Wallet''get-issued-receive-addresses [#_"Wallet" this]
         (let [#_"List<ECKey>" keys (Wallet''get-issued-receive-keys this)
-              #_"List<Address>" addresses (ArrayList. (.size keys))]
+              #_"List<Address>" addresses (ArrayList. (count keys))]
             (doseq [#_"ECKey" key keys]
                 (.add addresses, (ECKey''to-address key, (:ledger this)))
             )
@@ -28756,12 +28754,12 @@
                     (.add hashes, (Transaction''get-hash tx))
                 )
 
-                (let [#_"int" size1 (.size transactions)]
-                    (when-not (= size1 (.size hashes))
+                (let [#_"int" size1 (count transactions)]
+                    (when-not (= size1 (count hashes))
                         (throw (IllegalStateException. "Two transactions with same hash"))
                     )
 
-                    (let [#_"int" size2 (+ (.size (:unspent this)) (.size (:spent this)) (.size (:pending this)) (.size (:dead this)))]
+                    (let [#_"int" size2 (+ (count (:unspent this)) (count (:spent this)) (count (:pending this)) (count (:dead this)))]
                         (when-not (= size1 size2)
                             (throw (IllegalStateException. (str "Inconsistent wallet sizes: " size1 ", " size2)))
                         )
@@ -28793,7 +28791,7 @@
                   actually?
                     (if (TransactionOutput''is-available-for-spending output)
                         (let [actually?
-                                (when' (TransactionOutput''is-mine output, this) => actually?
+                                (when (TransactionOutput''is-mine output, this) => actually?
                                     false
                                 )]
                             (when-not (some? (:spent-by output))
@@ -28832,8 +28830,8 @@
     (defn #_"boolean" TransactionReceivedInBlockListener'''notify-transaction-is-in-block [#_"Wallet" this, #_"Sha256Hash" hash, #_"StoredBlock" block, #_"NewBlockType" type, #_"int" offset]
         (sync (:wallet-lock this)
             (let [#_"Transaction" tx
-                    (or (.get (:transactions this), hash)
-                        (let [tx (.get (:risk-dropped this), hash)]
+                    (or (get (:transactions this) hash)
+                        (let [tx (get (:risk-dropped this) hash)]
                             (when (some? tx)
                                 ;; If this happens our risk analysis is probably wrong and should be improved.
                                 (log/info (str "Risk analysis dropped tx " (Transaction''get-hash tx) " but was included in block anyway"))
@@ -28842,7 +28840,7 @@
                             tx
                         )
                     )]
-                (when' (some? tx) => false
+                (when (some? tx) => false
                     (§ ass this (Wallet''receive this, tx, block, type, offset))
                     true
                 )
@@ -28881,7 +28879,7 @@
                         (do
                             ;; isTransactionRisky already logged the reason.
                             (.put (:risk-dropped this), (Transaction''get-hash tx), tx)
-                            (log/warn (str "There are now " (.size (:risk-dropped this)) " risk dropped transactions being kept in memory"))
+                            (log/warn (str "There are now " (count (:risk-dropped this)) " risk dropped transactions being kept in memory"))
                         )
                         (let [#_"Coin" earned (Transaction''get-value-sent-to-me tx, this) #_"Coin" spent (Transaction''get-value-sent-from-me tx, this)]
                             (log/info (str "Received a pending transaction " (Transaction''get-hash tx) " that spends " (Coin''to-friendly-string spent) " from our own wallet, and sends us " (Coin''to-friendly-string earned)))
@@ -28913,7 +28911,7 @@
     (defn #_"boolean" Wallet''is-transaction-risky [#_"Wallet" this, #_"Transaction" tx, #_"List<Transaction>" dependencies]
         (sync (:wallet-lock this)
             (let [#_"RiskAnalysis" analysis (RiskAnalysis'new this, tx, (or dependencies (ImmutableList/of)))]
-                (when' (not= (RiskAnalysis''analyze analysis) :RiskAnalysisResult'OK) => false
+                (when-not (= (RiskAnalysis''analyze analysis) :RiskAnalysisResult'OK) => false
                     (log/warn (str "Pending transaction was considered risky: " analysis "\n" tx))
                     true
                 )
@@ -29048,7 +29046,7 @@
                         (when-not (.equals ty, tx)
                             (doseq [#_"TransactionInput" input (:inputs ty)]
                                 (when (.equals (:from-tx-hash (:outpoint input)), (Transaction''get-hash tx))
-                                    (let-when [#_"Sha256Hash" hy (Transaction''get-hash ty)] (nil? (.get queue, hy))
+                                    (let-when [#_"Sha256Hash" hy (Transaction''get-hash ty)] (nil? (get queue hy))
                                         (.put queue, hy, ty)
                                         (.add __txSet, ty)
                                     )
@@ -29255,11 +29253,11 @@
     #_method
     (defn #_"List<Transaction>" Wallet''sort-txns-by-dependency [#_"Wallet" this, #_"Set<Transaction>" txns]
         (let [#_"List<Transaction>" result (ArrayList. txns)]
-            (loop-when-recur [#_"int" i 0] (< (inc i) (.size result)) [(inc i)]
+            (loop-when-recur [#_"int" i 0] (< (inc i) (count result)) [(inc i)]
                 (loop []
                     (let [#_"boolean" spends?
-                            (loop-when [#_"int" j (inc i)] (< j (.size result)) => false
-                                (when' (Wallet''spends this, (.get result, i), (.get result, j)) => (recur (inc j))
+                            (loop-when [#_"int" j (inc i)] (< j (count result)) => false
+                                (when (Wallet''spends this, (nth result i), (nth result j)) => (recur (inc j))
                                     (.add result, j, (.remove result, i))
                                     true
                                 )
@@ -29469,11 +29467,11 @@
         (doseq [#_"TransactionInput" input (:inputs tx)]
             (let [#_"ConnectionResult" result (TransactionInput''connect-3m input, (:unspent this), :ConnectionMode'ABORT_ON_CONFLICT)
                   result ;; Not found in the unspent map.  Try again with the spent map.
-                    (when' (= result :ConnectionResult'NO_SUCH_TX) => result
+                    (when (= result :ConnectionResult'NO_SUCH_TX) => result
                         (TransactionInput''connect-3m input, (:spent this), :ConnectionMode'ABORT_ON_CONFLICT)
                     )
                   result ;; Not found in the unspent and spent maps.  Try again with the pending map.
-                    (when' (= result :ConnectionResult'NO_SUCH_TX) => result
+                    (when (= result :ConnectionResult'NO_SUCH_TX) => result
                         (TransactionInput''connect-3m input, (:pending this), :ConnectionMode'ABORT_ON_CONFLICT)
                     )]
                 (when-not (= result :ConnectionResult'NO_SUCH_TX) ;; Else doesn't spend any of our outputs or is coinbase.
@@ -30062,13 +30060,13 @@
 
         (sync (:wallet-lock this)
             ;; Firstly, put all transactions into an array.
-            (let [#_"int" size (+ (.size (:unspent this)) (.size (:spent this)) (.size (:pending this)))
+            (let [#_"int" size (+ (count (:unspent this)) (count (:spent this)) (count (:pending this)))
                   n (if (or (< size n) (= n 0)) size n)
                   #_"List<Transaction>" all (ArrayList. (Wallet''get-transactions this, dead?))]
                 ;; Order by update time.
                 (Collections/sort all, Transaction'SORT_TX_BY_UPDATE_TIME)
-                (when (not= n (.size all))
-                    (.clear (.subList all, n, (.size all)))
+                (when-not (= n (count all))
+                    (.clear (.subList all, n, (count all)))
                 )
                 all
             )
@@ -30081,7 +30079,7 @@
     #_method
     (defn #_"Transaction" Wallet''get-transaction [#_"Wallet" this, #_"Sha256Hash" hash]
         (sync (:wallet-lock this)
-            (.get (:transactions this), hash)
+            (get (:transactions this) hash)
         )
     )
 
@@ -30123,7 +30121,7 @@
     #_method
     (defn #_"void" Wallet''clear-transactions-2 [#_"Wallet" this, #_"int" __fromHeight]
         (sync (:wallet-lock this)
-            (when' (zero? __fromHeight) => (throw (UnsupportedOperationException.))
+            (when (zero? __fromHeight) => (throw (UnsupportedOperationException.))
                 (Wallet''clear-transactions-1 this)
                 (Wallet''save-later this)
             )
@@ -30153,7 +30151,7 @@
                   #_"int" n
                     (loop-when [n 0] (.hasNext it) => n
                         (let [#_"Transaction" tx (.next it) #_"Sha256Hash" hash (Transaction''get-hash tx)]
-                            (when' (and (Wallet''is-transaction-risky this, tx, nil) (not (:accept-risky-transactions this))) => (recur n)
+                            (when (and (Wallet''is-transaction-risky this, tx, nil) (not (:accept-risky-transactions this))) => (recur n)
                                 (log/debug (str "Found risky transaction " hash " in wallet during cleanup."))
                                 (if (Transaction''is-any-output-spent tx)
                                     (do
@@ -30309,7 +30307,7 @@
     #_method
     (defn #_"Date" Wallet''get-last-block-seen-time [#_"Wallet" this]
         (let [#_"long" secs (Wallet''get-last-block-seen-time-secs this)]
-            (if (= secs 0) nil (Date. (* secs 1000)))
+            (if (zero? secs) nil (Date. (* secs 1000)))
         )
     )
 
@@ -30497,7 +30495,7 @@
                     ;; Count spent outputs only if were not to us, thus we don't count change outputs.
                     ;; Count input values to us, possibly not from us, i.e. in a shared transaction.
                     (let [#_"Coin" sumo (sumo- tx) #_"Coin" sumi (sumi- tx) #_"Coin" sumi' (Transaction''get-input-sum tx)]
-                        (when' (not= sumi sumi') => sumo
+                        (when-not (= sumi sumi') => sumo
                             ;; Multiply our output sum by the appropriate proportion to account for the inputs that we don't own.
                             (let [#_"BigInteger" i (.divide (.multiply (BigInteger. (.toString sumo)), (BigInteger. (.toString sumi))), (BigInteger. (.toString sumi')))]
                                 (Coin'new (.longValue i))
@@ -30718,7 +30716,7 @@
             (let [#_"List<TransactionOutput>" outputs (:outputs (:tx req))
                   #_"Coin" value (reduce Coin''add Coin'ZERO (map :coin-value outputs))]
 
-                (log/info (str "Completing send tx with " (.size outputs) " outputs totalling " (Coin''to-friendly-string value) " and a fee of " (Coin''to-friendly-string (:fee-per-kb req)) "/kB"))
+                (log/info (str "Completing send tx with " (count outputs) " outputs totalling " (Coin''to-friendly-string value) " and a fee of " (Coin''to-friendly-string (:fee-per-kb req)) "/kB"))
 
                 ;; If any inputs have already been added, we don't need to get their value from wallet.
                 (let [#_"Coin" sum
@@ -30756,7 +30754,7 @@
                                 )
                                 ;; We're being asked to empty the wallet.  What this means is ensuring "tx" has only a single output
                                 ;; of the total value we can currently spend as determined by the selector, and then subtracting the fee.
-                                (do (assert-state (= (.size outputs) 1), "Empty wallet TX must have a single output only.")
+                                (do (assert-state (= (count outputs) 1), "Empty wallet TX must have a single output only.")
 
                                     (let [#_"CoinSelector" selector (or (:coin-selector req) (:coin-selector this))
                                           __bestCoinSelection (CoinSelector'''select selector, (Ledger''get-max-money (:ledger this)), candidates)]
@@ -30781,8 +30779,8 @@
                         )
 
                         (when (some? __updatedOutputValues)
-                            (dotimes [#_"int" i (.size __updatedOutputValues)]
-                                (§ ass (Transaction''get-output (:tx req), i) (TransactionOutput''set-value (Transaction''get-output (:tx req), i), (.get __updatedOutputValues, i)))
+                            (dotimes [#_"int" i (count __updatedOutputValues)]
+                                (§ ass (Transaction''get-output (:tx req), i) (TransactionOutput''set-value (Transaction''get-output (:tx req), i), (nth __updatedOutputValues i)))
                             )
                         )
 
@@ -30839,9 +30837,9 @@
     (defn #_"Wallet" Wallet''sign-transaction [#_"Wallet" this, #_"SendRequest" req]
         (sync (:wallet-lock this)
             (let [#_"Transaction" tx (:tx req) #_"List<TransactionInput>" inputs (:inputs tx) #_"List<TransactionOutput>" outputs (:outputs tx)]
-                (assert-state (and (pos? (.size inputs)) (pos? (.size outputs))))
+                (assert-state (and (pos? (count inputs)) (pos? (count outputs))))
 
-                (dotimes [#_"int" i (.size inputs)]
+                (dotimes [#_"int" i (count inputs)]
                     (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
                         (when (some? out) ;; Else missing connected output, assuming already signed.
                             (let [#_"Script" inSig (TransactionInput''get-script-sig in) #_"Script" outKey (TransactionOutput''get-script-pub-key out)]
@@ -30908,7 +30906,7 @@
     #_method
     (defn #_"List<TransactionOutput>" Wallet''calculate-all-spend-candidates-3 [#_"Wallet" this, #_"boolean" -immature?, #_"boolean" -unsignable?]
         (sync (:wallet-lock this)
-            (let [#_"List<TransactionOutput>" candidates (ArrayList. (.size (:my-unspents this)))]
+            (let [#_"List<TransactionOutput>" candidates (ArrayList. (count (:my-unspents this)))]
                 (doseq [#_"TransactionOutput" output (:my-unspents this)]
                     (when (or (not -unsignable?) (Wallet''can-sign-for this, (TransactionOutput''get-script-pub-key output)))
                         (let [#_"Transaction" tx (ensure some? (:parent output))]
@@ -31012,7 +31010,7 @@
             ;; because there are so many ways the block can be invalid.
 
             ;; Avoid spuriously informing the user of wallet/tx confidence changes whilst we're re-organizing.
-            (assert-state (zero? (.size (:confidence-changed this))))
+            (assert-state (zero? (count (:confidence-changed this))))
             (assert-state (not (:inside-reorg this)))
             (§ ass this (assoc this :inside-reorg true))
             (assert-state (zero? (:on-wallet-changed-suppressions this)))
@@ -31032,7 +31030,7 @@
                     (Collections/sort (.get __mapBlockTx, __blockHash))
                 )
 
-                (let [#_"List<Sha256Hash>" __oldBlockHashes (ArrayList. (.size __oldBlocks))]
+                (let [#_"List<Sha256Hash>" __oldBlockHashes (ArrayList. (count __oldBlocks))]
                     (log/info "Old part of chain (top to bottom):")
                     (doseq [#_"StoredBlock" b __oldBlocks]
                         (log/info (str "  " (Block''get-hash (:stored-header b))))
@@ -31106,7 +31104,7 @@
                         ;; The old blocks have contributed to the depth for all the transactions in the wallet
                         ;; that are in blocks up to and including the chain split block.
                         ;; The total depth is calculated here and then subtracted from the appropriate transactions.
-                        (let [#_"int" n (.size __oldBlocks)]
+                        (let [#_"int" n (count __oldBlocks)]
                             (log/info (str "depthToSubtract = " n))
                             ;; Remove depthToSubtract from all transactions in the wallet except for pending.
                             (§ ass this (Wallet''subtract-depth this, n, (.values (:spent this))))
@@ -31209,7 +31207,7 @@
     (defn #_"int" PeerFilterProvider'''get-bloom-filter-element-count [#_"Wallet" this]
         (PeerFilterProvider'''begin-bloom-filter-calculation this)
         (try
-            (+ (.size (:bloom-out-points this)) (KeyChainGroup''get-bloom-filter-element-count (:key-chain-group this)))
+            (+ (count (:bloom-out-points this)) (KeyChainGroup''get-bloom-filter-element-count (:key-chain-group this)))
             (finally
                 (PeerFilterProvider'''end-bloom-filter-calculation this)
             )
@@ -31302,15 +31300,15 @@
                       calc (if (:recipients-pay-fees req) (assoc calc :updated-output-values (ArrayList. #_"<Coin>")) calc)
                       #_"List<TransactionOutput>" outputs (:outputs (:tx req))]
 
-                    (loop-when-recur [#_"int" i 0] (< i (.size outputs)) [(inc i)]
-                        (let [#_"TransactionOutput" output (TransactionOutput'from-wire (:ledger this), (ByteBuffer/wrap (Message''to-bytes (.get outputs, i), TransactionOutput''to-wire)), tx)]
+                    (loop-when-recur [#_"int" i 0] (< i (count outputs)) [(inc i)]
+                        (let [#_"TransactionOutput" output (TransactionOutput'from-wire (:ledger this), (ByteBuffer/wrap (Message''to-bytes (nth outputs i), TransactionOutput''to-wire)), tx)]
                             (when (:recipients-pay-fees req)
                                 ;; Subtract fee equally from each selected recipient.
-                                (§ ass output (TransactionOutput''set-value output, (Coin''subtract (:coin-value output), (Coin''divide fee, (.size outputs)))))
+                                (§ ass output (TransactionOutput''set-value output, (Coin''subtract (:coin-value output), (Coin''divide fee, (count outputs)))))
                                 ;; First receiver pays the remainder not divisible by output count.
                                 (when (zero? i)
                                     ;; Subtract fee equally from each selected recipient.
-                                    (§ ass output (TransactionOutput''set-value output, (Coin''subtract (:coin-value output), (Coin''remainder fee, (.size outputs)))))
+                                    (§ ass output (TransactionOutput''set-value output, (Coin''subtract (:coin-value output), (Coin''remainder fee, (count outputs)))))
                                 )
                                 (.add (:updated-output-values calc), (:coin-value output))
                                 (when (Coin''is-greater-than (TransactionOutput''get-min-non-dust-value-1 output), (:coin-value output))
@@ -31334,7 +31332,7 @@
 
                         (let [#_"Coin" change (Coin''subtract (:value-gathered selection), __valueNeeded)
                               [fee calc]
-                                (when' (Coin''is-greater-than change, Coin'ZERO) => [fee calc]
+                                (when (Coin''is-greater-than change, Coin'ZERO) => [fee calc]
                                     ;; The value of the inputs is greater than what we want to send.  Just like in real life then,
                                     ;; we need to take back some coins ... this is called "change".  Add another output that sends the change
                                     ;; back to us.  The address comes either from the request or currentChangeAddress() as a default.
@@ -31555,10 +31553,10 @@
                         (Wallet''maybe-rotate-keys this, sign?)
                     )
                 )]
-            (when' sign? => (Futures/immediateFuture txns)
+            (when sign? => (Futures/immediateFuture txns)
                 (assert-state (not (.isHeldByCurrentThread (:wallet-lock this))))
 
-                (let [#_"ArrayList<ListenableFuture<Transaction>>" futures (ArrayList. (.size txns))
+                (let [#_"ArrayList<ListenableFuture<Transaction>>" futures (ArrayList. (count txns))
                       #_"TransactionBroadcaster" broadcaster (:v-transaction-broadcaster this)]
                     (doseq [#_"Transaction" tx txns]
                         (try
@@ -31602,7 +31600,7 @@
         (let [#_"List<Transaction>" results (LinkedList.)
               ;; TODO: Handle chain replays here.
               #_"long" stamp (:v-key-rotation-timestamp this)]
-            (when' (not= stamp 0) => results ;; Nothing to do.
+            (when-not (zero? stamp) => results ;; Nothing to do.
                 ;; We might have to create a new HD hierarchy if the previous ones are now rotating.
                 (let [#_"boolean" __allChainsRotating
                         (loop-when [#_"List<DeterministicKeyChain>" chains (KeyChainGroup''get-deterministic-key-chains (:key-chain-group this))] (seq chains) => true
@@ -31637,7 +31635,7 @@
                     (loop []
                         (when-let [#_"Transaction" tx (Wallet''rekey-one-batch this, stamp, results, sign?)]
                             (.add results, tx)
-                            (recur-if (= (.size (:inputs tx)) KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS) [])
+                            (recur-if (= (count (:inputs tx)) KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS) [])
                         )
                     )
                     results
@@ -31663,7 +31661,7 @@
                 )
                 ;; TODO: Make this use the standard SendRequest.
                 (let [#_"CoinSelection" __toMove (CoinSelector'''select selector, Coin'ZERO, (Wallet''calculate-all-spend-candidates-1 this))]
-                    (when' (not (.equals (:value-gathered __toMove), Coin'ZERO)) => nil ;; Nothing to do.
+                    (when (not (.equals (:value-gathered __toMove), Coin'ZERO)) => nil ;; Nothing to do.
                         (Wallet''maybe-upgrade-to-hd this)
                         (let [#_"Transaction" tx (Transaction'new (:ledger this))]
                             (doseq [#_"TransactionOutput" output (:gathered __toMove)]
@@ -31702,7 +31700,7 @@
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
 
         (let [#_"Collection<Transaction>" txns
-                (when' (some? order) => (.values __transactionMap)
+                (when (some? order) => (.values __transactionMap)
                     (let [txns (TreeSet. order)]
                         (.addAll txns, (.values __transactionMap))
                         txns
@@ -31746,10 +31744,10 @@
                       #_"Coin" estimated (Wallet''get-balance-2t this, :BalanceType'ESTIMATED)
                       #_"Coin" available (Wallet''get-balance-2t this, :BalanceType'AVAILABLE_SPENDABLE)]
                     (.. sb (append "Wallet containing ") (append (Coin''to-friendly-string estimated)) (append " (spendable: ") (append (Coin''to-friendly-string available)) (append ") in:\n"))
-                    (.. sb (append "  ") (append (.size (:pending this))) (append " pending transactions\n"))
-                    (.. sb (append "  ") (append (.size (:unspent this))) (append " unspent transactions\n"))
-                    (.. sb (append "  ") (append (.size (:spent this))) (append " spent transactions\n"))
-                    (.. sb (append "  ") (append (.size (:dead this))) (append " dead transactions\n"))
+                    (.. sb (append "  ") (append (count (:pending this))) (append " pending transactions\n"))
+                    (.. sb (append "  ") (append (count (:unspent this))) (append " unspent transactions\n"))
+                    (.. sb (append "  ") (append (count (:spent this))) (append " spent transactions\n"))
+                    (.. sb (append "  ") (append (count (:dead this))) (append " dead transactions\n"))
                     (let [#_"Date" time (Wallet''get-last-block-seen-time this)]
                         (.. sb (append "Last seen best block: ") (append (Wallet''get-last-block-seen-height this)) (append " (") (append (if (some? time) (Time'format-date time) "time unknown")) (append "): ") (append (Wallet''get-last-block-seen-hash this)) (append "\n"))
                     )
@@ -31765,19 +31763,19 @@
                     (.. sb (append (KeyChainGroup''to-string (:key-chain-group this), private?)))
                     (when __includeTransactions
                         ;; Print the transactions themselves.
-                        (when (pos? (.size (:pending this)))
+                        (when (pos? (count (:pending this)))
                             (.. sb (append "\n>>> PENDING:\n"))
                             (Wallet''to-string-helper this, sb, (:pending this), chain, Transaction'SORT_TX_BY_UPDATE_TIME)
                         )
-                        (when (pos? (.size (:unspent this)))
+                        (when (pos? (count (:unspent this)))
                             (.. sb (append "\n>>> UNSPENT:\n"))
                             (Wallet''to-string-helper this, sb, (:unspent this), chain, Transaction'SORT_TX_BY_HEIGHT)
                         )
-                        (when (pos? (.size (:spent this)))
+                        (when (pos? (count (:spent this)))
                             (.. sb (append "\n>>> SPENT:\n"))
                             (Wallet''to-string-helper this, sb, (:spent this), chain, Transaction'SORT_TX_BY_HEIGHT)
                         )
-                        (when (pos? (.size (:dead this)))
+                        (when (pos? (count (:dead this)))
                             (.. sb (append "\n>>> DEAD:\n"))
                             (Wallet''to-string-helper this, sb, (:dead this), chain, Transaction'SORT_TX_BY_UPDATE_TIME)
                         )
@@ -31796,7 +31794,7 @@
 )
 
 (§ ns bitclojn.core
-    (:refer-clojure :exclude [ensure sync])
+    (:refer-clojure :exclude [ensure sync when when-not])
     (:use [bitclojn slang])
 )
 
