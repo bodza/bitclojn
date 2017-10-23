@@ -274,7 +274,7 @@
 (declare SPVBlockChain'new)
 (declare SPVBlockStore''get-ring-cursor SPVBlockStore''init-store SPVBlockStore''set-ring-cursor SPVBlockStore'DEFAULT_CAPACITY SPVBlockStore'FILE_PROLOGUE_BYTES SPVBlockStore'HEADER_MAGIC SPVBlockStore'NOT_FOUND_MARKER SPVBlockStore'RECORD_SIZE SPVBlockStore'get-file-size SPVBlockStore'new)
 (declare Script''correctly-spends Script''create-empty-input-script Script''find-key-in-redeem Script''find-sig-in-redeem Script''get-cltv-payment-channel-expiry Script''get-cltv-payment-channel-recipient-pub-key Script''get-cltv-payment-channel-sender-pub-key Script''get-from-address Script''get-number-of-bytes-required-to-spend Script''get-number-of-signatures-required-to-spend Script''get-program Script''get-pub-key Script''get-pub-key-hash Script''get-pub-keys Script''get-quick-program Script''get-script-sig-with-signature Script''get-script-type Script''get-sig-insertion-index Script''get-to-address-2 Script''get-to-address-3 Script''is-op-return Script''is-pay-to-script-hash Script''is-sent-to-address Script''is-sent-to-cltv-payment-channel Script''is-sent-to-multi-sig Script''is-sent-to-raw-pub-key Script'parse Script'ALL_VERIFY_FLAGS Script'MAX_OPS_PER_SCRIPT Script'MAX_P2SH_SIGOPS Script'MAX_PUBKEYS_PER_MULTISIG Script'MAX_SCRIPT_ELEMENT_SIZE Script'MAX_SCRIPT_SIZE Script'MAX_STACK_SIZE Script'SIG_SIZE Script'cast-to-big-integer-2 Script'cast-to-big-integer-3 Script'cast-to-bool Script'check-sequence Script'create-input-script-1 Script'create-input-script-2 Script'create-multi-sig-output-script Script'decode-from-op-n Script'encode-to-op-n Script'equals-range Script'execute-check-lock-time-verify Script'execute-check-sequence-verify Script'execute-check-sig Script'execute-multi-sig Script'execute-script-5 Script'get-p2sh-sig-op-count Script'get-sig-op-count-1 Script'get-sig-op-count-2 Script'new Script'from-chunks Script'from-bytes Script'remove-all-instances-of Script'remove-all-instances-of-op Script'write-bytes)
-(declare ScriptBuilder''add-chunk-2 ScriptBuilder''add-chunk-3 ScriptBuilder''big-num-2 ScriptBuilder''big-num-3 ScriptBuilder''build ScriptBuilder''data-2 ScriptBuilder''data-3 ScriptBuilder''number-2 ScriptBuilder''number-3 ScriptBuilder''op-2 ScriptBuilder''op-3 ScriptBuilder''small-num-2 ScriptBuilder''small-num-3 ScriptBuilder'create-cltv-payment-channel-input-2 ScriptBuilder'create-cltv-payment-channel-input-2-bytes ScriptBuilder'create-cltv-payment-channel-output ScriptBuilder'create-cltv-payment-channel-p2sh-input ScriptBuilder'create-cltv-payment-channel-p2sh-refund ScriptBuilder'create-cltv-payment-channel-refund ScriptBuilder'create-input-script-1 ScriptBuilder'create-input-script-2 ScriptBuilder'create-multi-sig-input-script ScriptBuilder'create-multi-sig-input-script-bytes-1 ScriptBuilder'create-multi-sig-input-script-bytes-2 ScriptBuilder'create-multi-sig-output-script ScriptBuilder'create-op-return-script ScriptBuilder'create-output-script-1a ScriptBuilder'create-output-script-1e ScriptBuilder'create-p2sh-multi-sig-input-script ScriptBuilder'create-p2sh-output-script-1 ScriptBuilder'create-p2sh-output-script-1-bytes ScriptBuilder'create-p2sh-output-script-2 ScriptBuilder'create-redeem-script ScriptBuilder'init ScriptBuilder'new-0 ScriptBuilder'new-1 ScriptBuilder'update-script-with-signature)
+(declare ScriptBuilder''add-chunk ScriptBuilder''big-num ScriptBuilder''build ScriptBuilder''data ScriptBuilder''number ScriptBuilder''op ScriptBuilder''small-num ScriptBuilder'create-cltv-payment-channel-input-2 ScriptBuilder'create-cltv-payment-channel-input-2-bytes ScriptBuilder'create-cltv-payment-channel-output ScriptBuilder'create-cltv-payment-channel-p2sh-input ScriptBuilder'create-cltv-payment-channel-p2sh-refund ScriptBuilder'create-cltv-payment-channel-refund ScriptBuilder'create-input-script-1 ScriptBuilder'create-input-script-2 ScriptBuilder'create-multi-sig-input-script ScriptBuilder'create-multi-sig-input-script-bytes-1 ScriptBuilder'create-multi-sig-input-script-bytes-2 ScriptBuilder'create-multi-sig-output-script ScriptBuilder'create-op-return-script ScriptBuilder'create-output-script-1a ScriptBuilder'create-output-script-1e ScriptBuilder'create-p2sh-multi-sig-input-script ScriptBuilder'create-p2sh-output-script-1 ScriptBuilder'create-p2sh-output-script-1-bytes ScriptBuilder'create-p2sh-output-script-2 ScriptBuilder'create-redeem-script ScriptBuilder'new ScriptBuilder'update-script-with-signature)
 (declare ScriptChunk''decode-op-n ScriptChunk''equals-op-code ScriptChunk''get-start-location-in-program ScriptChunk''is-op-code ScriptChunk''is-push-data ScriptChunk''is-shortest-possible-push-data ScriptChunk''write-chunk ScriptChunk'new)
 (declare ScriptError'enum-set)
 (declare ScriptException'new)
@@ -1051,16 +1051,16 @@
     )
 
     ;; 00000001, 00000010, 00000100, 00001000, ...
-    (def- #_"int[]" Utils'BIT_MASK (int-array [ 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 ]))
+    (def- #_"int*" Utils'BIT_MASK [ 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 ])
 
     ;;; Checks if the given bit is set in data, using little endian (not the same as Java native big endian). ;;
     (defn #_"boolean" Utils'check-bit-le [#_"byte[]" data, #_"int" index]
-        (not= (& (aget data (>>> index 3)) (aget Utils'BIT_MASK (& 7 index))) 0)
+        (not= (& (aget data (>>> index 3)) (nth Utils'BIT_MASK (& 7 index))) 0)
     )
 
     ;;; Sets the given bit in data to one, using little endian (not the same as Java native big endian). ;;
     (defn #_"void" Utils'set-bit-le [#_"byte[]" data, #_"int" index]
-        (aset data (>>> index 3) (| (aget data (>>> index 3)) (aget Utils'BIT_MASK (& 7 index))))
+        (aset data (>>> index 3) (| (aget data (>>> index 3)) (nth Utils'BIT_MASK (& 7 index))))
         nil
     )
 
@@ -2406,7 +2406,7 @@
                     (let [#_"StoredBlock" __newBlock (StoredBlock''build __storedPrev, block)
                           #_"boolean" reorg? (StoredBlock''more-work-than __newBlock, head)
                           #_"boolean" abort?
-                            (when (not reorg?) => false
+                            (when-not reorg? => false
                                 (let [#_"StoredBlock" __splitPoint (BlockChain'find-split __newBlock, head, (:block-store this))]
                                     (cond (and (some? __splitPoint) (.equals __splitPoint, __newBlock))
                                         (do
@@ -2817,7 +2817,7 @@
             (let [#_"OrphanBlock" cursor (get (:orphan-blocks this) from)]
                 (when (some? cursor)
                     (loop [cursor cursor]
-                        (let [#_"Block" block (:block cursor) cursor (.get (:orphan-blocks this), (:prev-block-hash block))]
+                        (let [#_"Block" block (:block cursor) cursor (get (:orphan-blocks this) (:prev-block-hash block))]
                             (recur-if (some? cursor) cursor => block)
                         )
                     )
@@ -4247,7 +4247,7 @@
     #_method
     (defn- #_"Sha256Hash" Block''calculate-merkle-root [#_"Block" this]
         (let [#_"List<byte[]>" tree (Block''build-merkle-tree this)]
-            (Sha256Hash'wrap (.get tree, (dec (count tree))))
+            (Sha256Hash'wrap (nth tree (dec (count tree))))
         )
     )
 
@@ -4295,8 +4295,8 @@
                 (loop-when-recur [#_"int" left 0] (< left size) [(+ left 2)]
                     ;; The right hand node can be the same as the left hand, in the case where we don't have enough transactions.
                     (let [#_"int" right (min (inc left), (dec size))
-                          #_"byte[]" __leftBytes (Wire'reverse-bytes (.get tree, (+ offset left)))
-                          #_"byte[]" __rightBytes (Wire'reverse-bytes (.get tree, (+ offset right)))]
+                          #_"byte[]" __leftBytes (Wire'reverse-bytes (nth tree (+ offset left)))
+                          #_"byte[]" __rightBytes (Wire'reverse-bytes (nth tree (+ offset right)))]
                         (.add tree, (Wire'reverse-bytes (Sha256Hash'hash-twice-6 __leftBytes, 0, 32, __rightBytes, 0, 32)))
                     )
                 )
@@ -6229,7 +6229,7 @@
         (let [#_"LinkedList<UTXO>" __txOutsCreated (LinkedList.) #_"LinkedList<UTXO>" __txOutsSpent (LinkedList.)]
             (try+
                 (let [#_"long" ops
-                        (when (not (Ledger''is-checkpoint (:ledger this), height)) => 0
+                        (when-not (Ledger''is-checkpoint (:ledger this), height) => 0
                             ;; BIP30 violator blocks are ones that contain a duplicated transaction.  They are all in the checkpoints list
                             ;; and we therefore only check non-checkpoints for duplicated transactions here.  See the BIP30 document
                             ;; for more details on this: https://github.com/bitcoin/bips/blob/master/bip-0030.mediawiki
@@ -6254,7 +6254,7 @@
                                   #_"boolean" coinbase? (Transaction''is-coin-base tx)
                                   #_"List<Script>" scripts (LinkedList.)
                                   [ops #_"Coin" __valueIn]
-                                    (when (not coinbase?) => [ops Coin'ZERO]
+                                    (when-not coinbase? => [ops Coin'ZERO]
                                         ;; For each input of the transaction remove the corresponding output from the set of unspent outputs.
                                         (loop-when [ops ops __valueIn Coin'ZERO #_"List<TransactionInput>" inputs (:inputs tx)] (seq inputs) => [ops __valueIn]
                                             (let [#_"TransactionInput" input (first inputs)
@@ -6310,7 +6310,7 @@
                                         (throw+ (VerificationException'new "Transaction output value out of range"))
                                     )
                                     (let [[fees __coinbaseValue]
-                                            (when (not coinbase?) => [fees __valueOut]
+                                            (when-not coinbase? => [fees __valueOut]
                                                 (when (or (neg? (.compareTo __valueIn, __valueOut)) (pos? (.compareTo __valueIn, (Ledger''get-max-money (:ledger this)))))
                                                     (throw+ (VerificationException'new "Transaction input value out of range"))
                                                 )
@@ -6411,7 +6411,7 @@
                                               #_"boolean" coinbase? (Transaction''is-coin-base tx)
                                               #_"List<Script>" _scripts (LinkedList.)
                                               [ops #_"Coin" __valueIn]
-                                                (when (not coinbase?) => [ops Coin'ZERO]
+                                                (when-not coinbase? => [ops Coin'ZERO]
                                                     (loop-when [ops ops __valueIn Coin'ZERO #_"List<TransactionInput>" inputs (:inputs tx)] (seq inputs) => [ops __valueIn]
                                                         (let [#_"TransactionInput" input (first inputs)
                                                               #_"UTXO" out (FullPrunedBlockStore'''get-transaction-output (:block-store this), (:from-tx-hash (:outpoint input)), (:index (:outpoint input)))]
@@ -6463,13 +6463,13 @@
                                                     (throw+ (VerificationException'new "Transaction output value out of range"))
                                                 )
                                                 (let [[fees __coinbaseValue]
-                                                        (when (not coinbase?) => [fees __valueOut]
+                                                        (when-not coinbase? => [fees __valueOut]
                                                             (when (or (neg? (.compareTo __valueIn, __valueOut)) (pos? (.compareTo __valueIn, (Ledger''get-max-money (:ledger this)))))
                                                                 (throw+ (VerificationException'new "Transaction input value out of range"))
                                                             )
                                                             [(Coin''add fees, (Coin''subtract __valueIn, __valueOut)) __coinbaseValue]
                                                         )]
-                                                    (when (not coinbase?)
+                                                    (when-not coinbase?
                                                         ;; Because correctlySpends modifies transactions, this must come after we are done with tx.
                                                         (let [#_"FutureTask<VerificationException>" future (FutureTask. (FullPrunedVerifier'new tx, (:prev-out-scripts this), flags))]
                                                             (.execute (:script-verification-executor this), future)
@@ -6512,7 +6512,7 @@
                             (ensure some? (:tx-out-changes block))
 
                             (let [#_"TransactionOutputChanges" changes (:tx-out-changes block)]
-                                (when (not (Ledger''is-checkpoint (:ledger this), (:stored-height stored)))
+                                (when-not (Ledger''is-checkpoint (:ledger this), (:stored-height stored))
                                     (doseq [#_"UTXO" out (:tx-outs-created changes)]
                                         (when (some? (FullPrunedBlockStore'''get-transaction-output (:block-store this), (:utxo-hash out), (:utxo-index out)))
                                             (throw+ (VerificationException'new "Block failed BIP30 test!"))
@@ -7579,7 +7579,7 @@
                     (when (<= (count (:hashes this)) (:hashes-used used))
                         (throw+ (VerificationException'new "PartialMerkleTree overflowed its hash array"))
                     )
-                    (let [#_"Sha256Hash" hash (.get (:hashes this), (:hashes-used used))]
+                    (let [#_"Sha256Hash" hash (get (:hashes this) (:hashes-used used))]
                         (§ ass used (update used :hashes-used inc))
                         ;; in case of height 0, we have a matched txid
                         (when (and (zero? height) parent?)
@@ -9022,7 +9022,7 @@
                     ;; the chain then this probably means a new block was solved and the peer believes it connects to the best
                     ;; chain, so count it.  This way getBestChainHeight() can be accurate.
                     (if (and download? (some? (:block-chain this)))
-                        (when (not (BlockChain''is-orphan (:block-chain this), (:item-hash (nth blocks 0))))
+                        (when-not (BlockChain''is-orphan (:block-chain this), (:item-hash (nth blocks 0)))
                             (.incrementAndGet (:blocks-announced this))
                         )
                         (.incrementAndGet (:blocks-announced this))
@@ -9093,7 +9093,7 @@
                                                     ;; part of chain download with newly announced blocks, so it should always be taken care of by
                                                     ;; the duplicate check in blockChainDownloadLocked().  But Bitcoin Core may change in future so
                                                     ;; it's better to be safe here.
-                                                    (when (not (.contains (:pending-block-downloads this), (:item-hash item))) => ping?
+                                                    (when-not (.contains (:pending-block-downloads this), (:item-hash item)) => ping?
                                                         (let [ping?
                                                                 (if (and (VersionMessage''is-bloom-filtering-supported (:v-peer-version-message this)) (:use-filtered-blocks this))
                                                                     (do
@@ -9985,7 +9985,7 @@
                                 (§ ass this (assoc this :first-run false))
                                 nil
                             )
-                            (let [#_"boolean" more? (and (seq (:inactives this)) (<= (:retry-time (.get (:backoff-map this), (.peek (:inactives this)))) now))]
+                            (let [#_"boolean" more? (and (seq (:inactives this)) (<= (:retry-time (get (:backoff-map this) (.peek (:inactives this)))) now))]
                                 (§ ass this (assoc this :first-run false))
                                 (not more?)
                             )
@@ -10354,7 +10354,7 @@
     #_method
     (defn- #_"void" PeerGroup''trigger-connections [#_"PeerGroup" this]
         ;; Run on a background thread due to the need to potentially retry and back off in the background.
-        (when (not (.isShutdown (:executor this)))
+        (when-not (.isShutdown (:executor this))
             (.execute (:executor this), (:trigger-connections-job this))
         )
         nil
@@ -11258,7 +11258,7 @@
                             )
                         )]
 
-                    (when (not abort?) => nil
+                    (when-not abort? => nil
                         (§ ass peer (AbstractTimeoutHandler''set-socket-timeout peer, timeout))
                         ;; When the channel has connected and version negotiated successfully, handleNewPeer will end up being called
                         ;; on a worker thread.
@@ -11369,7 +11369,7 @@
         (let [#_"int" __newSize
                 (sync (:peergroup-lock this)
                     (§ ass (:group-backoff this) (ExponentialBackoff''track-success (:group-backoff this)))
-                    (§ ass (.get (:backoff-map this), (PeerSocketHandler''get-address peer)) (ExponentialBackoff''track-success (.get (:backoff-map this), (PeerSocketHandler''get-address peer))))
+                    (§ ass (get (:backoff-map this) (PeerSocketHandler''get-address peer)) (ExponentialBackoff''track-success (get (:backoff-map this) (PeerSocketHandler''get-address peer))))
 
                     ;; Sets up the newly connected peer so it can do everything it needs to.
                     (.remove (:pending-peers this), peer)
@@ -13511,13 +13511,13 @@
     ;;; Same as getInputs().get(index). ;;
     #_method
     (defn #_"TransactionInput" Transaction''get-input [#_"Transaction" this, #_"long" index]
-        (.get (:inputs this), (int index))
+        (nth (:inputs this) (int index))
     )
 
     ;;; Same as getOutputs().get(index). ;;
     #_method
     (defn #_"TransactionOutput" Transaction''get-output [#_"Transaction" this, #_"long" index]
-        (.get (:outputs this), (int index))
+        (nth (:outputs this) (int index))
     )
 
     ;;;
@@ -13568,7 +13568,7 @@
 
         ;; Check block height is in coinbase input script.
         (let [#_"TransactionInput" in (Transaction''get-input this, 0)
-              #_"byte[]" expected (Script''get-program (-> (ScriptBuilder'new-0) (ScriptBuilder''number-2 height) (ScriptBuilder''build)))
+              #_"byte[]" expected (Script''get-program (-> (ScriptBuilder'new) (ScriptBuilder''number height) (ScriptBuilder''build)))
               #_"byte[]" actual (:script-bytes in)]
             (when (< (alength actual) (alength expected))
                 (throw+ (VerificationException'new "Block height mismatch in coinbase."))
@@ -13849,7 +13849,7 @@
                         (try
                             (let [#_"String" s (.toString (TransactionOutput''get-script-pub-key out))]
                                 (.. sb (append (if (seq s) s "<no scriptPubKey>")) (append " ") (append (Coin''to-friendly-string (:coin-value out))))
-                                (when (not (TransactionOutput''is-available-for-spending out))
+                                (when-not (TransactionOutput''is-available-for-spending out)
                                     (.. sb (append " Spent"))
                                 )
                                 (let [#_"TransactionInput" __spentBy (:spent-by out)]
@@ -14884,7 +14884,7 @@
      ;;
     #_method
     (defn #_"TransactionOutput" TransactionInput''get-connected-output-2 [#_"TransactionInput" this, #_"Map<Sha256Hash, Transaction>" transactions]
-        (let [#_"Transaction" tx (.get transactions, (:from-tx-hash (:outpoint this)))]
+        (let [#_"Transaction" tx (get transactions (:from-tx-hash (:outpoint this)))]
             (when (some? tx) (Transaction''get-output tx, (:index (:outpoint this))))
         )
     )
@@ -14911,7 +14911,7 @@
      ;;
     #_method
     (defn #_"ConnectionResult" TransactionInput''connect-3m [#_"TransactionInput" this, #_"Map<Sha256Hash, Transaction>" transactions, #_"ConnectionMode" mode]
-        (let [#_"Transaction" tx (.get transactions, (:from-tx-hash (:outpoint this)))]
+        (let [#_"Transaction" tx (get transactions (:from-tx-hash (:outpoint this)))]
             (if (some? tx) (TransactionInput''connect-3t this, tx, mode) :ConnectionResult'NO_SUCH_TX)
         )
     )
@@ -15703,8 +15703,8 @@
     (defn #_"int" TxConfidenceTable''num-broadcast-peers [#_"TxConfidenceTable" this, #_"Sha256Hash" hash]
         (sync (:confidence-lock this)
             (TxConfidenceTable''clean-table this)
-            (let-when [#_"WeakConfidenceReference" entry (get (:table this) hash)] (some? entry) => 0 ;; No such TX known.
-                (let-when [#_"TransactionConfidence" confidence (.get entry)] (nil? confidence) => (TransactionConfidence''num-broadcast-peers confidence)
+            (let-when [#_"WeakConfidenceReference" ref (get (:table this) hash)] (some? ref) => 0 ;; No such TX known.
+                (let-when [#_"TransactionConfidence" confidence (.get ref)] (nil? confidence) => (TransactionConfidence''num-broadcast-peers confidence)
                     ;; Such a TX hash was seen, but nothing seemed to care, so we ended up throwing away the data.
                     (.remove (:table this), hash)
                     0
@@ -16368,7 +16368,7 @@
                 )
                 (assert-argument (pos? (count abs)), "Can't derive the master key: nothing to derive from.")
                 (let [#_"DeterministicKey" parent (DeterministicHierarchy''get-4 this, (.subList abs, 0, (dec (count abs))), false, true)]
-                    (DeterministicHierarchy''put-key this, (HDKeyDerivation'derive-child-key-2c parent, (.get abs, (dec (count abs)))))
+                    (DeterministicHierarchy''put-key this, (HDKeyDerivation'derive-child-key-2c parent, (nth abs (dec (count abs)))))
                 )
             )
             (get (:keys this) abs)
@@ -16587,7 +16587,7 @@
     ;;; Returns the last element of the path returned by {@link DeterministicKey#getPath()}. ;;
     #_method
     (defn #_"ChildNumber" DeterministicKey''get-child-number [#_"DeterministicKey" this]
-        (if (= (count (:child-number-path this)) 0) ChildNumber'ZERO (.get (:child-number-path this), (dec (count (:child-number-path this)))))
+        (if (zero? (count (:child-number-path this))) ChildNumber'ZERO (nth (:child-number-path this) (dec (count (:child-number-path this)))))
     )
 
     ;;;
@@ -18120,7 +18120,7 @@
 
                 ;; Initiate Bitcoin network objects (block store, blockchain and peer group).
                 (§ ass this (assoc this :v-store (WalletAppKit''provide-block-store this, __chainFile)))
-                (when (not __chainFileExists)
+                (when-not __chainFileExists
                     (when (nil? (:textual-checkpoints this))
                         (§ ass this (assoc this :textual-checkpoints (-> this :ledger :textual-checkpoints)))
                     )
@@ -18496,7 +18496,7 @@
             (loop-when [#_"Iterator<ByteBuffer>" it (.iterator (:bytes-to-write this))] (.hasNext it)
                 (let [#_"ByteBuffer" buff (.next it)]
                     (§ ass this (assoc this :bytes-to-write-remaining (- (:bytes-to-write-remaining this) (.write (:channel this), buff))))
-                    (when (not (.hasRemaining buff)) => (ConnectionHandler''set-write-ops this)
+                    (when-not (.hasRemaining buff) => (ConnectionHandler''set-write-ops this)
                         (.remove it)
                         (recur it)
                     )
@@ -18765,7 +18765,7 @@
     (defn #_"void" StreamConnection'''connection-closed [#_"NioClientHandler" this]
         (sync this
             (PeerGroup''stop-async (:manager this))
-            (when (not (:close-called this))
+            (when-not (:close-called this)
                 (§ ass this (assoc this :close-called true))
                 (StreamConnection'''connection-closed (:upstream-connection this))
             )
@@ -18776,7 +18776,7 @@
     #_override
     (defn #_"void" StreamConnection'''connection-opened [#_"NioClientHandler" this]
         (sync this
-            (when (not (:close-on-open this))
+            (when-not (:close-on-open this)
                 (StreamConnection'''connection-opened (:upstream-connection this))
             )
         )
@@ -20975,9 +20975,9 @@
     (defn- #_"int" Script''find-key-in-redeem [#_"Script" this, #_"ECKey" key]
         (assert-argument (ScriptChunk''is-op-code (nth (:chunks this) 0))) ;; P2SH scriptSig
 
-        (let [#_"int" n (Script'decode-from-op-n (:opcode (.get (:chunks this), (- (count (:chunks this)) 2))))]
+        (let [#_"int" n (Script'decode-from-op-n (:opcode (nth (:chunks this) (- (count (:chunks this)) 2))))]
             (loop-when [#_"int" i 0] (< i n) => (throw (IllegalStateException. (str "Could not find matching key " key " in script " this)))
-                (if (Arrays/equals (:data (.get (:chunks this), (inc i))), (ECKey''get-pub-key key))
+                (if (Arrays/equals (:data (nth (:chunks this) (inc i))), (ECKey''get-pub-key key))
                     i
                     (recur (inc i))
                 )
@@ -20997,8 +20997,8 @@
         )
 
         (let [#_"List<ECKey>" keys (ArrayList.)]
-            (dotimes [#_"int" i (Script'decode-from-op-n (:opcode (.get (:chunks this), (- (count (:chunks this)) 2))))]
-                (.add keys, (ECKey'from-public-only-bytes (:data (.get (:chunks this), (inc i)))))
+            (dotimes [#_"int" i (Script'decode-from-op-n (:opcode (nth (:chunks this) (- (count (:chunks this)) 2))))]
+                (.add keys, (ECKey'from-public-only-bytes (:data (nth (:chunks this) (inc i)))))
             )
             keys
         )
@@ -21008,10 +21008,10 @@
     (defn- #_"int" Script''find-sig-in-redeem [#_"Script" this, #_"byte[]" bytes, #_"Sha256Hash" hash]
         (assert-argument (ScriptChunk''is-op-code (nth (:chunks this) 0))) ;; P2SH scriptSig
 
-        (let [#_"int" n (Script'decode-from-op-n (:opcode (.get (:chunks this), (- (count (:chunks this)) 2))))
+        (let [#_"int" n (Script'decode-from-op-n (:opcode (nth (:chunks this) (- (count (:chunks this)) 2))))
               #_"TransactionSignature" signature (TransactionSignature'decode-from-bitcoin-2 bytes, true)]
             (loop-when [#_"int" i 0] (< i n) => (throw (IllegalStateException. (str "Could not find matching key for signature on " hash " sig " (.encode Utils'HEX, bytes))))
-                (if (ECKey''verify-3s (ECKey'from-public-only-bytes (:data (.get (:chunks this), (inc i)))), hash, signature)
+                (if (ECKey''verify-3s (ECKey'from-public-only-bytes (:data (nth (:chunks this) (inc i)))), hash, signature)
                     i
                     (recur (inc i))
                 )
@@ -21173,14 +21173,14 @@
     (defn #_"boolean" Script''is-sent-to-multi-sig [#_"Script" this]
         (let [#_"List<ScriptChunk>" chunks (:chunks this) #_"int" m (count chunks)]
             (and (<= 4 m)
-                (let [#_"ScriptChunk" c1 (.get chunks, (dec m))]
+                (let [#_"ScriptChunk" c1 (nth chunks (dec m))]
                     ;; Must end in OP_CHECKMULTISIG[VERIFY].
                     (and (ScriptChunk''is-op-code c1)
                         (or (ScriptChunk''equals-op-code c1, Script'OP_CHECKMULTISIG)
                             (ScriptChunk''equals-op-code c1, Script'OP_CHECKMULTISIGVERIFY))
                         (try
                             ;; Second to last chunk must be an OP_N opcode and there should be that many data chunks (keys).
-                            (let [#_"ScriptChunk" c2 (.get chunks, (- m 2))]
+                            (let [#_"ScriptChunk" c2 (nth chunks (- m 2))]
                                 (and (ScriptChunk''is-op-code c2)
                                     (let [#_"int" n (Script'decode-from-op-n (:opcode c2))]
                                         (and (<= 1 n) (= (+ n 3) m)
@@ -22270,69 +22270,45 @@
  ; at a lower level.
  ;;
 (class-ns ScriptBuilder
-    (defn- #_"ScriptBuilder" ScriptBuilder'init [#_"List<ScriptChunk>" chunks]
-        (hash-map
-            #_"List<ScriptChunk>" :chunks chunks
-        )
-    )
-
     ;;; Creates a fresh ScriptBuilder with an empty program. ;;
-    (defn #_"ScriptBuilder" ScriptBuilder'new-0 []
-        (ScriptBuilder'init (LinkedList.))
-    )
-
-    ;;; Creates a fresh ScriptBuilder with the given program as the starting point. ;;
-    (defn #_"ScriptBuilder" ScriptBuilder'new-1 [#_"Script" template]
-        (ScriptBuilder'init (ArrayList. (:chunks template)))
+    (defn #_"ScriptBuilder" ScriptBuilder'new []
+        (hash-map
+            #_"List<ScriptChunk>" :chunks (LinkedList.)
+        )
     )
 
     ;;; Adds the given chunk to the end of the program. ;;
     #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''add-chunk-2 [#_"ScriptBuilder" this, #_"ScriptChunk" chunk]
-        (ScriptBuilder''add-chunk-3 this, (count (:chunks this)), chunk)
-    )
-
-    ;;; Adds the given chunk at the given index in the program. ;;
-    #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''add-chunk-3 [#_"ScriptBuilder" this, #_"int" index, #_"ScriptChunk" chunk]
-        (.add (:chunks this), index, chunk)
+    (defn #_"ScriptBuilder" ScriptBuilder''add-chunk [#_"ScriptBuilder" this, #_"ScriptChunk" chunk]
+        (.add (:chunks this), chunk)
         this
     )
 
     ;;; Adds the given opcode to the end of the program. ;;
     #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''op-2 [#_"ScriptBuilder" this, #_"int" opcode]
-        (ScriptBuilder''op-3 this, (count (:chunks this)), opcode)
-    )
-
-    ;;; Adds the given opcode to the given index in the program. ;;
-    #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''op-3 [#_"ScriptBuilder" this, #_"int" index, #_"int" opcode]
+    (defn #_"ScriptBuilder" ScriptBuilder''op [#_"ScriptBuilder" this, #_"int" opcode]
         (assert-argument (< Script'OP_PUSHDATA4 opcode))
-        (ScriptBuilder''add-chunk-3 this, index, (ScriptChunk'new opcode, nil))
+        (ScriptBuilder''add-chunk this, (ScriptChunk'new opcode, nil))
     )
 
     ;;; Adds a copy of the given byte array as a data element (i.e. PUSHDATA) at the end of the program. ;;
     #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''data-2 [#_"ScriptBuilder" this, #_"byte[]" data]
-        (if (zero? (alength data)) (ScriptBuilder''small-num-2 this, 0) (ScriptBuilder''data-3 this, (count (:chunks this)), data))
-    )
-
-    ;;; Adds a copy of the given byte array as a data element (i.e. PUSHDATA) at the given index in the program. ;;
-    #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''data-3 [#_"ScriptBuilder" this, #_"int" index, #_"byte[]" data]
-        ;; implements BIP62
-        (let [#_"int" n (alength data) #_"byte[]" copy (Arrays/copyOf data, n)
-              #_"int" opcode
-                (cond
-                    (= n 0)     Script'OP_0
-                    (= n 1)     (let [#_"byte" b (aget data 0)] (if (<= 1 b 16) (Script'encode-to-op-n b) 1))
-                    (< n Script'OP_PUSHDATA1) n
-                    (< n 256)   Script'OP_PUSHDATA1
-                    (< n 65536) Script'OP_PUSHDATA2
-                    :else (throw (RuntimeException. "Unimplemented"))
-                )]
-            (ScriptBuilder''add-chunk-3 this, index, (ScriptChunk'new opcode, copy))
+    (defn #_"ScriptBuilder" ScriptBuilder''data [#_"ScriptBuilder" this, #_"byte[]" data]
+        (if (zero? (alength data))
+            (ScriptBuilder''small-num this, 0)
+            ;; implements BIP62
+            (let [#_"int" n (alength data) #_"byte[]" copy (Arrays/copyOf data, n)
+                #_"int" opcode
+                    (cond
+                        (= n 0)     Script'OP_0
+                        (= n 1)     (let [#_"byte" b (aget data 0)] (if (<= 1 b 16) (Script'encode-to-op-n b) 1))
+                        (< n Script'OP_PUSHDATA1) n
+                        (< n 256)   Script'OP_PUSHDATA1
+                        (< n 65536) Script'OP_PUSHDATA2
+                        :else (throw (RuntimeException. "Unimplemented"))
+                    )]
+                (ScriptBuilder''add-chunk this, (ScriptChunk'new opcode, copy))
+            )
         )
     )
 
@@ -22341,17 +22317,8 @@
      ; Automatically uses shortest encoding possible.
      ;;
     #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''number-2 [#_"ScriptBuilder" this, #_"long" num]
-        (if (<= 0 num 16) (ScriptBuilder''small-num-2 this, (int num)) (ScriptBuilder''big-num-2 this, num))
-    )
-
-    ;;;
-     ; Adds the given number to the given index in the program.
-     ; Automatically uses shortest encoding possible.
-     ;;
-    #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''number-3 [#_"ScriptBuilder" this, #_"int" index, #_"long" num]
-        (if (<= 0 num 16) (ScriptBuilder''small-num-3 this, index, (int num)) (ScriptBuilder''big-num-3 this, index, num))
+    (defn #_"ScriptBuilder" ScriptBuilder''number [#_"ScriptBuilder" this, #_"long" num]
+        (if (<= 0 num 16) (ScriptBuilder''small-num this, (int num)) (ScriptBuilder''big-num this, num))
     )
 
     ;;;
@@ -22361,8 +22328,11 @@
      ; @see #number(int)
      ;;
     #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''small-num-2 [#_"ScriptBuilder" this, #_"int" num]
-        (ScriptBuilder''small-num-3 this, (count (:chunks this)), num)
+    (defn #_"ScriptBuilder" ScriptBuilder''small-num [#_"ScriptBuilder" this, #_"int" num]
+        (assert-argument (<= 0 num), "Cannot encode negative numbers with smallNum")
+        (assert-argument (<= num 16), "Cannot encode numbers larger than 16 with smallNum")
+
+        (ScriptBuilder''add-chunk this, (ScriptChunk'new (Script'encode-to-op-n num), nil))
     )
 
     ;;;
@@ -22374,34 +22344,7 @@
      ; @see #number(int)
      ;;
     #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''big-num-2 [#_"ScriptBuilder" this, #_"long" num]
-        (ScriptBuilder''big-num-3 this, (count (:chunks this)), num)
-    )
-
-    ;;;
-     ; Adds the given number as a OP_N opcode to the given index in the program.
-     ; Only handles values 0-16 inclusive.
-     ;
-     ; @see #number(int)
-     ;;
-    #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''small-num-3 [#_"ScriptBuilder" this, #_"int" index, #_"int" num]
-        (assert-argument (<= 0 num), "Cannot encode negative numbers with smallNum")
-        (assert-argument (<= num 16), "Cannot encode numbers larger than 16 with smallNum")
-
-        (ScriptBuilder''add-chunk-3 this, index, (ScriptChunk'new (Script'encode-to-op-n num), nil))
-    )
-
-    ;;;
-     ; Adds the given number as a push data chunk to the given index in the program.
-     ; This is intended to use for negative numbers or values > 16, and although
-     ; it will accept numbers in the range 0-16 inclusive, the encoding would be
-     ; considered non-standard.
-     ;
-     ; @see #number(int)
-     ;;
-    #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''big-num-3 [#_"ScriptBuilder" this, #_"int" index, #_"long" num]
+    (defn #_"ScriptBuilder" ScriptBuilder''big-num [#_"ScriptBuilder" this, #_"long" num]
         (let [#_"byte[]" data
                 (when-not (zero? num) => (byte-array 0)
                     (let [#_"Stack<Byte>" stack (Stack.)]
@@ -22411,11 +22354,11 @@
                         (cond
                             ;; The most significant byte is >= 0x80, so push an extra byte that
                             ;; contains just the sign of the value.
-                            (not= (& (.peek stack) 0x80) 0) (.push stack, (byte (if (< num 0) 0x80 0)))
+                            (= (& (.peek stack) 0x80) 0x80) (.push stack, (byte (if (neg? num) 0x80 0)))
                             ;; The most significant byte is < 0x80 and the value is negative,
                             ;; set the sign bit so it is subtracted and interpreted as a
                             ;; negative when converting back to an integral.
-                            (< num 0)                       (.push stack, (byte (| (.pop stack) 0x80)))
+                            (neg? num)                      (.push stack, (byte (| (.pop stack) 0x80)))
                         )
                         (let [data (byte-array (count stack))]
                             (dotimes [#_"int" i (alength data)]
@@ -22427,7 +22370,7 @@
                 )]
             ;; At most the encoded value could take up to 8 bytes, so we don't need
             ;; to use OP_PUSHDATA opcodes.
-            (ScriptBuilder''add-chunk-3 this, index, (ScriptChunk'new (alength data), data))
+            (ScriptBuilder''add-chunk this, (ScriptChunk'new (alength data), data))
         )
     )
 
@@ -22441,25 +22384,25 @@
     (defn #_"Script" ScriptBuilder'create-output-script-1a [#_"Address" to]
         (if (Address''is-p2sh-address to)
             ;; OP_HASH160 <scriptHash> OP_EQUAL
-            (-> (ScriptBuilder'new-0)
-                (ScriptBuilder''op-2 Script'OP_HASH160)
-                (ScriptBuilder''data-2 (Address''get-hash160 to))
-                (ScriptBuilder''op-2 Script'OP_EQUAL)
+            (-> (ScriptBuilder'new)
+                (ScriptBuilder''op Script'OP_HASH160)
+                (ScriptBuilder''data (Address''get-hash160 to))
+                (ScriptBuilder''op Script'OP_EQUAL)
                 (ScriptBuilder''build))
             ;; OP_DUP OP_HASH160 <pubKeyHash> OP_EQUALVERIFY OP_CHECKSIG
-            (-> (ScriptBuilder'new-0)
-                (ScriptBuilder''op-2 Script'OP_DUP)
-                (ScriptBuilder''op-2 Script'OP_HASH160)
-                (ScriptBuilder''data-2 (Address''get-hash160 to))
-                (ScriptBuilder''op-2 Script'OP_EQUALVERIFY)
-                (ScriptBuilder''op-2 Script'OP_CHECKSIG)
+            (-> (ScriptBuilder'new)
+                (ScriptBuilder''op Script'OP_DUP)
+                (ScriptBuilder''op Script'OP_HASH160)
+                (ScriptBuilder''data (Address''get-hash160 to))
+                (ScriptBuilder''op Script'OP_EQUALVERIFY)
+                (ScriptBuilder''op Script'OP_CHECKSIG)
                 (ScriptBuilder''build))
         )
     )
 
     ;;; Creates a scriptPubKey that encodes payment to the given raw public key. ;;
     (defn #_"Script" ScriptBuilder'create-output-script-1e [#_"ECKey" key]
-        (-> (ScriptBuilder'new-0) (ScriptBuilder''data-2 (ECKey''get-pub-key key)) (ScriptBuilder''op-2 Script'OP_CHECKSIG) (ScriptBuilder''build))
+        (-> (ScriptBuilder'new) (ScriptBuilder''data (ECKey''get-pub-key key)) (ScriptBuilder''op Script'OP_CHECKSIG) (ScriptBuilder''build))
     )
 
     ;;;
@@ -22469,7 +22412,7 @@
     (defn #_"Script" ScriptBuilder'create-input-script-2 [#_"TransactionSignature" signature, #_"ECKey" __pubKey]
         (let [#_"byte[]" __pubkeyBytes (ECKey''get-pub-key __pubKey)
               #_"byte[]" __sigBytes (if (some? signature) (TransactionSignature''encode-to-bitcoin signature) (byte-array 0))]
-            (-> (ScriptBuilder'new-0) (ScriptBuilder''data-2 __sigBytes) (ScriptBuilder''data-2 __pubkeyBytes) (ScriptBuilder''build))
+            (-> (ScriptBuilder'new) (ScriptBuilder''data __sigBytes) (ScriptBuilder''data __pubkeyBytes) (ScriptBuilder''build))
         )
     )
 
@@ -22479,7 +22422,7 @@
      ;;
     (defn #_"Script" ScriptBuilder'create-input-script-1 [#_"TransactionSignature" signature]
         (let [#_"byte[]" bytes (if (some? signature) (TransactionSignature''encode-to-bitcoin signature) (byte-array 0))]
-            (-> (ScriptBuilder'new-0) (ScriptBuilder''data-2 bytes) (ScriptBuilder''build))
+            (-> (ScriptBuilder'new) (ScriptBuilder''data bytes) (ScriptBuilder''build))
         )
     )
 
@@ -22487,13 +22430,13 @@
     (defn #_"Script" ScriptBuilder'create-multi-sig-output-script [#_"int" threshold, #_"List<ECKey>" pubkeys]
         (assert-argument (<= 1 threshold (count pubkeys) 16)) ;; That's the max we can represent with a single opcode.
 
-        (let [#_"ScriptBuilder" builder (ScriptBuilder'new-0)]
-            (ScriptBuilder''small-num-2 builder, threshold)
+        (let [#_"ScriptBuilder" builder (ScriptBuilder'new)]
+            (ScriptBuilder''small-num builder, threshold)
             (doseq [#_"ECKey" key pubkeys]
-                (ScriptBuilder''data-2 builder, (ECKey''get-pub-key key))
+                (ScriptBuilder''data builder, (ECKey''get-pub-key key))
             )
-            (ScriptBuilder''small-num-2 builder, (count pubkeys))
-            (ScriptBuilder''op-2 builder, Script'OP_CHECKMULTISIG)
+            (ScriptBuilder''small-num builder, (count pubkeys))
+            (ScriptBuilder''op builder, Script'OP_CHECKMULTISIG)
             (ScriptBuilder''build builder)
         )
     )
@@ -22540,13 +22483,13 @@
     (defn #_"Script" ScriptBuilder'create-multi-sig-input-script-bytes-2 [#_"List<byte[]>" signatures, #_"byte[]" program]
         (assert-argument (<= (count signatures) 16))
 
-        (let [#_"ScriptBuilder" builder (ScriptBuilder'new-0)]
-            (ScriptBuilder''small-num-2 builder, 0) ;; Work around a bug in CHECKMULTISIG that is now a required part of the protocol.
+        (let [#_"ScriptBuilder" builder (ScriptBuilder'new)]
+            (ScriptBuilder''small-num builder, 0) ;; Work around a bug in CHECKMULTISIG that is now a required part of the protocol.
             (doseq [#_"byte[]" signature signatures]
-                (ScriptBuilder''data-2 builder, signature)
+                (ScriptBuilder''data builder, signature)
             )
             (when (some? program)
-                (ScriptBuilder''data-2 builder, program)
+                (ScriptBuilder''data builder, program)
             )
             (ScriptBuilder''build builder)
         )
@@ -22568,13 +22511,13 @@
             ;; Check if we have a place to insert, otherwise just return given scriptSig unchanged.
             ;; We assume here that OP_0 placeholders always go after the sigs, so
             ;; to find if we have sigs missing, we can just check the chunk in latest sig position.
-            (let [#_"boolean" missing? (ScriptChunk''equals-op-code (.get chunks, (- m suffix 1)), Script'OP_0)]
+            (let [#_"boolean" missing? (ScriptChunk''equals-op-code (nth chunks (- m suffix 1)), Script'OP_0)]
                 (assert-argument missing?, "ScriptSig is already filled with signatures")
 
                 ;; Copy the prefix.
-                (let [#_"ScriptBuilder" builder (ScriptBuilder'new-0)]
+                (let [#_"ScriptBuilder" builder (ScriptBuilder'new)]
                     (doseq [#_"ScriptChunk" chunk (.subList chunks, 0, prefix)]
-                        (ScriptBuilder''add-chunk-2 builder, chunk)
+                        (ScriptBuilder''add-chunk builder, chunk)
                     )
 
                     ;; Copy the sigs.
@@ -22583,11 +22526,11 @@
                                 (let [#_"ScriptChunk" chunk (first s)
                                       [i inserted?]
                                         (when (= i target) => [i inserted?]
-                                            (ScriptBuilder''data-2 builder, signature)
+                                            (ScriptBuilder''data builder, signature)
                                             [(inc i) true]
                                         )
-                                      i (when (not (ScriptChunk''equals-op-code chunk, Script'OP_0)) => i
-                                            (ScriptBuilder''add-chunk-2 builder, chunk)
+                                      i (when-not (ScriptChunk''equals-op-code chunk, Script'OP_0) => i
+                                            (ScriptBuilder''add-chunk builder, chunk)
                                             (inc i)
                                         )]
                                     (recur i inserted? (next s))
@@ -22599,11 +22542,11 @@
                                 (let [inserted?
                                         (if (= i target)
                                             (do
-                                                (ScriptBuilder''data-2 builder, signature)
+                                                (ScriptBuilder''data builder, signature)
                                                 true
                                             )
                                             (do
-                                                (ScriptBuilder''add-chunk-2 builder, (ScriptChunk'new Script'OP_0, nil))
+                                                (ScriptBuilder''add-chunk builder, (ScriptChunk'new Script'OP_0, nil))
                                                 inserted?
                                             )
                                         )]
@@ -22613,7 +22556,7 @@
 
                         ;; Copy the suffix.
                         (doseq [#_"ScriptChunk" chunk (.subList chunks, (- m suffix), m)]
-                            (ScriptBuilder''add-chunk-2 builder, chunk)
+                            (ScriptBuilder''add-chunk builder, chunk)
                         )
 
                         (assert-state inserted?)
@@ -22632,10 +22575,10 @@
     (defn #_"Script" ScriptBuilder'create-p2sh-output-script-1-bytes [#_"byte[]" hash]
         (assert-argument (= (alength hash) 20))
 
-        (-> (ScriptBuilder'new-0)
-            (ScriptBuilder''op-2 Script'OP_HASH160)
-            (ScriptBuilder''data-2 hash)
-            (ScriptBuilder''op-2 Script'OP_EQUAL)
+        (-> (ScriptBuilder'new)
+            (ScriptBuilder''op Script'OP_HASH160)
+            (ScriptBuilder''data hash)
+            (ScriptBuilder''op Script'OP_EQUAL)
             (ScriptBuilder''build))
     )
 
@@ -22677,7 +22620,7 @@
     (defn #_"Script" ScriptBuilder'create-op-return-script [#_"byte[]" data]
         (assert-argument (<= (alength data) 80))
 
-        (-> (ScriptBuilder'new-0) (ScriptBuilder''op-2 Script'OP_RETURN) (ScriptBuilder''data-2 data) (ScriptBuilder''build))
+        (-> (ScriptBuilder'new) (ScriptBuilder''op Script'OP_RETURN) (ScriptBuilder''data data) (ScriptBuilder''build))
     )
 
     (defn #_"Script" ScriptBuilder'create-cltv-payment-channel-output [#_"BigInteger" time, #_"ECKey" from, #_"ECKey" to]
@@ -22686,44 +22629,44 @@
                 (throw (RuntimeException. "Time too large to encode as 5-byte int"))
             )
 
-            (-> (ScriptBuilder'new-0)
-                (ScriptBuilder''op-2 Script'OP_IF)
-                (ScriptBuilder''data-2 (ECKey''get-pub-key to))
-                (ScriptBuilder''op-2 Script'OP_CHECKSIGVERIFY)
-                (ScriptBuilder''op-2 Script'OP_ELSE)
-                (ScriptBuilder''data-2 bytes)
-                (ScriptBuilder''op-2 Script'OP_CHECKLOCKTIMEVERIFY)
-                (ScriptBuilder''op-2 Script'OP_DROP)
-                (ScriptBuilder''op-2 Script'OP_ENDIF)
-                (ScriptBuilder''data-2 (ECKey''get-pub-key from))
-                (ScriptBuilder''op-2 Script'OP_CHECKSIG)
+            (-> (ScriptBuilder'new)
+                (ScriptBuilder''op Script'OP_IF)
+                (ScriptBuilder''data (ECKey''get-pub-key to))
+                (ScriptBuilder''op Script'OP_CHECKSIGVERIFY)
+                (ScriptBuilder''op Script'OP_ELSE)
+                (ScriptBuilder''data bytes)
+                (ScriptBuilder''op Script'OP_CHECKLOCKTIMEVERIFY)
+                (ScriptBuilder''op Script'OP_DROP)
+                (ScriptBuilder''op Script'OP_ENDIF)
+                (ScriptBuilder''data (ECKey''get-pub-key from))
+                (ScriptBuilder''op Script'OP_CHECKSIG)
                 (ScriptBuilder''build))
         )
     )
 
     (defn #_"Script" ScriptBuilder'create-cltv-payment-channel-refund [#_"TransactionSignature" signature]
-        (-> (ScriptBuilder'new-0)
-            (ScriptBuilder''data-2 (TransactionSignature''encode-to-bitcoin signature))
-            (ScriptBuilder''data-2 (byte-array [ 0 ])) ;; Use the CHECKLOCKTIMEVERIFY if branch.
+        (-> (ScriptBuilder'new)
+            (ScriptBuilder''data (TransactionSignature''encode-to-bitcoin signature))
+            (ScriptBuilder''data (byte-array [ 0 ])) ;; Use the CHECKLOCKTIMEVERIFY if branch.
             (ScriptBuilder''build)
         )
     )
 
     (defn #_"Script" ScriptBuilder'create-cltv-payment-channel-p2sh-refund [#_"TransactionSignature" signature, #_"Script" redeem]
-        (-> (ScriptBuilder'new-0)
-            (ScriptBuilder''data-2 (TransactionSignature''encode-to-bitcoin signature))
-            (ScriptBuilder''data-2 (byte-array [ 0 ])) ;; Use the CHECKLOCKTIMEVERIFY if branch.
-            (ScriptBuilder''data-2 (Script''get-program redeem))
+        (-> (ScriptBuilder'new)
+            (ScriptBuilder''data (TransactionSignature''encode-to-bitcoin signature))
+            (ScriptBuilder''data (byte-array [ 0 ])) ;; Use the CHECKLOCKTIMEVERIFY if branch.
+            (ScriptBuilder''data (Script''get-program redeem))
             (ScriptBuilder''build)
         )
     )
 
     (defn #_"Script" ScriptBuilder'create-cltv-payment-channel-p2sh-input [#_"byte[]" from, #_"byte[]" to, #_"Script" redeem]
-        (-> (ScriptBuilder'new-0)
-            (ScriptBuilder''data-2 from)
-            (ScriptBuilder''data-2 to)
-            (ScriptBuilder''small-num-2 1) ;; Use the CHECKLOCKTIMEVERIFY if branch.
-            (ScriptBuilder''data-2 (Script''get-program redeem))
+        (-> (ScriptBuilder'new)
+            (ScriptBuilder''data from)
+            (ScriptBuilder''data to)
+            (ScriptBuilder''small-num 1) ;; Use the CHECKLOCKTIMEVERIFY if branch.
+            (ScriptBuilder''data (Script''get-program redeem))
             (ScriptBuilder''build)
         )
     )
@@ -22733,10 +22676,10 @@
     )
 
     (defn #_"Script" ScriptBuilder'create-cltv-payment-channel-input-2-bytes [#_"byte[]" from, #_"byte[]" to]
-        (-> (ScriptBuilder'new-0)
-            (ScriptBuilder''data-2 from)
-            (ScriptBuilder''data-2 to)
-            (ScriptBuilder''small-num-2 1) ;; Use the CHECKLOCKTIMEVERIFY if branch.
+        (-> (ScriptBuilder'new)
+            (ScriptBuilder''data from)
+            (ScriptBuilder''data to)
+            (ScriptBuilder''small-num 1) ;; Use the CHECKLOCKTIMEVERIFY if branch.
             (ScriptBuilder''build)
         )
     )
@@ -23269,7 +23212,7 @@
                                             (let [#_"RedeemData" data (TransactionInput''get-connected-redeem-data in, bag)]
                                                 (when (some? data) => (log/warn (str "No redeem data found for input " i))
                                                     (let [#_"Sha256Hash" hash (Transaction''hash-for-signature-5s tx, i, (:redeem-script data), SigHash'ALL, false)
-                                                          #_"SignatureAndKey" sig+key (CustomTransactionSigner'''get-signature this, hash, (.get (:key-paths __propTx), __outKey))]
+                                                          #_"SignatureAndKey" sig+key (CustomTransactionSigner'''get-signature this, hash, (get (:key-paths __propTx) __outKey))]
                                                         (§ ass in (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature __outKey, __inSig, (TransactionSignature''encode-to-bitcoin (TransactionSignature'from-ecdsa (:sig sig+key), SigHash'ALL, false)), (Script''get-sig-insertion-index __inSig, hash, (:pub-key sig+key)))))
                                                     )
                                                 )
@@ -24098,7 +24041,7 @@
     (defn #_"UTXO" FullPrunedBlockStore'''get-transaction-output [#_"MemoryFullPrunedBlockStore" this, #_"Sha256Hash" hash, #_"long" index]
         (sync this
             (ensure some? (:transaction-output-map this), "MemoryFullPrunedBlockStore is closed")
-            (.get (:transaction-output-map this), (StoredTransactionOutPoint'new hash, index))
+            (get (:transaction-output-map this) (StoredTransactionOutPoint'new hash, index))
         )
     )
 
@@ -25102,7 +25045,7 @@
         (sync (:b-keychain-lock this)
             (let [#_"List<ECKey>" added (ArrayList. (count keys))]
                 (doseq [#_"ECKey" key keys]
-                    (when (not (KeyChain'''has-key this, key))
+                    (when-not (KeyChain'''has-key this, key)
                         (.add added, key)
                         (§ ass this (BasicKeyChain''import-key-locked this, key))
                     )
@@ -25154,14 +25097,14 @@
     #_method
     (defn #_"ECKey" BasicKeyChain''find-key-from-pub-hash [#_"BasicKeyChain" this, #_"byte[]" hash]
         (sync (:b-keychain-lock this)
-            (.get (:hash-to-keys this), (§ ByteString/copyFrom hash))
+            (get (:hash-to-keys this) (§ ByteString/copyFrom hash))
         )
     )
 
     #_method
     (defn #_"ECKey" BasicKeyChain''find-key-from-pub-key [#_"BasicKeyChain" this, #_"byte[]" pubkey]
         (sync (:b-keychain-lock this)
-            (.get (:pubkey-to-keys this), (§ ByteString/copyFrom pubkey))
+            (get (:pubkey-to-keys this) (§ ByteString/copyFrom pubkey))
         )
     )
 
@@ -25930,7 +25873,7 @@
     #_method
     (defn #_"List<ECKey>" DeterministicKeyChain''get-keys-3b [#_"DeterministicKeyChain" this, #_"boolean" lookahead?, #_"boolean" parents?]
         (let [#_"List<ECKey>" keys (BasicKeyChain''get-keys-1 (:basic-key-chain this))]
-            (when (not lookahead?) => keys
+            (when-not lookahead? => keys
                 (let [#_"int" size (count (DeterministicKey''get-path (:internal-parent-key this))) #_"List<ECKey>" __issuedKeys (LinkedList.)]
                     (doseq [#_"ECKey" key keys]
                         (let [#_"DeterministicKey" detkey (cast' DeterministicKey key) #_"DeterministicKey" parent (DeterministicKey''get-parent detkey)]
@@ -26813,7 +26756,7 @@
     #_method
     (defn #_"DeterministicKeyChain" KeyChainGroup''get-active-key-chain [#_"KeyChainGroup" this]
         (when (empty? (:chains this))
-            (when (< 0 (KeyChain'''num-keys (:basic this)))
+            (when (pos? (KeyChain'''num-keys (:basic this)))
                 (log/warn "No HD chain present but random keys are: you probably deserialized an old wallet.")
                 ;; If called from the wallet (most likely) it'll try to upgrade us, as it knows the rotation time but not the password.
                 (throw+ (DeterministicUpgradeRequiredException'new))
@@ -26821,7 +26764,7 @@
             ;; Otherwise we have no HD chains and no random keys: we are a new born!  So a random seed is fine.
             (§ ass this (KeyChainGroup''create-and-activate-new-hd-chain this))
         )
-        (.get (:chains this), (dec (count (:chains this))))
+        (nth (:chains this) (dec (count (:chains this))))
     )
 
     ;;;
@@ -27149,7 +27092,7 @@
     )
 
     (defn- #_"EnumMap<KeyPurpose, DeterministicKey>" KeyChainGroup'create-current-keys-map [#_"List<DeterministicKeyChain>" chains]
-        (let [#_"DeterministicKeyChain" active (.get chains, (dec (count chains)))
+        (let [#_"DeterministicKeyChain" active (nth chains (dec (count chains)))
               #_"EnumMap<KeyPurpose, DeterministicKey>" keys (§ EnumMap. KeyPurpose)]
 
             ;; Assuming that only RECEIVE and CHANGE keys are being used at the moment, we will treat the latest issued
@@ -27270,7 +27213,7 @@
                                         :else
                                             [true (log/info (str "Skipping tx output " output " because it's not of simple form."))]
                                     )]
-                                (when (not skip?) => (recur value (next candidates))
+                                (when-not skip? => (recur value (next candidates))
                                     (ensure some? key, "Coin selector given output as candidate for which we lack the key")
 
                                     (when (< (ECKey'''get-creation-time-seconds key) (:unix-time-seconds this)) => (recur value (next candidates))
@@ -29113,7 +29056,7 @@
 
             ;; If this transaction is already in the wallet, we may need to move it into a different pool.
             ;; At the very least we need to ensure we're manipulating the canonical object rather than a duplicate.
-            (let [tx (or (.get (:transactions this), __txHash) tx)
+            (let [tx (or (get (:transactions this) __txHash) tx)
                   #_"boolean" pending? (some? (.remove (:pending this), __txHash))]
                 (when pending?
                     (log/info "  <-pending")
@@ -31027,7 +30970,7 @@
                     )
                 )
                 (doseq [#_"Sha256Hash" __blockHash (.keySet __mapBlockTx)]
-                    (Collections/sort (.get __mapBlockTx, __blockHash))
+                    (Collections/sort (get __mapBlockTx __blockHash))
                 )
 
                 (let [#_"List<Sha256Hash>" __oldBlockHashes (ArrayList. (count __oldBlocks))]
@@ -31045,7 +30988,7 @@
 
                     ;; For each block in the old chain, disconnect the transactions in reverse order.
                     (let [#_"LinkedList<Transaction>" __oldChainTxns (LinkedList.)]
-                        (doseq [#_"Sha256Hash" __blockHash __oldBlockHashes #_"TxOffsetPair" pair (.get __mapBlockTx, __blockHash)]
+                        (doseq [#_"Sha256Hash" __blockHash __oldBlockHashes #_"TxOffsetPair" pair (get __mapBlockTx __blockHash)]
                             (let [#_"Transaction" tx (:tx pair) #_"Sha256Hash" __txHash (Transaction''get-hash tx)]
                                 (cond (Transaction''is-coin-base tx)
                                     (do
@@ -31121,7 +31064,7 @@
                         ;; that conflict.
                         (doseq [#_"StoredBlock" block __newBlocks]
                             (log/info (str "Replaying block " (Block''get-hash (:stored-header block))))
-                            (doseq [#_"TxOffsetPair" pair (.get __mapBlockTx, (Block''get-hash (:stored-header block)))]
+                            (doseq [#_"TxOffsetPair" pair (get __mapBlockTx (Block''get-hash (:stored-header block)))]
                                 (log/info (str "  tx " (Transaction''get-hash (:tx pair))))
                                 (§ ass this (Wallet''receive this, (:tx pair), block, :NewBlockType'BEST_CHAIN, (:offset pair)))
                             )
@@ -31661,7 +31604,7 @@
                 )
                 ;; TODO: Make this use the standard SendRequest.
                 (let [#_"CoinSelection" __toMove (CoinSelector'''select selector, Coin'ZERO, (Wallet''calculate-all-spend-candidates-1 this))]
-                    (when (not (.equals (:value-gathered __toMove), Coin'ZERO)) => nil ;; Nothing to do.
+                    (when-not (.equals (:value-gathered __toMove), Coin'ZERO) => nil ;; Nothing to do.
                         (Wallet''maybe-upgrade-to-hd this)
                         (let [#_"Transaction" tx (Transaction'new (:ledger this))]
                             (doseq [#_"TransactionOutput" output (:gathered __toMove)]
