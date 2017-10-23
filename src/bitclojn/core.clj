@@ -158,7 +158,7 @@
 (declare DaemonThreadFactory'new)
 (declare DefaultCoinSelector''should-select DefaultCoinSelector'is-selectable DefaultCoinSelector'new DefaultCoinSelector'sort-outputs)
 (declare DeterministicHierarchy''derive-child-3 DeterministicHierarchy''derive-child-5 DeterministicHierarchy''derive-next-child DeterministicHierarchy''get-4 DeterministicHierarchy''get-next-child-number-to-derive DeterministicHierarchy''get-num-children DeterministicHierarchy''get-root-key DeterministicHierarchy''put-key DeterministicHierarchy'BIP32_STANDARDISATION_TIME_SECS DeterministicHierarchy'new)
-(declare DeterministicKey''derive DeterministicKey''derive-private-key-downwards DeterministicKey''drop-parent DeterministicKey''drop-private-bytes DeterministicKey''find-or-derive-private-key DeterministicKey''find-parent-with-priv-key DeterministicKey''get-chain-code DeterministicKey''get-child-number DeterministicKey''get-depth DeterministicKey''get-fingerprint DeterministicKey''get-identifier DeterministicKey''get-parent DeterministicKey''get-parent-fingerprint DeterministicKey''get-path DeterministicKey''get-path-as-string DeterministicKey''get-priv-key-bytes33 DeterministicKey''serialize DeterministicKey''serialize-priv-b58 DeterministicKey''serialize-private DeterministicKey''serialize-pub-b58 DeterministicKey''serialize-public DeterministicKey'CHILDNUM_ORDER DeterministicKey'add-checksum DeterministicKey'ascertain-parent-fingerprint DeterministicKey'deserialize DeterministicKey'deserialize-b58-2 DeterministicKey'deserialize-b58-3 DeterministicKey'init DeterministicKey'new-2 DeterministicKey'new-4 DeterministicKey'new-5 DeterministicKey'new-6p DeterministicKey'new-6i DeterministicKey'to-base58)
+(declare DeterministicKey''derive DeterministicKey''derive-private-key-downwards DeterministicKey''drop-parent DeterministicKey''drop-private-bytes DeterministicKey''find-or-derive-private-key DeterministicKey''find-parent-with-priv-key DeterministicKey''get-chain-code DeterministicKey''get-child-number DeterministicKey''get-depth DeterministicKey''get-fingerprint DeterministicKey''get-identifier DeterministicKey''get-parent DeterministicKey''get-parent-fingerprint DeterministicKey''get-path DeterministicKey''get-path-as-string DeterministicKey''get-priv-key-bytes33 DeterministicKey''serialize DeterministicKey''serialize-priv-b58 DeterministicKey''serialize-private DeterministicKey''serialize-pub-b58 DeterministicKey''serialize-public DeterministicKey'CHILDNUM_ORDER DeterministicKey'add-checksum DeterministicKey'ascertain-parent-fingerprint DeterministicKey'deserialize DeterministicKey'deserialize-b58-2 DeterministicKey'deserialize-b58-3 DeterministicKey'init DeterministicKey'new-4 DeterministicKey'new-5 DeterministicKey'new-6p DeterministicKey'new-6i DeterministicKey'to-base58)
 (declare DeterministicKeyChain'''find-redeem-data-by-script-hash DeterministicKeyChain'''format-addresses DeterministicKeyChain'''fresh-output-script DeterministicKeyChain'''get-redeem-data DeterministicKeyChain'''is-married DeterministicKeyChain'''maybe-look-ahead-scripts DeterministicKeyChain'''set-lookahead-size DeterministicKeyChain''calc-default-lookahead-threshold DeterministicKeyChain''check-for-bit-flip DeterministicKeyChain''find-key-from-pub-hash DeterministicKeyChain''find-key-from-pub-key DeterministicKeyChain''get-account-path DeterministicKeyChain''get-issued-external-keys DeterministicKeyChain''get-issued-internal-keys DeterministicKeyChain''get-issued-receive-keys DeterministicKeyChain''get-key-by-path-2 DeterministicKeyChain''get-key-by-path-3 DeterministicKeyChain''get-key-lookahead-epoch DeterministicKeyChain''get-keys-3b DeterministicKeyChain''get-leaf-keys DeterministicKeyChain''get-lookahead-size DeterministicKeyChain''get-lookahead-threshold DeterministicKeyChain''get-mnemonic-code DeterministicKeyChain''get-seed DeterministicKeyChain''get-sigs-required-to-spend DeterministicKeyChain''get-watching-key DeterministicKeyChain''initialize-hierarchy DeterministicKeyChain''is-following DeterministicKeyChain''is-watching DeterministicKeyChain''mark-key-as-used DeterministicKeyChain''mark-pub-hash-as-used DeterministicKeyChain''mark-pub-key-as-used DeterministicKeyChain''maybe-look-ahead-1 DeterministicKeyChain''maybe-look-ahead-3 DeterministicKeyChain''maybe-look-ahead-5 DeterministicKeyChain''num-leaf-keys-issued DeterministicKeyChain''set-lookahead-threshold DeterministicKeyChain''set-sigs-required-to-spend DeterministicKeyChain''to-string DeterministicKeyChain'ACCOUNT_ZERO_PATH DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC DeterministicKeyChain'EXTERNAL_PATH DeterministicKeyChain'EXTERNAL_SUBPATH DeterministicKeyChain'INTERNAL_PATH DeterministicKeyChain'INTERNAL_SUBPATH DeterministicKeyChain'init DeterministicKeyChain'from-seed DeterministicKeyChain'from-entropy DeterministicKeyChain'from-random DeterministicKeyChain'watch DeterministicKeyChain'watch-and-follow)
 (declare DeterministicSeed''to-hex-string DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS DeterministicSeed'MAX_SEED_ENTROPY_BITS DeterministicSeed'next-entropy DeterministicSeed'from-entropy DeterministicSeed'from-random DeterministicSeed'new)
 (declare DeterministicUpgradeRequiredException'new)
@@ -167,7 +167,7 @@
 (declare DownloadProgressTracker''await DownloadProgressTracker''done-download DownloadProgressTracker''get-future DownloadProgressTracker''progress DownloadProgressTracker''start-download DownloadProgressTracker'new)
 (declare DustySendRequested'new)
 (declare ECDSASignature'''to-canonicalised ECDSASignature''der-byte-stream ECDSASignature''encode-to-der ECDSASignature''is-canonical ECDSASignature'decode-from-der ECDSASignature'new)
-(declare ECKey'''format-key-with-address ECKey'''get-creation-time-seconds ECKey'''get-priv-key ECKey'''get-secret-bytes ECKey'''has-priv-key ECKey'''is-pub-key-only ECKey'''set-creation-time-seconds ECKey'''sign ECKey''decompress ECKey''do-sign ECKey''get-priv-key-bytes ECKey''get-private-key-as-hex ECKey''get-pub-key ECKey''get-pub-key-hash ECKey''get-pub-key-point ECKey''get-public-key-as-hex ECKey''is-compressed ECKey''is-watching ECKey''sign-message ECKey''to-address ECKey''to-string ECKey''to-string-with-private ECKey''verify-3b ECKey''verify-3s ECKey''verify-message ECKey''verify-or-throw-3b ECKey''verify-or-throw-3s ECKey'AGE_COMPARATOR ECKey'CURVE ECKey'CURVE_PARAMS ECKey'HALF_CURVE_ORDER ECKey'PUBKEY_COMPARATOR ECKey'SECURE_RANDOM ECKey'compress-point ECKey'decompress-key ECKey'decompress-point ECKey'from-private-1 ECKey'from-private-1-bytes ECKey'from-private-2 ECKey'from-private-2-bytes ECKey'from-private-and-precalculated-public-2 ECKey'from-private-and-precalculated-public-2-bytes ECKey'from-public-only-1 ECKey'from-public-only-1-bytes ECKey'get-point-with-compression ECKey'init ECKey'is-pub-key-canonical ECKey'new-0 ECKey'new-1 ECKey'new-2 ECKey'public-key-from-private ECKey'public-point-from-private ECKey'recover-from-signature ECKey'signed-message-to-key ECKey'verify-3-bytes ECKey'verify-3e)
+(declare ECKey'''format-key-with-address ECKey'''get-creation-time-seconds ECKey'''get-priv-key ECKey'''get-secret-bytes ECKey'''has-priv-key ECKey'''is-pub-key-only ECKey'''set-creation-time-seconds ECKey'''sign ECKey''decompress ECKey''do-sign ECKey''get-priv-key-bytes ECKey''get-private-key-as-hex ECKey''get-pub-key ECKey''get-pub-key-hash ECKey''get-pub-key-point ECKey''get-public-key-as-hex ECKey''is-compressed ECKey''is-watching ECKey''sign-message ECKey''to-address ECKey''to-string ECKey''to-string-with-private ECKey''verify-3b ECKey''verify-3s ECKey''verify-message ECKey''verify-or-throw-3b ECKey''verify-or-throw-3s ECKey'AGE_COMPARATOR ECKey'CURVE ECKey'CURVE_PARAMS ECKey'HALF_CURVE_ORDER ECKey'PUBKEY_COMPARATOR ECKey'SECURE_RANDOM ECKey'compress-point ECKey'decompress-key ECKey'decompress-point ECKey'from-private ECKey'from-private-bytes ECKey'from-private-and-precalculated-public ECKey'from-private-and-precalculated-public-bytes ECKey'from-public-only ECKey'from-public-only-bytes ECKey'get-point-with-compression ECKey'init ECKey'is-pub-key-canonical ECKey'new ECKey'from-random ECKey'compose ECKey'public-key-from-private ECKey'public-point-from-private ECKey'recover-from-signature ECKey'signed-message-to-key ECKey'verify-3-bytes ECKey'verify-3e)
 (declare EmptyMessage'new)
 (declare ExceededMaxTransactionSize'new)
 (declare ExchangeRate''coin-to-fiat ExchangeRate''fiat-to-coin ExchangeRate'new)
@@ -273,7 +273,7 @@
 (declare RuleViolation'enum-set)
 (declare SPVBlockChain'new)
 (declare SPVBlockStore''get-ring-cursor SPVBlockStore''init-store SPVBlockStore''set-ring-cursor SPVBlockStore'DEFAULT_CAPACITY SPVBlockStore'FILE_PROLOGUE_BYTES SPVBlockStore'HEADER_MAGIC SPVBlockStore'NOT_FOUND_MARKER SPVBlockStore'RECORD_SIZE SPVBlockStore'get-file-size SPVBlockStore'new)
-(declare Script''correctly-spends-4 Script''correctly-spends-5 Script''create-empty-input-script Script''find-key-in-redeem Script''find-sig-in-redeem Script''get-cltv-payment-channel-expiry Script''get-cltv-payment-channel-recipient-pub-key Script''get-cltv-payment-channel-sender-pub-key Script''get-creation-time-seconds Script''get-from-address Script''get-number-of-bytes-required-to-spend Script''get-number-of-signatures-required-to-spend Script''get-program Script''get-pub-key Script''get-pub-key-hash Script''get-pub-keys Script''get-quick-program Script''get-script-sig-with-signature Script''get-script-type Script''get-sig-insertion-index Script''get-to-address-2 Script''get-to-address-3 Script''is-op-return Script''is-pay-to-script-hash Script''is-sent-to-address Script''is-sent-to-cltv-payment-channel Script''is-sent-to-multi-sig Script''is-sent-to-raw-pub-key Script''parse Script''set-creation-time-seconds Script'ALL_VERIFY_FLAGS Script'MAX_OPS_PER_SCRIPT Script'MAX_P2SH_SIGOPS Script'MAX_PUBKEYS_PER_MULTISIG Script'MAX_SCRIPT_ELEMENT_SIZE Script'MAX_SCRIPT_SIZE Script'MAX_STACK_SIZE Script'SIG_SIZE Script'cast-to-big-integer-2 Script'cast-to-big-integer-3 Script'cast-to-bool Script'check-sequence Script'create-input-script-1 Script'create-input-script-2 Script'create-multi-sig-output-script Script'decode-from-op-n Script'encode-to-op-n Script'equals-range Script'execute-check-lock-time-verify Script'execute-check-sequence-verify Script'execute-check-sig Script'execute-multi-sig Script'execute-script-5 Script'get-p2sh-sig-op-count Script'get-sig-op-count-1 Script'get-sig-op-count-2 Script'init Script'new Script'from-chunks Script'from-bytes Script'remove-all-instances-of Script'remove-all-instances-of-op Script'write-bytes)
+(declare Script''correctly-spends Script''create-empty-input-script Script''find-key-in-redeem Script''find-sig-in-redeem Script''get-cltv-payment-channel-expiry Script''get-cltv-payment-channel-recipient-pub-key Script''get-cltv-payment-channel-sender-pub-key Script''get-from-address Script''get-number-of-bytes-required-to-spend Script''get-number-of-signatures-required-to-spend Script''get-program Script''get-pub-key Script''get-pub-key-hash Script''get-pub-keys Script''get-quick-program Script''get-script-sig-with-signature Script''get-script-type Script''get-sig-insertion-index Script''get-to-address-2 Script''get-to-address-3 Script''is-op-return Script''is-pay-to-script-hash Script''is-sent-to-address Script''is-sent-to-cltv-payment-channel Script''is-sent-to-multi-sig Script''is-sent-to-raw-pub-key Script'parse Script'ALL_VERIFY_FLAGS Script'MAX_OPS_PER_SCRIPT Script'MAX_P2SH_SIGOPS Script'MAX_PUBKEYS_PER_MULTISIG Script'MAX_SCRIPT_ELEMENT_SIZE Script'MAX_SCRIPT_SIZE Script'MAX_STACK_SIZE Script'SIG_SIZE Script'cast-to-big-integer-2 Script'cast-to-big-integer-3 Script'cast-to-bool Script'check-sequence Script'create-input-script-1 Script'create-input-script-2 Script'create-multi-sig-output-script Script'decode-from-op-n Script'encode-to-op-n Script'equals-range Script'execute-check-lock-time-verify Script'execute-check-sequence-verify Script'execute-check-sig Script'execute-multi-sig Script'execute-script-5 Script'get-p2sh-sig-op-count Script'get-sig-op-count-1 Script'get-sig-op-count-2 Script'new Script'from-chunks Script'from-bytes Script'remove-all-instances-of Script'remove-all-instances-of-op Script'write-bytes)
 (declare ScriptBuilder''add-chunk-2 ScriptBuilder''add-chunk-3 ScriptBuilder''big-num-2 ScriptBuilder''big-num-3 ScriptBuilder''build ScriptBuilder''data-2 ScriptBuilder''data-3 ScriptBuilder''number-2 ScriptBuilder''number-3 ScriptBuilder''op-2 ScriptBuilder''op-3 ScriptBuilder''small-num-2 ScriptBuilder''small-num-3 ScriptBuilder'create-cltv-payment-channel-input-2 ScriptBuilder'create-cltv-payment-channel-input-2-bytes ScriptBuilder'create-cltv-payment-channel-output ScriptBuilder'create-cltv-payment-channel-p2sh-input ScriptBuilder'create-cltv-payment-channel-p2sh-refund ScriptBuilder'create-cltv-payment-channel-refund ScriptBuilder'create-input-script-1 ScriptBuilder'create-input-script-2 ScriptBuilder'create-multi-sig-input-script ScriptBuilder'create-multi-sig-input-script-bytes-1 ScriptBuilder'create-multi-sig-input-script-bytes-2 ScriptBuilder'create-multi-sig-output-script ScriptBuilder'create-op-return-script ScriptBuilder'create-output-script-1a ScriptBuilder'create-output-script-1e ScriptBuilder'create-p2sh-multi-sig-input-script ScriptBuilder'create-p2sh-output-script-1 ScriptBuilder'create-p2sh-output-script-1-bytes ScriptBuilder'create-p2sh-output-script-2 ScriptBuilder'create-redeem-script ScriptBuilder'init ScriptBuilder'new-0 ScriptBuilder'new-1 ScriptBuilder'update-script-with-signature)
 (declare ScriptChunk''decode-op-n ScriptChunk''equals-op-code ScriptChunk''get-start-location-in-program ScriptChunk''is-op-code ScriptChunk''is-push-data ScriptChunk''is-shortest-possible-push-data ScriptChunk''write-chunk ScriptChunk'new)
 (declare ScriptError'enum-set)
@@ -616,7 +616,7 @@
         ;; Only mark this the first time, because this method can be called more than once during a chain download
         ;; if we switch peers during it.
         (if (= (:original-blocks-left this) -1)
-            (§ assoc this :original-blocks-left __blocksLeft)
+            (§ ass this (assoc this :original-blocks-left __blocksLeft))
             (log/info (str "Chain download switched to " peer))
         )
         (when (zero? __blocksLeft)
@@ -630,7 +630,7 @@
     (defn #_"void" BlocksDownloadedEventListener'''on-blocks-downloaded [#_"DownloadProgressTracker" this, #_"Peer" peer, #_"Block" block, #_"FilteredBlock" filtered, #_"int" __blocksLeft]
         (when-not (:caught-up this)
             (when (zero? __blocksLeft)
-                (§ assoc this :caught-up true)
+                (§ ass this (assoc this :caught-up true))
                 (DownloadProgressTracker''done-download this)
                 (.set (:future this), (Peer''get-best-height peer))
             )
@@ -639,7 +639,7 @@
                 (let [#_"double" pct (- 100.0 (* 100.0 (/ __blocksLeft (double (:original-blocks-left this)))))]
                     (when-not (= (int pct) (:last-percent this))
                         (DownloadProgressTracker''progress this, pct, __blocksLeft, (Date. (* (:time-seconds block) 1000)))
-                        (§ assoc this :last-percent (int pct))
+                        (§ ass this (assoc this :last-percent (int pct)))
                     )
                 )
             )
@@ -2308,7 +2308,7 @@
                             (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
                             ;; It connects to somewhere on the chain.  Not necessarily the top of the best known chain.
                             (Ledger'''check-difficulty-transitions (:ledger this), prior, block, (:block-store this))
-                            (BlockChain''connect-block this, block, prior, (BlockChain'''should-verify-transactions this), __filteredTxHashList, __filteredTxn)
+                            (§ ass this (BlockChain''connect-block this, block, prior, (BlockChain'''should-verify-transactions this), __filteredTxHashList, __filteredTxn))
                             (when __tryConnecting
                                 (BlockChain''try-connecting-orphans this)
                             )
@@ -2349,7 +2349,7 @@
     ;; It could be exposed, but for now we just set it to shouldVerifyTransactions()
     #_throws #_[ "BlockStoreException", "VerificationException", "PrunedException" ]
     #_method
-    (defn- #_"void" BlockChain''connect-block [#_"BlockChain" this, #_"Block" block, #_"StoredBlock" __storedPrev, #_"boolean" expensive?, #_"List<Sha256Hash>" __filteredTxHashList, #_"Map<Sha256Hash, Transaction>" __filteredTxn]
+    (defn- #_"BlockChain" BlockChain''connect-block [#_"BlockChain" this, #_"Block" block, #_"StoredBlock" __storedPrev, #_"boolean" expensive?, #_"List<Sha256Hash>" __filteredTxHashList, #_"Map<Sha256Hash, Transaction>" __filteredTxn]
         (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
 
         (let [#_"boolean" filtered? (and (some? __filteredTxHashList) (some? __filteredTxn))]
@@ -2392,10 +2392,10 @@
                         ;; This block connects to the best known block, it is a normal continuation of the system.
                         (let [#_"TransactionOutputChanges" changes (when (BlockChain'''should-verify-transactions this) (BlockChain'''connect-transactions-3 this, (inc (:stored-height __storedPrev)), block))
                               #_"StoredBlock" __newStoredBlock (BlockChain'''add-to-block-store-4 this, __storedPrev, (if (some? (:transactions block)) (Block''clone-as-header block) block), changes)]
-                            (§ update this :version-tally VersionTally''add (:version block))
+                            (§ ass this (update this :version-tally VersionTally''add (:version block)))
                             (§ ass this (BlockChain''set-chain-head this, __newStoredBlock))
                             (log/debug (str "Chain is now " (:stored-height __newStoredBlock) " blocks high, running listeners"))
-                            (BlockChain''inform-listeners-for-new-block this, block, :NewBlockType'BEST_CHAIN, __filteredTxHashList, __filteredTxn, __newStoredBlock)
+                            (§ ass this (BlockChain''inform-listeners-for-new-block this, block, :NewBlockType'BEST_CHAIN, __filteredTxHashList, __filteredTxn, __newStoredBlock))
                         )
                     )
                     :else
@@ -2437,23 +2437,23 @@
                             ;; If we do, send them to the wallet but state that they are on a side chain so it knows not to try and
                             ;; spend them until they become activated.
                             (when (or (some? (:transactions block)) filtered?)
-                                (BlockChain''inform-listeners-for-new-block this, block, :NewBlockType'SIDE_CHAIN, __filteredTxHashList, __filteredTxn, __newBlock)
+                                (§ ass this (BlockChain''inform-listeners-for-new-block this, block, :NewBlockType'SIDE_CHAIN, __filteredTxHashList, __filteredTxn, __newBlock))
                             )
                             (when reorg?
                                 (log/info "Block is causing a re-organize")
-                                (BlockChain''handle-new-best-chain this, __storedPrev, __newBlock, block, expensive?)
+                                (§ ass this (BlockChain''handle-new-best-chain this, __storedPrev, __newBlock, block, expensive?))
                             )
                         )
                     )
                 )
             )
         )
-        nil
+        this
     )
 
     #_throws #_[ "VerificationException" ]
     #_method
-    (defn- #_"void" BlockChain''inform-listeners-for-new-block [#_"BlockChain" this, #_"Block" block, #_"NewBlockType" type, #_"List<Sha256Hash>" __filteredTxHashList, #_"Map<Sha256Hash, Transaction>" __filteredTxn, #_"StoredBlock" stored]
+    (defn- #_"BlockChain" BlockChain''inform-listeners-for-new-block [#_"BlockChain" this, #_"Block" block, #_"NewBlockType" type, #_"List<Sha256Hash>" __filteredTxHashList, #_"Map<Sha256Hash, Transaction>" __filteredTxn, #_"StoredBlock" stored]
         ;; Notify the listeners of the new block, so the depth and workDone of stored transactions can be updated
         ;; (in the case of the listener being a wallet).  Wallets need to know how deep each transaction is, so
         ;; coinbases aren't used before maturity.
@@ -2502,9 +2502,9 @@
                 )
             )
 
-            (BlockChain''track-false-positives this, (.size __falsePositives))
+            (§ ass this (BlockChain''track-false-positives this, (.size __falsePositives)))
         )
-        nil
+        this
     )
 
     #_throws #_[ "VerificationException" ]
@@ -2575,7 +2575,7 @@
      ;;
     #_throws #_[ "BlockStoreException", "VerificationException", "PrunedException" ]
     #_method
-    (defn- #_"void" BlockChain''handle-new-best-chain [#_"BlockChain" this, #_"StoredBlock" __storedPrev, #_"StoredBlock" __newChainHead, #_"Block" block, #_"boolean" expensive?]
+    (defn- #_"BlockChain" BlockChain''handle-new-best-chain [#_"BlockChain" this, #_"StoredBlock" __storedPrev, #_"StoredBlock" __newChainHead, #_"Block" block, #_"boolean" expensive?]
         (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
 
         ;; This chain has overtaken the one we currently believe is best.  Reorganize is required.
@@ -2661,7 +2661,7 @@
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -2894,7 +2894,7 @@
      ; and transactions that were false positives (i.e. includes all transactions in the block).
      ;;
     #_method
-    (defn #_"void" BlockChain''track-filtered-transactions [#_"BlockChain" this, #_"int" n]
+    (defn #_"BlockChain" BlockChain''track-filtered-transactions [#_"BlockChain" this, #_"int" n]
         ;; Track non-false-positives in batch.  Each non-false-positive counts as 0.0 towards the estimate.
         ;;
         ;; This is slightly off because we are applying false positive tracking before non-FP tracking,
@@ -2903,44 +2903,43 @@
         (let [#_"double" __alphaDecay (Math/pow (- 1 BlockChain'FP_ESTIMATOR_ALPHA), n)]
 
             ;; new_rate = alpha_decay * new_rate
-            (§ assoc this :false-positive-rate (* __alphaDecay (:false-positive-rate this)))
+            (§ ass this (assoc this :false-positive-rate (* __alphaDecay (:false-positive-rate this))))
 
             (let [#_"double" __betaDecay (Math/pow (- 1 BlockChain'FP_ESTIMATOR_BETA), n)]
 
                 ;; trend = beta * (new_rate - old_rate) + beta_decay * trend
-                (§ assoc this :false-positive-trend (+ (* BlockChain'FP_ESTIMATOR_BETA n (- (:false-positive-rate this) (:previous-false-positive-rate this))) (* __betaDecay (:false-positive-trend this))))
+                (§ ass this (assoc this :false-positive-trend (+ (* BlockChain'FP_ESTIMATOR_BETA n (- (:false-positive-rate this) (:previous-false-positive-rate this))) (* __betaDecay (:false-positive-trend this)))))
 
                 ;; new_rate += alpha_decay * trend
-                (§ assoc this :false-positive-rate (+ (:false-positive-rate this) (* __alphaDecay (:false-positive-trend this))))
+                (§ ass this (assoc this :false-positive-rate (+ (:false-positive-rate this) (* __alphaDecay (:false-positive-trend this)))))
 
                 ;; stash new_rate in old_rate
-                (§ assoc this :previous-false-positive-rate (:false-positive-rate this))
+                (§ ass this (assoc this :previous-false-positive-rate (:false-positive-rate this)))
             )
         )
-        nil
+        this
     )
 
     ;;;
      ; Irrelevant transactions were received.  Update false-positive estimate.
      ;;
     #_method
-    (defn #_"void" BlockChain''track-false-positives [#_"BlockChain" this, #_"int" n]
+    (defn #_"BlockChain" BlockChain''track-false-positives [#_"BlockChain" this, #_"int" n]
         ;; Track false positives in batch by adding alpha to the false positive estimate once per count.
         ;; Each false positive counts as 1.0 towards the estimate.
-        (§ update this :false-positive-rate + (* BlockChain'FP_ESTIMATOR_ALPHA n))
+        (§ ass this (update this :false-positive-rate + (* BlockChain'FP_ESTIMATOR_ALPHA n)))
         (when (pos? n)
             (log/debug (str n " false positives, current rate = " (:false-positive-rate this) " trend = " (:false-positive-trend this)))
         )
-        nil
+        this
     )
 
     ;;;
      ; Resets estimates of false positives.  Used when the filter is sent to the peer.
      ;;
     #_method
-    (defn #_"void" BlockChain''reset-false-positive-estimate [#_"BlockChain" this]
-        (§ assoc this :false-positive-rate 0, :false-positive-trend 0, :previous-false-positive-rate 0)
-        nil
+    (defn #_"BlockChain" BlockChain''reset-false-positive-estimate [#_"BlockChain" this]
+        (assoc this :false-positive-rate 0, :false-positive-trend 0, :previous-false-positive-rate 0)
     )
 )
 
@@ -3407,7 +3406,7 @@
 
     #_method
     (defn #_"void" AddressMessage''add-address [#_"AddressMessage" this, #_"PeerAddress" address]
-        (§ assoc address :parent this)
+        (§ ass address (assoc address :parent this))
         (.add (:addresses this), address)
         nil
     )
@@ -3415,7 +3414,7 @@
     #_method
     (defn #_"void" AddressMessage''remove-address [#_"AddressMessage" this, #_"int" index]
         (let [#_"PeerAddress" address (.remove (:addresses this), index)]
-            (§ assoc address :parent nil)
+            (§ ass address (assoc address :parent nil))
         )
         nil
     )
@@ -4038,11 +4037,11 @@
                 ;; transactions
                 (when (.hasRemaining payload)
                     (let [#_"int" n (int (Wire'read-var-int payload))]
-                        (§ assoc this :transactions (ArrayList. n))
+                        (§ ass this (assoc this :transactions (ArrayList. n)))
                         (dotimes [_ n]
                             (let [#_"Transaction" tx (Transaction'from-wire ledger, payload, this)]
                                 ;; Label the transaction as coming from the P2P network, so code that cares where we first saw it knows.
-                                (TransactionConfidence''set-source (Transaction''get-confidence-t tx), :ConfidenceSource'NETWORK)
+                                (§ ass (Transaction''get-confidence-t tx) (TransactionConfidence''set-source (Transaction''get-confidence-t tx), :ConfidenceSource'NETWORK))
                                 (.add (:transactions this), tx)
                             )
                         )
@@ -4170,19 +4169,19 @@
      ; It doesn't change extraNonce.
      ;;
     #_method
-    (defn #_"void" Block''solve [#_"Block" this]
+    (defn #_"Block" Block''solve [#_"Block" this]
         (while
             ;; Is our proof of work valid yet?
             (if (Block''check-proof-of-work this, false)
                 false
                 (do
                     ;; No, so increment the nonce and try again.
-                    (§ update this :nonce inc)
+                    (§ ass this (update this :nonce inc))
                     true
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -4406,18 +4405,17 @@
 
     ;;; Adds a transaction to this block.  The nonce and merkle root are invalid after this. ;;
     #_method
-    (defn #_"void" Block''add-transaction-2 [#_"Block" this, #_"Transaction" tx]
+    (defn #_"Block" Block''add-transaction-2 [#_"Block" this, #_"Transaction" tx]
         (Block''add-transaction-3 this, tx, true)
-        nil
     )
 
     ;;; Adds a transaction to this block, with or without checking the sanity of doing so. ;;
     #_method
-    (defn #_"void" Block''add-transaction-3 [#_"Block" this, #_"Transaction" tx, #_"boolean" check?]
+    (defn #_"Block" Block''add-transaction-3 [#_"Block" this, #_"Transaction" tx, #_"boolean" check?]
         (when (nil? (:transactions this))
-            (§ assoc this :transactions (ArrayList.))
+            (§ ass this (assoc this :transactions (ArrayList.)))
         )
-        (§ assoc tx :parent this)
+        (§ ass tx (assoc tx :parent this))
         (when (and check? (= (.size (:transactions this)) 0) (not (Transaction''is-coin-base tx)))
             (throw (RuntimeException. (str "Attempted to add a non-coinbase transaction as the first transaction: " tx)))
         )
@@ -4425,7 +4423,7 @@
             (throw (RuntimeException. (str "Attempted to add a coinbase transaction when there already is one: " tx)))
         )
         (.add (:transactions this), tx)
-        nil
+        this
     )
 
     ;;;
@@ -4625,7 +4623,7 @@
     (defn #_"boolean" BlockChain'''add-filtered-block [#_"SPVBlockChain" this, #_"FilteredBlock" filtered]
         (let [#_"boolean" success? (BlockChain'''add-filtered-block (§ this super), filtered)]
             (when success?
-                (BlockChain''track-filtered-transactions this, (FilteredBlock''get-transaction-count filtered))
+                (§ ass this (BlockChain''track-filtered-transactions this, (FilteredBlock''get-transaction-count filtered)))
             )
             success?
         )
@@ -4841,11 +4839,11 @@
      ; transaction instead of 100-300 bytes as per usual.
      ;;
     #_method
-    (defn #_"void" BloomFilter''set-match-all [#_"BloomFilter" this]
+    (defn #_"BloomFilter" BloomFilter''set-match-all [#_"BloomFilter" this]
         (sync this
-            (§ assoc this :data (byte-array [ (byte 0xff) ]))
+            (§ ass this (assoc this :data (byte-array [ (byte 0xff) ])))
         )
-        nil
+        this
     )
 
     ;;;
@@ -4853,9 +4851,9 @@
      ; an IllegalArgumentException will be thrown.
      ;;
     #_method
-    (defn #_"void" BloomFilter''merge [#_"BloomFilter" this, #_"BloomFilter" filter]
+    (defn #_"BloomFilter" BloomFilter''merge [#_"BloomFilter" this, #_"BloomFilter" filter]
         (sync this
-            (when' (and (not (BloomFilter''matches-all this)) (not (BloomFilter''matches-all filter))) => (§ assoc this :data (byte-array [ (byte 0xff) ]))
+            (when' (and (not (BloomFilter''matches-all this)) (not (BloomFilter''matches-all filter))) => (§ ass this (assoc this :data (byte-array [ (byte 0xff) ])))
                 (assert-argument (and (= (alength (:data filter)) (alength (:data this)))
                                       (= (:hash-funcs filter) (:hash-funcs this))
                                       (= (:n-tweak filter) (:n-tweak this))))
@@ -4865,7 +4863,7 @@
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -5287,16 +5285,16 @@
 
     (def- #_"SecureRandom" ECKey'SECURE_RANDOM (SecureRandom.))
 
-    (defn- #_"ECKey" ECKey'init []
+    (defn- #_"ECKey" ECKey'init [#_"BigInteger" priv, #_"ECPoint" pub, #_"long" secs]
         (hash-map
             ;; The two parts of the key.  If "priv" is set, "pub" can always be calculated.
             ;; If "pub" is set, but not "priv", we can only verify signatures, not make them.
-            #_"BigInteger" :priv nil ;; A field element.
-            #_"ECPoint" :pub nil
+            #_"BigInteger" :priv priv ;; A field element.
+            #_"ECPoint" :pub pub
 
             ;; Creation time of the key in seconds since the epoch, or zero if the key was
             ;; deserialized from a version that did not have this field.
-            #_"long" :creation-time-seconds 0
+            #_"long" :creation-time-seconds secs
 
             #_"byte[]" :pub-key-hash nil
         )
@@ -5306,45 +5304,33 @@
      ; Generates an entirely new keypair.  Point compression is used so the resulting public key will be 33 bytes
      ; (32 for the co-ordinate and 1 byte to represent the y bit).
      ;;
-    (defn #_"ECKey" ECKey'new-0 []
-        (ECKey'new-1 ECKey'SECURE_RANDOM)
+    (defn #_"ECKey" ECKey'new []
+        (ECKey'from-random ECKey'SECURE_RANDOM)
     )
 
     ;;;
      ; Generates an entirely new keypair with the given {@link SecureRandom} object.  Point compression is used so
      ; the resulting public key will be 33 bytes (32 for the co-ordinate and 1 byte to represent the y bit).
      ;;
-    (defn #_"ECKey" ECKey'new-1 [#_"SecureRandom" random]
-        (let [this (ECKey'init)]
-            (let [#_"ECKeyPairGenerator" generator (ECKeyPairGenerator.)
-                  #_"ECKeyGenerationParameters" __keygenParams (ECKeyGenerationParameters. ECKey'CURVE, random)]
-                (.init generator, __keygenParams)
-                (let [#_"AsymmetricCipherKeyPair" keypair (.generateKeyPair generator)
-                      #_"ECPrivateKeyParameters" __privParams (cast ECPrivateKeyParameters (.getPrivate keypair))
-                      #_"ECPublicKeyParameters" __pubParams (cast ECPublicKeyParameters (.getPublic keypair))]
-                    (§ assoc this :priv (.getD __privParams))
-                    (§ assoc this :pub (.decodePoint (.getCurve ECKey'CURVE), (.getEncoded (.getQ __pubParams), true)))
-                    (§ assoc this :creation-time-seconds (Time'seconds))
-                    this
-                )
-            )
+    (defn #_"ECKey" ECKey'from-random [#_"SecureRandom" random]
+        (let [#_"ECKeyPairGenerator" generator (ECKeyPairGenerator.) _ (.init generator, (ECKeyGenerationParameters. ECKey'CURVE, random))
+              #_"AsymmetricCipherKeyPair" keypair (.generateKeyPair generator)
+              #_"BigInteger" priv (.getD (cast ECPrivateKeyParameters (.getPrivate keypair)))
+              #_"ECPoint" pub (.decodePoint (.getCurve ECKey'CURVE), (.getEncoded (.getQ (cast ECPublicKeyParameters (.getPublic keypair))), true))]
+            (ECKey'init priv, pub, (Time'seconds))
         )
     )
 
-    (defn #_"ECKey" ECKey'new-2 [#_"BigInteger" priv, #_"ECPoint" pub]
-        (let [this (ECKey'init)]
-            (when (some? priv)
-                (assert-argument (<= (.bitLength priv) (<< 32 3)), (str "private key exceeds 32 bytes: " (.bitLength priv) " bits"))
-                ;; Try and catch buggy callers or bad key imports, etc.  Zero and one are special because these are often
-                ;; used as sentinel values and because scripting languages have a habit of auto-casting true and false to
-                ;; 1 and 0 or vice-versa.  Type confusion bugs could therefore result in private keys with these values.
-                (assert-argument (not (= priv BigInteger/ZERO)))
-                (assert-argument (not (= priv BigInteger/ONE)))
-            )
-            (§ assoc this :priv priv)
-            (§ assoc this :pub (ensure some? pub))
-            this
+    (defn- #_"ECKey" ECKey'compose [#_"BigInteger" priv, #_"ECPoint" pub]
+        (when (some? priv)
+            (assert-argument (<= (.bitLength priv) (<< 32 3)), (str "private key exceeds 32 bytes: " (.bitLength priv) " bits"))
+            ;; Try and catch buggy callers or bad key imports, etc.  Zero and one are special because these are often
+            ;; used as sentinel values and because scripting languages have a habit of auto-casting true and false to
+            ;; 1 and 0 or vice-versa.  Type confusion bugs could therefore result in private keys with these values.
+            (assert-argument (not (= priv BigInteger/ZERO)))
+            (assert-argument (not (= priv BigInteger/ONE)))
         )
+        (ECKey'init priv, (ensure some? pub), 0)
     )
 
     ;;;
@@ -5375,37 +5361,19 @@
     )
 
     ;;;
-     ; Creates an ECKey given the private key only.  The public key is calculated from it (this is slow).  The resulting
-     ; public key is compressed.
+     ; Creates an ECKey given the private key only.  The public key is calculated from it (this is slow).
      ;;
-    (defn #_"ECKey" ECKey'from-private-1 [#_"BigInteger" priv]
-        (ECKey'from-private-2 priv, true)
-    )
-
-    ;;;
-     ; Creates an ECKey given the private key only.  The public key is calculated from it (this is slow), either
-     ; compressed or not.
-     ;;
-    (defn #_"ECKey" ECKey'from-private-2 [#_"BigInteger" priv, #_"boolean" compressed?]
+    (defn #_"ECKey" ECKey'from-private [#_"BigInteger" priv, #_"boolean" compressed?]
         (let [#_"ECPoint" point (ECKey'public-point-from-private priv)]
-            (ECKey'new-2 priv, (ECKey'get-point-with-compression point, compressed?))
+            (ECKey'compose priv, (ECKey'get-point-with-compression point, compressed?))
         )
     )
 
     ;;;
-     ; Creates an ECKey given the private key only.  The public key is calculated from it (this is slow).  The resulting
-     ; public key is compressed.
+     ; Creates an ECKey given the private key only.  The public key is calculated from it (this is slow).
      ;;
-    (defn #_"ECKey" ECKey'from-private-1-bytes [#_"byte[]" bytes]
-        (ECKey'from-private-1 (BigInteger. 1, bytes))
-    )
-
-    ;;;
-     ; Creates an ECKey given the private key only.  The public key is calculated from it (this is slow), either
-     ; compressed or not.
-     ;;
-    (defn #_"ECKey" ECKey'from-private-2-bytes [#_"byte[]" bytes, #_"boolean" compressed?]
-        (ECKey'from-private-2 (BigInteger. 1, bytes), compressed?)
+    (defn #_"ECKey" ECKey'from-private-bytes [#_"byte[]" bytes, #_"boolean" compressed?]
+        (ECKey'from-private (BigInteger. 1, bytes), compressed?)
     )
 
     ;;;
@@ -5413,8 +5381,8 @@
      ; generator point by the private key.  This is used to speed things up when you know you have the right values
      ; already.  The compression state of pub will be preserved.
      ;;
-    (defn #_"ECKey" ECKey'from-private-and-precalculated-public-2 [#_"BigInteger" priv, #_"ECPoint" pub]
-        (ECKey'new-2 priv, pub)
+    (defn #_"ECKey" ECKey'from-private-and-precalculated-public [#_"BigInteger" priv, #_"ECPoint" pub]
+        (ECKey'compose priv, pub)
     )
 
     ;;;
@@ -5422,26 +5390,26 @@
      ; generator point by the private key.  This is used to speed things up when you know you have the right values
      ; already.  The compression state of the point will be preserved.
      ;;
-    (defn #_"ECKey" ECKey'from-private-and-precalculated-public-2-bytes [#_"byte[]" priv, #_"byte[]" pub]
+    (defn #_"ECKey" ECKey'from-private-and-precalculated-public-bytes [#_"byte[]" priv, #_"byte[]" pub]
         (ensure some? priv)
         (ensure some? pub)
-        (ECKey'new-2 (BigInteger. 1, priv), (.decodePoint (.getCurve ECKey'CURVE), pub))
+        (ECKey'compose (BigInteger. 1, priv), (.decodePoint (.getCurve ECKey'CURVE), pub))
     )
 
     ;;;
      ; Creates an ECKey that cannot be used for signing, only verifying signatures, from the given point.
      ; The compression state of pub will be preserved.
      ;;
-    (defn #_"ECKey" ECKey'from-public-only-1 [#_"ECPoint" pub]
-        (ECKey'new-2 nil, pub)
+    (defn #_"ECKey" ECKey'from-public-only [#_"ECPoint" pub]
+        (ECKey'compose nil, pub)
     )
 
     ;;;
      ; Creates an ECKey that cannot be used for signing, only verifying signatures, from the given encoded point.
      ; The compression state of pub will be preserved.
      ;;
-    (defn #_"ECKey" ECKey'from-public-only-1-bytes [#_"byte[]" pub]
-        (ECKey'new-2 nil, (.decodePoint (.getCurve ECKey'CURVE), pub))
+    (defn #_"ECKey" ECKey'from-public-only-bytes [#_"byte[]" pub]
+        (ECKey'compose nil, (.decodePoint (.getCurve ECKey'CURVE), pub))
     )
 
     ;;;
@@ -5450,7 +5418,7 @@
      ;;
     #_method
     (defn #_"ECKey" ECKey''decompress [#_"ECKey" this]
-        (if (.isCompressed (:pub this)) (ECKey'new-2 (:priv this), (ECKey'decompress-point (:pub this))) this)
+        (if (.isCompressed (:pub this)) (ECKey'compose (:priv this), (ECKey'decompress-point (:pub this))) this)
     )
 
     ;;;
@@ -5502,7 +5470,7 @@
     #_method
     (defn #_"byte[]" ECKey''get-pub-key-hash [#_"ECKey" this]
         (when (nil? (:pub-key-hash this))
-            (§ assoc this :pub-key-hash (Utils'sha256hash160 (.getEncoded (:pub this))))
+            (§ ass this (assoc this :pub-key-hash (Utils'sha256hash160 (.getEncoded (:pub this)))))
         )
 
         (:pub-key-hash this)
@@ -5825,7 +5793,7 @@
                                   #_"BigInteger" sr' (.mod (.multiply r', (:s sig)), n)
                                   #_"BigInteger" e'r' (.mod (.multiply r', e'), n)
                                   #_"ECPoint" q (ECAlgorithms/sumOfTwoMultiplies (.getG ECKey'CURVE), e'r', __R, sr')]
-                                (ECKey'from-public-only-1-bytes (.getEncoded q, compressed?))
+                                (ECKey'from-public-only-bytes (.getEncoded q, compressed?))
                             )
                         )
                     )
@@ -5867,11 +5835,11 @@
      ; you have a raw key you are importing from somewhere else.
      ;;
     #_abstract
-    (defn #_"void" ECKey'''set-creation-time-seconds [#_"ECKey" this, #_"long" secs]
+    (defn #_"void" ECKey'''set-creation-time-seconds [#_"ECKey" this, #_"long" secs]
         (when (neg? secs)
             (throw (IllegalArgumentException. (str "Cannot set creation time to negative value: " secs)))
         )
-        (§ assoc this :creation-time-seconds secs)
+        (§ ass this (assoc this :creation-time-seconds secs))
         nil
     )
 
@@ -5920,7 +5888,7 @@
                     )
                 )
             )
-            (when (< 0 (:creation-time-seconds this))
+            (when (pos? (:creation-time-seconds this))
                 (.add helper, "creationTimeSeconds", (:creation-time-seconds this))
             )
             (.add helper, "isPubKeyOnly", (ECKey'''is-pub-key-only this))
@@ -5933,7 +5901,7 @@
         (let [#_"Address" address (ECKey''to-address this, ledger)]
             (.. sb (append "  addr:") (append address))
             (.. sb (append "  hash160:") (append (.encode Utils'HEX, (ECKey''get-pub-key-hash this))))
-            (when (< 0 (:creation-time-seconds this))
+            (when (pos? (:creation-time-seconds this))
                 (.. sb (append "  creationTimeSeconds:") (append (:creation-time-seconds this)))
             )
             (.. sb (append "\n"))
@@ -6023,7 +5991,7 @@
             (let [#_"List<Sha256Hash>" matches (LinkedList.)]
                 (if (.equals (Block''get-merkle-root (:filtered-header this)), (PartialMerkleTree''get-txn-hash-and-merkle-root (:merkle-tree this), matches))
                     (do
-                        (§ assoc this :cached-transaction-hashes matches)
+                        (§ ass this (assoc this :cached-transaction-hashes matches))
                         matches
                     )
                     (throw+ (VerificationException'new "Merkle root of block header does not match merkle root of partial merkle tree."))
@@ -6116,7 +6084,7 @@
         (try+
             (let [#_"ListIterator<Script>" it (.listIterator (:prev-out-scripts this))]
                 (dotimes [#_"int" i (.size (:inputs (:tx this)))]
-                    (Script''correctly-spends-5 (TransactionInput''get-script-sig (Transaction''get-input (:tx this), i)), (:tx this), i, (.next it), (:verify-flags this))
+                    (Script''correctly-spends (TransactionInput''get-script-sig (Transaction''get-input (:tx this), i)), (:tx this), i, (.next it), (:verify-flags this))
                 )
                 nil
             )
@@ -6201,9 +6169,8 @@
      ; this to false and obtain a significant speedup.
      ;;
     #_method
-    (defn #_"void" FullPrunedBlockChain''set-run-scripts [#_"FullPrunedBlockChain" this, #_"boolean" value]
-        (§ assoc this :run-scripts value)
-        nil
+    (defn #_"FullPrunedBlockChain" FullPrunedBlockChain''set-run-scripts [#_"FullPrunedBlockChain" this, #_"boolean" value]
+        (assoc this :run-scripts value)
     )
 
     ;; TODO: Remove lots of duplicated code in the two connectTransactions.
@@ -6256,7 +6223,7 @@
         (FullPrunedBlockStore'''begin-database-batch-write (:block-store this))
 
         (when (.isShutdown (:script-verification-executor this))
-            (§ assoc this :script-verification-executor (Executors/newFixedThreadPool (.availableProcessors (Runtime/getRuntime))))
+            (§ ass this (assoc this :script-verification-executor (Executors/newFixedThreadPool (.availableProcessors (Runtime/getRuntime)))))
         )
 
         (let [#_"LinkedList<UTXO>" __txOutsCreated (LinkedList.) #_"LinkedList<UTXO>" __txOutsSpent (LinkedList.)]
@@ -6432,7 +6399,7 @@
                             )
 
                             (when (.isShutdown (:script-verification-executor this))
-                                (§ assoc this :script-verification-executor (Executors/newFixedThreadPool (.availableProcessors (Runtime/getRuntime))))
+                                (§ ass this (assoc this :script-verification-executor (Executors/newFixedThreadPool (.availableProcessors (Runtime/getRuntime)))))
                             )
 
                             (let [#_"LinkedList<UTXO>" __txOutsCreated (LinkedList.) #_"LinkedList<UTXO>" __txOutsSpent (LinkedList.)
@@ -7069,7 +7036,7 @@
                 (.write baos, Script'OP_CHECKSIG)
                 (Transaction''add-output-o tx, (TransactionOutput'for-script param, tx, Coin'FIFTY_COINS, (.toByteArray baos)))
                 (let [#_"Block" genesis (Block'new-genesis param, Block'BLOCK_VERSION_GENESIS)]
-                    (Block''add-transaction-2 genesis, tx)
+                    (§ ass genesis (Block''add-transaction-2 genesis, tx))
                     genesis
                 )
             )
@@ -7484,11 +7451,11 @@
      ; Constructs a new PMT with the given bit set (little endian) and the raw list of hashes including internal hashes,
      ; taking ownership of the list.
      ;;
-    (defn #_"PartialMerkleTree" PartialMerkleTree'new [#_"Ledger" ledger, #_"byte[]" bits, #_"List<Sha256Hash>" hashes, #_"int" count]
+    (defn #_"PartialMerkleTree" PartialMerkleTree'new [#_"Ledger" ledger, #_"byte[]" bits, #_"List<Sha256Hash>" hashes, #_"int" cnt]
         (merge (Message'new ledger)
             (hash-map
                 ;; the total number of transactions in the block
-                #_"int" :transaction-count count
+                #_"int" :transaction-count cnt
 
                 ;; txids and internal hashes
                 #_"List<Sha256Hash>" :hashes hashes
@@ -7501,7 +7468,7 @@
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"PartialMerkleTree" PartialMerkleTree'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload]
-        (let [#_"int" count (int (Wire'read-uint32 payload))
+        (let [#_"int" cnt (int (Wire'read-uint32 payload))
               #_"List<Sha256Hash>" hashes
                 (let [#_"int" n (int (Wire'read-var-int payload)) hashes (ArrayList. n)]
                     (dotimes [_ n]
@@ -7511,7 +7478,7 @@
                 )
               #_"byte[]" bits (Wire'read-byte-array payload)]
 
-            (PartialMerkleTree'new ledger, bits, hashes, count)
+            (PartialMerkleTree'new ledger, bits, hashes, cnt)
         )
     )
 
@@ -7604,7 +7571,7 @@
             (throw+ (VerificationException'new "PartialMerkleTree overflowed its bits array"))
         )
         (let [#_"boolean" parent? (Utils'check-bit-le (:matched-child-bits this), (:bits-used used))]
-            (§ update used :bits-used inc)
+            (§ ass used (update used :bits-used inc))
             ;; if at height 0, or nothing interesting below, use stored hash and do not descend
             (if (or (zero? height) (not parent?))
                 (do
@@ -7613,7 +7580,7 @@
                         (throw+ (VerificationException'new "PartialMerkleTree overflowed its hash array"))
                     )
                     (let [#_"Sha256Hash" hash (.get (:hashes this), (:hashes-used used))]
-                        (§ update used :hashes-used inc)
+                        (§ ass used (update used :hashes-used inc))
                         ;; in case of height 0, we have a matched txid
                         (when (and (zero? height) parent?)
                             (.add hashes, hash)
@@ -7733,15 +7700,15 @@
     )
 
     #_method
-    (defn #_"void" PendingPing''complete [#_"PendingPing" this]
+    (defn #_"PendingPing" PendingPing''complete [#_"PendingPing" this]
         (when-not (.isDone (:future this))
             (let [#_"Long" elapsed (- (Time'millis) (:start-time-msec this))]
-                (§ update this :peer Peer''add-ping-time-data elapsed)
+                (§ ass this (update this :peer Peer''add-ping-time-data elapsed))
                 (log/debug (str (:peer this) ": ping time is " elapsed " msec"))
                 (.set (:future this), elapsed)
             )
         )
-        nil
+        this
     )
 )
 
@@ -7855,23 +7822,23 @@
      ; Closes the connection to the peer if one exists, or immediately closes the connection as soon as it opens.
      ;;
     #_method
-    (defn #_"void" PeerSocketHandler''close [#_"PeerSocketHandler" this]
+    (defn #_"PeerSocketHandler" PeerSocketHandler''close [#_"PeerSocketHandler" this]
         (or
             (sync (:peersocket-lock this)
                 (when (nil? (:write-target this))
-                    (§ assoc this :close-pending true)
+                    (§ ass this (assoc this :close-pending true))
                     :done
                 )
             )
             (MessageWriteTarget'''close-connection (:write-target this))
         )
-        nil
+        this
     )
 
     #_override
     (defn #_"void" AbstractTimeoutHandler'''timeout-occurred [#_"PeerSocketHandler" this]
         (log/info (str (PeerSocketHandler''get-address this) ": Timed out"))
-        (PeerSocketHandler''close this)
+        (§ ass this (PeerSocketHandler''close this))
         nil
     )
 
@@ -7912,7 +7879,7 @@
                 )
             )
             (catch Exception e
-                (PeerSocketHandler''exception-caught this, e)
+                (§ ass this (PeerSocketHandler''exception-caught this, e))
                 ;; Returning -1 also throws an IllegalStateException upstream and kills the connection.
                 -1
             )
@@ -7932,7 +7899,7 @@
                     (assert-argument (nil? (:write-target this)))
 
                     (let [close? (:close-pending this)]
-                        (§ assoc this :write-target target)
+                        (§ ass this (assoc this :write-target target))
                         close?
                     )
                 )]
@@ -7960,16 +7927,16 @@
      ; Catch any exceptions, logging them and then closing the channel.
      ;;
     #_method
-    (defn- #_"void" PeerSocketHandler''exception-caught [#_"PeerSocketHandler" this, #_"Exception" e]
+    (defn- #_"PeerSocketHandler" PeerSocketHandler''exception-caught [#_"PeerSocketHandler" this, #_"Exception" e]
         (let [#_"PeerAddress" addr (PeerSocketHandler''get-address this)
               #_"String" s (if (some? addr) (.toString addr) "?")]
             (if (instance? IOException e)
                 (log/info (str s " - " (.getMessage e)))
                 (log/warn e, s)
             )
-            (PeerSocketHandler''close this)
+            (§ ass this (PeerSocketHandler''close this))
         )
-        nil
+        this
     )
 )
 
@@ -8121,7 +8088,7 @@
                         )
                     )]
 
-                (.addListener (:version-handshake-future this), #(Peer''version-handshake-complete this), Threading'SAME_THREAD)
+                (.addListener (:version-handshake-future this), #(§ non-void Peer''version-handshake-complete this), Threading'SAME_THREAD)
                 this
             )
         )
@@ -8312,8 +8279,8 @@
                 ;; If we are in the middle of receiving transactions as part of a filtered block push from the remote node,
                 ;; and we receive something that's not a transaction, then we're done.
                 (when (and (some? (:current-filtered-block this)) (not (§ instance? Transaction m)))
-                    (Peer''end-filtered-block this, (:current-filtered-block this))
-                    (§ assoc this :current-filtered-block nil)
+                    (§ ass this (Peer''end-filtered-block this, (:current-filtered-block this)))
+                    (§ ass this (assoc this :current-filtered-block nil))
                 )
 
                 ;; No further communication is possible until version handshake is complete.
@@ -8321,7 +8288,7 @@
                     (throw+ (ProtocolException'new (str "Received " (.getSimpleName (.getClass m)) " before version handshake is complete.")))
                 )
 
-                (condp instance? m
+                (§ ass this (condp instance? m
                     (§ Ping)             (Peer''process-ping this, (cast' Ping m))
                     (§ Pong)             (Peer''process-pong this, (cast' Pong m))
                     ;; This is sent to us when we did a getdata on some transactions that aren't in the peers memory pool.
@@ -8339,16 +8306,16 @@
                     (§ AlertMessage)     (Peer''process-alert this, (cast' AlertMessage m))
                     (§ VersionMessage)   (Peer''process-version-message this, (cast' VersionMessage m))
                     (§ VersionAck)       (Peer''process-version-ack this, (cast' VersionAck m))
-                    (§ RejectMessage)    (log/error (str this ": Received " m))
-                                     (log/warn (str this ": Received unhandled message: " m))
-                )
+                    (§ RejectMessage)    (do (log/error (str this ": Received " m)) this)
+                                         (do (log/warn (str this ": Received unhandled message: " m)) this)
+                ))
             )
         )
         nil
     )
 
     #_method
-    (defn- #_"void" Peer''process-address-message [#_"Peer" this, #_"AddressMessage" m]
+    (defn- #_"Peer" Peer''process-address-message [#_"Peer" this, #_"AddressMessage" m]
         (let [#_"SettableFuture<AddressMessage>" future
                 (sync (:get-addr-futures this)
                     (.poll (:get-addr-futures this))
@@ -8357,17 +8324,17 @@
                 (.set future, m)
             )
         )
-        nil
+        this
     )
 
     #_throws #_[ "ProtocolException" ]
     #_method
-    (defn- #_"void" Peer''process-version-message [#_"Peer" this, #_"VersionMessage" m]
+    (defn- #_"Peer" Peer''process-version-message [#_"Peer" this, #_"VersionMessage" m]
         (when (some? (:v-peer-version-message this))
             (throw+ (ProtocolException'new "Got two version messages from peer"))
         )
 
-        (§ assoc this :v-peer-version-message m)
+        (§ ass this (assoc this :v-peer-version-message m))
 
         ;; Switch to the new protocol version.
         (let [#_"long" __peerTime (* (:time-seconds m) 1000)]
@@ -8379,7 +8346,7 @@
                 (do
                     ;; Shut down the channel gracefully.
                     (log/info (str this ": Peer does not have a copy of the block chain."))
-                    (PeerSocketHandler''close this)
+                    (§ ass this (PeerSocketHandler''close this))
                 )
                 (do
                     (when (neg? (:best-height m))
@@ -8394,12 +8361,12 @@
                 )
             )
         )
-        nil
+        this
     )
 
     #_throws #_[ "ProtocolException" ]
     #_method
-    (defn- #_"void" Peer''process-version-ack [#_"Peer" this, #_"VersionAck" m]
+    (defn- #_"Peer" Peer''process-version-ack [#_"Peer" this, #_"VersionAck" m]
         (when (nil? (:v-peer-version-message this))
             (throw+ (ProtocolException'new "got a version ack before version"))
         )
@@ -8408,13 +8375,13 @@
         )
         (log/debug (str this ": Outgoing version handshake complete."))
         (.set (:outgoing-version-handshake-future this), this)
-        nil
+        this
     )
 
     #_method
-    (defn- #_"void" Peer''version-handshake-complete [#_"Peer" this]
+    (defn- #_"Peer" Peer''version-handshake-complete [#_"Peer" this]
         (log/debug (str this ": Handshake complete."))
-        (AbstractTimeoutHandler''set-timeout-enabled this, false)
+        (§ ass this (AbstractTimeoutHandler''set-timeout-enabled this, false))
         (doseq [#_"ListenerRegistration<PeerConnectedEventListener>" r (:connected-event-listeners this)]
             (.execute (:executor r), #(PeerConnectedEventListener'''on-peer-connected (:listener r), this, 1))
         )
@@ -8423,31 +8390,31 @@
         (let [#_"int" version (:v-min-protocol-version this)]
             (when (< (-> this :v-peer-version-message :client-version) version)
                 (log/warn (str "Connected to a peer speaking protocol version " (-> this :v-peer-version-message :client-version) " but need " version ", closing"))
-                (PeerSocketHandler''close this)
+                (§ ass this (PeerSocketHandler''close this))
             )
         )
-        nil
+        this
     )
 
     #_method
-    (defn #_"void" Peer''start-filtered-block [#_"Peer" this, #_"FilteredBlock" m]
+    (defn #_"Peer" Peer''start-filtered-block [#_"Peer" this, #_"FilteredBlock" m]
         ;; Filtered blocks come before the data that they refer to, so stash it here and then fill it out as
         ;; messages stream in.  We'll call endFilteredBlock when a non-tx message arrives (e.g. another
         ;; FilteredBlock) or when a tx that isn't needed by that block is found.  A ping message is sent after
         ;; a getblocks, to force the non-tx message path.
-        (§ assoc this :current-filtered-block m)
+        (§ ass this (assoc this :current-filtered-block m))
         ;; Potentially refresh the server side filter.  Because the remote node adds hits back into the filter
         ;; to save round-tripping back through us, the filter degrades over time as false positives get added,
         ;; triggering yet more false positives.  We refresh it every so often to get the FP rate back down.
-        (§ update this :filtered-blocks-received inc)
+        (§ ass this (update this :filtered-blocks-received inc))
         (when (= (rem (:filtered-blocks-received this) Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT) (dec Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT))
             (PeerSocketHandler''send-message this, (:v-bloom-filter this), BloomFilter''to-wire)
         )
-        nil
+        this
     )
 
     #_method
-    (defn #_"void" Peer''process-not-found-message [#_"Peer" this, #_"NotFoundMessage" m]
+    (defn #_"Peer" Peer''process-not-found-message [#_"Peer" this, #_"NotFoundMessage" m]
         ;; This is received when we previously did a getdata but the peer couldn't find what we requested in it's
         ;; memory pool.  Typically, because we are downloading dependencies of a relevant transaction and reached
         ;; the bottom of the dependency tree (where the unconfirmed transactions connect to transactions that are
@@ -8463,11 +8430,11 @@
                 )
             )
         )
-        nil
+        this
     )
 
     #_method
-    (defn #_"void" Peer''process-alert [#_"Peer" this, #_"AlertMessage" m]
+    (defn #_"Peer" Peer''process-alert [#_"Peer" this, #_"AlertMessage" m]
         (try
             (if (AlertMessage''is-signature-valid m)
                 (log/info (str "Received alert from peer " this ": " (:status-bar m)))
@@ -8480,12 +8447,12 @@
                 (log/error t, "Failed to check signature: bug in platform libraries?")
             )
         )
-        nil
+        this
     )
 
     #_throws #_[ "ProtocolException" ]
     #_method
-    (defn #_"void" Peer''process-headers [#_"Peer" this, #_"HeadersMessage" m]
+    (defn #_"Peer" Peer''process-headers [#_"Peer" this, #_"HeadersMessage" m]
         ;; Runs in network loop thread for this peer.
         ;;
         ;; This method can run if a peer just randomly sends us a "headers" message (should never happen), or more
@@ -8514,10 +8481,10 @@
                                 (do
                                     (sync (:peer-lock this)
                                         (log/info (str "Passed the fast catchup time (" (Time'format-seconds __fastCatchupTimeSecs) ") at height " (inc best) ", discarding " (- (.size (:block-headers m)) i) " headers and requesting full blocks"))
-                                        (§ assoc this :download-block-bodies true)
+                                        (§ ass this (assoc this :download-block-bodies true))
                                         ;; Prevent this request being seen as a duplicate.
-                                        (§ assoc this :last-get-blocks-begin Sha256Hash'ZERO_HASH)
-                                        (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH)
+                                        (§ ass this (assoc this :last-get-blocks-begin Sha256Hash'ZERO_HASH))
+                                        (§ ass this (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH))
                                     )
                                     :done
                                 )
@@ -8548,7 +8515,7 @@
                     ;; Request some more if we got up to the limit, otherwise we are at the end of the chain.
                     (when (<= HeadersMessage'MAX_HEADERS (.size (:block-headers m)))
                         (sync (:peer-lock this)
-                            (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH)
+                            (§ ass this (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH))
                         )
                     )
                 )
@@ -8557,11 +8524,11 @@
                 )
             )
         )
-        nil
+        this
     )
 
     #_method
-    (defn #_"void" Peer''process-get-data [#_"Peer" this, #_"GetDataMessage" getdata]
+    (defn #_"Peer" Peer''process-get-data [#_"Peer" this, #_"GetDataMessage" getdata]
         (log/info (str (PeerSocketHandler''get-address this) ": Received getdata message: " getdata))
         (let [#_"List<Transaction>" items (ArrayList.)]
             (doseq [#_"ListenerRegistration<GetDataEventListener>" r (:get-data-event-listeners this)]
@@ -8580,12 +8547,12 @@
                 )
             )
         )
-        nil
+        this
     )
 
     #_throws #_[ "VerificationException" ]
     #_method
-    (defn #_"void" Peer''process-transaction [#_"Peer" this, #_"Transaction" tx]
+    (defn #_"Peer" Peer''process-transaction [#_"Peer" this, #_"Transaction" tx]
         ;; Check a few basic syntax issues to ensure the received TX isn't nonsense.
         (Transaction''verify tx)
         (or
@@ -8599,7 +8566,7 @@
                 ;; Peer to stash the tx object somewhere if they want to keep receiving updates about network propagation
                 ;; and so on.
                 (let [#_"TransactionConfidence" confidence (Transaction''get-confidence-t tx)]
-                    (TransactionConfidence''set-source confidence, :ConfidenceSource'NETWORK)
+                    (§ ass confidence (TransactionConfidence''set-source confidence, :ConfidenceSource'NETWORK))
                     (.remove (:pending-tx-downloads this), confidence)
                     (cond (Peer''maybe-handle-requested-data this, tx, Transaction''get-hash)
                         (do
@@ -8609,8 +8576,8 @@
                         (do
                             (when-not (FilteredBlock''provide-transaction (:current-filtered-block this), tx)
                                 ;; Got a tx that didn't fit into the filtered block, so we must have received everything.
-                                (Peer''end-filtered-block this, (:current-filtered-block this))
-                                (§ assoc this :current-filtered-block nil)
+                                (§ ass this (Peer''end-filtered-block this, (:current-filtered-block this)))
+                                (§ ass this (assoc this :current-filtered-block nil))
                             )
                             ;; Don't tell wallets or listeners about this tx as they'll learn about it when the filtered block is
                             ;; fully downloaded instead.
@@ -8683,7 +8650,7 @@
                 (.execute (:executor r), #(OnTransactionBroadcastListener'''on-transaction (:listener r), this, tx))
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -8837,7 +8804,7 @@
     )
 
     #_method
-    (defn #_"void" Peer''process-block [#_"Peer" this, #_"Block" m]
+    (defn #_"Peer" Peer''process-block [#_"Peer" this, #_"Block" m]
         (cond
             ;; Was this block requested by getBlock()?
             (Peer''maybe-handle-requested-data this, m, Block''get-hash)
@@ -8877,7 +8844,7 @@
                             (sync (:peer-lock this)
                                 (if (:download-block-bodies this)
                                     (let [#_"Block" root (ensure some? (BlockChain''get-orphan-root (:block-chain this), (Block''get-hash m)))]
-                                        (Peer''block-chain-download-locked this, (Block''get-hash root))
+                                        (§ ass this (Peer''block-chain-download-locked this, (Block''get-hash root)))
                                     )
                                     (log/info "Did not start chain download on solved block due to in-flight header download.")
                                 )
@@ -8890,12 +8857,12 @@
                     )
                 )
         )
-        nil
+        this
     )
 
     ;; TODO: Fix this duplication.
     #_method
-    (defn #_"void" Peer''end-filtered-block [#_"Peer" this, #_"FilteredBlock" m]
+    (defn #_"Peer" Peer''end-filtered-block [#_"Peer" this, #_"FilteredBlock" m]
         (cond
             (not (:v-download-data this))
                 (log/debug (str (PeerSocketHandler''get-address this) ": Received block we did not ask for: " (FilteredBlock''get-hash m)))
@@ -8948,7 +8915,7 @@
                                     ;; that the new filter is now in use (which we have to simulate with a ping/pong), and then we can
                                     ;; safely restart the chain download with the new filter that contains a new set of lookahead keys.
                                     (log/info (str "Bloom filter exhausted whilst processing block " (FilteredBlock''get-hash m) ", discarding"))
-                                    (§ assoc this :awaiting-fresh-filter (LinkedList.))
+                                    (§ ass this (assoc this :awaiting-fresh-filter (LinkedList.)))
                                     (.add (:awaiting-fresh-filter this), (FilteredBlock''get-hash m))
                                     (.addAll (:awaiting-fresh-filter this), (BlockChain''drain-orphan-blocks (:block-chain this)))
 
@@ -8977,7 +8944,7 @@
                             ;; no matter how many blocks are solved, and therefore that the (2) duplicate filtering can work.
                             (sync (:peer-lock this)
                                 (let [#_"Block" root (ensure some? (BlockChain''get-orphan-root (:block-chain this), (FilteredBlock''get-hash m)))]
-                                    (Peer''block-chain-download-locked this, (Block''get-hash root))
+                                    (§ ass this (Peer''block-chain-download-locked this, (Block''get-hash root)))
                                 )
                             )
                         )
@@ -8995,7 +8962,7 @@
                 )
             )
         )
-        nil
+        this
     )
 
     #_method
@@ -9035,7 +9002,7 @@
     )
 
     #_method
-    (defn #_"void" Peer''process-inv [#_"Peer" this, #_"InventoryMessage" inv]
+    (defn #_"Peer" Peer''process-inv [#_"Peer" this, #_"InventoryMessage" inv]
         ;; Separate out the blocks and transactions, we'll handle them differently.
         (let [#_"List<InventoryItem>" transactions (LinkedList.) #_"List<InventoryItem>" blocks (LinkedList.)]
 
@@ -9111,7 +9078,7 @@
                                                     ;; If an orphan was re-advertised, ask for more blocks unless we are not currently downloading
                                                     ;; full block data because we have a getheaders outstanding.
                                                     (let [#_"Block" root (ensure some? (BlockChain''get-orphan-root (:block-chain this), (:item-hash item)))]
-                                                        (Peer''block-chain-download-locked this, (Block''get-hash root))
+                                                        (§ ass this (Peer''block-chain-download-locked this, (Block''get-hash root)))
                                                         ping?
                                                     )
                                                     ;; Don't re-request blocks we already requested.  Normally this should not happen.  However there is
@@ -9166,7 +9133,7 @@
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -9242,26 +9209,26 @@
      ; @param secondsSinceEpoch Time in seconds since the epoch or 0 to reset to always downloading block bodies.
      ;;
     #_method
-    (defn #_"void" Peer''set-download-parameters [#_"Peer" this, #_"long" secs, #_"boolean" __useFilteredBlocks]
+    (defn #_"Peer" Peer''set-download-parameters [#_"Peer" this, #_"long" secs, #_"boolean" __useFilteredBlocks]
         (sync (:peer-lock this)
             (cond (zero? secs)
                 (do
-                    (§ assoc this :fast-catchup-time-secs (:time-seconds (-> this :ledger :genesis-block)))
-                    (§ assoc this :download-block-bodies true)
+                    (§ ass this (assoc this :fast-catchup-time-secs (:time-seconds (-> this :ledger :genesis-block))))
+                    (§ ass this (assoc this :download-block-bodies true))
                 )
                 :else
                 (do
-                    (§ assoc this :fast-catchup-time-secs secs)
+                    (§ ass this (assoc this :fast-catchup-time-secs secs))
                     ;; If the given time is before the current chains head block time, then this has no effect (we already
                     ;; downloaded everything we need).
                     (when (and (some? (:block-chain this)) (< (:time-seconds (:stored-header (BlockChain''get-chain-head (:block-chain this)))) secs))
-                        (§ assoc this :download-block-bodies false)
+                        (§ ass this (assoc this :download-block-bodies false))
                     )
                 )
             )
-            (§ assoc this :use-filtered-blocks __useFilteredBlocks)
+            (§ ass this (assoc this :use-filtered-blocks __useFilteredBlocks))
         )
-        nil
+        this
     )
 
     ;;;
@@ -9283,7 +9250,7 @@
     )
 
     #_method
-    (defn- #_"void" Peer''block-chain-download-locked [#_"Peer" this, #_"Sha256Hash" __toHash]
+    (defn- #_"Peer" Peer''block-chain-download-locked [#_"Peer" this, #_"Sha256Hash" __toHash]
         (assert-state (.isHeldByCurrentThread (:peer-lock this)))
 
         ;; The block chain download process is a bit complicated.  Basically, we start with one or more blocks in a
@@ -9363,7 +9330,7 @@
 
                     ;; Record that we requested this range of blocks so we can filter out duplicate requests in the event
                     ;; of a block being solved during chain download.
-                    (§ assoc this :last-get-blocks-begin __chainHeadHash, :last-get-blocks-end __toHash)
+                    (§ ass this (assoc this :last-get-blocks-begin __chainHeadHash, :last-get-blocks-end __toHash))
 
                     (if (:download-block-bodies this)
                         (let [#_"GetBlocksMessage" message (GetBlocksMessage'new (:ledger this), locator, __toHash)]
@@ -9377,7 +9344,7 @@
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -9385,8 +9352,8 @@
      ; downloaded the same number of blocks that the peer advertised having in its version handshake message.
      ;;
     #_method
-    (defn #_"void" Peer''start-block-chain-download [#_"Peer" this]
-        (Peer''set-download-data this, true)
+    (defn #_"Peer" Peer''start-block-chain-download [#_"Peer" this]
+        (§ ass this (Peer''set-download-data this, true))
         ;; TODO: Peer might still have blocks that we don't have, and even have a heavier chain even if the chain block count is lower.
         (let-when [#_"int" n (Peer''get-peer-block-height-difference this)] (<= 0 n)
             (doseq [#_"ListenerRegistration<ChainDownloadStartedEventListener>" r (:chain-download-started-event-listeners this)]
@@ -9394,10 +9361,10 @@
             )
             ;; When we just want as many blocks as possible, we can set the target hash to zero.
             (sync (:peer-lock this)
-                (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH)
+                (§ ass this (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH))
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -9466,22 +9433,22 @@
     )
 
     #_method
-    (defn- #_"void" Peer''process-ping [#_"Peer" this, #_"Ping" m]
+    (defn- #_"Peer" Peer''process-ping [#_"Peer" this, #_"Ping" m]
         (when (some? (:nonce m))
             (PeerSocketHandler''send-message this, (Pong'new (:ledger this), (:nonce m)), Pong''to-wire)
         )
-        nil
+        this
     )
 
     #_method
-    (defn #_"void" Peer''process-pong [#_"Peer" this, #_"Pong" m]
+    (defn #_"Peer" Peer''process-pong [#_"Peer" this, #_"Pong" m]
         ;; Iterates over a snapshot of the list, so we can run unlocked here.
         (when-let [#_"PendingPing" ping (first (filter #(= (:nonce %) (:nonce m)) (:pending-pings this)))]
             (.remove (:pending-pings this), ping)
             ;; This line may trigger an event listener that re-runs ping().
-            (PendingPing''complete ping)
+            (§ ass ping (PendingPing''complete ping))
         )
-        nil
+        this
     )
 
     ;;;
@@ -9522,9 +9489,8 @@
      ; a request to the remote peer for the contents of its memory pool, if Bloom filtering is active.
      ;;
     #_method
-    (defn #_"void" Peer''set-download-data [#_"Peer" this, #_"boolean" download?]
-        (§ assoc this :v-download-data download?)
-        nil
+    (defn #_"Peer" Peer''set-download-data [#_"Peer" this, #_"boolean" download?]
+        (assoc this :v-download-data download?)
     )
 
     ;;; Returns version data announced by the remote peer. ;;
@@ -9555,12 +9521,12 @@
      ;;
     #_method
     (defn #_"boolean" Peer''set-min-protocol-version [#_"Peer" this, #_"int" __minProtocolVersion]
-        (§ assoc this :v-min-protocol-version __minProtocolVersion)
+        (§ ass this (assoc this :v-min-protocol-version __minProtocolVersion))
 
         (let [#_"VersionMessage" ver (Peer''get-peer-version-message this)]
             (when' (and (some? ver) (< (:client-version ver) __minProtocolVersion)) => false
                 (log/warn (str this ": Disconnecting due to new min protocol version " __minProtocolVersion ", got: " (:client-version ver)))
-                (PeerSocketHandler''close this)
+                (§ ass this (PeerSocketHandler''close this))
                 true
             )
         )
@@ -9582,9 +9548,8 @@
      ; cannot unset a filter, though the underlying p2p protocol does support it.
      ;;
     #_method
-    (defn #_"void" Peer''set-bloom-filter-2 [#_"Peer" this, #_"BloomFilter" filter]
+    (defn #_"Peer" Peer''set-bloom-filter-2 [#_"Peer" this, #_"BloomFilter" filter]
         (Peer''set-bloom-filter-3 this, filter, true)
-        nil
     )
 
     ;;;
@@ -9602,25 +9567,25 @@
      ; cannot unset a filter, though the underlying p2p protocol does support it.
      ;;
     #_method
-    (defn #_"void" Peer''set-bloom-filter-3 [#_"Peer" this, #_"BloomFilter" filter, #_"boolean" __andQueryMemPool]
+    (defn #_"Peer" Peer''set-bloom-filter-3 [#_"Peer" this, #_"BloomFilter" filter, #_"boolean" __andQueryMemPool]
         (ensure some? filter, "Clearing filters is not currently supported")
 
         (let [#_"VersionMessage" ver (:v-peer-version-message this)]
             (when (and (some? ver) (VersionMessage''is-bloom-filtering-supported ver))
-                (§ assoc this :v-bloom-filter filter)
+                (§ ass this (assoc this :v-bloom-filter filter))
                 (log/debug (str this ": Sending Bloom filter" (if __andQueryMemPool " and querying mempool" "")))
                 (PeerSocketHandler''send-message this, filter, BloomFilter''to-wire)
                 (when __andQueryMemPool
                     (PeerSocketHandler''send-message this, (MemoryPoolMessage'new (:ledger this)), MemoryPoolMessage''to-wire)
                 )
-                (Peer''maybe-restart-chain-download this)
+                (§ ass this (Peer''maybe-restart-chain-download this))
             )
         )
-        nil
+        this
     )
 
     #_method
-    (defn- #_"void" Peer''maybe-restart-chain-download [#_"Peer" this]
+    (defn- #_"Peer" Peer''maybe-restart-chain-download [#_"Peer" this]
         (sync (:peer-lock this)
             (when (some? (:awaiting-fresh-filter this))
                 (if (not (:v-download-data this))
@@ -9635,7 +9600,7 @@
                                 (doseq [#_"Sha256Hash" hash (:awaiting-fresh-filter this)]
                                     (GetDataMessage''add-filtered-block getdata, hash)
                                 )
-                                (§ assoc this :awaiting-fresh-filter nil)
+                                (§ ass this (assoc this :awaiting-fresh-filter nil))
                                 (.unlock (:peer-lock this))
 
                                 (log/info "Restarting chain download")
@@ -9650,7 +9615,7 @@
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -9678,9 +9643,8 @@
      ; to try and discover if a pending tx might be at risk of double spending.
      ;;
     #_method
-    (defn #_"void" Peer''set-download-tx-dependencies-b [#_"Peer" this, #_"boolean" enable?]
-        (§ assoc this :v-download-tx-dependency-depth (if enable? Integer/MAX_VALUE 0))
-        nil
+    (defn #_"Peer" Peer''set-download-tx-dependencies-b [#_"Peer" this, #_"boolean" enable?]
+        (assoc this :v-download-tx-dependency-depth (if enable? Integer/MAX_VALUE 0))
     )
 
     ;;;
@@ -9689,9 +9653,8 @@
      ; to try and discover if a pending tx might be at risk of double spending.
      ;;
     #_method
-    (defn #_"void" Peer''set-download-tx-dependencies-i [#_"Peer" this, #_"int" depth]
-        (§ assoc this :v-download-tx-dependency-depth depth)
-        nil
+    (defn #_"Peer" Peer''set-download-tx-dependencies-i [#_"Peer" this, #_"int" depth]
+        (assoc this :v-download-tx-dependency-depth depth)
     )
 
     #_foreign
@@ -9726,11 +9689,7 @@
      ;;
     (defn #_"PeerAddress" PeerAddress'from-inet-port [#_"Ledger" ledger, #_"InetAddress" addr, #_"int" port]
         (let [this (merge (ChildMessage'new ledger, nil) (PeerAddress'init))]
-
-            (§ assoc this :inet-addr (ensure some? addr))
-            (§ assoc this :port port)
-            (§ assoc this :services BigInteger/ZERO)
-            this
+            (assoc this :inet-addr (ensure some? addr), :port port, :services BigInteger/ZERO)
         )
     )
 
@@ -9751,11 +9710,7 @@
      ;;
     (defn #_"PeerAddress" PeerAddress'from-host-port [#_"Ledger" ledger, #_"String" hostname, #_"int" port]
         (let [this (merge (ChildMessage'new ledger, nil) (PeerAddress'init))]
-
-            (§ assoc this :hostname hostname)
-            (§ assoc this :port port)
-            (§ assoc this :services BigInteger/ZERO)
-            this
+            (assoc this :hostname hostname, :port port, :services BigInteger/ZERO)
         )
     )
 
@@ -9763,9 +9718,8 @@
      ; Construct a peer address from a serialized payload.
      ;;
     #_throws #_[ "ProtocolException" ]
-    (defn #_"PeerAddress" PeerAddress'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload, #_"Message" parent]
+    (defn #_"PeerAddress" PeerAddress'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload, #_"AddressMessage" parent]
         (let [this (merge (ChildMessage'new ledger, parent) (PeerAddress'init))
-
               ;; Format of a serialized address:
               ;;   uint32 timestamp
               ;;   uint64 services (flags determining what the node can do)
@@ -9798,10 +9752,10 @@
             ;; Java does not provide any utility to map an IPv4 address into IPv6 space, so we have to do it by hand.
             (let [#_"byte[]" bytes (.getAddress (:inet-addr this))
                   bytes (when' (= (alength bytes) 4) => bytes
-                        (let [#_"byte[]" v6addr (byte-array 16) _ (System/arraycopy bytes, 0, v6addr, 12, 4)]
-                            (aset v6addr 10 (byte 0xff))
-                            (aset v6addr 11 (byte 0xff))
-                            v6addr
+                        (let [#_"byte[]" a6 (byte-array 16) _ (System/arraycopy bytes, 0, a6, 12, 4)]
+                            (aset a6 10 (byte 0xff))
+                            (aset a6 11 (byte 0xff))
+                            a6
                         )
                     )]
                 (.write baos, bytes)
@@ -9942,14 +9896,14 @@
 
     #_override
     (defn #_"void" PeerConnectedEventListener'''on-peer-connected [#_"PeerStartupListener" this, #_"Peer" peer, #_"int" __peerCount]
-        (PeerGroup''handle-new-peer this, peer)
+        (§ ass this (PeerGroup''handle-new-peer this, peer))
         nil
     )
 
     #_override
     (defn #_"void" PeerDisconnectedEventListener'''on-peer-disconnected [#_"PeerStartupListener" this, #_"Peer" peer, #_"int" __peerCount]
         ;; The channel will be automatically removed from channels.
-        (PeerGroup''handle-peer-death this, peer, nil)
+        (§ ass this (PeerGroup''handle-peer-death this, peer, nil))
         nil
     )
 )
@@ -10017,7 +9971,7 @@
     (def- #_"long" PeerGroup'MIN_PEER_DISCOVERY_INTERVAL 1000)
 
     #_method
-    (defn- #_"void" PeerGroup''go-connect [#_"PeerGroup" this, #_"Runnable" self]
+    (defn- #_"PeerGroup" PeerGroup''go-connect [#_"PeerGroup" this, #_"Runnable" self]
         (when (:v-running this)
             (let-when [#_"long" now (Time'millis)
                   #_"boolean" discover?
@@ -10026,13 +9980,13 @@
                         (if (and (:use-loopback-peer-when-possible this) (PeerGroup''maybe-check-for-loopback-peer this) (:first-run this))
                             (do
                                 (log/info "Loopback peer detected, trying to use it instead of P2P discovery")
-                                (§ assoc this :max-connections 0)
+                                (§ ass this (assoc this :max-connections 0))
                                 (PeerGroup''connect-to-loopback this)
-                                (§ assoc this :first-run false)
+                                (§ ass this (assoc this :first-run false))
                                 nil
                             )
                             (let [#_"boolean" more? (and (seq (:inactives this)) (<= (:retry-time (.get (:backoff-map this), (.peek (:inactives this)))) now))]
-                                (§ assoc this :first-run false)
+                                (§ ass this (assoc this :first-run false))
                                 (not more?)
                             )
                         )
@@ -10056,8 +10010,8 @@
                             (when discover?
                                 ;; Require that we have enough connections, to consider this a success, or we just constantly test for new peers.
                                 (if (and success? (<= (PeerGroup''get-max-connections this) (PeerGroup''count-connected-and-pending-peers this)))
-                                    (ExponentialBackoff''track-success (:group-backoff this))
-                                    (ExponentialBackoff''track-failure (:group-backoff this))
+                                    (§ ass (:group-backoff this) (ExponentialBackoff''track-success (:group-backoff this)))
+                                    (§ ass (:group-backoff this) (ExponentialBackoff''track-failure (:group-backoff this)))
                                 )
                             )
 
@@ -10105,7 +10059,7 @@
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -10309,7 +10263,7 @@
                             #_override
                             (#_"void" run [#_"Runnable" self]
                                 (try
-                                    (PeerGroup''go-connect this, self)
+                                    (§ ass this (PeerGroup''go-connect this, self))
                                     (catch Throwable e
                                         (log/error e, "Exception when trying to build connections") ;; The executor swallows exceptions :( ;; )
                                     )
@@ -10356,9 +10310,8 @@
      ; This is how many milliseconds we wait for peer discoveries to return their results.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-peer-discovery-timeout-millis [#_"PeerGroup" this, #_"long" millis]
-        (§ assoc this :v-peer-discovery-timeout-millis millis)
-        nil
+    (defn #_"PeerGroup" PeerGroup''set-peer-discovery-timeout-millis [#_"PeerGroup" this, #_"long" millis]
+        (assoc this :v-peer-discovery-timeout-millis millis)
     )
 
     ;;;
@@ -10367,10 +10320,10 @@
      ; Likewise if there aren't enough current connections to meet the new requested max size, some will be added.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-max-connections [#_"PeerGroup" this, #_"int" n]
+    (defn #_"PeerGroup" PeerGroup''set-max-connections [#_"PeerGroup" this, #_"int" n]
         (or
             (sync (:peergroup-lock this)
-                (§ assoc this :max-connections n)
+                (§ ass this (assoc this :max-connections n))
                 (when-not (PeerGroup''is-running this)
                     :done
                 )
@@ -10384,18 +10337,18 @@
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
      ; Configure download of pending transaction dependencies.  A change of values only takes effect for newly connected peers.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-download-tx-dependencies [#_"PeerGroup" this, #_"int" depth]
+    (defn #_"PeerGroup" PeerGroup''set-download-tx-dependencies [#_"PeerGroup" this, #_"int" depth]
         (sync (:peergroup-lock this)
-            (§ assoc this :download-tx-dependency-depth depth)
+            (§ ass this (assoc this :download-tx-dependency-depth depth))
         )
-        nil
+        this
     )
 
     #_method
@@ -10451,11 +10404,11 @@
      ; therefore you don't have to worry about setting that.  The provided object is really more of a template.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-version-message [#_"PeerGroup" this, #_"VersionMessage" ver]
+    (defn #_"PeerGroup" PeerGroup''set-version-message [#_"PeerGroup" this, #_"VersionMessage" ver]
         (sync (:peergroup-lock this)
-            (§ assoc this :version-message ver)
+            (§ ass this (assoc this :version-message ver))
         )
-        nil
+        this
     )
 
     ;;;
@@ -10477,7 +10430,7 @@
         (sync (:peergroup-lock this)
             (let [#_"boolean" __spvMode (and (some? (:chain this)) (not (BlockChain'''should-verify-transactions (:chain this))))
                   #_"boolean" __willSendFilter (and __spvMode (< 0 (.size (:peer-filter-providers this))) (:v-bloom-filtering-enabled this))]
-                (§ assoc ver :relay-txes-before-filter (not __willSendFilter))
+                (§ ass ver (assoc ver :relay-txes-before-filter (not __willSendFilter)))
             )
         )
         nil
@@ -10785,15 +10738,15 @@
      ; @param peerAddress IP/port to use.
      ;;
     #_method
-    (defn #_"void" PeerGroup''add-address-p [#_"PeerGroup" this, #_"PeerAddress" addr]
+    (defn #_"PeerGroup" PeerGroup''add-address-p [#_"PeerGroup" this, #_"PeerAddress" addr]
         (let [#_"int" n
                 (sync (:peergroup-lock this)
                     (PeerGroup''add-inactive this, addr)
                     (inc (PeerGroup''get-max-connections this))
                 )]
-            (PeerGroup''set-max-connections this, n)
+            (§ ass this (PeerGroup''set-max-connections this, n))
         )
-        nil
+        this
     )
 
     #_method
@@ -10815,20 +10768,19 @@
      ; @param requiredServices Required services as a bitmask, e.g. {@link VersionMessage#NODE_NETWORK}.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-required-services [#_"PeerGroup" this, #_"long" __requiredServices]
+    (defn #_"PeerGroup" PeerGroup''set-required-services [#_"PeerGroup" this, #_"long" __requiredServices]
         (sync (:peergroup-lock this)
-            (§ assoc this :required-services __requiredServices)
+            (§ ass this (assoc this :required-services __requiredServices))
             (.clear (:peer-discoveries this))
-            (PeerGroup''add-peer-discovery this, (MultiplexingDiscovery'for-services (:ledger this), __requiredServices))
+            (§ ass this (PeerGroup''add-peer-discovery this, (MultiplexingDiscovery'for-services (:ledger this), __requiredServices)))
         )
-        nil
+        this
     )
 
     ;;; Convenience method for addAddress(new PeerAddress(address, ledger.port)). ;;
     #_method
-    (defn #_"void" PeerGroup''add-address-i [#_"PeerGroup" this, #_"InetAddress" address]
+    (defn #_"PeerGroup" PeerGroup''add-address-i [#_"PeerGroup" this, #_"InetAddress" address]
         (PeerGroup''add-address-p this, (PeerAddress'from-inet-port (:ledger this), address, (-> this :ledger :port)))
-        nil
     )
 
     ;;;
@@ -10836,14 +10788,14 @@
      ; If max connections has not been configured, or set to zero, then it's set to the default at this point.
      ;;
     #_method
-    (defn #_"void" PeerGroup''add-peer-discovery [#_"PeerGroup" this, #_"PeerDiscovery" discovery]
+    (defn #_"PeerGroup" PeerGroup''add-peer-discovery [#_"PeerGroup" this, #_"PeerDiscovery" discovery]
         (sync (:peergroup-lock this)
             (when (zero? (PeerGroup''get-max-connections this))
-                (PeerGroup''set-max-connections this, PeerGroup'DEFAULT_CONNECTIONS)
+                (§ ass this (PeerGroup''set-max-connections this, PeerGroup'DEFAULT_CONNECTIONS))
             )
             (.add (:peer-discoveries this), discovery)
         )
-        nil
+        this
     )
 
     ;;; Returns number of discovered peers. ;;
@@ -10905,11 +10857,11 @@
             (let [#_"Socket" socket (Socket.)]
                 (try
                     (.connect socket, (InetSocketAddress. (InetAddress/getLoopbackAddress), (-> this :ledger :port)), (:v-connect-timeout-millis this))
-                    (§ assoc this :loopback-check-state :LoopbackCheckState'FOUND)
+                    (§ ass this (assoc this :loopback-check-state :LoopbackCheckState'FOUND))
                     true
                     (catch IOException e
                         (log/info "Loopback peer not detected.")
-                        (§ assoc this :loopback-check-state :LoopbackCheckState'NOT_THERE)
+                        (§ ass this (assoc this :loopback-check-state :LoopbackCheckState'NOT_THERE))
                         false
                     )
                     (finally
@@ -10939,7 +10891,7 @@
         )
         (assert-state (not (:v-used-up this)), "Cannot start a peer group twice")
 
-        (§ assoc this :v-running true, :v-used-up true)
+        (§ ass this (assoc this :v-running true, :v-used-up true))
         (.countDown (:executor-startup-latch this))
 
         ;; We do blocking waits during startup, so run on the executor thread.
@@ -10949,7 +10901,7 @@
                 (PeerGroup''start-async (:channels this))
                 (PeerGroup''await-running (:channels this))
                 (PeerGroup''trigger-connections this)
-                (PeerGroup''setup-pinging this)
+                (§ ass this (PeerGroup''setup-pinging this))
                 (catch Throwable e
                     (log/error e, "Exception when starting up") ;; The executor swallows exceptions :( ;; )
                 )
@@ -10975,7 +10927,7 @@
     #_method
     (defn #_"ListenableFuture" PeerGroup''stop-async [#_"PeerGroup" this]
         (assert-state (:v-running this))
-        (§ assoc this :v-running false)
+        (§ ass this (assoc this :v-running false))
         (let [#_"ListenableFuture" future (.submit (:executor this),
                     #(try
                         (log/info "Stopping ...")
@@ -10985,7 +10937,7 @@
                         (doseq [#_"PeerDiscovery" discovery (:peer-discoveries this)]
                             (PeerDiscovery'''shutdown discovery)
                         )
-                        (§ assoc this :v-running false)
+                        (§ ass this (assoc this :v-running false))
                         (log/info "Stopped.")
                         (catch Throwable e
                             (log/error e, "Exception when shutting down") ;; The executor swallows exceptions :( ;; )
@@ -11040,14 +10992,14 @@
      ; {@link PeerGroup#removeWallet(Wallet)} on it if you wish to keep the Wallet but lose the PeerGroup.
      ;;
     #_method
-    (defn #_"void" PeerGroup''add-wallet [#_"PeerGroup" this, #_"Wallet" wallet]
+    (defn #_"PeerGroup" PeerGroup''add-wallet [#_"PeerGroup" this, #_"Wallet" wallet]
         (ensure some? wallet)
 
         (sync (:peergroup-lock this)
             (assert-state (not (.contains (:wallets this), wallet)))
 
             (.add (:wallets this), wallet)
-            (Wallet''set-transaction-broadcaster wallet, this)
+            (§ ass wallet (Wallet''set-transaction-broadcaster wallet, this))
             (Wallet''add-coins-received-event-listener-3 wallet, Threading'SAME_THREAD, (:wallet-coins-received-event-listener this))
             (Wallet''add-key-chain-event-listener-3 wallet, Threading'SAME_THREAD, (:wallet-key-event-listener this))
             (PeerGroup''add-peer-filter-provider this, wallet)
@@ -11055,7 +11007,7 @@
                 (Peer''add-wallet peer, wallet)
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -11115,22 +11067,22 @@
      ; Unlinks the given wallet so it no longer receives broadcast transactions or has its transactions announced.
      ;;
     #_method
-    (defn #_"void" PeerGroup''remove-wallet [#_"PeerGroup" this, #_"Wallet" wallet]
+    (defn #_"PeerGroup" PeerGroup''remove-wallet [#_"PeerGroup" this, #_"Wallet" wallet]
         (ensure some? wallet)
 
         (.remove (:wallets this), wallet)
         (.remove (:peer-filter-providers this), wallet)
         (Wallet''remove-coins-received-event-listener wallet, (:wallet-coins-received-event-listener this))
         (Wallet''remove-key-chain-event-listener wallet, (:wallet-key-event-listener this))
-        (Wallet''set-transaction-broadcaster wallet, nil)
+        (§ ass wallet (Wallet''set-transaction-broadcaster wallet, nil))
         (doseq [#_"Peer" peer (:peers this)]
             (Peer''remove-wallet peer, wallet)
         )
-        nil
+        this
     )
 
     #_method
-    (defn- #_"void" PeerGroup''go-recalculate [#_"PeerGroup" this, #_"FilterRecalculateMode" mode, #_"SettableFuture<BloomFilter>" future]
+    (defn- #_"PeerGroup" PeerGroup''go-recalculate [#_"PeerGroup" this, #_"FilterRecalculateMode" mode, #_"SettableFuture<BloomFilter>" future]
         (assert-state (not (.isHeldByCurrentThread (:peergroup-lock this))))
 
         ;; Fully verifying mode doesn't use this optimization (it can't as it needs to see all transactions).
@@ -11149,23 +11101,23 @@
                         ;; Only query the mempool if this recalculation request is not in order to lower the observed FP
                         ;; rate.  There's no point querying the mempool when doing this because the FP rate can only go
                         ;; down, and we will have seen all the relevant txns before: it's pointless to ask for them again.
-                        (Peer''set-bloom-filter-3 peer, (:filter result), (not= mode :FilterRecalculateMode'FORCE_SEND_FOR_REFRESH))
+                        (§ ass peer (Peer''set-bloom-filter-3 peer, (:filter result), (not= mode :FilterRecalculateMode'FORCE_SEND_FOR_REFRESH)))
                     )
                     ;; Reset the false positive estimate so that we don't send a flood of filter updates
                     ;; if the estimate temporarily overshoots our threshold.
                     (when (some? (:chain this))
-                        (BlockChain''reset-false-positive-estimate (:chain this))
+                        (§ ass this (update this :chain BlockChain''reset-false-positive-estimate))
                     )
                 )
                 ;; Do this last so that bloomFilter is already set when it gets called.
-                (PeerGroup''set-fast-catchup-time-secs this, (:earliest-key-time-secs result))
+                (§ ass this (PeerGroup''set-fast-catchup-time-secs this, (:earliest-key-time-secs result)))
                 (sync (:in-flight-recalculations this)
                     (.put (:in-flight-recalculations this), mode, nil)
                 )
                 (.set future, (:filter result))
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -11191,7 +11143,7 @@
                 (try
                     (.execute (:executor this),
                         #(try
-                            (PeerGroup''go-recalculate this, mode, future)
+                            (§ ass this (PeerGroup''go-recalculate this, mode, future))
                             (catch Throwable e
                                 (log/error e, "Exception when trying to recalculate Bloom filter") ;; The executor swallows exceptions :( ;; )
                             )
@@ -11216,12 +11168,12 @@
      ; explanation of anonymity when using bloom filters.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-bloom-filter-false-positive-rate [#_"PeerGroup" this, #_"double" rate]
+    (defn #_"PeerGroup" PeerGroup''set-bloom-filter-false-positive-rate [#_"PeerGroup" this, #_"double" rate]
         (sync (:peergroup-lock this)
-            (FilterMerger''set-bloom-filter-fp-rate (:bloom-filter-merger this), rate)
+            (§ ass (:bloom-filter-merger this) (FilterMerger''set-bloom-filter-fp-rate (:bloom-filter-merger this), rate))
             (PeerGroup''recalculate-fast-catchup-and-filter this, :FilterRecalculateMode'SEND_IF_CHANGED)
         )
-        nil
+        this
     )
 
     ;;;
@@ -11300,20 +11252,20 @@
                             (catch ExecutionException e
                                 (let [#_"Throwable" cause (Throwables/getRootCause e)]
                                     (log/warn (str "Failed to connect to " address ": " (.getMessage cause)))
-                                    (PeerGroup''handle-peer-death this, peer, cause)
+                                    (§ ass this (PeerGroup''handle-peer-death this, peer, cause))
                                     true
                                 )
                             )
                         )]
 
                     (when' (not abort?) => nil
-                        (AbstractTimeoutHandler''set-socket-timeout peer, timeout)
+                        (§ ass peer (AbstractTimeoutHandler''set-socket-timeout peer, timeout))
                         ;; When the channel has connected and version negotiated successfully, handleNewPeer will end up being called
                         ;; on a worker thread.
                         (when increment?
                             ;; We don't use setMaxConnections here as that would trigger a recursive attempt to establish a new
                             ;; outbound connection.
-                            (§ update this :max-connections inc)
+                            (§ ass this (update this :max-connections inc))
                         )
                         peer
                     )
@@ -11333,9 +11285,8 @@
      ; This does not apply to currently pending peers.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-connect-timeout-millis [#_"PeerGroup" this, #_"int" timeout]
-        (§ assoc this :v-connect-timeout-millis timeout)
-        nil
+    (defn #_"PeerGroup" PeerGroup''set-connect-timeout-millis [#_"PeerGroup" this, #_"int" timeout]
+        (assoc this :v-connect-timeout-millis timeout)
     )
 
     ;;;
@@ -11347,7 +11298,7 @@
      ; @param listener A listener for chain download events, may not be null.
      ;;
     #_method
-    (defn #_"void" PeerGroup''start-block-chain-download [#_"PeerGroup" this, #_"PeerDataEventListener" listener]
+    (defn #_"PeerGroup" PeerGroup''start-block-chain-download [#_"PeerGroup" this, #_"PeerDataEventListener" listener]
         (sync (:peergroup-lock this)
             (when (some? (:download-peer this))
                 (when (some? (:download-listener this))
@@ -11357,16 +11308,16 @@
                     (PeerGroup'add-data-event-listener-to-peer Threading'USER_THREAD, (:download-peer this), listener)
                 )
             )
-            (§ assoc this :download-listener listener)
+            (§ ass this (assoc this :download-listener listener))
             ;; TODO: Be more nuanced about which peer to download from.  We can also try
             ;; downloading from multiple peers and handle the case when a new peer comes along
             ;; with a longer chain after we thought we were done.
             (when (seq (:peers this))
                 ;; Will add the new download listener.
-                (PeerGroup''start-block-chain-download-from-peer this, (.next (.iterator (:peers this))))
+                (§ ass this (PeerGroup''start-block-chain-download-from-peer this, (.next (.iterator (:peers this)))))
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -11400,9 +11351,9 @@
      ; from at least one peer all the blocks that are in that peer's inventory.
      ;;
     #_method
-    (defn #_"void" PeerGroup''download-block-chain [#_"PeerGroup" this]
+    (defn #_"PeerGroup" PeerGroup''download-block-chain [#_"PeerGroup" this]
         (let [#_"DownloadProgressTracker" listener (DownloadProgressTracker'new)]
-            (PeerGroup''start-block-chain-download this, listener)
+            (§ ass this (PeerGroup''start-block-chain-download this, listener))
             (try
                 (DownloadProgressTracker''await listener)
                 (catch InterruptedException e
@@ -11410,15 +11361,15 @@
                 )
             )
         )
-        nil
+        this
     )
 
     #_method
-    (defn #_"void" PeerGroup''handle-new-peer [#_"PeerGroup" this, #_"Peer" peer]
+    (defn #_"PeerGroup" PeerGroup''handle-new-peer [#_"PeerGroup" this, #_"Peer" peer]
         (let [#_"int" __newSize
                 (sync (:peergroup-lock this)
-                    (ExponentialBackoff''track-success (:group-backoff this))
-                    (ExponentialBackoff''track-success (.get (:backoff-map this), (PeerSocketHandler''get-address peer)))
+                    (§ ass (:group-backoff this) (ExponentialBackoff''track-success (:group-backoff this)))
+                    (§ ass (.get (:backoff-map this), (PeerSocketHandler''get-address peer)) (ExponentialBackoff''track-success (.get (:backoff-map this), (PeerSocketHandler''get-address peer))))
 
                     ;; Sets up the newly connected peer so it can do everything it needs to.
                     (.remove (:pending-peers this), peer)
@@ -11429,18 +11380,18 @@
                         ;; aren't relevant to our wallet.  We may still receive some false positives, which is
                         ;; OK because it helps improve wallet privacy.  Old nodes will just ignore the message.
                         (when (some? (:last-filter (:bloom-filter-merger this)))
-                            (Peer''set-bloom-filter-2 peer, (:last-filter (:bloom-filter-merger this)))
+                            (§ ass peer (Peer''set-bloom-filter-2 peer, (:last-filter (:bloom-filter-merger this))))
                         )
-                        (Peer''set-download-data peer, false)
+                        (§ ass peer (Peer''set-download-data peer, false))
                         ;; TODO: The peer should calculate the fast catchup time from the added wallets here.
                         (doseq [#_"Wallet" wallet (:wallets this)]
                             (Peer''add-wallet peer, wallet)
                         )
                         (when (nil? (:download-peer this))
                             ;; Kick off chain download if we aren't already doing it.
-                            (PeerGroup''set-download-peer this, (PeerGroup''select-download-peer this, (:peers this)))
+                            (§ ass this (PeerGroup''set-download-peer this, (PeerGroup''select-download-peer this, (:peers this))))
                             (when (and (some? (:download-listener this)) (some? (:chain this)))
-                                (PeerGroup''start-block-chain-download-from-peer this, (:download-peer this))
+                                (§ ass this (PeerGroup''start-block-chain-download-from-peer this, (:download-peer this)))
                             )
                         )
                         ;; Make sure the peer knows how to upload transactions that are requested from us.
@@ -11477,20 +11428,20 @@
                 (.execute (:executor r), #(PeerConnectedEventListener'''on-peer-connected (:listener r), peer, __newSize))
             )
         )
-        nil
+        this
     )
 
     #_suppress #_[ "NonAtomicOperationOnVolatileField" ]
     #_method
-    (defn- #_"void" PeerGroup''setup-pinging [#_"PeerGroup" this]
+    (defn- #_"PeerGroup" PeerGroup''setup-pinging [#_"PeerGroup" this]
         (when-not (<= (PeerGroup''get-ping-interval-msec this) 0) ;; Disabled.
-            (§ assoc this :v-ping-task (.scheduleAtFixedRate (:executor this),
+            (§ ass this (assoc this :v-ping-task (.scheduleAtFixedRate (:executor this),
                 #(try
                     (if (<= (PeerGroup''get-ping-interval-msec this) 0) ;; Disabled.
                         (let [#_"ListenableScheduledFuture<?>" task (:v-ping-task this)]
                             (when (some? task)
                                 (.cancel task, false)
-                                (§ assoc this :v-ping-task nil)
+                                (§ ass this (assoc this :v-ping-task nil))
                             )
                         )
                         (doseq [#_"Peer" peer (PeerGroup''get-connected-peers this)]
@@ -11503,13 +11454,13 @@
                         (log/error e, "Exception in ping loop") ;; The executor swallows exceptions :( ;; )
                     )
                 ), (PeerGroup''get-ping-interval-msec this), (PeerGroup''get-ping-interval-msec this), TimeUnit/MILLISECONDS)
-            )
+            ))
         )
-        nil
+        this
     )
 
     #_method
-    (defn- #_"void" PeerGroup''set-download-peer [#_"PeerGroup" this, #_"Peer" peer]
+    (defn- #_"PeerGroup" PeerGroup''set-download-peer [#_"PeerGroup" this, #_"Peer" peer]
         (sync (:peergroup-lock this)
             (when-not (= (:download-peer this) peer)
                 (when (some? (:download-peer this))
@@ -11517,22 +11468,22 @@
                     (when (some? (:download-listener this))
                         (PeerGroup'remove-data-event-listener-from-peer (:download-peer this), (:download-listener this))
                     )
-                    (Peer''set-download-data (:download-peer this), false)
+                    (§ ass (:download-peer this) (Peer''set-download-data (:download-peer this), false))
                 )
-                (§ assoc this :download-peer peer)
+                (§ ass this (assoc this :download-peer peer))
                 (when (some? (:download-peer this))
                     (log/info (str "Setting download peer: " (:download-peer this)))
                     (when (some? (:download-listener this))
                         (PeerGroup'add-data-event-listener-to-peer Threading'SAME_THREAD, peer, (:download-listener this))
                     )
-                    (Peer''set-download-data (:download-peer this), true)
+                    (§ ass (:download-peer this) (Peer''set-download-data (:download-peer this), true))
                     (when (some? (:chain this))
-                        (Peer''set-download-parameters (:download-peer this), (:fast-catchup-time-secs this), (some? (:last-filter (:bloom-filter-merger this))))
+                        (§ ass (:download-peer this) (Peer''set-download-parameters (:download-peer this), (:fast-catchup-time-secs this), (some? (:last-filter (:bloom-filter-merger this)))))
                     )
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -11541,16 +11492,16 @@
      ; Do not use a time > NOW - 1 block, as it will break some block download logic.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-fast-catchup-time-secs [#_"PeerGroup" this, #_"long" secs]
+    (defn #_"PeerGroup" PeerGroup''set-fast-catchup-time-secs [#_"PeerGroup" this, #_"long" secs]
         (sync (:peergroup-lock this)
             (assert-state (or (nil? (:chain this)) (not (BlockChain'''should-verify-transactions (:chain this)))), "Fast catchup is incompatible with fully verifying")
 
-            (§ assoc this :fast-catchup-time-secs secs)
+            (§ ass this (assoc this :fast-catchup-time-secs secs))
             (when (some? (:download-peer this))
-                (Peer''set-download-parameters (:download-peer this), secs, (some? (:last-filter (:bloom-filter-merger this))))
+                (§ ass (:download-peer this) (Peer''set-download-parameters (:download-peer this), secs, (some? (:last-filter (:bloom-filter-merger this)))))
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -11568,7 +11519,7 @@
     )
 
     #_method
-    (defn #_"void" PeerGroup''handle-peer-death [#_"PeerGroup" this, #_"Peer" peer, #_"Throwable" e]
+    (defn #_"PeerGroup" PeerGroup''handle-peer-death [#_"PeerGroup" this, #_"Peer" peer, #_"Throwable" e]
         ;; Peer deaths can occur during startup if a connect attempt after peer discovery aborts immediately.
         (when (PeerGroup''is-running this)
             (let [#_"int" n
@@ -11580,31 +11531,31 @@
                             (log/info (str address ": Peer died      (" (.size (:peers this)) " connected, " (.size (:pending-peers this)) " pending, " (:max-connections this) " max)"))
                             (when (= peer (:download-peer this))
                                 (log/info "Download peer died.  Picking a new one.")
-                                (PeerGroup''set-download-peer this, nil)
+                                (§ ass this (PeerGroup''set-download-peer this, nil))
                                 ;; Pick a new one and possibly tell it to download the chain.
                                 (let [#_"Peer" p (PeerGroup''select-download-peer this, (:peers this))]
                                     (when (some? p)
-                                        (PeerGroup''set-download-peer this, p)
+                                        (§ ass this (PeerGroup''set-download-peer this, p))
                                         (when (some? (:download-listener this))
-                                            (PeerGroup''start-block-chain-download-from-peer this, p)
+                                            (§ ass this (PeerGroup''start-block-chain-download-from-peer this, p))
                                         )
                                     )
                                 )
                             )
                             (let [n (.size (:peers this)) #_"int" m (+ n (.size (:pending-peers this)))]
 
-                                (ExponentialBackoff''track-failure (:group-backoff this))
+                                (§ ass (:group-backoff this) (ExponentialBackoff''track-failure (:group-backoff this)))
 
                                 (cond (instance? NoRouteToHostException e)
                                     (do
                                         (when (and (instance? Inet6Address (:inet-addr address)) (not (:ipv6-unreachable this)))
-                                            (§ assoc this :ipv6-unreachable true)
+                                            (§ ass this (assoc this :ipv6-unreachable true))
                                             (log/warn "IPv6 peer connect failed due to routing failure, ignoring IPv6 addresses from now on")
                                         )
                                     )
                                     :else
                                     (do
-                                        (ExponentialBackoff''track-failure (.get (:backoff-map this), address))
+                                        (§ ass (.get (:backoff-map this), address) (ExponentialBackoff''track-failure (.get (:backoff-map this), address)))
                                         ;; Put back on inactive list.
                                         (.offer (:inactives this), address)
                                     )
@@ -11645,7 +11596,7 @@
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -11657,24 +11608,25 @@
      ; avoid false stalls.
      ;
      ; @param periodSecs How many seconds the download speed must be below blocksPerSec, defaults to 10.
-     ; @param bytesPerSecond Download speed (only blocks/txns count) must be consistently below this for a stall, defaults to the bandwidth required for 20 block headers per second.
+     ; @param bytesPerSecond Download speed (only blocks/txns count) must be consistently below this for a stall,
+     ;                       defaults to the bandwidth required for 20 block headers per second.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-stall-threshold [#_"PeerGroup" this, #_"int" __periodSecs, #_"int" __bytesPerSecond]
+    (defn #_"PeerGroup" PeerGroup''set-stall-threshold [#_"PeerGroup" this, #_"int" __periodSecs, #_"int" __bytesPerSecond]
         (sync (:peergroup-lock this)
-            (§ assoc this :stall-period-seconds __periodSecs, :stall-min-speed-bytes-sec __bytesPerSecond)
+            (§ ass this (assoc this :stall-period-seconds __periodSecs, :stall-min-speed-bytes-sec __bytesPerSecond))
         )
-        nil
+        this
     )
 
     #_method
-    (defn- #_"void" PeerGroup''start-block-chain-download-from-peer [#_"PeerGroup" this, #_"Peer" peer]
+    (defn- #_"PeerGroup" PeerGroup''start-block-chain-download-from-peer [#_"PeerGroup" this, #_"Peer" peer]
         (sync (:peergroup-lock this)
-            (PeerGroup''set-download-peer this, peer)
+            (§ ass this (PeerGroup''set-download-peer this, peer))
 
-            (Peer''start-block-chain-download peer)
+            (§ ass peer (Peer''start-block-chain-download peer))
         )
-        nil
+        this
     )
 
     ;;;
@@ -11818,11 +11770,11 @@
      ; See {@link PeerGroup#getMinBroadcastConnections()}.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-min-broadcast-connections [#_"PeerGroup" this, #_"int" value]
+    (defn #_"PeerGroup" PeerGroup''set-min-broadcast-connections [#_"PeerGroup" this, #_"int" value]
         (sync (:peergroup-lock this)
-            (§ assoc this :min-broadcast-connections value)
+            (§ ass this (assoc this :min-broadcast-connections value))
         )
-        nil
+        this
     )
 
     ;;;
@@ -11857,10 +11809,10 @@
         ;; redownloading it from the network redundantly.
         (when (= (TransactionConfidence''get-source (Transaction''get-confidence-t tx)) :ConfidenceSource'UNKNOWN)
             (log/info (str "Transaction source unknown, setting to SELF: " (Transaction''get-hash tx)))
-            (TransactionConfidence''set-source (Transaction''get-confidence-t tx), :ConfidenceSource'SELF)
+            (§ ass (Transaction''get-confidence-t tx) (TransactionConfidence''set-source (Transaction''get-confidence-t tx), :ConfidenceSource'SELF))
         )
         (let [#_"TransactionBroadcast" broadcast (TransactionBroadcast'new this, tx)]
-            (TransactionBroadcast''set-min-connections broadcast, __minConnections)
+            (§ ass broadcast (TransactionBroadcast''set-min-connections broadcast, __minConnections))
             ;; Send the TX to the wallet once we have a successful broadcast.
             (Futures/addCallback (TransactionBroadcast''future broadcast),
                 (reify FutureCallback #_"<Transaction>"
@@ -11920,17 +11872,17 @@
      ; using {@link Peer#ping()}.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-ping-interval-msec [#_"PeerGroup" this, #_"long" msec]
+    (defn #_"PeerGroup" PeerGroup''set-ping-interval-msec [#_"PeerGroup" this, #_"long" msec]
         (sync (:peergroup-lock this)
-            (§ assoc this :ping-interval-msec msec)
+            (§ ass this (assoc this :ping-interval-msec msec))
             (let [#_"ListenableScheduledFuture<?>" task (:v-ping-task this)]
                 (when (some? task)
                     (.cancel task, false)
                 )
-                (PeerGroup''setup-pinging this)
+                (§ ass this (PeerGroup''setup-pinging this))
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -11938,9 +11890,8 @@
      ; be disconnected and another one will be tried instead.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-min-required-protocol-version [#_"PeerGroup" this, #_"int" version]
-        (§ assoc this :v-min-required-protocol-version version)
-        nil
+    (defn #_"PeerGroup" PeerGroup''set-min-required-protocol-version [#_"PeerGroup" this, #_"int" version]
+        (assoc this :v-min-required-protocol-version version)
     )
 
     ;;; The minimum protocol version required: defaults to the version required for Bloom filtering. ;;
@@ -12043,9 +11994,8 @@
      ; @param maxPeersToDiscoverCount the maximum number of peers to discover.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-max-peers-to-discover-count [#_"PeerGroup" this, #_"int" __maxPeersToDiscoverCount]
-        (§ assoc this :v-max-peers-to-discover-count __maxPeersToDiscoverCount)
-        nil
+    (defn #_"PeerGroup" PeerGroup''set-max-peers-to-discover-count [#_"PeerGroup" this, #_"int" __maxPeersToDiscoverCount]
+        (assoc this :v-max-peers-to-discover-count __maxPeersToDiscoverCount)
     )
 
     #_method
@@ -12061,11 +12011,11 @@
      ; and easy way for a user to upgrade a bitcoinj based app running in SPV mode to fully validating security.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-use-loopback-peer-when-possible [#_"PeerGroup" this, #_"boolean" use?]
+    (defn #_"PeerGroup" PeerGroup''set-use-loopback-peer-when-possible [#_"PeerGroup" this, #_"boolean" use?]
         (sync (:peergroup-lock this)
-            (§ assoc this :use-loopback-peer-when-possible use?)
+            (§ ass this (assoc this :use-loopback-peer-when-possible use?))
         )
-        nil
+        this
     )
 
     #_method
@@ -12079,9 +12029,8 @@
      ; full blocks than filtered blocks.
      ;;
     #_method
-    (defn #_"void" PeerGroup''set-bloom-filtering-enabled [#_"PeerGroup" this, #_"boolean" enabled?]
-        (§ assoc this :v-bloom-filtering-enabled enabled?)
-        nil
+    (defn #_"PeerGroup" PeerGroup''set-bloom-filtering-enabled [#_"PeerGroup" this, #_"boolean" enabled?]
+        (assoc this :v-bloom-filtering-enabled enabled?)
     )
 
     ;;; Returns whether the Bloom filtering protocol optimisation is in use: defaults to true. ;;
@@ -12906,7 +12855,7 @@
     #_throws #_[ "ProtocolException" ]
     (defn #_"Transaction" Transaction'from-wire
         ([#_"Ledger" ledger, #_"ByteBuffer" payload] (Transaction'from-wire ledger, payload, nil))
-        ([#_"Ledger" ledger, #_"ByteBuffer" payload, #_"Message" parent]
+        ([#_"Ledger" ledger, #_"ByteBuffer" payload, #_"Block" parent]
             (let [this (merge (ChildMessage'new ledger, parent) (Transaction'init))
 
                   this (assoc this :version (Wire'read-uint32 payload))
@@ -13001,33 +12950,33 @@
      ; @param relativityOffset A number that disambiguates the order of transactions within a block.
      ;;
     #_method
-    (defn #_"void" Transaction''set-block-appearance [#_"Transaction" this, #_"StoredBlock" block, #_"boolean" best?, #_"int" offset]
+    (defn #_"Transaction" Transaction''set-block-appearance [#_"Transaction" this, #_"StoredBlock" block, #_"boolean" best?, #_"int" offset]
         (let [#_"long" time (* (:time-seconds (:stored-header block)) 1000)]
             (when (and best? (or (nil? (:updated-at this)) (zero? (.getTime (:updated-at this))) (< time (.getTime (:updated-at this)))))
-                (§ assoc this :updated-at (Date. time))
+                (§ ass this (assoc this :updated-at (Date. time)))
             )
 
-            (Transaction''add-block-appearance this, (Block''get-hash (:stored-header block)), offset)
+            (§ ass this (Transaction''add-block-appearance this, (Block''get-hash (:stored-header block)), offset))
 
             (when best?
                 (let [#_"TransactionConfidence" confidence (Transaction''get-confidence-t this)]
                     ;; This sets type to BUILDING and depth to one.
-                    (TransactionConfidence''set-appeared-at-chain-height confidence, (:stored-height block))
+                    (§ ass confidence (TransactionConfidence''set-appeared-at-chain-height confidence, (:stored-height block)))
                 )
             )
         )
-        nil
+        this
     )
 
     #_method
-    (defn #_"void" Transaction''add-block-appearance [#_"Transaction" this, #_"Sha256Hash" hash, #_"int" offset]
+    (defn #_"Transaction" Transaction''add-block-appearance [#_"Transaction" this, #_"Sha256Hash" hash, #_"int" offset]
         ;; TODO: This could be a lot more memory efficient as we'll typically only store one element.
         (when (nil? (:appears-in-hashes this))
-            (§ assoc this :appears-in-hashes (TreeMap.))
+            (§ ass this (assoc this :appears-in-hashes (TreeMap.)))
         )
 
         (.put (:appears-in-hashes this), hash, offset)
-        nil
+        this
     )
 
     ;;;
@@ -13125,15 +13074,14 @@
     (defn #_"Date" Transaction''get-update-time [#_"Transaction" this]
         ;; Older wallets did not store this field.  Set to the epoch.
         (when (nil? (:updated-at this))
-            (§ assoc this :updated-at (Date. 0))
+            (§ ass this (assoc this :updated-at (Date. 0)))
         )
         (:updated-at this)
     )
 
     #_method
-    (defn #_"void" Transaction''set-update-time [#_"Transaction" this, #_"Date" time]
-        (§ assoc this :updated-at time)
-        nil
+    (defn #_"Transaction" Transaction''set-update-time [#_"Transaction" this, #_"Date" time]
+        (assoc this :updated-at time)
     )
 
     ;;;
@@ -13166,7 +13114,7 @@
     #_method
     (defn #_"void" Transaction''clear-inputs [#_"Transaction" this]
         (doseq [#_"TransactionInput" input (:inputs this)]
-            (§ assoc input :parent nil)
+            (§ ass input (assoc input :parent nil))
         )
         (.clear (:inputs this))
         nil
@@ -13192,7 +13140,7 @@
      ;;
     #_method
     (defn #_"TransactionInput" Transaction''add-input-i [#_"Transaction" this, #_"TransactionInput" input]
-        (§ assoc input :parent this)
+        (§ ass input (assoc input :parent this))
         (.add (:inputs this), input)
         input
     )
@@ -13228,9 +13176,9 @@
                   #_"TransactionSignature" __txSig (TransactionSignature'from-ecdsa __ecSig, mode, anyone?)]
                 (cond
                     (Script''is-sent-to-raw-pub-key __scriptPubKey)
-                        (TransactionInput''set-script-sig input, (ScriptBuilder'create-input-script-1 __txSig))
+                        (§ ass input (TransactionInput''set-script-sig input, (ScriptBuilder'create-input-script-1 __txSig)))
                     (Script''is-sent-to-address __scriptPubKey)
-                        (TransactionInput''set-script-sig input, (ScriptBuilder'create-input-script-2 __txSig, __sigKey))
+                        (§ ass input (TransactionInput''set-script-sig input, (ScriptBuilder'create-input-script-2 __txSig, __sigKey)))
                     :else
                         (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Don't know how to sign for this kind of scriptPubKey: " __scriptPubKey)))
                 )
@@ -13274,7 +13222,7 @@
     #_method
     (defn #_"void" Transaction''clear-outputs [#_"Transaction" this]
         (doseq [#_"TransactionOutput" output (:outputs this)]
-            (§ assoc output :parent nil)
+            (§ ass output (assoc output :parent nil))
         )
         (.clear (:outputs this))
         nil
@@ -13285,7 +13233,7 @@
      ;;
     #_method
     (defn #_"TransactionOutput" Transaction''add-output-o [#_"Transaction" this, #_"TransactionOutput" to]
-        (§ assoc to :parent this)
+        (§ ass to (assoc to :parent this))
         (.add (:outputs this), to)
         to
     )
@@ -13415,7 +13363,7 @@
             ;; Clear input scripts in preparation for signing.  If we're signing a fresh transaction that step isn't very
             ;; helpful, but it doesn't add much cost relative to the actual EC math so we'll do it anyway.
             (dotimes [#_"int" i (.size (:inputs tx))]
-                (TransactionInput''clear-script-bytes (Transaction''get-input tx, i))
+                (§ ass (Transaction''get-input tx, i) (TransactionInput''clear-script-bytes (Transaction''get-input tx, i)))
             )
 
             ;; This step has no purpose beyond being synchronized with Bitcoin Core's bugs.  OP_CODESEPARATOR
@@ -13431,17 +13379,17 @@
                 ;; the signature covers the hash of the prevout transaction which obviously includes the output script
                 ;; already.  Perhaps it felt safer to him in some way, or is another leftover from how the code was written.
                 (let [#_"TransactionInput" input (Transaction''get-input tx, index)]
-                    (TransactionInput''set-script-bytes input, script)
+                    (§ ass input (TransactionInput''set-script-bytes input, script))
 
                     (let-when [#_"Sha256Hash" hash
                             (condp = (& mode 0x1f)
                                 SigHash'NONE ;; means no outputs are signed at all - the signature is effectively for a "blank cheque".
                                 (do
-                                    (§ assoc tx :outputs (ArrayList. 0))
+                                    (§ ass tx (assoc tx :outputs (ArrayList. 0)))
                                     ;; The signature isn't broken by new versions of the transaction issued by other parties.
                                     (dotimes [#_"int" i (.size (:inputs tx))]
                                         (when (not= i index)
-                                            (TransactionInput''set-sequence-number (Transaction''get-input tx, i), 0)
+                                            (§ ass (Transaction''get-input tx, i) (TransactionInput''set-sequence-number (Transaction''get-input tx, i), 0))
                                         )
                                     )
                                     nil
@@ -13451,14 +13399,14 @@
                                     (do
                                         ;; In SIGHASH_SINGLE the outputs after the matching input index are deleted, and the outputs before
                                         ;; that position are "nulled out".  Unintuitively, the value in a "null" transaction is set to -1.
-                                        (§ assoc tx :outputs (ArrayList. (.subList (:outputs tx), 0, (inc index))))
+                                        (§ ass tx (assoc tx :outputs (ArrayList. (.subList (:outputs tx), 0, (inc index)))))
                                         (dotimes [#_"int" i index]
                                             (.set (:outputs tx), i, (TransactionOutput'for-script (:ledger tx), tx, Coin'NEGATIVE_SATOSHI, (byte-array 0)))
                                         )
                                         ;; The signature isn't broken by new versions of the transaction issued by other parties.
                                         (dotimes [#_"int" i (.size (:inputs tx))]
                                             (when (not= i index)
-                                                (TransactionInput''set-sequence-number (Transaction''get-input tx, i), 0)
+                                                (§ ass (Transaction''get-input tx, i) (TransactionInput''set-sequence-number (Transaction''get-input tx, i), 0))
                                             )
                                         )
                                         nil
@@ -13480,7 +13428,7 @@
                         (when (= (& mode SigHash'ANYONECANPAY) SigHash'ANYONECANPAY)
                             ;; SIGHASH_ANYONECANPAY means the signature in the input is not broken by changes/additions/removals
                             ;; of other inputs.  For example, this is useful for building assurance contracts.
-                            (§ assoc tx :inputs (ArrayList. #_"<TransactionInput>"))
+                            (§ ass tx (assoc tx :inputs (ArrayList. #_"<TransactionInput>")))
                             (.add (:inputs tx), input)
                         )
 
@@ -13516,7 +13464,7 @@
      ; standard and won't be relayed or included in the memory pool either.
      ;;
     #_method
-    (defn #_"void" Transaction''set-lock-time [#_"Transaction" this, #_"long" time]
+    (defn #_"Transaction" Transaction''set-lock-time [#_"Transaction" this, #_"long" time]
         (let [#_"boolean" __seqNumSet
                 (loop-when [#_"List<TransactionInput>" inputs (:inputs this)] (seq inputs) => false
                     (let [#_"TransactionInput" input (first inputs)]
@@ -13528,9 +13476,9 @@
                 ;; For instance one of them can be set to zero to make this feature work.
                 (log/warn "You are setting the lock time on a transaction but none of the inputs have non-default sequence numbers.  This will not do what you expect!")
             )
-            (§ assoc this :lock-time time)
+            (§ ass this (assoc this :lock-time time))
         )
-        nil
+        this
     )
 
     ;;;
@@ -13588,7 +13536,7 @@
     #_method
     (defn #_"TransactionConfidence" Transaction''get-confidence-tct [#_"Transaction" this, #_"TxConfidenceTable" table]
         (when (nil? (:confidence this))
-            (§ assoc this :confidence (TxConfidenceTable''get-or-create table, (Transaction''get-hash this)))
+            (§ ass this (assoc this :confidence (TxConfidenceTable''get-or-create table, (Transaction''get-hash this))))
         )
         (:confidence this)
     )
@@ -13764,9 +13712,8 @@
      ; information on the point of this field and what it can be.
      ;;
     #_method
-    (defn #_"void" Transaction''set-purpose [#_"Transaction" this, #_"TransactionPurpose" purpose]
-        (§ assoc this :purpose purpose)
-        nil
+    (defn #_"Transaction" Transaction''set-purpose [#_"Transaction" this, #_"TransactionPurpose" purpose]
+        (assoc this :purpose purpose)
     )
 
     ;;;
@@ -13781,9 +13728,8 @@
      ; Setter for {@link #exchangeRate}.
      ;;
     #_method
-    (defn #_"void" Transaction''set-exchange-rate [#_"Transaction" this, #_"ExchangeRate" __exchangeRate]
-        (§ assoc this :exchange-rate __exchangeRate)
-        nil
+    (defn #_"Transaction" Transaction''set-exchange-rate [#_"Transaction" this, #_"ExchangeRate" __exchangeRate]
+        (assoc this :exchange-rate __exchangeRate)
     )
 
     ;;;
@@ -13799,9 +13745,8 @@
      ; It can be used to record the memo of the payment request that initiated the transaction.
      ;;
     #_method
-    (defn #_"void" Transaction''set-memo [#_"Transaction" this, #_"String" memo]
-        (§ assoc this :memo memo)
-        nil
+    (defn #_"Transaction" Transaction''set-memo [#_"Transaction" this, #_"String" memo]
+        (assoc this :memo memo)
     )
 
     #_foreign
@@ -14005,7 +13950,7 @@
             (log/info (str "broadcastTransaction: " reason ":  TX " (Transaction''get-hash (:tx this)) " seen by " seen " peers" (if mined? " and mined" "")))
 
             ;; Progress callback on the requested thread.
-            (TransactionBroadcast''invoke-and-record this, seen, mined?)
+            (§ ass this (TransactionBroadcast''invoke-and-record this, seen, mined?))
 
             (when (or (<= (:num-waiting-for this) seen) mined?)
                 ;; We've seen the min required number of peers announce the transaction, or it was included
@@ -14091,13 +14036,12 @@
     )
 
     #_method
-    (defn #_"void" TransactionBroadcast''set-min-connections [#_"TransactionBroadcast" this, #_"int" __minConnections]
-        (§ assoc this :min-connections __minConnections)
-        nil
+    (defn #_"TransactionBroadcast" TransactionBroadcast''set-min-connections [#_"TransactionBroadcast" this, #_"int" __minConnections]
+        (assoc this :min-connections __minConnections)
     )
 
     #_method
-    (defn- #_"void" TransactionBroadcast''enough-available-peers [#_"TransactionBroadcast" this]
+    (defn- #_"TransactionBroadcast" TransactionBroadcast''enough-available-peers [#_"TransactionBroadcast" this]
         ;; We now have enough connected peers to send the transaction.
         ;; This can be called immediately if we already have enough.  Otherwise it'll be called from a peer thread.
 
@@ -14122,7 +14066,7 @@
             ;; to skip the inv here - we wouldn't send invs anyway.
             (let [#_"int" __numConnected (.size peers)
                   #_"int" __numToBroadcastTo (int (max 1 (Math/round (Math/ceil (/ (.size peers) 2.0)))))]
-                (§ assoc this :num-waiting-for (int (Math/ceil (/ (- (.size peers) __numToBroadcastTo) 2.0))))
+                (§ ass this (assoc this :num-waiting-for (int (Math/ceil (/ (- (.size peers) __numToBroadcastTo) 2.0)))))
                 (Collections/shuffle peers, TransactionBroadcast'RANDOM)
                 (let [peers (.subList peers, 0, __numToBroadcastTo)]
                     (log/info (str "broadcastTransaction: We have " __numConnected " peers, adding " (Transaction''get-hash (:tx this)) " to the memory pool"))
@@ -14148,24 +14092,24 @@
                 )
             )
         )
-        nil
+        this
     )
 
     #_method
     (defn #_"ListenableFuture<Transaction>" TransactionBroadcast''broadcast [#_"TransactionBroadcast" this]
         (PeerGroup''add-pre-message-received-event-listener-3 (:peer-group this), Threading'SAME_THREAD, (:rejection-listener this))
         (log/info (str "Waiting for " (:min-connections this) " peers required for broadcast, we have " (.size (PeerGroup''get-connected-peers (:peer-group this))) " ..."))
-        (.addListener (PeerGroup''wait-for-peers (:peer-group this), (:min-connections this)), #(TransactionBroadcast''enough-available-peers this), Threading'SAME_THREAD)
+        (.addListener (PeerGroup''wait-for-peers (:peer-group this), (:min-connections this)), #(§ non-void TransactionBroadcast''enough-available-peers this), Threading'SAME_THREAD)
         (:future this)
     )
 
     #_method
-    (defn- #_"void" TransactionBroadcast''invoke-and-record [#_"TransactionBroadcast" this, #_"int" seen, #_"boolean" mined?]
+    (defn- #_"TransactionBroadcast" TransactionBroadcast''invoke-and-record [#_"TransactionBroadcast" this, #_"int" seen, #_"boolean" mined?]
         (sync this
-            (§ assoc this :num-seem-peers seen, :mined mined?)
+            (§ ass this (assoc this :num-seem-peers seen, :mined mined?))
         )
         (TransactionBroadcast''invoke-progress-callback this, seen, mined?)
-        nil
+        this
     )
 
     #_method
@@ -14197,9 +14141,8 @@
      ; be invoked immediately with the current progress.
      ;;
     #_method
-    (defn #_"void" TransactionBroadcast''set-progress-callback-2 [#_"TransactionBroadcast" this, #_"ProgressCallback" callback]
+    (defn #_"TransactionBroadcast" TransactionBroadcast''set-progress-callback-2 [#_"TransactionBroadcast" this, #_"ProgressCallback" callback]
         (TransactionBroadcast''set-progress-callback-3 this, callback, Threading'USER_THREAD)
-        nil
     )
 
     ;;;
@@ -14209,17 +14152,17 @@
      ; has already started, then the callback will be invoked immediately with the current progress.
      ;;
     #_method
-    (defn #_"void" TransactionBroadcast''set-progress-callback-3 [#_"TransactionBroadcast" this, #_"ProgressCallback" callback, #_"Executor" executor]
+    (defn #_"TransactionBroadcast" TransactionBroadcast''set-progress-callback-3 [#_"TransactionBroadcast" this, #_"ProgressCallback" callback, #_"Executor" executor]
         (let [[#_"int" seen #_"boolean" mined? #_"boolean" invoke?]
                 (sync this
-                    (§ assoc this :callback callback, :progress-callback-executor executor)
+                    (§ ass this (assoc this :callback callback, :progress-callback-executor executor))
                     [(:num-seem-peers this) (:mined this) (< 0 (:num-waiting-for this))]
                 )]
             (when invoke?
                 (TransactionBroadcast''invoke-progress-callback this, seen, mined?)
             )
         )
-        nil
+        this
     )
 )
 
@@ -14443,17 +14386,17 @@
      ; Automatically sets the current type to {@link ConfidenceType#BUILDING} and depth to one.
      ;;
     #_method
-    (defn #_"void" TransactionConfidence''set-appeared-at-chain-height [#_"TransactionConfidence" this, #_"int" height]
+    (defn #_"TransactionConfidence" TransactionConfidence''set-appeared-at-chain-height [#_"TransactionConfidence" this, #_"int" height]
         (sync this
             (when (< height 0)
                 (throw (IllegalArgumentException. "appearedAtChainHeight out of range"))
             )
 
-            (§ assoc this :appeared-at-chain-height height)
-            (§ assoc this :depth 1)
-            (TransactionConfidence''set-confidence-type this, :ConfidenceType'BUILDING)
+            (§ ass this (assoc this :appeared-at-chain-height height))
+            (§ ass this (assoc this :depth 1))
+            (§ ass this (TransactionConfidence''set-confidence-type this, :ConfidenceType'BUILDING))
         )
-        nil
+        this
     )
 
     ;;;
@@ -14471,20 +14414,20 @@
      ; of a transaction becomes available.
      ;;
     #_method
-    (defn #_"void" TransactionConfidence''set-confidence-type [#_"TransactionConfidence" this, #_"ConfidenceType" type]
+    (defn #_"TransactionConfidence" TransactionConfidence''set-confidence-type [#_"TransactionConfidence" this, #_"ConfidenceType" type]
         (sync this
             (when-not (= type (:confidence-type this))
-                (§ assoc this :confidence-type type)
+                (§ ass this (assoc this :confidence-type type))
                 (when (not= type :ConfidenceType'DEAD)
-                    (§ assoc this :overriding-transaction nil)
+                    (§ ass this (assoc this :overriding-transaction nil))
                 )
                 (when (any = type :ConfidenceType'PENDING :ConfidenceType'IN_CONFLICT)
-                    (§ assoc this :depth 0)
-                    (§ assoc this :appeared-at-chain-height -1)
+                    (§ ass this (assoc this :depth 0))
+                    (§ ass this (assoc this :appeared-at-chain-height -1))
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -14497,11 +14440,11 @@
      ;;
     #_method
     (defn #_"boolean" TransactionConfidence''mark-broadcast-by [#_"TransactionConfidence" this, #_"PeerAddress" address]
-        (§ assoc this :last-broadcasted-at (Time'now))
+        (§ ass this (assoc this :last-broadcasted-at (Time'now)))
         (when' (.addIfAbsent (:broadcast-by this), address) => false ;; Duplicate.
             (sync this
                 (when (= (TransactionConfidence''get-confidence-type this) :ConfidenceType'UNKNOWN)
-                    (§ assoc this :confidence-type :ConfidenceType'PENDING)
+                    (§ ass this (assoc this :confidence-type :ConfidenceType'PENDING))
                 )
             )
             true
@@ -14540,9 +14483,8 @@
 
     ;;; Set the time the transaction was last announced to us. ;;
     #_method
-    (defn #_"void" TransactionConfidence''set-last-broadcasted-at [#_"TransactionConfidence" this, #_"Date" __lastBroadcastedAt]
-        (§ assoc this :last-broadcasted-at __lastBroadcastedAt)
-        nil
+    (defn #_"TransactionConfidence" TransactionConfidence''set-last-broadcasted-at [#_"TransactionConfidence" this, #_"Date" __lastBroadcastedAt]
+        (assoc this :last-broadcasted-at __lastBroadcastedAt)
     )
 
     ;;;
@@ -14554,7 +14496,7 @@
     #_method
     (defn #_"int" TransactionConfidence''increment-depth-in-blocks [#_"TransactionConfidence" this]
         (sync this
-            (§ update this :depth inc)
+            (§ ass this (update this :depth inc))
             (:depth this)
         )
     )
@@ -14580,11 +14522,11 @@
      ; Set the depth in blocks.  Having one block confirmation is a depth of one.
      ;;
     #_method
-    (defn #_"void" TransactionConfidence''set-depth-in-blocks [#_"TransactionConfidence" this, #_"int" depth]
+    (defn #_"TransactionConfidence" TransactionConfidence''set-depth-in-blocks [#_"TransactionConfidence" this, #_"int" depth]
         (sync this
-            (§ assoc this :depth depth)
+            (§ ass this (assoc this :depth depth))
         )
-        nil
+        this
     )
 
     ;;;
@@ -14592,11 +14534,10 @@
      ; for saving memory and wallet space once a tx is buried so deep it doesn't seem likely to go pending again.
      ;;
     #_method
-    (defn #_"void" TransactionConfidence''clear-broadcast-by [#_"TransactionConfidence" this]
+    (defn #_"TransactionConfidence" TransactionConfidence''clear-broadcast-by [#_"TransactionConfidence" this]
         (assert-state (not= (TransactionConfidence''get-confidence-type this) :ConfidenceType'PENDING))
         (.clear (:broadcast-by this))
-        (§ assoc this :last-broadcasted-at nil)
-        nil
+        (assoc this :last-broadcasted-at nil)
     )
 
     ;;;
@@ -14624,12 +14565,12 @@
      ; directly double spend this one, but could also have double spent a dependency of this tx.
      ;;
     #_method
-    (defn #_"void" TransactionConfidence''set-overriding-transaction [#_"TransactionConfidence" this, #_"Transaction" __overridingTransaction]
+    (defn #_"TransactionConfidence" TransactionConfidence''set-overriding-transaction [#_"TransactionConfidence" this, #_"Transaction" __overridingTransaction]
         (sync this
-            (§ assoc this :overriding-transaction __overridingTransaction)
-            (TransactionConfidence''set-confidence-type this, :ConfidenceType'DEAD)
+            (§ ass this (assoc this :overriding-transaction __overridingTransaction))
+            (§ ass this (TransactionConfidence''set-confidence-type this, :ConfidenceType'DEAD))
         )
-        nil
+        this
     )
 
     ;;; Returns a copy of this object.  Event listeners are not duplicated. ;;
@@ -14637,11 +14578,11 @@
     (defn #_"TransactionConfidence" TransactionConfidence''duplicate [#_"TransactionConfidence" this]
         (let [#_"TransactionConfidence" c (TransactionConfidence'new (:transaction-hash this))]
             (.addAll (:broadcast-by c), (:broadcast-by this))
-            (§ assoc c :last-broadcasted-at (:last-broadcasted-at this))
+            (§ ass c (assoc c :last-broadcasted-at (:last-broadcasted-at this)))
             (sync this
-                (§ assoc c :confidence-type (:confidence-type this))
-                (§ assoc c :overriding-transaction (:overriding-transaction this))
-                (§ assoc c :appeared-at-chain-height (:appeared-at-chain-height this))
+                (§ ass c (assoc c :confidence-type (:confidence-type this)))
+                (§ ass c (assoc c :overriding-transaction (:overriding-transaction this)))
+                (§ ass c (assoc c :appeared-at-chain-height (:appeared-at-chain-height this)))
             )
             c
         )
@@ -14681,11 +14622,11 @@
      ; transactions and decide when to spend them.
      ;;
     #_method
-    (defn #_"void" TransactionConfidence''set-source [#_"TransactionConfidence" this, #_"ConfidenceSource" source]
+    (defn #_"TransactionConfidence" TransactionConfidence''set-source [#_"TransactionConfidence" this, #_"ConfidenceSource" source]
         (sync this
-            (§ assoc this :source source)
+            (§ ass this (assoc this :source source))
         )
-        nil
+        this
     )
 
     ;;;
@@ -14880,7 +14821,7 @@
         (let [#_"Script" script (when (some? (:script-sig this)) (.get (:script-sig this)))]
             (or script
                 (let [script (Script'from-bytes (:script-bytes this))]
-                    (§ assoc this :script-sig (WeakReference. script))
+                    (§ ass this (assoc this :script-sig (WeakReference. script)))
                     script
                 )
             )
@@ -14889,11 +14830,10 @@
 
     ;;; Set the given program as the scriptSig that is supposed to satisfy the connected output script. ;;
     #_method
-    (defn #_"void" TransactionInput''set-script-sig [#_"TransactionInput" this, #_"Script" script]
-        (§ assoc this :script-sig (WeakReference. (ensure some? script)))
+    (defn #_"TransactionInput" TransactionInput''set-script-sig [#_"TransactionInput" this, #_"Script" script]
+        (§ ass this (assoc this :script-sig (WeakReference. (ensure some? script))))
         ;; TODO: This should all be cleaned up so we have a consistent internal representation.
         (TransactionInput''set-script-bytes this, (Script''get-program script))
-        nil
     )
 
     ;;;
@@ -14919,26 +14859,22 @@
      ; examples of how you can use this feature to build contract protocols.
      ;;
     #_method
-    (defn #_"void" TransactionInput''set-sequence-number [#_"TransactionInput" this, #_"long" sequence]
-        (§ assoc this :sequence sequence)
-        nil
+    (defn #_"TransactionInput" TransactionInput''set-sequence-number [#_"TransactionInput" this, #_"long" sequence]
+        (assoc this :sequence sequence)
     )
 
     ;;; Clear input scripts, e.g. in preparation for signing. ;;
     #_method
-    (defn #_"void" TransactionInput''clear-script-bytes [#_"TransactionInput" this]
+    (defn #_"TransactionInput" TransactionInput''clear-script-bytes [#_"TransactionInput" this]
         (TransactionInput''set-script-bytes this, (byte-array 0))
-        nil
     )
 
     ;;;
      ; @param scriptBytes The scriptBytes to set.
      ;;
     #_method
-    (defn #_"void" TransactionInput''set-script-bytes [#_"TransactionInput" this, #_"byte[]" script]
-        (§ assoc this :script-sig nil)
-        (§ assoc this :script-bytes script)
-        nil
+    (defn #_"TransactionInput" TransactionInput''set-script-bytes [#_"TransactionInput" this, #_"byte[]" script]
+        (assoc this :script-sig nil, :script-bytes script)
     )
 
     ;; TODO: Clean all this up once TransactionOutPoint disappears.
@@ -15006,18 +14942,18 @@
                             )
                             (= mode :ConnectionMode'DISCONNECT_ON_CONFLICT)
                             (do
-                                (TransactionOutput''mark-as-unspent output)
+                                (§ ass output (TransactionOutput''mark-as-unspent output))
                                 nil
                             )
                             (= mode :ConnectionMode'ABORT_ON_CONFLICT)
                             (do
-                                (§ assoc-in this [:outpoint :from-tx] (:parent output))
+                                (§ ass this (assoc-in this [:outpoint :from-tx] (:parent output)))
                                 :ConnectionResult'ALREADY_SPENT
                             )
                         )
                     )]
                 (when' (nil? result) => result
-                    (TransactionInput''connect-o this, output)
+                    (§ ass this (TransactionInput''connect-o this, output))
                     :ConnectionResult'SUCCESS
                 )
             )
@@ -15026,11 +14962,10 @@
 
     ;;; Internal use only: connects this TransactionInput to the given output (updates pointers and spent flags). ;;
     #_method
-    (defn #_"void" TransactionInput''connect-o [#_"TransactionInput" this, #_"TransactionOutput" out]
-        (§ assoc-in this [:outpoint :from-tx] (:parent out))
-        (TransactionOutput''mark-as-spent out, this)
-        (§ assoc this :coin-value (:coin-value out))
-        nil
+    (defn #_"TransactionInput" TransactionInput''connect-o [#_"TransactionInput" this, #_"TransactionOutput" out]
+        (§ ass this (assoc-in this [:outpoint :from-tx] (:parent out)))
+        (§ ass out (TransactionOutput''mark-as-spent out, this))
+        (assoc this :coin-value (:coin-value out))
     )
 
     ;;;
@@ -15046,20 +14981,20 @@
                     (some? (-> this :outpoint :from-tx))
                         ;; The outpoint is connected using a "standard" wallet, disconnect it.
                         (let [output (Transaction''get-output (-> this :outpoint :from-tx), (int (:index (:outpoint this))))]
-                            (§ assoc-in this [:outpoint :from-tx] nil)
+                            (§ ass this (assoc-in this [:outpoint :from-tx] nil))
                             output
                         )
                     (some? (-> this :outpoint :connected-output))
                         ;; The outpoint is connected using a UTXO based wallet, disconnect it.
                         (let [output (-> this :outpoint :connected-output)]
-                            (§ assoc-in this [:outpoint :connected-output] nil)
+                            (§ ass this (assoc-in this [:outpoint :connected-output] nil))
                             output
                         )
                 )]
 
             (when' (and (some? output) (= (:spent-by output) this)) => false
                 ;; The outpoint was connected to an output, disconnect the output.
-                (TransactionOutput''mark-as-unspent output)
+                (§ ass output (TransactionOutput''mark-as-unspent output))
                 true
             )
         )
@@ -15122,7 +15057,7 @@
         )
         (let [#_"Script" __pubKey (TransactionOutput''get-script-pub-key output)
               #_"int" index (.indexOf (:inputs (:parent this)), this)]
-            (Script''correctly-spends-4 (TransactionInput''get-script-sig this), (:parent this), index, __pubKey)
+            (Script''correctly-spends (TransactionInput''get-script-sig this), (:parent this), index, __pubKey, Script'ALL_VERIFY_FLAGS)
         )
         nil
     )
@@ -15205,7 +15140,7 @@
  ; Instances of this class are not safe for use by multiple threads.
  ;;
 (class-ns TransactionOutPoint (§ extends ChildMessage)
-    (defn- #_"TransactionOutPoint" TransactionOutPoint'new [#_"Ledger" ledger, #_"Message" parent, #_"Sha256Hash" hash, #_"long" index]
+    (defn- #_"TransactionOutPoint" TransactionOutPoint'new [#_"Ledger" ledger, #_"TransactionInput" parent, #_"Sha256Hash" hash, #_"long" index]
         (merge (ChildMessage'new ledger, parent)
             (hash-map
                 ;;; Hash of the transaction to which we refer. ;;
@@ -15428,7 +15363,7 @@
     #_method
     (defn #_"Script" TransactionOutput''get-script-pub-key [#_"TransactionOutput" this]
         (when (nil? (:script-pub-key this))
-            (§ assoc this :script-pub-key (Script'from-bytes (:script-bytes this)))
+            (§ ass this (assoc this :script-pub-key (Script'from-bytes (:script-bytes this))))
         )
         (:script-pub-key this)
     )
@@ -15473,11 +15408,10 @@
      ; Sets the value of this output.
      ;;
     #_method
-    (defn #_"void" TransactionOutput''set-value [#_"TransactionOutput" this, #_"Coin" value]
+    (defn #_"TransactionOutput" TransactionOutput''set-value [#_"TransactionOutput" this, #_"Coin" value]
         (ensure some? value)
 
-        (§ assoc this :coin-value value)
-        nil
+        (assoc this :coin-value value)
     )
 
     ;;;
@@ -15547,20 +15481,18 @@
      ; @throws IllegalStateException if the transaction was already marked as spent.
      ;;
     #_method
-    (defn #_"void" TransactionOutput''mark-as-spent [#_"TransactionOutput" this, #_"TransactionInput" input]
+    (defn #_"TransactionOutput" TransactionOutput''mark-as-spent [#_"TransactionOutput" this, #_"TransactionInput" input]
         (assert-state (:available-for-spending this))
 
-        (§ assoc this :available-for-spending false, :spent-by input)
-        nil
+        (assoc this :available-for-spending false, :spent-by input)
     )
 
     ;;;
      ; Resets the spent pointer / availableForSpending flag to null.
      ;;
     #_method
-    (defn #_"void" TransactionOutput''mark-as-unspent [#_"TransactionOutput" this]
-        (§ assoc this :available-for-spending true, :spent-by nil)
-        nil
+    (defn #_"TransactionOutput" TransactionOutput''mark-as-unspent [#_"TransactionOutput" this]
+        (assoc this :available-for-spending true, :spent-by nil)
     )
 
     ;;;
@@ -16555,29 +16487,27 @@
 
     ;;; Constructs a key from its components.  This is not normally something you should use. ;;
     (defn #_"DeterministicKey" DeterministicKey'new-5 [#_"List<ChildNumber>" path, #_"byte[]" code, #_"ECPoint" __publicAsPoint, #_"BigInteger" priv, #_"DeterministicKey" parent]
-        (let [this (merge (ECKey'new-2 priv, (ECKey'compress-point (ensure some? __publicAsPoint))) (DeterministicKey'init))]
-            (assert-argument (= (alength code) 32))
+        (assert-argument (= (alength code) 32))
 
-            (§ assoc this :parent parent)
-            (§ assoc this :child-number-path (ensure some? path))
-            (§ assoc this :chain-code (Arrays/copyOf code, (alength code)))
-            (§ assoc this :depth (if (some? parent) (inc (:depth parent)) 0))
-            (§ assoc this :parent-fingerprint (if (some? parent) (DeterministicKey''get-fingerprint parent) 0))
-            this
+        (-> (merge (ECKey'compose priv, (ECKey'compress-point (ensure some? __publicAsPoint))) (DeterministicKey'init))
+            (assoc :parent parent)
+            (assoc :child-number-path (ensure some? path))
+            (assoc :chain-code (Arrays/copyOf code, (alength code)))
+            (assoc :depth (if (some? parent) (inc (:depth parent)) 0))
+            (assoc :parent-fingerprint (if (some? parent) (DeterministicKey''get-fingerprint parent) 0))
         )
     )
 
     ;;; Constructs a key from its components.  This is not normally something you should use. ;;
     (defn #_"DeterministicKey" DeterministicKey'new-4 [#_"List<ChildNumber>" path, #_"byte[]" code, #_"BigInteger" priv, #_"DeterministicKey" parent]
-        (let [this (merge (ECKey'new-2 priv, (ECKey'compress-point (ECKey'public-point-from-private priv))) (DeterministicKey'init))]
-            (assert-argument (= (alength code) 32))
+        (assert-argument (= (alength code) 32))
 
-            (§ assoc this :parent parent)
-            (§ assoc this :child-number-path (ensure some? path))
-            (§ assoc this :chain-code (Arrays/copyOf code, (alength code)))
-            (§ assoc this :depth (if (some? parent) (inc (:depth parent)) 0))
-            (§ assoc this :parent-fingerprint (if (some? parent) (DeterministicKey''get-fingerprint parent) 0))
-            this
+        (-> (merge (ECKey'compose priv, (ECKey'compress-point (ECKey'public-point-from-private priv))) (DeterministicKey'init))
+            (assoc :parent parent)
+            (assoc :child-number-path (ensure some? path))
+            (assoc :chain-code (Arrays/copyOf code, (alength code)))
+            (assoc :depth (if (some? parent) (inc (:depth parent)) 0))
+            (assoc :parent-fingerprint (if (some? parent) (DeterministicKey''get-fingerprint parent) 0))
         )
     )
 
@@ -16600,15 +16530,14 @@
      ; that you normally should use.
      ;;
     (defn #_"DeterministicKey" DeterministicKey'new-6p [#_"List<ChildNumber>" path, #_"byte[]" code, #_"ECPoint" __publicAsPoint, #_"DeterministicKey" parent, #_"int" depth, #_"int" fing]
-        (let [this (merge (ECKey'new-2 nil, (ECKey'compress-point (ensure some? __publicAsPoint))) (DeterministicKey'init))]
-            (assert-argument (= (alength code) 32))
+        (assert-argument (= (alength code) 32))
 
-            (§ assoc this :parent parent)
-            (§ assoc this :child-number-path (ensure some? path))
-            (§ assoc this :chain-code (Arrays/copyOf code, (alength code)))
-            (§ assoc this :depth depth)
-            (§ assoc this :parent-fingerprint (DeterministicKey'ascertain-parent-fingerprint parent, fing))
-            this
+        (-> (merge (ECKey'compose nil, (ECKey'compress-point (ensure some? __publicAsPoint))) (DeterministicKey'init))
+            (assoc :parent parent)
+            (assoc :child-number-path (ensure some? path))
+            (assoc :chain-code (Arrays/copyOf code, (alength code)))
+            (assoc :depth depth)
+            (assoc :parent-fingerprint (DeterministicKey'ascertain-parent-fingerprint parent, fing))
         )
     )
 
@@ -16618,30 +16547,14 @@
      ; that you normally should use.
      ;;
     (defn #_"DeterministicKey" DeterministicKey'new-6i [#_"List<ChildNumber>" path, #_"byte[]" code, #_"BigInteger" priv, #_"DeterministicKey" parent, #_"int" depth, #_"int" fing]
-        (let [this (merge (ECKey'new-2 priv, (ECKey'compress-point (ECKey'public-point-from-private priv))) (DeterministicKey'init))]
-            (assert-argument (= (alength code) 32))
+        (assert-argument (= (alength code) 32))
 
-            (§ assoc this :parent parent)
-            (§ assoc this :child-number-path (ensure some? path))
-            (§ assoc this :chain-code (Arrays/copyOf code, (alength code)))
-            (§ assoc this :depth depth)
-            (§ assoc this :parent-fingerprint (DeterministicKey'ascertain-parent-fingerprint parent, fing))
-            this
-        )
-    )
-
-    ;;;
-     ; Clones the key.
-     ;;
-    (defn #_"DeterministicKey" DeterministicKey'new-2 [#_"DeterministicKey" key, #_"DeterministicKey" parent]
-        (let [this (merge (ECKey'new-2 (:priv key), (:pub key)) (DeterministicKey'init))]
-
-            (§ assoc this :parent parent)
-            (§ assoc this :child-number-path (:child-number-path key))
-            (§ assoc this :chain-code (:chain-code key))
-            (§ assoc this :depth (.size (:child-number-path this)))
-            (§ assoc this :parent-fingerprint (DeterministicKey''get-fingerprint (:parent this)))
-            this
+        (-> (merge (ECKey'compose priv, (ECKey'compress-point (ECKey'public-point-from-private priv))) (DeterministicKey'init))
+            (assoc :parent parent)
+            (assoc :child-number-path (ensure some? path))
+            (assoc :chain-code (Arrays/copyOf code, (alength code)))
+            (assoc :depth depth)
+            (assoc :parent-fingerprint (DeterministicKey'ascertain-parent-fingerprint parent, fing))
         )
     )
 
@@ -18205,13 +18118,13 @@
                   #_"boolean" __chainFileExists (.exists __chainFile)
                   #_"Wallet" wallet (WalletAppKit''create-wallet this)]
                 (Wallet''fresh-receive-key wallet)
-                (§ assoc this :v-wallet wallet)
+                (§ ass this (assoc this :v-wallet wallet))
 
                 ;; Initiate Bitcoin network objects (block store, blockchain and peer group).
-                (§ assoc this :v-store (WalletAppKit''provide-block-store this, __chainFile))
+                (§ ass this (assoc this :v-store (WalletAppKit''provide-block-store this, __chainFile)))
                 (when (not __chainFileExists)
                     (when (nil? (:textual-checkpoints this))
-                        (§ assoc this :textual-checkpoints (-> this :ledger :textual-checkpoints))
+                        (§ ass this (assoc this :textual-checkpoints (-> this :ledger :textual-checkpoints)))
                     )
 
                     (cond (some? (:textual-checkpoints this))
@@ -18230,30 +18143,30 @@
                                 (throw (IOException. "Failed to delete chain file in preparation for restore."))
                             )
 
-                            (§ assoc this :v-store (SPVBlockStore'new (:ledger this), __chainFile))
+                            (§ ass this (assoc this :v-store (SPVBlockStore'new (:ledger this), __chainFile)))
                         )
                     )
                 )
-                (§ assoc this :v-chain (SPVBlockChain'new (:ledger this), (:v-store this)))
-                (§ assoc this :v-peer-group (WalletAppKit''create-peer-group this))
+                (§ ass this (assoc this :v-chain (SPVBlockChain'new (:ledger this), (:v-store this))))
+                (§ ass this (assoc this :v-peer-group (WalletAppKit''create-peer-group this)))
 
                 ;; Set up peer addresses or discovery first, so if wallet extensions try to broadcast a transaction
                 ;; before we're actually connected the broadcast waits for an appropriate number of connections.
                 (cond (some? (:peer-addresses this))
                     (do
                         (doseq [#_"PeerAddress" addr (:peer-addresses this)]
-                            (PeerGroup''add-address-p (:v-peer-group this), addr)
+                            (§ ass (:v-peer-group this) (PeerGroup''add-address-p (:v-peer-group this), addr))
                         )
-                        (PeerGroup''set-max-connections (:v-peer-group this), (alength (:peer-addresses this)))
-                        (§ assoc this :peer-addresses nil)
+                        (§ ass (:v-peer-group this) (PeerGroup''set-max-connections (:v-peer-group this), (alength (:peer-addresses this))))
+                        (§ ass this (assoc this :peer-addresses nil))
                     )
                     :else
                     (do
-                        (PeerGroup''add-peer-discovery (:v-peer-group this), (or (:discovery this) (DnsDiscovery'new (:ledger this))))
+                        (§ ass (:v-peer-group this) (PeerGroup''add-peer-discovery (:v-peer-group this), (or (:discovery this) (DnsDiscovery'new (:ledger this)))))
                     )
                 )
                 (BlockChain''add-wallet (:v-chain this), (:v-wallet this))
-                (PeerGroup''add-wallet (:v-peer-group this), (:v-wallet this))
+                (§ ass (:v-peer-group this) (PeerGroup''add-wallet (:v-peer-group this), (:v-wallet this)))
                 (WalletAppKit''on-setup-completed this)
 
                 (if (:blocking-startup this)
@@ -18264,7 +18177,7 @@
 
                         ;; TODO: Be able to use the provided download listener when doing a blocking startup.
                         (let [#_"DownloadProgressTracker" listener (DownloadProgressTracker'new)]
-                            (PeerGroup''start-block-chain-download (:v-peer-group this), listener)
+                            (§ ass (:v-peer-group this) (PeerGroup''start-block-chain-download (:v-peer-group this), listener))
                             (DownloadProgressTracker''await listener)
                         )
                     )
@@ -18274,7 +18187,7 @@
                             #_override
                             (#_"void" onSuccess [#_"FutureCallback" __, #_"Object" _result]
                                 (let [#_"DownloadProgressTracker" listener (or (:download-listener this) (DownloadProgressTracker'new))]
-                                    (PeerGroup''start-block-chain-download (:v-peer-group this), listener)
+                                    (§ ass (:v-peer-group this) (PeerGroup''start-block-chain-download (:v-peer-group this), listener))
                                 )
                                 nil
                             )
@@ -18334,7 +18247,7 @@
             (Wallet''save (:v-wallet this))
             (BlockStore'''close (:v-store this))
 
-            (§ assoc this :v-peer-group nil, :v-wallet nil, :v-store nil, :v-chain nil)
+            (§ ass this (assoc this :v-peer-group nil, :v-wallet nil, :v-store nil, :v-chain nil))
             (§ catch BlockStoreException e
                 (throw (IOException. e))
             )
@@ -18441,12 +18354,12 @@
      ; This call will reset the current progress towards the timeout.
      ;;
     #_method
-    (defn #_"void" AbstractTimeoutHandler''set-timeout-enabled [#_"AbstractTimeoutHandler" this, #_"boolean" enabled?]
+    (defn #_"AbstractTimeoutHandler" AbstractTimeoutHandler''set-timeout-enabled [#_"AbstractTimeoutHandler" this, #_"boolean" enabled?]
         (sync this
-            (§ assoc this :timeout-enabled enabled?)
-            (AbstractTimeoutHandler''reset-timeout this)
+            (§ ass this (assoc this :timeout-enabled enabled?))
+            (§ ass this (AbstractTimeoutHandler''reset-timeout this))
         )
-        nil
+        this
     )
 
     ;;;
@@ -18460,25 +18373,25 @@
      ; This call will reset the current progress towards the timeout.
      ;;
     #_method
-    (defn #_"void" AbstractTimeoutHandler''set-socket-timeout [#_"AbstractTimeoutHandler" this, #_"int" millis]
+    (defn #_"AbstractTimeoutHandler" AbstractTimeoutHandler''set-socket-timeout [#_"AbstractTimeoutHandler" this, #_"int" millis]
         (sync this
-            (§ assoc this :timeout-millis millis)
-            (AbstractTimeoutHandler''reset-timeout this)
+            (§ ass this (assoc this :timeout-millis millis))
+            (§ ass this (AbstractTimeoutHandler''reset-timeout this))
         )
-        nil
+        this
     )
 
     ;;;
      ; Resets the current progress towards timeout to 0.
      ;;
     #_method
-    (defn #_"void" AbstractTimeoutHandler''reset-timeout [#_"AbstractTimeoutHandler" this]
+    (defn #_"AbstractTimeoutHandler" AbstractTimeoutHandler''reset-timeout [#_"AbstractTimeoutHandler" this]
         (sync this
             (when (some? (:timeout-task this))
                 (.cancel (:timeout-task this))
             )
             (when (and (not= (:timeout-millis this) 0) (:timeout-enabled this))
-                (§ assoc this :timeout-task
+                (§ ass this (assoc this :timeout-task
                     (reify TimerTask
                         #_foreign
                         #_override
@@ -18487,11 +18400,11 @@
                             nil
                         )
                     )
-                )
+                ))
                 (.schedule AbstractTimeoutHandler'TIMEOUT_TIMER, (:timeout-task this), (:timeout-millis this))
             )
         )
-        nil
+        this
     )
 
     #_abstract
@@ -18558,7 +18471,7 @@
             ;; connection.setWriteTarget() which might have re-entered already.  In this case we shouldn't add ourselves
             ;; to the connectedHandlers set.
             (sync (:connection-lock this)
-                (§ assoc this :connected-handlers handlers)
+                (§ ass this (assoc this :connected-handlers handlers))
                 (when-not (:close-called this)
                     (assert-state (.add (:connected-handlers this), this))
                 )
@@ -18579,12 +18492,12 @@
     ;; Tries to write any outstanding write bytes, runs in any thread (possibly unlocked).
     #_throws #_[ "IOException" ]
     #_method
-    (defn- #_"void" ConnectionHandler''try-write-bytes [#_"ConnectionHandler" this]
+    (defn- #_"ConnectionHandler" ConnectionHandler''try-write-bytes [#_"ConnectionHandler" this]
         (sync (:connection-lock this)
             ;; Iterate through the outbound ByteBuff queue, pushing as much as possible into the OS' network buffer.
             (loop-when [#_"Iterator<ByteBuffer>" it (.iterator (:bytes-to-write this))] (.hasNext it)
                 (let [#_"ByteBuffer" buff (.next it)]
-                    (§ assoc this :bytes-to-write-remaining (- (:bytes-to-write-remaining this) (.write (:channel this), buff)))
+                    (§ ass this (assoc this :bytes-to-write-remaining (- (:bytes-to-write-remaining this) (.write (:channel this), buff))))
                     (when' (not (.hasRemaining buff)) => (ConnectionHandler''set-write-ops this)
                         (.remove it)
                         (recur it)
@@ -18597,7 +18510,7 @@
             )
             ;; Don't bother waking up the selector here, since we're just removing an op, not adding.
         )
-        nil
+        this
     )
 
     #_throws #_[ "IOException" ]
@@ -18617,7 +18530,7 @@
                 ;; Just dump the message onto the write buffer and call tryWriteBytes.
                 ;; TODO: Kill the needless message duplication when the write completes right away.
                 (.offer (:bytes-to-write this), (ByteBuffer/wrap (Arrays/copyOf message, (alength message))))
-                (§ update this :bytes-to-write-remaining + (alength message))
+                (§ ass this (update this :bytes-to-write-remaining + (alength message)))
                 (ConnectionHandler''set-write-ops this)
                 (catch IOException e
                     (.unlock (:connection-lock this))
@@ -18653,16 +18566,16 @@
                 (throw (RuntimeException. e))
             )
         )
-        (ConnectionHandler''connection-closed this)
+        (§ ass this (ConnectionHandler''connection-closed this))
         nil
     )
 
     #_method
-    (defn- #_"void" ConnectionHandler''connection-closed [#_"ConnectionHandler" this]
+    (defn- #_"ConnectionHandler" ConnectionHandler''connection-closed [#_"ConnectionHandler" this]
         (let [#_"boolean" closed?
                 (sync (:connection-lock this)
                     (let [closed? (not (:close-called this))]
-                        (§ assoc this :close-called true)
+                        (§ ass this (assoc this :close-called true))
                         closed?
                     )
                 )]
@@ -18671,7 +18584,7 @@
                 (StreamConnection'''connection-closed (:connection this))
             )
         )
-        nil
+        this
     )
 
     ;; Handle a SelectionKey which was selected.
@@ -18709,7 +18622,7 @@
                             )
                         )
                         (when (.isWritable key)
-                            (ConnectionHandler''try-write-bytes handler)
+                            (§ ass handler (ConnectionHandler''try-write-bytes handler))
                         )
                     )
                 )
@@ -18786,15 +18699,15 @@
                             ;; as much as possible as that results in a loss of privacy.
                             ;; The constant 100 here is somewhat arbitrary, but makes sense for small to medium wallets -
                             ;; it will likely mean we never need to create a filter with different parameters.
-                            (§ update this :last-bloom-filter-element-count #(if (< % elements) (+ elements 100) %))
+                            (§ ass this (update this :last-bloom-filter-element-count #(if (< % elements) (+ elements 100) %)))
                             (let [#_"BloomUpdate" flag (if false :BloomUpdate'UPDATE_ALL :BloomUpdate'UPDATE_P2PUBKEY_ONLY)
                                   #_"double" rate (:v-bloom-filter-fp-rate this)
                                   #_"BloomFilter" filter (BloomFilter'new (:ledger this), (:last-bloom-filter-element-count this), rate, (:bloom-filter-tweak this), flag)]
                                 (doseq [#_"PeerFilterProvider" provider providers]
-                                    (BloomFilter''merge filter, (PeerFilterProvider'''get-bloom-filter-4 provider, (:last-bloom-filter-element-count this), rate, (:bloom-filter-tweak this)))
+                                    (§ ass filter (BloomFilter''merge filter, (PeerFilterProvider'''get-bloom-filter-4 provider, (:last-bloom-filter-element-count this), rate, (:bloom-filter-tweak this))))
                                 )
                                 (let [result (assoc result :changed (not (.equals filter, (:last-filter this))))]
-                                    (§ assoc this :last-filter filter)
+                                    (§ ass this (assoc this :last-filter filter))
                                     (assoc result :filter filter)
                                 )
                             )
@@ -18814,9 +18727,8 @@
     )
 
     #_method
-    (defn #_"void" FilterMerger''set-bloom-filter-fp-rate [#_"FilterMerger" this, #_"double" rate]
-        (§ assoc this :v-bloom-filter-fp-rate rate)
-        nil
+    (defn #_"FilterMerger" FilterMerger''set-bloom-filter-fp-rate [#_"FilterMerger" this, #_"double" rate]
+        (assoc this :v-bloom-filter-fp-rate rate)
     )
 
     #_method
@@ -18837,16 +18749,15 @@
                         #_"boolean" :close-called false
                     )
                 )]
-            (AbstractTimeoutHandler''set-socket-timeout this, timeout)
+            (§ ass this (AbstractTimeoutHandler''set-socket-timeout this, timeout))
             (AbstractTimeoutHandler''set-timeout-enabled this, true)
-            this
         )
     )
 
     #_override
     (defn #_"void" AbstractTimeoutHandler'''timeout-occurred [#_"NioClientHandler" this]
         (sync this
-            (§ assoc this :close-on-open true)
+            (§ ass this (assoc this :close-on-open true))
             (StreamConnection'''connection-closed this)
         )
         nil
@@ -18857,7 +18768,7 @@
         (sync this
             (PeerGroup''stop-async (:manager this))
             (when (not (:close-called this))
-                (§ assoc this :close-called true)
+                (§ ass this (assoc this :close-called true))
                 (StreamConnection'''connection-closed (:upstream-connection this))
             )
         )
@@ -18889,8 +18800,8 @@
                 )
                 :else
                 (do
-                    (AbstractTimeoutHandler''set-timeout-enabled this, false)
-                    (§ assoc this :write-target target)
+                    (§ ass this (AbstractTimeoutHandler''set-timeout-enabled this, false))
+                    (§ ass this (assoc this :write-target target))
                     (StreamConnection'''set-write-target (:upstream-connection this), target)
                 )
             )
@@ -19025,7 +18936,7 @@
                             (log/warn (str "Failed to connect to " (.getRemoteSocketAddress (.socket sc))))
                             (MessageWriteTarget'''close-connection handler) ;; Failed to connect for some reason.
                             (.setException (:future data), (ConnectException. "Unknown reason"))
-                            (§ assoc data :future nil)
+                            (§ ass data (assoc data :future nil))
                         )
                     )
                     (catch Exception e
@@ -19036,7 +18947,7 @@
                             (log/warn e, (str "Failed to connect with exception: " (.getName (.getClass cause)) ": " (.getMessage cause)))
                             (MessageWriteTarget'''close-connection handler)
                             (.setException (:future data), cause)
-                            (§ assoc data :future nil)
+                            (§ ass data (assoc data :future nil))
                         )
                     )
                 )
@@ -19424,7 +19335,7 @@
     #_throws #_[ "PeerDiscoveryException" ]
     #_override
     (defn #_"InetSocketAddress*" PeerDiscovery'''get-peers [#_"MultiplexingDiscovery" this, #_"long" services, #_"long" timeout, #_"TimeUnit" unit]
-        (§ assoc this :v-thread-pool (MultiplexingDiscovery'''create-executor this))
+        (§ ass this (assoc this :v-thread-pool (MultiplexingDiscovery'''create-executor this)))
         (try
             (let [#_"List<Callable<InetSocketAddress*>>" tasks (ArrayList.)]
                 (doseq [#_"PeerDiscovery" seed (:seeds this)]
@@ -19530,7 +19441,7 @@
     #_method
     (defn- #_"InetSocketAddress" SeedPeers''next-peer [#_"SeedPeers" this]
         (when-let [#_"int" seed (first (:seeds this))]
-            (§ update this :seeds next)
+            (§ ass this (update this :seeds next))
             (InetSocketAddress. (SeedPeers'convert-address seed), (-> this :ledger :port))
         )
     )
@@ -20661,81 +20572,24 @@
     (def- #_"int" Script'MAX_PUBKEYS_PER_MULTISIG 20)
     (def- #_"int" Script'MAX_SCRIPT_SIZE 10000)
     (def #_"int" Script'SIG_SIZE 75)
-    ;;; Max number of sigops allowed in a standard p2sh redeem script. ;;
+    ;;;
+     ; Max number of sigops allowed in a standard p2sh redeem script.
+     ;;
     (def #_"int" Script'MAX_P2SH_SIGOPS 15)
 
-    (defn- #_"Script" Script'init []
+    (defn- #_"Script" Script'new [#_"List<ScriptChunk>" chunks, #_"byte[]" program]
         (hash-map
             ;; The program is a set of chunks where each element is either [opcode] or [data, data, data ...].
-            #_"List<ScriptChunk>" :chunks nil
+            #_"List<ScriptChunk>" :chunks chunks
             ;; Unfortunately, scripts are not ever re-serialized or canonicalized when used in signature hashing.
             ;; Thus we must preserve the exact bytes that we read off the wire, along with the parsed form.
-            #_"byte[]" :program nil
-
-            ;; Creation time of the associated keys in seconds since the epoch.
-            #_"long" :creation-time-seconds 0
-        )
-    )
-
-    ;;; Creates an empty script that serializes to nothing. ;;
-    (defn- #_"Script" Script'new []
-        (let [this (Script'init)]
-            (assoc this :chunks (ArrayList.))
+            #_"byte[]" :program program
         )
     )
 
     ;; Used from ScriptBuilder.
     (defn #_"Script" Script'from-chunks [#_"List<ScriptChunk>" chunks]
-        (let [this (Script'init)]
-            (§ assoc this :chunks (ArrayList. chunks))
-            (§ assoc this :creation-time-seconds (Time'seconds))
-            this
-        )
-    )
-
-    ;;;
-     ; Construct a Script that copies and wraps the programBytes array.
-     ; The array is parsed and checked for syntactic validity.
-     ;
-     ; @param programBytes Array of program bytes from a transaction.
-     ;;
-    #_throws #_[ "ScriptException" ]
-    (defn #_"Script" Script'from-bytes
-        ([#_"byte[]" bytes] (Script'from-bytes bytes, 0))
-        ([#_"byte[]" bytes, #_"long" secs]
-            (let [this (Script'init)]
-                (§ assoc this :program bytes)
-                (Script''parse this, bytes)
-                (§ assoc this :creation-time-seconds secs)
-                this
-            )
-        )
-    )
-
-    #_method
-    (defn #_"long" Script''get-creation-time-seconds [#_"Script" this]
-        (:creation-time-seconds this)
-    )
-
-    #_method
-    (defn #_"void" Script''set-creation-time-seconds [#_"Script" this, #_"long" secs]
-        (§ assoc this :creation-time-seconds secs)
-        nil
-    )
-
-    ;;; Returns the serialized program as a newly created byte array. ;;
-    #_method
-    (defn #_"byte[]" Script''get-program [#_"Script" this]
-        ;; Don't round-trip as Bitcoin Core doesn't and it would introduce a mismatch.
-        (when' (nil? (:program this)) => (Arrays/copyOf (:program this), (alength (:program this)))
-            (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
-                (doseq [#_"ScriptChunk" chunk (:chunks this)]
-                    (ScriptChunk''write-chunk chunk, baos)
-                )
-                (§ assoc this :program (.toByteArray baos))
-                (:program this)
-            )
-        )
+        (Script'new (ArrayList. chunks), nil)
     )
 
     ;;;
@@ -20748,10 +20602,9 @@
      ; Bitcoin Core does something similar.
      ;;
     #_throws #_[ "ScriptException" ]
-    #_method
-    (defn- #_"void" Script''parse [#_"Script" this, #_"byte[]" program]
-        (§ assoc this :chunks (ArrayList. 5)) ;; Common size.
-        (let [#_"ByteArrayInputStream" bais (ByteArrayInputStream. program) #_"int" __initialSize (.available bais)]
+    (defn- #_"Script" Script'parse [#_"byte[]" bytes]
+        (let [#_"Script" this (Script'new (ArrayList. 5), bytes) ;; Common size.
+              #_"ByteArrayInputStream" bais (ByteArrayInputStream. bytes) #_"int" __initialSize (.available bais)]
             (while (pos? (.available bais))
                 (let [#_"int" start (- __initialSize (.available bais))
                       #_"int" opcode (.read bais)
@@ -20800,8 +20653,34 @@
                     (.add (:chunks this), chunk)
                 )
             )
+            this
         )
-        nil
+    )
+
+    ;;;
+     ; Construct a Script that copies and wraps the bytes array.
+     ; The array is parsed and checked for syntactic validity.
+     ;;
+    #_throws #_[ "ScriptException" ]
+    (defn #_"Script" Script'from-bytes [#_"byte[]" bytes]
+        (Script'parse bytes)
+    )
+
+    ;;;
+     ; Returns the serialized program as a newly created byte array.
+     ;;
+    #_method
+    (defn #_"byte[]" Script''get-program [#_"Script" this]
+        ;; Don't round-trip as Bitcoin Core doesn't and it would introduce a mismatch.
+        (when' (nil? (:program this)) => (Arrays/copyOf (:program this), (alength (:program this)))
+            (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
+                (doseq [#_"ScriptChunk" chunk (:chunks this)]
+                    (ScriptChunk''write-chunk chunk, baos)
+                )
+                (§ ass this (assoc this :program (.toByteArray baos)))
+                (:program this)
+            )
+        )
     )
 
     ;;;
@@ -20815,7 +20694,8 @@
         (and (= (.size (:chunks this)) 2)
              (ScriptChunk''equals-op-code (.get (:chunks this), 1), Script'OP_CHECKSIG)
              (not (ScriptChunk''is-op-code (.get (:chunks this), 0)))
-             (< 1 (alength (:data (.get (:chunks this), 0)))))
+             (< 1 (alength (:data (.get (:chunks this), 0))))
+        )
     )
 
     ;;;
@@ -20831,7 +20711,8 @@
              (ScriptChunk''equals-op-code (.get (:chunks this), 1), Script'OP_HASH160)
              (= (alength (:data (.get (:chunks this), 2))) Address'LENGTH)
              (ScriptChunk''equals-op-code (.get (:chunks this), 3), Script'OP_EQUALVERIFY)
-             (ScriptChunk''equals-op-code (.get (:chunks this), 4), Script'OP_CHECKSIG))
+             (ScriptChunk''equals-op-code (.get (:chunks this), 4), Script'OP_CHECKSIG)
+        )
     )
 
     ;;;
@@ -20952,7 +20833,7 @@
         (cond
             (Script''is-sent-to-address this)                  (Address'from-hash160 ledger, (Script''get-pub-key-hash this))
             (Script''is-pay-to-script-hash this)               (Address'from-p2sh-script ledger, this)
-            (and force? (Script''is-sent-to-raw-pub-key this)) (ECKey''to-address (ECKey'from-public-only-1-bytes (Script''get-pub-key this)), ledger)
+            (and force? (Script''is-sent-to-raw-pub-key this)) (ECKey''to-address (ECKey'from-public-only-bytes (Script''get-pub-key this)), ledger)
             :else (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Cannot cast this script to a pay-to-address type"))
         )
     )
@@ -21117,10 +20998,9 @@
             (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Only usable for multisig scripts."))
         )
 
-        (let [#_"List<ECKey>" keys (ArrayList.)
-              #_"int" n (Script'decode-from-op-n (:opcode (.get (:chunks this), (- (.size (:chunks this)) 2))))]
-            (loop-when-recur [#_"int" i 0] (< i n) [(inc i)]
-                (.add keys, (ECKey'from-public-only-1-bytes (:data (.get (:chunks this), (inc i)))))
+        (let [#_"List<ECKey>" keys (ArrayList.)]
+            (dotimes [#_"int" i (Script'decode-from-op-n (:opcode (.get (:chunks this), (- (.size (:chunks this)) 2))))]
+                (.add keys, (ECKey'from-public-only-bytes (:data (.get (:chunks this), (inc i)))))
             )
             keys
         )
@@ -21133,7 +21013,7 @@
         (let [#_"int" n (Script'decode-from-op-n (:opcode (.get (:chunks this), (- (.size (:chunks this)) 2))))
               #_"TransactionSignature" signature (TransactionSignature'decode-from-bitcoin-2 bytes, true)]
             (loop-when [#_"int" i 0] (< i n) => (throw (IllegalStateException. (str "Could not find matching key for signature on " hash " sig " (.encode Utils'HEX, bytes))))
-                (if (ECKey''verify-3s (ECKey'from-public-only-1-bytes (:data (.get (:chunks this), (inc i)))), hash, signature)
+                (if (ECKey''verify-3s (ECKey'from-public-only-bytes (:data (.get (:chunks this), (inc i)))), hash, signature)
                     i
                     (recur (inc i))
                 )
@@ -21180,14 +21060,15 @@
      ; Gets the count of regular SigOps in the script program (counting multisig ops as 20).
      ;;
     #_throws #_[ "ScriptException" ]
-    (defn #_"int" Script'get-sig-op-count-1 [#_"byte[]" program]
-        (let [#_"Script" script (Script'new)]
-            (try+
-                (Script''parse script, program)
-                (§ catch ScriptException _
-                    ;; Ignore errors and count up to the parse-able length.
-                )
-            )
+    (defn #_"int" Script'get-sig-op-count-1 [#_"byte[]" prog]
+        (let [#_"Script" script
+                (try+
+                    (Script'from-bytes prog)
+                    (§ catch ScriptException _
+                        ;; Ignore errors and count up to the parse-able length.
+                        (§ nil script)
+                    )
+                )]
             (Script'get-sig-op-count-2 (:chunks script), false)
         )
     )
@@ -21196,21 +21077,17 @@
      ; Gets the count of P2SH Sig Ops in the Script scriptSig.
      ;;
     #_throws #_[ "ScriptException" ]
-    (defn #_"long" Script'get-p2sh-sig-op-count [#_"byte[]" __scriptSig]
-        (let [#_"Script" script (Script'new)]
-            (try+
-                (Script''parse script, __scriptSig)
-                (§ catch ScriptException _
-                    ;; Ignore errors and count up to the parse-able length.
-                )
-            )
-            (loop-when [#_"int" i (dec (.size (:chunks script)))] (<= 0 i) => 0
-                (when' (not (ScriptChunk''is-op-code (.get (:chunks script), i))) => (recur (dec i))
-                    (let [#_"Script" __subScript (Script'new)]
-                        (Script''parse __subScript, (:data (.get (:chunks script), i)))
-                        (Script'get-sig-op-count-2 (:chunks __subScript), true)
+    (defn #_"int" Script'get-p2sh-sig-op-count [#_"byte[]" sig]
+        (let [#_"Script" script
+                (try+
+                    (Script'from-bytes sig)
+                    (§ catch ScriptException _
+                        ;; Ignore errors and count up to the parse-able length.
+                        (§ nil script)
                     )
-                )
+                )]
+            (let-when [#_"ScriptChunk" chunk (first (remove ScriptChunk''is-op-code (reverse (:chunks script))))] (some? chunk) => 0
+                (-> (Script'from-bytes (:data chunk)) :chunks (Script'get-sig-op-count-2 true))
             )
         )
     )
@@ -22276,36 +22153,17 @@
     )
 
     ;;;
-     ; Verifies that this script (interpreted as a scriptSig) correctly spends the given scriptPubKey, enabling all validation rules.
-     ;
-     ; @param txContainingThis The transaction in which this input scriptSig resides.
-     ;                         Accessing txContainingThis from another thread while this method runs results in undefined behavior.
-     ; @param scriptSigIndex The index in txContainingThis of the scriptSig (note: NOT the index of the scriptPubKey).
-     ; @param scriptPubKey The connected scriptPubKey containing the conditions needed to claim the value.
-     ; @deprecated Use {@link #correctlySpends(Transaction, long, Script, java.util.Set)}
-     ;             instead so that verification flags do not change as new verification options are added.
-     ;;
-    #_deprecated
-    #_throws #_[ "ScriptException" ]
-    #_method
-    (defn #_"void" Script''correctly-spends-4 [#_"Script" this, #_"Transaction" tx, #_"long" index, #_"Script" __scriptPubKey]
-        (Script''correctly-spends-5 this, tx, index, __scriptPubKey, Script'ALL_VERIFY_FLAGS)
-        nil
-    )
-
-    ;;;
      ; Verifies that this script (interpreted as a scriptSig) correctly spends the given scriptPubKey.
      ;
      ; @param txContainingThis The transaction in which this input scriptSig resides.
      ;                         Accessing txContainingThis from another thread while this method runs results in undefined behavior.
      ; @param scriptSigIndex The index in txContainingThis of the scriptSig (note: NOT the index of the scriptPubKey).
      ; @param scriptPubKey The connected scriptPubKey containing the conditions needed to claim the value.
-     ; @param verifyFlags Each flag enables one validation rule.  If in doubt, use {@link #correctlySpends(Transaction, long, Script)}
-     ;                    which sets all flags.
+     ; @param verifyFlags Each flag enables one validation rule.  If in doubt, use ALL_VERIFY_FLAGS.
      ;;
     #_throws #_[ "ProtocolException", "ScriptException" ]
     #_method
-    (defn #_"void" Script''correctly-spends-5 [#_"Script" this, #_"Transaction" tx, #_"long" index, #_"Script" __scriptPubKey, #_"Set<ScriptVerifyFlag>" flags]
+    (defn #_"void" Script''correctly-spends [#_"Script" this, #_"Transaction" tx, #_"long" index, #_"Script" __scriptPubKey, #_"Set<ScriptVerifyFlag>" flags]
         ;; Clone the transaction because executing the script involves editing it, and if we die, we'll leave
         ;; the tx half broken (also it's not so thread safe to work on it directly).
         (let [tx (Transaction'from-wire (:ledger tx), (ByteBuffer/wrap (Message''to-bytes tx, Transaction''to-wire)))]
@@ -22346,27 +22204,19 @@
                             )
                         )
 
-                        (let [#_"Script" __scriptPubKeyP2SH (Script'from-bytes (.pollLast __p2shStack))]
-                            (Script'execute-script-5 tx, index, __scriptPubKeyP2SH, __p2shStack, flags)
+                        (Script'execute-script-5 tx, index, (Script'from-bytes (.pollLast __p2shStack)), __p2shStack, flags)
 
-                            (when (zero? (.size __p2shStack))
-                                (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, "P2SH stack empty at end of script execution."))
-                            )
-                            (when-not (Script'cast-to-bool (.pollLast __p2shStack))
-                                (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, "P2SH script execution resulted in a non-true stack"))
-                            )
+                        (when (zero? (.size __p2shStack))
+                            (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, "P2SH stack empty at end of script execution."))
+                        )
+                        (when-not (Script'cast-to-bool (.pollLast __p2shStack))
+                            (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, "P2SH script execution resulted in a non-true stack"))
                         )
                     )
                 )
             )
         )
         nil
-    )
-
-    ;; Utility that doesn't copy for internal use.
-    #_method
-    (defn- #_"byte[]" Script''get-quick-program [#_"Script" this]
-        (or (:program this) (Script''get-program this))
     )
 
     ;;;
@@ -22382,6 +22232,12 @@
             (Script''is-pay-to-script-hash this)  :ScriptType'P2SH
             :else                                 :ScriptType'NO_TYPE
         )
+    )
+
+    ;; Utility that doesn't copy for internal use.
+    #_method
+    (defn- #_"byte[]" Script''get-quick-program [#_"Script" this]
+        (or (:program this) (Script''get-program this))
     )
 
     #_foreign
@@ -22412,28 +22268,24 @@
 
 ;;;
  ; Tools for the construction of commonly used script types.  You don't normally need this as it's hidden
- ; behind convenience methods on {@link Transaction}, but they are useful when working with
- ; the protocol at a lower level.
+ ; behind convenience methods on {@link Transaction}, but they are useful when working with the protocol
+ ; at a lower level.
  ;;
 (class-ns ScriptBuilder
-    (defn- #_"ScriptBuilder" ScriptBuilder'init []
+    (defn- #_"ScriptBuilder" ScriptBuilder'init [#_"List<ScriptChunk>" chunks]
         (hash-map
-            #_"List<ScriptChunk>" :chunks nil
+            #_"List<ScriptChunk>" :chunks chunks
         )
     )
 
     ;;; Creates a fresh ScriptBuilder with an empty program. ;;
     (defn #_"ScriptBuilder" ScriptBuilder'new-0 []
-        (let [this (ScriptBuilder'init)]
-            (assoc this :chunks (LinkedList.))
-        )
+        (ScriptBuilder'init (LinkedList.))
     )
 
     ;;; Creates a fresh ScriptBuilder with the given program as the starting point. ;;
     (defn #_"ScriptBuilder" ScriptBuilder'new-1 [#_"Script" template]
-        (let [this (ScriptBuilder'init)]
-            (assoc this :chunks (ArrayList. (:chunks template)))
-        )
+        (ScriptBuilder'init (ArrayList. (:chunks template)))
     )
 
     ;;; Adds the given chunk to the end of the program. ;;
@@ -22442,10 +22294,10 @@
         (ScriptBuilder''add-chunk-3 this, (.size (:chunks this)), chunk)
     )
 
-    ;;; Adds the given chunk at the given index in the program. ;;
+    ;;; Adds the given chunk at the given index in the program. ;;
     #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''add-chunk-3 [#_"ScriptBuilder" this, #_"int" index, #_"ScriptChunk" chunk]
-        (.add (:chunks this), index, chunk)
+    (defn #_"ScriptBuilder" ScriptBuilder''add-chunk-3 [#_"ScriptBuilder" this, #_"int" index, #_"ScriptChunk" chunk]
+        (.add (:chunks this), index, chunk)
         this
     )
 
@@ -22455,11 +22307,11 @@
         (ScriptBuilder''op-3 this, (.size (:chunks this)), opcode)
     )
 
-    ;;; Adds the given opcode to the given index in the program. ;;
+    ;;; Adds the given opcode to the given index in the program. ;;
     #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''op-3 [#_"ScriptBuilder" this, #_"int" index, #_"int" opcode]
+    (defn #_"ScriptBuilder" ScriptBuilder''op-3 [#_"ScriptBuilder" this, #_"int" index, #_"int" opcode]
         (assert-argument (< Script'OP_PUSHDATA4 opcode))
-        (ScriptBuilder''add-chunk-3 this, index, (ScriptChunk'new opcode, nil))
+        (ScriptBuilder''add-chunk-3 this, index, (ScriptChunk'new opcode, nil))
     )
 
     ;;; Adds a copy of the given byte array as a data element (i.e. PUSHDATA) at the end of the program. ;;
@@ -22468,9 +22320,9 @@
         (if (= (alength data) 0) (ScriptBuilder''small-num-2 this, 0) (ScriptBuilder''data-3 this, (.size (:chunks this)), data))
     )
 
-    ;;; Adds a copy of the given byte array as a data element (i.e. PUSHDATA) at the given index in the program. ;;
+    ;;; Adds a copy of the given byte array as a data element (i.e. PUSHDATA) at the given index in the program. ;;
     #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''data-3 [#_"ScriptBuilder" this, #_"int" index, #_"byte[]" data]
+    (defn #_"ScriptBuilder" ScriptBuilder''data-3 [#_"ScriptBuilder" this, #_"int" index, #_"byte[]" data]
         ;; implements BIP62
         (let [#_"int" n (alength data) #_"byte[]" copy (Arrays/copyOf data, n)
               #_"int" opcode
@@ -22482,7 +22334,7 @@
                     (< n 65536) Script'OP_PUSHDATA2
                     :else (throw (RuntimeException. "Unimplemented"))
                 )]
-            (ScriptBuilder''add-chunk-3 this, index, (ScriptChunk'new opcode, copy))
+            (ScriptBuilder''add-chunk-3 this, index, (ScriptChunk'new opcode, copy))
         )
     )
 
@@ -22496,12 +22348,12 @@
     )
 
     ;;;
-     ; Adds the given number to the given index in the program.
+     ; Adds the given number to the given index in the program.
      ; Automatically uses shortest encoding possible.
      ;;
     #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''number-3 [#_"ScriptBuilder" this, #_"int" index, #_"long" num]
-        (if (<= 0 num 16) (ScriptBuilder''small-num-3 this, index, (int num)) (ScriptBuilder''big-num-3 this, index, num))
+    (defn #_"ScriptBuilder" ScriptBuilder''number-3 [#_"ScriptBuilder" this, #_"int" index, #_"long" num]
+        (if (<= 0 num 16) (ScriptBuilder''small-num-3 this, index, (int num)) (ScriptBuilder''big-num-3 this, index, num))
     )
 
     ;;;
@@ -22515,7 +22367,8 @@
         (ScriptBuilder''small-num-3 this, (.size (:chunks this)), num)
     )
 
-    ;;; Adds the given number as a push data chunk.
+    ;;;
+     ; Adds the given number as a push data chunk.
      ; This is intended to use for negative numbers or values > 16, and although
      ; it will accept numbers in the range 0-16 inclusive, the encoding would be
      ; considered non-standard.
@@ -22528,21 +22381,21 @@
     )
 
     ;;;
-     ; Adds the given number as a OP_N opcode to the given index in the program.
+     ; Adds the given number as a OP_N opcode to the given index in the program.
      ; Only handles values 0-16 inclusive.
      ;
      ; @see #number(int)
      ;;
     #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''small-num-3 [#_"ScriptBuilder" this, #_"int" index, #_"int" num]
+    (defn #_"ScriptBuilder" ScriptBuilder''small-num-3 [#_"ScriptBuilder" this, #_"int" index, #_"int" num]
         (assert-argument (<= 0 num), "Cannot encode negative numbers with smallNum")
         (assert-argument (<= num 16), "Cannot encode numbers larger than 16 with smallNum")
 
-        (ScriptBuilder''add-chunk-3 this, index, (ScriptChunk'new (Script'encode-to-op-n num), nil))
+        (ScriptBuilder''add-chunk-3 this, index, (ScriptChunk'new (Script'encode-to-op-n num), nil))
     )
 
     ;;;
-     ; Adds the given number as a push data chunk to the given index in the program.
+     ; Adds the given number as a push data chunk to the given index in the program.
      ; This is intended to use for negative numbers or values > 16, and although
      ; it will accept numbers in the range 0-16 inclusive, the encoding would be
      ; considered non-standard.
@@ -22550,7 +22403,7 @@
      ; @see #number(int)
      ;;
     #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''big-num-3 [#_"ScriptBuilder" this, #_"int" index, #_"long" num]
+    (defn #_"ScriptBuilder" ScriptBuilder''big-num-3 [#_"ScriptBuilder" this, #_"int" index, #_"long" num]
         (let [#_"byte[]" data
                 (when' (not= num 0) => (byte-array 0)
                     (let [#_"Stack<Byte>" stack (Stack.)]
@@ -22576,7 +22429,7 @@
                 )]
             ;; At most the encoded value could take up to 8 bytes, so we don't need
             ;; to use OP_PUSHDATA opcodes.
-            (ScriptBuilder''add-chunk-3 this, index, (ScriptChunk'new (alength data), data))
+            (ScriptBuilder''add-chunk-3 this, index, (ScriptChunk'new (alength data), data))
         )
     )
 
@@ -23412,14 +23265,14 @@
                                         ;; We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
                                         ;; we sign missing pieces (to check this would require either assuming any signatures are signing
                                         ;; standard output types or a way to get processed signatures out of script execution).
-                                        (Script''correctly-spends-4 __inSig, tx, i, __outKey)
+                                        (Script''correctly-spends __inSig, tx, i, __outKey, Script'ALL_VERIFY_FLAGS)
                                         (log/warn "Input" i "already correctly spends output, assuming SIGHASH type used will be safe and skipping signing.")
                                         (§ catch ScriptException _
                                             (let [#_"RedeemData" data (TransactionInput''get-connected-redeem-data in, bag)]
                                                 (when' (some? data) => (log/warn (str "No redeem data found for input " i))
                                                     (let [#_"Sha256Hash" hash (Transaction''hash-for-signature-5s tx, i, (:redeem-script data), SigHash'ALL, false)
                                                           #_"SignatureAndKey" sig+key (CustomTransactionSigner'''get-signature this, hash, (.get (:key-paths __propTx), __outKey))]
-                                                        (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature __outKey, __inSig, (TransactionSignature''encode-to-bitcoin (TransactionSignature'from-ecdsa (:sig sig+key), SigHash'ALL, false)), (Script''get-sig-insertion-index __inSig, hash, (:pub-key sig+key))))
+                                                        (§ ass in (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature __outKey, __inSig, (TransactionSignature''encode-to-bitcoin (TransactionSignature'from-ecdsa (:sig sig+key), SigHash'ALL, false)), (Script''get-sig-insertion-index __inSig, hash, (:pub-key sig+key)))))
                                                     )
                                                 )
                                             )
@@ -23478,7 +23331,7 @@
                                 ;; We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
                                 ;; we sign missing pieces (to check this would require either assuming any signatures are signing
                                 ;; standard output types or a way to get processed signatures out of script execution).
-                                (Script''correctly-spends-5 inSig, tx, i, outKey, LocalTransactionSigner'MINIMUM_VERIFY_FLAGS)
+                                (Script''correctly-spends inSig, tx, i, outKey, LocalTransactionSigner'MINIMUM_VERIFY_FLAGS)
                                 (log/warn (str "Input " i " already correctly spends output, assuming SIGHASH type used will be safe and skipping signing."))
                                 (§ catch ScriptException _
                                     (let [#_"RedeemData" redeem (TransactionInput''get-connected-redeem-data in, bag)
@@ -23505,7 +23358,7 @@
                                                 ;; Therefore, always place as first signature.
                                                 (try+
                                                     (let [#_"TransactionSignature" sig (Transaction''calculate-signature-b tx, i, key, script, SigHash'ALL, false)]
-                                                        (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature outKey, inSig, (TransactionSignature''encode-to-bitcoin sig), 0))
+                                                        (§ ass in (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature outKey, inSig, (TransactionSignature''encode-to-bitcoin sig), 0)))
                                                     )
                                                     (§ catch MissingPrivateKeyException _
                                                         (log/warn (str "No private key in keypair for input " i))
@@ -23557,7 +23410,7 @@
                                                     :MissingSigsMode'THROW
                                                         (throw+ (MissingSignatureException'new))
                                                     :MissingSigsMode'USE_DUMMY_SIG
-                                                        (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature outKey, inSig, dummy, (dec j)))
+                                                        (§ ass in (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature outKey, inSig, dummy, (dec j))))
                                                     nil
                                                 )
                                             )
@@ -23568,7 +23421,7 @@
                                             :MissingSigsMode'THROW
                                                 (throw+ (MissingPrivateKeyException'new))
                                             :MissingSigsMode'USE_DUMMY_SIG
-                                                (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature outKey, inSig, dummy, 0))
+                                                (§ ass in (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature outKey, inSig, dummy, 0)))
                                             nil
                                         )
                                     )
@@ -23891,18 +23744,18 @@
 
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" BlockStore'''set-chain-head [#_"MemoryBlockStore" this, #_"StoredBlock" head]
+    (defn #_"void" BlockStore'''set-chain-head [#_"MemoryBlockStore" this, #_"StoredBlock" head]
         (when (nil? (:block-map this))
             (throw+ (BlockStoreException'new "MemoryBlockStore is closed"))
         )
 
-        (§ assoc this :chain-head head)
+        (§ ass this (assoc this :chain-head head))
         nil
     )
 
     #_override
-    (defn #_"void" BlockStore'''close [#_"MemoryBlockStore" this]
-        (§ assoc this :block-map nil)
+    (defn #_"void" BlockStore'''close [#_"MemoryBlockStore" this]
+        (§ ass this (assoc this :block-map nil))
         nil
     )
 )
@@ -24206,7 +24059,7 @@
     (defn #_"void" BlockStore'''set-chain-head [#_"MemoryFullPrunedBlockStore" this, #_"StoredBlock" head]
         (sync this
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
-            (§ assoc this :chain-head head)
+            (§ ass this (assoc this :chain-head head))
         )
         nil
     )
@@ -24225,7 +24078,7 @@
     (defn #_"void" FullPrunedBlockStore'''set-verified-chain-head [#_"MemoryFullPrunedBlockStore" this, #_"StoredBlock" head]
         (sync this
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
-            (§ assoc this :verified-chain-head head)
+            (§ ass this (assoc this :verified-chain-head head))
             (when (< (:stored-height (:chain-head this)) (:stored-height head))
                 (BlockStore'''set-chain-head this, head)
             )
@@ -24237,8 +24090,8 @@
     )
 
     #_override
-    (defn #_"void" BlockStore'''close [#_"MemoryFullPrunedBlockStore" this]
-        (§ assoc this :block-map nil, :full-block-map nil, :transaction-output-map nil)
+    (defn #_"void" BlockStore'''close [#_"MemoryFullPrunedBlockStore" this]
+        (§ ass this (assoc this :block-map nil, :full-block-map nil, :transaction-output-map nil))
         nil
     )
 
@@ -24549,7 +24402,7 @@
                                 (throw+ (BlockStoreException'new (str "Corrupted block store: could not find chain head: " hash)))
                             )
 
-                            (§ assoc this :last-chain-head block)
+                            (§ ass this (assoc this :last-chain-head block))
                         )
                     )
                 )
@@ -24563,7 +24416,7 @@
     (defn #_"void" BlockStore'''set-chain-head [#_"SPVBlockStore" this, #_"StoredBlock" head]
         (let-when [#_"MappedByteBuffer" buffer (:buffer this)] (some? buffer) => (throw+ (BlockStoreException'new "Store closed"))
             (sync (:blockstore-lock this)
-                (§ assoc this :last-chain-head head)
+                (§ ass this (assoc this :last-chain-head head))
                 (let [#_"byte[]" bytes (Sha256Hash''get-bytes (Block''get-hash (:stored-header head)))]
                     (.position buffer, 8)
                     (.put buffer, bytes)
@@ -24578,7 +24431,7 @@
     (defn #_"void" BlockStore'''close [#_"SPVBlockStore" this]
         (try
             (.force (:buffer this))
-            (§ assoc this :buffer nil) ;; Allow it to be GCd and the underlying file mapping to go away.
+            (§ ass this (assoc this :buffer nil)) ;; Allow it to be GCd and the underlying file mapping to go away.
             (.close (:random-access-file this))
             (catch IOException e
                 (throw+ (BlockStoreException'new) e)
@@ -24745,24 +24598,21 @@
                     #_"long" :retry-time 0
                 )]
             (ExponentialBackoff''track-success this)
-            this
         )
     )
 
     ;;; Track a success - reset back off interval to the initial value. ;;
     #_method
-    (defn #_"void" ExponentialBackoff''track-success [#_"ExponentialBackoff" this]
-        (§ assoc this :backoff (-> this :params :initial))
-        (§ assoc this :retry-time (Time'millis))
-        nil
+    (defn #_"ExponentialBackoff" ExponentialBackoff''track-success [#_"ExponentialBackoff" this]
+        (assoc this :backoff (-> this :params :initial), :retry-time (Time'millis))
     )
 
     ;;; Track a failure - multiply the back off interval by the multiplier. ;;
     #_method
-    (defn #_"void" ExponentialBackoff''track-failure [#_"ExponentialBackoff" this]
-        (§ assoc this :retry-time (+ (Time'millis) (long (:backoff this))))
-        (§ assoc this :backoff (min (* (:backoff this) (-> this :params :multiplier)), (-> this :params :maximum)))
-        nil
+    (defn #_"ExponentialBackoff" ExponentialBackoff''track-failure [#_"ExponentialBackoff" this]
+        (let [this (assoc this :retry-time (+ (Time'millis) (long (:backoff this))))]
+            (update this :backoff #(min (* % (-> this :params :multiplier)) (-> this :params :maximum)))
+        )
     )
 
     #_foreign
@@ -24770,12 +24620,6 @@
     (defn #_"int" Comparable'''compareTo [#_"ExponentialBackoff" this, #_"ExponentialBackoff" that]
         ;; Note that in this implementation compareTo() is not consistent with equals().
         (compare (:retry-time this), (:retry-time that))
-    )
-
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"ExponentialBackoff" this]
-        (str "ExponentialBackoff retry=" (:retry-time this) " backoff=" (:backoff this))
     )
 )
 
@@ -25211,8 +25055,8 @@
     (defn #_"ECKey" KeyChain'''get-key [#_"BasicKeyChain" this, #_"KeyPurpose" ignored]
         (sync (:b-keychain-lock this)
             (when (empty? (:hash-to-keys this))
-                (let [#_"ECKey" key (ECKey'new-0)]
-                    (BasicKeyChain''import-key-locked this, key)
+                (let [#_"ECKey" key (ECKey'new)]
+                    (§ ass this (BasicKeyChain''import-key-locked this, key))
                     (BasicKeyChain''queue-on-keys-added this, (ImmutableList/of key))
                 )
             )
@@ -25229,10 +25073,10 @@
                 (when (< m n)
                     (let [#_"List<ECKey>" keys (ArrayList. (- n m))]
                         (loop-when-recur [#_"int" i 0] (< i (- n m)) [(inc i)]
-                            (.add keys, (ECKey'new-0))
+                            (.add keys, (ECKey'new))
                         )
 
-                        (BasicKeyChain''import-keys-locked this, keys)
+                        (§ ass this (BasicKeyChain''import-keys-locked this, keys))
                         (BasicKeyChain''queue-on-keys-added this, keys)
                     )
                 )
@@ -25262,7 +25106,7 @@
                 (doseq [#_"ECKey" key keys]
                     (when (not (KeyChain'''has-key this, key))
                         (.add added, key)
-                        (BasicKeyChain''import-key-locked this, key)
+                        (§ ass this (BasicKeyChain''import-key-locked this, key))
                     )
                 )
                 (when (< 0 (.size added))
@@ -25274,9 +25118,9 @@
     )
 
     #_method
-    (defn- #_"void" BasicKeyChain''import-key-locked [#_"BasicKeyChain" this, #_"ECKey" key]
+    (defn- #_"BasicKeyChain" BasicKeyChain''import-key-locked [#_"BasicKeyChain" this, #_"ECKey" key]
         (cond
-            (empty? (:hash-to-keys this))                            (§ assoc this :is-watching (ECKey''is-watching key))
+            (empty? (:hash-to-keys this))                            (§ ass this (assoc this :is-watching (ECKey''is-watching key)))
             (and (ECKey''is-watching key) (not (:is-watching this))) (throw (IllegalArgumentException. "Key is watching but chain is not"))
             (and (not (ECKey''is-watching key)) (:is-watching this)) (throw (IllegalArgumentException. "Key is not watching but chain is"))
         )
@@ -25284,29 +25128,29 @@
             (.put (:hash-to-keys this), (§ ByteString/copyFrom (ECKey''get-pub-key-hash key)), key)
             (assert-state (nil? prior))
         )
-        nil
+        this
     )
 
     #_method
-    (defn- #_"void" BasicKeyChain''import-keys-locked [#_"BasicKeyChain" this, #_"List<ECKey>" keys]
+    (defn- #_"BasicKeyChain" BasicKeyChain''import-keys-locked [#_"BasicKeyChain" this, #_"List<ECKey>" keys]
         (doseq [#_"ECKey" key keys]
-            (BasicKeyChain''import-key-locked this, key)
+            (§ ass this (BasicKeyChain''import-key-locked this, key))
         )
-        nil
+        this
     )
 
     ;;;
      ; Imports a key to the key chain.  If key is present in the key chain, ignore it.
      ;;
     #_method
-    (defn #_"void" BasicKeyChain''import-key [#_"BasicKeyChain" this, #_"ECKey" key]
+    (defn #_"BasicKeyChain" BasicKeyChain''import-key [#_"BasicKeyChain" this, #_"ECKey" key]
         (sync (:b-keychain-lock this)
             (when-not (KeyChain'''has-key this, key)
-                (BasicKeyChain''import-key-locked this, key)
+                (§ ass this (BasicKeyChain''import-key-locked this, key))
                 (BasicKeyChain''queue-on-keys-added this, (ImmutableList/of key))
             )
         )
-        nil
+        this
     )
 
     #_method
@@ -25606,7 +25450,7 @@
                 (let [this (assoc this :basic-key-chain (BasicKeyChain'new))
                       this (assoc this :seed nil)
                       this (assoc this :root-key nil)
-                      _ (BasicKeyChain''import-key (:basic-key-chain this), key)
+                      this (update this :basic-key-chain BasicKeyChain''import-key key)
                       this (assoc this :hierarchy (DeterministicHierarchy'new key))
                       this (DeterministicKeyChain''initialize-hierarchy this, key)]
                     (assoc this :is-following following?)
@@ -25634,11 +25478,11 @@
               this (assoc this :basic-key-chain (BasicKeyChain'new))
               this (assoc this :root-key (HDKeyDerivation'create-master-private-key (:seed-bytes seed)))
               _ (ECKey'''set-creation-time-seconds (:root-key this), (:creation-time-seconds seed))
-              _ (BasicKeyChain''import-key (:basic-key-chain this), (:root-key this))
+              this (update this :basic-key-chain BasicKeyChain''import-key (:root-key this))
               this (assoc this :hierarchy (DeterministicHierarchy'new (:root-key this)))
               #_"List<ChildNumber>" path (DeterministicKeyChain''get-account-path this)]
             (loop-when-recur [#_"int" i 1] (<= i (.size path)) [(inc i)]
-                (BasicKeyChain''import-key (:basic-key-chain this), (DeterministicHierarchy''get-4 (:hierarchy this), (.subList path, 0, i), false, true))
+                (§ ass (:basic-key-chain this) (BasicKeyChain''import-key (:basic-key-chain this), (DeterministicHierarchy''get-4 (:hierarchy this), (.subList path, 0, i), false, true)))
             )
             (DeterministicKeyChain''initialize-hierarchy this, (:root-key this))
         )
@@ -25657,8 +25501,8 @@
         (let [#_"List<ChildNumber>" path (DeterministicKeyChain''get-account-path this)
               this (assoc this :external-parent-key (DeterministicHierarchy''derive-child-5 (:hierarchy this), path, false, false, ChildNumber'ZERO))
               this (assoc this :internal-parent-key (DeterministicHierarchy''derive-child-5 (:hierarchy this), path, false, false, ChildNumber'ONE))]
-            (BasicKeyChain''import-key (:basic-key-chain this), (:external-parent-key this))
-            (BasicKeyChain''import-key (:basic-key-chain this), (:internal-parent-key this))
+            (§ ass (:basic-key-chain this) (BasicKeyChain''import-key (:basic-key-chain this), (:external-parent-key this)))
+            (§ ass (:basic-key-chain this) (BasicKeyChain''import-key (:basic-key-chain this), (:internal-parent-key this)))
             this
         )
     )
@@ -25683,12 +25527,12 @@
                     (condp =? purpose
                         [:KeyPurpose'RECEIVE_FUNDS :KeyPurpose'REFUND]
                             (do
-                                (§ update this :issued-external-keys + __numberOfKeys)
+                                (§ ass this (update this :issued-external-keys + __numberOfKeys))
                                 [(:issued-external-keys this) (:external-parent-key this)]
                             )
                         [:KeyPurpose'AUTHENTICATION :KeyPurpose'CHANGE]
                             (do
-                                (§ update this :issued-internal-keys + __numberOfKeys)
+                                (§ ass this (update this :issued-internal-keys + __numberOfKeys))
                                 [(:issued-internal-keys this) (:internal-parent-key this)]
                             )
                         (throw (UnsupportedOperationException.))
@@ -25744,23 +25588,23 @@
      ; If the counter was updated, we also might trigger lookahead.
      ;;
     #_method
-    (defn #_"void" DeterministicKeyChain''mark-key-as-used [#_"DeterministicKeyChain" this, #_"DeterministicKey" key]
+    (defn #_"DeterministicKeyChain" DeterministicKeyChain''mark-key-as-used [#_"DeterministicKeyChain" this, #_"DeterministicKey" key]
         (let [#_"int" n (inc (ChildNumber''i (DeterministicKey''get-child-number key)))]
             (condp = (DeterministicKey''get-parent key)
                 (:internal-parent-key this)
                     (when (< (:issued-internal-keys this) n)
-                        (§ assoc this :issued-internal-keys n)
-                        (DeterministicKeyChain''maybe-look-ahead-1 this)
+                        (§ ass this (assoc this :issued-internal-keys n))
+                        (§ ass this (DeterministicKeyChain''maybe-look-ahead-1 this))
                     )
                 (:external-parent-key this)
                     (when (< (:issued-external-keys this) n)
-                        (§ assoc this :issued-external-keys n)
-                        (DeterministicKeyChain''maybe-look-ahead-1 this)
+                        (§ ass this (assoc this :issued-external-keys n))
+                        (§ ass this (DeterministicKeyChain''maybe-look-ahead-1 this))
                     )
                 nil
             )
         )
-        nil
+        this
     )
 
     #_method
@@ -25786,7 +25630,7 @@
         (sync (:d-keychain-lock this)
             (let [#_"DeterministicKey" key (cast' DeterministicKey (BasicKeyChain''find-key-from-pub-hash (:basic-key-chain this), hash))]
                 (when (some? key)
-                    (DeterministicKeyChain''mark-key-as-used this, key)
+                    (§ ass this (DeterministicKeyChain''mark-key-as-used this, key))
                 )
                 key
             )
@@ -25802,7 +25646,7 @@
         (sync (:d-keychain-lock this)
             (let [#_"DeterministicKey" key (cast' DeterministicKey (BasicKeyChain''find-key-from-pub-key (:basic-key-chain this), pubkey))]
                 (when (some? key)
-                    (DeterministicKeyChain''mark-key-as-used this, key)
+                    (§ ass this (DeterministicKeyChain''mark-key-as-used this, key))
                 )
                 key
             )
@@ -25854,7 +25698,7 @@
         ;; We need to return here the total number of keys including the lookahead zone, not the number
         ;; of keys we have issued via getKey/freshReceiveKey.
         (sync (:d-keychain-lock this)
-            (DeterministicKeyChain''maybe-look-ahead-1 this)
+            (§ ass this (DeterministicKeyChain''maybe-look-ahead-1 this))
             (KeyChain'''num-keys (:basic-key-chain this))
         )
     )
@@ -25919,7 +25763,7 @@
     (defn #_"BloomFilter" KeyChain'''get-filter [#_"DeterministicKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
         (sync (:d-keychain-lock this)
             (assert-argument (<= (KeyChain'''num-bloom-filter-entries this) size))
-            (DeterministicKeyChain''maybe-look-ahead-1 this)
+            (§ ass this (DeterministicKeyChain''maybe-look-ahead-1 this))
             (KeyChain'''get-filter (:basic-key-chain this), size, rate, tweak)
         )
     )
@@ -25949,9 +25793,9 @@
     (defn #_"void" DeterministicKeyChain'''set-lookahead-size [#_"DeterministicKeyChain" this, #_"int" size]
         (sync (:d-keychain-lock this)
             (let [#_"boolean" readjust? (= (:lookahead-threshold this) (DeterministicKeyChain''calc-default-lookahead-threshold this))]
-                (§ assoc this :lookahead-size size)
+                (§ ass this (assoc this :lookahead-size size))
                 (when readjust?
-                    (§ assoc this :lookahead-threshold (DeterministicKeyChain''calc-default-lookahead-threshold this))
+                    (§ ass this (assoc this :lookahead-threshold (DeterministicKeyChain''calc-default-lookahead-threshold this)))
                 )
             )
         )
@@ -25964,15 +25808,15 @@
      ; a relevant transaction, we'd extend the lookahead zone and generate a new filter, which is inefficient.
      ;;
     #_method
-    (defn #_"void" DeterministicKeyChain''set-lookahead-threshold [#_"DeterministicKeyChain" this, #_"int" n]
+    (defn #_"DeterministicKeyChain" DeterministicKeyChain''set-lookahead-threshold [#_"DeterministicKeyChain" this, #_"int" n]
         (sync (:d-keychain-lock this)
             (when (<= (:lookahead-size this) n)
                 (throw (IllegalArgumentException. "Threshold larger or equal to the lookaheadSize"))
             )
 
-            (§ assoc this :lookahead-threshold n)
+            (§ ass this (assoc this :lookahead-threshold n))
         )
-        nil
+        this
     )
 
     ;;;
@@ -25992,12 +25836,12 @@
      ; the lookahead procedure, but it's normally unnecessary as it will be done automatically when needed.
      ;;
     #_method
-    (defn #_"void" DeterministicKeyChain''maybe-look-ahead-1 [#_"DeterministicKeyChain" this]
+    (defn #_"DeterministicKeyChain" DeterministicKeyChain''maybe-look-ahead-1 [#_"DeterministicKeyChain" this]
         (sync (:d-keychain-lock this)
             (let [#_"List<DeterministicKey>" keys (DeterministicKeyChain''maybe-look-ahead-3 this, (:external-parent-key this), (:issued-external-keys this))]
                 (.addAll keys, (DeterministicKeyChain''maybe-look-ahead-3 this, (:internal-parent-key this), (:issued-internal-keys this)))
                 (when-not (empty? keys)
-                    (§ update this :key-lookahead-epoch inc)
+                    (§ ass this (update this :key-lookahead-epoch inc))
                     ;; Batch add all keys at once so there's only one event listener invocation, as this will be listened to
                     ;; by the wallet and used to rebuild/broadcast the Bloom filter.  That's expensive so we don't want to do
                     ;; it more often than necessary.
@@ -26005,7 +25849,7 @@
                 )
             )
         )
-        nil
+        this
     )
 
     #_method
@@ -26217,9 +26061,8 @@
 
     ;;; The number of signatures required to spend coins received by this keychain. ;;
     #_method
-    (defn #_"void" DeterministicKeyChain''set-sigs-required-to-spend [#_"DeterministicKeyChain" this, #_"int" __sigsRequiredToSpend]
-        (§ assoc this :sigs-required-to-spend __sigsRequiredToSpend)
-        nil
+    (defn #_"DeterministicKeyChain" DeterministicKeyChain''set-sigs-required-to-spend [#_"DeterministicKeyChain" this, #_"int" __sigsRequiredToSpend]
+        (assoc this :sigs-required-to-spend __sigsRequiredToSpend)
     )
 
     ;;;
@@ -26427,7 +26270,7 @@
     #_method
     (defn #_"RiskAnalysisResult" RiskAnalysis''analyze [#_"RiskAnalysis" this]
         (assert-state (not (:analyzed this)))
-        (§ assoc this :analyzed true)
+        (§ ass this (assoc this :analyzed true))
 
         (let [#_"RiskAnalysisResult" result (RiskAnalysis''analyze-is-final this)]
             (if (and (some? result) (not= result :RiskAnalysisResult'OK)) result (RiskAnalysis''analyze-is-standard this))
@@ -26443,7 +26286,7 @@
             )
             ;; We consider transactions that opt into replace-by-fee at risk of double spending.
             (when (Transaction''is-opt-in-full-rbf (:tx this))
-                (§ assoc this :non-final (:tx this))
+                (§ ass this (assoc this :non-final (:tx this)))
                 :RiskAnalysisResult'NON_FINAL
             )
             (when (some? (:wallet this))
@@ -26454,11 +26297,11 @@
                       #_"int" __adjustedHeight (inc height)]
                     (or
                         (when-not (Transaction''is-final (:tx this), __adjustedHeight, time)
-                            (§ assoc this :non-final (:tx this))
+                            (§ ass this (assoc this :non-final (:tx this)))
                             :RiskAnalysisResult'NON_FINAL
                         )
                         (when-let [#_"Transaction" tx (first (remove #(Transaction''is-final %, __adjustedHeight, time) (:dependencies this)))]
-                            (§ assoc this :non-final tx)
+                            (§ ass this (assoc this :non-final tx))
                             :RiskAnalysisResult'NON_FINAL
                         )
                         :RiskAnalysisResult'OK
@@ -26562,11 +26405,11 @@
                 :RiskAnalysisResult'OK
             )
             (when-not (= (RiskAnalysis'is-standard (:tx this)) :RuleViolation'NONE)
-                (§ assoc this :non-standard (:tx this))
+                (§ ass this (assoc this :non-standard (:tx this)))
                 :RiskAnalysisResult'NON_STANDARD
             )
             (when-let [#_"Transaction" tx (first (remove #(= (RiskAnalysis'is-standard %) :RuleViolation'NONE) (:dependencies this)))]
-                (§ assoc this :non-standard tx)
+                (§ ass this (assoc this :non-standard tx))
                 :RiskAnalysisResult'NON_STANDARD
             )
             :RiskAnalysisResult'OK
@@ -26837,12 +26680,12 @@
 
     ;;; Adds a new HD chain to the chains list, and make it the default chain (from which keys are issued). ;;
     #_method
-    (defn #_"void" KeyChainGroup''create-and-activate-new-hd-chain [#_"KeyChainGroup" this]
+    (defn #_"KeyChainGroup" KeyChainGroup''create-and-activate-new-hd-chain [#_"KeyChainGroup" this]
         ;; We can't do auto upgrade here because we don't know the rotation time, if any.
         (let [#_"DeterministicKeyChain" chain (DeterministicKeyChain'from-random (SecureRandom.))]
-            (KeyChainGroup''add-and-activate-hd-chain this, chain)
+            (§ ass this (KeyChainGroup''add-and-activate-hd-chain this, chain))
         )
-        nil
+        this
     )
 
     ;;;
@@ -26850,7 +26693,7 @@
      ; Useful for adding a complex pre-configured keychain, such as a married wallet.
      ;;
     #_method
-    (defn #_"void" KeyChainGroup''add-and-activate-hd-chain [#_"KeyChainGroup" this, #_"DeterministicKeyChain" chain]
+    (defn #_"KeyChainGroup" KeyChainGroup''add-and-activate-hd-chain [#_"KeyChainGroup" this, #_"DeterministicKeyChain" chain]
         (log/info (str "Creating and activating a new HD chain: " chain))
         (doseq [#_"ListenerRegistration<KeyChainEventListener>" r (BasicKeyChain''get-listeners (:basic this))]
             (KeyChain'''add-event-listener-3 chain, (:listener r), (:executor r))
@@ -26859,10 +26702,10 @@
             (DeterministicKeyChain'''set-lookahead-size chain, (:lookahead-size this))
         )
         (when (<= 0 (:lookahead-threshold this))
-            (DeterministicKeyChain''set-lookahead-threshold chain, (:lookahead-threshold this))
+            (§ ass chain (DeterministicKeyChain''set-lookahead-threshold chain, (:lookahead-threshold this)))
         )
         (.add (:chains this), chain)
-        nil
+        this
     )
 
     ;;;
@@ -26978,7 +26821,7 @@
                 (throw+ (DeterministicUpgradeRequiredException'new))
             )
             ;; Otherwise we have no HD chains and no random keys: we are a new born!  So a random seed is fine.
-            (KeyChainGroup''create-and-activate-new-hd-chain this)
+            (§ ass this (KeyChainGroup''create-and-activate-new-hd-chain this))
         )
         (.get (:chains this), (dec (.size (:chains this))))
     )
@@ -26988,12 +26831,12 @@
      ; See {@link DeterministicKeyChain#setLookaheadSize(int)} for more information.
      ;;
     #_method
-    (defn #_"void" KeyChainGroup''set-lookahead-size [#_"KeyChainGroup" this, #_"int" size]
-        (§ assoc this :lookahead-size size)
+    (defn #_"KeyChainGroup" KeyChainGroup''set-lookahead-size [#_"KeyChainGroup" this, #_"int" size]
+        (§ ass this (assoc this :lookahead-size size))
         (doseq [#_"DeterministicKeyChain" chain (:chains this)]
             (DeterministicKeyChain'''set-lookahead-size chain, size)
         )
-        nil
+        this
     )
 
     ;;;
@@ -27010,11 +26853,11 @@
      ; See {@link DeterministicKeyChain#setLookaheadThreshold(int)} for more information.
      ;;
     #_method
-    (defn #_"void" KeyChainGroup''set-lookahead-threshold [#_"KeyChainGroup" this, #_"int" num]
+    (defn #_"KeyChainGroup" KeyChainGroup''set-lookahead-threshold [#_"KeyChainGroup" this, #_"int" num]
         (doseq [#_"DeterministicKeyChain" chain (:chains this)]
-            (DeterministicKeyChain''set-lookahead-threshold chain, num)
+            (§ ass chain (DeterministicKeyChain''set-lookahead-threshold chain, num))
         )
-        nil
+        this
     )
 
     ;;;
@@ -27043,7 +26886,7 @@
     )
 
     #_method
-    (defn #_"void" KeyChainGroup''mark-p2sh-address-as-used [#_"KeyChainGroup" this, #_"Address" address]
+    (defn #_"KeyChainGroup" KeyChainGroup''mark-p2sh-address-as-used [#_"KeyChainGroup" this, #_"Address" address]
         (assert-argument (Address''is-p2sh-address address))
 
         (let [#_"RedeemData" data (KeyBag'''find-redeem-data-from-script-hash this, (Address''get-hash160 address))]
@@ -27051,14 +26894,14 @@
                 (doseq [#_"ECKey" key (:redeem-keys data) #_"DeterministicKeyChain" chain (:chains this)]
                     (let [#_"DeterministicKey" k (DeterministicKeyChain''find-key-from-pub-key chain, (ECKey''get-pub-key key))]
                         (when (some? k)
-                            (DeterministicKeyChain''mark-key-as-used chain, k)
+                            (§ ass chain (DeterministicKeyChain''mark-key-as-used chain, k))
                             (KeyChainGroup''maybe-mark-current-address-as-used this, address)
                         )
                     )
                 )
             )
         )
-        nil
+        this
     )
 
     #_override
@@ -27214,10 +27057,10 @@
     (defn #_"BloomFilter" KeyChainGroup''get-bloom-filter-4 [#_"KeyChainGroup" this, #_"int" size, #_"double" rate, #_"long" tweak]
         (let [#_"BloomFilter" filter (BloomFilter'new (:ledger this), size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)]
             (when (pos? (KeyChain'''num-keys (:basic this)))
-                (BloomFilter''merge filter, (KeyChain'''get-filter (:basic this), size, rate, tweak))
+                (§ ass filter (BloomFilter''merge filter, (KeyChain'''get-filter (:basic this), size, rate, tweak)))
             )
             (doseq [#_"DeterministicKeyChain" chain (:chains this)]
-                (BloomFilter''merge filter, (KeyChain'''get-filter chain, size, rate, tweak))
+                (§ ass filter (BloomFilter''merge filter, (KeyChain'''get-filter chain, size, rate, tweak)))
             )
             filter
         )
@@ -27346,7 +27189,7 @@
                                 (throw (IllegalStateException.))
                             )
 
-                            (MarriedKeyChain''set-following-key-chains (cast' MarriedKeyChain chain), __followingChains)
+                            (§ ass (cast' MarriedKeyChain chain) (MarriedKeyChain''set-following-key-chains (cast' MarriedKeyChain chain), __followingChains))
                             (.clear __followingChains)
                         )
                     )
@@ -27500,10 +27343,10 @@
     )
 
     #_method
-    (defn #_"void" MarriedKeyChain''set-following-key-chains [#_"MarriedKeyChain" this, #_"List<DeterministicKeyChain>" chains]
+    (defn #_"MarriedKeyChain" MarriedKeyChain''set-following-key-chains [#_"MarriedKeyChain" this, #_"List<DeterministicKeyChain>" chains]
         (assert-argument (seq chains))
-        (§ assoc this :following-key-chains chains)
-        nil
+
+        (assoc this :following-key-chains chains)
     )
 
     #_override
@@ -27533,7 +27376,7 @@
     (defn- #_"List<ECKey>" MarriedKeyChain''get-married-keys-with-followed [#_"MarriedKeyChain" this, #_"DeterministicKey" __followedKey]
         (let [#_"ImmutableList.Builder<ECKey>" keys (ImmutableList/builder)]
             (doseq [#_"DeterministicKeyChain" chain (:following-key-chains this)]
-                (DeterministicKeyChain''maybe-look-ahead-1 chain)
+                (§ ass chain (DeterministicKeyChain''maybe-look-ahead-1 chain))
                 (.add keys, (DeterministicKeyChain''get-key-by-path-2 chain, (DeterministicKey''get-path __followedKey)))
             )
             (.add keys, __followedKey)
@@ -27551,7 +27394,7 @@
     )
 
     #_method
-    (defn- #_"void" MarriedKeyChain''add-following-account-keys [#_"MarriedKeyChain" this, #_"List<DeterministicKey>" __followingAccountKeys, #_"int" __sigsRequiredToSpend]
+    (defn- #_"MarriedKeyChain" MarriedKeyChain''add-following-account-keys [#_"MarriedKeyChain" this, #_"List<DeterministicKey>" __followingAccountKeys, #_"int" __sigsRequiredToSpend]
         (assert-argument (<= __sigsRequiredToSpend (inc (.size __followingAccountKeys))), "Multisig threshold can't exceed total number of keys")
         (assert-state (zero? (DeterministicKeyChain''num-leaf-keys-issued this)), "Active keychain already has keys in use")
         (assert-state (nil? (:following-key-chains this)))
@@ -27566,15 +27409,15 @@
                         (DeterministicKeyChain'''set-lookahead-size chain, (:lookahead-size this))
                     )
                     (when (<= 0 (:lookahead-threshold this))
-                        (DeterministicKeyChain''set-lookahead-threshold chain, (:lookahead-threshold this))
+                        (§ ass chain (DeterministicKeyChain''set-lookahead-threshold chain, (:lookahead-threshold this)))
                     )
                     (.add __followingKeyChains, chain)
                 )
             )
 
-            (§ assoc this :sigs-required-to-spend __sigsRequiredToSpend, :following-key-chains __followingKeyChains)
+            (§ ass this (assoc this :sigs-required-to-spend __sigsRequiredToSpend, :following-key-chains __followingKeyChains))
         )
-        nil
+        this
     )
 
     #_override
@@ -27607,9 +27450,6 @@
     (defn- #_"void" MarriedKeyChain''format-script [#_"MarriedKeyChain" this, #_"Script" script, #_"StringBuilder" sb, #_"Ledger" ledger]
         (.. sb (append "  addr:") (append (Script''get-to-address-2 script, ledger)))
         (.. sb (append "  hash160:") (append (.encode Utils'HEX, (Script''get-pub-key-hash script))))
-        (when (< 0 (Script''get-creation-time-seconds script))
-            (.. sb (append "  creationTimeSeconds:") (append (Script''get-creation-time-seconds script)))
-        )
         (.. sb (append "\n"))
         nil
     )
@@ -27622,7 +27462,7 @@
             (assert-state (<= (.size (:married-keys-redeem-data this)) n), "Number of scripts is greater than number of leaf keys")
 
             (when (not= (.size (:married-keys-redeem-data this)) n)
-                (DeterministicKeyChain''maybe-look-ahead-1 this)
+                (§ ass this (DeterministicKeyChain''maybe-look-ahead-1 this))
                 (doseq [#_"DeterministicKey" leaf (DeterministicKeyChain''get-leaf-keys this)]
                     (let [#_"RedeemData" redeem (DeterministicKeyChain'''get-redeem-data this, leaf)
                           #_"Script" script (ScriptBuilder'create-p2sh-output-script-1 (:redeem-script redeem))]
@@ -27654,7 +27494,7 @@
 
     #_override
     (defn #_"int" KeyChain'''num-bloom-filter-entries [#_"MarriedKeyChain" this]
-        (DeterministicKeyChain''maybe-look-ahead-1 this)
+        (§ ass this (DeterministicKeyChain''maybe-look-ahead-1 this))
         (* (.size (DeterministicKeyChain''get-leaf-keys this)) 2)
     )
 )
@@ -27817,7 +27657,7 @@
     (defn #_"SendRequest" SendRequest'to-2 [#_"Address" destination, #_"Coin" value]
         (let [#_"Ledger" ledger (ensure some? (:ledger destination), "Address is for an unknown network")
               #_"SendRequest" req (SendRequest'new)]
-            (§ assoc req :tx (Transaction'new ledger))
+            (§ ass req (assoc req :tx (Transaction'new ledger)))
             (Transaction''add-output-ca (:tx req), value, destination)
             req
         )
@@ -27833,7 +27673,7 @@
      ;;
     (defn #_"SendRequest" SendRequest'to-3 [#_"Ledger" ledger, #_"ECKey" destination, #_"Coin" value]
         (let [#_"SendRequest" req (SendRequest'new)]
-            (§ assoc req :tx (Transaction'new ledger))
+            (§ ass req (assoc req :tx (Transaction'new ledger)))
             (Transaction''add-output-ce (:tx req), value, destination)
             req
         )
@@ -27849,9 +27689,9 @@
     (defn #_"SendRequest" SendRequest'empty-wallet [#_"Address" destination]
         (let [#_"Ledger" ledger (ensure some? (:ledger destination), "Address is for an unknown network")
               #_"SendRequest" req (SendRequest'new)]
-            (§ assoc req :tx (Transaction'new ledger))
+            (§ ass req (assoc req :tx (Transaction'new ledger)))
             (Transaction''add-output-ca (:tx req), Coin'ZERO, destination)
-            (§ assoc req :empty-wallet true)
+            (§ ass req (assoc req :empty-wallet true))
             req
         )
     )
@@ -27869,7 +27709,7 @@
             (let [#_"Transaction" tx (Transaction'new (:ledger parent))]
                 (Transaction''add-input-o tx, output)
                 (Transaction''add-output-ca tx, (Coin''subtract (:coin-value output), __feeRaise), (Wallet''fresh-address wallet, :KeyPurpose'CHANGE))
-                (Transaction''set-purpose tx, :TransactionPurpose'RAISE_FEE)
+                (§ ass tx (Transaction''set-purpose tx, :TransactionPurpose'RAISE_FEE))
 
                 (assoc (SendRequest'for-tx tx) :completed true)
             )
@@ -28263,11 +28103,10 @@
                 ;; without having to call current/freshReceiveKey.  If there are already keys in the chain of any kind then
                 ;; we're probably being deserialized so leave things alone: the API user can upgrade later.
                 (when (zero? (KeyChainGroup''num-keys (:key-chain-group this)))
-                    (KeyChainGroup''create-and-activate-new-hd-chain (:key-chain-group this))
+                    (§ ass (:key-chain-group this) (KeyChainGroup''create-and-activate-new-hd-chain (:key-chain-group this)))
                 )
                 (Wallet''add-transaction-signer this, (LocalTransactionSigner'new))
                 (Wallet''create-transient-state this)
-                this
             )
         )
     )
@@ -28312,9 +28151,9 @@
     )
 
     #_method
-    (defn- #_"void" Wallet''create-transient-state [#_"Wallet" this]
-        (§ assoc this :ignore-next-new-block (HashSet.))
-        (§ assoc this :tx-confidence-listener
+    (defn- #_"Wallet" Wallet''create-transient-state [#_"Wallet" this]
+        (§ ass this (assoc this :ignore-next-new-block (HashSet.)))
+        (§ ass this (assoc this :tx-confidence-listener
             (reify TransactionConfidenceListener
                 #_override
                 (#_"void" TransactionConfidenceListener'''on-confidence-changed [#_"TransactionConfidenceListener" __, #_"TransactionConfidence" confidence, #_"ConfidenceChangeReason" reason]
@@ -28336,9 +28175,8 @@
                     nil
                 )
             )
-        )
-        (§ assoc this :accept-risky-transactions false)
-        nil
+        ))
+        (assoc this :accept-risky-transactions false)
     )
 
     ;;;
@@ -28643,20 +28481,20 @@
      ; </pre>
      ;;
     #_method
-    (defn #_"void" Wallet''add-and-activate-hd-chain [#_"Wallet" this, #_"DeterministicKeyChain" chain]
+    (defn #_"Wallet" Wallet''add-and-activate-hd-chain [#_"Wallet" this, #_"DeterministicKeyChain" chain]
         (sync (:keychaingroup-lock this)
-            (KeyChainGroup''add-and-activate-hd-chain (:key-chain-group this), chain)
+            (§ ass (:key-chain-group this) (KeyChainGroup''add-and-activate-hd-chain (:key-chain-group this), chain))
         )
-        nil
+        this
     )
 
     ;;; See {@link DeterministicKeyChain#setLookaheadSize(int)} for more info on this. ;;
     #_method
-    (defn #_"void" Wallet''set-key-chain-group-lookahead-size [#_"Wallet" this, #_"int" __lookaheadSize]
+    (defn #_"Wallet" Wallet''set-key-chain-group-lookahead-size [#_"Wallet" this, #_"int" __lookaheadSize]
         (sync (:keychaingroup-lock this)
-            (KeyChainGroup''set-lookahead-size (:key-chain-group this), __lookaheadSize)
+            (§ ass (:key-chain-group this) (KeyChainGroup''set-lookahead-size (:key-chain-group this), __lookaheadSize))
         )
-        nil
+        this
     )
 
     ;;; See {@link DeterministicKeyChain#setLookaheadSize(int)} for more info on this. ;;
@@ -28669,12 +28507,12 @@
 
     ;;; See {@link DeterministicKeyChain#setLookaheadThreshold(int)} for more info on this. ;;
     #_method
-    (defn #_"void" Wallet''set-key-chain-group-lookahead-threshold [#_"Wallet" this, #_"int" num]
+    (defn #_"Wallet" Wallet''set-key-chain-group-lookahead-threshold [#_"Wallet" this, #_"int" num]
         (sync (:keychaingroup-lock this)
             (Wallet''maybe-upgrade-to-hd this)
-            (KeyChainGroup''set-lookahead-threshold (:key-chain-group this), num)
+            (§ ass (:key-chain-group this) (KeyChainGroup''set-lookahead-threshold (:key-chain-group this), num))
         )
-        nil
+        this
     )
 
     ;;; See {@link DeterministicKeyChain#setLookaheadThreshold(int)} for more info on this. ;;
@@ -28779,7 +28617,7 @@
      ; See {@link DeterministicKeyChain#markKeyAsUsed(DeterministicKey)} for more info on this.
      ;;
     #_method
-    (defn- #_"void" Wallet''mark-keys-as-used [#_"Wallet" this, #_"Transaction" tx]
+    (defn- #_"Wallet" Wallet''mark-keys-as-used [#_"Wallet" this, #_"Transaction" tx]
         (sync (:keychaingroup-lock this)
             (doseq [#_"TransactionOutput" output (:outputs tx)]
                 (try+
@@ -28795,7 +28633,7 @@
                                 )
                             (Script''is-pay-to-script-hash script)
                                 (let [#_"Address" a (Address'from-p2sh-script (:ledger tx), script)]
-                                    (KeyChainGroup''mark-p2sh-address-as-used (:key-chain-group this), a)
+                                    (§ ass (:key-chain-group this) (KeyChainGroup''mark-p2sh-address-as-used (:key-chain-group this), a))
                                 )
                         )
                     )
@@ -28806,7 +28644,7 @@
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -28848,11 +28686,11 @@
      ; even if it's loaded from a protocol buffer.
      ;;
     #_method
-    (defn #_"void" Wallet''set-accept-risky-transactions [#_"Wallet" this, #_"boolean" accept?]
+    (defn #_"Wallet" Wallet''set-accept-risky-transactions [#_"Wallet" this, #_"boolean" accept?]
         (sync (:wallet-lock this)
-            (§ assoc this :accept-risky-transactions accept?)
+            (§ ass this (assoc this :accept-risky-transactions accept?))
         )
-        nil
+        this
     )
 
     ;;;
@@ -29005,7 +28843,7 @@
                         )
                     )]
                 (when' (some? tx) => false
-                    (Wallet''receive this, tx, block, type, offset)
+                    (§ ass this (Wallet''receive this, tx, block, type, offset))
                     true
                 )
             )
@@ -29247,7 +29085,7 @@
     (defn #_"void" TransactionReceivedInBlockListener'''receive-from-block [#_"Wallet" this, #_"Transaction" tx, #_"StoredBlock" block, #_"NewBlockType" type, #_"int" offset]
         (sync (:wallet-lock this)
             (when (Wallet''is-transaction-relevant this, tx)
-                (Wallet''receive this, tx, block, type, offset)
+                (§ ass this (Wallet''receive this, tx, block, type, offset))
             )
         )
         nil
@@ -29255,7 +29093,7 @@
 
     #_throws #_[ "VerificationException" ]
     #_method
-    (defn- #_"void" Wallet''receive [#_"Wallet" this, #_"Transaction" tx, #_"StoredBlock" block, #_"NewBlockType" type, #_"int" offset]
+    (defn- #_"Wallet" Wallet''receive [#_"Wallet" this, #_"Transaction" tx, #_"StoredBlock" block, #_"NewBlockType" type, #_"int" offset]
         ;; Runs in a peer thread.
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
 
@@ -29271,9 +29109,9 @@
 
             ;; Inform the key chains that the issued keys were observed in a transaction, so they know to
             ;; calculate more keys for the next Bloom filters.
-            (Wallet''mark-keys-as-used this, tx)
+            (§ ass this (Wallet''mark-keys-as-used this, tx))
 
-            (§ update this :on-wallet-changed-suppressions inc)
+            (§ ass this (update this :on-wallet-changed-suppressions inc))
 
             ;; If this transaction is already in the wallet, we may need to move it into a different pool.
             ;; At the very least we need to ensure we're manipulating the canonical object rather than a duplicate.
@@ -29300,7 +29138,7 @@
                                 )
                             )
                         )
-                        (Wallet''process-tx-from-best-chain this, tx, (or pending? dead?))
+                        (§ ass this (Wallet''process-tx-from-best-chain this, tx, (or pending? dead?)))
                     )
                     :else
                     (do
@@ -29330,7 +29168,7 @@
                 (when (some? block)
                     ;; Mark the tx as appearing in this block so we can find it later after a re-org.  This also tells
                     ;; the tx confidence object about the block and sets its depth appropriately.
-                    (Transaction''set-block-appearance tx, block, best?, offset)
+                    (§ ass tx (Transaction''set-block-appearance tx, block, best?, offset))
                     (when best?
                         ;; Don't notify this tx of work done in notifyNewBestBlock which will be called immediately
                         ;; after this method has been called by SPVBlockChain for all relevant transactions.  Otherwise
@@ -29346,7 +29184,7 @@
                             (doseq [#_"Transaction" dep (Wallet''sort-txns-by-dependency this, deps)]
                                 (when (and (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence-t dep)) :ConfidenceType'IN_CONFLICT)
                                            (not (Wallet''is-spending-txns-in-confidence-type this, dep, :ConfidenceType'IN_CONFLICT)))
-                                    (TransactionConfidence''set-confidence-type (Transaction''get-confidence-t dep), :ConfidenceType'PENDING)
+                                    (§ ass (Transaction''get-confidence-t dep) (TransactionConfidence''set-confidence-type (Transaction''get-confidence-t dep), :ConfidenceType'PENDING))
                                     (.put (:confidence-changed this), dep, :ConfidenceChangeReason'TYPE)
                                 )
                             )
@@ -29354,7 +29192,7 @@
                     )
                 )
 
-                (§ update this :on-wallet-changed-suppressions dec)
+                (§ ass this (update this :on-wallet-changed-suppressions dec))
 
                 ;; Side chains don't affect confidence.
                 (if best?
@@ -29391,10 +29229,10 @@
                 (Wallet''is-consistent-or-throw this)
                 ;; Optimization for the case where a block has tons of relevant transactions.
                 (Wallet''save-later this)
-                (§ assoc this :hard-save-on-next-block true)
+                (§ ass this (assoc this :hard-save-on-next-block true))
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -29471,9 +29309,9 @@
             (when-not (.equals __newBlockHash, (Wallet''get-last-block-seen-hash this))
                 (sync (:wallet-lock this)
                     ;; Store the new block hash.
-                    (Wallet''set-last-block-seen-hash this, __newBlockHash)
-                    (Wallet''set-last-block-seen-height this, (:stored-height block))
-                    (Wallet''set-last-block-seen-time-secs this, (:time-seconds (:stored-header block)))
+                    (§ ass this (Wallet''set-last-block-seen-hash this, __newBlockHash))
+                    (§ ass this (Wallet''set-last-block-seen-height this, (:stored-height block)))
+                    (§ ass this (Wallet''set-last-block-seen-time-secs this, (:time-seconds (:stored-header block))))
 
                     ;; Notify all the BUILDING transactions of the new block.
                     ;; This is so that they can update their depth.
@@ -29493,7 +29331,7 @@
                                     ;; type, but this way is backwards compatible with existing software, and the new state
                                     ;; probably wouldn't mean anything different to just remembering peers anyway.
                                     (when (< (:event-horizon this) (TransactionConfidence''increment-depth-in-blocks confidence))
-                                        (TransactionConfidence''clear-broadcast-by confidence)
+                                        (§ ass confidence (TransactionConfidence''clear-broadcast-by confidence))
                                     )
                                     (.put (:confidence-changed this), tx, :ConfidenceChangeReason'DEPTH)
                                 )
@@ -29507,7 +29345,7 @@
                     (cond (:hard-save-on-next-block this)
                         (do
                             (Wallet''save-now this)
-                            (§ assoc this :hard-save-on-next-block false)
+                            (§ ass this (assoc this :hard-save-on-next-block false))
                         )
                         :else
                         (do
@@ -29527,7 +29365,7 @@
      ;;
     #_throws #_[ "VerificationException" ]
     #_method
-    (defn- #_"void" Wallet''process-tx-from-best-chain [#_"Wallet" this, #_"Transaction" tx, #_"boolean" force?]
+    (defn- #_"Wallet" Wallet''process-tx-from-best-chain [#_"Wallet" this, #_"Transaction" tx, #_"boolean" force?]
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
         (assert-state (not (.containsKey (:pending this), (Transaction''get-hash tx))))
 
@@ -29585,7 +29423,7 @@
             (let [#_"Set<Transaction>" __doubleSpendTxns (Wallet''find-double-spends-against this, tx, (:pending this))]
                 (when (seq __doubleSpendTxns)
                     ;; No need to addTransactionsDependingOn(doubleSpendTxns), because killTxns() already kills dependencies.
-                    (Wallet''kill-txns this, __doubleSpendTxns, tx)
+                    (§ ass this (Wallet''kill-txns this, __doubleSpendTxns, tx))
                 )
                 (when (and (not __hasOutputsToMe) (not __hasOutputsFromMe) (not force?) (seq (Wallet''find-double-spends-against this, tx, (:transactions this))))
                     ;; Disconnect irrelevant inputs (otherwise might cause protobuf serialization issue).
@@ -29599,7 +29437,7 @@
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -29716,7 +29554,7 @@
 
     ;; Updates the wallet when a double spend occurs.  overridingTx can be null for the case of coinbases.
     #_method
-    (defn- #_"void" Wallet''kill-txns [#_"Wallet" this, #_"Set<Transaction>" __txnsToKill, #_"Transaction" __overridingTx]
+    (defn- #_"Wallet" Wallet''kill-txns [#_"Wallet" this, #_"Set<Transaction>" __txnsToKill, #_"Transaction" __overridingTx]
         (let [#_"LinkedList<Transaction>" work (LinkedList. __txnsToKill)]
             (while (seq work)
                 (let [#_"Transaction" dead (.poll work) #_"Sha256Hash" hash (Transaction''get-hash dead)]
@@ -29741,7 +29579,7 @@
                             (Wallet''maybe-move-pool this, zombie, "kill")
                         )
                     )
-                    (TransactionConfidence''set-overriding-transaction (Transaction''get-confidence-t dead), __overridingTx)
+                    (§ ass (Transaction''get-confidence-t dead) (TransactionConfidence''set-overriding-transaction (Transaction''get-confidence-t dead), __overridingTx))
                     (.put (:confidence-changed this), dead, :ConfidenceChangeReason'TYPE)
                     ;; Now kill any transactions we have that depended on this one.
                     (doseq [#_"TransactionOutput" output (:outputs dead)]
@@ -29779,7 +29617,7 @@
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -29819,7 +29657,7 @@
             (let-when [#_"Sha256Hash" hash (Transaction''get-hash tx)] (not (.containsKey (:pending this), hash)) => false
                 (log/info (str "commitTx of " hash))
                 (let [#_"Coin" balance (Wallet''get-balance-1 this)]
-                    (Transaction''set-update-time tx, (Time'now))
+                    (§ ass tx (Transaction''set-update-time tx, (Time'now)))
                     ;; Put any outputs that are sending money back to us into the unspents map, and calculate their total value.
                     (let [#_"Coin" earned (reduce #(if (TransactionOutput''is-mine %2, this) (Coin''add %1, (:coin-value %2)) %1) Coin'ZERO (:outputs tx))]
                         ;; Mark the outputs we're spending as spent so we won't try and use them in future creations.  This will also
@@ -29836,7 +29674,7 @@
                                     ;; tx is a double spend against a tx already in the best chain or spends outputs of a DEAD tx.
                                     ;; Add tx to the dead pool and schedule confidence listener notifications.
                                     (log/info (str "->dead: " hash))
-                                    (TransactionConfidence''set-confidence-type (Transaction''get-confidence-t tx), :ConfidenceType'DEAD)
+                                    (§ ass (Transaction''get-confidence-t tx) (TransactionConfidence''set-confidence-type (Transaction''get-confidence-t tx), :ConfidenceType'DEAD))
                                     (.put (:confidence-changed this), tx, :ConfidenceChangeReason'TYPE)
                                     (Wallet''add-wallet-transaction this, :PoolType'DEAD, tx)
                                 )
@@ -29850,7 +29688,7 @@
                                     (.add __doublePending, tx)
                                     (Wallet''add-transactions-depending-on this, __doublePending, (Wallet''get-transactions this, true))
                                     (doseq [#_"Transaction" __doubleSpendTx __doublePending]
-                                        (TransactionConfidence''set-confidence-type (Transaction''get-confidence-t __doubleSpendTx), :ConfidenceType'IN_CONFLICT)
+                                        (§ ass (Transaction''get-confidence-t __doubleSpendTx) (TransactionConfidence''set-confidence-type (Transaction''get-confidence-t __doubleSpendTx), :ConfidenceType'IN_CONFLICT))
                                         (.put (:confidence-changed this), __doubleSpendTx, :ConfidenceChangeReason'TYPE)
                                     )
                                 )
@@ -29859,7 +29697,7 @@
                                     ;; No conflict detected.
                                     ;; Add to the pending pool and schedule confidence listener notifications.
                                     (log/info (str "->pending: " hash))
-                                    (TransactionConfidence''set-confidence-type (Transaction''get-confidence-t tx), :ConfidenceType'PENDING)
+                                    (§ ass (Transaction''get-confidence-t tx) (TransactionConfidence''set-confidence-type (Transaction''get-confidence-t tx), :ConfidenceType'PENDING))
                                     (.put (:confidence-changed this), tx, :ConfidenceChangeReason'TYPE)
                                     (Wallet''add-wallet-transaction this, :PoolType'PENDING, tx)
                                 )
@@ -29868,7 +29706,7 @@
 
                             ;; Mark any keys used in the outputs as "used", this allows wallet UI's to auto-advance the current key
                             ;; they are showing to the user in qr codes etc.
-                            (Wallet''mark-keys-as-used this, tx)
+                            (§ ass this (Wallet''mark-keys-as-used this, tx))
                             (let [#_"Coin" spent (Transaction''get-value-sent-from-me tx, this)
                                   #_"Coin" after (Coin''subtract (Coin''add balance, earned), spent)]
                                 (when (pos? (Coin''signum earned))
@@ -30265,16 +30103,16 @@
      ; get in the way of the replay) and makes the wallet think it has never seen a block.
      ;;
     #_method
-    (defn #_"void" Wallet''reset [#_"Wallet" this]
+    (defn #_"Wallet" Wallet''reset [#_"Wallet" this]
         (sync (:wallet-lock this)
             (Wallet''clear-transactions-1 this)
-            (§ assoc this :last-block-seen-hash nil)
-            (§ assoc this :last-block-seen-height -1) ;; Magic value for 'never'.
-            (§ assoc this :last-block-seen-time-secs 0)
+            (§ ass this (assoc this :last-block-seen-hash nil))
+            (§ ass this (assoc this :last-block-seen-height -1)) ;; Magic value for 'never'.
+            (§ ass this (assoc this :last-block-seen-time-secs 0))
             (Wallet''save-later this)
             (Wallet''maybe-queue-on-wallet-changed this)
         )
-        nil
+        this
     )
 
     ;;;
@@ -30424,27 +30262,27 @@
     )
 
     #_method
-    (defn #_"void" Wallet''set-last-block-seen-hash [#_"Wallet" this, #_"Sha256Hash" hash]
+    (defn #_"Wallet" Wallet''set-last-block-seen-hash [#_"Wallet" this, #_"Sha256Hash" hash]
         (sync (:wallet-lock this)
-            (§ assoc this :last-block-seen-hash hash)
+            (§ ass this (assoc this :last-block-seen-hash hash))
         )
-        nil
+        this
     )
 
     #_method
-    (defn #_"void" Wallet''set-last-block-seen-height [#_"Wallet" this, #_"int" height]
+    (defn #_"Wallet" Wallet''set-last-block-seen-height [#_"Wallet" this, #_"int" height]
         (sync (:wallet-lock this)
-            (§ assoc this :last-block-seen-height height)
+            (§ ass this (assoc this :last-block-seen-height height))
         )
-        nil
+        this
     )
 
     #_method
-    (defn #_"void" Wallet''set-last-block-seen-time-secs [#_"Wallet" this, #_"long" secs]
+    (defn #_"Wallet" Wallet''set-last-block-seen-time-secs [#_"Wallet" this, #_"long" secs]
         (sync (:wallet-lock this)
-            (§ assoc this :last-block-seen-time-secs secs)
+            (§ ass this (assoc this :last-block-seen-time-secs secs))
         )
-        nil
+        this
     )
 
     ;;;
@@ -30491,9 +30329,8 @@
      ; This is a Unicode encoding string typically entered by the user as descriptive text for the wallet.
      ;;
     #_method
-    (defn #_"void" Wallet''set-description [#_"Wallet" this, #_"String" description]
-        (§ assoc this :description description)
-        nil
+    (defn #_"Wallet" Wallet''set-description [#_"Wallet" this, #_"String" description]
+        (assoc this :description description)
     )
 
     ;;;
@@ -30707,7 +30544,7 @@
     #_method
     (defn #_"Transaction" Wallet''create-send [#_"Wallet" this, #_"Address" address, #_"Coin" value]
         (let [#_"SendRequest" request (SendRequest'to-2 address, value)]
-            (Wallet''complete-tx this, request)
+            (§ ass this (Wallet''complete-tx this, request))
             (:tx request)
         )
     )
@@ -30730,7 +30567,7 @@
     #_method
     (defn #_"Transaction" Wallet''send-coins-offline [#_"Wallet" this, #_"SendRequest" request]
         (sync (:wallet-lock this)
-            (Wallet''complete-tx this, request)
+            (§ ass this (Wallet''complete-tx this, request))
             (Wallet''commit-tx this, (:tx request))
             (:tx request)
         )
@@ -30807,8 +30644,8 @@
             ;; count of seen peers, the memory pool will update the transaction confidence object, that will invoke the
             ;; txConfidenceListener which will in turn invoke the wallets event listener onTransactionConfidenceChanged
             ;; method.
-            (§ assoc result :broadcast (TransactionBroadcaster'''broadcast-transaction-2 broadcaster, tx))
-            (§ assoc result :broadcast-complete (TransactionBroadcast''future (:broadcast result)))
+            (§ ass result (assoc result :broadcast (TransactionBroadcaster'''broadcast-transaction-2 broadcaster, tx)))
+            (§ ass result (assoc result :broadcast-complete (TransactionBroadcast''future (:broadcast result))))
             result
         )
     )
@@ -30873,7 +30710,7 @@
      ;;
     #_throws #_[ "InsufficientMoneyException" ]
     #_method
-    (defn #_"void" Wallet''complete-tx [#_"Wallet" this, #_"SendRequest" req]
+    (defn #_"Wallet" Wallet''complete-tx [#_"Wallet" this, #_"SendRequest" req]
         (sync (:wallet-lock this)
             (assert-argument (not (:completed req)), "Given SendRequest has already been completed.")
 
@@ -30923,7 +30760,7 @@
 
                                     (let [#_"CoinSelector" selector (or (:coin-selector req) (:coin-selector this))
                                           __bestCoinSelection (CoinSelector'''select selector, (Ledger''get-max-money (:ledger this)), candidates)]
-                                        (TransactionOutput''set-value (Transaction''get-output (:tx req), 0), (:value-gathered __bestCoinSelection))
+                                        (§ ass (Transaction''get-output (:tx req), 0) (TransactionOutput''set-value (Transaction''get-output (:tx req), 0), (:value-gathered __bestCoinSelection)))
                                         (log/info (str "  emptying " (Coin''to-friendly-string (:value-gathered __bestCoinSelection))))
                                         ;; Selector took ownership and might have changed candidates.  Don't access again.
                                         [nil __bestCoinSelection nil nil]
@@ -30945,7 +30782,7 @@
 
                         (when (some? __updatedOutputValues)
                             (dotimes [#_"int" i (.size __updatedOutputValues)]
-                                (TransactionOutput''set-value (Transaction''get-output (:tx req), i), (.get __updatedOutputValues, i))
+                                (§ ass (Transaction''get-output (:tx req), i) (TransactionOutput''set-value (Transaction''get-output (:tx req), i), (.get __updatedOutputValues, i)))
                             )
                         )
 
@@ -30961,7 +30798,7 @@
 
                         ;; Now sign the inputs, thus proving that we are entitled to redeem the connected outputs.
                         (when (:sign-inputs req)
-                            (Wallet''sign-transaction this, req)
+                            (§ ass this (Wallet''sign-transaction this, req))
                         )
 
                         ;; Check size.
@@ -30973,22 +30810,22 @@
                             ;; Label the transaction as being self created.  We can use this later to spend its change output even before
                             ;; the transaction is confirmed.  We deliberately won't bother notifying listeners here as there's not much
                             ;; point - the user isn't interested in a confidence transition they made themselves.
-                            (TransactionConfidence''set-source (Transaction''get-confidence-t (:tx req)), :ConfidenceSource'SELF)
+                            (§ ass (Transaction''get-confidence-t (:tx req)) (TransactionConfidence''set-source (Transaction''get-confidence-t (:tx req)), :ConfidenceSource'SELF))
                             ;; Label the transaction as being a user requested payment.  This can be used to render GUI wallet
                             ;; transaction lists more appropriately, especially when the wallet starts to generate transactions itself
                             ;; for internal purposes.
-                            (Transaction''set-purpose (:tx req), :TransactionPurpose'USER_PAYMENT)
+                            (§ ass req (update req :tx Transaction''set-purpose :TransactionPurpose'USER_PAYMENT))
                             ;; Record the exchange rate that was valid when the transaction was completed.
-                            (Transaction''set-exchange-rate (:tx req), (:exchange-rate req))
-                            (Transaction''set-memo (:tx req), (:memo req))
-                            (§ assoc req :completed true)
+                            (§ ass req (update req :tx Transaction''set-exchange-rate (:exchange-rate req)))
+                            (§ ass req (update req :tx Transaction''set-memo (:memo req)))
+                            (§ ass req (assoc req :completed true))
                             (log/info (str "  completed: " (:tx req)))
                         )
                     )
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -30999,7 +30836,7 @@
      ; the transaction will be complete in the end.
      ;;
     #_method
-    (defn #_"void" Wallet''sign-transaction [#_"Wallet" this, #_"SendRequest" req]
+    (defn #_"Wallet" Wallet''sign-transaction [#_"Wallet" this, #_"SendRequest" req]
         (sync (:wallet-lock this)
             (let [#_"Transaction" tx (:tx req) #_"List<TransactionInput>" inputs (:inputs tx) #_"List<TransactionOutput>" outputs (:outputs tx)]
                 (assert-state (and (pos? (.size inputs)) (pos? (.size outputs))))
@@ -31012,13 +30849,13 @@
                                     ;; We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
                                     ;; we sign missing pieces (to check this would require either assuming any signatures are signing
                                     ;; standard output types or a way to get processed signatures out of script execution).
-                                    (Script''correctly-spends-4 inSig, tx, i, outKey)
+                                    (Script''correctly-spends inSig, tx, i, outKey, Script'ALL_VERIFY_FLAGS)
                                     (log/warn (str "Input " i " already correctly spends output, assuming SIGHASH type used will be safe and skipping signing."))
                                     (§ catch ScriptException e
                                         (log/debug e, "Input contained an incorrect signature")
                                         (let [#_"RedeemData" data (TransactionInput''get-connected-redeem-data in, this)]
                                             (ensure some? data, (str "Transaction exists in wallet that we cannot redeem: " (:from-tx-hash (:outpoint in))))
-                                            (TransactionInput''set-script-sig in, (Script''create-empty-input-script outKey, (first (:redeem-keys data)), (:redeem-script data)))
+                                            (§ ass in (TransactionInput''set-script-sig in, (Script''create-empty-input-script outKey, (first (:redeem-keys data)), (:redeem-script data))))
                                         )
                                     )
                                 )
@@ -31038,7 +30875,7 @@
                 )
             )
         )
-        nil
+        this
     )
 
     ;;; Reduce the value of the first output of a transaction to pay the given feePerKb as appropriate for its size. ;;
@@ -31048,7 +30885,7 @@
               #_"Coin" fee (Coin''divide (Coin''multiply __feePerKb, size), 1000)
               fee (if (and quantum? (neg? (.compareTo fee, Transaction'REFERENCE_DEFAULT_MIN_TX_FEE))) Transaction'REFERENCE_DEFAULT_MIN_TX_FEE fee)
               #_"TransactionOutput" output (Transaction''get-output tx, 0)]
-            (TransactionOutput''set-value output, (Coin''subtract (:coin-value output), fee))
+            (§ ass output (TransactionOutput''set-value output, (Coin''subtract (:coin-value output), fee)))
             (not (TransactionOutput''is-dust output))
         )
     )
@@ -31141,11 +30978,11 @@
      ; operation by changing {@link SendRequest#coinSelector}.
      ;;
     #_method
-    (defn #_"void" Wallet''set-coin-selector [#_"Wallet" this, #_"CoinSelector" selector]
+    (defn #_"Wallet" Wallet''set-coin-selector [#_"Wallet" this, #_"CoinSelector" selector]
         (sync (:wallet-lock this)
-            (§ assoc this :coin-selector (ensure some? selector))
+            (§ ass this (assoc this :coin-selector (ensure some? selector)))
         )
-        nil
+        this
     )
 
     ;;;
@@ -31177,9 +31014,9 @@
             ;; Avoid spuriously informing the user of wallet/tx confidence changes whilst we're re-organizing.
             (assert-state (zero? (.size (:confidence-changed this))))
             (assert-state (not (:inside-reorg this)))
-            (§ assoc this :inside-reorg true)
+            (§ ass this (assoc this :inside-reorg true))
             (assert-state (zero? (:on-wallet-changed-suppressions this)))
-            (§ update this :on-wallet-changed-suppressions inc)
+            (§ ass this (update this :on-wallet-changed-suppressions inc))
 
             ;; Map block hash to transactions that appear in it.  We ensure that the map values are sorted according
             ;; to their relative position within those blocks.
@@ -31223,7 +31060,7 @@
                                         ;; this coinbase tx.  Some can just go pending forever, like the Bitcoin Core.  However we
                                         ;; can do our best.
                                         (log/warn (str "Coinbase killed by re-org: " __txHash))
-                                        (Wallet''kill-txns this, (ImmutableSet/of tx), nil)
+                                        (§ ass this (Wallet''kill-txns this, (ImmutableSet/of tx), nil))
                                     )
                                     :else
                                     (do
@@ -31253,7 +31090,7 @@
                                 (log/info (str "  ->pending " (Transaction''get-hash tx)))
 
                                 ;; Wipe height/depth/work data.
-                                (TransactionConfidence''set-confidence-type (Transaction''get-confidence-t tx), :ConfidenceType'PENDING)
+                                (§ ass (Transaction''get-confidence-t tx) (TransactionConfidence''set-confidence-type (Transaction''get-confidence-t tx), :ConfidenceType'PENDING))
 
                                 (.put (:confidence-changed this), tx, :ConfidenceChangeReason'TYPE)
                                 (Wallet''add-wallet-transaction this, :PoolType'PENDING, tx)
@@ -31272,13 +31109,13 @@
                         (let [#_"int" n (.size __oldBlocks)]
                             (log/info (str "depthToSubtract = " n))
                             ;; Remove depthToSubtract from all transactions in the wallet except for pending.
-                            (Wallet''subtract-depth this, n, (.values (:spent this)))
-                            (Wallet''subtract-depth this, n, (.values (:unspent this)))
-                            (Wallet''subtract-depth this, n, (.values (:dead this)))
+                            (§ ass this (Wallet''subtract-depth this, n, (.values (:spent this))))
+                            (§ ass this (Wallet''subtract-depth this, n, (.values (:unspent this))))
+                            (§ ass this (Wallet''subtract-depth this, n, (.values (:dead this))))
                         )
 
                         ;; The effective last seen block is now the split point so set the lastSeenBlockHash.
-                        (Wallet''set-last-block-seen-hash this, (Block''get-hash (:stored-header __splitPoint)))
+                        (§ ass this (Wallet''set-last-block-seen-hash this, (Block''get-hash (:stored-header __splitPoint))))
 
                         ;; For each block in the new chain, work forwards calling receive() and notifyNewBestBlock().
                         ;; This will pull them back out of the pending pool, or if the tx didn't appear in the old chain
@@ -31288,7 +31125,7 @@
                             (log/info (str "Replaying block " (Block''get-hash (:stored-header block))))
                             (doseq [#_"TxOffsetPair" pair (.get __mapBlockTx, (Block''get-hash (:stored-header block)))]
                                 (log/info (str "  tx " (Transaction''get-hash (:tx pair))))
-                                (Wallet''receive this, (:tx pair), block, :NewBlockType'BEST_CHAIN, (:offset pair))
+                                (§ ass this (Wallet''receive this, (:tx pair), block, :NewBlockType'BEST_CHAIN, (:offset pair)))
                             )
                             (NewBestBlockListener'''notify-new-best-block this, block)
                         )
@@ -31297,8 +31134,8 @@
                             (log/info (str "post-reorg balance is " (Coin''to-friendly-string balance)))
                             ;; Inform event listeners that a re-org took place.
                             (Wallet''queue-on-reorganize this)
-                            (§ assoc this :inside-reorg false)
-                            (§ update this :on-wallet-changed-suppressions dec)
+                            (§ ass this (assoc this :inside-reorg false))
+                            (§ ass this (update this :on-wallet-changed-suppressions dec))
                             (Wallet''maybe-queue-on-wallet-changed this)
                             (Wallet''check-balance-futures-locked this)
                             (Wallet''inform-confidence-listeners-if-not-reorganizing this)
@@ -31315,14 +31152,14 @@
      ; Subtract the supplied depth from the given transactions.
      ;;
     #_method
-    (defn- #_"void" Wallet''subtract-depth [#_"Wallet" this, #_"int" depth, #_"Collection<Transaction>" transactions]
+    (defn- #_"Wallet" Wallet''subtract-depth [#_"Wallet" this, #_"int" depth, #_"Collection<Transaction>" transactions]
         (doseq [#_"Transaction" tx transactions]
             (let-when [#_"TransactionConfidence" confidence (Transaction''get-confidence-t tx)] (= (TransactionConfidence''get-confidence-type confidence) :ConfidenceType'BUILDING)
-                (TransactionConfidence''set-depth-in-blocks confidence, (- (TransactionConfidence''get-depth-in-blocks confidence) depth))
+                (§ ass confidence (TransactionConfidence''set-depth-in-blocks confidence, (- (TransactionConfidence''get-depth-in-blocks confidence) depth)))
                 (.put (:confidence-changed this), tx, :ConfidenceChangeReason'DEPTH)
             )
         )
-        nil
+        this
     )
 
     #_override
@@ -31439,7 +31276,7 @@
         (sync (:keychaingroup-lock this)
             (let [#_"int" epoch (KeyChainGroup''get-combined-key-lookahead-epochs (:key-chain-group this))]
                 (doseq [#_"Transaction" tx (.values (:associated-transactions block))]
-                    (Wallet''mark-keys-as-used this, tx)
+                    (§ ass this (Wallet''mark-keys-as-used this, tx))
                 )
                 (let [#_"int" epoch' (KeyChainGroup''get-combined-key-lookahead-epochs (:key-chain-group this))]
                     (assert-state (<= epoch epoch'))
@@ -31469,11 +31306,11 @@
                         (let [#_"TransactionOutput" output (TransactionOutput'from-wire (:ledger this), (ByteBuffer/wrap (Message''to-bytes (.get outputs, i), TransactionOutput''to-wire)), tx)]
                             (when (:recipients-pay-fees req)
                                 ;; Subtract fee equally from each selected recipient.
-                                (TransactionOutput''set-value output, (Coin''subtract (:coin-value output), (Coin''divide fee, (.size outputs))))
+                                (§ ass output (TransactionOutput''set-value output, (Coin''subtract (:coin-value output), (Coin''divide fee, (.size outputs)))))
                                 ;; First receiver pays the remainder not divisible by output count.
                                 (when (zero? i)
                                     ;; Subtract fee equally from each selected recipient.
-                                    (TransactionOutput''set-value output, (Coin''subtract (:coin-value output), (Coin''remainder fee, (.size outputs))))
+                                    (§ ass output (TransactionOutput''set-value output, (Coin''subtract (:coin-value output), (Coin''remainder fee, (.size outputs)))))
                                 )
                                 (.add (:updated-output-values calc), (:coin-value output))
                                 (when (Coin''is-greater-than (TransactionOutput''get-min-non-dust-value-1 output), (:coin-value output))
@@ -31508,9 +31345,9 @@
                                             ;; This would be against the purpose of the all-inclusive feature.
                                             ;; So instead we raise the change and deduct from the first recipient.
                                             (let [#_"Coin" __missingToNotBeDust (Coin''subtract (TransactionOutput''get-min-non-dust-value-1 __changeOutput), (:coin-value __changeOutput))]
-                                                (TransactionOutput''set-value __changeOutput, (Coin''add (:coin-value __changeOutput), __missingToNotBeDust))
+                                                (§ ass __changeOutput (TransactionOutput''set-value __changeOutput, (Coin''add (:coin-value __changeOutput), __missingToNotBeDust)))
                                                 (let [#_"TransactionOutput" __firstOutput (Transaction''get-output tx, 0)]
-                                                    (TransactionOutput''set-value __firstOutput, (Coin''subtract (:coin-value __firstOutput), __missingToNotBeDust))
+                                                    (§ ass __firstOutput (TransactionOutput''set-value __firstOutput, (Coin''subtract (:coin-value __firstOutput), __missingToNotBeDust)))
                                                     (.set (:updated-output-values calc), 0, (:coin-value __firstOutput))
                                                     (when (TransactionOutput''is-dust __firstOutput)
                                                         (throw+ (CouldNotAdjustDownwards'new))
@@ -31619,11 +31456,11 @@
      ; optimise itself to reduce fees or improve privacy.
      ;;
     #_method
-    (defn #_"void" Wallet''set-transaction-broadcaster [#_"Wallet" this, #_"TransactionBroadcaster" broadcaster]
+    (defn #_"Wallet" Wallet''set-transaction-broadcaster [#_"Wallet" this, #_"TransactionBroadcaster" broadcaster]
         (when-let [#_"Transaction*" __toBroadcast
                 (sync (:wallet-lock this)
                     (when-not (= (:v-transaction-broadcaster this) broadcaster)
-                        (§ assoc this :v-transaction-broadcaster broadcaster)
+                        (§ ass this (assoc this :v-transaction-broadcaster broadcaster))
                         (when (some? broadcaster)
                             (vals (:pending this))
                         )
@@ -31644,7 +31481,7 @@
                 )
             )
         )
-        nil
+        this
     )
 
     ;;;
@@ -31656,9 +31493,8 @@
      ; as the argument.
      ;;
     #_method
-    (defn #_"void" Wallet''set-key-rotation-time-d [#_"Wallet" this, #_"Date" time]
+    (defn #_"Wallet" Wallet''set-key-rotation-time-d [#_"Wallet" this, #_"Date" time]
         (Wallet''set-key-rotation-time-l this, (quot (.getTime time) 1000))
-        nil
     )
 
     ;;;
@@ -31682,11 +31518,13 @@
      ; The given time cannot be in the future.
      ;;
     #_method
-    (defn #_"void" Wallet''set-key-rotation-time-l [#_"Wallet" this, #_"long" secs]
+    (defn #_"Wallet" Wallet''set-key-rotation-time-l [#_"Wallet" this, #_"long" secs]
         (assert-argument (<= secs (Time'seconds)), (str "Given time (" (Time'format-seconds secs) ") cannot be in the future."))
-        (§ assoc this :v-key-rotation-timestamp secs)
-        (Wallet''save-now this)
-        nil
+
+        (let [this (assoc this :v-key-rotation-timestamp secs)]
+            (Wallet''save-now this)
+            this
+        )
     )
 
     ;;; Returns whether the keys creation time is before the key rotation time, if one was set. ;;
@@ -31777,7 +31615,7 @@
                             (cond (empty? (KeyChainGroup''get-imported-keys (:key-chain-group this)))
                                 (do
                                     (log/info "All HD chains are currently rotating and we have no random keys, creating fresh HD chain ...")
-                                    (KeyChainGroup''create-and-activate-new-hd-chain (:key-chain-group this))
+                                    (§ ass (:key-chain-group this) (KeyChainGroup''create-and-activate-new-hd-chain (:key-chain-group this)))
                                 )
                                 :else
                                 (do
@@ -31788,7 +31626,7 @@
                             )
                             (§ catch AllRandomKeysRotating _
                                 (log/info " ... no non-rotating random keys available, generating entirely new HD tree: backup required after this.")
-                                (KeyChainGroup''create-and-activate-new-hd-chain (:key-chain-group this))
+                                (§ ass (:key-chain-group this) (KeyChainGroup''create-and-activate-new-hd-chain (:key-chain-group this)))
                             )
                         )
                         (Wallet''save-now this)
@@ -31835,11 +31673,11 @@
                             (Transaction''add-output-ca tx, (:value-gathered __toMove), (if sign? (Wallet''fresh-receive-address this) (Wallet''current-receive-address this)))
                             (cond (Wallet''adjust-output-downwards-for-fee this, tx, __toMove, Transaction'DEFAULT_TX_FEE, true)
                                 (do
-                                    (TransactionConfidence''set-source (Transaction''get-confidence-t tx), :ConfidenceSource'SELF)
-                                    (Transaction''set-purpose tx, :TransactionPurpose'KEY_ROTATION)
+                                    (§ ass (Transaction''get-confidence-t tx) (TransactionConfidence''set-source (Transaction''get-confidence-t tx), :ConfidenceSource'SELF))
+                                    (§ ass tx (Transaction''set-purpose tx, :TransactionPurpose'KEY_ROTATION))
                                     (let [#_"SendRequest" req (SendRequest'for-tx tx)]
                                         (when sign?
-                                            (Wallet''sign-transaction this, req)
+                                            (§ ass this (Wallet''sign-transaction this, req))
                                         )
                                         ;; KeyTimeCoinSelector should never select enough inputs to push us oversize.
                                         (assert-state (< (alength (Message''to-bytes tx, Transaction''to-wire)) Transaction'MAX_STANDARD_TX_SIZE))
