@@ -273,9 +273,9 @@
 (declare RuleViolation'enum-set)
 (declare SPVBlockChain'new)
 (declare SPVBlockStore''get-ring-cursor SPVBlockStore''init-store SPVBlockStore''set-ring-cursor SPVBlockStore'DEFAULT_CAPACITY SPVBlockStore'FILE_PROLOGUE_BYTES SPVBlockStore'HEADER_MAGIC SPVBlockStore'NOT_FOUND_MARKER SPVBlockStore'RECORD_SIZE SPVBlockStore'get-file-size SPVBlockStore'new)
-(declare Script''correctly-spends Script''create-empty-input-script Script''find-key-in-redeem Script''find-sig-in-redeem Script''get-cltv-payment-channel-expiry Script''get-cltv-payment-channel-recipient-pub-key Script''get-cltv-payment-channel-sender-pub-key Script''get-from-address Script''get-number-of-bytes-required-to-spend Script''get-number-of-signatures-required-to-spend Script''get-program Script''get-pub-key Script''get-pub-key-hash Script''get-pub-keys Script''get-quick-program Script''get-script-sig-with-signature Script''get-script-type Script''get-sig-insertion-index Script''get-to-address-2 Script''get-to-address-3 Script''is-op-return Script''is-pay-to-script-hash Script''is-sent-to-address Script''is-sent-to-cltv-payment-channel Script''is-sent-to-multi-sig Script''is-sent-to-raw-pub-key Script'parse Script'ALL_VERIFY_FLAGS Script'MAX_OPS_PER_SCRIPT Script'MAX_P2SH_SIGOPS Script'MAX_PUBKEYS_PER_MULTISIG Script'MAX_SCRIPT_ELEMENT_SIZE Script'MAX_SCRIPT_SIZE Script'MAX_STACK_SIZE Script'SIG_SIZE Script'cast-to-big-integer-2 Script'cast-to-big-integer-3 Script'cast-to-bool Script'check-sequence Script'create-input-script-1 Script'create-input-script-2 Script'create-multi-sig-output-script Script'decode-from-op-n Script'encode-to-op-n Script'equals-range Script'execute-check-lock-time-verify Script'execute-check-sequence-verify Script'execute-check-sig Script'execute-multi-sig Script'execute-script-5 Script'get-p2sh-sig-op-count Script'get-sig-op-count-1 Script'get-sig-op-count-2 Script'new Script'from-chunks Script'from-bytes Script'remove-all-instances-of Script'remove-all-instances-of-op Script'write-bytes)
-(declare ScriptBuilder''add-chunk ScriptBuilder''big-num ScriptBuilder''build ScriptBuilder''data ScriptBuilder''number ScriptBuilder''op ScriptBuilder''small-num ScriptBuilder'create-cltv-payment-channel-input-2 ScriptBuilder'create-cltv-payment-channel-input-2-bytes ScriptBuilder'create-cltv-payment-channel-output ScriptBuilder'create-cltv-payment-channel-p2sh-input ScriptBuilder'create-cltv-payment-channel-p2sh-refund ScriptBuilder'create-cltv-payment-channel-refund ScriptBuilder'create-input-script-1 ScriptBuilder'create-input-script-2 ScriptBuilder'create-multi-sig-input-script ScriptBuilder'create-multi-sig-input-script-bytes-1 ScriptBuilder'create-multi-sig-input-script-bytes-2 ScriptBuilder'create-multi-sig-output-script ScriptBuilder'create-op-return-script ScriptBuilder'create-output-script-1a ScriptBuilder'create-output-script-1e ScriptBuilder'create-p2sh-multi-sig-input-script ScriptBuilder'create-p2sh-output-script-1 ScriptBuilder'create-p2sh-output-script-1-bytes ScriptBuilder'create-p2sh-output-script-2 ScriptBuilder'create-redeem-script ScriptBuilder'new ScriptBuilder'update-script-with-signature)
-(declare ScriptChunk''decode-op-n ScriptChunk''equals-op-code ScriptChunk''get-start-location-in-program ScriptChunk''is-op-code ScriptChunk''is-push-data ScriptChunk''is-shortest-possible-push-data ScriptChunk''write-chunk ScriptChunk'new)
+(declare Script''correctly-spends Script''create-empty-input-script Script''find-key-in-redeem Script''find-sig-in-redeem Script''get-cltv-payment-channel-expiry Script''get-cltv-payment-channel-recipient-pub-key Script''get-cltv-payment-channel-sender-pub-key Script''get-from-address Script''get-number-of-bytes-required-to-spend Script''get-number-of-signatures-required-to-spend Script''get-program Script''get-pub-key Script''get-pub-key-hash Script''get-pub-keys Script''get-quick-program Script''get-script-sig-with-signature Script''get-script-type Script''get-sig-insertion-index Script''get-to-address-2 Script''get-to-address-3 Script''is-op-return Script''is-pay-to-script-hash Script''is-sent-to-address Script''is-sent-to-cltv-payment-channel Script''is-sent-to-multi-sig Script''is-sent-to-raw-pub-key Script'parse Script'ALL_VERIFY_FLAGS Script'MAX_OPS_PER_SCRIPT Script'MAX_P2SH_SIGOPS Script'MAX_PUBKEYS_PER_MULTISIG Script'MAX_SCRIPT_ELEMENT_SIZE Script'MAX_SCRIPT_SIZE Script'MAX_STACK_SIZE Script'SIG_SIZE Script'cast-to-big-integer-2 Script'cast-to-big-integer-3 Script'cast-to-bool Script'check-sequence Script'decode-from-op-n Script'encode-to-op-n Script'equals-range Script'execute-check-lock-time-verify Script'execute-check-sequence-verify Script'execute-check-sig Script'execute-multi-sig Script'execute-script-5 Script'get-p2sh-sig-op-count Script'get-sig-op-count-1 Script'get-sig-op-count-2 Script'new Script'from-chunks Script'from-bytes Script'remove-all-instances-of Script'remove-all-instances-of-op Script'write-bytes)
+(declare ScriptBuilder'new ScriptBuilder''append ScriptBuilder''to-script ScriptBuilder''data ScriptBuilder''num ScriptBuilder''op Script'create-cltv-payment-channel-input-2 Script'create-cltv-payment-channel-input-2-bytes Script'create-cltv-payment-channel-output Script'create-cltv-payment-channel-p2sh-input Script'create-cltv-payment-channel-p2sh-refund Script'create-cltv-payment-channel-refund Script'create-input-script-1 Script'create-input-script-2 Script'create-multi-sig-input-script Script'create-multi-sig-input-script-bytes-1 Script'create-multi-sig-input-script-bytes-2 Script'create-multi-sig-output-script Script'create-op-return-script Script'create-output-script-1a Script'create-output-script-1e Script'create-p2sh-multi-sig-input-script Script'create-p2sh-output-script-1 Script'create-p2sh-output-script-1-bytes Script'create-p2sh-output-script-2 Script'create-redeem-script Script'update-script-with-signature)
+(declare ScriptChunk''decode-op-n ScriptChunk''equals-op-code ScriptChunk''is-op-code ScriptChunk''is-push-data ScriptChunk''is-shortest-possible-push-data ScriptChunk''write-chunk ScriptChunk'new)
 (declare ScriptError'enum-set)
 (declare ScriptException'new)
 (declare Script'OP_0 Script'OP_0NOTEQUAL Script'OP_1 Script'OP_10 Script'OP_11 Script'OP_12 Script'OP_13 Script'OP_14 Script'OP_15 Script'OP_16 Script'OP_1ADD Script'OP_1NEGATE Script'OP_1SUB Script'OP_2 Script'OP_2DIV Script'OP_2DROP Script'OP_2DUP Script'OP_2MUL Script'OP_2OVER Script'OP_2ROT Script'OP_2SWAP Script'OP_3 Script'OP_3DUP Script'OP_4 Script'OP_5 Script'OP_6 Script'OP_7 Script'OP_8 Script'OP_9 Script'OP_ABS Script'OP_ADD Script'OP_AND Script'OP_BOOLAND Script'OP_BOOLOR Script'OP_CAT Script'OP_CHECKLOCKTIMEVERIFY Script'OP_CHECKMULTISIG Script'OP_CHECKMULTISIGVERIFY Script'OP_CHECKSEQUENCEVERIFY Script'OP_CHECKSIG Script'OP_CHECKSIGVERIFY Script'OP_CODESEPARATOR Script'OP_CODE_MAP Script'OP_CODE_NAME_MAP Script'OP_DEPTH Script'OP_DIV Script'OP_DROP Script'OP_DUP Script'OP_ELSE Script'OP_ENDIF Script'OP_EQUAL Script'OP_EQUALVERIFY Script'OP_FALSE Script'OP_FROMALTSTACK Script'OP_GREATERTHAN Script'OP_GREATERTHANOREQUAL Script'OP_HASH160 Script'OP_HASH256 Script'OP_IF Script'OP_IFDUP Script'OP_INVALIDOPCODE Script'OP_INVERT Script'OP_LEFT Script'OP_LESSTHAN Script'OP_LESSTHANOREQUAL Script'OP_LSHIFT Script'OP_MAX Script'OP_MIN Script'OP_MOD Script'OP_MUL Script'OP_NEGATE Script'OP_NIP Script'OP_NOP Script'OP_NOP1 Script'OP_NOP10 Script'OP_NOP2 Script'OP_NOP3 Script'OP_NOP4 Script'OP_NOP5 Script'OP_NOP6 Script'OP_NOP7 Script'OP_NOP8 Script'OP_NOP9 Script'OP_NOT Script'OP_NOTIF Script'OP_NUMEQUAL Script'OP_NUMEQUALVERIFY Script'OP_NUMNOTEQUAL Script'OP_OR Script'OP_OVER Script'OP_PICK Script'OP_PUSHDATA1 Script'OP_PUSHDATA2 Script'OP_PUSHDATA4 Script'OP_RESERVED Script'OP_RESERVED1 Script'OP_RESERVED2 Script'OP_RETURN Script'OP_RIGHT Script'OP_RIPEMD160 Script'OP_ROLL Script'OP_ROT Script'OP_RSHIFT Script'OP_SHA1 Script'OP_SHA256 Script'OP_SIZE Script'OP_SUB Script'OP_SUBSTR Script'OP_SWAP Script'OP_TOALTSTACK Script'OP_TRUE Script'OP_TUCK Script'OP_VER Script'OP_VERIF Script'OP_VERIFY Script'OP_VERNOTIF Script'OP_WITHIN Script'OP_XOR ScriptOpCodes'get-op-code ScriptOpCodes'get-op-code-name ScriptOpCodes'get-push-data-name)
@@ -316,7 +316,7 @@
 (declare UTXO'new)
 (declare UnknownMessage'from-wire)
 (declare UserThread'WARNING_THRESHOLD UserThread'new)
-(declare Utils'SPACE_JOINER Wire'bget-uint16 Wire'bget-uint32 Wire'bget-int64 Wire'bget-uint16be Wire'bget-uint32be Wire'bset-uint32be Wire'bset-uint32 Wire'bset-uint64 Utils'big-integer-to-bytes Wire'reverse-bytes Utils'sha256hash160 Wire'decode-mpi Wire'encode-mpi Utils'decode-compact-bits Utils'encode-compact-bits Time'now Time'millis Time'seconds Time'UTC Time'format-date Time'format-millis Time'format-seconds Time'sleep Utils'HEX Utils'parse-as-hex-or-base58 Utils'BITCOIN_SIGNED_MESSAGE_HEADER Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES Utils'format-message-for-signing Utils'BIT_MASK Utils'check-bit-le Utils'set-bit-le Utils'max-of-most-freq)
+(declare Utils'SPACE_JOINER Wire'bget-uint16 Wire'bget-uint32 Wire'bget-int64 Wire'bget-uint16be Wire'bget-uint32be Wire'bset-uint32be Wire'bset-uint32 Wire'bset-uint64 Utils'big-integer-to-bytes Wire'reverse-bytes Utils'sha256hash160 Wire'decode-mpi Wire'encode-mpi Utils'decode-compact-bits Utils'encode-compact-bits Time'now Time'millis Time'seconds Time'UTC Time'format-date Time'format-millis Time'format-seconds Time'sleep Utils'parse-as-hex-or-base58 Utils'BITCOIN_SIGNED_MESSAGE_HEADER Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES Utils'format-message-for-signing Utils'BIT_MASK Utils'check-bit-le Utils'set-bit-le Utils'max-of-most-freq)
 (declare ValuesUsed'new)
 (declare VarInt''encode VarInt'init VarInt'new VarInt'parse VarInt'from-wire VarInt'size-of)
 (declare VerificationException'new)
@@ -1007,9 +1007,17 @@
     )
 
     ;;;
-     ; Hex encoding used throughout the framework.  Use with HEX.encode(byte[]) or HEX.decode(CharSequence).
+     ; Hex encoding used throughout the framework.
      ;;
-    (def #_"BaseEncoding" Utils'HEX (.lowerCase (BaseEncoding/base16)))
+    (def- #_"BaseEncoding" Utils'HEX (.lowerCase (BaseEncoding/base16)))
+
+    (defn #_"String" Base16'encode [#_"byte[]" data]
+        (.encode Utils'HEX, data)
+    )
+
+    (defn #_"byte[]" Base16'decode [#_"CharSequence" data]
+        (.decode Utils'HEX, data)
+    )
 
     ;;;
      ; Attempts to parse the given string as arbitrary-length hex or base58 and then return the results,
@@ -1017,7 +1025,7 @@
      ;;
     (defn #_"byte[]" Utils'parse-as-hex-or-base58 [#_"String" data]
         (try
-            (.decode Utils'HEX, data)
+            (Base16'decode data)
             (catch Exception _
                 ;; Didn't decode as hex, try base58.
                 (try+
@@ -3855,13 +3863,13 @@
               #_"byte[]" hash (Sha256Hash'hash-twice payload) #_"byte[]" checksum (:checksum header)]
             ;; Verify the checksum.
             (when-not (and (= (aget checksum 0) (aget hash 0)) (= (aget checksum 1) (aget hash 1)) (= (aget checksum 2) (aget hash 2)) (= (aget checksum 3) (aget hash 3)))
-                (throw+ (ProtocolException'new (str "Checksum failed to verify, actual " (.encode Utils'HEX, hash) " vs " (.encode Utils'HEX, checksum))))
+                (throw+ (ProtocolException'new (str "Checksum failed to verify, actual " (Base16'encode hash) " vs " (Base16'encode checksum))))
             )
 
             (try
                 (Wire'make-message ledger, (:command header), (ByteBuffer/wrap payload))
                 (catch Exception e
-                    (throw+ (ProtocolException'new (str "Error deserializing message " (.encode Utils'HEX, payload) "\n")) e)
+                    (throw+ (ProtocolException'new (str "Error deserializing message " (Base16'encode payload) "\n")) e)
                 )
             )
         )
@@ -5863,12 +5871,12 @@
 
     #_method
     (defn #_"String" ECKey''get-private-key-as-hex [#_"ECKey" this]
-        (.encode Utils'HEX, (ECKey''get-priv-key-bytes this))
+        (Base16'encode (ECKey''get-priv-key-bytes this))
     )
 
     #_method
     (defn #_"String" ECKey''get-public-key-as-hex [#_"ECKey" this]
-        (.encode Utils'HEX, (.getEncoded (:pub this)))
+        (Base16'encode (.getEncoded (:pub this)))
     )
 
     #_method
@@ -5900,7 +5908,7 @@
     (defn #_"void" ECKey'''format-key-with-address [#_"ECKey" this, #_"boolean" private?, #_"StringBuilder" sb, #_"Ledger" ledger]
         (let [#_"Address" address (ECKey''to-address this, ledger)]
             (.. sb (append "  addr:") (append address))
-            (.. sb (append "  hash160:") (append (.encode Utils'HEX, (ECKey''get-pub-key-hash this))))
+            (.. sb (append "  hash160:") (append (Base16'encode (ECKey''get-pub-key-hash this))))
             (when (pos? (:creation-time-seconds this))
                 (.. sb (append "  creationTimeSeconds:") (append (:creation-time-seconds this)))
             )
@@ -7019,7 +7027,7 @@
     ;;;
      ; The alert signing key originally owned by Satoshi, and now passed on to Gavin along with a few others.
      ;;
-    (def #_"byte[]" Ledger'SATOSHI_KEY (.decode Utils'HEX, "04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284"))
+    (def #_"byte[]" Ledger'SATOSHI_KEY (Base16'decode "04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284"))
 
     ;;; The string id of the main, production network where people trade things. ;;
     (def #_"String" Ledger'ID_MAINNET "org.bitcoin.production")
@@ -7029,10 +7037,10 @@
     (defn- #_"Block" Ledger'create-genesis [#_"Ledger" param]
         (let [#_"Transaction" tx (Transaction'new param)
               ;; A script containing the difficulty bits and the following message: "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks".
-              #_"byte[]" bytes (.decode Utils'HEX, "04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73")]
+              #_"byte[]" bytes (Base16'decode "04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73")]
             (Transaction''add-input-i tx, (TransactionInput'new-unconnected param, tx, bytes))
             (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
-                (Script'write-bytes baos, (.decode Utils'HEX, "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f"))
+                (Script'write-bytes baos, (Base16'decode "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f"))
                 (.write baos, Script'OP_CHECKSIG)
                 (Transaction''add-output-o tx, (TransactionOutput'for-script param, tx, Coin'FIFTY_COINS, (.toByteArray baos)))
                 (let [#_"Block" genesis (Block'new-genesis param, Block'BLOCK_VERSION_GENESIS)]
@@ -12326,7 +12334,7 @@
      ; @throws IllegalArgumentException if the given string is not a valid hex string, or if it does not represent exactly 32 bytes.
      ;;
     (defn #_"Sha256Hash" Sha256Hash'wrap-hex [#_"String" hex]
-        (Sha256Hash'wrap (.decode Utils'HEX, hex))
+        (Sha256Hash'wrap (Base16'decode hex))
     )
 
     ;;;
@@ -12488,7 +12496,7 @@
     #_foreign
     #_override
     (defn #_"String" Object'''toString [#_"Sha256Hash" this]
-        (.encode Utils'HEX, (:bytes this))
+        (Base16'encode (:bytes this))
     )
 )
 
@@ -13174,9 +13182,9 @@
                   #_"TransactionSignature" __txSig (TransactionSignature'from-ecdsa __ecSig, mode, anyone?)]
                 (cond
                     (Script''is-sent-to-raw-pub-key __scriptPubKey)
-                        (§ ass input (TransactionInput''set-script-sig input, (ScriptBuilder'create-input-script-1 __txSig)))
+                        (§ ass input (TransactionInput''set-script-sig input, (Script'create-input-script-1 __txSig)))
                     (Script''is-sent-to-address __scriptPubKey)
-                        (§ ass input (TransactionInput''set-script-sig input, (ScriptBuilder'create-input-script-2 __txSig, __sigKey)))
+                        (§ ass input (TransactionInput''set-script-sig input, (Script'create-input-script-2 __txSig, __sigKey)))
                     :else
                         (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Don't know how to sign for this kind of scriptPubKey: " __scriptPubKey)))
                 )
@@ -13568,7 +13576,7 @@
 
         ;; Check block height is in coinbase input script.
         (let [#_"TransactionInput" in (Transaction''get-input this, 0)
-              #_"byte[]" expected (Script''get-program (-> (ScriptBuilder'new) (ScriptBuilder''number height) (ScriptBuilder''build)))
+              #_"byte[]" expected (-> (ScriptBuilder'new) (ScriptBuilder''num height) (ScriptBuilder''to-script) (Script''get-program))
               #_"byte[]" actual (:script-bytes in)]
             (when (< (alength actual) (alength expected))
                 (throw+ (VerificationException'new "Block height mismatch in coinbase."))
@@ -13823,7 +13831,7 @@
                                                 (when (some? __connectedOutput)
                                                     (let [#_"Script" __scriptPubKey (TransactionOutput''get-script-pub-key __connectedOutput)]
                                                         (when (or (Script''is-sent-to-address __scriptPubKey) (Script''is-pay-to-script-hash __scriptPubKey))
-                                                            (.. sb (append " hash160:") (append (.encode Utils'HEX, (Script''get-pub-key-hash __scriptPubKey))))
+                                                            (.. sb (append " hash160:") (append (Base16'encode (Script''get-pub-key-hash __scriptPubKey))))
                                                         )
                                                     )
                                                 )
@@ -15321,7 +15329,7 @@
      ; {@link Transaction#addOutput(Coin, Address)} instead of creating a TransactionOutput directly.
      ;;
     (defn #_"TransactionOutput" TransactionOutput'for-address [#_"Ledger" ledger, #_"Transaction" parent, #_"Coin" value, #_"Address" to]
-        (TransactionOutput'for-script ledger, parent, value, (Script''get-program (ScriptBuilder'create-output-script-1a to)))
+        (TransactionOutput'for-script ledger, parent, value, (Script''get-program (Script'create-output-script-1a to)))
     )
 
     ;;;
@@ -15330,7 +15338,7 @@
      ; {@link Transaction#addOutput(Coin, ECKey)} instead of creating an output directly.
      ;;
     (defn #_"TransactionOutput" TransactionOutput'for-pubkey [#_"Ledger" ledger, #_"Transaction" parent, #_"Coin" value, #_"ECKey" to]
-        (TransactionOutput'for-script ledger, parent, value, (Script''get-program (ScriptBuilder'create-output-script-1e to)))
+        (TransactionOutput'for-script ledger, parent, value, (Script''get-program (Script'create-output-script-1e to)))
     )
 
     ;;;
@@ -15590,7 +15598,7 @@
                 (or (Script''is-sent-to-address script) (Script''is-pay-to-script-hash script))
                     (.. sb (append " to ") (append (Script''get-to-address-2 script, (:ledger this))))
                 (Script''is-sent-to-raw-pub-key script)
-                    (.. sb (append " to pubkey ") (append (.encode Utils'HEX, (Script''get-pub-key script))))
+                    (.. sb (append " to pubkey ") (append (Base16'encode (Script''get-pub-key script))))
                 (Script''is-sent-to-multi-sig script)
                     (.. sb (append " to multisig"))
                 :else
@@ -15843,7 +15851,7 @@
     #_foreign
     #_override
     (defn #_"String" Object'''toString [#_"UnknownMessage" this]
-        (str "Unknown message [" (:command this) "]: " (.encode Utils'HEX, (:payload this)))
+        (str "Unknown message [" (:command this) "]: " (Base16'encode (:payload this)))
     )
 )
 
@@ -16890,7 +16898,7 @@
     (defn #_"void" ECKey'''format-key-with-address [#_"DeterministicKey" this, #_"boolean" private?, #_"StringBuilder" sb, #_"Ledger" ledger]
         (let [#_"Address" address (ECKey''to-address this, ledger)]
             (.. sb (append "  addr:") (append address))
-            (.. sb (append "  hash160:") (append (.encode Utils'HEX, (ECKey''get-pub-key-hash this))))
+            (.. sb (append "  hash160:") (append (Base16'encode (ECKey''get-pub-key-hash this))))
             (.. sb (append "  (") (append (DeterministicKey''get-path-as-string this)) (append ")\n"))
             (when private?
                 (.. sb (append "  ") (append (ECKey''to-string-with-private this, ledger)) (append "\n"))
@@ -16925,8 +16933,8 @@
     #_override
     (defn #_"String" Object'''toString [#_"DeterministicKey" this]
         (let [#_"MoreObjects.ToStringHelper" helper (.omitNullValues (MoreObjects/toStringHelper this))]
-            (.add helper, "pub", (.encode Utils'HEX, (.getEncoded (:pub this))))
-            (.add helper, "chainCode", (.encode Utils'HEX, (:chain-code this)))
+            (.add helper, "pub", (Base16'encode (.getEncoded (:pub this))))
+            (.add helper, "chainCode", (Base16'encode (:chain-code this)))
             (.add helper, "path", (DeterministicKey''get-path-as-string this))
             (when (pos? (:creation-time-seconds this))
                 (.add helper, "creationTimeSeconds", (:creation-time-seconds this))
@@ -17518,7 +17526,7 @@
             )
             ;; If a digest is supplied, check to make sure it matches.
             (when (some? digest)
-                (when-not (.equals (.encode Utils'HEX, (.digest md)), digest)
+                (when-not (.equals (Base16'encode (.digest md)), digest)
                     (throw (IllegalArgumentException. "wordlist digest mismatch"))
                 )
             )
@@ -19832,7 +19840,7 @@
 
               this (assoc this :spendable-coinbase-depth 100)
               this (assoc this :subsidy-decrease-block-count 210000)
-              this (assoc this :alert-signing-key (.decode Utils'HEX, "04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a"))
+              this (assoc this :alert-signing-key (Base16'decode "04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a"))
 
               this (assoc this :dns-seeds
                 [
@@ -20364,7 +20372,7 @@
 )
 
 ;;;
- ; Enumeration to encapsulate the type of this script.
+ ; Enumeration to encapsulate the type of a script.
  ;;
 (def ScriptType'enum-set
     (hash-set
@@ -20396,26 +20404,481 @@
     )
 )
 
+(def ScriptError'enum-set
+    (hash-set
+        :ScriptError'OK
+        :ScriptError'UNKNOWN_ERROR
+        :ScriptError'EVAL_FALSE
+        :ScriptError'OP_RETURN
+
+        ;;; max sizes ;;
+        :ScriptError'SCRIPT_SIZE
+        :ScriptError'PUSH_SIZE
+        :ScriptError'OP_COUNT
+        :ScriptError'STACK_SIZE
+        :ScriptError'SIG_COUNT
+        :ScriptError'PUBKEY_COUNT
+
+        ;;; failed verify operations ;;
+        :ScriptError'VERIFY
+        :ScriptError'EQUALVERIFY
+        :ScriptError'CHECKMULTISIGVERIFY
+        :ScriptError'CHECKSIGVERIFY
+        :ScriptError'NUMEQUALVERIFY
+
+        ;;; logical/format/canonical errors ;;
+        :ScriptError'BAD_OPCODE
+        :ScriptError'DISABLED_OPCODE
+        :ScriptError'INVALID_STACK_OPERATION
+        :ScriptError'INVALID_ALTSTACK_OPERATION
+        :ScriptError'UNBALANCED_CONDITIONAL
+
+        ;;; CHECKLOCKTIMEVERIFY and CHECKSEQUENCEVERIFY ;;
+        :ScriptError'NEGATIVE_LOCKTIME
+        :ScriptError'UNSATISFIED_LOCKTIME
+
+        ;;; malleability ;;
+        :ScriptError'SIG_HASHTYPE
+        :ScriptError'SIG_DER
+        :ScriptError'MINIMALDATA
+        :ScriptError'SIG_PUSHONLY
+        :ScriptError'SIG_HIGH_S
+        :ScriptError'SIG_NULLDUMMY
+        :ScriptError'PUBKEYTYPE
+        :ScriptError'CLEANSTACK
+        :ScriptError'MINIMALIF
+        :ScriptError'SIG_NULLFAIL
+
+        ;;; softfork safeness ;;
+        :ScriptError'DISCOURAGE_UPGRADABLE_NOPS
+        :ScriptError'DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM
+
+        ;;; segregated witness ;;
+        :ScriptError'WITNESS_PROGRAM_WRONG_LENGTH
+        :ScriptError'WITNESS_PROGRAM_WITNESS_EMPTY
+        :ScriptError'WITNESS_PROGRAM_MISMATCH
+        :ScriptError'WITNESS_MALLEATED
+        :ScriptError'WITNESS_MALLEATED_P2SH
+        :ScriptError'WITNESS_UNEXPECTED
+        :ScriptError'WITNESS_PUBKEYTYPE
+    )
+)
+
+;;;
+ ; Various constants that define the assembly-like scripting language that forms part of the Bitcoin protocol.
+ ; See {@link Script} for details.  Also provides a method to convert them to a string.
+ ;;
+#_stateless
+(class-ns ScriptOpCodes
+    ;; push value
+    (def #_"int" Script'OP_0 0x00) ;; push empty vector
+    (def #_"int" Script'OP_FALSE Script'OP_0)
+    (def #_"int" Script'OP_PUSHDATA1 0x4c)
+    (def #_"int" Script'OP_PUSHDATA2 0x4d)
+    (def #_"int" Script'OP_PUSHDATA4 0x4e)
+    (def #_"int" Script'OP_1NEGATE 0x4f)
+    (def #_"int" Script'OP_RESERVED 0x50)
+    (def #_"int" Script'OP_1 0x51)
+    (def #_"int" Script'OP_TRUE Script'OP_1)
+    (def #_"int" Script'OP_2 0x52)
+    (def #_"int" Script'OP_3 0x53)
+    (def #_"int" Script'OP_4 0x54)
+    (def #_"int" Script'OP_5 0x55)
+    (def #_"int" Script'OP_6 0x56)
+    (def #_"int" Script'OP_7 0x57)
+    (def #_"int" Script'OP_8 0x58)
+    (def #_"int" Script'OP_9 0x59)
+    (def #_"int" Script'OP_10 0x5a)
+    (def #_"int" Script'OP_11 0x5b)
+    (def #_"int" Script'OP_12 0x5c)
+    (def #_"int" Script'OP_13 0x5d)
+    (def #_"int" Script'OP_14 0x5e)
+    (def #_"int" Script'OP_15 0x5f)
+    (def #_"int" Script'OP_16 0x60)
+
+    ;; control
+    (def #_"int" Script'OP_NOP 0x61)
+    (def #_"int" Script'OP_VER 0x62)
+    (def #_"int" Script'OP_IF 0x63)
+    (def #_"int" Script'OP_NOTIF 0x64)
+    (def #_"int" Script'OP_VERIF 0x65)
+    (def #_"int" Script'OP_VERNOTIF 0x66)
+    (def #_"int" Script'OP_ELSE 0x67)
+    (def #_"int" Script'OP_ENDIF 0x68)
+    (def #_"int" Script'OP_VERIFY 0x69)
+    (def #_"int" Script'OP_RETURN 0x6a)
+
+    ;; stack ops
+    (def #_"int" Script'OP_TOALTSTACK 0x6b)
+    (def #_"int" Script'OP_FROMALTSTACK 0x6c)
+    (def #_"int" Script'OP_2DROP 0x6d)
+    (def #_"int" Script'OP_2DUP 0x6e)
+    (def #_"int" Script'OP_3DUP 0x6f)
+    (def #_"int" Script'OP_2OVER 0x70)
+    (def #_"int" Script'OP_2ROT 0x71)
+    (def #_"int" Script'OP_2SWAP 0x72)
+    (def #_"int" Script'OP_IFDUP 0x73)
+    (def #_"int" Script'OP_DEPTH 0x74)
+    (def #_"int" Script'OP_DROP 0x75)
+    (def #_"int" Script'OP_DUP 0x76)
+    (def #_"int" Script'OP_NIP 0x77)
+    (def #_"int" Script'OP_OVER 0x78)
+    (def #_"int" Script'OP_PICK 0x79)
+    (def #_"int" Script'OP_ROLL 0x7a)
+    (def #_"int" Script'OP_ROT 0x7b)
+    (def #_"int" Script'OP_SWAP 0x7c)
+    (def #_"int" Script'OP_TUCK 0x7d)
+
+    ;; splice ops
+    (def #_"int" Script'OP_CAT 0x7e)
+    (def #_"int" Script'OP_SUBSTR 0x7f)
+    (def #_"int" Script'OP_LEFT 0x80)
+    (def #_"int" Script'OP_RIGHT 0x81)
+    (def #_"int" Script'OP_SIZE 0x82)
+
+    ;; bit logic
+    (def #_"int" Script'OP_INVERT 0x83)
+    (def #_"int" Script'OP_AND 0x84)
+    (def #_"int" Script'OP_OR 0x85)
+    (def #_"int" Script'OP_XOR 0x86)
+    (def #_"int" Script'OP_EQUAL 0x87)
+    (def #_"int" Script'OP_EQUALVERIFY 0x88)
+    (def #_"int" Script'OP_RESERVED1 0x89)
+    (def #_"int" Script'OP_RESERVED2 0x8a)
+
+    ;; numeric
+    (def #_"int" Script'OP_1ADD 0x8b)
+    (def #_"int" Script'OP_1SUB 0x8c)
+    (def #_"int" Script'OP_2MUL 0x8d)
+    (def #_"int" Script'OP_2DIV 0x8e)
+    (def #_"int" Script'OP_NEGATE 0x8f)
+    (def #_"int" Script'OP_ABS 0x90)
+    (def #_"int" Script'OP_NOT 0x91)
+    (def #_"int" Script'OP_0NOTEQUAL 0x92)
+    (def #_"int" Script'OP_ADD 0x93)
+    (def #_"int" Script'OP_SUB 0x94)
+    (def #_"int" Script'OP_MUL 0x95)
+    (def #_"int" Script'OP_DIV 0x96)
+    (def #_"int" Script'OP_MOD 0x97)
+    (def #_"int" Script'OP_LSHIFT 0x98)
+    (def #_"int" Script'OP_RSHIFT 0x99)
+    (def #_"int" Script'OP_BOOLAND 0x9a)
+    (def #_"int" Script'OP_BOOLOR 0x9b)
+    (def #_"int" Script'OP_NUMEQUAL 0x9c)
+    (def #_"int" Script'OP_NUMEQUALVERIFY 0x9d)
+    (def #_"int" Script'OP_NUMNOTEQUAL 0x9e)
+    (def #_"int" Script'OP_LESSTHAN 0x9f)
+    (def #_"int" Script'OP_GREATERTHAN 0xa0)
+    (def #_"int" Script'OP_LESSTHANOREQUAL 0xa1)
+    (def #_"int" Script'OP_GREATERTHANOREQUAL 0xa2)
+    (def #_"int" Script'OP_MIN 0xa3)
+    (def #_"int" Script'OP_MAX 0xa4)
+    (def #_"int" Script'OP_WITHIN 0xa5)
+
+    ;; crypto
+    (def #_"int" Script'OP_RIPEMD160 0xa6)
+    (def #_"int" Script'OP_SHA1 0xa7)
+    (def #_"int" Script'OP_SHA256 0xa8)
+    (def #_"int" Script'OP_HASH160 0xa9)
+    (def #_"int" Script'OP_HASH256 0xaa)
+    (def #_"int" Script'OP_CODESEPARATOR 0xab)
+    (def #_"int" Script'OP_CHECKSIG 0xac)
+    (def #_"int" Script'OP_CHECKSIGVERIFY 0xad)
+    (def #_"int" Script'OP_CHECKMULTISIG 0xae)
+    (def #_"int" Script'OP_CHECKMULTISIGVERIFY 0xaf)
+
+    ;; block state
+    ;;; Check lock time of the block.  Introduced in BIP 65, replacing OP_NOP2 ;;
+    (def #_"int" Script'OP_CHECKLOCKTIMEVERIFY 0xb1)
+    (def #_"int" Script'OP_CHECKSEQUENCEVERIFY 0xb2)
+
+    ;; expansion
+    (def #_"int" Script'OP_NOP1 0xb0)
+    ;;; Deprecated by BIP 65 ;;
+    #_deprecated
+    (def #_"int" Script'OP_NOP2 Script'OP_CHECKLOCKTIMEVERIFY)
+    ;;; Deprecated by BIP 112 ;;
+    #_deprecated
+    (def #_"int" Script'OP_NOP3 Script'OP_CHECKSEQUENCEVERIFY)
+    (def #_"int" Script'OP_NOP4 0xb3)
+    (def #_"int" Script'OP_NOP5 0xb4)
+    (def #_"int" Script'OP_NOP6 0xb5)
+    (def #_"int" Script'OP_NOP7 0xb6)
+    (def #_"int" Script'OP_NOP8 0xb7)
+    (def #_"int" Script'OP_NOP9 0xb8)
+    (def #_"int" Script'OP_NOP10 0xb9)
+    (def #_"int" Script'OP_INVALIDOPCODE 0xff)
+
+    (def- #_"Map<Integer, String>" Script'OP_CODE_MAP
+    {
+        Script'OP_0 "0",
+        Script'OP_PUSHDATA1 "PUSHDATA1",
+        Script'OP_PUSHDATA2 "PUSHDATA2",
+        Script'OP_PUSHDATA4 "PUSHDATA4",
+        Script'OP_1NEGATE "1NEGATE",
+        Script'OP_RESERVED "RESERVED",
+        Script'OP_1 "1",
+        Script'OP_2 "2",
+        Script'OP_3 "3",
+        Script'OP_4 "4",
+        Script'OP_5 "5",
+        Script'OP_6 "6",
+        Script'OP_7 "7",
+        Script'OP_8 "8",
+        Script'OP_9 "9",
+        Script'OP_10 "10",
+        Script'OP_11 "11",
+        Script'OP_12 "12",
+        Script'OP_13 "13",
+        Script'OP_14 "14",
+        Script'OP_15 "15",
+        Script'OP_16 "16",
+        Script'OP_NOP "NOP",
+        Script'OP_VER "VER",
+        Script'OP_IF "IF",
+        Script'OP_NOTIF "NOTIF",
+        Script'OP_VERIF "VERIF",
+        Script'OP_VERNOTIF "VERNOTIF",
+        Script'OP_ELSE "ELSE",
+        Script'OP_ENDIF "ENDIF",
+        Script'OP_VERIFY "VERIFY",
+        Script'OP_RETURN "RETURN",
+        Script'OP_TOALTSTACK "TOALTSTACK",
+        Script'OP_FROMALTSTACK "FROMALTSTACK",
+        Script'OP_2DROP "2DROP",
+        Script'OP_2DUP "2DUP",
+        Script'OP_3DUP "3DUP",
+        Script'OP_2OVER "2OVER",
+        Script'OP_2ROT "2ROT",
+        Script'OP_2SWAP "2SWAP",
+        Script'OP_IFDUP "IFDUP",
+        Script'OP_DEPTH "DEPTH",
+        Script'OP_DROP "DROP",
+        Script'OP_DUP "DUP",
+        Script'OP_NIP "NIP",
+        Script'OP_OVER "OVER",
+        Script'OP_PICK "PICK",
+        Script'OP_ROLL "ROLL",
+        Script'OP_ROT "ROT",
+        Script'OP_SWAP "SWAP",
+        Script'OP_TUCK "TUCK",
+        Script'OP_CAT "CAT",
+        Script'OP_SUBSTR "SUBSTR",
+        Script'OP_LEFT "LEFT",
+        Script'OP_RIGHT "RIGHT",
+        Script'OP_SIZE "SIZE",
+        Script'OP_INVERT "INVERT",
+        Script'OP_AND "AND",
+        Script'OP_OR "OR",
+        Script'OP_XOR "XOR",
+        Script'OP_EQUAL "EQUAL",
+        Script'OP_EQUALVERIFY "EQUALVERIFY",
+        Script'OP_RESERVED1 "RESERVED1",
+        Script'OP_RESERVED2 "RESERVED2",
+        Script'OP_1ADD "1ADD",
+        Script'OP_1SUB "1SUB",
+        Script'OP_2MUL "2MUL",
+        Script'OP_2DIV "2DIV",
+        Script'OP_NEGATE "NEGATE",
+        Script'OP_ABS "ABS",
+        Script'OP_NOT "NOT",
+        Script'OP_0NOTEQUAL "0NOTEQUAL",
+        Script'OP_ADD "ADD",
+        Script'OP_SUB "SUB",
+        Script'OP_MUL "MUL",
+        Script'OP_DIV "DIV",
+        Script'OP_MOD "MOD",
+        Script'OP_LSHIFT "LSHIFT",
+        Script'OP_RSHIFT "RSHIFT",
+        Script'OP_BOOLAND "BOOLAND",
+        Script'OP_BOOLOR "BOOLOR",
+        Script'OP_NUMEQUAL "NUMEQUAL",
+        Script'OP_NUMEQUALVERIFY "NUMEQUALVERIFY",
+        Script'OP_NUMNOTEQUAL "NUMNOTEQUAL",
+        Script'OP_LESSTHAN "LESSTHAN",
+        Script'OP_GREATERTHAN "GREATERTHAN",
+        Script'OP_LESSTHANOREQUAL "LESSTHANOREQUAL",
+        Script'OP_GREATERTHANOREQUAL "GREATERTHANOREQUAL",
+        Script'OP_MIN "MIN",
+        Script'OP_MAX "MAX",
+        Script'OP_WITHIN "WITHIN",
+        Script'OP_RIPEMD160 "RIPEMD160",
+        Script'OP_SHA1 "SHA1",
+        Script'OP_SHA256 "SHA256",
+        Script'OP_HASH160 "HASH160",
+        Script'OP_HASH256 "HASH256",
+        Script'OP_CODESEPARATOR "CODESEPARATOR",
+        Script'OP_CHECKSIG "CHECKSIG",
+        Script'OP_CHECKSIGVERIFY "CHECKSIGVERIFY",
+        Script'OP_CHECKMULTISIG "CHECKMULTISIG",
+        Script'OP_CHECKMULTISIGVERIFY "CHECKMULTISIGVERIFY",
+        Script'OP_NOP1 "NOP1",
+        Script'OP_CHECKLOCKTIMEVERIFY "CHECKLOCKTIMEVERIFY",
+        Script'OP_CHECKSEQUENCEVERIFY "CHECKSEQUENCEVERIFY",
+        Script'OP_NOP4 "NOP4",
+        Script'OP_NOP5 "NOP5",
+        Script'OP_NOP6 "NOP6",
+        Script'OP_NOP7 "NOP7",
+        Script'OP_NOP8 "NOP8",
+        Script'OP_NOP9 "NOP9",
+        Script'OP_NOP10 "NOP10",
+    })
+
+    (def- #_"Map<String, Integer>" Script'OP_CODE_NAME_MAP
+    {
+        "0" Script'OP_0,
+        "PUSHDATA1" Script'OP_PUSHDATA1,
+        "PUSHDATA2" Script'OP_PUSHDATA2,
+        "PUSHDATA4" Script'OP_PUSHDATA4,
+        "1NEGATE" Script'OP_1NEGATE,
+        "RESERVED" Script'OP_RESERVED,
+        "1" Script'OP_1,
+        "2" Script'OP_2,
+        "3" Script'OP_3,
+        "4" Script'OP_4,
+        "5" Script'OP_5,
+        "6" Script'OP_6,
+        "7" Script'OP_7,
+        "8" Script'OP_8,
+        "9" Script'OP_9,
+        "10" Script'OP_10,
+        "11" Script'OP_11,
+        "12" Script'OP_12,
+        "13" Script'OP_13,
+        "14" Script'OP_14,
+        "15" Script'OP_15,
+        "16" Script'OP_16,
+        "NOP" Script'OP_NOP,
+        "VER" Script'OP_VER,
+        "IF" Script'OP_IF,
+        "NOTIF" Script'OP_NOTIF,
+        "VERIF" Script'OP_VERIF,
+        "VERNOTIF" Script'OP_VERNOTIF,
+        "ELSE" Script'OP_ELSE,
+        "ENDIF" Script'OP_ENDIF,
+        "VERIFY" Script'OP_VERIFY,
+        "RETURN" Script'OP_RETURN,
+        "TOALTSTACK" Script'OP_TOALTSTACK,
+        "FROMALTSTACK" Script'OP_FROMALTSTACK,
+        "2DROP" Script'OP_2DROP,
+        "2DUP" Script'OP_2DUP,
+        "3DUP" Script'OP_3DUP,
+        "2OVER" Script'OP_2OVER,
+        "2ROT" Script'OP_2ROT,
+        "2SWAP" Script'OP_2SWAP,
+        "IFDUP" Script'OP_IFDUP,
+        "DEPTH" Script'OP_DEPTH,
+        "DROP" Script'OP_DROP,
+        "DUP" Script'OP_DUP,
+        "NIP" Script'OP_NIP,
+        "OVER" Script'OP_OVER,
+        "PICK" Script'OP_PICK,
+        "ROLL" Script'OP_ROLL,
+        "ROT" Script'OP_ROT,
+        "SWAP" Script'OP_SWAP,
+        "TUCK" Script'OP_TUCK,
+        "CAT" Script'OP_CAT,
+        "SUBSTR" Script'OP_SUBSTR,
+        "LEFT" Script'OP_LEFT,
+        "RIGHT" Script'OP_RIGHT,
+        "SIZE" Script'OP_SIZE,
+        "INVERT" Script'OP_INVERT,
+        "AND" Script'OP_AND,
+        "OR" Script'OP_OR,
+        "XOR" Script'OP_XOR,
+        "EQUAL" Script'OP_EQUAL,
+        "EQUALVERIFY" Script'OP_EQUALVERIFY,
+        "RESERVED1" Script'OP_RESERVED1,
+        "RESERVED2" Script'OP_RESERVED2,
+        "1ADD" Script'OP_1ADD,
+        "1SUB" Script'OP_1SUB,
+        "2MUL" Script'OP_2MUL,
+        "2DIV" Script'OP_2DIV,
+        "NEGATE" Script'OP_NEGATE,
+        "ABS" Script'OP_ABS,
+        "NOT" Script'OP_NOT,
+        "0NOTEQUAL" Script'OP_0NOTEQUAL,
+        "ADD" Script'OP_ADD,
+        "SUB" Script'OP_SUB,
+        "MUL" Script'OP_MUL,
+        "DIV" Script'OP_DIV,
+        "MOD" Script'OP_MOD,
+        "LSHIFT" Script'OP_LSHIFT,
+        "RSHIFT" Script'OP_RSHIFT,
+        "BOOLAND" Script'OP_BOOLAND,
+        "BOOLOR" Script'OP_BOOLOR,
+        "NUMEQUAL" Script'OP_NUMEQUAL,
+        "NUMEQUALVERIFY" Script'OP_NUMEQUALVERIFY,
+        "NUMNOTEQUAL" Script'OP_NUMNOTEQUAL,
+        "LESSTHAN" Script'OP_LESSTHAN,
+        "GREATERTHAN" Script'OP_GREATERTHAN,
+        "LESSTHANOREQUAL" Script'OP_LESSTHANOREQUAL,
+        "GREATERTHANOREQUAL" Script'OP_GREATERTHANOREQUAL,
+        "MIN" Script'OP_MIN,
+        "MAX" Script'OP_MAX,
+        "WITHIN" Script'OP_WITHIN,
+        "RIPEMD160" Script'OP_RIPEMD160,
+        "SHA1" Script'OP_SHA1,
+        "SHA256" Script'OP_SHA256,
+        "HASH160" Script'OP_HASH160,
+        "HASH256" Script'OP_HASH256,
+        "CODESEPARATOR" Script'OP_CODESEPARATOR,
+        "CHECKSIG" Script'OP_CHECKSIG,
+        "CHECKSIGVERIFY" Script'OP_CHECKSIGVERIFY,
+        "CHECKMULTISIG" Script'OP_CHECKMULTISIG,
+        "CHECKMULTISIGVERIFY" Script'OP_CHECKMULTISIGVERIFY,
+        "NOP1" Script'OP_NOP1,
+        "CHECKLOCKTIMEVERIFY" Script'OP_CHECKLOCKTIMEVERIFY,
+        "CHECKSEQUENCEVERIFY" Script'OP_CHECKSEQUENCEVERIFY,
+        "NOP2" Script'OP_NOP2,
+        "NOP3" Script'OP_NOP3,
+        "NOP4" Script'OP_NOP4,
+        "NOP5" Script'OP_NOP5,
+        "NOP6" Script'OP_NOP6,
+        "NOP7" Script'OP_NOP7,
+        "NOP8" Script'OP_NOP8,
+        "NOP9" Script'OP_NOP9,
+        "NOP10" Script'OP_NOP10,
+    })
+
+    ;;;
+     ; Converts the given OpCode into a string (e.g. "0", "PUSHDATA", or "NON_OP(10)")
+     ;;
+    (defn #_"String" ScriptOpCodes'get-op-code-name [#_"int" code]
+        (get Script'OP_CODE_MAP code (str "NON_OP(" code ")"))
+    )
+
+    ;;;
+     ; Converts the given pushdata OpCode into a string (e.g. "PUSHDATA2", or "PUSHDATA(23)")
+     ;;
+    (defn #_"String" ScriptOpCodes'get-push-data-name [#_"int" code]
+        (get Script'OP_CODE_MAP code (str "PUSHDATA(" code ")"))
+    )
+
+    ;;;
+     ; Converts the given OpCodeName into an int.
+     ;;
+    (defn #_"int" ScriptOpCodes'get-op-code [#_"String" name]
+        (get Script'OP_CODE_NAME_MAP name Script'OP_INVALIDOPCODE)
+    )
+)
+
 ;;;
  ; A script element that is either a data push (signature, pubkey, etc.) or a non-push (logic, numeric, etc.) operation.
  ;;
 (class-ns ScriptChunk
-    (defn #_"ScriptChunk" ScriptChunk'new
-        ([#_"int" opcode, #_"byte[]" data] (ScriptChunk'new opcode, data, -1))
-        ([#_"int" opcode, #_"byte[]" data, #_"int" start]
-            (hash-map
-                ;;;
-                 ; Operation to be executed.  Opcodes are defined in {@link ScriptOpCodes}.
-                 ;;
-                #_"int" :opcode opcode
-                ;;;
-                 ; For push operations, this is the vector to be pushed on the stack.
-                 ; For {@link ScriptOpCodes#OP_0}, the vector is empty.
-                 ; Null for non-push operations.
-                 ;;
-                #_"byte[]" :data data
-                #_"int" :start-location-in-program start
-            )
+    (defn #_"ScriptChunk" ScriptChunk'new [#_"int" opcode, #_"byte[]" data]
+        (hash-map
+            ;;;
+             ; Operation to be executed.  Opcodes are defined in {@link ScriptOpCodes}.
+             ;;
+            #_"int" :opcode opcode
+            ;;;
+             ; For push operations, this is the vector to be pushed on the stack.
+             ; For {@link ScriptOpCodes#OP_0}, the vector is empty.
+             ; Null for non-push operations.
+             ;;
+            #_"byte[]" :data data
         )
     )
 
@@ -20438,13 +20901,6 @@
     #_method
     (defn #_"boolean" ScriptChunk''is-push-data [#_"ScriptChunk" this]
         (<= (:opcode this) Script'OP_16)
-    )
-
-    #_method
-    (defn #_"int" ScriptChunk''get-start-location-in-program [#_"ScriptChunk" this]
-        (assert-state (<= 0 (:start-location-in-program this)))
-
-        (:start-location-in-program this)
     )
 
     ;;; If this chunk is an OP_N opcode returns the equivalent integer value. ;;
@@ -20543,9 +20999,429 @@
         (cond (ScriptChunk''is-op-code this)
                 (str (ScriptOpCodes'get-op-code-name (:opcode this)))
             (some? (:data this)) ;; Data chunk.
-                (str (ScriptOpCodes'get-push-data-name (:opcode this)) "[" (.encode Utils'HEX, (:data this)) "]")
+                (str (ScriptOpCodes'get-push-data-name (:opcode this)) "[" (Base16'encode (:data this)) "]")
             :else ;; Small num.
                 (str (Script'decode-from-op-n (:opcode this)))
+        )
+    )
+)
+
+;;;
+ ; Tools for the construction of commonly used script types.  You don't normally need this as it's hidden
+ ; behind convenience methods on {@link Transaction}, but they are useful when working with the protocol
+ ; at a lower level.
+ ;;
+#_stateless
+(class-ns ScriptBuilder
+    ;;;
+     ; Creates a fresh ScriptBuilder with an empty program.
+     ;;
+    (defn #_"ScriptBuilder" ScriptBuilder'new []
+        (transient
+            #_"ScriptChunk*" (vector)
+        )
+    )
+
+    ;;;
+     ; Adds the given chunk to the end of the program.
+     ;;
+    #_method
+    (defn #_"ScriptBuilder" ScriptBuilder''append [#_"ScriptBuilder" this, #_"ScriptChunk" chunk]
+        (conj! this (ensure some? chunk))
+    )
+
+    ;;;
+     ; Adds the given opcode to the end of the program.
+     ;;
+    #_method
+    (defn #_"ScriptBuilder" ScriptBuilder''op [#_"ScriptBuilder" this, #_"int" opcode]
+        (assert-argument (< Script'OP_PUSHDATA4 opcode))
+
+        (ScriptBuilder''append this, (ScriptChunk'new opcode, nil))
+    )
+
+    ;;;
+     ; Adds the given number to the end of the program.
+     ; Automatically uses shortest encoding possible.
+     ;;
+    #_method
+    (defn #_"ScriptBuilder" ScriptBuilder''num [#_"ScriptBuilder" this, #_"long" num]
+        (if (<= 0 num 16)
+            ;; Adds the given number as a OP_N opcode to the end of the program.
+            ;; Only handles values 0-16 inclusive.
+            (ScriptBuilder''append this, (ScriptChunk'new (Script'encode-to-op-n num), nil))
+            ;; Adds the given number as a push data chunk.
+            ;; This is intended to use for negative numbers or values > 16, and although
+            ;; it will accept numbers in the range 0-16 inclusive, the encoding would be
+            ;; considered non-standard.
+            (let [#_"byte*" data (->> (Math/abs num) (iterate #(>> % 8)) (take-while pos?) (map #(& % 0xff)) (into []))
+                  data
+                    (cond
+                        ;; The most significant byte is >= 0x80, so push an extra byte
+                        ;; that contains just the sign of the value.
+                        (= (& (peek data) 0x80) 0x80) (conj data (if (neg? num) 0x80 0))
+                        ;; The most significant byte is < 0x80 and the value is negative,
+                        ;; set the sign bit so it is subtracted and interpreted as a
+                        ;; negative when converting back to an integral.
+                        (neg? num)                    (conj (pop data) (| (peek data) 0x80))
+                        :else                         data
+                    )]
+                ;; At most the encoded value could take up to 8 bytes, so we don't need
+                ;; to use OP_PUSHDATA opcodes.
+                (ScriptBuilder''append this, (ScriptChunk'new (count data), (byte-array data)))
+            )
+        )
+    )
+
+    ;;;
+     ; Adds a copy of the given byte array as a data element (i.e. PUSHDATA) at the end of the program.
+     ;;
+    #_method
+    (defn #_"ScriptBuilder" ScriptBuilder''data [#_"ScriptBuilder" this, #_"byte[]" data]
+        (when (seq data) => (ScriptBuilder''num this, 0)
+            ;; implements BIP62
+            (let [#_"int" n (alength data) #_"byte[]" copy (Arrays/copyOf data, n)
+                  #_"int" opcode
+                    (cond
+                        (= n 0)     Script'OP_0
+                        (= n 1)     (let [#_"byte" b (aget data 0)] (if (<= 1 b 16) (Script'encode-to-op-n b) 1))
+                        (< n Script'OP_PUSHDATA1) n
+                        (< n 256)   Script'OP_PUSHDATA1
+                        (< n 65536) Script'OP_PUSHDATA2
+                        :else (throw (RuntimeException. "Unimplemented"))
+                    )]
+                (ScriptBuilder''append this, (ScriptChunk'new opcode, copy))
+            )
+        )
+    )
+
+    ;;;
+     ; Creates a new immutable Script based on the state of the builder.
+     ;;
+    #_method
+    (defn #_"Script" ScriptBuilder''to-script [#_"ScriptBuilder" this]
+        (Script'from-chunks (:chunks this))
+    )
+
+    ;;;
+     ; Creates a scriptPubKey that encodes payment to the given address.
+     ;;
+    (defn #_"Script" Script'create-output-script-1a [#_"Address" to]
+        (if (Address''is-p2sh-address to)
+            ;; OP_HASH160 <scriptHash> OP_EQUAL
+            (-> (ScriptBuilder'new)
+                (ScriptBuilder''op Script'OP_HASH160)
+                (ScriptBuilder''data (Address''get-hash160 to))
+                (ScriptBuilder''op Script'OP_EQUAL)
+                (ScriptBuilder''to-script))
+            ;; OP_DUP OP_HASH160 <pubKeyHash> OP_EQUALVERIFY OP_CHECKSIG
+            (-> (ScriptBuilder'new)
+                (ScriptBuilder''op Script'OP_DUP)
+                (ScriptBuilder''op Script'OP_HASH160)
+                (ScriptBuilder''data (Address''get-hash160 to))
+                (ScriptBuilder''op Script'OP_EQUALVERIFY)
+                (ScriptBuilder''op Script'OP_CHECKSIG)
+                (ScriptBuilder''to-script))
+        )
+    )
+
+    ;;;
+     ; Creates a scriptPubKey that encodes payment to the given raw public key.
+     ;;
+    (defn #_"Script" Script'create-output-script-1e [#_"ECKey" key]
+        (-> (ScriptBuilder'new)
+            (ScriptBuilder''data (ECKey''get-pub-key key))
+            (ScriptBuilder''op Script'OP_CHECKSIG)
+            (ScriptBuilder''to-script))
+    )
+
+    ;;;
+     ; Creates a scriptSig that can redeem a pay-to-address output.
+     ; If given signature is null, incomplete scriptSig will be created with OP_0 instead of signature.
+     ;;
+    (defn #_"Script" Script'create-input-script-2 [#_"TransactionSignature" sig, #_"ECKey" key]
+        (-> (ScriptBuilder'new)
+            (ScriptBuilder''data (when (some? sig) (TransactionSignature''encode-to-bitcoin sig)))
+            (ScriptBuilder''data (ECKey''get-pub-key key))
+            (ScriptBuilder''to-script))
+    )
+
+    ;;;
+     ; Creates a scriptSig that can redeem a pay-to-pubkey output.
+     ; If given signature is null, incomplete scriptSig will be created with OP_0 instead of signature.
+     ;;
+    (defn #_"Script" Script'create-input-script-1 [#_"TransactionSignature" sig]
+        (-> (ScriptBuilder'new)
+            (ScriptBuilder''data (when (some? sig) (TransactionSignature''encode-to-bitcoin sig)))
+            (ScriptBuilder''to-script))
+    )
+
+    ;;;
+     ; Creates a program that requires at least N of the given keys to sign, using OP_CHECKMULTISIG.
+     ;;
+    (defn #_"Script" Script'create-multi-sig-output-script [#_"int" threshold, #_"List<ECKey>" pubkeys]
+        (assert-argument (<= 1 threshold (count pubkeys) 16)) ;; That's the max we can represent with a single opcode.
+
+        (when (< 3 (count pubkeys))
+            (log/warn (str "Creating a multi-signature output that is non-standard: " (count pubkeys) " pubkeys, should be <= 3"))
+        )
+
+        (let [#_"ScriptBuilder" builder (ScriptBuilder'new)]
+            (§ ass builder (ScriptBuilder''num builder, threshold))
+            (doseq [#_"ECKey" key pubkeys]
+                (§ ass builder (ScriptBuilder''data builder, (ECKey''get-pub-key key)))
+            )
+            (§ ass builder (ScriptBuilder''num builder, (count pubkeys)))
+            (§ ass builder (ScriptBuilder''op builder, Script'OP_CHECKMULTISIG))
+            (ScriptBuilder''to-script builder)
+        )
+    )
+
+    ;;;
+     ; Create a program that satisfies an OP_CHECKMULTISIG program.
+     ;;
+    (defn #_"Script" Script'create-multi-sig-input-script [#_"List<TransactionSignature>" signatures]
+        (let [#_"List<byte[]>" sigs (ArrayList. (count signatures))]
+            (doseq [#_"TransactionSignature" signature signatures]
+                (.add sigs, (TransactionSignature''encode-to-bitcoin signature))
+            )
+            (Script'create-multi-sig-input-script-bytes-2 sigs, nil)
+        )
+    )
+
+    ;;;
+     ; Create a program that satisfies an OP_CHECKMULTISIG program, using pre-encoded signatures.
+     ;;
+    (defn #_"Script" Script'create-multi-sig-input-script-bytes-1 [#_"List<byte[]>" signatures]
+        (Script'create-multi-sig-input-script-bytes-2 signatures, nil)
+    )
+
+    ;;;
+     ; Create a program that satisfies a pay-to-script hashed OP_CHECKMULTISIG program.
+     ; If given signature list is null, incomplete scriptSig will be created with OP_0 instead of signatures.
+     ;;
+    (defn #_"Script" Script'create-p2sh-multi-sig-input-script [#_"List<TransactionSignature>" signatures, #_"Script" program]
+        (let [#_"List<byte[]>" sigs (ArrayList.)]
+            (if (some? signatures)
+                (doseq [#_"TransactionSignature" signature signatures]
+                    (.add sigs, (TransactionSignature''encode-to-bitcoin signature))
+                )
+                ;; Create correct number of empty signatures.
+                (dotimes [_ (Script''get-number-of-signatures-required-to-spend program)]
+                    (.add sigs, (byte-array 0))
+                )
+            )
+            (Script'create-multi-sig-input-script-bytes-2 sigs, (Script''get-program program))
+        )
+    )
+
+    ;;;
+     ; Create a program that satisfies an OP_CHECKMULTISIG program, using pre-encoded signatures.
+     ; Optionally, appends the script program bytes if spending a P2SH output.
+     ;;
+    (defn #_"Script" Script'create-multi-sig-input-script-bytes-2 [#_"List<byte[]>" signatures, #_"byte[]" program]
+        (assert-argument (<= (count signatures) 16))
+
+        (let [#_"ScriptBuilder" builder (ScriptBuilder'new)]
+            (§ ass builder (ScriptBuilder''num builder, 0)) ;; Work around a bug in CHECKMULTISIG that is now a required part of the protocol.
+            (doseq [#_"byte[]" signature signatures]
+                (§ ass builder (ScriptBuilder''data builder, signature))
+            )
+            (when (some? program)
+                (§ ass builder (ScriptBuilder''data builder, program))
+            )
+            (ScriptBuilder''to-script builder)
+        )
+    )
+
+    ;;;
+     ; Returns a copy of the given scriptSig with the signature inserted in the given position.
+     ;
+     ; This function assumes that any missing sigs have OP_0 placeholders.  If given scriptSig
+     ; already has all the signatures in place, IllegalArgumentException will be thrown.
+     ;
+     ; @param targetIndex Where to insert the signature.
+     ; @param sigsPrefixCount How many items to copy verbatim (e.g. initial OP_0 for multisig).
+     ; @param sigsSuffixCount How many items to copy verbatim at end (e.g. redeemScript for P2SH).
+     ;;
+    (defn #_"Script" Script'update-script-with-signature [#_"Script" __scriptSig, #_"byte[]" signature, #_"int" target, #_"int" prefix, #_"int" suffix]
+        (let [#_"List<ScriptChunk>" chunks (:chunks __scriptSig) #_"int" m (count chunks)]
+
+            ;; Check if we have a place to insert, otherwise just return given scriptSig unchanged.
+            ;; We assume here that OP_0 placeholders always go after the sigs, so
+            ;; to find if we have sigs missing, we can just check the chunk in latest sig position.
+            (let [#_"boolean" missing? (ScriptChunk''equals-op-code (nth chunks (- m suffix 1)), Script'OP_0)]
+                (assert-argument missing?, "ScriptSig is already filled with signatures")
+
+                ;; Copy the prefix.
+                (let [#_"ScriptBuilder" builder (ScriptBuilder'new)]
+                    (doseq [#_"ScriptChunk" chunk (.subList chunks, 0, prefix)]
+                        (§ ass builder (ScriptBuilder''append builder, chunk))
+                    )
+
+                    ;; Copy the sigs.
+                    (let [[#_"int" i #_"boolean" inserted?]
+                            (loop-when [i 0 inserted? false #_"List<ScriptChunk>" s (.subList chunks, prefix, (- m suffix))] (seq s) => [i inserted?]
+                                (let [#_"ScriptChunk" chunk (first s)
+                                      [i inserted?]
+                                        (when (= i target) => [i inserted?]
+                                            (§ ass builder (ScriptBuilder''data builder, signature))
+                                            [(inc i) true]
+                                        )
+                                      i (when-not (ScriptChunk''equals-op-code chunk, Script'OP_0) => i
+                                            (§ ass builder (ScriptBuilder''append builder, chunk))
+                                            (inc i)
+                                        )]
+                                    (recur i inserted? (next s))
+                                )
+                            )
+                          ;; Add OP_0's if needed, since we skipped them in the previous loop.
+                          [i inserted?]
+                            (loop-when [i i inserted? inserted?] (< i (- m prefix suffix)) => [i inserted?]
+                                (let [inserted?
+                                        (if (= i target)
+                                            (do
+                                                (§ ass builder (ScriptBuilder''data builder, signature))
+                                                true
+                                            )
+                                            (do
+                                                (§ ass builder (ScriptBuilder''append builder, (ScriptChunk'new Script'OP_0, nil)))
+                                                inserted?
+                                            )
+                                        )]
+                                    (recur (inc i) inserted?)
+                                )
+                            )]
+
+                        ;; Copy the suffix.
+                        (doseq [#_"ScriptChunk" chunk (.subList chunks, (- m suffix), m)]
+                            (§ ass builder (ScriptBuilder''append builder, chunk))
+                        )
+
+                        (assert-state inserted?)
+                        (ScriptBuilder''to-script builder)
+                    )
+                )
+            )
+        )
+    )
+
+    ;;;
+     ; Creates a scriptPubKey that sends to the given script hash.  Read
+     ; <a href="https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki">BIP 16</a>
+     ; to learn more about this kind of script.
+     ;;
+    (defn #_"Script" Script'create-p2sh-output-script-1-bytes [#_"byte[]" hash]
+        (assert-argument (= (alength hash) 20))
+
+        (-> (ScriptBuilder'new)
+            (ScriptBuilder''op Script'OP_HASH160)
+            (ScriptBuilder''data hash)
+            (ScriptBuilder''op Script'OP_EQUAL)
+            (ScriptBuilder''to-script))
+    )
+
+    ;;;
+     ; Creates a scriptPubKey for the given redeem script.
+     ;;
+    (defn #_"Script" Script'create-p2sh-output-script-1 [#_"Script" redeem]
+        (let [#_"byte[]" hash (Utils'sha256hash160 (Script''get-program redeem))]
+            (Script'create-p2sh-output-script-1-bytes hash)
+        )
+    )
+
+    ;;;
+     ; Creates a P2SH output script with given public keys and threshold.
+     ; Given public keys will be placed in redeem script in the lexicographical sorting order.
+     ;;
+    (defn #_"Script" Script'create-p2sh-output-script-2 [#_"int" threshold, #_"List<ECKey>" pubkeys]
+        (let [#_"Script" redeem (Script'create-redeem-script threshold, pubkeys)]
+            (Script'create-p2sh-output-script-1 redeem)
+        )
+    )
+
+    ;;;
+     ; Creates redeem script with given public keys and threshold.
+     ; Given public keys will be placed in redeem script in the lexicographical sorting order.
+     ;;
+    (defn #_"Script" Script'create-redeem-script [#_"int" threshold, #_"List<ECKey>" pubkeys]
+        (let [pubkeys (ArrayList. pubkeys) _ (Collections/sort pubkeys, ECKey'PUBKEY_COMPARATOR)]
+            (Script'create-multi-sig-output-script threshold, pubkeys)
+        )
+    )
+
+    ;;;
+     ; Creates a script of the form OP_RETURN [data].  This feature allows you to attach
+     ; a small piece of data (like a hash of something stored elsewhere) to a zero valued
+     ; output which can never be spent and thus does not pollute the ledger.
+     ;;
+    (defn #_"Script" Script'create-op-return-script [#_"byte[]" data]
+        (assert-argument (<= (alength data) 80))
+
+        (-> (ScriptBuilder'new)
+            (ScriptBuilder''op Script'OP_RETURN)
+            (ScriptBuilder''data data)
+            (ScriptBuilder''to-script))
+    )
+
+    (defn #_"Script" Script'create-cltv-payment-channel-output [#_"BigInteger" time, #_"ECKey" from, #_"ECKey" to]
+        (let [#_"byte[]" bytes (Wire'reverse-bytes (Wire'encode-mpi time, false))]
+            (when (< 5 (alength bytes))
+                (throw (RuntimeException. "Time too large to encode as 5-byte int"))
+            )
+
+            (-> (ScriptBuilder'new)
+                (ScriptBuilder''op Script'OP_IF)
+                (ScriptBuilder''data (ECKey''get-pub-key to))
+                (ScriptBuilder''op Script'OP_CHECKSIGVERIFY)
+                (ScriptBuilder''op Script'OP_ELSE)
+                (ScriptBuilder''data bytes)
+                (ScriptBuilder''op Script'OP_CHECKLOCKTIMEVERIFY)
+                (ScriptBuilder''op Script'OP_DROP)
+                (ScriptBuilder''op Script'OP_ENDIF)
+                (ScriptBuilder''data (ECKey''get-pub-key from))
+                (ScriptBuilder''op Script'OP_CHECKSIG)
+                (ScriptBuilder''to-script))
+        )
+    )
+
+    (defn #_"Script" Script'create-cltv-payment-channel-refund [#_"TransactionSignature" sig]
+        (-> (ScriptBuilder'new)
+            (ScriptBuilder''data (TransactionSignature''encode-to-bitcoin sig))
+            (ScriptBuilder''data (byte-array [ 0 ])) ;; Use the CHECKLOCKTIMEVERIFY if branch.
+            (ScriptBuilder''to-script)
+        )
+    )
+
+    (defn #_"Script" Script'create-cltv-payment-channel-p2sh-refund [#_"TransactionSignature" sig, #_"Script" redeem]
+        (-> (ScriptBuilder'new)
+            (ScriptBuilder''data (TransactionSignature''encode-to-bitcoin sig))
+            (ScriptBuilder''data (byte-array [ 0 ])) ;; Use the CHECKLOCKTIMEVERIFY if branch.
+            (ScriptBuilder''data (Script''get-program redeem))
+            (ScriptBuilder''to-script)
+        )
+    )
+
+    (defn #_"Script" Script'create-cltv-payment-channel-p2sh-input [#_"byte[]" from, #_"byte[]" to, #_"Script" redeem]
+        (-> (ScriptBuilder'new)
+            (ScriptBuilder''data from)
+            (ScriptBuilder''data to)
+            (ScriptBuilder''num 1) ;; Use the CHECKLOCKTIMEVERIFY if branch.
+            (ScriptBuilder''data (Script''get-program redeem))
+            (ScriptBuilder''to-script)
+        )
+    )
+
+    (defn #_"Script" Script'create-cltv-payment-channel-input-2 [#_"TransactionSignature" from, #_"TransactionSignature" to]
+        (Script'create-cltv-payment-channel-input-2-bytes (TransactionSignature''encode-to-bitcoin from), (TransactionSignature''encode-to-bitcoin to))
+    )
+
+    (defn #_"Script" Script'create-cltv-payment-channel-input-2-bytes [#_"byte[]" from, #_"byte[]" to]
+        (-> (ScriptBuilder'new)
+            (ScriptBuilder''data from)
+            (ScriptBuilder''data to)
+            (ScriptBuilder''num 1) ;; Use the CHECKLOCKTIMEVERIFY if branch.
+            (ScriptBuilder''to-script)
         )
     )
 )
@@ -20586,7 +21462,7 @@
     )
 
     ;; Used from ScriptBuilder.
-    (defn #_"Script" Script'from-chunks [#_"List<ScriptChunk>" chunks]
+    (defn #_"Script" Script'from-chunks [#_"List<ScriptChunk>" chunks]
         (Script'new (ArrayList. chunks), nil)
     )
 
@@ -20602,10 +21478,9 @@
     #_throws #_[ "ScriptException" ]
     (defn- #_"Script" Script'parse [#_"byte[]" bytes]
         (let [#_"Script" this (Script'new (ArrayList. 5), bytes) ;; Common size.
-              #_"ByteArrayInputStream" bais (ByteArrayInputStream. bytes) #_"int" __initialSize (.available bais)]
+              #_"ByteArrayInputStream" bais (ByteArrayInputStream. bytes)]
             (while (pos? (.available bais))
-                (let [#_"int" start (- __initialSize (.available bais))
-                      #_"int" opcode (.read bais)
+                (let [#_"int" opcode (.read bais)
                       #_"long" n
                         (cond (< -1 opcode Script'OP_PUSHDATA1)
                             (do
@@ -20638,13 +21513,13 @@
                             )
                         )
                       #_"ScriptChunk" chunk
-                        (when (some? n) => (ScriptChunk'new opcode, nil, start)
+                        (when (some? n) => (ScriptChunk'new opcode, nil)
                             (when (< (.available bais) n)
                                 (throw+ (ScriptException'new :ScriptError'BAD_OPCODE, "Push of data element that is larger than remaining data"))
                             )
                             (let [#_"byte[]" data (byte-array n) #_"int" m (.read bais, data)]
                                 (assert-state (= m n))
-                                (ScriptChunk'new opcode, data, start)
+                                (ScriptChunk'new opcode, data)
                             )
                         )]
 
@@ -20870,42 +21745,6 @@
         nil
     )
 
-    ;;; Creates a program that requires at least N of the given keys to sign, using OP_CHECKMULTISIG. ;;
-    (defn #_"byte[]" Script'create-multi-sig-output-script [#_"int" threshold, #_"List<ECKey>" pubkeys]
-        (assert-argument (<= 1 threshold (count pubkeys) 16)) ;; That's the max we can represent with a single opcode.
-
-        (when (< 3 (count pubkeys))
-            (log/warn (str "Creating a multi-signature output that is non-standard: " (count pubkeys) " pubkeys, should be <= 3"))
-        )
-
-        (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream.)]
-            (.write baos, (Script'encode-to-op-n threshold))
-            (doseq [#_"ECKey" key pubkeys]
-                (Script'write-bytes baos, (ECKey''get-pub-key key))
-            )
-            (.write baos, (Script'encode-to-op-n (count pubkeys)))
-            (.write baos, Script'OP_CHECKMULTISIG)
-            (.toByteArray baos)
-        )
-    )
-
-    (defn #_"byte[]" Script'create-input-script-2 [#_"byte[]" signature, #_"byte[]" pubkey]
-        ;; TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
-        (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (+ (alength signature) (alength pubkey) 2))]
-            (Script'write-bytes baos, signature)
-            (Script'write-bytes baos, pubkey)
-            (.toByteArray baos)
-        )
-    )
-
-    (defn #_"byte[]" Script'create-input-script-1 [#_"byte[]" signature]
-        ;; TODO: Do this by creating a Script *first* then having the script reassemble itself into bytes.
-        (let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (+ (alength signature) 2))]
-            (Script'write-bytes baos, signature)
-            (.toByteArray baos)
-        )
-    )
-
     ;;;
      ; Creates an incomplete scriptSig that, once filled with signatures, can redeem output containing this scriptPubKey.
      ; Instead of the signatures resulting script has OP_0.
@@ -20918,14 +21757,14 @@
             (Script''is-sent-to-address this)
             (do
                 (assert-argument (some? key), "Key required to create pay-to-address input script")
-                (ScriptBuilder'create-input-script-2 nil, key)
+                (Script'create-input-script-2 nil, key)
             )
             (Script''is-sent-to-raw-pub-key this)
-                (ScriptBuilder'create-input-script-1 nil)
+                (Script'create-input-script-1 nil)
             (Script''is-pay-to-script-hash this)
             (do
                 (assert-argument (some? redeem), "Redeem script required to create P2SH input script")
-                (ScriptBuilder'create-p2sh-multi-sig-input-script nil, redeem)
+                (Script'create-p2sh-multi-sig-input-script nil, redeem)
             )
             :else
                 (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, (str "Do not understand script type: " this)))
@@ -20944,7 +21783,7 @@
                     (Script''is-sent-to-address this)    [0 1] ;; <sig> <pubkey>
                     :else                                [0 0]
                 )]
-            (ScriptBuilder'update-script-with-signature script, bytes, index, prefix, suffix)
+            (Script'update-script-with-signature script, bytes, index, prefix, suffix)
         )
     )
 
@@ -21010,7 +21849,7 @@
 
         (let [#_"int" n (Script'decode-from-op-n (:opcode (nth (:chunks this) (- (count (:chunks this)) 2))))
               #_"TransactionSignature" signature (TransactionSignature'decode-from-bitcoin-2 bytes, true)]
-            (loop-when [#_"int" i 0] (< i n) => (throw (IllegalStateException. (str "Could not find matching key for signature on " hash " sig " (.encode Utils'HEX, bytes))))
+            (loop-when [#_"int" i 0] (< i n) => (throw (IllegalStateException. (str "Could not find matching key for signature on " hash " sig " (Base16'encode bytes))))
                 (if (ECKey''verify-3s (ECKey'from-public-only-bytes (:data (nth (:chunks this) (inc i)))), hash, signature)
                     i
                     (recur (inc i))
@@ -21340,7 +22179,7 @@
     (defn #_"void" Script'execute-script-5 [#_"Transaction" tx, #_"long" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"Set<ScriptVerifyFlag>" flags]
         (let [#_"LinkedList<byte[]>" altstack (LinkedList.) #_"LinkedList<Boolean>" ifstack (LinkedList.)]
 
-            (loop-when [#_"int" __opCount 0 #_"int" __lastCodeSepLocation 0 #_"List<ScriptChunk>" chunks (:chunks script)] (seq chunks)
+            (loop-when [#_"int" __opCount 0 #_"List<ScriptChunk>" chunks (:chunks script)] (seq chunks)
                 (let [#_"ScriptChunk" chunk (first chunks)]
 
                     ;; Check stack element size.
@@ -21841,18 +22680,13 @@
                                                     nil
                                                 )
 
-                                            Script'OP_CODESEPARATOR
-                                                (do
-                                                    [__opCount (inc (ScriptChunk''get-start-location-in-program chunk))]
-                                                )
-
                                            [Script'OP_CHECKSIG
                                             Script'OP_CHECKSIGVERIFY]
                                                 (do
                                                     (when (nil? tx)
                                                         (throw (IllegalStateException. "Script attempted signature check but no tx was provided"))
                                                     )
-                                                    (Script'execute-check-sig tx, (int index), script, stack, __lastCodeSepLocation, opcode, flags)
+                                                    (Script'execute-check-sig tx, (int index), script, stack, opcode, flags)
                                                     nil
                                                 )
                                            [Script'OP_CHECKMULTISIG
@@ -21861,7 +22695,7 @@
                                                     (when (nil? tx)
                                                         (throw (IllegalStateException. "Script attempted signature check but no tx was provided"))
                                                     )
-                                                    [(Script'execute-multi-sig tx, (int index), script, stack, __opCount, __lastCodeSepLocation, opcode, flags) __lastCodeSepLocation]
+                                                    [(Script'execute-multi-sig tx, (int index), script, stack, __opCount, opcode, flags)]
                                                 )
                                             Script'OP_CHECKLOCKTIMEVERIFY
                                                 (do
@@ -21905,13 +22739,13 @@
                                         )
                                     )
                                 )
-                              [__opCount __lastCodeSepLocation] (or _ [__opCount __lastCodeSepLocation])]
+                              [__opCount] (or _ [__opCount])]
 
                             (when-not (<= 0 (+ (count stack) (count altstack)) Script'MAX_STACK_SIZE)
                                 (throw+ (ScriptException'new :ScriptError'STACK_SIZE, "Stack size exceeded range"))
                             )
 
-                            (recur __opCount __lastCodeSepLocation (next chunks))
+                            (recur __opCount (next chunks))
                         )
                     )
                 )
@@ -22024,7 +22858,7 @@
     )
 
     #_throws #_[ "ScriptException" ]
-    (defn- #_"void" Script'execute-check-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" __lastCodeSepLocation, #_"int" opcode, #_"Set<ScriptVerifyFlag>" flags]
+    (defn- #_"void" Script'execute-check-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" opcode, #_"Set<ScriptVerifyFlag>" flags]
         (let [#_"boolean" canon? (or (.contains flags, :ScriptVerifyFlag'STRICTENC) (.contains flags, :ScriptVerifyFlag'DERSIG) (.contains flags, :ScriptVerifyFlag'LOW_S))]
             (when (< (count stack) 2)
                 (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKSIG(VERIFY) on a stack with size < 2"))
@@ -22035,7 +22869,7 @@
                             (Script'remove-all-instances-of %1, (.toByteArray baos))
                         )
                   #_"byte[]" prog (Script''get-program script)
-                  #_"byte[]" __connectedScript (rem- (Arrays/copyOfRange prog, __lastCodeSepLocation, (alength prog)), __sigBytes)
+                  #_"byte[]" __connectedScript (rem- (Arrays/copyOfRange prog, 0, (alength prog)), __sigBytes)
                   ;; TODO: Use int for indexes everywhere, we can't have that many inputs/outputs.
                   #_"boolean" valid?
                     (try
@@ -22072,7 +22906,7 @@
     )
 
     #_throws #_[ "ScriptException" ]
-    (defn- #_"int" Script'execute-multi-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" __opCount, #_"int" __lastCodeSepLocation, #_"int" opcode, #_"Set<ScriptVerifyFlag>" flags]
+    (defn- #_"int" Script'execute-multi-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" __opCount, #_"int" opcode, #_"Set<ScriptVerifyFlag>" flags]
         (let [#_"boolean" canon? (or (.contains flags, :ScriptVerifyFlag'STRICTENC) (.contains flags, :ScriptVerifyFlag'DERSIG) (.contains flags, :ScriptVerifyFlag'LOW_S))]
             (when (< (count stack) 1)
                 (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < 1"))
@@ -22105,7 +22939,7 @@
                                         (Script'remove-all-instances-of %1, (.toByteArray baos))
                                     )
                               #_"byte[]" prog (Script''get-program script)
-                              #_"byte[]" __connectedScript (reduce rem- (Arrays/copyOfRange prog, __lastCodeSepLocation, (alength prog)) sigs)
+                              #_"byte[]" __connectedScript (reduce rem- (Arrays/copyOfRange prog, 0, (alength prog)) sigs)
                               #_"boolean" valid?
                                 (loop-when [] (pos? (count sigs)) => true
                                     (let [#_"byte[]" __pubKey (.pollFirst pubkeys)]
@@ -22264,886 +23098,6 @@
     )
 )
 
-;;;
- ; Tools for the construction of commonly used script types.  You don't normally need this as it's hidden
- ; behind convenience methods on {@link Transaction}, but they are useful when working with the protocol
- ; at a lower level.
- ;;
-(class-ns ScriptBuilder
-    ;;; Creates a fresh ScriptBuilder with an empty program. ;;
-    (defn #_"ScriptBuilder" ScriptBuilder'new []
-        (hash-map
-            #_"List<ScriptChunk>" :chunks (LinkedList.)
-        )
-    )
-
-    ;;; Adds the given chunk to the end of the program. ;;
-    #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''add-chunk [#_"ScriptBuilder" this, #_"ScriptChunk" chunk]
-        (.add (:chunks this), chunk)
-        this
-    )
-
-    ;;; Adds the given opcode to the end of the program. ;;
-    #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''op [#_"ScriptBuilder" this, #_"int" opcode]
-        (assert-argument (< Script'OP_PUSHDATA4 opcode))
-        (ScriptBuilder''add-chunk this, (ScriptChunk'new opcode, nil))
-    )
-
-    ;;; Adds a copy of the given byte array as a data element (i.e. PUSHDATA) at the end of the program. ;;
-    #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''data [#_"ScriptBuilder" this, #_"byte[]" data]
-        (if (zero? (alength data))
-            (ScriptBuilder''small-num this, 0)
-            ;; implements BIP62
-            (let [#_"int" n (alength data) #_"byte[]" copy (Arrays/copyOf data, n)
-                #_"int" opcode
-                    (cond
-                        (= n 0)     Script'OP_0
-                        (= n 1)     (let [#_"byte" b (aget data 0)] (if (<= 1 b 16) (Script'encode-to-op-n b) 1))
-                        (< n Script'OP_PUSHDATA1) n
-                        (< n 256)   Script'OP_PUSHDATA1
-                        (< n 65536) Script'OP_PUSHDATA2
-                        :else (throw (RuntimeException. "Unimplemented"))
-                    )]
-                (ScriptBuilder''add-chunk this, (ScriptChunk'new opcode, copy))
-            )
-        )
-    )
-
-    ;;;
-     ; Adds the given number to the end of the program.
-     ; Automatically uses shortest encoding possible.
-     ;;
-    #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''number [#_"ScriptBuilder" this, #_"long" num]
-        (if (<= 0 num 16) (ScriptBuilder''small-num this, (int num)) (ScriptBuilder''big-num this, num))
-    )
-
-    ;;;
-     ; Adds the given number as a OP_N opcode to the end of the program.
-     ; Only handles values 0-16 inclusive.
-     ;
-     ; @see #number(int)
-     ;;
-    #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''small-num [#_"ScriptBuilder" this, #_"int" num]
-        (assert-argument (<= 0 num), "Cannot encode negative numbers with smallNum")
-        (assert-argument (<= num 16), "Cannot encode numbers larger than 16 with smallNum")
-
-        (ScriptBuilder''add-chunk this, (ScriptChunk'new (Script'encode-to-op-n num), nil))
-    )
-
-    ;;;
-     ; Adds the given number as a push data chunk.
-     ; This is intended to use for negative numbers or values > 16, and although
-     ; it will accept numbers in the range 0-16 inclusive, the encoding would be
-     ; considered non-standard.
-     ;
-     ; @see #number(int)
-     ;;
-    #_method
-    (defn #_"ScriptBuilder" ScriptBuilder''big-num [#_"ScriptBuilder" this, #_"long" num]
-        (let [#_"byte[]" data
-                (when-not (zero? num) => (byte-array 0)
-                    (let [#_"Stack<Byte>" stack (Stack.)]
-                        (loop-when-recur [#_"long" a (Math/abs num)] (not= a 0) [(>> a 8)]
-                            (.push stack, (byte (& a 0xff)))
-                        )
-                        (cond
-                            ;; The most significant byte is >= 0x80, so push an extra byte that
-                            ;; contains just the sign of the value.
-                            (= (& (.peek stack) 0x80) 0x80) (.push stack, (byte (if (neg? num) 0x80 0)))
-                            ;; The most significant byte is < 0x80 and the value is negative,
-                            ;; set the sign bit so it is subtracted and interpreted as a
-                            ;; negative when converting back to an integral.
-                            (neg? num)                      (.push stack, (byte (| (.pop stack) 0x80)))
-                        )
-                        (let [data (byte-array (count stack))]
-                            (dotimes [#_"int" i (alength data)]
-                                (aset data i (nth stack i))
-                            )
-                            data
-                        )
-                    )
-                )]
-            ;; At most the encoded value could take up to 8 bytes, so we don't need
-            ;; to use OP_PUSHDATA opcodes.
-            (ScriptBuilder''add-chunk this, (ScriptChunk'new (alength data), data))
-        )
-    )
-
-    ;;; Creates a new immutable Script based on the state of the builder. ;;
-    #_method
-    (defn #_"Script" ScriptBuilder''build [#_"ScriptBuilder" this]
-        (Script'from-chunks (:chunks this))
-    )
-
-    ;;; Creates a scriptPubKey that encodes payment to the given address. ;;
-    (defn #_"Script" ScriptBuilder'create-output-script-1a [#_"Address" to]
-        (if (Address''is-p2sh-address to)
-            ;; OP_HASH160 <scriptHash> OP_EQUAL
-            (-> (ScriptBuilder'new)
-                (ScriptBuilder''op Script'OP_HASH160)
-                (ScriptBuilder''data (Address''get-hash160 to))
-                (ScriptBuilder''op Script'OP_EQUAL)
-                (ScriptBuilder''build))
-            ;; OP_DUP OP_HASH160 <pubKeyHash> OP_EQUALVERIFY OP_CHECKSIG
-            (-> (ScriptBuilder'new)
-                (ScriptBuilder''op Script'OP_DUP)
-                (ScriptBuilder''op Script'OP_HASH160)
-                (ScriptBuilder''data (Address''get-hash160 to))
-                (ScriptBuilder''op Script'OP_EQUALVERIFY)
-                (ScriptBuilder''op Script'OP_CHECKSIG)
-                (ScriptBuilder''build))
-        )
-    )
-
-    ;;; Creates a scriptPubKey that encodes payment to the given raw public key. ;;
-    (defn #_"Script" ScriptBuilder'create-output-script-1e [#_"ECKey" key]
-        (-> (ScriptBuilder'new) (ScriptBuilder''data (ECKey''get-pub-key key)) (ScriptBuilder''op Script'OP_CHECKSIG) (ScriptBuilder''build))
-    )
-
-    ;;;
-     ; Creates a scriptSig that can redeem a pay-to-address output.
-     ; If given signature is null, incomplete scriptSig will be created with OP_0 instead of signature.
-     ;;
-    (defn #_"Script" ScriptBuilder'create-input-script-2 [#_"TransactionSignature" signature, #_"ECKey" __pubKey]
-        (let [#_"byte[]" __pubkeyBytes (ECKey''get-pub-key __pubKey)
-              #_"byte[]" __sigBytes (if (some? signature) (TransactionSignature''encode-to-bitcoin signature) (byte-array 0))]
-            (-> (ScriptBuilder'new) (ScriptBuilder''data __sigBytes) (ScriptBuilder''data __pubkeyBytes) (ScriptBuilder''build))
-        )
-    )
-
-    ;;;
-     ; Creates a scriptSig that can redeem a pay-to-pubkey output.
-     ; If given signature is null, incomplete scriptSig will be created with OP_0 instead of signature.
-     ;;
-    (defn #_"Script" ScriptBuilder'create-input-script-1 [#_"TransactionSignature" signature]
-        (let [#_"byte[]" bytes (if (some? signature) (TransactionSignature''encode-to-bitcoin signature) (byte-array 0))]
-            (-> (ScriptBuilder'new) (ScriptBuilder''data bytes) (ScriptBuilder''build))
-        )
-    )
-
-    ;;; Creates a program that requires at least N of the given keys to sign, using OP_CHECKMULTISIG. ;;
-    (defn #_"Script" ScriptBuilder'create-multi-sig-output-script [#_"int" threshold, #_"List<ECKey>" pubkeys]
-        (assert-argument (<= 1 threshold (count pubkeys) 16)) ;; That's the max we can represent with a single opcode.
-
-        (let [#_"ScriptBuilder" builder (ScriptBuilder'new)]
-            (ScriptBuilder''small-num builder, threshold)
-            (doseq [#_"ECKey" key pubkeys]
-                (ScriptBuilder''data builder, (ECKey''get-pub-key key))
-            )
-            (ScriptBuilder''small-num builder, (count pubkeys))
-            (ScriptBuilder''op builder, Script'OP_CHECKMULTISIG)
-            (ScriptBuilder''build builder)
-        )
-    )
-
-    ;;; Create a program that satisfies an OP_CHECKMULTISIG program. ;;
-    (defn #_"Script" ScriptBuilder'create-multi-sig-input-script [#_"List<TransactionSignature>" signatures]
-        (let [#_"List<byte[]>" sigs (ArrayList. (count signatures))]
-            (doseq [#_"TransactionSignature" signature signatures]
-                (.add sigs, (TransactionSignature''encode-to-bitcoin signature))
-            )
-
-            (ScriptBuilder'create-multi-sig-input-script-bytes-2 sigs, nil)
-        )
-    )
-
-    ;;; Create a program that satisfies an OP_CHECKMULTISIG program, using pre-encoded signatures. ;;
-    (defn #_"Script" ScriptBuilder'create-multi-sig-input-script-bytes-1 [#_"List<byte[]>" signatures]
-        (ScriptBuilder'create-multi-sig-input-script-bytes-2 signatures, nil)
-    )
-
-    ;;;
-     ; Create a program that satisfies a pay-to-script hashed OP_CHECKMULTISIG program.
-     ; If given signature list is null, incomplete scriptSig will be created with OP_0 instead of signatures.
-     ;;
-    (defn #_"Script" ScriptBuilder'create-p2sh-multi-sig-input-script [#_"List<TransactionSignature>" signatures, #_"Script" program]
-        (let [#_"List<byte[]>" sigs (ArrayList.)]
-            (if (some? signatures)
-                (doseq [#_"TransactionSignature" signature signatures]
-                    (.add sigs, (TransactionSignature''encode-to-bitcoin signature))
-                )
-                ;; Create correct number of empty signatures.
-                (dotimes [_ (Script''get-number-of-signatures-required-to-spend program)]
-                    (.add sigs, (byte-array 0))
-                )
-            )
-            (ScriptBuilder'create-multi-sig-input-script-bytes-2 sigs, (Script''get-program program))
-        )
-    )
-
-    ;;;
-     ; Create a program that satisfies an OP_CHECKMULTISIG program, using pre-encoded signatures.
-     ; Optionally, appends the script program bytes if spending a P2SH output.
-     ;;
-    (defn #_"Script" ScriptBuilder'create-multi-sig-input-script-bytes-2 [#_"List<byte[]>" signatures, #_"byte[]" program]
-        (assert-argument (<= (count signatures) 16))
-
-        (let [#_"ScriptBuilder" builder (ScriptBuilder'new)]
-            (ScriptBuilder''small-num builder, 0) ;; Work around a bug in CHECKMULTISIG that is now a required part of the protocol.
-            (doseq [#_"byte[]" signature signatures]
-                (ScriptBuilder''data builder, signature)
-            )
-            (when (some? program)
-                (ScriptBuilder''data builder, program)
-            )
-            (ScriptBuilder''build builder)
-        )
-    )
-
-    ;;;
-     ; Returns a copy of the given scriptSig with the signature inserted in the given position.
-     ;
-     ; This function assumes that any missing sigs have OP_0 placeholders.  If given scriptSig
-     ; already has all the signatures in place, IllegalArgumentException will be thrown.
-     ;
-     ; @param targetIndex Where to insert the signature.
-     ; @param sigsPrefixCount How many items to copy verbatim (e.g. initial OP_0 for multisig).
-     ; @param sigsSuffixCount How many items to copy verbatim at end (e.g. redeemScript for P2SH).
-     ;;
-    (defn #_"Script" ScriptBuilder'update-script-with-signature [#_"Script" __scriptSig, #_"byte[]" signature, #_"int" target, #_"int" prefix, #_"int" suffix]
-        (let [#_"List<ScriptChunk>" chunks (:chunks __scriptSig) #_"int" m (count chunks)]
-
-            ;; Check if we have a place to insert, otherwise just return given scriptSig unchanged.
-            ;; We assume here that OP_0 placeholders always go after the sigs, so
-            ;; to find if we have sigs missing, we can just check the chunk in latest sig position.
-            (let [#_"boolean" missing? (ScriptChunk''equals-op-code (nth chunks (- m suffix 1)), Script'OP_0)]
-                (assert-argument missing?, "ScriptSig is already filled with signatures")
-
-                ;; Copy the prefix.
-                (let [#_"ScriptBuilder" builder (ScriptBuilder'new)]
-                    (doseq [#_"ScriptChunk" chunk (.subList chunks, 0, prefix)]
-                        (ScriptBuilder''add-chunk builder, chunk)
-                    )
-
-                    ;; Copy the sigs.
-                    (let [[#_"int" i #_"boolean" inserted?]
-                            (loop-when [i 0 inserted? false #_"List<ScriptChunk>" s (.subList chunks, prefix, (- m suffix))] (seq s) => [i inserted?]
-                                (let [#_"ScriptChunk" chunk (first s)
-                                      [i inserted?]
-                                        (when (= i target) => [i inserted?]
-                                            (ScriptBuilder''data builder, signature)
-                                            [(inc i) true]
-                                        )
-                                      i (when-not (ScriptChunk''equals-op-code chunk, Script'OP_0) => i
-                                            (ScriptBuilder''add-chunk builder, chunk)
-                                            (inc i)
-                                        )]
-                                    (recur i inserted? (next s))
-                                )
-                            )
-                          ;; Add OP_0's if needed, since we skipped them in the previous loop.
-                          [i inserted?]
-                            (loop-when [i i inserted? inserted?] (< i (- m prefix suffix)) => [i inserted?]
-                                (let [inserted?
-                                        (if (= i target)
-                                            (do
-                                                (ScriptBuilder''data builder, signature)
-                                                true
-                                            )
-                                            (do
-                                                (ScriptBuilder''add-chunk builder, (ScriptChunk'new Script'OP_0, nil))
-                                                inserted?
-                                            )
-                                        )]
-                                    (recur (inc i) inserted?)
-                                )
-                            )]
-
-                        ;; Copy the suffix.
-                        (doseq [#_"ScriptChunk" chunk (.subList chunks, (- m suffix), m)]
-                            (ScriptBuilder''add-chunk builder, chunk)
-                        )
-
-                        (assert-state inserted?)
-                        (ScriptBuilder''build builder)
-                    )
-                )
-            )
-        )
-    )
-
-    ;;;
-     ; Creates a scriptPubKey that sends to the given script hash.  Read
-     ; <a href="https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki">BIP 16</a>
-     ; to learn more about this kind of script.
-     ;;
-    (defn #_"Script" ScriptBuilder'create-p2sh-output-script-1-bytes [#_"byte[]" hash]
-        (assert-argument (= (alength hash) 20))
-
-        (-> (ScriptBuilder'new)
-            (ScriptBuilder''op Script'OP_HASH160)
-            (ScriptBuilder''data hash)
-            (ScriptBuilder''op Script'OP_EQUAL)
-            (ScriptBuilder''build))
-    )
-
-    ;;;
-     ; Creates a scriptPubKey for the given redeem script.
-     ;;
-    (defn #_"Script" ScriptBuilder'create-p2sh-output-script-1 [#_"Script" redeem]
-        (let [#_"byte[]" hash (Utils'sha256hash160 (Script''get-program redeem))]
-            (ScriptBuilder'create-p2sh-output-script-1-bytes hash)
-        )
-    )
-
-    ;;;
-     ; Creates a P2SH output script with given public keys and threshold.
-     ; Given public keys will be placed in redeem script in the lexicographical sorting order.
-     ;;
-    (defn #_"Script" ScriptBuilder'create-p2sh-output-script-2 [#_"int" threshold, #_"List<ECKey>" pubkeys]
-        (let [#_"Script" redeem (ScriptBuilder'create-redeem-script threshold, pubkeys)]
-            (ScriptBuilder'create-p2sh-output-script-1 redeem)
-        )
-    )
-
-    ;;;
-     ; Creates redeem script with given public keys and threshold.
-     ; Given public keys will be placed in redeem script in the lexicographical sorting order.
-     ;;
-    (defn #_"Script" ScriptBuilder'create-redeem-script [#_"int" threshold, #_"List<ECKey>" pubkeys]
-        (let [pubkeys (ArrayList. pubkeys)]
-            (Collections/sort pubkeys, ECKey'PUBKEY_COMPARATOR)
-            (ScriptBuilder'create-multi-sig-output-script threshold, pubkeys)
-        )
-    )
-
-    ;;;
-     ; Creates a script of the form OP_RETURN [data].  This feature allows you to attach
-     ; a small piece of data (like a hash of something stored elsewhere) to a zero valued
-     ; output which can never be spent and thus does not pollute the ledger.
-     ;;
-    (defn #_"Script" ScriptBuilder'create-op-return-script [#_"byte[]" data]
-        (assert-argument (<= (alength data) 80))
-
-        (-> (ScriptBuilder'new) (ScriptBuilder''op Script'OP_RETURN) (ScriptBuilder''data data) (ScriptBuilder''build))
-    )
-
-    (defn #_"Script" ScriptBuilder'create-cltv-payment-channel-output [#_"BigInteger" time, #_"ECKey" from, #_"ECKey" to]
-        (let [#_"byte[]" bytes (Wire'reverse-bytes (Wire'encode-mpi time, false))]
-            (when (< 5 (alength bytes))
-                (throw (RuntimeException. "Time too large to encode as 5-byte int"))
-            )
-
-            (-> (ScriptBuilder'new)
-                (ScriptBuilder''op Script'OP_IF)
-                (ScriptBuilder''data (ECKey''get-pub-key to))
-                (ScriptBuilder''op Script'OP_CHECKSIGVERIFY)
-                (ScriptBuilder''op Script'OP_ELSE)
-                (ScriptBuilder''data bytes)
-                (ScriptBuilder''op Script'OP_CHECKLOCKTIMEVERIFY)
-                (ScriptBuilder''op Script'OP_DROP)
-                (ScriptBuilder''op Script'OP_ENDIF)
-                (ScriptBuilder''data (ECKey''get-pub-key from))
-                (ScriptBuilder''op Script'OP_CHECKSIG)
-                (ScriptBuilder''build))
-        )
-    )
-
-    (defn #_"Script" ScriptBuilder'create-cltv-payment-channel-refund [#_"TransactionSignature" signature]
-        (-> (ScriptBuilder'new)
-            (ScriptBuilder''data (TransactionSignature''encode-to-bitcoin signature))
-            (ScriptBuilder''data (byte-array [ 0 ])) ;; Use the CHECKLOCKTIMEVERIFY if branch.
-            (ScriptBuilder''build)
-        )
-    )
-
-    (defn #_"Script" ScriptBuilder'create-cltv-payment-channel-p2sh-refund [#_"TransactionSignature" signature, #_"Script" redeem]
-        (-> (ScriptBuilder'new)
-            (ScriptBuilder''data (TransactionSignature''encode-to-bitcoin signature))
-            (ScriptBuilder''data (byte-array [ 0 ])) ;; Use the CHECKLOCKTIMEVERIFY if branch.
-            (ScriptBuilder''data (Script''get-program redeem))
-            (ScriptBuilder''build)
-        )
-    )
-
-    (defn #_"Script" ScriptBuilder'create-cltv-payment-channel-p2sh-input [#_"byte[]" from, #_"byte[]" to, #_"Script" redeem]
-        (-> (ScriptBuilder'new)
-            (ScriptBuilder''data from)
-            (ScriptBuilder''data to)
-            (ScriptBuilder''small-num 1) ;; Use the CHECKLOCKTIMEVERIFY if branch.
-            (ScriptBuilder''data (Script''get-program redeem))
-            (ScriptBuilder''build)
-        )
-    )
-
-    (defn #_"Script" ScriptBuilder'create-cltv-payment-channel-input-2 [#_"TransactionSignature" from, #_"TransactionSignature" to]
-        (ScriptBuilder'create-cltv-payment-channel-input-2-bytes (TransactionSignature''encode-to-bitcoin from), (TransactionSignature''encode-to-bitcoin to))
-    )
-
-    (defn #_"Script" ScriptBuilder'create-cltv-payment-channel-input-2-bytes [#_"byte[]" from, #_"byte[]" to]
-        (-> (ScriptBuilder'new)
-            (ScriptBuilder''data from)
-            (ScriptBuilder''data to)
-            (ScriptBuilder''small-num 1) ;; Use the CHECKLOCKTIMEVERIFY if branch.
-            (ScriptBuilder''build)
-        )
-    )
-)
-
-(def ScriptError'enum-set
-    (hash-set
-        :ScriptError'OK
-        :ScriptError'UNKNOWN_ERROR
-        :ScriptError'EVAL_FALSE
-        :ScriptError'OP_RETURN
-
-        ;;; max sizes ;;
-        :ScriptError'SCRIPT_SIZE
-        :ScriptError'PUSH_SIZE
-        :ScriptError'OP_COUNT
-        :ScriptError'STACK_SIZE
-        :ScriptError'SIG_COUNT
-        :ScriptError'PUBKEY_COUNT
-
-        ;;; failed verify operations ;;
-        :ScriptError'VERIFY
-        :ScriptError'EQUALVERIFY
-        :ScriptError'CHECKMULTISIGVERIFY
-        :ScriptError'CHECKSIGVERIFY
-        :ScriptError'NUMEQUALVERIFY
-
-        ;;; logical/format/canonical errors ;;
-        :ScriptError'BAD_OPCODE
-        :ScriptError'DISABLED_OPCODE
-        :ScriptError'INVALID_STACK_OPERATION
-        :ScriptError'INVALID_ALTSTACK_OPERATION
-        :ScriptError'UNBALANCED_CONDITIONAL
-
-        ;;; CHECKLOCKTIMEVERIFY and CHECKSEQUENCEVERIFY ;;
-        :ScriptError'NEGATIVE_LOCKTIME
-        :ScriptError'UNSATISFIED_LOCKTIME
-
-        ;;; malleability ;;
-        :ScriptError'SIG_HASHTYPE
-        :ScriptError'SIG_DER
-        :ScriptError'MINIMALDATA
-        :ScriptError'SIG_PUSHONLY
-        :ScriptError'SIG_HIGH_S
-        :ScriptError'SIG_NULLDUMMY
-        :ScriptError'PUBKEYTYPE
-        :ScriptError'CLEANSTACK
-        :ScriptError'MINIMALIF
-        :ScriptError'SIG_NULLFAIL
-
-        ;;; softfork safeness ;;
-        :ScriptError'DISCOURAGE_UPGRADABLE_NOPS
-        :ScriptError'DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM
-
-        ;;; segregated witness ;;
-        :ScriptError'WITNESS_PROGRAM_WRONG_LENGTH
-        :ScriptError'WITNESS_PROGRAM_WITNESS_EMPTY
-        :ScriptError'WITNESS_PROGRAM_MISMATCH
-        :ScriptError'WITNESS_MALLEATED
-        :ScriptError'WITNESS_MALLEATED_P2SH
-        :ScriptError'WITNESS_UNEXPECTED
-        :ScriptError'WITNESS_PUBKEYTYPE
-    )
-)
-
-;;;
- ; Various constants that define the assembly-like scripting language that forms part of the Bitcoin protocol.
- ; See {@link Script} for details.  Also provides a method to convert them to a string.
- ;;
-#_stateless
-(class-ns ScriptOpCodes
-    ;; push value
-    (def #_"int" Script'OP_0 0x00) ;; push empty vector
-    (def #_"int" Script'OP_FALSE Script'OP_0)
-    (def #_"int" Script'OP_PUSHDATA1 0x4c)
-    (def #_"int" Script'OP_PUSHDATA2 0x4d)
-    (def #_"int" Script'OP_PUSHDATA4 0x4e)
-    (def #_"int" Script'OP_1NEGATE 0x4f)
-    (def #_"int" Script'OP_RESERVED 0x50)
-    (def #_"int" Script'OP_1 0x51)
-    (def #_"int" Script'OP_TRUE Script'OP_1)
-    (def #_"int" Script'OP_2 0x52)
-    (def #_"int" Script'OP_3 0x53)
-    (def #_"int" Script'OP_4 0x54)
-    (def #_"int" Script'OP_5 0x55)
-    (def #_"int" Script'OP_6 0x56)
-    (def #_"int" Script'OP_7 0x57)
-    (def #_"int" Script'OP_8 0x58)
-    (def #_"int" Script'OP_9 0x59)
-    (def #_"int" Script'OP_10 0x5a)
-    (def #_"int" Script'OP_11 0x5b)
-    (def #_"int" Script'OP_12 0x5c)
-    (def #_"int" Script'OP_13 0x5d)
-    (def #_"int" Script'OP_14 0x5e)
-    (def #_"int" Script'OP_15 0x5f)
-    (def #_"int" Script'OP_16 0x60)
-
-    ;; control
-    (def #_"int" Script'OP_NOP 0x61)
-    (def #_"int" Script'OP_VER 0x62)
-    (def #_"int" Script'OP_IF 0x63)
-    (def #_"int" Script'OP_NOTIF 0x64)
-    (def #_"int" Script'OP_VERIF 0x65)
-    (def #_"int" Script'OP_VERNOTIF 0x66)
-    (def #_"int" Script'OP_ELSE 0x67)
-    (def #_"int" Script'OP_ENDIF 0x68)
-    (def #_"int" Script'OP_VERIFY 0x69)
-    (def #_"int" Script'OP_RETURN 0x6a)
-
-    ;; stack ops
-    (def #_"int" Script'OP_TOALTSTACK 0x6b)
-    (def #_"int" Script'OP_FROMALTSTACK 0x6c)
-    (def #_"int" Script'OP_2DROP 0x6d)
-    (def #_"int" Script'OP_2DUP 0x6e)
-    (def #_"int" Script'OP_3DUP 0x6f)
-    (def #_"int" Script'OP_2OVER 0x70)
-    (def #_"int" Script'OP_2ROT 0x71)
-    (def #_"int" Script'OP_2SWAP 0x72)
-    (def #_"int" Script'OP_IFDUP 0x73)
-    (def #_"int" Script'OP_DEPTH 0x74)
-    (def #_"int" Script'OP_DROP 0x75)
-    (def #_"int" Script'OP_DUP 0x76)
-    (def #_"int" Script'OP_NIP 0x77)
-    (def #_"int" Script'OP_OVER 0x78)
-    (def #_"int" Script'OP_PICK 0x79)
-    (def #_"int" Script'OP_ROLL 0x7a)
-    (def #_"int" Script'OP_ROT 0x7b)
-    (def #_"int" Script'OP_SWAP 0x7c)
-    (def #_"int" Script'OP_TUCK 0x7d)
-
-    ;; splice ops
-    (def #_"int" Script'OP_CAT 0x7e)
-    (def #_"int" Script'OP_SUBSTR 0x7f)
-    (def #_"int" Script'OP_LEFT 0x80)
-    (def #_"int" Script'OP_RIGHT 0x81)
-    (def #_"int" Script'OP_SIZE 0x82)
-
-    ;; bit logic
-    (def #_"int" Script'OP_INVERT 0x83)
-    (def #_"int" Script'OP_AND 0x84)
-    (def #_"int" Script'OP_OR 0x85)
-    (def #_"int" Script'OP_XOR 0x86)
-    (def #_"int" Script'OP_EQUAL 0x87)
-    (def #_"int" Script'OP_EQUALVERIFY 0x88)
-    (def #_"int" Script'OP_RESERVED1 0x89)
-    (def #_"int" Script'OP_RESERVED2 0x8a)
-
-    ;; numeric
-    (def #_"int" Script'OP_1ADD 0x8b)
-    (def #_"int" Script'OP_1SUB 0x8c)
-    (def #_"int" Script'OP_2MUL 0x8d)
-    (def #_"int" Script'OP_2DIV 0x8e)
-    (def #_"int" Script'OP_NEGATE 0x8f)
-    (def #_"int" Script'OP_ABS 0x90)
-    (def #_"int" Script'OP_NOT 0x91)
-    (def #_"int" Script'OP_0NOTEQUAL 0x92)
-    (def #_"int" Script'OP_ADD 0x93)
-    (def #_"int" Script'OP_SUB 0x94)
-    (def #_"int" Script'OP_MUL 0x95)
-    (def #_"int" Script'OP_DIV 0x96)
-    (def #_"int" Script'OP_MOD 0x97)
-    (def #_"int" Script'OP_LSHIFT 0x98)
-    (def #_"int" Script'OP_RSHIFT 0x99)
-    (def #_"int" Script'OP_BOOLAND 0x9a)
-    (def #_"int" Script'OP_BOOLOR 0x9b)
-    (def #_"int" Script'OP_NUMEQUAL 0x9c)
-    (def #_"int" Script'OP_NUMEQUALVERIFY 0x9d)
-    (def #_"int" Script'OP_NUMNOTEQUAL 0x9e)
-    (def #_"int" Script'OP_LESSTHAN 0x9f)
-    (def #_"int" Script'OP_GREATERTHAN 0xa0)
-    (def #_"int" Script'OP_LESSTHANOREQUAL 0xa1)
-    (def #_"int" Script'OP_GREATERTHANOREQUAL 0xa2)
-    (def #_"int" Script'OP_MIN 0xa3)
-    (def #_"int" Script'OP_MAX 0xa4)
-    (def #_"int" Script'OP_WITHIN 0xa5)
-
-    ;; crypto
-    (def #_"int" Script'OP_RIPEMD160 0xa6)
-    (def #_"int" Script'OP_SHA1 0xa7)
-    (def #_"int" Script'OP_SHA256 0xa8)
-    (def #_"int" Script'OP_HASH160 0xa9)
-    (def #_"int" Script'OP_HASH256 0xaa)
-    (def #_"int" Script'OP_CODESEPARATOR 0xab)
-    (def #_"int" Script'OP_CHECKSIG 0xac)
-    (def #_"int" Script'OP_CHECKSIGVERIFY 0xad)
-    (def #_"int" Script'OP_CHECKMULTISIG 0xae)
-    (def #_"int" Script'OP_CHECKMULTISIGVERIFY 0xaf)
-
-    ;; block state
-    ;;; Check lock time of the block.  Introduced in BIP 65, replacing OP_NOP2 ;;
-    (def #_"int" Script'OP_CHECKLOCKTIMEVERIFY 0xb1)
-    (def #_"int" Script'OP_CHECKSEQUENCEVERIFY 0xb2)
-
-    ;; expansion
-    (def #_"int" Script'OP_NOP1 0xb0)
-    ;;; Deprecated by BIP 65 ;;
-    #_deprecated
-    (def #_"int" Script'OP_NOP2 Script'OP_CHECKLOCKTIMEVERIFY)
-    ;;; Deprecated by BIP 112 ;;
-    #_deprecated
-    (def #_"int" Script'OP_NOP3 Script'OP_CHECKSEQUENCEVERIFY)
-    (def #_"int" Script'OP_NOP4 0xb3)
-    (def #_"int" Script'OP_NOP5 0xb4)
-    (def #_"int" Script'OP_NOP6 0xb5)
-    (def #_"int" Script'OP_NOP7 0xb6)
-    (def #_"int" Script'OP_NOP8 0xb7)
-    (def #_"int" Script'OP_NOP9 0xb8)
-    (def #_"int" Script'OP_NOP10 0xb9)
-    (def #_"int" Script'OP_INVALIDOPCODE 0xff)
-
-    (def- #_"Map<Integer, String>" Script'OP_CODE_MAP
-    {
-        Script'OP_0 "0",
-        Script'OP_PUSHDATA1 "PUSHDATA1",
-        Script'OP_PUSHDATA2 "PUSHDATA2",
-        Script'OP_PUSHDATA4 "PUSHDATA4",
-        Script'OP_1NEGATE "1NEGATE",
-        Script'OP_RESERVED "RESERVED",
-        Script'OP_1 "1",
-        Script'OP_2 "2",
-        Script'OP_3 "3",
-        Script'OP_4 "4",
-        Script'OP_5 "5",
-        Script'OP_6 "6",
-        Script'OP_7 "7",
-        Script'OP_8 "8",
-        Script'OP_9 "9",
-        Script'OP_10 "10",
-        Script'OP_11 "11",
-        Script'OP_12 "12",
-        Script'OP_13 "13",
-        Script'OP_14 "14",
-        Script'OP_15 "15",
-        Script'OP_16 "16",
-        Script'OP_NOP "NOP",
-        Script'OP_VER "VER",
-        Script'OP_IF "IF",
-        Script'OP_NOTIF "NOTIF",
-        Script'OP_VERIF "VERIF",
-        Script'OP_VERNOTIF "VERNOTIF",
-        Script'OP_ELSE "ELSE",
-        Script'OP_ENDIF "ENDIF",
-        Script'OP_VERIFY "VERIFY",
-        Script'OP_RETURN "RETURN",
-        Script'OP_TOALTSTACK "TOALTSTACK",
-        Script'OP_FROMALTSTACK "FROMALTSTACK",
-        Script'OP_2DROP "2DROP",
-        Script'OP_2DUP "2DUP",
-        Script'OP_3DUP "3DUP",
-        Script'OP_2OVER "2OVER",
-        Script'OP_2ROT "2ROT",
-        Script'OP_2SWAP "2SWAP",
-        Script'OP_IFDUP "IFDUP",
-        Script'OP_DEPTH "DEPTH",
-        Script'OP_DROP "DROP",
-        Script'OP_DUP "DUP",
-        Script'OP_NIP "NIP",
-        Script'OP_OVER "OVER",
-        Script'OP_PICK "PICK",
-        Script'OP_ROLL "ROLL",
-        Script'OP_ROT "ROT",
-        Script'OP_SWAP "SWAP",
-        Script'OP_TUCK "TUCK",
-        Script'OP_CAT "CAT",
-        Script'OP_SUBSTR "SUBSTR",
-        Script'OP_LEFT "LEFT",
-        Script'OP_RIGHT "RIGHT",
-        Script'OP_SIZE "SIZE",
-        Script'OP_INVERT "INVERT",
-        Script'OP_AND "AND",
-        Script'OP_OR "OR",
-        Script'OP_XOR "XOR",
-        Script'OP_EQUAL "EQUAL",
-        Script'OP_EQUALVERIFY "EQUALVERIFY",
-        Script'OP_RESERVED1 "RESERVED1",
-        Script'OP_RESERVED2 "RESERVED2",
-        Script'OP_1ADD "1ADD",
-        Script'OP_1SUB "1SUB",
-        Script'OP_2MUL "2MUL",
-        Script'OP_2DIV "2DIV",
-        Script'OP_NEGATE "NEGATE",
-        Script'OP_ABS "ABS",
-        Script'OP_NOT "NOT",
-        Script'OP_0NOTEQUAL "0NOTEQUAL",
-        Script'OP_ADD "ADD",
-        Script'OP_SUB "SUB",
-        Script'OP_MUL "MUL",
-        Script'OP_DIV "DIV",
-        Script'OP_MOD "MOD",
-        Script'OP_LSHIFT "LSHIFT",
-        Script'OP_RSHIFT "RSHIFT",
-        Script'OP_BOOLAND "BOOLAND",
-        Script'OP_BOOLOR "BOOLOR",
-        Script'OP_NUMEQUAL "NUMEQUAL",
-        Script'OP_NUMEQUALVERIFY "NUMEQUALVERIFY",
-        Script'OP_NUMNOTEQUAL "NUMNOTEQUAL",
-        Script'OP_LESSTHAN "LESSTHAN",
-        Script'OP_GREATERTHAN "GREATERTHAN",
-        Script'OP_LESSTHANOREQUAL "LESSTHANOREQUAL",
-        Script'OP_GREATERTHANOREQUAL "GREATERTHANOREQUAL",
-        Script'OP_MIN "MIN",
-        Script'OP_MAX "MAX",
-        Script'OP_WITHIN "WITHIN",
-        Script'OP_RIPEMD160 "RIPEMD160",
-        Script'OP_SHA1 "SHA1",
-        Script'OP_SHA256 "SHA256",
-        Script'OP_HASH160 "HASH160",
-        Script'OP_HASH256 "HASH256",
-        Script'OP_CODESEPARATOR "CODESEPARATOR",
-        Script'OP_CHECKSIG "CHECKSIG",
-        Script'OP_CHECKSIGVERIFY "CHECKSIGVERIFY",
-        Script'OP_CHECKMULTISIG "CHECKMULTISIG",
-        Script'OP_CHECKMULTISIGVERIFY "CHECKMULTISIGVERIFY",
-        Script'OP_NOP1 "NOP1",
-        Script'OP_CHECKLOCKTIMEVERIFY "CHECKLOCKTIMEVERIFY",
-        Script'OP_CHECKSEQUENCEVERIFY "CHECKSEQUENCEVERIFY",
-        Script'OP_NOP4 "NOP4",
-        Script'OP_NOP5 "NOP5",
-        Script'OP_NOP6 "NOP6",
-        Script'OP_NOP7 "NOP7",
-        Script'OP_NOP8 "NOP8",
-        Script'OP_NOP9 "NOP9",
-        Script'OP_NOP10 "NOP10",
-    })
-
-    (def- #_"Map<String, Integer>" Script'OP_CODE_NAME_MAP
-    {
-        "0" Script'OP_0,
-        "PUSHDATA1" Script'OP_PUSHDATA1,
-        "PUSHDATA2" Script'OP_PUSHDATA2,
-        "PUSHDATA4" Script'OP_PUSHDATA4,
-        "1NEGATE" Script'OP_1NEGATE,
-        "RESERVED" Script'OP_RESERVED,
-        "1" Script'OP_1,
-        "2" Script'OP_2,
-        "3" Script'OP_3,
-        "4" Script'OP_4,
-        "5" Script'OP_5,
-        "6" Script'OP_6,
-        "7" Script'OP_7,
-        "8" Script'OP_8,
-        "9" Script'OP_9,
-        "10" Script'OP_10,
-        "11" Script'OP_11,
-        "12" Script'OP_12,
-        "13" Script'OP_13,
-        "14" Script'OP_14,
-        "15" Script'OP_15,
-        "16" Script'OP_16,
-        "NOP" Script'OP_NOP,
-        "VER" Script'OP_VER,
-        "IF" Script'OP_IF,
-        "NOTIF" Script'OP_NOTIF,
-        "VERIF" Script'OP_VERIF,
-        "VERNOTIF" Script'OP_VERNOTIF,
-        "ELSE" Script'OP_ELSE,
-        "ENDIF" Script'OP_ENDIF,
-        "VERIFY" Script'OP_VERIFY,
-        "RETURN" Script'OP_RETURN,
-        "TOALTSTACK" Script'OP_TOALTSTACK,
-        "FROMALTSTACK" Script'OP_FROMALTSTACK,
-        "2DROP" Script'OP_2DROP,
-        "2DUP" Script'OP_2DUP,
-        "3DUP" Script'OP_3DUP,
-        "2OVER" Script'OP_2OVER,
-        "2ROT" Script'OP_2ROT,
-        "2SWAP" Script'OP_2SWAP,
-        "IFDUP" Script'OP_IFDUP,
-        "DEPTH" Script'OP_DEPTH,
-        "DROP" Script'OP_DROP,
-        "DUP" Script'OP_DUP,
-        "NIP" Script'OP_NIP,
-        "OVER" Script'OP_OVER,
-        "PICK" Script'OP_PICK,
-        "ROLL" Script'OP_ROLL,
-        "ROT" Script'OP_ROT,
-        "SWAP" Script'OP_SWAP,
-        "TUCK" Script'OP_TUCK,
-        "CAT" Script'OP_CAT,
-        "SUBSTR" Script'OP_SUBSTR,
-        "LEFT" Script'OP_LEFT,
-        "RIGHT" Script'OP_RIGHT,
-        "SIZE" Script'OP_SIZE,
-        "INVERT" Script'OP_INVERT,
-        "AND" Script'OP_AND,
-        "OR" Script'OP_OR,
-        "XOR" Script'OP_XOR,
-        "EQUAL" Script'OP_EQUAL,
-        "EQUALVERIFY" Script'OP_EQUALVERIFY,
-        "RESERVED1" Script'OP_RESERVED1,
-        "RESERVED2" Script'OP_RESERVED2,
-        "1ADD" Script'OP_1ADD,
-        "1SUB" Script'OP_1SUB,
-        "2MUL" Script'OP_2MUL,
-        "2DIV" Script'OP_2DIV,
-        "NEGATE" Script'OP_NEGATE,
-        "ABS" Script'OP_ABS,
-        "NOT" Script'OP_NOT,
-        "0NOTEQUAL" Script'OP_0NOTEQUAL,
-        "ADD" Script'OP_ADD,
-        "SUB" Script'OP_SUB,
-        "MUL" Script'OP_MUL,
-        "DIV" Script'OP_DIV,
-        "MOD" Script'OP_MOD,
-        "LSHIFT" Script'OP_LSHIFT,
-        "RSHIFT" Script'OP_RSHIFT,
-        "BOOLAND" Script'OP_BOOLAND,
-        "BOOLOR" Script'OP_BOOLOR,
-        "NUMEQUAL" Script'OP_NUMEQUAL,
-        "NUMEQUALVERIFY" Script'OP_NUMEQUALVERIFY,
-        "NUMNOTEQUAL" Script'OP_NUMNOTEQUAL,
-        "LESSTHAN" Script'OP_LESSTHAN,
-        "GREATERTHAN" Script'OP_GREATERTHAN,
-        "LESSTHANOREQUAL" Script'OP_LESSTHANOREQUAL,
-        "GREATERTHANOREQUAL" Script'OP_GREATERTHANOREQUAL,
-        "MIN" Script'OP_MIN,
-        "MAX" Script'OP_MAX,
-        "WITHIN" Script'OP_WITHIN,
-        "RIPEMD160" Script'OP_RIPEMD160,
-        "SHA1" Script'OP_SHA1,
-        "SHA256" Script'OP_SHA256,
-        "HASH160" Script'OP_HASH160,
-        "HASH256" Script'OP_HASH256,
-        "CODESEPARATOR" Script'OP_CODESEPARATOR,
-        "CHECKSIG" Script'OP_CHECKSIG,
-        "CHECKSIGVERIFY" Script'OP_CHECKSIGVERIFY,
-        "CHECKMULTISIG" Script'OP_CHECKMULTISIG,
-        "CHECKMULTISIGVERIFY" Script'OP_CHECKMULTISIGVERIFY,
-        "NOP1" Script'OP_NOP1,
-        "CHECKLOCKTIMEVERIFY" Script'OP_CHECKLOCKTIMEVERIFY,
-        "CHECKSEQUENCEVERIFY" Script'OP_CHECKSEQUENCEVERIFY,
-        "NOP2" Script'OP_NOP2,
-        "NOP3" Script'OP_NOP3,
-        "NOP4" Script'OP_NOP4,
-        "NOP5" Script'OP_NOP5,
-        "NOP6" Script'OP_NOP6,
-        "NOP7" Script'OP_NOP7,
-        "NOP8" Script'OP_NOP8,
-        "NOP9" Script'OP_NOP9,
-        "NOP10" Script'OP_NOP10,
-    })
-
-    ;;;
-     ; Converts the given OpCode into a string (e.g. "0", "PUSHDATA", or "NON_OP(10)")
-     ;;
-    (defn #_"String" ScriptOpCodes'get-op-code-name [#_"int" code]
-        (get Script'OP_CODE_MAP code (str "NON_OP(" code ")"))
-    )
-
-    ;;;
-     ; Converts the given pushdata OpCode into a string (e.g. "PUSHDATA2", or "PUSHDATA(23)")
-     ;;
-    (defn #_"String" ScriptOpCodes'get-push-data-name [#_"int" code]
-        (get Script'OP_CODE_MAP code (str "PUSHDATA(" code ")"))
-    )
-
-    ;;;
-     ; Converts the given OpCodeName into an int.
-     ;;
-    (defn #_"int" ScriptOpCodes'get-op-code [#_"String" name]
-        (get Script'OP_CODE_NAME_MAP name Script'OP_INVALIDOPCODE)
-    )
-)
-
 (§ ns bitclojn.signers
     (:refer-clojure :exclude [ensure sync when when-not])
     (:use [bitclojn slang])
@@ -23267,12 +23221,12 @@
             (dotimes [#_"int" i (count (:inputs tx))]
                 (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
                     (when (some? out) => (log/warn (str "Missing connected output, assuming input " i " is already signed."))
-                        (let [#_"Script" inSig (TransactionInput''get-script-sig in) #_"Script" outKey (TransactionOutput''get-script-pub-key out)]
+                        (let [#_"Script" __inSig (TransactionInput''get-script-sig in) #_"Script" __outKey (TransactionOutput''get-script-pub-key out)]
                             (try+
                                 ;; We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
                                 ;; we sign missing pieces (to check this would require either assuming any signatures are signing
                                 ;; standard output types or a way to get processed signatures out of script execution).
-                                (Script''correctly-spends inSig, tx, i, outKey, LocalTransactionSigner'MINIMUM_VERIFY_FLAGS)
+                                (Script''correctly-spends __inSig, tx, i, __outKey, LocalTransactionSigner'MINIMUM_VERIFY_FLAGS)
                                 (log/warn (str "Input " i " already correctly spends output, assuming SIGHASH type used will be safe and skipping signing."))
                                 (§ catch ScriptException _
                                     (let [#_"RedeemData" redeem (TransactionInput''get-connected-redeem-data in, bag)
@@ -23281,7 +23235,7 @@
                                           ;; Married keys all have the same derivation path, so we can safely just take first one here.
                                           #_"ECKey" __pubKey (first (:redeem-keys redeem))]
                                         (when (§ instance? DeterministicKey __pubKey)
-                                            (.put (:key-paths __propTx), outKey, (DeterministicKey''get-path (cast' DeterministicKey __pubKey)))
+                                            (.put (:key-paths __propTx), __outKey, (DeterministicKey''get-path (cast' DeterministicKey __pubKey)))
                                         )
                                         ;; Locate private key in redeem data.  For pay-to-address and pay-to-key inputs RedeemData will always contain
                                         ;; only one key (with private bytes).  For P2SH inputs RedeemData will contain multiple keys, one of which MAY
@@ -23299,7 +23253,7 @@
                                                 ;; Therefore, always place as first signature.
                                                 (try+
                                                     (let [#_"TransactionSignature" sig (Transaction''calculate-signature-b tx, i, key, script, SigHash'ALL, false)]
-                                                        (§ ass in (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature outKey, inSig, (TransactionSignature''encode-to-bitcoin sig), 0)))
+                                                        (§ ass in (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature __outKey, __inSig, (TransactionSignature''encode-to-bitcoin sig), 0)))
                                                     )
                                                     (§ catch MissingPrivateKeyException _
                                                         (log/warn (str "No private key in keypair for input " i))
@@ -23341,28 +23295,28 @@
                     (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
                         (if (nil? out)
                             (log/warn (str "Missing connected output, assuming input " i " is already signed."))
-                            (let [#_"Script" inSig (TransactionInput''get-script-sig in) #_"Script" outKey (TransactionOutput''get-script-pub-key out)]
-                                (if (or (Script''is-pay-to-script-hash outKey) (Script''is-sent-to-multi-sig outKey))
-                                    (let [#_"int" x (if (Script''is-pay-to-script-hash outKey) 1 0) #_"int" n (count (:chunks inSig))]
+                            (let [#_"Script" __inSig (TransactionInput''get-script-sig in) #_"Script" __outKey (TransactionOutput''get-script-pub-key out)]
+                                (if (or (Script''is-pay-to-script-hash __outKey) (Script''is-sent-to-multi-sig __outKey))
+                                    (let [#_"int" x (if (Script''is-pay-to-script-hash __outKey) 1 0) #_"int" n (count (:chunks __inSig))]
                                         ;; All chunks except the first one (OP_0) and the last (redeem script) are signatures.
                                         (loop-when-recur [#_"int" j 1] (< j (- n x)) [(inc j)]
-                                            (when (ScriptChunk''equals-op-code (nth (:chunks inSig) j), 0)
+                                            (when (ScriptChunk''equals-op-code (nth (:chunks __inSig) j), 0)
                                                 (condp = (:missing-sigs-mode this)
                                                     :MissingSigsMode'THROW
                                                         (throw+ (MissingSignatureException'new))
                                                     :MissingSigsMode'USE_DUMMY_SIG
-                                                        (§ ass in (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature outKey, inSig, dummy, (dec j))))
+                                                        (§ ass in (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature __outKey, __inSig, dummy, (dec j))))
                                                     nil
                                                 )
                                             )
                                         )
                                     )
-                                    (when (ScriptChunk''equals-op-code (nth (:chunks inSig) 0), 0)
+                                    (when (ScriptChunk''equals-op-code (nth (:chunks __inSig) 0), 0)
                                         (condp = (:missing-sigs-mode this)
                                             :MissingSigsMode'THROW
                                                 (throw+ (MissingPrivateKeyException'new))
                                             :MissingSigsMode'USE_DUMMY_SIG
-                                                (§ ass in (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature outKey, inSig, dummy, 0)))
+                                                (§ ass in (TransactionInput''set-script-sig in, (Script''get-script-sig-with-signature __outKey, __inSig, dummy, 0)))
                                             nil
                                         )
                                     )
@@ -26433,7 +26387,7 @@
 
     #_method
     (defn #_"String" DeterministicSeed''to-hex-string [#_"DeterministicSeed" this]
-        (.encode Utils'HEX, (:seed-bytes this))
+        (Base16'encode (:seed-bytes this))
     )
 
     #_foreign
@@ -27009,7 +26963,7 @@
 
     #_method
     (defn- #_"Script" KeyChainGroup''make-p2sh-output-script [#_"KeyChainGroup" this, #_"DeterministicKey" __followedKey, #_"DeterministicKeyChain" chain]
-        (ScriptBuilder'create-p2sh-output-script-1 (:redeem-script (DeterministicKeyChain'''get-redeem-data chain, __followedKey)))
+        (Script'create-p2sh-output-script-1 (:redeem-script (DeterministicKeyChain'''get-redeem-data chain, __followedKey)))
     )
 
     ;;; Adds a listener for events that are run when keys are added, on the user thread. ;;
@@ -27307,8 +27261,8 @@
                 )
             )
             (let [#_"List<ECKey>" __marriedKeys (.build keys)
-                  #_"Script" redeem (ScriptBuilder'create-redeem-script (:sigs-required-to-spend this), __marriedKeys)]
-                (ScriptBuilder'create-p2sh-output-script-1 redeem)
+                  #_"Script" redeem (Script'create-redeem-script (:sigs-required-to-spend this), __marriedKeys)]
+                (Script'create-p2sh-output-script-1 redeem)
             )
         )
     )
@@ -27329,7 +27283,7 @@
     #_override
     (defn #_"RedeemData" DeterministicKeyChain'''get-redeem-data [#_"MarriedKeyChain" this, #_"DeterministicKey" __followedKey]
         (let [#_"List<ECKey>" __marriedKeys (MarriedKeyChain''get-married-keys-with-followed this, __followedKey)
-              #_"Script" redeem (ScriptBuilder'create-redeem-script (:sigs-required-to-spend this), __marriedKeys)]
+              #_"Script" redeem (Script'create-redeem-script (:sigs-required-to-spend this), __marriedKeys)]
             (RedeemData'new redeem, __marriedKeys)
         )
     )
@@ -27382,7 +27336,7 @@
         )
         (.. sb (append "\n"))
         (doseq [#_"RedeemData" redeem (.values (:married-keys-redeem-data this))]
-            (MarriedKeyChain''format-script this, (ScriptBuilder'create-p2sh-output-script-1 (:redeem-script redeem)), sb, ledger)
+            (MarriedKeyChain''format-script this, (Script'create-p2sh-output-script-1 (:redeem-script redeem)), sb, ledger)
         )
         nil
     )
@@ -27390,7 +27344,7 @@
     #_method
     (defn- #_"void" MarriedKeyChain''format-script [#_"MarriedKeyChain" this, #_"Script" script, #_"StringBuilder" sb, #_"Ledger" ledger]
         (.. sb (append "  addr:") (append (Script''get-to-address-2 script, ledger)))
-        (.. sb (append "  hash160:") (append (.encode Utils'HEX, (Script''get-pub-key-hash script))))
+        (.. sb (append "  hash160:") (append (Base16'encode (Script''get-pub-key-hash script))))
         (.. sb (append "\n"))
         nil
     )
@@ -27406,7 +27360,7 @@
                 (§ ass this (DeterministicKeyChain''maybe-look-ahead-1 this))
                 (doseq [#_"DeterministicKey" leaf (DeterministicKeyChain''get-leaf-keys this)]
                     (let [#_"RedeemData" redeem (DeterministicKeyChain'''get-redeem-data this, leaf)
-                          #_"Script" script (ScriptBuilder'create-p2sh-output-script-1 (:redeem-script redeem))]
+                          #_"Script" script (Script'create-p2sh-output-script-1 (:redeem-script redeem))]
                         (.put (:married-keys-redeem-data this), (§ ByteString/copyFrom (Script''get-pub-key-hash script)), redeem)
                     )
                 )
@@ -27673,7 +27627,7 @@
 
     (defn #_"SendRequest" SendRequest'to-cltv-payment-channel-5bi [#_"Ledger" ledger, #_"BigInteger" time, #_"ECKey" from, #_"ECKey" to, #_"Coin" value]
         (let [#_"Transaction" tx (Transaction'new ledger)]
-            (Transaction''add-output-cs tx, value, (ScriptBuilder'create-cltv-payment-channel-output time, from, to))
+            (Transaction''add-output-cs tx, value, (Script'create-cltv-payment-channel-output time, from, to))
 
             (assoc (SendRequest'new) :tx tx)
         )
@@ -29435,9 +29389,9 @@
                                     ;; so the exact nature of the mutation can be examined.
                                     (log/warn "Saw two pending transactions double spend each other")
                                     (log/warn (str "  offending input is input " (.indexOf (:inputs tx), input)))
-                                    (log/warn (str (Transaction''get-hash tx) ": " (.encode Utils'HEX, (Message''to-bytes tx, Transaction''to-wire))))
+                                    (log/warn (str (Transaction''get-hash tx) ": " (Base16'encode (Message''to-bytes tx, Transaction''to-wire))))
                                     (let [#_"Transaction" ty (:parent (:spent-by output))]
-                                        (log/warn (str (Transaction''get-hash ty) ": " (.encode Utils'HEX, (Message''to-bytes ty, Transaction''to-wire))))
+                                        (log/warn (str (Transaction''get-hash ty) ": " (Base16'encode (Message''to-bytes ty, Transaction''to-wire))))
                                     )
                                 )
                             )
@@ -30785,18 +30739,18 @@
                 (dotimes [#_"int" i (count inputs)]
                     (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
                         (when (some? out) ;; Else missing connected output, assuming already signed.
-                            (let [#_"Script" inSig (TransactionInput''get-script-sig in) #_"Script" outKey (TransactionOutput''get-script-pub-key out)]
+                            (let [#_"Script" __inSig (TransactionInput''get-script-sig in) #_"Script" __outKey (TransactionOutput''get-script-pub-key out)]
                                 (try+
                                     ;; We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
                                     ;; we sign missing pieces (to check this would require either assuming any signatures are signing
                                     ;; standard output types or a way to get processed signatures out of script execution).
-                                    (Script''correctly-spends inSig, tx, i, outKey, Script'ALL_VERIFY_FLAGS)
+                                    (Script''correctly-spends __inSig, tx, i, __outKey, Script'ALL_VERIFY_FLAGS)
                                     (log/warn (str "Input " i " already correctly spends output, assuming SIGHASH type used will be safe and skipping signing."))
                                     (§ catch ScriptException e
                                         (log/debug e, "Input contained an incorrect signature")
                                         (let [#_"RedeemData" data (TransactionInput''get-connected-redeem-data in, this)]
                                             (ensure some? data, (str "Transaction exists in wallet that we cannot redeem: " (:from-tx-hash (:outpoint in))))
-                                            (§ ass in (TransactionInput''set-script-sig in, (Script''create-empty-input-script outKey, (first (:redeem-keys data)), (:redeem-script data))))
+                                            (§ ass in (TransactionInput''set-script-sig in, (Script''create-empty-input-script __outKey, (first (:redeem-keys data)), (:redeem-script data))))
                                         )
                                     )
                                 )
