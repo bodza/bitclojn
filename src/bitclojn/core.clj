@@ -125,11 +125,11 @@
 (declare BalanceFutureRequest'new)
 (declare BalanceType'enum-set)
 (declare Base58'ALPHABET Base58'ENCODED_ZERO Base58'INDEXES Base58'decode Base58'decode-checked Base58'decode-to-big-integer Base58'divmod Base58'encode)
-(declare BasicKeyChain''find-key-from-pub-hash BasicKeyChain''find-key-from-pub-key BasicKeyChain''find-keys-before BasicKeyChain''find-oldest-key-after BasicKeyChain''get-keys-1 BasicKeyChain''get-listeners BasicKeyChain''import-key BasicKeyChain''import-key-locked BasicKeyChain''import-keys BasicKeyChain''import-keys-locked BasicKeyChain''is-watching BasicKeyChain''queue-on-keys-added BasicKeyChain''remove-key BasicKeyChain'new)
+(declare BasicKeyChain''find-key-from-pub-hash BasicKeyChain''find-key-from-pub-key BasicKeyChain''find-keys-before BasicKeyChain''find-oldest-key-after BasicKeyChain''get-keys-1 BasicKeyChain''import-key BasicKeyChain''import-key-locked BasicKeyChain''import-keys BasicKeyChain''import-keys-locked BasicKeyChain''is-watching BasicKeyChain''queue-on-keys-added BasicKeyChain''remove-key BasicKeyChain'new)
 (declare BitcoinPacketHeader'HEADER_LENGTH BitcoinPacketHeader'new)
 (declare Wire'deserialize Wire'deserialize-payload Wire'make-message Wire'seek-past-magic-bytes Wire'serialize-3 Wire'serialize-4 Wire'COMMAND_LEN)
 (declare Block''add-transaction Block''build-merkle-tree Block''calculate-hash Block''calculate-merkle-root Block''check-proof-of-work Block''check-sig-ops Block''check-timestamp Block''check-transactions Block''clone-as-header Block''get-block-inflation Block''get-difficulty-target-as-integer Block''get-hash Block''get-hash-as-string Block''get-work Block''is-bip34 Block''is-bip65 Block''is-bip66 Block''solve Block''verify Block''verify-header Block''verify-transactions Block''write-header Block''write-transactions Block'ALLOWED_TIME_DRIFT Block'BLOCK_HEIGHT_GENESIS Block'BLOCK_HEIGHT_UNKNOWN Block'BLOCK_VERSION_BIP34 Block'BLOCK_VERSION_BIP65 Block'BLOCK_VERSION_BIP66 Block'BLOCK_VERSION_GENESIS Block'EASIEST_DIFFICULTY_TARGET Block'HEADER_SIZE Block'LARGEST_HASH Block'MAX_BLOCK_SIGOPS Block'MAX_BLOCK_SIZE Block'init Block'new-genesis Block'from-wire Block''to-wire Block'new)
-(declare BlockChain'''add-filtered-block BlockChain'''add-to-block-store-3 BlockChain'''add-to-block-store-4 BlockChain'''connect-transactions-2 BlockChain'''connect-transactions-3 BlockChain'''disconnect-transactions BlockChain'''do-set-chain-head BlockChain'''get-stored-block-in-current-scope BlockChain'''not-setting-chain-head BlockChain'''rollback-block-store BlockChain'''should-verify-transactions BlockChain''add-5 BlockChain''add-b BlockChain''add-new-best-block-listener-2 BlockChain''add-new-best-block-listener-3 BlockChain''add-reorganize-listener-2 BlockChain''add-reorganize-listener-3 BlockChain''add-transaction-received-listener-2 BlockChain''add-transaction-received-listener-3 BlockChain''add-wallet BlockChain''connect-block BlockChain''drain-orphan-blocks BlockChain''estimate-block-time BlockChain''get-best-chain-height BlockChain''get-block-store BlockChain''get-chain-head BlockChain''get-false-positive-rate BlockChain''get-height-future BlockChain''get-orphan-root BlockChain''handle-new-best-chain BlockChain''inform-listeners-for-new-block BlockChain''is-orphan BlockChain''remove-new-best-block-listener BlockChain''remove-reorganize-listener BlockChain''remove-transaction-received-listener BlockChain''remove-wallet BlockChain''reset-false-positive-estimate BlockChain''set-chain-head BlockChain''track-false-positives BlockChain''track-filtered-transactions BlockChain''try-connecting-orphans BlockChain'FP_ESTIMATOR_ALPHA BlockChain'FP_ESTIMATOR_BETA BlockChain'find-split BlockChain'get-median-timestamp-of-recent-blocks BlockChain'get-partial-chain BlockChain'inform-listener-for-new-transactions BlockChain'new BlockChain'send-transactions-to-listener)
+(declare BlockChain'''add-filtered-block BlockChain'''add-to-block-store-3 BlockChain'''add-to-block-store-4 BlockChain'''connect-transactions-2 BlockChain'''connect-transactions-3 BlockChain'''disconnect-transactions BlockChain'''do-set-chain-head BlockChain'''get-stored-block-in-current-scope BlockChain'''not-setting-chain-head BlockChain'''rollback-block-store BlockChain'''should-verify-transactions BlockChain''add-5 BlockChain''add-b BlockChain''add-new-best-block-listener-2 BlockChain''add-new-best-block-listener-3 BlockChain''add-reorganize-listener-2 BlockChain''add-reorganize-listener-3 BlockChain''add-transaction-received-listener-2 BlockChain''add-transaction-received-listener-3 BlockChain''add-wallet BlockChain''connect-block BlockChain''drain-orphan-blocks BlockChain''estimate-block-time BlockChain''get-best-chain-height BlockChain''get-chain-head BlockChain''get-height-future BlockChain''get-orphan-root BlockChain''handle-new-best-chain BlockChain''inform-listeners-for-new-block BlockChain''is-orphan BlockChain''remove-new-best-block-listener BlockChain''remove-reorganize-listener BlockChain''remove-transaction-received-listener BlockChain''remove-wallet BlockChain''reset-false-positive-estimate BlockChain''set-chain-head BlockChain''track-false-positives BlockChain''track-filtered-transactions BlockChain''try-connecting-orphans BlockChain'FP_ESTIMATOR_ALPHA BlockChain'FP_ESTIMATOR_BETA BlockChain'find-split BlockChain'get-median-timestamp-of-recent-blocks BlockChain'get-partial-chain BlockChain'inform-listener-for-new-transactions BlockChain'new BlockChain'send-transactions-to-listener)
 (declare BlockStore'''close BlockStore'''get-2 BlockStore'''get-chain-head BlockStore'''put-2 BlockStore'''set-chain-head)
 (declare BlockStoreException'new)
 (declare BlockVerifyFlag'enum-set)
@@ -138,7 +138,7 @@
 (declare BloomUpdate'enum-map BloomUpdate'for-code)
 (declare ChainDownloadStartedEventListener'''on-chain-download-started)
 (declare ChainFileLockedException'new)
-(declare CheckpointManager''get-checkpoint-before CheckpointManager''get-data-hash CheckpointManager''num-checkpoints CheckpointManager''read-textual CheckpointManager'BASE64 CheckpointManager'checkpoint CheckpointManager'new)
+(declare CheckpointManager''get-checkpoint-before CheckpointManager''read-textual CheckpointManager'BASE64 CheckpointManager'checkpoint CheckpointManager'new)
 (declare ChildMessage'new)
 (declare ChildNumber''i ChildNumber''is-hardened ChildNumber''num ChildNumber'HARDENED_BIT ChildNumber'ONE ChildNumber'ZERO ChildNumber'ZERO_HARDENED ChildNumber'has-hardened-bit ChildNumber'new ChildNumber'compose)
 (declare ClientConnectionManager'''close-connections ClientConnectionManager'''get-connected-client-count ClientConnectionManager'''open-connection)
@@ -158,29 +158,29 @@
 (declare DaemonThreadFactory'new)
 (declare DefaultCoinSelector''should-select DefaultCoinSelector'is-selectable DefaultCoinSelector'new DefaultCoinSelector'sort-outputs)
 (declare DeterministicHierarchy''derive-child-3 DeterministicHierarchy''derive-child-5 DeterministicHierarchy''derive-next-child DeterministicHierarchy''get-4 DeterministicHierarchy''get-next-child-number-to-derive DeterministicHierarchy''get-num-children DeterministicHierarchy''get-root-key DeterministicHierarchy''put-key DeterministicHierarchy'BIP32_STANDARDISATION_TIME_SECS DeterministicHierarchy'new)
-(declare DeterministicKey''derive DeterministicKey''derive-private-key-downwards DeterministicKey''drop-parent DeterministicKey''drop-private-bytes DeterministicKey''find-or-derive-private-key DeterministicKey''find-parent-with-priv-key DeterministicKey''get-chain-code DeterministicKey''get-child-number DeterministicKey''get-depth DeterministicKey''get-fingerprint DeterministicKey''get-identifier DeterministicKey''get-parent DeterministicKey''get-parent-fingerprint DeterministicKey''get-path DeterministicKey''get-path-as-string DeterministicKey''get-priv-key-bytes33 DeterministicKey''serialize DeterministicKey''serialize-priv-b58 DeterministicKey''serialize-private DeterministicKey''serialize-pub-b58 DeterministicKey''serialize-public DeterministicKey'CHILDNUM_ORDER DeterministicKey'add-checksum DeterministicKey'ascertain-parent-fingerprint DeterministicKey'deserialize DeterministicKey'deserialize-b58-2 DeterministicKey'deserialize-b58-3 DeterministicKey'init DeterministicKey'new-4 DeterministicKey'new-5 DeterministicKey'new-6p DeterministicKey'new-6i DeterministicKey'to-base58 DeterministicKey''set-creation-time-seconds)
-(declare DeterministicKeyChain'''find-redeem-data-by-script-hash DeterministicKeyChain'''format-addresses DeterministicKeyChain'''fresh-output-script DeterministicKeyChain'''get-redeem-data DeterministicKeyChain'''is-married DeterministicKeyChain'''maybe-look-ahead-scripts DeterministicKeyChain'''set-lookahead-size DeterministicKeyChain''calc-default-lookahead-threshold DeterministicKeyChain''check-for-bit-flip DeterministicKeyChain''find-key-from-pub-hash DeterministicKeyChain''find-key-from-pub-key DeterministicKeyChain''get-account-path DeterministicKeyChain''get-issued-external-keys DeterministicKeyChain''get-issued-internal-keys DeterministicKeyChain''get-issued-receive-keys DeterministicKeyChain''get-key-by-path-2 DeterministicKeyChain''get-key-by-path-3 DeterministicKeyChain''get-key-lookahead-epoch DeterministicKeyChain''get-keys-3b DeterministicKeyChain''get-leaf-keys DeterministicKeyChain''get-lookahead-size DeterministicKeyChain''get-lookahead-threshold DeterministicKeyChain''get-mnemonic-code DeterministicKeyChain''get-seed DeterministicKeyChain''get-sigs-required-to-spend DeterministicKeyChain''get-watching-key DeterministicKeyChain''initialize-hierarchy DeterministicKeyChain''is-following DeterministicKeyChain''is-watching DeterministicKeyChain''mark-key-as-used DeterministicKeyChain''mark-pub-hash-as-used DeterministicKeyChain''mark-pub-key-as-used DeterministicKeyChain''maybe-look-ahead-1 DeterministicKeyChain''maybe-look-ahead-3 DeterministicKeyChain''maybe-look-ahead-5 DeterministicKeyChain''num-leaf-keys-issued DeterministicKeyChain''set-lookahead-threshold DeterministicKeyChain''set-sigs-required-to-spend DeterministicKeyChain''to-string DeterministicKeyChain'ACCOUNT_ZERO_PATH DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC DeterministicKeyChain'EXTERNAL_PATH DeterministicKeyChain'EXTERNAL_SUBPATH DeterministicKeyChain'INTERNAL_PATH DeterministicKeyChain'INTERNAL_SUBPATH DeterministicKeyChain'init DeterministicKeyChain'from-seed DeterministicKeyChain'from-entropy DeterministicKeyChain'from-random DeterministicKeyChain'watch DeterministicKeyChain'watch-and-follow)
-(declare DeterministicSeed''to-hex-string DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS DeterministicSeed'MAX_SEED_ENTROPY_BITS DeterministicSeed'next-entropy DeterministicSeed'from-entropy DeterministicSeed'from-random DeterministicSeed'new)
+(declare DeterministicKey''derive DeterministicKey''derive-private-key-downwards DeterministicKey''drop-parent DeterministicKey''drop-private-bytes DeterministicKey''find-or-derive-private-key DeterministicKey''find-parent-with-priv-key DeterministicKey''get-child-number DeterministicKey''get-fingerprint DeterministicKey''get-identifier DeterministicKey''get-path-as-string DeterministicKey''get-priv-key-bytes33 DeterministicKey''serialize DeterministicKey''serialize-priv-b58 DeterministicKey''serialize-private DeterministicKey''serialize-pub-b58 DeterministicKey''serialize-public DeterministicKey'CHILDNUM_ORDER DeterministicKey'add-checksum DeterministicKey'ascertain-parent-fingerprint DeterministicKey'deserialize DeterministicKey'deserialize-b58-2 DeterministicKey'deserialize-b58-3 DeterministicKey'init DeterministicKey'new-4 DeterministicKey'new-5 DeterministicKey'new-6p DeterministicKey'new-6i DeterministicKey'to-base58 DeterministicKey''set-creation-time-seconds)
+(declare DeterministicKeyChain'''find-redeem-data-by-script-hash DeterministicKeyChain'''format-addresses DeterministicKeyChain'''fresh-output-script DeterministicKeyChain'''get-redeem-data DeterministicKeyChain'''is-married DeterministicKeyChain'''maybe-look-ahead-scripts DeterministicKeyChain'''set-lookahead-size DeterministicKeyChain''calc-default-lookahead-threshold DeterministicKeyChain''check-for-bit-flip DeterministicKeyChain''find-key-from-pub-hash DeterministicKeyChain''find-key-from-pub-key DeterministicKeyChain''get-issued-external-keys DeterministicKeyChain''get-issued-internal-keys DeterministicKeyChain''get-issued-receive-keys DeterministicKeyChain''get-key-by-path-2 DeterministicKeyChain''get-key-by-path-3 DeterministicKeyChain''get-key-lookahead-epoch DeterministicKeyChain''get-keys-3b DeterministicKeyChain''get-leaf-keys DeterministicKeyChain''get-lookahead-size DeterministicKeyChain''get-lookahead-threshold DeterministicKeyChain''get-mnemonic-code DeterministicKeyChain''get-seed DeterministicKeyChain''get-watching-key DeterministicKeyChain''initialize-hierarchy DeterministicKeyChain''is-watching DeterministicKeyChain''mark-key-as-used DeterministicKeyChain''mark-pub-hash-as-used DeterministicKeyChain''mark-pub-key-as-used DeterministicKeyChain''maybe-look-ahead-1 DeterministicKeyChain''maybe-look-ahead-3 DeterministicKeyChain''maybe-look-ahead-5 DeterministicKeyChain''num-leaf-keys-issued DeterministicKeyChain''set-lookahead-threshold DeterministicKeyChain''to-string DeterministicKeyChain'ACCOUNT_ZERO_PATH DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC DeterministicKeyChain'EXTERNAL_PATH DeterministicKeyChain'EXTERNAL_SUBPATH DeterministicKeyChain'INTERNAL_PATH DeterministicKeyChain'INTERNAL_SUBPATH DeterministicKeyChain'init DeterministicKeyChain'from-seed DeterministicKeyChain'from-entropy DeterministicKeyChain'from-random DeterministicKeyChain'watch DeterministicKeyChain'watch-and-follow)
+(declare DeterministicSeed''to-base16 DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS DeterministicSeed'MAX_SEED_ENTROPY_BITS DeterministicSeed'next-entropy DeterministicSeed'from-entropy DeterministicSeed'from-random DeterministicSeed'new)
 (declare DeterministicUpgradeRequiredException'new)
 (declare DnsDiscovery'new)
 (declare DnsSeedDiscovery'new)
-(declare DownloadProgressTracker''await DownloadProgressTracker''done-download DownloadProgressTracker''get-future DownloadProgressTracker''progress DownloadProgressTracker''start-download DownloadProgressTracker'new)
+(declare DownloadProgressTracker''await DownloadProgressTracker''done-download DownloadProgressTracker''progress DownloadProgressTracker''start-download DownloadProgressTracker'new)
 (declare DustySendRequested'new)
 (declare ECDSASignature'''to-canonicalised ECDSASignature''der-byte-stream ECDSASignature''encode-to-der ECDSASignature''is-canonical ECDSASignature'decode-from-der ECDSASignature'new)
-(declare ECKey'''format-key-with-address ECKey'''get-creation-time-seconds ECKey'''get-priv-key ECKey'''get-secret-bytes ECKey'''has-priv-key ECKey'''is-pub-key-only ECKey''set-creation-time-seconds ECKey'''sign ECKey''decompress ECKey''do-sign ECKey''get-priv-key-bytes ECKey''get-private-key-as-hex ECKey''get-pub-key ECKey''get-pub-key-hash ECKey''get-pub-key-point ECKey''get-public-key-as-hex ECKey''is-compressed ECKey''is-watching ECKey''sign-message ECKey''to-address ECKey''to-string ECKey''to-string-with-private ECKey''verify-3b ECKey''verify-3s ECKey''verify-message ECKey''verify-or-throw-3b ECKey''verify-or-throw-3s ECKey'AGE_COMPARATOR ECKey'CURVE ECKey'CURVE_PARAMS ECKey'HALF_CURVE_ORDER ECKey'PUBKEY_COMPARATOR ECKey'SECURE_RANDOM ECKey'compress-point ECKey'decompress-key ECKey'decompress-point ECKey'from-private ECKey'from-private-bytes ECKey'from-private-and-precalculated-public ECKey'from-private-and-precalculated-public-bytes ECKey'from-public-only ECKey'from-public-only-bytes ECKey'get-point-with-compression ECKey'init ECKey'is-pub-key-canonical ECKey'new ECKey'from-random ECKey'compose ECKey'public-key-from-private ECKey'public-point-from-private ECKey'recover-from-signature ECKey'signed-message-to-key ECKey'verify-3-bytes ECKey'verify-3e)
+(declare ECKey'''format-key-with-address ECKey'''get-creation-time-seconds ECKey'''get-priv-key ECKey'''get-secret-bytes ECKey'''has-priv-key ECKey'''is-pub-key-only ECKey''set-creation-time-seconds ECKey'''sign ECKey''decompress ECKey''do-sign ECKey''get-priv-key-bytes ECKey''get-pub-key ECKey''get-pub-key-hash ECKey''get-pub-key-point ECKey''is-compressed ECKey''is-watching ECKey''sign-message ECKey''to-address ECKey''to-string ECKey''to-string-with-private ECKey''verify-3b ECKey''verify-3s ECKey''verify-message ECKey''verify-or-throw-3b ECKey''verify-or-throw-3s ECKey'AGE_COMPARATOR ECKey'CURVE ECKey'CURVE_PARAMS ECKey'HALF_CURVE_ORDER ECKey'PUBKEY_COMPARATOR ECKey'SECURE_RANDOM ECKey'compress-point ECKey'decompress-key ECKey'decompress-point ECKey'from-private ECKey'from-private-bytes ECKey'from-private-and-precalculated-public ECKey'from-private-and-precalculated-public-bytes ECKey'from-public-only ECKey'from-public-only-bytes ECKey'get-point-with-compression ECKey'init ECKey'is-pub-key-canonical ECKey'new ECKey'from-random ECKey'compose ECKey'public-key-from-private ECKey'public-point-from-private ECKey'recover-from-signature ECKey'signed-message-to-key ECKey'verify-3-bytes ECKey'verify-3e)
 (declare EmptyMessage'new)
 (declare ExceededMaxTransactionSize'new)
 (declare ExchangeRate''coin-to-fiat ExchangeRate''fiat-to-coin ExchangeRate'new)
 (declare ExponentialBackoff''track-failure ExponentialBackoff''track-success ExponentialBackoff'new)
 (declare FeeCalculation'new)
 (declare Fiat''signum Fiat''add Fiat''remainder Fiat''divide Fiat''is-greater-than Fiat''is-less-than Fiat''is-negative Fiat''is-positive Fiat''is-zero Fiat''multiply Fiat''negate Fiat''subtract Fiat''to-friendly-string Fiat''to-plain-string Fiat'FRIENDLY_FORMAT Fiat'PLAIN_FORMAT Fiat'SMALLEST_UNIT_EXPONENT Fiat'new Fiat'parse-fiat Fiat'parse-fiat-inexact)
-(declare FilterMerger''calculate FilterMerger''get-bloom-filter-fp-rate FilterMerger''set-bloom-filter-fp-rate FilterMerger'new)
+(declare FilterMerger'new FilterMerger''calculate)
 (declare FilterMergerResult'new)
 (declare FilterRecalculateMode'enum-set)
 (declare FilteredBlock''get-block-header FilteredBlock''get-hash FilteredBlock''get-transaction-count FilteredBlock''get-transaction-hashes FilteredBlock''provide-transaction FilteredBlock'from-wire FilteredBlock''to-wire FilteredBlock'new)
 (declare FilteringCoinSelector''exclude-outputs-spent-by FilteringCoinSelector'new)
 (declare FreeStandingTransactionOutput''get-utxo FreeStandingTransactionOutput'init FreeStandingTransactionOutput'new)
-(declare FullPrunedBlockChain''get-script FullPrunedBlockChain''get-script-address FullPrunedBlockChain''set-run-scripts FullPrunedBlockChain'new)
+(declare FullPrunedBlockChain''get-script FullPrunedBlockChain''get-script-address FullPrunedBlockChain'new)
 (declare FullPrunedBlockStore'''abort-database-batch-write FullPrunedBlockStore'''add-unspent-transaction-output FullPrunedBlockStore'''begin-database-batch-write FullPrunedBlockStore'''commit-database-batch-write FullPrunedBlockStore'''get-once-undoable-stored-block FullPrunedBlockStore'''get-transaction-output FullPrunedBlockStore'''get-undo-block FullPrunedBlockStore'''get-verified-chain-head FullPrunedBlockStore'''has-unspent-outputs FullPrunedBlockStore'''put-3 FullPrunedBlockStore'''remove-unspent-transaction-output FullPrunedBlockStore'''set-verified-chain-head)
 (declare FullPrunedVerifier'new)
 (declare GetAddrMessage'new GetAddrMessage''to-wire)
@@ -200,7 +200,7 @@
 (declare KeyBag'''find-key-from-pub-hash KeyBag'''find-key-from-pub-key KeyBag'''find-redeem-data-from-script-hash)
 (declare KeyChain'''add-event-listener-2 KeyChain'''add-event-listener-3 KeyChain'''get-earliest-key-creation-time KeyChain'''get-filter KeyChain'''get-key KeyChain'''get-keys-3a KeyChain'''has-key KeyChain'''num-bloom-filter-entries KeyChain'''num-keys KeyChain'''remove-event-listener-2)
 (declare KeyChainEventListener'''on-keys-added)
-(declare KeyChainGroup''add-and-activate-hd-chain KeyChainGroup''add-event-listener-2 KeyChainGroup''add-event-listener-3 KeyChainGroup''create-and-activate-new-hd-chain KeyChainGroup''current-address KeyChainGroup''current-key KeyChainGroup''fresh-address KeyChainGroup''fresh-key KeyChainGroup''fresh-keys KeyChainGroup''get-active-key-chain KeyChainGroup''get-bloom-filter-4 KeyChainGroup''get-bloom-filter-element-count KeyChainGroup''get-combined-key-lookahead-epochs KeyChainGroup''get-deterministic-key-chains KeyChainGroup''get-earliest-key-creation-time KeyChainGroup''get-imported-keys KeyChainGroup''get-lookahead-size KeyChainGroup''get-lookahead-threshold KeyChainGroup''has-key KeyChainGroup''import-keys KeyChainGroup''is-deterministic-upgrade-required KeyChainGroup''is-married KeyChainGroup''is-watching KeyChainGroup''make-p2sh-output-script KeyChainGroup''mark-p2sh-address-as-used KeyChainGroup''mark-pub-key-as-used KeyChainGroup''mark-pub-key-hash-as-used KeyChainGroup''maybe-lookahead-scripts KeyChainGroup''maybe-mark-current-address-as-used KeyChainGroup''maybe-mark-current-key-as-used KeyChainGroup''num-keys KeyChainGroup''remove-event-listener-2 KeyChainGroup''remove-imported-key KeyChainGroup''set-lookahead-size KeyChainGroup''set-lookahead-threshold KeyChainGroup''to-string KeyChainGroup''upgrade-to-deterministic KeyChainGroup'create-current-keys-map KeyChainGroup'extract-following-keychains KeyChainGroup'watch KeyChainGroup'from-seed KeyChainGroup'new)
+(declare KeyChainGroup''add-and-activate-hd-chain KeyChainGroup''add-event-listener-2 KeyChainGroup''add-event-listener-3 KeyChainGroup''create-and-activate-new-hd-chain KeyChainGroup''current-address KeyChainGroup''current-key KeyChainGroup''fresh-address KeyChainGroup''fresh-key KeyChainGroup''fresh-keys KeyChainGroup''get-active-key-chain KeyChainGroup''get-bloom-filter-4 KeyChainGroup''get-bloom-filter-element-count KeyChainGroup''get-combined-key-lookahead-epochs KeyChainGroup''get-earliest-key-creation-time KeyChainGroup''get-imported-keys KeyChainGroup''get-lookahead-size KeyChainGroup''get-lookahead-threshold KeyChainGroup''has-key KeyChainGroup''import-keys KeyChainGroup''is-deterministic-upgrade-required KeyChainGroup''is-married KeyChainGroup''is-watching KeyChainGroup''make-p2sh-output-script KeyChainGroup''mark-p2sh-address-as-used KeyChainGroup''mark-pub-key-as-used KeyChainGroup''mark-pub-key-hash-as-used KeyChainGroup''maybe-lookahead-scripts KeyChainGroup''maybe-mark-current-address-as-used KeyChainGroup''maybe-mark-current-key-as-used KeyChainGroup''num-keys KeyChainGroup''remove-event-listener-2 KeyChainGroup''remove-imported-key KeyChainGroup''set-lookahead-size KeyChainGroup''set-lookahead-threshold KeyChainGroup''to-string KeyChainGroup''upgrade-to-deterministic KeyChainGroup'create-current-keys-map KeyChainGroup'extract-following-keychains KeyChainGroup'watch KeyChainGroup'from-seed KeyChainGroup'new)
 (declare KeyChainState'enum-set)
 (declare KeyPurpose'enum-set)
 (declare KeyTimeCoinSelector''is-confirmed KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS KeyTimeCoinSelector'new)
@@ -240,14 +240,14 @@
 (declare OrphanBlock'new)
 (declare PBKDF2SHA512'f PBKDF2SHA512'derive)
 (declare PartialMerkleTree''get-txn-hash-and-merkle-root PartialMerkleTree''recursive-extract-hashes PartialMerkleTree'build-from-leaves PartialMerkleTree'calc-hash PartialMerkleTree'combine-left-right PartialMerkleTree'get-tree-width PartialMerkleTree'from-wire PartialMerkleTree''to-wire PartialMerkleTree'new PartialMerkleTree'traverse-and-build)
-(declare Peer''add-blocks-downloaded-event-listener-2 Peer''add-blocks-downloaded-event-listener-3 Peer''add-chain-download-started-event-listener-2 Peer''add-chain-download-started-event-listener-3 Peer''add-connected-event-listener-2 Peer''add-connected-event-listener-3 Peer''add-disconnected-event-listener-2 Peer''add-disconnected-event-listener-3 Peer''add-get-data-event-listener-2 Peer''add-get-data-event-listener-3 Peer''add-on-transaction-broadcast-listener-2 Peer''add-on-transaction-broadcast-listener-3 Peer''add-ping-time-data Peer''add-pre-message-received-event-listener-2 Peer''add-pre-message-received-event-listener-3 Peer''add-wallet Peer''block-chain-download-locked Peer''check-for-filter-exhaustion Peer''download-dependencies Peer''download-dependencies-internal Peer''end-filtered-block Peer''get-addr Peer''get-best-height Peer''get-block Peer''get-bloom-filter-1 Peer''get-last-ping-time Peer''get-peer-block-height-difference Peer''get-peer-mempool-transaction Peer''get-peer-version-message Peer''get-average-ping-time Peer''get-version-message Peer''invoke-on-blocks-downloaded Peer''is-download-data Peer''is-download-tx-dependencies Peer''is-not-found-message-supported Peer''maybe-handle-requested-data Peer''maybe-restart-chain-download Peer''ping-1 Peer''ping-2 Peer''process-address-message Peer''process-alert Peer''process-block Peer''process-get-data Peer''process-headers Peer''process-inv Peer''process-not-found-message Peer''process-ping Peer''process-pong Peer''process-transaction Peer''process-version-ack Peer''process-version-message Peer''remove-blocks-downloaded-event-listener Peer''remove-chain-download-started-event-listener Peer''remove-connected-event-listener Peer''remove-disconnected-event-listener Peer''remove-get-data-event-listener Peer''remove-on-transaction-broadcast-listener Peer''remove-pre-message-received-event-listener Peer''remove-wallet Peer''send-single-get-data Peer''set-bloom-filter-2 Peer''set-bloom-filter-3 Peer''set-download-data Peer''set-download-parameters Peer''set-download-tx-dependencies-b Peer''set-download-tx-dependencies-i Peer''set-min-protocol-version Peer''start-block-chain-download Peer''start-filtered-block Peer''version-handshake-complete Peer'PING_MOVING_AVERAGE_WINDOW Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT Peer'new)
+(declare Peer''add-blocks-downloaded-event-listener-2 Peer''add-blocks-downloaded-event-listener-3 Peer''add-chain-download-started-event-listener-2 Peer''add-chain-download-started-event-listener-3 Peer''add-connected-event-listener-2 Peer''add-connected-event-listener-3 Peer''add-disconnected-event-listener-2 Peer''add-disconnected-event-listener-3 Peer''add-get-data-event-listener-2 Peer''add-get-data-event-listener-3 Peer''add-on-transaction-broadcast-listener-2 Peer''add-on-transaction-broadcast-listener-3 Peer''add-ping-time-data Peer''add-pre-message-received-event-listener-2 Peer''add-pre-message-received-event-listener-3 Peer''add-wallet Peer''block-chain-download-locked Peer''check-for-filter-exhaustion Peer''download-dependencies Peer''download-dependencies-internal Peer''end-filtered-block Peer''get-addr Peer''get-best-height Peer''get-block Peer''get-last-ping-time Peer''get-peer-block-height-difference Peer''get-peer-mempool-transaction Peer''get-average-ping-time Peer''invoke-on-blocks-downloaded Peer''is-download-tx-dependencies Peer''is-not-found-message-supported Peer''maybe-handle-requested-data Peer''maybe-restart-chain-download Peer''ping-1 Peer''ping-2 Peer''process-address-message Peer''process-alert Peer''process-block Peer''process-get-data Peer''process-headers Peer''process-inv Peer''process-not-found-message Peer''process-ping Peer''process-pong Peer''process-transaction Peer''process-version-ack Peer''process-version-message Peer''remove-blocks-downloaded-event-listener Peer''remove-chain-download-started-event-listener Peer''remove-connected-event-listener Peer''remove-disconnected-event-listener Peer''remove-get-data-event-listener Peer''remove-on-transaction-broadcast-listener Peer''remove-pre-message-received-event-listener Peer''remove-wallet Peer''send-single-get-data Peer''set-bloom-filter-2 Peer''set-bloom-filter-3 Peer''set-download-parameters Peer''set-download-tx-dependencies-b Peer''set-min-protocol-version Peer''start-block-chain-download Peer''start-filtered-block Peer''version-handshake-complete Peer'PING_MOVING_AVERAGE_WINDOW Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT Peer'new)
 (declare PeerAddress''to-socket-address PeerAddress'init PeerAddress'loopback PeerAddress'from-socket-address PeerAddress'from-host-port PeerAddress'from-inet-port PeerAddress'from-wire PeerAddress''to-wire)
 (declare PeerConnectedEventListener'''on-peer-connected)
 (declare PeerDisconnectedEventListener'''on-peer-disconnected)
 (declare PeerDiscovery'''get-peers PeerDiscovery'''shutdown)
 (declare PeerDiscoveryException'new)
 (declare PeerFilterProvider'''begin-bloom-filter-calculation PeerFilterProvider'''end-bloom-filter-calculation PeerFilterProvider'''get-bloom-filter-4 PeerFilterProvider'''get-bloom-filter-element-count PeerFilterProvider'''get-earliest-key-creation-time)
-(declare PeerGroup''add-address-i PeerGroup''add-address-p PeerGroup''add-blocks-downloaded-event-listener-2 PeerGroup''add-blocks-downloaded-event-listener-3 PeerGroup''add-chain-download-started-event-listener-2 PeerGroup''add-chain-download-started-event-listener-3 PeerGroup''add-connected-event-listener-2 PeerGroup''add-connected-event-listener-3 PeerGroup''add-disconnected-event-listener-2 PeerGroup''add-disconnected-event-listener-3 PeerGroup''add-discovered-event-listener-2 PeerGroup''add-discovered-event-listener-3 PeerGroup''add-get-data-event-listener-2 PeerGroup''add-get-data-event-listener-3 PeerGroup''add-inactive PeerGroup''add-on-transaction-broadcast-listener-2 PeerGroup''add-on-transaction-broadcast-listener-3 PeerGroup''add-peer-discovery PeerGroup''add-peer-filter-provider PeerGroup''add-pre-message-received-event-listener-2 PeerGroup''add-pre-message-received-event-listener-3 PeerGroup''add-wallet PeerGroup''await-running PeerGroup''await-terminated PeerGroup''broadcast-transaction-3 PeerGroup''connect-to-socket-address PeerGroup''connect-to-peer-address PeerGroup''connect-to-loopback PeerGroup''count-connected-and-pending-peers PeerGroup''create-peer PeerGroup''create-private-executor PeerGroup''discover-peers PeerGroup''download-block-chain PeerGroup''find-peers-of-at-least-version PeerGroup''find-peers-with-service-mask PeerGroup''get-connected-peers PeerGroup''get-download-peer PeerGroup''get-fast-catchup-time-secs PeerGroup''get-max-connections PeerGroup''get-max-peers-to-discover-count PeerGroup''get-min-broadcast-connections PeerGroup''get-min-required-protocol-version PeerGroup''get-most-common-chain-height PeerGroup''get-pending-peers PeerGroup''get-ping-interval-msec PeerGroup''get-use-loopback-peer-when-possible PeerGroup''get-version-message PeerGroup''handle-get-data PeerGroup''handle-new-peer PeerGroup''handle-peer-death PeerGroup''is-bloom-filtering-enabled PeerGroup''is-running PeerGroup''maybe-check-for-loopback-peer PeerGroup''num-connected-peers PeerGroup''recalculate-fast-catchup-and-filter PeerGroup''remove-blocks-downloaded-event-listener PeerGroup''remove-chain-download-started-event-listener PeerGroup''remove-connected-event-listener PeerGroup''remove-disconnected-event-listener PeerGroup''remove-discovered-event-listener PeerGroup''remove-get-data-event-listener PeerGroup''remove-on-transaction-broadcast-listener PeerGroup''remove-peer-filter-provider PeerGroup''remove-pre-message-received-event-listener PeerGroup''remove-wallet PeerGroup''select-download-peer PeerGroup''set-bloom-filter-false-positive-rate PeerGroup''set-bloom-filtering-enabled PeerGroup''set-connect-timeout-millis PeerGroup''set-download-peer PeerGroup''set-fast-catchup-time-secs PeerGroup''set-max-connections PeerGroup''set-max-peers-to-discover-count PeerGroup''set-min-broadcast-connections PeerGroup''set-min-required-protocol-version PeerGroup''set-peer-discovery-timeout-millis PeerGroup''set-ping-interval-msec PeerGroup''set-required-services PeerGroup''set-stall-threshold PeerGroup''set-use-loopback-peer-when-possible PeerGroup''setup-pinging PeerGroup''start PeerGroup''start-async PeerGroup''start-block-chain-download PeerGroup''start-block-chain-download-from-peer PeerGroup''stop PeerGroup''stop-async PeerGroup''trigger-connections PeerGroup''update-version-message-relay-txes-before-filter PeerGroup''wait-for-job-queue PeerGroup''wait-for-peers PeerGroup''wait-for-peers-of-version PeerGroup''wait-for-peers-with-service-mask PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE PeerGroup'DEFAULT_CONNECTIONS PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS PeerGroup'DEFAULT_PING_INTERVAL_MSEC PeerGroup'MAX_FP_RATE_INCREASE PeerGroup'MIN_PEER_DISCOVERY_INTERVAL PeerGroup'add-data-event-listener-to-peer PeerGroup'get-most-common-chain-height* PeerGroup'new PeerGroup'remove-data-event-listener-from-peer)
+(declare PeerGroup''add-address-i PeerGroup''add-address-p PeerGroup''add-blocks-downloaded-event-listener-2 PeerGroup''add-blocks-downloaded-event-listener-3 PeerGroup''add-chain-download-started-event-listener-2 PeerGroup''add-chain-download-started-event-listener-3 PeerGroup''add-connected-event-listener-2 PeerGroup''add-connected-event-listener-3 PeerGroup''add-disconnected-event-listener-2 PeerGroup''add-disconnected-event-listener-3 PeerGroup''add-discovered-event-listener-2 PeerGroup''add-discovered-event-listener-3 PeerGroup''add-get-data-event-listener-2 PeerGroup''add-get-data-event-listener-3 PeerGroup''add-inactive PeerGroup''add-on-transaction-broadcast-listener-2 PeerGroup''add-on-transaction-broadcast-listener-3 PeerGroup''add-peer-discovery PeerGroup''add-peer-filter-provider PeerGroup''add-pre-message-received-event-listener-2 PeerGroup''add-pre-message-received-event-listener-3 PeerGroup''add-wallet PeerGroup''await-running PeerGroup''await-terminated PeerGroup''broadcast-transaction-3 PeerGroup''connect-to-socket-address PeerGroup''connect-to-peer-address PeerGroup''connect-to-loopback PeerGroup''count-connected-and-pending-peers PeerGroup''create-peer PeerGroup''create-private-executor PeerGroup''discover-peers PeerGroup''download-block-chain PeerGroup''find-peers-of-at-least-version PeerGroup''find-peers-with-service-mask PeerGroup''get-connected-peers PeerGroup''get-download-peer PeerGroup''get-fast-catchup-time-secs PeerGroup''get-max-connections PeerGroup''get-min-broadcast-connections PeerGroup''get-most-common-chain-height PeerGroup''get-pending-peers PeerGroup''get-ping-interval-msec PeerGroup''get-use-loopback-peer-when-possible PeerGroup''get-version-message PeerGroup''handle-get-data PeerGroup''handle-new-peer PeerGroup''handle-peer-death PeerGroup''maybe-check-for-loopback-peer PeerGroup''num-connected-peers PeerGroup''recalculate-fast-catchup-and-filter PeerGroup''remove-blocks-downloaded-event-listener PeerGroup''remove-chain-download-started-event-listener PeerGroup''remove-connected-event-listener PeerGroup''remove-disconnected-event-listener PeerGroup''remove-discovered-event-listener PeerGroup''remove-get-data-event-listener PeerGroup''remove-on-transaction-broadcast-listener PeerGroup''remove-peer-filter-provider PeerGroup''remove-pre-message-received-event-listener PeerGroup''remove-wallet PeerGroup''select-download-peer PeerGroup''set-bloom-filter-false-positive-rate PeerGroup''set-download-peer PeerGroup''set-fast-catchup-time-secs PeerGroup''set-max-connections PeerGroup''set-min-broadcast-connections PeerGroup''set-ping-interval-msec PeerGroup''set-required-services PeerGroup''set-stall-threshold PeerGroup''set-use-loopback-peer-when-possible PeerGroup''setup-pinging PeerGroup''start PeerGroup''start-async PeerGroup''start-block-chain-download PeerGroup''start-block-chain-download-from-peer PeerGroup''stop PeerGroup''stop-async PeerGroup''trigger-connections PeerGroup''update-version-message-relay-txes-before-filter PeerGroup''wait-for-job-queue PeerGroup''wait-for-peers PeerGroup''wait-for-peers-of-version PeerGroup''wait-for-peers-with-service-mask PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE PeerGroup'DEFAULT_CONNECTIONS PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS PeerGroup'DEFAULT_PING_INTERVAL_MSEC PeerGroup'MAX_FP_RATE_INCREASE PeerGroup'MIN_PEER_DISCOVERY_INTERVAL PeerGroup'add-data-event-listener-to-peer PeerGroup'get-most-common-chain-height* PeerGroup'new PeerGroup'remove-data-event-listener-from-peer)
 (declare PeerListener'new)
 (declare PeerSocketHandler'''process-message PeerSocketHandler''close PeerSocketHandler''exception-caught PeerSocketHandler''send-message PeerSocketHandler'new)
 (declare PeerStartupListener'new)
@@ -282,9 +282,9 @@
 (declare ScriptType'enum-set)
 (declare ScriptVerifyFlag'enum-set)
 (declare SeedPeers''all-peers SeedPeers'convert-address SeedPeers''get-peer SeedPeers''next-peer SeedPeers'new)
-(declare SendRequest'child-pays-for-parent SendRequest'empty-wallet SendRequest'for-tx SendRequest'new SendRequest'to-2 SendRequest'to-3 SendRequest'to-cltv-payment-channel-5bi SendRequest'to-cltv-payment-channel-5d SendRequest'to-cltv-payment-channel-5i)
+(declare SendRequest'child-pays-for-parent SendRequest'empty-wallet SendRequest'for-tx SendRequest'new SendRequest'to-address SendRequest'to-pubkey SendRequest'to-cltv-payment-channel-5bi SendRequest'to-cltv-payment-channel-5d SendRequest'to-cltv-payment-channel-5i)
 (declare SendResult'new)
-(declare Sha256Hash''get-bytes Sha256Hash''get-reversed-bytes Sha256Hash''to-big-integer Sha256Hash'LENGTH Sha256Hash'ZERO_HASH Sha256Hash'create-digest Sha256Hash'hash Sha256Hash'hash-twice Sha256Hash'hash-twice-6 Sha256Hash'new Sha256Hash'of Sha256Hash'twice-of Sha256Hash'wrap-hex Sha256Hash'wrap Sha256Hash'wrap-reversed)
+(declare Sha256Hash''get-reversed-bytes Sha256Hash''to-big-integer Sha256Hash'LENGTH Sha256Hash'ZERO_HASH Sha256Hash'create-digest Sha256Hash'hash Sha256Hash'hash-twice Sha256Hash'hash-twice-6 Sha256Hash'new Sha256Hash'of Sha256Hash'twice-of Sha256Hash'wrap-hex Sha256Hash'wrap Sha256Hash'wrap-reversed)
 (declare SigHash'ALL SigHash'ANYONECANPAY SigHash'ANYONECANPAY_ALL SigHash'ANYONECANPAY_NONE SigHash'ANYONECANPAY_SINGLE SigHash'NONE SigHash'SINGLE SigHash'UNSET)
 (declare SignatureAndKey'new)
 (declare StoredBlock''build StoredBlock''get-prev StoredBlock''more-work-than StoredBlock''serialize-compact StoredBlock'CHAIN_WORK_BYTES StoredBlock'COMPACT_SERIALIZED_SIZE StoredBlock'EMPTY_BYTES StoredBlock'deserialize-compact StoredBlock'new)
@@ -295,13 +295,13 @@
 (declare TestNetParams'INSTANCE TestNetParams'TESTNET_DIFF_DATE TestNetParams'TEXTUAL_CHECKPOINTS TestNetParams'new)
 (declare ThreadFactory'''newThread)
 (declare Threading'SAME_THREAD Threading'THREAD_POOL Threading'USER_THREAD Threading'wait-for-user-code)
-(declare Transaction''add-block-appearance Transaction''add-input-i Transaction''add-input-o Transaction''add-input-s Transaction''add-output-ca Transaction''add-output-ce Transaction''add-output-cs Transaction''add-output-o Transaction''add-signed-input-3 Transaction''add-signed-input-4 Transaction''add-signed-input-5 Transaction''add-signed-input-6 Transaction''calculate-signature-b Transaction''calculate-signature-s Transaction''check-coin-base-height Transaction''clear-inputs Transaction''clear-outputs Transaction''estimate-lock-time Transaction''get-confidence-t Transaction''get-confidence-tct Transaction''get-exchange-rate Transaction''get-fee Transaction''get-hash Transaction''get-input Transaction''get-input-sum Transaction''get-lock-time Transaction''get-memo Transaction''get-output Transaction''get-output-sum Transaction''get-purpose Transaction''get-sig-op-count Transaction''get-update-time Transaction''get-value-2 Transaction''get-value-sent-from-me Transaction''get-value-sent-to-me Transaction''get-wallet-outputs Transaction''has-confidence Transaction''hash-for-signature-4b Transaction''hash-for-signature-5b Transaction''hash-for-signature-5s Transaction''is-any-output-spent Transaction''is-coin-base Transaction''is-every-owned-output-spent Transaction''is-final Transaction''is-mature Transaction''is-opt-in-full-rbf Transaction''is-pending Transaction''is-time-locked Transaction''set-block-appearance Transaction''set-exchange-rate Transaction''set-lock-time Transaction''set-memo Transaction''set-purpose Transaction''set-update-time Transaction''shuffle-outputs Transaction''to-string Transaction''verify Transaction'DEFAULT_TX_FEE Transaction'LOCKTIME_THRESHOLD Transaction'LOCKTIME_THRESHOLD_BIG Transaction'MAX_STANDARD_TX_SIZE Transaction'MIN_NONDUST_OUTPUT Transaction'REFERENCE_DEFAULT_MIN_TX_FEE Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG Transaction'SEQUENCE_LOCKTIME_MASK Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG Transaction'SORT_TX_BY_HEIGHT Transaction'SORT_TX_BY_UPDATE_TIME Transaction'init Transaction'new Transaction'from-wire Transaction''to-wire)
+(declare Transaction''add-block-appearance Transaction''add-input-i Transaction''add-input-o Transaction''add-input-s Transaction''add-output-ca Transaction''add-output-ce Transaction''add-output-cs Transaction''add-output-o Transaction''add-signed-input-3 Transaction''add-signed-input-4 Transaction''add-signed-input-5 Transaction''add-signed-input-6 Transaction''calculate-signature-b Transaction''calculate-signature-s Transaction''check-coin-base-height Transaction''clear-inputs Transaction''clear-outputs Transaction''estimate-lock-time Transaction''get-confidence-t Transaction''get-confidence-tct Transaction''get-fee Transaction''get-hash Transaction''get-input-sum Transaction''get-output-sum Transaction''get-sig-op-count Transaction''get-update-time Transaction''get-value-2 Transaction''get-value-sent-from-me Transaction''get-value-sent-to-me Transaction''get-wallet-outputs Transaction''has-confidence Transaction''hash-for-signature-4b Transaction''hash-for-signature-5b Transaction''hash-for-signature-5s Transaction''is-any-output-spent Transaction''is-coin-base Transaction''is-every-owned-output-spent Transaction''is-final Transaction''is-mature Transaction''is-opt-in-full-rbf Transaction''is-pending Transaction''is-time-locked Transaction''set-block-appearance Transaction''set-lock-time Transaction''shuffle-outputs Transaction''to-string Transaction''verify Transaction'DEFAULT_TX_FEE Transaction'LOCKTIME_THRESHOLD Transaction'LOCKTIME_THRESHOLD_BIG Transaction'MAX_STANDARD_TX_SIZE Transaction'MIN_NONDUST_OUTPUT Transaction'REFERENCE_DEFAULT_MIN_TX_FEE Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG Transaction'SEQUENCE_LOCKTIME_MASK Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG Transaction'SORT_TX_BY_HEIGHT Transaction'SORT_TX_BY_UPDATE_TIME Transaction'init Transaction'new Transaction'from-wire Transaction''to-wire)
 (declare TransactionBag'''get-transaction-pool TransactionBag'''is-pay-to-script-hash-mine TransactionBag'''is-pub-key-hash-mine TransactionBag'''is-pub-key-mine)
-(declare TransactionBroadcast''broadcast TransactionBroadcast''future TransactionBroadcast''invoke-and-record TransactionBroadcast''invoke-progress-callback TransactionBroadcast''set-min-connections TransactionBroadcast''set-progress-callback-2 TransactionBroadcast''set-progress-callback-3 TransactionBroadcast'RANDOM TransactionBroadcast'new)
+(declare TransactionBroadcast''broadcast TransactionBroadcast''invoke-and-record TransactionBroadcast''invoke-progress-callback TransactionBroadcast''set-progress-callback-2 TransactionBroadcast''set-progress-callback-3 TransactionBroadcast'RANDOM TransactionBroadcast'new)
 (declare TransactionBroadcaster'''broadcast-transaction-2)
-(declare TransactionConfidence''add-event-listener-2 TransactionConfidence''add-event-listener-3 TransactionConfidence''clear-broadcast-by TransactionConfidence''get-appeared-at-chain-height TransactionConfidence''get-broadcast-by TransactionConfidence''get-confidence-type TransactionConfidence''get-depth-future-2 TransactionConfidence''get-depth-future-3 TransactionConfidence''get-depth-in-blocks TransactionConfidence''get-last-broadcasted-at TransactionConfidence''get-overriding-transaction TransactionConfidence''get-source TransactionConfidence''increment-depth-in-blocks TransactionConfidence''mark-broadcast-by TransactionConfidence''num-broadcast-peers TransactionConfidence''queue-listeners TransactionConfidence''remove-event-listener-2 TransactionConfidence''set-appeared-at-chain-height TransactionConfidence''set-confidence-type TransactionConfidence''set-depth-in-blocks TransactionConfidence''set-last-broadcasted-at TransactionConfidence''set-overriding-transaction TransactionConfidence''set-source TransactionConfidence''was-broadcast-by TransactionConfidence'PINNED_CONFIDENCE_OBJECTS TransactionConfidence'new)
+(declare TransactionConfidence''add-event-listener-2 TransactionConfidence''add-event-listener-3 TransactionConfidence''clear-broadcast-by TransactionConfidence''get-appeared-at-chain-height TransactionConfidence''get-broadcast-by TransactionConfidence''get-confidence-type TransactionConfidence''get-depth-future-2 TransactionConfidence''get-depth-future-3 TransactionConfidence''get-depth-in-blocks TransactionConfidence''get-overriding-transaction TransactionConfidence''get-source TransactionConfidence''increment-depth-in-blocks TransactionConfidence''mark-broadcast-by TransactionConfidence''num-broadcast-peers TransactionConfidence''queue-listeners TransactionConfidence''remove-event-listener-2 TransactionConfidence''set-appeared-at-chain-height TransactionConfidence''set-confidence-type TransactionConfidence''set-depth-in-blocks TransactionConfidence''set-overriding-transaction TransactionConfidence''set-source TransactionConfidence''was-broadcast-by TransactionConfidence'PINNED_CONFIDENCE_OBJECTS TransactionConfidence'new)
 (declare TransactionConfidenceListener'''on-confidence-changed)
-(declare TransactionInput''clear-script-bytes TransactionInput''connect-3m TransactionInput''connect-3t TransactionInput''connect-o TransactionInput''disconnect TransactionInput''get-connected-output TransactionInput''get-connected-output-2 TransactionInput''get-connected-redeem-data TransactionInput''get-connected-transaction TransactionInput''get-from-address TransactionInput''get-script-sig TransactionInput''has-sequence TransactionInput''is-coin-base TransactionInput''is-opt-in-full-rbf TransactionInput''is-standard TransactionInput''set-script-bytes TransactionInput''set-script-sig TransactionInput''set-sequence-number TransactionInput''verify-1 TransactionInput''verify-2 TransactionInput'NO_SEQUENCE TransactionInput'UNCONNECTED TransactionInput'new TransactionInput'new-unconnected TransactionInput'for-output TransactionInput'for-outpoint TransactionInput'from-wire TransactionInput''to-wire)
+(declare TransactionInput''clear-script-bytes TransactionInput''connect-3m TransactionInput''connect-3t TransactionInput''connect-o TransactionInput''disconnect TransactionInput''get-connected-output TransactionInput''get-connected-output-2 TransactionInput''get-connected-redeem-data TransactionInput''get-connected-transaction TransactionInput''get-from-address TransactionInput''get-script-sig TransactionInput''has-sequence TransactionInput''is-coin-base TransactionInput''is-opt-in-full-rbf TransactionInput''is-standard TransactionInput''set-script-bytes TransactionInput''set-script-sig TransactionInput''verify-1 TransactionInput''verify-2 TransactionInput'NO_SEQUENCE TransactionInput'UNCONNECTED TransactionInput'new TransactionInput'new-unconnected TransactionInput'for-output TransactionInput'for-outpoint TransactionInput'from-wire TransactionInput''to-wire)
 (declare TransactionOutPoint''get-connected-key TransactionOutPoint''get-connected-output TransactionOutPoint''get-connected-pub-key-script TransactionOutPoint''get-connected-redeem-data TransactionOutPoint'new TransactionOutPoint'for-output TransactionOutPoint'for-hash TransactionOutPoint'for-transaction TransactionOutPoint'from-wire TransactionOutPoint''to-wire)
 (declare TransactionOutput''get-index TransactionOutput''get-parent-transaction-depth-in-blocks TransactionOutput''get-parent-transaction-hash TransactionOutput''get-address-from-p2pkh-script TransactionOutput''get-address-from-p2sh TransactionOutput''get-min-non-dust-value-1 TransactionOutput''get-min-non-dust-value-2 TransactionOutput''get-outpoint-for TransactionOutput''get-script-pub-key TransactionOutput''is-available-for-spending TransactionOutput''is-dust TransactionOutput''is-mine TransactionOutput''mark-as-spent TransactionOutput''mark-as-unspent TransactionOutput''set-value TransactionOutput'new TransactionOutput'for-address TransactionOutput'for-script TransactionOutput'for-pubkey TransactionOutput'from-wire TransactionOutput''to-wire)
 (declare TransactionOutputChanges'new)
@@ -324,8 +324,8 @@
 (declare VersionMessage''has-block-chain VersionMessage''is-bloom-filtering-supported VersionMessage''is-ping-pong-supported VersionMessage'NODE_NETWORK VersionMessage'init VersionMessage'new VersionMessage'from-wire VersionMessage''to-wire)
 (declare VersionTally''add VersionTally''get-count-at-or-above VersionTally'from-store VersionTally'new)
 (declare VersionedChecksummedBytes''to-base58 VersionedChecksummedBytes'from-base58 VersionedChecksummedBytes'new)
-(declare Wallet'DEFAULT_EVENT_HORIZON Wallet''add-and-activate-hd-chain Wallet''add-change-event-listener-2 Wallet''add-change-event-listener-3 Wallet''add-coins-received-event-listener-2 Wallet''add-coins-received-event-listener-3 Wallet''add-coins-sent-event-listener-2 Wallet''add-coins-sent-event-listener-3 Wallet''add-key-chain-event-listener-2 Wallet''add-key-chain-event-listener-3 Wallet''add-reorganize-event-listener-2 Wallet''add-reorganize-event-listener-3 Wallet''add-supplied-inputs Wallet''add-transaction-confidence-event-listener-2 Wallet''add-transaction-confidence-event-listener-3 Wallet''add-transaction-signer Wallet''add-transactions-depending-on Wallet''add-wallet-transaction Wallet''adjust-output-downwards-for-fee Wallet''calc-bloom-out-points-locked Wallet''calculate-all-spend-candidates-1 Wallet''calculate-all-spend-candidates-3 Wallet''calculate-fee Wallet''can-sign-for Wallet''check-balance-futures-locked Wallet''check-for-filter-exhaustion Wallet''check-no-deterministic-keys Wallet''cleanup Wallet''clear-transactions-1 Wallet''clear-transactions-2 Wallet''commit-tx Wallet''complete-tx Wallet''create-send Wallet''create-transient-state Wallet''current-address Wallet''current-change-address Wallet''current-key Wallet''current-receive-address Wallet''current-receive-key Wallet''do-maintenance Wallet''estimate-bytes-for-signing Wallet''find-double-spends-against Wallet''fresh-address Wallet''fresh-key Wallet''fresh-keys Wallet''fresh-receive-address Wallet''fresh-receive-key Wallet''get-active-key-chain Wallet''get-balance-1 Wallet''get-balance-2s Wallet''get-balance-2t Wallet''get-balance-future Wallet''get-bloom-filter-2 Wallet''get-coin-selector Wallet''get-containing-pools Wallet''get-description Wallet''get-imported-keys Wallet''get-issued-receive-addresses Wallet''get-issued-receive-keys Wallet''get-key-by-path-2 Wallet''get-key-chain-group-combined-key-lookahead-epochs Wallet''get-key-chain-group-lookahead-size Wallet''get-key-chain-group-lookahead-threshold Wallet''get-key-chain-group-size Wallet''get-key-chain-seed Wallet''get-key-rotation-time Wallet''get-last-block-seen-hash Wallet''get-last-block-seen-height Wallet''get-last-block-seen-time Wallet''get-last-block-seen-time-secs Wallet''get-pending-transactions Wallet''get-recent-transactions Wallet''get-total-received Wallet''get-total-sent Wallet''get-transaction Wallet''get-transaction-signers Wallet''get-transactions Wallet''get-transactions-by-time Wallet''get-unspents Wallet''get-watching-key Wallet''has-key Wallet''import-key Wallet''import-keys Wallet''inform-confidence-listeners-if-not-reorganizing Wallet''is-accept-risky-transactions Wallet''is-consistent Wallet''is-consistent-or-throw Wallet''is-deterministic-upgrade-required Wallet''is-key-rotating Wallet''is-spending-txns-in-confidence-type Wallet''is-pending-transaction-relevant Wallet''is-transaction-relevant Wallet''is-transaction-risky Wallet''is-tx-consistent Wallet''is-tx-output-bloom-filterable Wallet''is-watching Wallet''kill-txns Wallet''mark-keys-as-used Wallet''maybe-commit-tx Wallet''maybe-move-pool Wallet''maybe-queue-on-wallet-changed Wallet''maybe-rotate-keys Wallet''maybe-upgrade-to-hd Wallet''process-tx-from-best-chain Wallet''queue-on-coins-received Wallet''queue-on-coins-sent Wallet''queue-on-reorganize Wallet''queue-on-transaction-confidence-changed Wallet''receive Wallet''receive-pending-3 Wallet''receive-pending-4 Wallet''rekey-one-batch Wallet''remove-change-event-listener Wallet''remove-coins-received-event-listener Wallet''remove-coins-sent-event-listener Wallet''remove-key Wallet''remove-key-chain-event-listener Wallet''remove-reorganize-event-listener Wallet''remove-transaction-confidence-event-listener Wallet''reset Wallet''save Wallet''save-later Wallet''save-now Wallet''send-coins-2 Wallet''send-coins-3b Wallet''send-coins-3p Wallet''send-coins-4 Wallet''send-coins-offline Wallet''set-accept-risky-transactions Wallet''set-coin-selector Wallet''set-description Wallet''set-key-chain-group-lookahead-size Wallet''set-key-chain-group-lookahead-threshold Wallet''set-key-rotation-time-d Wallet''set-key-rotation-time-l Wallet''set-last-block-seen-hash Wallet''set-last-block-seen-height Wallet''set-last-block-seen-time-secs Wallet''set-transaction-broadcaster Wallet''sign-transaction Wallet''sort-txns-by-dependency Wallet''spends Wallet''subtract-depth Wallet''to-string Wallet''to-string-helper Wallet''update-for-spends Wallet''upgrade-to-deterministic Wallet'from-keys Wallet'from-seed Wallet'from-watching-key Wallet'from-watching-key-b58 Wallet'new)
-(declare WalletAppKit''chain WalletAppKit''connect-to-loopback WalletAppKit''create-peer-group WalletAppKit''create-wallet WalletAppKit''install-shutdown-hook WalletAppKit''on-setup-completed WalletAppKit''peer-group WalletAppKit''provide-block-store WalletAppKit''set-auto-stop WalletAppKit''set-blocking-startup WalletAppKit''set-checkpoints WalletAppKit''set-discovery WalletAppKit''set-download-listener WalletAppKit''set-peer-nodes WalletAppKit''store WalletAppKit''wallet WalletAppKit'new)
+(declare Wallet'DEFAULT_EVENT_HORIZON Wallet''add-and-activate-hd-chain Wallet''add-change-event-listener-2 Wallet''add-change-event-listener-3 Wallet''add-coins-received-event-listener-2 Wallet''add-coins-received-event-listener-3 Wallet''add-coins-sent-event-listener-2 Wallet''add-coins-sent-event-listener-3 Wallet''add-key-chain-event-listener-2 Wallet''add-key-chain-event-listener-3 Wallet''add-reorganize-event-listener-2 Wallet''add-reorganize-event-listener-3 Wallet''add-supplied-inputs Wallet''add-transaction-confidence-event-listener-2 Wallet''add-transaction-confidence-event-listener-3 Wallet''add-transaction-signer Wallet''add-transactions-depending-on Wallet''add-wallet-transaction Wallet''adjust-output-downwards-for-fee Wallet''calc-bloom-out-points-locked Wallet''calculate-all-spend-candidates-1 Wallet''calculate-all-spend-candidates-3 Wallet''calculate-fee Wallet''can-sign-for Wallet''check-balance-futures-locked Wallet''check-for-filter-exhaustion Wallet''check-no-deterministic-keys Wallet''cleanup Wallet''clear-transactions-1 Wallet''clear-transactions-2 Wallet''commit-tx Wallet''complete-tx Wallet''create-send Wallet''create-transient-state Wallet''current-address Wallet''current-change-address Wallet''current-key Wallet''current-receive-address Wallet''current-receive-key Wallet''do-maintenance Wallet''estimate-bytes-for-signing Wallet''find-double-spends-against Wallet''fresh-address Wallet''fresh-key Wallet''fresh-keys Wallet''fresh-receive-address Wallet''fresh-receive-key Wallet''get-active-key-chain Wallet''get-balance-1 Wallet''get-balance-2s Wallet''get-balance-2t Wallet''get-balance-future Wallet''get-bloom-filter-2 Wallet''get-coin-selector Wallet''get-containing-pools Wallet''get-imported-keys Wallet''get-issued-receive-addresses Wallet''get-issued-receive-keys Wallet''get-key-by-path-2 Wallet''get-key-chain-group-combined-key-lookahead-epochs Wallet''get-key-chain-group-lookahead-size Wallet''get-key-chain-group-lookahead-threshold Wallet''get-key-chain-group-size Wallet''get-key-chain-seed Wallet''get-key-rotation-time Wallet''get-last-block-seen-hash Wallet''get-last-block-seen-height Wallet''get-last-block-seen-time Wallet''get-last-block-seen-time-secs Wallet''get-pending-transactions Wallet''get-recent-transactions Wallet''get-total-received Wallet''get-total-sent Wallet''get-transaction Wallet''get-transaction-signers Wallet''get-transactions Wallet''get-transactions-by-time Wallet''get-unspents Wallet''get-watching-key Wallet''has-key Wallet''import-key Wallet''import-keys Wallet''inform-confidence-listeners-if-not-reorganizing Wallet''is-accept-risky-transactions Wallet''is-consistent Wallet''is-consistent-or-throw Wallet''is-deterministic-upgrade-required Wallet''is-key-rotating Wallet''is-spending-txns-in-confidence-type Wallet''is-pending-transaction-relevant Wallet''is-transaction-relevant Wallet''is-transaction-risky Wallet''is-tx-consistent Wallet''is-tx-output-bloom-filterable Wallet''is-watching Wallet''kill-txns Wallet''mark-keys-as-used Wallet''maybe-commit-tx Wallet''maybe-move-pool Wallet''maybe-queue-on-wallet-changed Wallet''maybe-rotate-keys Wallet''maybe-upgrade-to-hd Wallet''process-tx-from-best-chain Wallet''queue-on-coins-received Wallet''queue-on-coins-sent Wallet''queue-on-reorganize Wallet''queue-on-transaction-confidence-changed Wallet''receive Wallet''receive-pending-3 Wallet''receive-pending-4 Wallet''rekey-one-batch Wallet''remove-change-event-listener Wallet''remove-coins-received-event-listener Wallet''remove-coins-sent-event-listener Wallet''remove-key Wallet''remove-key-chain-event-listener Wallet''remove-reorganize-event-listener Wallet''remove-transaction-confidence-event-listener Wallet''reset Wallet''save Wallet''save-later Wallet''save-now Wallet''send-coins-2 Wallet''send-coins-3b Wallet''send-coins-3p Wallet''send-coins-4 Wallet''send-coins-offline Wallet''set-accept-risky-transactions Wallet''set-coin-selector Wallet''set-key-chain-group-lookahead-size Wallet''set-key-chain-group-lookahead-threshold Wallet''set-key-rotation-time-d Wallet''set-key-rotation-time-l Wallet''set-last-block-seen-hash Wallet''set-last-block-seen-height Wallet''set-last-block-seen-time-secs Wallet''set-transaction-broadcaster Wallet''sign-transaction Wallet''sort-txns-by-dependency Wallet''spends Wallet''subtract-depth Wallet''to-string Wallet''to-string-helper Wallet''update-for-spends Wallet''upgrade-to-deterministic Wallet'from-keys Wallet'from-seed Wallet'from-watching-key Wallet'from-watching-key-b58 Wallet'new)
+(declare WalletAppKit''chain WalletAppKit''connect-to-loopback WalletAppKit''create-peer-group WalletAppKit''create-wallet WalletAppKit''install-shutdown-hook WalletAppKit''on-setup-completed WalletAppKit''peer-group WalletAppKit''provide-block-store WalletAppKit''set-checkpoints WalletAppKit''set-peer-nodes WalletAppKit''store WalletAppKit''wallet WalletAppKit'new)
 (declare WalletCoinsReceivedEventListener'''on-coins-received)
 (declare WeakConfidenceReference'new)
 (declare WrongNetworkException'new)
@@ -592,6 +592,10 @@
         (hash-map
             #_"int" :original-blocks-left -1
             #_"int" :last-percent 0
+            ;;;
+             ; A listenable future that completes with the height of the best chain (as reported by the peer)
+             ; once chain download seems to be finished.
+             ;;
             #_"SettableFuture<Long>" :future (SettableFuture/create)
             #_"boolean" :caught-up false
         )
@@ -695,15 +699,6 @@
             )
         )
         nil
-    )
-
-    ;;;
-     ; Returns a listenable future that completes with the height of the best chain (as reported by the peer) once chain
-     ; download seems to be finished.
-     ;;
-    #_method
-    (defn #_"ListenableFuture<Long>" DownloadProgressTracker''get-future [#_"DownloadProgressTracker" this]
-        (:future this)
     )
 )
 
@@ -1979,6 +1974,12 @@
                     ;; were downloading the block chain.
                     #_"LinkedHashMap<Sha256Hash, OrphanBlock>" :orphan-blocks (LinkedHashMap.)
 
+                    ;;;
+                     ; The false positive rate is the average over all blockchain transactions of:
+                     ;
+                     ;  1.0 if the transaction was false-positive (was irrelevant to all listeners)
+                     ;  0.0 if the transaction was relevant or filtered out
+                     ;;
                     #_"double" :false-positive-rate 0.0
                     #_"double" :false-positive-trend 0.0
                     #_"double" :previous-false-positive-rate 0.0
@@ -2127,14 +2128,6 @@
     (defn #_"void" BlockChain''remove-transaction-received-listener [#_"BlockChain" this, #_"TransactionReceivedInBlockListener" listener]
         (ListenerRegistration'remove-from-list listener, (:transaction-received-listeners this))
         nil
-    )
-
-    ;;;
-     ; Returns the {@link BlockStore} the chain was constructed with.  You can use this to iterate over the chain.
-     ;;
-    #_method
-    (defn #_"BlockStore" BlockChain''get-block-store [#_"BlockChain" this]
-        (:block-store this)
     )
 
     ;;;
@@ -2884,17 +2877,6 @@
     )
 
     ;;;
-     ; The false positive rate is the average over all blockchain transactions of:
-     ;
-     ; - 1.0 if the transaction was false-positive (was irrelevant to all listeners)
-     ; - 0.0 if the transaction was relevant or filtered out
-     ;;
-    #_method
-    (defn #_"double" BlockChain''get-false-positive-rate [#_"BlockChain" this]
-        (:false-positive-rate this)
-    )
-
-    ;;;
      ; We completed handling of a filtered block.  Update false-positive estimate based
      ; on the total number of transactions in the original block.
      ;
@@ -3308,7 +3290,9 @@
         )
     )
 
-    ;;; The (big endian) 20 byte hash that is the core of a Bitcoin address. ;;
+    ;;;
+     ; The (big endian) 20 byte hash that is the core of a Bitcoin address.
+     ;;
     #_method
     (defn #_"byte[]" Address''get-hash160 [#_"Address" this]
         (:bytes this)
@@ -4125,7 +4109,7 @@
      ;;
     #_method
     (defn #_"String" Block''get-hash-as-string [#_"Block" this]
-        (.toString (Block''get-hash this))
+        (Base16'encode (:bytes (Block''get-hash this)))
     )
 
     ;;;
@@ -4194,7 +4178,7 @@
     #_method
     (defn #_"BigInteger" Block''get-difficulty-target-as-integer [#_"Block" this]
         (let [#_"BigInteger" target (Utils'decode-compact-bits (:difficulty-target this))]
-            (when (or (<= (.signum target) 0) (< 0 (.compareTo target, (-> this :ledger :max-target))))
+            (when (or (<= (.signum target) 0) (pos? (.compareTo target, (-> this :ledger :max-target))))
                 (throw+ (VerificationException'new (str "Difficulty target is bad: " target)))
             )
             target
@@ -4280,7 +4264,7 @@
         (let [#_"List<byte[]>" tree (ArrayList.)]
             ;; Start by adding all the hashes of the transactions as leaves of the tree.
             (doseq [#_"Transaction" tx (:transactions this)]
-                (.add tree, (Sha256Hash''get-bytes (Transaction''get-hash tx)))
+                (.add tree, (:bytes (Transaction''get-hash tx)))
             )
             ;; Offset in the list is where the currently processed level starts.
             ;; Step through each level, stopping when we reach the root (size == 1).                  ;; Move to the next level.
@@ -4919,7 +4903,7 @@
                     )
                 )]
             (sync this
-                (or (BloomFilter''contains this, (Sha256Hash''get-bytes (Transaction''get-hash tx)))
+                (or (BloomFilter''contains this, (:bytes (Transaction''get-hash tx)))
                     (let [#_"BloomUpdate" flag (BloomFilter''get-update-flag this)
                           #_"boolean'" found? (atom false)]
                         (doseq [#_"TransactionOutput" output (:outputs tx)]
@@ -5003,8 +4987,9 @@
             (let [this
                     (hash-map
                         #_"Ledger" :ledger ledger
-                        ;; Map of block header time to data.
+                        ;;; Map of block header time to data. ;;
                         #_"TreeMap<Long, StoredBlock>" :checkpoints (TreeMap.)
+                        ;;; Hash of the concatenated checkpoint data. ;;
                         #_"Sha256Hash" :data-hash nil
                     )]
                 (assoc this :data-hash (CheckpointManager''read-textual this, checkpoints))
@@ -5057,18 +5042,6 @@
                 )
             )
         )
-    )
-
-    ;;; Returns the number of checkpoints that were loaded. ;;
-    #_method
-    (defn #_"int" CheckpointManager''num-checkpoints [#_"CheckpointManager" this]
-        (count (:checkpoints this))
-    )
-
-    ;;; Returns a hash of the concatenated checkpoint data. ;;
-    #_method
-    (defn #_"Sha256Hash" CheckpointManager''get-data-hash [#_"CheckpointManager" this]
-        (:data-hash this)
     )
 
     ;;;
@@ -5523,19 +5496,19 @@
      ; @throws ECKey.MissingPrivateKeyException if this key doesn't have a private part.
      ;;
     #_abstract
-    (defn #_"ECDSASignature" ECKey'''sign [#_"ECKey" this, #_"Sha256Hash" input]
+    (defn #_"ECDSASignature" ECKey'''sign [#_"ECKey" this, #_"Sha256Hash" hash]
         (when (some? (:priv this)) => (throw+ (MissingPrivateKeyException'new))
-            (ECKey''do-sign this, input, (:priv this))
+            (ECKey''do-sign this, hash, (:priv this))
         )
     )
 
     #_method
-    (defn #_"ECDSASignature" ECKey''do-sign [#_"ECKey" __, #_"Sha256Hash" input, #_"BigInteger" priv]
+    (defn #_"ECDSASignature" ECKey''do-sign [#_"ECKey" __, #_"Sha256Hash" hash, #_"BigInteger" priv]
         (ensure some? priv)
 
         (let [#_"ECDSASigner" signer (ECDSASigner. (HMacDSAKCalculator. (SHA256Digest.)))]
             (.init signer, true, (ECPrivateKeyParameters. priv, ECKey'CURVE))
-            (let [#_"BigInteger[]" rs (.generateSignature signer, (Sha256Hash''get-bytes input))]
+            (let [#_"BigInteger[]" rs (.generateSignature signer, (:bytes hash))]
                 (ECDSASignature'''to-canonicalised (ECDSASignature'new (aget rs 0), (aget rs 1)))
             )
         )
@@ -5547,15 +5520,15 @@
      ; When using native ECDSA verification, data must be 32 bytes, and no element may be
      ; larger than 520 bytes.
      ;
-     ; @param data      Hash of the data to verify.
-     ; @param signature ASN.1 encoded signature.
-     ; @param pub       The public key bytes to use.
+     ; @param data Hash of the data to verify.
+     ; @param sig ASN.1 encoded signature.
+     ; @param pub The public key bytes to use.
      ;;
-    (defn #_"boolean" ECKey'verify-3e [#_"byte[]" data, #_"ECDSASignature" signature, #_"byte[]" pub]
+    (defn #_"boolean" ECKey'verify-3e [#_"byte[]" data, #_"ECDSASignature" sig, #_"byte[]" pub]
         (let [#_"ECDSASigner" signer (ECDSASigner.)]
             (.init signer, false, (ECPublicKeyParameters. (.decodePoint (.getCurve ECKey'CURVE), pub), ECKey'CURVE))
             (try
-                (.verifySignature signer, data, (:r signature), (:s signature))
+                (.verifySignature signer, data, (:r sig), (:s sig))
                 (catch NullPointerException e
                     ;; Bouncy Castle contains a bug that can cause NPEs given specially crafted signatures.  Those signatures
                     ;; are inherently invalid/attack sigs so we just fail them here rather than crash the thread.
@@ -5569,58 +5542,58 @@
     ;;;
      ; Verifies the given ASN.1 encoded ECDSA signature against a hash using the public key.
      ;
-     ; @param data      Hash of the data to verify.
-     ; @param signature ASN.1 encoded signature.
-     ; @param pub       The public key bytes to use.
+     ; @param data Hash of the data to verify.
+     ; @param sig ASN.1 encoded signature.
+     ; @param pub The public key bytes to use.
      ;;
-    (defn #_"boolean" ECKey'verify-3-bytes [#_"byte[]" data, #_"byte[]" signature, #_"byte[]" pub]
-        (ECKey'verify-3e data, (ECDSASignature'decode-from-der signature), pub)
+    (defn #_"boolean" ECKey'verify-3-bytes [#_"byte[]" data, #_"byte[]" sig, #_"byte[]" pub]
+        (ECKey'verify-3e data, (ECDSASignature'decode-from-der sig), pub)
     )
 
     ;;;
      ; Verifies the given ASN.1 encoded ECDSA signature against a hash using the public key.
      ;
-     ; @param hash      Hash of the data to verify.
-     ; @param signature ASN.1 encoded signature.
+     ; @param hash Hash of the data to verify.
+     ; @param sig ASN.1 encoded signature.
      ;;
     #_method
-    (defn #_"boolean" ECKey''verify-3b [#_"ECKey" this, #_"byte[]" hash, #_"byte[]" signature]
-        (ECKey'verify-3-bytes hash, signature, (ECKey''get-pub-key this))
+    (defn #_"boolean" ECKey''verify-3b [#_"ECKey" this, #_"byte[]" hash, #_"byte[]" sig]
+        (ECKey'verify-3-bytes hash, sig, (ECKey''get-pub-key this))
     )
 
     ;;;
      ; Verifies the given R/S pair (signature) against a hash using the public key.
      ;;
     #_method
-    (defn #_"boolean" ECKey''verify-3s [#_"ECKey" this, #_"Sha256Hash" __sigHash, #_"ECDSASignature" signature]
-        (ECKey'verify-3e (Sha256Hash''get-bytes __sigHash), signature, (ECKey''get-pub-key this))
+    (defn #_"boolean" ECKey''verify-3s [#_"ECKey" this, #_"Sha256Hash" hash, #_"ECDSASignature" sig]
+        (ECKey'verify-3e (:bytes hash), sig, (ECKey''get-pub-key this))
     )
 
     ;;;
-     ; Verifies the given ASN.1 encoded ECDSA signature against a hash using the public key, and throws an exception
-     ; if the signature doesn't match.
+     ; Verifies the given ASN.1 encoded ECDSA signature against a hash using the public key,
+     ; and throws an exception if the signature doesn't match.
      ;
      ; @throws java.security.SignatureException if the signature does not match.
      ;;
     #_throws #_[ "SignatureException" ]
     #_method
-    (defn #_"void" ECKey''verify-or-throw-3b [#_"ECKey" this, #_"byte[]" hash, #_"byte[]" signature]
-        (when-not (ECKey''verify-3b this, hash, signature)
+    (defn #_"void" ECKey''verify-or-throw-3b [#_"ECKey" this, #_"byte[]" hash, #_"byte[]" sig]
+        (when-not (ECKey''verify-3b this, hash, sig)
             (throw (SignatureException.))
         )
         nil
     )
 
     ;;;
-     ; Verifies the given R/S pair (signature) against a hash using the public key, and throws an exception
-     ; if the signature doesn't match.
+     ; Verifies the given R/S pair (signature) against a hash using the public key,
+     ; and throws an exception if the signature doesn't match.
      ;
      ; @throws java.security.SignatureException if the signature does not match.
      ;;
     #_throws #_[ "SignatureException" ]
     #_method
-    (defn #_"void" ECKey''verify-or-throw-3s [#_"ECKey" this, #_"Sha256Hash" __sigHash, #_"ECDSASignature" signature]
-        (when-not (ECKey'verify-3e (Sha256Hash''get-bytes __sigHash), signature, (ECKey''get-pub-key this))
+    (defn #_"void" ECKey''verify-or-throw-3s [#_"ECKey" this, #_"Sha256Hash" hash, #_"ECDSASignature" sig]
+        (when-not (ECKey'verify-3e (:bytes hash), sig, (ECKey''get-pub-key this))
             (throw (SignatureException.))
         )
         nil
@@ -5840,32 +5813,13 @@
         (when (ECKey'''has-priv-key this) (ECKey''get-priv-key-bytes this))
     )
 
-    ;;;
-     ; Produce a string rendering of the ECKey INCLUDING the private key.
-     ; Unless you absolutely need the private key it is better for security reasons to just use {@link #toString()}.
-     ;;
     #_method
-    (defn #_"String" ECKey''to-string-with-private [#_"ECKey" this, #_"Ledger" ledger]
-        (ECKey''to-string this, true, ledger)
-    )
-
-    #_method
-    (defn #_"String" ECKey''get-private-key-as-hex [#_"ECKey" this]
-        (Base16'encode (ECKey''get-priv-key-bytes this))
-    )
-
-    #_method
-    (defn #_"String" ECKey''get-public-key-as-hex [#_"ECKey" this]
-        (Base16'encode (.getEncoded (:pub this)))
-    )
-
-    #_method
-    (defn- #_"String" ECKey''to-string [#_"ECKey" this, #_"boolean" private?, #_"Ledger" ledger]
+    (defn- #_"String" ECKey''to-string [#_"ECKey" this, #_"boolean" private?]
         (let [#_"MoreObjects.ToStringHelper" helper (.omitNullValues (MoreObjects/toStringHelper this))]
-            (.add helper, "pub HEX", (ECKey''get-public-key-as-hex this))
+            (.add helper, "pub HEX", (Base16'encode (.getEncoded (:pub this))))
             (when private?
                 (try
-                    (.add helper, "priv HEX", (ECKey''get-private-key-as-hex this))
+                    (.add helper, "priv HEX", (Base16'encode (ECKey''get-priv-key-bytes this)))
                     (catch IllegalStateException _
                         ;; TODO: Make hasPrivKey() work for deterministic keys and fix this.
                     )
@@ -5884,6 +5838,15 @@
         )
     )
 
+    ;;;
+     ; Produce a string rendering of the ECKey INCLUDING the private key.
+     ; Unless you absolutely need the private key it is better for security reasons to just use {@link #toString()}.
+     ;;
+    #_method
+    (defn #_"String" ECKey''to-string-with-private [#_"ECKey" this]
+        (ECKey''to-string this, true)
+    )
+
     #_abstract
     (defn #_"void" ECKey'''format-key-with-address [#_"ECKey" this, #_"boolean" private?, #_"StringBuilder" sb, #_"Ledger" ledger]
         (let [#_"Address" address (ECKey''to-address this, ledger)]
@@ -5894,7 +5857,7 @@
             )
             (.. sb (append "\n"))
             (when private?
-                (.. sb (append "  ") (append (ECKey''to-string-with-private this, ledger)) (append "\n"))
+                (.. sb (append "  ") (append (ECKey''to-string-with-private this)) (append "\n"))
             )
         )
         nil
@@ -5921,7 +5884,7 @@
     #_foreign
     #_override
     (defn #_"String" Object'''toString [#_"ECKey" this]
-        (ECKey''to-string this, false, nil)
+        (ECKey''to-string this, false)
     )
 )
 
@@ -6072,7 +6035,7 @@
         (try+
             (let [#_"ListIterator<Script>" it (.listIterator (:prev-out-scripts this))]
                 (dotimes [#_"int" i (count (:inputs (:tx this)))]
-                    (Script''correctly-spends (TransactionInput''get-script-sig (Transaction''get-input (:tx this), i)), (:tx this), i, (.next it), (:verify-flags this))
+                    (Script''correctly-spends (TransactionInput''get-script-sig (nth (:inputs (:tx this)) i)), (:tx this), i, (.next it), (:verify-flags this))
                 )
                 nil
             )
@@ -6108,7 +6071,14 @@
                          ;;
                         #_"FullPrunedBlockStore" :block-store store
 
-                        ;; Whether or not to execute scriptPubKeys before accepting a transaction (i.e. check signatures).
+                        ;;;
+                         ; Whether or not to execute scriptPubKeys before accepting a transaction (i.e. checking signatures).
+                         ;
+                         ; If you're accepting data from an untrusted node, such as one found via the P2P network, this should be set
+                         ; to true (which is the default).  If you're downloading a chain from a node you control, script execution
+                         ; is redundant because you know the connected node won't relay bad data to you.  In that case it's safe to set
+                         ; this to false and obtain a significant speedup.
+                         ;;
                         #_"boolean" :run-scripts true
 
                         ;; TODO: Execute in order of largest transaction (by input count) first.
@@ -6150,20 +6120,6 @@
     )
 
     ;;;
-     ; Whether or not to run scripts whilst accepting blocks (i.e. checking signatures, for most transactions).
-     ; If you're accepting data from an untrusted node, such as one found via the P2P network, this should be set
-     ; to true (which is the default).  If you're downloading a chain from a node you control, script execution
-     ; is redundant because you know the connected node won't relay bad data to you.  In that case it's safe to set
-     ; this to false and obtain a significant speedup.
-     ;;
-    #_method
-    (defn #_"FullPrunedBlockChain" FullPrunedBlockChain''set-run-scripts [#_"FullPrunedBlockChain" this, #_"boolean" value]
-        (assoc this :run-scripts value)
-    )
-
-    ;; TODO: Remove lots of duplicated code in the two connectTransactions.
-
-    ;;;
      ; Get the {@link Script} from the script bytes or return Script of empty byte array.
      ;;
     #_method
@@ -6178,9 +6134,6 @@
 
     ;;;
      ; Get the address from the {@link Script} if it exists, otherwise return empty string "".
-     ;
-     ; @param script The script.
-     ; @return The address.
      ;;
     #_method
     (defn- #_"String" FullPrunedBlockChain''get-script-address [#_"FullPrunedBlockChain" this, #_"Script" script]
@@ -7543,7 +7496,7 @@
                   #_"Sha256Hash" l (PartialMerkleTree'calc-hash h, p, hashes)
                   ;; Calculate right hash if not beyond the end of the array - copy left hash otherwise.
                   #_"Sha256Hash" r (if (< (inc p) (PartialMerkleTree'get-tree-width (count hashes), h)) (PartialMerkleTree'calc-hash h, (inc p), hashes) l)]
-                (PartialMerkleTree'combine-left-right (Sha256Hash''get-bytes l), (Sha256Hash''get-bytes r))
+                (PartialMerkleTree'combine-left-right (:bytes l), (:bytes r))
             )
         )
     )
@@ -7577,10 +7530,10 @@
                 )
                 ;; otherwise, descend into the subtrees to extract matched txids and hashes
                 (let [#_"int" h (dec height) #_"int" p (* pos 2)
-                      #_"byte[]" left (Sha256Hash''get-bytes (PartialMerkleTree''recursive-extract-hashes this, h, p, used, hashes))
+                      #_"byte[]" left (:bytes (PartialMerkleTree''recursive-extract-hashes this, h, p, used, hashes))
                       #_"byte[]" right
                         (if (< (inc p) (PartialMerkleTree'get-tree-width (:transaction-count this), h))
-                            (let [right (Sha256Hash''get-bytes (PartialMerkleTree''recursive-extract-hashes this, h, (inc p), used, hashes))]
+                            (let [right (:bytes (PartialMerkleTree''recursive-extract-hashes this, h, (inc p), used, hashes))]
                                 (when (Arrays/equals right, left)
                                     (throw+ (VerificationException'new "Invalid merkle tree with duplicated left/right branches"))
                                 )
@@ -7965,15 +7918,25 @@
                             #_"ArrayList<ListenerRegistration<PreMessageReceivedEventListener>>" :pre-message-received-event-listeners (CopyOnWriteArrayList.)
                             #_"ArrayList<ListenerRegistration<OnTransactionBroadcastListener>>" :on-transaction-event-listeners (CopyOnWriteArrayList.)
 
-                            ;; Whether to try and download blocks and transactions from this peer.  Set to false by PeerGroup if not the
-                            ;; primary peer.  This is to avoid redundant work and concurrency problems with downloading the same chain
-                            ;; in parallel.
+                            ;;;
+                             ; Whether to try downloading blocks and transactions from this peer.  Set to false by PeerGroup if not the
+                             ; primary peer.  This is to avoid redundant work and concurrency problems with downloading the same chain
+                             ; in parallel.  Changing this value from false to true may trigger a request to the remote peer
+                             ; for the contents of its memory pool, if Bloom filtering is active.
+                             ;;
                             #_volatile
                             #_"boolean" :v-download-data (some? chain)
-                            ;; The version data to announce to the other side of the connections we make: useful for setting our "user agent"
-                            ;; equivalent and other things.
+                            ;;;
+                             ; The version data to announce to the other side of the connections we make.
+                             ;;
                             #_"VersionMessage" :version-message (ensure some? ver)
-                            ;; Maximum depth up to which pending transaction dependencies are downloaded, or 0 for disabled.
+                            ;;;
+                             ; Maximum depth up to which pending transaction dependencies are downloaded, or 0 for disabled.
+                             ;
+                             ; If enabled, this peer will use getdata/notfound messages to walk backwards through transaction dependencies
+                             ; before handing the transaction off to the wallet.  The wallet can do risk analysis on pending/recent transactions
+                             ; to try and discover if a pending tx might be at risk of double spending.
+                             ;;
                             #_volatile
                             #_"int" :v-download-tx-dependency-depth (if (some? chain) depth 0)
                             ;; How many block messages the peer has announced to us.  Peers only announce blocks that attach to their best chain
@@ -7990,7 +7953,10 @@
                             #_"boolean" :download-block-bodies true
                             ;; Whether to request filtered blocks instead of full blocks if the protocol version allows for them.
                             #_"boolean" :use-filtered-blocks false
-                            ;; The current Bloom filter set on the connection, used to tell the remote peer what transactions to send us.
+                            ;;;
+                             ; The last {@link BloomFilter} set by {@link Peer#setBloomFilter(BloomFilter)}.
+                             ; Bloom filters tell the remote node what transactions to send us, in a compact manner.
+                             ;;
                             #_volatile
                             #_"BloomFilter" :v-bloom-filter nil
                             ;; The last filtered block we received, we're waiting to fill it out with transactions.
@@ -8032,6 +7998,9 @@
                             #_"long*" :last-ping-times (rrb/vector-of :long)
                             #_"ArrayList<PendingPing>" :pending-pings (CopyOnWriteArrayList.)
 
+                            ;;;
+                             ; Version data announced by the remote peer.
+                             ;;
                             #_volatile
                             #_"VersionMessage" :v-peer-version-message nil
 
@@ -8851,9 +8820,15 @@
     (defn #_"Peer" Peer''end-filtered-block [#_"Peer" this, #_"FilteredBlock" m]
         (cond
             (not (:v-download-data this))
+            (do
                 (log/debug (str (:peer-address this) ": Received block we did not ask for: " (FilteredBlock''get-hash m)))
+                this
+            )
             (nil? (:block-chain this))
+            (do
                 (log/debug "Received filtered block but was not configured with a BlockChain")
+                this
+            )
             :else
             (do
                 ;; Note that we currently do nothing about peers which maliciously do not include transactions which
@@ -8935,9 +8910,11 @@
                             )
                         )
                     )
+                    this
                     (§ catch VerificationException e
                         ;; We don't want verification failures to kill the thread.
                         (log/warn e, (str (:peer-address this) ": FilteredBlock verification failed"))
+                        this
                     )
                     (§ catch PrunedException _
                         ;; We pruned away some of the data we need to properly handle this block.  We need to
@@ -8948,7 +8925,6 @@
                 )
             )
         )
-        this
     )
 
     #_method
@@ -9290,7 +9266,7 @@
                 )
                 ;; TODO: Block locators should be abstracted out rather than special cased here.
                 (let [#_"List<Sha256Hash>" locator (ArrayList. 51)
-                      #_"BlockStore" store (BlockChain''get-block-store (:block-chain this))
+                      #_"BlockStore" store (:block-store (:block-chain this))
                       #_"StoredBlock" cursor
                         (loop-when [cursor head #_"int" n 100] (and (some? cursor) (pos? n)) => cursor
                             (.add locator, (Block''get-hash (:stored-header cursor)))
@@ -9336,7 +9312,7 @@
      ;;
     #_method
     (defn #_"Peer" Peer''start-block-chain-download [#_"Peer" this]
-        (let [this (Peer''set-download-data this, true)]
+        (let [this (assoc this :v-download-data true)]
             ;; TODO: Peer might still have blocks that we don't have, and even have a heavier chain even if the chain block count is lower.
             (let-when [#_"int" n (Peer''get-peer-block-height-difference this)] (<= 0 n) => this
                 (doseq [#_"ListenerRegistration<ChainDownloadStartedEventListener>" r (:chain-download-started-event-listeners this)]
@@ -9458,37 +9434,6 @@
     )
 
     ;;;
-     ; Returns true if this peer will try and download things it is sent in "inv" messages.
-     ; Normally you only need one peer to be downloading data.  Defaults to true.
-     ;;
-    #_method
-    (defn #_"boolean" Peer''is-download-data [#_"Peer" this]
-        (:v-download-data this)
-    )
-
-    ;;;
-     ; If set to false, the peer won't try and fetch blocks and transactions it hears about.  Normally, only one
-     ; peer should download missing blocks.  Defaults to true.  Changing this value from false to true may trigger
-     ; a request to the remote peer for the contents of its memory pool, if Bloom filtering is active.
-     ;;
-    #_method
-    (defn #_"Peer" Peer''set-download-data [#_"Peer" this, #_"boolean" download?]
-        (assoc this :v-download-data download?)
-    )
-
-    ;;; Returns version data announced by the remote peer. ;;
-    #_method
-    (defn #_"VersionMessage" Peer''get-peer-version-message [#_"Peer" this]
-        (:v-peer-version-message this)
-    )
-
-    ;;; Returns version data we announce to our remote peers. ;;
-    #_method
-    (defn #_"VersionMessage" Peer''get-version-message [#_"Peer" this]
-        (:version-message this)
-    )
-
-    ;;;
      ; @return the height of the best chain as claimed by peer: sum of its ver announcement and blocks announced since.
      ;;
     #_method
@@ -9506,7 +9451,7 @@
     (defn #_"boolean" Peer''set-min-protocol-version [#_"Peer" this, #_"int" __minProtocolVersion]
         (§ ass this (assoc this :v-min-protocol-version __minProtocolVersion))
 
-        (let [#_"VersionMessage" ver (Peer''get-peer-version-message this)]
+        (let [#_"VersionMessage" ver (:v-peer-version-message this)]
             (when (and (some? ver) (< (:client-version ver) __minProtocolVersion)) => false
                 (log/warn (str this ": Disconnecting due to new min protocol version " __minProtocolVersion ", got: " (:client-version ver)))
                 (§ ass this (PeerSocketHandler''close this))
@@ -9602,15 +9547,6 @@
     )
 
     ;;;
-     ; Returns the last {@link BloomFilter} set by {@link Peer#setBloomFilter(BloomFilter)}.  Bloom filters tell
-     ; the remote node what transactions to send us, in a compact manner.
-     ;;
-    #_method
-    (defn #_"BloomFilter" Peer''get-bloom-filter-1 [#_"Peer" this]
-        (:v-bloom-filter this)
-    )
-
-    ;;;
      ; Returns true if this peer will use getdata/notfound messages to walk backwards through transaction dependencies
      ; before handing the transaction off to the wallet.  The wallet can do risk analysis on pending/recent transactions
      ; to try and discover if a pending tx might be at risk of double spending.
@@ -9628,16 +9564,6 @@
     #_method
     (defn #_"Peer" Peer''set-download-tx-dependencies-b [#_"Peer" this, #_"boolean" enable?]
         (assoc this :v-download-tx-dependency-depth (if enable? Integer/MAX_VALUE 0))
-    )
-
-    ;;;
-     ; Sets if this peer will use getdata/notfound messages to walk backwards through transaction dependencies
-     ; before handing the transaction off to the wallet.  The wallet can do risk analysis on pending/recent transactions
-     ; to try and discover if a pending tx might be at risk of double spending.
-     ;;
-    #_method
-    (defn #_"Peer" Peer''set-download-tx-dependencies-i [#_"Peer" this, #_"int" depth]
-        (assoc this :v-download-tx-dependency-depth depth)
     )
 
     #_foreign
@@ -9857,8 +9783,8 @@
     #_override
     (defn #_"PeerListener" BlocksDownloadedEventListener'''on-blocks-downloaded [#_"PeerListener" this, #_"Peer" peer, #_"Block" block, #_"FilteredBlock" filtered, #_"int" __blocksLeft]
         (when (some? (:chain this))
-            (let [#_"double" rate (BlockChain''get-false-positive-rate (:chain this))
-                  #_"double" target (* (FilterMerger''get-bloom-filter-fp-rate (:bloom-filter-merger this)) PeerGroup'MAX_FP_RATE_INCREASE)]
+            (let [#_"double" rate (:false-positive-rate (:chain this))
+                  #_"double" target (* (-> this :bloom-filter-merger :v-bloom-filter-fp-rate) PeerGroup'MAX_FP_RATE_INCREASE)]
                 (when (< target rate)
                     ;; TODO: Avoid hitting this path if the remote peer didn't acknowledge applying a new filter yet.
                     (log/debug (str "Force update Bloom filter due to high false positive rate (" rate " vs " target ")"))
@@ -10072,8 +9998,16 @@
 
                         ;; By default we don't require any services because any peer will do.
                         #_"long" :required-services 0
+
+                        ;;;
+                         ; The maximum number of {@link Peer}s to discover.
+                         ; This maximum is checked after each {@link PeerDiscovery}, so this max number can be surpassed.
+                         ;;
                         #_volatile
                         #_"int" :v-max-peers-to-discover-count 100
+                        ;;;
+                         ; This is how many milliseconds we wait for peer discoveries to return their results.
+                         ;;
                         #_volatile
                         #_"long" :v-peer-discovery-timeout-millis PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS
 
@@ -10133,7 +10067,12 @@
                         ;;   - using connectTo() will increment it by one.
                         #_"int" :max-connections 0
 
-                        ;; Minimum protocol version we will allow ourselves to connect to: require Bloom filtering.
+                        ;;;
+                         ; The minimum protocol version required: defaults to the version required for Bloom filtering.
+                         ;
+                         ; If a peer is connected to that claims to speak a protocol version lower than the given version,
+                         ; it will be disconnected and another one will be tried instead.
+                         ;;
                         #_volatile
                         #_"int" :v-min-required-protocol-version ProtocolVersion'BLOOM_FILTER
 
@@ -10172,10 +10111,20 @@
                         ;; for privacy purposes.
                         #_"FilterMerger" :bloom-filter-merger (FilterMerger'new ledger, PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE)
 
+                        ;;;
+                         ; The timeout between when a connection attempt to a peer begins and when the version message exchange completes.
+                         ; This does not apply to currently pending peers.
+                         ;;
                         #_volatile
                         #_"int" :v-connect-timeout-millis PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS
 
-                        ;;; Whether bloom filter support is enabled when using a non FullPrunedBlockchain. ;;
+                        ;;;
+                         ; Whether bloom filter support is enabled when using a non FullPrunedBlockchain.
+                         ;
+                         ; Can be used to disable Bloom filtering entirely, even in SPV mode.  You are very unlikely to need this, it is
+                         ; an optimisation for rare cases when full validation is not required but it's still more efficient to download
+                         ; full blocks than filtered blocks.
+                         ;;
                         #_volatile
                         #_"boolean" :v-bloom-filtering-enabled true
 
@@ -10290,14 +10239,6 @@
     )
 
     ;;;
-     ; This is how many milliseconds we wait for peer discoveries to return their results.
-     ;;
-    #_method
-    (defn #_"PeerGroup" PeerGroup''set-peer-discovery-timeout-millis [#_"PeerGroup" this, #_"long" millis]
-        (assoc this :v-peer-discovery-timeout-millis millis)
-    )
-
-    ;;;
      ; Adjusts the desired number of connections that we will create to peers.  Note that if there are already peers
      ; open and the new value is lower than the current number of peers, those connections will be terminated.
      ; Likewise if there aren't enough current connections to meet the new requested max size, some will be added.
@@ -10307,7 +10248,7 @@
         (or
             (sync (:peergroup-lock this)
                 (§ ass this (assoc this :max-connections n))
-                (when-not (PeerGroup''is-running this)
+                (when-not (:v-running this)
                     :done
                 )
             )
@@ -11127,7 +11068,7 @@
     #_method
     (defn #_"PeerGroup" PeerGroup''set-bloom-filter-false-positive-rate [#_"PeerGroup" this, #_"double" rate]
         (sync (:peergroup-lock this)
-            (let [this (update this :bloom-filter-merger FilterMerger''set-bloom-filter-fp-rate rate)]
+            (let [this (assoc-in this [:bloom-filter-merger :v-bloom-filter-fp-rate] rate)]
                 (PeerGroup''recalculate-fast-catchup-and-filter this, :FilterRecalculateMode'SEND_IF_CHANGED)
                 this
             )
@@ -11239,15 +11180,6 @@
     )
 
     ;;;
-     ; Sets the timeout between when a connection attempt to a peer begins and when the version message exchange completes.
-     ; This does not apply to currently pending peers.
-     ;;
-    #_method
-    (defn #_"PeerGroup" PeerGroup''set-connect-timeout-millis [#_"PeerGroup" this, #_"int" timeout]
-        (assoc this :v-connect-timeout-millis timeout)
-    )
-
-    ;;;
      ; Start downloading the blockchain from the first available peer.
      ;
      ; If no peers are currently connected, the download will be started once a peer starts.
@@ -11338,7 +11270,7 @@
                             (when (some? (:last-filter (:bloom-filter-merger this)))
                                 (§ ass peer (Peer''set-bloom-filter-2 peer, (:last-filter (:bloom-filter-merger this))))
                             )
-                            (§ ass peer (Peer''set-download-data peer, false))
+                            (§ ass peer (assoc peer :v-download-data false))
                             ;; TODO: The peer should calculate the fast catchup time from the added wallets here.
                             (doseq [#_"Wallet" wallet (:wallets this)]
                                 (Peer''add-wallet peer, wallet)
@@ -11405,7 +11337,7 @@
                             )
                         )
                         (doseq [#_"Peer" peer (PeerGroup''get-connected-peers this)]
-                            (when (VersionMessage''is-ping-pong-supported (Peer''get-peer-version-message peer))
+                            (when (VersionMessage''is-ping-pong-supported (:v-peer-version-message peer))
                                 (Peer''ping-1 peer)
                             )
                         )
@@ -11428,7 +11360,7 @@
                             (when (some? (:download-listener this))
                                 (PeerGroup'remove-data-event-listener-from-peer (:download-peer this), (:download-listener this))
                             )
-                            (update this :download-peer Peer''set-download-data false)
+                            (update this :download-peer assoc :v-download-data false)
                         )
                       this (assoc this :download-peer peer)]
                     (when (some? (:download-peer this)) => this
@@ -11436,7 +11368,7 @@
                         (when (some? (:download-listener this))
                             (PeerGroup'add-data-event-listener-to-peer Threading'SAME_THREAD, peer, (:download-listener this))
                         )
-                        (let [this (update this :download-peer Peer''set-download-data true)]
+                        (let [this (update this :download-peer assoc :v-download-data true)]
                             (when (some? (:chain this)) => this
                                 (update this :download-peer Peer''set-download-parameters (:fast-catchup-time-secs this), (some? (:last-filter (:bloom-filter-merger this))))
                             )
@@ -11482,7 +11414,7 @@
     #_method
     (defn #_"PeerGroup" PeerGroup''handle-peer-death [#_"PeerGroup" this, #_"Peer" peer, #_"Throwable" e]
         ;; Peer deaths can occur during startup if a connect attempt after peer discovery aborts immediately.
-        (when (PeerGroup''is-running this) => this
+        (when (:v-running this) => this
             (let [[this #_"int" n]
                     (sync (:peergroup-lock this)
                         (.remove (:pending-peers this), peer)
@@ -11644,7 +11576,7 @@
         (sync (:peergroup-lock this)
             (let [#_"List<Peer>" peers (ArrayList. #_"<Peer>" (count (:peers this)))]
                 (doseq [#_"Peer" peer (:peers this)]
-                    (when (<= version (:client-version (Peer''get-peer-version-message peer)))
+                    (when (<= version (:client-version (:v-peer-version-message peer)))
                         (.add peers, peer)
                     )
                 )
@@ -11697,7 +11629,7 @@
         (sync (:peergroup-lock this)
             (let [#_"List<Peer>" peers (ArrayList. #_"<Peer>" (count (:peers this)))]
                 (doseq [#_"Peer" peer (:peers this)]
-                    (when (= (& (:local-services (Peer''get-peer-version-message peer)) mask) mask)
+                    (when (= (& (:local-services (:v-peer-version-message peer)) mask) mask)
                         (.add peers, peer)
                     )
                 )
@@ -11770,9 +11702,9 @@
             (§ ass (Transaction''get-confidence-t tx) (TransactionConfidence''set-source (Transaction''get-confidence-t tx), :ConfidenceSource'SELF))
         )
         (let [#_"TransactionBroadcast" broadcast (TransactionBroadcast'new this, tx)]
-            (§ ass broadcast (TransactionBroadcast''set-min-connections broadcast, __minConnections))
+            (§ ass broadcast (assoc broadcast :min-connections __minConnections))
             ;; Send the TX to the wallet once we have a successful broadcast.
-            (Futures/addCallback (TransactionBroadcast''future broadcast),
+            (Futures/addCallback (:future broadcast),
                 (reify FutureCallback #_"<Transaction>"
                     #_foreign
                     #_override
@@ -11842,21 +11774,6 @@
     )
 
     ;;;
-     ; If a peer is connected to that claims to speak a protocol version lower than the given version, it will
-     ; be disconnected and another one will be tried instead.
-     ;;
-    #_method
-    (defn #_"PeerGroup" PeerGroup''set-min-required-protocol-version [#_"PeerGroup" this, #_"int" version]
-        (assoc this :v-min-required-protocol-version version)
-    )
-
-    ;;; The minimum protocol version required: defaults to the version required for Bloom filtering. ;;
-    #_method
-    (defn #_"int" PeerGroup''get-min-required-protocol-version [#_"PeerGroup" this]
-        (:v-min-required-protocol-version this)
-    )
-
-    ;;;
      ; Returns our peers most commonly reported chain height.  If multiple heights are tied, the highest is returned.
      ; If no peers are connected, returns zero.
      ;;
@@ -11905,11 +11822,11 @@
                 ;; the highest version we've seen on the assumption that newer versions are always better but we don't want to
                 ;; zap peers if they upgrade early.  If we can't find any peers that have our preferred protocol version or
                 ;; better then we'll settle for the highest we found instead.
-                (let [#_"int" highest (reduce max 0 (map #(:client-version (Peer''get-peer-version-message %)) candidates))
+                (let [#_"int" highest (reduce max 0 (map #(:client-version (:v-peer-version-message %)) candidates))
                       #_"int" preferred (min highest ProtocolVersion'BLOOM_FILTER)
                       #_"List<Peer>" candidates2 (ArrayList. (count candidates))]
                     (doseq [#_"Peer" peer candidates]
-                        (when (<= preferred (:client-version (Peer''get-peer-version-message peer)))
+                        (when (<= preferred (:client-version (:v-peer-version-message peer)))
                             (.add candidates2, peer)
                         )
                     )
@@ -11930,28 +11847,6 @@
         )
     )
 
-    ;;;
-     ; Returns the maximum number of {@link Peer}s to discover.
-     ; This maximum is checked after each {@link PeerDiscovery} so this max number can be surpassed.
-     ;
-     ; @return the maximum number of peers to discover.
-     ;;
-    #_method
-    (defn #_"int" PeerGroup''get-max-peers-to-discover-count [#_"PeerGroup" this]
-        (:v-max-peers-to-discover-count this)
-    )
-
-    ;;;
-     ; Sets the maximum number of {@link Peer}s to discover.
-     ; This maximum is checked after each {@link PeerDiscovery} so this max number can be surpassed.
-     ;
-     ; @param maxPeersToDiscoverCount the maximum number of peers to discover.
-     ;;
-    #_method
-    (defn #_"PeerGroup" PeerGroup''set-max-peers-to-discover-count [#_"PeerGroup" this, #_"int" __maxPeersToDiscoverCount]
-        (assoc this :v-max-peers-to-discover-count __maxPeersToDiscoverCount)
-    )
-
     #_method
     (defn #_"boolean" PeerGroup''get-use-loopback-peer-when-possible [#_"PeerGroup" this]
         (sync (:peergroup-lock this)
@@ -11969,27 +11864,6 @@
         (sync (:peergroup-lock this)
             (assoc this :use-loopback-peer-when-possible use?)
         )
-    )
-
-    #_method
-    (defn #_"boolean" PeerGroup''is-running [#_"PeerGroup" this]
-        (:v-running this)
-    )
-
-    ;;;
-     ; Can be used to disable Bloom filtering entirely, even in SPV mode.  You are very unlikely to need this, it is
-     ; an optimisation for rare cases when full validation is not required but it's still more efficient to download
-     ; full blocks than filtered blocks.
-     ;;
-    #_method
-    (defn #_"PeerGroup" PeerGroup''set-bloom-filtering-enabled [#_"PeerGroup" this, #_"boolean" enabled?]
-        (assoc this :v-bloom-filtering-enabled enabled?)
-    )
-
-    ;;; Returns whether the Bloom filtering protocol optimisation is in use: defaults to true. ;;
-    #_method
-    (defn #_"boolean" PeerGroup''is-bloom-filtering-enabled [#_"PeerGroup" this]
-        (:v-bloom-filtering-enabled this)
     )
 )
 
@@ -12392,14 +12266,6 @@
     )
 
     ;;;
-     ; Returns the internal byte array, without defensively copying.  Therefore do NOT modify the returned array.
-     ;;
-    #_method
-    (defn #_"byte[]" Sha256Hash''get-bytes [#_"Sha256Hash" this]
-        (:bytes this)
-    )
-
-    ;;;
      ; Returns a reversed copy of the internal byte array.
      ;;
     #_method
@@ -12775,6 +12641,9 @@
             ;; If this transaction is not stored in the wallet, appearsInHashes is null.
             #_"Map<Sha256Hash, Integer>" :appears-in-hashes nil
 
+            ;;;
+             ; The purpose for which this transaction was created.
+             ;;
             #_"TransactionPurpose" :purpose :TransactionPurpose'UNKNOWN
 
             ;;;
@@ -13031,11 +12900,6 @@
         (:updated-at this)
     )
 
-    #_method
-    (defn #_"Transaction" Transaction''set-update-time [#_"Transaction" this, #_"Date" time]
-        (assoc this :updated-at time)
-    )
-
     ;;;
      ; A coinbase transaction is one that creates a new coin.  They are the first transaction in each block and their
      ; value is determined by a formula that all implementations of Bitcoin share.  In 2011 the value of a coinbase
@@ -13044,7 +12908,7 @@
      ;;
     #_method
     (defn #_"boolean" Transaction''is-coin-base [#_"Transaction" this]
-        (and (= (count (:inputs this)) 1) (TransactionInput''is-coin-base (Transaction''get-input this, 0)))
+        (and (= (count (:inputs this)) 1) (TransactionInput''is-coin-base (nth (:inputs this) 0)))
     )
 
     ;;;
@@ -13315,7 +13179,7 @@
             ;; Clear input scripts in preparation for signing.  If we're signing a fresh transaction that step isn't very
             ;; helpful, but it doesn't add much cost relative to the actual EC math so we'll do it anyway.
             (dotimes [#_"int" i (count (:inputs tx))]
-                (§ ass (Transaction''get-input tx, i) (TransactionInput''clear-script-bytes (Transaction''get-input tx, i)))
+                (§ ass (nth (:inputs tx) i) (TransactionInput''clear-script-bytes (nth (:inputs tx) i)))
             )
 
             ;; This step has no purpose beyond being synchronized with Bitcoin Core's bugs.  OP_CODESEPARATOR
@@ -13330,7 +13194,7 @@
                 ;; Set the input to the script of its output.  Bitcoin Core does this but the step has no obvious purpose as
                 ;; the signature covers the hash of the prevout transaction which obviously includes the output script
                 ;; already.  Perhaps it felt safer to him in some way, or is another leftover from how the code was written.
-                (let [#_"TransactionInput" input (Transaction''get-input tx, index)]
+                (let [#_"TransactionInput" input (nth (:inputs tx) index)]
                     (§ ass input (TransactionInput''set-script-bytes input, script))
 
                     (let-when [#_"Sha256Hash" hash
@@ -13341,7 +13205,7 @@
                                     ;; The signature isn't broken by new versions of the transaction issued by other parties.
                                     (dotimes [#_"int" i (count (:inputs tx))]
                                         (when-not (= i index)
-                                            (§ ass (Transaction''get-input tx, i) (TransactionInput''set-sequence-number (Transaction''get-input tx, i), 0))
+                                            (§ ass (nth (:inputs tx) i) (assoc (nth (:inputs tx) i) :sequence 0))
                                         )
                                     )
                                     nil
@@ -13358,7 +13222,7 @@
                                         ;; The signature isn't broken by new versions of the transaction issued by other parties.
                                         (dotimes [#_"int" i (count (:inputs tx))]
                                             (when-not (= i index)
-                                                (§ ass (Transaction''get-input tx, i) (TransactionInput''set-sequence-number (Transaction''get-input tx, i), 0))
+                                                (§ ass (nth (:inputs tx) i) (assoc (nth (:inputs tx) i) :sequence 0))
                                             )
                                         )
                                         nil
@@ -13405,17 +13269,6 @@
      ; standard and won't be relayed or included in the memory pool either.
      ;;
     #_method
-    (defn #_"long" Transaction''get-lock-time [#_"Transaction" this]
-        (:lock-time this)
-    )
-
-    ;;;
-     ; Transactions can have an associated lock time, specified either as a block height or in seconds since the
-     ; UNIX epoch.  A transaction is not allowed to be confirmed by miners until the lock time is reached, and
-     ; since Bitcoin 0.8+ a transaction that did not end its lock period (non final) is considered to be non
-     ; standard and won't be relayed or included in the memory pool either.
-     ;;
-    #_method
     (defn #_"Transaction" Transaction''set-lock-time [#_"Transaction" this, #_"long" time]
         (when-not (or (zero? time) (some #(not= (:sequence %) TransactionInput'NO_SEQUENCE) (:inputs this)))
             ;; At least one input must have a non-default sequence number for lock times to have any effect.
@@ -13449,21 +13302,9 @@
      ; Randomly re-orders the transaction outputs: good for privacy.
      ;;
     #_method
-    (defn #_"void" Transaction''shuffle-outputs [#_"Transaction" this]
+    (defn #_"Transaction" Transaction''shuffle-outputs [#_"Transaction" this]
         (Collections/shuffle (:outputs this))
-        nil
-    )
-
-    ;;; Same as getInputs().get(index). ;;
-    #_method
-    (defn #_"TransactionInput" Transaction''get-input [#_"Transaction" this, #_"long" index]
-        (nth (:inputs this) (int index))
-    )
-
-    ;;; Same as getOutputs().get(index). ;;
-    #_method
-    (defn #_"TransactionOutput" Transaction''get-output [#_"Transaction" this, #_"long" index]
-        (nth (:outputs this) (int index))
+        this
     )
 
     ;;;
@@ -13512,9 +13353,8 @@
         (assert-state (Transaction''is-coin-base this))
 
         ;; Check block height is in coinbase input script.
-        (let [#_"TransactionInput" in (Transaction''get-input this, 0)
-              #_"byte[]" expected (-> (ScriptBuilder'new) (ScriptBuilder''num height) (ScriptBuilder''to-script) (Script''to-bytes))
-              #_"byte[]" actual (:script-bytes in)]
+        (let [#_"byte[]" expected (-> (ScriptBuilder'new) (ScriptBuilder''num height) (ScriptBuilder''to-script) (Script''to-bytes))
+              #_"byte[]" actual (:script-bytes (nth (:inputs this) 0))]
             (when (< (alength actual) (alength expected))
                 (throw+ (VerificationException'new "Block height mismatch in coinbase."))
             )
@@ -13583,7 +13423,7 @@
         )
 
         (if (Transaction''is-coin-base this)
-            (let [#_"int" n (alength (:script-bytes (Transaction''get-input this, 0)))]
+            (let [#_"int" n (alength (:script-bytes (nth (:inputs this) 0)))]
                 (when-not (<= 2 n 100)
                     (throw+ (VerificationException'new "Coinbase script size out of range"))
                 )
@@ -13604,7 +13444,7 @@
      ;;
     #_method
     (defn #_"boolean" Transaction''is-time-locked [#_"Transaction" this]
-        (and (not= (Transaction''get-lock-time this) 0) (some #(TransactionInput''has-sequence %) (:inputs this)))
+        (and (not= (:lock-time this) 0) (some #(TransactionInput''has-sequence %) (:inputs this)))
     )
 
     ;;;
@@ -13627,7 +13467,7 @@
      ;;
     #_method
     (defn #_"boolean" Transaction''is-final [#_"Transaction" this, #_"int" height, #_"long" secs]
-        (let [#_"long" time (Transaction''get-lock-time this)]
+        (let [#_"long" time (:lock-time this)]
             (or (< time (if (< time Transaction'LOCKTIME_THRESHOLD) height secs)) (not (Transaction''is-time-locked this)))
         )
     )
@@ -13638,58 +13478,10 @@
      ;;
     #_method
     (defn #_"Date" Transaction''estimate-lock-time [#_"Transaction" this, #_"BlockChain" chain]
-        (if (< (:lock-time this) Transaction'LOCKTIME_THRESHOLD) (BlockChain''estimate-block-time chain, (int (Transaction''get-lock-time this))) (Date. (* (Transaction''get-lock-time this) 1000)))
-    )
-
-    ;;;
-     ; Returns the purpose for which this transaction was created.  See the javadoc for {@link Purpose} for more
-     ; information on the point of this field and what it can be.
-     ;;
-    #_method
-    (defn #_"TransactionPurpose" Transaction''get-purpose [#_"Transaction" this]
-        (:purpose this)
-    )
-
-    ;;;
-     ; Marks the transaction as being created for the given purpose.  See the javadoc for {@link Purpose} for more
-     ; information on the point of this field and what it can be.
-     ;;
-    #_method
-    (defn #_"Transaction" Transaction''set-purpose [#_"Transaction" this, #_"TransactionPurpose" purpose]
-        (assoc this :purpose purpose)
-    )
-
-    ;;;
-     ; Getter for {@link #exchangeRate}.
-     ;;
-    #_method
-    (defn #_"ExchangeRate" Transaction''get-exchange-rate [#_"Transaction" this]
-        (:exchange-rate this)
-    )
-
-    ;;;
-     ; Setter for {@link #exchangeRate}.
-     ;;
-    #_method
-    (defn #_"Transaction" Transaction''set-exchange-rate [#_"Transaction" this, #_"ExchangeRate" __exchangeRate]
-        (assoc this :exchange-rate __exchangeRate)
-    )
-
-    ;;;
-     ; Returns the transaction {@link #memo}.
-     ;;
-    #_method
-    (defn #_"String" Transaction''get-memo [#_"Transaction" this]
-        (:memo this)
-    )
-
-    ;;;
-     ; Set the transaction {@link #memo}.
-     ; It can be used to record the memo of the payment request that initiated the transaction.
-     ;;
-    #_method
-    (defn #_"Transaction" Transaction''set-memo [#_"Transaction" this, #_"String" memo]
-        (assoc this :memo memo)
+        (if (< (:lock-time this) Transaction'LOCKTIME_THRESHOLD)
+            (BlockChain''estimate-block-time chain, (int (:lock-time this)))
+            (Date. (* (:lock-time this) 1000))
+        )
     )
 
     #_foreign
@@ -13742,7 +13534,7 @@
             (if (Transaction''is-coin-base this)
                 (let [[#_"Script" script1 #_"Script" script2]
                         (try+
-                            [(TransactionInput''get-script-sig (Transaction''get-input this, 0)) (TransactionOutput''get-script-pub-key (Transaction''get-output this, 0))]
+                            [(TransactionInput''get-script-sig (nth (:inputs this) 0)) (TransactionOutput''get-script-pub-key (nth (:outputs this) 0))]
                             (§ catch ScriptException _
                                 ["???" "???"]
                             )
@@ -13971,16 +13763,6 @@
             #_"ProgressCallback" :callback nil
             #_"Executor" :progress-callback-executor nil
         )
-    )
-
-    #_method
-    (defn #_"ListenableFuture<Transaction>" TransactionBroadcast''future [#_"TransactionBroadcast" this]
-        (:future this)
-    )
-
-    #_method
-    (defn #_"TransactionBroadcast" TransactionBroadcast''set-min-connections [#_"TransactionBroadcast" this, #_"int" __minConnections]
-        (assoc this :min-connections __minConnections)
     )
 
     #_method
@@ -14412,22 +14194,12 @@
         )
     )
 
-    ;;; Returns true if the given address has been seen via markBroadcastBy(). ;;
+    ;;;
+     ; Returns true if the given address has been seen via markBroadcastBy().
+     ;;
     #_method
     (defn #_"boolean" TransactionConfidence''was-broadcast-by [#_"TransactionConfidence" this, #_"PeerAddress" address]
         (.contains (:broadcast-by this), address)
-    )
-
-    ;;; Return the time the transaction was last announced to us. ;;
-    #_method
-    (defn #_"Date" TransactionConfidence''get-last-broadcasted-at [#_"TransactionConfidence" this]
-        (:last-broadcasted-at this)
-    )
-
-    ;;; Set the time the transaction was last announced to us. ;;
-    #_method
-    (defn #_"TransactionConfidence" TransactionConfidence''set-last-broadcasted-at [#_"TransactionConfidence" this, #_"Date" __lastBroadcastedAt]
-        (assoc this :last-broadcasted-at __lastBroadcastedAt)
     )
 
     ;;;
@@ -14654,6 +14426,11 @@
             (hash-map
                 ;;;
                  ; Allows for altering transactions after they were broadcast.  Values below NO_SEQUENCE-1 mean it can be altered.
+                 ;
+                 ; Sequence numbers allow participants in a multi-party transaction signing protocol to create new versions of the
+                 ; transaction independently of each other.  Newer versions of a transaction can replace an existing version that's
+                 ; in node's memory pools if the existing version is time locked.  See the Contracts page on the Bitcoin wiki for
+                 ; examples of how you can use this feature to build contract protocols.
                  ;;
                 #_"long" :sequence sequence
                 ;;;
@@ -14780,28 +14557,16 @@
     )
 
     ;;;
-     ; Sequence numbers allow participants in a multi-party transaction signing protocol to create new versions of the
-     ; transaction independently of each other.  Newer versions of a transaction can replace an existing version that's
-     ; in nodes memory pools if the existing version is time locked.  See the Contracts page on the Bitcoin wiki for
-     ; examples of how you can use this feature to build contract protocols.
+     ; Clear input scripts, e.g. in preparation for signing.
      ;;
-    #_method
-    (defn #_"TransactionInput" TransactionInput''set-sequence-number [#_"TransactionInput" this, #_"long" sequence]
-        (assoc this :sequence sequence)
-    )
-
-    ;;; Clear input scripts, e.g. in preparation for signing. ;;
     #_method
     (defn #_"TransactionInput" TransactionInput''clear-script-bytes [#_"TransactionInput" this]
         (TransactionInput''set-script-bytes this, (byte-array 0))
     )
 
-    ;;;
-     ; @param scriptBytes The scriptBytes to set.
-     ;;
     #_method
-    (defn #_"TransactionInput" TransactionInput''set-script-bytes [#_"TransactionInput" this, #_"byte[]" script]
-        (assoc this :script-sig nil, :script-bytes script)
+    (defn #_"TransactionInput" TransactionInput''set-script-bytes [#_"TransactionInput" this, #_"byte[]" bytes]
+        (assoc this :script-sig nil, :script-bytes bytes)
     )
 
     ;; TODO: Clean all this up once TransactionOutPoint disappears.
@@ -14814,7 +14579,7 @@
     #_method
     (defn #_"TransactionOutput" TransactionInput''get-connected-output-2 [#_"TransactionInput" this, #_"Map<Sha256Hash, Transaction>" transactions]
         (let [#_"Transaction" tx (get transactions (:from-tx-hash (:outpoint this)))]
-            (when (some? tx) (Transaction''get-output tx, (:index (:outpoint this))))
+            (when (some? tx) (nth (:outputs tx) (:index (:outpoint this))))
         )
     )
 
@@ -14859,7 +14624,7 @@
         (when (.equals (Transaction''get-hash tx), (:from-tx-hash (:outpoint this))) => :ConnectionResult'NO_SUCH_TX
             (assert-state (< -1 (:index (:outpoint this)) (count (:outputs tx))), "Corrupt transaction")
 
-            (let [#_"TransactionOutput" output (Transaction''get-output tx, (int (:index (:outpoint this))))
+            (let [#_"TransactionOutput" output (nth (:outputs tx) (:index (:outpoint this)))
                   #_"ConnectionResult" result
                     (when-not (TransactionOutput''is-available-for-spending output)
                         (cond (.equals (:parent this), (-> this :outpoint :from-tx))
@@ -14910,7 +14675,7 @@
                 (cond
                     (some? (-> this :outpoint :from-tx))
                         ;; The outpoint is connected using a "standard" wallet, disconnect it.
-                        (let [output (Transaction''get-output (-> this :outpoint :from-tx), (int (:index (:outpoint this))))]
+                        (let [output (nth (-> this :outpoint :from-tx :outputs) (:index (:outpoint this)))]
                             (§ ass this (assoc-in this [:outpoint :from-tx] nil))
                             output
                         )
@@ -14959,7 +14724,7 @@
         (let [#_"Transaction" tx (-> this :outpoint :from-tx)]
             (ensure some? tx, "Not connected")
 
-            (let [#_"TransactionOutput" output (Transaction''get-output tx, (int (:index (:outpoint this))))]
+            (let [#_"TransactionOutput" output (nth (:outputs tx) (:index (:outpoint this)))]
                 (TransactionInput''verify-2 this, output)
             )
         )
@@ -15129,7 +14894,7 @@
      ;;
     #_method
     (defn #_"TransactionOutput" TransactionOutPoint''get-connected-output [#_"TransactionOutPoint" this]
-        (if (some? (:from-tx this)) (Transaction''get-output (:from-tx this), (:index this)) (:connected-output this))
+        (if (some? (:from-tx this)) (nth (:outputs (:from-tx this)) (:index this)) (:connected-output this))
     )
 
     ;;;
@@ -16260,7 +16025,7 @@
                     #_"Map<List<ChildNumber>, ChildNumber>" :last-child-numbers (HashMap.)
                 )]
             (DeterministicHierarchy''put-key this, root)
-            (assoc this :root-path (DeterministicKey''get-path root))
+            (assoc this :root-path (:child-number-path root))
         )
     )
 
@@ -16270,12 +16035,12 @@
      ;;
     #_method
     (defn #_"void" DeterministicHierarchy''put-key [#_"DeterministicHierarchy" this, #_"DeterministicKey" key]
-        (let [#_"List<ChildNumber>" path (DeterministicKey''get-path key)
+        (let [#_"List<ChildNumber>" path (:child-number-path key)
               ;; Update our tracking of what the next child in each branch of the tree should be.
               ;; Just assume that keys are inserted in order here.
-              #_"DeterministicKey" parent (DeterministicKey''get-parent key)]
+              #_"DeterministicKey" parent (:parent key)]
             (when (some? parent)
-                (.put (:last-child-numbers this), (DeterministicKey''get-path parent), (DeterministicKey''get-child-number key))
+                (.put (:last-child-numbers this), (:child-number-path parent), (DeterministicKey''get-child-number key))
             )
             (.put (:keys this), path, key)
         )
@@ -16323,7 +16088,7 @@
         (let [#_"DeterministicKey" parent (DeterministicHierarchy''get-4 this, path, relative?, create?)]
             (loop-when [#_"int" i 0] (< i HDKeyDerivation'MAX_CHILD_DERIVATION_ATTEMPTS) => (throw+ (HDDerivationException'new "Maximum number of child derivation attempts reached, this is probably an indication of a bug."))
                 (try+
-                    (let [#_"ChildNumber" child (DeterministicHierarchy''get-next-child-number-to-derive this, (DeterministicKey''get-path parent), private?)]
+                    (let [#_"ChildNumber" child (DeterministicHierarchy''get-next-child-number-to-derive this, (:child-number-path parent), private?)]
                         (DeterministicHierarchy''derive-child-3 this, parent, child)
                     )
                     (§ catch HDDerivationException _
@@ -16406,12 +16171,27 @@
     (defn- #_"DeterministicKey" DeterministicKey'init []
         (hash-map
             #_"DeterministicKey" :parent nil
+            ;;;
+             ; The path through some {@link DeterministicHierarchy} which reaches this keys position in the tree.
+             ; A path can be written as 1/2/1 which means the first child of the root, the second child of that node,
+             ; then the first child of that node.
+             ;;
             #_"List<ChildNumber>" :child-number-path nil
+            ;;;
+             ; This key's depth in the hierarchy, where the root node is at depth zero.
+             ; This may be different than the number of segments in the path if this key was
+             ; deserialized without access to its parent.
+             ;;
             #_"int" :depth 0
+            ;;;
+             ; If this is a child key, the fingerprint of the key from which this key was derived,
+             ; otherwise an array of four zero-value bytes.
+             ;;
             #_"int" :parent-fingerprint 0 ;; 0 if this key is root node of key hierarchy
-
-            ;;; 32 bytes ;;
-            #_"byte[]" :chain-code nil
+            ;;;
+             ; The chain code associated with this key.
+             ;;
+            #_"byte[]" :chain-code nil ;; 32 bytes
         )
     )
 
@@ -16489,45 +16269,17 @@
     )
 
     ;;;
-     ; Returns the path through some {@link DeterministicHierarchy} which reaches this keys position in the tree.
-     ; A path can be written as 1/2/1 which means the first child of the root, the second child of that node, then
-     ; the first child of that node.
-     ;;
-    #_method
-    (defn #_"List<ChildNumber>" DeterministicKey''get-path [#_"DeterministicKey" this]
-        (:child-number-path this)
-    )
-
-    ;;;
      ; Returns the path of this key as a human readable string starting with M to indicate the master key.
      ;;
     #_method
     (defn #_"String" DeterministicKey''get-path-as-string [#_"DeterministicKey" this]
-        (HDUtils'format-path (DeterministicKey''get-path this))
-    )
-
-    ;;;
-     ; Return this key's depth in the hierarchy, where the root node is at depth zero.
-     ; This may be different than the number of segments in the path if this key was
-     ; deserialized without access to its parent.
-     ;;
-    #_method
-    (defn #_"int" DeterministicKey''get-depth [#_"DeterministicKey" this]
-        (:depth this)
+        (HDUtils'format-path (:child-number-path this))
     )
 
     ;;; Returns the last element of the path returned by {@link DeterministicKey#getPath()}. ;;
     #_method
     (defn #_"ChildNumber" DeterministicKey''get-child-number [#_"DeterministicKey" this]
         (if (zero? (count (:child-number-path this))) ChildNumber'ZERO (nth (:child-number-path this) (dec (count (:child-number-path this)))))
-    )
-
-    ;;;
-     ; Returns the chain code associated with this key.  See the specification to learn more about chain codes.
-     ;;
-    #_method
-    (defn #_"byte[]" DeterministicKey''get-chain-code [#_"DeterministicKey" this]
-        (:chain-code this)
     )
 
     ;;;
@@ -16538,25 +16290,13 @@
         (Utils'sha256hash160 (ECKey''get-pub-key this))
     )
 
-    ;;; Returns the first 32 bits of the result of {@link #getIdentifier()}. ;;
+    ;;;
+     ; Returns the first 32 bits of the result of {@link #getIdentifier()}.
+     ;;
     #_method
     (defn #_"int" DeterministicKey''get-fingerprint [#_"DeterministicKey" this]
         ;; TODO: Why is this different than armory's fingerprint?  BIP 32: "The first 32 bits of the identifier are called the fingerprint."
         (.getInt (ByteBuffer/wrap (Arrays/copyOfRange (DeterministicKey''get-identifier this), 0, 4)))
-    )
-
-    #_method
-    (defn #_"DeterministicKey" DeterministicKey''get-parent [#_"DeterministicKey" this]
-        (:parent this)
-    )
-
-    ;;;
-     ; Return the fingerprint of the key from which this key was derived, if this is
-     ; a child key, or else an array of four zero-value bytes.
-     ;;
-    #_method
-    (defn #_"int" DeterministicKey''get-parent-fingerprint [#_"DeterministicKey" this]
-        (:parent-fingerprint this)
     )
 
     ;;;
@@ -16582,7 +16322,9 @@
      ;;
     #_method
     (defn #_"DeterministicKey" DeterministicKey''drop-private-bytes [#_"DeterministicKey" this]
-        (if (ECKey'''is-pub-key-only this) this (DeterministicKey'new-5 (DeterministicKey''get-path this), (DeterministicKey''get-chain-code this), (:pub this), nil, (:parent this)))
+        (when-not (ECKey'''is-pub-key-only this) => this
+            (DeterministicKey'new-5 (:child-number-path this), (:chain-code this), (:pub this), nil, (:parent this))
+        )
     )
 
     ;;;
@@ -16595,7 +16337,7 @@
      ;;
     #_method
     (defn #_"DeterministicKey" DeterministicKey''drop-parent [#_"DeterministicKey" this]
-        (let [#_"DeterministicKey" key (DeterministicKey'new-5 (DeterministicKey''get-path this), (DeterministicKey''get-chain-code this), (:pub this), (:priv this), nil)]
+        (let [#_"DeterministicKey" key (DeterministicKey'new-5 (:child-number-path this), (:chain-code this), (:pub this), (:priv this), nil)]
             (ß assoc key :parent-fingerprint (:parent-fingerprint this))
         )
     )
@@ -16654,7 +16396,7 @@
         (let [#_"BigInteger" priv (BigInteger. 1, bytes)
               key (reduce HDKeyDerivation'derive-child-key-2c
                     (DeterministicKey'new-5 (:child-number-path key), (:chain-code key), (:pub key), priv, (:parent key))
-                    (.subList (:child-number-path this), (count (DeterministicKey''get-path key)), (count (:child-number-path this))))]
+                    (.subList (:child-number-path this), (count (:child-number-path key)), (count (:child-number-path this))))]
             ;; downCursor is now the same key as us, but with private key bytes.
             ;; If it's not, it means we tried decrypting with an invalid password and earlier checks e.g. for padding didn't catch it.
             (when-not (.equals (:pub key), (:pub this))
@@ -16703,10 +16445,10 @@
     (defn- #_"byte[]" DeterministicKey''serialize [#_"DeterministicKey" this, #_"Ledger" ledger, #_"boolean" pub?]
         (let [#_"ByteBuffer" buff (ByteBuffer/allocate 78)]
             (.putInt buff, (if pub? (:bip32-header-pub ledger) (:bip32-header-priv ledger)))
-            (.put buff, (byte (DeterministicKey''get-depth this)))
-            (.putInt buff, (DeterministicKey''get-parent-fingerprint this))
+            (.put buff, (byte (:depth this)))
+            (.putInt buff, (:parent-fingerprint this))
             (.putInt buff, (ChildNumber''i (DeterministicKey''get-child-number this)))
-            (.put buff, (DeterministicKey''get-chain-code this))
+            (.put buff, (:chain-code this))
             (.put buff, (if pub? (ECKey''get-pub-key this) (DeterministicKey''get-priv-key-bytes33 this)))
             (assert-state (= (.position buff) 78))
             (.array buff)
@@ -16769,7 +16511,7 @@
                                 (when-not (= (DeterministicKey''get-fingerprint parent) fing)
                                     (throw (IllegalArgumentException. "Parent fingerprints don't match"))
                                 )
-                                (let [path (HDUtils'append (DeterministicKey''get-path parent), child)]
+                                (let [path (HDUtils'append (:child-number-path parent), child)]
                                     (when-not (= (count path) depth)
                                         (throw (IllegalArgumentException. "Depth does not match"))
                                     )
@@ -16824,7 +16566,7 @@
             (.. sb (append "  hash160:") (append (Base16'encode (ECKey''get-pub-key-hash this))))
             (.. sb (append "  (") (append (DeterministicKey''get-path-as-string this)) (append ")\n"))
             (when private?
-                (.. sb (append "  ") (append (ECKey''to-string-with-private this, ledger)) (append "\n"))
+                (.. sb (append "  ") (append (ECKey''to-string-with-private this)) (append "\n"))
             )
         )
         nil
@@ -16919,7 +16661,7 @@
         (assert-argument (< 8 (alength seed)), "Seed is too short and could be brute forced")
 
         ;; Calculate I = HMAC-SHA512(key="Bitcoin seed", msg=S).
-        (let [#_"byte[]" i (HDUtils'hmac-sha512-2 (HDUtils'create-hmac-sha512-digest (Sha256Hash''get-bytes "Bitcoin seed")), seed)]
+        (let [#_"byte[]" i (HDUtils'hmac-sha512-2 (HDUtils'create-hmac-sha512-digest (.getBytes "Bitcoin seed")), seed)]
             ;; Split I into two 32-byte sequences, Il and Ir.
             ;; Use Il as master secret key, and Ir as master chain code.
             (assert-state (= (alength i) 64))
@@ -16991,10 +16733,10 @@
     (defn #_"DeterministicKey" HDKeyDerivation'derive-child-key-2c [#_"DeterministicKey" parent, #_"ChildNumber" child]
         (if (not (ECKey'''has-priv-key parent))
             (let [#_"RawKeyBytes" raw (HDKeyDerivation'derive-child-key-bytes-from-public parent, child, :PublicDerivationMode'NORMAL)]
-                (DeterministicKey'new-5 (HDUtils'append (DeterministicKey''get-path parent), child), (:chain-code raw), (.decodePoint (.getCurve ECKey'CURVE), (:key-bytes raw)), nil, parent)
+                (DeterministicKey'new-5 (HDUtils'append (:child-number-path parent), child), (:chain-code raw), (.decodePoint (.getCurve ECKey'CURVE), (:key-bytes raw)), nil, parent)
             )
             (let [#_"RawKeyBytes" raw (HDKeyDerivation'derive-child-key-bytes-from-private parent, child)]
-                (DeterministicKey'new-4 (HDUtils'append (DeterministicKey''get-path parent), child), (:chain-code raw), (BigInteger. 1, (:key-bytes raw)), parent)
+                (DeterministicKey'new-4 (HDUtils'append (:child-number-path parent), child), (:chain-code raw), (BigInteger. 1, (:key-bytes raw)), parent)
             )
         )
     )
@@ -17010,7 +16752,7 @@
                 (.put buff, (if (ChildNumber''is-hardened child) (DeterministicKey''get-priv-key-bytes33 parent) __parentPublicKey))
                 (.putInt buff, (ChildNumber''i child))
 
-                (let [#_"byte[]" bytes (HDUtils'hmac-sha512-2-bytes (DeterministicKey''get-chain-code parent), (.array buff))]
+                (let [#_"byte[]" bytes (HDUtils'hmac-sha512-2-bytes (:chain-code parent), (.array buff))]
                     (assert-state (= (alength bytes) 64))
 
                     (let [#_"BigInteger" i (BigInteger. 1, (Arrays/copyOfRange bytes, 0, 32))]
@@ -17039,7 +16781,7 @@
                 (.put buff, __parentPublicKey)
                 (.putInt buff, (ChildNumber''i child))
 
-                (let [#_"byte[]" bytes (HDUtils'hmac-sha512-2-bytes (DeterministicKey''get-chain-code parent), (.array buff))]
+                (let [#_"byte[]" bytes (HDUtils'hmac-sha512-2-bytes (:chain-code parent), (.array buff))]
                     (assert-state (= (alength bytes) 64))
 
                     (let [#_"BigInteger" i (BigInteger. 1, (Arrays/copyOfRange bytes, 0, 32))]
@@ -17440,7 +17182,7 @@
     (defn #_"MnemonicCode" MnemonicCode'new-2 [#_"String[]" words, #_"String" digest]
         (let [#_"ArrayList<String>" word-list (ArrayList. 2048) #_"MessageDigest" md (Sha256Hash'create-digest)]
             (doseq [#_"String" word words]
-                (.update md, (Sha256Hash''get-bytes word))
+                (.update md, (.getBytes word))
                 (.add word-list, word)
             )
             (when-not (= (count word-list) 2048)
@@ -17937,24 +17679,45 @@
                 #_"PeerGroup" :v-peer-group nil
 
                 #_"PeerAddress[]" :peer-addresses nil
+                ;;;
+                 ; If you want to learn about the sync process, you can provide a listener here.
+                 ; For instance, a {@link DownloadProgressTracker} is a good choice.  This has no effect unless
+                 ; setBlockingStartup(false) has been called too, due to some missing implementation code.
+                 ;;
                 #_"DownloadProgressTracker" :download-listener nil
+                ;;;
+                 ; If true, will register a shutdown hook to stop the library.
+                 ;;
                 #_"boolean" :auto-stop true
                 #_"String[]" :textual-checkpoints nil
+                ;;;
+                 ; If true, the startup of this service won't be considered complete until the network has been
+                 ; brought up, peer connections established and the block chain synchronised.  Therefore 'await-running
+                 ; can potentially take a very long time.  If false, startup is considered complete once
+                 ; the network activity begins and peer connections/block chain sync will continue in the background.
+                 ;;
                 #_"boolean" :blocking-startup true
-                #_"String" :version nil
+                ;;;
+                 ; The peer discovery to use.  If none is provided, DNS is used, which is a reasonable default.
+                 ;;
                 #_"PeerDiscovery" :discovery nil
             )
         )
     )
 
-    ;;; Will only connect to the given addresses.  Cannot be called after startup. ;;
+    ;;;
+     ; Will only connect to the given addresses.  Cannot be called after startup.
+     ;;
     #_method
     (defn #_"WalletAppKit" WalletAppKit''set-peer-nodes [#_"WalletAppKit" this, #_"PeerAddress..." addresses]
         (assert-state (= (.state this) :KeyChainState'NEW), "Cannot call after startup")
+
         (assoc this :peer-addresses addresses)
     )
 
-    ;;; Will only connect to loopback.  Cannot be called after startup. ;;
+    ;;;
+     ; Will only connect to loopback.  Cannot be called after startup.
+     ;;
     #_method
     (defn #_"WalletAppKit" WalletAppKit''connect-to-loopback [#_"WalletAppKit" this]
         (try
@@ -17969,22 +17732,6 @@
     )
 
     ;;;
-     ; If you want to learn about the sync process, you can provide a listener here.  For instance,
-     ; a {@link DownloadProgressTracker} is a good choice.  This has no effect unless
-     ; setBlockingStartup(false) has been called too, due to some missing implementation code.
-     ;;
-    #_method
-    (defn #_"WalletAppKit" WalletAppKit''set-download-listener [#_"WalletAppKit" this, #_"DownloadProgressTracker" listener]
-        (assoc this :download-listener listener)
-    )
-
-    ;;; If true, will register a shutdown hook to stop the library.  Defaults to true. ;;
-    #_method
-    (defn #_"WalletAppKit" WalletAppKit''set-auto-stop [#_"WalletAppKit" this, #_"boolean" auto?]
-        (assoc this :auto-stop auto?)
-    )
-
-    ;;;
      ; If set, the file is expected to contain a checkpoints file calculated with BuildCheckpoints.
      ; It makes initial block sync faster for new users - please refer to the documentation on the
      ; bitcoinj website (https://bitcoinj.github.io/speeding-up-chain-sync) for further details.
@@ -17992,25 +17739,6 @@
     #_method
     (defn #_"WalletAppKit" WalletAppKit''set-checkpoints [#_"WalletAppKit" this, #_"String[]" checkpoints]
         (assoc this :textual-checkpoints (ensure some? checkpoints))
-    )
-
-    ;;;
-     ; If true (the default) then the startup of this service won't be considered complete until the network has been
-     ; brought up, peer connections established and the block chain synchronised.  Therefore {@link #awaitRunning()} can
-     ; potentially take a very long time.  If false, then startup is considered complete once the network activity
-     ; begins and peer connections/block chain sync will continue in the background.
-     ;;
-    #_method
-    (defn #_"WalletAppKit" WalletAppKit''set-blocking-startup [#_"WalletAppKit" this, #_"boolean" blocking?]
-        (assoc this :blocking-startup blocking?)
-    )
-
-    ;;;
-     ; Sets the peer discovery class to use.  If none is provided then DNS is used, which is a reasonable default.
-     ;;
-    #_method
-    (defn #_"WalletAppKit" WalletAppKit''set-discovery [#_"WalletAppKit" this, #_"PeerDiscovery" discovery]
-        (assoc this :discovery discovery)
     )
 
     ;;;
@@ -18656,16 +18384,6 @@
             )
         )
     )
-
-    #_method
-    (defn #_"FilterMerger" FilterMerger''set-bloom-filter-fp-rate [#_"FilterMerger" this, #_"double" rate]
-        (assoc this :v-bloom-filter-fp-rate rate)
-    )
-
-    #_method
-    (defn #_"double" FilterMerger''get-bloom-filter-fp-rate [#_"FilterMerger" this]
-        (:v-bloom-filter-fp-rate this)
-    )
 )
 
 #_non-static #_"NioClient"
@@ -18893,7 +18611,7 @@
         (try
             (.setPriority (Thread/currentThread), Thread/MIN_PRIORITY)
 
-            (while (PeerGroup''is-running this)
+            (while (:v-running this)
                 (loop []
                     (when-let [#_"PendingConnection" conn (.poll (:new-connection-channels this))]
                         (try
@@ -18947,7 +18665,7 @@
 
     #_override
     (defn #_"ListenableFuture<SocketAddress>" ClientConnectionManager'''open-connection [#_"NioClientManager" this, #_"SocketAddress" server, #_"StreamConnection" connection]
-        (when-not (PeerGroup''is-running this)
+        (when-not (:v-running this)
             (throw (IllegalStateException.))
         )
 
@@ -19065,7 +18783,7 @@
     #_override
     (defn #_"void" Runnable'''run [#_"NioServer" this]
         (try
-            (while (PeerGroup''is-running this)
+            (while (:v-running this)
                 (CoinSelector'''select (:selector this))
 
                 (loop-when-recur [#_"Iterator<SelectionKey>" it (.iterator (.selectedKeys (:selector this)))] (.hasNext it) [it]
@@ -21946,14 +21664,16 @@
         ;; chunk[1] = recipient pubkey
         ;; chunk[4] = locktime
         ;; chunk[8] = sender pubkey
-        (and (= (count (:chunks this)) 10)
-             (ScriptChunk''equals-op-code (nth (:chunks this) 0), Script'OP_IF)
-             (ScriptChunk''equals-op-code (nth (:chunks this) 2), Script'OP_CHECKSIGVERIFY)
-             (ScriptChunk''equals-op-code (nth (:chunks this) 3), Script'OP_ELSE)
-             (ScriptChunk''equals-op-code (nth (:chunks this) 5), Script'OP_CHECKLOCKTIMEVERIFY)
-             (ScriptChunk''equals-op-code (nth (:chunks this) 6), Script'OP_DROP)
-             (ScriptChunk''equals-op-code (nth (:chunks this) 7), Script'OP_ENDIF)
-             (ScriptChunk''equals-op-code (nth (:chunks this) 9), Script'OP_CHECKSIG))
+        (let [#_"List<ScriptChunk>" chunks (:chunks this)]
+            (and (= (count chunks) 10)
+                (ScriptChunk''equals-op-code (nth chunks 0), Script'OP_IF)
+                (ScriptChunk''equals-op-code (nth chunks 2), Script'OP_CHECKSIGVERIFY)
+                (ScriptChunk''equals-op-code (nth chunks 3), Script'OP_ELSE)
+                (ScriptChunk''equals-op-code (nth chunks 5), Script'OP_CHECKLOCKTIMEVERIFY)
+                (ScriptChunk''equals-op-code (nth chunks 6), Script'OP_DROP)
+                (ScriptChunk''equals-op-code (nth chunks 7), Script'OP_ENDIF)
+                (ScriptChunk''equals-op-code (nth chunks 9), Script'OP_CHECKSIG))
+        )
     )
 
     (defn- #_"boolean" Script'equals-range [#_"byte[]" a, #_"int" start, #_"byte[]" b]
@@ -22666,13 +22386,13 @@
                     (throw+ (ScriptException'new :ScriptError'NEGATIVE_LOCKTIME, "Negative locktime"))
 
                 ;; There are two kinds of nLockTime, need to ensure we're comparing apples-to-apples.
-                (let [#_"boolean" a? (< (Transaction''get-lock-time tx) Transaction'LOCKTIME_THRESHOLD)
+                (let [#_"boolean" a? (< (:lock-time tx) Transaction'LOCKTIME_THRESHOLD)
                       #_"boolean" b? (neg? (.compareTo time, Transaction'LOCKTIME_THRESHOLD_BIG))]
                         (not (or (and a? b?) (and (not a?) (not b?)))))
                     (throw+ (ScriptException'new :ScriptError'UNSATISFIED_LOCKTIME, "Locktime requirement type mismatch"))
 
                 ;; Now that we know we're comparing apples-to-apples, the comparison is a simple numeric one.
-                (pos? (.compareTo time, (BigInteger/valueOf (Transaction''get-lock-time tx))))
+                (pos? (.compareTo time, (BigInteger/valueOf (:lock-time tx))))
                     (throw+ (ScriptException'new :ScriptError'UNSATISFIED_LOCKTIME, "Locktime requirement not satisfied"))
 
                 ;; Finally the nLockTime feature can be disabled and thus CHECKLOCKTIMEVERIFY bypassed if every txin has been
@@ -22681,7 +22401,7 @@
                 ;;
                 ;; Testing if this vin is not final is sufficient to prevent this condition.  Alternatively we could test all
                 ;; inputs, but testing just this input minimizes the data required to prove correct CHECKLOCKTIMEVERIFY execution.
-                (not (TransactionInput''has-sequence (Transaction''get-input tx, index)))
+                (not (TransactionInput''has-sequence (nth (:inputs tx) index)))
                     (throw+ (ScriptException'new :ScriptError'UNSATISFIED_LOCKTIME, "Transaction contains a final transaction input for a CHECKLOCKTIMEVERIFY script."))
             )
         )
@@ -22721,7 +22441,7 @@
 
     (defn- #_"boolean" Script'check-sequence [#_"long" __nSeq, #_"Transaction" tx, #_"int" index]
         ;; Relative lock times are supported by comparing the passed in operand to the sequence number of the input.
-        (let [#_"long" __tSeq (:sequence (Transaction''get-input tx, index))]
+        (let [#_"long" __tSeq (:sequence (nth (:inputs tx) index))]
             (and
                 ;; Fail if the transaction's version number is not set high enough to trigger BIP 68 rules.
                 (<= 2 (:version tx))
@@ -22771,7 +22491,7 @@
                         (let [#_"TransactionSignature" sig (TransactionSignature'decode-from-bitcoin-3 __sigBytes, canon?, (.contains flags, :ScriptVerifyFlag'LOW_S))
                               ;; TODO: Should check hash type is known.
                               #_"Sha256Hash" hash (Transaction''hash-for-signature-4b tx, index, __connectedScript, (byte (:sighash-flags sig)))]
-                            (ECKey'verify-3e (Sha256Hash''get-bytes hash), sig, __pubKey)
+                            (ECKey'verify-3e (:bytes hash), sig, __pubKey)
                         )
                         (catch Exception e
                             ;; There is (at least) one exception that could be hit here (EOFException, if the sig is too short).
@@ -22843,7 +22563,7 @@
                                         (try
                                             (let [#_"TransactionSignature" sig (TransactionSignature'decode-from-bitcoin-2 (.getFirst sigs), canon?)
                                                   #_"Sha256Hash" hash (Transaction''hash-for-signature-4b tx, index, __connectedScript, (byte (:sighash-flags sig)))]
-                                                (when (ECKey'verify-3e (Sha256Hash''get-bytes hash), sig, __pubKey)
+                                                (when (ECKey'verify-3e (:bytes hash), sig, __pubKey)
                                                     (.pollFirst sigs)
                                                 )
                                             )
@@ -23046,7 +22766,7 @@
     (defn #_"boolean" TransactionSigner'''sign-inputs [#_"CustomTransactionSigner" this, #_"ProposedTransaction" __propTx, #_"KeyBag" bag]
         (let [#_"Transaction" tx (:partial-tx __propTx) #_"int" n (count (:inputs tx))]
             (loop-when [#_"int" i 0] (< i n) => true
-                (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
+                (let [#_"TransactionInput" in (nth (:inputs tx) i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
                     (when (some? out) => (recur (inc i))
                         (let [#_"Script" __outKey (TransactionOutput''get-script-pub-key out)]
                             (if (Script''is-pay-to-script-hash __outKey)
@@ -23114,7 +22834,7 @@
     (defn #_"boolean" TransactionSigner'''sign-inputs [#_"LocalTransactionSigner" this, #_"ProposedTransaction" __propTx, #_"KeyBag" bag]
         (let [#_"Transaction" tx (:partial-tx __propTx)]
             (dotimes [#_"int" i (count (:inputs tx))]
-                (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
+                (let [#_"TransactionInput" in (nth (:inputs tx) i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
                     (when (some? out) => (log/warn (str "Missing connected output, assuming input " i " is already signed."))
                         (let [#_"Script" __inSig (TransactionInput''get-script-sig in) #_"Script" __outKey (TransactionOutput''get-script-pub-key out)]
                             (try+
@@ -23130,7 +22850,7 @@
                                           ;; Married keys all have the same derivation path, so we can safely just take first one here.
                                           #_"ECKey" __pubKey (first (:redeem-keys redeem))]
                                         (when (§ instance? DeterministicKey __pubKey)
-                                            (.put (:key-paths __propTx), __outKey, (DeterministicKey''get-path (cast' DeterministicKey __pubKey)))
+                                            (.put (:key-paths __propTx), __outKey, (:child-number-path (cast' DeterministicKey __pubKey)))
                                         )
                                         ;; Locate private key in redeem data.  For pay-to-address and pay-to-key inputs RedeemData will always contain
                                         ;; only one key (with private bytes).  For P2SH inputs RedeemData will contain multiple keys, one of which MAY
@@ -23187,7 +22907,7 @@
             (let [#_"Transaction" tx (:partial-tx __propTx)
                   #_"byte[]" dummy (TransactionSignature''encode-to-bitcoin (TransactionSignature'dummy))]
                 (dotimes [#_"int" i (count (:inputs tx))]
-                    (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
+                    (let [#_"TransactionInput" in (nth (:inputs tx) i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
                         (if (nil? out)
                             (log/warn (str "Missing connected output, assuming input " i " is already signed."))
                             (let [#_"Script" __inSig (TransactionInput''get-script-sig in) #_"Script" __outKey (TransactionOutput''get-script-pub-key out)]
@@ -24124,7 +23844,7 @@
                     (.position buffer, i)
                     (let [#_"Sha256Hash" hash (Block''get-hash (:stored-header block))]
                         (.remove (:not-found-cache this), hash)
-                        (.put buffer, (Sha256Hash''get-bytes hash))
+                        (.put buffer, (:bytes hash))
                         (StoredBlock''serialize-compact block, buffer)
                         (SPVBlockStore''set-ring-cursor this, buffer, (.position buffer))
                         (.put (:block-cache this), hash, block)
@@ -24150,7 +23870,7 @@
                             ;; Starting from the current tip of the ring work backwards until we have either
                             ;; found the block or wrapped around.
                             (let [#_"int" i0 (SPVBlockStore''get-ring-cursor this, buffer) #_"int" size (SPVBlockStore'get-file-size (:capacity this))
-                                  #_"byte[]" target (Sha256Hash''get-bytes hash) #_"byte[]" scratch (byte-array 32)
+                                  #_"byte[]" target (:bytes hash) #_"byte[]" scratch (byte-array 32)
                                   #_"StoredBlock" stored
                                     (loop [#_"int" i i0]
                                         (let [i (- i SPVBlockStore'RECORD_SIZE)
@@ -24207,10 +23927,8 @@
         (let-when [#_"MappedByteBuffer" buffer (:buffer this)] (some? buffer) => (throw+ (BlockStoreException'new "Store closed"))
             (sync (:blockstore-lock this)
                 (§ ass this (assoc this :last-chain-head head))
-                (let [#_"byte[]" bytes (Sha256Hash''get-bytes (Block''get-hash (:stored-header head)))]
-                    (.position buffer, 8)
-                    (.put buffer, bytes)
-                )
+                (.position buffer, 8)
+                (.put buffer, (:bytes (Block''get-hash (:stored-header head))))
             )
         )
         nil
@@ -25004,11 +24722,6 @@
         )
     )
 
-    #_method
-    (defn #_"List<ListenerRegistration<KeyChainEventListener>>" BasicKeyChain''get-listeners [#_"BasicKeyChain" this]
-        (ArrayList. (:listeners this))
-    )
-
     #_override
     (defn #_"void" KeyChain'''add-event-listener-2 [#_"BasicKeyChain" this, #_"KeyChainEventListener" listener]
         (KeyChain'''add-event-listener-3 this, listener, Threading'USER_THREAD)
@@ -25185,11 +24898,11 @@
             ;; receiving money.
             #_"BasicKeyChain" :basic-key-chain nil
 
-            ;; If set this chain is following another chain in a married KeyChainGroup.
+            ;; If set, this chain is following another chain in a married KeyChainGroup.
             #_"boolean" :is-following false
 
-            ;; Holds a number of signatures required to spend.  It's the N from N-of-M CHECKMULTISIG script for P2SH transactions
-            ;; and always 1 for other transaction types.
+            ;; Holds the number of signatures required to spend.
+            ;; It's the N from N-of-M CHECKMULTISIG script for P2SH transactions and always 1 for other transaction types.
             #_"int" :sigs-required-to-spend 1
         )
     )
@@ -25223,6 +24936,19 @@
         (DeterministicKeyChain'from-seed (DeterministicSeed'from-entropy entropy, passphrase, secs))
     )
 
+    ;; Derives the account path keys and inserts them into the basic key chain.
+    ;; This is important to preserve their order for serialization, amongst other things.
+    #_method
+    (defn- #_"DeterministicKeyChain" DeterministicKeyChain''initialize-hierarchy [#_"DeterministicKeyChain" this]
+        (let [#_"List<ChildNumber>" path DeterministicKeyChain'ACCOUNT_ZERO_PATH
+              this (assoc this :external-parent-key (DeterministicHierarchy''derive-child-5 (:hierarchy this), path, false, false, ChildNumber'ZERO))
+              this (assoc this :internal-parent-key (DeterministicHierarchy''derive-child-5 (:hierarchy this), path, false, false, ChildNumber'ONE))
+              this (update this :basic-key-chain BasicKeyChain''import-key (:external-parent-key this))
+              this (update this :basic-key-chain BasicKeyChain''import-key (:internal-parent-key this))]
+            this
+        )
+    )
+
     ;;;
      ; Creates a deterministic key chain that watches the given (public only) root key.  You can use this to calculate
      ; balances and generally follow along, but spending is not possible with such a chain.  Currently you can't use
@@ -25237,14 +24963,14 @@
             (assert-argument (ECKey'''is-pub-key-only key), "Private subtrees are not supported yet: do .dropPrivate().dropParent() at first.")
 
             (let [this (DeterministicKeyChain'init)]
-                (assert-argument (= (count (DeterministicKey''get-path key)) (count (DeterministicKeyChain''get-account-path this))), "You can only watch an account key currently")
+                (assert-argument (= (count (:child-number-path key)) (count DeterministicKeyChain'ACCOUNT_ZERO_PATH)), "You can only watch an account key currently")
 
                 (let [this (assoc this :basic-key-chain (BasicKeyChain'new))
                       this (assoc this :seed nil)
                       this (assoc this :root-key nil)
                       this (update this :basic-key-chain BasicKeyChain''import-key key)
                       this (assoc this :hierarchy (DeterministicHierarchy'new key))
-                      this (DeterministicKeyChain''initialize-hierarchy this, key)]
+                      this (DeterministicKeyChain''initialize-hierarchy this)]
                     (assoc this :is-following following?)
                 )
             )
@@ -25272,30 +24998,11 @@
               this (assoc this :basic-key-chain (BasicKeyChain'new))
               this (update this :basic-key-chain BasicKeyChain''import-key (:root-key this))
               this (assoc this :hierarchy (DeterministicHierarchy'new (:root-key this)))
-              #_"List<ChildNumber>" path (DeterministicKeyChain''get-account-path this)]
+              #_"List<ChildNumber>" path DeterministicKeyChain'ACCOUNT_ZERO_PATH]
             (dotimes [#_"int" i (count path)]
                 (§ ass this (update this :basic-key-chain BasicKeyChain''import-key (DeterministicHierarchy''get-4 (:hierarchy this), (.subList path, 0, (inc i)), false, true)))
             )
-            (DeterministicKeyChain''initialize-hierarchy this, (:root-key this))
-        )
-    )
-
-    ;;; Override in subclasses to use a different account derivation path. ;;
-    #_method
-    (defn #_"List<ChildNumber>" DeterministicKeyChain''get-account-path [#_"DeterministicKeyChain" __]
-        DeterministicKeyChain'ACCOUNT_ZERO_PATH
-    )
-
-    ;; Derives the account path keys and inserts them into the basic key chain.
-    ;; This is important to preserve their order for serialization, amongst other things.
-    #_method
-    (defn- #_"DeterministicKeyChain" DeterministicKeyChain''initialize-hierarchy [#_"DeterministicKeyChain" this, #_"DeterministicKey" _baseKey]
-        (let [#_"List<ChildNumber>" path (DeterministicKeyChain''get-account-path this)
-              this (assoc this :external-parent-key (DeterministicHierarchy''derive-child-5 (:hierarchy this), path, false, false, ChildNumber'ZERO))
-              this (assoc this :internal-parent-key (DeterministicHierarchy''derive-child-5 (:hierarchy this), path, false, false, ChildNumber'ONE))
-              this (update this :basic-key-chain BasicKeyChain''import-key (:external-parent-key this))
-              this (update this :basic-key-chain BasicKeyChain''import-key (:internal-parent-key this))]
-            this
+            (DeterministicKeyChain''initialize-hierarchy this)
         )
     )
 
@@ -25344,7 +25051,7 @@
                     (BasicKeyChain''import-keys (:basic-key-chain this), lookahead)
                     (let [#_"List<DeterministicKey>" keys (ArrayList. __numberOfKeys)]
                         (dotimes [#_"int" i __numberOfKeys]
-                            (let [#_"List<ChildNumber>" path (HDUtils'append (DeterministicKey''get-path __parentKey), (ChildNumber'compose (+ (- index __numberOfKeys) i), false))
+                            (let [#_"List<ChildNumber>" path (HDUtils'append (:child-number-path __parentKey), (ChildNumber'compose (+ (- index __numberOfKeys) i), false))
                                   #_"DeterministicKey" key (DeterministicHierarchy''get-4 (:hierarchy this), path, false, false)]
                                 ;; Just a last minute sanity check before we hand the key out to the app for usage.  This isn't
                                 ;; inspired by any real problem reports from bitcoinj users, but I've heard of cases via the grapevine
@@ -25364,7 +25071,7 @@
 
     #_method
     (defn- #_"void" DeterministicKeyChain''check-for-bit-flip [#_"DeterministicKeyChain" this, #_"DeterministicKey" key]
-        (let [#_"DeterministicKey" parent (ensure some? (DeterministicKey''get-parent key))
+        (let [#_"DeterministicKey" parent (ensure some? (:parent key))
               #_"byte[]" rederived (:key-bytes (HDKeyDerivation'derive-child-key-bytes-from-public parent, (DeterministicKey''get-child-number key), :PublicDerivationMode'WITH_INVERSION))
               #_"byte[]" actual (ECKey''get-pub-key key)]
             (when-not (Arrays/equals rederived, actual)
@@ -25382,7 +25089,7 @@
     #_method
     (defn #_"DeterministicKeyChain" DeterministicKeyChain''mark-key-as-used [#_"DeterministicKeyChain" this, #_"DeterministicKey" key]
         (let [#_"int" n (inc (ChildNumber''i (DeterministicKey''get-child-number key)))]
-            (condp = (DeterministicKey''get-parent key)
+            (condp = (:parent key)
                 (:internal-parent-key this)
                     (when (< (:issued-internal-keys this) n) => this
                         (-> this (assoc :issued-internal-keys n) (DeterministicKeyChain''maybe-look-ahead-1))
@@ -25473,7 +25180,7 @@
      ;;
     #_method
     (defn #_"DeterministicKey" DeterministicKeyChain''get-watching-key [#_"DeterministicKeyChain" this]
-        (DeterministicKeyChain''get-key-by-path-2 this, (DeterministicKeyChain''get-account-path this))
+        (DeterministicKeyChain''get-key-by-path-2 this, DeterministicKeyChain'ACCOUNT_ZERO_PATH)
     )
 
     ;;; Returns true if this chain is watch only, meaning it has public keys but no private key. ;;
@@ -25525,7 +25232,9 @@
         (KeyChain'''remove-event-listener-2 (:basic-key-chain this), listener)
     )
 
-    ;;; Returns a list of words that represent the seed or null if this chain is a watching chain. ;;
+    ;;;
+     ; Returns a list of words that represent the seed or null if this chain is a watching chain.
+     ;;
     #_method
     (defn #_"List<String>" DeterministicKeyChain''get-mnemonic-code [#_"DeterministicKeyChain" this]
         (sync (:d-keychain-lock this)
@@ -25533,14 +25242,6 @@
                 (:mnemonic-code (:seed this))
             )
         )
-    )
-
-    ;;;
-     ; Return true if this keychain is following another keychain.
-     ;;
-    #_method
-    (defn #_"boolean" DeterministicKeyChain''is-following [#_"DeterministicKeyChain" this]
-        (:is-following this)
     )
 
     #_override
@@ -25657,7 +25358,7 @@
     (defn- #_"List<DeterministicKey>" DeterministicKeyChain''maybe-look-ahead-5 [#_"DeterministicKeyChain" this, #_"DeterministicKey" parent, #_"int" issued, #_"int" __lookaheadSize, #_"int" __lookaheadThreshold]
         (assert-state (.isHeldByCurrentThread (:d-keychain-lock this)))
 
-        (let [#_"int" m (DeterministicHierarchy''get-num-children (:hierarchy this), (DeterministicKey''get-path parent))
+        (let [#_"int" m (DeterministicHierarchy''get-num-children (:hierarchy this), (:child-number-path parent))
               #_"int" needed (- (+ issued __lookaheadSize __lookaheadThreshold) m)]
 
             (when (< __lookaheadThreshold needed) => (ArrayList.)
@@ -25721,13 +25422,13 @@
     (defn #_"List<ECKey>" DeterministicKeyChain''get-keys-3b [#_"DeterministicKeyChain" this, #_"boolean" lookahead?, #_"boolean" parents?]
         (let [#_"List<ECKey>" keys (BasicKeyChain''get-keys-1 (:basic-key-chain this))]
             (when-not lookahead? => keys
-                (let [#_"int" size (count (DeterministicKey''get-path (:internal-parent-key this))) #_"List<ECKey>" __issuedKeys (LinkedList.)]
+                (let [#_"int" size (count (:child-number-path (:internal-parent-key this))) #_"List<ECKey>" __issuedKeys (LinkedList.)]
                     (doseq [#_"ECKey" key keys]
-                        (let [#_"DeterministicKey" detkey (cast' DeterministicKey key) #_"DeterministicKey" parent (DeterministicKey''get-parent detkey)]
+                        (let [#_"DeterministicKey" detkey (cast' DeterministicKey key) #_"DeterministicKey" parent (:parent detkey)]
                             (let-when [i (ChildNumber''i (DeterministicKey''get-child-number detkey))]
                                 (and
                                     (or parents? (some? parent))
-                                    (or parents? (< size (count (DeterministicKey''get-path detkey))))
+                                    (or parents? (< size (count (:child-number-path detkey))))
                                     (or (not (.equals (:internal-parent-key this), parent)) (< i (:issued-internal-keys this)))
                                     (or (not (.equals (:external-parent-key this), parent)) (< i (:issued-external-keys this)))
                                 )
@@ -25748,7 +25449,7 @@
     (defn #_"List<ECKey>" DeterministicKeyChain''get-issued-receive-keys [#_"DeterministicKeyChain" this]
         (let [#_"List<ECKey>" keys (ArrayList. (DeterministicKeyChain''get-keys-3b this, false, false))]
             (loop-when-recur [#_"Iterator<ECKey>" it (.iterator keys)] (.hasNext it) [it]
-                (let [#_"DeterministicKey" parent (DeterministicKey''get-parent (cast' DeterministicKey (.next it)))]
+                (let [#_"DeterministicKey" parent (:parent (cast' DeterministicKey (.next it)))]
                     (when (or (nil? parent) (not (.equals (:external-parent-key this), parent)))
                         (.remove it)
                     )
@@ -25766,7 +25467,7 @@
         (let [#_"ImmutableList.Builder<DeterministicKey>" keys (ImmutableList/builder)]
             (doseq [#_"ECKey" key (DeterministicKeyChain''get-keys-3b this, true, false)]
                 (let [#_"DeterministicKey" __dKey (cast' DeterministicKey key)]
-                    (when (= (count (DeterministicKey''get-path __dKey)) (+ (count (DeterministicKeyChain''get-account-path this)) 2))
+                    (when (= (count (:child-number-path __dKey)) (+ (count DeterministicKeyChain'ACCOUNT_ZERO_PATH) 2))
                         (.add keys, __dKey)
                     )
                 )
@@ -25819,7 +25520,7 @@
                     (when private?
                         (let [#_"List<String>" words (:mnemonic-code (:seed this))]
                             (.. sb (append "Seed as words: ") (append (.join Utils'SPACE_JOINER, words)) (append "\n"))
-                            (.. sb (append "Seed as hex:   ") (append (DeterministicSeed''to-hex-string (:seed this))) (append "\n"))
+                            (.. sb (append "Seed as hex:   ") (append (DeterministicSeed''to-base16 (:seed this))) (append "\n"))
                         )
                     )
                     (let [#_"long" secs (:creation-time-seconds (:seed this))]
@@ -25847,22 +25548,9 @@
         nil
     )
 
-    ;;; The number of signatures required to spend coins received by this keychain. ;;
-    #_method
-    (defn #_"DeterministicKeyChain" DeterministicKeyChain''set-sigs-required-to-spend [#_"DeterministicKeyChain" this, #_"int" __sigsRequiredToSpend]
-        (assoc this :sigs-required-to-spend __sigsRequiredToSpend)
-    )
-
     ;;;
-     ; Returns the number of signatures required to spend transactions for this KeyChain.
-     ; It's the N from N-of-M CHECKMULTISIG script for P2SH transactions and always 1 for other transaction types.
+     ; Returns the redeem script by its hash or null if this keychain did not generate the script.
      ;;
-    #_method
-    (defn #_"int" DeterministicKeyChain''get-sigs-required-to-spend [#_"DeterministicKeyChain" this]
-        (:sigs-required-to-spend this)
-    )
-
-    ;;; Returns the redeem script by its hash or null if this keychain did not generate the script. ;;
     #_abstract
     (defn #_"RedeemData" DeterministicKeyChain'''find-redeem-data-by-script-hash [#_"DeterministicKeyChain" __, #_"ByteString" bytes]
         nil
@@ -26279,7 +25967,7 @@
     )
 
     #_method
-    (defn #_"String" DeterministicSeed''to-hex-string [#_"DeterministicSeed" this]
+    (defn #_"String" DeterministicSeed''to-base16 [#_"DeterministicSeed" this]
         (Base16'encode (:seed-bytes this))
     )
 
@@ -26304,7 +25992,7 @@
     #_foreign
     #_override
     (defn #_"String" Object'''toString [#_"DeterministicSeed" this]
-        (str "DeterministicSeed " (DeterministicSeed''to-hex-string this) " " (.join Utils'SPACE_JOINER, (:mnemonic-code this)))
+        (str "DeterministicSeed " (DeterministicSeed''to-base16 this) " " (.join Utils'SPACE_JOINER, (:mnemonic-code this)))
     )
 )
 
@@ -26482,7 +26170,7 @@
     #_method
     (defn #_"KeyChainGroup" KeyChainGroup''add-and-activate-hd-chain [#_"KeyChainGroup" this, #_"DeterministicKeyChain" chain]
         (log/info (str "Creating and activating a new HD chain: " chain))
-        (doseq [#_"ListenerRegistration<KeyChainEventListener>" r (BasicKeyChain''get-listeners (:basic this))]
+        (doseq [#_"ListenerRegistration<KeyChainEventListener>" r (ArrayList. (:listeners (:basic this)))]
             (KeyChain'''add-event-listener-3 chain, (:listener r), (:executor r))
         )
         (when (<= 0 (:lookahead-size this))
@@ -26946,13 +26634,13 @@
             ;; external key as current RECEIVE key and latest issued internal key as CHANGE key.  This should be changed
             ;; as soon as other kinds of KeyPurpose are introduced.
             (let-when [#_"int" n (DeterministicKeyChain''get-issued-external-keys active)] (pos? n)
-                (let [#_"DeterministicKey" key (DeterministicKeyChain''get-key-by-path-2 active, (HDUtils'append (HDUtils'concat (DeterministicKeyChain''get-account-path active), DeterministicKeyChain'EXTERNAL_SUBPATH), (ChildNumber'new (dec n))))]
+                (let [#_"DeterministicKey" key (DeterministicKeyChain''get-key-by-path-2 active, (HDUtils'append (HDUtils'concat DeterministicKeyChain'ACCOUNT_ZERO_PATH, DeterministicKeyChain'EXTERNAL_SUBPATH), (ChildNumber'new (dec n))))]
                     (.put keys, :KeyPurpose'RECEIVE_FUNDS, key)
                 )
             )
 
             (let-when [#_"int" n (DeterministicKeyChain''get-issued-internal-keys active)] (pos? n)
-                (let [#_"DeterministicKey" key (DeterministicKeyChain''get-key-by-path-2 active, (HDUtils'append (HDUtils'concat (DeterministicKeyChain''get-account-path active), DeterministicKeyChain'INTERNAL_SUBPATH), (ChildNumber'new (dec n))))]
+                (let [#_"DeterministicKey" key (DeterministicKeyChain''get-key-by-path-2 active, (HDUtils'append (HDUtils'concat DeterministicKeyChain'ACCOUNT_ZERO_PATH, DeterministicKeyChain'INTERNAL_SUBPATH), (ChildNumber'new (dec n))))]
                     (.put keys, :KeyPurpose'CHANGE, key)
                 )
             )
@@ -26966,7 +26654,7 @@
         (let [#_"List<DeterministicKeyChain>" __followingChains (ArrayList.)]
             (loop-when-recur [#_"Iterator<DeterministicKeyChain>" it (.iterator chains)] (.hasNext it) [it]
                 (let [#_"DeterministicKeyChain" chain (.next it)]
-                    (cond (DeterministicKeyChain''is-following chain)
+                    (cond (:is-following chain)
                         (do
                             (.add __followingChains, chain)
                             (.remove it)
@@ -27003,14 +26691,6 @@
             )
             (.toString sb)
         )
-    )
-
-    ;;;
-     ; Returns a copy of the current list of chains.
-     ;;
-    #_method
-    (defn #_"List<DeterministicKeyChain>" KeyChainGroup''get-deterministic-key-chains [#_"KeyChainGroup" this]
-        (ArrayList. (:chains this))
     )
 
     ;;;
@@ -27165,7 +26845,7 @@
         (let [#_"ImmutableList.Builder<ECKey>" keys (ImmutableList/builder)]
             (doseq [#_"DeterministicKeyChain" chain (:following-key-chains this)]
                 (§ ass chain (DeterministicKeyChain''maybe-look-ahead-1 chain))
-                (.add keys, (DeterministicKeyChain''get-key-by-path-2 chain, (DeterministicKey''get-path __followedKey)))
+                (.add keys, (DeterministicKeyChain''get-key-by-path-2 chain, (:child-number-path __followedKey)))
             )
             (.add keys, __followedKey)
             (.build keys)
@@ -27190,7 +26870,7 @@
         (let [#_"List<DeterministicKeyChain>" __followingKeyChains (ArrayList.)]
 
             (doseq [#_"DeterministicKey" key __followingAccountKeys]
-                (assert-argument (= (count (DeterministicKey''get-path key)) (count (DeterministicKeyChain''get-account-path this))), "Following keys have to be account keys")
+                (assert-argument (= (count (:child-number-path key)) (count DeterministicKeyChain'ACCOUNT_ZERO_PATH)), "Following keys have to be account keys")
 
                 (let [#_"DeterministicKeyChain" chain (DeterministicKeyChain'watch-and-follow key)]
                     (when (<= 0 (:lookahead-size this))
@@ -27436,18 +27116,28 @@
     )
 
     ;;;
+     ; Simply wraps a pre-built incomplete transaction provided by you.
+     ;;
+    (defn #_"SendRequest" SendRequest'for-tx [#_"Transaction" tx]
+        (assoc (SendRequest'new) :tx tx)
+    )
+
+    ;;;
      ; Creates a new SendRequest to the given address for the given value.
      ;
      ; Be very careful when value is smaller than {@link Transaction#MIN_NONDUST_OUTPUT} as the transaction
      ; will likely be rejected by the network in this case.
      ;;
-    (defn #_"SendRequest" SendRequest'to-2 [#_"Address" destination, #_"Coin" value]
+    (defn #_"SendRequest" SendRequest'to-address [#_"Address" destination, #_"Coin" value]
         (let [#_"Ledger" ledger (ensure some? (:ledger destination), "Address is for an unknown network")
-              #_"SendRequest" req (SendRequest'new)]
-            (§ ass req (assoc req :tx (Transaction'new ledger)))
-            (Transaction''add-output-ca (:tx req), value, destination)
-            req
+              #_"Transaction" tx (Transaction'new ledger)]
+            (Transaction''add-output-ca tx, value, destination)
+            (SendRequest'for-tx tx)
         )
+    )
+
+    (defn #_"SendRequest" SendRequest'empty-wallet [#_"Address" destination]
+        (assoc (SendRequest'to-address destination, Coin'ZERO) :empty-wallet true)
     )
 
     ;;;
@@ -27458,28 +27148,10 @@
      ; rejected by the network.  Note that using {@link SendRequest#to(Address, Coin)} will result
      ; in a smaller output, and thus the ability to use a smaller output value without rejection.
      ;;
-    (defn #_"SendRequest" SendRequest'to-3 [#_"Ledger" ledger, #_"ECKey" destination, #_"Coin" value]
-        (let [#_"SendRequest" req (SendRequest'new)]
-            (§ ass req (assoc req :tx (Transaction'new ledger)))
-            (Transaction''add-output-ce (:tx req), value, destination)
-            req
-        )
-    )
-
-    ;;;
-     ; Simply wraps a pre-built incomplete transaction provided by you.
-     ;;
-    (defn #_"SendRequest" SendRequest'for-tx [#_"Transaction" tx]
-        (assoc (SendRequest'new) :tx tx)
-    )
-
-    (defn #_"SendRequest" SendRequest'empty-wallet [#_"Address" destination]
-        (let [#_"Ledger" ledger (ensure some? (:ledger destination), "Address is for an unknown network")
-              #_"SendRequest" req (SendRequest'new)]
-            (§ ass req (assoc req :tx (Transaction'new ledger)))
-            (Transaction''add-output-ca (:tx req), Coin'ZERO, destination)
-            (§ ass req (assoc req :empty-wallet true))
-            req
+    (defn #_"SendRequest" SendRequest'to-pubkey [#_"Ledger" ledger, #_"ECKey" destination, #_"Coin" value]
+        (let [#_"Transaction" tx (Transaction'new ledger)]
+            (Transaction''add-output-ce tx, value, destination)
+            (SendRequest'for-tx tx)
         )
     )
 
@@ -27502,7 +27174,7 @@
             (let [#_"Transaction" tx (Transaction'new (:ledger parent))]
                 (Transaction''add-input-o tx, output)
                 (Transaction''add-output-ca tx, (Coin''subtract (:coin-value output), __feeRaise), (Wallet''fresh-address wallet, :KeyPurpose'CHANGE))
-                (let [tx (Transaction''set-purpose tx, :TransactionPurpose'RAISE_FEE)]
+                (let [tx (assoc tx :purpose :TransactionPurpose'RAISE_FEE)]
                     (assoc (SendRequest'for-tx tx) :completed true)
                 )
             )
@@ -27526,7 +27198,6 @@
     (defn #_"SendRequest" SendRequest'to-cltv-payment-channel-5bi [#_"Ledger" ledger, #_"BigInteger" time, #_"ECKey" from, #_"ECKey" to, #_"Coin" value]
         (let [#_"Transaction" tx (Transaction'new ledger)]
             (Transaction''add-output-cs tx, value, (Script'create-cltv-payment-channel-output time, from, to))
-
             (SendRequest'for-tx tx)
         )
     )
@@ -27868,9 +27539,6 @@
                         #_"long" :v-key-rotation-timestamp 0
 
                         #_"CoinSelector" :coin-selector (DefaultCoinSelector'new)
-
-                        ;; User-provided description that may help people keep track of what a wallet is for.
-                        #_"String" :description nil
 
                         ;; Objects that perform transaction signing.  Applied subsequently one after another.
                         #_"List<TransactionSigner>" :signers (ArrayList.)
@@ -28435,8 +28103,8 @@
                     )
                 )
             )
+            this
         )
-        this
     )
 
     ;;;
@@ -28480,9 +28148,8 @@
     #_method
     (defn #_"Wallet" Wallet''set-accept-risky-transactions [#_"Wallet" this, #_"boolean" accept?]
         (sync (:wallet-lock this)
-            (§ ass this (assoc this :accept-risky-transactions accept?))
+            (assoc this :accept-risky-transactions accept?)
         )
-        this
     )
 
     ;;;
@@ -28501,13 +28168,17 @@
         nil
     )
 
-    ;;; Requests an asynchronous save on a background thread. ;;
+    ;;;
+     ; Requests an asynchronous save on a background thread.
+     ;;
     #_method
     (defn #_"void" Wallet''save-later [#_"Wallet" __]
         nil
     )
 
-    ;;; If auto saving is enabled, do an immediate sync write to disk ignoring any delays. ;;
+    ;;;
+     ; If auto saving is enabled, do an immediate sync write to disk ignoring any delays.
+     ;;
     #_method
     (defn #_"void" Wallet''save-now [#_"Wallet" __]
         nil
@@ -28901,130 +28572,130 @@
 
             ;; Inform the key chains that the issued keys were observed in a transaction, so they know to
             ;; calculate more keys for the next Bloom filters.
-            (§ ass this (Wallet''mark-keys-as-used this, tx))
-
-            (§ ass this (update this :on-wallet-changed-suppressions inc))
-
-            ;; If this transaction is already in the wallet, we may need to move it into a different pool.
-            ;; At the very least we need to ensure we're manipulating the canonical object rather than a duplicate.
-            (let [tx (or (get (:transactions this) __txHash) tx)
+            (let [this (Wallet''mark-keys-as-used this, tx)
+                  this (update this :on-wallet-changed-suppressions inc)
+                  ;; If this transaction is already in the wallet, we may need to move it into a different pool.
+                  ;; At the very least we need to ensure we're manipulating the canonical object rather than a duplicate.
+                  tx (or (get (:transactions this) __txHash) tx)
                   #_"boolean" pending? (some? (.remove (:pending this), __txHash))]
                 (when pending?
                     (log/info "  <-pending")
                 )
 
-                (cond best?
-                    (let [#_"boolean" dead? (some? (.remove (:dead this), __txHash))]
-                        (when dead?
-                            (log/info "  <-dead")
+                (let [this
+                        (cond best?
+                            (let [#_"boolean" dead? (some? (.remove (:dead this), __txHash))]
+                                (when dead?
+                                    (log/info "  <-dead")
+                                )
+                                (when pending?
+                                    ;; Was pending and is now confirmed.  Disconnect the outputs in case we spent any already:
+                                    ;; they will be re-connected by processTxFromBestChain below.
+                                    (doseq [#_"TransactionOutput" output (:outputs tx)]
+                                        (when-let [#_"TransactionInput" __spentBy (:spent-by output)]
+                                            (let [#_"boolean" added? (.add (:my-unspents this), output)]
+                                                (assert-state added?)
+                                                (TransactionInput''disconnect __spentBy)
+                                            )
+                                        )
+                                    )
+                                )
+                                (Wallet''process-tx-from-best-chain this, tx, (or pending? dead?))
+                            )
+                            :else
+                            (do
+                                (assert-state side?)
+                                ;; Transactions that appear in a side chain will have that appearance recorded below - we assume
+                                ;; that some miners are also trying to include the transaction into the current best chain too,
+                                ;; so let's treat it as pending, except we don't need to do any risk analysis on it.
+                                (if pending?
+                                    (do
+                                        ;; Just put it back in without touching the connections or confidence.
+                                        (Wallet''add-wallet-transaction this, :PoolType'PENDING, tx)
+                                        (log/info "  ->pending")
+                                    )
+                                    ;; Ignore the case where a tx appears on a side chain at the same time as the best chain
+                                    ;; (this is quite normal and expected).
+                                    (let [#_"Sha256Hash" hash (Transaction''get-hash tx)]
+                                        (when-not (or (.containsKey (:unspent this), hash) (.containsKey (:spent this), hash) (.containsKey (:dead this), hash))
+                                            ;; Otherwise put it (possibly back) into pending.
+                                            ;; Committing it updates the spent flags and inserts into the pool as well.
+                                            (Wallet''commit-tx this, tx)
+                                        )
+                                    )
+                                )
+                                this
+                            )
                         )
-                        (when pending?
-                            ;; Was pending and is now confirmed.  Disconnect the outputs in case we spent any already:
-                            ;; they will be re-connected by processTxFromBestChain below.
-                            (doseq [#_"TransactionOutput" output (:outputs tx)]
-                                (when-let [#_"TransactionInput" __spentBy (:spent-by output)]
-                                    (let [#_"boolean" added? (.add (:my-unspents this), output)]
-                                        (assert-state added?)
-                                        (TransactionInput''disconnect __spentBy)
+                      this
+                        (when (some? block) => this
+                            ;; Mark the tx as appearing in this block so we can find it later after a re-org.  This also tells
+                            ;; the tx confidence object about the block and sets its depth appropriately.
+                            (§ ass tx (Transaction''set-block-appearance tx, block, best?, offset))
+                            (when best?
+                                ;; Don't notify this tx of work done in notifyNewBestBlock which will be called immediately
+                                ;; after this method has been called by SPVBlockChain for all relevant transactions.  Otherwise
+                                ;; we'd double count.
+                                (.add (:ignore-next-new-block this), __txHash)
+
+                                ;; When a tx is received from the best chain, if other txns that spend this tx are IN_CONFLICT,
+                                ;; change its confidence to PENDING (Unless they are also spending other txns IN_CONFLICT).
+                                ;; Consider dependency chains.
+                                (let [#_"Set<Transaction>" deps (HashSet. (Collections/singleton tx))]
+                                    (Wallet''add-transactions-depending-on this, deps, (Wallet''get-transactions this, true))
+                                    (.remove deps, tx)
+                                    (doseq [#_"Transaction" dep (Wallet''sort-txns-by-dependency this, deps)]
+                                        (when (and (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence-t dep)) :ConfidenceType'IN_CONFLICT)
+                                              (not (Wallet''is-spending-txns-in-confidence-type this, dep, :ConfidenceType'IN_CONFLICT)))
+                                            (§ ass (Transaction''get-confidence-t dep) (TransactionConfidence''set-confidence-type (Transaction''get-confidence-t dep), :ConfidenceType'PENDING))
+                                            (.put (:confidence-changed this), dep, :ConfidenceChangeReason'TYPE)
+                                        )
                                     )
                                 )
                             )
+                            this
                         )
-                        (§ ass this (Wallet''process-tx-from-best-chain this, tx, (or pending? dead?)))
+                      this (update this :on-wallet-changed-suppressions dec)]
+
+                    ;; Side chains don't affect confidence.
+                    (if best?
+                        ;; notifyNewBestBlock will be invoked next and will then call maybeQueueOnWalletChanged for us.
+                        (.put (:confidence-changed this), tx, :ConfidenceChangeReason'TYPE)
+                        (Wallet''maybe-queue-on-wallet-changed this)
                     )
-                    :else
-                    (do
-                        (assert-state side?)
-                        ;; Transactions that appear in a side chain will have that appearance recorded below - we assume
-                        ;; that some miners are also trying to include the transaction into the current best chain too,
-                        ;; so let's treat it as pending, except we don't need to do any risk analysis on it.
-                        (if pending?
-                            (do
-                                ;; Just put it back in without touching the connections or confidence.
-                                (Wallet''add-wallet-transaction this, :PoolType'PENDING, tx)
-                                (log/info "  ->pending")
-                            )
-                            ;; Ignore the case where a tx appears on a side chain at the same time as the best chain
-                            ;; (this is quite normal and expected).
-                            (let [#_"Sha256Hash" hash (Transaction''get-hash tx)]
-                                (when-not (or (.containsKey (:unspent this), hash) (.containsKey (:spent this), hash) (.containsKey (:dead this), hash))
-                                    ;; Otherwise put it (possibly back) into pending.
-                                    ;; Committing it updates the spent flags and inserts into the pool as well.
-                                    (Wallet''commit-tx this, tx)
+
+                    ;; Inform anyone interested that we have received or sent coins but only if:
+                    ;;  - This is not due to a re-org.
+                    ;;  - The coins appeared on the best chain.
+                    ;;  - We did in fact receive some new money.
+                    ;;  - We have not already informed the user about the coins when we received the tx broadcast,
+                    ;;    or for our own spends.  If users want to know when a broadcast tx becomes confirmed,
+                    ;;    they need to use tx confidence listeners.
+                    (when (and (not (:inside-reorg this)) best?)
+                        (let [#_"Coin" after (Wallet''get-balance-1 this)] ;; This is slow.
+                            (log/info (str "Balance is now: " (Coin''to-friendly-string after)))
+                            (when-not pending?
+                                (let [#_"int" sign (Coin''signum difference)]
+                                    ;; We pick one callback based on the value difference, though a tx can of course both
+                                    ;; send and receive coins from the wallet.
+                                    (cond
+                                        (pos? sign) (Wallet''queue-on-coins-received this, tx, before, after)
+                                        (neg? sign) (Wallet''queue-on-coins-sent this, tx, before, after)
+                                    )
                                 )
                             )
+                            (Wallet''check-balance-futures-locked this)
                         )
                     )
+
+                    (Wallet''inform-confidence-listeners-if-not-reorganizing this)
+                    (Wallet''is-consistent-or-throw this)
+                    ;; Optimization for the case where a block has tons of relevant transactions.
+                    (Wallet''save-later this)
+                    (assoc this :hard-save-on-next-block true)
                 )
-
-                (when (some? block)
-                    ;; Mark the tx as appearing in this block so we can find it later after a re-org.  This also tells
-                    ;; the tx confidence object about the block and sets its depth appropriately.
-                    (§ ass tx (Transaction''set-block-appearance tx, block, best?, offset))
-                    (when best?
-                        ;; Don't notify this tx of work done in notifyNewBestBlock which will be called immediately
-                        ;; after this method has been called by SPVBlockChain for all relevant transactions.  Otherwise
-                        ;; we'd double count.
-                        (.add (:ignore-next-new-block this), __txHash)
-
-                        ;; When a tx is received from the best chain, if other txns that spend this tx are IN_CONFLICT,
-                        ;; change its confidence to PENDING (Unless they are also spending other txns IN_CONFLICT).
-                        ;; Consider dependency chains.
-                        (let [#_"Set<Transaction>" deps (HashSet. (Collections/singleton tx))]
-                            (Wallet''add-transactions-depending-on this, deps, (Wallet''get-transactions this, true))
-                            (.remove deps, tx)
-                            (doseq [#_"Transaction" dep (Wallet''sort-txns-by-dependency this, deps)]
-                                (when (and (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence-t dep)) :ConfidenceType'IN_CONFLICT)
-                                           (not (Wallet''is-spending-txns-in-confidence-type this, dep, :ConfidenceType'IN_CONFLICT)))
-                                    (§ ass (Transaction''get-confidence-t dep) (TransactionConfidence''set-confidence-type (Transaction''get-confidence-t dep), :ConfidenceType'PENDING))
-                                    (.put (:confidence-changed this), dep, :ConfidenceChangeReason'TYPE)
-                                )
-                            )
-                        )
-                    )
-                )
-
-                (§ ass this (update this :on-wallet-changed-suppressions dec))
-
-                ;; Side chains don't affect confidence.
-                (if best?
-                    ;; notifyNewBestBlock will be invoked next and will then call maybeQueueOnWalletChanged for us.
-                    (.put (:confidence-changed this), tx, :ConfidenceChangeReason'TYPE)
-                    (Wallet''maybe-queue-on-wallet-changed this)
-                )
-
-                ;; Inform anyone interested that we have received or sent coins but only if:
-                ;;  - This is not due to a re-org.
-                ;;  - The coins appeared on the best chain.
-                ;;  - We did in fact receive some new money.
-                ;;  - We have not already informed the user about the coins when we received the tx broadcast,
-                ;;    or for our own spends.  If users want to know when a broadcast tx becomes confirmed,
-                ;;    they need to use tx confidence listeners.
-                (when (and (not (:inside-reorg this)) best?)
-                    (let [#_"Coin" after (Wallet''get-balance-1 this)] ;; This is slow.
-                        (log/info (str "Balance is now: " (Coin''to-friendly-string after)))
-                        (when-not pending?
-                            (let [#_"int" sign (Coin''signum difference)]
-                                ;; We pick one callback based on the value difference, though a tx can of course both
-                                ;; send and receive coins from the wallet.
-                                (cond
-                                    (pos? sign) (Wallet''queue-on-coins-received this, tx, before, after)
-                                    (neg? sign) (Wallet''queue-on-coins-sent this, tx, before, after)
-                                )
-                            )
-                        )
-                        (Wallet''check-balance-futures-locked this)
-                    )
-                )
-
-                (Wallet''inform-confidence-listeners-if-not-reorganizing this)
-                (Wallet''is-consistent-or-throw this)
-                ;; Optimization for the case where a block has tons of relevant transactions.
-                (Wallet''save-later this)
-                (§ ass this (assoc this :hard-save-on-next-block true))
             )
         )
-        this
     )
 
     ;;;
@@ -29212,11 +28883,12 @@
                 )]
 
             ;; Kill txns in conflict with this tx.
-            (let [#_"Set<Transaction>" __doubleSpendTxns (Wallet''find-double-spends-against this, tx, (:pending this))]
-                (when (seq __doubleSpendTxns)
-                    ;; No need to addTransactionsDependingOn(doubleSpendTxns), because killTxns() already kills dependencies.
-                    (§ ass this (Wallet''kill-txns this, __doubleSpendTxns, tx))
-                )
+            (let [#_"Set<Transaction>" __doubleSpendTxns (Wallet''find-double-spends-against this, tx, (:pending this))
+                  this
+                    (when (seq __doubleSpendTxns) => this
+                        ;; No need to addTransactionsDependingOn(doubleSpendTxns), because killTxns() already kills dependencies.
+                        (Wallet''kill-txns this, __doubleSpendTxns, tx)
+                    )]
                 (when (and (not __hasOutputsToMe) (not __hasOutputsFromMe) (not force?) (seq (Wallet''find-double-spends-against this, tx, (:transactions this))))
                     ;; Disconnect irrelevant inputs (otherwise might cause protobuf serialization issue).
                     (doseq [#_"TransactionInput" input (:inputs tx)]
@@ -29227,9 +28899,9 @@
                         )
                     )
                 )
+                this
             )
         )
-        this
     )
 
     ;;;
@@ -29408,8 +29080,8 @@
                     )
                 )
             )
+            this
         )
-        this
     )
 
     ;;;
@@ -29449,7 +29121,7 @@
             (let-when [#_"Sha256Hash" hash (Transaction''get-hash tx)] (not (.containsKey (:pending this), hash)) => false
                 (log/info (str "commitTx of " hash))
                 (let [#_"Coin" balance (Wallet''get-balance-1 this)]
-                    (§ ass tx (Transaction''set-update-time tx, (Time'now)))
+                    (§ ass tx (assoc tx :updated-at (Time'now)))
                     ;; Put any outputs that are sending money back to us into the unspents map, and calculate their total value.
                     (let [#_"Coin" earned (reduce #(if (TransactionOutput''is-mine %2, this) (Coin''add %1, (:coin-value %2)) %1) Coin'ZERO (:outputs tx))]
                         ;; Mark the outputs we're spending as spent so we won't try and use them in future creations.  This will also
@@ -29898,13 +29570,14 @@
     (defn #_"Wallet" Wallet''reset [#_"Wallet" this]
         (sync (:wallet-lock this)
             (Wallet''clear-transactions-1 this)
-            (§ ass this (assoc this :last-block-seen-hash nil))
-            (§ ass this (assoc this :last-block-seen-height -1)) ;; Magic value for 'never'.
-            (§ ass this (assoc this :last-block-seen-time-secs 0))
-            (Wallet''save-later this)
-            (Wallet''maybe-queue-on-wallet-changed this)
+            (let [this (assoc this :last-block-seen-hash nil)
+                  this (assoc this :last-block-seen-height -1) ;; Magic value for 'never'.
+                  this (assoc this :last-block-seen-time-secs 0)]
+                (Wallet''save-later this)
+                (Wallet''maybe-queue-on-wallet-changed this)
+                this
+            )
         )
-        this
     )
 
     ;;;
@@ -30056,25 +29729,22 @@
     #_method
     (defn #_"Wallet" Wallet''set-last-block-seen-hash [#_"Wallet" this, #_"Sha256Hash" hash]
         (sync (:wallet-lock this)
-            (§ ass this (assoc this :last-block-seen-hash hash))
+            (assoc this :last-block-seen-hash hash)
         )
-        this
     )
 
     #_method
     (defn #_"Wallet" Wallet''set-last-block-seen-height [#_"Wallet" this, #_"int" height]
         (sync (:wallet-lock this)
-            (§ ass this (assoc this :last-block-seen-height height))
+            (assoc this :last-block-seen-height height)
         )
-        this
     )
 
     #_method
     (defn #_"Wallet" Wallet''set-last-block-seen-time-secs [#_"Wallet" this, #_"long" secs]
         (sync (:wallet-lock this)
-            (§ ass this (assoc this :last-block-seen-time-secs secs))
+            (assoc this :last-block-seen-time-secs secs)
         )
-        this
     )
 
     ;;;
@@ -30114,23 +29784,6 @@
         (sync (:wallet-lock this)
             (:last-block-seen-height this)
         )
-    )
-
-    ;;;
-     ; Set the description of the wallet.
-     ; This is a Unicode encoding string typically entered by the user as descriptive text for the wallet.
-     ;;
-    #_method
-    (defn #_"Wallet" Wallet''set-description [#_"Wallet" this, #_"String" description]
-        (assoc this :description description)
-    )
-
-    ;;;
-     ; Get the description of the wallet.  See {@link Wallet#setDescription(String)}.
-     ;;
-    #_method
-    (defn #_"String" Wallet''get-description [#_"Wallet" this]
-        (:description this)
     )
 
     ;;;
@@ -30335,7 +29988,7 @@
     #_throws #_[ "InsufficientMoneyException" ]
     #_method
     (defn #_"Transaction" Wallet''create-send [#_"Wallet" this, #_"Address" address, #_"Coin" value]
-        (let [#_"SendRequest" request (SendRequest'to-2 address, value)]
+        (let [#_"SendRequest" request (SendRequest'to-address address, value)]
             (§ ass this (Wallet''complete-tx this, request))
             (:tx request)
         )
@@ -30394,7 +30047,7 @@
     #_throws #_[ "InsufficientMoneyException" ]
     #_method
     (defn #_"SendResult" Wallet''send-coins-4 [#_"Wallet" this, #_"TransactionBroadcaster" broadcaster, #_"Address" to, #_"Coin" value]
-        (let [#_"SendRequest" request (SendRequest'to-2 to, value)]
+        (let [#_"SendRequest" request (SendRequest'to-address to, value)]
             (Wallet''send-coins-3b this, broadcaster, request)
         )
     )
@@ -30436,7 +30089,7 @@
             ;; count of seen peers, the memory pool will update the transaction confidence object, that will invoke the
             ;; txConfidenceListener which will in turn invoke the wallets event listener onTransactionConfidenceChanged
             ;; method.
-            (assoc (SendResult'new tx) :broadcast broadcast, :broadcast-complete (TransactionBroadcast''future broadcast))
+            (assoc (SendResult'new tx) :broadcast broadcast, :broadcast-complete (:future broadcast))
         )
     )
 
@@ -30550,7 +30203,7 @@
 
                                     (let [#_"CoinSelector" selector (or (:coin-selector req) (:coin-selector this))
                                           __bestCoinSelection (CoinSelector'''select selector, (Ledger''get-max-money (:ledger this)), candidates)]
-                                        (§ ass (Transaction''get-output (:tx req), 0) (TransactionOutput''set-value (Transaction''get-output (:tx req), 0), (:value-gathered __bestCoinSelection)))
+                                        (§ ass (nth (:outputs (:tx req)) 0) (TransactionOutput''set-value (nth (:outputs (:tx req)) 0), (:value-gathered __bestCoinSelection)))
                                         (log/info (str "  emptying " (Coin''to-friendly-string (:value-gathered __bestCoinSelection))))
                                         ;; Selector took ownership and might have changed candidates.  Don't access again.
                                         [nil __bestCoinSelection nil nil]
@@ -30572,7 +30225,7 @@
 
                         (when (some? __updatedOutputValues)
                             (dotimes [#_"int" i (count __updatedOutputValues)]
-                                (§ ass (Transaction''get-output (:tx req), i) (TransactionOutput''set-value (Transaction''get-output (:tx req), i), (nth __updatedOutputValues i)))
+                                (§ ass (nth (:outputs (:tx req)) i) (TransactionOutput''set-value (nth (:outputs (:tx req)) i), (nth __updatedOutputValues i)))
                             )
                         )
 
@@ -30583,7 +30236,7 @@
 
                         ;; Now shuffle the outputs to obfuscate which is the change.
                         (when (:shuffle-outputs req)
-                            (Transaction''shuffle-outputs (:tx req))
+                            (§ ass (:tx req) (Transaction''shuffle-outputs (:tx req)))
                         )
 
                         ;; Now sign the inputs, thus proving that we are entitled to redeem the connected outputs.
@@ -30604,10 +30257,10 @@
                             ;; Label the transaction as being a user requested payment.  This can be used to render GUI wallet
                             ;; transaction lists more appropriately, especially when the wallet starts to generate transactions itself
                             ;; for internal purposes.
-                            (§ ass req (update req :tx Transaction''set-purpose :TransactionPurpose'USER_PAYMENT))
+                            (§ ass req (update req :tx assoc :purpose :TransactionPurpose'USER_PAYMENT))
                             ;; Record the exchange rate that was valid when the transaction was completed.
-                            (§ ass req (update req :tx Transaction''set-exchange-rate (:exchange-rate req)))
-                            (§ ass req (update req :tx Transaction''set-memo (:memo req)))
+                            (§ ass req (update req :tx assoc :exchange-rate (:exchange-rate req)))
+                            (§ ass req (update req :tx assoc :memo (:memo req)))
                             (§ ass req (assoc req :completed true))
                             (log/info (str "  completed: " (:tx req)))
                             this
@@ -30632,7 +30285,7 @@
                 (assert-state (and (pos? (count inputs)) (pos? (count outputs))))
 
                 (dotimes [#_"int" i (count inputs)]
-                    (let [#_"TransactionInput" in (Transaction''get-input tx, i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
+                    (let [#_"TransactionInput" in (nth (:inputs tx) i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
                         (when (some? out) ;; Else missing connected output, assuming already signed.
                             (let [#_"Script" __inSig (TransactionInput''get-script-sig in) #_"Script" __outKey (TransactionOutput''get-script-pub-key out)]
                                 (try+
@@ -30674,7 +30327,7 @@
         (let [#_"int" size (+ (alength (Message''to-bytes tx, Transaction''to-wire)) (Wallet''estimate-bytes-for-signing this, selection))
               #_"Coin" fee (Coin''divide (Coin''multiply __feePerKb, size), 1000)
               fee (if (and quantum? (neg? (.compareTo fee, Transaction'REFERENCE_DEFAULT_MIN_TX_FEE))) Transaction'REFERENCE_DEFAULT_MIN_TX_FEE fee)
-              #_"TransactionOutput" output (Transaction''get-output tx, 0)]
+              #_"TransactionOutput" output (nth (:outputs tx) 0)]
             (§ ass output (TransactionOutput''set-value output, (Coin''subtract (:coin-value output), fee)))
             (not (TransactionOutput''is-dust output))
         )
@@ -30770,9 +30423,8 @@
     #_method
     (defn #_"Wallet" Wallet''set-coin-selector [#_"Wallet" this, #_"CoinSelector" selector]
         (sync (:wallet-lock this)
-            (§ ass this (assoc this :coin-selector (ensure some? selector)))
+            (assoc this :coin-selector (ensure some? selector))
         )
-        this
     )
 
     ;;;
@@ -31136,7 +30788,7 @@
                                             ;; So instead we raise the change and deduct from the first recipient.
                                             (let [#_"Coin" __missingToNotBeDust (Coin''subtract (TransactionOutput''get-min-non-dust-value-1 __changeOutput), (:coin-value __changeOutput))]
                                                 (§ ass __changeOutput (TransactionOutput''set-value __changeOutput, (Coin''add (:coin-value __changeOutput), __missingToNotBeDust)))
-                                                (let [#_"TransactionOutput" __firstOutput (Transaction''get-output tx, 0)]
+                                                (let [#_"TransactionOutput" __firstOutput (nth (:outputs tx) 0)]
                                                     (§ ass __firstOutput (TransactionOutput''set-value __firstOutput, (Coin''subtract (:coin-value __firstOutput), __missingToNotBeDust)))
                                                     (.set (:updated-output-values calc), 0, (:coin-value __firstOutput))
                                                     (when (TransactionOutput''is-dust __firstOutput)
@@ -31247,15 +30899,17 @@
      ;;
     #_method
     (defn #_"Wallet" Wallet''set-transaction-broadcaster [#_"Wallet" this, #_"TransactionBroadcaster" broadcaster]
-        (when-let [#_"Transaction*" __toBroadcast
+        (let-when [[this #_"Transaction*" __toBroadcast]
                 (sync (:wallet-lock this)
-                    (when-not (= (:v-transaction-broadcaster this) broadcaster)
-                        (§ ass this (assoc this :v-transaction-broadcaster broadcaster))
-                        (when (some? broadcaster)
-                            (vals (:pending this))
+                    (when-not (= (:v-transaction-broadcaster this) broadcaster) => [this nil]
+                        (let [this (assoc this :v-transaction-broadcaster broadcaster)]
+                            (when (some? broadcaster) => [this nil]
+                                [this (vals (:pending this))]
+                            )
                         )
                     )
-                )]
+                )] (some? __toBroadcast) => this
+
             ;; Now use it to upload any pending transactions we have that are marked as not being seen by any peers yet.
             ;; Don't hold the wallet lock whilst doing this, so if the broadcaster accesses the wallet at some point there
             ;; is no inversion.
@@ -31270,8 +30924,8 @@
                     (TransactionBroadcaster'''broadcast-transaction-2 broadcaster, tx)
                 )
             )
+            this
         )
-        this
     )
 
     ;;;
@@ -31352,7 +31006,7 @@
                       #_"TransactionBroadcaster" broadcaster (:v-transaction-broadcaster this)]
                     (doseq [#_"Transaction" tx txns]
                         (try
-                            (let [#_"ListenableFuture<Transaction>" future (TransactionBroadcast''future (TransactionBroadcaster'''broadcast-transaction-2 broadcaster, tx))]
+                            (let [#_"ListenableFuture<Transaction>" future (:future (TransactionBroadcaster'''broadcast-transaction-2 broadcaster, tx))]
                                 (.add futures, future)
                                 (Futures/addCallback future,
                                     (reify FutureCallback #_"<Transaction>"
@@ -31395,7 +31049,7 @@
             (when-not (zero? stamp) => results ;; Nothing to do.
                 ;; We might have to create a new HD hierarchy if the previous ones are now rotating.
                 (let [#_"boolean" __allChainsRotating
-                        (loop-when [#_"List<DeterministicKeyChain>" chains (KeyChainGroup''get-deterministic-key-chains (:key-chain-group this))] (seq chains) => true
+                        (loop-when [#_"List<DeterministicKeyChain>" chains (ArrayList. (:chains (:key-chain-group this)))] (seq chains) => true
                             (let [#_"DeterministicKeyChain" chain (first chains)]
                                 (recur-if (< (KeyChain'''get-earliest-key-creation-time chain) stamp) [(next chains)] => false)
                             )
@@ -31464,7 +31118,7 @@
                             (cond (Wallet''adjust-output-downwards-for-fee this, tx, __toMove, Transaction'DEFAULT_TX_FEE, true)
                                 (do
                                     (§ ass (Transaction''get-confidence-t tx) (TransactionConfidence''set-source (Transaction''get-confidence-t tx), :ConfidenceSource'SELF))
-                                    (§ ass tx (Transaction''set-purpose tx, :TransactionPurpose'KEY_ROTATION))
+                                    (§ ass tx (assoc tx :purpose :TransactionPurpose'KEY_ROTATION))
                                     (let [#_"SendRequest" req (SendRequest'for-tx tx)]
                                         (when sign?
                                             (§ ass this (Wallet''sign-transaction this, req))
