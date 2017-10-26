@@ -69,7 +69,7 @@
 
 (ns bitclojn.core
     (:refer-clojure :exclude [ensure sync when when-not])
-    (:import [com.google.common.base Charsets Joiner MoreObjects Stopwatch Throwables]
+    (:import [com.google.common.base Charsets Joiner Stopwatch Throwables]
              [com.google.common.collect ArrayListMultimap ImmutableList ImmutableSet Iterables]
              [com.google.common.hash HashCode Hasher Hashing]
              [com.google.common.io BaseEncoding]
@@ -167,7 +167,7 @@
 (declare DownloadProgressTracker''await DownloadProgressTracker''done-download DownloadProgressTracker''progress DownloadProgressTracker''start-download DownloadProgressTracker'new)
 (declare DustySendRequested'new)
 (declare ECDSASignature'''to-canonicalised ECDSASignature''der-byte-stream ECDSASignature''encode-to-der ECDSASignature''is-canonical ECDSASignature'decode-from-der ECDSASignature'new)
-(declare ECKey'''format-key-with-address ECKey'''get-creation-time-seconds ECKey'''get-priv-key ECKey'''get-secret-bytes ECKey'''has-priv-key ECKey'''is-pub-key-only ECKey''set-creation-time-seconds ECKey'''sign ECKey''decompress ECKey''do-sign ECKey''get-priv-key-bytes ECKey''get-pub-key ECKey''get-pub-key-hash ECKey''get-pub-key-point ECKey''is-compressed ECKey''is-watching ECKey''sign-message ECKey''to-address ECKey''to-string ECKey''to-string-with-private ECKey''verify-3b ECKey''verify-3s ECKey''verify-message ECKey''verify-or-throw-3b ECKey''verify-or-throw-3s ECKey'AGE_COMPARATOR ECKey'CURVE ECKey'CURVE_PARAMS ECKey'HALF_CURVE_ORDER ECKey'PUBKEY_COMPARATOR ECKey'SECURE_RANDOM ECKey'compress-point ECKey'decompress-key ECKey'decompress-point ECKey'from-private ECKey'from-private-bytes ECKey'from-private-and-precalculated-public ECKey'from-private-and-precalculated-public-bytes ECKey'from-public-only ECKey'from-public-only-bytes ECKey'get-point-with-compression ECKey'init ECKey'is-pub-key-canonical ECKey'new ECKey'from-random ECKey'compose ECKey'public-key-from-private ECKey'public-point-from-private ECKey'recover-from-signature ECKey'signed-message-to-key ECKey'verify-3-bytes ECKey'verify-3e)
+(declare ECKey'''format-key-with-address ECKey'''get-creation-time-seconds ECKey'''get-priv-key ECKey'''get-secret-bytes ECKey'''has-priv-key ECKey'''is-pub-key-only ECKey''set-creation-time-seconds ECKey'''sign ECKey''decompress ECKey''do-sign ECKey''get-priv-key-bytes ECKey''get-pub-key ECKey''calculate-pub-key-hash160 ECKey''is-compressed ECKey''is-watching ECKey''sign-message ECKey''to-address ECKey''to-string ECKey''verify-3b ECKey''verify-3s ECKey''verify-message ECKey''verify-or-throw-3b ECKey''verify-or-throw-3s ECKey'CURVE ECKey'CURVE_PARAMS ECKey'HALF_CURVE_ORDER ECKey'PUBKEY_COMPARATOR ECKey'SECURE_RANDOM ECKey'compress-point ECKey'decompress-key ECKey'decompress-point ECKey'from-private ECKey'from-private-bytes ECKey'from-private-and-precalculated-public ECKey'from-private-and-precalculated-public-bytes ECKey'from-public-only ECKey'from-public-only-bytes ECKey'get-point-with-compression ECKey'init ECKey'is-pub-key-canonical ECKey'new ECKey'from-random ECKey'compose ECKey'public-key-from-private ECKey'public-point-from-private ECKey'recover-from-signature ECKey'signed-message-to-key ECKey'verify-3-bytes ECKey'verify-3e)
 (declare EmptyMessage'new)
 (declare ExceededMaxTransactionSize'new)
 (declare ExchangeRate''coin-to-fiat ExchangeRate''fiat-to-coin ExchangeRate'new)
@@ -209,7 +209,7 @@
 (declare LocalTransactionSigner'MINIMUM_VERIFY_FLAGS LocalTransactionSigner'new)
 (declare LoopbackCheckState'enum-set)
 (declare MainNetParams'INSTANCE MainNetParams'TEXTUAL_CHECKPOINTS MainNetParams'new)
-(declare MarriedKeyChain''add-following-account-keys MarriedKeyChain''format-script MarriedKeyChain''get-married-keys-with-followed MarriedKeyChain''set-following-key-chains MarriedKeyChain'init MarriedKeyChain'watch MarriedKeyChain'from-seed MarriedKeyChain'from-entropy MarriedKeyChain'from-random)
+(declare MarriedKeyChain''add-following-account-keys MarriedKeyChain''get-married-keys-with-followed MarriedKeyChain''set-following-key-chains MarriedKeyChain'init MarriedKeyChain'watch MarriedKeyChain'from-seed MarriedKeyChain'from-entropy MarriedKeyChain'from-random)
 (declare MemoryBlockStore'new)
 (declare MemoryFullPrunedBlockStore'new)
 (declare MemoryPoolMessage'new MemoryPoolMessage''to-wire)
@@ -240,8 +240,8 @@
 (declare OrphanBlock'new)
 (declare PBKDF2SHA512'f PBKDF2SHA512'derive)
 (declare PartialMerkleTree''get-txn-hash-and-merkle-root PartialMerkleTree''recursive-extract-hashes PartialMerkleTree'build-from-leaves PartialMerkleTree'calc-hash PartialMerkleTree'combine-left-right PartialMerkleTree'get-tree-width PartialMerkleTree'from-wire PartialMerkleTree''to-wire PartialMerkleTree'new PartialMerkleTree'traverse-and-build)
-(declare Peer''add-blocks-downloaded-event-listener-2 Peer''add-blocks-downloaded-event-listener-3 Peer''add-chain-download-started-event-listener-2 Peer''add-chain-download-started-event-listener-3 Peer''add-connected-event-listener-2 Peer''add-connected-event-listener-3 Peer''add-disconnected-event-listener-2 Peer''add-disconnected-event-listener-3 Peer''add-get-data-event-listener-2 Peer''add-get-data-event-listener-3 Peer''add-on-transaction-broadcast-listener-2 Peer''add-on-transaction-broadcast-listener-3 Peer''add-ping-time-data Peer''add-pre-message-received-event-listener-2 Peer''add-pre-message-received-event-listener-3 Peer''add-wallet Peer''block-chain-download-locked Peer''check-for-filter-exhaustion Peer''download-dependencies Peer''download-dependencies-internal Peer''end-filtered-block Peer''get-addr Peer''get-best-height Peer''get-block Peer''get-last-ping-time Peer''get-peer-block-height-difference Peer''get-peer-mempool-transaction Peer''get-average-ping-time Peer''invoke-on-blocks-downloaded Peer''is-download-tx-dependencies Peer''is-not-found-message-supported Peer''maybe-handle-requested-data Peer''maybe-restart-chain-download Peer''ping-1 Peer''ping-2 Peer''process-address-message Peer''process-alert Peer''process-block Peer''process-get-data Peer''process-headers Peer''process-inv Peer''process-not-found-message Peer''process-ping Peer''process-pong Peer''process-transaction Peer''process-version-ack Peer''process-version-message Peer''remove-blocks-downloaded-event-listener Peer''remove-chain-download-started-event-listener Peer''remove-connected-event-listener Peer''remove-disconnected-event-listener Peer''remove-get-data-event-listener Peer''remove-on-transaction-broadcast-listener Peer''remove-pre-message-received-event-listener Peer''remove-wallet Peer''send-single-get-data Peer''set-bloom-filter-2 Peer''set-bloom-filter-3 Peer''set-download-parameters Peer''set-download-tx-dependencies-b Peer''set-min-protocol-version Peer''start-block-chain-download Peer''start-filtered-block Peer''version-handshake-complete Peer'PING_MOVING_AVERAGE_WINDOW Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT Peer'new)
-(declare PeerAddress''to-socket-address PeerAddress'init PeerAddress'loopback PeerAddress'from-socket-address PeerAddress'from-host-port PeerAddress'from-inet-port PeerAddress'from-wire PeerAddress''to-wire)
+(declare Peer''add-blocks-downloaded-event-listener-2 Peer''add-blocks-downloaded-event-listener-3 Peer''add-chain-download-started-event-listener-2 Peer''add-chain-download-started-event-listener-3 Peer''add-connected-event-listener-2 Peer''add-connected-event-listener-3 Peer''add-disconnected-event-listener-2 Peer''add-disconnected-event-listener-3 Peer''add-get-data-event-listener-2 Peer''add-get-data-event-listener-3 Peer''add-on-transaction-broadcast-listener-2 Peer''add-on-transaction-broadcast-listener-3 Peer''add-ping-time-data Peer''add-pre-message-received-event-listener-2 Peer''add-pre-message-received-event-listener-3 Peer''add-wallet Peer''block-chain-download-locked Peer''check-for-filter-exhaustion Peer''download-dependencies Peer''download-dependencies-internal Peer''end-filtered-block Peer''get-addr Peer''get-best-height Peer''get-block Peer''get-last-ping-time Peer''get-peer-block-height-difference Peer''get-peer-mempool-transaction Peer''get-average-ping-time Peer''invoke-on-blocks-downloaded Peer''is-download-tx-dependencies Peer''is-not-found-message-supported Peer''maybe-handle-requested-data Peer''maybe-restart-chain-download Peer''ping-1 Peer''ping-2 Peer''process-address-message Peer''process-alert Peer''process-block Peer''process-get-data Peer''process-headers Peer''process-inv Peer''process-not-found-message Peer''process-ping Peer''process-pong Peer''process-transaction Peer''process-version-ack Peer''process-version-message Peer''remove-blocks-downloaded-event-listener Peer''remove-chain-download-started-event-listener Peer''remove-connected-event-listener Peer''remove-disconnected-event-listener Peer''remove-get-data-event-listener Peer''remove-on-transaction-broadcast-listener Peer''remove-pre-message-received-event-listener Peer''remove-wallet Peer''send-single-get-data Peer''set-bloom-filter-2 Peer''set-bloom-filter-3 Peer''set-download-parameters Peer''set-download-tx-dependencies-b Peer''set-min-protocol-version Peer''start-block-chain-download Peer''start-filtered-block Peer''version-handshake-complete Peer'PING_MOVING_AVERAGE_WINDOW Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT Peer'new Peer''to-string)
+(declare PeerAddress''to-socket-address PeerAddress'init PeerAddress'loopback PeerAddress'from-socket-address PeerAddress'from-host-port PeerAddress'from-inet-port PeerAddress'from-wire PeerAddress''to-wire PeerAddress''to-string)
 (declare PeerConnectedEventListener'''on-peer-connected)
 (declare PeerDisconnectedEventListener'''on-peer-disconnected)
 (declare PeerDiscovery'''get-peers PeerDiscovery'''shutdown)
@@ -273,7 +273,7 @@
 (declare RuleViolation'enum-set)
 (declare SPVBlockChain'new)
 (declare SPVBlockStore''get-ring-cursor SPVBlockStore''init-store SPVBlockStore''set-ring-cursor SPVBlockStore'DEFAULT_CAPACITY SPVBlockStore'FILE_PROLOGUE_BYTES SPVBlockStore'HEADER_MAGIC SPVBlockStore'NOT_FOUND_MARKER SPVBlockStore'RECORD_SIZE SPVBlockStore'get-file-size SPVBlockStore'new)
-(declare Script''correctly-spends Script''create-empty-input-script Script''find-key-in-redeem Script''find-sig-in-redeem Script''get-cltv-payment-channel-expiry Script''get-cltv-payment-channel-recipient-pub-key Script''get-cltv-payment-channel-sender-pub-key Script''get-from-address Script''get-number-of-bytes-required-to-spend Script''get-number-of-signatures-required-to-spend Script''to-bytes Script''get-pub-key Script''get-pub-key-hash Script''get-pub-keys Script''get-quick-program Script''get-script-sig-with-signature Script''get-script-type Script''get-sig-insertion-index Script''get-to-address-2 Script''get-to-address-3 Script''is-op-return Script''is-pay-to-script-hash Script''is-sent-to-address Script''is-sent-to-cltv-payment-channel Script''is-sent-to-multi-sig Script''is-sent-to-raw-pub-key Script'parse Script'ALL_VERIFY_FLAGS Script'MAX_OPS_PER_SCRIPT Script'MAX_P2SH_SIGOPS Script'MAX_PUBKEYS_PER_MULTISIG Script'MAX_SCRIPT_ELEMENT_SIZE Script'MAX_SCRIPT_SIZE Script'MAX_STACK_SIZE Script'SIG_SIZE Script'cast-to-big-integer-2 Script'cast-to-big-integer-3 Script'cast-to-bool Script'check-sequence Script'decode-from-op-n Script'encode-to-op-n Script'equals-range Script'execute-check-lock-time-verify Script'execute-check-sequence-verify Script'execute-check-sig Script'execute-multi-sig Script'execute-script-5 Script'get-p2sh-sig-op-count Script'get-sig-op-count-1 Script'get-sig-op-count-2 Script'new Script'remove-all-instances-of Script'remove-all-instances-of-op Script'write-bytes)
+(declare Script''correctly-spends Script''create-empty-input-script Script''find-key-in-redeem Script''find-sig-in-redeem Script''get-cltv-payment-channel-expiry Script''get-cltv-payment-channel-recipient-pub-key Script''get-cltv-payment-channel-sender-pub-key Script''get-from-address Script''get-number-of-bytes-required-to-spend Script''get-number-of-signatures-required-to-spend Script''to-bytes Script''get-pub-key Script''get-pub-key-hash Script''get-pub-keys Script''get-quick-program Script''get-script-sig-with-signature Script''get-script-type Script''get-sig-insertion-index Script''get-to-address-2 Script''get-to-address-3 Script''is-op-return Script''is-pay-to-script-hash Script''is-sent-to-address Script''is-sent-to-cltv-payment-channel Script''is-sent-to-multi-sig Script''is-sent-to-raw-pub-key Script'parse Script'ALL_VERIFY_FLAGS Script'MAX_OPS_PER_SCRIPT Script'MAX_P2SH_SIGOPS Script'MAX_PUBKEYS_PER_MULTISIG Script'MAX_SCRIPT_ELEMENT_SIZE Script'MAX_SCRIPT_SIZE Script'MAX_STACK_SIZE Script'SIG_SIZE Script'cast-to-big-integer-2 Script'cast-to-big-integer-3 Script'cast-to-bool Script'check-sequence Script'decode-from-op-n Script'encode-to-op-n Script'equals-range Script'execute-check-lock-time-verify Script'execute-check-sequence-verify Script'execute-check-sig Script'execute-multi-sig Script'execute-script-5 Script'get-p2sh-sig-op-count Script'get-sig-op-count-1 Script'get-sig-op-count-2 Script'new Script'remove-all-instances-of Script'remove-all-instances-of-op Script'write-bytes Script''to-string)
 (declare ScriptBuilder'new ScriptBuilder''append ScriptBuilder''to-script ScriptBuilder''data ScriptBuilder''num ScriptBuilder''op Script'create-cltv-payment-channel-input-2 Script'create-cltv-payment-channel-input-2-bytes Script'create-cltv-payment-channel-output Script'create-cltv-payment-channel-p2sh-input Script'create-cltv-payment-channel-p2sh-refund Script'create-cltv-payment-channel-refund Script'create-input-script-1 Script'create-input-script-2 Script'create-multi-sig-input-script Script'create-multi-sig-input-script-bytes-1 Script'create-multi-sig-input-script-bytes-2 Script'create-multi-sig-output-script Script'create-op-return-script Script'create-output-script-1a Script'create-output-script-1e Script'create-p2sh-multi-sig-input-script Script'create-p2sh-output-script-1 Script'create-p2sh-output-script-1-bytes Script'create-p2sh-output-script-2 Script'create-redeem-script Script'update-script-with-signature)
 (declare ScriptChunk''decode-op-n ScriptChunk''equals-op-code ScriptChunk''is-op-code ScriptChunk''is-push-data ScriptChunk''is-shortest-possible-push-data ScriptChunk''write-chunk ScriptChunk'new)
 (declare ScriptError'enum-set)
@@ -284,7 +284,7 @@
 (declare SeedPeers''all-peers SeedPeers'convert-address SeedPeers''get-peer SeedPeers''next-peer SeedPeers'new)
 (declare SendRequest'child-pays-for-parent SendRequest'empty-wallet SendRequest'for-tx SendRequest'new SendRequest'to-address SendRequest'to-pubkey SendRequest'to-cltv-payment-channel-5bi SendRequest'to-cltv-payment-channel-5d SendRequest'to-cltv-payment-channel-5i)
 (declare SendResult'new)
-(declare Sha256Hash''get-reversed-bytes Sha256Hash''to-big-integer Sha256Hash'LENGTH Sha256Hash'ZERO_HASH Sha256Hash'create-digest Sha256Hash'hash Sha256Hash'hash-twice Sha256Hash'hash-twice-6 Sha256Hash'new Sha256Hash'of Sha256Hash'twice-of Sha256Hash'wrap-hex Sha256Hash'wrap Sha256Hash'wrap-reversed)
+(declare Sha256Hash''get-reversed-bytes Sha256Hash''to-big-integer Sha256Hash'LENGTH Sha256Hash'ZERO_HASH Sha256Hash'create-digest Sha256Hash'hash Sha256Hash'hash-twice Sha256Hash'hash-twice-6 Sha256Hash'new Sha256Hash'of Sha256Hash'twice-of Sha256Hash'wrap-hex Sha256Hash'wrap Sha256Hash'wrap-reversed Sha256Hash''to-string)
 (declare SigHash'ALL SigHash'ANYONECANPAY SigHash'ANYONECANPAY_ALL SigHash'ANYONECANPAY_NONE SigHash'ANYONECANPAY_SINGLE SigHash'NONE SigHash'SINGLE SigHash'UNSET)
 (declare SignatureAndKey'new)
 (declare StoredBlock''build StoredBlock''get-prev StoredBlock''more-work-than StoredBlock''serialize-compact StoredBlock'CHAIN_WORK_BYTES StoredBlock'COMPACT_SERIALIZED_SIZE StoredBlock'EMPTY_BYTES StoredBlock'deserialize-compact StoredBlock'new)
@@ -1631,9 +1631,8 @@
         (compare (:value this), (:value that))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"Coin" this]
+    #_method
+    (defn #_"String" Coin''to-string [#_"Coin" this]
         (Long/toString (:value this))
     )
 
@@ -1853,9 +1852,8 @@
         (if (= (:code this), (:code that)) (compare (:value this), (:value that)) (.compareTo (:code this), (:code that)))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"Fiat" this]
+    #_method
+    (defn #_"String" Fiat''to-string [#_"Fiat" this]
         (Long/toString (:value this))
     )
 )
@@ -2375,7 +2373,7 @@
             (let [#_"StoredBlock" head (BlockChain''get-chain-head this)]
                 (cond (.equals prior, head)
                     (do
-                        (when (and filtered? (pos? (count __filteredTxn)))
+                        (when (and filtered? (seq __filteredTxn))
                             (log/debug (str "Block " (Block''get-hash block) " connects to top of best chain with " (count __filteredTxHashList) " transaction(s) of which we were sent " (count __filteredTxn)))
                             (doseq [#_"Sha256Hash" hash __filteredTxHashList]
                                 (log/debug (str "  matched tx " hash))
@@ -3552,9 +3550,8 @@
         (ECKey'verify-3-bytes (Sha256Hash'hash-twice (:content this)), (:signature this), (-> this :ledger :alert-signing-key))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"AlertMessage" this]
+    #_method
+    (defn #_"String" AlertMessage''to-string [#_"AlertMessage" this]
         (str "ALERT: " (:status-bar this))
     )
 )
@@ -4109,7 +4106,7 @@
      ;;
     #_method
     (defn #_"String" Block''get-hash-as-string [#_"Block" this]
-        (Base16'encode (:bytes (Block''get-hash this)))
+        (Sha256Hash''to-string (Block''get-hash this))
     )
 
     ;;;
@@ -4390,10 +4387,10 @@
     (defn #_"Block" Block''add-transaction [#_"Block" this, #_"Transaction" tx]
         (§ ass tx (assoc tx :parent this))
         (let [#_"List<Transaction>" txns (or (:transactions this) (ArrayList.))]
-            (when (and (zero? (count txns)) (not (Transaction''is-coin-base tx)))
+            (when (and (not (seq txns)) (not (Transaction''is-coin-base tx)))
                 (throw (RuntimeException. (str "Attempted to add a non-coinbase transaction as the first transaction: " tx)))
             )
-            (when (and (pos? (count txns)) (Transaction''is-coin-base tx))
+            (when (and (seq txns) (Transaction''is-coin-base tx))
                 (throw (RuntimeException. (str "Attempted to add a coinbase transaction when there already is one: " tx)))
             )
             (.add txns, tx)
@@ -4448,10 +4445,9 @@
      ; Returns a multi-line string containing a description of the contents of the block.
      ; Use for debugging purposes only.
      ;;
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"Block" this]
-        (let [#_"StringBuilder" sb (StringBuilder.)]
+    #_method
+    (defn #_"String" Block''to-string [#_"Block" this]
+        (let [#_"StringBuilder" sb (StringBuilder. (<< 1 8))]
             (.. sb (append " block: \n"))
             (.. sb (append "   hash: ") (append (Block''get-hash this)) (append "\n"))
             (.. sb (append "   version: ") (append (:version this)))
@@ -4468,7 +4464,7 @@
                 (.. sb (append "   time: ") (append (:time-seconds this)) (append " (") (append (Time'format-seconds (:time-seconds this))) (append ")\n"))
                 (.. sb (append "   difficulty target (nBits): ") (append (:difficulty-target this)) (append "\n"))
                 (.. sb (append "   nonce: ") (append (:nonce this)) (append "\n"))
-                (when (and (some? (:transactions this)) (pos? (count (:transactions this))))
+                (when (seq (:transactions this))
                     (.. sb (append "   with ") (append (count (:transactions this))) (append " transaction(s):\n"))
                     (doseq [#_"Transaction" tx (:transactions this)]
                         (.. sb (append tx))
@@ -4800,7 +4796,7 @@
     (defn #_"void" BloomFilter''insert-key [#_"BloomFilter" this, #_"ECKey" key]
         (sync this
             (BloomFilter''insert-data this, (ECKey''get-pub-key key))
-            (BloomFilter''insert-data this, (ECKey''get-pub-key-hash key))
+            (BloomFilter''insert-data this, (ECKey''calculate-pub-key-hash160 key))
         )
         nil
     )
@@ -4945,9 +4941,8 @@
         )
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"BloomFilter" this]
+    #_method
+    (defn #_"String" BloomFilter''to-string [#_"BloomFilter" this]
         (str "Bloom Filter of size " (alength (:data this)) " with " (:hash-funcs this) " hash functions.")
     )
 )
@@ -5206,25 +5201,12 @@
  ; you can usually ignore the compressed/uncompressed distinction.
  ;;
 (class-ns ECKey
-    ;;; Sorts oldest keys first, newest last. ;;
-    (def #_"Comparator<ECKey>" ECKey'AGE_COMPARATOR
-        (reify Comparator #_"<ECKey>"
-            #_foreign
-            #_override
-            (#_"int" compare [#_"Comparator" __, #_"ECKey" k1, #_"ECKey" k2]
-                (compare (:creation-time-seconds k1) (:creation-time-seconds k2))
-            )
-        ))
-
     ;;; Compares pub key bytes using {@link com.google.common.primitives.UnsignedBytes#lexicographicalComparator()}. ;;
     (def #_"Comparator<ECKey>" ECKey'PUBKEY_COMPARATOR
-        (reify Comparator #_"<ECKey>"
-            #_foreign
-            #_override
-            (#_"int" compare [#_"Comparator" __, #_"ECKey" k1, #_"ECKey" k2]
-                (.compare (UnsignedBytes/lexicographicalComparator), (ECKey''get-pub-key k1), (ECKey''get-pub-key k2))
-            )
-        ))
+        (#_"int" fn [#_"ECKey" k1, #_"ECKey" k2]
+            (.compare (UnsignedBytes/lexicographicalComparator), (ECKey''get-pub-key k1), (ECKey''get-pub-key k2))
+        )
+    )
 
     ;; The parameters of the secp256k1 curve that Bitcoin uses.
     (def- #_"X9ECParameters" ECKey'CURVE_PARAMS
@@ -5252,13 +5234,14 @@
             ;; The two parts of the key.  If "priv" is set, "pub" can always be calculated.
             ;; If "pub" is set, but not "priv", we can only verify signatures, not make them.
             #_"BigInteger" :priv priv ;; A field element.
+            ;;;
+             ; The public key in the form of an elliptic curve point object from Bouncy Castle.
+             ;;
             #_"ECPoint" :pub pub
 
             ;; Creation time of the key in seconds since the epoch, or zero if the key was
             ;; deserialized from a version that did not have this field.
             #_"long" :creation-time-seconds secs
-
-            #_"byte[]" :pub-key-hash nil
         )
     )
 
@@ -5402,7 +5385,9 @@
         (some? (:priv this))
     )
 
-    ;;; Returns true if this key is watch only, meaning it has a public key but no private key. ;;
+    ;;;
+     ; Returns true if this key is watch only, meaning it has a public key but no private key.
+     ;;
     #_method
     (defn #_"boolean" ECKey''is-watching [#_"ECKey" this]
         (ECKey'''is-pub-key-only this)
@@ -5427,15 +5412,11 @@
     )
 
     ;;;
-     ; Gets the hash160 form of the public key (as seen in addresses).
+     ; Calculates the hash160 form of the public key (as seen in addresses).
      ;;
     #_method
-    (defn #_"byte[]" ECKey''get-pub-key-hash [#_"ECKey" this]
-        (when (nil? (:pub-key-hash this))
-            (§ ass this (assoc this :pub-key-hash (Utils'sha256hash160 (.getEncoded (:pub this)))))
-        )
-
-        (:pub-key-hash this)
+    (defn #_"byte[]" ECKey''calculate-pub-key-hash160 [#_"ECKey" this]
+        (Utils'sha256hash160 (ECKey''get-pub-key this))
     )
 
     ;;;
@@ -5445,14 +5426,6 @@
     #_method
     (defn #_"byte[]" ECKey''get-pub-key [#_"ECKey" this]
         (.getEncoded (:pub this))
-    )
-
-    ;;;
-     ; Gets the public key in the form of an elliptic curve point object from Bouncy Castle.
-     ;;
-    #_method
-    (defn #_"ECPoint" ECKey''get-pub-key-point [#_"ECKey" this]
-        (:pub this)
     )
 
     ;;;
@@ -5484,7 +5457,7 @@
      ;;
     #_method
     (defn #_"Address" ECKey''to-address [#_"ECKey" this, #_"Ledger" ledger]
-        (Address'from-hash160 ledger, (ECKey''get-pub-key-hash this))
+        (Address'from-hash160 ledger, (ECKey''calculate-pub-key-hash160 this))
     )
 
     ;;;
@@ -5814,51 +5787,31 @@
     )
 
     #_method
-    (defn- #_"String" ECKey''to-string [#_"ECKey" this, #_"boolean" private?]
-        (let [#_"MoreObjects.ToStringHelper" helper (.omitNullValues (MoreObjects/toStringHelper this))]
-            (.add helper, "pub HEX", (Base16'encode (.getEncoded (:pub this))))
-            (when private?
-                (try
-                    (.add helper, "priv HEX", (Base16'encode (ECKey''get-priv-key-bytes this)))
-                    (catch IllegalStateException _
-                        ;; TODO: Make hasPrivKey() work for deterministic keys and fix this.
-                    )
-                    (catch Exception e
-                        (let [#_"String" message (.getMessage e)]
-                            (.add helper, "priv EXCEPTION", (str (.getName (.getClass e)) (if (some? message) (str ": " message) "")))
-                        )
-                    )
+    (defn #_"String" ECKey''to-string [#_"ECKey" this]
+        (let [#_"StringBuilder" sb (StringBuilder. (<< 1 7))]
+            (.. sb (append "{ "))
+            (do
+                (.. sb               (append "pub")                     (append "=") (append (Base16'encode (ECKey''get-pub-key this))))
+                (when (pos? (:creation-time-seconds this))
+                    (.. sb (append ", ") (append "creationTimeSeconds") (append "=") (append (:creation-time-seconds this)))
                 )
+                (.. sb (append ", ") (append "isPubKeyOnly")            (append "=") (append (ECKey'''is-pub-key-only this)))
             )
-            (when (pos? (:creation-time-seconds this))
-                (.add helper, "creationTimeSeconds", (:creation-time-seconds this))
-            )
-            (.add helper, "isPubKeyOnly", (ECKey'''is-pub-key-only this))
-            (.toString helper)
+            (.. sb (append " }"))
+            (.toString sb)
         )
     )
 
-    ;;;
-     ; Produce a string rendering of the ECKey INCLUDING the private key.
-     ; Unless you absolutely need the private key it is better for security reasons to just use {@link #toString()}.
-     ;;
-    #_method
-    (defn #_"String" ECKey''to-string-with-private [#_"ECKey" this]
-        (ECKey''to-string this, true)
-    )
-
     #_abstract
-    (defn #_"void" ECKey'''format-key-with-address [#_"ECKey" this, #_"boolean" private?, #_"StringBuilder" sb, #_"Ledger" ledger]
+    (defn #_"void" ECKey'''format-key-with-address [#_"ECKey" this, #_"Ledger" ledger, #_"StringBuilder" sb]
         (let [#_"Address" address (ECKey''to-address this, ledger)]
             (.. sb (append "  addr:") (append address))
-            (.. sb (append "  hash160:") (append (Base16'encode (ECKey''get-pub-key-hash this))))
+            (.. sb (append "  hash160:") (append (Base16'encode (ECKey''calculate-pub-key-hash160 this))))
             (when (pos? (:creation-time-seconds this))
                 (.. sb (append "  creationTimeSeconds:") (append (:creation-time-seconds this)))
             )
             (.. sb (append "\n"))
-            (when private?
-                (.. sb (append "  ") (append (ECKey''to-string-with-private this)) (append "\n"))
-            )
+            (.. sb (append "  ") (append (ECKey''to-string this)) (append "\n"))
         )
         nil
     )
@@ -5879,12 +5832,6 @@
     #_override
     (defn #_"int" Object'''hashCode [#_"ECKey" this]
         (.hashCode (:pub this))
-    )
-
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"ECKey" this]
-        (ECKey''to-string this, false)
     )
 )
 
@@ -6009,9 +5956,8 @@
         (Objects/hash (object-array [ (:associated-transactions this), (:filtered-header this), (:merkle-tree this) ]))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"FilteredBlock" this]
+    #_method
+    (defn #_"String" FilteredBlock''to-string [#_"FilteredBlock" this]
         (str "FilteredBlock{" "merkleTree=" (:merkle-tree this) ", header=" (:filtered-header this) "}")
     )
 )
@@ -6137,7 +6083,7 @@
      ;;
     #_method
     (defn- #_"String" FullPrunedBlockChain''get-script-address [#_"FullPrunedBlockChain" this, #_"Script" script]
-        (let [#_"StringBuilder" sb (StringBuilder.)]
+        (let [#_"StringBuilder" sb (StringBuilder. (<< 1 7))]
             (try
                 (when (some? script)
                     (.append sb, (Script''get-to-address-3 script, (:ledger this), true))
@@ -6650,9 +6596,8 @@
         )
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"GetBlocksMessage" this]
+    #_method
+    (defn #_"String" GetBlocksMessage''to-string [#_"GetBlocksMessage" this]
         (str "getblocks: " (.join Utils'SPACE_JOINER, (:locator this)))
     )
 )
@@ -6759,9 +6704,8 @@
         )
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"GetHeadersMessage" this]
+    #_method
+    (defn #_"String" GetHeadersMessage''to-string [#_"GetHeadersMessage" this]
         (str "getheaders: " (.join Utils'SPACE_JOINER, (:locator this)))
     )
 )
@@ -7610,9 +7554,8 @@
         (Objects/hash (object-array [ (:transaction-count this), (:hashes this), (Arrays/hashCode (:matched-child-bits this)) ]))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"PartialMerkleTree" this]
+    #_method
+    (defn #_"String" PartialMerkleTree''to-string [#_"PartialMerkleTree" this]
         (str "PartialMerkleTree{" "transactionCount=" (:transaction-count this) ", matchedChildBits=" (vec (:matched-child-bits this)) ", hashes=" (:hashes this) "}")
     )
 )
@@ -7860,7 +7803,7 @@
     #_method
     (defn- #_"PeerSocketHandler" PeerSocketHandler''exception-caught [#_"PeerSocketHandler" this, #_"Exception" e]
         (let [#_"PeerAddress" addr (:peer-address this)
-              #_"String" s (if (some? addr) (.toString addr) "?")]
+              #_"String" s (if (some? addr) (PeerAddress''to-string addr) "?")]
             (if (instance? IOException e)
                 (log/info (str s " - " (.getMessage e)))
                 (log/warn e, s)
@@ -8412,7 +8355,7 @@
                 )] (some? _) => this
 
             (try+
-                (assert-state (not __downloadBlockBodies), (.toString this))
+                (assert-state (not __downloadBlockBodies), (Peer''to-string this))
 
                 (or
                     (loop-when [#_"int" i 0] (< i (count (:block-headers m)))
@@ -9029,7 +8972,7 @@
                     ;; end to the final FilteredBlock's transactions (in the form of a pong) sent to us.
                     (let [[this #_"boolean" ping?]
                             (sync (:peer-lock this)
-                                (when (and (pos? (count blocks)) download? (some? (:block-chain this))) => [this false]
+                                (when (and (seq blocks) download? (some? (:block-chain this))) => [this false]
                                     ;; Ideally, we'd only ask for the data here if we actually needed it.  However that can imply a lot of
                                     ;; disk IO to figure out what we've got.  Normally peers will not send us inv for things we already have
                                     ;; so we just re-request it here, and if we get duplicates the block chain / wallet will filter them out.
@@ -9566,12 +9509,11 @@
         (assoc this :v-download-tx-dependency-depth (if enable? Integer/MAX_VALUE 0))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"Peer" this]
+    #_method
+    (defn #_"String" Peer''to-string [#_"Peer" this]
         (let [#_"PeerAddress" addr (:peer-address this)]
             ;; if null, it's a user-provided NetworkConnection object
-            (if (some? addr) (.toString addr) "Peer()")
+            (if (some? addr) (PeerAddress''to-string addr) "Peer()")
         )
     )
 )
@@ -9703,9 +9645,8 @@
         (Objects/hash (object-array [ (:inet-addr this), (:port this), (:timestamp this), (:services this) ]))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"PeerAddress" this]
+    #_method
+    (defn #_"String" PeerAddress''to-string [#_"PeerAddress" this]
         (if (some? (:hostname this)) (str "[" (:hostname this) "]:" (:port this)) (str "[" (.getHostAddress (:inet-addr this)) "]:" (:port this)))
     )
 )
@@ -10208,17 +10149,12 @@
                     (assoc this :executor (PeerGroup''create-private-executor this))
                   this
                     (assoc this :inactives (PriorityQueue. 1,
-                        (reify Comparator #_"<PeerAddress>"
-                            #_suppress #_[ "FieldAccessNotGuarded" ] ;; Only called when inactives is accessed, and lock is held then.
-                            #_foreign
-                            #_override
-                            (#_"int" compare [#_"Comparator" __, #_"PeerAddress" a, #_"PeerAddress" b]
-                                (assert-state (.isHeldByCurrentThread (:peergroup-lock this)))
+                        (#_"int" fn [#_"PeerAddress" a, #_"PeerAddress" b]
+                            (assert-state (.isHeldByCurrentThread (:peergroup-lock this)))
 
-                                (let [#_"int" cmp (.compareTo (get (:backoff-map this) a), (get (:backoff-map this) b))]
-                                    ;; Sort by port if otherwise equals - for testing.
-                                    (if (= cmp 0) (compare (:port a), (:port b)) cmp)
-                                )
+                            (let [#_"int" cmp (.compareTo (get (:backoff-map this) a), (get (:backoff-map this) b))]
+                                ;; Sort by port if otherwise equals - for testing.
+                                (if (= cmp 0) (compare (:port a), (:port b)) cmp)
                             )
                         )
                     ))]
@@ -10325,7 +10261,7 @@
         ;; Note that the default here means that no tx invs will be received if no wallet is ever added.
         (sync (:peergroup-lock this)
             (let [#_"boolean" __spvMode (and (some? (:chain this)) (not (BlockChain'''should-verify-transactions (:chain this))))
-                  #_"boolean" __willSendFilter (and __spvMode (< 0 (count (:peer-filter-providers this))) (:v-bloom-filtering-enabled this))]
+                  #_"boolean" __willSendFilter (and __spvMode (seq (:peer-filter-providers this)) (:v-bloom-filtering-enabled this))]
                 (§ ass ver (assoc ver :relay-txes-before-filter (not __willSendFilter)))
             )
         )
@@ -11951,7 +11887,7 @@
  ;;
 (class-ns PrunedException (§ extends RuntimeException)
     (defn #_"PrunedException" PrunedException'new [#_"Sha256Hash" hash]
-        (merge (RuntimeException'new (.toString hash))
+        (merge (RuntimeException'new (Sha256Hash''to-string hash))
             (hash-map
                 #_"Sha256Hash" :pruned-hash hash
             )
@@ -12079,11 +12015,10 @@
      ; {@link #getReasonString() getReasonString}, which is taken from the reject message unchecked.
      ; Through malice or otherwise, it might contain control characters or other harmful content.
      ;;
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"RejectMessage" this]
+    #_method
+    (defn #_"String" RejectMessage''to-string [#_"RejectMessage" this]
         (let [#_"Sha256Hash" hash (:reject-hash this)]
-            (str "Reject: " (:reject-type this) " " (or hash "") " for reason '" (:reject-reason this) "' (" (RejectCode'enum-map (:reject-code this)) ")")
+            (str "Reject: " (:reject-type this) (if (some? hash) (str " " (Sha256Hash''to-string hash)) "") " for reason '" (:reject-reason this) "' (" (RejectCode'enum-map (:reject-code this)) ")")
         )
     )
 )
@@ -12096,7 +12031,7 @@
  ;;
 (class-ns RejectedTransactionException (§ extends RuntimeException)
     (defn #_"RejectedTransactionException" RejectedTransactionException'new [#_"Transaction" tx, #_"RejectMessage" reject]
-        (merge (RuntimeException'new (.toString reject))
+        (merge (RuntimeException'new (RejectMessage''to-string reject))
             (hash-map
                 ;;; The original Transaction object whose broadcast was rejected. ;;
                 #_"Transaction" :tx tx
@@ -12306,9 +12241,8 @@
         (Ints/fromBytes (aget (:bytes this) (- Sha256Hash'LENGTH 4)), (aget (:bytes this) (- Sha256Hash'LENGTH 3)), (aget (:bytes this) (- Sha256Hash'LENGTH 2)), (aget (:bytes this) (dec Sha256Hash'LENGTH)))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"Sha256Hash" this]
+    #_method
+    (defn #_"String" Sha256Hash''to-string [#_"Sha256Hash" this]
         (Base16'encode (:bytes this))
     )
 )
@@ -12411,9 +12345,8 @@
         )
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"StoredBlock" this]
+    #_method
+    (defn #_"String" StoredBlock''to-string [#_"StoredBlock" this]
         (str "Block " (Block''get-hash (:stored-header this)) " at height " (:stored-height this) ": " (:stored-header this))
     )
 )
@@ -12468,9 +12401,8 @@
         (.hashCode (:block-hash this))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"StoredUndoableBlock" this]
+    #_method
+    (defn #_"String" StoredUndoableBlock''to-string [#_"StoredUndoableBlock" this]
         (str "Undoable Block " (:block-hash this))
     )
 )
@@ -12535,37 +12467,31 @@
      ; The ordering goes from most recent into the past.
      ;;
     (def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_UPDATE_TIME
-        (reify Comparator #_"<Transaction>"
-            #_foreign
-            #_override
-            (#_"int" compare [#_"Comparator" __, #_"Transaction" tx1, #_"Transaction" tx2]
-                (let [#_"long" time1 (.getTime (Transaction''get-update-time tx1))
-                      #_"long" time2 (.getTime (Transaction''get-update-time tx2))
-                      #_"int" cmp (- (compare time1, time2))]
-                    ;; If time1 == time2, compare by tx hash to make comparator consistent with equals.
-                    (if (not= cmp 0) cmp (.compareTo (Transaction''get-hash tx1), (Transaction''get-hash tx2)))
-                )
+        (#_"int" fn [#_"Transaction" tx1, #_"Transaction" tx2]
+            (let [#_"long" time1 (.getTime (Transaction''get-update-time tx1))
+                  #_"long" time2 (.getTime (Transaction''get-update-time tx2))
+                  #_"int" cmp (- (compare time1, time2))]
+                ;; If time1 == time2, compare by tx hash to make comparator consistent with equals.
+                (if (not= cmp 0) cmp (.compareTo (Transaction''get-hash tx1), (Transaction''get-hash tx2)))
             )
-        ))
+        )
+    )
 
     ;;;
      ; A comparator that can be used to sort transactions by their chain height.
      ;;
     (def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_HEIGHT
-        (reify Comparator #_"<Transaction>"
-            #_foreign
-            #_override
-            (#_"int" compare [#_"Comparator" __, #_"Transaction" tx1, #_"Transaction" tx2]
-                (let [#_"TransactionConfidence" confidence1 (Transaction''get-confidence-t tx1)
-                      #_"int" height1 (if (= (TransactionConfidence''get-confidence-type confidence1) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height confidence1) Block'BLOCK_HEIGHT_UNKNOWN)
-                      #_"TransactionConfidence" confidence2 (Transaction''get-confidence-t tx2)
-                      #_"int" height2 (if (= (TransactionConfidence''get-confidence-type confidence2) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height confidence2) Block'BLOCK_HEIGHT_UNKNOWN)
-                      #_"int" cmp (- (compare height1, height2))]
-                    ;; If height1 == height2, compare by tx hash to make comparator consistent with equals.
-                    (if (not= cmp 0) cmp (.compareTo (Transaction''get-hash tx1), (Transaction''get-hash tx2)))
-                )
+        (#_"int" fn [#_"Transaction" tx1, #_"Transaction" tx2]
+            (let [#_"TransactionConfidence" cf1 (Transaction''get-confidence-t tx1)
+                  #_"int" height1 (if (= (TransactionConfidence''get-confidence-type cf1) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf1) Block'BLOCK_HEIGHT_UNKNOWN)
+                  #_"TransactionConfidence" cf2 (Transaction''get-confidence-t tx2)
+                  #_"int" height2 (if (= (TransactionConfidence''get-confidence-type cf2) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf2) Block'BLOCK_HEIGHT_UNKNOWN)
+                  #_"int" cmp (- (compare height1, height2))]
+                ;; If height1 == height2, compare by tx hash to make comparator consistent with equals.
+                (if (not= cmp 0) cmp (.compareTo (Transaction''get-hash tx1), (Transaction''get-hash tx2)))
             )
-        ))
+        )
+    )
 
     ;;;
      ; Threshold for lockTime: below this value it is interpreted as block number, otherwise as timestamp.
@@ -13387,7 +13313,7 @@
     #_throws #_[ "VerificationException" ]
     #_method
     (defn #_"void" Transaction''verify [#_"Transaction" this]
-        (when (or (zero? (count (:inputs this))) (zero? (count (:outputs this))))
+        (when-not (and (seq (:inputs this)) (seq (:outputs this)))
             (throw+ (VerificationException'new "Transaction had no inputs or no outputs."))
         )
 
@@ -13506,71 +13432,94 @@
      ; @param chain If provided, will be used to estimate lock times (if set).  Can be null.
      ;;
     #_method
-    (defn #_"String" Transaction''to-string [#_"Transaction" this, #_"BlockChain" chain]
-        (let [#_"StringBuilder" sb (StringBuilder.)]
-            (.. sb (append "  ") (append (Transaction''get-hash this)) (append "\n"))
-            (when (some? (:updated-at this))
-                (.. sb (append "  updated: ") (append (Time'format-date (:updated-at this))) (append "\n"))
-            )
-            (when-not (= (:version this) 1)
-                (.. sb (append "  version ") (append (:version this)) (append "\n"))
-            )
-            (when (Transaction''is-time-locked this)
-                (.. sb (append "  time locked until "))
-                (if (< (:lock-time this) Transaction'LOCKTIME_THRESHOLD)
-                    (do
-                        (.. sb (append "block ") (append (:lock-time this)))
-                        (when (some? chain)
-                            (.. sb (append " (estimated to be reached at ") (append (Time'format-date (BlockChain''estimate-block-time chain, (int (:lock-time this))))) (append ")"))
-                        )
-                    )
-                    (.. sb (append (Time'format-seconds (:lock-time this))))
+    (defn #_"String" Transaction''to-string
+        ([#_"Transaction" this] (Transaction''to-string this, nil))
+        ([#_"Transaction" this, #_"BlockChain" chain]
+            (let [#_"StringBuilder" sb (StringBuilder. (<< 1 8))]
+                (.. sb (append "  ") (append (Transaction''get-hash this)) (append "\n"))
+                (when (some? (:updated-at this))
+                    (.. sb (append "  updated: ") (append (Time'format-date (:updated-at this))) (append "\n"))
                 )
-                (.. sb (append "\n"))
-            )
-            (when (Transaction''is-opt-in-full-rbf this)
-                (.. sb (append "  opts into full replace-by-fee\n"))
-            )
-            (if (Transaction''is-coin-base this)
-                (let [[#_"Script" script1 #_"Script" script2]
-                        (try+
-                            [(TransactionInput''get-script-sig (nth (:inputs this) 0)) (TransactionOutput''get-script-pub-key (nth (:outputs this) 0))]
-                            (§ catch ScriptException _
-                                ["???" "???"]
+                (when-not (= (:version this) 1)
+                    (.. sb (append "  version ") (append (:version this)) (append "\n"))
+                )
+                (when (Transaction''is-time-locked this)
+                    (.. sb (append "  time locked until "))
+                    (if (< (:lock-time this) Transaction'LOCKTIME_THRESHOLD)
+                        (do
+                            (.. sb (append "block ") (append (:lock-time this)))
+                            (when (some? chain)
+                                (.. sb (append " (estimated to be reached at ") (append (Time'format-date (BlockChain''estimate-block-time chain, (int (:lock-time this))))) (append ")"))
                             )
-                        )]
-                    (.. sb (append "     == COINBASE TXN (scriptSig ") (append script1) (append ")  (scriptPubKey ") (append script2) (append ")\n"))
-                    (.toString sb)
+                        )
+                        (.. sb (append (Time'format-seconds (:lock-time this))))
+                    )
+                    (.. sb (append "\n"))
                 )
-                (do
-                    (when (seq (:inputs this)) => (.. sb (append "     INCOMPLETE: No inputs!\n"))
-                        (doseq [#_"TransactionInput" in (:inputs this)]
-                            (.. sb (append "     in   "))
-                            (try
-                                (let [#_"String" s (.toString (TransactionInput''get-script-sig in))]
-                                    (.. sb (append (if (seq s) s "<no scriptSig>")))
-                                    (let [#_"Coin" value (:coin-value in)]
-                                        (when (some? value)
-                                            (.. sb (append " ") (append (Coin''to-friendly-string value)))
-                                        )
-                                        (.. sb (append "\n          outpoint:"))
-                                        (let [#_"TransactionOutPoint" outpoint (:outpoint in)]
-                                            (.. sb (append outpoint))
-                                            (let [#_"TransactionOutput" __connectedOutput (TransactionOutPoint''get-connected-output outpoint)]
-                                                (when (some? __connectedOutput)
-                                                    (let [#_"Script" __scriptPubKey (TransactionOutput''get-script-pub-key __connectedOutput)]
-                                                        (when (or (Script''is-sent-to-address __scriptPubKey) (Script''is-pay-to-script-hash __scriptPubKey))
-                                                            (.. sb (append " hash160:") (append (Base16'encode (Script''get-pub-key-hash __scriptPubKey))))
+                (when (Transaction''is-opt-in-full-rbf this)
+                    (.. sb (append "  opts into full replace-by-fee\n"))
+                )
+                (if (Transaction''is-coin-base this)
+                    (let [[#_"Script" script1 #_"Script" script2]
+                            (try+
+                                [(TransactionInput''get-script-sig (nth (:inputs this) 0)) (TransactionOutput''get-script-pub-key (nth (:outputs this) 0))]
+                                (§ catch ScriptException _
+                                    ["???" "???"]
+                                )
+                            )]
+                        (.. sb (append "     == COINBASE TXN (scriptSig ") (append script1) (append ")  (scriptPubKey ") (append script2) (append ")\n"))
+                        (.toString sb)
+                    )
+                    (do
+                        (when (seq (:inputs this)) => (.. sb (append "     INCOMPLETE: No inputs!\n"))
+                            (doseq [#_"TransactionInput" in (:inputs this)]
+                                (.. sb (append "     in   "))
+                                (try
+                                    (let [#_"String" s (Script''to-string (TransactionInput''get-script-sig in))]
+                                        (.. sb (append (if (seq s) s "<no scriptSig>")))
+                                        (let [#_"Coin" value (:coin-value in)]
+                                            (when (some? value)
+                                                (.. sb (append " ") (append (Coin''to-friendly-string value)))
+                                            )
+                                            (.. sb (append "\n          outpoint:"))
+                                            (let [#_"TransactionOutPoint" outpoint (:outpoint in)]
+                                                (.. sb (append outpoint))
+                                                (let [#_"TransactionOutput" __connectedOutput (TransactionOutPoint''get-connected-output outpoint)]
+                                                    (when (some? __connectedOutput)
+                                                        (let [#_"Script" __scriptPubKey (TransactionOutput''get-script-pub-key __connectedOutput)]
+                                                            (when (or (Script''is-sent-to-address __scriptPubKey) (Script''is-pay-to-script-hash __scriptPubKey))
+                                                                (.. sb (append " hash160:") (append (Base16'encode (Script''get-pub-key-hash __scriptPubKey))))
+                                                            )
+                                                        )
+                                                    )
+                                                    (when (TransactionInput''has-sequence in)
+                                                        (.. sb (append "\n          sequence:") (append (Long/toHexString (:sequence in))))
+                                                        (when (TransactionInput''is-opt-in-full-rbf in)
+                                                            (.. sb (append ", opts into full RBF"))
                                                         )
                                                     )
                                                 )
-                                                (when (TransactionInput''has-sequence in)
-                                                    (.. sb (append "\n          sequence:") (append (Long/toHexString (:sequence in))))
-                                                    (when (TransactionInput''is-opt-in-full-rbf in)
-                                                        (.. sb (append ", opts into full RBF"))
-                                                    )
-                                                )
                                             )
+                                        )
+                                    )
+                                    (catch Exception e
+                                        (.. sb (append "[exception: ") (append (.getMessage e)) (append "]"))
+                                    )
+                                )
+                                (.. sb (append "\n"))
+                            )
+                        )
+                        (doseq [#_"TransactionOutput" out (:outputs this)]
+                            (.. sb (append "     out  "))
+                            (try
+                                (let [#_"String" s (Script''to-string (TransactionOutput''get-script-pub-key out))]
+                                    (.. sb (append (if (seq s) s "<no scriptPubKey>")) (append " ") (append (Coin''to-friendly-string (:coin-value out))))
+                                    (when-not (TransactionOutput''is-available-for-spending out)
+                                        (.. sb (append " Spent"))
+                                    )
+                                    (let [#_"TransactionInput" __spentBy (:spent-by out)]
+                                        (when (some? __spentBy)
+                                            (.. sb (append " by ") (append (Transaction''get-hash (:parent __spentBy))))
                                         )
                                     )
                                 )
@@ -13580,47 +13529,21 @@
                             )
                             (.. sb (append "\n"))
                         )
-                    )
-                    (doseq [#_"TransactionOutput" out (:outputs this)]
-                        (.. sb (append "     out  "))
-                        (try
-                            (let [#_"String" s (.toString (TransactionOutput''get-script-pub-key out))]
-                                (.. sb (append (if (seq s) s "<no scriptPubKey>")) (append " ") (append (Coin''to-friendly-string (:coin-value out))))
-                                (when-not (TransactionOutput''is-available-for-spending out)
-                                    (.. sb (append " Spent"))
-                                )
-                                (let [#_"TransactionInput" __spentBy (:spent-by out)]
-                                    (when (some? __spentBy)
-                                        (.. sb (append " by ") (append (Transaction''get-hash (:parent __spentBy))))
-                                    )
+                        (let [#_"Coin" fee (Transaction''get-fee this)]
+                            (when (some? fee)
+                                (let [#_"int" size (alength (Message''to-bytes this, Transaction''to-wire))]
+                                    (.. sb (append "     fee  ") (append (Coin''to-friendly-string (Coin''divide (Coin''multiply fee, 1000), size))) (append "/kB, ") (append (Coin''to-friendly-string fee)) (append " for ") (append size) (append " bytes\n"))
                                 )
                             )
-                            (catch Exception e
-                                (.. sb (append "[exception: ") (append (.getMessage e)) (append "]"))
+                            (when (some? (:purpose this))
+                                (.. sb (append "     prps ") (append (:purpose this)) (append "\n"))
                             )
                         )
-                        (.. sb (append "\n"))
+                        (.toString sb)
                     )
-                    (let [#_"Coin" fee (Transaction''get-fee this)]
-                        (when (some? fee)
-                            (let [#_"int" size (alength (Message''to-bytes this, Transaction''to-wire))]
-                                (.. sb (append "     fee  ") (append (Coin''to-friendly-string (Coin''divide (Coin''multiply fee, 1000), size))) (append "/kB, ") (append (Coin''to-friendly-string fee)) (append " for ") (append size) (append " bytes\n"))
-                            )
-                        )
-                        (when (some? (:purpose this))
-                            (.. sb (append "     prps ") (append (:purpose this)) (append "\n"))
-                        )
-                    )
-                    (.toString sb)
                 )
             )
         )
-    )
-
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"Transaction" this]
-        (Transaction''to-string this, nil)
     )
 )
 
@@ -14363,11 +14286,10 @@
         )
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"TransactionConfidence" this]
+    #_method
+    (defn #_"String" TransactionConfidence''to-string [#_"TransactionConfidence" this]
         (sync this
-            (let [#_"StringBuilder" sb (StringBuilder.)
+            (let [#_"StringBuilder" sb (StringBuilder. (<< 1 7))
                   #_"int" peers (TransactionConfidence''num-broadcast-peers this)]
                 (when (< 0 peers)
                     (.. sb (append "Seen by ") (append peers) (append (if (< 1 peers) " peers" " peer")))
@@ -14807,10 +14729,9 @@
         (Objects/hash (object-array [ (:sequence this), (:outpoint this), (Arrays/hashCode (:script-bytes this)) ]))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"TransactionInput" this]
-        (let [#_"StringBuilder" sb (StringBuilder. "TxIn")]
+    #_method
+    (defn #_"String" TransactionInput''to-string [#_"TransactionInput" this]
+        (let [#_"StringBuilder" sb (.. (StringBuilder. (<< 1 7)) (append "TxIn"))]
             (if (TransactionInput''is-coin-base this)
                 (.. sb (append ": COINBASE"))
                 (do
@@ -15277,11 +15198,10 @@
         (Objects/hash (object-array [ (:coin-value this), (:parent this), (Arrays/hashCode (:script-bytes this)) ]))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"TransactionOutput" this]
+    #_method
+    (defn #_"String" TransactionOutput''to-string [#_"TransactionOutput" this]
         (let [#_"Script" script (TransactionOutput''get-script-pub-key this)
-              #_"StringBuilder" sb (StringBuilder. "TxOut of ")]
+              #_"StringBuilder" sb (.. (StringBuilder. (<< 1 7)) (append "TxOut of "))]
             (.. sb (append (Coin''to-friendly-string (:coin-value this))))
             (cond
                 (or (Script''is-sent-to-address script) (Script''is-pay-to-script-hash script))
@@ -15515,9 +15435,8 @@
         (Objects/hash (object-array [ (:utxo-index this), (:utxo-hash this) ]))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"UTXO" this]
+    #_method
+    (defn #_"String" UTXO''to-string [#_"UTXO" this]
         (str "Stored TxOut of " (Coin''to-friendly-string (:utxo-value this)) " (" (:utxo-hash this) ":" (:utxo-index this) ")")
     )
 )
@@ -15537,9 +15456,8 @@
         )
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"UnknownMessage" this]
+    #_method
+    (defn #_"String" UnknownMessage''to-string [#_"UnknownMessage" this]
         (str "Unknown message [" (:command this) "]: " (Base16'encode (:payload this)))
     )
 )
@@ -15806,10 +15724,9 @@
         (Objects/hash (object-array [ (:best-height this), (:client-version this), (:local-services this), (:time-seconds this), (:relay-txes-before-filter this) ]))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"VersionMessage" this]
-        (let [#_"StringBuilder" sb (StringBuilder.)]
+    #_method
+    (defn #_"String" VersionMessage''to-string [#_"VersionMessage" this]
+        (let [#_"StringBuilder" sb (StringBuilder. (<< 1 7))]
             (.. sb (append "\n"))
             (.. sb (append "client version: ") (append (:client-version this)) (append "\n"))
             (.. sb (append "local services: ") (append (:local-services this)) (append "\n"))
@@ -15896,9 +15813,8 @@
         (Objects/hash (object-array [ (:version this), (Arrays/hashCode (:bytes this)) ]))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"VersionedChecksummedBytes" this]
+    #_method
+    (defn #_"String" VersionedChecksummedBytes''to-string [#_"VersionedChecksummedBytes" this]
         (VersionedChecksummedBytes''to-base58 this)
     )
 )
@@ -15987,9 +15903,8 @@
         (compare (ChildNumber''num this), (ChildNumber''num that))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"ChildNumber" this]
+    #_method
+    (defn #_"String" ChildNumber''to-string [#_"ChildNumber" this]
         (str (ChildNumber''num this) (if (ChildNumber''is-hardened this) "H" ""))
     )
 )
@@ -16063,7 +15978,7 @@
                 (when-not create?
                     (throw (IllegalArgumentException. (str "No key found for " (if relative? "relative" "absolute") " path " (HDUtils'format-path path) ".")))
                 )
-                (assert-argument (pos? (count abs)), "Can't derive the master key: nothing to derive from.")
+                (assert-argument (seq abs), "Can't derive the master key: nothing to derive from.")
                 (let [#_"DeterministicKey" parent (DeterministicHierarchy''get-4 this, (.subList abs, 0, (dec (count abs))), false, true)]
                     (DeterministicHierarchy''put-key this, (HDKeyDerivation'derive-child-key-2c parent, (nth abs (dec (count abs)))))
                 )
@@ -16156,17 +16071,11 @@
  ;;
 (class-ns DeterministicKey (§ extends ECKey)
     ;;; Sorts deterministic keys in the order of their child number.  That's <i>usually</i> the order used to derive them. ;;
-    (def #_"Comparator<ECKey>" DeterministicKey'CHILDNUM_ORDER
-        (reify Comparator #_"<ECKey>"
-            #_foreign
-            #_override
-            (#_"int" compare [#_"Comparator" __, #_"ECKey" k1, #_"ECKey" k2]
-                (let [#_"ChildNumber" cn1 (DeterministicKey''get-child-number (cast' DeterministicKey k1))
-                      #_"ChildNumber" cn2 (DeterministicKey''get-child-number (cast' DeterministicKey k2))]
-                    (.compareTo cn1, cn2)
-                )
-            )
-        ))
+    (def #_"Comparator<DeterministicKey>" DeterministicKey'CHILDNUM_ORDER
+        (#_"int" fn [#_"DeterministicKey" k1, #_"DeterministicKey" k2]
+            (.compareTo (DeterministicKey''get-child-number k1), (DeterministicKey''get-child-number k2))
+        )
+    )
 
     (defn- #_"DeterministicKey" DeterministicKey'init []
         (hash-map
@@ -16279,7 +16188,7 @@
     ;;; Returns the last element of the path returned by {@link DeterministicKey#getPath()}. ;;
     #_method
     (defn #_"ChildNumber" DeterministicKey''get-child-number [#_"DeterministicKey" this]
-        (if (zero? (count (:child-number-path this))) ChildNumber'ZERO (nth (:child-number-path this) (dec (count (:child-number-path this)))))
+        (or (last (:child-number-path this)) ChildNumber'ZERO)
     )
 
     ;;;
@@ -16331,8 +16240,8 @@
      ; Returns the same key with the parent pointer removed (it still knows its own path and the parent fingerprint).
      ;
      ; If this key doesn't have private key bytes stored/cached itself, but could rederive them from the parent, then
-     ; the new key returned by this method won't be able to do that.  Thus, using dropPrivateBytes().dropParent() on a
-     ; regular DeterministicKey will yield a new DeterministicKey that cannot sign or do other things involving the
+     ; the new key returned by this method won't be able to do that.  Thus, using dropPrivateBytes().dropParent() on
+     ; a regular DeterministicKey will yield a new DeterministicKey that cannot sign or do other things involving the
      ; private key at all.
      ;;
     #_method
@@ -16560,14 +16469,13 @@
     )
 
     #_override
-    (defn #_"void" ECKey'''format-key-with-address [#_"DeterministicKey" this, #_"boolean" private?, #_"StringBuilder" sb, #_"Ledger" ledger]
+    (defn #_"void" ECKey'''format-key-with-address [#_"DeterministicKey" this, #_"Ledger" ledger, #_"StringBuilder" sb]
         (let [#_"Address" address (ECKey''to-address this, ledger)]
             (.. sb (append "  addr:") (append address))
-            (.. sb (append "  hash160:") (append (Base16'encode (ECKey''get-pub-key-hash this))))
-            (.. sb (append "  (") (append (DeterministicKey''get-path-as-string this)) (append ")\n"))
-            (when private?
-                (.. sb (append "  ") (append (ECKey''to-string-with-private this)) (append "\n"))
-            )
+            (.. sb (append "  hash160:") (append (Base16'encode (ECKey''calculate-pub-key-hash160 this))))
+            (.. sb (append "  (") (append (DeterministicKey''get-path-as-string this)) (append ")"))
+            (.. sb (append "\n"))
+            (.. sb (append "  ") (append (ECKey''to-string this)) (append "\n"))
         )
         nil
     )
@@ -16594,18 +16502,21 @@
         (Objects/hash (object-array [ (.hashCode (§ this super)), (Arrays/hashCode (:chain-code this)), (:child-number-path this) ]))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"DeterministicKey" this]
-        (let [#_"MoreObjects.ToStringHelper" helper (.omitNullValues (MoreObjects/toStringHelper this))]
-            (.add helper, "pub", (Base16'encode (.getEncoded (:pub this))))
-            (.add helper, "chainCode", (Base16'encode (:chain-code this)))
-            (.add helper, "path", (DeterministicKey''get-path-as-string this))
-            (when (pos? (:creation-time-seconds this))
-                (.add helper, "creationTimeSeconds", (:creation-time-seconds this))
+    #_method
+    (defn #_"String" DeterministicKey''to-string [#_"DeterministicKey" this]
+        (let [#_"StringBuilder" sb (StringBuilder. (<< 1 7))]
+            (.. sb (append "{ "))
+            (do
+                (.. sb               (append "pub")                     (append "=") (append (Base16'encode (ECKey''get-pub-key this))))
+                (.. sb (append ", ") (append "chainCode")               (append "=") (append (Base16'encode (:chain-code this))))
+                (.. sb (append ", ") (append "path")                    (append "=") (append (DeterministicKey''get-path-as-string this)))
+                (when (pos? (:creation-time-seconds this))
+                    (.. sb (append ", ") (append "creationTimeSeconds") (append "=") (append (:creation-time-seconds this)))
+                )
+                (.. sb (append ", ") (append "isPubKeyOnly")            (append "=") (append (ECKey'''is-pub-key-only this)))
             )
-            (.add helper, "isPubKeyOnly", (ECKey'''is-pub-key-only this))
-            (.toString helper)
+            (.. sb (append " }"))
+            (.toString sb)
         )
     )
 )
@@ -16745,7 +16656,7 @@
     (defn #_"RawKeyBytes" HDKeyDerivation'derive-child-key-bytes-from-private [#_"DeterministicKey" parent, #_"ChildNumber" child]
         (assert-argument (ECKey'''has-priv-key parent), "Parent key must have private key bytes for this method.")
 
-        (let [#_"byte[]" __parentPublicKey (.getEncoded (ECKey''get-pub-key-point parent), true)]
+        (let [#_"byte[]" __parentPublicKey (.getEncoded (:pub parent), true)]
             (assert-state (= (alength __parentPublicKey) 33), (str "Parent pubkey must be 33 bytes, but is " (alength __parentPublicKey)))
 
             (let [#_"ByteBuffer" buff (ByteBuffer/allocate 37)]
@@ -16774,7 +16685,7 @@
     (defn #_"RawKeyBytes" HDKeyDerivation'derive-child-key-bytes-from-public [#_"DeterministicKey" parent, #_"ChildNumber" child, #_"PublicDerivationMode" mode]
         (assert-argument (not (ChildNumber''is-hardened child)), "Can't use private derivation with public keys only.")
 
-        (let [#_"byte[]" __parentPublicKey (.getEncoded (ECKey''get-pub-key-point parent), true)]
+        (let [#_"byte[]" __parentPublicKey (.getEncoded (:pub parent), true)]
             (assert-state (= (alength __parentPublicKey) 33), (str "Parent pubkey must be 33 bytes, but is " (alength __parentPublicKey)))
 
             (let [#_"ByteBuffer" buff (ByteBuffer/allocate 37)]
@@ -16791,7 +16702,7 @@
                               #_"ECPoint" ki
                                 (case mode
                                     :PublicDerivationMode'NORMAL
-                                        (.add (ECKey'public-point-from-private i), (ECKey''get-pub-key-point parent))
+                                        (.add (ECKey'public-point-from-private i), (:pub parent))
                                     :PublicDerivationMode'WITH_INVERSION
                                         ;; This trick comes from Gregory Maxwell.  Check the homomorphic properties of our curve hold.  The
                                         ;; below calculations should be redundant and give the same result as NORMAL but if the precalculated
@@ -16799,7 +16710,7 @@
                                         ;; to perform a last-ditch sanity check trying to catch bad RAM.
                                         (-> (ECKey'public-point-from-private (.mod (.add i, HDKeyDerivation'RAND_INT), n))
                                             (.add (ECKey'public-point-from-private (.mod (.negate HDKeyDerivation'RAND_INT), n)))
-                                            (.add (ECKey''get-pub-key-point parent)))
+                                            (.add (:pub parent)))
                                 )]
                             (HDKeyDerivation'assert-non-infinity ki, "Illegal derived key: derived public key equals infinity.")
 
@@ -18902,9 +18813,8 @@
         nil
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"DnsSeedDiscovery" this]
+    #_method
+    (defn #_"String" DnsSeedDiscovery''to-string [#_"DnsSeedDiscovery" this]
         (:hostname this)
     )
 )
@@ -20638,9 +20548,8 @@
         nil
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"ScriptChunk" this]
+    #_method
+    (defn #_"String" ScriptChunk''to-string [#_"ScriptChunk" this]
         (cond (ScriptChunk''is-op-code this)
                 (str (ScriptOpCodes'get-op-code-name (:opcode this)))
             (some? (:data this))
@@ -20807,19 +20716,21 @@
     ;;;
      ; Creates a program that requires at least N of the given keys to sign, using OP_CHECKMULTISIG.
      ;;
-    (defn #_"Script" Script'create-multi-sig-output-script [#_"int" threshold, #_"List<ECKey>" keys]
-        (assert-argument (<= 1 threshold (count keys) 16)) ;; That's the max we can represent with a single opcode.
+    (defn #_"Script" Script'create-multi-sig-output-script [#_"int" threshold, #_"ECKey*" keys]
+        (let [#_"int" n (count keys)]
+            (assert-argument (<= 1 threshold n 16)) ;; That's the max we can represent with a single opcode.
 
-        (when (< 3 (count keys))
-            (log/warn (str "Creating a multi-signature output that is non-standard: " (count keys) " pubkeys, should be <= 3"))
-        )
+            (when (< 3 n)
+                (log/warn (str "Creating a multi-signature output that is non-standard: " n " pubkeys, should be <= 3"))
+            )
 
-        (-> (ScriptBuilder'new)
-            (ScriptBuilder''num threshold)
-            (#(reduce ScriptBuilder''data % (map ECKey''get-pub-key keys)))
-            (ScriptBuilder''num (count keys))
-            (ScriptBuilder''op Script'OP_CHECKMULTISIG)
-            (ScriptBuilder''to-script)
+            (-> (ScriptBuilder'new)
+                (ScriptBuilder''num threshold)
+                (#(reduce ScriptBuilder''data % (map ECKey''get-pub-key keys)))
+                (ScriptBuilder''num n)
+                (ScriptBuilder''op Script'OP_CHECKMULTISIG)
+                (ScriptBuilder''to-script)
+            )
         )
     )
 
@@ -20972,9 +20883,7 @@
      ; Given public keys will be placed in redeem script in the lexicographical sorting order.
      ;;
     (defn #_"Script" Script'create-redeem-script [#_"int" threshold, #_"List<ECKey>" keys]
-        (let [keys (ArrayList. keys) _ (Collections/sort keys, ECKey'PUBKEY_COMPARATOR)]
-            (Script'create-multi-sig-output-script threshold, keys)
-        )
+        (Script'create-multi-sig-output-script threshold, (sort ECKey'PUBKEY_COMPARATOR keys))
     )
 
     ;;;
@@ -21781,7 +21690,7 @@
 
     #_method
     (defn #_"boolean" Script''is-op-return [#_"Script" this]
-        (and (pos? (count (:chunks this))) (ScriptChunk''equals-op-code (nth (:chunks this) 0), Script'OP_RETURN))
+        (and (seq (:chunks this)) (ScriptChunk''equals-op-code (first (:chunks this)), Script'OP_RETURN))
     )
 
     ;;;
@@ -22556,7 +22465,7 @@
                               #_"byte[]" prog (Script''to-bytes script)
                               #_"byte[]" __connectedScript (reduce rem- (Arrays/copyOfRange prog, 0, (alength prog)) sigs)
                               #_"boolean" valid?
-                                (loop-when [] (pos? (count sigs)) => true
+                                (loop-when [] (seq sigs) => true
                                     (let [#_"byte[]" __pubKey (.pollFirst pubkeys)]
                                         ;; We could reasonably move this out of the loop, but because signature verification is significantly
                                         ;; more expensive than hashing, its not a big deal.
@@ -22706,9 +22615,8 @@
     ;;;
      ; Returns the program opcodes as a string, for example "[1234] DUP HASH160".
      ;;
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"Script" this]
+    #_method
+    (defn #_"String" Script''to-string [#_"Script" this]
         (.join Utils'SPACE_JOINER, (:chunks this))
     )
 )
@@ -24617,7 +24525,7 @@
                         (§ ass this (BasicKeyChain''import-key-locked this, key))
                     )
                 )
-                (when (< 0 (count added))
+                (when (seq added)
                     (BasicKeyChain''queue-on-keys-added this, added)
                 )
                 (count added)
@@ -24636,7 +24544,7 @@
                     :else                                     this
                 )]
             (let [#_"ECKey" prior (.put (:pubkey-to-keys this), (§ ByteString/copyFrom (ECKey''get-pub-key key)), key)]
-                (.put (:hash-to-keys this), (§ ByteString/copyFrom (ECKey''get-pub-key-hash key)), key)
+                (.put (:hash-to-keys this), (§ ByteString/copyFrom (ECKey''calculate-pub-key-hash160 key)), key)
                 (assert-state (nil? prior))
             )
             this
@@ -24707,7 +24615,7 @@
     #_method
     (defn #_"boolean" BasicKeyChain''remove-key [#_"BasicKeyChain" this, #_"ECKey" key]
         (sync (:b-keychain-lock this)
-            (let [#_"boolean" a (some? (.remove (:hash-to-keys this), (§ ByteString/copyFrom (ECKey''get-pub-key-hash key))))
+            (let [#_"boolean" a (some? (.remove (:hash-to-keys this), (§ ByteString/copyFrom (ECKey''calculate-pub-key-hash160 key))))
                   #_"boolean" b (some? (.remove (:pubkey-to-keys this), (§ ByteString/copyFrom (ECKey''get-pub-key key))))]
                 (assert-state (= a b)) ;; Should be in both maps or neither.
                 a
@@ -25512,38 +25420,27 @@
     )
 
     #_method
-    (defn #_"String" DeterministicKeyChain''to-string [#_"DeterministicKeyChain" this, #_"boolean" private?, #_"Ledger" ledger]
+    (defn #_"String" DeterministicKeyChain''to-string [#_"DeterministicKeyChain" this, #_"Ledger" ledger]
         (let [#_"DeterministicKey" key (DeterministicKeyChain''get-watching-key this)
-              #_"StringBuilder" sb (StringBuilder.)]
-            (cond (some? (:seed this))
-                (do
-                    (when private?
-                        (let [#_"List<String>" words (:mnemonic-code (:seed this))]
-                            (.. sb (append "Seed as words: ") (append (.join Utils'SPACE_JOINER, words)) (append "\n"))
-                            (.. sb (append "Seed as hex:   ") (append (DeterministicSeed''to-base16 (:seed this))) (append "\n"))
-                        )
-                    )
-                    (let [#_"long" secs (:creation-time-seconds (:seed this))]
-                        (.. sb (append "Seed birthday: ") (append secs) (append "  [") (append (Time'format-seconds secs)) (append "]\n"))
-                    )
+                #_"StringBuilder" sb (StringBuilder. (<< 1 8))]
+            (if (some? (:seed this))
+                (let [#_"long" secs (:creation-time-seconds (:seed this))]
+                    (.. sb (append "Seed birthday: ") (append secs) (append "  [") (append (Time'format-seconds secs)) (append "]\n"))
                 )
-                :else
-                (do
-                    (let [#_"long" secs (ECKey'''get-creation-time-seconds key)]
-                        (.. sb (append "Key birthday:  ") (append secs) (append "  [") (append (Time'format-seconds secs)) (append "]\n"))
-                    )
+                (let [#_"long" secs (ECKey'''get-creation-time-seconds key)]
+                    (.. sb (append "Key birthday:  ") (append secs) (append "  [") (append (Time'format-seconds secs)) (append "]\n"))
                 )
             )
             (.. sb (append "Key to watch:  ") (append (DeterministicKey''serialize-pub-b58 key, ledger)) (append "\n"))
-            (DeterministicKeyChain'''format-addresses this, private?, ledger, sb)
+            (DeterministicKeyChain'''format-addresses this, ledger, sb)
             (.toString sb)
         )
     )
 
     #_abstract
-    (defn #_"void" DeterministicKeyChain'''format-addresses [#_"DeterministicKeyChain" this, #_"boolean" private?, #_"Ledger" ledger, #_"StringBuilder" sb]
+    (defn #_"void" DeterministicKeyChain'''format-addresses [#_"DeterministicKeyChain" this, #_"Ledger" ledger, #_"StringBuilder" sb]
         (doseq [#_"ECKey" key (DeterministicKeyChain''get-keys-3b this, false, true)]
-            (ECKey'''format-key-with-address key, private?, sb, ledger)
+            (ECKey'''format-key-with-address key, ledger, sb)
         )
         nil
     )
@@ -25599,28 +25496,24 @@
     )
 
     #_testing
-    (defn #_"void" DefaultCoinSelector'sort-outputs [#_"List<TransactionOutput>" outputs]
+    (defn #_"List<TransactionOutput>" DefaultCoinSelector'sort-outputs [#_"List<TransactionOutput>" outputs]
         (Collections/sort outputs,
-            (reify Comparator #_"<TransactionOutput>"
-                #_foreign
-                #_override
-                (#_"int" compare [#_"Comparator" __, #_"TransactionOutput" a, #_"TransactionOutput" b]
-                    (let [#_"int" prior1 (TransactionOutput''get-parent-transaction-depth-in-blocks a)
-                          #_"int" prior2 (TransactionOutput''get-parent-transaction-depth-in-blocks b)
-                          #_"Coin" coin1 (:coin-value a)
-                          #_"Coin" coin2 (:coin-value b)
-                          #_"BigInteger" depth1 (.multiply (BigInteger/valueOf (:value coin1)), (BigInteger/valueOf prior1))
-                          #_"BigInteger" depth2 (.multiply (BigInteger/valueOf (:value coin2)), (BigInteger/valueOf prior2))
-                          #_"int" c1 (.compareTo depth2, depth1)]
-                        (when (= c1 0) => c1
-                            ;; The "coin * days" destroyed are equal, sort by value alone to get the lowest transaction size.
-                            (let [#_"int" c2 (.compareTo coin2, coin1)]
-                                (when (= c2 0) => c2
-                                    ;; They are entirely equivalent (possibly pending) so sort by hash to ensure a total ordering.
-                                    (let [#_"BigInteger" hash1 (Sha256Hash''to-big-integer (TransactionOutput''get-parent-transaction-hash a))
-                                          #_"BigInteger" hash2 (Sha256Hash''to-big-integer (TransactionOutput''get-parent-transaction-hash b))]
-                                        (.compareTo hash1, hash2)
-                                    )
+            (#_"int" fn [#_"TransactionOutput" a, #_"TransactionOutput" b]
+                (let [#_"int" prior1 (TransactionOutput''get-parent-transaction-depth-in-blocks a)
+                      #_"int" prior2 (TransactionOutput''get-parent-transaction-depth-in-blocks b)
+                      #_"Coin" coin1 (:coin-value a)
+                      #_"Coin" coin2 (:coin-value b)
+                      #_"BigInteger" depth1 (.multiply (BigInteger/valueOf (:value coin1)), (BigInteger/valueOf prior1))
+                      #_"BigInteger" depth2 (.multiply (BigInteger/valueOf (:value coin2)), (BigInteger/valueOf prior2))
+                      #_"int" c1 (.compareTo depth2, depth1)]
+                    (when (= c1 0) => c1
+                        ;; The "coin * days" destroyed are equal, sort by value alone to get the lowest transaction size.
+                        (let [#_"int" c2 (.compareTo coin2, coin1)]
+                            (when (= c2 0) => c2
+                                ;; They are entirely equivalent (possibly pending) so sort by hash to ensure a total ordering.
+                                (let [#_"BigInteger" hash1 (Sha256Hash''to-big-integer (TransactionOutput''get-parent-transaction-hash a))
+                                      #_"BigInteger" hash2 (Sha256Hash''to-big-integer (TransactionOutput''get-parent-transaction-hash b))]
+                                    (.compareTo hash1, hash2)
                                 )
                             )
                         )
@@ -25628,7 +25521,7 @@
                 )
             )
         )
-        nil
+        outputs
     )
 
     (defn #_"boolean" DefaultCoinSelector'is-selectable [#_"Transaction" tx]
@@ -25661,7 +25554,7 @@
             ;; TODO: Take in network parameters when instantiated, and then test against the current network.
             ;; Or just have a boolean parameter for "give me everything".
             (when-not (.equals target, Ledger'MAX_MONEY)
-                (DefaultCoinSelector'sort-outputs sorted)
+                (§ ass sorted (DefaultCoinSelector'sort-outputs sorted))
             )
             ;; Now iterate over the sorted outputs until we have got as close to the target as possible or
             ;; a little bit over (excessive value will be change).
@@ -25892,9 +25785,8 @@
         )
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"RiskAnalysis" this]
+    #_method
+    (defn #_"String" RiskAnalysis''to-string [#_"RiskAnalysis" this]
         (cond
             (not (:analyzed this)) (str "Pending risk analysis for " (Transaction''get-hash (:tx this)))
             (some? (:non-final this)) (str "Risky due to non-finality of " (Transaction''get-hash (:non-final this)))
@@ -25989,9 +25881,8 @@
         (Objects/hash (object-array [ (:creation-time-seconds this), nil, (:mnemonic-code this) ]))
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"DeterministicSeed" this]
+    #_method
+    (defn #_"String" DeterministicSeed''to-string [#_"DeterministicSeed" this]
         (str "DeterministicSeed " (DeterministicSeed''to-base16 this) " " (.join Utils'SPACE_JOINER, (:mnemonic-code this)))
     )
 )
@@ -26675,24 +26566,6 @@
         nil
     )
 
-    #_method
-    (defn #_"String" KeyChainGroup''to-string [#_"KeyChainGroup" this, #_"boolean" private?]
-        (let [#_"StringBuilder" sb (StringBuilder.)]
-            (when (some? (:basic this))
-                (let [#_"List<ECKey>" keys (BasicKeyChain''get-keys-1 (:basic this))]
-                    (Collections/sort keys, ECKey'AGE_COMPARATOR)
-                    (doseq [#_"ECKey" key keys]
-                        (ECKey'''format-key-with-address key, private?, sb, (:ledger this))
-                    )
-                )
-            )
-            (doseq [#_"DeterministicKeyChain" chain (:chains this)]
-                (.. sb (append (DeterministicKeyChain''to-string chain, private?, (:ledger this))) (append "\n"))
-            )
-            (.toString sb)
-        )
-    )
-
     ;;;
      ; Returns a counter that increases (by an arbitrary amount) each time new keys have been calculated
      ; due to lookahead and thus the Bloom filter that was previously calculated has become stale.
@@ -26700,6 +26573,23 @@
     #_method
     (defn #_"int" KeyChainGroup''get-combined-key-lookahead-epochs [#_"KeyChainGroup" this]
         (reduce + (map DeterministicKeyChain''get-key-lookahead-epoch (:chains this)))
+    )
+
+    #_method
+    (defn #_"String" KeyChainGroup''to-string [#_"KeyChainGroup" this]
+        (let [#_"StringBuilder" sb (StringBuilder. (<< 1 8))]
+            (when (some? (:basic this))
+                (let [#_"List<ECKey>" keys (BasicKeyChain''get-keys-1 (:basic this))]
+                    (doseq [#_"ECKey" key (sort-by :creation-time-seconds keys)]
+                        (ECKey'''format-key-with-address key, (:ledger this), sb)
+                    )
+                )
+            )
+            (doseq [#_"DeterministicKeyChain" chain (:chains this)]
+                (.. sb (append (DeterministicKeyChain''to-string chain, (:ledger this))) (append "\n"))
+            )
+            (.toString sb)
+        )
     )
 )
 
@@ -26902,22 +26792,18 @@
     )
 
     #_override
-    (defn #_"void" DeterministicKeyChain'''format-addresses [#_"MarriedKeyChain" this, #_"boolean" private?, #_"Ledger" ledger, #_"StringBuilder" sb]
+    (defn #_"void" DeterministicKeyChain'''format-addresses [#_"MarriedKeyChain" this, #_"Ledger" ledger, #_"StringBuilder" sb]
         (doseq [#_"DeterministicKeyChain" chain (:following-key-chains this)]
             (.. sb (append "Following chain:  ") (append (DeterministicKey''serialize-pub-b58 (DeterministicKeyChain''get-watching-key chain), ledger)) (append "\n"))
         )
         (.. sb (append "\n"))
         (doseq [#_"RedeemData" redeem (.values (:married-keys-redeem-data this))]
-            (MarriedKeyChain''format-script this, (Script'create-p2sh-output-script-1 (:redeem-script redeem)), sb, ledger)
+            (let [#_"Script" script (Script'create-p2sh-output-script-1 (:redeem-script redeem))]
+                (.. sb (append "  addr:") (append (Script''get-to-address-2 script, ledger)))
+                (.. sb (append "  hash160:") (append (Base16'encode (Script''get-pub-key-hash script))))
+                (.. sb (append "\n"))
+            )
         )
-        nil
-    )
-
-    #_method
-    (defn- #_"void" MarriedKeyChain''format-script [#_"MarriedKeyChain" this, #_"Script" script, #_"StringBuilder" sb, #_"Ledger" ledger]
-        (.. sb (append "  addr:") (append (Script''get-to-address-2 script, ledger)))
-        (.. sb (append "  hash160:") (append (Base16'encode (Script''get-pub-key-hash script))))
-        (.. sb (append "\n"))
         nil
     )
 
@@ -26978,7 +26864,7 @@
     (defn #_"RedeemData" RedeemData'new [#_"Script" script, #_"List<ECKey>" keys]
         (hash-map
             #_"Script" :redeem-script script
-            #_"List<ECKey>" :redeem-keys (sort ECKey'PUBKEY_COMPARATOR, keys)
+            #_"ECKey*" :redeem-keys (sort ECKey'PUBKEY_COMPARATOR keys)
         )
     )
 
@@ -27202,20 +27088,27 @@
         )
     )
 
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"SendRequest" this]
+    #_method
+    (defn #_"String" SendRequest''to-string [#_"SendRequest" this]
         ;; Print only the user-settable fields.
-        (let [#_"MoreObjects.ToStringHelper" helper (.omitNullValues (MoreObjects/toStringHelper this))]
-            (.add helper, "emptyWallet", (:empty-wallet this))
-            (.add helper, "changeAddress", (:change-address this))
-            (.add helper, "feePerKb", (:fee-per-kb this))
-            (.add helper, "ensureMinRequiredFee", (:ensure-min-required-fee this))
-            (.add helper, "signInputs", (:sign-inputs this))
-            (.add helper, "coinSelector", (:coin-selector this))
-            (.add helper, "shuffleOutputs", (:shuffle-outputs this))
-            (.add helper, "recipientsPayFees", (:recipients-pay-fees this))
-            (.toString helper)
+        (let [#_"StringBuilder" sb (StringBuilder. (<< 1 7))]
+            (.. sb (append "{ "))
+            (do
+                (.. sb               (append "emptyWallet")          (append "=") (append (:empty-wallet this)))
+                (when (some? (:change-address this))
+                    (.. sb (append ", ") (append "changeAddress")    (append "=") (append (:change-address this)))
+                )
+                (.. sb (append ", ") (append "feePerKb")             (append "=") (append (:fee-per-kb this)))
+                (.. sb (append ", ") (append "ensureMinRequiredFee") (append "=") (append (:ensure-min-required-fee this)))
+                (.. sb (append ", ") (append "signInputs")           (append "=") (append (:sign-inputs this)))
+                (when (some? (:coin-selector this))
+                    (.. sb (append ", ") (append "coinSelector")     (append "=") (append (:coin-selector this)))
+                )
+                (.. sb (append ", ") (append "shuffleOutputs")       (append "=") (append (:shuffle-outputs this)))
+                (.. sb (append ", ") (append "recipientsPayFees")    (append "=") (append (:recipients-pay-fees this)))
+            )
+            (.. sb (append " }"))
+            (.toString sb)
         )
     )
 )
@@ -29525,14 +29418,11 @@
         (assert-argument (<= 0 n))
 
         (sync (:wallet-lock this)
-            ;; Firstly, put all transactions into an array.
             (let [#_"int" size (+ (count (:unspent this)) (count (:spent this)) (count (:pending this)))
                   n (if (or (< size n) (= n 0)) size n)
-                  #_"List<Transaction>" all (ArrayList. (Wallet''get-transactions this, dead?))]
-                ;; Order by update time.
-                (Collections/sort all, Transaction'SORT_TX_BY_UPDATE_TIME)
-                (when-not (= n (count all))
-                    (.clear (.subList all, n, (count all)))
+                  #_"List<Transaction>" all (ArrayList. (sort Transaction'SORT_TX_BY_UPDATE_TIME (Wallet''get-transactions this, dead?)))]
+                (let-when [#_"int" m (count all)] (< n m)
+                    (.clear (.subList all, n, m))
                 )
                 all
             )
@@ -29944,7 +29834,7 @@
                     (let [#_"Coin" sumo (sumo- tx) #_"Coin" sumi (sumi- tx) #_"Coin" sumi' (Transaction''get-input-sum tx)]
                         (when-not (= sumi sumi') => sumo
                             ;; Multiply our output sum by the appropriate proportion to account for the inputs that we don't own.
-                            (let [#_"BigInteger" i (.divide (.multiply (BigInteger. (.toString sumo)), (BigInteger. (.toString sumi))), (BigInteger. (.toString sumi')))]
+                            (let [#_"BigInteger" i (.divide (.multiply (BigInteger. (Coin''to-string sumo)), (BigInteger. (Coin''to-string sumi))), (BigInteger. (Coin''to-string sumi')))]
                                 (Coin'new (.longValue i))
                             )
                         )
@@ -30282,7 +30172,7 @@
     (defn #_"Wallet" Wallet''sign-transaction [#_"Wallet" this, #_"SendRequest" req]
         (sync (:wallet-lock this)
             (let [#_"Transaction" tx (:tx req) #_"List<TransactionInput>" inputs (:inputs tx) #_"List<TransactionOutput>" outputs (:outputs tx)]
-                (assert-state (and (pos? (count inputs)) (pos? (count outputs))))
+                (assert-state (and (seq inputs) (seq outputs)))
 
                 (dotimes [#_"int" i (count inputs)]
                     (let [#_"TransactionInput" in (nth (:inputs tx) i) #_"TransactionOutput" out (TransactionInput''get-connected-output in)]
@@ -31142,13 +31032,13 @@
     )
 
     #_method
-    (defn- #_"void" Wallet''to-string-helper [#_"Wallet" this, #_"StringBuilder" sb, #_"Map<Sha256Hash, Transaction>" __transactionMap, #_"BlockChain" chain, #_"Comparator<Transaction>" order]
+    (defn- #_"void" Wallet''to-string-helper [#_"Wallet" this, #_"Map<Sha256Hash, Transaction>" pool, #_"Comparator<Transaction>" order, #_"BlockChain" chain, #_"StringBuilder" sb]
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
 
         (let [#_"Collection<Transaction>" txns
-                (when (some? order) => (.values __transactionMap)
+                (when (some? order) => (.values pool)
                     (let [txns (TreeSet. order)]
-                        (.addAll txns, (.values __transactionMap))
+                        (.addAll txns, (.values pool))
                         txns
                     )
                 )]
@@ -31183,59 +31073,56 @@
      ; @param chain If set, will be used to estimate lock times for block timelocked transactions.
      ;;
     #_method
-    (defn- #_"String" Wallet''to-string [#_"Wallet" this, #_"boolean" private?, #_"boolean" __includeTransactions, #_"BlockChain" chain]
-        (sync (:wallet-lock this)
-            (sync (:keychaingroup-lock this)
-                (let [#_"StringBuilder" sb (StringBuilder.)
-                      #_"Coin" estimated (Wallet''get-balance-2t this, :BalanceType'ESTIMATED)
-                      #_"Coin" available (Wallet''get-balance-2t this, :BalanceType'AVAILABLE_SPENDABLE)]
-                    (.. sb (append "Wallet containing ") (append (Coin''to-friendly-string estimated)) (append " (spendable: ") (append (Coin''to-friendly-string available)) (append ") in:\n"))
-                    (.. sb (append "  ") (append (count (:pending this))) (append " pending transactions\n"))
-                    (.. sb (append "  ") (append (count (:unspent this))) (append " unspent transactions\n"))
-                    (.. sb (append "  ") (append (count (:spent this))) (append " spent transactions\n"))
-                    (.. sb (append "  ") (append (count (:dead this))) (append " dead transactions\n"))
-                    (let [#_"Date" time (Wallet''get-last-block-seen-time this)]
-                        (.. sb (append "Last seen best block: ") (append (Wallet''get-last-block-seen-height this)) (append " (") (append (if (some? time) (Time'format-date time) "time unknown")) (append "): ") (append (Wallet''get-last-block-seen-hash this)) (append "\n"))
-                    )
-                    (when (Wallet''is-watching this)
-                        (.. sb (append "Wallet is watching.\n"))
-                    )
-                    ;; Do the keys.
-                    (.. sb (append "\nKeys:\n"))
-                    (.. sb (append "Earliest creation time: ") (append (Time'format-seconds (PeerFilterProvider'''get-earliest-key-creation-time this))) (append "\n"))
-                    (when-let [#_"Date" time (Wallet''get-key-rotation-time this)]
-                        (.. sb (append "Key rotation time:      ") (append (Time'format-date time)) (append "\n"))
-                    )
-                    (.. sb (append (KeyChainGroup''to-string (:key-chain-group this), private?)))
-                    (when __includeTransactions
-                        ;; Print the transactions themselves.
-                        (when (pos? (count (:pending this)))
-                            (.. sb (append "\n>>> PENDING:\n"))
-                            (Wallet''to-string-helper this, sb, (:pending this), chain, Transaction'SORT_TX_BY_UPDATE_TIME)
+    (defn #_"String" Wallet''to-string
+        ([#_"Wallet" this] (Wallet''to-string this, true, nil))
+        ([#_"Wallet" this, #_"boolean" txns?, #_"BlockChain" chain]
+            (sync (:wallet-lock this)
+                (sync (:keychaingroup-lock this)
+                    (let [#_"StringBuilder" sb (StringBuilder. (<< 1 8))
+                          #_"Coin" estimated (Wallet''get-balance-2t this, :BalanceType'ESTIMATED)
+                          #_"Coin" available (Wallet''get-balance-2t this, :BalanceType'AVAILABLE_SPENDABLE)]
+                        (.. sb (append "Wallet containing ") (append (Coin''to-friendly-string estimated)) (append " (spendable: ") (append (Coin''to-friendly-string available)) (append ") in:\n"))
+                        (.. sb (append "  ") (append (count (:pending this))) (append " pending transactions\n"))
+                        (.. sb (append "  ") (append (count (:unspent this))) (append " unspent transactions\n"))
+                        (.. sb (append "  ") (append (count (:spent this))) (append " spent transactions\n"))
+                        (.. sb (append "  ") (append (count (:dead this))) (append " dead transactions\n"))
+                        (let [#_"Date" time (Wallet''get-last-block-seen-time this)]
+                            (.. sb (append "Last seen best block: ") (append (Wallet''get-last-block-seen-height this)) (append " (") (append (if (some? time) (Time'format-date time) "time unknown")) (append "): ") (append (Wallet''get-last-block-seen-hash this)) (append "\n"))
                         )
-                        (when (pos? (count (:unspent this)))
-                            (.. sb (append "\n>>> UNSPENT:\n"))
-                            (Wallet''to-string-helper this, sb, (:unspent this), chain, Transaction'SORT_TX_BY_HEIGHT)
+                        (when (Wallet''is-watching this)
+                            (.. sb (append "Wallet is watching.\n"))
                         )
-                        (when (pos? (count (:spent this)))
-                            (.. sb (append "\n>>> SPENT:\n"))
-                            (Wallet''to-string-helper this, sb, (:spent this), chain, Transaction'SORT_TX_BY_HEIGHT)
+                        ;; Do the keys.
+                        (.. sb (append "\nKeys:\n"))
+                        (.. sb (append "Earliest creation time: ") (append (Time'format-seconds (PeerFilterProvider'''get-earliest-key-creation-time this))) (append "\n"))
+                        (when-let [#_"Date" time (Wallet''get-key-rotation-time this)]
+                            (.. sb (append "Key rotation time:      ") (append (Time'format-date time)) (append "\n"))
                         )
-                        (when (pos? (count (:dead this)))
-                            (.. sb (append "\n>>> DEAD:\n"))
-                            (Wallet''to-string-helper this, sb, (:dead this), chain, Transaction'SORT_TX_BY_UPDATE_TIME)
+                        (.. sb (append (KeyChainGroup''to-string (:key-chain-group this))))
+                        (when txns?
+                            ;; Print the transactions themselves.
+                            (when (seq (:pending this))
+                                (.. sb (append "\n>>> PENDING:\n"))
+                                (Wallet''to-string-helper this, (:pending this), Transaction'SORT_TX_BY_UPDATE_TIME, chain, sb)
+                            )
+                            (when (seq (:unspent this))
+                                (.. sb (append "\n>>> UNSPENT:\n"))
+                                (Wallet''to-string-helper this, (:unspent this), Transaction'SORT_TX_BY_HEIGHT, chain, sb)
+                            )
+                            (when (seq (:spent this))
+                                (.. sb (append "\n>>> SPENT:\n"))
+                                (Wallet''to-string-helper this, (:spent this), Transaction'SORT_TX_BY_HEIGHT, chain, sb)
+                            )
+                            (when (seq (:dead this))
+                                (.. sb (append "\n>>> DEAD:\n"))
+                                (Wallet''to-string-helper this, (:dead this), Transaction'SORT_TX_BY_UPDATE_TIME, chain, sb)
+                            )
                         )
+                        (.toString sb)
                     )
-                    (.toString sb)
                 )
             )
         )
-    )
-
-    #_foreign
-    #_override
-    (defn #_"String" Object'''toString [#_"Wallet" this]
-        (Wallet''to-string this, false, true, nil)
     )
 )
 
