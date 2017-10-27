@@ -119,7 +119,6 @@
 (declare Address''is-p2sh-address Address'LENGTH Address'from-base58 Address'from-p2sh-script Address'init Address'is-acceptable-version Address'from-hash160)
 (declare AddressFormatException'new)
 (declare AddressMessage''add-address AddressMessage''remove-address AddressMessage'MAX_ADDRESSES AddressMessage'from-wire AddressMessage''to-wire)
-(declare AlertMessage''is-signature-valid AlertMessage'MAX_SET_SIZE AlertMessage'from-wire)
 (declare AllRandomKeysRotating'new)
 (declare BackoffParams'new)
 (declare BalanceFutureRequest'new)
@@ -228,7 +227,7 @@
 (declare MonetaryFormat''code-1 MonetaryFormat''code-3 MonetaryFormat''code-separator MonetaryFormat''decimal-mark MonetaryFormat''digits MonetaryFormat''format MonetaryFormat''min-decimals MonetaryFormat''negative-sign MonetaryFormat''no-code MonetaryFormat''optional-decimals MonetaryFormat''parse-coin MonetaryFormat''parse-fiat MonetaryFormat''parse-value MonetaryFormat''positive-sign MonetaryFormat''postfix-code MonetaryFormat''prefix-code MonetaryFormat''repeat-optional-decimals MonetaryFormat''rounding-mode MonetaryFormat''shift MonetaryFormat'BTC MonetaryFormat'CODE_BTC MonetaryFormat'CODE_MBTC MonetaryFormat'CODE_UBTC MonetaryFormat'DECIMALS_PADDING MonetaryFormat'FIAT MonetaryFormat'MAX_DECIMALS MonetaryFormat'MBTC MonetaryFormat'UBTC MonetaryFormat'new)
 (declare MultipleOpReturnRequested'new)
 (declare MultiplexingDiscovery'''create-executor MultiplexingDiscovery'for-services MultiplexingDiscovery'new)
-(declare Ledger'''check-difficulty-transitions Ledger''allow-empty-peer-chain Ledger''get-block-verification-flags Ledger''get-max-money Ledger''get-min-non-dust-output Ledger''get-transaction-verification-flags Ledger''has-max-money Ledger''is-checkpoint Ledger''is-difficulty-transition-point Ledger''is-reward-halving-point Ledger''passes-checkpoint Ledger'BIP16_ENFORCE_TIME Ledger'INTERVAL Ledger'MAX_COINS Ledger'MAX_MONEY Ledger'REWARD_HALVING_INTERVAL Ledger'SATOSHI_KEY Ledger'TARGET_SPACING Ledger'TARGET_TIMESPAN Ledger'create-genesis Ledger'new)
+(declare Ledger'''check-difficulty-transitions Ledger''allow-empty-peer-chain Ledger''get-block-verification-flags Ledger''get-max-money Ledger''get-min-non-dust-output Ledger''get-transaction-verification-flags Ledger''has-max-money Ledger''is-checkpoint Ledger''is-difficulty-transition-point Ledger''is-reward-halving-point Ledger''passes-checkpoint Ledger'BIP16_ENFORCE_TIME Ledger'INTERVAL Ledger'MAX_COINS Ledger'MAX_MONEY Ledger'REWARD_HALVING_INTERVAL Ledger'TARGET_SPACING Ledger'TARGET_TIMESPAN Ledger'create-genesis Ledger'new)
 (declare Networks'NETWORKS)
 (declare NewBestBlockListener'''notify-new-best-block)
 (declare NewBlockType'enum-set)
@@ -240,7 +239,7 @@
 (declare OrphanBlock'new)
 (declare PBKDF2SHA512'f PBKDF2SHA512'derive)
 (declare PartialMerkleTree''get-txn-hash-and-merkle-root PartialMerkleTree''recursive-extract-hashes PartialMerkleTree'build-from-leaves PartialMerkleTree'calc-hash PartialMerkleTree'combine-left-right PartialMerkleTree'get-tree-width PartialMerkleTree'from-wire PartialMerkleTree''to-wire PartialMerkleTree'new PartialMerkleTree'traverse-and-build)
-(declare Peer''add-blocks-downloaded-event-listener-2 Peer''add-blocks-downloaded-event-listener-3 Peer''add-chain-download-started-event-listener-2 Peer''add-chain-download-started-event-listener-3 Peer''add-connected-event-listener-2 Peer''add-connected-event-listener-3 Peer''add-disconnected-event-listener-2 Peer''add-disconnected-event-listener-3 Peer''add-get-data-event-listener-2 Peer''add-get-data-event-listener-3 Peer''add-on-transaction-broadcast-listener-2 Peer''add-on-transaction-broadcast-listener-3 Peer''add-ping-time-data Peer''add-pre-message-received-event-listener-2 Peer''add-pre-message-received-event-listener-3 Peer''add-wallet Peer''block-chain-download-locked Peer''check-for-filter-exhaustion Peer''download-dependencies Peer''download-dependencies-internal Peer''end-filtered-block Peer''get-addr Peer''get-best-height Peer''get-block Peer''get-last-ping-time Peer''get-peer-block-height-difference Peer''get-peer-mempool-transaction Peer''get-average-ping-time Peer''invoke-on-blocks-downloaded Peer''is-download-tx-dependencies Peer''is-not-found-message-supported Peer''maybe-handle-requested-data Peer''maybe-restart-chain-download Peer''ping-1 Peer''ping-2 Peer''process-address-message Peer''process-alert Peer''process-block Peer''process-get-data Peer''process-headers Peer''process-inv Peer''process-not-found-message Peer''process-ping Peer''process-pong Peer''process-transaction Peer''process-version-ack Peer''process-version-message Peer''remove-blocks-downloaded-event-listener Peer''remove-chain-download-started-event-listener Peer''remove-connected-event-listener Peer''remove-disconnected-event-listener Peer''remove-get-data-event-listener Peer''remove-on-transaction-broadcast-listener Peer''remove-pre-message-received-event-listener Peer''remove-wallet Peer''send-single-get-data Peer''set-bloom-filter-2 Peer''set-bloom-filter-3 Peer''set-download-parameters Peer''set-download-tx-dependencies-b Peer''set-min-protocol-version Peer''start-block-chain-download Peer''start-filtered-block Peer''version-handshake-complete Peer'PING_MOVING_AVERAGE_WINDOW Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT Peer'new Peer''to-string)
+(declare Peer''add-blocks-downloaded-event-listener-2 Peer''add-blocks-downloaded-event-listener-3 Peer''add-chain-download-started-event-listener-2 Peer''add-chain-download-started-event-listener-3 Peer''add-connected-event-listener-2 Peer''add-connected-event-listener-3 Peer''add-disconnected-event-listener-2 Peer''add-disconnected-event-listener-3 Peer''add-get-data-event-listener-2 Peer''add-get-data-event-listener-3 Peer''add-on-transaction-broadcast-listener-2 Peer''add-on-transaction-broadcast-listener-3 Peer''add-ping-time-data Peer''add-pre-message-received-event-listener-2 Peer''add-pre-message-received-event-listener-3 Peer''add-wallet Peer''block-chain-download-locked Peer''check-for-filter-exhaustion Peer''download-dependencies Peer''download-dependencies-internal Peer''end-filtered-block Peer''get-addr Peer''get-best-height Peer''get-block Peer''get-last-ping-time Peer''get-peer-block-height-difference Peer''get-peer-mempool-transaction Peer''get-average-ping-time Peer''invoke-on-blocks-downloaded Peer''is-download-tx-dependencies Peer''is-not-found-message-supported Peer''maybe-handle-requested-data Peer''maybe-restart-chain-download Peer''ping-1 Peer''ping-2 Peer''process-address-message Peer''process-block Peer''process-get-data Peer''process-headers Peer''process-inv Peer''process-not-found-message Peer''process-ping Peer''process-pong Peer''process-transaction Peer''process-version-ack Peer''process-version-message Peer''remove-blocks-downloaded-event-listener Peer''remove-chain-download-started-event-listener Peer''remove-connected-event-listener Peer''remove-disconnected-event-listener Peer''remove-get-data-event-listener Peer''remove-on-transaction-broadcast-listener Peer''remove-pre-message-received-event-listener Peer''remove-wallet Peer''send-single-get-data Peer''set-bloom-filter-2 Peer''set-bloom-filter-3 Peer''set-download-parameters Peer''set-download-tx-dependencies-b Peer''set-min-protocol-version Peer''start-block-chain-download Peer''start-filtered-block Peer''version-handshake-complete Peer'PING_MOVING_AVERAGE_WINDOW Peer'RESEND_BLOOM_FILTER_BLOCK_COUNT Peer'new Peer''to-string)
 (declare PeerAddress''to-socket-address PeerAddress'init PeerAddress'loopback PeerAddress'from-socket-address PeerAddress'from-host-port PeerAddress'from-inet-port PeerAddress'from-wire PeerAddress''to-wire PeerAddress''to-string)
 (declare PeerConnectedEventListener'''on-peer-connected)
 (declare PeerDisconnectedEventListener'''on-peer-disconnected)
@@ -3402,158 +3401,6 @@
 )
 
 ;;;
- ; Alerts are signed messages that are broadcast on the peer-to-peer network if they match a hard-coded signing key.
- ; The private keys are held by a small group of core Bitcoin developers, and alerts may be broadcast in the event of
- ; an available upgrade or a serious network problem.  Alerts have an expiration time, data that specifies what
- ; set of software versions it matches and the ability to cancel them by broadcasting another type of alert.
- ;
- ; The right course of action on receiving an alert is usually to either ensure a human will see it (display on screen,
- ; log, email), or if you decide to use alerts for notifications that are specific to your app in some way, to parse it.
- ; For example, you could treat it as an upgrade notification specific to your app.  Satoshi designed alerts to ensure
- ; that software upgrades could be distributed independently of a hard-coded website, in order to allow everything to
- ; be purely peer-to-peer.  You don't have to use this of course, and indeed it often makes more sense not to.
- ;
- ; Before doing anything with an alert, you should check {@link AlertMessage#isSignatureValid()}.
- ;
- ; Instances of this class are not safe for use by multiple threads.
- ;;
-(class-ns AlertMessage (§ extends Message)
-    ;; Chosen arbitrarily to avoid memory blowups.
-    (def- #_"long" AlertMessage'MAX_SET_SIZE 100)
-
-    (defn- #_"AlertMessage" AlertMessage'new [#_"Ledger" ledger]
-        (merge (Message'new ledger)
-            (hash-map
-                #_"byte[]" :content nil
-                #_"byte[]" :signature nil
-
-                #_"long" :version 1
-                ;;;
-                 ; The time at which the alert should stop being broadcast across the network.  Note that you can still receive
-                 ; the alert after this time from other nodes if the alert still applies to them or to you.
-                 ;;
-                #_"Date" :relay-until nil
-                ;;;
-                 ; The time at which the alert ceases to be relevant.  It should not be presented to the user or app administrator
-                 ; after this time.
-                 ;;
-                #_"Date" :expiration nil
-                ;;;
-                 ; The numeric identifier of this alert.  Each alert should have a unique ID, but the signer can choose any number.
-                 ; If an alert is broadcast with a cancel field higher than this ID, this alert is considered cancelled.
-                 ;
-                 ; @return uint32
-                 ;;
-                #_"long" :id 0
-                ;;;
-                 ; A marker that results in any alerts with an ID lower than this value to be considered cancelled.
-                 ;
-                 ; @return uint32
-                 ;;
-                #_"long" :cancel 0
-                ;;;
-                 ; The inclusive lower bound on software versions that are considered for the purposes of this alert.  Bitcoin Core
-                 ; compares this against a protocol version field, but as long as the subVer field is used to restrict it your
-                 ; alerts could use any version numbers.
-                 ;
-                 ; @return uint32
-                 ;;
-                #_"long" :min-ver 0
-                ;;;
-                 ; The inclusive upper bound on software versions considered for the purposes of this alert.  Bitcoin Core
-                 ; compares this against a protocol version field, but as long as the subVer field is used to restrict it your
-                 ; alerts could use any version numbers.
-                 ;;
-                #_"long" :max-ver 0
-                ;;;
-                 ; Provides an integer ordering amongst simultaneously active alerts.
-                 ;
-                 ; @return uint32
-                 ;;
-                #_"long" :priority 0
-                ;;;
-                 ; This field is unused.  It is presumably intended for the author of the alert to provide a justification for it
-                 ; visible to protocol developers but not users.
-                 ;;
-                #_"String" :comment nil
-                ;;;
-                 ; A string that is intended to display in the status bar of Bitcoin Core's GUI client.
-                 ; It contains the user-visible message.  English only.
-                 ;;
-                #_"String" :status-bar nil
-                ;;;
-                 ; This field is never used.
-                 ;;
-                #_"String" :reserved nil
-            )
-        )
-    )
-
-    #_throws #_[ "ProtocolException" ]
-    (defn #_"AlertMessage" AlertMessage'from-wire [#_"Ledger" ledger, #_"ByteBuffer" payload]
-        (let [this (AlertMessage'new ledger)
-              ;; Alerts are formatted in two levels.  The top level contains two byte arrays: a signature, and a serialized
-              ;; data structure containing the actual alert data.
-              _ (.mark payload)
-              this (assoc this :content (Wire'read-byte-array payload))
-              this (assoc this :signature (Wire'read-byte-array payload))
-              ;; Now we need to parse out the contents of the embedded structure.  Rewind back to the start of the message.
-              _ (.reset payload)
-              ;; Skip the length field on the content array.
-              _ (Wire'read-var-int payload)
-              ;; We're inside the embedded structure.
-              this (assoc this :version (Wire'read-uint32 payload))
-              ;; Read the timestamps.  Bitcoin uses seconds since the epoch.
-              this (assoc this :relay-until (Date. (* (.longValue (Wire'read-uint64 payload)) 1000)))
-              this (assoc this :expiration (Date. (* (.longValue (Wire'read-uint64 payload)) 1000)))
-              this (assoc this :id (Wire'read-uint32 payload))
-              this (assoc this :cancel (Wire'read-uint32 payload))
-              ;; Sets are serialized as <len><item><item><item>....
-              _ (let [#_"long" n (Wire'read-var-int payload)]
-                    (when (<= 0 n AlertMessage'MAX_SET_SIZE) => (throw+ (ProtocolException'new (str "Bad cancel set size: " n)))
-                        (let [#_"Set<Long>" __cancelSet (HashSet. n)]
-                            (dotimes [_ n]
-                                (.add __cancelSet, (Wire'read-uint32 payload))
-                            )
-                        )
-                    )
-                )
-              this (assoc this :min-ver (Wire'read-uint32 payload))
-              this (assoc this :max-ver (Wire'read-uint32 payload))
-              ;; Read the subver matching set.
-              _ (let [#_"long" n (Wire'read-var-int payload)]
-                    (when (<= 0 n AlertMessage'MAX_SET_SIZE) => (throw+ (ProtocolException'new (str "Bad subver set size: " n)))
-                        (let [#_"Set<String>" __matchingSubVers (HashSet. n)]
-                            (dotimes [_ n]
-                                (.add __matchingSubVers, (Wire'read-string payload))
-                            )
-                        )
-                    )
-                )
-              this (assoc this :priority (Wire'read-uint32 payload))
-              this (assoc this :comment (Wire'read-string payload))
-              this (assoc this :status-bar (Wire'read-string payload))
-              this (assoc this :reserved (Wire'read-string payload))]
-            this
-        )
-    )
-
-    ;;;
-     ; Returns true if the digital signature attached to the message verifies.  Don't do anything with the alert if it
-     ; doesn't verify, because that would allow arbitrary attackers to spam your users.
-     ;;
-    #_method
-    (defn #_"boolean" AlertMessage''is-signature-valid [#_"AlertMessage" this]
-        (ECKey'verify-3-bytes (Sha256Hash'hash-twice (:content this)), (:signature this), (-> this :ledger :alert-signing-key))
-    )
-
-    #_method
-    (defn #_"String" AlertMessage''to-string [#_"AlertMessage" this]
-        (str "ALERT: " (:status-bar this))
-    )
-)
-
-;;;
  ; Base58 is a way to encode Bitcoin addresses (or arbitrary data) as alphanumeric strings.
  ;
  ; Note that this is not the same base58 as used by Flickr, which you may find referenced around the Internet.
@@ -3810,7 +3657,6 @@
             "pong"        (Pong'from-wire ledger, payload)
             "verack"      (VersionAck'new ledger)
             "headers"     (HeadersMessage'from-wire ledger, payload)
-            "alert"       (AlertMessage'from-wire ledger, payload)
             "filterload"  (BloomFilter'from-wire ledger, payload)
             "notfound"    (NotFoundMessage'from-wire ledger, payload)
             "mempool"     (MemoryPoolMessage'new ledger)
@@ -6856,11 +6702,6 @@
  ;;
 #_abstract
 (class-ns Ledger
-    ;;;
-     ; The alert signing key originally owned by Satoshi, and now passed on to Gavin along with a few others.
-     ;;
-    (def #_"byte[]" Ledger'SATOSHI_KEY (Base16'decode "04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284"))
-
     (defn- #_"Block" Ledger'create-genesis [#_"Ledger" param]
         (let [#_"Transaction" tx (Transaction'new param)
               ;; A script containing the difficulty bits and the following message: "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks".
@@ -6925,11 +6766,6 @@
                      ; Both test and main Bitcoin networks use 2 weeks (1209600 seconds).
                      ;;
                     #_"int" :target-timespan 0
-                    ;;;
-                     ; The key used to sign {@link AlertMessage}s.
-                     ; You can use {@link ECKey#verify(byte[], byte[], byte[])} to verify signatures using it.
-                     ;;
-                    #_"byte[]" :alert-signing-key Ledger'SATOSHI_KEY
                     ;;;
                      ; 4 byte header for BIP32 (HD) wallet - public key part.
                      ;;
@@ -8099,7 +7935,6 @@
                     ;; in the wallet so we don't put too much load on the seed nodes and can properly explore the network.
                     (§ AddressMessage)   (Peer''process-address-message this, (cast' AddressMessage m))
                     (§ HeadersMessage)   (Peer''process-headers this, (cast' HeadersMessage m))
-                    (§ AlertMessage)     (Peer''process-alert this, (cast' AlertMessage m))
                     (§ VersionMessage)   (Peer''process-version-message this, (cast' VersionMessage m))
                     (§ VersionAck)       (Peer''process-version-ack this, (cast' VersionAck m))
                     (§ RejectMessage)    (do (log/error (str this ": Received " m)) this)
@@ -8221,23 +8056,6 @@
                     (.cancel (:future req), true)
                     (.remove (:get-data-futures this), req)
                 )
-            )
-        )
-        this
-    )
-
-    #_method
-    (defn #_"Peer" Peer''process-alert [#_"Peer" this, #_"AlertMessage" m]
-        (try
-            (if (AlertMessage''is-signature-valid m)
-                (log/info (str "Received alert from peer " this ": " (:status-bar m)))
-                (log/warn (str "Received alert with invalid signature from peer " this ": " (:status-bar m)))
-            )
-            (catch Throwable t
-                ;; Signature checking can FAIL on Android platforms before Gingerbread apparently due to bugs in their
-                ;; BigInteger implementations!  See https://github.com/bitcoinj/bitcoinj/issues/526 for discussion.
-                ;; As alerts are just optional and not that useful, we just swallow the error here.
-                (log/error t, "Failed to check signature: bug in platform libraries?")
             )
         )
         this
@@ -19136,7 +18954,6 @@
 
               this (assoc this :spendable-coinbase-depth 100)
               this (assoc this :subsidy-decrease-block-count 210000)
-              this (assoc this :alert-signing-key (Base16'decode "04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a"))
 
               this (assoc this :dns-seeds
                 [
