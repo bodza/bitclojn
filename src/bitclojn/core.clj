@@ -247,7 +247,6 @@
 (declare PeerGroup''add-address-i PeerGroup''add-address-p PeerGroup''add-blocks-downloaded-event-listener PeerGroup''add-chain-download-started-event-listener PeerGroup''add-connected-event-listener PeerGroup''add-disconnected-event-listener PeerGroup''add-discovered-event-listener PeerGroup''add-get-data-event-listener PeerGroup''add-inactive PeerGroup''add-on-transaction-broadcast-listener PeerGroup''add-peer-discovery PeerGroup''add-peer-filter-provider PeerGroup''add-pre-message-received-event-listener PeerGroup''add-wallet PeerGroup''await-running PeerGroup''await-terminated PeerGroup''broadcast-transaction-3 PeerGroup''connect-to-socket-address PeerGroup''connect-to-peer-address PeerGroup''connect-to-loopback PeerGroup''count-connected-and-pending-peers PeerGroup''create-peer PeerGroup''create-private-executor PeerGroup''discover-peers PeerGroup''download-block-chain PeerGroup''find-peers-of-at-least-version PeerGroup''find-peers-with-service-mask PeerGroup''get-connected-peers PeerGroup''get-download-peer PeerGroup''get-fast-catchup-time-secs PeerGroup''get-max-connections PeerGroup''get-min-broadcast-connections PeerGroup''get-most-common-chain-height PeerGroup''get-pending-peers PeerGroup''get-ping-interval-msec PeerGroup''get-use-loopback-peer-when-possible PeerGroup''get-version-message PeerGroup''handle-get-data PeerGroup''handle-new-peer PeerGroup''handle-peer-death PeerGroup''maybe-check-for-loopback-peer PeerGroup''num-connected-peers PeerGroup''recalculate-fast-catchup-and-filter PeerGroup''remove-blocks-downloaded-event-listener PeerGroup''remove-chain-download-started-event-listener PeerGroup''remove-connected-event-listener PeerGroup''remove-disconnected-event-listener PeerGroup''remove-discovered-event-listener PeerGroup''remove-get-data-event-listener PeerGroup''remove-on-transaction-broadcast-listener PeerGroup''remove-peer-filter-provider PeerGroup''remove-pre-message-received-event-listener PeerGroup''remove-wallet PeerGroup''select-download-peer PeerGroup''set-bloom-filter-false-positive-rate PeerGroup''set-download-peer PeerGroup''set-fast-catchup-time-secs PeerGroup''set-max-connections PeerGroup''set-min-broadcast-connections PeerGroup''set-ping-interval-msec PeerGroup''set-required-services PeerGroup''set-stall-threshold PeerGroup''set-use-loopback-peer-when-possible PeerGroup''setup-pinging PeerGroup''start PeerGroup''start-async PeerGroup''start-block-chain-download PeerGroup''start-block-chain-download-from-peer PeerGroup''stop PeerGroup''stop-async PeerGroup''trigger-connections PeerGroup''update-version-message-relay-txes-before-filter PeerGroup''wait-for-job-queue PeerGroup''wait-for-peers PeerGroup''wait-for-peers-of-version PeerGroup''wait-for-peers-with-service-mask PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE PeerGroup'DEFAULT_CONNECTIONS PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS PeerGroup'DEFAULT_PING_INTERVAL_MSEC PeerGroup'MAX_FP_RATE_INCREASE PeerGroup'MIN_PEER_DISCOVERY_INTERVAL PeerGroup'add-data-event-listener-to-peer PeerGroup'get-most-common-chain-height* PeerGroup'new PeerGroup'remove-data-event-listener-from-peer)
 (declare PeerListener'new)
 (declare PeerSocketHandler'''process-message PeerSocketHandler''close PeerSocketHandler''exception-caught PeerSocketHandler''send-message PeerSocketHandler'new)
-(declare PeerStartupListener'new)
 (declare PendingConnection'new)
 (declare PendingPing''complete PendingPing'new)
 (declare Ping'new Ping'from-wire Ping''to-wire)
@@ -292,7 +291,7 @@
 (declare TestLedger'INSTANCE TestLedger'TESTNET_DIFF_DATE TestLedger'TEXTUAL_CHECKPOINTS TestLedger'new)
 (declare ThreadFactory'''newThread)
 (declare Threading'SAME_THREAD Threading'THREAD_POOL Threading'USER_THREAD Threading'wait-for-user-code)
-(declare Transaction''add-block-appearance Transaction''add-input Transaction''add-input-o Transaction''add-input-s Transaction''add-output-ca Transaction''add-output-ce Transaction''add-output-cs Transaction''add-output Transaction''add-signed-input Transaction''calculate-signature-b Transaction''calculate-signature-s Transaction''check-coin-base-height Transaction''estimate-lock-time Transaction''get-confidence-t Transaction''get-confidence-tct Transaction''get-fee Transaction''get-hash Transaction''get-input-sum Transaction''get-output-sum Transaction''get-sig-op-count Transaction''get-update-time Transaction''get-value Transaction''get-value-sent-from-me Transaction''get-value-sent-to-me Transaction''get-wallet-outputs Transaction''has-confidence Transaction''hash-for-signature-4b Transaction''hash-for-signature-5b Transaction''hash-for-signature-5s Transaction''is-any-output-spent Transaction''is-coin-base Transaction''is-every-owned-output-spent Transaction''is-final Transaction''is-mature Transaction''is-opt-in-full-rbf Transaction''is-pending Transaction''is-time-locked Transaction''set-block-appearance Transaction''set-lock-time Transaction''shuffle-outputs Transaction''to-string Transaction''verify Transaction'DEFAULT_TX_FEE Transaction'LOCKTIME_THRESHOLD Transaction'LOCKTIME_THRESHOLD_BIG Transaction'MAX_STANDARD_TX_SIZE Transaction'MIN_NONDUST_OUTPUT Transaction'REFERENCE_DEFAULT_MIN_TX_FEE Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG Transaction'SEQUENCE_LOCKTIME_MASK Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG Transaction'SORT_TX_BY_HEIGHT Transaction'SORT_TX_BY_UPDATE_TIME Transaction'init Transaction'new Transaction'from-wire Transaction''to-wire)
+(declare Transaction''add-block-appearance Transaction''add-input Transaction''add-input-o Transaction''add-input-s Transaction''add-output-ca Transaction''add-output-ce Transaction''add-output-cs Transaction''add-output Transaction''add-signed-input Transaction''calculate-signature-b Transaction''calculate-signature-s Transaction''check-coin-base-height Transaction''estimate-lock-time Transaction''get-confidence-t Transaction''get-confidence-tct Transaction''get-fee Transaction''get-hash Transaction''get-input-sum Transaction''get-output-sum Transaction''get-sig-op-count Transaction''get-value Transaction''get-value-sent-from-me Transaction''get-value-sent-to-me Transaction''get-wallet-outputs Transaction''has-confidence Transaction''hash-for-signature-4b Transaction''hash-for-signature-5b Transaction''hash-for-signature-5s Transaction''is-any-output-spent Transaction''is-coin-base Transaction''is-every-owned-output-spent Transaction''is-final Transaction''is-mature Transaction''is-opt-in-full-rbf Transaction''is-pending Transaction''is-time-locked Transaction''set-block-appearance Transaction''set-lock-time Transaction''shuffle-outputs Transaction''to-string Transaction''verify Transaction'DEFAULT_TX_FEE Transaction'LOCKTIME_THRESHOLD Transaction'LOCKTIME_THRESHOLD_BIG Transaction'MAX_STANDARD_TX_SIZE Transaction'MIN_NONDUST_OUTPUT Transaction'REFERENCE_DEFAULT_MIN_TX_FEE Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG Transaction'SEQUENCE_LOCKTIME_MASK Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG Transaction'SORT_TX_BY_HEIGHT Transaction'SORT_TX_BY_UPDATE_TIME Transaction'init Transaction'new Transaction'from-wire Transaction''to-wire)
 (declare Wallet''get-transaction-pool Wallet''is-pay-to-script-hash-mine Wallet''is-pub-key-hash-mine Wallet''is-pub-key-mine)
 (declare TransactionBroadcast''broadcast TransactionBroadcast''invoke-and-record TransactionBroadcast''invoke-progress-callback TransactionBroadcast''set-progress-callback TransactionBroadcast'RANDOM TransactionBroadcast'new)
 (declare TransactionBroadcaster'''broadcast-transaction-2)
@@ -313,7 +312,7 @@
 (declare UTXO'new)
 (declare UnknownMessage'from-wire)
 (declare UserThread'WARNING_THRESHOLD UserThread'new)
-(declare Utils'SPACE_JOINER Wire'bget-uint16 Wire'bget-uint32 Wire'bget-int64 Wire'bget-uint16be Wire'bget-uint32be Wire'bset-uint32be Wire'bset-uint32 Wire'bset-uint64 Utils'big-integer-to-bytes Wire'reverse-bytes Utils'sha256hash160 Wire'decode-mpi Wire'encode-mpi Utils'decode-compact-bits Utils'encode-compact-bits Time'now Time'millis Time'seconds Time'UTC Time'format-date Time'format-millis Time'format-seconds Time'sleep Utils'parse-as-hex-or-base58 Utils'BITCOIN_SIGNED_MESSAGE_HEADER Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES Utils'format-message-for-signing Utils'BIT_MASK Utils'check-bit-le Utils'set-bit-le Utils'max-of-most-freq)
+(declare Utils'SPACE_JOINER Wire'bget-uint16 Wire'bget-uint32 Wire'bget-int64 Wire'bget-uint16be Wire'bget-uint32be Wire'bset-uint32be Wire'bset-uint32 Wire'bset-uint64 Utils'big-integer-to-bytes Wire'reverse-bytes Utils'sha256hash160 Wire'decode-mpi Wire'encode-mpi Utils'decode-compact-bits Utils'encode-compact-bits Time'now Time'seconds Time'UTC Time'format-date Time'format Time'format-seconds Time'sleep Utils'parse-as-hex-or-base58 Utils'BITCOIN_SIGNED_MESSAGE_HEADER Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES Utils'format-message-for-signing Utils'BIT_MASK Utils'check-bit-le Utils'set-bit-le Utils'max-of-most-freq)
 (declare ValuesUsed'new)
 (declare VarInt''encode VarInt'init VarInt'new VarInt'parse VarInt'from-wire VarInt'size-of)
 (declare VerificationException'new)
@@ -426,7 +425,7 @@
      ; @param peerCount The total number of connected peers.
      ;;
     #_abstract
-    (#_"void" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" this, #_"Peer" peer, #_"int" __peerCount])
+    (#_"PeerConnectedEventListener" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" this, #_"Peer" peer, #_"int" __peerCount])
 )
 
 ;;;
@@ -451,7 +450,7 @@
      ; @param peerCount The total number of connected peers.
      ;;
     #_abstract
-    (#_"void" PeerDisconnectedEventListener'''on-peer-disconnected [#_"PeerDisconnectedEventListener" this, #_"Peer" peer, #_"int" __peerCount])
+    (#_"PeerDisconnectedEventListener" PeerDisconnectedEventListener'''on-peer-disconnected [#_"PeerDisconnectedEventListener" this, #_"Peer" peer, #_"int" __peerCount])
 )
 
 ;;;
@@ -944,16 +943,9 @@
     )
 
     ;;;
-     ; Returns the current time.
-     ;;
-    (defn #_"Date" Time'now []
-        (Date.)
-    )
-
-    ;;;
      ; Returns the current time in milliseconds since the epoch.
      ;;
-    (defn #_"long" Time'millis []
+    (defn #_"long" Time'now []
         (System/currentTimeMillis)
     )
 
@@ -961,7 +953,7 @@
      ; Returns the current time in seconds since the epoch.
      ;;
     (defn #_"long" Time'seconds []
-        (quot (Time'millis) 1000)
+        (quot (Time'now) 1000)
     )
 
     (def- #_"TimeZone" Time'UTC (TimeZone/getTimeZone "UTC"))
@@ -979,7 +971,7 @@
     ;;;
      ; Formats a given unix time (ms) value to an ISO 8601 string.
      ;;
-    (defn #_"String" Time'format-millis [#_"long" time]
+    (defn #_"String" Time'format [#_"long" time]
         (let [#_"DateFormat" iso8601 (SimpleDateFormat. "yyyy-MM-dd'T'HH:mm:ss'Z'", Locale/US)]
             (.setTimeZone iso8601, Time'UTC)
             (.format iso8601, time)
@@ -990,7 +982,7 @@
      ; Formats a given time seconds value to an ISO 8601 string.
      ;;
     (defn #_"String" Time'format-seconds [#_"long" time]
-        (Time'format-millis (* time 1000))
+        (Time'format (* time 1000))
     )
 
     ;;;
@@ -1624,7 +1616,7 @@
     #_foreign
     #_override
     (defn #_"int" Comparable'''compareTo [#_"Coin" this, #_"Coin" that]
-        (compare (:value this), (:value that))
+        (compare (:value this) (:value that))
     )
 
     #_method
@@ -1845,7 +1837,7 @@
     #_foreign
     #_override
     (defn #_"int" Comparable'''compareTo [#_"Fiat" this, #_"Fiat" that]
-        (if (= (:code this) (:code that)) (compare (:value this), (:value that)) (.compareTo (:code this), (:code that)))
+        (if (= (:code this) (:code that)) (compare (:value this) (:value that)) (compare (:code this) (:code that)))
     )
 
     #_method
@@ -2121,7 +2113,7 @@
      ;;
     #_throws #_[ "BlockStoreException", "VerificationException" ]
     #_abstract
-    (defn #_"StoredBlock" BlockChain'''add-to-block-store-4 [#_"BlockChain" this, #_"StoredBlock" prior, #_"Block" header, #_"TransactionOutputChanges" __txOutputChanges])
+    (defn #_"StoredBlock" BlockChain'''add-to-block-store-4 [#_"BlockChain" this, #_"StoredBlock" prior, #_"Block" header, #_"TransactionOutputChanges" changes])
 
     ;;;
      ; Rollback the block store to a given height.  This is currently only supported by {@link SPVBlockChain} instances.
@@ -2139,7 +2131,7 @@
      ;;
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    (defn #_"void" BlockChain'''do-set-chain-head [#_"BlockChain" this, #_"StoredBlock" head])
+    (defn #_"BlockChain" BlockChain'''do-set-chain-head [#_"BlockChain" this, #_"StoredBlock" head])
 
     ;;;
      ; Called if we (possibly) previously called disconnectTransaction/connectTransactions,
@@ -2709,9 +2701,10 @@
     #_throws #_[ "BlockStoreException" ]
     #_method
     (defn #_"BlockChain" BlockChain''set-chain-head [#_"BlockChain" this, #_"StoredBlock" head]
-        (BlockChain'''do-set-chain-head this, head)
-        (sync (:chain-head-lock this)
-            (assoc this :chain-head head)
+        (let [this (BlockChain'''do-set-chain-head this, head)]
+            (sync (:chain-head-lock this)
+                (assoc this :chain-head head)
+            )
         )
     )
 
@@ -3255,7 +3248,7 @@
     #_foreign
     #_override
     (defn #_"int" Comparable'''compareTo [#_"Address" this, #_"Address" that]
-        (let [#_"int" cmp (compare (:version this), (:version that))]
+        (let [#_"int" cmp (compare (:version this) (:version that))]
             (if (not= cmp 0) cmp (.compare (UnsignedBytes/lexicographicalComparator), (:addr-bytes this), (:addr-bytes that)))
         )
     )
@@ -4283,8 +4276,8 @@
 
     #_throws #_[ "BlockStoreException", "VerificationException" ]
     #_override
-    (defn #_"StoredBlock" BlockChain'''add-to-block-store-4 [#_"SPVBlockChain" this, #_"StoredBlock" prior, #_"Block" header, #_"TransactionOutputChanges" changes]
-        (let [#_"StoredBlock" stored (StoredBlock''build prior, header)]
+    (defn #_"StoredBlock" BlockChain'''add-to-block-store-3 [#_"SPVBlockChain" this, #_"StoredBlock" prior, #_"Block" block]
+        (let [#_"StoredBlock" stored (StoredBlock''build prior, block)]
             (§ ass this (update this :block-store BlockStore'''put stored))
             stored
         )
@@ -4292,7 +4285,7 @@
 
     #_throws #_[ "BlockStoreException", "VerificationException" ]
     #_override
-    (defn #_"StoredBlock" BlockChain'''add-to-block-store-3 [#_"SPVBlockChain" this, #_"StoredBlock" prior, #_"Block" header]
+    (defn #_"StoredBlock" BlockChain'''add-to-block-store-4 [#_"SPVBlockChain" this, #_"StoredBlock" prior, #_"Block" header, #_"TransactionOutputChanges" changes]
         (let [#_"StoredBlock" stored (StoredBlock''build prior, header)]
             (§ ass this (update this :block-store BlockStore'''put stored))
             stored
@@ -4348,9 +4341,8 @@
 
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" BlockChain'''do-set-chain-head [#_"SPVBlockChain" this, #_"StoredBlock" head]
-        (§ ass this (update this :block-store BlockStore'''set-chain-head head))
-        nil
+    (defn #_"SPVBlockChain" BlockChain'''do-set-chain-head [#_"SPVBlockChain" this, #_"StoredBlock" head]
+        (update this :block-store BlockStore'''set-chain-head head)
     )
 
     #_throws #_[ "BlockStoreException" ]
@@ -5725,18 +5717,18 @@
 
     #_throws #_[ "BlockStoreException", "VerificationException" ]
     #_override
-    (defn #_"StoredBlock" BlockChain'''add-to-block-store-4 [#_"FullPrunedBlockChain" this, #_"StoredBlock" prior, #_"Block" header, #_"TransactionOutputChanges" changes]
-        (let [#_"StoredBlock" stored (StoredBlock''build prior, header)]
-            (FullPrunedBlockStore'''put-3 (:block-store this), stored, (StoredUndoableBlock'from-changes (Block''get-hash (:stored-header stored)), changes))
+    (defn #_"StoredBlock" BlockChain'''add-to-block-store-3 [#_"FullPrunedBlockChain" this, #_"StoredBlock" prior, #_"Block" block]
+        (let [#_"StoredBlock" stored (StoredBlock''build prior, block)]
+            (FullPrunedBlockStore'''put-3 (:block-store this), stored, (StoredUndoableBlock'from-transactions (Block''get-hash (:stored-header stored)), (:transactions block)))
             stored
         )
     )
 
     #_throws #_[ "BlockStoreException", "VerificationException" ]
     #_override
-    (defn #_"StoredBlock" BlockChain'''add-to-block-store-3 [#_"FullPrunedBlockChain" this, #_"StoredBlock" prior, #_"Block" block]
-        (let [#_"StoredBlock" stored (StoredBlock''build prior, block)]
-            (FullPrunedBlockStore'''put-3 (:block-store this), stored, (StoredUndoableBlock'from-transactions (Block''get-hash (:stored-header stored)), (:transactions block)))
+    (defn #_"StoredBlock" BlockChain'''add-to-block-store-4 [#_"FullPrunedBlockChain" this, #_"StoredBlock" prior, #_"Block" header, #_"TransactionOutputChanges" changes]
+        (let [#_"StoredBlock" stored (StoredBlock''build prior, header)]
+            (FullPrunedBlockStore'''put-3 (:block-store this), stored, (StoredUndoableBlock'from-changes (Block''get-hash (:stored-header stored)), changes))
             stored
         )
     )
@@ -6157,11 +6149,11 @@
 
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" BlockChain'''do-set-chain-head [#_"FullPrunedBlockChain" this, #_"StoredBlock" head]
+    (defn #_"FullPrunedBlockChain" BlockChain'''do-set-chain-head [#_"FullPrunedBlockChain" this, #_"StoredBlock" head]
         (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
         (FullPrunedBlockStore'''set-verified-chain-head (:block-store this), head)
         (FullPrunedBlockStore'''commit-database-batch-write (:block-store this))
-        nil
+        this
     )
 
     #_throws #_[ "BlockStoreException" ]
@@ -7202,14 +7194,14 @@
             ;; The random nonce that lets us tell apart overlapping pings/pongs.
             #_"long" :nonce nonce
             ;; Measurement of the time elapsed.
-            #_"long" :start-time-msec (Time'millis)
+            #_"long" :start-time-msec (Time'now)
         )
     )
 
     #_method
     (defn #_"PendingPing" PendingPing''complete [#_"PendingPing" this]
         (when-not (.isDone (:future this)) => this
-            (let [#_"Long" elapsed (- (Time'millis) (:start-time-msec this)) this (update this :peer Peer''add-ping-time-data elapsed)]
+            (let [#_"Long" elapsed (- (Time'now) (:start-time-msec this)) this (update this :peer Peer''add-ping-time-data elapsed)]
                 (log/debug (str (:peer this) ": ping time is " elapsed " msec"))
                 (.set (:future this), elapsed)
                 this
@@ -7224,7 +7216,7 @@
 (defprotocol StreamConnection
     ;;; Called when the connection socket is closed. ;;
     #_abstract
-    (#_"void" StreamConnection'''connection-closed [#_"StreamConnection" this])
+    (#_"StreamConnection" StreamConnection'''connection-closed [#_"StreamConnection" this])
 
     ;;; Called when the connection socket is first opened. ;;
     #_abstract
@@ -7257,7 +7249,7 @@
      ; This writeTarget should be stored and used to close the connection or write data to the socket.
      ;;
     #_abstract
-    (#_"void" StreamConnection'''set-write-target [#_"StreamConnection" this, #_"MessageWriteTarget" target])
+    (#_"StreamConnection" StreamConnection'''set-write-target [#_"StreamConnection" this, #_"MessageWriteTarget" target])
 
     ;;;
      ; Returns the maximum message size of a message on the socket. This is used in calculating size of buffers
@@ -7329,23 +7321,20 @@
      ;;
     #_method
     (defn #_"PeerSocketHandler" PeerSocketHandler''close [#_"PeerSocketHandler" this]
-        (or
-            (sync (:peersocket-lock this)
-                (when (nil? (:write-target this))
-                    (§ ass this (assoc this :close-pending true))
-                    :done
-                )
+        (let [[this close?]
+                (sync (:peersocket-lock this)
+                    (if (some? (:write-target this)) [this true] [(assoc this :close-pending true) false])
+                )]
+            (when close? => this
+                (update this :write-target MessageWriteTarget'''close-connection)
             )
-            (MessageWriteTarget'''close-connection (:write-target this))
         )
-        this
     )
 
     #_override
-    (defn #_"void" AbstractTimeoutHandler'''timeout-occurred [#_"PeerSocketHandler" this]
+    (defn #_"PeerSocketHandler" AbstractTimeoutHandler'''timeout-occurred [#_"PeerSocketHandler" this]
         (log/info (str (:peer-address this) ": Timed out"))
-        (§ ass this (PeerSocketHandler''close this))
-        nil
+        (PeerSocketHandler''close this)
     )
 
     ;;;
@@ -7353,7 +7342,7 @@
      ;;
     #_throws #_[ "Exception" ]
     #_abstract
-    (defn #_"void" PeerSocketHandler'''process-message [#_"PeerSocketHandler" this, #_"Message" m])
+    (defn #_"PeerSocketHandler" PeerSocketHandler'''process-message [#_"PeerSocketHandler" this, #_"Message" m])
 
     #_override
     (defn #_"int" StreamConnection'''receive-bytes [#_"PeerSocketHandler" this, #_"ByteBuffer" wire]
@@ -7379,7 +7368,7 @@
                         )]
                     (when (some? message) => (.position wire)
                         ;; Process our freshly deserialized message.
-                        (PeerSocketHandler'''process-message this, message)
+                        (§ ass this (PeerSocketHandler'''process-message this, message))
                         (recur false)
                     )
                 )
@@ -7397,23 +7386,20 @@
      ; it is called automatically by {@link NioClient} or {@link NioClientManager} once the socket finishes initialization.
      ;;
     #_override
-    (defn #_"void" StreamConnection'''set-write-target [#_"PeerSocketHandler" this, #_"MessageWriteTarget" target]
+    (defn #_"PeerSocketHandler" StreamConnection'''set-write-target [#_"PeerSocketHandler" this, #_"MessageWriteTarget" target]
         (assert-argument (some? target))
 
-        (let [#_"boolean" close?
+        (let [[this close?]
                 (sync (:peersocket-lock this)
                     (assert-argument (nil? (:write-target this)))
 
-                    (let [close? (:close-pending this)]
-                        (§ ass this (assoc this :write-target target))
-                        close?
-                    )
+                    [(assoc this :write-target target) (:close-pending this)]
                 )]
             (when close?
-                (MessageWriteTarget'''close-connection target)
+                (§ ass target (MessageWriteTarget'''close-connection target))
             )
+            this
         )
-        nil
     )
 
     #_override
@@ -7699,22 +7685,21 @@
     )
 
     #_override
-    (defn #_"void" AbstractTimeoutHandler'''timeout-occurred [#_"Peer" this]
-        (AbstractTimeoutHandler'''timeout-occurred (§ this super))
-
-        (when-not (.isDone (:connection-open-future this))
-            ;; Invoke the event handlers to tell listeners e.g. PeerGroup that we never managed to connect.
-            (StreamConnection'''connection-closed this)
+    (defn #_"Peer" AbstractTimeoutHandler'''timeout-occurred [#_"Peer" this]
+        (let [this (AbstractTimeoutHandler'''timeout-occurred (§ this super))]
+            (when-not (.isDone (:connection-open-future this)) => this
+                ;; Invoke the event handlers to tell listeners e.g. PeerGroup that we never managed to connect.
+                (StreamConnection'''connection-closed this)
+            )
         )
-        nil
     )
 
     #_override
-    (defn #_"void" StreamConnection'''connection-closed [#_"Peer" this]
+    (defn #_"Peer" StreamConnection'''connection-closed [#_"Peer" this]
         (doseq [#_"ListenerRegistration<PeerDisconnectedEventListener>" r (:disconnected-event-listeners this)]
-            (.execute (:executor r), #(PeerDisconnectedEventListener'''on-peer-disconnected (:listener r), this, 0))
+            (.execute (:executor r), #(§ non-void PeerDisconnectedEventListener'''on-peer-disconnected (:listener r), this, 0))
         )
-        nil
+        this
     )
 
     #_override
@@ -7733,7 +7718,7 @@
 
     #_throws #_[ "Exception" ]
     #_override
-    (defn #_"void" PeerSocketHandler'''process-message [#_"Peer" this, #_"Message" m]
+    (defn #_"Peer" PeerSocketHandler'''process-message [#_"Peer" this, #_"Message" m]
         ;; Allow event listeners to filter the message stream.  Listeners are allowed to drop messages by returning null.
         (let [m (loop-when [m m #_"List<ListenerRegistration<PreMessageReceivedEventListener>>" s (:pre-message-received-event-listeners this)] (seq s) => m
                     (let [#_"ListenerRegistration<PreMessageReceivedEventListener>" r (first s)]
@@ -7746,42 +7731,44 @@
                         )
                     )
                 )]
-            (when (some? m)
+            (when (some? m) => this
                 ;; If we are in the middle of receiving transactions as part of a filtered block push from the remote node,
                 ;; and we receive something that's not a transaction, then we're done.
-                (when (and (some? (:current-filtered-block this)) (not (§ instance? Transaction m)))
-                    (§ ass this (Peer''end-filtered-block this, (:current-filtered-block this)))
-                    (§ ass this (assoc this :current-filtered-block nil))
-                )
+                (let [this
+                        (when (and (some? (:current-filtered-block this)) (not (§ instance? Transaction m))) => this
+                            (let [this (Peer''end-filtered-block this, (:current-filtered-block this))]
+                                (assoc this :current-filtered-block nil)
+                            )
+                        )]
 
-                ;; No further communication is possible until version handshake is complete.
-                (when-not (or (§ instance? VersionMessage m) (§ instance? VersionAck m) (and (.isDone (:version-handshake-future this)) (not (.isCancelled (:version-handshake-future this)))))
-                    (throw+ (ProtocolException'new (str "Received " (.getSimpleName (.getClass m)) " before version handshake is complete.")))
-                )
+                    ;; No further communication is possible until version handshake is complete.
+                    (when-not (or (§ instance? VersionMessage m) (§ instance? VersionAck m) (and (.isDone (:version-handshake-future this)) (not (.isCancelled (:version-handshake-future this)))))
+                        (throw+ (ProtocolException'new (str "Received " (.getSimpleName (.getClass m)) " before version handshake is complete.")))
+                    )
 
-                (§ ass this (condp instance? m
-                    (§ Ping)             (Peer''process-ping this, (cast' Ping m))
-                    (§ Pong)             (Peer''process-pong this, (cast' Pong m))
-                    ;; This is sent to us when we did a getdata on some transactions that aren't in the peers memory pool.
-                    ;; Because NotFoundMessage is a subclass of InventoryMessage, the test for it must come before the next.
-                    (§ NotFoundMessage)  (Peer''process-not-found-message this, (cast' NotFoundMessage m))
-                    (§ InventoryMessage) (Peer''process-inv this, (cast' InventoryMessage m))
-                    (§ Block)            (Peer''process-block this, (cast' Block m))
-                    (§ FilteredBlock)    (Peer''start-filtered-block this, (cast' FilteredBlock m))
-                    (§ Transaction)      (Peer''process-transaction this, (cast' Transaction m))
-                    (§ GetDataMessage)   (Peer''process-get-data this, (cast' GetDataMessage m))
-                    ;; We don't care about addresses of the network right now.  But in future, we should save them
-                    ;; in the wallet so we don't put too much load on the seed nodes and can properly explore the network.
-                    (§ AddressMessage)   (Peer''process-address-message this, (cast' AddressMessage m))
-                    (§ HeadersMessage)   (Peer''process-headers this, (cast' HeadersMessage m))
-                    (§ VersionMessage)   (Peer''process-version-message this, (cast' VersionMessage m))
-                    (§ VersionAck)       (Peer''process-version-ack this, (cast' VersionAck m))
-                    (§ RejectMessage)    (do (log/error (str this ": Received " m)) this)
-                                         (do (log/warn (str this ": Received unhandled message: " m)) this)
-                ))
+                    (condp instance? m
+                        (§ Ping)             (Peer''process-ping this, (cast' Ping m))
+                        (§ Pong)             (Peer''process-pong this, (cast' Pong m))
+                        ;; This is sent to us when we did a getdata on some transactions that aren't in the peers memory pool.
+                        ;; Because NotFoundMessage is a subclass of InventoryMessage, the test for it must come before the next.
+                        (§ NotFoundMessage)  (Peer''process-not-found-message this, (cast' NotFoundMessage m))
+                        (§ InventoryMessage) (Peer''process-inv this, (cast' InventoryMessage m))
+                        (§ Block)            (Peer''process-block this, (cast' Block m))
+                        (§ FilteredBlock)    (Peer''start-filtered-block this, (cast' FilteredBlock m))
+                        (§ Transaction)      (Peer''process-transaction this, (cast' Transaction m))
+                        (§ GetDataMessage)   (Peer''process-get-data this, (cast' GetDataMessage m))
+                        ;; We don't care about addresses of the network right now.  But in future, we should save them
+                        ;; in the wallet so we don't put too much load on the seed nodes and can properly explore the network.
+                        (§ AddressMessage)   (Peer''process-address-message this, (cast' AddressMessage m))
+                        (§ HeadersMessage)   (Peer''process-headers this, (cast' HeadersMessage m))
+                        (§ VersionMessage)   (Peer''process-version-message this, (cast' VersionMessage m))
+                        (§ VersionAck)       (Peer''process-version-ack this, (cast' VersionAck m))
+                        (§ RejectMessage)    (do (log/error (str this ": Received " m)) this)
+                                             (do (log/warn (str this ": Received unhandled message: " m)) this)
+                    )
+                )
             )
         )
-        nil
     )
 
     #_method
@@ -7849,7 +7836,7 @@
         (log/debug (str this ": Handshake complete."))
         (let [this (AbstractTimeoutHandler''set-timeout-enabled this, false)]
             (doseq [#_"ListenerRegistration<PeerConnectedEventListener>" r (:connected-event-listeners this)]
-                (.execute (:executor r), #(PeerConnectedEventListener'''on-peer-connected (:listener r), this, 1))
+                (.execute (:executor r), #(§ non-void PeerConnectedEventListener'''on-peer-connected (:listener r), this, 1))
             )
             ;; We check min version after onPeerConnected as channel.close() will
             ;; call onPeerDisconnected, and we should probably call onPeerConnected first.
@@ -7921,59 +7908,59 @@
             (try+
                 (assert-state (not __downloadBlockBodies), (Peer''to-string this))
 
-                (or
-                    (loop-when [#_"int" i 0] (< i (count (:block-headers m)))
-                        (let [#_"Block" header (nth (:block-headers m) i) #_"int" best (BlockChain''get-best-chain-height (:block-chain this))]
-                            ;; Process headers until we pass the fast catchup time, or are about to catch up with the head
-                            ;; of the chain - always process the last block as a full/filtered block to kick us out of the
-                            ;; fast catchup mode (in which we ignore new blocks).
-                            (cond (or (<= __fastCatchupTimeSecs (:time-seconds header)) (<= (-> this :v-peer-version-message :best-height) best))
-                                (do
-                                    (sync (:peer-lock this)
-                                        (log/info (str "Passed the fast catchup time (" (Time'format-seconds __fastCatchupTimeSecs) ") at height " (inc best) ", discarding " (- (count (:block-headers m)) i) " headers and requesting full blocks"))
-                                        (§ ass this (assoc this :download-block-bodies true))
-                                        ;; Prevent this request being seen as a duplicate.
-                                        (§ ass this (assoc this :last-get-blocks-begin Sha256Hash'ZERO_HASH))
-                                        (§ ass this (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH))
+                (let [[this done?]
+                        (loop-when [#_"int" i 0] (< i (count (:block-headers m))) => [this false]
+                            (let [#_"Block" header (nth (:block-headers m) i) #_"int" best (BlockChain''get-best-chain-height (:block-chain this))]
+                                ;; Process headers until we pass the fast catchup time, or are about to catch up with the head
+                                ;; of the chain - always process the last block as a full/filtered block to kick us out of the
+                                ;; fast catchup mode (in which we ignore new blocks).
+                                (cond (or (<= __fastCatchupTimeSecs (:time-seconds header)) (<= (-> this :v-peer-version-message :best-height) best))
+                                    (do
+                                        (sync (:peer-lock this)
+                                            (log/info (str "Passed the fast catchup time (" (Time'format-seconds __fastCatchupTimeSecs) ") at height " (inc best) ", discarding " (- (count (:block-headers m)) i) " headers and requesting full blocks"))
+                                            (let [this (assoc this :download-block-bodies true)
+                                                  ;; Prevent this request being seen as a duplicate.
+                                                  this (assoc this :last-get-blocks-begin Sha256Hash'ZERO_HASH)]
+                                                [(Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH) true]
+                                            )
+                                        )
                                     )
-                                    :done
-                                )
-                                (not (:v-download-data this))
-                                (do
-                                    ;; Not download peer anymore, some other peer probably became better.
-                                    (log/info "Lost download peer status, throwing away downloaded headers.")
-                                    :done
-                                )
-                                (BlockChain''add-b (:block-chain this), header)
-                                (do
-                                    ;; The block was successfully linked into the chain. Notify the user of our progress.
-                                    (Peer''invoke-on-blocks-downloaded this, header, nil)
-                                    (recur (inc i))
-                                )
-                                :else
-                                (do
-                                    ;; This block is unconnected - we don't know how to get from it back to the genesis block yet.
-                                    ;; That must mean that the peer is buggy or malicious because we specifically requested for
-                                    ;; headers that are part of the best chain.
-                                    (throw+ (ProtocolException'new (str "Got unconnected header from peer: " (Block''get-hash header))))
+                                    (not (:v-download-data this))
+                                    (do
+                                        ;; Not download peer anymore, some other peer probably became better.
+                                        (log/info "Lost download peer status, throwing away downloaded headers.")
+                                        [this true]
+                                    )
+                                    (BlockChain''add-b (:block-chain this), header)
+                                    (do
+                                        ;; The block was successfully linked into the chain. Notify the user of our progress.
+                                        (Peer''invoke-on-blocks-downloaded this, header, nil)
+                                        (recur (inc i))
+                                    )
+                                    :else
+                                    (do
+                                        ;; This block is unconnected - we don't know how to get from it back to the genesis block yet.
+                                        ;; That must mean that the peer is buggy or malicious because we specifically requested for
+                                        ;; headers that are part of the best chain.
+                                        (throw+ (ProtocolException'new (str "Got unconnected header from peer: " (Block''get-hash header))))
+                                    )
                                 )
                             )
-                        )
-                    )
+                        )]
 
                     ;; We added all headers in the message to the chain.
                     ;; Request some more if we got up to the limit, otherwise we are at the end of the chain.
-                    (when (<= HeadersMessage'MAX_HEADERS (count (:block-headers m)))
+                    (when-not (or done? (< (count (:block-headers m)) HeadersMessage'MAX_HEADERS)) => this
                         (sync (:peer-lock this)
-                            (§ ass this (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH))
+                            (Peer''block-chain-download-locked this, Sha256Hash'ZERO_HASH)
                         )
                     )
                 )
                 (§ catch VerificationException e
                     (log/warn e, "Block header verification failed")
+                    this
                 )
             )
-            this
         )
     )
 
@@ -8005,102 +7992,108 @@
     (defn #_"Peer" Peer''process-transaction [#_"Peer" this, #_"Transaction" tx]
         ;; Check a few basic syntax issues to ensure the received TX isn't nonsense.
         (Transaction''verify tx)
-        (or
-            (sync (:peer-lock this)
-                (log/debug (str (:peer-address this) ": Received tx " (Transaction''get-hash tx)))
-                ;; Label the transaction as coming in from the P2P network (as opposed to being created by us, direct import,
-                ;; etc).  This helps the wallet decide how to risk analyze it later.
-                ;;
-                ;; Additionally, by invoking tx.getConfidence(), this tx now pins the confidence data into the heap, meaning
-                ;; we can stop holding a reference to the confidence object ourselves.  It's up to event listeners on the
-                ;; Peer to stash the tx object somewhere if they want to keep receiving updates about network propagation
-                ;; and so on.
-                (let [#_"TransactionConfidence" confidence (Transaction''get-confidence-t tx)]
-                    (§ ass confidence (TransactionConfidence''set-source confidence, :ConfidenceSource'NETWORK))
-                    (.remove (:pending-tx-downloads this), confidence)
-                    (cond (Peer''maybe-handle-requested-data this, tx, Transaction''get-hash)
-                        (do
-                            :done
-                        )
-                        (some? (:current-filtered-block this))
-                        (do
-                            (when-not (FilteredBlock''provide-transaction (:current-filtered-block this), tx)
-                                ;; Got a tx that didn't fit into the filtered block, so we must have received everything.
-                                (§ ass this (Peer''end-filtered-block this, (:current-filtered-block this)))
-                                (§ ass this (assoc this :current-filtered-block nil))
+        (let [[this bcast?]
+                (sync (:peer-lock this)
+                    (log/debug (str (:peer-address this) ": Received tx " (Transaction''get-hash tx)))
+                    ;; Label the transaction as coming in from the P2P network (as opposed to being created by us, direct import,
+                    ;; etc).  This helps the wallet decide how to risk analyze it later.
+                    ;;
+                    ;; Additionally, by invoking tx.getConfidence(), this tx now pins the confidence data into the heap, meaning
+                    ;; we can stop holding a reference to the confidence object ourselves.  It's up to event listeners on the
+                    ;; Peer to stash the tx object somewhere if they want to keep receiving updates about network propagation
+                    ;; and so on.
+                    (let [#_"TransactionConfidence" confidence (Transaction''get-confidence-t tx)]
+                        (§ ass confidence (TransactionConfidence''set-source confidence, :ConfidenceSource'NETWORK))
+                        (.remove (:pending-tx-downloads this), confidence)
+                        (cond (Peer''maybe-handle-requested-data this, tx, Transaction''get-hash)
+                            (do
+                                [this false]
                             )
-                            ;; Don't tell wallets or listeners about this tx as they'll learn about it when the filtered block is
-                            ;; fully downloaded instead.
-                            :done
-                        )
-                        :else
-                        (do
-                            ;; It's a broadcast transaction.  Tell all wallets about this tx so they can check if it's relevant or not.
-                            (doseq [#_"Wallet" wallet (:wallets this)]
-                                (try+
-                                    (when (Wallet''is-pending-transaction-relevant wallet, tx)
-                                        (if (pos? (:v-download-tx-dependency-depth this))
-                                            ;; This transaction seems interesting to us, so let's download its dependencies.  This has
-                                            ;; several purposes: we can check that the sender isn't attacking us by engaging in protocol
-                                            ;; abuse games, like depending on a time-locked transaction that will never confirm, or
-                                            ;; building huge chains of unconfirmed transactions (again - so they don't confirm and the
-                                            ;; money can be taken back with a Finney attack).  Knowing the dependencies also lets us
-                                            ;; store them in a serialized wallet so we always have enough data to re-announce to the
-                                            ;; network and get the payment into the chain, in case the sender goes away and the network
-                                            ;; starts to forget.
-                                            ;;
-                                            ;; TODO: Not all the above things are implemented.
-                                            ;;
-                                            ;; Note that downloading of dependencies can end up walking around 15 minutes back even
-                                            ;; through transactions that have confirmed, as getdata on the remote peer also checks
-                                            ;; relay memory not only the mempool.  Unfortunately we have no way to know that here.
-                                            ;; In practice it should not matter much.
-                                            (Futures/addCallback (Peer''download-dependencies this, tx),
-                                                (reify FutureCallback #_"<List<Transaction>>"
-                                                    #_foreign
-                                                    #_override
-                                                    (#_"void" onSuccess [#_"FutureCallback" __, #_"List<Transaction>" dependencies]
-                                                        (try+
-                                                            (log/info (str (:peer-address this) ": Dependency download complete!"))
-                                                            (Wallet''receive-pending-3 wallet, tx, dependencies)
-                                                            (§ catch VerificationException e
-                                                                (log/error e, (str (:peer-address this) ": Wallet failed to process pending transaction " (Transaction''get-hash tx)))
-                                                                ;; Not much more we can do at this point.
-                                                            )
-                                                        )
-                                                        nil
-                                                    )
-
-                                                    #_foreign
-                                                    #_override
-                                                    (#_"void" onFailure [#_"FutureCallback" __, #_"Throwable" throwable]
-                                                        (log/error throwable, (str "Could not download dependencies of tx " (Transaction''get-hash tx)))
-                                                        ;; Not much more we can do at this point.
-                                                        nil
-                                                    )
-                                                )
+                            (some? (:current-filtered-block this))
+                            (do
+                                (let [this
+                                        (when-not (FilteredBlock''provide-transaction (:current-filtered-block this), tx) => this
+                                            ;; Got a tx that didn't fit into the filtered block, so we must have received everything.
+                                            (let [this (Peer''end-filtered-block this, (:current-filtered-block this))]
+                                                (assoc this :current-filtered-block nil)
                                             )
-                                            (Wallet''receive-pending-3 wallet, tx, nil)
-                                        )
-                                    )
-                                    (§ catch VerificationException e
-                                        (log/error e, "Wallet failed to verify tx")
-                                        ;; Carry on, listeners may still want to know.
-                                    )
+                                        )]
+                                    ;; Don't tell wallets or listeners about this tx as they'll learn about it when the filtered block is
+                                    ;; fully downloaded instead.
+                                    [this false]
                                 )
                             )
-                            nil
+                            :else
+                            (do
+                                ;; It's a broadcast transaction.  Tell all wallets about this tx so they can check if it's relevant or not.
+                                (doseq [#_"Wallet" wallet (:wallets this)]
+                                    (try+
+                                        (when (Wallet''is-pending-transaction-relevant wallet, tx)
+                                            (if (pos? (:v-download-tx-dependency-depth this))
+                                                ;; This transaction seems interesting to us, so let's download its dependencies.  This has
+                                                ;; several purposes: we can check that the sender isn't attacking us by engaging in protocol
+                                                ;; abuse games, like depending on a time-locked transaction that will never confirm, or
+                                                ;; building huge chains of unconfirmed transactions (again - so they don't confirm and the
+                                                ;; money can be taken back with a Finney attack).  Knowing the dependencies also lets us
+                                                ;; store them in a serialized wallet so we always have enough data to re-announce to the
+                                                ;; network and get the payment into the chain, in case the sender goes away and the network
+                                                ;; starts to forget.
+                                                ;;
+                                                ;; TODO: Not all the above things are implemented.
+                                                ;;
+                                                ;; Note that downloading of dependencies can end up walking around 15 minutes back even
+                                                ;; through transactions that have confirmed, as getdata on the remote peer also checks
+                                                ;; relay memory not only the mempool.  Unfortunately we have no way to know that here.
+                                                ;; In practice it should not matter much.
+                                                (Futures/addCallback (Peer''download-dependencies this, tx),
+                                                    (reify FutureCallback #_"<List<Transaction>>"
+                                                        #_foreign
+                                                        #_override
+                                                        (#_"void" onSuccess [#_"FutureCallback" __, #_"List<Transaction>" dependencies]
+                                                            (try+
+                                                                (log/info (str (:peer-address this) ": Dependency download complete!"))
+                                                                (Wallet''receive-pending-3 wallet, tx, dependencies)
+                                                                (§ catch VerificationException e
+                                                                    (log/error e, (str (:peer-address this) ": Wallet failed to process pending transaction " (Transaction''get-hash tx)))
+                                                                    ;; Not much more we can do at this point.
+                                                                )
+                                                            )
+                                                            nil
+                                                        )
+
+                                                        #_foreign
+                                                        #_override
+                                                        (#_"void" onFailure [#_"FutureCallback" __, #_"Throwable" throwable]
+                                                            (log/error throwable, (str "Could not download dependencies of tx " (Transaction''get-hash tx)))
+                                                            ;; Not much more we can do at this point.
+                                                            nil
+                                                        )
+                                                    )
+                                                )
+                                                (Wallet''receive-pending-3 wallet, tx, nil)
+                                            )
+                                        )
+                                        (§ catch VerificationException e
+                                            (log/error e, "Wallet failed to verify tx")
+                                            ;; Carry on, listeners may still want to know.
+                                        )
+                                    )
+                                )
+                                [this true]
+                            )
                         )
                     )
+                )]
+
+            (when bcast?
+                ;; Tell all listeners about this tx so they can decide whether to keep it or not.  If no listener keeps a
+                ;; reference around then the memory pool will forget about it after a while too because it uses weak references.
+                (doseq [#_"ListenerRegistration<OnTransactionBroadcastListener>" r (:on-transaction-event-listeners this)]
+                    (.execute (:executor r), #(OnTransactionBroadcastListener'''on-transaction (:listener r), this, tx))
                 )
             )
-            ;; Tell all listeners about this tx so they can decide whether to keep it or not.  If no listener keeps a
-            ;; reference around then the memory pool will forget about it after a while too because it uses weak references.
-            (doseq [#_"ListenerRegistration<OnTransactionBroadcastListener>" r (:on-transaction-event-listeners this)]
-                (.execute (:executor r), #(OnTransactionBroadcastListener'''on-transaction (:listener r), this, tx))
-            )
+            this
         )
-        this
     )
 
     ;;;
@@ -8344,80 +8337,91 @@
                 (.remove (:pending-block-downloads this), (Block''get-hash (FilteredBlock''get-block-header m)))
 
                 (try+
-                    (or
-                        ;; It's a block sent to us because the peer thought we needed it, so maybe add it to the block chain.
-                        ;; The FilteredBlock m here contains a list of hashes, and may contain Transaction objects for a subset
-                        ;; of the hashes (those that were sent to us by the remote peer).  Any hashes that haven't had a tx
-                        ;; provided in processTransaction are ones that were announced to us previously via an 'inv' so the
-                        ;; assumption is we have already downloaded them and either put them in the wallet, or threw them away
-                        ;; for being false positives.
-                        ;;
-                        ;; TODO: Fix the following protocol race.
-                        ;; It is possible for this code to go wrong such that we miss a confirmation.  If the remote peer announces
-                        ;; a relevant transaction via an 'inv' and then it immediately announces the block that confirms
-                        ;; the tx before we had a chance to download it+its dependencies and provide them to the wallet, then we
-                        ;; will add the block to the chain here without the tx being in the wallet and thus it will miss its
-                        ;; confirmation and become stuck forever.  The fix is to notice that there's a pending getdata for a tx
-                        ;; that appeared in this block and delay processing until it arrived ... it's complicated by the fact that
-                        ;; the data may be requested by a different peer to this one.
-
-                        ;; Ask each wallet attached to the peer/blockchain if this block exhausts the list of data items
-                        ;; (keys/addresses) that were used to calculate the previous filter.  If so, then it's possible this block
-                        ;; is only partial.  Check for discarding first so we don't check for exhaustion on blocks we already know
-                        ;; we're going to discard, otherwise redundant filters might end up being queued and calculated.
-                        (sync (:peer-lock this)
-                            (cond (some? (:awaiting-fresh-filter this))
-                                (do
-                                    (log/info (str "Discarding block " (FilteredBlock''get-hash m) " because we're still waiting for a fresh filter"))
-                                    ;; We must record the hashes of blocks we discard because you cannot do getblocks twice on the same
-                                    ;; range of blocks and get an inv both times, due to the codepath in Bitcoin Core hitting
-                                    ;; CPeer::PushInventory() which checks CPeer::setInventoryKnown and thus deduplicates.
-                                    (.add (:awaiting-fresh-filter this), (FilteredBlock''get-hash m))
-
-                                    :done ;; Chain download process is restarted via a call to setBloomFilter.
-                                )
-                                (Peer''check-for-filter-exhaustion this, m)
-                                (do
-                                    ;; Yes, so we must abandon the attempt to process this block and any further blocks we receive,
-                                    ;; then wait for the Bloom filter to be recalculated, sent to this peer and for the peer to acknowledge
-                                    ;; that the new filter is now in use (which we have to simulate with a ping/pong), and then we can
-                                    ;; safely restart the chain download with the new filter that contains a new set of lookahead keys.
-                                    (log/info (str "Bloom filter exhausted whilst processing block " (FilteredBlock''get-hash m) ", discarding"))
-                                    (§ ass this (assoc this :awaiting-fresh-filter (LinkedList.)))
-                                    (.add (:awaiting-fresh-filter this), (FilteredBlock''get-hash m))
-                                    (.addAll (:awaiting-fresh-filter this), (BlockChain''drain-orphan-blocks (:block-chain this)))
-
-                                    :done ;; Chain download process is restarted via a call to setBloomFilter.
-                                )
-                            )
-                        )
-
-                        (if (BlockChain'''add-filtered-block (:block-chain this), m)
-                            ;; The block was successfully linked into the chain.  Notify the user of our progress.
-                            (Peer''invoke-on-blocks-downloaded this, (FilteredBlock''get-block-header m), m)
-                            ;; This block is an orphan - we don't know how to get from it back to the genesis block yet.  That
-                            ;; must mean that there are blocks we are missing, so do another getblocks with a new block locator
-                            ;; to ask the peer to send them to us.  This can happen during the initial block chain download where
-                            ;; the peer will only send us 500 at a time and then sends us the head block expecting us to request
-                            ;; the others.
+                    (let [[this done?]
+                            ;; It's a block sent to us because the peer thought we needed it, so maybe add it to the block chain.
+                            ;; The FilteredBlock m here contains a list of hashes, and may contain Transaction objects for a subset
+                            ;; of the hashes (those that were sent to us by the remote peer).  Any hashes that haven't had a tx
+                            ;; provided in processTransaction are ones that were announced to us previously via an 'inv' so the
+                            ;; assumption is we have already downloaded them and either put them in the wallet, or threw them away
+                            ;; for being false positives.
                             ;;
-                            ;; We must do two things here:
-                            ;; (1) Request from current top of chain to the oldest ancestor of the received block in the orphan set.
-                            ;; (2) Filter out duplicate getblock requests (done in blockChainDownloadLocked).
-                            ;;
-                            ;; The reason for (1) is that otherwise if new blocks were solved during the middle of chain download
-                            ;; we'd do a blockChainDownloadLocked() on the new best chain head, which would cause us to try and grab the
-                            ;; chain twice (or more!) on the same connection!  The block chain would filter out the duplicates but
-                            ;; only at a huge speed penalty.  By finding the orphan root we ensure every getblocks looks the same
-                            ;; no matter how many blocks are solved, and therefore that the (2) duplicate filtering can work.
+                            ;; TODO: Fix the following protocol race.
+                            ;; It is possible for this code to go wrong such that we miss a confirmation.  If the remote peer announces
+                            ;; a relevant transaction via an 'inv' and then it immediately announces the block that confirms
+                            ;; the tx before we had a chance to download it+its dependencies and provide them to the wallet, then we
+                            ;; will add the block to the chain here without the tx being in the wallet and thus it will miss its
+                            ;; confirmation and become stuck forever.  The fix is to notice that there's a pending getdata for a tx
+                            ;; that appeared in this block and delay processing until it arrived ... it's complicated by the fact that
+                            ;; the data may be requested by a different peer to this one.
+
+                            ;; Ask each wallet attached to the peer/blockchain if this block exhausts the list of data items
+                            ;; (keys/addresses) that were used to calculate the previous filter.  If so, then it's possible this block
+                            ;; is only partial.  Check for discarding first so we don't check for exhaustion on blocks we already know
+                            ;; we're going to discard, otherwise redundant filters might end up being queued and calculated.
                             (sync (:peer-lock this)
-                                (let [#_"Block" root (ensure some? (BlockChain''get-orphan-root (:block-chain this), (FilteredBlock''get-hash m)))]
-                                    (§ ass this (Peer''block-chain-download-locked this, (Block''get-hash root)))
+                                (cond (some? (:awaiting-fresh-filter this))
+                                    (let [#_"Sha256Hash" hash (FilteredBlock''get-hash m)]
+                                        (log/info (str "Discarding block " hash " because we're still waiting for a fresh filter"))
+                                        ;; We must record the hashes of blocks we discard because you cannot do getblocks twice on the same
+                                        ;; range of blocks and get an inv both times, due to the codepath in Bitcoin Core hitting
+                                        ;; CPeer::PushInventory() which checks CPeer::setInventoryKnown and thus deduplicates.
+                                        (.add (:awaiting-fresh-filter this), hash)
+
+                                        ;; Chain download process is restarted via a call to setBloomFilter.
+                                        [this true]
+                                    )
+                                    (Peer''check-for-filter-exhaustion this, m)
+                                    (let [#_"Sha256Hash" hash (FilteredBlock''get-hash m)]
+                                        (log/info (str "Bloom filter exhausted whilst processing block " hash ", discarding"))
+                                        ;; Yes, so we must abandon the attempt to process this block and any further blocks we receive,
+                                        ;; then wait for the Bloom filter to be recalculated, sent to this peer and for the peer to acknowledge
+                                        ;; that the new filter is now in use (which we have to simulate with a ping/pong), and then we can
+                                        ;; safely restart the chain download with the new filter that contains a new set of lookahead keys.
+                                        (let [#_"List<Sha256Hash>" hashes (LinkedList.)]
+                                            (.add hashes, hash)
+                                            (.addAll hashes, (BlockChain''drain-orphan-blocks (:block-chain this)))
+
+                                            ;; Chain download process is restarted via a call to setBloomFilter.
+                                            [(assoc this :awaiting-fresh-filter hashes) true]
+                                        )
+                                    )
+                                    :else
+                                    (do
+                                        [this false]
+                                    )
+                                )
+                            )]
+
+                        (when-not done? => this
+                            (if (BlockChain'''add-filtered-block (:block-chain this), m)
+                                ;; The block was successfully linked into the chain.  Notify the user of our progress.
+                                (do
+                                    (Peer''invoke-on-blocks-downloaded this, (FilteredBlock''get-block-header m), m)
+                                    this
+                                )
+                                ;; This block is an orphan - we don't know how to get from it back to the genesis block yet.  That
+                                ;; must mean that there are blocks we are missing, so do another getblocks with a new block locator
+                                ;; to ask the peer to send them to us.  This can happen during the initial block chain download where
+                                ;; the peer will only send us 500 at a time and then sends us the head block expecting us to request
+                                ;; the others.
+                                ;;
+                                ;; We must do two things here:
+                                ;; (1) Request from current top of chain to the oldest ancestor of the received block in the orphan set.
+                                ;; (2) Filter out duplicate getblock requests (done in blockChainDownloadLocked).
+                                ;;
+                                ;; The reason for (1) is that otherwise if new blocks were solved during the middle of chain download
+                                ;; we'd do a blockChainDownloadLocked() on the new best chain head, which would cause us to try and grab the
+                                ;; chain twice (or more!) on the same connection!  The block chain would filter out the duplicates but
+                                ;; only at a huge speed penalty.  By finding the orphan root we ensure every getblocks looks the same
+                                ;; no matter how many blocks are solved, and therefore that the (2) duplicate filtering can work.
+                                (sync (:peer-lock this)
+                                    (let [#_"Block" root (ensure some? (BlockChain''get-orphan-root (:block-chain this), (FilteredBlock''get-hash m)))]
+                                        (Peer''block-chain-download-locked this, (Block''get-hash root))
+                                    )
                                 )
                             )
                         )
                     )
-                    this
                     (§ catch VerificationException e
                         ;; We don't want verification failures to kill the thread.
                         (log/warn e, (str (:peer-address this) ": FilteredBlock verification failed"))
@@ -9302,26 +9306,6 @@
     )
 )
 
-#_non-static #_"PeerGroup"
-(class-ns PeerStartupListener (§ implements PeerConnectedEventListener, PeerDisconnectedEventListener)
-    (defn- #_"PeerStartupListener" PeerStartupListener'new []
-        (hash-map)
-    )
-
-    #_override
-    (defn #_"void" PeerConnectedEventListener'''on-peer-connected [#_"PeerStartupListener" this, #_"Peer" peer, #_"int" __peerCount]
-        (§ ass this (PeerGroup''handle-new-peer this, peer))
-        nil
-    )
-
-    #_override
-    (defn #_"void" PeerDisconnectedEventListener'''on-peer-disconnected [#_"PeerStartupListener" this, #_"Peer" peer, #_"int" __peerCount]
-        ;; The channel will be automatically removed from channels.
-        (§ ass this (PeerGroup''handle-peer-death this, peer, nil))
-        nil
-    )
-)
-
 ;;;
  ; A general interface which declares the ability to broadcast transactions.
  ; This is implemented by {@link PeerGroup}.
@@ -9353,7 +9337,7 @@
  ; of PeerGroup are safe to call from a UI thread as some may do network IO,
  ; but starting and stopping the service should be fine.
  ;;
-(class-ns PeerGroup (§ implements TransactionBroadcaster)
+(class-ns PeerGroup (§ implements PeerConnectedEventListener, PeerDisconnectedEventListener, TransactionBroadcaster)
     ;;;
      ; The default number of connections to the p2p network the library will try to build.  This is set to 12 empirically.
      ; It used to be 4, but because we divide the connection pool in two for broadcasting transactions, that meant we
@@ -9387,21 +9371,18 @@
     #_method
     (defn- #_"PeerGroup" PeerGroup''go-connect [#_"PeerGroup" this, #_"Runnable" self]
         (when (:v-running this) => this
-            (let-when [#_"long" now (Time'millis)
-                  #_"boolean" discover?
+            (let-when [#_"long" now (Time'now)
+                  [this #_"boolean" discover?]
                     (sync (:peergroup-lock this)
                         ;; First run: try and use a local node if there is one, for the additional security it can provide.
                         (if (and (:use-loopback-peer-when-possible this) (PeerGroup''maybe-check-for-loopback-peer this) (:first-run this))
-                            (do
+                            (let [this (assoc this :max-connections 0)]
                                 (log/info "Loopback peer detected, trying to use it instead of P2P discovery")
-                                (§ ass this (assoc this :max-connections 0))
                                 (PeerGroup''connect-to-loopback this)
-                                (§ ass this (assoc this :first-run false))
-                                nil
+                                [(assoc this :first-run false) nil]
                             )
                             (let [#_"boolean" more? (and (seq (:inactives this)) (<= (:retry-time (get (:backoff-map this) (.peek (:inactives this)))) now))]
-                                (§ ass this (assoc this :first-run false))
-                                (not more?)
+                                [(assoc this :first-run false) (not more?)]
                             )
                         )
                     )
@@ -9417,58 +9398,58 @@
                                     false
                                 )
                             )
-                        )]
-
-                    (and
+                        )
+                      [this ?]
                         (sync (:peergroup-lock this)
-                            (when discover?
-                                ;; Require that we have enough connections, to consider this a success, or we just constantly test for new peers.
-                                (if (and success? (<= (PeerGroup''get-max-connections this) (PeerGroup''count-connected-and-pending-peers this)))
-                                    (§ ass this (update this :group-backoff ExponentialBackoff''track-success))
-                                    (§ ass this (update this :group-backoff ExponentialBackoff''track-failure))
-                                )
-                            )
+                            (let [this
+                                    (when discover? => this
+                                        ;; Require that we have enough connections, to consider this a success, or we just constantly test for new peers.
+                                        (if (and success? (<= (PeerGroup''get-max-connections this) (PeerGroup''count-connected-and-pending-peers this)))
+                                            (update this :group-backoff ExponentialBackoff''track-success)
+                                            (update this :group-backoff ExponentialBackoff''track-failure)
+                                        )
+                                    )]
 
-                            ;; Inactives is sorted by backoffMap time.
-                            (cond (seq (:inactives this))
-                                (let [#_"PeerAddress" addr
-                                        (loop []
-                                            (let [addr (.poll (:inactives this))]
-                                                (recur-if (and (:ipv6-unreachable this) (instance? Inet6Address (:inet-addr addr))) [] => addr)
+                                ;; Inactives is sorted by backoffMap time.
+                                (cond (seq (:inactives this))
+                                    (let [#_"PeerAddress" addr
+                                            (loop []
+                                                (let [addr (.poll (:inactives this))]
+                                                    (recur-if (and (:ipv6-unreachable this) (instance? Inet6Address (:inet-addr addr))) [] => addr)
+                                                )
+                                            )
+                                        #_"long" retry (max (:retry-time (get (:backoff-map this) addr)) (:retry-time (:group-backoff this)))]
+                                        (if (< now retry)
+                                            (let [#_"long" delay (- retry now)]
+                                                (log/info (str "Waiting " delay " msec before next connect attempt" (if (some? addr) (str " to " addr) "")))
+                                                (.add (:inactives this), addr)
+                                                (.schedule (:executor this), self, delay, TimeUnit/MILLISECONDS)
+                                                [this nil]
+                                            )
+                                            (do
+                                                (PeerGroup''connect-to-peer-address this, addr, false, (:v-connect-timeout-millis this))
+                                                [this :try-next-peer-immediately]
                                             )
                                         )
-                                      #_"long" retry (max (:retry-time (get (:backoff-map this) addr)) (:retry-time (:group-backoff this)))]
-                                    (if (< now retry)
-                                        (let [#_"long" delay (- retry now)]
-                                            (log/info (str "Waiting " delay " msec before next connect attempt" (if (some? addr) (str " to " addr) "")))
-                                            (.add (:inactives this), addr)
-                                            (.schedule (:executor this), self, delay, TimeUnit/MILLISECONDS)
-                                            nil
-                                        )
-                                        (do
-                                            (PeerGroup''connect-to-peer-address this, addr, false, (:v-connect-timeout-millis this))
-                                            :try-next-peer-immediately
-                                        )
+                                    )
+                                    (< (PeerGroup''count-connected-and-pending-peers this) (PeerGroup''get-max-connections this))
+                                    (let [#_"long" interval (max (- (:retry-time (:group-backoff this)) now), PeerGroup'MIN_PEER_DISCOVERY_INTERVAL)]
+                                        (log/info (str "Peer discovery didn't provide us any more peers, will try again in " interval "ms."))
+                                        (.schedule (:executor this), self, interval, TimeUnit/MILLISECONDS)
+                                        [this nil]
+                                    )
+                                    :else
+                                    (do
+                                        ;; We have enough peers and discovery provided no more, so just settle down.
+                                        ;; Most likely we were given a fixed set of addresses in some test scenario.
+                                        [this nil]
                                     )
                                 )
-                                (< (PeerGroup''count-connected-and-pending-peers this) (PeerGroup''get-max-connections this))
-                                (let [#_"long" interval (max (- (:retry-time (:group-backoff this)) now), PeerGroup'MIN_PEER_DISCOVERY_INTERVAL)]
-                                    (log/info (str "Peer discovery didn't provide us any more peers, will try again in " interval "ms."))
-                                    (.schedule (:executor this), self, interval, TimeUnit/MILLISECONDS)
-                                    nil
-                                )
-                                :else
-                                (do
-                                    ;; We have enough peers and discovery provided no more, so just settle down.
-                                    ;; Most likely we were given a fixed set of addresses in some test scenario.
-                                    nil
-                                )
                             )
-                        )
+                        )]
 
-                        (when (< (PeerGroup''count-connected-and-pending-peers this) (PeerGroup''get-max-connections this))
-                            (.execute (:executor this), self) ;; Try next peer immediately.
-                        )
+                    (when (and ? (< (PeerGroup''count-connected-and-pending-peers this) (PeerGroup''get-max-connections this)))
+                        (.execute (:executor this), self) ;; Try next peer immediately.
                     )
                     this
                 )
@@ -9610,8 +9591,6 @@
                         ;; in broadcastTransaction.
                         #_"Set<TransactionBroadcast>" :running-broadcasts (Collections/synchronizedSet (HashSet. #_"<TransactionBroadcast>"))
 
-                        #_"PeerStartupListener" :startup-listener (PeerStartupListener'new)
-
                         ;; An object that calculates bloom filters given a list of filter providers, whilst tracking some state useful
                         ;; for privacy purposes.
                         #_"FilterMerger" :bloom-filter-merger (FilterMerger'new ledger, PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE)
@@ -9718,7 +9697,7 @@
 
                             (let [#_"int" cmp (.compareTo (get (:backoff-map this) a), (get (:backoff-map this) b))]
                                 ;; Sort by port if otherwise equals - for testing.
-                                (if (= cmp 0) (compare (:port a), (:port b)) cmp)
+                                (if (= cmp 0) (compare (:port a) (:port b)) cmp)
                             )
                         )
                     ))]
@@ -9745,23 +9724,21 @@
      ;;
     #_method
     (defn #_"PeerGroup" PeerGroup''set-max-connections [#_"PeerGroup" this, #_"int" n]
-        (or
-            (sync (:peergroup-lock this)
-                (§ ass this (assoc this :max-connections n))
-                (when-not (:v-running this)
-                    :done
+        (let [[this ?]
+                (sync (:peergroup-lock this)
+                    [(assoc this :max-connections n) (not (:v-running this))]
+                )]
+            (when-not ?
+                ;; We may now have too many or too few open connections.  Add more or drop some to get to the right amount.
+                (let [#_"int" m (- n (ClientConnectionManager'''get-connected-client-count (:channels this)))]
+                    (cond
+                        (pos? m) (PeerGroup''trigger-connections this)
+                        (neg? m) (ClientConnectionManager'''close-connections (:channels this), (- m))
+                    )
                 )
             )
-
-            ;; We may now have too many or too few open connections.  Add more or drop some to get to the right amount.
-            (let [#_"int" adjustment (- n (ClientConnectionManager'''get-connected-client-count (:channels this)))]
-                (cond
-                    (pos? adjustment) (PeerGroup''trigger-connections this)
-                    (neg? adjustment) (ClientConnectionManager'''close-connections (:channels this), (- adjustment))
-                )
-            )
+            this
         )
-        this
     )
 
     #_method
@@ -10562,8 +10539,8 @@
               ver (ß assoc ver :time-seconds (Time'seconds))]
 
             (let [#_"Peer" peer (PeerGroup''create-peer this, address, ver)]
-                (Peer''add-connected-event-listener peer, Threading'SAME_THREAD, (:startup-listener this))
-                (Peer''add-disconnected-event-listener peer, Threading'SAME_THREAD, (:startup-listener this))
+                (Peer''add-connected-event-listener peer, Threading'SAME_THREAD, this)
+                (Peer''add-disconnected-event-listener peer, Threading'SAME_THREAD, this)
                 (Peer''set-min-protocol-version peer, (:v-min-required-protocol-version this))
                 (.add (:pending-peers this), peer)
 
@@ -10745,7 +10722,7 @@
                 )]
 
             (doseq [#_"ListenerRegistration<PeerConnectedEventListener>" r (:peer-connected-event-listeners this)]
-                (.execute (:executor r), #(PeerConnectedEventListener'''on-peer-connected (:listener r), peer, __newSize))
+                (.execute (:executor r), #(§ non-void PeerConnectedEventListener'''on-peer-connected (:listener r), peer, __newSize))
             )
             this
         )
@@ -10911,12 +10888,23 @@
                 )
 
                 (doseq [#_"ListenerRegistration<PeerDisconnectedEventListener>" r (:peer-disconnected-event-listeners this)]
-                    (.execute (:executor r), #(PeerDisconnectedEventListener'''on-peer-disconnected (:listener r), peer, n))
+                    (.execute (:executor r), #(§ non-void PeerDisconnectedEventListener'''on-peer-disconnected (:listener r), peer, n))
                     (Peer''remove-disconnected-event-listener peer, (:listener r))
                 )
                 this
             )
         )
+    )
+
+    #_override
+    (defn #_"PeerGroup" PeerConnectedEventListener'''on-peer-connected [#_"PeerGroup" this, #_"Peer" peer, #_"int" __peerCount]
+        (PeerGroup''handle-new-peer this, peer)
+    )
+
+    #_override
+    (defn #_"PeerGroup" PeerDisconnectedEventListener'''on-peer-disconnected [#_"PeerGroup" this, #_"Peer" peer, #_"int" __peerCount]
+        ;; The channel will be automatically removed from channels.
+        (PeerGroup''handle-peer-death this, peer, nil)
     )
 
     ;;;
@@ -10977,16 +10965,16 @@
                 (Futures/immediateFuture peers)
                 (let [#_"SettableFuture<List<Peer>>" future (SettableFuture/create)]
                     (PeerGroup''add-connected-event-listener this, Threading'USER_THREAD,
-                        (reify PeerConnectedEventListener
+                        (§ reify PeerConnectedEventListener
                             #_override
-                            (#_"void" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" self, #_"Peer" _peer, #_"int" _n]
+                            (§ non-void #_"PeerConnectedEventListener" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" self, #_"Peer" _peer, #_"int" _n]
                                 (let [#_"List<Peer>" peers (PeerGroup''find-peers-of-at-least-version this, version)]
                                     (when (<= n (count peers))
                                         (.set future, peers)
                                         (PeerGroup''remove-connected-event-listener this, self)
                                     )
                                 )
-                                nil
+                                this
                             )
                         )
                     )
@@ -11029,16 +11017,16 @@
                     (Futures/immediateFuture peers)
                     (let [#_"SettableFuture<List<Peer>>" future (SettableFuture/create)]
                         (PeerGroup''add-connected-event-listener this, Threading'USER_THREAD,
-                            (reify PeerConnectedEventListener
+                            (§ reify PeerConnectedEventListener
                                 #_override
-                                (#_"void" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" self, #_"Peer" _peer, #_"int" _n]
+                                (§ non-void #_"PeerConnectedEventListener" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" self, #_"Peer" _peer, #_"int" _n]
                                     (let [#_"List<Peer>" peers (PeerGroup''find-peers-with-service-mask this, mask)]
                                         (when (<= n (count peers))
                                             (.set future, peers)
                                             (PeerGroup''remove-connected-event-listener this, self)
                                         )
                                     )
-                                    nil
+                                    this
                                 )
                             )
                         )
@@ -11894,9 +11882,7 @@
      ;;
     (def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_UPDATE_TIME
         (#_"int" fn [#_"Transaction" tx1, #_"Transaction" tx2]
-            (let [#_"long" time1 (.getTime (Transaction''get-update-time tx1))
-                  #_"long" time2 (.getTime (Transaction''get-update-time tx2))
-                  #_"int" cmp (- (compare time1, time2))]
+            (let [#_"int" cmp (- (compare (or (:updated-at tx1) 0) (or (:updated-at tx2) 0)))]
                 ;; If time1 == time2, compare by tx hash to make comparator consistent with equals.
                 (if (not= cmp 0) cmp (.compareTo (Transaction''get-hash tx1), (Transaction''get-hash tx2)))
             )
@@ -11912,7 +11898,7 @@
                   #_"int" height1 (if (= (TransactionConfidence''get-confidence-type cf1) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf1) Block'BLOCK_HEIGHT_UNKNOWN)
                   #_"TransactionConfidence" cf2 (Transaction''get-confidence-t tx2)
                   #_"int" height2 (if (= (TransactionConfidence''get-confidence-type cf2) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf2) Block'BLOCK_HEIGHT_UNKNOWN)
-                  #_"int" cmp (- (compare height1, height2))]
+                  #_"int" cmp (- (compare height1 height2))]
                 ;; If height1 == height2, compare by tx hash to make comparator consistent with equals.
                 (if (not= cmp 0) cmp (.compareTo (Transaction''get-hash tx1), (Transaction''get-hash tx2)))
             )
@@ -11979,7 +11965,7 @@
             ;; block in which it was included.  Note that this can be changed by re-orgs so the wallet may update this field.
             ;; Old serialized transactions don't have this field, thus null is valid.  It is used for returning an ordered
             ;; list of transactions from a wallet, which is helpful for presenting to users.
-            #_"Date" :updated-at nil
+            #_"long" :updated-at nil
 
             ;; Data about how confirmed this tx is.  Serialized, may be null.
             #_"TransactionConfidence" :confidence nil
@@ -12124,8 +12110,8 @@
     (defn #_"Transaction" Transaction''set-block-appearance [#_"Transaction" this, #_"StoredBlock" block, #_"boolean" best?, #_"int" offset]
         (let [#_"long" time (* (:time-seconds (:stored-header block)) 1000)
               this
-                (when (and best? (let [#_"Date" at (:updated-at this)] (or (nil? at) (zero? (.getTime at)) (< time (.getTime at))))) => this
-                    (assoc this :updated-at (Date. time))
+                (when (and best? (let [#_"long" at (:updated-at this)] (or (nil? at) (zero? at) (< time at)))) => this
+                    (assoc this :updated-at time)
                 )
               this (Transaction''add-block-appearance this, (Block''get-hash (:stored-header block)), offset)]
 
@@ -12234,19 +12220,6 @@
     #_method
     (defn #_"boolean" Transaction''is-every-owned-output-spent [#_"Transaction" this, #_"Wallet" wallet]
         (not (some #(and (TransactionOutput''is-available-for-spending %) (TransactionOutput''is-mine %, wallet)) (:outputs this)))
-    )
-
-    ;;;
-     ; Returns the earliest time at which the transaction was seen (broadcast or included into the chain),
-     ; or the epoch if that information isn't available.
-     ;;
-    #_method
-    (defn #_"Date" Transaction''get-update-time [#_"Transaction" this]
-        ;; Older wallets did not store this field.  Set to the epoch.
-        (when (nil? (:updated-at this))
-            (§ ass this (assoc this :updated-at (Date. 0)))
-        )
-        (:updated-at this)
     )
 
     ;;;
@@ -12803,7 +12776,7 @@
             (let [#_"StringBuilder" sb (StringBuilder. (<< 1 8))]
                 (.. sb (append "  ") (append (Transaction''get-hash this)) (append "\n"))
                 (when (some? (:updated-at this))
-                    (.. sb (append "  updated: ") (append (Time'format-date (:updated-at this))) (append "\n"))
+                    (.. sb (append "  updated: ") (append (Time'format (:updated-at this))) (append "\n"))
                 )
                 (when-not (= (:version this) 1)
                     (.. sb (append "  version ") (append (:version this)) (append "\n"))
@@ -13401,7 +13374,7 @@
      ;;
     #_method
     (defn #_"boolean" TransactionConfidence''mark-broadcast-by [#_"TransactionConfidence" this, #_"PeerAddress" address]
-        (§ ass this (assoc this :last-broadcasted-at (Time'now)))
+        (§ ass this (assoc this :last-broadcasted-at (Date.)))
         (when (.addIfAbsent (:broadcast-by this), address) => false ;; Duplicate.
             (sync this
                 (when (= (TransactionConfidence''get-confidence-type this) :ConfidenceType'UNKNOWN)
@@ -15099,7 +15072,7 @@
     #_override
     (defn #_"int" Comparable'''compareTo [#_"ChildNumber" this, #_"ChildNumber" that]
         ;; Note that in this implementation compareTo() is not consistent with equals().
-        (compare (ChildNumber''num this), (ChildNumber''num that))
+        (compare (ChildNumber''num this) (ChildNumber''num that))
     )
 
     #_method
@@ -17051,7 +17024,7 @@
      ; event on the network-handling thread where all callbacks occur.
      ;;
     #_abstract
-    (#_"void" MessageWriteTarget'''close-connection [#_"MessageWriteTarget" this])
+    (#_"MessageWriteTarget" MessageWriteTarget'''close-connection [#_"MessageWriteTarget" this])
 )
 
 ;;;
@@ -17124,7 +17097,7 @@
                                 #_foreign
                                 #_override
                                 (#_"void" run [#_"TimerTask" __]
-                                    (AbstractTimeoutHandler'''timeout-occurred this)
+                                    (§ ass this (AbstractTimeoutHandler'''timeout-occurred this))
                                     nil
                                 )
                             )
@@ -17137,7 +17110,7 @@
     )
 
     #_abstract
-    (defn #_"void" AbstractTimeoutHandler'''timeout-occurred [#_"AbstractTimeoutHandler" this])
+    (defn #_"AbstractTimeoutHandler" AbstractTimeoutHandler'''timeout-occurred [#_"AbstractTimeoutHandler" this])
 )
 
 ;; TODO: The locking in all this class is horrible and not really necessary.  We should just run all network stuff on one thread.
@@ -17175,7 +17148,7 @@
             (when (some? connection) => this
                 (let [#_"int" size (min (max ConnectionHandler'BUFFER_SIZE_LOWER_BOUND (StreamConnection'''get-max-message-size connection)) ConnectionHandler'BUFFER_SIZE_UPPER_BOUND)
                       this (assoc this :connection connection, :read-buff (ByteBuffer/allocateDirect size))]
-                    (StreamConnection'''set-write-target connection, this) ;; May callback into us (e.g. closeConnection() now).
+                    (§ ass connection (StreamConnection'''set-write-target connection, this)) ;; May callback into us (e.g. closeConnection() now).
                     (assoc this :connected-handlers nil)
                 )
             )
@@ -17265,14 +17238,14 @@
                     (.unlock (:connection-lock this))
                     (reset! unlock? false)
                     (log/warn e, "Error writing message to connection, closing connection")
-                    (MessageWriteTarget'''close-connection this)
+                    (§ ass this (MessageWriteTarget'''close-connection this))
                     (throw e)
                 )
                 (catch CancelledKeyException e
                     (.unlock (:connection-lock this))
                     (reset! unlock? false)
                     (log/warn e, "Error writing message to connection, closing connection")
-                    (MessageWriteTarget'''close-connection this)
+                    (§ ass this (MessageWriteTarget'''close-connection this))
                     (throw (IOException. e))
                 )
                 (finally
@@ -17287,7 +17260,7 @@
 
     ;; May NOT be called with lock held.
     #_override
-    (defn #_"void" MessageWriteTarget'''close-connection [#_"ConnectionHandler" this]
+    (defn #_"ConnectionHandler" MessageWriteTarget'''close-connection [#_"ConnectionHandler" this]
         (assert-state (not (.isHeldByCurrentThread (:connection-lock this))))
         (try
             (.close (:channel this))
@@ -17295,8 +17268,7 @@
                 (throw (RuntimeException. e))
             )
         )
-        (§ ass this (ConnectionHandler''connection-closed this))
-        nil
+        (ConnectionHandler''connection-closed this)
     )
 
     #_method
@@ -17307,13 +17279,12 @@
                         [(assoc this :close-called true) called?]
                     )
                 )]
-            (when-not called?
+            (when-not called? => this
                 (let [#_"boolean" removed? (or (nil? (:connected-handlers this)) (.remove (:connected-handlers this), this))]
                     (assert-state removed?)
-                    (StreamConnection'''connection-closed (:connection this))
+                    (update this :connection StreamConnection'''connection-closed)
                 )
             )
-            this
         )
     )
 
@@ -17324,7 +17295,7 @@
         (when-let [#_"ConnectionHandler" handler (cast' ConnectionHandler (.attachment key))]
             (try
                 ;; Else the key has been cancelled, make sure the socket gets closed.
-                (when (.isValid key) => (MessageWriteTarget'''close-connection handler)
+                (when (.isValid key) => (§ ass handler (MessageWriteTarget'''close-connection handler))
                     (or
                         (when (.isReadable key)
                             ;; Do a socket read and invoke the connection's receiveBytes message.
@@ -17335,7 +17306,7 @@
                                     -1 ;; Socket was closed.
                                     (do
                                         (.cancel key)
-                                        (MessageWriteTarget'''close-connection handler)
+                                        (§ ass handler (MessageWriteTarget'''close-connection handler))
                                         :abort
                                     )
                                     (do
@@ -17360,7 +17331,7 @@
                     ;; This can happen e.g. if the channel closes while the thread is about to get killed
                     ;; (ClosedByInterruptException), or if handler.connection.receiveBytes throws something.
                     (log/warn e, (str "Error handling SelectionKey: " (Throwables/getRootCause e)))
-                    (MessageWriteTarget'''close-connection handler)
+                    (§ ass handler (MessageWriteTarget'''close-connection handler))
                 )
             )
         )
@@ -17469,30 +17440,29 @@
                         #_"boolean" :close-called false
                     )
                 )]
-            (§ ass this (AbstractTimeoutHandler''set-socket-timeout this, timeout))
-            (AbstractTimeoutHandler''set-timeout-enabled this, true)
+            (-> this (AbstractTimeoutHandler''set-socket-timeout timeout) (AbstractTimeoutHandler''set-timeout-enabled true))
         )
     )
 
     #_override
-    (defn #_"void" AbstractTimeoutHandler'''timeout-occurred [#_"NioClientHandler" this]
+    (defn #_"NioClientHandler" AbstractTimeoutHandler'''timeout-occurred [#_"NioClientHandler" this]
         (sync this
-            (§ ass this (assoc this :close-on-open true))
-            (StreamConnection'''connection-closed this)
-        )
-        nil
-    )
-
-    #_override
-    (defn #_"void" StreamConnection'''connection-closed [#_"NioClientHandler" this]
-        (sync this
-            (PeerGroup''stop-async (:manager this))
-            (when-not (:close-called this)
-                (§ ass this (assoc this :close-called true))
-                (StreamConnection'''connection-closed (:upstream-connection this))
+            (let [this (assoc this :close-on-open true)]
+                (StreamConnection'''connection-closed this)
             )
         )
-        nil
+    )
+
+    #_override
+    (defn #_"NioClientHandler" StreamConnection'''connection-closed [#_"NioClientHandler" this]
+        (sync this
+            (PeerGroup''stop-async (:manager this))
+            (when-not (:close-called this) => this
+                (let [this (assoc this :close-called true)]
+                    (update this :upstream-connection StreamConnection'''connection-closed)
+                )
+            )
+        )
     )
 
     #_override
@@ -17512,21 +17482,20 @@
     )
 
     #_override
-    (defn #_"void" StreamConnection'''set-write-target [#_"NioClientHandler" this, #_"MessageWriteTarget" target]
+    (defn #_"NioClientHandler" StreamConnection'''set-write-target [#_"NioClientHandler" this, #_"MessageWriteTarget" target]
         (sync this
-            (cond (:close-on-open this)
+            (if (:close-on-open this)
                 (do
-                    (MessageWriteTarget'''close-connection target)
+                    (§ ass target (MessageWriteTarget'''close-connection target))
+                    this
                 )
-                :else
-                (do
-                    (§ ass this (AbstractTimeoutHandler''set-timeout-enabled this, false))
-                    (§ ass this (assoc this :write-target target))
-                    (StreamConnection'''set-write-target (:upstream-connection this), target)
+                (-> this
+                    (AbstractTimeoutHandler''set-timeout-enabled false)
+                    (assoc :write-target target)
+                    (update :upstream-connection StreamConnection'''set-write-target target)
                 )
             )
         )
-        nil
     )
 
     #_override
@@ -17576,9 +17545,8 @@
     )
 
     #_override
-    (defn #_"void" MessageWriteTarget'''close-connection [#_"NioClient" this]
-        (MessageWriteTarget'''close-connection (-> this :handler :write-target))
-        nil
+    (defn #_"NioClient" MessageWriteTarget'''close-connection [#_"NioClient" this]
+        (update-in this [:handler :write-target] MessageWriteTarget'''close-connection)
     )
 
     #_throws #_[ "IOException" ]
@@ -17654,7 +17622,7 @@
                         :else
                         (do
                             (log/warn (str "Failed to connect to " (.getRemoteSocketAddress (.socket sc))))
-                            (MessageWriteTarget'''close-connection handler) ;; Failed to connect for some reason.
+                            (§ ass handler (MessageWriteTarget'''close-connection handler)) ;; Failed to connect for some reason.
                             (.setException (:future data), (ConnectException. "Unknown reason"))
                             (§ ass data (assoc data :future nil))
                         )
@@ -17665,7 +17633,7 @@
                         ;; Calling sc.socket().getRemoteSocketAddress() here throws an exception, so we can only log the error itself.
                         (let [#_"Throwable" cause (Throwables/getRootCause e)]
                             (log/warn e, (str "Failed to connect with exception: " (.getName (.getClass cause)) ": " (.getMessage cause)))
-                            (MessageWriteTarget'''close-connection handler)
+                            (§ ass handler (MessageWriteTarget'''close-connection handler))
                             (.setException (:future data), cause)
                             (§ ass data (assoc data :future nil))
                         )
@@ -17777,7 +17745,7 @@
                         (.next (.iterator (:connected-handlers this)))
                     )]
                 (when (some? handler)
-                    (MessageWriteTarget'''close-connection handler) ;; Removes handler from connectedHandlers before returning.
+                    (§ ass handler (MessageWriteTarget'''close-connection handler)) ;; Removes handler from connectedHandlers before returning.
                 )
             )
         )
@@ -23178,13 +23146,13 @@
     ;;; Track a success - reset back off interval to the initial value. ;;
     #_method
     (defn #_"ExponentialBackoff" ExponentialBackoff''track-success [#_"ExponentialBackoff" this]
-        (assoc this :backoff (-> this :params :initial), :retry-time (Time'millis))
+        (assoc this :backoff (-> this :params :initial), :retry-time (Time'now))
     )
 
     ;;; Track a failure - multiply the back off interval by the multiplier. ;;
     #_method
     (defn #_"ExponentialBackoff" ExponentialBackoff''track-failure [#_"ExponentialBackoff" this]
-        (let [this (assoc this :retry-time (+ (Time'millis) (long (:backoff this))))]
+        (let [this (assoc this :retry-time (+ (Time'now) (long (:backoff this))))]
             (update this :backoff #(min (* % (-> this :params :multiplier)) (-> this :params :maximum)))
         )
     )
@@ -23193,7 +23161,7 @@
     #_override
     (defn #_"int" Comparable'''compareTo [#_"ExponentialBackoff" this, #_"ExponentialBackoff" that]
         ;; Note that in this implementation compareTo() is not consistent with equals().
-        (compare (:retry-time this), (:retry-time that))
+        (compare (:retry-time this) (:retry-time that))
     )
 )
 
@@ -26412,7 +26380,7 @@
     #_override
     (defn #_"int" Comparable'''compareTo [#_"TxOffsetPair" this, #_"TxOffsetPair" that]
         ;; Note that in this implementation compareTo() is not consistent with equals().
-        (compare (:offset this), (:offset that))
+        (compare (:offset this) (:offset that))
     )
 )
 
