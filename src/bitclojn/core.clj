@@ -156,7 +156,7 @@
 (declare DaemonThreadFactory'new)
 (declare DefaultCoinSelector''should-select DefaultCoinSelector'is-selectable DefaultCoinSelector'new DefaultCoinSelector'sort-outputs)
 (declare DeterministicHierarchy''derive-child-3 DeterministicHierarchy''derive-child-5 DeterministicHierarchy''derive-next-child DeterministicHierarchy''get-4 DeterministicHierarchy''get-next-child-number-to-derive DeterministicHierarchy''get-num-children DeterministicHierarchy''get-root-key DeterministicHierarchy''put-key DeterministicHierarchy'BIP32_STANDARDISATION_TIME_SECS DeterministicHierarchy'new)
-(declare DeterministicKey''derive DeterministicKey''derive-private-key-downwards DeterministicKey''drop-parent DeterministicKey''drop-private-bytes DeterministicKey''find-or-derive-private-key DeterministicKey''find-parent-with-priv-key DeterministicKey''get-child-number DeterministicKey''get-fingerprint DeterministicKey''get-identifier DeterministicKey''get-path-as-string DeterministicKey''get-priv-key-bytes33 DeterministicKey''serialize DeterministicKey''serialize-priv-b58 DeterministicKey''serialize-private DeterministicKey''serialize-pub-b58 DeterministicKey''serialize-public DeterministicKey'CHILDNUM_ORDER DeterministicKey'add-checksum DeterministicKey'ascertain-parent-fingerprint DeterministicKey'deserialize DeterministicKey'deserialize-b58-2 DeterministicKey'deserialize-b58-3 DeterministicKey'init DeterministicKey'new-4 DeterministicKey'new-5 DeterministicKey'new-6p DeterministicKey'new-6i DeterministicKey'to-base58 DeterministicKey''set-creation-time-seconds)
+(declare DeterministicKey''derive DeterministicKey''derive-private-key-downwards DeterministicKey''drop-parent DeterministicKey''drop-private-bytes DeterministicKey''find-or-derive-private-key DeterministicKey''find-parent-with-priv-key DeterministicKey''get-child-number DeterministicKey''get-fingerprint DeterministicKey''get-identifier DeterministicKey''get-path-as-string DeterministicKey''get-priv-key-bytes33 DeterministicKey''serialize DeterministicKey''serialize-priv-b58 DeterministicKey''serialize-private DeterministicKey''serialize-pub-b58 DeterministicKey''serialize-public DeterministicKey'compare-by-child-number DeterministicKey'add-checksum DeterministicKey'ascertain-parent-fingerprint DeterministicKey'deserialize DeterministicKey'deserialize-b58-2 DeterministicKey'deserialize-b58-3 DeterministicKey'init DeterministicKey'new-4 DeterministicKey'new-5 DeterministicKey'new-6p DeterministicKey'new-6i DeterministicKey'to-base58 DeterministicKey''set-creation-time-seconds)
 (declare DeterministicKeyChain'''find-redeem-data-by-script-hash DeterministicKeyChain'''format-addresses DeterministicKeyChain'''fresh-output-script DeterministicKeyChain'''get-redeem-data DeterministicKeyChain'''is-married DeterministicKeyChain'''maybe-look-ahead-scripts DeterministicKeyChain'''set-lookahead-size DeterministicKeyChain''calc-default-lookahead-threshold DeterministicKeyChain''check-for-bit-flip DeterministicKeyChain''find-key-from-pub-hash DeterministicKeyChain''find-key-from-pub-key DeterministicKeyChain''get-issued-external-keys DeterministicKeyChain''get-issued-internal-keys DeterministicKeyChain''get-issued-receive-keys DeterministicKeyChain''get-key-by-path-2 DeterministicKeyChain''get-key-by-path-3 DeterministicKeyChain''get-key-lookahead-epoch DeterministicKeyChain''get-keys-3b DeterministicKeyChain''get-leaf-keys DeterministicKeyChain''get-lookahead-size DeterministicKeyChain''get-lookahead-threshold DeterministicKeyChain''get-mnemonic-code DeterministicKeyChain''get-seed DeterministicKeyChain''get-watching-key DeterministicKeyChain''initialize-hierarchy DeterministicKeyChain''is-watching DeterministicKeyChain''mark-key-as-used DeterministicKeyChain''mark-pub-hash-as-used DeterministicKeyChain''mark-pub-key-as-used DeterministicKeyChain''maybe-look-ahead-1 DeterministicKeyChain''maybe-look-ahead-3 DeterministicKeyChain''maybe-look-ahead-5 DeterministicKeyChain''num-leaf-keys-issued DeterministicKeyChain''set-lookahead-threshold DeterministicKeyChain''to-string DeterministicKeyChain'ACCOUNT_ZERO_PATH DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC DeterministicKeyChain'EXTERNAL_PATH DeterministicKeyChain'EXTERNAL_SUBPATH DeterministicKeyChain'INTERNAL_PATH DeterministicKeyChain'INTERNAL_SUBPATH DeterministicKeyChain'init DeterministicKeyChain'from-seed DeterministicKeyChain'from-entropy DeterministicKeyChain'from-random DeterministicKeyChain'watch DeterministicKeyChain'watch-and-follow)
 (declare DeterministicSeed''to-base16 DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS DeterministicSeed'MAX_SEED_ENTROPY_BITS DeterministicSeed'next-entropy DeterministicSeed'from-entropy DeterministicSeed'from-random DeterministicSeed'new)
 (declare DeterministicUpgradeRequiredException'new)
@@ -165,10 +165,10 @@
 (declare DownloadProgressTracker''await DownloadProgressTracker''done-download DownloadProgressTracker''progress DownloadProgressTracker''start-download DownloadProgressTracker'new)
 (declare DustySendRequested'new)
 (declare ECDSASignature'''to-canonicalised ECDSASignature''der-byte-stream ECDSASignature''encode-to-der ECDSASignature''is-canonical ECDSASignature'decode-from-der ECDSASignature'new)
-(declare ECKey'''format-key-with-address ECKey'''get-creation-time-seconds ECKey'''get-priv-key ECKey'''get-secret-bytes ECKey'''has-priv-key ECKey'''is-pub-key-only ECKey''set-creation-time-seconds ECKey'''sign ECKey''decompress ECKey''do-sign ECKey''get-priv-key-bytes ECKey''get-pub-key ECKey''calculate-pub-key-hash160 ECKey''is-compressed ECKey''is-watching ECKey''sign-message ECKey''to-address ECKey''to-string ECKey''verify-3s ECKey''verify-message ECKey'CURVE ECKey'CURVE_PARAMS ECKey'HALF_CURVE_ORDER ECKey'PUBKEY_COMPARATOR ECKey'SECURE_RANDOM ECKey'compress-point ECKey'decompress-key ECKey'decompress-point ECKey'from-private ECKey'from-private-bytes ECKey'from-private-and-precalculated-public ECKey'from-private-and-precalculated-public-bytes ECKey'from-public-only ECKey'from-public-only-bytes ECKey'get-point-with-compression ECKey'init ECKey'is-pub-key-canonical ECKey'new ECKey'from-random ECKey'compose ECKey'public-key-from-private ECKey'public-point-from-private ECKey'recover-from-signature ECKey'signed-message-to-key ECKey'verify-3e)
+(declare ECKey'''format-key-with-address ECKey'''get-creation-time-seconds ECKey'''get-priv-key ECKey'''get-secret-bytes ECKey'''has-priv-key ECKey'''is-pub-key-only ECKey''set-creation-time-seconds ECKey'''sign ECKey''decompress ECKey''do-sign ECKey''get-priv-key-bytes ECKey''get-pub-key ECKey''calculate-pub-key-hash160 ECKey''is-compressed ECKey''is-watching ECKey''sign-message ECKey''to-address ECKey''to-string ECKey''verify-3s ECKey''verify-message ECKey'CURVE ECKey'CURVE_PARAMS ECKey'HALF_CURVE_ORDER ECKey'compare-by-pub-key ECKey'SECURE_RANDOM ECKey'compress-point ECKey'decompress-key ECKey'decompress-point ECKey'from-private ECKey'from-private-bytes ECKey'from-private-and-precalculated-public ECKey'from-private-and-precalculated-public-bytes ECKey'from-public-only ECKey'from-public-only-bytes ECKey'get-point-with-compression ECKey'init ECKey'is-pub-key-canonical ECKey'new ECKey'from-random ECKey'compose ECKey'public-key-from-private ECKey'public-point-from-private ECKey'recover-from-signature ECKey'signed-message-to-key ECKey'verify-3e)
 (declare ExceededMaxTransactionSize'new)
 (declare ExchangeRate''coin-to-fiat ExchangeRate''fiat-to-coin ExchangeRate'new)
-(declare ExponentialBackoff''track-failure ExponentialBackoff''track-success ExponentialBackoff'new)
+(declare ExponentialBackoff''track-failure ExponentialBackoff''track-success ExponentialBackoff'new ExponentialBackoff'compare)
 (declare FeeCalculation'new)
 (declare Fiat''signum Fiat''add Fiat''remainder Fiat''divide Fiat''greater-than? Fiat''less-than? Fiat''negative? Fiat''positive? Fiat''zero? Fiat''multiply Fiat''negate Fiat''subtract Fiat''to-friendly-string Fiat''to-plain-string Fiat'FRIENDLY_FORMAT Fiat'PLAIN_FORMAT Fiat'SMALLEST_UNIT_EXPONENT Fiat'new Fiat'parse-fiat Fiat'parse-fiat-inexact)
 (declare FilterMerger'new FilterMerger''calculate)
@@ -291,7 +291,7 @@
 (declare TestLedger'INSTANCE TestLedger'TESTNET_DIFF_DATE TestLedger'TEXTUAL_CHECKPOINTS TestLedger'new)
 (declare ThreadFactory'''newThread)
 (declare Threading'SAME_THREAD Threading'THREAD_POOL Threading'USER_THREAD Threading'wait-for-user-code)
-(declare Transaction''add-block-appearance Transaction''add-input Transaction''add-input-o Transaction''add-input-s Transaction''add-output-ca Transaction''add-output-ce Transaction''add-output-cs Transaction''add-output Transaction''add-signed-input Transaction''calculate-signature-b Transaction''calculate-signature-s Transaction''check-coin-base-height Transaction''estimate-lock-time Transaction''get-confidence-t Transaction''get-confidence-tct Transaction''get-fee Transaction''get-hash Transaction''get-input-sum Transaction''get-output-sum Transaction''get-sig-op-count Transaction''get-value Transaction''get-value-sent-from-me Transaction''get-value-sent-to-me Transaction''get-wallet-outputs Transaction''has-confidence Transaction''hash-for-signature-4b Transaction''hash-for-signature-5b Transaction''hash-for-signature-5s Transaction''is-any-output-spent Transaction''is-coin-base Transaction''is-every-owned-output-spent Transaction''is-final Transaction''is-mature Transaction''is-opt-in-full-rbf Transaction''is-pending Transaction''is-time-locked Transaction''set-block-appearance Transaction''set-lock-time Transaction''shuffle-outputs Transaction''to-string Transaction''verify Transaction'DEFAULT_TX_FEE Transaction'LOCKTIME_THRESHOLD Transaction'LOCKTIME_THRESHOLD_BIG Transaction'MAX_STANDARD_TX_SIZE Transaction'MIN_NONDUST_OUTPUT Transaction'REFERENCE_DEFAULT_MIN_TX_FEE Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG Transaction'SEQUENCE_LOCKTIME_MASK Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG Transaction'SORT_TX_BY_HEIGHT Transaction'SORT_TX_BY_UPDATE_TIME Transaction'init Transaction'new Transaction'from-wire Transaction''to-wire)
+(declare Transaction''add-block-appearance Transaction''add-input Transaction''add-input-o Transaction''add-input-s Transaction''add-output-ca Transaction''add-output-ce Transaction''add-output-cs Transaction''add-output Transaction''add-signed-input Transaction''calculate-signature-b Transaction''calculate-signature-s Transaction''check-coin-base-height Transaction''estimate-lock-time Transaction''get-confidence-t Transaction''get-confidence-tct Transaction''get-fee Transaction''get-hash Transaction''get-input-sum Transaction''get-output-sum Transaction''get-sig-op-count Transaction''get-value Transaction''get-value-sent-from-me Transaction''get-value-sent-to-me Transaction''get-wallet-outputs Transaction''has-confidence Transaction''hash-for-signature-4b Transaction''hash-for-signature-5b Transaction''hash-for-signature-5s Transaction''is-any-output-spent Transaction''is-coin-base Transaction''is-every-owned-output-spent Transaction''is-final Transaction''is-mature Transaction''is-opt-in-full-rbf Transaction''is-pending Transaction''is-time-locked Transaction''set-block-appearance Transaction''set-lock-time Transaction''shuffle-outputs Transaction''to-string Transaction''verify Transaction'DEFAULT_TX_FEE Transaction'LOCKTIME_THRESHOLD Transaction'LOCKTIME_THRESHOLD_BIG Transaction'MAX_STANDARD_TX_SIZE Transaction'MIN_NONDUST_OUTPUT Transaction'REFERENCE_DEFAULT_MIN_TX_FEE Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG Transaction'SEQUENCE_LOCKTIME_MASK Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG Transaction'compare-by-chain-height Transaction'compare-by-update-time Transaction'init Transaction'new Transaction'from-wire Transaction''to-wire)
 (declare Wallet''get-transaction-pool Wallet''is-pay-to-script-hash-mine Wallet''is-pub-key-hash-mine Wallet''is-pub-key-mine)
 (declare TransactionBroadcast''broadcast TransactionBroadcast''invoke-and-record TransactionBroadcast''invoke-progress-callback TransactionBroadcast''set-progress-callback TransactionBroadcast'RANDOM TransactionBroadcast'new)
 (declare TransactionBroadcaster'''broadcast-transaction-2)
@@ -3091,7 +3091,7 @@
  ; be interpreted.  Whilst almost all addresses today are hashes of public keys, another (currently unsupported
  ; type) can contain a hash of a script instead.
  ;;
-(class-ns Address (§ implements Comparable #_"<Address>")
+(class-ns Address
     ;;;
      ; An address is a RIPEMD160 hash of a public key, therefore is always 160 bits or 20 bytes.
      ;;
@@ -3189,14 +3189,9 @@
         (= (:version this) (-> this :ledger :p2sh-header))
     )
 
-    ;;;
-     ; This implementation uses an optimized Google Guava method to compare <code>bytes</code>.
-     ;;
-    #_foreign
-    #_override
-    (defn #_"int" Comparable'''compareTo [#_"Address" this, #_"Address" that]
+    (defn #_"int" Address'compare [#_"Address" this, #_"Address" that]
         (let [#_"int" cmp (compare (:version this) (:version that))]
-            (if (not= cmp 0) cmp (.compare (UnsignedBytes/lexicographicalComparator), (:addr-bytes this), (:addr-bytes that)))
+            (if (not= cmp 0) cmp (.compare (UnsignedBytes/lexicographicalComparator), (:addr-bytes this), (:addr-bytes that)))
         )
     )
 
@@ -4924,13 +4919,6 @@
  ; you can usually ignore the compressed/uncompressed distinction.
  ;;
 (class-ns ECKey
-    ;;; Compares pub key bytes using {@link com.google.common.primitives.UnsignedBytes#lexicographicalComparator()}. ;;
-    (def #_"Comparator<ECKey>" ECKey'PUBKEY_COMPARATOR
-        (#_"int" fn [#_"ECKey" k1, #_"ECKey" k2]
-            (.compare (UnsignedBytes/lexicographicalComparator), (ECKey''get-pub-key k1), (ECKey''get-pub-key k2))
-        )
-    )
-
     ;; The parameters of the secp256k1 curve that Bitcoin uses.
     (def- #_"X9ECParameters" ECKey'CURVE_PARAMS
         (let [#_"X9ECParameters" secp256k1 (CustomNamedCurves/getByName "secp256k1")]
@@ -4948,7 +4936,7 @@
      ; Equal to CURVE.getN().shiftRight(1), used for canonicalising the S value of a signature.
      ; If you aren't sure what this is about, you can ignore it.
      ;;
-    (§ def #_"BigInteger" ECKey'HALF_CURVE_ORDER (Coin''shift-right (.getN ECKey'CURVE_PARAMS), 1))
+    (def #_"BigInteger" ECKey'HALF_CURVE_ORDER (.shiftRight (.getN ECKey'CURVE_PARAMS), 1))
 
     (def- #_"SecureRandom" ECKey'SECURE_RANDOM (SecureRandom.))
 
@@ -5081,6 +5069,14 @@
     )
 
     ;;;
+     ; Returns whether this key is using the compressed form or not.  Compressed pubkeys are only 33 bytes, not 64.
+     ;;
+    #_method
+    (defn #_"boolean" ECKey''is-compressed [#_"ECKey" this]
+        (.isCompressed (:pub this))
+    )
+
+    ;;;
      ; Returns a copy of this key, but with the public point represented in uncompressed form.  Normally you would
      ; never need this: it's for specialised scenarios or when backwards compatibility in encoded form is necessary.
      ;;
@@ -5159,19 +5155,11 @@
      ;;
     #_abstract
     (defn #_"BigInteger" ECKey'''get-priv-key [#_"ECKey" this]
-        (when (nil? (:priv this))
-            (throw+ (MissingPrivateKeyException'new))
-        )
-
-        (:priv this)
+        (or (:priv this) (throw+ (MissingPrivateKeyException'new)))
     )
 
-    ;;;
-     ; Returns whether this key is using the compressed form or not.  Compressed pubkeys are only 33 bytes, not 64.
-     ;;
-    #_method
-    (defn #_"boolean" ECKey''is-compressed [#_"ECKey" this]
-        (.isCompressed (:pub this))
+    (defn #_"int" ECKey'compare-by-pub-key [#_"ECKey" this, #_"ECKey" that]
+        (.compare (UnsignedBytes/lexicographicalComparator), (ECKey''get-pub-key this), (ECKey''get-pub-key that))
     )
 
     ;;;
@@ -6313,7 +6301,7 @@
     )
 
     ;;;
-     ; Compares two getheaders messages.  Note that even though they are structurally identical a GetHeadersMessage
+     ; Compares two getheaders messages.  Note that even though they are structurally identical a GetHeadersMessage
      ; will not compare equal to a GetBlocksMessage containing the same data.
      ;;
     #_foreign
@@ -9649,7 +9637,7 @@
                         (#_"int" fn [#_"PeerAddress" a, #_"PeerAddress" b]
                             (assert-state (.isHeldByCurrentThread (:peergroup-lock this)))
 
-                            (let [#_"int" cmp (.compareTo (get (:backoff-map this) a), (get (:backoff-map this) b))]
+                            (let [#_"int" cmp (ExponentialBackoff'compare (get (:backoff-map this) a), (get (:backoff-map this) b))]
                                 ;; Sort by port if otherwise equals - for testing.
                                 (if (= cmp 0) (compare (:port a) (:port b)) cmp)
                             )
@@ -11471,7 +11459,7 @@
  ; allowing it to be used as keys in a map.
  ; It also checks that the length is correct and provides a bit more type safety.
  ;;
-(class-ns Sha256Hash (§ implements Comparable #_"<Sha256Hash>")
+(class-ns Sha256Hash
     (def #_"int" Sha256Hash'LENGTH 32) ;; 256 bits = 32 bytes
 
     ;;;
@@ -11596,12 +11584,9 @@
         (BigInteger. 1, (:hash-bytes this))
     )
 
-    #_foreign
-    #_override
-    (defn #_"int" Comparable'''compareTo [#_"Sha256Hash" this, #_"Sha256Hash" that]
+    (defn #_"int" Sha256Hash'compare [#_"Sha256Hash" this, #_"Sha256Hash" that]
         (loop-when [#_"int" i (dec Sha256Hash'LENGTH)] (<= 0 i) => 0
-            (let [#_"int" b0 (& 0xff (aget (:hash-bytes this) i))
-                  #_"int" b1 (& 0xff (aget (:hash-bytes that) i))]
+            (let [#_"int" b0 (& 0xff (aget (:hash-bytes this) i)) #_"int" b1 (& 0xff (aget (:hash-bytes that) i))]
                 (cond (> b0 b1) 1 (< b0 b1) -1 :else (recur (dec i)))
             )
         )
@@ -11829,35 +11814,6 @@
  ;;
 (class-ns Transaction (§ extends Message)
     ;;;
-     ; A comparator that can be used to sort transactions by their updateTime field.
-     ; The ordering goes from most recent into the past.
-     ;;
-    (def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_UPDATE_TIME
-        (#_"int" fn [#_"Transaction" tx1, #_"Transaction" tx2]
-            (let [#_"int" cmp (- (compare (or (:updated-at tx1) 0) (or (:updated-at tx2) 0)))]
-                ;; If time1 == time2, compare by tx hash to make comparator consistent with equals.
-                (if (not= cmp 0) cmp (.compareTo (Transaction''get-hash tx1), (Transaction''get-hash tx2)))
-            )
-        )
-    )
-
-    ;;;
-     ; A comparator that can be used to sort transactions by their chain height.
-     ;;
-    (def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_HEIGHT
-        (#_"int" fn [#_"Transaction" tx1, #_"Transaction" tx2]
-            (let [#_"TransactionConfidence" cf1 (Transaction''get-confidence-t tx1)
-                  #_"int" height1 (if (= (TransactionConfidence''get-confidence-type cf1) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf1) Block'BLOCK_HEIGHT_UNKNOWN)
-                  #_"TransactionConfidence" cf2 (Transaction''get-confidence-t tx2)
-                  #_"int" height2 (if (= (TransactionConfidence''get-confidence-type cf2) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf2) Block'BLOCK_HEIGHT_UNKNOWN)
-                  #_"int" cmp (- (compare height1 height2))]
-                ;; If height1 == height2, compare by tx hash to make comparator consistent with equals.
-                (if (not= cmp 0) cmp (.compareTo (Transaction''get-hash tx1), (Transaction''get-hash tx2)))
-            )
-        )
-    )
-
-    ;;;
      ; Threshold for lockTime: below this value it is interpreted as block number, otherwise as timestamp.
      ;;
     (def #_"int" Transaction'LOCKTIME_THRESHOLD 500000000) ;; Tue Nov  5 00:53:20 1985 UTC
@@ -11917,7 +11873,7 @@
             ;; block in which it was included.  Note that this can be changed by re-orgs so the wallet may update this field.
             ;; Old serialized transactions don't have this field, thus null is valid.  It is used for returning an ordered
             ;; list of transactions from a wallet, which is helpful for presenting to users.
-            #_"long" :updated-at nil
+            #_"long" :update-time nil
 
             ;; Data about how confirmed this tx is.  Serialized, may be null.
             #_"TransactionConfidence" :confidence nil
@@ -12019,6 +11975,31 @@
     )
 
     ;;;
+     ; A comparator that can be used to sort transactions by their updateTime field.
+     ; The ordering goes from most recent into the past.
+     ;;
+    (defn #_"int" Transaction'compare-by-update-time [#_"Transaction" this, #_"Transaction" that]
+        (let [#_"int" cmp (- (compare (or (:update-time this) 0) (or (:update-time that) 0)))]
+            ;; If time1 == time2, compare by tx hash to make comparator consistent with equals.
+            (if (not= cmp 0) cmp (Sha256Hash'compare (Transaction''get-hash this), (Transaction''get-hash that)))
+        )
+    )
+
+    ;;;
+     ; A comparator that can be used to sort transactions by their chain height.
+     ;;
+    (defn #_"int" Transaction'compare-by-chain-height [#_"Transaction" this, #_"Transaction" that]
+        (let [#_"TransactionConfidence" cf1 (Transaction''get-confidence-t this)
+              #_"int" height1 (if (= (TransactionConfidence''get-confidence-type cf1) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf1) Block'BLOCK_HEIGHT_UNKNOWN)
+              #_"TransactionConfidence" cf2 (Transaction''get-confidence-t that)
+              #_"int" height2 (if (= (TransactionConfidence''get-confidence-type cf2) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf2) Block'BLOCK_HEIGHT_UNKNOWN)
+              #_"int" cmp (- (compare height1 height2))]
+            ;; If height1 == height2, compare by tx hash to make comparator consistent with equals.
+            (if (not= cmp 0) cmp (Sha256Hash'compare (Transaction''get-hash this), (Transaction''get-hash that)))
+        )
+    )
+
+    ;;;
      ; Gets the sum of the inputs, regardless of who owns them.
      ;;
     #_method
@@ -12062,8 +12043,8 @@
     (defn #_"Transaction" Transaction''set-block-appearance [#_"Transaction" this, #_"StoredBlock" block, #_"boolean" best?, #_"int" offset]
         (let [#_"long" time (* (:time-seconds (:stored-header block)) 1000)
               this
-                (when (and best? (let [#_"long" at (:updated-at this)] (or (nil? at) (zero? at) (< time at)))) => this
-                    (assoc this :updated-at time)
+                (when (and best? (let [#_"long" at (:update-time this)] (or (nil? at) (zero? at) (< time at)))) => this
+                    (assoc this :update-time time)
                 )
               this (Transaction''add-block-appearance this, (Block''get-hash (:stored-header block)), offset)]
 
@@ -12727,8 +12708,8 @@
         ([#_"Transaction" this, #_"BlockChain" chain]
             (let [#_"StringBuilder" sb (StringBuilder. (<< 1 8))]
                 (.. sb (append "  ") (append (Transaction''get-hash this)) (append "\n"))
-                (when (some? (:updated-at this))
-                    (.. sb (append "  updated: ") (append (Time'format (:updated-at this))) (append "\n"))
+                (when (some? (:update-time this))
+                    (.. sb (append "  updated: ") (append (Time'format (:update-time this))) (append "\n"))
                 )
                 (when-not (= (:version this) 1)
                     (.. sb (append "  version ") (append (:version this)) (append "\n"))
@@ -14957,7 +14938,7 @@
  ; and a getter for the actual 0-based child number.  A {@link java.util.List} of these forms a <i>path</i> through a
  ; {@link DeterministicHierarchy}.  This class is immutable.
  ;;
-(class-ns ChildNumber (§ implements Comparable #_"<ChildNumber>")
+(class-ns ChildNumber
     ;;;
      ; The bit that's set in the child number to indicate whether this key is "hardened".  Given a hardened key, it is
      ; not possible to derive a child public key if you know only the hardened public key.  With a non-hardened key this
@@ -15006,9 +14987,7 @@
     (def #_"ChildNumber" ChildNumber'ONE (ChildNumber'new 1))
     (def #_"ChildNumber" ChildNumber'ZERO_HARDENED (ChildNumber'compose 0, true))
 
-    #_foreign
-    #_override
-    (defn #_"int" Comparable'''compareTo [#_"ChildNumber" this, #_"ChildNumber" that]
+    (defn #_"int" ChildNumber'compare [#_"ChildNumber" this, #_"ChildNumber" that]
         ;; Note that in this implementation compareTo() is not consistent with equals().
         (compare (ChildNumber''num this) (ChildNumber''num that))
     )
@@ -15180,13 +15159,6 @@
  ; To obtain one of these, you can call {@link HDKeyDerivation#createMasterPrivateKey(byte[])}.
  ;;
 (class-ns DeterministicKey (§ extends ECKey)
-    ;;; Sorts deterministic keys in the order of their child number.  That's <i>usually</i> the order used to derive them. ;;
-    (def #_"Comparator<DeterministicKey>" DeterministicKey'CHILDNUM_ORDER
-        (#_"int" fn [#_"DeterministicKey" k1, #_"DeterministicKey" k2]
-            (.compareTo (DeterministicKey''get-child-number k1), (DeterministicKey''get-child-number k2))
-        )
-    )
-
     (defn- #_"DeterministicKey" DeterministicKey'init []
         (hash-map
             #_"DeterministicKey" :parent-key nil
@@ -15295,10 +15267,19 @@
         (HDUtils'format-path (:child-number-path this))
     )
 
-    ;;; Returns the last element of the path returned by {@link DeterministicKey#getPath()}. ;;
+    ;;;
+     ; Returns the last element of the path returned by {@link DeterministicKey#getPath()}.
+     ;;
     #_method
     (defn #_"ChildNumber" DeterministicKey''get-child-number [#_"DeterministicKey" this]
         (or (last (:child-number-path this)) ChildNumber'ZERO)
+    )
+
+    ;;;
+     ; Compares deterministic keys in the order of their child number.  That's <i>usually</i> the order used to derive them.
+     ;;
+    (defn #_"int" DeterministicKey'compare-by-child-number [#_"DeterministicKey" this, #_"DeterministicKey" that]
+        (ChildNumber'compare (DeterministicKey''get-child-number this), (DeterministicKey''get-child-number that))
     )
 
     ;;;
@@ -19952,7 +19933,7 @@
      ; Given public keys will be placed in redeem script in the lexicographical sorting order.
      ;;
     (defn #_"Script" Script'create-redeem-script [#_"int" threshold, #_"List<ECKey>" keys]
-        (Script'create-multi-sig-output-script threshold, (sort ECKey'PUBKEY_COMPARATOR keys))
+        (Script'create-multi-sig-output-script threshold, (sort ECKey'compare-by-pub-key keys))
     )
 
     ;;;
@@ -23073,7 +23054,7 @@
  ;
  ; The retries are exponentially backed off, up to a maximum interval.  On success the back off interval is reset.
  ;;
-(class-ns ExponentialBackoff (§ implements Comparable #_"<ExponentialBackoff>")
+(class-ns ExponentialBackoff
     (defn #_"ExponentialBackoff" ExponentialBackoff'new [#_"BackoffParams" params]
         (let [this
                 (hash-map
@@ -23100,9 +23081,7 @@
         )
     )
 
-    #_foreign
-    #_override
-    (defn #_"int" Comparable'''compareTo [#_"ExponentialBackoff" this, #_"ExponentialBackoff" that]
+    (defn #_"int" ExponentialBackoff'compare [#_"ExponentialBackoff" this, #_"ExponentialBackoff" that]
         ;; Note that in this implementation compareTo() is not consistent with equals().
         (compare (:retry-time this) (:retry-time that))
     )
@@ -25901,7 +25880,7 @@
     (defn #_"RedeemData" RedeemData'new [#_"Script" script, #_"List<ECKey>" keys]
         (hash-map
             #_"Script" :redeem-script script
-            #_"ECKey*" :redeem-keys (sort ECKey'PUBKEY_COMPARATOR keys)
+            #_"ECKey*" :redeem-keys (sort ECKey'compare-by-pub-key keys)
         )
     )
 
@@ -26318,7 +26297,7 @@
     )
 )
 
-(class-ns TxOffsetPair (§ implements Comparable #_"<TxOffsetPair>")
+(class-ns TxOffsetPair
     (defn- #_"TxOffsetPair" TxOffsetPair'new [#_"Transaction" tx, #_"int" offset]
         (hash-map
             #_"Transaction" :tx tx
@@ -26326,9 +26305,7 @@
         )
     )
 
-    #_foreign
-    #_override
-    (defn #_"int" Comparable'''compareTo [#_"TxOffsetPair" this, #_"TxOffsetPair" that]
+    (defn #_"int" TxOffsetPair'compare [#_"TxOffsetPair" this, #_"TxOffsetPair" that]
         ;; Note that in this implementation compareTo() is not consistent with equals().
         (compare (:offset this) (:offset that))
     )
@@ -27055,10 +27032,7 @@
     (defn #_"DeterministicSeed" Wallet''get-key-chain-seed [#_"Wallet" this]
         (sync (:keychaingroup-lock this)
             (let [#_"DeterministicSeed" seed (DeterministicKeyChain''get-seed (KeyChainGroup''get-active-key-chain (:key-chain-group this)))]
-                (when (nil? seed)
-                    (throw+ (MissingPrivateKeyException'new))
-                )
-                seed
+                (or seed (throw+ (MissingPrivateKeyException'new)))
             )
         )
     )
@@ -28057,7 +28031,7 @@
             (let-when [#_"Sha256Hash" hash (Transaction''get-hash tx)] (not (.containsKey (:pending this), hash)) => false
                 (log/info (str "commitTx of " hash))
                 (let [#_"Coin" balance (Wallet''get-balance-1 this)]
-                    (§ ass tx (assoc tx :updated-at (Time'now)))
+                    (§ ass tx (assoc tx :update-time (Time'now)))
                     ;; Put any outputs that are sending money back to us into the unspents map, and calculate their total value.
                     (let [#_"Coin" earned (reduce #(if (TransactionOutput''is-mine %2, this) (Coin''add %1, (:coin-value %2)) %1) Coin'ZERO (:outputs tx))]
                         ;; Mark the outputs we're spending as spent so we won't try and use them in future creations.  This will also
@@ -28385,7 +28359,7 @@
         (sync (:wallet-lock this)
             (let [#_"int" size (+ (count (:unspent this)) (count (:spent this)) (count (:pending this)))
                   n (if (or (< size n) (= n 0)) size n)
-                  #_"List<Transaction>" all (ArrayList. (sort Transaction'SORT_TX_BY_UPDATE_TIME (Wallet''get-transactions this, dead?)))]
+                  #_"List<Transaction>" all (ArrayList. (sort Transaction'compare-by-update-time (Wallet''get-transactions this, dead?)))]
                 (let-when [#_"int" m (count all)] (< n m)
                     (.clear (.subList all, n, m))
                 )
@@ -29330,7 +29304,7 @@
                         )
                     )
                     (doseq [#_"Sha256Hash" __blockHash (.keySet __mapBlockTx)]
-                        (Collections/sort (get __mapBlockTx __blockHash))
+                        (§ ass (get __mapBlockTx __blockHash) (sort TxOffsetPair'compare (get __mapBlockTx __blockHash)))
                     )
 
                     (let [#_"List<Sha256Hash>" __oldBlockHashes (ArrayList. (count __oldBlocks))]
@@ -30005,7 +29979,7 @@
     )
 
     #_method
-    (defn- #_"void" Wallet''to-string-helper [#_"Wallet" this, #_"Map<Sha256Hash, Transaction>" pool, #_"Comparator<Transaction>" order, #_"BlockChain" chain, #_"StringBuilder" sb]
+    (defn- #_"void" Wallet''to-string-helper [#_"Wallet" this, #_"Map<Sha256Hash, Transaction>" pool, #_"Comparator<Transaction>" order, #_"BlockChain" chain, #_"StringBuilder" sb]
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
 
         (let [#_"Collection<Transaction>" txns
@@ -30076,19 +30050,19 @@
                             ;; Print the transactions themselves.
                             (when (seq (:pending this))
                                 (.. sb (append "\n>>> PENDING:\n"))
-                                (Wallet''to-string-helper this, (:pending this), Transaction'SORT_TX_BY_UPDATE_TIME, chain, sb)
+                                (Wallet''to-string-helper this, (:pending this), Transaction'compare-by-update-time, chain, sb)
                             )
                             (when (seq (:unspent this))
                                 (.. sb (append "\n>>> UNSPENT:\n"))
-                                (Wallet''to-string-helper this, (:unspent this), Transaction'SORT_TX_BY_HEIGHT, chain, sb)
+                                (Wallet''to-string-helper this, (:unspent this), Transaction'compare-by-chain-height, chain, sb)
                             )
                             (when (seq (:spent this))
                                 (.. sb (append "\n>>> SPENT:\n"))
-                                (Wallet''to-string-helper this, (:spent this), Transaction'SORT_TX_BY_HEIGHT, chain, sb)
+                                (Wallet''to-string-helper this, (:spent this), Transaction'compare-by-chain-height, chain, sb)
                             )
                             (when (seq (:dead this))
                                 (.. sb (append "\n>>> DEAD:\n"))
-                                (Wallet''to-string-helper this, (:dead this), Transaction'SORT_TX_BY_UPDATE_TIME, chain, sb)
+                                (Wallet''to-string-helper this, (:dead this), Transaction'compare-by-update-time, chain, sb)
                             )
                         )
                         (.toString sb)
