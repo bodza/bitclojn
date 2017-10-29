@@ -140,7 +140,7 @@
 (declare CheckpointManager''get-checkpoint-before CheckpointManager''read-textual CheckpointManager'BASE64 CheckpointManager'checkpoint CheckpointManager'new)
 (declare ChildNumber''i ChildNumber''is-hardened ChildNumber''num ChildNumber'HARDENED_BIT ChildNumber'ONE ChildNumber'ZERO ChildNumber'ZERO_HARDENED ChildNumber'has-hardened-bit ChildNumber'new ChildNumber'compose)
 (declare ClientConnectionManager'''close-connections ClientConnectionManager'''get-connected-client-count ClientConnectionManager'''open-connection)
-(declare Coin''signum Coin''add Coin''remainder Coin''divide Coin''is-greater-than Coin''is-less-than Coin''is-negative Coin''is-positive Coin''is-zero Coin''multiply Coin''negate Coin''shift-left Coin''shift-right Coin''subtract Coin''to-friendly-string Coin''to-plain-string Coin'CENT Coin'COIN Coin'COIN_VALUE Coin'FIFTY_COINS Coin'FRIENDLY_FORMAT Coin'MICROCOIN Coin'MILLICOIN Coin'NEGATIVE_SATOSHI Coin'PLAIN_FORMAT Coin'SATOSHI Coin'SMALLEST_UNIT_EXPONENT Coin'ZERO Coin'new Coin'parse-coin Coin'parse-coin-inexact Coin'value-of)
+(declare Coin''signum Coin''add Coin''remainder Coin''divide Coin''greater-than? Coin''less-than? Coin''negative? Coin''positive? Coin''zero? Coin''multiply Coin''negate Coin''shift-left Coin''shift-right Coin''subtract Coin''to-friendly-string Coin''to-plain-string Coin'CENT Coin'COIN Coin'COIN_VALUE Coin'FIFTY_COINS Coin'FRIENDLY_FORMAT Coin'MICROCOIN Coin'MILLICOIN Coin'NEGATIVE_SATOSHI Coin'PLAIN_FORMAT Coin'SATOSHI Coin'SMALLEST_UNIT_EXPONENT Coin'ZERO Coin'new Coin'parse-coin Coin'parse-coin-inexact Coin'value-of)
 (declare CoinSelection'new)
 (declare CoinSelector'''select)
 (declare CompletionException'new)
@@ -170,7 +170,7 @@
 (declare ExchangeRate''coin-to-fiat ExchangeRate''fiat-to-coin ExchangeRate'new)
 (declare ExponentialBackoff''track-failure ExponentialBackoff''track-success ExponentialBackoff'new)
 (declare FeeCalculation'new)
-(declare Fiat''signum Fiat''add Fiat''remainder Fiat''divide Fiat''is-greater-than Fiat''is-less-than Fiat''is-negative Fiat''is-positive Fiat''is-zero Fiat''multiply Fiat''negate Fiat''subtract Fiat''to-friendly-string Fiat''to-plain-string Fiat'FRIENDLY_FORMAT Fiat'PLAIN_FORMAT Fiat'SMALLEST_UNIT_EXPONENT Fiat'new Fiat'parse-fiat Fiat'parse-fiat-inexact)
+(declare Fiat''signum Fiat''add Fiat''remainder Fiat''divide Fiat''greater-than? Fiat''less-than? Fiat''negative? Fiat''positive? Fiat''zero? Fiat''multiply Fiat''negate Fiat''subtract Fiat''to-friendly-string Fiat''to-plain-string Fiat'FRIENDLY_FORMAT Fiat'PLAIN_FORMAT Fiat'SMALLEST_UNIT_EXPONENT Fiat'new Fiat'parse-fiat Fiat'parse-fiat-inexact)
 (declare FilterMerger'new FilterMerger''calculate)
 (declare FilterMergerResult'new)
 (declare FilterRecalculateMode'enum-set)
@@ -1417,12 +1417,17 @@
 ;;;
  ; Represents a monetary Bitcoin value.  This class is immutable.
  ;;
-(class-ns Coin (§ implements Monetary, Comparable #_"<Coin>")
+(class-ns Coin (§ implements Monetary)
     ;;;
-     ; Number of decimals for one Bitcoin.  This constant is useful for quick adapting to other coins because a lot of
-     ; constants derive from it.
+     ; Number of decimals for one Bitcoin.  This constant is useful for quick adapting to other coins
+     ; because a lot of constants derive from it.
      ;;
     (def #_"int" Coin'SMALLEST_UNIT_EXPONENT 8)
+
+    #_override
+    (defn #_"int" Monetary'''smallest-unit-exponent [#_"Coin" __]
+        Coin'SMALLEST_UNIT_EXPONENT
+    )
 
     ;;;
      ; The number of satoshis equal to one bitcoin.
@@ -1436,11 +1441,6 @@
              ;;
             #_"long" :value satoshis
         )
-    )
-
-    #_override
-    (defn #_"int" Monetary'''smallest-unit-exponent [#_"Coin" __]
-        Coin'SMALLEST_UNIT_EXPONENT
     )
 
     ;;;
@@ -1501,6 +1501,11 @@
     )
 
     #_method
+    (defn #_"Coin" Coin''negate [#_"Coin" this]
+        (Coin'new (- (:value this)))
+    )
+
+    #_method
     (defn #_"Coin" Coin''multiply [#_"Coin" this, #_"long" factor]
         (Coin'new (* (:value this), factor))
     )
@@ -1513,51 +1518,6 @@
     #_method
     (defn #_"Coin" Coin''remainder [#_"Coin" this, #_"long" divisor]
         (Coin'new (rem (:value this) divisor))
-    )
-
-    ;;;
-     ; Returns true if and only if this instance represents a monetary value greater than zero,
-     ; otherwise false.
-     ;;
-    #_method
-    (defn #_"boolean" Coin''is-positive [#_"Coin" this]
-        (pos? (:value this))
-    )
-
-    ;;;
-     ; Returns true if and only if this instance represents a monetary value less than zero,
-     ; otherwise false.
-     ;;
-    #_method
-    (defn #_"boolean" Coin''is-negative [#_"Coin" this]
-        (neg? (:value this))
-    )
-
-    ;;;
-     ; Returns true if and only if this instance represents zero monetary value,
-     ; otherwise false.
-     ;;
-    #_method
-    (defn #_"boolean" Coin''is-zero [#_"Coin" this]
-        (zero? (:value this))
-    )
-
-    ;;;
-     ; Returns true if the monetary value represented by this instance is greater than that
-     ; of the given other Coin, otherwise false.
-     ;;
-    #_method
-    (defn #_"boolean" Coin''is-greater-than [#_"Coin" this, #_"Coin" that]
-        (pos? (.compareTo this, that))
-    )
-
-    ;;;
-     ; Returns true if the monetary value represented by this instance is less than that
-     ; of the given other Coin, otherwise false.
-     ;;
-    #_method
-    (defn #_"boolean" Coin''is-less-than [#_"Coin" this, #_"Coin" that]
-        (neg? (.compareTo this, that))
     )
 
     #_method
@@ -1576,8 +1536,32 @@
     )
 
     #_method
-    (defn #_"Coin" Coin''negate [#_"Coin" this]
-        (Coin'new (- (:value this)))
+    (defn #_"boolean" Coin''positive? [#_"Coin" this]
+        (pos? (:value this))
+    )
+
+    #_method
+    (defn #_"boolean" Coin''negative? [#_"Coin" this]
+        (neg? (:value this))
+    )
+
+    #_method
+    (defn #_"boolean" Coin''zero? [#_"Coin" this]
+        (zero? (:value this))
+    )
+
+    (defn #_"int" Coin'compare [#_"Coin" this, #_"Coin" that]
+        (compare (:value this) (:value that))
+    )
+
+    #_method
+    (defn #_"boolean" Coin''greater-than? [#_"Coin" this, #_"Coin" that]
+        (> (:value this) (:value that))
+    )
+
+    #_method
+    (defn #_"boolean" Coin''less-than? [#_"Coin" this, #_"Coin" that]
+        (< (:value this) (:value that))
     )
 
     (def- #_"MonetaryFormat" Coin'FRIENDLY_FORMAT (-> MonetaryFormat'BTC (MonetaryFormat''min-decimals 2) (MonetaryFormat''repeat-optional-decimals 1, 6) (MonetaryFormat''postfix-code)))
@@ -1601,12 +1585,6 @@
     #_method
     (defn #_"String" Coin''to-plain-string [#_"Coin" this]
         (.toString (MonetaryFormat''format Coin'PLAIN_FORMAT, this))
-    )
-
-    #_foreign
-    #_override
-    (defn #_"int" Comparable'''compareTo [#_"Coin" this, #_"Coin" that]
-        (compare (:value this) (:value that))
     )
 
     #_method
@@ -1658,12 +1636,17 @@
  ;
  ; This class is immutable.
  ;;
-(class-ns Fiat (§ implements Monetary, Comparable #_"<Fiat>")
+(class-ns Fiat (§ implements Monetary)
     ;;;
      ; The absolute value of exponent of the value of a "smallest unit" in scientific notation.
      ; We picked 4 rather than 2, because in financial applications it's common to use sub-cent precision.
      ;;
     (def #_"int" Fiat'SMALLEST_UNIT_EXPONENT 4)
+
+    #_override
+    (defn #_"int" Monetary'''smallest-unit-exponent [#_"Fiat" __]
+        Fiat'SMALLEST_UNIT_EXPONENT
+    )
 
     (defn- #_"Fiat" Fiat'new [#_"String" code, #_"long" value]
         (hash-map
@@ -1673,11 +1656,6 @@
             #_"long" :value value
             #_"String" :code code
         )
-    )
-
-    #_override
-    (defn #_"int" Monetary'''smallest-unit-exponent [#_"Fiat" __]
-        Fiat'SMALLEST_UNIT_EXPONENT
     )
 
     ;;;
@@ -1733,6 +1711,11 @@
     )
 
     #_method
+    (defn #_"Fiat" Fiat''negate [#_"Fiat" this]
+        (Fiat'new (:code this), (- (:value this)))
+    )
+
+    #_method
     (defn #_"Fiat" Fiat''multiply [#_"Fiat" this, #_"long" factor]
         (Fiat'new (:code this), (* (:value this), factor))
     )
@@ -1747,59 +1730,38 @@
         (Fiat'new (:code this), (rem (:value this) divisor))
     )
 
-    ;;;
-     ; Returns true if and only if this instance represents a monetary value greater than zero,
-     ; otherwise false.
-     ;;
-    #_method
-    (defn #_"boolean" Fiat''is-positive [#_"Fiat" this]
-        (pos? (:value this))
-    )
-
-    ;;;
-     ; Returns true if and only if this instance represents a monetary value less than zero,
-     ; otherwise false.
-     ;;
-    #_method
-    (defn #_"boolean" Fiat''is-negative [#_"Fiat" this]
-        (neg? (:value this))
-    )
-
-    ;;;
-     ; Returns true if and only if this instance represents zero monetary value,
-     ; otherwise false.
-     ;;
-    #_method
-    (defn #_"boolean" Fiat''is-zero [#_"Fiat" this]
-        (zero? (:value this))
-    )
-
-    ;;;
-     ; Returns true if the monetary value represented by this instance is greater than that of the given other Fiat,
-     ; otherwise false.
-     ;;
-    #_method
-    (defn #_"boolean" Fiat''is-greater-than [#_"Fiat" this, #_"Fiat" that]
-        (pos? (.compareTo this, that))
-    )
-
-    ;;;
-     ; Returns true if the monetary value represented by this instance is less than that of the given other Fiat,
-     ; otherwise false.
-     ;;
-    #_method
-    (defn #_"boolean" Fiat''is-less-than [#_"Fiat" this, #_"Fiat" that]
-        (neg? (.compareTo this, that))
-    )
-
     #_method
     (defn #_"int" Fiat''signum [#_"Fiat" this]
         (if (pos? (:value this)) 1 (if (neg? (:value this)) -1 0))
     )
 
     #_method
-    (defn #_"Fiat" Fiat''negate [#_"Fiat" this]
-        (Fiat'new (:code this), (- (:value this)))
+    (defn #_"boolean" Fiat''positive? [#_"Fiat" this]
+        (pos? (:value this))
+    )
+
+    #_method
+    (defn #_"boolean" Fiat''negative? [#_"Fiat" this]
+        (neg? (:value this))
+    )
+
+    #_method
+    (defn #_"boolean" Fiat''zero? [#_"Fiat" this]
+        (zero? (:value this))
+    )
+
+    (defn #_"int" Fiat'compare [#_"Fiat" this, #_"Fiat" that]
+        (if (= (:code this) (:code that)) (compare (:value this) (:value that)) (compare (:code this) (:code that)))
+    )
+
+    #_method
+    (defn #_"boolean" Fiat''greater-than? [#_"Fiat" this, #_"Fiat" that]
+        (> (:value this) (:value that))
+    )
+
+    #_method
+    (defn #_"boolean" Fiat''less-than? [#_"Fiat" this, #_"Fiat" that]
+        (< (:value this) (:value that))
     )
 
     (def- #_"MonetaryFormat" Fiat'FRIENDLY_FORMAT (-> MonetaryFormat'FIAT (MonetaryFormat''postfix-code)))
@@ -1822,12 +1784,6 @@
     #_method
     (defn #_"String" Fiat''to-plain-string [#_"Fiat" this]
         (.toString (MonetaryFormat''format Fiat'PLAIN_FORMAT, this))
-    )
-
-    #_foreign
-    #_override
-    (defn #_"int" Comparable'''compareTo [#_"Fiat" this, #_"Fiat" that]
-        (if (= (:code this) (:code that)) (compare (:value this) (:value that)) (compare (:code this) (:code that)))
     )
 
     #_method
@@ -3135,7 +3091,7 @@
  ; be interpreted.  Whilst almost all addresses today are hashes of public keys, another (currently unsupported
  ; type) can contain a hash of a script instead.
  ;;
-(class-ns Address (§ implements Comparable #_"<Address>")
+(class-ns Address (§ implements Comparable #_"<Address>")
     ;;;
      ; An address is a RIPEMD160 hash of a public key, therefore is always 160 bits or 20 bytes.
      ;;
@@ -3238,9 +3194,9 @@
      ;;
     #_foreign
     #_override
-    (defn #_"int" Comparable'''compareTo [#_"Address" this, #_"Address" that]
+    (defn #_"int" Comparable'''compareTo [#_"Address" this, #_"Address" that]
         (let [#_"int" cmp (compare (:version this) (:version that))]
-            (if (not= cmp 0) cmp (.compare (UnsignedBytes/lexicographicalComparator), (:addr-bytes this), (:addr-bytes that)))
+            (if (not= cmp 0) cmp (.compare (UnsignedBytes/lexicographicalComparator), (:addr-bytes this), (:addr-bytes that)))
         )
     )
 
@@ -3938,14 +3894,16 @@
     #_method
     (defn #_"BigInteger" Block''get-difficulty-target-as-integer [#_"Block" this]
         (let [#_"BigInteger" target (Utils'decode-compact-bits (:difficulty-target this))]
-            (when (or (<= (.signum target) 0) (pos? (.compareTo target, (-> this :ledger :max-target))))
+            (when-not (and (pos? (.signum target)) (<= target (-> this :ledger :max-target)))
                 (throw+ (VerificationException'new (str "Difficulty target is bad: " target)))
             )
             target
         )
     )
 
-    ;;; Returns true if the hash of the block is OK (lower than difficulty target). ;;
+    ;;;
+     ; Returns true if the hash of the block is not higher than the difficulty target.
+     ;;
     #_throws #_[ "VerificationException" ]
     #_method
     (defn #_"boolean" Block''check-proof-of-work [#_"Block" this, #_"boolean" throw?]
@@ -3957,11 +3915,11 @@
         ;;
         ;; To prevent this attack from being possible, elsewhere we check that the difficultyTarget
         ;; field is of the right value.  This requires us to have the preceeding blocks.
-        (let [#_"BigInteger" target (Block''get-difficulty-target-as-integer this) #_"BigInteger" hash (Sha256Hash''to-big-integer (Block''get-hash this))]
-            (when (pos? (.compareTo hash, target)) => true
+        (let [#_"BigInteger" target (Block''get-difficulty-target-as-integer this) #_"Sha256Hash" hash (Block''get-hash this)]
+            (when (< target (Sha256Hash''to-big-integer hash)) => true
                 ;; Proof of work check failed!
                 (when throw? => false
-                    (throw+ (VerificationException'new (str "Hash is higher than target: " (Block''get-hash this) " vs " (.toString target, 16))))
+                    (throw+ (VerificationException'new (str "Hash is higher than the target: " hash " vs " (.toString target, 16))))
                 )
             )
         )
@@ -4854,7 +4812,7 @@
      ;;
     #_method
     (defn #_"boolean" ECDSASignature''is-canonical [#_"ECDSASignature" this]
-        (<= (.compareTo (:s this), ECKey'HALF_CURVE_ORDER) 0)
+        (<= (:s this) ECKey'HALF_CURVE_ORDER)
     )
 
     ;;;
@@ -4967,9 +4925,9 @@
  ;;
 (class-ns ECKey
     ;;; Compares pub key bytes using {@link com.google.common.primitives.UnsignedBytes#lexicographicalComparator()}. ;;
-    (def #_"Comparator<ECKey>" ECKey'PUBKEY_COMPARATOR
+    (def #_"Comparator<ECKey>" ECKey'PUBKEY_COMPARATOR
         (#_"int" fn [#_"ECKey" k1, #_"ECKey" k2]
-            (.compare (UnsignedBytes/lexicographicalComparator), (ECKey''get-pub-key k1), (ECKey''get-pub-key k2))
+            (.compare (UnsignedBytes/lexicographicalComparator), (ECKey''get-pub-key k1), (ECKey''get-pub-key k2))
         )
     )
 
@@ -5417,7 +5375,7 @@
                             ;; More concisely, what these points mean is to use X as a compressed public key.
               #_"BigInteger" prime SecP256K1Curve/q]
                             ;; Cannot have point co-ordinates larger than this as everything takes place modulo Q.
-            (when (neg? (.compareTo x, prime))
+            (when (< x prime)
                             ;; Compressed keys require you to know an extra bit of data about the y-coord as there are two possibilities.
                             ;; So it's encoded in the recId.
                 (let [#_"ECPoint" __R (ECKey'decompress-key x, (= (& __recId 1) 1))]
@@ -5864,12 +5822,12 @@
                                         )]
                                     ;; All values were already checked for being non-negative (as it is verified in Transaction.verify()),
                                     ;; but we check again here just for defence in depth.  Transactions with zero output value are OK.
-                                    (when (or (neg? (Coin''signum __valueOut)) (pos? (.compareTo __valueOut, (Ledger''get-max-money (:ledger this)))))
+                                    (when (or (Coin''negative? __valueOut) (Coin''greater-than? __valueOut, (Ledger''get-max-money (:ledger this))))
                                         (throw+ (VerificationException'new "Transaction output value out of range"))
                                     )
                                     (let [[fees __coinbaseValue]
                                             (when-not coinbase? => [fees __valueOut]
-                                                (when (or (neg? (.compareTo __valueIn, __valueOut)) (pos? (.compareTo __valueIn, (Ledger''get-max-money (:ledger this)))))
+                                                (when (or (Coin''less-than? __valueIn, __valueOut) (Coin''greater-than? __valueIn, (Ledger''get-max-money (:ledger this))))
                                                     (throw+ (VerificationException'new "Transaction input value out of range"))
                                                 )
                                                 [(Coin''add fees, (Coin''subtract __valueIn, __valueOut)) __coinbaseValue]
@@ -5887,7 +5845,7 @@
                             )
                         )]
 
-                    (when (or (pos? (.compareTo fees, (Ledger''get-max-money (:ledger this)))) (neg? (.compareTo (Coin''add (Block''get-block-inflation block, height), fees), __coinbaseValue)))
+                    (when (or (Coin''greater-than? fees, (Ledger''get-max-money (:ledger this))) (Coin''less-than? (Coin''add (Block''get-block-inflation block, height), fees), __coinbaseValue))
                         (throw+ (VerificationException'new "Transaction fees out of range"))
                     )
 
@@ -6017,12 +5975,12 @@
                                                     )]
                                                 ;; All values were already checked for being non-negative (as it is verified in Transaction.verify())
                                                 ;; but we check again here just for defence in depth.  Transactions with zero output value are OK.
-                                                (when (or (neg? (Coin''signum __valueOut)) (pos? (.compareTo __valueOut, (Ledger''get-max-money (:ledger this)))))
+                                                (when (or (Coin''negative? __valueOut) (Coin''greater-than? __valueOut, (Ledger''get-max-money (:ledger this))))
                                                     (throw+ (VerificationException'new "Transaction output value out of range"))
                                                 )
                                                 (let [[fees __coinbaseValue]
                                                         (when-not coinbase? => [fees __valueOut]
-                                                            (when (or (neg? (.compareTo __valueIn, __valueOut)) (pos? (.compareTo __valueIn, (Ledger''get-max-money (:ledger this)))))
+                                                            (when (or (Coin''less-than? __valueIn, __valueOut) (Coin''greater-than? __valueIn, (Ledger''get-max-money (:ledger this))))
                                                                 (throw+ (VerificationException'new "Transaction input value out of range"))
                                                             )
                                                             [(Coin''add fees, (Coin''subtract __valueIn, __valueOut)) __coinbaseValue]
@@ -6040,7 +5998,7 @@
                                         )
                                     )]
 
-                                (when (or (pos? (.compareTo fees, (Ledger''get-max-money (:ledger this)))) (neg? (.compareTo (Coin''add (Block''get-block-inflation (:stored-header stored), (:stored-height stored)), fees), __coinbaseValue)))
+                                (when (or (Coin''greater-than? fees, (Ledger''get-max-money (:ledger this))) (Coin''less-than? (Coin''add (Block''get-block-inflation (:stored-header stored), (:stored-height stored)), fees), __coinbaseValue))
                                     (throw+ (VerificationException'new "Transaction fees out of range"))
                                 )
 
@@ -6355,7 +6313,7 @@
     )
 
     ;;;
-     ; Compares two getheaders messages.  Note that even though they are structurally identical a GetHeadersMessage
+     ; Compares two getheaders messages.  Note that even though they are structurally identical a GetHeadersMessage
      ; will not compare equal to a GetBlocksMessage containing the same data.
      ;;
     #_foreign
@@ -6776,7 +6734,7 @@
                       #_"int" tts (:target-timespan this) timespan (min (max (quot tts 4) timespan) (* tts 4))
                       #_"BigInteger" __newTarget (.divide (.multiply (Utils'decode-compact-bits (:difficulty-target (:stored-header prior))), (BigInteger/valueOf timespan)), (BigInteger/valueOf tts))
                       __newTarget
-                        (when (pos? (.compareTo __newTarget, (:max-target this))) => __newTarget
+                        (when (< (:max-target this) __newTarget) => __newTarget
                             (log/info (str "Difficulty hit proof of work limit: " (.toString __newTarget, 16)))
                             (:max-target this)
                         )
@@ -6799,7 +6757,7 @@
      ;;
     #_method
     (defn #_"boolean" Ledger''passes-checkpoint [#_"Ledger" this, #_"int" height, #_"Sha256Hash" hash]
-        (let [#_"Sha256Hash" h (nth (:checkpoints this) height)]
+        (let [#_"Sha256Hash" h (get (:checkpoints this) height)]
             (or (nil? h) (= h hash))
         )
     )
@@ -6809,7 +6767,7 @@
      ;;
     #_method
     (defn #_"boolean" Ledger''is-checkpoint [#_"Ledger" this, #_"int" height]
-        (let [#_"Sha256Hash" h (nth (:checkpoints this) height)]
+        (let [#_"Sha256Hash" h (get (:checkpoints this) height)]
             (some? h)
         )
     )
@@ -9691,7 +9649,7 @@
                         (#_"int" fn [#_"PeerAddress" a, #_"PeerAddress" b]
                             (assert-state (.isHeldByCurrentThread (:peergroup-lock this)))
 
-                            (let [#_"int" cmp (.compareTo (get (:backoff-map this) a), (get (:backoff-map this) b))]
+                            (let [#_"int" cmp (.compareTo (get (:backoff-map this) a), (get (:backoff-map this) b))]
                                 ;; Sort by port if otherwise equals - for testing.
                                 (if (= cmp 0) (compare (:port a) (:port b)) cmp)
                             )
@@ -11513,7 +11471,7 @@
  ; allowing it to be used as keys in a map.
  ; It also checks that the length is correct and provides a bit more type safety.
  ;;
-(class-ns Sha256Hash (§ implements Comparable #_"<Sha256Hash>")
+(class-ns Sha256Hash (§ implements Comparable #_"<Sha256Hash>")
     (def #_"int" Sha256Hash'LENGTH 32) ;; 256 bits = 32 bytes
 
     ;;;
@@ -11640,7 +11598,7 @@
 
     #_foreign
     #_override
-    (defn #_"int" Comparable'''compareTo [#_"Sha256Hash" this, #_"Sha256Hash" that]
+    (defn #_"int" Comparable'''compareTo [#_"Sha256Hash" this, #_"Sha256Hash" that]
         (loop-when [#_"int" i (dec Sha256Hash'LENGTH)] (<= 0 i) => 0
             (let [#_"int" b0 (& 0xff (aget (:hash-bytes this) i))
                   #_"int" b1 (& 0xff (aget (:hash-bytes that) i))]
@@ -11871,22 +11829,22 @@
  ;;
 (class-ns Transaction (§ extends Message)
     ;;;
-     ; A comparator that can be used to sort transactions by their updateTime field.
+     ; A comparator that can be used to sort transactions by their updateTime field.
      ; The ordering goes from most recent into the past.
      ;;
-    (def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_UPDATE_TIME
+    (def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_UPDATE_TIME
         (#_"int" fn [#_"Transaction" tx1, #_"Transaction" tx2]
             (let [#_"int" cmp (- (compare (or (:updated-at tx1) 0) (or (:updated-at tx2) 0)))]
                 ;; If time1 == time2, compare by tx hash to make comparator consistent with equals.
-                (if (not= cmp 0) cmp (.compareTo (Transaction''get-hash tx1), (Transaction''get-hash tx2)))
+                (if (not= cmp 0) cmp (.compareTo (Transaction''get-hash tx1), (Transaction''get-hash tx2)))
             )
         )
     )
 
     ;;;
-     ; A comparator that can be used to sort transactions by their chain height.
+     ; A comparator that can be used to sort transactions by their chain height.
      ;;
-    (def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_HEIGHT
+    (def #_"Comparator<Transaction>" Transaction'SORT_TX_BY_HEIGHT
         (#_"int" fn [#_"Transaction" tx1, #_"Transaction" tx2]
             (let [#_"TransactionConfidence" cf1 (Transaction''get-confidence-t tx1)
                   #_"int" height1 (if (= (TransactionConfidence''get-confidence-type cf1) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf1) Block'BLOCK_HEIGHT_UNKNOWN)
@@ -11894,7 +11852,7 @@
                   #_"int" height2 (if (= (TransactionConfidence''get-confidence-type cf2) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf2) Block'BLOCK_HEIGHT_UNKNOWN)
                   #_"int" cmp (- (compare height1 height2))]
                 ;; If height1 == height2, compare by tx hash to make comparator consistent with equals.
-                (if (not= cmp 0) cmp (.compareTo (Transaction''get-hash tx1), (Transaction''get-hash tx2)))
+                (if (not= cmp 0) cmp (.compareTo (Transaction''get-hash tx1), (Transaction''get-hash tx2)))
             )
         )
     )
@@ -12122,7 +12080,7 @@
         ;; TODO: This could be a lot more memory efficient as we'll typically only store one element.
         (let [this
                 (when (nil? (:appears-in-hashes this)) => this
-                    (assoc this :appears-in-hashes (TreeMap.))
+                    (assoc this :appears-in-hashes (HashMap.))
                 )]
             (.put (:appears-in-hashes this), hash, offset)
             this
@@ -12661,11 +12619,11 @@
         (try
             (loop-when [#_"Coin" value Coin'ZERO #_"ArrayList<TransactionOutput>" outputs (:outputs this)] (seq outputs)
                 (let [#_"TransactionOutput" output (first outputs)]
-                    (when (neg? (Coin''signum (:coin-value output)))
+                    (when (Coin''negative? (:coin-value output))
                         (throw+ (VerificationException'new "Transaction output negative"))
                     )
                     (let [value (Coin''add value, (:coin-value output))]
-                        (when (and (Ledger''has-max-money (:ledger this)) (pos? (.compareTo value, (Ledger''get-max-money (:ledger this)))))
+                        (when (and (Ledger''has-max-money (:ledger this)) (Coin''greater-than? value, (Ledger''get-max-money (:ledger this))))
                             (throw (IllegalArgumentException.))
                         )
                         (recur value (next outputs))
@@ -14178,8 +14136,8 @@
     (defn #_"TransactionOutput" TransactionOutput'for-script [#_"Ledger" ledger, #_"Transaction" parent, #_"Coin" value, #_"byte[]" script]
         ;; Negative values obviously make no sense, except for -1 which is used as a sentinel value when calculating
         ;; SIGHASH_SINGLE signatures, so unfortunately we have to allow that here.
-        (assert-argument (or (<= 0 (Coin''signum value)) (= value Coin'NEGATIVE_SATOSHI)), "Negative values not allowed")
-        (assert-argument (or (not (Ledger''has-max-money ledger)) (<= (.compareTo value, (Ledger''get-max-money ledger)) 0)), "Values larger than MAX_MONEY not allowed")
+        (assert-argument (or (not (Coin''negative? value)) (= value Coin'NEGATIVE_SATOSHI)), "Negative values not allowed")
+        (assert-argument (not (and (Ledger''has-max-money ledger) (Coin''greater-than? value, (Ledger''get-max-money ledger)))), "Values larger than MAX_MONEY not allowed")
 
         (TransactionOutput'new ledger, parent, value, script)
     )
@@ -14306,7 +14264,7 @@
         ;; Transactions that are OP_RETURN can't be dust regardless of their value.
         (if (Script''is-op-return (TransactionOutput''parse-script-pub-key this))
             false
-            (Coin''is-less-than (:coin-value this), (TransactionOutput''get-min-non-dust-value-1 this))
+            (Coin''less-than? (:coin-value this), (TransactionOutput''get-min-non-dust-value-1 this))
         )
     )
 
@@ -14999,7 +14957,7 @@
  ; and a getter for the actual 0-based child number.  A {@link java.util.List} of these forms a <i>path</i> through a
  ; {@link DeterministicHierarchy}.  This class is immutable.
  ;;
-(class-ns ChildNumber (§ implements Comparable #_"<ChildNumber>")
+(class-ns ChildNumber (§ implements Comparable #_"<ChildNumber>")
     ;;;
      ; The bit that's set in the child number to indicate whether this key is "hardened".  Given a hardened key, it is
      ; not possible to derive a child public key if you know only the hardened public key.  With a non-hardened key this
@@ -15050,7 +15008,7 @@
 
     #_foreign
     #_override
-    (defn #_"int" Comparable'''compareTo [#_"ChildNumber" this, #_"ChildNumber" that]
+    (defn #_"int" Comparable'''compareTo [#_"ChildNumber" this, #_"ChildNumber" that]
         ;; Note that in this implementation compareTo() is not consistent with equals().
         (compare (ChildNumber''num this) (ChildNumber''num that))
     )
@@ -15223,9 +15181,9 @@
  ;;
 (class-ns DeterministicKey (§ extends ECKey)
     ;;; Sorts deterministic keys in the order of their child number.  That's <i>usually</i> the order used to derive them. ;;
-    (def #_"Comparator<DeterministicKey>" DeterministicKey'CHILDNUM_ORDER
+    (def #_"Comparator<DeterministicKey>" DeterministicKey'CHILDNUM_ORDER
         (#_"int" fn [#_"DeterministicKey" k1, #_"DeterministicKey" k2]
-            (.compareTo (DeterministicKey''get-child-number k1), (DeterministicKey''get-child-number k2))
+            (.compareTo (DeterministicKey''get-child-number k1), (DeterministicKey''get-child-number k2))
         )
     )
 
@@ -15889,7 +15847,7 @@
     )
 
     (defn- #_"void" HDKeyDerivation'assert-less-than-n [#_"BigInteger" i, #_"String" message]
-        (when (pos? (.compareTo i, (.getN ECKey'CURVE)))
+        (when (<= (.getN ECKey'CURVE) i)
             (throw+ (HDDerivationException'new message))
         )
         nil
@@ -21215,16 +21173,16 @@
                                                             (condp = opcode
                                                                 Script'OP_ADD                (.add n1, n2)
                                                                 Script'OP_SUB                (.subtract n1, n2)
-                                                                Script'OP_BOOLAND            (if (and (not (= n1 BigInteger/ZERO)) (not (= n2 BigInteger/ZERO))) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_BOOLOR             (if (or (not (= n1 BigInteger/ZERO)) (not (= n2 BigInteger/ZERO))) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_BOOLAND            (if (and (not= n1 BigInteger/ZERO) (not= n2 BigInteger/ZERO)) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_BOOLOR             (if (or (not= n1 BigInteger/ZERO) (not= n2 BigInteger/ZERO)) BigInteger/ONE BigInteger/ZERO)
                                                                 Script'OP_NUMEQUAL           (if (= n1 n2) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_NUMNOTEQUAL        (if (not (= n1 n2)) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_LESSTHAN           (if (< (.compareTo n1, n2) 0) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_GREATERTHAN        (if (> (.compareTo n1, n2) 0) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_LESSTHANOREQUAL    (if (<= (.compareTo n1, n2) 0) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_GREATERTHANOREQUAL (if (>= (.compareTo n1, n2) 0) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_MIN                (if (< (.compareTo n1, n2) 0) n1 n2)
-                                                                Script'OP_MAX                (if (> (.compareTo n1, n2) 0) n1 n2)
+                                                                Script'OP_NUMNOTEQUAL        (if (not= n1 n2) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_LESSTHAN           (if (< n1 n2) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_GREATERTHAN        (if (> n1 n2) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_LESSTHANOREQUAL    (if (<= n1 n2) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_GREATERTHANOREQUAL (if (>= n1 n2) BigInteger/ONE BigInteger/ZERO)
+                                                                Script'OP_MIN                (if (< n1 n2) n1 n2)
+                                                                Script'OP_MAX                (if (> n1 n2) n1 n2)
                                                                 (throw (RuntimeException. "Opcode switched at runtime?"))
                                                             )]
                                                         (.add stack, (Wire'reverse-bytes (Wire'encode-mpi n, false)))
@@ -21255,7 +21213,7 @@
                                                     (let [#_"BigInteger" n3 (Script'cast-to-big-integer-2 (.pollLast stack), (.contains flags, :ScriptVerifyFlag'MINIMALDATA))
                                                           #_"BigInteger" n2 (Script'cast-to-big-integer-2 (.pollLast stack), (.contains flags, :ScriptVerifyFlag'MINIMALDATA))
                                                           #_"BigInteger" n1 (Script'cast-to-big-integer-2 (.pollLast stack), (.contains flags, :ScriptVerifyFlag'MINIMALDATA))]
-                                                        (if (and (<= (.compareTo n2, n1) 0) (< (.compareTo n1, n3) 0))
+                                                        (if (and (<= n2 n1) (< n1 n3))
                                                             (.add stack, (Wire'reverse-bytes (Wire'encode-mpi BigInteger/ONE, false)))
                                                             (.add stack, (Wire'reverse-bytes (Wire'encode-mpi BigInteger/ZERO, false)))
                                                         )
@@ -21402,17 +21360,16 @@
         ;; Thus as a special case we tell CScriptNum to accept up to 5-byte bignums to avoid year 2038 issue.
         (let [#_"BigInteger" time (Script'cast-to-big-integer-3 (.getLast stack), 5, (.contains flags, :ScriptVerifyFlag'MINIMALDATA))]
             (cond
-                (neg? (.compareTo time, BigInteger/ZERO))
+                (< time BigInteger/ZERO)
                     (throw+ (ScriptException'new :ScriptError'NEGATIVE_LOCKTIME, "Negative locktime"))
 
                 ;; There are two kinds of nLockTime, need to ensure we're comparing apples-to-apples.
-                (let [#_"boolean" a? (< (:lock-time tx) Transaction'LOCKTIME_THRESHOLD)
-                      #_"boolean" b? (neg? (.compareTo time, Transaction'LOCKTIME_THRESHOLD_BIG))]
+                (let [#_"boolean" a? (< (:lock-time tx) Transaction'LOCKTIME_THRESHOLD) #_"boolean" b? (< time Transaction'LOCKTIME_THRESHOLD_BIG)]
                         (not (or (and a? b?) (and (not a?) (not b?)))))
                     (throw+ (ScriptException'new :ScriptError'UNSATISFIED_LOCKTIME, "Locktime requirement type mismatch"))
 
                 ;; Now that we know we're comparing apples-to-apples, the comparison is a simple numeric one.
-                (pos? (.compareTo time, (BigInteger/valueOf (:lock-time tx))))
+                (< (BigInteger/valueOf (:lock-time tx)) time)
                     (throw+ (ScriptException'new :ScriptError'UNSATISFIED_LOCKTIME, "Locktime requirement not satisfied"))
 
                 ;; Finally the nLockTime feature can be disabled and thus CHECKLOCKTIMEVERIFY bypassed if every txin has been
@@ -23040,8 +22997,8 @@
             (ExchangeRate'new Coin'COIN, fiat))
         ;; This amount of coin is worth that amount of fiat.
         ([#_"Coin" coin, #_"Fiat" fiat]
-            (assert-argument (Coin''is-positive coin))
-            (assert-argument (Fiat''is-positive fiat))
+            (assert-argument (Coin''positive? coin))
+            (assert-argument (Fiat''positive? fiat))
             (assert-argument (some? (:code fiat)), "currency code required")
 
             (hash-map
@@ -23061,7 +23018,7 @@
         ;; Use BigInteger because it's much easier to maintain full precision without overflowing.
         (let [#_"BigInteger" converted (.divide (.multiply (BigInteger/valueOf (:value coin)), (BigInteger/valueOf (-> this :fiat :value))), (BigInteger/valueOf (-> this :coin :value)))]
 
-            (when-not (<= (.compareTo converted, (BigInteger/valueOf Long/MAX_VALUE)) 0 (.compareTo converted, (BigInteger/valueOf Long/MIN_VALUE)))
+            (when-not (<= (BigInteger/valueOf Long/MIN_VALUE) converted (BigInteger/valueOf Long/MAX_VALUE))
                 (throw (ArithmeticException. "Overflow"))
             )
 
@@ -23081,7 +23038,7 @@
         ;; Use BigInteger because it's much easier to maintain full precision without overflowing.
         (let [#_"BigInteger" converted (.divide (.multiply (BigInteger/valueOf (:value fiat)), (BigInteger/valueOf (-> this :coin :value))), (BigInteger/valueOf (-> this :fiat :value)))]
 
-            (when-not (<= (.compareTo converted, (BigInteger/valueOf Long/MAX_VALUE)) 0 (.compareTo converted, (BigInteger/valueOf Long/MIN_VALUE)))
+            (when-not (<= (BigInteger/valueOf Long/MIN_VALUE) converted (BigInteger/valueOf Long/MAX_VALUE))
                 (throw (ArithmeticException. "Overflow"))
             )
 
@@ -23116,7 +23073,7 @@
  ;
  ; The retries are exponentially backed off, up to a maximum interval.  On success the back off interval is reset.
  ;;
-(class-ns ExponentialBackoff (§ implements Comparable #_"<ExponentialBackoff>")
+(class-ns ExponentialBackoff (§ implements Comparable #_"<ExponentialBackoff>")
     (defn #_"ExponentialBackoff" ExponentialBackoff'new [#_"BackoffParams" params]
         (let [this
                 (hash-map
@@ -23145,7 +23102,7 @@
 
     #_foreign
     #_override
-    (defn #_"int" Comparable'''compareTo [#_"ExponentialBackoff" this, #_"ExponentialBackoff" that]
+    (defn #_"int" Comparable'''compareTo [#_"ExponentialBackoff" this, #_"ExponentialBackoff" that]
         ;; Note that in this implementation compareTo() is not consistent with equals().
         (compare (:retry-time this) (:retry-time that))
     )
@@ -24604,15 +24561,15 @@
                       #_"Coin" coin2 (:coin-value b)
                       #_"BigInteger" depth1 (.multiply (BigInteger/valueOf (:value coin1)), (BigInteger/valueOf prior1))
                       #_"BigInteger" depth2 (.multiply (BigInteger/valueOf (:value coin2)), (BigInteger/valueOf prior2))
-                      #_"int" c1 (.compareTo depth2, depth1)]
+                      #_"int" c1 (compare depth2 depth1)]
                     (when (= c1 0) => c1
                         ;; The "coin * days" destroyed are equal, sort by value alone to get the lowest transaction size.
-                        (let [#_"int" c2 (.compareTo coin2, coin1)]
+                        (let [#_"int" c2 (Coin'compare coin2, coin1)]
                             (when (= c2 0) => c2
                                 ;; They are entirely equivalent (possibly pending) so sort by hash to ensure a total ordering.
                                 (let [#_"BigInteger" hash1 (Sha256Hash''to-big-integer (TransactionOutput''get-parent-transaction-hash a))
                                       #_"BigInteger" hash2 (Sha256Hash''to-big-integer (TransactionOutput''get-parent-transaction-hash b))]
-                                    (.compareTo hash1, hash2)
+                                    (compare hash1 hash2)
                                 )
                             )
                         )
@@ -24819,7 +24776,7 @@
      ;;
     (defn #_"RuleViolation" RiskAnalysis'is-output-standard [#_"TransactionOutput" output]
         (or
-            (when (neg? (.compareTo (:coin-value output), RiskAnalysis'MIN_ANALYSIS_NONDUST_OUTPUT))
+            (when (Coin''less-than? (:coin-value output), RiskAnalysis'MIN_ANALYSIS_NONDUST_OUTPUT)
                 :RuleViolation'DUST
             )
             (when (some #(and (ScriptChunk''is-push-data %) (not (ScriptChunk''is-shortest-possible-push-data %))) (:chunks (TransactionOutput''parse-script-pub-key output)))
@@ -25466,7 +25423,7 @@
     (defn #_"boolean" KeyChainGroup''is-watching [#_"KeyChainGroup" this]
         (let [#_"KeyChainState" active
                     (cond
-                        (empty? (:chains this))                                                       :KeyChainState'EMPTY
+                        (empty? (:chains this))                                                         :KeyChainState'EMPTY
                         (DeterministicKeyChain''is-watching (KeyChainGroup''get-active-key-chain this)) :KeyChainState'WATCHING
                         :else                                                                           :KeyChainState'REGULAR
                     )
@@ -25589,7 +25546,9 @@
         )
     )
 
-    ;;; Returns true if the group contains random keys but no HD chains. ;;
+    ;;;
+     ; Returns true if the group contains random keys but no HD chains.
+     ;;
     #_method
     (defn #_"boolean" KeyChainGroup''is-deterministic-upgrade-required [#_"KeyChainGroup" this]
         (and (pos? (KeyChain'''num-keys (:basic this))) (empty? (:chains this)))
@@ -26129,7 +26088,7 @@
                 (->> (:outputs parent)
                      (filter #(and (TransactionOutput''is-mine %, wallet)
                                    (TransactionOutput''is-available-for-spending %)
-                                   (Coin''is-greater-than (:coin-value %), __feeRaise)))
+                                   (Coin''greater-than? (:coin-value %), __feeRaise)))
                      (first)
                 )]
             ;; TODO: Spend another confirmed output of own wallet if needed.
@@ -26359,7 +26318,7 @@
     )
 )
 
-(class-ns TxOffsetPair (§ implements Comparable #_"<TxOffsetPair>")
+(class-ns TxOffsetPair (§ implements Comparable #_"<TxOffsetPair>")
     (defn- #_"TxOffsetPair" TxOffsetPair'new [#_"Transaction" tx, #_"int" offset]
         (hash-map
             #_"Transaction" :tx tx
@@ -26369,7 +26328,7 @@
 
     #_foreign
     #_override
-    (defn #_"int" Comparable'''compareTo [#_"TxOffsetPair" this, #_"TxOffsetPair" that]
+    (defn #_"int" Comparable'''compareTo [#_"TxOffsetPair" this, #_"TxOffsetPair" that]
         ;; Note that in this implementation compareTo() is not consistent with equals().
         (compare (:offset this) (:offset that))
     )
@@ -27428,8 +27387,8 @@
     #_method
     (defn #_"boolean" Wallet''is-transaction-relevant [#_"Wallet" this, #_"Transaction" tx]
         (sync (:wallet-lock this)
-            (or (pos? (Coin''signum (Transaction''get-value-sent-from-me tx, this)))
-                (pos? (Coin''signum (Transaction''get-value-sent-to-me tx, this)))
+            (or (Coin''positive? (Transaction''get-value-sent-from-me tx, this))
+                (Coin''positive? (Transaction''get-value-sent-to-me tx, this))
                 (seq (Wallet''find-double-spends-against this, tx, (:transactions this))))
         )
     )
@@ -27458,7 +27417,7 @@
                     (doseq [#_"Transaction" ty (.values candidates)]
                         (when-not (.equals ty, tx)
                             (doseq [#_"TransactionInput" input (:inputs ty)]
-                                ;; This relies on the fact that TransactionOutPoint equality is defined at the protocol not object
+                                ;; This relies on the fact that TransactionOutPoint equality is defined at the protocol, not object
                                 ;; level - outpoints from two different inputs that point to the same output compare the same.
                                 (let [#_"TransactionOutPoint" outpoint (:outpoint input)]
                                     ;; If does, it's a double spend against the candidates, which makes it relevant.
@@ -27654,13 +27613,11 @@
                         (let [#_"Coin" after (Wallet''get-balance-1 this)] ;; This is slow.
                             (log/info (str "Balance is now: " (Coin''to-friendly-string after)))
                             (when-not pending?
-                                (let [#_"int" sign (Coin''signum difference)]
-                                    ;; We pick one callback based on the value difference, though a tx can of course both
-                                    ;; send and receive coins from the wallet.
-                                    (cond
-                                        (pos? sign) (Wallet''queue-on-coins-received this, tx, before, after)
-                                        (neg? sign) (Wallet''queue-on-coins-sent this, tx, before, after)
-                                    )
+                                ;; We pick one callback based on the value difference, though a tx can of course both
+                                ;; send and receive coins from the wallet.
+                                (cond
+                                    (Coin''positive? difference) (Wallet''queue-on-coins-received this, tx, before, after)
+                                    (Coin''negative? difference) (Wallet''queue-on-coins-sent this, tx, before, after)
                                 )
                             )
                             (Wallet''check-balance-futures-locked this)
@@ -27832,7 +27789,7 @@
         ;; Now make sure it ends up in the right pool.  Also, handle the case where this TX is double-spending
         ;; against our pending transactions.  Note that a tx may double spend our pending transactions and also
         ;; send us money/spend our money.
-        (let [#_"boolean" __hasOutputsToMe (pos? (Coin''signum (Transaction''get-value-sent-to-me tx, this)))
+        (let [#_"boolean" __hasOutputsToMe (Coin''positive? (Transaction''get-value-sent-to-me tx, this))
               #_"boolean" __hasOutputsFromMe
                 (cond __hasOutputsToMe
                     (let [#_"boolean" spent? (Transaction''is-every-owned-output-spent tx, this)]
@@ -27841,7 +27798,7 @@
                         (Wallet''add-wallet-transaction this, (if spent? :PoolType'SPENT :PoolType'UNSPENT), tx)
                         false
                     )
-                    (pos? (Coin''signum (Transaction''get-value-sent-from-me tx, this)))
+                    (Coin''positive? (Transaction''get-value-sent-from-me tx, this))
                     (do
                         ;; Didn't send us any money, but did spend some.  Keep it around for record keeping purposes.
                         (log/info (str "  tx " (Transaction''get-hash tx) " ->spent"))
@@ -28152,11 +28109,11 @@
                             (§ ass this (Wallet''mark-keys-as-used this, tx))
                             (let [#_"Coin" spent (Transaction''get-value-sent-from-me tx, this)
                                   #_"Coin" after (Coin''subtract (Coin''add balance, earned), spent)]
-                                (when (pos? (Coin''signum earned))
+                                (when (Coin''positive? earned)
                                     (Wallet''check-balance-futures-locked this)
                                     (Wallet''queue-on-coins-received this, tx, balance, after)
                                 )
-                                (when (pos? (Coin''signum spent))
+                                (when (Coin''positive? spent)
                                     (Wallet''queue-on-coins-sent this, tx, balance, after)
                                 )
 
@@ -28752,7 +28709,7 @@
         (sync (:wallet-lock this)
             (let [#_"SettableFuture<Coin>" future (SettableFuture/create)
                   #_"Coin" balance (Wallet''get-balance-2t this, type)]
-                (if (<= 0 (.compareTo balance, value))
+                (if (<= 0 (Coin'compare balance, value))
                     ;; Already have enough.
                     (.set future, balance)
                     ;; Will be checked later in checkBalanceFutures.  We don't just add an event listener for ourselves
@@ -28774,7 +28731,7 @@
         (loop-when-recur [#_"ListIterator<BalanceFutureRequest>" it (.listIterator (:balance-future-requests this))] (.hasNext it) [it]
             (let [#_"BalanceFutureRequest" req (.next it)
                   #_"Coin" balance (Wallet''get-balance-2t this, (:balance-type req))] ;; This could be slow for lots of futures.
-                (when (<= 0 (.compareTo balance, (:balance-value req)))
+                (when (<= 0 (Coin'compare balance, (:balance-value req)))
                     ;; Found one that's finished.
                     (.remove it)
                     ;; Don't run any user-provided future listeners with our lock held.
@@ -28811,7 +28768,7 @@
                         sum
                     )
                 )]
-            (->> (.values (:transactions this)) (map sum-) (filter Coin''is-positive) (reduce Coin''add Coin'ZERO))
+            (->> (.values (:transactions this)) (map sum-) (filter Coin''positive?) (reduce Coin''add Coin'ZERO))
         )
     )
 
@@ -29221,12 +29178,14 @@
         this
     )
 
-    ;;; Reduce the value of the first output of a transaction to pay the given feePerKb as appropriate for its size. ;;
+    ;;;
+     ; Reduce the value of the first output of a transaction to pay the given feePerKb as appropriate for its size.
+     ;;
     #_method
     (defn- #_"boolean" Wallet''adjust-output-downwards-for-fee [#_"Wallet" this, #_"Transaction" tx, #_"CoinSelection" selection, #_"Coin" __feePerKb, #_"boolean" quantum?]
         (let [#_"int" size (+ (alength (Message''to-bytes tx, Transaction''to-wire)) (Wallet''estimate-bytes-for-signing this, selection))
               #_"Coin" fee (Coin''divide (Coin''multiply __feePerKb, size), 1000)
-              fee (if (and quantum? (neg? (.compareTo fee, Transaction'REFERENCE_DEFAULT_MIN_TX_FEE))) Transaction'REFERENCE_DEFAULT_MIN_TX_FEE fee)
+              fee (if (and quantum? (Coin''less-than? fee, Transaction'REFERENCE_DEFAULT_MIN_TX_FEE)) Transaction'REFERENCE_DEFAULT_MIN_TX_FEE fee)
               #_"TransactionOutput" output (nth (:outputs tx) 0)]
             (§ ass output (TransactionOutput''set-value output, (Coin''subtract (:coin-value output), fee)))
             (not (TransactionOutput''is-dust output))
@@ -29371,7 +29330,7 @@
                         )
                     )
                     (doseq [#_"Sha256Hash" __blockHash (.keySet __mapBlockTx)]
-                        (Collections/sort (get __mapBlockTx __blockHash))
+                        (Collections/sort (get __mapBlockTx __blockHash))
                     )
 
                     (let [#_"List<Sha256Hash>" __oldBlockHashes (ArrayList. (count __oldBlocks))]
@@ -29659,7 +29618,7 @@
                                     (§ ass output (TransactionOutput''set-value output, (Coin''subtract (:coin-value output), (Coin''remainder fee, (count outputs)))))
                                 )
                                 (.add (:updated-output-values calc), (:coin-value output))
-                                (when (Coin''is-greater-than (TransactionOutput''get-min-non-dust-value-1 output), (:coin-value output))
+                                (when (Coin''greater-than? (TransactionOutput''get-min-non-dust-value-1 output), (:coin-value output))
                                     (throw+ (CouldNotAdjustDownwards'new))
                                 )
                             )
@@ -29672,7 +29631,7 @@
                           #_"CoinSelection" selection (CoinSelector'''select selector, __valueNeeded, (LinkedList. candidates))
                           calc (assoc calc :best-coin-selection selection)]
                         ;; Can we afford this?
-                        (when (neg? (.compareTo (:value-gathered selection), __valueNeeded))
+                        (when (Coin''less-than? (:value-gathered selection), __valueNeeded)
                             (let [#_"Coin" missing (Coin''subtract __valueNeeded, (:value-gathered selection))]
                                 (throw+ (InsufficientMoneyException'new missing))
                             )
@@ -29680,7 +29639,7 @@
 
                         (let [#_"Coin" change (Coin''subtract (:value-gathered selection), __valueNeeded)
                               [fee calc]
-                                (when (Coin''is-greater-than change, Coin'ZERO) => [fee calc]
+                                (when (Coin''positive? change) => [fee calc]
                                     ;; The value of the inputs is greater than what we want to send.  Just like in real life then,
                                     ;; we need to take back some coins ... this is called "change".  Add another output that sends the change
                                     ;; back to us.  The address comes either from the request or currentChangeAddress() as a default.
@@ -29728,14 +29687,14 @@
 
                             (let [#_"int" size (+ (alength (Message''to-bytes tx, Transaction''to-wire)) (Wallet''estimate-bytes-for-signing this, selection))
                                   #_"Coin" __feePerKb (:fee-per-kb req)
-                                  __feePerKb (if (and quantum? (neg? (.compareTo __feePerKb, Transaction'REFERENCE_DEFAULT_MIN_TX_FEE)))
+                                  __feePerKb (if (and quantum? (Coin''less-than? __feePerKb, Transaction'REFERENCE_DEFAULT_MIN_TX_FEE))
                                         Transaction'REFERENCE_DEFAULT_MIN_TX_FEE
                                         __feePerKb
                                     )
                                   #_"Coin" __feeNeeded (Coin''divide (Coin''multiply __feePerKb, size), 1000)]
 
                                 ;; Include more fee and try again.  ;; Done, enough fee included.
-                                (recur-if (Coin''is-less-than fee, __feeNeeded) __feeNeeded => calc)
+                                (recur-if (Coin''less-than? fee, __feeNeeded) __feeNeeded => calc)
                             )
                         )
                     )
@@ -30011,7 +29970,7 @@
                 )
                 ;; TODO: Make this use the standard SendRequest.
                 (let [#_"CoinSelection" __toMove (CoinSelector'''select selector, Coin'ZERO, (Wallet''calculate-all-spend-candidates-1 this))]
-                    (when-not (= (:value-gathered __toMove) Coin'ZERO) => nil ;; Nothing to do.
+                    (when-not (Coin''zero? (:value-gathered __toMove)) => nil ;; Nothing to do.
                         (Wallet''maybe-upgrade-to-hd this)
                         (let [#_"Transaction" tx (Transaction'new (:ledger this))]
                             (doseq [#_"TransactionOutput" output (:gathered __toMove)]
@@ -30046,7 +30005,7 @@
     )
 
     #_method
-    (defn- #_"void" Wallet''to-string-helper [#_"Wallet" this, #_"Map<Sha256Hash, Transaction>" pool, #_"Comparator<Transaction>" order, #_"BlockChain" chain, #_"StringBuilder" sb]
+    (defn- #_"void" Wallet''to-string-helper [#_"Wallet" this, #_"Map<Sha256Hash, Transaction>" pool, #_"Comparator<Transaction>" order, #_"BlockChain" chain, #_"StringBuilder" sb]
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
 
         (let [#_"Collection<Transaction>" txns
