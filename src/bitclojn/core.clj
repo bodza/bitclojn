@@ -119,12 +119,11 @@
 (declare Address''is-p2sh-address Address'LENGTH Address'from-base58 Address'from-p2sh-script Address'init Address'is-acceptable-version Address'from-hash160)
 (declare AddressFormatException'new)
 (declare AddressMessage''add-address AddressMessage''remove-address AddressMessage'MAX_ADDRESSES AddressMessage'from-wire AddressMessage''to-wire)
-(declare AllRandomKeysRotating'new)
 (declare BackoffParams'new)
 (declare BalanceFutureRequest'new)
 (declare BalanceType'enum-set)
 (declare Base58'ALPHABET Base58'ENCODED_ZERO Base58'INDEXES Base58'decode Base58'decode-checked Base58'decode-to-big-integer Base58'divmod Base58'encode)
-(declare BasicKeyChain''find-key-from-pub-hash BasicKeyChain''find-key-from-pub-key BasicKeyChain''find-keys-before BasicKeyChain''find-oldest-key-after BasicKeyChain''get-keys-1 BasicKeyChain''import-key BasicKeyChain''import-key-locked BasicKeyChain''import-keys BasicKeyChain''import-keys-locked BasicKeyChain''is-watching BasicKeyChain''queue-on-keys-added BasicKeyChain''remove-key BasicKeyChain'new)
+(declare BasicKeyChain''find-key-from-pub-hash BasicKeyChain''find-key-from-pub-key BasicKeyChain''get-keys BasicKeyChain''import-key BasicKeyChain''import-key-locked BasicKeyChain''import-keys BasicKeyChain''is-watching BasicKeyChain''queue-on-keys-added BasicKeyChain'new)
 (declare BitcoinPacketHeader'HEADER_LENGTH BitcoinPacketHeader'new)
 (declare Wire'deserialize Wire'deserialize-payload Wire'make-message Wire'seek-past-magic-bytes Wire'serialize-3 Wire'serialize-4 Wire'COMMAND_LEN)
 (declare Block''add-transaction Block''build-merkle-tree Block''calculate-hash Block''calculate-merkle-root Block''check-proof-of-work Block''check-sig-ops Block''check-timestamp Block''check-transactions Block''clone-as-header Block''get-block-inflation Block''get-difficulty-target-as-integer Block''get-hash Block''get-hash-as-base16 Block''get-work Block''is-bip34 Block''is-bip65 Block''is-bip66 Block''solve Block''verify Block''verify-header Block''verify-transactions Block''write-header Block''write-transactions Block'ALLOWED_TIME_DRIFT Block'BLOCK_HEIGHT_GENESIS Block'BLOCK_HEIGHT_UNKNOWN Block'BLOCK_VERSION_BIP34 Block'BLOCK_VERSION_BIP65 Block'BLOCK_VERSION_BIP66 Block'BLOCK_VERSION_GENESIS Block'EASIEST_DIFFICULTY_TARGET Block'HEADER_SIZE Block'LARGEST_HASH Block'MAX_BLOCK_SIGOPS Block'MAX_BLOCK_SIZE Block'init Block'new-genesis Block'from-wire Block''to-wire Block'new)
@@ -159,13 +158,12 @@
 (declare DeterministicKey''derive DeterministicKey''derive-private-key-downwards DeterministicKey''drop-parent DeterministicKey''drop-private-bytes DeterministicKey''find-or-derive-private-key DeterministicKey''find-parent-with-priv-key DeterministicKey''get-child-number DeterministicKey''get-fingerprint DeterministicKey''get-identifier DeterministicKey''get-path-as-string DeterministicKey''get-priv-key-bytes33 DeterministicKey''serialize DeterministicKey''serialize-priv-b58 DeterministicKey''serialize-private DeterministicKey''serialize-pub-b58 DeterministicKey''serialize-public DeterministicKey'compare-by-child-number DeterministicKey'add-checksum DeterministicKey'ascertain-parent-fingerprint DeterministicKey'deserialize DeterministicKey'deserialize-b58-2 DeterministicKey'deserialize-b58-3 DeterministicKey'init DeterministicKey'new-4 DeterministicKey'new-5 DeterministicKey'new-6p DeterministicKey'new-6i DeterministicKey'to-base58 DeterministicKey''set-creation-time-seconds)
 (declare DeterministicKeyChain'''find-redeem-data-by-script-hash DeterministicKeyChain'''format-addresses DeterministicKeyChain'''fresh-output-script DeterministicKeyChain'''get-redeem-data DeterministicKeyChain'''is-married DeterministicKeyChain'''maybe-look-ahead-scripts DeterministicKeyChain'''set-lookahead-size DeterministicKeyChain''calc-default-lookahead-threshold DeterministicKeyChain''check-for-bit-flip DeterministicKeyChain''find-key-from-pub-hash DeterministicKeyChain''find-key-from-pub-key DeterministicKeyChain''get-issued-external-keys DeterministicKeyChain''get-issued-internal-keys DeterministicKeyChain''get-issued-receive-keys DeterministicKeyChain''get-key-by-path-2 DeterministicKeyChain''get-key-by-path-3 DeterministicKeyChain''get-key-lookahead-epoch DeterministicKeyChain''get-keys-3b DeterministicKeyChain''get-leaf-keys DeterministicKeyChain''get-lookahead-size DeterministicKeyChain''get-lookahead-threshold DeterministicKeyChain''get-mnemonic-code DeterministicKeyChain''get-seed DeterministicKeyChain''get-watching-key DeterministicKeyChain''initialize-hierarchy DeterministicKeyChain''is-watching DeterministicKeyChain''mark-key-as-used DeterministicKeyChain''mark-pub-hash-as-used DeterministicKeyChain''mark-pub-key-as-used DeterministicKeyChain''maybe-look-ahead-1 DeterministicKeyChain''maybe-look-ahead-3 DeterministicKeyChain''maybe-look-ahead-5 DeterministicKeyChain''num-leaf-keys-issued DeterministicKeyChain''set-lookahead-threshold DeterministicKeyChain''to-string DeterministicKeyChain'ACCOUNT_ZERO_PATH DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC DeterministicKeyChain'EXTERNAL_PATH DeterministicKeyChain'EXTERNAL_SUBPATH DeterministicKeyChain'INTERNAL_PATH DeterministicKeyChain'INTERNAL_SUBPATH DeterministicKeyChain'init DeterministicKeyChain'from-seed DeterministicKeyChain'from-entropy DeterministicKeyChain'from-random DeterministicKeyChain'watch DeterministicKeyChain'watch-and-follow)
 (declare DeterministicSeed''to-base16 DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS DeterministicSeed'MAX_SEED_ENTROPY_BITS DeterministicSeed'next-entropy DeterministicSeed'from-entropy DeterministicSeed'from-random DeterministicSeed'new)
-(declare DeterministicUpgradeRequiredException'new)
 (declare DnsDiscovery'new)
 (declare DnsSeedDiscovery'new)
 (declare DownloadProgressTracker''await DownloadProgressTracker''done-download DownloadProgressTracker''progress DownloadProgressTracker''start-download DownloadProgressTracker'new)
 (declare DustySendRequested'new)
 (declare ECDSASignature'''to-canonicalised ECDSASignature''der-byte-stream ECDSASignature''encode-to-der ECDSASignature''is-canonical ECDSASignature'decode-from-der ECDSASignature'new)
-(declare ECKey'''format-key-with-address ECKey'''get-creation-time-seconds ECKey'''get-priv-key ECKey'''get-secret-bytes ECKey'''has-priv-key ECKey'''is-pub-key-only ECKey''set-creation-time-seconds ECKey'''sign ECKey''decompress ECKey''do-sign ECKey''get-priv-key-bytes ECKey''get-pub-key ECKey''calculate-pub-key-hash160 ECKey''is-compressed ECKey''is-watching ECKey''sign-message ECKey''to-address ECKey''to-string ECKey''verify-3s ECKey''verify-message ECKey'CURVE ECKey'CURVE_PARAMS ECKey'HALF_CURVE_ORDER ECKey'compare-by-pub-key ECKey'SECURE_RANDOM ECKey'compress-point ECKey'decompress-key ECKey'decompress-point ECKey'from-private ECKey'from-private-bytes ECKey'from-private-and-precalculated-public ECKey'from-private-and-precalculated-public-bytes ECKey'from-public-only ECKey'from-public-only-bytes ECKey'get-point-with-compression ECKey'init ECKey'is-pub-key-canonical ECKey'new ECKey'from-random ECKey'compose ECKey'public-key-from-private ECKey'public-point-from-private ECKey'recover-from-signature ECKey'signed-message-to-key ECKey'verify-3e)
+(declare ECKey'''format-key-with-address ECKey'''get-creation-time-seconds ECKey'''get-priv-key ECKey'''has-priv-key ECKey'''is-pub-key-only ECKey''set-creation-time-seconds ECKey'''sign ECKey''decompress ECKey''do-sign ECKey''get-priv-key-bytes ECKey''get-pub-key ECKey''calculate-pub-key-hash160 ECKey''is-compressed ECKey''is-watching ECKey''sign-message ECKey''to-address ECKey''to-string ECKey''verify-3s ECKey''verify-message ECKey'CURVE ECKey'CURVE_PARAMS ECKey'HALF_CURVE_ORDER ECKey'compare-by-pub-key ECKey'SECURE_RANDOM ECKey'compress-point ECKey'decompress-key ECKey'decompress-point ECKey'from-private ECKey'from-private-bytes ECKey'from-private-and-precalculated-public ECKey'from-private-and-precalculated-public-bytes ECKey'from-public-only ECKey'from-public-only-bytes ECKey'get-point-with-compression ECKey'init ECKey'is-pub-key-canonical ECKey'new ECKey'from-random ECKey'compose ECKey'public-key-from-private ECKey'public-point-from-private ECKey'recover-from-signature ECKey'signed-message-to-key ECKey'verify-3e)
 (declare ExceededMaxTransactionSize'new)
 (declare ExchangeRate''coin-to-fiat ExchangeRate''fiat-to-coin ExchangeRate'new)
 (declare ExponentialBackoff''track-failure ExponentialBackoff''track-success ExponentialBackoff'new ExponentialBackoff'compare)
@@ -195,9 +193,9 @@
 (declare InventoryItemType'enum-map InventoryItemType'for-code)
 (declare InventoryMessage''add-block InventoryMessage''add-transaction-2 InventoryMessage'MAX_INV_SIZE InventoryMessage'new InventoryMessage'from-wire InventoryMessage''to-wire InventoryMessage'with)
 (declare KeyBag'''find-key-from-pub-hash KeyBag'''find-key-from-pub-key KeyBag'''find-redeem-data-from-script-hash)
-(declare KeyChain'''add-event-listener KeyChain'''get-earliest-key-creation-time KeyChain'''get-filter KeyChain'''get-key KeyChain'''get-keys-3a KeyChain'''has-key KeyChain'''num-bloom-filter-entries KeyChain'''num-keys KeyChain'''remove-event-listener)
+(declare BasicKeyChain''add-event-listener DeterministicKeyChain''add-event-listener DeterministicKeyChain''get-earliest-key-creation-time BasicKeyChain''get-filter DeterministicKeyChain'''get-filter DeterministicKeyChain''get-key DeterministicKeyChain''get-keys BasicKeyChain''has-key DeterministicKeyChain''has-key DeterministicKeyChain'''num-bloom-filter-entries BasicKeyChain''num-keys DeterministicKeyChain''num-keys BasicKeyChain''remove-event-listener DeterministicKeyChain''remove-event-listener)
 (declare KeyChainEventListener'''on-keys-added)
-(declare KeyChainGroup''add-and-activate-hd-chain KeyChainGroup''add-event-listener KeyChainGroup''create-and-activate-new-hd-chain KeyChainGroup''current-address KeyChainGroup''current-key KeyChainGroup''fresh-address KeyChainGroup''fresh-key KeyChainGroup''fresh-keys KeyChainGroup''get-active-key-chain KeyChainGroup''get-bloom-filter-4 KeyChainGroup''get-bloom-filter-element-count KeyChainGroup''get-combined-key-lookahead-epochs KeyChainGroup''get-earliest-key-creation-time KeyChainGroup''get-imported-keys KeyChainGroup''get-lookahead-size KeyChainGroup''get-lookahead-threshold KeyChainGroup''has-key KeyChainGroup''import-keys KeyChainGroup''is-deterministic-upgrade-required KeyChainGroup''is-married KeyChainGroup''is-watching KeyChainGroup''make-p2sh-output-script KeyChainGroup''mark-p2sh-address-as-used KeyChainGroup''mark-pub-key-as-used KeyChainGroup''mark-pub-key-hash-as-used KeyChainGroup''maybe-lookahead-scripts KeyChainGroup''maybe-mark-current-address-as-used KeyChainGroup''maybe-mark-current-key-as-used KeyChainGroup''num-keys KeyChainGroup''remove-event-listener KeyChainGroup''remove-imported-key KeyChainGroup''set-lookahead-size KeyChainGroup''set-lookahead-threshold KeyChainGroup''to-string KeyChainGroup''upgrade-to-deterministic KeyChainGroup'create-current-keys-map KeyChainGroup'extract-following-keychains KeyChainGroup'watch KeyChainGroup'from-seed KeyChainGroup'new)
+(declare KeyChainGroup''add-and-activate-hd-chain KeyChainGroup''add-event-listener KeyChainGroup''create-and-activate-new-hd-chain KeyChainGroup''current-address KeyChainGroup''current-key KeyChainGroup''fresh-address KeyChainGroup''fresh-key KeyChainGroup''fresh-keys KeyChainGroup''get-active-key-chain KeyChainGroup''get-bloom-filter KeyChainGroup''get-bloom-filter-element-count KeyChainGroup''get-combined-key-lookahead-epochs KeyChainGroup''get-earliest-key-creation-time KeyChainGroup''get-lookahead-size KeyChainGroup''get-lookahead-threshold KeyChainGroup''has-key KeyChainGroup''is-married KeyChainGroup''is-watching KeyChainGroup''make-p2sh-output-script KeyChainGroup''mark-p2sh-address-as-used KeyChainGroup''mark-pub-key-as-used KeyChainGroup''mark-pub-key-hash-as-used KeyChainGroup''maybe-lookahead-scripts KeyChainGroup''maybe-mark-current-address-as-used KeyChainGroup''maybe-mark-current-key-as-used KeyChainGroup''num-keys KeyChainGroup''remove-event-listener KeyChainGroup''set-lookahead-size KeyChainGroup''set-lookahead-threshold KeyChainGroup''to-string KeyChainGroup'create-current-keys-map KeyChainGroup'extract-following-keychains KeyChainGroup'watch KeyChainGroup'from-seed KeyChainGroup'new)
 (declare KeyChainState'enum-set)
 (declare KeyPurpose'enum-set)
 (declare KeyTimeCoinSelector''is-confirmed KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS KeyTimeCoinSelector'new)
@@ -319,7 +317,7 @@
 (declare VersionAck'new VersionAck''to-wire)
 (declare VersionMessage''has-block-chain VersionMessage''is-bloom-filtering-supported VersionMessage''is-ping-pong-supported VersionMessage'NODE_NETWORK VersionMessage'init VersionMessage'new VersionMessage'from-wire VersionMessage''to-wire)
 (declare VersionTally''add VersionTally''get-count-at-or-above VersionTally'from-store VersionTally'new)
-(declare Wallet'DEFAULT_EVENT_HORIZON Wallet''add-and-activate-hd-chain Wallet''add-change-event-listener Wallet''add-coins-received-event-listener Wallet''add-coins-sent-event-listener Wallet''add-key-chain-event-listener Wallet''add-reorganize-event-listener Wallet''add-supplied-inputs Wallet''add-transaction-confidence-event-listener Wallet''add-transaction-signer Wallet''add-transactions-depending-on Wallet''add-wallet-transaction Wallet''adjust-output-downwards-for-fee Wallet''calc-bloom-out-points-locked Wallet''calculate-all-spend-candidates-1 Wallet''calculate-all-spend-candidates-3 Wallet''calculate-fee Wallet''can-sign-for Wallet''check-balance-futures-locked Wallet''check-for-filter-exhaustion Wallet''check-no-deterministic-keys Wallet''cleanup Wallet''clear-transactions-1 Wallet''clear-transactions-2 Wallet''commit-tx Wallet''complete-tx Wallet''create-send Wallet''create-transient-state Wallet''current-address Wallet''current-change-address Wallet''current-key Wallet''current-receive-address Wallet''current-receive-key Wallet''do-maintenance Wallet''estimate-bytes-for-signing Wallet''find-double-spends-against Wallet''fresh-address Wallet''fresh-key Wallet''fresh-keys Wallet''fresh-receive-address Wallet''fresh-receive-key Wallet''get-active-key-chain Wallet''get-balance-1 Wallet''get-balance-2s Wallet''get-balance-2t Wallet''get-balance-future Wallet''get-bloom-filter-2 Wallet''get-coin-selector Wallet''get-containing-pools Wallet''get-imported-keys Wallet''get-issued-receive-addresses Wallet''get-issued-receive-keys Wallet''get-key-by-path-2 Wallet''get-key-chain-group-combined-key-lookahead-epochs Wallet''get-key-chain-group-lookahead-size Wallet''get-key-chain-group-lookahead-threshold Wallet''get-key-chain-group-size Wallet''get-key-chain-seed Wallet''get-key-rotation-time Wallet''get-last-block-seen-hash Wallet''get-last-block-seen-height Wallet''get-last-block-seen-time Wallet''get-last-block-seen-time-secs Wallet''get-pending-transactions Wallet''get-recent-transactions Wallet''get-total-received Wallet''get-total-sent Wallet''get-transaction Wallet''get-transaction-signers Wallet''get-transactions Wallet''get-transactions-by-time Wallet''get-unspents Wallet''get-watching-key Wallet''has-key Wallet''import-key Wallet''import-keys Wallet''inform-confidence-listeners-if-not-reorganizing Wallet''is-accept-risky-transactions Wallet''is-consistent Wallet''is-consistent-or-throw Wallet''is-deterministic-upgrade-required Wallet''is-key-rotating Wallet''is-spending-txns-in-confidence-type Wallet''is-pending-transaction-relevant Wallet''is-transaction-relevant Wallet''is-transaction-risky Wallet''is-tx-consistent Wallet''is-tx-output-bloom-filterable Wallet''is-watching Wallet''kill-txns Wallet''mark-keys-as-used Wallet''maybe-commit-tx Wallet''maybe-move-pool Wallet''maybe-queue-on-wallet-changed Wallet''maybe-rotate-keys Wallet''maybe-upgrade-to-hd Wallet''process-tx-from-best-chain Wallet''queue-on-coins-received Wallet''queue-on-coins-sent Wallet''queue-on-reorganize Wallet''queue-on-transaction-confidence-changed Wallet''receive Wallet''receive-pending-3 Wallet''receive-pending-4 Wallet''rekey-one-batch Wallet''remove-change-event-listener Wallet''remove-coins-received-event-listener Wallet''remove-coins-sent-event-listener Wallet''remove-key Wallet''remove-key-chain-event-listener Wallet''remove-reorganize-event-listener Wallet''remove-transaction-confidence-event-listener Wallet''reset Wallet''save Wallet''save-later Wallet''save-now Wallet''send-coins-2 Wallet''send-coins-3b Wallet''send-coins-3p Wallet''send-coins-4 Wallet''send-coins-offline Wallet''set-accept-risky-transactions Wallet''set-coin-selector Wallet''set-key-chain-group-lookahead-size Wallet''set-key-chain-group-lookahead-threshold Wallet''set-key-rotation-time-d Wallet''set-key-rotation-time-l Wallet''set-last-block-seen-hash Wallet''set-last-block-seen-height Wallet''set-last-block-seen-time-secs Wallet''set-transaction-broadcaster Wallet''sign-transaction Wallet''sort-txns-by-dependency Wallet''spends Wallet''subtract-depth Wallet''to-string Wallet''to-string-helper Wallet''update-for-spends Wallet''upgrade-to-deterministic Wallet'from-keys Wallet'from-seed Wallet'from-watching-key Wallet'from-watching-key-b58 Wallet'new)
+(declare Wallet'DEFAULT_EVENT_HORIZON Wallet''add-and-activate-hd-chain Wallet''add-change-event-listener Wallet''add-coins-received-event-listener Wallet''add-coins-sent-event-listener Wallet''add-key-chain-event-listener Wallet''add-reorganize-event-listener Wallet''add-supplied-inputs Wallet''add-transaction-confidence-event-listener Wallet''add-transaction-signer Wallet''add-transactions-depending-on Wallet''add-wallet-transaction Wallet''adjust-output-downwards-for-fee Wallet''calc-bloom-out-points-locked Wallet''calculate-all-spend-candidates-1 Wallet''calculate-all-spend-candidates-3 Wallet''calculate-fee Wallet''can-sign-for Wallet''check-balance-futures-locked Wallet''check-for-filter-exhaustion Wallet''cleanup Wallet''clear-transactions-1 Wallet''clear-transactions-2 Wallet''commit-tx Wallet''complete-tx Wallet''create-send Wallet''create-transient-state Wallet''current-address Wallet''current-change-address Wallet''current-key Wallet''current-receive-address Wallet''current-receive-key Wallet''do-maintenance Wallet''estimate-bytes-for-signing Wallet''find-double-spends-against Wallet''fresh-address Wallet''fresh-key Wallet''fresh-keys Wallet''fresh-receive-address Wallet''fresh-receive-key Wallet''get-active-key-chain Wallet''get-balance-1 Wallet''get-balance-2s Wallet''get-balance-2t Wallet''get-balance-future Wallet''get-bloom-filter-2 Wallet''get-coin-selector Wallet''get-containing-pools Wallet''get-issued-receive-addresses Wallet''get-issued-receive-keys Wallet''get-key-by-path-2 Wallet''get-key-chain-group-combined-key-lookahead-epochs Wallet''get-key-chain-group-lookahead-size Wallet''get-key-chain-group-lookahead-threshold Wallet''get-key-chain-group-size Wallet''get-key-chain-seed Wallet''get-key-rotation-time Wallet''get-last-block-seen-hash Wallet''get-last-block-seen-height Wallet''get-last-block-seen-time Wallet''get-last-block-seen-time-secs Wallet''get-pending-transactions Wallet''get-recent-transactions Wallet''get-total-received Wallet''get-total-sent Wallet''get-transaction Wallet''get-transaction-signers Wallet''get-transactions Wallet''get-transactions-by-time Wallet''get-unspents Wallet''get-watching-key Wallet''has-key Wallet''inform-confidence-listeners-if-not-reorganizing Wallet''is-accept-risky-transactions Wallet''is-consistent Wallet''is-consistent-or-throw Wallet''is-key-rotating Wallet''is-spending-txns-in-confidence-type Wallet''is-pending-transaction-relevant Wallet''is-transaction-relevant Wallet''is-transaction-risky Wallet''is-tx-consistent Wallet''is-tx-output-bloom-filterable Wallet''is-watching Wallet''kill-txns Wallet''mark-keys-as-used Wallet''maybe-commit-tx Wallet''maybe-move-pool Wallet''maybe-queue-on-wallet-changed Wallet''maybe-rotate-keys Wallet''process-tx-from-best-chain Wallet''queue-on-coins-received Wallet''queue-on-coins-sent Wallet''queue-on-reorganize Wallet''queue-on-transaction-confidence-changed Wallet''receive Wallet''receive-pending-3 Wallet''receive-pending-4 Wallet''rekey-one-batch Wallet''remove-change-event-listener Wallet''remove-coins-received-event-listener Wallet''remove-coins-sent-event-listener Wallet''remove-key-chain-event-listener Wallet''remove-reorganize-event-listener Wallet''remove-transaction-confidence-event-listener Wallet''reset Wallet''save Wallet''save-later Wallet''save-now Wallet''send-coins-2 Wallet''send-coins-3b Wallet''send-coins-3p Wallet''send-coins-4 Wallet''send-coins-offline Wallet''set-accept-risky-transactions Wallet''set-coin-selector Wallet''set-key-chain-group-lookahead-size Wallet''set-key-chain-group-lookahead-threshold Wallet''set-key-rotation-time-d Wallet''set-key-rotation-time-l Wallet''set-last-block-seen-hash Wallet''set-last-block-seen-height Wallet''set-last-block-seen-time-secs Wallet''set-transaction-broadcaster Wallet''sign-transaction Wallet''sort-txns-by-dependency Wallet''spends Wallet''subtract-depth Wallet''to-string Wallet''to-string-helper Wallet''update-for-spends Wallet'from-seed Wallet'from-watching-key Wallet'from-watching-key-b58 Wallet'new)
 (declare WalletAppKit''chain WalletAppKit''connect-to-loopback WalletAppKit''create-peer-group WalletAppKit''create-wallet WalletAppKit''install-shutdown-hook WalletAppKit''on-setup-completed WalletAppKit''peer-group WalletAppKit''provide-block-store WalletAppKit''set-checkpoints WalletAppKit''set-peer-nodes WalletAppKit''store WalletAppKit''wallet WalletAppKit'new)
 (declare WalletCoinsReceivedEventListener'''on-coins-received)
 (declare WeakConfidenceReference'new)
@@ -5434,15 +5432,6 @@
             (throw (IllegalArgumentException. (str "Cannot set creation time to negative value: " secs)))
         )
         (assoc this :creation-time-seconds secs)
-    )
-
-    ;;;
-     ; A wrapper for {@link #getPrivKeyBytes()} that returns null if the private key bytes are missing or would have
-     ; to be derived (for the HD key case).
-     ;;
-    #_abstract
-    (defn #_"byte[]" ECKey'''get-secret-bytes [#_"ECKey" this]
-        (when (ECKey'''has-priv-key this) (ECKey''get-priv-key-bytes this))
     )
 
     #_method
@@ -15365,11 +15354,6 @@
     )
 
     #_override
-    (defn #_"byte[]" ECKey'''get-secret-bytes [#_"DeterministicKey" this]
-        (when (some? (:priv this)) (ECKey''get-priv-key-bytes this))
-    )
-
-    #_override
     (defn #_"ECDSASignature" ECKey'''sign [#_"DeterministicKey" this, #_"Sha256Hash" input]
         ;; Else this key is a part of a public-key only heirarchy and cannot be used for signing.
         (let-when [#_"BigInteger" priv (DeterministicKey''find-or-derive-private-key this)] (some? priv) => (throw+ (MissingPrivateKeyException'new))
@@ -23400,86 +23384,10 @@
 )
 
 ;;;
- ; Indicates that an attempt was made to upgrade a random wallet to deterministic, but there were no non-rotating
- ; random keys to use as source material for the seed.  Add a non-compromised key first!
- ;;
-(class-ns AllRandomKeysRotating (§ extends RuntimeException)
-    (defn #_"AllRandomKeysRotating" AllRandomKeysRotating'new []
-        (RuntimeException'new)
-    )
-)
-
-;;;
  ; A KeyChain is a class that stores a collection of keys for a {@link Wallet}.  Key chains are expected
  ; to be able to look up keys given a hash (i.e. address) or pubkey bytes, and provide keys on request
  ; for a given purpose.  They can inform event listeners about new keys being added.
- ;
- ; However it is important to understand what this interface does <i>not</i> provide.  It cannot have keys
- ; imported into it, that you to use a method of a specific key chain instance, such as {@link BasicKeyChain}.
- ; The reason for these restrictions is to support key chains that may be handled by external hardware or software,
- ; or which are derived deterministically from a seed (and thus the notion of importing a key is meaningless).
  ;;
-(defprotocol KeyChain
-    ;;; Returns true if the given key is in the chain. ;;
-    #_abstract
-    (#_"boolean" KeyChain'''has-key [#_"KeyChain" this, #_"ECKey" key])
-
-    ;;;
-     ; Obtains a number of key/s intended for the given purpose.
-     ; The chain may create new key/s, derive, or re-use an old one.
-     ;;
-    #_abstract
-    (#_"List<ECKey>" KeyChain'''get-keys-3a [#_"KeyChain" this, #_"KeyPurpose" purpose, #_"int" n])
-
-    ;;;
-     ; Obtains a key intended for the given purpose.
-     ; The chain may create a new key, derive one, or re-use an old one.
-     ;;
-    #_abstract
-    (#_"ECKey" KeyChain'''get-key [#_"KeyChain" this, #_"KeyPurpose" purpose])
-
-    ;;; Adds a listener for events that are run when keys are added, on the given executor. ;;
-    #_abstract
-    (#_"void" KeyChain'''add-event-listener [#_"KeyChain" this, #_"KeyChainEventListener" listener, #_"Executor" executor])
-
-    ;;; Removes a listener for events that are run when keys are added. ;;
-    #_abstract
-    (#_"void" KeyChain'''remove-event-listener [#_"KeyChain" this, #_"KeyChainEventListener" listener])
-
-    ;;; Returns the number of keys this key chain manages. ;;
-    #_abstract
-    (#_"int" KeyChain'''num-keys [#_"KeyChain" this])
-
-    ;;;
-     ; Returns the number of elements this chain wishes to insert into the Bloom filter.
-     ; The size passed to {@link #getFilter(int, double, long)} should be at least this large.
-     ;;
-    #_abstract
-    (#_"int" KeyChain'''num-bloom-filter-entries [#_"KeyChain" this])
-
-    ;;;
-     ; Returns the earliest creation time of keys in this chain, in seconds since the epoch.  This can return
-     ; zero if at least one key does not have that data (was created before key timestamping was implemented).
-     ; If there are no keys in the wallet, {@link Long#MAX_VALUE} is returned.
-     ;;
-    #_abstract
-    (#_"long" KeyChain'''get-earliest-key-creation-time [#_"KeyChain" this])
-
-    ;;;
-     ; Gets a bloom filter that contains all of the public keys from this chain, and which will provide the given
-     ; false-positive rate if it has size elements.  Keep in mind that you will get 2 elements in the bloom filter for
-     ; each key in the key chain, for the public key and the hash of the public key (address form).  For this reason
-     ; size should be <i>at least</i> 2x the result of {@link #numKeys()}.
-     ;
-     ; This is used to generate a {@link BloomFilter} which can be {@link BloomFilter#merge(BloomFilter)}d with
-     ; another.  It could also be used if you have a specific target for the filter's size.
-     ;
-     ; See the docs for {@link BloomFilter#BloomFilter(int, double, long)} for a brief
-     ; explanation of anonymity when using bloom filters, and for the meaning of these parameters.
-     ;;
-    #_abstract
-    (#_"BloomFilter" KeyChain'''get-filter [#_"KeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak])
-)
 
 ;;;
  ; Whether this basic key chain is empty, full of regular (usable for signing) keys, or full of watching keys.
@@ -23497,7 +23405,7 @@
  ; acts as a dumb bag of keys.  It will, left to its own devices, always return the same key for usage by the wallet,
  ; although it will automatically add one to itself if it's empty or if encryption is requested.
  ;;
-(class-ns BasicKeyChain (§ implements KeyChain)
+(class-ns BasicKeyChain
     (defn #_"BasicKeyChain" BasicKeyChain'new []
         (hash-map
             #_"Object" :b-keychain-lock (Object.)
@@ -23511,69 +23419,13 @@
         )
     )
 
-    #_override
-    (defn #_"ECKey" KeyChain'''get-key [#_"BasicKeyChain" this, #_"KeyPurpose" ignored]
-        (sync (:b-keychain-lock this)
-            (when (empty? (:hash-to-keys this))
-                (let [#_"ECKey" key (ECKey'new)]
-                    (§ ass this (BasicKeyChain''import-key-locked this, key))
-                    (BasicKeyChain''queue-on-keys-added this, (ImmutableList/of key))
-                )
-            )
-            (.next (.iterator (.values (:hash-to-keys this))))
-        )
-    )
-
-    #_override
-    (defn #_"List<ECKey>" KeyChain'''get-keys-3a [#_"BasicKeyChain" this, #_"KeyPurpose" purpose, #_"int" n]
-        (assert-argument (< 0 n))
-
-        (sync (:b-keychain-lock this)
-            (let [#_"int" m (count (:hash-to-keys this))]
-                (when (< m n)
-                    (let [#_"List<ECKey>" keys (ArrayList. (- n m))]
-                        (loop-when-recur [#_"int" i 0] (< i (- n m)) [(inc i)]
-                            (.add keys, (ECKey'new))
-                        )
-
-                        (§ ass this (BasicKeyChain''import-keys-locked this, keys))
-                        (BasicKeyChain''queue-on-keys-added this, keys)
-                    )
-                )
-
-                (let [#_"List<ECKey>" keys (ArrayList. n)]
-                    (loop-when-recur [#_"int" i 0] (and (.hasNext (.iterator (.values (:hash-to-keys this)))) (< i n)) [(inc i)]
-                        (.add keys, (.next (.iterator (.values (:hash-to-keys this)))))
-                    )
-                    keys
-                )
-            )
-        )
-    )
-
-    ;;; Returns a copy of the list of keys that this chain is managing. ;;
+    ;;;
+     ; Returns a copy of the list of keys that this chain is managing.
+     ;;
     #_method
-    (defn #_"List<ECKey>" BasicKeyChain''get-keys-1 [#_"BasicKeyChain" this]
+    (defn #_"List<ECKey>" BasicKeyChain''get-keys [#_"BasicKeyChain" this]
         (sync (:b-keychain-lock this)
             (ArrayList. (.values (:hash-to-keys this)))
-        )
-    )
-
-    #_method
-    (defn #_"int" BasicKeyChain''import-keys [#_"BasicKeyChain" this, #_"List<ECKey>" keys]
-        (sync (:b-keychain-lock this)
-            (let [#_"List<ECKey>" added (ArrayList. (count keys))]
-                (doseq [#_"ECKey" key keys]
-                    (when-not (KeyChain'''has-key this, key)
-                        (.add added, key)
-                        (§ ass this (BasicKeyChain''import-key-locked this, key))
-                    )
-                )
-                (when (seq added)
-                    (BasicKeyChain''queue-on-keys-added this, added)
-                )
-                (count added)
-            )
         )
     )
 
@@ -23596,8 +23448,13 @@
     )
 
     #_method
-    (defn- #_"BasicKeyChain" BasicKeyChain''import-keys-locked [#_"BasicKeyChain" this, #_"List<ECKey>" keys]
-        (reduce BasicKeyChain''import-key-locked this keys)
+    (defn- #_"void" BasicKeyChain''queue-on-keys-added [#_"BasicKeyChain" this, #_"List<ECKey>" keys]
+        (assert-state (.isHeldByCurrentThread (:b-keychain-lock this)))
+
+        (doseq [#_"ListenerRegistration<KeyChainEventListener>" r (:key-chain-listeners this)]
+            (.execute (:executor r), #(KeyChainEventListener'''on-keys-added (:listener r), keys))
+        )
+        nil
     )
 
     ;;;
@@ -23606,11 +23463,29 @@
     #_method
     (defn #_"BasicKeyChain" BasicKeyChain''import-key [#_"BasicKeyChain" this, #_"ECKey" key]
         (sync (:b-keychain-lock this)
-            (when-not (KeyChain'''has-key this, key) => this
+            (when-not (BasicKeyChain''has-key this, key) => this
                 (let [this (BasicKeyChain''import-key-locked this, key)]
                     (BasicKeyChain''queue-on-keys-added this, (ImmutableList/of key))
                     this
                 )
+            )
+        )
+    )
+
+    #_method
+    (defn #_"int" BasicKeyChain''import-keys [#_"BasicKeyChain" this, #_"List<ECKey>" keys]
+        (sync (:b-keychain-lock this)
+            (let [#_"List<ECKey>" added (ArrayList. (count keys))]
+                (doseq [#_"ECKey" key keys]
+                    (when-not (BasicKeyChain''has-key this, key)
+                        (.add added, key)
+                        (§ ass this (BasicKeyChain''import-key-locked this, key))
+                    )
+                )
+                (when (seq added)
+                    (BasicKeyChain''queue-on-keys-added this, added)
+                )
+                (count added)
             )
         )
     )
@@ -23629,13 +23504,19 @@
         )
     )
 
-    #_override
-    (defn #_"boolean" KeyChain'''has-key [#_"BasicKeyChain" this, #_"ECKey" key]
+    ;;;
+     ; Returns true if the given key is in the chain.
+     ;;
+    #_method
+    (defn #_"boolean" BasicKeyChain''has-key [#_"BasicKeyChain" this, #_"ECKey" key]
         (some? (BasicKeyChain''find-key-from-pub-key this, (ECKey''get-pub-key key)))
     )
 
-    #_override
-    (defn #_"int" KeyChain'''num-keys [#_"BasicKeyChain" this]
+    ;;;
+     ; Returns the number of keys this key chain manages.
+     ;;
+    #_method
+    (defn #_"int" BasicKeyChain''num-keys [#_"BasicKeyChain" this]
         (count (:pubkey-to-keys this))
     )
 
@@ -23651,97 +23532,43 @@
     )
 
     ;;;
-     ; Removes the given key from the keychain.  Be very careful with this - losing a private key
-     ; <b>destroys the money associated with it</b>.
-     ;
-     ; @return whether the key was removed or not.
+     ; Adds a listener for events that are run when keys are added, on the given executor.
      ;;
     #_method
-    (defn #_"boolean" BasicKeyChain''remove-key [#_"BasicKeyChain" this, #_"ECKey" key]
-        (sync (:b-keychain-lock this)
-            (let [#_"boolean" a (some? (.remove (:hash-to-keys this), (§ ByteString/copyFrom (ECKey''calculate-pub-key-hash160 key))))
-                  #_"boolean" b (some? (.remove (:pubkey-to-keys this), (§ ByteString/copyFrom (ECKey''get-pub-key key))))]
-                (assert-state (= a b)) ;; Should be in both maps or neither.
-                a
-            )
-        )
-    )
-
-    #_override
-    (defn #_"long" KeyChain'''get-earliest-key-creation-time [#_"BasicKeyChain" this]
-        (sync (:b-keychain-lock this)
-            (reduce min Long/MAX_VALUE (map ECKey'''get-creation-time-seconds (:hash-to-keys this)))
-        )
-    )
-
-    #_override
-    (defn #_"void" KeyChain'''add-event-listener [#_"BasicKeyChain" this, #_"KeyChainEventListener" listener, #_"Executor" executor]
+    (defn #_"void" BasicKeyChain''add-event-listener [#_"BasicKeyChain" this, #_"KeyChainEventListener" listener, #_"Executor" executor]
         (.add (:key-chain-listeners this), (ListenerRegistration'new listener, executor))
         nil
     )
 
-    #_override
-    (defn #_"void" KeyChain'''remove-event-listener [#_"BasicKeyChain" this, #_"KeyChainEventListener" listener]
+    ;;;
+     ; Removes a listener for events that are run when keys are added.
+     ;;
+    #_method
+    (defn #_"void" BasicKeyChain''remove-event-listener [#_"BasicKeyChain" this, #_"KeyChainEventListener" listener]
         (ListenerRegistration'remove listener, (:key-chain-listeners this))
         nil
     )
 
+    ;;;
+     ; Gets a bloom filter that contains all of the public keys from this chain, and which will provide the given
+     ; false-positive rate if it has size elements.  Keep in mind that you will get 2 elements in the bloom filter for
+     ; each key in the key chain, for the public key and the hash of the public key (address form).  For this reason
+     ; size should be <i>at least</i> 2x the result of {@link #numKeys()}.
+     ;
+     ; This is used to generate a {@link BloomFilter} which can be {@link BloomFilter#merge(BloomFilter)}d with
+     ; another.  It could also be used if you have a specific target for the filter's size.
+     ;
+     ; See the docs for {@link BloomFilter#BloomFilter(int, double, long)} for a brief
+     ; explanation of anonymity when using bloom filters, and for the meaning of these parameters.
+     ;;
     #_method
-    (defn- #_"void" BasicKeyChain''queue-on-keys-added [#_"BasicKeyChain" this, #_"List<ECKey>" keys]
-        (assert-state (.isHeldByCurrentThread (:b-keychain-lock this)))
-
-        (doseq [#_"ListenerRegistration<KeyChainEventListener>" r (:key-chain-listeners this)]
-            (.execute (:executor r), #(KeyChainEventListener'''on-keys-added (:listener r), keys))
-        )
-        nil
-    )
-
-    #_override
-    (defn #_"BloomFilter" KeyChain'''get-filter [#_"BasicKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
+    (defn #_"BloomFilter" BasicKeyChain''get-filter [#_"BasicKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
         (sync (:b-keychain-lock this)
             (let [#_"BloomFilter" filter (BloomFilter'new nil, size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)]
                 (doseq [#_"ECKey" key (.values (:hash-to-keys this))]
                     (BloomFilter''insert-key filter, key)
                 )
                 filter
-            )
-        )
-    )
-
-    #_override
-    (defn #_"int" KeyChain'''num-bloom-filter-entries [#_"BasicKeyChain" this]
-        (* (KeyChain'''num-keys this) 2)
-    )
-
-    ;;; Returns the first ECKey created after the given UNIX time, or null if there is none. ;;
-    #_method
-    (defn #_"ECKey" BasicKeyChain''find-oldest-key-after [#_"BasicKeyChain" this, #_"long" secs]
-        (sync (:b-keychain-lock this)
-            (loop-when [#_"ECKey" oldest nil #_"Collection<ECKey>" keys (.values (:hash-to-keys this))] (seq keys) => oldest
-                (let [#_"ECKey" key (first keys) #_"long" time (ECKey'''get-creation-time-seconds key)
-                      oldest
-                        (when (and (< secs time) (or (nil? oldest) (< time (ECKey'''get-creation-time-seconds oldest)))) => oldest
-                            key
-                        )]
-                    (recur oldest (next keys))
-                )
-            )
-        )
-    )
-
-    ;;; Returns a list of all ECKeys created after the given UNIX time. ;;
-    #_method
-    (defn #_"List<ECKey>" BasicKeyChain''find-keys-before [#_"BasicKeyChain" this, #_"long" secs]
-        (sync (:b-keychain-lock this)
-            (let [#_"List<ECKey>" results (LinkedList.)]
-                (doseq [#_"ECKey" key (.values (:hash-to-keys this))]
-                    (let [#_"long" time (ECKey'''get-creation-time-seconds key)]
-                        (when (< time secs)
-                            (.add results, key)
-                        )
-                    )
-                )
-                results
             )
         )
     )
@@ -23795,8 +23622,7 @@
  ;
  ; @author Andreas Schildbach
  ;;
-#_suppress #_[ "PublicStaticCollectionField" ]
-(class-ns DeterministicKeyChain (§ implements KeyChain)
+(class-ns DeterministicKeyChain
     (def #_"String" DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC "")
 
     ;; Paths through the key tree.  External keys are ones that are communicated to other parties.  Internal keys are
@@ -23953,15 +23779,19 @@
         )
     )
 
-    ;;; Returns a freshly derived key that has not been returned by this method before. ;;
-    #_override
-    (defn #_"DeterministicKey" KeyChain'''get-key [#_"DeterministicKeyChain" this, #_"KeyPurpose" purpose]
-        (first (KeyChain'''get-keys-3a this, purpose, 1))
+    ;;;
+     ; Returns a freshly derived key that has not been returned by this method before.
+     ;;
+    #_method
+    (defn #_"DeterministicKey" DeterministicKeyChain''get-key [#_"DeterministicKeyChain" this, #_"KeyPurpose" purpose]
+        (first (DeterministicKeyChain''get-keys this, purpose, 1))
     )
 
-    ;;; Returns freshly derived key/s that have not been returned by this method before. ;;
-    #_override
-    (defn #_"List<DeterministicKey>" KeyChain'''get-keys-3a [#_"DeterministicKeyChain" this, #_"KeyPurpose" purpose, #_"int" __numberOfKeys]
+    ;;;
+     ; Returns freshly derived key/s that have not been returned by this method before.
+     ;;
+    #_method
+    (defn #_"List<DeterministicKey>" DeterministicKeyChain''get-keys [#_"DeterministicKeyChain" this, #_"KeyPurpose" purpose, #_"int" __numberOfKeys]
         (assert-argument (pos? __numberOfKeys))
 
         (sync (:d-keychain-lock this)
@@ -24096,20 +23926,27 @@
         )
     )
 
-    #_override
-    (defn #_"boolean" KeyChain'''has-key [#_"DeterministicKeyChain" this, #_"ECKey" key]
+    ;;;
+     ; Returns true if the given key is in the chain.
+     ;;
+    #_method
+    (defn #_"boolean" DeterministicKeyChain''has-key [#_"DeterministicKeyChain" this, #_"ECKey" key]
         (sync (:d-keychain-lock this)
-            (KeyChain'''has-key (:basic-key-chain this), key)
+            (BasicKeyChain''has-key (:basic-key-chain this), key)
         )
     )
 
-    ;;; Returns the deterministic key for the given absolute path in the hierarchy. ;;
+    ;;;
+     ; Returns the deterministic key for the given absolute path in the hierarchy.
+     ;;
     #_method
     (defn #_"DeterministicKey" DeterministicKeyChain''get-key-by-path-2 [#_"DeterministicKeyChain" this, #_"List<ChildNumber>" path]
         (DeterministicKeyChain''get-key-by-path-3 this, path, false)
     )
 
-    ;;; Returns the deterministic key for the given absolute path in the hierarchy, optionally creating it. ;;
+    ;;;
+     ; Returns the deterministic key for the given absolute path in the hierarchy, optionally creating it.
+     ;;
     #_method
     (defn #_"DeterministicKey" DeterministicKeyChain''get-key-by-path-3 [#_"DeterministicKeyChain" this, #_"List<ChildNumber>" path, #_"boolean" create?]
         (DeterministicHierarchy''get-4 (:hierarchy this), path, false, create?)
@@ -24136,13 +23973,16 @@
         (ECKey''is-watching (DeterministicKeyChain''get-watching-key this))
     )
 
-    #_override
-    (defn #_"int" KeyChain'''num-keys [#_"DeterministicKeyChain" this]
+    ;;;
+     ; Returns the number of keys this key chain manages.
+     ;;
+    #_method
+    (defn #_"int" DeterministicKeyChain''num-keys [#_"DeterministicKeyChain" this]
         ;; We need to return here the total number of keys including the lookahead zone, not the number
         ;; of keys we have issued via getKey/freshReceiveKey.
         (sync (:d-keychain-lock this)
             (§ ass this (DeterministicKeyChain''maybe-look-ahead-1 this))
-            (KeyChain'''num-keys (:basic-key-chain this))
+            (BasicKeyChain''num-keys (:basic-key-chain this))
         )
     )
 
@@ -24157,20 +23997,31 @@
         )
     )
 
-    #_override
-    (defn #_"long" KeyChain'''get-earliest-key-creation-time [#_"DeterministicKeyChain" this]
+    ;;;
+     ; Returns the earliest creation time of keys in this chain, in seconds since the epoch.  This can return
+     ; zero if at least one key does not have that data (was created before key timestamping was implemented).
+     ; If there are no keys in the wallet, {@link Long#MAX_VALUE} is returned.
+     ;;
+    #_method
+    (defn #_"long" DeterministicKeyChain''get-earliest-key-creation-time [#_"DeterministicKeyChain" this]
         (if (some? (:seed this)) (:creation-time-seconds (:seed this)) (ECKey'''get-creation-time-seconds (DeterministicKeyChain''get-watching-key this)))
     )
 
-    #_override
-    (defn #_"void" KeyChain'''add-event-listener [#_"DeterministicKeyChain" this, #_"KeyChainEventListener" listener, #_"Executor" executor]
-        (KeyChain'''add-event-listener (:basic-key-chain this), listener, executor)
+    ;;;
+     ; Adds a listener for events that are run when keys are added, on the given executor.
+     ;;
+    #_method
+    (defn #_"void" DeterministicKeyChain''add-event-listener [#_"DeterministicKeyChain" this, #_"KeyChainEventListener" listener, #_"Executor" executor]
+        (BasicKeyChain''add-event-listener (:basic-key-chain this), listener, executor)
         nil
     )
 
-    #_override
-    (defn #_"void" KeyChain'''remove-event-listener [#_"DeterministicKeyChain" this, #_"KeyChainEventListener" listener]
-        (KeyChain'''remove-event-listener (:basic-key-chain this), listener)
+    ;;;
+     ; Removes a listener for events that are run when keys are added.
+     ;;
+    #_method
+    (defn #_"void" DeterministicKeyChain''remove-event-listener [#_"DeterministicKeyChain" this, #_"KeyChainEventListener" listener]
+        (BasicKeyChain''remove-event-listener (:basic-key-chain this), listener)
         nil
     )
 
@@ -24186,17 +24037,33 @@
         )
     )
 
-    #_override
-    (defn #_"int" KeyChain'''num-bloom-filter-entries [#_"DeterministicKeyChain" this]
-        (* (KeyChain'''num-keys this) 2)
+    ;;;
+     ; Returns the number of elements this chain wishes to insert into the Bloom filter.
+     ; The size passed to {@link #getFilter(int, double, long)} should be at least this large.
+     ;;
+    #_abstract
+    (defn #_"int" DeterministicKeyChain'''num-bloom-filter-entries [#_"DeterministicKeyChain" this]
+        (* (DeterministicKeyChain''num-keys this) 2)
     )
 
-    #_override
-    (defn #_"BloomFilter" KeyChain'''get-filter [#_"DeterministicKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
+    ;;;
+     ; Gets a bloom filter that contains all of the public keys from this chain, and which will provide the given
+     ; false-positive rate if it has size elements.  Keep in mind that you will get 2 elements in the bloom filter for
+     ; each key in the key chain, for the public key and the hash of the public key (address form).  For this reason
+     ; size should be <i>at least</i> 2x the result of {@link #numKeys()}.
+     ;
+     ; This is used to generate a {@link BloomFilter} which can be {@link BloomFilter#merge(BloomFilter)}d with
+     ; another.  It could also be used if you have a specific target for the filter's size.
+     ;
+     ; See the docs for {@link BloomFilter#BloomFilter(int, double, long)} for a brief
+     ; explanation of anonymity when using bloom filters, and for the meaning of these parameters.
+     ;;
+    #_abstract
+    (defn #_"BloomFilter" DeterministicKeyChain'''get-filter [#_"DeterministicKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
         (sync (:d-keychain-lock this)
-            (assert-argument (<= (KeyChain'''num-bloom-filter-entries this) size))
+            (assert-argument (<= (DeterministicKeyChain'''num-bloom-filter-entries this) size))
             (§ ass this (DeterministicKeyChain''maybe-look-ahead-1 this))
-            (KeyChain'''get-filter (:basic-key-chain this), size, rate, tweak)
+            (BasicKeyChain''get-filter (:basic-key-chain this), size, rate, tweak)
         )
     )
 
@@ -24363,7 +24230,7 @@
     ;; For internal usage only.
     #_method
     (defn #_"List<ECKey>" DeterministicKeyChain''get-keys-3b [#_"DeterministicKeyChain" this, #_"boolean" lookahead?, #_"boolean" parents?]
-        (let [#_"List<ECKey>" keys (BasicKeyChain''get-keys-1 (:basic-key-chain this))]
+        (let [#_"List<ECKey>" keys (BasicKeyChain''get-keys (:basic-key-chain this))]
             (when-not lookahead? => keys
                 (let [#_"int" size (count (:child-number-path (:internal-parent-key this))) #_"List<ECKey>" __issuedKeys (LinkedList.)]
                     (doseq [#_"ECKey" key keys]
@@ -24444,7 +24311,7 @@
 
     ;;; Get redeem data for a key.  Only applicable to married keychains. ;;
     #_abstract
-    (defn #_"RedeemData" DeterministicKeyChain'''get-redeem-data [#_"DeterministicKeyChain" __, #_"DeterministicKey" __followedKey]
+    (defn #_"RedeemData" DeterministicKeyChain'''get-redeem-data [#_"DeterministicKeyChain" __, #_"DeterministicKey" followed]
         (throw (UnsupportedOperationException.))
     )
 
@@ -24905,16 +24772,6 @@
 )
 
 ;;;
- ; Indicates that an attempt was made to use HD wallet features on a wallet that was deserialized from an old,
- ; pre-HD random wallet without calling upgradeToDeterministic() beforehand.
- ;;
-(class-ns DeterministicUpgradeRequiredException (§ extends RuntimeException)
-    (defn #_"DeterministicUpgradeRequiredException" DeterministicUpgradeRequiredException'new []
-        (RuntimeException'new)
-    )
-)
-
-;;;
  ; A filtering coin selector delegates to another coin selector, but won't select outputs spent by the given transactions.
  ;;
 (class-ns FilteringCoinSelector (§ implements CoinSelector)
@@ -25007,17 +24864,14 @@
  ;;
 (class-ns KeyChainGroup (§ implements KeyBag)
     (defn #_"KeyChainGroup" KeyChainGroup'new
-        ;;; Creates a keychain group with no basic chain, and a single, lazily created HD chain. ;;
-        ([#_"Ledger" ledger] (KeyChainGroup'new ledger, nil, (ArrayList. #_"<DeterministicKeyChain>" 1), nil))
-        ;; Used for deserialization.
-        ([#_"Ledger" ledger, #_"BasicKeyChain" basic, #_"List<DeterministicKeyChain>" chains, #_"EnumMap<KeyPurpose, DeterministicKey>" keys]
+        ([#_"Ledger" ledger] (KeyChainGroup'new ledger, (ArrayList. #_"<DeterministicKeyChain>" 1)))
+        ([#_"Ledger" ledger, #_"List<DeterministicKeyChain>" chains]
             (let [this
                     (hash-map
                         #_"Ledger" :ledger ledger
-                        #_"BasicKeyChain" :basic (or basic (BasicKeyChain'new))
                         #_"LinkedList<DeterministicKeyChain>" :chains (LinkedList. (ensure some? chains))
                         ;; :current-keys is used for normal, non-multisig/married wallets.
-                        #_"EnumMap<KeyPurpose, DeterministicKey>" :current-keys (or keys (§ EnumMap. #_"<KeyPurpose, DeterministicKey>" KeyPurpose))
+                        #_"EnumMap<KeyPurpose, DeterministicKey>" :current-keys (§ EnumMap. KeyPurpose)
                         ;; :current-addresses is used when we're handing out P2SH addresses.
                         #_"EnumMap<KeyPurpose, Address>" :current-addresses (§ EnumMap. KeyPurpose)
                         ;; They're mutually exclusive.
@@ -25044,7 +24898,7 @@
      ; Creates a keychain group with no basic chain, and an HD chain initialized from the given seed.
      ;;
     (defn #_"KeyChainGroup" KeyChainGroup'from-seed [#_"Ledger" ledger, #_"DeterministicSeed" seed]
-        (KeyChainGroup'new ledger, nil, (ImmutableList/of (DeterministicKeyChain'from-seed seed)), nil)
+        (KeyChainGroup'new ledger, (ImmutableList/of (DeterministicKeyChain'from-seed seed)))
     )
 
     ;;;
@@ -25052,7 +24906,7 @@
      ; This HAS to be an account key as returned by {@link DeterministicKeyChain#getWatchingKey()}.
      ;;
     (defn #_"KeyChainGroup" KeyChainGroup'watch [#_"Ledger" ledger, #_"DeterministicKey" key]
-        (KeyChainGroup'new ledger, nil, (ImmutableList/of (DeterministicKeyChain'watch key)), nil)
+        (KeyChainGroup'new ledger, (ImmutableList/of (DeterministicKeyChain'watch key)))
     )
 
     ;; This keeps married redeem data in sync with the number of keys issued.
@@ -25082,9 +24936,6 @@
     #_method
     (defn #_"KeyChainGroup" KeyChainGroup''add-and-activate-hd-chain [#_"KeyChainGroup" this, #_"DeterministicKeyChain" chain]
         (log/info (str "Creating and activating a new HD chain: " chain))
-        (doseq [#_"ListenerRegistration<KeyChainEventListener>" r (:key-chain-listeners (:basic this))]
-            (KeyChain'''add-event-listener chain, (:listener r), (:executor r))
-        )
         (when (<= 0 (:lookahead-size this))
             (§ ass chain (DeterministicKeyChain'''set-lookahead-size chain, (:lookahead-size this)))
         )
@@ -25098,13 +24949,13 @@
     ;;;
      ; Returns a key that hasn't been seen in a transaction yet, and which is suitable for displaying in a wallet
      ; user interface as "a convenient key to receive funds on" when the purpose parameter is
-     ; {@link KeyChain.KeyPurpose#RECEIVE_FUNDS}.  The returned key is stable until it's actually seen in a pending
+     ; {@link KeyPurpose#RECEIVE_FUNDS}.  The returned key is stable until it's actually seen in a pending
      ; or confirmed transaction, at which point this method will start returning a different key (for each purpose
      ; independently).
      ;
      ; This method is not supposed to be used for married keychains and will throw UnsupportedOperationException
      ; if the active chain is married.
-     ; For married keychains use {@link #currentAddress(KeyChain.KeyPurpose)} to get a proper P2SH address.
+     ; For married keychains use {@link #currentAddress(KeyPurpose)} to get a proper P2SH address.
      ;;
     #_method
     (defn #_"DeterministicKey" KeyChainGroup''current-key [#_"KeyChainGroup" this, #_"KeyPurpose" purpose]
@@ -25122,7 +24973,7 @@
     )
 
     ;;;
-     ; Returns address for a {@link #currentKey(KeyChain.KeyPurpose)}.
+     ; Returns address for a {@link #currentKey(KeyPurpose)}.
      ;;
     #_method
     (defn #_"Address" KeyChainGroup''current-address [#_"KeyChainGroup" this, #_"KeyPurpose" purpose]
@@ -25142,13 +24993,13 @@
     ;;;
      ; Returns a key that has not been returned by this method before (fresh).  You can think of this as being a newly
      ; created key, although the notion of "create" is not really valid for a {@link DeterministicKeyChain}.  When the
-     ; parameter is {@link KeyChain.KeyPurpose#RECEIVE_FUNDS}, the returned key is suitable for being put into a receive
+     ; parameter is {@link KeyPurpose#RECEIVE_FUNDS}, the returned key is suitable for being put into a receive
      ; coins wizard type UI.  You should use this when the user is definitely going to hand this key out to someone who
      ; wishes to send money.
      ;
      ; This method is not supposed to be used for married keychains and will throw UnsupportedOperationException if
      ; the active chain is married.
-     ; For married keychains use {@link #freshAddress(KeyChain.KeyPurpose)} to get a proper P2SH address.
+     ; For married keychains use {@link #freshAddress(KeyPurpose)} to get a proper P2SH address.
      ;;
     #_method
     (defn #_"DeterministicKey" KeyChainGroup''fresh-key [#_"KeyChainGroup" this, #_"KeyPurpose" purpose]
@@ -25158,13 +25009,13 @@
     ;;;
      ; Returns a key/s that have not been returned by this method before (fresh).  You can think of this as being newly
      ; created key/s, although the notion of "create" is not really valid for a {@link DeterministicKeyChain}.  When the
-     ; parameter is {@link KeyChain.KeyPurpose#RECEIVE_FUNDS}, the returned key is suitable for being put into a receive
+     ; parameter is {@link KeyPurpose#RECEIVE_FUNDS}, the returned key is suitable for being put into a receive
      ; coins wizard type UI.  You should use this when the user is definitely going to hand this key out to someone who
      ; wishes to send money.
      ;
      ; This method is not supposed to be used for married keychains and will throw UnsupportedOperationException if
      ; the active chain is married.
-     ; For married keychains use {@link #freshAddress(KeyChain.KeyPurpose)} to get a proper P2SH address.
+     ; For married keychains use {@link #freshAddress(KeyPurpose)} to get a proper P2SH address.
      ;;
     #_method
     (defn #_"List<DeterministicKey>" KeyChainGroup''fresh-keys [#_"KeyChainGroup" this, #_"KeyPurpose" purpose, #_"int" n]
@@ -25173,12 +25024,12 @@
                 (throw (UnsupportedOperationException. "Key is not suitable to receive coins for married keychains.  Use freshAddress to get P2SH address instead."))
             )
 
-            (KeyChain'''get-keys-3a chain, purpose, n) ;; Always returns the next key along the key chain.
+            (DeterministicKeyChain''get-keys chain, purpose, n) ;; Always returns the next key along the key chain.
         )
     )
 
     ;;;
-     ; Returns address for a {@link #freshKey(KeyChain.KeyPurpose)}.
+     ; Returns address for a {@link #freshKey(KeyPurpose)}.
      ;;
     #_method
     (defn #_"Address" KeyChainGroup''fresh-address [#_"KeyChainGroup" this, #_"KeyPurpose" purpose]
@@ -25198,16 +25049,13 @@
         )
     )
 
-    ;;; Returns the key chain that's used for generation of fresh/current keys.  This is always the newest HD chain. ;;
+    ;;;
+     ; Returns the key chain that's used for generation of fresh/current keys.  This is always the newest HD chain.
+     ;;
     #_method
     (defn #_"DeterministicKeyChain" KeyChainGroup''get-active-key-chain [#_"KeyChainGroup" this]
         (when (empty? (:chains this))
-            (when (pos? (KeyChain'''num-keys (:basic this)))
-                (log/warn "No HD chain present but random keys are: you probably deserialized an old wallet.")
-                ;; If called from the wallet (most likely) it'll try to upgrade us, as it knows the rotation time but not the password.
-                (throw+ (DeterministicUpgradeRequiredException'new))
-            )
-            ;; Otherwise we have no HD chains and no random keys: we are a new born!  So a random seed is fine.
+            ;; We have no HD chains: we are a new born!  So a random seed is fine.
             (§ ass this (KeyChainGroup''create-and-activate-new-hd-chain this))
         )
         (nth (:chains this) (dec (count (:chains this))))
@@ -25257,12 +25105,6 @@
         (if (= (:lookahead-threshold this) -1) (DeterministicKeyChain''get-lookahead-threshold (KeyChainGroup''get-active-key-chain this)) (:lookahead-threshold this))
     )
 
-    ;;; Imports the given keys into the basic chain, creating it if necessary. ;;
-    #_method
-    (defn #_"int" KeyChainGroup''import-keys [#_"KeyChainGroup" this, #_"List<ECKey>" keys]
-        (BasicKeyChain''import-keys (:basic this), keys)
-    )
-
     #_override
     (defn #_"RedeemData" KeyBag'''find-redeem-data-from-script-hash [#_"KeyChainGroup" this, #_"byte[]" hash]
         ;; Iterate in reverse order, since the active keychain is the one most likely to have the hit.
@@ -25294,9 +25136,7 @@
 
     #_override
     (defn #_"ECKey" KeyBag'''find-key-from-pub-hash [#_"KeyChainGroup" this, #_"byte[]" hash]
-        (or (BasicKeyChain''find-key-from-pub-hash (:basic this), hash)
-            (some #(DeterministicKeyChain''find-key-from-pub-hash %, hash) (:chains this))
-        )
+        (some #(DeterministicKeyChain''find-key-from-pub-hash %, hash) (:chains this))
     )
 
     ;;;
@@ -25338,14 +25178,12 @@
 
     #_method
     (defn #_"boolean" KeyChainGroup''has-key [#_"KeyChainGroup" this, #_"ECKey" key]
-        (or (KeyChain'''has-key (:basic this), key)
-            (some #(KeyChain'''has-key %, key) (:chains this)))
+        (some #(DeterministicKeyChain''has-key %, key) (:chains this))
     )
 
     #_override
     (defn #_"ECKey" KeyBag'''find-key-from-pub-key [#_"KeyChainGroup" this, #_"byte[]" pubkey]
-        (or (BasicKeyChain''find-key-from-pub-key (:basic this), pubkey)
-            (some #(DeterministicKeyChain''find-key-from-pub-key %, pubkey) (:chains this)))
+        (some #(DeterministicKeyChain''find-key-from-pub-key %, pubkey) (:chains this))
     )
 
     ;;;
@@ -25362,23 +25200,12 @@
         nil
     )
 
-    ;;; Returns the number of keys managed by this group, including the lookahead buffers. ;;
-    #_method
-    (defn #_"int" KeyChainGroup''num-keys [#_"KeyChainGroup" this]
-        (reduce + (KeyChain'''num-keys (:basic this)) (map KeyChain'''num-keys (:chains this)))
-    )
-
     ;;;
-     ; Removes a key that was imported into the basic key chain.  You cannot remove deterministic keys.
-     ;
-     ; @throws IllegalArgumentException if the key is deterministic.
+     ; Returns the number of keys managed by this group, including the lookahead buffers.
      ;;
     #_method
-    (defn #_"boolean" KeyChainGroup''remove-imported-key [#_"KeyChainGroup" this, #_"ECKey" key]
-        (ensure some? key)
-        (assert-argument (not (§ instance? DeterministicKey key)))
-
-        (BasicKeyChain''remove-key (:basic this), key)
+    (defn #_"int" KeyChainGroup''num-keys [#_"KeyChainGroup" this]
+        (reduce + (map DeterministicKeyChain''num-keys (:chains this)))
     )
 
     ;;;
@@ -25401,62 +25228,37 @@
     #_method
     (defn #_"boolean" KeyChainGroup''is-watching [#_"KeyChainGroup" this]
         (let [#_"KeyChainState" active
-                    (cond
-                        (empty? (:chains this))                                                         :KeyChainState'EMPTY
-                        (DeterministicKeyChain''is-watching (KeyChainGroup''get-active-key-chain this)) :KeyChainState'WATCHING
-                        :else                                                                           :KeyChainState'REGULAR
-                    )
-              #_"KeyChainState" basic (BasicKeyChain''is-watching (:basic this))]
-            (cond
-                (= basic :KeyChainState'EMPTY)
-                    (when (= active :KeyChainState'EMPTY) => (= active :KeyChainState'WATCHING)
-                        (throw (IllegalStateException. "Empty key chain group: cannot answer isWatching() query"))
-                    )
-                (= active :KeyChainState'EMPTY)
-                    (= basic :KeyChainState'WATCHING)
-                (= active basic)
-                    (= active :KeyChainState'WATCHING)
-                :else
-                    (throw (IllegalStateException. "Mix of watching and non-watching keys in wallet"))
+                (cond
+                    (empty? (:chains this))                                                         :KeyChainState'EMPTY
+                    (DeterministicKeyChain''is-watching (KeyChainGroup''get-active-key-chain this)) :KeyChainState'WATCHING
+                    :else                                                                           :KeyChainState'REGULAR
+                )]
+            (when (= active :KeyChainState'EMPTY) => (= active :KeyChainState'WATCHING)
+                (throw (IllegalStateException. "Empty key chain group: cannot answer isWatching() query"))
             )
         )
-    )
-
-    ;;;
-     ; Returns a list of the non-deterministic keys that have been imported into the wallet, or the empty list if none.
-     ;;
-    #_method
-    (defn #_"List<ECKey>" KeyChainGroup''get-imported-keys [#_"KeyChainGroup" this]
-        (BasicKeyChain''get-keys-1 (:basic this))
     )
 
     #_method
     (defn #_"long" KeyChainGroup''get-earliest-key-creation-time [#_"KeyChainGroup" this]
-        ;; Long.MAX_VALUE if empty.
-        (reduce min (KeyChain'''get-earliest-key-creation-time (:basic this)) (map KeyChain'''get-earliest-key-creation-time (:chains this)))
+        (reduce min Long/MAX_VALUE (map DeterministicKeyChain''get-earliest-key-creation-time (:chains this)))
     )
 
     #_method
     (defn #_"int" KeyChainGroup''get-bloom-filter-element-count [#_"KeyChainGroup" this]
-        (reduce + (KeyChain'''num-bloom-filter-entries (:basic this)) (map KeyChain'''num-bloom-filter-entries (:chains this)))
+        (reduce + (map DeterministicKeyChain'''num-bloom-filter-entries (:chains this)))
     )
 
     #_method
-    (defn #_"BloomFilter" KeyChainGroup''get-bloom-filter-4 [#_"KeyChainGroup" this, #_"int" size, #_"double" rate, #_"long" tweak]
+    (defn #_"BloomFilter" KeyChainGroup''get-bloom-filter [#_"KeyChainGroup" this, #_"int" size, #_"double" rate, #_"long" tweak]
         (let [#_"BloomFilter" filter (BloomFilter'new (:ledger this), size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)]
-            (when (pos? (KeyChain'''num-keys (:basic this)))
-                (§ ass filter (BloomFilter''merge filter, (KeyChain'''get-filter (:basic this), size, rate, tweak)))
-            )
-            (doseq [#_"DeterministicKeyChain" chain (:chains this)]
-                (§ ass filter (BloomFilter''merge filter, (KeyChain'''get-filter chain, size, rate, tweak)))
-            )
-            filter
+            (reduce BloomFilter''merge filter (map #(DeterministicKeyChain'''get-filter %, size, rate, tweak) (:chains this)))
         )
     )
 
     #_method
-    (defn- #_"Script" KeyChainGroup''make-p2sh-output-script [#_"KeyChainGroup" this, #_"DeterministicKey" __followedKey, #_"DeterministicKeyChain" chain]
-        (Script'create-p2sh-output-script-1 (:redeem-script (DeterministicKeyChain'''get-redeem-data chain, __followedKey)))
+    (defn- #_"Script" KeyChainGroup''make-p2sh-output-script [#_"KeyChainGroup" this, #_"DeterministicKey" followed, #_"DeterministicKeyChain" chain]
+        (Script'create-p2sh-output-script-1 (:redeem-script (DeterministicKeyChain'''get-redeem-data chain, followed)))
     )
 
     ;;;
@@ -25464,9 +25266,8 @@
      ;;
     #_method
     (defn #_"void" KeyChainGroup''add-event-listener [#_"KeyChainGroup" this, #_"KeyChainEventListener" listener, #_"Executor" executor]
-        (KeyChain'''add-event-listener (:basic this), listener, executor)
         (doseq [#_"DeterministicKeyChain" chain (:chains this)]
-            (KeyChain'''add-event-listener chain, listener, executor)
+            (DeterministicKeyChain''add-event-listener chain, listener, executor)
         )
         nil
     )
@@ -25477,60 +25278,9 @@
     #_method
     (defn #_"void" KeyChainGroup''remove-event-listener [#_"KeyChainGroup" this, #_"KeyChainEventListener" listener]
         (doseq [#_"DeterministicKeyChain" chain (:chains this)]
-            (KeyChain'''remove-event-listener chain, listener)
+            (DeterministicKeyChain''remove-event-listener chain, listener)
         )
-        (KeyChain'''remove-event-listener (:basic this), listener)
         nil
-    )
-
-    ;;;
-     ; If the key chain contains only random keys and no deterministic key chains, this method will create a chain
-     ; based on the oldest non-rotating private key (i.e. the seed is derived from the old wallet).
-     ;
-     ; @param keyRotationTimeSecs If non-zero, UNIX time for which keys created before this are assumed to be
-     ;                            compromised or weak, those keys will not be used for deterministic upgrade.
-     ; @throws IllegalStateException if there is already a deterministic key chain present or if there are
-     ;                               no random keys (i.e. this is not an upgrade scenario).
-     ; @throws IllegalArgumentException if the rotation time specified excludes all keys.
-     ; @return the DeterministicKeyChain that was created by the upgrade.
-     ;;
-    #_throws #_[ "AllRandomKeysRotating" ]
-    #_method
-    (defn #_"DeterministicKeyChain" KeyChainGroup''upgrade-to-deterministic [#_"KeyChainGroup" this, #_"long" secs]
-        (assert-state (< 0 (KeyChain'''num-keys (:basic this))))
-        (assert-argument (<= 0 secs))
-
-        ;; Subtract one because the key rotation time might have been set to the creation time of the first known
-        ;; good key, in which case, that's the one we want to find.
-        (let-when [#_"ECKey" key (BasicKeyChain''find-oldest-key-after (:basic this), (dec secs))] (some? key) => (throw+ (AllRandomKeysRotating'new))
-            (if (empty? (:chains this))
-                (log/info (str "Auto-upgrading pre-HD wallet to HD!\n"
-                               "Wallet with existing HD chain is being re-upgraded due to change in key rotation time."))
-            )
-
-            (log/info (str "Instantiating new HD chain using oldest non-rotating private key (address: " (ECKey''to-address key, (:ledger this)) ")"))
-            (let [#_"byte[]" entropy (ensure some? (ECKey'''get-secret-bytes key))
-                  ;; Private keys should be at least 128 bits long.
-                  _ (assert-state (<= (quot DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS 8) (alength entropy)))
-                  ;; We reduce the entropy here to 128 bits because people like to write their seeds down on paper,
-                  ;; and 128 bits should be sufficient forever unless the laws of the universe change or ECC is broken;
-                  ;; in either case we all have bigger problems.
-                  entropy (Arrays/copyOfRange entropy, 0, (quot DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS 8)) ;; Final argument is exclusive range.
-                  _ (assert-state (= (alength entropy) (quot DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS 8)))
-                  #_"String" passphrase "" ;; FIXME: allow non-empty passphrase
-                  #_"DeterministicKeyChain" chain (DeterministicKeyChain'from-entropy entropy, passphrase, (ECKey'''get-creation-time-seconds key))]
-                (.add (:chains this), chain)
-                chain
-            )
-        )
-    )
-
-    ;;;
-     ; Returns true if the group contains random keys but no HD chains.
-     ;;
-    #_method
-    (defn #_"boolean" KeyChainGroup''is-deterministic-upgrade-required [#_"KeyChainGroup" this]
-        (and (pos? (KeyChain'''num-keys (:basic this))) (empty? (:chains this)))
     )
 
     (defn- #_"EnumMap<KeyPurpose, DeterministicKey>" KeyChainGroup'create-current-keys-map [#_"List<DeterministicKeyChain>" chains]
@@ -25594,13 +25344,6 @@
     #_method
     (defn #_"String" KeyChainGroup''to-string [#_"KeyChainGroup" this]
         (let [#_"StringBuilder" sb (StringBuilder. (<< 1 8))]
-            (when (some? (:basic this))
-                (let [#_"List<ECKey>" keys (BasicKeyChain''get-keys-1 (:basic this))]
-                    (doseq [#_"ECKey" key (sort-by :creation-time-seconds keys)]
-                        (ECKey'''format-key-with-address key, (:ledger this), sb)
-                    )
-                )
-            )
             (doseq [#_"DeterministicKeyChain" chain (:chains this)]
                 (.. sb (append (DeterministicKeyChain''to-string chain, (:ledger this))) (append "\n"))
             )
@@ -25728,15 +25471,17 @@
         true
     )
 
-    ;;; Create a new married key and return the matching output script. ;;
+    ;;;
+     ; Create a new married key and return the matching output script.
+     ;;
     #_override
     (defn #_"Script" DeterministicKeyChain'''fresh-output-script [#_"MarriedKeyChain" this, #_"KeyPurpose" purpose]
-        (let [#_"DeterministicKey" __followedKey (KeyChain'''get-key this, purpose)
-              #_"ImmutableList.Builder<ECKey>" keys (.add (ImmutableList/builder #_"List<ECKey>"), __followedKey)]
+        (let [#_"DeterministicKey" followed (DeterministicKeyChain''get-key this, purpose)
+              #_"ImmutableList.Builder<ECKey>" keys (.add (ImmutableList/builder #_"List<ECKey>"), followed)]
             (doseq [#_"DeterministicKeyChain" chain (:following-key-chains this)]
-                (let [#_"DeterministicKey" __followingKey (KeyChain'''get-key chain, purpose)]
-                    (assert-state (= (DeterministicKey''get-child-number __followedKey) (DeterministicKey''get-child-number __followingKey)), "Following keychains should be in sync")
-                    (.add keys, __followingKey)
+                (let [#_"DeterministicKey" following (DeterministicKeyChain''get-key chain, purpose)]
+                    (assert-state (= (DeterministicKey''get-child-number followed) (DeterministicKey''get-child-number following)), "Following keychains should be in sync")
+                    (.add keys, following)
                 )
             )
             (let [#_"List<ECKey>" __marriedKeys (.build keys)
@@ -25747,21 +25492,21 @@
     )
 
     #_method
-    (defn- #_"List<ECKey>" MarriedKeyChain''get-married-keys-with-followed [#_"MarriedKeyChain" this, #_"DeterministicKey" __followedKey]
+    (defn- #_"List<ECKey>" MarriedKeyChain''get-married-keys-with-followed [#_"MarriedKeyChain" this, #_"DeterministicKey" followed]
         (let [#_"ImmutableList.Builder<ECKey>" keys (ImmutableList/builder)]
             (doseq [#_"DeterministicKeyChain" chain (:following-key-chains this)]
                 (§ ass chain (DeterministicKeyChain''maybe-look-ahead-1 chain))
-                (.add keys, (DeterministicKeyChain''get-key-by-path-2 chain, (:child-number-path __followedKey)))
+                (.add keys, (DeterministicKeyChain''get-key-by-path-2 chain, (:child-number-path followed)))
             )
-            (.add keys, __followedKey)
+            (.add keys, followed)
             (.build keys)
         )
     )
 
     ;;; Get the redeem data for a key in this married chain. ;;
     #_override
-    (defn #_"RedeemData" DeterministicKeyChain'''get-redeem-data [#_"MarriedKeyChain" this, #_"DeterministicKey" __followedKey]
-        (let [#_"List<ECKey>" __marriedKeys (MarriedKeyChain''get-married-keys-with-followed this, __followedKey)
+    (defn #_"RedeemData" DeterministicKeyChain'''get-redeem-data [#_"MarriedKeyChain" this, #_"DeterministicKey" followed]
+        (let [#_"List<ECKey>" __marriedKeys (MarriedKeyChain''get-married-keys-with-followed this, followed)
               #_"Script" redeem (Script'create-redeem-script (:sigs-required-to-spend this), __marriedKeys)]
             (RedeemData'new redeem, __marriedKeys)
         )
@@ -25849,7 +25594,7 @@
     )
 
     #_override
-    (defn #_"BloomFilter" KeyChain'''get-filter [#_"MarriedKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
+    (defn #_"BloomFilter" DeterministicKeyChain'''get-filter [#_"MarriedKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
         (sync (:d-keychain-lock this)
             (let [#_"BloomFilter" filter (BloomFilter'new nil, size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)]
                 (doseq [#_"Map.Entry<ByteString, RedeemData>" entry (.entrySet (:married-keys-redeem-data this))]
@@ -25862,7 +25607,7 @@
     )
 
     #_override
-    (defn #_"int" KeyChain'''num-bloom-filter-entries [#_"MarriedKeyChain" this]
+    (defn #_"int" DeterministicKeyChain'''num-bloom-filter-entries [#_"MarriedKeyChain" this]
         (§ ass this (DeterministicKeyChain''maybe-look-ahead-1 this))
         (* (count (DeterministicKeyChain''get-leaf-keys this)) 2)
     )
@@ -26506,20 +26251,6 @@
         )
     )
 
-    ;;;
-     ; Creates a wallet containing a given set of keys.  All further keys will be derived from the oldest key.
-     ;;
-    (defn #_"Wallet" Wallet'from-keys [#_"Ledger" ledger, #_"List<ECKey>" keys]
-        (doseq [#_"ECKey" key keys]
-            (assert-argument (not (§ instance? DeterministicKey key)))
-        )
-
-        (let [#_"KeyChainGroup" group (KeyChainGroup'new ledger)]
-            (KeyChainGroup''import-keys group, keys)
-            (Wallet'new ledger, group)
-        )
-    )
-
     #_method
     (defn- #_"Wallet" Wallet''create-transient-state [#_"Wallet" this]
         (let [this (assoc this :ignore-next-new-block (HashSet.))
@@ -26584,42 +26315,32 @@
     ;;;
      ; Returns a key that hasn't been seen in a transaction yet, and which is suitable for displaying
      ; in a wallet user interface as "a convenient key to receive funds on" when the purpose parameter
-     ; is {@link KeyChain.KeyPurpose#RECEIVE_FUNDS}.  The returned key is stable
+     ; is {@link KeyPurpose#RECEIVE_FUNDS}.  The returned key is stable
      ; until it's actually seen in a pending or confirmed transaction, at which point this method will
      ; start returning a different key (for each purpose independently).
      ;;
     #_method
     (defn #_"DeterministicKey" Wallet''current-key [#_"Wallet" this, #_"KeyPurpose" purpose]
         (sync (:keychaingroup-lock this)
-            (Wallet''maybe-upgrade-to-hd this)
             (KeyChainGroup''current-key (:key-chain-group this), purpose)
         )
     )
 
-    ;;;
-     ; An alias for calling {@link #currentKey(KeyChain.KeyPurpose)} with
-     ; {@link KeyChain.KeyPurpose#RECEIVE_FUNDS} as the parameter.
-     ;;
     #_method
     (defn #_"DeterministicKey" Wallet''current-receive-key [#_"Wallet" this]
         (Wallet''current-key this, :KeyPurpose'RECEIVE_FUNDS)
     )
 
     ;;;
-     ; Returns address for a {@link #currentKey(KeyChain.KeyPurpose)}.
+     ; Returns address for a {@link #currentKey(KeyPurpose)}.
      ;;
     #_method
     (defn #_"Address" Wallet''current-address [#_"Wallet" this, #_"KeyPurpose" purpose]
         (sync (:keychaingroup-lock this)
-            (Wallet''maybe-upgrade-to-hd this)
             (KeyChainGroup''current-address (:key-chain-group this), purpose)
         )
     )
 
-    ;;;
-     ; An alias for calling {@link #currentAddress(KeyChain.KeyPurpose)} with
-     ; {@link KeyChain.KeyPurpose#RECEIVE_FUNDS} as the parameter.
-     ;;
     #_method
     (defn #_"Address" Wallet''current-receive-address [#_"Wallet" this]
         (Wallet''current-address this, :KeyPurpose'RECEIVE_FUNDS)
@@ -26628,7 +26349,7 @@
     ;;;
      ; Returns a key that has not been returned by this method before (fresh).  You can think of this
      ; as being a newly created key, although the notion of "create" is not really valid for a
-     ; {@link DeterministicKeyChain}.  When the parameter is {@link KeyChain.KeyPurpose#RECEIVE_FUNDS}
+     ; {@link DeterministicKeyChain}.  When the parameter is {@link KeyPurpose#RECEIVE_FUNDS}
      ; the returned key is suitable for being put into a receive coins wizard type UI.  You should use
      ; this when the user is definitely going to hand this key out to someone who wishes to send money.
      ;;
@@ -26640,7 +26361,7 @@
     ;;;
      ; Returns a key/s that has not been returned by this method before (fresh).  You can think of this
      ; as being a newly created key/s, although the notion of "create" is not really valid for a
-     ; {@link DeterministicKeyChain}.  When the parameter is {@link KeyChain.KeyPurpose#RECEIVE_FUNDS}
+     ; {@link DeterministicKeyChain}.  When the parameter is {@link KeyPurpose#RECEIVE_FUNDS}
      ; the returned key is suitable for being put into a receive coins wizard type UI. You should use
      ; this when the user is definitely going to hand this key/s out to someone who wishes to send money.
      ;;
@@ -26648,7 +26369,6 @@
     (defn #_"List<DeterministicKey>" Wallet''fresh-keys [#_"Wallet" this, #_"KeyPurpose" purpose, #_"int" n]
         (let [#_"List<DeterministicKey>" keys
                 (sync (:keychaingroup-lock this)
-                    (Wallet''maybe-upgrade-to-hd this)
                     (KeyChainGroup''fresh-keys (:key-chain-group this), purpose, n)
                 )]
             ;; Do we really need an immediate hard save?  Arguably all this is doing is saving the 'current' key
@@ -26658,17 +26378,13 @@
         )
     )
 
-    ;;;
-     ; An alias for calling {@link #freshKey(KeyChain.KeyPurpose)} with
-     ; {@link KeyChain.KeyPurpose#RECEIVE_FUNDS} as the parameter.
-     ;;
     #_method
     (defn #_"DeterministicKey" Wallet''fresh-receive-key [#_"Wallet" this]
         (Wallet''fresh-key this, :KeyPurpose'RECEIVE_FUNDS)
     )
 
     ;;;
-     ; Returns address for a {@link #freshKey(KeyChain.KeyPurpose)}.
+     ; Returns address for a {@link #freshKey(KeyPurpose)}.
      ;;
     #_method
     (defn #_"Address" Wallet''fresh-address [#_"Wallet" this, #_"KeyPurpose" purpose]
@@ -26681,10 +26397,6 @@
         )
     )
 
-    ;;;
-     ; An alias for calling {@link #freshAddress(KeyChain.KeyPurpose)} with
-     ; {@link KeyChain.KeyPurpose#RECEIVE_FUNDS} as the parameter.
-     ;;
     #_method
     (defn #_"Address" Wallet''fresh-receive-address [#_"Wallet" this]
         (Wallet''fresh-address this, :KeyPurpose'RECEIVE_FUNDS)
@@ -26717,56 +26429,6 @@
     )
 
     ;;;
-     ; Upgrades the wallet to be deterministic (BIP32).  You should call this, possibly providing the users encryption
-     ; key, after loading a wallet produced by previous versions of bitcoinj.  If the wallet is encrypted the key
-     ; <b>must</b> be provided, due to the way the seed is derived deterministically from private key bytes: failing
-     ; to do this will result in an exception being thrown.  For non-encrypted wallets, the upgrade will be done for
-     ; you automatically the first time a new key is requested (this happens when spending due to the change address).
-     ;;
-    #_method
-    (defn #_"void" Wallet''upgrade-to-deterministic [#_"Wallet" this]
-        (sync (:keychaingroup-lock this)
-            (KeyChainGroup''upgrade-to-deterministic (:key-chain-group this), (:v-key-rotation-timestamp this))
-        )
-        nil
-    )
-
-    ;;;
-     ; Returns true if the wallet contains random keys and no HD chains, in which case you should call
-     ; {@link #upgradeToDeterministic()} before attempting to do anything that would require a new address or key.
-     ;;
-    #_method
-    (defn #_"boolean" Wallet''is-deterministic-upgrade-required [#_"Wallet" this]
-        (sync (:keychaingroup-lock this)
-            (KeyChainGroup''is-deterministic-upgrade-required (:key-chain-group this))
-        )
-    )
-
-    #_method
-    (defn- #_"void" Wallet''maybe-upgrade-to-hd [#_"Wallet" this]
-        (assert-state (.isHeldByCurrentThread (:keychaingroup-lock this)))
-
-        (when (KeyChainGroup''is-deterministic-upgrade-required (:key-chain-group this))
-            (log/info "Upgrade to HD wallets is required, attempting to do so.")
-            (Wallet''upgrade-to-deterministic this)
-        )
-        nil
-    )
-
-    ;;;
-     ; Removes the given key from the basicKeyChain.  Be very careful with this - losing a private key
-     ; <b>destroys the money associated with it</b>.
-     ;
-     ; @return whether the key was removed or not.
-     ;;
-    #_method
-    (defn #_"boolean" Wallet''remove-key [#_"Wallet" this, #_"ECKey" key]
-        (sync (:keychaingroup-lock this)
-            (KeyChainGroup''remove-imported-key (:key-chain-group this), key)
-        )
-    )
-
-    ;;;
      ; Returns the number of keys in the key chain group, including lookahead keys.
      ;;
     #_method
@@ -26785,59 +26447,11 @@
     )
 
     ;;;
-     ; Returns a list of the non-deterministic keys that have been imported into the wallet, or the empty list if none.
+     ; Returns the address used for change outputs.  Note: this will probably go away in future.
      ;;
-    #_method
-    (defn #_"List<ECKey>" Wallet''get-imported-keys [#_"Wallet" this]
-        (sync (:keychaingroup-lock this)
-            (KeyChainGroup''get-imported-keys (:key-chain-group this))
-        )
-    )
-
-    ;;; Returns the address used for change outputs.  Note: this will probably go away in future. ;;
     #_method
     (defn #_"Address" Wallet''current-change-address [#_"Wallet" this]
         (Wallet''current-address this, :KeyPurpose'CHANGE)
-    )
-
-    ;;;
-     ; Imports the given ECKey to the wallet.
-     ;
-     ; Runs the onKeysAdded event handler.  If the key already exists in the wallet, does nothing and returns false.
-     ;;
-    #_method
-    (defn #_"boolean" Wallet''import-key [#_"Wallet" this, #_"ECKey" key]
-        (= (Wallet''import-keys this, (ArrayList. (Collections/singleton key))) 1)
-    )
-
-    ;;;
-     ; Imports the given keys to the wallet.
-     ;
-     ; Returns the number of keys added, after duplicates are ignored.  The onKeyAdded event will be called
-     ; for each key in the list that was not already present.
-     ;;
-    #_method
-    (defn #_"int" Wallet''import-keys [#_"Wallet" this, #_"List<ECKey>" keys]
-        ;; API usage check.
-        (Wallet''check-no-deterministic-keys this, keys)
-        (let [#_"int" result
-                (sync (:keychaingroup-lock this)
-                    (KeyChainGroup''import-keys (:key-chain-group this), keys)
-                )]
-            (Wallet''save-now this)
-            result
-        )
-    )
-
-    #_method
-    (defn- #_"void" Wallet''check-no-deterministic-keys [#_"Wallet" this, #_"List<ECKey>" keys]
-        ;; Watch out for someone doing wallet.importKey(wallet.freshReceiveKey()); or equivalent: we never tested this.
-        (doseq [#_"ECKey" key keys]
-            (when (§ instance? DeterministicKey key)
-                (throw (IllegalArgumentException. "Cannot import HD keys back into the wallet"))
-            )
-        )
-        nil
     )
 
     ;;;
@@ -26876,7 +26490,6 @@
     #_method
     (defn #_"Wallet" Wallet''set-key-chain-group-lookahead-threshold [#_"Wallet" this, #_"int" num]
         (sync (:keychaingroup-lock this)
-            (Wallet''maybe-upgrade-to-hd this)
             (update this :key-chain-group KeyChainGroup''set-lookahead-threshold num)
         )
     )
@@ -26884,7 +26497,6 @@
     #_method
     (defn #_"int" Wallet''get-key-chain-group-lookahead-threshold [#_"Wallet" this]
         (sync (:keychaingroup-lock this)
-            (Wallet''maybe-upgrade-to-hd this)
             (KeyChainGroup''get-lookahead-threshold (:key-chain-group this))
         )
     )
@@ -26898,7 +26510,6 @@
     #_method
     (defn #_"DeterministicKey" Wallet''get-watching-key [#_"Wallet" this]
         (sync (:keychaingroup-lock this)
-            (Wallet''maybe-upgrade-to-hd this)
             (DeterministicKeyChain''get-watching-key (KeyChainGroup''get-active-key-chain (:key-chain-group this)))
         )
     )
@@ -26912,7 +26523,6 @@
     #_method
     (defn #_"boolean" Wallet''is-watching [#_"Wallet" this]
         (sync (:keychaingroup-lock this)
-            (Wallet''maybe-upgrade-to-hd this)
             (KeyChainGroup''is-watching (:key-chain-group this))
         )
     )
@@ -27044,7 +26654,6 @@
     #_method
     (defn #_"DeterministicKey" Wallet''get-key-by-path-2 [#_"Wallet" this, #_"List<ChildNumber>" path]
         (sync (:keychaingroup-lock this)
-            (Wallet''maybe-upgrade-to-hd this)
             (DeterministicKeyChain''get-key-by-path-3 (KeyChainGroup''get-active-key-chain (:key-chain-group this)), path, false)
         )
     )
@@ -29524,7 +29133,7 @@
     (defn #_"BloomFilter" PeerFilterProvider'''get-bloom-filter-4 [#_"Wallet" this, #_"int" size, #_"double" rate, #_"long" tweak]
         (PeerFilterProvider'''begin-bloom-filter-calculation this)
         (try
-            (let [#_"BloomFilter" filter (KeyChainGroup''get-bloom-filter-4 (:key-chain-group this), size, rate, tweak)]
+            (let [#_"BloomFilter" filter (KeyChainGroup''get-bloom-filter (:key-chain-group this), size, rate, tweak)]
                 (doseq [#_"TransactionOutPoint" point (:bloom-out-points this)]
                     (BloomFilter''insert-data filter, (Message''to-bytes point, TransactionOutPoint''to-wire))
                 )
@@ -29888,28 +29497,12 @@
                 (let [#_"boolean" __allChainsRotating
                         (loop-when [#_"List<DeterministicKeyChain>" chains (ArrayList. (:chains (:key-chain-group this)))] (seq chains) => true
                             (let [#_"DeterministicKeyChain" chain (first chains)]
-                                (recur-if (< (KeyChain'''get-earliest-key-creation-time chain) stamp) [(next chains)] => false)
+                                (recur-if (< (DeterministicKeyChain''get-earliest-key-creation-time chain) stamp) [(next chains)] => false)
                             )
                         )]
                     (when __allChainsRotating
-                        (try+
-                            (cond (empty? (KeyChainGroup''get-imported-keys (:key-chain-group this)))
-                                (do
-                                    (log/info "All HD chains are currently rotating and we have no random keys, creating fresh HD chain ...")
-                                    (§ ass this (update this :key-chain-group KeyChainGroup''create-and-activate-new-hd-chain))
-                                )
-                                :else
-                                (do
-                                    (log/info "All HD chains are currently rotating, attempting to create a new one from the next oldest non-rotating key material ...")
-                                    (KeyChainGroup''upgrade-to-deterministic (:key-chain-group this), stamp)
-                                    (log/info " ... upgraded to HD again, based on next best oldest key.")
-                                )
-                            )
-                            (§ catch AllRandomKeysRotating _
-                                (log/info " ... no non-rotating random keys available, generating entirely new HD tree: backup required after this.")
-                                (§ ass this (update this :key-chain-group KeyChainGroup''create-and-activate-new-hd-chain))
-                            )
-                        )
+                        (log/info "All HD chains are currently rotating, creating fresh HD chain ...")
+                        (§ ass this (update this :key-chain-group KeyChainGroup''create-and-activate-new-hd-chain))
                         (Wallet''save-now this)
                     )
                     ;; Because transactions are size limited, we might not be able to re-key the entire wallet in one go.  So loop
@@ -29945,7 +29538,6 @@
                 ;; TODO: Make this use the standard SendRequest.
                 (let [#_"CoinSelection" __toMove (CoinSelector'''select selector, Coin'ZERO, (Wallet''calculate-all-spend-candidates-1 this))]
                     (when-not (Coin''zero? (:value-gathered __toMove)) => nil ;; Nothing to do.
-                        (Wallet''maybe-upgrade-to-hd this)
                         (let [#_"Transaction" tx (Transaction'new (:ledger this))]
                             (doseq [#_"TransactionOutput" output (:gathered __toMove)]
                                 (Transaction''add-input-o tx, output)
