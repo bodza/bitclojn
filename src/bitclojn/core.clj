@@ -155,7 +155,7 @@
 (declare DaemonThreadFactory'new)
 (declare DefaultCoinSelector''should-select DefaultCoinSelector'is-selectable DefaultCoinSelector'new DefaultCoinSelector'sort-outputs)
 (declare DeterministicHierarchy''derive-child-3 DeterministicHierarchy''derive-child-5 DeterministicHierarchy''derive-next-child DeterministicHierarchy''get-4 DeterministicHierarchy''get-next-child-number-to-derive DeterministicHierarchy''get-num-children DeterministicHierarchy''get-root-key DeterministicHierarchy''put-key DeterministicHierarchy'BIP32_STANDARDISATION_TIME_SECS DeterministicHierarchy'new)
-(declare DeterministicKey''derive DeterministicKey''derive-private-key-downwards DeterministicKey''drop-parent DeterministicKey''drop-private-bytes DeterministicKey''find-or-derive-private-key DeterministicKey''find-parent-with-priv-key DeterministicKey''get-child-number DeterministicKey''get-fingerprint DeterministicKey''get-identifier DeterministicKey''get-path-as-string DeterministicKey''get-priv-key-bytes33 DeterministicKey''serialize DeterministicKey''serialize-priv-b58 DeterministicKey''serialize-private DeterministicKey''serialize-pub-b58 DeterministicKey''serialize-public DeterministicKey'compare-by-child-number DeterministicKey'add-checksum DeterministicKey'ascertain-parent-fingerprint DeterministicKey'deserialize DeterministicKey'deserialize-b58-2 DeterministicKey'deserialize-b58-3 DeterministicKey'init DeterministicKey'new-4 DeterministicKey'new-5 DeterministicKey'new-6p DeterministicKey'new-6i DeterministicKey'to-base58 DeterministicKey''set-creation-time-seconds)
+(declare DeterministicKey''derive DeterministicKey''derive-private-key-downwards DeterministicKey''drop-parent DeterministicKey''drop-private-bytes DeterministicKey''find-or-derive-private-key DeterministicKey''find-parent-with-priv-key DeterministicKey''get-child-number DeterministicKey''get-fingerprint DeterministicKey''get-identifier DeterministicKey''get-path-as-string DeterministicKey''get-priv-key-bytes33 DeterministicKey''serialize DeterministicKey''serialize-priv-base58 DeterministicKey''serialize-private DeterministicKey''serialize-pub-base58 DeterministicKey''serialize-public DeterministicKey'compare-by-child-number DeterministicKey'add-checksum DeterministicKey'ascertain-parent-fingerprint DeterministicKey'deserialize DeterministicKey'deserialize-base58-2 DeterministicKey'deserialize-base58-3 DeterministicKey'init DeterministicKey'new-4 DeterministicKey'new-5 DeterministicKey'new-6p DeterministicKey'new-6i DeterministicKey'to-base58 DeterministicKey''set-creation-time-seconds)
 (declare DeterministicKeyChain'''find-redeem-data-by-script-hash DeterministicKeyChain'''format-addresses DeterministicKeyChain'''fresh-output-script DeterministicKeyChain'''get-redeem-data DeterministicKeyChain'''is-married DeterministicKeyChain'''maybe-look-ahead-scripts DeterministicKeyChain'''set-lookahead-size DeterministicKeyChain''calc-default-lookahead-threshold DeterministicKeyChain''check-for-bit-flip DeterministicKeyChain''find-key-from-pub-hash DeterministicKeyChain''find-key-from-pub-key DeterministicKeyChain''get-issued-external-keys DeterministicKeyChain''get-issued-internal-keys DeterministicKeyChain''get-issued-receive-keys DeterministicKeyChain''get-key-by-path-2 DeterministicKeyChain''get-key-by-path-3 DeterministicKeyChain''get-key-lookahead-epoch DeterministicKeyChain''get-keys-3b DeterministicKeyChain''get-leaf-keys DeterministicKeyChain''get-lookahead-size DeterministicKeyChain''get-lookahead-threshold DeterministicKeyChain''get-mnemonic-code DeterministicKeyChain''get-seed DeterministicKeyChain''get-watching-key DeterministicKeyChain''initialize-hierarchy DeterministicKeyChain''is-watching DeterministicKeyChain''mark-key-as-used DeterministicKeyChain''mark-pub-hash-as-used DeterministicKeyChain''mark-pub-key-as-used DeterministicKeyChain''maybe-look-ahead-1 DeterministicKeyChain''maybe-look-ahead-3 DeterministicKeyChain''maybe-look-ahead-5 DeterministicKeyChain''num-leaf-keys-issued DeterministicKeyChain''set-lookahead-threshold DeterministicKeyChain''to-string DeterministicKeyChain'ACCOUNT_ZERO_PATH DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC DeterministicKeyChain'EXTERNAL_PATH DeterministicKeyChain'EXTERNAL_SUBPATH DeterministicKeyChain'INTERNAL_PATH DeterministicKeyChain'INTERNAL_SUBPATH DeterministicKeyChain'init DeterministicKeyChain'from-seed DeterministicKeyChain'from-entropy DeterministicKeyChain'from-random DeterministicKeyChain'watch DeterministicKeyChain'watch-and-follow)
 (declare DeterministicSeed''to-base16 DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS DeterministicSeed'MAX_SEED_ENTROPY_BITS DeterministicSeed'next-entropy DeterministicSeed'from-entropy DeterministicSeed'from-random DeterministicSeed'new)
 (declare DnsDiscovery'new)
@@ -192,9 +192,9 @@
 (declare InventoryItemType'enum-map InventoryItemType'for-code)
 (declare InventoryMessage''add-block InventoryMessage''add-transaction-2 InventoryMessage'MAX_INV_SIZE InventoryMessage'new InventoryMessage'from-wire InventoryMessage''to-wire InventoryMessage'with)
 (declare KeyBag'''find-key-from-pub-hash KeyBag'''find-key-from-pub-key KeyBag'''find-redeem-data-from-script-hash)
-(declare BasicKeyChain''add-event-listener DeterministicKeyChain''add-event-listener DeterministicKeyChain''get-earliest-key-creation-time BasicKeyChain''get-filter DeterministicKeyChain'''get-filter DeterministicKeyChain''get-key DeterministicKeyChain''get-keys BasicKeyChain''has-key DeterministicKeyChain''has-key DeterministicKeyChain'''num-bloom-filter-entries BasicKeyChain''num-keys DeterministicKeyChain''num-keys BasicKeyChain''remove-event-listener DeterministicKeyChain''remove-event-listener)
+(declare BasicKeyChain''add-event-listener DeterministicKeyChain''add-event-listener DeterministicKeyChain''get-earliest-key-creation-time BasicKeyChain''create-bloom-filter DeterministicKeyChain'''create-bloom-filter DeterministicKeyChain''get-key DeterministicKeyChain''get-keys BasicKeyChain''has-key DeterministicKeyChain''has-key DeterministicKeyChain'''count-bloom-filter-elements BasicKeyChain''num-keys DeterministicKeyChain''num-keys BasicKeyChain''remove-event-listener DeterministicKeyChain''remove-event-listener)
 (declare KeyChainEventListener'''on-keys-added)
-(declare KeyChainGroup''add-and-activate-hd-chain KeyChainGroup''add-event-listener KeyChainGroup''create-and-activate-new-hd-chain KeyChainGroup''current-address KeyChainGroup''current-key KeyChainGroup''fresh-address KeyChainGroup''fresh-key KeyChainGroup''fresh-keys KeyChainGroup''get-active-key-chain KeyChainGroup''get-bloom-filter KeyChainGroup''get-bloom-filter-element-count KeyChainGroup''get-combined-key-lookahead-epochs KeyChainGroup''get-earliest-key-creation-time KeyChainGroup''get-lookahead-size KeyChainGroup''get-lookahead-threshold KeyChainGroup''has-key KeyChainGroup''is-married KeyChainGroup''is-watching KeyChainGroup''make-p2sh-output-script KeyChainGroup''mark-p2sh-address-as-used KeyChainGroup''mark-pub-key-as-used KeyChainGroup''mark-pub-key-hash-as-used KeyChainGroup''maybe-lookahead-scripts KeyChainGroup''maybe-mark-current-address-as-used KeyChainGroup''maybe-mark-current-key-as-used KeyChainGroup''num-keys KeyChainGroup''remove-event-listener KeyChainGroup''set-lookahead-size KeyChainGroup''set-lookahead-threshold KeyChainGroup''to-string KeyChainGroup'create-current-keys-map KeyChainGroup'extract-following-keychains KeyChainGroup'watch KeyChainGroup'from-seed KeyChainGroup'new)
+(declare KeyChainGroup''add-and-activate-hd-chain KeyChainGroup''add-event-listener KeyChainGroup''create-and-activate-new-hd-chain KeyChainGroup''current-address KeyChainGroup''current-key KeyChainGroup''fresh-address KeyChainGroup''fresh-key KeyChainGroup''fresh-keys KeyChainGroup''get-active-key-chain KeyChainGroup''create-bloom-filter KeyChainGroup''count-bloom-filter-elements KeyChainGroup''get-combined-key-lookahead-epochs KeyChainGroup''get-earliest-key-creation-time KeyChainGroup''get-lookahead-size KeyChainGroup''get-lookahead-threshold KeyChainGroup''has-key KeyChainGroup''is-married KeyChainGroup''is-watching KeyChainGroup''make-p2sh-output-script KeyChainGroup''mark-p2sh-address-as-used KeyChainGroup''mark-pub-key-as-used KeyChainGroup''mark-pub-key-hash-as-used KeyChainGroup''maybe-lookahead-scripts KeyChainGroup''maybe-mark-current-address-as-used KeyChainGroup''maybe-mark-current-key-as-used KeyChainGroup''num-keys KeyChainGroup''remove-event-listener KeyChainGroup''set-lookahead-size KeyChainGroup''set-lookahead-threshold KeyChainGroup''to-string KeyChainGroup'create-current-keys-map KeyChainGroup'extract-following-keychains KeyChainGroup'watch KeyChainGroup'from-seed KeyChainGroup'new)
 (declare KeyChainState'enum-set)
 (declare KeyPurpose'enum-set)
 (declare KeyTimeCoinSelector''is-confirmed KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS KeyTimeCoinSelector'new)
@@ -240,7 +240,7 @@
 (declare PeerDisconnectedEventListener'''on-peer-disconnected)
 (declare PeerDiscovery'''get-peers PeerDiscovery'''shutdown)
 (declare PeerDiscoveryException'new)
-(declare Wallet''begin-bloom-filter-calculation Wallet''end-bloom-filter-calculation Wallet''get-bloom-filter-4 Wallet''get-bloom-filter-element-count Wallet''get-earliest-key-creation-time)
+(declare Wallet''lock-bloom-filter-calculation Wallet''bloom-filter-outpoints-locked Wallet''unlock-bloom-filter-calculation Wallet''create-bloom-filter-locked Wallet''get-earliest-key-creation-time)
 (declare PeerGroup''add-address-i PeerGroup''add-address-p PeerGroup''add-blocks-downloaded-event-listener PeerGroup''add-chain-download-started-event-listener PeerGroup''add-connected-event-listener PeerGroup''add-disconnected-event-listener PeerGroup''add-discovered-event-listener PeerGroup''add-get-data-event-listener PeerGroup''add-inactive PeerGroup''add-on-transaction-broadcast-listener PeerGroup''add-peer-discovery PeerGroup''add-pre-message-received-event-listener PeerGroup''add-wallet PeerGroup''await-running PeerGroup''await-terminated PeerGroup''broadcast-transaction-3 PeerGroup''connect-to-socket-address PeerGroup''connect-to-peer-address PeerGroup''connect-to-loopback PeerGroup''count-connected-and-pending-peers PeerGroup''create-peer PeerGroup''create-private-executor PeerGroup''discover-peers PeerGroup''download-block-chain PeerGroup''find-peers-of-at-least-version PeerGroup''find-peers-with-service-mask PeerGroup''get-connected-peers PeerGroup''get-download-peer PeerGroup''get-fast-catchup-time-secs PeerGroup''get-max-connections PeerGroup''get-min-broadcast-connections PeerGroup''get-most-common-chain-height PeerGroup''get-pending-peers PeerGroup''get-ping-interval-msec PeerGroup''get-use-loopback-peer-when-possible PeerGroup''handle-get-data PeerGroup''handle-new-peer PeerGroup''handle-peer-death PeerGroup''maybe-check-for-loopback-peer PeerGroup''num-connected-peers PeerGroup''recalculate-fast-catchup-and-filter PeerGroup''remove-blocks-downloaded-event-listener PeerGroup''remove-chain-download-started-event-listener PeerGroup''remove-connected-event-listener PeerGroup''remove-disconnected-event-listener PeerGroup''remove-discovered-event-listener PeerGroup''remove-get-data-event-listener PeerGroup''remove-on-transaction-broadcast-listener PeerGroup''remove-pre-message-received-event-listener PeerGroup''remove-wallet PeerGroup''select-download-peer PeerGroup''set-bloom-filter-false-positive-rate PeerGroup''set-download-peer PeerGroup''set-fast-catchup-time-secs PeerGroup''set-max-connections PeerGroup''set-min-broadcast-connections PeerGroup''set-ping-interval-msec PeerGroup''set-required-services PeerGroup''set-stall-threshold PeerGroup''set-use-loopback-peer-when-possible PeerGroup''setup-pinging PeerGroup''start PeerGroup''start-async PeerGroup''start-block-chain-download PeerGroup''start-block-chain-download-from-peer PeerGroup''stop PeerGroup''stop-async PeerGroup''trigger-connections PeerGroup''update-version-message-relay-txes-before-filter PeerGroup''wait-for-job-queue PeerGroup''wait-for-peers PeerGroup''wait-for-peers-of-version PeerGroup''wait-for-peers-with-service-mask PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE PeerGroup'DEFAULT_CONNECTIONS PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS PeerGroup'DEFAULT_PING_INTERVAL_MSEC PeerGroup'MAX_FP_RATE_INCREASE PeerGroup'MIN_PEER_DISCOVERY_INTERVAL PeerGroup'add-data-event-listener-to-peer PeerGroup'get-most-common-chain-height* PeerGroup'new PeerGroup'remove-data-event-listener-from-peer)
 (declare PeerListener'new)
 (declare PeerSocketHandler'''process-message PeerSocketHandler''close PeerSocketHandler''exception-caught PeerSocketHandler''send-message PeerSocketHandler'new)
@@ -292,7 +292,7 @@
 (declare Wallet''get-transaction-pool Wallet''is-pay-to-script-hash-mine Wallet''is-pub-key-hash-mine Wallet''is-pub-key-mine)
 (declare TransactionBroadcast''broadcast TransactionBroadcast''invoke-and-record TransactionBroadcast''invoke-progress-callback TransactionBroadcast''set-progress-callback TransactionBroadcast'RANDOM TransactionBroadcast'new)
 (declare TransactionBroadcaster'''broadcast-transaction-2)
-(declare TransactionConfidence''add-event-listener TransactionConfidence''clear-broadcast-by TransactionConfidence''get-appeared-at-chain-height TransactionConfidence''get-confidence-type TransactionConfidence''get-depth-future TransactionConfidence''get-depth-in-blocks TransactionConfidence''get-overriding-transaction TransactionConfidence''get-source TransactionConfidence''increment-depth-in-blocks TransactionConfidence''mark-broadcast-by TransactionConfidence''num-broadcast-peers TransactionConfidence''queue-listeners TransactionConfidence''remove-event-listener TransactionConfidence''set-appeared-at-chain-height TransactionConfidence''set-confidence-type TransactionConfidence''set-depth-in-blocks TransactionConfidence''set-overriding-transaction TransactionConfidence''set-source TransactionConfidence''was-broadcast-by TransactionConfidence'PINNED_CONFIDENCE_OBJECTS TransactionConfidence'new)
+(declare TransactionConfidence''add-event-listener TransactionConfidence''clear-broadcast-by TransactionConfidence''get-appeared-at-chain-height TransactionConfidence''get-confidence-type TransactionConfidence''get-depth-future TransactionConfidence''get-overriding-transaction TransactionConfidence''get-source TransactionConfidence''mark-broadcast-by TransactionConfidence''num-broadcast-peers TransactionConfidence''queue-listeners TransactionConfidence''remove-event-listener TransactionConfidence''set-appeared-at-chain-height TransactionConfidence''set-confidence-type TransactionConfidence''set-overriding-transaction TransactionConfidence''set-source TransactionConfidence''was-broadcast-by TransactionConfidence'PINNED_CONFIDENCE_OBJECTS TransactionConfidence'new)
 (declare TransactionConfidenceListener'''on-confidence-changed)
 (declare TransactionInput''clear-script-bytes TransactionInput''connect-3m TransactionInput''connect-3t TransactionInput''connect-output TransactionInput''disconnect TransactionInput''get-connected-output TransactionInput''get-connected-output-2 TransactionInput''get-connected-transaction TransactionInput''get-from-address TransactionInput''get-script-sig TransactionInput''has-sequence TransactionInput''is-coin-base TransactionInput''is-opt-in-full-rbf TransactionInput''is-standard TransactionInput''set-script-bytes TransactionInput''set-script-sig TransactionInput''verify-1 TransactionInput''verify-2 TransactionInput'NO_SEQUENCE TransactionInput'UNCONNECTED TransactionInput'new TransactionInput'new-unconnected TransactionInput'for-output TransactionInput'for-outpoint TransactionInput'from-wire TransactionInput''to-wire)
 (declare TransactionOutPoint''get-connected-key TransactionOutPoint''get-connected-output TransactionOutPoint''get-connected-pub-key-script TransactionOutPoint''get-connected-redeem-data TransactionOutPoint'new TransactionOutPoint'for-output TransactionOutPoint'for-hash TransactionOutPoint'for-transaction TransactionOutPoint'from-wire TransactionOutPoint''to-wire)
@@ -316,7 +316,7 @@
 (declare VersionAck'new VersionAck''to-wire)
 (declare VersionMessage''has-block-chain VersionMessage''is-bloom-filtering-supported VersionMessage''is-ping-pong-supported VersionMessage'NODE_NETWORK VersionMessage'init VersionMessage'new VersionMessage'from-wire VersionMessage''to-wire)
 (declare VersionTally''add VersionTally''get-count-at-or-above VersionTally'from-store VersionTally'new)
-(declare Wallet'DEFAULT_EVENT_HORIZON Wallet''add-and-activate-hd-chain Wallet''add-change-event-listener Wallet''add-coins-received-event-listener Wallet''add-coins-sent-event-listener Wallet''add-key-chain-event-listener Wallet''add-reorganize-event-listener Wallet''add-supplied-inputs Wallet''add-transaction-confidence-event-listener Wallet''add-transaction-signer Wallet''add-transactions-depending-on Wallet''add-wallet-transaction Wallet''adjust-output-downwards-for-fee Wallet''calculate-all-spend-candidates-1 Wallet''calculate-all-spend-candidates-3 Wallet''calculate-fee Wallet''can-sign-for Wallet''check-balance-futures-locked Wallet''check-for-filter-exhaustion Wallet''cleanup Wallet''clear-transactions-1 Wallet''clear-transactions-2 Wallet''commit-tx Wallet''complete-tx Wallet''create-send Wallet''create-transient-state Wallet''current-address Wallet''current-change-address Wallet''current-key Wallet''current-receive-address Wallet''current-receive-key Wallet''do-maintenance Wallet''estimate-bytes-for-signing Wallet''find-double-spends-against Wallet''fresh-address Wallet''fresh-key Wallet''fresh-keys Wallet''fresh-receive-address Wallet''fresh-receive-key Wallet''get-active-key-chain Wallet''get-balance-1 Wallet''get-balance-2s Wallet''get-balance-2t Wallet''get-balance-future Wallet''get-bloom-filter-2 Wallet''get-coin-selector Wallet''get-containing-pools Wallet''get-issued-receive-addresses Wallet''get-issued-receive-keys Wallet''get-key-by-path-2 Wallet''get-key-chain-group-combined-key-lookahead-epochs Wallet''get-key-chain-group-lookahead-size Wallet''get-key-chain-group-lookahead-threshold Wallet''get-key-chain-group-size Wallet''get-key-chain-seed Wallet''get-key-rotation-time Wallet''get-last-block-seen-hash Wallet''get-last-block-seen-height Wallet''get-last-block-seen-time Wallet''get-last-block-seen-time-secs Wallet''get-pending-transactions Wallet''get-recent-transactions Wallet''get-total-received Wallet''get-total-sent Wallet''get-transaction Wallet''get-transaction-signers Wallet''get-transactions Wallet''get-transactions-by-time Wallet''get-unspents Wallet''get-watching-key Wallet''has-key Wallet''inform-confidence-listeners-if-not-reorganizing Wallet''is-accept-risky-transactions Wallet''is-consistent Wallet''is-consistent-or-throw Wallet''is-key-rotating Wallet''is-spending-txns-in-confidence-type Wallet''is-pending-transaction-relevant Wallet''is-transaction-relevant Wallet''is-transaction-risky Wallet''is-tx-consistent Wallet''is-tx-output-bloom-filterable Wallet''is-watching Wallet''kill-txns Wallet''mark-keys-as-used Wallet''maybe-commit-tx Wallet''maybe-move-pool Wallet''maybe-queue-on-wallet-changed Wallet''maybe-rotate-keys Wallet''process-tx-from-best-chain Wallet''queue-on-coins-received Wallet''queue-on-coins-sent Wallet''queue-on-reorganize Wallet''queue-on-transaction-confidence-changed Wallet''receive Wallet''receive-pending-3 Wallet''receive-pending-4 Wallet''rekey-one-batch Wallet''remove-change-event-listener Wallet''remove-coins-received-event-listener Wallet''remove-coins-sent-event-listener Wallet''remove-key-chain-event-listener Wallet''remove-reorganize-event-listener Wallet''remove-transaction-confidence-event-listener Wallet''reset Wallet''save Wallet''save-later Wallet''save-now Wallet''send-coins-2 Wallet''send-coins-3b Wallet''send-coins-3p Wallet''send-coins-4 Wallet''send-coins-offline Wallet''set-accept-risky-transactions Wallet''set-coin-selector Wallet''set-key-chain-group-lookahead-size Wallet''set-key-chain-group-lookahead-threshold Wallet''set-key-rotation-time-d Wallet''set-key-rotation-time-l Wallet''set-last-block-seen-hash Wallet''set-last-block-seen-height Wallet''set-last-block-seen-time-secs Wallet''set-transaction-broadcaster Wallet''sign-transaction Wallet''sort-txns-by-dependency Wallet''spends Wallet''subtract-depth Wallet''to-string Wallet''to-string-helper Wallet''update-for-spends Wallet'from-seed Wallet'from-watching-key Wallet'from-watching-key-b58 Wallet'new)
+(declare Wallet'DEFAULT_EVENT_HORIZON Wallet''add-and-activate-hd-chain Wallet''add-change-event-listener Wallet''add-coins-received-event-listener Wallet''add-coins-sent-event-listener Wallet''add-key-chain-event-listener Wallet''add-reorganize-event-listener Wallet''add-supplied-inputs Wallet''add-transaction-confidence-event-listener Wallet''add-transaction-signer Wallet''add-transactions-depending-on Wallet''add-wallet-transaction Wallet''adjust-output-downwards-for-fee Wallet''calculate-all-spend-candidates-1 Wallet''calculate-all-spend-candidates-3 Wallet''calculate-fee Wallet''can-sign-for Wallet''check-balance-futures-locked Wallet''check-for-filter-exhaustion Wallet''cleanup Wallet''clear-transactions-1 Wallet''clear-transactions-2 Wallet''commit-tx Wallet''complete-tx Wallet''create-send Wallet''create-transient-state Wallet''current-address Wallet''current-change-address Wallet''current-key Wallet''current-receive-address Wallet''current-receive-key Wallet''do-maintenance Wallet''estimate-bytes-for-signing Wallet''find-double-spends-against Wallet''fresh-address Wallet''fresh-key Wallet''fresh-keys Wallet''fresh-receive-address Wallet''fresh-receive-key Wallet''get-active-key-chain Wallet''get-balance-1 Wallet''get-balance-2s Wallet''get-balance-2t Wallet''get-balance-future Wallet''create-bloom-filter Wallet''get-coin-selector Wallet''get-containing-pools Wallet''get-issued-receive-addresses Wallet''get-issued-receive-keys Wallet''get-key-by-path-2 Wallet''get-key-chain-group-combined-key-lookahead-epochs Wallet''get-key-chain-group-lookahead-size Wallet''get-key-chain-group-lookahead-threshold Wallet''get-key-chain-group-size Wallet''get-key-chain-seed Wallet''get-key-rotation-time Wallet''get-last-block-seen-hash Wallet''get-last-block-seen-height Wallet''get-last-block-seen-time Wallet''get-last-block-seen-time-secs Wallet''get-pending-transactions Wallet''get-recent-transactions Wallet''get-total-received Wallet''get-total-sent Wallet''get-transaction Wallet''get-transaction-signers Wallet''get-transactions Wallet''get-transactions-by-time Wallet''get-unspents Wallet''get-watching-key Wallet''has-key Wallet''inform-confidence-listeners-if-not-reorganizing Wallet''is-accept-risky-transactions Wallet''is-consistent Wallet''is-consistent-or-throw Wallet''is-key-rotating Wallet''is-spending-txns-in-confidence-type Wallet''is-pending-transaction-relevant Wallet''is-transaction-relevant Wallet''is-transaction-risky Wallet''is-tx-consistent Wallet''is-tx-output-bloom-filterable Wallet''is-watching Wallet''kill-txns Wallet''mark-keys-as-used Wallet''maybe-commit-tx Wallet''maybe-move-pool Wallet''maybe-queue-on-wallet-changed Wallet''maybe-rotate-keys Wallet''process-tx-from-best-chain Wallet''queue-on-coins-received Wallet''queue-on-coins-sent Wallet''queue-on-reorganize Wallet''queue-on-transaction-confidence-changed Wallet''receive Wallet''receive-pending-3 Wallet''receive-pending-4 Wallet''rekey-one-batch Wallet''remove-change-event-listener Wallet''remove-coins-received-event-listener Wallet''remove-coins-sent-event-listener Wallet''remove-key-chain-event-listener Wallet''remove-reorganize-event-listener Wallet''remove-transaction-confidence-event-listener Wallet''reset Wallet''save Wallet''save-later Wallet''save-now Wallet''send-coins-2 Wallet''send-coins-3b Wallet''send-coins-3p Wallet''send-coins-4 Wallet''send-coins-offline Wallet''set-accept-risky-transactions Wallet''set-coin-selector Wallet''set-key-chain-group-lookahead-size Wallet''set-key-chain-group-lookahead-threshold Wallet''set-key-rotation-time-d Wallet''set-key-rotation-time-l Wallet''set-last-block-seen-hash Wallet''set-last-block-seen-height Wallet''set-last-block-seen-time-secs Wallet''set-transaction-broadcaster Wallet''sign-transaction Wallet''sort-txns-by-dependency Wallet''spends Wallet''subtract-depth Wallet''to-string Wallet''to-string-helper Wallet''update-for-spends Wallet'from-seed Wallet'from-watching-key Wallet'from-watching-key-base58 Wallet'new)
 (declare WalletAppKit''chain WalletAppKit''connect-to-loopback WalletAppKit''create-peer-group WalletAppKit''create-wallet WalletAppKit''install-shutdown-hook WalletAppKit''on-setup-completed WalletAppKit''peer-group WalletAppKit''provide-block-store WalletAppKit''set-checkpoints WalletAppKit''set-peer-nodes WalletAppKit''store WalletAppKit''wallet WalletAppKit'new)
 (declare WalletCoinsReceivedEventListener'''on-coins-received)
 (declare WeakConfidenceReference'new)
@@ -4364,7 +4364,7 @@
 
             ;; The following formulas were stolen from Wikipedia's page on Bloom Filters (with the addition of min(..., MAX_...)).
             ;; Size required for a given number of elements and false-positive rate.
-            (let [#_"int" n (int (* (quot -1 (Math/pow (Math/log 2), 2)) size (Math/log rate)))
+            (let [#_"int" n (int (* (/ -1 (Math/pow (Math/log 2), 2)) size (Math/log rate)))
                   n (max 1 (quot (min n (* (int BloomFilter'MAX_FILTER_SIZE) 8)) 8))
                   ;; Optimal number of hash functions for a given filter size and element count.
                   #_"int" m (int (* (/ (* n 8) (double size)) (Math/log 2)))
@@ -11988,7 +11988,7 @@
         (cond
             (not (Transaction''is-coin-base this)) true
             (not= (TransactionConfidence''get-confidence-type (Transaction''get-confidence this)) :ConfidenceType'BUILDING) false
-            :else (<= (-> this :ledger :spendable-coinbase-depth) (TransactionConfidence''get-depth-in-blocks (Transaction''get-confidence this)))
+            :else (<= (-> this :ledger :spendable-coinbase-depth) (:depth-in-blocks (Transaction''get-confidence this)))
         )
     )
 
@@ -12992,8 +12992,23 @@
             ;; Lazily created listeners array.
             #_"List<ListenerRegistration<TransactionConfidenceListener>>" :confidence-listeners (CopyOnWriteArrayList.)
 
-            ;; The depth of the transaction on the best chain in blocks.  An unconfirmed block has depth 0.
-            #_"int" :depth 0
+            ;;;
+             ; The depth of the transaction on the best chain in blocks.  An unconfirmed block has depth 0.
+             ;;
+            ;;;
+             ; Depth in the chain is an approximation of how much time has elapsed since the transaction has been confirmed.
+             ; On average there is supposed to be a new block every 10 minutes, but the actual rate may vary.  Bitcoin Core
+             ; considers a transaction impractical to reverse after 6 blocks, but as of EOY 2011 network
+             ; security is high enough that often only one block is considered enough even for high value transactions.
+             ; For low value transactions like songs, or other cheap items, no blocks at all may be necessary.
+             ;
+             ; If the transaction appears in the top block, the depth is one.  If it's anything else (pending, dead, unknown)
+             ; the depth is zero.
+             ;;
+            ;;;
+             ; Having one block confirmation is a depth of one.
+             ;;
+            #_"int" :depth-in-blocks 0
 
             #_"ConfidenceType" :confidence-type :ConfidenceType'UNKNOWN
             #_"int" :appeared-at-chain-height -1
@@ -13063,7 +13078,7 @@
             (throw (IllegalArgumentException. "appearedAtChainHeight out of range"))
         )
         (sync this
-            (let [this (assoc this :appeared-at-chain-height height, :depth 1)]
+            (let [this (assoc this :appeared-at-chain-height height, :depth-in-blocks 1)]
                 (TransactionConfidence''set-confidence-type this, :ConfidenceType'BUILDING)
             )
         )
@@ -13093,7 +13108,7 @@
                             (assoc this :overriding-transaction nil)
                         )]
                     (when (any = type :ConfidenceType'PENDING :ConfidenceType'IN_CONFLICT) => this
-                        (assoc this :depth 0, :appeared-at-chain-height -1)
+                        (assoc this :depth-in-blocks 0, :appeared-at-chain-height -1)
                     )
                 )
             )
@@ -13135,47 +13150,6 @@
     #_method
     (defn #_"boolean" TransactionConfidence''was-broadcast-by [#_"TransactionConfidence" this, #_"PeerAddress" address]
         (.contains (:broadcast-by this), address)
-    )
-
-    ;;;
-     ; Called by the wallet when the tx appears on the best chain and a new block is added to the top.
-     ; Updates the internal counter that tracks how deeply buried the block is.
-     ;
-     ; @return the new depth
-     ;;
-    #_method
-    (defn #_"int" TransactionConfidence''increment-depth-in-blocks [#_"TransactionConfidence" this]
-        (sync this
-            (§ ass this (update this :depth inc))
-            (:depth this)
-        )
-    )
-
-    ;;;
-     ; Depth in the chain is an approximation of how much time has elapsed since the transaction has been confirmed.
-     ; On average there is supposed to be a new block every 10 minutes, but the actual rate may vary.  Bitcoin Core
-     ; considers a transaction impractical to reverse after 6 blocks, but as of EOY 2011 network
-     ; security is high enough that often only one block is considered enough even for high value transactions.
-     ; For low value transactions like songs, or other cheap items, no blocks at all may be necessary.
-     ;
-     ; If the transaction appears in the top block, the depth is one.  If it's anything else (pending, dead, unknown)
-     ; the depth is zero.
-     ;;
-    #_method
-    (defn #_"int" TransactionConfidence''get-depth-in-blocks [#_"TransactionConfidence" this]
-        (sync this
-            (:depth this)
-        )
-    )
-
-    ;;;
-     ; Set the depth in blocks.  Having one block confirmation is a depth of one.
-     ;;
-    #_method
-    (defn #_"TransactionConfidence" TransactionConfidence''set-depth-in-blocks [#_"TransactionConfidence" this, #_"int" depth]
-        (sync this
-            (assoc this :depth depth)
-        )
     )
 
     ;;;
@@ -13271,14 +13245,14 @@
     (defn #_"ListenableFuture<TransactionConfidence>" TransactionConfidence''get-depth-future [#_"TransactionConfidence" this, #_"int" depth, #_"Executor" executor]
         (sync this
             (let [#_"SettableFuture<TransactionConfidence>" future (SettableFuture/create)]
-                (when (<= depth (TransactionConfidence''get-depth-in-blocks this))
+                (when (<= depth (:depth-in-blocks this))
                     (.set future, this)
                 )
                 (TransactionConfidence''add-event-listener this, executor,
                     (reify TransactionConfidenceListener
                         #_override
                         (#_"void" TransactionConfidenceListener'''on-confidence-changed [#_"TransactionConfidenceListener" self, #_"TransactionConfidence" confidence, #_"ConfidenceChangeReason" reason]
-                            (when (<= depth (TransactionConfidence''get-depth-in-blocks this))
+                            (when (<= depth (:depth-in-blocks this))
                                 (TransactionConfidence''remove-event-listener this, self)
                                 (.set future, confidence)
                             )
@@ -13308,7 +13282,7 @@
                     :ConfidenceType'DEAD        (.. sb (append "Dead: overridden by double spend and will not confirm."))
                     :ConfidenceType'PENDING     (.. sb (append "Pending/unconfirmed."))
                     :ConfidenceType'IN_CONFLICT (.. sb (append "In conflict."))
-                    :ConfidenceType'BUILDING    (.. sb (append "Appeared in best chain at height ") (append (TransactionConfidence''get-appeared-at-chain-height this)) (append ", depth ") (append (TransactionConfidence''get-depth-in-blocks this)) (append "."))
+                    :ConfidenceType'BUILDING    (.. sb (append "Appeared in best chain at height ") (append (TransactionConfidence''get-appeared-at-chain-height this)) (append ", depth ") (append (:depth-in-blocks this)) (append "."))
                 )
                 (when-not (= (:source this) :ConfidenceSource'UNKNOWN)
                     (.. sb (append " Source: ") (append (:source this)))
@@ -14159,7 +14133,7 @@
         (let-when [#_"Transaction" tx (:parent-tx this)] (some? tx) => -1
             (let [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)]
                 (when (= (TransactionConfidence''get-confidence-type confidence) :ConfidenceType'BUILDING) => -1
-                    (TransactionConfidence''get-depth-in-blocks confidence)
+                    (:depth-in-blocks confidence)
                 )
             )
         )
@@ -15254,12 +15228,12 @@
     )
 
     #_method
-    (defn #_"String" DeterministicKey''serialize-pub-b58 [#_"DeterministicKey" this, #_"Ledger" ledger]
+    (defn #_"String" DeterministicKey''serialize-pub-base58 [#_"DeterministicKey" this, #_"Ledger" ledger]
         (DeterministicKey'to-base58 (DeterministicKey''serialize this, ledger, true))
     )
 
     #_method
-    (defn #_"String" DeterministicKey''serialize-priv-b58 [#_"DeterministicKey" this, #_"Ledger" ledger]
+    (defn #_"String" DeterministicKey''serialize-priv-base58 [#_"DeterministicKey" this, #_"Ledger" ledger]
         (DeterministicKey'to-base58 (DeterministicKey''serialize this, ledger, false))
     )
 
@@ -15267,9 +15241,11 @@
         (Base58'encode (DeterministicKey'add-checksum bytes))
     )
 
-    ;;; Deserialize a base-58-encoded HD Key with no parent. ;;
-    (defn #_"DeterministicKey" DeterministicKey'deserialize-b58-2 [#_"String" base58, #_"Ledger" ledger]
-        (DeterministicKey'deserialize-b58-3 nil, base58, ledger)
+    ;;;
+     ; Deserialize a base-58-encoded HD Key with no parent.
+     ;;
+    (defn #_"DeterministicKey" DeterministicKey'deserialize-base58-2 [#_"String" base58, #_"Ledger" ledger]
+        (DeterministicKey'deserialize-base58-3 nil, base58, ledger)
     )
 
     ;;;
@@ -15278,7 +15254,7 @@
      ; @param parent The parent node in the given key's deterministic hierarchy.
      ; @throws IllegalArgumentException if the base58 encoded key could not be parsed.
      ;;
-    (defn #_"DeterministicKey" DeterministicKey'deserialize-b58-3 [#_"DeterministicKey" parent, #_"String" base58, #_"Ledger" ledger]
+    (defn #_"DeterministicKey" DeterministicKey'deserialize-base58-3 [#_"DeterministicKey" parent, #_"String" base58, #_"Ledger" ledger]
         (DeterministicKey'deserialize ledger, (Base58'decode-checked base58), parent)
     )
 
@@ -17099,13 +17075,13 @@
                 ;; calculation, we might assert or calculate the filter wrongly.  Most providers use a lock here but
                 ;; snapshotting required state is also a legitimate strategy.
                 (doseq [#_"Wallet" wallet wallets]
-                    (Wallet''begin-bloom-filter-calculation wallet)
+                    (Wallet''lock-bloom-filter-calculation wallet)
                     (.add __begunWallets, wallet)
                 )
                 (let [[#_"long" earliest #_"int" elements]
                         (reduce (fn [[earliest elements] wallet]
                                 [(min earliest (Wallet''get-earliest-key-creation-time wallet))
-                                 (+   elements (Wallet''get-bloom-filter-element-count wallet))])
+                                 (+   elements (KeyChainGroup''count-bloom-filter-elements (:key-chain-group wallet)) (count (Wallet''bloom-filter-outpoints-locked wallet)))])
                             [Long/MAX_VALUE 0] wallets)
                       ;; Adjust the earliest key time backwards by a week to handle the case of clock drift.  This can occur
                       ;; both in block header timestamps and if the users clock was out of sync when the key was first created
@@ -17121,14 +17097,14 @@
                               #_"double" rate (:v-merger-fp-rate this)
                               #_"long" tweak (:merger-tweak this)
                               #_"BloomFilter" filter (BloomFilter'new (:ledger this), size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)
-                              filter (reduce BloomFilter''merge filter (map #(Wallet''get-bloom-filter-4 %, size, rate, tweak) wallets))]
+                              filter (reduce BloomFilter''merge filter (map #(Wallet''create-bloom-filter-locked %, size, rate, tweak) wallets))]
                             (assoc this :merged-filter filter)
                         )
                     )
                 )
                 (finally
                     (doseq [#_"Wallet" wallet __begunWallets]
-                        (Wallet''end-bloom-filter-calculation wallet)
+                        (Wallet''unlock-bloom-filter-calculation wallet)
                     )
                 )
             )
@@ -23363,7 +23339,7 @@
      ; explanation of anonymity when using bloom filters, and for the meaning of these parameters.
      ;;
     #_method
-    (defn #_"BloomFilter" BasicKeyChain''get-filter [#_"BasicKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
+    (defn #_"BloomFilter" BasicKeyChain''create-bloom-filter [#_"BasicKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
         (sync (:b-keychain-lock this)
             (let [#_"BloomFilter" filter (BloomFilter'new nil, size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)]
                 (reduce BloomFilter''insert-key filter (.values (:hash-to-keys this)))
@@ -23840,7 +23816,7 @@
      ; The size passed to {@link #getFilter(int, double, long)} should be at least this large.
      ;;
     #_abstract
-    (defn #_"int" DeterministicKeyChain'''num-bloom-filter-entries [#_"DeterministicKeyChain" this]
+    (defn #_"int" DeterministicKeyChain'''count-bloom-filter-elements [#_"DeterministicKeyChain" this]
         (* (DeterministicKeyChain''num-keys this) 2)
     )
 
@@ -23857,11 +23833,11 @@
      ; explanation of anonymity when using bloom filters, and for the meaning of these parameters.
      ;;
     #_abstract
-    (defn #_"BloomFilter" DeterministicKeyChain'''get-filter [#_"DeterministicKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
+    (defn #_"BloomFilter" DeterministicKeyChain'''create-bloom-filter [#_"DeterministicKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
         (sync (:d-keychain-lock this)
-            (assert-argument (<= (DeterministicKeyChain'''num-bloom-filter-entries this) size))
+            (assert-argument (<= (DeterministicKeyChain'''count-bloom-filter-elements this) size))
             (§ ass this (DeterministicKeyChain''maybe-look-ahead-1 this))
-            (BasicKeyChain''get-filter (:basic-key-chain this), size, rate, tweak)
+            (BasicKeyChain''create-bloom-filter (:basic-key-chain this), size, rate, tweak)
         )
     )
 
@@ -24131,7 +24107,7 @@
                     (.. sb (append "Key birthday:  ") (append secs) (append "  [") (append (Time'format-seconds secs)) (append "]\n"))
                 )
             )
-            (.. sb (append "Key to watch:  ") (append (DeterministicKey''serialize-pub-b58 key, ledger)) (append "\n"))
+            (.. sb (append "Key to watch:  ") (append (DeterministicKey''serialize-pub-base58 key, ledger)) (append "\n"))
             (DeterministicKeyChain'''format-addresses this, ledger, sb)
             (.toString sb)
         )
@@ -25043,14 +25019,14 @@
     )
 
     #_method
-    (defn #_"int" KeyChainGroup''get-bloom-filter-element-count [#_"KeyChainGroup" this]
-        (reduce + (map DeterministicKeyChain'''num-bloom-filter-entries (:chains this)))
+    (defn #_"int" KeyChainGroup''count-bloom-filter-elements [#_"KeyChainGroup" this]
+        (reduce + (map DeterministicKeyChain'''count-bloom-filter-elements (:chains this)))
     )
 
     #_method
-    (defn #_"BloomFilter" KeyChainGroup''get-bloom-filter [#_"KeyChainGroup" this, #_"int" size, #_"double" rate, #_"long" tweak]
+    (defn #_"BloomFilter" KeyChainGroup''create-bloom-filter [#_"KeyChainGroup" this, #_"int" size, #_"double" rate, #_"long" tweak]
         (let [#_"BloomFilter" filter (BloomFilter'new (:ledger this), size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)]
-            (reduce BloomFilter''merge filter (map #(DeterministicKeyChain'''get-filter %, size, rate, tweak) (:chains this)))
+            (reduce BloomFilter''merge filter (map #(DeterministicKeyChain'''create-bloom-filter %, size, rate, tweak) (:chains this)))
         )
     )
 
@@ -25353,7 +25329,7 @@
     #_override
     (defn #_"void" DeterministicKeyChain'''format-addresses [#_"MarriedKeyChain" this, #_"Ledger" ledger, #_"StringBuilder" sb]
         (doseq [#_"DeterministicKeyChain" chain (:following-key-chains this)]
-            (.. sb (append "Following chain:  ") (append (DeterministicKey''serialize-pub-b58 (DeterministicKeyChain''get-watching-key chain), ledger)) (append "\n"))
+            (.. sb (append "Following chain:  ") (append (DeterministicKey''serialize-pub-base58 (DeterministicKeyChain''get-watching-key chain), ledger)) (append "\n"))
         )
         (.. sb (append "\n"))
         (doseq [#_"RedeemData" redeem (.values (:married-keys-redeem-data this))]
@@ -25392,7 +25368,7 @@
     )
 
     #_override
-    (defn #_"BloomFilter" DeterministicKeyChain'''get-filter [#_"MarriedKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
+    (defn #_"BloomFilter" DeterministicKeyChain'''create-bloom-filter [#_"MarriedKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
         (sync (:d-keychain-lock this)
             (let [#_"BloomFilter" filter (BloomFilter'new nil, size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)]
                 (doseq [#_"Map.Entry<ByteString, RedeemData>" entry (.entrySet (:married-keys-redeem-data this))]
@@ -25405,7 +25381,7 @@
     )
 
     #_override
-    (defn #_"int" DeterministicKeyChain'''num-bloom-filter-entries [#_"MarriedKeyChain" this]
+    (defn #_"int" DeterministicKeyChain'''count-bloom-filter-elements [#_"MarriedKeyChain" this]
         (§ ass this (DeterministicKeyChain''maybe-look-ahead-1 this))
         (* (count (DeterministicKeyChain''get-leaf-keys this)) 2)
     )
@@ -25998,10 +25974,6 @@
 
                         #_"List<BalanceFutureRequest>" :balance-future-requests (LinkedList.)
 
-                        #_"List<TransactionOutPoint>" :bloom-out-points (ArrayList.)
-                        ;; Used to track whether we must automatically begin/end a filter calculation and calc outpoints/take the locks.
-                        #_"AtomicInteger" :bloom-filter-guard (AtomicInteger. 0)
-
                         ;;;
                          ; The event horizon is the number of blocks after which the wallet consider a transaction to be so confirmed,
                          ; that it's safe to delete data.  Re-orgs larger than the event horizon will not be correctly processed,
@@ -26042,8 +26014,8 @@
      ; in base58 notation and the creation time of the key.  If you don't know the creation time, you can pass
      ; {@link DeterministicHierarchy#BIP32_STANDARDISATION_TIME_SECS}.
      ;;
-    (defn #_"Wallet" Wallet'from-watching-key-b58 [#_"Ledger" ledger, #_"String" __watchKeyB58, #_"long" secs]
-        (let [#_"DeterministicKey" key (DeterministicKey'deserialize-b58-3 nil, __watchKeyB58, ledger)
+    (defn #_"Wallet" Wallet'from-watching-key-base58 [#_"Ledger" ledger, #_"String" __watchKeyB58, #_"long" secs]
+        (let [#_"DeterministicKey" key (DeterministicKey'deserialize-base58-3 nil, __watchKeyB58, ledger)
               key (DeterministicKey''set-creation-time-seconds key, secs)]
             (Wallet'from-watching-key ledger, key)
         )
@@ -27110,7 +27082,8 @@
                                         ;; be included once again.  We could have a separate was-in-chain-and-now-isn't confidence
                                         ;; type, but this way is backwards compatible with existing software, and the new state
                                         ;; probably wouldn't mean anything different to just remembering peers anyway.
-                                        (when (< (:event-horizon this) (TransactionConfidence''increment-depth-in-blocks confidence))
+                                        (§ ass confidence (update confidence :depth-in-blocks inc))
+                                        (when (< (:event-horizon this) (:depth-in-blocks confidence))
                                             (§ ass confidence (TransactionConfidence''clear-broadcast-by confidence))
                                         )
                                         (.put (:confidence-changed this), tx, :ConfidenceChangeReason'DEPTH)
@@ -28821,7 +28794,7 @@
     (defn- #_"Wallet" Wallet''subtract-depth [#_"Wallet" this, #_"int" depth, #_"Collection<Transaction>" transactions]
         (doseq [#_"Transaction" tx transactions]
             (let-when [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)] (= (TransactionConfidence''get-confidence-type confidence) :ConfidenceType'BUILDING)
-                (§ ass confidence (TransactionConfidence''set-depth-in-blocks confidence, (- (TransactionConfidence''get-depth-in-blocks confidence) depth)))
+                (§ ass confidence (update confidence :depth-in-blocks - depth))
                 (.put (:confidence-changed this), tx, :ConfidenceChangeReason'DEPTH)
             )
         )
@@ -28868,56 +28841,27 @@
      ; a matching call to endBloomFilterCalculation that can be used to e.g. unlock a lock.
      ;;
     #_method
-    (defn #_"void" Wallet''begin-bloom-filter-calculation [#_"Wallet" this]
-        (when-not (< 1 (.incrementAndGet (:bloom-filter-guard this)))
-            (.lock (:wallet-lock this))
-            (.lock (:keychaingroup-lock this))
-
-            ;; TODO: This could be done once and then kept up to date.
-            (.clear (:bloom-out-points this))
-            (let [#_"Set<Transaction>" all (HashSet.)]
-                (.addAll all, (.values (:unspent this)))
-                (.addAll all, (.values (:spent this)))
-                (.addAll all, (.values (:pending this)))
-
-                (doseq [#_"Transaction" tx all #_"TransactionOutput" output (:outputs tx)]
-                    (when (Wallet''is-tx-output-bloom-filterable this, output)
-                        (.add (:bloom-out-points this), (TransactionOutput''get-outpoint-for output))
-                    )
-                )
-            )
-        )
+    (defn #_"void" Wallet''lock-bloom-filter-calculation [#_"Wallet" this]
+        (.lock (:wallet-lock this))
+        (.lock (:keychaingroup-lock this))
         nil
     )
 
     #_method
-    (defn #_"void" Wallet''end-bloom-filter-calculation [#_"Wallet" this]
-        (when-not (< 0 (.decrementAndGet (:bloom-filter-guard this)))
-            (.clear (:bloom-out-points this))
+    (defn #_"TransactionOutPoint*" Wallet''bloom-filter-outpoints-locked [#_"Wallet" this]
+        (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
+        (assert-state (.isHeldByCurrentThread (:keychaingroup-lock this)))
 
-            (.unlock (:keychaingroup-lock this))
-            (.unlock (:wallet-lock this))
+        (for [#_"Transaction" tx (Wallet''get-transactions this, false) #_"TransactionOutput" output (:outputs tx) :when (Wallet''is-tx-output-bloom-filterable this, output)]
+            (TransactionOutput''get-outpoint-for output)
         )
-        nil
     )
 
-    ;;;
-     ; Gets the number of elements that will be added to a bloom filter returned by
-     ; {@link PeerFilterProvider#getBloomFilter(int, double, long)}.
-     ;;
-    ;;;
-     ; Returns the number of distinct data items (note: NOT keys) that will be inserted into a bloom filter,
-     ; when it is constructed.
-     ;;
     #_method
-    (defn #_"int" Wallet''get-bloom-filter-element-count [#_"Wallet" this]
-        (Wallet''begin-bloom-filter-calculation this)
-        (try
-            (+ (count (:bloom-out-points this)) (KeyChainGroup''get-bloom-filter-element-count (:key-chain-group this)))
-            (finally
-                (Wallet''end-bloom-filter-calculation this)
-            )
-        )
+    (defn #_"void" Wallet''unlock-bloom-filter-calculation [#_"Wallet" this]
+        (.unlock (:keychaingroup-lock this))
+        (.unlock (:wallet-lock this))
+        nil
     )
 
     ;;;
@@ -28935,18 +28879,14 @@
      ; See the docs for {@link BloomFilter(int, double)} for a brief explanation of anonymity when using bloom filters.
      ;;
     #_method
-    (defn #_"BloomFilter" Wallet''get-bloom-filter-4 [#_"Wallet" this, #_"int" size, #_"double" rate, #_"long" tweak]
-        (Wallet''begin-bloom-filter-calculation this)
-        (try
-            (let [#_"BloomFilter" filter (KeyChainGroup''get-bloom-filter (:key-chain-group this), size, rate, tweak)]
-                (doseq [#_"TransactionOutPoint" point (:bloom-out-points this)]
-                    (§ ass filter (BloomFilter''insert-data filter, (Message''to-bytes point, TransactionOutPoint''to-wire)))
-                )
-                filter
-            )
-            (finally
-                (Wallet''end-bloom-filter-calculation this)
-            )
+    (defn #_"BloomFilter" Wallet''create-bloom-filter-locked [#_"Wallet" this, #_"int" size, #_"double" rate, #_"long" tweak]
+        (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
+        (assert-state (.isHeldByCurrentThread (:keychaingroup-lock this)))
+
+        (let [#_"TransactionOutPoint*" outpoints (Wallet''bloom-filter-outpoints-locked this)
+              size (or size (+ (KeyChainGroup''count-bloom-filter-elements (:key-chain-group this)) (count outpoints)))
+              #_"BloomFilter" filter (KeyChainGroup''create-bloom-filter (:key-chain-group this), size, rate, tweak)]
+            (reduce BloomFilter''insert-data filter (map #(Message''to-bytes %, TransactionOutPoint''to-wire) outpoints))
         )
     )
 
@@ -28955,12 +28895,12 @@
      ; false-positive rate.  See the docs for {@link BloomFilter} for a brief explanation of anonymity when using filters.
      ;;
     #_method
-    (defn #_"BloomFilter" Wallet''get-bloom-filter-2 [#_"Wallet" this, #_"double" rate]
-        (Wallet''begin-bloom-filter-calculation this)
+    (defn #_"BloomFilter" Wallet''create-bloom-filter [#_"Wallet" this, #_"double" rate]
+        (Wallet''lock-bloom-filter-calculation this)
         (try
-            (Wallet''get-bloom-filter-4 this, (Wallet''get-bloom-filter-element-count this), rate, (long (* (Math/random) Long/MAX_VALUE)))
+            (Wallet''create-bloom-filter-locked this, nil, rate, (long (* (Math/random) Long/MAX_VALUE)))
             (finally
-                (Wallet''end-bloom-filter-calculation this)
+                (Wallet''unlock-bloom-filter-calculation this)
             )
         )
     )
