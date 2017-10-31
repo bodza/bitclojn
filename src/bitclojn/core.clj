@@ -170,7 +170,6 @@
 (declare FeeCalculation'new)
 (declare Fiat''signum Fiat''add Fiat''remainder Fiat''divide Fiat''greater-than? Fiat''less-than? Fiat''negative? Fiat''positive? Fiat''zero? Fiat''multiply Fiat''negate Fiat''subtract Fiat''to-friendly-string Fiat''to-plain-string Fiat'FRIENDLY_FORMAT Fiat'PLAIN_FORMAT Fiat'SMALLEST_UNIT_EXPONENT Fiat'new Fiat'parse-fiat Fiat'parse-fiat-inexact)
 (declare FilterMerger'new FilterMerger''calculate)
-(declare FilterMergerResult'new)
 (declare FilterRecalculateMode'enum-set)
 (declare FilteredBlock''get-block-header FilteredBlock''get-hash FilteredBlock''get-transaction-count FilteredBlock''get-transaction-hashes FilteredBlock''provide-transaction FilteredBlock'from-wire FilteredBlock''to-wire FilteredBlock'new)
 (declare FilteringCoinSelector''exclude-outputs-spent-by FilteringCoinSelector'new)
@@ -4325,10 +4324,10 @@
 
     (defn- #_"BloomFilter" BloomFilter'init []
         (hash-map
-            #_"byte[]" :data nil
+            #_"byte[]" :bloom-bits nil
             #_"long" :hash-funcs 0
-            #_"long" :n-tweak 0
-            #_"byte" :n-flags 0
+            #_"long" :bloom-tweak 0
+            #_"byte" :update-code 0
         )
     )
 
@@ -4372,10 +4371,10 @@
                   m (max 1 (min m BloomFilter'MAX_HASH_FUNCS))]
 
                 (-> this
-                    (assoc :data (byte-array n))
+                    (assoc :bloom-bits (byte-array n))
                     (assoc :hash-funcs m)
-                    (assoc :n-tweak tweak)
-                    (assoc :n-flags (byte (& 0xff (BloomUpdate'enum-map flag))))
+                    (assoc :bloom-tweak tweak)
+                    (assoc :update-code (byte (& 0xff (BloomUpdate'enum-map flag))))
                 )
             )
         )
@@ -4386,12 +4385,12 @@
         (let [this (merge (Message'new ledger) (BloomFilter'init))
               this
                 (-> this
-                    (assoc :data (Wire'read-byte-array payload))
+                    (assoc :bloom-bits (Wire'read-byte-array payload))
                     (assoc :hash-funcs (Wire'read-uint32 payload))
-                    (assoc :n-tweak (Wire'read-uint32 payload))
-                    (assoc :n-flags (Wire'read-byte payload))
+                    (assoc :bloom-tweak (Wire'read-uint32 payload))
+                    (assoc :update-code (Wire'read-byte payload))
                 )]
-            (when (< BloomFilter'MAX_FILTER_SIZE (alength (:data this)))
+            (when (< BloomFilter'MAX_FILTER_SIZE (alength (:bloom-bits this)))
                 (throw+ (ProtocolException'new "Bloom filter out of size range."))
             )
             (when (< BloomFilter'MAX_HASH_FUNCS (:hash-funcs this))
@@ -4405,10 +4404,10 @@
     (defn BloomFilter''to-wire
         (#_"String" [] "filterload")
         (#_"void" [#_"BloomFilter" this, #_"ByteArrayOutputStream" baos]
-            (Wire'write-byte-array (:data this), baos)
+            (Wire'write-byte-array (:bloom-bits this), baos)
             (Wire'write-uint32 (:hash-funcs this), baos)
-            (Wire'write-uint32 (:n-tweak this), baos)
-            (.write baos, (:n-flags this))
+            (Wire'write-uint32 (:bloom-tweak this), baos)
+            (.write baos, (:update-code this))
             nil
         )
     )
@@ -4418,79 +4417,80 @@
      ;;
     #_method
     (defn #_"double" BloomFilter''get-false-positive-rate [#_"BloomFilter" this, #_"int" elements]
-        (Math/pow (- 1 (Math/pow Math/E, (/ (* -1.0 (:hash-funcs this) elements) (* (alength (:data this)) 8)))), (:hash-funcs this))
+        (Math/pow (- 1 (Math/pow Math/E, (/ (* -1.0 (:hash-funcs this) elements) (* (alength (:bloom-bits this)) 8)))), (:hash-funcs this))
     )
 
     ;;;
      ; Applies the MurmurHash3 (x86_32) algorithm to the given data.
      ; See <a href="https://github.com/aappleby/smhasher/blob/master/src/MurmurHash3.cpp">this C++ code</a> for the original.
      ;;
-    (defn #_"int" BloomFilter'murmur-hash3 [#_"byte[]" data, #_"long" tweak, #_"int" h, #_"byte[]" a]
-        (§ let [#_"int" m (& (alength a) (bit-not 3)) #_"int" n (& (alength a) 3)
-              read- #_"int" (fn [#_"byte[]" a, #_"int" i] (| (& 0xff (aget a i))
-                                                         (<< (& 0xff (aget a (inc i))) 8)
-                                                         (<< (& 0xff (aget a (+ i 2))) 16)
-                                                         (<< (& 0xff (aget a (+ i 3))) 24)))
+    (defn #_"int" BloomFilter'murmur-hash3 [#_"int" l, #_"long" tweak, #_"int" h, #_"byte[]" data]
+        (§ let [#_"int" m (& (alength data) (bit-not 3)) #_"int" n (& (alength data) 3)
+              read- #_"int" (fn [#_"byte[]" data, #_"int" i] (| (& 0xff (aget data i))
+                                                            (<< (& 0xff (aget data (inc i))) 8)
+                                                            (<< (& 0xff (aget data (+ i 2))) 16)
+                                                            (<< (& 0xff (aget data (+ i 3))) 24)))
               swap- #_"int" (fn [#_"int" x, #_"int" r] (| (<< x r) (>>> x (- 32 r))))
               h (loop-when [h (-> h (* 0xfba4c795) (+ tweak) (int)) #_"int" i 0] (< i m) => h
-                    (let [#_"int" k (-> (read- a, i) (* 0xcc9e2d51) (swap- 15) (* 0x1b873593))]
+                    (let [#_"int" k (-> (read- data, i) (* 0xcc9e2d51) (swap- 15) (* 0x1b873593))]
                         (recur (-> h (bit-xor k) (swap- 13) (* 5) (+ 0xe6546b64)) (+ i 4))
                     )
                 )
               h (when (< 0 n) => h
                     (let [#_"int" k 0
-                          k (if (< 2 n) (bit-xor k (<< (& 0xff (aget a (+ m 2))) 16)) k)
-                          k (if (< 1 n) (bit-xor k (<< (& 0xff (aget a (inc m))) 8)) k)
-                          k (-> k (bit-xor (& 0xff (aget a m))) (* 0xcc9e2d51) (swap- 15) (* 0x1b873593))]
+                          k (if (< 2 n) (bit-xor k (<< (& 0xff (aget data (+ m 2))) 16)) k)
+                          k (if (< 1 n) (bit-xor k (<< (& 0xff (aget data (inc m))) 8)) k)
+                          k (-> k (bit-xor (& 0xff (aget data m))) (* 0xcc9e2d51) (swap- 15) (* 0x1b873593))]
                         (bit-xor h k)
                     )
                 )
-              h (bit-xor h (alength a))
+              h (bit-xor h (alength data))
               h (bit-xor h (>>> h 16))
               h (* h 0x85ebca6b)
               h (bit-xor h (>>> h 13))
               h (* h 0xc2b2ae35)
               h (bit-xor h (>>> h 16))]
 
-            (int (rem (& h 0xffffffff) (<< (alength data) 3)))
+            (int (rem (& h 0xffffffff) (<< l 3)))
         )
     )
 
     ;;;
-     ; Returns true if the given object matches the filter either because it was inserted, or because we have a false-positive.
+     ; Returns true if the given data matches the filter either because it was inserted, or because we have a false-positive.
      ;;
     #_method
-    (defn #_"boolean" BloomFilter''contains [#_"BloomFilter" this, #_"byte[]" object]
+    (defn #_"boolean" BloomFilter''contains [#_"BloomFilter" this, #_"byte[]" data]
         (sync this
             (loop-when [#_"int" i 0] (< i (:hash-funcs this)) => true
-                (recur-if (Utils'check-bit-le (:data this), (BloomFilter'murmur-hash3 (:data this), (:n-tweak this), i, object)) [(inc i)] => false)
+                (recur-if (Utils'check-bit-le (:bloom-bits this), (BloomFilter'murmur-hash3 (alength (:bloom-bits this)), (:bloom-tweak this), i, data)) [(inc i)] => false)
             )
         )
     )
 
     ;;;
-     ; Insert the given arbitrary data into the filter.
+     ; Inserts the given arbitrary data into the filter.
      ;;
     #_method
-    (defn #_"void" BloomFilter''insert-data [#_"BloomFilter" this, #_"byte[]" object]
+    (defn #_"BloomFilter" BloomFilter''insert-data [#_"BloomFilter" this, #_"byte[]" data]
         (sync this
             (loop-when-recur [#_"int" i 0] (< i (:hash-funcs this)) [(inc i)]
-                (Utils'set-bit-le (:data this), (BloomFilter'murmur-hash3 (:data this), (:n-tweak this), i, object))
+                (Utils'set-bit-le (:bloom-bits this), (BloomFilter'murmur-hash3 (alength (:bloom-bits this)), (:bloom-tweak this), i, data))
             )
+            this
         )
-        nil
     )
 
     ;;;
      ; Inserts the given key and equivalent hashed form (for the address).
      ;;
     #_method
-    (defn #_"void" BloomFilter''insert-key [#_"BloomFilter" this, #_"ECKey" key]
+    (defn #_"BloomFilter" BloomFilter''insert-key [#_"BloomFilter" this, #_"ECKey" key]
         (sync this
-            (BloomFilter''insert-data this, (ECKey''get-pub-key key))
-            (BloomFilter''insert-data this, (ECKey''calculate-pub-key-hash160 key))
+            (-> this
+                (BloomFilter''insert-data (ECKey''get-pub-key key))
+                (BloomFilter''insert-data (ECKey''calculate-pub-key-hash160 key))
+            )
         )
-        nil
     )
 
     ;;;
@@ -4503,7 +4503,7 @@
     #_method
     (defn #_"BloomFilter" BloomFilter''set-match-all [#_"BloomFilter" this]
         (sync this
-            (assoc this :data (byte-array [ (byte 0xff) ]))
+            (assoc this :bloom-bits (byte-array [ (byte 0xff) ]))
         )
     )
 
@@ -4512,15 +4512,15 @@
      ; an IllegalArgumentException will be thrown.
      ;;
     #_method
-    (defn #_"BloomFilter" BloomFilter''merge [#_"BloomFilter" this, #_"BloomFilter" filter]
+    (defn #_"BloomFilter" BloomFilter''merge [#_"BloomFilter" this, #_"BloomFilter" that]
         (sync this
-            (when-not (or (BloomFilter''matches-all this) (BloomFilter''matches-all filter)) => (BloomFilter''set-match-all this)
-                (assert-argument (and (= (alength (:data filter)) (alength (:data this)))
-                                      (= (:hash-funcs filter) (:hash-funcs this))
-                                      (= (:n-tweak filter) (:n-tweak this))))
+            (when-not (or (BloomFilter''matches-all this) (BloomFilter''matches-all that)) => (BloomFilter''set-match-all this)
+                (assert-argument (and (= (alength (:bloom-bits that)) (alength (:bloom-bits this)))
+                                      (= (:hash-funcs that) (:hash-funcs this))
+                                      (= (:bloom-tweak that) (:bloom-tweak this))))
 
-                (dotimes [#_"int" i (alength (:data this))]
-                    (aset (:data this) i (| (aget (:data this) i) (aget (:data filter) i)))
+                (dotimes [#_"int" i (alength (:bloom-bits this))]
+                    (aset (:bloom-bits this) i (| (aget (:bloom-bits this) i) (aget (:bloom-bits that) i)))
                 )
                 this
             )
@@ -4534,7 +4534,7 @@
     #_method
     (defn #_"boolean" BloomFilter''matches-all [#_"BloomFilter" this]
         (sync this
-            (every? #(= % (byte 0xff)) (:data this))
+            (every? #(= % (byte 0xff)) (:bloom-bits this))
         )
     )
 
@@ -4545,7 +4545,7 @@
     #_method
     (defn #_"BloomUpdate" BloomFilter''get-update-flag [#_"BloomFilter" this]
         (sync this
-            (BloomUpdate'for-code (:n-flags this), (throw (IllegalStateException. "Unknown flag combination")))
+            (BloomUpdate'for-code (:update-code this), (throw (IllegalStateException. (str "Unknown update flag: " (:update-code this)))))
         )
     )
 
@@ -4598,7 +4598,7 @@
                             (let [#_"Script" script (TransactionOutput''parse-script-pub-key output)]
                                 (when (some chunk-found? (:chunks script))
                                     (when (or (= flag :BloomUpdate'UPDATE_ALL) (and (= flag :BloomUpdate'UPDATE_P2PUBKEY_ONLY) (or (Script''is-sent-to-raw-pub-key script) (Script''is-sent-to-multi-sig script))))
-                                        (BloomFilter''insert-data this, (Message''to-bytes (TransactionOutput''get-outpoint-for output), TransactionOutPoint''to-wire))
+                                        (§ ass this (BloomFilter''insert-data this, (Message''to-bytes (TransactionOutput''get-outpoint-for output), TransactionOutPoint''to-wire)))
                                     )
                                     (reset! found? true)
                                 )
@@ -4611,31 +4611,15 @@
         )
     )
 
-    #_foreign
-    #_override
-    (defn #_"boolean" Object'''equals [#_"BloomFilter" this, #_"Object" o]
+    (defn #_"boolean" BloomFilter'= [#_"BloomFilter" this, #_"BloomFilter" that]
         (sync this
-            (cond
-                (= this o) true
-                (or (nil? o) (not= (.getClass this) (.getClass o))) false
-                :else (let [#_"BloomFilter" that (cast' BloomFilter o)]
-                    (and (= (:hash-funcs this) (:hash-funcs that)) (= (:n-tweak this) (:n-tweak that)) (Arrays/equals (:data this), (:data that)))
-                )
-            )
-        )
-    )
-
-    #_foreign
-    #_override
-    (defn #_"int" Object'''hashCode [#_"BloomFilter" this]
-        (sync this
-            (Objects/hash (object-array [ (:hash-funcs this), (:n-tweak this), (Arrays/hashCode (:data this)) ]))
+            (and (= (:hash-funcs this) (:hash-funcs that)) (= (:bloom-tweak this) (:bloom-tweak that)) (Arrays/equals (:bloom-bits this), (:bloom-bits that)))
         )
     )
 
     #_method
     (defn #_"String" BloomFilter''to-string [#_"BloomFilter" this]
-        (str "Bloom Filter of size " (alength (:data this)) " with " (:hash-funcs this) " hash functions.")
+        (str "Bloom Filter of size " (alength (:bloom-bits this)) " with " (:hash-funcs this) " hash functions.")
     )
 )
 
@@ -9130,7 +9114,7 @@
     (defn #_"PeerListener" BlocksDownloadedEventListener'''on-blocks-downloaded [#_"PeerListener" this, #_"Peer" peer, #_"Block" block, #_"FilteredBlock" filtered, #_"int" __blocksLeft]
         (when (some? (:chain this))
             (let [#_"double" rate (:false-positive-rate (:chain this))
-                  #_"double" target (* (-> this :bloom-filter-merger :v-bloom-filter-fp-rate) PeerGroup'MAX_FP_RATE_INCREASE)]
+                  #_"double" target (* (-> this :bloom-filter-merger :v-merger-fp-rate) PeerGroup'MAX_FP_RATE_INCREASE)]
                 (when (< target rate)
                     ;; TODO: Avoid hitting this path if the remote peer didn't acknowledge applying a new filter yet.
                     (log/debug (str "Force update Bloom filter due to high false positive rate (" rate " vs " target ")"))
@@ -10170,10 +10154,11 @@
         ;; Fully verifying mode doesn't use this optimization (it can't as it needs to see all transactions).
         (when-not (or (and (some? (:chain this)) (BlockChain'''should-verify-transactions (:chain this))) (not (:v-bloom-filtering-enabled this))) => this
             ;; We only ever call bloomFilterMerger.calculate on jobQueue, so we cannot be calculating two filters at once.
-            (let [#_"FilterMergerResult" result (FilterMerger''calculate (:bloom-filter-merger this), (:wallets this))
+            (let [#_"FilterMerger" m' (:bloom-filter-merger this) this (update this :bloom-filter-merger FilterMerger''calculate (:wallets this))
+                  #_"FilterMerger" m (:bloom-filter-merger this)
                   #_"boolean" send?
                     (condp = mode
-                        :FilterRecalculateMode'SEND_IF_CHANGED        (:changed result)
+                        :FilterRecalculateMode'SEND_IF_CHANGED        (not (BloomFilter'= (:merged-filter m), (:merged-filter m')))
                         :FilterRecalculateMode'DONT_SEND              false
                         :FilterRecalculateMode'FORCE_SEND_FOR_REFRESH true
                         (throw (UnsupportedOperationException.))
@@ -10184,7 +10169,7 @@
                             ;; Only query the mempool if this recalculation request is not in order to lower the observed FP
                             ;; rate.  There's no point querying the mempool when doing this because the FP rate can only go
                             ;; down, and we will have seen all the relevant txns before: it's pointless to ask for them again.
-                            (§ ass peer (Peer''set-bloom-filter peer, (:filter result), (not= mode :FilterRecalculateMode'FORCE_SEND_FOR_REFRESH)))
+                            (§ ass peer (Peer''set-bloom-filter peer, (:merged-filter m), (not= mode :FilterRecalculateMode'FORCE_SEND_FOR_REFRESH)))
                         )
                         ;; Reset the false positive estimate so that we don't send a flood of filter updates
                         ;; if the estimate temporarily overshoots our threshold.
@@ -10193,11 +10178,11 @@
                         )
                     )
                   ;; Do this last so that bloomFilter is already set when it gets called.
-                  this (PeerGroup''set-fast-catchup-time-secs this, (:earliest-key-time-secs result))]
+                  this (PeerGroup''set-fast-catchup-time-secs this, (:earliest-key-time-secs m))]
                 (sync (:in-flight-recalculations this)
                     (.put (:in-flight-recalculations this), mode, nil)
                 )
-                (.set future, (:filter result))
+                (.set future, (:merged-filter m))
                 this
             )
         )
@@ -10253,7 +10238,7 @@
     #_method
     (defn #_"PeerGroup" PeerGroup''set-bloom-filter-false-positive-rate [#_"PeerGroup" this, #_"double" rate]
         (sync (:peergroup-lock this)
-            (let [this (assoc-in this [:bloom-filter-merger :v-bloom-filter-fp-rate] rate)]
+            (let [this (assoc-in this [:bloom-filter-merger :v-merger-fp-rate] rate)]
                 (PeerGroup''recalculate-fast-catchup-and-filter this, :FilterRecalculateMode'SEND_IF_CHANGED)
                 this
             )
@@ -10444,8 +10429,8 @@
                             ;; Give the peer a filter that can be used to probabilistically drop transactions that
                             ;; aren't relevant to our wallet.  We may still receive some false positives, which is
                             ;; OK because it helps improve wallet privacy.  Old nodes will just ignore the message.
-                            (when (some? (:last-filter (:bloom-filter-merger this)))
-                                (§ ass peer (Peer''set-bloom-filter peer, (:last-filter (:bloom-filter-merger this)), true))
+                            (when (some? (:merged-filter (:bloom-filter-merger this)))
+                                (§ ass peer (Peer''set-bloom-filter peer, (:merged-filter (:bloom-filter-merger this)), true))
                             )
                             (§ ass peer (assoc peer :v-download-data false))
                             ;; TODO: The peer should calculate the fast catchup time from the added wallets here.
@@ -10547,7 +10532,7 @@
                         )
                         (let [this (update this :download-peer assoc :v-download-data true)]
                             (when (some? (:chain this)) => this
-                                (update this :download-peer Peer''set-download-parameters (:fast-catchup-time-secs this), (some? (:last-filter (:bloom-filter-merger this))))
+                                (update this :download-peer Peer''set-download-parameters (:fast-catchup-time-secs this), (some? (:merged-filter (:bloom-filter-merger this))))
                             )
                         )
                     )
@@ -10568,7 +10553,7 @@
 
             (let [this (assoc this :fast-catchup-time-secs secs)]
                 (when (some? (:download-peer this)) => this
-                    (update this :download-peer Peer''set-download-parameters secs, (some? (:last-filter (:bloom-filter-merger this))))
+                    (update this :download-peer Peer''set-download-parameters secs, (some? (:merged-filter (:bloom-filter-merger this))))
                 )
             )
         )
@@ -17075,16 +17060,6 @@
     )
 )
 
-(class-ns FilterMergerResult
-    (defn #_"FilterMergerResult" FilterMergerResult'new [#_"long" earliest]
-        (hash-map
-            #_"BloomFilter" :filter nil
-            #_"long" :earliest-key-time-secs earliest
-            #_"boolean" :changed false
-        )
-    )
-)
-
 ;;;
  ; A reusable object that will calculate, given a list of {@link PeerFilterProvider}s, a merged {@link BloomFilter}
  ; and earliest key time for all of them.  Used by the {@link PeerGroup} class internally.
@@ -17102,19 +17077,22 @@
             #_"Ledger" :ledger ledger
 
             ;; We use a constant tweak to avoid giving up privacy when we regenerate our filter with new keys.
-            #_"long" :bloom-filter-tweak (long (* (Math/random) Long/MAX_VALUE))
+            #_"long" :merger-tweak (long (* (Math/random) Long/MAX_VALUE))
 
             #_volatile
-            #_"double" :v-bloom-filter-fp-rate rate
+            #_"double" :v-merger-fp-rate rate
 
-            #_"int" :last-bloom-filter-element-count 0
-            #_"BloomFilter" :last-filter nil
+            #_transient
+            #_"long" :earliest-key-time-secs nil
+
+            #_"int" :merger-size 0
+            #_"BloomFilter" :merged-filter nil
         )
     )
 
     #_method
-    (defn #_"FilterMergerResult" FilterMerger''calculate [#_"FilterMerger" this, #_"List<Wallet>" wallets]
-        (let [#_"LinkedList<Wallet>" __begunWallets (LinkedList.)]
+    (defn #_"FilterMerger" FilterMerger''calculate [#_"FilterMerger" this, #_"List<Wallet>" wallets]
+        (let [#_"List<Wallet>" __begunWallets (LinkedList.)]
             (try
                 ;; All providers must be in a consistent, unchanging state because the filter is a merged one that's
                 ;; large enough for all providers elements: if a provider were to get more elements in the middle of the
@@ -17129,30 +17107,24 @@
                                 [(min earliest (Wallet''get-earliest-key-creation-time wallet))
                                  (+   elements (Wallet''get-bloom-filter-element-count wallet))])
                             [Long/MAX_VALUE 0] wallets)
-                      #_"FilterMergerResult" result (FilterMergerResult'new earliest)
-                      result
-                        (when (pos? elements) => result
-                            ;; We stair-step our element count so that we avoid creating a filter with different parameters
-                            ;; as much as possible as that results in a loss of privacy.
-                            ;; The constant 100 here is somewhat arbitrary, but makes sense for small to medium wallets -
-                            ;; it will likely mean we never need to create a filter with different parameters.
-                            (§ ass this (update this :last-bloom-filter-element-count #(if (< % elements) (+ elements 100) %)))
-                            (let [#_"BloomUpdate" flag (if (§ false) :BloomUpdate'UPDATE_ALL :BloomUpdate'UPDATE_P2PUBKEY_ONLY)
-                                  #_"double" rate (:v-bloom-filter-fp-rate this)
-                                  #_"BloomFilter" filter (BloomFilter'new (:ledger this), (:last-bloom-filter-element-count this), rate, (:bloom-filter-tweak this), flag)]
-                                (doseq [#_"Wallet" wallet wallets]
-                                    (§ ass filter (BloomFilter''merge filter, (Wallet''get-bloom-filter-4 wallet, (:last-bloom-filter-element-count this), rate, (:bloom-filter-tweak this))))
-                                )
-                                (let [result (assoc result :changed (not (.equals filter, (:last-filter this))))]
-                                    (§ ass this (assoc this :last-filter filter))
-                                    (assoc result :filter filter)
-                                )
-                            )
-                        )]
-                    ;; Now adjust the earliest key time backwards by a week to handle the case of clock drift.  This can occur
-                    ;; both in block header timestamps and if the users clock was out of sync when the key was first created
-                    ;; (to within a small amount of tolerance).
-                    (update result :earliest-key-time-secs - (* 86400 7))
+                      ;; Adjust the earliest key time backwards by a week to handle the case of clock drift.  This can occur
+                      ;; both in block header timestamps and if the users clock was out of sync when the key was first created
+                      ;; (to within a small amount of tolerance).
+                      this (assoc this :earliest-key-time-secs (- earliest (* 7 24 60 60)))]
+                    (when (pos? elements) => this
+                        ;; We stair-step our element count so that we avoid creating a filter with different parameters
+                        ;; as much as possible as that results in a loss of privacy.
+                        ;; The constant 100 here is somewhat arbitrary, but makes sense for small to medium wallets -
+                        ;; it will likely mean we never need to create a filter with different parameters.
+                        (let [this (update this :merger-size #(if (< % elements) (+ elements 100) %))
+                              #_"int" size (:merger-size this)
+                              #_"double" rate (:v-merger-fp-rate this)
+                              #_"long" tweak (:merger-tweak this)
+                              #_"BloomFilter" filter (BloomFilter'new (:ledger this), size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)
+                              filter (reduce BloomFilter''merge filter (map #(Wallet''get-bloom-filter-4 %, size, rate, tweak) wallets))]
+                            (assoc this :merged-filter filter)
+                        )
+                    )
                 )
                 (finally
                     (doseq [#_"Wallet" wallet __begunWallets]
@@ -23394,10 +23366,7 @@
     (defn #_"BloomFilter" BasicKeyChain''get-filter [#_"BasicKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
         (sync (:b-keychain-lock this)
             (let [#_"BloomFilter" filter (BloomFilter'new nil, size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)]
-                (doseq [#_"ECKey" key (.values (:hash-to-keys this))]
-                    (BloomFilter''insert-key filter, key)
-                )
-                filter
+                (reduce BloomFilter''insert-key filter (.values (:hash-to-keys this)))
             )
         )
     )
@@ -25427,8 +25396,8 @@
         (sync (:d-keychain-lock this)
             (let [#_"BloomFilter" filter (BloomFilter'new nil, size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)]
                 (doseq [#_"Map.Entry<ByteString, RedeemData>" entry (.entrySet (:married-keys-redeem-data this))]
-                    (BloomFilter''insert-data filter, (.toByteArray (.getKey entry)))
-                    (BloomFilter''insert-data filter, (Script''to-bytes (:redeem-script (.getValue entry))))
+                    (§ ass filter (BloomFilter''insert-data filter, (.toByteArray (.getKey entry))))
+                    (§ ass filter (BloomFilter''insert-data filter, (Script''to-bytes (:redeem-script (.getValue entry)))))
                 )
                 filter
             )
@@ -28971,7 +28940,7 @@
         (try
             (let [#_"BloomFilter" filter (KeyChainGroup''get-bloom-filter (:key-chain-group this), size, rate, tweak)]
                 (doseq [#_"TransactionOutPoint" point (:bloom-out-points this)]
-                    (BloomFilter''insert-data filter, (Message''to-bytes point, TransactionOutPoint''to-wire))
+                    (§ ass filter (BloomFilter''insert-data filter, (Message''to-bytes point, TransactionOutPoint''to-wire)))
                 )
                 filter
             )
