@@ -156,7 +156,7 @@
 (declare DefaultCoinSelector''should-select DefaultCoinSelector'is-selectable DefaultCoinSelector'new DefaultCoinSelector'sort-outputs)
 (declare DeterministicHierarchy''derive-child-3 DeterministicHierarchy''derive-child-5 DeterministicHierarchy''derive-next-child DeterministicHierarchy''get-4 DeterministicHierarchy''get-next-child-number-to-derive DeterministicHierarchy''get-num-children DeterministicHierarchy''get-root-key DeterministicHierarchy''put-key DeterministicHierarchy'BIP32_STANDARDISATION_TIME_SECS DeterministicHierarchy'new)
 (declare DeterministicKey''derive DeterministicKey''derive-private-key-downwards DeterministicKey''drop-parent DeterministicKey''drop-private-bytes DeterministicKey''find-or-derive-private-key DeterministicKey''find-parent-with-priv-key DeterministicKey''get-child-number DeterministicKey''get-fingerprint DeterministicKey''get-identifier DeterministicKey''get-path-as-string DeterministicKey''get-priv-key-bytes33 DeterministicKey''serialize DeterministicKey''serialize-priv-base58 DeterministicKey''serialize-private DeterministicKey''serialize-pub-base58 DeterministicKey''serialize-public DeterministicKey'compare-by-child-number DeterministicKey'add-checksum DeterministicKey'ascertain-parent-fingerprint DeterministicKey'deserialize DeterministicKey'deserialize-base58-2 DeterministicKey'deserialize-base58-3 DeterministicKey'init DeterministicKey'new-4 DeterministicKey'new-5 DeterministicKey'new-6p DeterministicKey'new-6i DeterministicKey'to-base58 DeterministicKey''set-creation-time-seconds)
-(declare DeterministicKeyChain'''find-redeem-data-by-script-hash DeterministicKeyChain'''format-addresses DeterministicKeyChain'''fresh-output-script DeterministicKeyChain'''get-redeem-data DeterministicKeyChain'''is-married DeterministicKeyChain'''maybe-look-ahead-scripts DeterministicKeyChain'''set-lookahead-size DeterministicKeyChain''calc-default-lookahead-threshold DeterministicKeyChain''check-for-bit-flip DeterministicKeyChain''find-key-from-pub-hash DeterministicKeyChain''find-key-from-pub-key DeterministicKeyChain''get-issued-external-keys DeterministicKeyChain''get-issued-internal-keys DeterministicKeyChain''get-issued-receive-keys DeterministicKeyChain''get-key-by-path-2 DeterministicKeyChain''get-key-by-path-3 DeterministicKeyChain''get-key-lookahead-epoch DeterministicKeyChain''get-keys-3b DeterministicKeyChain''get-leaf-keys DeterministicKeyChain''get-lookahead-size DeterministicKeyChain''get-lookahead-threshold DeterministicKeyChain''get-mnemonic-code DeterministicKeyChain''get-seed DeterministicKeyChain''get-watching-key DeterministicKeyChain''initialize-hierarchy DeterministicKeyChain''is-watching DeterministicKeyChain''mark-key-as-used DeterministicKeyChain''mark-pub-hash-as-used DeterministicKeyChain''mark-pub-key-as-used DeterministicKeyChain''maybe-look-ahead-1 DeterministicKeyChain''maybe-look-ahead-3 DeterministicKeyChain''maybe-look-ahead-5 DeterministicKeyChain''num-leaf-keys-issued DeterministicKeyChain''set-lookahead-threshold DeterministicKeyChain''to-string DeterministicKeyChain'ACCOUNT_ZERO_PATH DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC DeterministicKeyChain'EXTERNAL_PATH DeterministicKeyChain'EXTERNAL_SUBPATH DeterministicKeyChain'INTERNAL_PATH DeterministicKeyChain'INTERNAL_SUBPATH DeterministicKeyChain'init DeterministicKeyChain'from-seed DeterministicKeyChain'from-entropy DeterministicKeyChain'from-random DeterministicKeyChain'watch DeterministicKeyChain'watch-and-follow)
+(declare DeterministicKeyChain'''find-redeem-data-by-script-hash DeterministicKeyChain'''format-addresses DeterministicKeyChain'''fresh-output-script DeterministicKeyChain'''get-redeem-data DeterministicKeyChain'''is-married DeterministicKeyChain'''maybe-look-ahead-scripts DeterministicKeyChain'''set-lookahead-size DeterministicKeyChain''calc-default-lookahead-threshold DeterministicKeyChain''check-for-bit-flip DeterministicKeyChain''find-key-from-pub-hash DeterministicKeyChain''find-key-from-pub-key DeterministicKeyChain''get-issued-receive-keys DeterministicKeyChain''get-key-by-path-2 DeterministicKeyChain''get-key-by-path-3 DeterministicKeyChain''get-keys-3b DeterministicKeyChain''get-leaf-keys DeterministicKeyChain''get-lookahead-threshold DeterministicKeyChain''get-mnemonic-code DeterministicKeyChain''get-seed DeterministicKeyChain''get-watching-key DeterministicKeyChain''initialize-hierarchy DeterministicKeyChain''is-watching DeterministicKeyChain''mark-key-as-used DeterministicKeyChain''mark-pub-hash-as-used DeterministicKeyChain''mark-pub-key-as-used DeterministicKeyChain''maybe-look-ahead-1 DeterministicKeyChain''maybe-look-ahead-3 DeterministicKeyChain''maybe-look-ahead-5 DeterministicKeyChain''num-leaf-keys-issued DeterministicKeyChain''set-lookahead-threshold DeterministicKeyChain''to-string DeterministicKeyChain'ACCOUNT_ZERO_PATH DeterministicKeyChain'BIP44_ACCOUNT_ZERO_PATH DeterministicKeyChain'DEFAULT_PASSPHRASE_FOR_MNEMONIC DeterministicKeyChain'EXTERNAL_PATH DeterministicKeyChain'EXTERNAL_SUBPATH DeterministicKeyChain'INTERNAL_PATH DeterministicKeyChain'INTERNAL_SUBPATH DeterministicKeyChain'init DeterministicKeyChain'from-seed DeterministicKeyChain'from-entropy DeterministicKeyChain'from-random DeterministicKeyChain'watch DeterministicKeyChain'watch-and-follow)
 (declare DeterministicSeed''to-base16 DeterministicSeed'DEFAULT_SEED_ENTROPY_BITS DeterministicSeed'MAX_SEED_ENTROPY_BITS DeterministicSeed'next-entropy DeterministicSeed'from-entropy DeterministicSeed'from-random DeterministicSeed'new)
 (declare DnsDiscovery'new)
 (declare DnsSeedDiscovery'new)
@@ -241,7 +241,7 @@
 (declare PeerDiscovery'''get-peers PeerDiscovery'''shutdown)
 (declare PeerDiscoveryException'new)
 (declare Wallet''lock-bloom-filter-calculation Wallet''bloom-filter-outpoints-locked Wallet''unlock-bloom-filter-calculation Wallet''create-bloom-filter-locked Wallet''get-earliest-key-creation-time)
-(declare PeerGroup''add-address-i PeerGroup''add-address-p PeerGroup''add-blocks-downloaded-event-listener PeerGroup''add-chain-download-started-event-listener PeerGroup''add-connected-event-listener PeerGroup''add-disconnected-event-listener PeerGroup''add-discovered-event-listener PeerGroup''add-get-data-event-listener PeerGroup''add-inactive PeerGroup''add-on-transaction-broadcast-listener PeerGroup''add-peer-discovery PeerGroup''add-pre-message-received-event-listener PeerGroup''add-wallet PeerGroup''await-running PeerGroup''await-terminated PeerGroup''broadcast-transaction-3 PeerGroup''connect-to-socket-address PeerGroup''connect-to-peer-address PeerGroup''connect-to-loopback PeerGroup''count-connected-and-pending-peers PeerGroup''create-peer PeerGroup''create-private-executor PeerGroup''discover-peers PeerGroup''download-block-chain PeerGroup''find-peers-of-at-least-version PeerGroup''find-peers-with-service-mask PeerGroup''get-connected-peers PeerGroup''get-download-peer PeerGroup''get-fast-catchup-time-secs PeerGroup''get-max-connections PeerGroup''get-min-broadcast-connections PeerGroup''get-most-common-chain-height PeerGroup''get-pending-peers PeerGroup''get-ping-interval-msec PeerGroup''get-use-loopback-peer-when-possible PeerGroup''handle-get-data PeerGroup''handle-new-peer PeerGroup''handle-peer-death PeerGroup''maybe-check-for-loopback-peer PeerGroup''num-connected-peers PeerGroup''recalculate-fast-catchup-and-filter PeerGroup''remove-blocks-downloaded-event-listener PeerGroup''remove-chain-download-started-event-listener PeerGroup''remove-connected-event-listener PeerGroup''remove-disconnected-event-listener PeerGroup''remove-discovered-event-listener PeerGroup''remove-get-data-event-listener PeerGroup''remove-on-transaction-broadcast-listener PeerGroup''remove-pre-message-received-event-listener PeerGroup''remove-wallet PeerGroup''select-download-peer PeerGroup''set-bloom-filter-false-positive-rate PeerGroup''set-download-peer PeerGroup''set-fast-catchup-time-secs PeerGroup''set-max-connections PeerGroup''set-min-broadcast-connections PeerGroup''set-ping-interval-msec PeerGroup''set-required-services PeerGroup''set-stall-threshold PeerGroup''set-use-loopback-peer-when-possible PeerGroup''setup-pinging PeerGroup''start PeerGroup''start-async PeerGroup''start-block-chain-download PeerGroup''start-block-chain-download-from-peer PeerGroup''stop PeerGroup''stop-async PeerGroup''trigger-connections PeerGroup''update-version-message-relay-txes-before-filter PeerGroup''wait-for-job-queue PeerGroup''wait-for-peers PeerGroup''wait-for-peers-of-version PeerGroup''wait-for-peers-with-service-mask PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE PeerGroup'DEFAULT_CONNECTIONS PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS PeerGroup'DEFAULT_PING_INTERVAL_MSEC PeerGroup'MAX_FP_RATE_INCREASE PeerGroup'MIN_PEER_DISCOVERY_INTERVAL PeerGroup'add-data-event-listener-to-peer PeerGroup'get-most-common-chain-height* PeerGroup'new PeerGroup'remove-data-event-listener-from-peer)
+(declare PeerGroup''add-address-i PeerGroup''add-address-p PeerGroup''add-blocks-downloaded-event-listener PeerGroup''add-chain-download-started-event-listener PeerGroup''add-connected-event-listener PeerGroup''add-disconnected-event-listener PeerGroup''add-discovered-event-listener PeerGroup''add-get-data-event-listener PeerGroup''add-inactive PeerGroup''add-on-transaction-broadcast-listener PeerGroup''add-peer-discovery PeerGroup''add-pre-message-received-event-listener PeerGroup''add-wallet PeerGroup''await-running PeerGroup''await-terminated PeerGroup''broadcast-transaction-3 PeerGroup''connect-to-socket-address PeerGroup''connect-to-peer-address PeerGroup''connect-to-loopback PeerGroup''count-connected-and-pending-peers PeerGroup''create-peer PeerGroup''create-private-executor PeerGroup''discover-peers PeerGroup''download-block-chain PeerGroup''find-peers-of-at-least-version PeerGroup''find-peers-with-service-mask PeerGroup''get-connected-peers PeerGroup''get-download-peer PeerGroup''get-min-broadcast-connections PeerGroup''get-most-common-chain-height PeerGroup''get-pending-peers PeerGroup''handle-get-data PeerGroup''handle-new-peer PeerGroup''handle-peer-death PeerGroup''maybe-check-for-loopback-peer PeerGroup''recalculate-fast-catchup-and-filter PeerGroup''remove-blocks-downloaded-event-listener PeerGroup''remove-chain-download-started-event-listener PeerGroup''remove-connected-event-listener PeerGroup''remove-disconnected-event-listener PeerGroup''remove-discovered-event-listener PeerGroup''remove-get-data-event-listener PeerGroup''remove-on-transaction-broadcast-listener PeerGroup''remove-pre-message-received-event-listener PeerGroup''remove-wallet PeerGroup''select-download-peer PeerGroup''set-bloom-filter-false-positive-rate PeerGroup''set-download-peer PeerGroup''set-fast-catchup-time-secs PeerGroup''set-max-connections PeerGroup''set-ping-interval-msec PeerGroup''set-required-services PeerGroup''set-stall-threshold PeerGroup''setup-pinging PeerGroup''start PeerGroup''start-async PeerGroup''start-block-chain-download PeerGroup''start-block-chain-download-from-peer PeerGroup''stop PeerGroup''stop-async PeerGroup''trigger-connections PeerGroup''update-version-message-relay-txes-before-filter PeerGroup''wait-for-job-queue PeerGroup''wait-for-peers PeerGroup''wait-for-peers-of-version PeerGroup''wait-for-peers-with-service-mask PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE PeerGroup'DEFAULT_CONNECTIONS PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS PeerGroup'DEFAULT_PING_INTERVAL_MSEC PeerGroup'MAX_FP_RATE_INCREASE PeerGroup'MIN_PEER_DISCOVERY_INTERVAL PeerGroup'add-data-event-listener-to-peer PeerGroup'get-most-common-chain-height* PeerGroup'new PeerGroup'remove-data-event-listener-from-peer)
 (declare PeerListener'new)
 (declare PeerSocketHandler'''process-message PeerSocketHandler''close PeerSocketHandler''exception-caught PeerSocketHandler''send-message PeerSocketHandler'new)
 (declare PendingConnection'new)
@@ -292,7 +292,7 @@
 (declare Wallet''get-transaction-pool Wallet''is-pay-to-script-hash-mine Wallet''is-pub-key-hash-mine Wallet''is-pub-key-mine)
 (declare TransactionBroadcast''broadcast TransactionBroadcast''invoke-and-record TransactionBroadcast''invoke-progress-callback TransactionBroadcast''set-progress-callback TransactionBroadcast'RANDOM TransactionBroadcast'new)
 (declare TransactionBroadcaster'''broadcast-transaction-2)
-(declare TransactionConfidence''add-event-listener TransactionConfidence''clear-broadcast-by TransactionConfidence''get-appeared-at-chain-height TransactionConfidence''get-confidence-type TransactionConfidence''get-depth-future TransactionConfidence''get-overriding-transaction TransactionConfidence''get-source TransactionConfidence''mark-broadcast-by TransactionConfidence''num-broadcast-peers TransactionConfidence''queue-listeners TransactionConfidence''remove-event-listener TransactionConfidence''set-appeared-at-chain-height TransactionConfidence''set-confidence-type TransactionConfidence''set-overriding-transaction TransactionConfidence''set-source TransactionConfidence''was-broadcast-by TransactionConfidence'PINNED_CONFIDENCE_OBJECTS TransactionConfidence'new)
+(declare TransactionConfidence''add-event-listener TransactionConfidence''clear-broadcast-by TransactionConfidence''get-appeared-at-chain-height TransactionConfidence''get-depth-future TransactionConfidence''get-overriding-transaction TransactionConfidence''mark-broadcast-by TransactionConfidence''num-broadcast-peers TransactionConfidence''queue-listeners TransactionConfidence''remove-event-listener TransactionConfidence''set-appeared-at-chain-height TransactionConfidence''set-confidence-type TransactionConfidence''set-overriding-transaction TransactionConfidence''was-broadcast-by TransactionConfidence'PINNED_CONFIDENCE_OBJECTS TransactionConfidence'new)
 (declare TransactionConfidenceListener'''on-confidence-changed)
 (declare TransactionInput''clear-script-bytes TransactionInput''connect-3m TransactionInput''connect-3t TransactionInput''connect-output TransactionInput''disconnect TransactionInput''get-connected-output TransactionInput''get-connected-output-2 TransactionInput''get-connected-transaction TransactionInput''get-from-address TransactionInput''get-script-sig TransactionInput''has-sequence TransactionInput''is-coin-base TransactionInput''is-opt-in-full-rbf TransactionInput''is-standard TransactionInput''set-script-bytes TransactionInput''set-script-sig TransactionInput''verify-1 TransactionInput''verify-2 TransactionInput'NO_SEQUENCE TransactionInput'UNCONNECTED TransactionInput'new TransactionInput'new-unconnected TransactionInput'for-output TransactionInput'for-outpoint TransactionInput'from-wire TransactionInput''to-wire)
 (declare TransactionOutPoint''get-connected-key TransactionOutPoint''get-connected-output TransactionOutPoint''get-connected-pub-key-script TransactionOutPoint''get-connected-redeem-data TransactionOutPoint'new TransactionOutPoint'for-output TransactionOutPoint'for-hash TransactionOutPoint'for-transaction TransactionOutPoint'from-wire TransactionOutPoint''to-wire)
@@ -316,7 +316,7 @@
 (declare VersionAck'new VersionAck''to-wire)
 (declare VersionMessage''has-block-chain VersionMessage''is-bloom-filtering-supported VersionMessage''is-ping-pong-supported VersionMessage'NODE_NETWORK VersionMessage'init VersionMessage'new VersionMessage'from-wire VersionMessage''to-wire)
 (declare VersionTally''add VersionTally''get-count-at-or-above VersionTally'from-store VersionTally'new)
-(declare Wallet'DEFAULT_EVENT_HORIZON Wallet''add-and-activate-hd-chain Wallet''add-change-event-listener Wallet''add-coins-received-event-listener Wallet''add-coins-sent-event-listener Wallet''add-key-chain-event-listener Wallet''add-reorganize-event-listener Wallet''add-supplied-inputs Wallet''add-transaction-confidence-event-listener Wallet''add-transaction-signer Wallet''add-transactions-depending-on Wallet''add-wallet-transaction Wallet''adjust-output-downwards-for-fee Wallet''calculate-all-spend-candidates-1 Wallet''calculate-all-spend-candidates-3 Wallet''calculate-fee Wallet''can-sign-for Wallet''check-balance-futures-locked Wallet''check-for-filter-exhaustion Wallet''cleanup Wallet''clear-transactions-1 Wallet''clear-transactions-2 Wallet''commit-tx Wallet''complete-tx Wallet''create-send Wallet''create-transient-state Wallet''current-address Wallet''current-change-address Wallet''current-key Wallet''current-receive-address Wallet''current-receive-key Wallet''do-maintenance Wallet''estimate-bytes-for-signing Wallet''find-double-spends-against Wallet''fresh-address Wallet''fresh-key Wallet''fresh-keys Wallet''fresh-receive-address Wallet''fresh-receive-key Wallet''get-active-key-chain Wallet''get-balance-1 Wallet''get-balance-2s Wallet''get-balance-2t Wallet''get-balance-future Wallet''create-bloom-filter Wallet''get-coin-selector Wallet''get-containing-pools Wallet''get-issued-receive-addresses Wallet''get-issued-receive-keys Wallet''get-key-by-path-2 Wallet''get-key-chain-group-combined-key-lookahead-epochs Wallet''get-key-chain-group-lookahead-size Wallet''get-key-chain-group-lookahead-threshold Wallet''get-key-chain-group-size Wallet''get-key-chain-seed Wallet''get-key-rotation-time Wallet''get-last-block-seen-hash Wallet''get-last-block-seen-height Wallet''get-last-block-seen-time Wallet''get-last-block-seen-time-secs Wallet''get-pending-transactions Wallet''get-recent-transactions Wallet''get-total-received Wallet''get-total-sent Wallet''get-transaction Wallet''get-transaction-signers Wallet''get-transactions Wallet''get-transactions-by-time Wallet''get-unspents Wallet''get-watching-key Wallet''has-key Wallet''inform-confidence-listeners-if-not-reorganizing Wallet''is-accept-risky-transactions Wallet''is-consistent Wallet''is-consistent-or-throw Wallet''is-key-rotating Wallet''is-spending-txns-in-confidence-type Wallet''is-pending-transaction-relevant Wallet''is-transaction-relevant Wallet''is-transaction-risky Wallet''is-tx-consistent Wallet''is-tx-output-bloom-filterable Wallet''is-watching Wallet''kill-txns Wallet''mark-keys-as-used Wallet''maybe-commit-tx Wallet''maybe-move-pool Wallet''maybe-queue-on-wallet-changed Wallet''maybe-rotate-keys Wallet''process-tx-from-best-chain Wallet''queue-on-coins-received Wallet''queue-on-coins-sent Wallet''queue-on-reorganize Wallet''queue-on-transaction-confidence-changed Wallet''receive Wallet''receive-pending-3 Wallet''receive-pending-4 Wallet''rekey-one-batch Wallet''remove-change-event-listener Wallet''remove-coins-received-event-listener Wallet''remove-coins-sent-event-listener Wallet''remove-key-chain-event-listener Wallet''remove-reorganize-event-listener Wallet''remove-transaction-confidence-event-listener Wallet''reset Wallet''save Wallet''save-later Wallet''save-now Wallet''send-coins-2 Wallet''send-coins-3b Wallet''send-coins-3p Wallet''send-coins-4 Wallet''send-coins-offline Wallet''set-accept-risky-transactions Wallet''set-coin-selector Wallet''set-key-chain-group-lookahead-size Wallet''set-key-chain-group-lookahead-threshold Wallet''set-key-rotation-time-d Wallet''set-key-rotation-time-l Wallet''set-last-block-seen-hash Wallet''set-last-block-seen-height Wallet''set-last-block-seen-time-secs Wallet''set-transaction-broadcaster Wallet''sign-transaction Wallet''sort-txns-by-dependency Wallet''spends Wallet''subtract-depth Wallet''to-string Wallet''to-string-helper Wallet''update-for-spends Wallet'from-seed Wallet'from-watching-key Wallet'from-watching-key-base58 Wallet'new)
+(declare Wallet'DEFAULT_EVENT_HORIZON Wallet''add-and-activate-hd-chain Wallet''add-change-event-listener Wallet''add-coins-received-event-listener Wallet''add-coins-sent-event-listener Wallet''add-key-chain-event-listener Wallet''add-reorganize-event-listener Wallet''add-supplied-inputs Wallet''add-transaction-confidence-event-listener Wallet''add-transaction-signer Wallet''add-transactions-depending-on Wallet''add-wallet-transaction Wallet''adjust-output-downwards-for-fee Wallet''calculate-all-spend-candidates-1 Wallet''calculate-all-spend-candidates-3 Wallet''calculate-fee Wallet''can-sign-for Wallet''check-balance-futures-locked Wallet''check-for-filter-exhaustion Wallet''cleanup Wallet''clear-transactions-1 Wallet''clear-transactions-2 Wallet''commit-tx Wallet''complete-tx Wallet''create-send Wallet''create-transient-state Wallet''current-address Wallet''current-change-address Wallet''current-key Wallet''current-receive-address Wallet''current-receive-key Wallet''do-maintenance Wallet''estimate-bytes-for-signing Wallet''find-double-spends-against Wallet''fresh-address Wallet''fresh-key Wallet''fresh-keys Wallet''fresh-receive-address Wallet''fresh-receive-key Wallet''get-active-key-chain Wallet''get-balance-2s Wallet''get-balance-2t Wallet''get-balance-future Wallet''create-bloom-filter Wallet''get-coin-selector Wallet''get-containing-pools Wallet''get-issued-receive-addresses Wallet''get-issued-receive-keys Wallet''get-key-by-path-2 Wallet''get-key-chain-group-combined-key-lookahead-epochs Wallet''get-key-chain-group-lookahead-size Wallet''get-key-chain-group-lookahead-threshold Wallet''get-key-chain-group-size Wallet''get-key-chain-seed Wallet''get-key-rotation-time Wallet''get-last-block-seen-hash Wallet''get-last-block-seen-time Wallet''get-pending-transactions Wallet''get-recent-transactions Wallet''get-total-received Wallet''get-total-sent Wallet''get-transaction Wallet''get-transaction-signers Wallet''get-transactions Wallet''get-transactions-by-time Wallet''get-unspents Wallet''get-watching-key Wallet''has-key Wallet''inform-confidence-listeners-if-not-reorganizing Wallet''is-consistent Wallet''is-consistent-or-throw Wallet''is-key-rotating Wallet''is-spending-txns-in-confidence-type Wallet''is-pending-transaction-relevant Wallet''is-transaction-relevant Wallet''is-transaction-risky Wallet''is-tx-consistent Wallet''is-tx-output-bloom-filterable Wallet''is-watching Wallet''kill-txns Wallet''mark-keys-as-used Wallet''maybe-commit-tx Wallet''maybe-move-pool Wallet''maybe-queue-on-wallet-changed Wallet''maybe-rotate-keys Wallet''process-tx-from-best-chain Wallet''queue-on-coins-received Wallet''queue-on-coins-sent Wallet''queue-on-reorganize Wallet''queue-on-transaction-confidence-changed Wallet''receive Wallet''receive-pending-3 Wallet''receive-pending-4 Wallet''rekey-one-batch Wallet''remove-change-event-listener Wallet''remove-coins-received-event-listener Wallet''remove-coins-sent-event-listener Wallet''remove-key-chain-event-listener Wallet''remove-reorganize-event-listener Wallet''remove-transaction-confidence-event-listener Wallet''reset Wallet''save Wallet''save-later Wallet''save-now Wallet''send-coins-2 Wallet''send-coins-3b Wallet''send-coins-3p Wallet''send-coins-4 Wallet''send-coins-offline Wallet''set-coin-selector Wallet''set-key-chain-group-lookahead-size Wallet''set-key-chain-group-lookahead-threshold Wallet''set-key-rotation-time-d Wallet''set-key-rotation-time-l Wallet''set-transaction-broadcaster Wallet''sign-transaction Wallet''sort-txns-by-dependency Wallet''spends Wallet''subtract-depth Wallet''to-string Wallet''to-string-helper Wallet''update-for-spends Wallet'from-seed Wallet'from-watching-key Wallet'from-watching-key-base58 Wallet'new)
 (declare WalletAppKit''chain WalletAppKit''connect-to-loopback WalletAppKit''create-peer-group WalletAppKit''create-wallet WalletAppKit''install-shutdown-hook WalletAppKit''on-setup-completed WalletAppKit''peer-group WalletAppKit''provide-block-store WalletAppKit''set-checkpoints WalletAppKit''set-peer-nodes WalletAppKit''store WalletAppKit''wallet WalletAppKit'new)
 (declare WalletCoinsReceivedEventListener'''on-coins-received)
 (declare WeakConfidenceReference'new)
@@ -1944,7 +1944,7 @@
         (BlockChain''add-reorganize-listener this, Threading'SAME_THREAD, wallet)
         (BlockChain''add-transaction-received-listener this, Threading'SAME_THREAD, wallet)
 
-        (let [#_"int" __walletHeight (Wallet''get-last-block-seen-height wallet)
+        (let [#_"int" __walletHeight (:last-block-seen-height wallet)
               #_"int" __chainHeight (BlockChain''get-best-chain-height this)]
             (when-not (= __walletHeight __chainHeight) => this
                 (log/warn (str "Wallet/chain height mismatch: " __walletHeight " vs " __chainHeight))
@@ -2731,7 +2731,9 @@
         )
     )
 
-    ;;; Returns true if the given block is currently in the orphan blocks list. ;;
+    ;;;
+     ; Returns true if the given block is currently in the orphan blocks list.
+     ;;
     #_method
     (defn #_"boolean" BlockChain''is-orphan [#_"BlockChain" this, #_"Sha256Hash" block]
         (sync (:blockchain-lock this)
@@ -3710,7 +3712,7 @@
                         (dotimes [_ n]
                             (let [#_"Transaction" tx (Transaction'from-wire ledger, payload)]
                                 ;; Label the transaction as coming from the P2P network, so code that cares where we first saw it knows.
-                                (§ ass (Transaction''get-confidence tx) (TransactionConfidence''set-source (Transaction''get-confidence tx), :ConfidenceSource'NETWORK))
+                                (§ ass (Transaction''get-confidence tx) (assoc (Transaction''get-confidence tx) :confidence-source :ConfidenceSource'NETWORK))
                                 (.add txns, tx)
                             )
                         )
@@ -7889,7 +7891,7 @@
                     ;; Peer to stash the tx object somewhere if they want to keep receiving updates about network propagation
                     ;; and so on.
                     (let [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)]
-                        (§ ass confidence (TransactionConfidence''set-source confidence, :ConfidenceSource'NETWORK))
+                        (§ ass confidence (assoc confidence :confidence-source :ConfidenceSource'NETWORK))
                         (.remove (:pending-tx-downloads this), confidence)
                         (cond (Peer''maybe-handle-requested-data this, tx, Transaction''get-hash)
                             (do
@@ -8000,7 +8002,7 @@
      ;;
     #_method
     (defn #_"ListenableFuture<List<Transaction>>" Peer''download-dependencies [#_"Peer" this, #_"Transaction" tx]
-        (assert-argument (not= (TransactionConfidence''get-confidence-type (Transaction''get-confidence tx)) :ConfidenceType'BUILDING))
+        (assert-argument (not= (:confidence-type (Transaction''get-confidence tx)) :ConfidenceType'BUILDING))
 
         (log/info (str (:peer-address this) ": Downloading dependencies of " (Transaction''get-hash tx)))
         (let [#_"List<Transaction>" results (LinkedList.)
@@ -8410,7 +8412,7 @@
                                     ;; Some other peer already announced this so don't download.
                                     (.remove it)
                                 )
-                                (= (TransactionConfidence''get-source conf) :ConfidenceSource'SELF)
+                                (= (:confidence-source conf) :ConfidenceSource'SELF)
                                 (do
                                     ;; We created this transaction ourselves, so don't download.
                                     (.remove it)
@@ -9229,7 +9231,7 @@
                             (let [this
                                     (when discover? => this
                                         ;; Require that we have enough connections, to consider this a success, or we just constantly test for new peers.
-                                        (if (and success? (<= (PeerGroup''get-max-connections this) (PeerGroup''count-connected-and-pending-peers this)))
+                                        (if (and success? (<= (:max-connections this) (PeerGroup''count-connected-and-pending-peers this)))
                                             (update this :group-backoff ExponentialBackoff''track-success)
                                             (update this :group-backoff ExponentialBackoff''track-failure)
                                         )
@@ -9256,7 +9258,7 @@
                                             )
                                         )
                                     )
-                                    (< (PeerGroup''count-connected-and-pending-peers this) (PeerGroup''get-max-connections this))
+                                    (< (PeerGroup''count-connected-and-pending-peers this) (:max-connections this))
                                     (let [#_"long" interval (max (- (:retry-time (:group-backoff this)) now), PeerGroup'MIN_PEER_DISCOVERY_INTERVAL)]
                                         (log/info (str "Peer discovery didn't provide us any more peers, will try again in " interval "ms."))
                                         (.schedule (:executor this), self, interval, TimeUnit/MILLISECONDS)
@@ -9272,7 +9274,7 @@
                             )
                         )]
 
-                    (when (and ? (< (PeerGroup''count-connected-and-pending-peers this) (PeerGroup''get-max-connections this)))
+                    (when (and ? (< (PeerGroup''count-connected-and-pending-peers this) (:max-connections this)))
                         (.execute (:executor this), self) ;; Try next peer immediately.
                     )
                     this
@@ -9338,6 +9340,11 @@
                         #_"Map<PeerAddress, ExponentialBackoff>" :backoff-map (HashMap.)
 
                         ;; Currently active peers.  This is an ordered list rather than a set to make unit tests predictable.
+                        ;;;
+                         ; Currently connected peers.  To be informed when this list changes,
+                         ; register a {@link PeerConnectedEventListener}/{@link PeerDisconnectedEventListener}
+                         ; and use the onPeerConnected/onPeerDisconnected methods.
+                         ;;
                         #_"ArrayList<Peer>" :peers (CopyOnWriteArrayList.)
                         ;; Currently connecting peers.
                         #_"ArrayList<Peer>" :pending-peers (CopyOnWriteArrayList.)
@@ -9386,11 +9393,26 @@
                         #_volatile
                         #_"int" :v-min-required-protocol-version ProtocolVersion'BLOOM_FILTER
 
+                        ;;;
+                         ; The period between pings for an individual peer.  Setting this lower means more accurate and
+                         ; timely ping times are available via {@link Peer#getLastPingTime()} but it increases load on
+                         ; the remote node.  It defaults to {@link PeerGroup#DEFAULT_PING_INTERVAL_MSEC}.
+                         ;;
                         #_"long" :ping-interval-msec PeerGroup'DEFAULT_PING_INTERVAL_MSEC
 
+                        ;;;
+                         ; When true (the default), PeerGroup will attempt to connect to a Bitcoin node running on loopback before
+                         ; attempting to use the P2P network.  If successful, only loopback will be used.  This makes for a simple
+                         ; and easy way for a user to upgrade a bitcoinj based app running in SPV mode to fully validating security.
+                         ;;
                         #_"boolean" :use-loopback-peer-when-possible true
                         #_"boolean" :ipv6-unreachable false
 
+                        ;;;
+                         ; The current fast catchup time.  The contents of blocks before this time won't be downloaded as
+                         ; they cannot contain any interesting transactions.  If you use {@link PeerGroup#addWallet(Wallet)}
+                         ; this just returns the min of the wallets earliest key times.
+                         ;;
                         #_"long" :fast-catchup-time-secs (:time-seconds (:genesis-block ledger))
                         #_"ArrayList<Wallet>" :wallets (CopyOnWriteArrayList.)
 
@@ -9487,7 +9509,7 @@
                                 ;; filter.  In case (1), we need to retransmit the filter to the connected peers.  In case (2), we don't
                                 ;; and shouldn't, we should just recalculate and cache the new filter for next time.
                                 (when (seq (filter #(and (Script''is-sent-to-raw-pub-key (TransactionOutput''parse-script-pub-key %)) (TransactionOutput''is-mine %, wallet)) (:outputs tx)))
-                                    (PeerGroup''recalculate-fast-catchup-and-filter this, (if (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence tx)) :ConfidenceType'BUILDING) :FilterRecalculateMode'SEND_IF_CHANGED :FilterRecalculateMode'DONT_SEND))
+                                    (PeerGroup''recalculate-fast-catchup-and-filter this, (if (= (:confidence-type (Transaction''get-confidence tx)) :ConfidenceType'BUILDING) :FilterRecalculateMode'SEND_IF_CHANGED :FilterRecalculateMode'DONT_SEND))
                                 )
                                 nil
                             )
@@ -9571,14 +9593,6 @@
             (.execute (:executor this), (:trigger-connections-job this))
         )
         nil
-    )
-
-    ;;; The maximum number of connections that we will create to peers. ;;
-    #_method
-    (defn #_"int" PeerGroup''get-max-connections [#_"PeerGroup" this]
-        (sync (:peergroup-lock this)
-            (:max-connections this)
-        )
     )
 
     #_method
@@ -9841,7 +9855,7 @@
         (let [#_"int" n
                 (sync (:peergroup-lock this)
                     (PeerGroup''add-inactive this, addr)
-                    (inc (PeerGroup''get-max-connections this))
+                    (inc (:max-connections this))
                 )]
             (PeerGroup''set-max-connections this, n)
         )
@@ -9889,7 +9903,7 @@
     (defn #_"PeerGroup" PeerGroup''add-peer-discovery [#_"PeerGroup" this, #_"PeerDiscovery" discovery]
         (sync (:peergroup-lock this)
             (let [this
-                    (when (zero? (PeerGroup''get-max-connections this)) => this
+                    (when (zero? (:max-connections this)) => this
                         (PeerGroup''set-max-connections this, PeerGroup'DEFAULT_CONNECTIONS)
                     )]
                 (.add (:peer-discoveries this), discovery)
@@ -10246,16 +10260,6 @@
     )
 
     ;;;
-     ; Returns the number of currently connected peers.  To be informed when this count changes,
-     ; register a {@link PeerConnectedEventListener}/{@link PeerDisconnectedEventListener}
-     ; and use the onPeerConnected/onPeerDisconnected methods.
-     ;;
-    #_method
-    (defn #_"int" PeerGroup''num-connected-peers [#_"PeerGroup" this]
-        (count (:peers this))
-    )
-
-    ;;;
      ; Connect to a peer by creating a channel to the destination address.  This should not be
      ; used normally - let the PeerGroup manage connections through {@link #start()}.
      ;
@@ -10488,10 +10492,10 @@
     #_suppress #_[ "NonAtomicOperationOnVolatileField" ]
     #_method
     (defn- #_"PeerGroup" PeerGroup''setup-pinging [#_"PeerGroup" this]
-        (when (pos? (PeerGroup''get-ping-interval-msec this)) => this ;; Disabled.
+        (when (pos? (:ping-interval-msec this)) => this ;; Disabled.
             (assoc this :v-ping-task (.scheduleAtFixedRate (:executor this),
                 #(try
-                    (if-not (pos? (PeerGroup''get-ping-interval-msec this)) ;; Disabled.
+                    (if-not (pos? (:ping-interval-msec this)) ;; Disabled.
                         (let [#_"ListenableScheduledFuture<?>" task (:v-ping-task this)]
                             (when (some? task)
                                 (.cancel task, false)
@@ -10507,7 +10511,7 @@
                     (catch Throwable e
                         (log/error e, "Exception in ping loop") ;; The executor swallows exceptions :( ;; )
                     )
-                ), (PeerGroup''get-ping-interval-msec this), (PeerGroup''get-ping-interval-msec this), TimeUnit/MILLISECONDS)
+                ), (:ping-interval-msec this), (:ping-interval-msec this), TimeUnit/MILLISECONDS)
             )
         )
     )
@@ -10559,20 +10563,6 @@
         )
     )
 
-    ;;;
-     ; Returns the current fast catchup time.  The contents of blocks before this time won't be downloaded as they
-     ; cannot contain any interesting transactions.  If you use {@link PeerGroup#addWallet(Wallet)} this just returns
-     ; the min of the wallets earliest key times.
-     ;
-     ; @return a time in seconds since the epoch.
-     ;;
-    #_method
-    (defn #_"long" PeerGroup''get-fast-catchup-time-secs [#_"PeerGroup" this]
-        (sync (:peergroup-lock this)
-            (:fast-catchup-time-secs this)
-        )
-    )
-
     #_method
     (defn #_"PeerGroup" PeerGroup''handle-peer-death [#_"PeerGroup" this, #_"Peer" peer, #_"Throwable" e]
         ;; Peer deaths can occur during startup if a connect attempt after peer discovery aborts immediately.
@@ -10614,7 +10604,7 @@
                                             this
                                         )
                                     )]
-                                (when (< m (PeerGroup''get-max-connections this))
+                                (when (< m (:max-connections this))
                                     (PeerGroup''trigger-connections this)
                                 )
                                 [this n]
@@ -10717,7 +10707,7 @@
      ;;
     #_method
     (defn #_"ListenableFuture<List<Peer>>" PeerGroup''wait-for-peers-of-version [#_"PeerGroup" this, #_"int" n, #_"long" version]
-        (let [#_"List<Peer>" peers (PeerGroup''find-peers-of-at-least-version this, version)]
+        (let [#_"List<Peer>" peers (ArrayList. (PeerGroup''find-peers-of-at-least-version this, version))]
             (if (<= n (count peers))
                 (Futures/immediateFuture peers)
                 (let [#_"SettableFuture<List<Peer>>" future (SettableFuture/create)]
@@ -10725,7 +10715,7 @@
                         (§ reify PeerConnectedEventListener
                             #_override
                             (§ non-void #_"PeerConnectedEventListener" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" self, #_"Peer" _peer, #_"int" _n]
-                                (let [#_"List<Peer>" peers (PeerGroup''find-peers-of-at-least-version this, version)]
+                                (let [#_"List<Peer>" peers (ArrayList. (PeerGroup''find-peers-of-at-least-version this, version))]
                                     (when (<= n (count peers))
                                         (.set future, peers)
                                         (PeerGroup''remove-connected-event-listener this, self)
@@ -10742,19 +10732,12 @@
     )
 
     ;;;
-     ; Returns an array list of peers that implement the given protocol version or better.
+     ; Returns a seq of peers that implement the given protocol version or better.
      ;;
     #_method
-    (defn #_"List<Peer>" PeerGroup''find-peers-of-at-least-version [#_"PeerGroup" this, #_"long" version]
+    (defn #_"Peer*" PeerGroup''find-peers-of-at-least-version [#_"PeerGroup" this, #_"long" version]
         (sync (:peergroup-lock this)
-            (let [#_"List<Peer>" peers (ArrayList. #_"<Peer>" (count (:peers this)))]
-                (doseq [#_"Peer" peer (:peers this)]
-                    (when (<= version (:client-version (:v-peer-version-message peer)))
-                        (.add peers, peer)
-                    )
-                )
-                peers
-            )
+            (filter #(<= version (:client-version (:v-peer-version-message %))) (:peers this))
         )
     )
 
@@ -10769,7 +10752,7 @@
     #_method
     (defn #_"ListenableFuture<List<Peer>>" PeerGroup''wait-for-peers-with-service-mask [#_"PeerGroup" this, #_"int" n, #_"int" mask]
         (sync (:peergroup-lock this)
-            (let [#_"List<Peer>" peers (PeerGroup''find-peers-with-service-mask this, mask)]
+            (let [#_"List<Peer>" peers (ArrayList. (PeerGroup''find-peers-with-service-mask this, mask))]
                 (if (<= n (count peers))
                     (Futures/immediateFuture peers)
                     (let [#_"SettableFuture<List<Peer>>" future (SettableFuture/create)]
@@ -10777,7 +10760,7 @@
                             (§ reify PeerConnectedEventListener
                                 #_override
                                 (§ non-void #_"PeerConnectedEventListener" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" self, #_"Peer" _peer, #_"int" _n]
-                                    (let [#_"List<Peer>" peers (PeerGroup''find-peers-with-service-mask this, mask)]
+                                    (let [#_"List<Peer>" peers (ArrayList. (PeerGroup''find-peers-with-service-mask this, mask))]
                                         (when (<= n (count peers))
                                             (.set future, peers)
                                             (PeerGroup''remove-connected-event-listener this, self)
@@ -10795,19 +10778,12 @@
     )
 
     ;;;
-     ; Returns an array list of peers that match the requested service bit mask.
+     ; Returns a seq of peers that match the requested service bit mask.
      ;;
     #_method
-    (defn #_"List<Peer>" PeerGroup''find-peers-with-service-mask [#_"PeerGroup" this, #_"int" mask]
+    (defn #_"Peer*" PeerGroup''find-peers-with-service-mask [#_"PeerGroup" this, #_"int" mask]
         (sync (:peergroup-lock this)
-            (let [#_"List<Peer>" peers (ArrayList. #_"<Peer>" (count (:peers this)))]
-                (doseq [#_"Peer" peer (:peers this)]
-                    (when (= (& (:local-services (:v-peer-version-message peer)) mask) mask)
-                        (.add peers, peer)
-                    )
-                )
-                peers
-            )
+            (filter #(= (& (:local-services (:v-peer-version-message %)) mask) mask) (:peers this))
         )
     )
 
@@ -10822,21 +10798,11 @@
     (defn #_"int" PeerGroup''get-min-broadcast-connections [#_"PeerGroup" this]
         (sync (:peergroup-lock this)
             (if (zero? (:min-broadcast-connections this))
-                (let [#_"int" m (PeerGroup''get-max-connections this)]
+                (let [#_"int" m (:max-connections this)]
                     (if (<= m 1) m (int (Math/round (* m 0.8))))
                 )
                 (:min-broadcast-connections this)
             )
-        )
-    )
-
-    ;;;
-     ; See {@link PeerGroup#getMinBroadcastConnections()}.
-     ;;
-    #_method
-    (defn #_"PeerGroup" PeerGroup''set-min-broadcast-connections [#_"PeerGroup" this, #_"int" value]
-        (sync (:peergroup-lock this)
-            (assoc this :min-broadcast-connections value)
         )
     )
 
@@ -10870,9 +10836,9 @@
     (defn #_"TransactionBroadcast" PeerGroup''broadcast-transaction-3 [#_"PeerGroup" this, #_"Transaction" tx, #_"int" __minConnections]
         ;; If we don't have a record of where this tx came from already, set it to be ourselves so Peer doesn't end up
         ;; redownloading it from the network redundantly.
-        (when (= (TransactionConfidence''get-source (Transaction''get-confidence tx)) :ConfidenceSource'UNKNOWN)
+        (when (= (:confidence-source (Transaction''get-confidence tx)) :ConfidenceSource'UNKNOWN)
             (log/info (str "Transaction source unknown, setting to SELF: " (Transaction''get-hash tx)))
-            (§ ass (Transaction''get-confidence tx) (TransactionConfidence''set-source (Transaction''get-confidence tx), :ConfidenceSource'SELF))
+            (§ ass (Transaction''get-confidence tx) (assoc (Transaction''get-confidence tx) :confidence-source :ConfidenceSource'SELF))
         )
         (let [#_"TransactionBroadcast" broadcast (TransactionBroadcast'new this, tx)]
             (§ ass broadcast (assoc broadcast :min-connections __minConnections))
@@ -10912,18 +10878,6 @@
             (.add (:running-broadcasts this), broadcast)
             (TransactionBroadcast''broadcast broadcast)
             broadcast
-        )
-    )
-
-    ;;;
-     ; Returns the period between pings for an individual peer.  Setting this lower means more accurate and timely
-     ; ping times are available via {@link Peer#getLastPingTime()} but it increases load on the
-     ; remote node.  It defaults to {@link PeerGroup#DEFAULT_PING_INTERVAL_MSEC}.
-     ;;
-    #_method
-    (defn #_"long" PeerGroup''get-ping-interval-msec [#_"PeerGroup" this]
-        (sync (:peergroup-lock this)
-            (:ping-interval-msec this)
         )
     )
 
@@ -11017,25 +10971,6 @@
     (defn #_"Peer" PeerGroup''get-download-peer [#_"PeerGroup" this]
         (sync (:peergroup-lock this)
             (:download-peer this)
-        )
-    )
-
-    #_method
-    (defn #_"boolean" PeerGroup''get-use-loopback-peer-when-possible [#_"PeerGroup" this]
-        (sync (:peergroup-lock this)
-            (:use-loopback-peer-when-possible this)
-        )
-    )
-
-    ;;;
-     ; When true (the default), PeerGroup will attempt to connect to a Bitcoin node running on loopback before
-     ; attempting to use the P2P network.  If successful, only loopback will be used.  This makes for a simple
-     ; and easy way for a user to upgrade a bitcoinj based app running in SPV mode to fully validating security.
-     ;;
-    #_method
-    (defn #_"PeerGroup" PeerGroup''set-use-loopback-peer-when-possible [#_"PeerGroup" this, #_"boolean" use?]
-        (sync (:peergroup-lock this)
-            (assoc this :use-loopback-peer-when-possible use?)
         )
     )
 )
@@ -11804,9 +11739,9 @@
      ;;
     (defn #_"int" Transaction'compare-by-chain-height [#_"Transaction" this, #_"Transaction" that]
         (let [#_"TransactionConfidence" cf1 (Transaction''get-confidence this)
-              #_"int" height1 (if (= (TransactionConfidence''get-confidence-type cf1) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf1) Block'BLOCK_HEIGHT_UNKNOWN)
+              #_"int" height1 (if (= (:confidence-type cf1) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf1) Block'BLOCK_HEIGHT_UNKNOWN)
               #_"TransactionConfidence" cf2 (Transaction''get-confidence that)
-              #_"int" height2 (if (= (TransactionConfidence''get-confidence-type cf2) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf2) Block'BLOCK_HEIGHT_UNKNOWN)
+              #_"int" height2 (if (= (:confidence-type cf2) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf2) Block'BLOCK_HEIGHT_UNKNOWN)
               #_"int" cmp (- (compare height1 height2))]
             ;; If height1 == height2, compare by tx hash to make comparator consistent with equals.
             (if (not= cmp 0) cmp (Sha256Hash'compare (Transaction''get-hash this), (Transaction''get-hash that)))
@@ -11836,7 +11771,7 @@
      ;;
     #_method
     (defn #_"boolean" Transaction''is-pending [#_"Transaction" this]
-        (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence this)) :ConfidenceType'PENDING)
+        (= (:confidence-type (Transaction''get-confidence this)) :ConfidenceType'PENDING)
     )
 
     ;;;
@@ -11987,7 +11922,7 @@
     (defn #_"boolean" Transaction''is-mature [#_"Transaction" this]
         (cond
             (not (Transaction''is-coin-base this)) true
-            (not= (TransactionConfidence''get-confidence-type (Transaction''get-confidence this)) :ConfidenceType'BUILDING) false
+            (not= (:confidence-type (Transaction''get-confidence this)) :ConfidenceType'BUILDING) false
             :else (<= (-> this :ledger :spendable-coinbase-depth) (:depth-in-blocks (Transaction''get-confidence this)))
         )
     )
@@ -12331,7 +12266,7 @@
      ;;
     #_method
     (defn #_"boolean" Transaction''has-confidence [#_"Transaction" this]
-        (not= (TransactionConfidence''get-confidence-type (Transaction''get-confidence this)) :ConfidenceType'UNKNOWN)
+        (not= (:confidence-type (Transaction''get-confidence this)) :ConfidenceType'UNKNOWN)
     )
 
     ;;;
@@ -13010,12 +12945,21 @@
              ;;
             #_"int" :depth-in-blocks 0
 
+            ;;;
+             ; A general statement of the level of confidence you can have in this transaction.
+             ;;
             #_"ConfidenceType" :confidence-type :ConfidenceType'UNKNOWN
             #_"int" :appeared-at-chain-height -1
             ;; The transaction that double spent this one, if any.
             #_"Transaction" :overriding-transaction nil
 
-            #_"ConfidenceSource" :source :ConfidenceSource'UNKNOWN
+            ;;;
+             ; The source of a transaction tries to identify where it came from originally.  For instance, did we download it
+             ; from the peer to peer network, or make it ourselves, or receive it via Bluetooth, or import it from another app,
+             ; and so on.  This information is useful for {@link CoinSelector} implementations to risk analyze
+             ; transactions and decide when to spend them.
+             ;;
+            #_"ConfidenceSource" :confidence-source :ConfidenceSource'UNKNOWN
         )
     )
 
@@ -13061,8 +13005,8 @@
     #_method
     (defn #_"int" TransactionConfidence''get-appeared-at-chain-height [#_"TransactionConfidence" this]
         (sync this
-            (when-not (= (TransactionConfidence''get-confidence-type this) :ConfidenceType'BUILDING)
-                (throw (IllegalStateException. (str "Confidence type is " (TransactionConfidence''get-confidence-type this) ", not BUILDING")))
+            (when-not (= (:confidence-type this) :ConfidenceType'BUILDING)
+                (throw (IllegalStateException. (str "Confidence type is " (:confidence-type this) ", not BUILDING")))
             )
             (:appeared-at-chain-height this)
         )
@@ -13081,16 +13025,6 @@
             (let [this (assoc this :appeared-at-chain-height height, :depth-in-blocks 1)]
                 (TransactionConfidence''set-confidence-type this, :ConfidenceType'BUILDING)
             )
-        )
-    )
-
-    ;;;
-     ; Returns a general statement of the level of confidence you can have in this transaction.
-     ;;
-    #_method
-    (defn #_"ConfidenceType" TransactionConfidence''get-confidence-type [#_"TransactionConfidence" this]
-        (sync this
-            (:confidence-type this)
         )
     )
 
@@ -13128,7 +13062,7 @@
         (let [this (assoc this :last-broadcasted-at (Time'now))]
             (when (.addIfAbsent (:broadcast-by this), address) => [this false] ;; Duplicate.
                 (sync this
-                    (when (= (TransactionConfidence''get-confidence-type this) :ConfidenceType'UNKNOWN) => [this true]
+                    (when (= (:confidence-type this) :ConfidenceType'UNKNOWN) => [this true]
                         [(assoc this :confidence-type :ConfidenceType'PENDING) true]
                     )
                 )
@@ -13158,7 +13092,7 @@
      ;;
     #_method
     (defn #_"TransactionConfidence" TransactionConfidence''clear-broadcast-by [#_"TransactionConfidence" this]
-        (assert-state (not= (TransactionConfidence''get-confidence-type this) :ConfidenceType'PENDING))
+        (assert-state (not= (:confidence-type this) :ConfidenceType'PENDING))
         (.clear (:broadcast-by this))
         (assoc this :last-broadcasted-at nil)
     )
@@ -13174,8 +13108,8 @@
     #_method
     (defn #_"Transaction" TransactionConfidence''get-overriding-transaction [#_"TransactionConfidence" this]
         (sync this
-            (when-not (= (TransactionConfidence''get-confidence-type this) :ConfidenceType'DEAD)
-                (throw (IllegalStateException. (str "Confidence type is " (TransactionConfidence''get-confidence-type this) ", not DEAD")))
+            (when-not (= (:confidence-type this) :ConfidenceType'DEAD)
+                (throw (IllegalStateException. (str "Confidence type is " (:confidence-type this) ", not DEAD")))
             )
             (:overriding-transaction this)
         )
@@ -13208,32 +13142,6 @@
             (.execute (:executor r), #(TransactionConfidenceListener'''on-confidence-changed (:listener r), this, reason))
         )
         nil
-    )
-
-    ;;;
-     ; The source of a transaction tries to identify where it came from originally.  For instance, did we download it
-     ; from the peer to peer network, or make it ourselves, or receive it via Bluetooth, or import it from another app,
-     ; and so on.  This information is useful for {@link CoinSelector} implementations to risk analyze
-     ; transactions and decide when to spend them.
-     ;;
-    #_method
-    (defn #_"ConfidenceSource" TransactionConfidence''get-source [#_"TransactionConfidence" this]
-        (sync this
-            (:source this)
-        )
-    )
-
-    ;;;
-     ; The source of a transaction tries to identify where it came from originally.  For instance, did we download it
-     ; from the peer to peer network, or make it ourselves, or receive it via Bluetooth, or import it from another app,
-     ; and so on.  This information is useful for {@link CoinSelector} implementations to risk analyze
-     ; transactions and decide when to spend them.
-     ;;
-    #_method
-    (defn #_"TransactionConfidence" TransactionConfidence''set-source [#_"TransactionConfidence" this, #_"ConfidenceSource" source]
-        (sync this
-            (assoc this :source source)
-        )
     )
 
     ;;;
@@ -13277,15 +13185,15 @@
                     )
                     (.. sb (append ". "))
                 )
-                (condp = (TransactionConfidence''get-confidence-type this)
+                (condp = (:confidence-type this)
                     :ConfidenceType'UNKNOWN     (.. sb (append "Unknown confidence level."))
                     :ConfidenceType'DEAD        (.. sb (append "Dead: overridden by double spend and will not confirm."))
                     :ConfidenceType'PENDING     (.. sb (append "Pending/unconfirmed."))
                     :ConfidenceType'IN_CONFLICT (.. sb (append "In conflict."))
                     :ConfidenceType'BUILDING    (.. sb (append "Appeared in best chain at height ") (append (TransactionConfidence''get-appeared-at-chain-height this)) (append ", depth ") (append (:depth-in-blocks this)) (append "."))
                 )
-                (when-not (= (:source this) :ConfidenceSource'UNKNOWN)
-                    (.. sb (append " Source: ") (append (:source this)))
+                (when-not (= (:confidence-source this) :ConfidenceSource'UNKNOWN)
+                    (.. sb (append " Source: ") (append (:confidence-source this)))
                 )
                 (.toString sb)
             )
@@ -14132,7 +14040,7 @@
     (defn #_"int" TransactionOutput''get-parent-transaction-depth-in-blocks [#_"TransactionOutput" this]
         (let-when [#_"Transaction" tx (:parent-tx this)] (some? tx) => -1
             (let [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)]
-                (when (= (TransactionConfidence''get-confidence-type confidence) :ConfidenceType'BUILDING) => -1
+                (when (= (:confidence-type confidence) :ConfidenceType'BUILDING) => -1
                     (:depth-in-blocks confidence)
                 )
             )
@@ -19419,7 +19327,7 @@
             ;; This is intended to use for negative numbers or values > 16, and although
             ;; it will accept numbers in the range 0-16 inclusive, the encoding would be
             ;; considered non-standard.
-            (let [#_"byte*" data (->> (Math/abs num) (iterate #(>> % 8)) (take-while pos?) (map #(& % 0xff)) (into []))
+            (let [#_"byte*" data (->> (Math/abs num) (iterate #(>> % 8)) (take-while pos?) (map #(& % 0xff)) (into (vector)))
                   data
                     (cond
                         ;; The most significant byte is >= 0x80, so push an extra byte
@@ -23421,6 +23329,13 @@
             #_"DeterministicKey" :root-key nil
             #_"DeterministicSeed" :seed nil
 
+            ;;;
+             ; The number of public keys we should pre-generate on each path before they are requested by the app.  This is
+             ; required so that when scanning through the chain given only a seed, we can give enough keys to the remote node
+             ; via the Bloom filter such that we see transactions that are "from the future", for example transactions created
+             ; by a different app that's sharing the same seed, or transactions we made before but we're replaying the chain
+             ; given just the seed. The default is 100.
+             ;;
             #_"int" :lookahead-size 100
             ;; The lookahead threshold causes us to batch up creation of new keys to minimize the frequency of Bloom filter
             ;; regenerations, which are expensive and will (in future) trigger chain download stalls/retries.  One third is
@@ -23432,12 +23347,24 @@
             #_"DeterministicKey" :internal-parent-key nil
             ;; How many keys on each path have actually been used.  This may be fewer than the number that have been
             ;; deserialized or held in memory, because of the lookahead zone.
+            ;;;
+             ; The number of keys used on external path.  This may be fewer than the number that have been deserialized
+             ; or held in memory, because of the lookahead zone.
+             ;;
             #_"int" :issued-external-keys 0
+            ;;;
+             ; The number of keys used on internal path.  This may be fewer than the number that have been deserialized
+             ; or held in memory, because of the lookahead zone.
+             ;;
             #_"int" :issued-internal-keys 0
             ;; A counter that is incremented each time a key in the lookahead threshold zone is marked as used and lookahead
             ;; is triggered.  The Wallet/KCG reads these counters and combines them so it can tell the Peer whether to throw
             ;; away the current block (and any future blocks in the same download batch) and restart chain sync once a new filter
             ;; has been calculated.  This field isn't persisted to the wallet as it's only relevant within a network session.
+            ;;;
+             ; Returns a counter that is incremented each time new keys are generated due to lookahead.
+             ; Used by the network code to learn whether to discard the current block and await calculation of a new filter.
+             ;;
             #_"int" :key-lookahead-epoch 0
 
             ;; We simplify by wrapping a basic key chain and that way we get some functionality like key lookup and event
@@ -23842,20 +23769,6 @@
     )
 
     ;;;
-     ; The number of public keys we should pre-generate on each path before they are requested by the app.  This is
-     ; required so that when scanning through the chain given only a seed, we can give enough keys to the remote node
-     ; via the Bloom filter such that we see transactions that are "from the future", for example transactions created
-     ; by a different app that's sharing the same seed, or transactions we made before but we're replaying the chain
-     ; given just the seed. The default is 100.
-     ;;
-    #_method
-    (defn #_"int" DeterministicKeyChain''get-lookahead-size [#_"DeterministicKeyChain" this]
-        (sync (:d-keychain-lock this)
-            (:lookahead-size this)
-        )
-    )
-
-    ;;;
      ; Sets a new lookahead size.  See {@link #getLookaheadSize()} for details on what this is.  Setting a new size
      ; that's larger than the current size will return immediately and the new size will only take effect next time
      ; a fresh filter is requested (e.g. due to a new peer being connected).  So you should set this before starting
@@ -23927,7 +23840,7 @@
     (defn- #_"List<DeterministicKey>" DeterministicKeyChain''maybe-look-ahead-3 [#_"DeterministicKeyChain" this, #_"DeterministicKey" parent, #_"int" issued]
         (assert-state (.isHeldByCurrentThread (:d-keychain-lock this)))
 
-        (DeterministicKeyChain''maybe-look-ahead-5 this, parent, issued, (DeterministicKeyChain''get-lookahead-size this), (DeterministicKeyChain''get-lookahead-threshold this))
+        (DeterministicKeyChain''maybe-look-ahead-5 this, parent, issued, (:lookahead-size this), (DeterministicKeyChain''get-lookahead-threshold this))
     )
 
     ;;;
@@ -23972,28 +23885,8 @@
     )
 
     ;;;
-     ; Returns number of keys used on external path.  This may be fewer than the number that have been deserialized
-     ; or held in memory, because of the lookahead zone.
+     ; Returns the seed or null if this chain is a watching chain.
      ;;
-    #_method
-    (defn #_"int" DeterministicKeyChain''get-issued-external-keys [#_"DeterministicKeyChain" this]
-        (sync (:d-keychain-lock this)
-            (:issued-external-keys this)
-        )
-    )
-
-    ;;;
-     ; Returns number of keys used on internal path.  This may be fewer than the number that have been deserialized
-     ; or held in memory, because of the lookahead zone.
-     ;;
-    #_method
-    (defn #_"int" DeterministicKeyChain''get-issued-internal-keys [#_"DeterministicKeyChain" this]
-        (sync (:d-keychain-lock this)
-            (:issued-internal-keys this)
-        )
-    )
-
-    ;;; Returns the seed or null if this chain is a watching chain. ;;
     #_method
     (defn #_"DeterministicSeed" DeterministicKeyChain''get-seed [#_"DeterministicKeyChain" this]
         (sync (:d-keychain-lock this)
@@ -24061,18 +23954,6 @@
     )
 
     ;;;
-     ; Returns a counter that is incremented each time new keys are generated due to lookahead.
-     ; Used by the network code to learn whether to discard the current block and await calculation
-     ; of a new filter.
-     ;;
-    #_method
-    (defn #_"int" DeterministicKeyChain''get-key-lookahead-epoch [#_"DeterministicKeyChain" this]
-        (sync (:d-keychain-lock this)
-            (:key-lookahead-epoch this)
-        )
-    )
-
-    ;;;
      ; Whether the keychain is married.  A keychain is married when it vends P2SH addresses from
      ; multiple keychains in a multisig relationship.
      ;
@@ -24083,13 +23964,17 @@
         false
     )
 
-    ;;; Get redeem data for a key.  Only applicable to married keychains. ;;
+    ;;;
+     ; Get redeem data for a key.  Only applicable to married keychains.
+     ;;
     #_abstract
     (defn #_"RedeemData" DeterministicKeyChain'''get-redeem-data [#_"DeterministicKeyChain" __, #_"DeterministicKey" followed]
         (throw (UnsupportedOperationException.))
     )
 
-    ;;; Create a new key and return the matching output script.  Only applicable to married keychains. ;;
+    ;;;
+     ; Create a new key and return the matching output script.  Only applicable to married keychains.
+     ;;
     #_abstract
     (defn #_"Script" DeterministicKeyChain'''fresh-output-script [#_"DeterministicKeyChain" __, #_"KeyPurpose" purpose]
         (throw (UnsupportedOperationException.))
@@ -24098,7 +23983,7 @@
     #_method
     (defn #_"String" DeterministicKeyChain''to-string [#_"DeterministicKeyChain" this, #_"Ledger" ledger]
         (let [#_"DeterministicKey" key (DeterministicKeyChain''get-watching-key this)
-                #_"StringBuilder" sb (StringBuilder. (<< 1 8))]
+              #_"StringBuilder" sb (StringBuilder. (<< 1 8))]
             (if (some? (:seed this))
                 (let [#_"long" secs (:creation-time-seconds (:seed this))]
                     (.. sb (append "Seed birthday: ") (append secs) (append "  [") (append (Time'format-seconds secs)) (append "]\n"))
@@ -24203,11 +24088,11 @@
     (defn #_"boolean" DefaultCoinSelector'is-selectable [#_"Transaction" tx]
         ;; Only pick chain-included transactions, or transactions that are ours and pending.
         (let [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)
-              #_"ConfidenceType" type (TransactionConfidence''get-confidence-type confidence)]
+              #_"ConfidenceType" type (:confidence-type confidence)]
             ;; TODO: The value 1 below dates from a time when transactions we broadcast *to* were counted, set to 0.
             (or (= type :ConfidenceType'BUILDING)
                 (and (= type :ConfidenceType'PENDING)
-                     (= (TransactionConfidence''get-source confidence) :ConfidenceSource'SELF)
+                     (= (:confidence-source confidence) :ConfidenceSource'SELF)
                      (< 1 (TransactionConfidence''num-broadcast-peers confidence))))
         )
     )
@@ -24326,7 +24211,7 @@
     (defn- #_"RiskAnalysisResult" RiskAnalysis''analyze-is-final [#_"RiskAnalysis" this]
         (or
             ;; Transactions we create ourselves are, by definition, not at risk of double spending against us.
-            (when (= (TransactionConfidence''get-source (Transaction''get-confidence (:tx this))) :ConfidenceSource'SELF)
+            (when (= (:confidence-source (Transaction''get-confidence (:tx this))) :ConfidenceSource'SELF)
                 :RiskAnalysisResult'OK
             )
             ;; We consider transactions that opt into replace-by-fee at risk of double spending.
@@ -24335,8 +24220,8 @@
                 :RiskAnalysisResult'NON_FINAL
             )
             (when (some? (:wallet this))
-                (let [#_"int" height (Wallet''get-last-block-seen-height (:wallet this))
-                      #_"long" time (Wallet''get-last-block-seen-time-secs (:wallet this))
+                (let [#_"int" height (:last-block-seen-height (:wallet this))
+                      #_"long" time (:last-block-seen-time-secs (:wallet this))
                       ;; If the transaction has a lock time specified in blocks, we consider that if the tx would
                       ;; become final in the next block, it is not risky (as it would confirm normally).
                       #_"int" __adjustedHeight (inc height)]
@@ -24855,7 +24740,7 @@
      ;;
     #_method
     (defn #_"int" KeyChainGroup''get-lookahead-size [#_"KeyChainGroup" this]
-        (if (= (:lookahead-size this) -1) (DeterministicKeyChain''get-lookahead-size (KeyChainGroup''get-active-key-chain this)) (:lookahead-size this))
+        (if (= (:lookahead-size this) -1) (:lookahead-size (KeyChainGroup''get-active-key-chain this)) (:lookahead-size this))
     )
 
     ;;;
@@ -25064,13 +24949,13 @@
             ;; Assuming that only RECEIVE and CHANGE keys are being used at the moment, we will treat the latest issued
             ;; external key as current RECEIVE key and latest issued internal key as CHANGE key.  This should be changed
             ;; as soon as other kinds of KeyPurpose are introduced.
-            (let-when [#_"int" n (DeterministicKeyChain''get-issued-external-keys active)] (pos? n)
+            (let-when [#_"int" n (:issued-external-keys active)] (pos? n)
                 (let [#_"DeterministicKey" key (DeterministicKeyChain''get-key-by-path-2 active, (HDUtils'append (HDUtils'concat DeterministicKeyChain'ACCOUNT_ZERO_PATH, DeterministicKeyChain'EXTERNAL_SUBPATH), (ChildNumber'new (dec n))))]
                     (.put keys, :KeyPurpose'RECEIVE_FUNDS, key)
                 )
             )
 
-            (let-when [#_"int" n (DeterministicKeyChain''get-issued-internal-keys active)] (pos? n)
+            (let-when [#_"int" n (:issued-internal-keys active)] (pos? n)
                 (let [#_"DeterministicKey" key (DeterministicKeyChain''get-key-by-path-2 active, (HDUtils'append (HDUtils'concat DeterministicKeyChain'ACCOUNT_ZERO_PATH, DeterministicKeyChain'INTERNAL_SUBPATH), (ChildNumber'new (dec n))))]
                     (.put keys, :KeyPurpose'CHANGE, key)
                 )
@@ -25112,7 +24997,7 @@
      ;;
     #_method
     (defn #_"int" KeyChainGroup''get-combined-key-lookahead-epochs [#_"KeyChainGroup" this]
-        (reduce + (map DeterministicKeyChain''get-key-lookahead-epoch (:chains this)))
+        (reduce + (map :key-lookahead-epoch (:chains this)))
     )
 
     #_method
@@ -25187,7 +25072,7 @@
 
     #_method
     (defn- #_"boolean" KeyTimeCoinSelector''is-confirmed [#_"KeyTimeCoinSelector" this, #_"TransactionOutput" output]
-        (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence (:parent-tx output))) :ConfidenceType'BUILDING)
+        (= (:confidence-type (Transaction''get-confidence (:parent-tx output))) :ConfidenceType'BUILDING)
     )
 )
 
@@ -25929,7 +25814,18 @@
                             )
 
                         #_"Sha256Hash" :last-block-seen-hash nil
+                        ;;;
+                         ; The height of the last seen best-chain block.  Can be 0 if a wallet is brand new or -1 if the wallet is old
+                         ; and doesn't have that data.
+                         ;;
                         #_"int" :last-block-seen-height 0
+                        ;;;
+                         ; The UNIX time in seconds since the epoch extracted from the last best seen block header.  This timestamp is
+                         ; <b>not</b> the local time at which the block was first observed by this application but rather what the block
+                         ; (i.e. miner) self declares.  It is allowed to have some significant drift from the real time at which the block
+                         ; was found, although most miners do use accurate times.  If this wallet is old and does not have a recorded
+                         ; time then this method returns zero.
+                         ;;
                         #_"long" :last-block-seen-time-secs 0
 
                         #_"List<ListenerRegistration<WalletChangeEventListener>>" :change-listeners (CopyOnWriteArrayList.)
@@ -25947,6 +25843,15 @@
                         ;; it sent transactions to the wallet, without this we'd double count.
                         #_"HashSet<Sha256Hash>" :ignore-next-new-block nil
                         ;; Whether or not to ignore pending transactions that are considered risky by the configured risk analyzer.
+                        ;;;
+                         ; Whether or not the wallet will ignore pending transactions that fail the selected {@link RiskAnalysis}.
+                         ; By default, if a transaction is considered risky then it won't enter the wallet and won't trigger any event
+                         ; listeners.  If you set this property to true, then all transactions will be allowed in regardless of risk.
+                         ; For example, the default {@link RiskAnalysis} checks for non-finality of transactions.
+                         ;
+                         ; Note that this property is not serialized.  You have to set it each time a Wallet object is constructed,
+                         ; even if it's loaded from a protocol buffer.
+                         ;;
                         #_"boolean" :accept-risky-transactions false
 
                         ;; Stuff for notifying transaction objects that we changed their confidences.  The purpose of this is to avoid
@@ -26428,32 +26333,6 @@
         )
     )
 
-    ;;;
-     ; Whether or not the wallet will ignore pending transactions that fail the selected {@link RiskAnalysis}.
-     ; By default, if a transaction is considered risky then it won't enter the wallet and won't trigger any event
-     ; listeners.  If you set this property to true, then all transactions will be allowed in regardless of risk.
-     ; For example, the default {@link RiskAnalysis} checks for non-finality of transactions.
-     ;
-     ; Note that this property is not serialized.  You have to set it each time a Wallet object is constructed,
-     ; even if it's loaded from a protocol buffer.
-     ;;
-    #_method
-    (defn #_"Wallet" Wallet''set-accept-risky-transactions [#_"Wallet" this, #_"boolean" accept?]
-        (sync (:wallet-lock this)
-            (assoc this :accept-risky-transactions accept?)
-        )
-    )
-
-    ;;;
-     ; See {@link Wallet#setAcceptRiskyTransactions(boolean)} for an explanation of this property.
-     ;;
-    #_method
-    (defn #_"boolean" Wallet''is-accept-risky-transactions [#_"Wallet" this]
-        (sync (:wallet-lock this)
-            (:accept-risky-transactions this)
-        )
-    )
-
     #_throws #_[ "IOException" ]
     #_method
     (defn #_"void" Wallet''save [#_"Wallet" __]
@@ -26640,7 +26519,7 @@
                         )
                         (let [#_"Coin" earned (Transaction''get-value-sent-to-me tx, this) #_"Coin" spent (Transaction''get-value-sent-from-me tx, this)]
                             (log/info (str "Received a pending transaction " (Transaction''get-hash tx) " that spends " (Coin''to-friendly-string spent) " from our own wallet, and sends us " (Coin''to-friendly-string earned)))
-                            (when (= (TransactionConfidence''get-source (Transaction''get-confidence tx)) :ConfidenceSource'UNKNOWN)
+                            (when (= (:confidence-source (Transaction''get-confidence tx)) :ConfidenceSource'UNKNOWN)
                                 (log/warn "Wallet received transaction with an unknown source.  Consider tagging it!")
                             )
                             ;; If this tx spends any of our unspent outputs, mark them as spent now, then add to the pending pool.
@@ -26851,7 +26730,7 @@
         ;; Runs in a peer thread.
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
 
-        (let [#_"Coin" before (Wallet''get-balance-1 this)
+        (let [#_"Coin" before (Wallet''get-balance-2t this, :BalanceType'AVAILABLE)
               #_"Sha256Hash" __txHash (Transaction''get-hash tx)
               #_"boolean" best? (= type :NewBlockType'BEST_CHAIN)
               #_"boolean" side? (= type :NewBlockType'SIDE_CHAIN)
@@ -26936,7 +26815,7 @@
                                     (Wallet''add-transactions-depending-on this, deps, (Wallet''get-transactions this, true))
                                     (.remove deps, tx)
                                     (doseq [#_"Transaction" dep (Wallet''sort-txns-by-dependency this, deps)]
-                                        (when (and (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence dep)) :ConfidenceType'IN_CONFLICT)
+                                        (when (and (= (:confidence-type (Transaction''get-confidence dep)) :ConfidenceType'IN_CONFLICT)
                                               (not (Wallet''is-spending-txns-in-confidence-type this, dep, :ConfidenceType'IN_CONFLICT)))
                                             (§ ass (Transaction''get-confidence dep) (TransactionConfidence''set-confidence-type (Transaction''get-confidence dep), :ConfidenceType'PENDING))
                                             (.put (:confidence-changed this), dep, :ConfidenceChangeReason'TYPE)
@@ -26963,7 +26842,7 @@
                     ;;    or for our own spends.  If users want to know when a broadcast tx becomes confirmed,
                     ;;    they need to use tx confidence listeners.
                     (when (and (not (:inside-reorg this)) best?)
-                        (let [#_"Coin" after (Wallet''get-balance-1 this)] ;; This is slow.
+                        (let [#_"Coin" after (Wallet''get-balance-2t this, :BalanceType'AVAILABLE)] ;; This is slow.
                             (log/info (str "Balance is now: " (Coin''to-friendly-string after)))
                             (when-not pending?
                                 ;; We pick one callback based on the value difference, though a tx can of course both
@@ -26994,7 +26873,7 @@
     (defn- #_"boolean" Wallet''is-spending-txns-in-confidence-type [#_"Wallet" this, #_"Transaction" tx, #_"ConfidenceType" type]
         (->> (:inputs tx)
              (map #(Wallet''get-transaction this, (:from-tx-hash (:outpoint %))))
-             (some #(and (some? %) (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence %)), type)))
+             (some #(and (some? %) (= (:confidence-type (Transaction''get-confidence %)), type)))
         )
     )
 
@@ -27061,9 +26940,9 @@
             (when-not (= __newBlockHash (Wallet''get-last-block-seen-hash this)) => this
                 (sync (:wallet-lock this)
                     ;; Store the new block hash.
-                    (let [this (Wallet''set-last-block-seen-hash this, __newBlockHash)
-                          this (Wallet''set-last-block-seen-height this, (:stored-height block))
-                          this (Wallet''set-last-block-seen-time-secs this, (:time-seconds (:stored-header block)))]
+                    (let [this (assoc this :last-block-seen-hash __newBlockHash)
+                          this (assoc this :last-block-seen-height (:stored-height block))
+                          this (assoc this :last-block-seen-time-secs (:time-seconds (:stored-header block)))]
 
                         ;; Notify all the BUILDING transactions of the new block.
                         ;; This is so that they can update their depth.
@@ -27074,7 +26953,7 @@
                                     (.remove (:ignore-next-new-block this), (Transaction''get-hash tx))
                                 :else
                                 (let [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)]
-                                    (when (= (TransactionConfidence''get-confidence-type confidence) :ConfidenceType'BUILDING)
+                                    (when (= (:confidence-type confidence) :ConfidenceType'BUILDING)
                                         ;; Erase the set of seen peers once the tx is so deep that it seems unlikely to ever go
                                         ;; pending again.  We could clear this data the moment a tx is seen in the block chain,
                                         ;; but in cases where the chain re-orgs, this would mean that wallets would perceive a
@@ -27133,7 +27012,7 @@
             ;; entirely by this point.  We could and maybe should rebroadcast them so the network remembers and tries
             ;; to confirm them again.  But this is a deeply unusual edge case that due to the maturity rule should never
             ;; happen in practice, thus for simplicities sake we ignore it here.
-            (log/info (str "  coinbase tx " (Transaction''get-hash tx) " <-dead: confidence " (TransactionConfidence''get-confidence-type (Transaction''get-confidence tx))))
+            (log/info (str "  coinbase tx " (Transaction''get-hash tx) " <-dead: confidence " (:confidence-type (Transaction''get-confidence tx))))
             (.remove (:dead this), (Transaction''get-hash tx))
         )
 
@@ -27320,7 +27199,7 @@
                     (Wallet''add-wallet-transaction this, :PoolType'DEAD, dead)
                     (doseq [#_"TransactionInput" input (:inputs dead)]
                         (when-let [#_"Transaction" zombie (TransactionInput''get-connected-transaction input)]
-                            (when-not (= (TransactionConfidence''get-confidence-type (Transaction''get-confidence zombie)) :ConfidenceType'DEAD)
+                            (when-not (= (:confidence-type (Transaction''get-confidence zombie)) :ConfidenceType'DEAD)
                                 (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
                                     (when (and (some? (:spent-by output)) (.equals (:spent-by output), input))
                                         (assert-state (.add (:my-unspents this), output))
@@ -27409,7 +27288,7 @@
         (sync (:wallet-lock this)
             (let-when [#_"Sha256Hash" hash (Transaction''get-hash tx)] (not (.containsKey (:pending this), hash)) => [this tx false]
                 (log/info (str "commitTx of " hash))
-                (let [#_"Coin" balance (Wallet''get-balance-1 this)
+                (let [#_"Coin" balance (Wallet''get-balance-2t this, :BalanceType'AVAILABLE)
                       tx (assoc tx :update-time (Time'now))
                       ;; Put any outputs that are sending money back to us into the unspents map, and calculate their total value.
                       #_"Coin" earned (reduce #(if (TransactionOutput''is-mine %2, this) (Coin''add %1, (:coin-value %2)) %1) Coin'ZERO (:outputs tx))]
@@ -27919,41 +27798,6 @@
         )
     )
 
-    #_method
-    (defn #_"Wallet" Wallet''set-last-block-seen-hash [#_"Wallet" this, #_"Sha256Hash" hash]
-        (sync (:wallet-lock this)
-            (assoc this :last-block-seen-hash hash)
-        )
-    )
-
-    #_method
-    (defn #_"Wallet" Wallet''set-last-block-seen-height [#_"Wallet" this, #_"int" height]
-        (sync (:wallet-lock this)
-            (assoc this :last-block-seen-height height)
-        )
-    )
-
-    #_method
-    (defn #_"Wallet" Wallet''set-last-block-seen-time-secs [#_"Wallet" this, #_"long" secs]
-        (sync (:wallet-lock this)
-            (assoc this :last-block-seen-time-secs secs)
-        )
-    )
-
-    ;;;
-     ; Returns the UNIX time in seconds since the epoch extracted from the last best seen block header.  This timestamp
-     ; is <b>not</b> the local time at which the block was first observed by this application but rather what the block
-     ; (i.e. miner) self declares.  It is allowed to have some significant drift from the real time at which the block
-     ; was found, although most miners do use accurate times.  If this wallet is old and does not have a recorded
-     ; time then this method returns zero.
-     ;;
-    #_method
-    (defn #_"long" Wallet''get-last-block-seen-time-secs [#_"Wallet" this]
-        (sync (:wallet-lock this)
-            (:last-block-seen-time-secs this)
-        )
-    )
-
     ;;;
      ; Returns a {@link Date} representing the time extracted from the last best seen block header.  This timestamp
      ; is <b>not</b> the local time at which the block was first observed by this application but rather what the block
@@ -27963,29 +27807,9 @@
      ;;
     #_method
     (defn #_"Date" Wallet''get-last-block-seen-time [#_"Wallet" this]
-        (let [#_"long" secs (Wallet''get-last-block-seen-time-secs this)]
+        (let [#_"long" secs (:last-block-seen-time-secs this)]
             (if (zero? secs) nil (Date. (* secs 1000)))
         )
-    )
-
-    ;;;
-     ; Returns the height of the last seen best-chain block.  Can be 0 if a wallet is brand new or -1 if the wallet
-     ; is old and doesn't have that data.
-     ;;
-    #_method
-    (defn #_"int" Wallet''get-last-block-seen-height [#_"Wallet" this]
-        (sync (:wallet-lock this)
-            (:last-block-seen-height this)
-        )
-    )
-
-    ;;;
-     ; Returns the AVAILABLE balance of this wallet.
-     ; See {@link BalanceType#AVAILABLE} for details on what this means.
-     ;;
-    #_method
-    (defn #_"Coin" Wallet''get-balance-1 [#_"Wallet" this]
-        (Wallet''get-balance-2t this, :BalanceType'AVAILABLE)
     )
 
     ;;;
@@ -28438,7 +28262,7 @@
                             ;; Label the transaction as being self created.  We can use this later to spend its change output even before
                             ;; the transaction is confirmed.  We deliberately won't bother notifying listeners here as there's not much
                             ;; point - the user isn't interested in a confidence transition they made themselves.
-                            (§ ass (Transaction''get-confidence (:tx req)) (TransactionConfidence''set-source (Transaction''get-confidence (:tx req)), :ConfidenceSource'SELF))
+                            (§ ass (Transaction''get-confidence (:tx req)) (assoc (Transaction''get-confidence (:tx req)) :confidence-source :ConfidenceSource'SELF))
                             ;; Label the transaction as being a user requested payment.  This can be used to render GUI wallet
                             ;; transaction lists more appropriately, especially when the wallet starts to generate transactions itself
                             ;; for internal purposes.
@@ -28749,7 +28573,7 @@
                                         )
                                     )
                                   ;; The effective last seen block is now the split point so set the lastSeenBlockHash.
-                                  this (Wallet''set-last-block-seen-hash this, (Block''get-hash (:stored-header __splitPoint)))]
+                                  this (assoc this :last-block-seen-hash (Block''get-hash (:stored-header __splitPoint)))]
 
                                 ;; For each block in the new chain, work forwards calling receive() and notifyNewBestBlock().
                                 ;; This will pull them back out of the pending pool, or if the tx didn't appear in the old chain
@@ -28766,7 +28590,7 @@
 
                                 (Wallet''is-consistent-or-throw this)
 
-                                (let [#_"Coin" balance (Wallet''get-balance-1 this)]
+                                (let [#_"Coin" balance (Wallet''get-balance-2t this, :BalanceType'AVAILABLE)]
                                     (log/info (str "post-reorg balance is " (Coin''to-friendly-string balance)))
                                     ;; Inform event listeners that a re-org took place.
                                     (Wallet''queue-on-reorganize this)
@@ -28793,7 +28617,7 @@
     #_method
     (defn- #_"Wallet" Wallet''subtract-depth [#_"Wallet" this, #_"int" depth, #_"Collection<Transaction>" transactions]
         (doseq [#_"Transaction" tx transactions]
-            (let-when [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)] (= (TransactionConfidence''get-confidence-type confidence) :ConfidenceType'BUILDING)
+            (let-when [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)] (= (:confidence-type confidence) :ConfidenceType'BUILDING)
                 (§ ass confidence (update confidence :depth-in-blocks - depth))
                 (.put (:confidence-changed this), tx, :ConfidenceChangeReason'DEPTH)
             )
@@ -29120,7 +28944,7 @@
             ;; Don't hold the wallet lock whilst doing this, so if the broadcaster accesses the wallet at some point there
             ;; is no inversion.
             (doseq [#_"Transaction" tx __toBroadcast]
-                (let [#_"ConfidenceType" type (TransactionConfidence''get-confidence-type (Transaction''get-confidence tx))]
+                (let [#_"ConfidenceType" type (:confidence-type (Transaction''get-confidence tx))]
                     (assert-state (any = type :ConfidenceType'PENDING :ConfidenceType'IN_CONFLICT), (str "Expected PENDING or IN_CONFLICT, was " type "."))
                     ;; Re-broadcast even if it's marked as already seen for two reasons:
                     ;; 1. Old wallets may have transactions marked as broadcast by 1 peer when
@@ -29269,7 +29093,7 @@
                             (Transaction''add-output-ca tx, (:value-gathered __toMove), (if sign? (Wallet''fresh-receive-address this) (Wallet''current-receive-address this)))
                             (cond (Wallet''adjust-output-downwards-for-fee this, tx, __toMove, Transaction'DEFAULT_TX_FEE, true)
                                 (do
-                                    (§ ass (Transaction''get-confidence tx) (TransactionConfidence''set-source (Transaction''get-confidence tx), :ConfidenceSource'SELF))
+                                    (§ ass (Transaction''get-confidence tx) (assoc (Transaction''get-confidence tx) :confidence-source :ConfidenceSource'SELF))
                                     (§ ass tx (assoc tx :purpose :TransactionPurpose'KEY_ROTATION))
                                     (let [#_"SendRequest" req (SendRequest'for-tx tx)]
                                         (when sign?
@@ -29379,7 +29203,7 @@
                         (.. sb (append "  ") (append (count (:spent this))) (append " spent transactions\n"))
                         (.. sb (append "  ") (append (count (:dead this))) (append " dead transactions\n"))
                         (let [#_"Date" date (Wallet''get-last-block-seen-time this)]
-                            (.. sb (append "Last seen best block: ") (append (Wallet''get-last-block-seen-height this)) (append " (") (append (if (some? date) (Time'format (.getTime date)) "time unknown")) (append "): ") (append (Wallet''get-last-block-seen-hash this)) (append "\n"))
+                            (.. sb (append "Last seen best block: ") (append (:last-block-seen-height this)) (append " (") (append (if (some? date) (Time'format (.getTime date)) "time unknown")) (append "): ") (append (Wallet''get-last-block-seen-hash this)) (append "\n"))
                         )
                         (when (Wallet''is-watching this)
                             (.. sb (append "Wallet is watching.\n"))
