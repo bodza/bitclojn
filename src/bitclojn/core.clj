@@ -241,7 +241,7 @@
 (declare PeerDiscovery'''get-peers PeerDiscovery'''shutdown)
 (declare PeerDiscoveryException'new)
 (declare Wallet''lock-bloom-filter-calculation Wallet''bloom-filter-outpoints-locked Wallet''unlock-bloom-filter-calculation Wallet''create-bloom-filter-locked Wallet''get-earliest-key-creation-time)
-(declare PeerGroup''add-address-i PeerGroup''add-address-p PeerGroup''add-blocks-downloaded-event-listener PeerGroup''add-chain-download-started-event-listener PeerGroup''add-connected-event-listener PeerGroup''add-disconnected-event-listener PeerGroup''add-discovered-event-listener PeerGroup''add-get-data-event-listener PeerGroup''add-inactive PeerGroup''add-on-transaction-broadcast-listener PeerGroup''add-peer-discovery PeerGroup''add-pre-message-received-event-listener PeerGroup''add-wallet PeerGroup''await-running PeerGroup''await-terminated PeerGroup''broadcast-transaction-3 PeerGroup''connect-to-socket-address PeerGroup''connect-to-peer-address PeerGroup''connect-to-loopback PeerGroup''count-connected-and-pending-peers PeerGroup''create-peer PeerGroup''create-private-executor PeerGroup''discover-peers PeerGroup''download-block-chain PeerGroup''find-peers-of-at-least-version PeerGroup''find-peers-with-service-mask PeerGroup''get-connected-peers PeerGroup''get-download-peer PeerGroup''get-min-broadcast-connections PeerGroup''get-most-common-chain-height PeerGroup''get-pending-peers PeerGroup''handle-get-data PeerGroup''handle-new-peer PeerGroup''handle-peer-death PeerGroup''maybe-check-for-loopback-peer PeerGroup''recalculate-fast-catchup-and-filter PeerGroup''remove-blocks-downloaded-event-listener PeerGroup''remove-chain-download-started-event-listener PeerGroup''remove-connected-event-listener PeerGroup''remove-disconnected-event-listener PeerGroup''remove-discovered-event-listener PeerGroup''remove-get-data-event-listener PeerGroup''remove-on-transaction-broadcast-listener PeerGroup''remove-pre-message-received-event-listener PeerGroup''remove-wallet PeerGroup''select-download-peer PeerGroup''set-bloom-filter-false-positive-rate PeerGroup''set-download-peer PeerGroup''set-fast-catchup-time-secs PeerGroup''set-max-connections PeerGroup''set-ping-interval-msec PeerGroup''set-required-services PeerGroup''set-stall-threshold PeerGroup''setup-pinging PeerGroup''start PeerGroup''start-async PeerGroup''start-block-chain-download PeerGroup''start-block-chain-download-from-peer PeerGroup''stop PeerGroup''stop-async PeerGroup''trigger-connections PeerGroup''update-version-message-relay-txes-before-filter PeerGroup''wait-for-job-queue PeerGroup''wait-for-peers PeerGroup''wait-for-peers-of-version PeerGroup''wait-for-peers-with-service-mask PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE PeerGroup'DEFAULT_CONNECTIONS PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS PeerGroup'DEFAULT_PING_INTERVAL_MSEC PeerGroup'MAX_FP_RATE_INCREASE PeerGroup'MIN_PEER_DISCOVERY_INTERVAL PeerGroup'add-data-event-listener-to-peer PeerGroup'get-most-common-chain-height* PeerGroup'new PeerGroup'remove-data-event-listener-from-peer)
+(declare PeerGroup''add-address-i PeerGroup''add-address-p PeerGroup''add-blocks-downloaded-event-listener PeerGroup''add-chain-download-started-event-listener PeerGroup''add-connected-event-listener PeerGroup''add-disconnected-event-listener PeerGroup''add-discovered-event-listener PeerGroup''add-get-data-event-listener PeerGroup''add-inactive PeerGroup''add-on-transaction-broadcast-listener PeerGroup''add-peer-discovery PeerGroup''add-pre-message-received-event-listener PeerGroup''add-wallet PeerGroup''await-running PeerGroup''await-terminated PeerGroup''broadcast-transaction-3 PeerGroup''connect-to-socket-address PeerGroup''connect-to-peer-address PeerGroup''connect-to-loopback PeerGroup''count-connected-and-pending-peers PeerGroup''create-peer PeerGroup''create-private-executor PeerGroup''discover-peers PeerGroup''download-block-chain PeerGroup''find-peers-of-at-least-version PeerGroup''find-peers-with-service-mask PeerGroup''get-connected-peers PeerGroup''get-download-peer PeerGroup''get-min-broadcast-connections PeerGroup''get-pending-peers PeerGroup''handle-get-data PeerGroup''handle-new-peer PeerGroup''handle-peer-death PeerGroup''maybe-check-for-loopback-peer PeerGroup''recalculate-fast-catchup-and-filter PeerGroup''remove-blocks-downloaded-event-listener PeerGroup''remove-chain-download-started-event-listener PeerGroup''remove-connected-event-listener PeerGroup''remove-disconnected-event-listener PeerGroup''remove-discovered-event-listener PeerGroup''remove-get-data-event-listener PeerGroup''remove-on-transaction-broadcast-listener PeerGroup''remove-pre-message-received-event-listener PeerGroup''remove-wallet Peer'select-download-peer PeerGroup''set-bloom-filter-false-positive-rate PeerGroup''set-download-peer PeerGroup''set-fast-catchup-time-secs PeerGroup''set-max-connections PeerGroup''set-ping-interval-msec PeerGroup''set-required-services PeerGroup''set-stall-threshold PeerGroup''setup-pinging PeerGroup''start PeerGroup''start-async PeerGroup''start-block-chain-download PeerGroup''start-block-chain-download-from-peer PeerGroup''stop PeerGroup''stop-async PeerGroup''trigger-connections PeerGroup''update-version-message-relay-txes-before-filter PeerGroup''wait-for-job-queue PeerGroup''wait-for-peers PeerGroup''wait-for-peers-of-version PeerGroup''wait-for-peers-with-service-mask PeerGroup'DEFAULT_BLOOM_FILTER_FP_RATE PeerGroup'DEFAULT_CONNECTIONS PeerGroup'DEFAULT_CONNECT_TIMEOUT_MILLIS PeerGroup'DEFAULT_PEER_DISCOVERY_TIMEOUT_MILLIS PeerGroup'DEFAULT_PING_INTERVAL_MSEC PeerGroup'MAX_FP_RATE_INCREASE PeerGroup'MIN_PEER_DISCOVERY_INTERVAL PeerGroup'add-data-event-listener-to-peer Peer'max-of-most-freq Peer'most-common-chain-height PeerGroup'new PeerGroup'remove-data-event-listener-from-peer)
 (declare PeerListener'new)
 (declare PeerSocketHandler'''process-message PeerSocketHandler''close PeerSocketHandler''exception-caught PeerSocketHandler''send-message PeerSocketHandler'new)
 (declare PendingConnection'new)
@@ -309,7 +309,7 @@
 (declare UTXO'new)
 (declare UnknownMessage'from-wire)
 (declare UserThread'WARNING_THRESHOLD UserThread'new)
-(declare Utils'SPACE_JOINER Wire'bget-uint16 Wire'bget-uint32 Wire'bget-int64 Wire'bget-uint16be Wire'bget-uint32be Wire'bset-uint32be Wire'bset-uint32 Wire'bset-uint64 Utils'big-integer-to-bytes Wire'reverse-bytes Utils'sha256hash160 Wire'decode-mpi Wire'encode-mpi Utils'decode-compact-bits Utils'encode-compact-bits Time'now Time'seconds Time'UTC Time'format Time'format-seconds Time'sleep Utils'parse-as-hex-or-base58 Utils'BITCOIN_SIGNED_MESSAGE_HEADER Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES Utils'format-message-for-signing Utils'BIT_MASK Utils'check-bit-le Utils'set-bit-le Utils'max-of-most-freq)
+(declare Utils'SPACE_JOINER Wire'bget-uint16 Wire'bget-uint32 Wire'bget-int64 Wire'bget-uint16be Wire'bget-uint32be Wire'bset-uint32be Wire'bset-uint32 Wire'bset-uint64 Utils'big-integer-to-bytes Wire'reverse-bytes Utils'sha256hash160 Wire'decode-mpi Wire'encode-mpi Utils'decode-compact-bits Utils'encode-compact-bits Time'now Time'seconds Time'UTC Time'format Time'format-seconds Time'sleep Utils'parse-as-hex-or-base58 Utils'BITCOIN_SIGNED_MESSAGE_HEADER Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES Utils'format-message-for-signing Utils'BIT_MASK Utils'check-bit-le Utils'set-bit-le)
 (declare ValuesUsed'new)
 (declare VarInt''encode VarInt'init VarInt'new VarInt'parse VarInt'from-wire VarInt'size-of)
 (declare VerificationException'new)
@@ -1044,17 +1044,6 @@
     (defn #_"void" Utils'set-bit-le [#_"byte[]" data, #_"int" index]
         (aset data (>>> index 3) (| (aget data (>>> index 3)) (nth Utils'BIT_MASK (& 7 index))))
         nil
-    )
-
-    (defn #_"int" Utils'max-of-most-freq [#_"List<Integer>" items]
-        (when (seq items) => 0
-            (let [pairs (frequencies items)]
-                ;; Pick the max of the most frequent items.
-                (let [pairs (sort-by second (comp - compare) pairs) #_"int" m (second (first pairs))]
-                    (reduce max (first (first pairs)) (map first (take-while #(= (second %) m) (rest pairs))))
-                )
-            )
-        )
     )
 )
 
@@ -9345,7 +9334,7 @@
                          ; register a {@link PeerConnectedEventListener}/{@link PeerDisconnectedEventListener}
                          ; and use the onPeerConnected/onPeerDisconnected methods.
                          ;;
-                        #_"ArrayList<Peer>" :peers (CopyOnWriteArrayList.)
+                        #_"ArrayList<Peer>" :connected-peers (CopyOnWriteArrayList.)
                         ;; Currently connecting peers.
                         #_"ArrayList<Peer>" :pending-peers (CopyOnWriteArrayList.)
 
@@ -9830,7 +9819,7 @@
     #_method
     (defn #_"List<Peer>" PeerGroup''get-connected-peers [#_"PeerGroup" this]
         (sync (:peergroup-lock this)
-            (ArrayList. (:peers this))
+            (ArrayList. (:connected-peers this))
         )
     )
 
@@ -9958,7 +9947,7 @@
     #_method
     (defn- #_"int" PeerGroup''count-connected-and-pending-peers [#_"PeerGroup" this]
         (sync (:peergroup-lock this)
-            (+ (count (:peers this)) (count (:pending-peers this)))
+            (+ (count (:connected-peers this)) (count (:pending-peers this)))
         )
     )
 
@@ -10136,7 +10125,7 @@
             (let [_ (PeerGroup''recalculate-fast-catchup-and-filter this, :FilterRecalculateMode'SEND_IF_CHANGED)
                   this (PeerGroup''update-version-message-relay-txes-before-filter this)]
 
-                (doseq [#_"Peer" peer (:peers this)]
+                (doseq [#_"Peer" peer (:connected-peers this)]
                     (§ ass peer (Peer''add-wallet peer, wallet))
                 )
                 this
@@ -10155,7 +10144,7 @@
         (Wallet''remove-coins-received-event-listener wallet, (:wallet-coins-received-event-listener this))
         (Wallet''remove-key-chain-event-listener wallet, (:wallet-key-event-listener this))
         (§ ass wallet (Wallet''set-transaction-broadcaster wallet, nil))
-        (doseq [#_"Peer" peer (:peers this)]
+        (doseq [#_"Peer" peer (:connected-peers this)]
             (§ ass peer (Peer''remove-wallet peer, wallet))
         )
         this
@@ -10179,7 +10168,7 @@
                     )
                   this
                     (when send? => this
-                        (doseq [#_"Peer" peer (:peers this)]
+                        (doseq [#_"Peer" peer (:connected-peers this)]
                             ;; Only query the mempool if this recalculation request is not in order to lower the observed FP
                             ;; rate.  There's no point querying the mempool when doing this because the FP rate can only go
                             ;; down, and we will have seen all the relevant txns before: it's pointless to ask for them again.
@@ -10310,7 +10299,7 @@
               _ (.add (:pending-peers this), peer)
               [this abort?]
                 (try
-                    (log/info (str "Attempting connection to " address "     (" (count (:peers this)) " connected, " (count (:pending-peers this)) " pending, " (:max-connections this) " max)"))
+                    (log/info (str "Attempting connection to " address "     (" (count (:connected-peers this)) " connected, " (count (:pending-peers this)) " pending, " (:max-connections this) " max)"))
                     (let [#_"ListenableFuture<SocketAddress>" future (ClientConnectionManager'''open-connection (:channels this), (PeerAddress''to-socket-address address), peer)]
                         (when (.isDone future)
                             (Uninterruptibles/getUninterruptibly future)
@@ -10367,9 +10356,9 @@
             (let [this (assoc this :download-listener listener)]
                 ;; TODO: Be more nuanced about which peer to download from.  Try downloading from multiple peers
                 ;; and handle the case when a new peer comes along with a longer chain after we thought we were done.
-                (when (seq (:peers this)) => this
+                (when (seq (:connected-peers this)) => this
                     ;; Will add the new download listener.
-                    (PeerGroup''start-block-chain-download-from-peer this, (first (:peers this)))
+                    (PeerGroup''start-block-chain-download-from-peer this, (first (:connected-peers this)))
                 )
             )
         )
@@ -10427,8 +10416,8 @@
 
                         ;; Sets up the newly connected peer so it can do everything it needs to.
                         (.remove (:pending-peers this), peer)
-                        (.add (:peers this), peer)
-                        (let [__newSize (count (:peers this))]
+                        (.add (:connected-peers this), peer)
+                        (let [__newSize (count (:connected-peers this))]
                             (log/info (str peer ": New peer      (" __newSize " connected, " (count (:pending-peers this)) " pending, " (:max-connections this) " max)"))
                             ;; Give the peer a filter that can be used to probabilistically drop transactions that
                             ;; aren't relevant to our wallet.  We may still receive some false positives, which is
@@ -10444,7 +10433,7 @@
                             (let [this
                                     (when (nil? (:download-peer this)) => this
                                         ;; Kick off chain download if we aren't already doing it.
-                                        (let [this (PeerGroup''set-download-peer this, (PeerGroup''select-download-peer this, (:peers this)))]
+                                        (let [this (PeerGroup''set-download-peer this, (Peer'select-download-peer (:connected-peers this)))]
                                             (when (and (some? (:download-listener this)) (some? (:chain this))) => this
                                                 (PeerGroup''start-block-chain-download-from-peer this, (:download-peer this))
                                             )
@@ -10570,16 +10559,16 @@
             (let [[this #_"int" n]
                     (sync (:peergroup-lock this)
                         (.remove (:pending-peers this), peer)
-                        (.remove (:peers this), peer)
+                        (.remove (:connected-peers this), peer)
 
                         (let [#_"PeerAddress" address (:peer-address peer)]
-                            (log/info (str address ": Peer died      (" (count (:peers this)) " connected, " (count (:pending-peers this)) " pending, " (:max-connections this) " max)"))
+                            (log/info (str address ": Peer died      (" (count (:connected-peers this)) " connected, " (count (:pending-peers this)) " pending, " (:max-connections this) " max)"))
                             (let [this
                                     (when (= peer (:download-peer this)) => this
                                         (log/info "Download peer died.  Picking a new one.")
                                         (let [this (PeerGroup''set-download-peer this, nil)
                                               ;; Pick a new one and possibly tell it to download the chain.
-                                              #_"Peer" p (PeerGroup''select-download-peer this, (:peers this))]
+                                              #_"Peer" p (Peer'select-download-peer (:connected-peers this))]
                                             (when (some? p) => this
                                                 (let [this (PeerGroup''set-download-peer this, p)]
                                                     (when (some? (:download-listener this)) => this
@@ -10589,7 +10578,7 @@
                                             )
                                         )
                                     )
-                                  n (count (:peers this)) #_"int" m (+ n (count (:pending-peers this)))
+                                  n (count (:connected-peers this)) #_"int" m (+ n (count (:pending-peers this)))
                                   this (update this :group-backoff ExponentialBackoff''track-failure)
                                   this
                                     (if (instance? NoRouteToHostException e)
@@ -10737,7 +10726,7 @@
     #_method
     (defn #_"Peer*" PeerGroup''find-peers-of-at-least-version [#_"PeerGroup" this, #_"long" version]
         (sync (:peergroup-lock this)
-            (filter #(<= version (:client-version (:v-peer-version-message %))) (:peers this))
+            (filter #(<= version (:client-version (:v-peer-version-message %))) (:connected-peers this))
         )
     )
 
@@ -10783,7 +10772,7 @@
     #_method
     (defn #_"Peer*" PeerGroup''find-peers-with-service-mask [#_"PeerGroup" this, #_"int" mask]
         (sync (:peergroup-lock this)
-            (filter #(= (& (:local-services (:v-peer-version-message %)) mask) mask) (:peers this))
+            (filter #(= (& (:local-services (:v-peer-version-message %)) mask) mask) (:connected-peers this))
         )
     )
 
@@ -10900,65 +10889,43 @@
         )
     )
 
-    ;;;
-     ; Returns our peers most commonly reported chain height.  If multiple heights are tied, the highest is returned.
-     ; If no peers are connected, returns zero.
-     ;;
-    #_method
-    (defn #_"int" PeerGroup''get-most-common-chain-height [#_"PeerGroup" this]
-        (sync (:peergroup-lock this)
-            (PeerGroup'get-most-common-chain-height* (:peers this))
-        )
-    )
-
-    ;;;
-     ; Returns most commonly reported chain height from the given list of {@link Peer}s.
-     ; If multiple heights are tied, the highest is returned.  If no peers are connected, returns zero.
-     ;;
-    (defn #_"int" PeerGroup'get-most-common-chain-height* [#_"List<Peer>" peers]
-        (if (empty? peers)
-            0
-            (let [#_"List<Integer>" heights (ArrayList. (count peers))]
-                (doseq [#_"Peer" peer peers]
-                    (.add heights, (int (Peer''get-best-height peer)))
-                )
-                (Utils'max-of-most-freq heights)
+    (defn- #_"long" Peer'max-of-most-freq [#_"long*" items]
+        (when (seq items) => 0
+            ;; Pick the max of the most frequent items.
+            (let [#_"{long long}" pairs (sort-by second (comp - compare) (frequencies items)) #_"long" m (second (first pairs))]
+                (reduce max (first (first pairs)) (map first (take-while #(= (second %) m) (rest pairs))))
             )
         )
     )
 
     ;;;
-     ; Given a list of Peers, return a Peer to be used as the download peer.  If you don't want PeerGroup to manage
-     ; download peer statuses for you, just override this and always return null.
+     ; Returns the most commonly reported chain height from the given seq of {@link Peer}s.
+     ; If multiple heights are tied, the highest is returned.  If no peers are connected, returns zero.
      ;;
-    #_method
-    (defn #_"Peer" PeerGroup''select-download-peer [#_"PeerGroup" __, #_"List<Peer>" peers]
+    (defn #_"long" Peer'most-common-chain-height [#_"Peer*" peers]
+        (when (seq peers) => 0
+            (Peer'max-of-most-freq (map Peer''get-best-height peers))
+        )
+    )
+
+    ;;;
+     ; Given a seq of Peers, return a Peer to be used as the download peer.
+     ;;
+    (defn #_"Peer" Peer'select-download-peer [#_"Peer*" peers]
         ;; Characteristics to select for in order of importance:
         ;;  - Chain height is reasonable (majority of nodes).
         ;;  - High enough protocol version for the features we want (but we'll settle for less).
         ;;  - Randomly, to try and spread the load.
         (when (seq peers)
             ;; Make sure we don't select a peer that is behind/synchronizing itself.
-            (let [#_"int" height (PeerGroup'get-most-common-chain-height* peers) #_"List<Peer>" candidates (ArrayList.)]
-                (doseq [#_"Peer" peer peers]
-                    (when (= (Peer''get-best-height peer) height)
-                        (.add candidates, peer)
-                    )
-                )
-                ;; Of the candidates, find the peers that meet the minimum protocol version we want to target.  We could select
-                ;; the highest version we've seen on the assumption that newer versions are always better but we don't want to
-                ;; zap peers if they upgrade early.  If we can't find any peers that have our preferred protocol version or
-                ;; better then we'll settle for the highest we found instead.
-                (let [#_"int" highest (reduce max 0 (map #(:client-version (:v-peer-version-message %)) candidates))
-                      #_"int" preferred (min highest ProtocolVersion'BLOOM_FILTER)
-                      #_"List<Peer>" candidates2 (ArrayList. (count candidates))]
-                    (doseq [#_"Peer" peer candidates]
-                        (when (<= preferred (:client-version (:v-peer-version-message peer)))
-                            (.add candidates2, peer)
-                        )
-                    )
-                    (nth candidates2 (int (* (Math/random) (count candidates2))))
-                )
+            (let [#_"long" common (Peer'most-common-chain-height peers) peers (filter #(= (Peer''get-best-height %) common) peers)
+                  ;; Of the candidates, find the peers that meet the minimum protocol version we want to target.  We could select
+                  ;; the highest version we've seen on the assumption that newer versions are always better but we don't want to
+                  ;; zap peers if they upgrade early.  If we can't find any peers that have our preferred protocol version or
+                  ;; better then we'll settle for the highest we found instead.
+                  #_"long" highest (reduce max 0 (map #(:client-version (:v-peer-version-message %)) peers))
+                  #_"long" height (min highest ProtocolVersion'BLOOM_FILTER)]
+                (rand-nth (filter #(<= height (:client-version (:v-peer-version-message %))) peers))
             )
         )
     )
