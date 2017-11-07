@@ -74,7 +74,7 @@
 
 (ns bitclojn.core
     (:refer-clojure :exclude [ensure sync when when-not])
-    (:import [com.google.common.base Charsets Joiner Stopwatch Throwables]
+    (:import [com.google.common.base Stopwatch Throwables]
              [com.google.common.collect ArrayListMultimap ImmutableList ImmutableSet Iterables]
              [com.google.common.hash HashCode Hasher Hashing]
              [com.google.common.io BaseEncoding]
@@ -190,7 +190,7 @@
 (declare GetHeadersMessage'from-wire GetHeadersMessage''to-wire GetHeadersMessage'new)
 (declare HDDerivationException'new)
 (declare HDKeyDerivation'MAX_CHILD_DERIVATION_ATTEMPTS HDKeyDerivation'RAND_INT HDKeyDerivation'assert-less-than-n HDKeyDerivation'assert-non-infinity HDKeyDerivation'assert-non-zero HDKeyDerivation'create-master-priv-key-from-bytes HDKeyDerivation'create-master-private-key HDKeyDerivation'create-master-pub-key-from-bytes HDKeyDerivation'derive-child-key-2c HDKeyDerivation'derive-child-key-2i HDKeyDerivation'derive-child-key-bytes-from-private HDKeyDerivation'derive-child-key-bytes-from-public HDKeyDerivation'derive-this-or-next-child-key)
-(declare HDUtils'PATH_JOINER HDUtils'append HDUtils'concat HDUtils'create-hmac-sha512-digest HDUtils'format-path HDUtils'hmac-sha512-2 HDUtils'hmac-sha512-2-bytes)
+(declare HDUtils'append HDUtils'concat HDUtils'create-hmac-sha512-digest HDUtils'format-path HDUtils'hmac-sha512-2 HDUtils'hmac-sha512-2-bytes)
 (declare HeadersMessage'MAX_HEADERS HeadersMessage'new HeadersMessage'from-wire HeadersMessage''to-wire)
 (declare InsufficientMoneyException'new)
 (declare InventoryItem'new)
@@ -219,7 +219,7 @@
 (declare MissingSignatureException'new)
 (declare MissingSigsMode'enum-set)
 (declare MnemonicChecksumException'new)
-(declare MnemonicCode''check MnemonicCode''to-entropy MnemonicCode''to-mnemonic MnemonicCode'BIP39_ENGLISH_SHA256 MnemonicCode'BIP39_ENGLISH_WORDLIST MnemonicCode'BIP39_STANDARDISATION_TIME_SECS MnemonicCode'INSTANCE MnemonicCode'PBKDF2_ROUNDS MnemonicCode'bytes-to-bits MnemonicCode'new-0 MnemonicCode'new-2 MnemonicCode'to-seed)
+(declare MnemonicCode''to-entropy MnemonicCode''to-mnemonic MnemonicCode'BIP39_ENGLISH_SHA256 MnemonicCode'BIP39_ENGLISH_WORDS MnemonicCode'BIP39_STANDARDISATION_TIME_SECS MnemonicCode'INSTANCE MnemonicCode'PBKDF2_ROUNDS MnemonicCode'bytes-to-bits MnemonicCode'new MnemonicCode'to-seed)
 (declare MnemonicException'new)
 (declare MnemonicLengthException'new)
 (declare MnemonicWordException'new)
@@ -314,7 +314,7 @@
 (declare UTXO'new)
 (declare UnknownMessage'from-wire)
 (declare UserThread'WARNING_THRESHOLD UserThread'new)
-(declare Utils'SPACE_JOINER Wire'bget-uint16 Wire'bget-uint32 Wire'bget-int64 Wire'bget-uint16be Wire'bget-uint32be Wire'bset-uint32be Wire'bset-uint32 Wire'bset-uint64 Utils'big-integer-to-bytes Wire'reverse-bytes Utils'sha256hash160 Wire'decode-mpi Wire'encode-mpi Utils'decode-compact-bits Utils'encode-compact-bits Time'now Time'seconds Time'UTC Time'format Time'format-seconds Time'sleep Utils'parse-as-hex-or-base58 Utils'BITCOIN_SIGNED_MESSAGE_HEADER Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES Utils'format-message-for-signing Utils'BIT_MASK Utils'check-bit-le Utils'set-bit-le)
+(declare Wire'bget-uint16 Wire'bget-uint32 Wire'bget-int64 Wire'bget-uint16be Wire'bget-uint32be Wire'bset-uint32be Wire'bset-uint32 Wire'bset-uint64 Utils'big-integer-to-bytes Wire'reverse-bytes Utils'sha256hash160 Wire'decode-mpi Wire'encode-mpi Utils'decode-compact-bits Utils'encode-compact-bits Time'now Time'seconds Time'UTC Time'format Time'format-seconds Time'sleep Utils'parse-as-hex-or-base58 Utils'BITCOIN_SIGNED_MESSAGE_HEADER Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES Utils'format-message-for-signing Utils'BIT_MASK Utils'check-bit-le Utils'set-bit-le)
 (declare ValuesUsed'new)
 (declare VarInt''encode VarInt'init VarInt'new VarInt'parse VarInt'from-wire VarInt'size-of)
 (declare VerificationException'new)
@@ -701,7 +701,8 @@
  ;;
 #_stateless
 (class-ns Utils
-    (def #_"Joiner" Utils'SPACE_JOINER (Joiner/on " "))
+    (def #_"Charset" Charset'US-ASCII (Charset/forName "US-ASCII"))
+    (def #_"Charset" Charset'UTF-8    (Charset/forName "UTF-8"))
 
     ;;; Parse 2 bytes from the byte array (starting at the offset) as unsigned 16-bit integer in little endian format. ;;
     (defn #_"int" Wire'bget-uint16 [#_"byte[]" bytes, #_"int" offset]
@@ -1013,7 +1014,7 @@
      ; The string that prefixes all text messages signed using Bitcoin keys.
      ;;
     (def #_"String" Utils'BITCOIN_SIGNED_MESSAGE_HEADER "Bitcoin Signed Message:\n")
-    (def #_"byte[]" Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES (.getBytes Utils'BITCOIN_SIGNED_MESSAGE_HEADER, Charsets/UTF_8))
+    (def #_"byte[]" Utils'BITCOIN_SIGNED_MESSAGE_HEADER_BYTES (.getBytes Utils'BITCOIN_SIGNED_MESSAGE_HEADER, Charset'UTF-8))
 
     ;;;
      ; Given a textual message, returns a byte buffer formatted as follows:
@@ -1966,54 +1967,33 @@
         this
     )
 
-    ;;;
-     ; Adds a {@link NewBestBlockListener} listener to the chain.
-     ;;
     #_method
     (defn #_"BlockChain" BlockChain''add-new-best-block-listener [#_"BlockChain" this, #_"Executor" executor, #_"NewBestBlockListener" listener]
-        (.add (:new-best-block-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :new-best-block-listeners (ListenerRegistration'new listener, executor))
     )
 
-    ;;;
-     ; Adds a generic {@link ReorganizeListener} listener to the chain.
-     ;;
     #_method
     (defn #_"BlockChain" BlockChain''add-reorganize-listener [#_"BlockChain" this, #_"Executor" executor, #_"ReorganizeListener" listener]
-        (.add (:reorganize-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :reorganize-listeners (ListenerRegistration'new listener, executor))
     )
 
-    ;;;
-     ; Adds a generic {@link TransactionReceivedInBlockListener} listener to the chain.
-     ;;
     #_method
     (defn #_"BlockChain" BlockChain''add-transaction-received-listener [#_"BlockChain" this, #_"Executor" executor, #_"TransactionReceivedInBlockListener" listener]
-        (.add (:transaction-received-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :transaction-received-listeners (ListenerRegistration'new listener, executor))
     )
 
-    ;;;
-     ; Removes the given {@link NewBestBlockListener} from the chain.
-     ;;
     #_method
     (defn #_"BlockChain" BlockChain''remove-new-best-block-listener [#_"BlockChain" this, #_"NewBestBlockListener" listener]
         (ListenerRegistration'remove listener, (:new-best-block-listeners this))
         this
     )
 
-    ;;;
-     ; Removes the given {@link ReorganizeListener} from the chain.
-     ;;
     #_method
     (defn #_"BlockChain" BlockChain''remove-reorganize-listener [#_"BlockChain" this, #_"ReorganizeListener" listener]
         (ListenerRegistration'remove listener, (:reorganize-listeners this))
         this
     )
 
-    ;;;
-     ; Removes the given {@link TransactionReceivedInBlockListener} from the chain.
-     ;;
     #_method
     (defn #_"BlockChain" BlockChain''remove-transaction-received-listener [#_"BlockChain" this, #_"TransactionReceivedInBlockListener" listener]
         (ListenerRegistration'remove listener, (:transaction-received-listeners this))
@@ -2169,7 +2149,7 @@
                 ;; This can happen a lot when connecting orphan transactions due to the dumb brute force algorithm we use.
                 (.equals block, (:stored-header (BlockChain''get-chain-head this)))
                     [this true]
-                (and __tryConnecting (.containsKey (:orphan-blocks this), (Block''get-hash block)))
+                (and __tryConnecting (contains? (:orphan-blocks this) (Block''get-hash block)))
                     [this false]
                 ;; If we want to verify transactions (i.e. we are running with full blocks), verify that block has transactions.
                 (and (BlockChain'''should-verify-transactions this) (nil? (:transactions block)))
@@ -2724,9 +2704,9 @@
      ; Returns true if the given block is currently in the orphan blocks list.
      ;;
     #_method
-    (defn #_"boolean" BlockChain''is-orphan [#_"BlockChain" this, #_"Sha256Hash" block]
+    (defn #_"boolean" BlockChain''is-orphan [#_"BlockChain" this, #_"Sha256Hash" hash]
         (sync (:blockchain-lock this)
-            (.containsKey (:orphan-blocks this), block)
+            (contains? (:orphan-blocks this) hash)
         )
     )
 
@@ -2943,11 +2923,11 @@
 
     #_throws #_[ "ProtocolException" ]
     (defn #_"String" Wire'read-string [#_"ByteBuffer" payload]
-        (String. (Wire'read-byte-array payload), Charsets/UTF_8)
+        (String. (Wire'read-byte-array payload), Charset'UTF-8)
     )
 
     (defn #_"void" Wire'write-string [#_"String" string, #_"ByteArrayOutputStream" baos]
-        (Wire'write-byte-array (.getBytes string, Charsets/UTF_8), baos)
+        (Wire'write-byte-array (.getBytes string, Charset'UTF-8), baos)
         nil
     )
 
@@ -3025,8 +3005,7 @@
 
     #_method
     (defn #_"ListMessage" ListMessage''add-item [#_"ListMessage" this, #_"InventoryItem" item]
-        (.add (:items this), item)
-        this
+        (append* this :items item)
     )
 
     #_method
@@ -3227,8 +3206,7 @@
 
     #_method
     (defn #_"AddressMessage" AddressMessage''add-address [#_"AddressMessage" this, #_"PeerAddress" address]
-        (.add (:addresses this), address)
-        this
+        (append* this :addresses address)
     )
 
     #_method
@@ -3410,7 +3388,7 @@
             ;; Note that the size read above includes the checksum bytes.
             (let [#_"byte[]" checksum (byte-array 4) _ (System/arraycopy header, (+ n 4), checksum, 0, 4)]
                 (hash-map
-                    #_"String" :command (String. command, Charsets/US_ASCII)
+                    #_"String" :command (String. command, Charset'US-ASCII)
                     #_"int" :size size
                     #_"byte[]" :checksum checksum
                 )
@@ -4130,27 +4108,27 @@
             (.. sb (append " block: \n"))
             (.. sb (append "   hash: ") (append (Block''get-hash this)) (append "\n"))
             (.. sb (append "   version: ") (append (:version this)))
-            (let [#_"String" bips (.join (.skipNulls (Joiner/on ", ")),
-                                         (when (Block''is-bip34 this) "BIP34"),
-                                         (when (Block''is-bip66 this) "BIP66"),
-                                         (when (Block''is-bip65 this) "BIP65"))]
+            (let [#_"String" bips
+                    (apply str (interpose ", " (filter some?
+                        [(when (Block''is-bip34 this) "BIP34"), (when (Block''is-bip66 this) "BIP66"), (when (Block''is-bip65 this) "BIP65")]))
+                    )]
                 (when (seq bips)
                     (.. sb (append " (") (append bips) (append ")"))
                 )
-                (.. sb (append "\n"))
-                (.. sb (append "   previous block: ") (append (:prev-block-hash this)) (append "\n"))
-                (.. sb (append "   merkle root: ") (append (Block''calculate-merkle-root this)) (append "\n"))
-                (.. sb (append "   time: ") (append (:time-seconds this)) (append " (") (append (Time'format-seconds (:time-seconds this))) (append ")\n"))
-                (.. sb (append "   difficulty target (nBits): ") (append (:difficulty-target this)) (append "\n"))
-                (.. sb (append "   nonce: ") (append (:nonce this)) (append "\n"))
-                (when (seq (:transactions this))
-                    (.. sb (append "   with ") (append (count (:transactions this))) (append " transaction(s):\n"))
-                    (doseq [#_"Transaction" tx (:transactions this)]
-                        (.. sb (append tx))
-                    )
-                )
-                (.toString sb)
             )
+            (.. sb (append "\n"))
+            (.. sb (append "   previous block: ") (append (:prev-block-hash this)) (append "\n"))
+            (.. sb (append "   merkle root: ") (append (Block''calculate-merkle-root this)) (append "\n"))
+            (.. sb (append "   time: ") (append (:time-seconds this)) (append " (") (append (Time'format-seconds (:time-seconds this))) (append ")\n"))
+            (.. sb (append "   difficulty target (nBits): ") (append (:difficulty-target this)) (append "\n"))
+            (.. sb (append "   nonce: ") (append (:nonce this)) (append "\n"))
+            (when (seq (:transactions this))
+                (.. sb (append "   with ") (append (count (:transactions this))) (append " transaction(s):\n"))
+                (doseq [#_"Transaction" tx (:transactions this)]
+                    (.. sb (append tx))
+                )
+            )
+            (.toString sb)
         )
     )
 )
@@ -5212,7 +5190,7 @@
             (aset bytes 0 (byte (+ id 27 (if (ECKey''is-compressed this) 4 0))))
             (System/arraycopy (Utils'big-integer-to-bytes (:r sig), 32), 0, bytes, 1, 32)
             (System/arraycopy (Utils'big-integer-to-bytes (:s sig), 32), 0, bytes, 33, 32)
-            (String. (Base64/encode bytes), Charsets/UTF_8)
+            (String. (Base64/encode bytes), Charset'UTF-8)
         )
     )
 
@@ -6158,7 +6136,7 @@
 
     #_method
     (defn #_"String" GetBlocksMessage''to-string [#_"GetBlocksMessage" this]
-        (str "getblocks: " (.join Utils'SPACE_JOINER, (:locator this)))
+        (apply str "getblocks: " (interpose " " (:locator this)))
     )
 )
 
@@ -6266,7 +6244,7 @@
 
     #_method
     (defn #_"String" GetHeadersMessage''to-string [#_"GetHeadersMessage" this]
-        (str "getheaders: " (.join Utils'SPACE_JOINER, (:locator this)))
+        (apply str "getheaders: " (interpose " " (:locator this)))
     )
 )
 
@@ -7331,50 +7309,43 @@
     ;;; Registers a listener that is invoked when new blocks are downloaded. ;;
     #_method
     (defn #_"Peer" Peer''add-blocks-downloaded-event-listener [#_"Peer" this, #_"Executor" executor, #_"BlocksDownloadedEventListener" listener]
-        (.add (:blocks-downloaded-event-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :blocks-downloaded-event-listeners (ListenerRegistration'new listener, executor))
     )
 
     ;;; Registers a listener that is invoked when a blockchain download starts. ;;
     #_method
     (defn #_"Peer" Peer''add-chain-download-started-event-listener [#_"Peer" this, #_"Executor" executor, #_"ChainDownloadStartedEventListener" listener]
-        (.add (:chain-download-started-event-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :chain-download-started-event-listeners (ListenerRegistration'new listener, executor))
     )
 
     ;;; Registers a listener that is invoked when a peer is connected. ;;
     #_method
     (defn #_"Peer" Peer''add-connected-event-listener [#_"Peer" this, #_"Executor" executor, #_"PeerConnectedEventListener" listener]
-        (.add (:connected-event-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :connected-event-listeners (ListenerRegistration'new listener, executor))
     )
 
     ;;; Registers a listener that is invoked when a peer is disconnected. ;;
     #_method
     (defn #_"Peer" Peer''add-disconnected-event-listener [#_"Peer" this, #_"Executor" executor, #_"PeerDisconnectedEventListener" listener]
-        (.add (:disconnected-event-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :disconnected-event-listeners (ListenerRegistration'new listener, executor))
     )
 
     ;;; Registers a listener that is called when messages are received. ;;
     #_method
     (defn #_"Peer" Peer''add-get-data-event-listener [#_"Peer" this, #_"Executor" executor, #_"GetDataEventListener" listener]
-        (.add (:get-data-event-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :get-data-event-listeners (ListenerRegistration'new listener, executor))
     )
 
     ;;; Registers a listener that is called when a transaction is broadcast across the network. ;;
     #_method
     (defn #_"Peer" Peer''add-on-transaction-broadcast-listener [#_"Peer" this, #_"Executor" executor, #_"OnTransactionBroadcastListener" listener]
-        (.add (:on-transaction-event-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :on-transaction-event-listeners (ListenerRegistration'new listener, executor))
     )
 
     ;;; Registers a listener that is called immediately before a message is received. ;;
     #_method
     (defn #_"Peer" Peer''add-pre-message-received-event-listener [#_"Peer" this, #_"Executor" executor, #_"PreMessageReceivedEventListener" listener]
-        (.add (:pre-message-received-event-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :pre-message-received-event-listeners (ListenerRegistration'new listener, executor))
     )
 
     #_method
@@ -8411,7 +8382,7 @@
                                                     ;; part of chain download with newly announced blocks, so it should always be taken care of by
                                                     ;; the duplicate check in blockChainDownloadLocked().  But Bitcoin Core may change in future so
                                                     ;; it's better to be safe here.
-                                                    (when-not (.contains (:pending-block-downloads this), (:item-hash item)) => [this ping?]
+                                                    (when-not (contains? (:pending-block-downloads this) (:item-hash item)) => [this ping?]
                                                         (let [ping?
                                                                 (if (and (VersionMessage''is-bloom-filtering-supported (:v-peer-version-message this)) (:use-filtered-blocks this))
                                                                     (do
@@ -8547,8 +8518,7 @@
      ;;
     #_method
     (defn #_"Peer" Peer''add-wallet [#_"Peer" this, #_"Wallet" wallet]
-        (.add (:wallets this), wallet)
-        this
+        (append* this :wallets wallet)
     )
 
     ;;;
@@ -9647,8 +9617,7 @@
      ;;
     #_method
     (defn #_"PeerGroup" PeerGroup''add-discovered-event-listener [#_"PeerGroup" this, #_"Executor" executor, #_"PeerDiscoveredEventListener" listener]
-        (.add (:peer-discovered-event-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :peer-discovered-event-listeners (ListenerRegistration'new listener, executor))
     )
 
     #_method
@@ -9798,7 +9767,7 @@
     (defn- #_"PeerGroup" PeerGroup''add-inactive [#_"PeerGroup" this, #_"PeerAddress" addr]
         (sync (:peergroup-lock this)
             ;; Deduplicate.
-            (when-not (.containsKey (:backoff-map this), addr)
+            (when-not (contains? (:backoff-map this) addr)
                 (.put (:backoff-map this), addr, (ExponentialBackoff'new (:peer-backoff-params this)))
                 (.offer (:inactives this), addr)
             )
@@ -9839,8 +9808,7 @@
                     (when (zero? (:max-connections this)) => this
                         (PeerGroup''set-max-connections this, PeerGroup'DEFAULT_CONNECTIONS)
                     )]
-                (.add (:peer-discoveries this), discovery)
-                this
+                (append* this :peer-discoveries discovery)
             )
         )
     )
@@ -12229,7 +12197,7 @@
 
         (let [#_"HashSet<TransactionOutPoint>" outpoints (HashSet.)]
             (doseq [#_"TransactionInput" input (:inputs this)]
-                (when (.contains outpoints, (:outpoint input))
+                (when (contains? outpoints (:outpoint input))
                     (throw+ (VerificationException'new "Duplicated outpoint"))
                 )
                 (.add outpoints, (:outpoint input))
@@ -12607,7 +12575,7 @@
                   peers (subvec peers 0 m)]
 
                 (log/info (str "broadcastTransaction: We have " n " peers, adding " (Transaction''get-hash (:tx this)) " to the memory pool"))
-                (log/info (str "Sending to " m " peers, will wait for " (:num-waiting-for this) ", sending to: " (.join (Joiner/on ","), peers)))
+                (log/info (apply str "Sending to " m " peers, will wait for " (:num-waiting-for this) ", sending to: " (interpose "," peers)))
                 (doseq [#_"Peer" peer peers]
                     (try
                         (§ ass peer (Peer''send-message peer, (:tx this), Transaction''to-wire))
@@ -13514,9 +13482,11 @@
                 (.. sb (append ": COINBASE"))
                 (do
                     (.. sb (append " for [") (append (:outpoint this)) (append "]: ") (append (TransactionInput''get-script-sig this)))
-                    (let [#_"String" flags (.join (.skipNulls (Joiner/on ", ")),
-                            (when (TransactionInput''has-sequence this) (str "sequence: " (Long/toHexString (:sequence this)))),
-                            (when (TransactionInput''is-opt-in-full-rbf this) "opts into full RBF"))]
+                    (let [#_"String" flags
+                            (apply str (interpose ", " (filter some?
+                                [(when (TransactionInput''has-sequence this) (str "sequence: " (Long/toHexString (:sequence this)))),
+                                 (when (TransactionInput''is-opt-in-full-rbf this) "opts into full RBF")]))
+                            )]
                         (when (seq flags)
                             (.. sb (append " (") (append flags) (append ")"))
                         )
@@ -14649,7 +14619,7 @@
     #_method
     (defn #_"DeterministicKey" DeterministicHierarchy''get-4 [#_"DeterministicHierarchy" this, #_"List<ChildNumber>" path, #_"boolean" relative?, #_"boolean" create?]
         (let [#_"List<ChildNumber>" abs (if relative? (.. (ImmutableList/builder #_"List<ChildNumber>") (addAll (:root-path this)) (addAll path) (build)) path)]
-            (when-not (.containsKey (:keys this), abs)
+            (when-not (contains? (:keys this) abs)
                 (when-not create?
                     (throw (IllegalArgumentException. (str "No key found for " (if relative? "relative" "absolute") " path " (HDUtils'format-path path) ".")))
                 )
@@ -15246,7 +15216,7 @@
         (assert-argument (< 8 (alength seed)), "Seed is too short and could be brute forced")
 
         ;; Calculate I = HMAC-SHA512(key="Bitcoin seed", msg=S).
-        (let [#_"byte[]" i (HDUtils'hmac-sha512-2 (HDUtils'create-hmac-sha512-digest (.getBytes "Bitcoin seed")), seed)]
+        (let [#_"byte[]" i (HDUtils'hmac-sha512-2 (HDUtils'create-hmac-sha512-digest (.getBytes "Bitcoin seed", Charset'UTF-8)), seed)]
             ;; Split I into two 32-byte sequences, Il and Ir.
             ;; Use Il as master secret key, and Ir as master chain code.
             (assert-state (= (alength i) 64))
@@ -15423,8 +15393,6 @@
  ;;
 #_stateless
 (class-ns HDUtils
-    (def- #_"Joiner" HDUtils'PATH_JOINER (Joiner/on "/"))
-
     (defn #_"HMac" HDUtils'create-hmac-sha512-digest [#_"byte[]" key]
         (let [#_"HMac" hmac (HMac. (SHA512Digest.))]
             (.init hmac, (KeyParameter. key))
@@ -15457,326 +15425,320 @@
 
     ;;; Convert to a string path, starting with "M/". ;;
     (defn #_"String" HDUtils'format-path [#_"List<ChildNumber>" path]
-        (.join HDUtils'PATH_JOINER, (Iterables/concat (Collections/singleton "M"), path))
+        (apply str (interpose "/" (Iterables/concat (Collections/singleton "M"), path)))
     )
 )
 
 ;;;
- ; A MnemonicCode object may be used to convert between binary seed values and lists of words per
- ; <a href="https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki">the BIP 39 specification</a>.
+ ; MnemonicCode may be used to convert between binary seed values and lists of words per
+ ; the BIP 39 specification [https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki].
  ;;
 
 (class-ns MnemonicCode
-    (def- #_"String[]" MnemonicCode'BIP39_ENGLISH_WORDLIST
-    [
-        "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract",
-        "absurd", "abuse", "access", "accident", "account", "accuse", "achieve", "acid",
-        "acoustic", "acquire", "across", "act", "action", "actor", "actress", "actual",
-        "adapt", "add", "addict", "address", "adjust", "admit", "adult", "advance",
-        "advice", "aerobic", "affair", "afford", "afraid", "again", "age", "agent",
-        "agree", "ahead", "aim", "air", "airport", "aisle", "alarm", "album",
-        "alcohol", "alert", "alien", "all", "alley", "allow", "almost", "alone",
-        "alpha", "already", "also", "alter", "always", "amateur", "amazing", "among",
-        "amount", "amused", "analyst", "anchor", "ancient", "anger", "angle", "angry",
-        "animal", "ankle", "announce", "annual", "another", "answer", "antenna", "antique",
-        "anxiety", "any", "apart", "apology", "appear", "apple", "approve", "april",
-        "arch", "arctic", "area", "arena", "argue", "arm", "armed", "armor",
-        "army", "around", "arrange", "arrest", "arrive", "arrow", "art", "artefact",
-        "artist", "artwork", "ask", "aspect", "assault", "asset", "assist", "assume",
-        "asthma", "athlete", "atom", "attack", "attend", "attitude", "attract", "auction",
-        "audit", "august", "aunt", "author", "auto", "autumn", "average", "avocado",
-        "avoid", "awake", "aware", "away", "awesome", "awful", "awkward", "axis",
-        "baby", "bachelor", "bacon", "badge", "bag", "balance", "balcony", "ball",
-        "bamboo", "banana", "banner", "bar", "barely", "bargain", "barrel", "base",
-        "basic", "basket", "battle", "beach", "bean", "beauty", "because", "become",
-        "beef", "before", "begin", "behave", "behind", "believe", "below", "belt",
-        "bench", "benefit", "best", "betray", "better", "between", "beyond", "bicycle",
-        "bid", "bike", "bind", "biology", "bird", "birth", "bitter", "black",
-        "blade", "blame", "blanket", "blast", "bleak", "bless", "blind", "blood",
-        "blossom", "blouse", "blue", "blur", "blush", "board", "boat", "body",
-        "boil", "bomb", "bone", "bonus", "book", "boost", "border", "boring",
-        "borrow", "boss", "bottom", "bounce", "box", "boy", "bracket", "brain",
-        "brand", "brass", "brave", "bread", "breeze", "brick", "bridge", "brief",
-        "bright", "bring", "brisk", "broccoli", "broken", "bronze", "broom", "brother",
-        "brown", "brush", "bubble", "buddy", "budget", "buffalo", "build", "bulb",
-        "bulk", "bullet", "bundle", "bunker", "burden", "burger", "burst", "bus",
-        "business", "busy", "butter", "buyer", "buzz", "cabbage", "cabin", "cable",
-        "cactus", "cage", "cake", "call", "calm", "camera", "camp", "can",
-        "canal", "cancel", "candy", "cannon", "canoe", "canvas", "canyon", "capable",
-        "capital", "captain", "car", "carbon", "card", "cargo", "carpet", "carry",
-        "cart", "case", "cash", "casino", "castle", "casual", "cat", "catalog",
-        "catch", "category", "cattle", "caught", "cause", "caution", "cave", "ceiling",
-        "celery", "cement", "census", "century", "cereal", "certain", "chair", "chalk",
-        "champion", "change", "chaos", "chapter", "charge", "chase", "chat", "cheap",
-        "check", "cheese", "chef", "cherry", "chest", "chicken", "chief", "child",
-        "chimney", "choice", "choose", "chronic", "chuckle", "chunk", "churn", "cigar",
-        "cinnamon", "circle", "citizen", "city", "civil", "claim", "clap", "clarify",
-        "claw", "clay", "clean", "clerk", "clever", "click", "client", "cliff",
-        "climb", "clinic", "clip", "clock", "clog", "close", "cloth", "cloud",
-        "clown", "club", "clump", "cluster", "clutch", "coach", "coast", "coconut",
-        "code", "coffee", "coil", "coin", "collect", "color", "column", "combine",
-        "come", "comfort", "comic", "common", "company", "concert", "conduct", "confirm",
-        "congress", "connect", "consider", "control", "convince", "cook", "cool", "copper",
-        "copy", "coral", "core", "corn", "correct", "cost", "cotton", "couch",
-        "country", "couple", "course", "cousin", "cover", "coyote", "crack", "cradle",
-        "craft", "cram", "crane", "crash", "crater", "crawl", "crazy", "cream",
-        "credit", "creek", "crew", "cricket", "crime", "crisp", "critic", "crop",
-        "cross", "crouch", "crowd", "crucial", "cruel", "cruise", "crumble", "crunch",
-        "crush", "cry", "crystal", "cube", "culture", "cup", "cupboard", "curious",
-        "current", "curtain", "curve", "cushion", "custom", "cute", "cycle", "dad",
-        "damage", "damp", "dance", "danger", "daring", "dash", "daughter", "dawn",
-        "day", "deal", "debate", "debris", "decade", "december", "decide", "decline",
-        "decorate", "decrease", "deer", "defense", "define", "defy", "degree", "delay",
-        "deliver", "demand", "demise", "denial", "dentist", "deny", "depart", "depend",
-        "deposit", "depth", "deputy", "derive", "describe", "desert", "design", "desk",
-        "despair", "destroy", "detail", "detect", "develop", "device", "devote", "diagram",
-        "dial", "diamond", "diary", "dice", "diesel", "diet", "differ", "digital",
-        "dignity", "dilemma", "dinner", "dinosaur", "direct", "dirt", "disagree", "discover",
-        "disease", "dish", "dismiss", "disorder", "display", "distance", "divert", "divide",
-        "divorce", "dizzy", "doctor", "document", "dog", "doll", "dolphin", "domain",
-        "donate", "donkey", "donor", "door", "dose", "double", "dove", "draft",
-        "dragon", "drama", "drastic", "draw", "dream", "dress", "drift", "drill",
-        "drink", "drip", "drive", "drop", "drum", "dry", "duck", "dumb",
-        "dune", "during", "dust", "dutch", "duty", "dwarf", "dynamic", "eager",
-        "eagle", "early", "earn", "earth", "easily", "east", "easy", "echo",
-        "ecology", "economy", "edge", "edit", "educate", "effort", "egg", "eight",
-        "either", "elbow", "elder", "electric", "elegant", "element", "elephant", "elevator",
-        "elite", "else", "embark", "embody", "embrace", "emerge", "emotion", "employ",
-        "empower", "empty", "enable", "enact", "end", "endless", "endorse", "enemy",
-        "energy", "enforce", "engage", "engine", "enhance", "enjoy", "enlist", "enough",
-        "enrich", "enroll", "ensure", "enter", "entire", "entry", "envelope", "episode",
-        "equal", "equip", "era", "erase", "erode", "erosion", "error", "erupt",
-        "escape", "essay", "essence", "estate", "eternal", "ethics", "evidence", "evil",
-        "evoke", "evolve", "exact", "example", "excess", "exchange", "excite", "exclude",
-        "excuse", "execute", "exercise", "exhaust", "exhibit", "exile", "exist", "exit",
-        "exotic", "expand", "expect", "expire", "explain", "expose", "express", "extend",
-        "extra", "eye", "eyebrow", "fabric", "face", "faculty", "fade", "faint",
-        "faith", "fall", "false", "fame", "family", "famous", "fan", "fancy",
-        "fantasy", "farm", "fashion", "fat", "fatal", "father", "fatigue", "fault",
-        "favorite", "feature", "february", "federal", "fee", "feed", "feel", "female",
-        "fence", "festival", "fetch", "fever", "few", "fiber", "fiction", "field",
-        "figure", "file", "film", "filter", "final", "find", "fine", "finger",
-        "finish", "fire", "firm", "first", "fiscal", "fish", "fit", "fitness",
-        "fix", "flag", "flame", "flash", "flat", "flavor", "flee", "flight",
-        "flip", "float", "flock", "floor", "flower", "fluid", "flush", "fly",
-        "foam", "focus", "fog", "foil", "fold", "follow", "food", "foot",
-        "force", "forest", "forget", "fork", "fortune", "forum", "forward", "fossil",
-        "foster", "found", "fox", "fragile", "frame", "frequent", "fresh", "friend",
-        "fringe", "frog", "front", "frost", "frown", "frozen", "fruit", "fuel",
-        "fun", "funny", "furnace", "fury", "future", "gadget", "gain", "galaxy",
-        "gallery", "game", "gap", "garage", "garbage", "garden", "garlic", "garment",
-        "gas", "gasp", "gate", "gather", "gauge", "gaze", "general", "genius",
-        "genre", "gentle", "genuine", "gesture", "ghost", "giant", "gift", "giggle",
-        "ginger", "giraffe", "girl", "give", "glad", "glance", "glare", "glass",
-        "glide", "glimpse", "globe", "gloom", "glory", "glove", "glow", "glue",
-        "goat", "goddess", "gold", "good", "goose", "gorilla", "gospel", "gossip",
-        "govern", "gown", "grab", "grace", "grain", "grant", "grape", "grass",
-        "gravity", "great", "green", "grid", "grief", "grit", "grocery", "group",
-        "grow", "grunt", "guard", "guess", "guide", "guilt", "guitar", "gun",
-        "gym", "habit", "hair", "half", "hammer", "hamster", "hand", "happy",
-        "harbor", "hard", "harsh", "harvest", "hat", "have", "hawk", "hazard",
-        "head", "health", "heart", "heavy", "hedgehog", "height", "hello", "helmet",
-        "help", "hen", "hero", "hidden", "high", "hill", "hint", "hip",
-        "hire", "history", "hobby", "hockey", "hold", "hole", "holiday", "hollow",
-        "home", "honey", "hood", "hope", "horn", "horror", "horse", "hospital",
-        "host", "hotel", "hour", "hover", "hub", "huge", "human", "humble",
-        "humor", "hundred", "hungry", "hunt", "hurdle", "hurry", "hurt", "husband",
-        "hybrid", "ice", "icon", "idea", "identify", "idle", "ignore", "ill",
-        "illegal", "illness", "image", "imitate", "immense", "immune", "impact", "impose",
-        "improve", "impulse", "inch", "include", "income", "increase", "index", "indicate",
-        "indoor", "industry", "infant", "inflict", "inform", "inhale", "inherit", "initial",
-        "inject", "injury", "inmate", "inner", "innocent", "input", "inquiry", "insane",
-        "insect", "inside", "inspire", "install", "intact", "interest", "into", "invest",
-        "invite", "involve", "iron", "island", "isolate", "issue", "item", "ivory",
-        "jacket", "jaguar", "jar", "jazz", "jealous", "jeans", "jelly", "jewel",
-        "job", "join", "joke", "journey", "joy", "judge", "juice", "jump",
-        "jungle", "junior", "junk", "just", "kangaroo", "keen", "keep", "ketchup",
-        "key", "kick", "kid", "kidney", "kind", "kingdom", "kiss", "kit",
-        "kitchen", "kite", "kitten", "kiwi", "knee", "knife", "knock", "know",
-        "lab", "label", "labor", "ladder", "lady", "lake", "lamp", "language",
-        "laptop", "large", "later", "latin", "laugh", "laundry", "lava", "law",
-        "lawn", "lawsuit", "layer", "lazy", "leader", "leaf", "learn", "leave",
-        "lecture", "left", "leg", "legal", "legend", "leisure", "lemon", "lend",
-        "length", "lens", "leopard", "lesson", "letter", "level", "liar", "liberty",
-        "library", "license", "life", "lift", "light", "like", "limb", "limit",
-        "link", "lion", "liquid", "list", "little", "live", "lizard", "load",
-        "loan", "lobster", "local", "lock", "logic", "lonely", "long", "loop",
-        "lottery", "loud", "lounge", "love", "loyal", "lucky", "luggage", "lumber",
-        "lunar", "lunch", "luxury", "lyrics", "machine", "mad", "magic", "magnet",
-        "maid", "mail", "main", "major", "make", "mammal", "man", "manage",
-        "mandate", "mango", "mansion", "manual", "maple", "marble", "march", "margin",
-        "marine", "market", "marriage", "mask", "mass", "master", "match", "material",
-        "math", "matrix", "matter", "maximum", "maze", "meadow", "mean", "measure",
-        "meat", "mechanic", "medal", "media", "melody", "melt", "member", "memory",
-        "mention", "menu", "mercy", "merge", "merit", "merry", "mesh", "message",
-        "metal", "method", "middle", "midnight", "milk", "million", "mimic", "mind",
-        "minimum", "minor", "minute", "miracle", "mirror", "misery", "miss", "mistake",
-        "mix", "mixed", "mixture", "mobile", "model", "modify", "mom", "moment",
-        "monitor", "monkey", "monster", "month", "moon", "moral", "more", "morning",
-        "mosquito", "mother", "motion", "motor", "mountain", "mouse", "move", "movie",
-        "much", "muffin", "mule", "multiply", "muscle", "museum", "mushroom", "music",
-        "must", "mutual", "myself", "mystery", "myth", "naive", "name", "napkin",
-        "narrow", "nasty", "nation", "nature", "near", "neck", "need", "negative",
-        "neglect", "neither", "nephew", "nerve", "nest", "net", "network", "neutral",
-        "never", "news", "next", "nice", "night", "noble", "noise", "nominee",
-        "noodle", "normal", "north", "nose", "notable", "note", "nothing", "notice",
-        "novel", "now", "nuclear", "number", "nurse", "nut", "oak", "obey",
-        "object", "oblige", "obscure", "observe", "obtain", "obvious", "occur", "ocean",
-        "october", "odor", "off", "offer", "office", "often", "oil", "okay",
-        "old", "olive", "olympic", "omit", "once", "one", "onion", "online",
-        "only", "open", "opera", "opinion", "oppose", "option", "orange", "orbit",
-        "orchard", "order", "ordinary", "organ", "orient", "original", "orphan", "ostrich",
-        "other", "outdoor", "outer", "output", "outside", "oval", "oven", "over",
-        "own", "owner", "oxygen", "oyster", "ozone", "pact", "paddle", "page",
-        "pair", "palace", "palm", "panda", "panel", "panic", "panther", "paper",
-        "parade", "parent", "park", "parrot", "party", "pass", "patch", "path",
-        "patient", "patrol", "pattern", "pause", "pave", "payment", "peace", "peanut",
-        "pear", "peasant", "pelican", "pen", "penalty", "pencil", "people", "pepper",
-        "perfect", "permit", "person", "pet", "phone", "photo", "phrase", "physical",
-        "piano", "picnic", "picture", "piece", "pig", "pigeon", "pill", "pilot",
-        "pink", "pioneer", "pipe", "pistol", "pitch", "pizza", "place", "planet",
-        "plastic", "plate", "play", "please", "pledge", "pluck", "plug", "plunge",
-        "poem", "poet", "point", "polar", "pole", "police", "pond", "pony",
-        "pool", "popular", "portion", "position", "possible", "post", "potato", "pottery",
-        "poverty", "powder", "power", "practice", "praise", "predict", "prefer", "prepare",
-        "present", "pretty", "prevent", "price", "pride", "primary", "print", "priority",
-        "prison", "private", "prize", "problem", "process", "produce", "profit", "program",
-        "project", "promote", "proof", "property", "prosper", "protect", "proud", "provide",
-        "public", "pudding", "pull", "pulp", "pulse", "pumpkin", "punch", "pupil",
-        "puppy", "purchase", "purity", "purpose", "purse", "push", "put", "puzzle",
-        "pyramid", "quality", "quantum", "quarter", "question", "quick", "quit", "quiz",
-        "quote", "rabbit", "raccoon", "race", "rack", "radar", "radio", "rail",
-        "rain", "raise", "rally", "ramp", "ranch", "random", "range", "rapid",
-        "rare", "rate", "rather", "raven", "raw", "razor", "ready", "real",
-        "reason", "rebel", "rebuild", "recall", "receive", "recipe", "record", "recycle",
-        "reduce", "reflect", "reform", "refuse", "region", "regret", "regular", "reject",
-        "relax", "release", "relief", "rely", "remain", "remember", "remind", "remove",
-        "render", "renew", "rent", "reopen", "repair", "repeat", "replace", "report",
-        "require", "rescue", "resemble", "resist", "resource", "response", "result", "retire",
-        "retreat", "return", "reunion", "reveal", "review", "reward", "rhythm", "rib",
-        "ribbon", "rice", "rich", "ride", "ridge", "rifle", "right", "rigid",
-        "ring", "riot", "ripple", "risk", "ritual", "rival", "river", "road",
-        "roast", "robot", "robust", "rocket", "romance", "roof", "rookie", "room",
-        "rose", "rotate", "rough", "round", "route", "royal", "rubber", "rude",
-        "rug", "rule", "run", "runway", "rural", "sad", "saddle", "sadness",
-        "safe", "sail", "salad", "salmon", "salon", "salt", "salute", "same",
-        "sample", "sand", "satisfy", "satoshi", "sauce", "sausage", "save", "say",
-        "scale", "scan", "scare", "scatter", "scene", "scheme", "school", "science",
-        "scissors", "scorpion", "scout", "scrap", "screen", "script", "scrub", "sea",
-        "search", "season", "seat", "second", "secret", "section", "security", "seed",
-        "seek", "segment", "select", "sell", "seminar", "senior", "sense", "sentence",
-        "series", "service", "session", "settle", "setup", "seven", "shadow", "shaft",
-        "shallow", "share", "shed", "shell", "sheriff", "shield", "shift", "shine",
-        "ship", "shiver", "shock", "shoe", "shoot", "shop", "short", "shoulder",
-        "shove", "shrimp", "shrug", "shuffle", "shy", "sibling", "sick", "side",
-        "siege", "sight", "sign", "silent", "silk", "silly", "silver", "similar",
-        "simple", "since", "sing", "siren", "sister", "situate", "six", "size",
-        "skate", "sketch", "ski", "skill", "skin", "skirt", "skull", "slab",
-        "slam", "sleep", "slender", "slice", "slide", "slight", "slim", "slogan",
-        "slot", "slow", "slush", "small", "smart", "smile", "smoke", "smooth",
-        "snack", "snake", "snap", "sniff", "snow", "soap", "soccer", "social",
-        "sock", "soda", "soft", "solar", "soldier", "solid", "solution", "solve",
-        "someone", "song", "soon", "sorry", "sort", "soul", "sound", "soup",
-        "source", "south", "space", "spare", "spatial", "spawn", "speak", "special",
-        "speed", "spell", "spend", "sphere", "spice", "spider", "spike", "spin",
-        "spirit", "split", "spoil", "sponsor", "spoon", "sport", "spot", "spray",
-        "spread", "spring", "spy", "square", "squeeze", "squirrel", "stable", "stadium",
-        "staff", "stage", "stairs", "stamp", "stand", "start", "state", "stay",
-        "steak", "steel", "stem", "step", "stereo", "stick", "still", "sting",
-        "stock", "stomach", "stone", "stool", "story", "stove", "strategy", "street",
-        "strike", "strong", "struggle", "student", "stuff", "stumble", "style", "subject",
-        "submit", "subway", "success", "such", "sudden", "suffer", "sugar", "suggest",
-        "suit", "summer", "sun", "sunny", "sunset", "super", "supply", "supreme",
-        "sure", "surface", "surge", "surprise", "surround", "survey", "suspect", "sustain",
-        "swallow", "swamp", "swap", "swarm", "swear", "sweet", "swift", "swim",
-        "swing", "switch", "sword", "symbol", "symptom", "syrup", "system", "table",
-        "tackle", "tag", "tail", "talent", "talk", "tank", "tape", "target",
-        "task", "taste", "tattoo", "taxi", "teach", "team", "tell", "ten",
-        "tenant", "tennis", "tent", "term", "test", "text", "thank", "that",
-        "theme", "then", "theory", "there", "they", "thing", "this", "thought",
-        "three", "thrive", "throw", "thumb", "thunder", "ticket", "tide", "tiger",
-        "tilt", "timber", "time", "tiny", "tip", "tired", "tissue", "title",
-        "toast", "tobacco", "today", "toddler", "toe", "together", "toilet", "token",
-        "tomato", "tomorrow", "tone", "tongue", "tonight", "tool", "tooth", "top",
-        "topic", "topple", "torch", "tornado", "tortoise", "toss", "total", "tourist",
-        "toward", "tower", "town", "toy", "track", "trade", "traffic", "tragic",
-        "train", "transfer", "trap", "trash", "travel", "tray", "treat", "tree",
-        "trend", "trial", "tribe", "trick", "trigger", "trim", "trip", "trophy",
-        "trouble", "truck", "true", "truly", "trumpet", "trust", "truth", "try",
-        "tube", "tuition", "tumble", "tuna", "tunnel", "turkey", "turn", "turtle",
-        "twelve", "twenty", "twice", "twin", "twist", "two", "type", "typical",
-        "ugly", "umbrella", "unable", "unaware", "uncle", "uncover", "under", "undo",
-        "unfair", "unfold", "unhappy", "uniform", "unique", "unit", "universe", "unknown",
-        "unlock", "until", "unusual", "unveil", "update", "upgrade", "uphold", "upon",
-        "upper", "upset", "urban", "urge", "usage", "use", "used", "useful",
-        "useless", "usual", "utility", "vacant", "vacuum", "vague", "valid", "valley",
-        "valve", "van", "vanish", "vapor", "various", "vast", "vault", "vehicle",
-        "velvet", "vendor", "venture", "venue", "verb", "verify", "version", "very",
-        "vessel", "veteran", "viable", "vibrant", "vicious", "victory", "video", "view",
-        "village", "vintage", "violin", "virtual", "virus", "visa", "visit", "visual",
-        "vital", "vivid", "vocal", "voice", "void", "volcano", "volume", "vote",
-        "voyage", "wage", "wagon", "wait", "walk", "wall", "walnut", "want",
-        "warfare", "warm", "warrior", "wash", "wasp", "waste", "water", "wave",
-        "way", "wealth", "weapon", "wear", "weasel", "weather", "web", "wedding",
-        "weekend", "weird", "welcome", "west", "wet", "whale", "what", "wheat",
-        "wheel", "when", "where", "whip", "whisper", "wide", "width", "wife",
-        "wild", "will", "win", "window", "wine", "wing", "wink", "winner",
-        "winter", "wire", "wisdom", "wise", "wish", "witness", "wolf", "woman",
-        "wonder", "wood", "wool", "word", "work", "world", "worry", "worth",
-        "wrap", "wreck", "wrestle", "wrist", "write", "wrong", "yard", "year",
-        "yellow", "you", "young", "youth", "zebra", "zero", "zone", "zoo",
-    ])
+    (def- #_"[String*]" MnemonicCode'BIP39_ENGLISH_WORDS
+        (rrb/vector
+            "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract",
+            "absurd", "abuse", "access", "accident", "account", "accuse", "achieve", "acid",
+            "acoustic", "acquire", "across", "act", "action", "actor", "actress", "actual",
+            "adapt", "add", "addict", "address", "adjust", "admit", "adult", "advance",
+            "advice", "aerobic", "affair", "afford", "afraid", "again", "age", "agent",
+            "agree", "ahead", "aim", "air", "airport", "aisle", "alarm", "album",
+            "alcohol", "alert", "alien", "all", "alley", "allow", "almost", "alone",
+            "alpha", "already", "also", "alter", "always", "amateur", "amazing", "among",
+            "amount", "amused", "analyst", "anchor", "ancient", "anger", "angle", "angry",
+            "animal", "ankle", "announce", "annual", "another", "answer", "antenna", "antique",
+            "anxiety", "any", "apart", "apology", "appear", "apple", "approve", "april",
+            "arch", "arctic", "area", "arena", "argue", "arm", "armed", "armor",
+            "army", "around", "arrange", "arrest", "arrive", "arrow", "art", "artefact",
+            "artist", "artwork", "ask", "aspect", "assault", "asset", "assist", "assume",
+            "asthma", "athlete", "atom", "attack", "attend", "attitude", "attract", "auction",
+            "audit", "august", "aunt", "author", "auto", "autumn", "average", "avocado",
+            "avoid", "awake", "aware", "away", "awesome", "awful", "awkward", "axis",
+            "baby", "bachelor", "bacon", "badge", "bag", "balance", "balcony", "ball",
+            "bamboo", "banana", "banner", "bar", "barely", "bargain", "barrel", "base",
+            "basic", "basket", "battle", "beach", "bean", "beauty", "because", "become",
+            "beef", "before", "begin", "behave", "behind", "believe", "below", "belt",
+            "bench", "benefit", "best", "betray", "better", "between", "beyond", "bicycle",
+            "bid", "bike", "bind", "biology", "bird", "birth", "bitter", "black",
+            "blade", "blame", "blanket", "blast", "bleak", "bless", "blind", "blood",
+            "blossom", "blouse", "blue", "blur", "blush", "board", "boat", "body",
+            "boil", "bomb", "bone", "bonus", "book", "boost", "border", "boring",
+            "borrow", "boss", "bottom", "bounce", "box", "boy", "bracket", "brain",
+            "brand", "brass", "brave", "bread", "breeze", "brick", "bridge", "brief",
+            "bright", "bring", "brisk", "broccoli", "broken", "bronze", "broom", "brother",
+            "brown", "brush", "bubble", "buddy", "budget", "buffalo", "build", "bulb",
+            "bulk", "bullet", "bundle", "bunker", "burden", "burger", "burst", "bus",
+            "business", "busy", "butter", "buyer", "buzz", "cabbage", "cabin", "cable",
+            "cactus", "cage", "cake", "call", "calm", "camera", "camp", "can",
+            "canal", "cancel", "candy", "cannon", "canoe", "canvas", "canyon", "capable",
+            "capital", "captain", "car", "carbon", "card", "cargo", "carpet", "carry",
+            "cart", "case", "cash", "casino", "castle", "casual", "cat", "catalog",
+            "catch", "category", "cattle", "caught", "cause", "caution", "cave", "ceiling",
+            "celery", "cement", "census", "century", "cereal", "certain", "chair", "chalk",
+            "champion", "change", "chaos", "chapter", "charge", "chase", "chat", "cheap",
+            "check", "cheese", "chef", "cherry", "chest", "chicken", "chief", "child",
+            "chimney", "choice", "choose", "chronic", "chuckle", "chunk", "churn", "cigar",
+            "cinnamon", "circle", "citizen", "city", "civil", "claim", "clap", "clarify",
+            "claw", "clay", "clean", "clerk", "clever", "click", "client", "cliff",
+            "climb", "clinic", "clip", "clock", "clog", "close", "cloth", "cloud",
+            "clown", "club", "clump", "cluster", "clutch", "coach", "coast", "coconut",
+            "code", "coffee", "coil", "coin", "collect", "color", "column", "combine",
+            "come", "comfort", "comic", "common", "company", "concert", "conduct", "confirm",
+            "congress", "connect", "consider", "control", "convince", "cook", "cool", "copper",
+            "copy", "coral", "core", "corn", "correct", "cost", "cotton", "couch",
+            "country", "couple", "course", "cousin", "cover", "coyote", "crack", "cradle",
+            "craft", "cram", "crane", "crash", "crater", "crawl", "crazy", "cream",
+            "credit", "creek", "crew", "cricket", "crime", "crisp", "critic", "crop",
+            "cross", "crouch", "crowd", "crucial", "cruel", "cruise", "crumble", "crunch",
+            "crush", "cry", "crystal", "cube", "culture", "cup", "cupboard", "curious",
+            "current", "curtain", "curve", "cushion", "custom", "cute", "cycle", "dad",
+            "damage", "damp", "dance", "danger", "daring", "dash", "daughter", "dawn",
+            "day", "deal", "debate", "debris", "decade", "december", "decide", "decline",
+            "decorate", "decrease", "deer", "defense", "define", "defy", "degree", "delay",
+            "deliver", "demand", "demise", "denial", "dentist", "deny", "depart", "depend",
+            "deposit", "depth", "deputy", "derive", "describe", "desert", "design", "desk",
+            "despair", "destroy", "detail", "detect", "develop", "device", "devote", "diagram",
+            "dial", "diamond", "diary", "dice", "diesel", "diet", "differ", "digital",
+            "dignity", "dilemma", "dinner", "dinosaur", "direct", "dirt", "disagree", "discover",
+            "disease", "dish", "dismiss", "disorder", "display", "distance", "divert", "divide",
+            "divorce", "dizzy", "doctor", "document", "dog", "doll", "dolphin", "domain",
+            "donate", "donkey", "donor", "door", "dose", "double", "dove", "draft",
+            "dragon", "drama", "drastic", "draw", "dream", "dress", "drift", "drill",
+            "drink", "drip", "drive", "drop", "drum", "dry", "duck", "dumb",
+            "dune", "during", "dust", "dutch", "duty", "dwarf", "dynamic", "eager",
+            "eagle", "early", "earn", "earth", "easily", "east", "easy", "echo",
+            "ecology", "economy", "edge", "edit", "educate", "effort", "egg", "eight",
+            "either", "elbow", "elder", "electric", "elegant", "element", "elephant", "elevator",
+            "elite", "else", "embark", "embody", "embrace", "emerge", "emotion", "employ",
+            "empower", "empty", "enable", "enact", "end", "endless", "endorse", "enemy",
+            "energy", "enforce", "engage", "engine", "enhance", "enjoy", "enlist", "enough",
+            "enrich", "enroll", "ensure", "enter", "entire", "entry", "envelope", "episode",
+            "equal", "equip", "era", "erase", "erode", "erosion", "error", "erupt",
+            "escape", "essay", "essence", "estate", "eternal", "ethics", "evidence", "evil",
+            "evoke", "evolve", "exact", "example", "excess", "exchange", "excite", "exclude",
+            "excuse", "execute", "exercise", "exhaust", "exhibit", "exile", "exist", "exit",
+            "exotic", "expand", "expect", "expire", "explain", "expose", "express", "extend",
+            "extra", "eye", "eyebrow", "fabric", "face", "faculty", "fade", "faint",
+            "faith", "fall", "false", "fame", "family", "famous", "fan", "fancy",
+            "fantasy", "farm", "fashion", "fat", "fatal", "father", "fatigue", "fault",
+            "favorite", "feature", "february", "federal", "fee", "feed", "feel", "female",
+            "fence", "festival", "fetch", "fever", "few", "fiber", "fiction", "field",
+            "figure", "file", "film", "filter", "final", "find", "fine", "finger",
+            "finish", "fire", "firm", "first", "fiscal", "fish", "fit", "fitness",
+            "fix", "flag", "flame", "flash", "flat", "flavor", "flee", "flight",
+            "flip", "float", "flock", "floor", "flower", "fluid", "flush", "fly",
+            "foam", "focus", "fog", "foil", "fold", "follow", "food", "foot",
+            "force", "forest", "forget", "fork", "fortune", "forum", "forward", "fossil",
+            "foster", "found", "fox", "fragile", "frame", "frequent", "fresh", "friend",
+            "fringe", "frog", "front", "frost", "frown", "frozen", "fruit", "fuel",
+            "fun", "funny", "furnace", "fury", "future", "gadget", "gain", "galaxy",
+            "gallery", "game", "gap", "garage", "garbage", "garden", "garlic", "garment",
+            "gas", "gasp", "gate", "gather", "gauge", "gaze", "general", "genius",
+            "genre", "gentle", "genuine", "gesture", "ghost", "giant", "gift", "giggle",
+            "ginger", "giraffe", "girl", "give", "glad", "glance", "glare", "glass",
+            "glide", "glimpse", "globe", "gloom", "glory", "glove", "glow", "glue",
+            "goat", "goddess", "gold", "good", "goose", "gorilla", "gospel", "gossip",
+            "govern", "gown", "grab", "grace", "grain", "grant", "grape", "grass",
+            "gravity", "great", "green", "grid", "grief", "grit", "grocery", "group",
+            "grow", "grunt", "guard", "guess", "guide", "guilt", "guitar", "gun",
+            "gym", "habit", "hair", "half", "hammer", "hamster", "hand", "happy",
+            "harbor", "hard", "harsh", "harvest", "hat", "have", "hawk", "hazard",
+            "head", "health", "heart", "heavy", "hedgehog", "height", "hello", "helmet",
+            "help", "hen", "hero", "hidden", "high", "hill", "hint", "hip",
+            "hire", "history", "hobby", "hockey", "hold", "hole", "holiday", "hollow",
+            "home", "honey", "hood", "hope", "horn", "horror", "horse", "hospital",
+            "host", "hotel", "hour", "hover", "hub", "huge", "human", "humble",
+            "humor", "hundred", "hungry", "hunt", "hurdle", "hurry", "hurt", "husband",
+            "hybrid", "ice", "icon", "idea", "identify", "idle", "ignore", "ill",
+            "illegal", "illness", "image", "imitate", "immense", "immune", "impact", "impose",
+            "improve", "impulse", "inch", "include", "income", "increase", "index", "indicate",
+            "indoor", "industry", "infant", "inflict", "inform", "inhale", "inherit", "initial",
+            "inject", "injury", "inmate", "inner", "innocent", "input", "inquiry", "insane",
+            "insect", "inside", "inspire", "install", "intact", "interest", "into", "invest",
+            "invite", "involve", "iron", "island", "isolate", "issue", "item", "ivory",
+            "jacket", "jaguar", "jar", "jazz", "jealous", "jeans", "jelly", "jewel",
+            "job", "join", "joke", "journey", "joy", "judge", "juice", "jump",
+            "jungle", "junior", "junk", "just", "kangaroo", "keen", "keep", "ketchup",
+            "key", "kick", "kid", "kidney", "kind", "kingdom", "kiss", "kit",
+            "kitchen", "kite", "kitten", "kiwi", "knee", "knife", "knock", "know",
+            "lab", "label", "labor", "ladder", "lady", "lake", "lamp", "language",
+            "laptop", "large", "later", "latin", "laugh", "laundry", "lava", "law",
+            "lawn", "lawsuit", "layer", "lazy", "leader", "leaf", "learn", "leave",
+            "lecture", "left", "leg", "legal", "legend", "leisure", "lemon", "lend",
+            "length", "lens", "leopard", "lesson", "letter", "level", "liar", "liberty",
+            "library", "license", "life", "lift", "light", "like", "limb", "limit",
+            "link", "lion", "liquid", "list", "little", "live", "lizard", "load",
+            "loan", "lobster", "local", "lock", "logic", "lonely", "long", "loop",
+            "lottery", "loud", "lounge", "love", "loyal", "lucky", "luggage", "lumber",
+            "lunar", "lunch", "luxury", "lyrics", "machine", "mad", "magic", "magnet",
+            "maid", "mail", "main", "major", "make", "mammal", "man", "manage",
+            "mandate", "mango", "mansion", "manual", "maple", "marble", "march", "margin",
+            "marine", "market", "marriage", "mask", "mass", "master", "match", "material",
+            "math", "matrix", "matter", "maximum", "maze", "meadow", "mean", "measure",
+            "meat", "mechanic", "medal", "media", "melody", "melt", "member", "memory",
+            "mention", "menu", "mercy", "merge", "merit", "merry", "mesh", "message",
+            "metal", "method", "middle", "midnight", "milk", "million", "mimic", "mind",
+            "minimum", "minor", "minute", "miracle", "mirror", "misery", "miss", "mistake",
+            "mix", "mixed", "mixture", "mobile", "model", "modify", "mom", "moment",
+            "monitor", "monkey", "monster", "month", "moon", "moral", "more", "morning",
+            "mosquito", "mother", "motion", "motor", "mountain", "mouse", "move", "movie",
+            "much", "muffin", "mule", "multiply", "muscle", "museum", "mushroom", "music",
+            "must", "mutual", "myself", "mystery", "myth", "naive", "name", "napkin",
+            "narrow", "nasty", "nation", "nature", "near", "neck", "need", "negative",
+            "neglect", "neither", "nephew", "nerve", "nest", "net", "network", "neutral",
+            "never", "news", "next", "nice", "night", "noble", "noise", "nominee",
+            "noodle", "normal", "north", "nose", "notable", "note", "nothing", "notice",
+            "novel", "now", "nuclear", "number", "nurse", "nut", "oak", "obey",
+            "object", "oblige", "obscure", "observe", "obtain", "obvious", "occur", "ocean",
+            "october", "odor", "off", "offer", "office", "often", "oil", "okay",
+            "old", "olive", "olympic", "omit", "once", "one", "onion", "online",
+            "only", "open", "opera", "opinion", "oppose", "option", "orange", "orbit",
+            "orchard", "order", "ordinary", "organ", "orient", "original", "orphan", "ostrich",
+            "other", "outdoor", "outer", "output", "outside", "oval", "oven", "over",
+            "own", "owner", "oxygen", "oyster", "ozone", "pact", "paddle", "page",
+            "pair", "palace", "palm", "panda", "panel", "panic", "panther", "paper",
+            "parade", "parent", "park", "parrot", "party", "pass", "patch", "path",
+            "patient", "patrol", "pattern", "pause", "pave", "payment", "peace", "peanut",
+            "pear", "peasant", "pelican", "pen", "penalty", "pencil", "people", "pepper",
+            "perfect", "permit", "person", "pet", "phone", "photo", "phrase", "physical",
+            "piano", "picnic", "picture", "piece", "pig", "pigeon", "pill", "pilot",
+            "pink", "pioneer", "pipe", "pistol", "pitch", "pizza", "place", "planet",
+            "plastic", "plate", "play", "please", "pledge", "pluck", "plug", "plunge",
+            "poem", "poet", "point", "polar", "pole", "police", "pond", "pony",
+            "pool", "popular", "portion", "position", "possible", "post", "potato", "pottery",
+            "poverty", "powder", "power", "practice", "praise", "predict", "prefer", "prepare",
+            "present", "pretty", "prevent", "price", "pride", "primary", "print", "priority",
+            "prison", "private", "prize", "problem", "process", "produce", "profit", "program",
+            "project", "promote", "proof", "property", "prosper", "protect", "proud", "provide",
+            "public", "pudding", "pull", "pulp", "pulse", "pumpkin", "punch", "pupil",
+            "puppy", "purchase", "purity", "purpose", "purse", "push", "put", "puzzle",
+            "pyramid", "quality", "quantum", "quarter", "question", "quick", "quit", "quiz",
+            "quote", "rabbit", "raccoon", "race", "rack", "radar", "radio", "rail",
+            "rain", "raise", "rally", "ramp", "ranch", "random", "range", "rapid",
+            "rare", "rate", "rather", "raven", "raw", "razor", "ready", "real",
+            "reason", "rebel", "rebuild", "recall", "receive", "recipe", "record", "recycle",
+            "reduce", "reflect", "reform", "refuse", "region", "regret", "regular", "reject",
+            "relax", "release", "relief", "rely", "remain", "remember", "remind", "remove",
+            "render", "renew", "rent", "reopen", "repair", "repeat", "replace", "report",
+            "require", "rescue", "resemble", "resist", "resource", "response", "result", "retire",
+            "retreat", "return", "reunion", "reveal", "review", "reward", "rhythm", "rib",
+            "ribbon", "rice", "rich", "ride", "ridge", "rifle", "right", "rigid",
+            "ring", "riot", "ripple", "risk", "ritual", "rival", "river", "road",
+            "roast", "robot", "robust", "rocket", "romance", "roof", "rookie", "room",
+            "rose", "rotate", "rough", "round", "route", "royal", "rubber", "rude",
+            "rug", "rule", "run", "runway", "rural", "sad", "saddle", "sadness",
+            "safe", "sail", "salad", "salmon", "salon", "salt", "salute", "same",
+            "sample", "sand", "satisfy", "satoshi", "sauce", "sausage", "save", "say",
+            "scale", "scan", "scare", "scatter", "scene", "scheme", "school", "science",
+            "scissors", "scorpion", "scout", "scrap", "screen", "script", "scrub", "sea",
+            "search", "season", "seat", "second", "secret", "section", "security", "seed",
+            "seek", "segment", "select", "sell", "seminar", "senior", "sense", "sentence",
+            "series", "service", "session", "settle", "setup", "seven", "shadow", "shaft",
+            "shallow", "share", "shed", "shell", "sheriff", "shield", "shift", "shine",
+            "ship", "shiver", "shock", "shoe", "shoot", "shop", "short", "shoulder",
+            "shove", "shrimp", "shrug", "shuffle", "shy", "sibling", "sick", "side",
+            "siege", "sight", "sign", "silent", "silk", "silly", "silver", "similar",
+            "simple", "since", "sing", "siren", "sister", "situate", "six", "size",
+            "skate", "sketch", "ski", "skill", "skin", "skirt", "skull", "slab",
+            "slam", "sleep", "slender", "slice", "slide", "slight", "slim", "slogan",
+            "slot", "slow", "slush", "small", "smart", "smile", "smoke", "smooth",
+            "snack", "snake", "snap", "sniff", "snow", "soap", "soccer", "social",
+            "sock", "soda", "soft", "solar", "soldier", "solid", "solution", "solve",
+            "someone", "song", "soon", "sorry", "sort", "soul", "sound", "soup",
+            "source", "south", "space", "spare", "spatial", "spawn", "speak", "special",
+            "speed", "spell", "spend", "sphere", "spice", "spider", "spike", "spin",
+            "spirit", "split", "spoil", "sponsor", "spoon", "sport", "spot", "spray",
+            "spread", "spring", "spy", "square", "squeeze", "squirrel", "stable", "stadium",
+            "staff", "stage", "stairs", "stamp", "stand", "start", "state", "stay",
+            "steak", "steel", "stem", "step", "stereo", "stick", "still", "sting",
+            "stock", "stomach", "stone", "stool", "story", "stove", "strategy", "street",
+            "strike", "strong", "struggle", "student", "stuff", "stumble", "style", "subject",
+            "submit", "subway", "success", "such", "sudden", "suffer", "sugar", "suggest",
+            "suit", "summer", "sun", "sunny", "sunset", "super", "supply", "supreme",
+            "sure", "surface", "surge", "surprise", "surround", "survey", "suspect", "sustain",
+            "swallow", "swamp", "swap", "swarm", "swear", "sweet", "swift", "swim",
+            "swing", "switch", "sword", "symbol", "symptom", "syrup", "system", "table",
+            "tackle", "tag", "tail", "talent", "talk", "tank", "tape", "target",
+            "task", "taste", "tattoo", "taxi", "teach", "team", "tell", "ten",
+            "tenant", "tennis", "tent", "term", "test", "text", "thank", "that",
+            "theme", "then", "theory", "there", "they", "thing", "this", "thought",
+            "three", "thrive", "throw", "thumb", "thunder", "ticket", "tide", "tiger",
+            "tilt", "timber", "time", "tiny", "tip", "tired", "tissue", "title",
+            "toast", "tobacco", "today", "toddler", "toe", "together", "toilet", "token",
+            "tomato", "tomorrow", "tone", "tongue", "tonight", "tool", "tooth", "top",
+            "topic", "topple", "torch", "tornado", "tortoise", "toss", "total", "tourist",
+            "toward", "tower", "town", "toy", "track", "trade", "traffic", "tragic",
+            "train", "transfer", "trap", "trash", "travel", "tray", "treat", "tree",
+            "trend", "trial", "tribe", "trick", "trigger", "trim", "trip", "trophy",
+            "trouble", "truck", "true", "truly", "trumpet", "trust", "truth", "try",
+            "tube", "tuition", "tumble", "tuna", "tunnel", "turkey", "turn", "turtle",
+            "twelve", "twenty", "twice", "twin", "twist", "two", "type", "typical",
+            "ugly", "umbrella", "unable", "unaware", "uncle", "uncover", "under", "undo",
+            "unfair", "unfold", "unhappy", "uniform", "unique", "unit", "universe", "unknown",
+            "unlock", "until", "unusual", "unveil", "update", "upgrade", "uphold", "upon",
+            "upper", "upset", "urban", "urge", "usage", "use", "used", "useful",
+            "useless", "usual", "utility", "vacant", "vacuum", "vague", "valid", "valley",
+            "valve", "van", "vanish", "vapor", "various", "vast", "vault", "vehicle",
+            "velvet", "vendor", "venture", "venue", "verb", "verify", "version", "very",
+            "vessel", "veteran", "viable", "vibrant", "vicious", "victory", "video", "view",
+            "village", "vintage", "violin", "virtual", "virus", "visa", "visit", "visual",
+            "vital", "vivid", "vocal", "voice", "void", "volcano", "volume", "vote",
+            "voyage", "wage", "wagon", "wait", "walk", "wall", "walnut", "want",
+            "warfare", "warm", "warrior", "wash", "wasp", "waste", "water", "wave",
+            "way", "wealth", "weapon", "wear", "weasel", "weather", "web", "wedding",
+            "weekend", "weird", "welcome", "west", "wet", "whale", "what", "wheat",
+            "wheel", "when", "where", "whip", "whisper", "wide", "width", "wife",
+            "wild", "will", "win", "window", "wine", "wing", "wink", "winner",
+            "winter", "wire", "wisdom", "wise", "wish", "witness", "wolf", "woman",
+            "wonder", "wood", "wool", "word", "work", "world", "worry", "worth",
+            "wrap", "wreck", "wrestle", "wrist", "write", "wrong", "yard", "year",
+            "yellow", "you", "young", "youth", "zebra", "zero", "zone", "zoo",
+        )
+    )
     (def- #_"String" MnemonicCode'BIP39_ENGLISH_SHA256 "ad90bf3beb7b0eb7e5acd74727dc0da96e0a280a258354e7293fb7e211ac03db")
 
-    ;;; UNIX time for when the BIP39 standard was finalised.  This can be used as a default seed birthday. ;;
+    ;;;
+     ; Creates a MnemonicCode from the given words.  If a digest is supplied, the words will be checked.
+     ;;
+    (defn #_"MnemonicCode" MnemonicCode'new [#_"String*" words, #_"String" digest]
+        (let [words (rrb/vec words)]
+            (when-not (= (count words) 2048)
+                (throw (IllegalArgumentException. "BIP39 requires exactly 2048 words"))
+            )
+            (when (some? digest)
+                (let [#_"MessageDigest" md (Sha256Hash'create-digest)]
+                    (doseq [#_"String" word words]
+                        (.update md, (.getBytes word, Charset'UTF-8))
+                    )
+                    (when-not (= (Base16'encode (.digest md)) digest)
+                        (throw (IllegalArgumentException. "words' digest mismatch"))
+                    )
+                )
+            )
+            (hash-map
+                #_"[String*]" :words words
+            )
+        )
+    )
+
+    (def #_"MnemonicCode" MnemonicCode'INSTANCE (MnemonicCode'new MnemonicCode'BIP39_ENGLISH_WORDS, MnemonicCode'BIP39_ENGLISH_SHA256))
+
+    ;;;
+     ; UNIX time for when the BIP39 standard was finalised.  This can be used as a default seed birthday.
+     ;;
     (def #_"long" MnemonicCode'BIP39_STANDARDISATION_TIME_SECS 1381276800)
 
     (def- #_"int" MnemonicCode'PBKDF2_ROUNDS 2048)
 
     ;;;
-     ; Creates an MnemonicCode object, initializing with words read from the supplied input stream.
-     ; If a wordListDigest is supplied, the digest of the words will be checked.
-     ;;
-    #_throws #_[ "IllegalArgumentException" ]
-    (defn #_"MnemonicCode" MnemonicCode'new-2 [#_"String[]" words, #_"String" digest]
-        (let [#_"ArrayList<String>" word-list (ArrayList. 2048) #_"MessageDigest" md (Sha256Hash'create-digest)]
-            (doseq [#_"String" word words]
-                (.update md, (.getBytes word))
-                (.add word-list, word)
-            )
-            (when-not (= (count word-list) 2048)
-                (throw (IllegalArgumentException. "input stream did not contain 2048 words"))
-            )
-            ;; If a digest is supplied, check to make sure it matches.
-            (when (some? digest)
-                (when-not (= (Base16'encode (.digest md)) digest)
-                    (throw (IllegalArgumentException. "wordlist digest mismatch"))
-                )
-            )
-            (hash-map
-                #_"ArrayList<String>" :word-list word-list
-            )
-        )
-    )
-
-    ;;;
-     ; Initialize from the included word list.
-     ;;
-    (defn #_"MnemonicCode" MnemonicCode'new-0 []
-        (MnemonicCode'new-2 MnemonicCode'BIP39_ENGLISH_WORDLIST, MnemonicCode'BIP39_ENGLISH_SHA256)
-    )
-
-    (§ def #_"MnemonicCode" MnemonicCode'INSTANCE (MnemonicCode'new-0))
-
-    ;;;
      ; Convert mnemonic word list to seed.
      ;;
-    (defn #_"byte[]" MnemonicCode'to-seed [#_"List<String>" words, #_"String" passphrase]
+    (defn #_"byte[]" MnemonicCode'to-seed [#_"String*" words, #_"String" passphrase]
         ;; To create binary seed from mnemonic, we use PBKDF2 function with mnemonic sentence (in UTF-8) used as a password
         ;; and string "mnemonic" + passphrase (again in UTF-8) used as a salt.  Iteration count is set to 4096 and HMAC-SHA512
         ;; is used as a pseudo-random function.  Desired length of the derived key is 512 bits (= 64 bytes).
 
-        (let [#_"String" pass (.join Utils'SPACE_JOINER, words) #_"String" salt (str "mnemonic" passphrase)
+        (let [#_"String" pass (apply str (interpose " " words)) #_"String" salt (str "mnemonic" passphrase)
               #_"Stopwatch" watch (Stopwatch/createStarted)
               #_"byte[]" seed (PBKDF2SHA512'derive pass, salt, MnemonicCode'PBKDF2_ROUNDS, 64)]
             (.stop watch)
@@ -15785,12 +15747,23 @@
         )
     )
 
+    (defn- #_"boolean[]" MnemonicCode'bytes-to-bits [#_"byte[]" bytes]
+        (let [#_"boolean[]" bits (boolean-array (* (alength bytes) 8))]
+            (dotimes [#_"int" i (alength bytes)]
+                (dotimes [#_"int" j 8]
+                    (aset bits (+ (* i 8) j) (not= (& (aget bytes i) (<< 1 (- 7 j))) 0))
+                )
+            )
+            bits
+        )
+    )
+
     ;;;
      ; Convert mnemonic word list to original entropy value.
      ;;
     #_throws #_[ "MnemonicLengthException", "MnemonicWordException", "MnemonicChecksumException" ]
     #_method
-    (defn #_"byte[]" MnemonicCode''to-entropy [#_"MnemonicCode" this, #_"List<String>" words]
+    (defn #_"byte[]" MnemonicCode''to-entropy [#_"MnemonicCode" this, #_"String*" words]
         (when (zero? (count words))
             (throw+ (MnemonicLengthException'new "Word list is empty."))
         )
@@ -15800,43 +15773,40 @@
 
         ;; Look up all the words in the list and construct the concatenation of the original entropy and the checksum.
 
-        (let [#_"int" __concatLenBits (* (count words) 11)
-              #_"boolean[]" __concatBits (boolean-array __concatLenBits)]
+        (let [#_"int" blen (* (count words) 11) #_"boolean[]" bits (boolean-array blen)]
 
             (loop-when-recur [#_"int" index 0 words words] (seq words) [(inc index) (next words)]
                 ;; Find the word's index in the wordlist.
-                (let [#_"String" word (first words) #_"int" at (Collections/binarySearch (:word-list this), word)]
+                (let [#_"String" word (first words) #_"int" at (Collections/binarySearch (:words this), word)]
                     (when (neg? at)
                         (throw+ (MnemonicWordException'new word))
                     )
 
                     ;; Set the next 11 bits to the value of the index.
                     (dotimes [#_"int" i 11]
-                        (aset __concatBits (+ (* index 11) i) (not= (& at (<< 1 (- 10 i))) 0))
+                        (aset bits (+ (* index 11) i) (not= (& at (<< 1 (- 10 i))) 0))
                     )
                 )
             )
 
-            (let [#_"int" __checksumLengthBits (quot __concatLenBits 33)
-                  #_"int" __entropyLengthBits (- __concatLenBits __checksumLengthBits)]
+            (let [#_"int" clen (quot blen 33) #_"int" elen (- blen clen)]
 
                 ;; Extract original entropy as bytes.
-                (let [#_"byte[]" entropy (byte-array (quot __entropyLengthBits 8))]
+                (let [#_"byte[]" entropy (byte-array (quot elen 8))]
                     (dotimes [#_"int" i (alength entropy)]
                         (dotimes [#_"int" j 8]
-                            (when (aget __concatBits (+ (* i 8) j))
+                            (when (aget bits (+ (* i 8) j))
                                 (aset entropy i (| (aget entropy i) (<< 1 (- 7 j))))
                             )
                         )
                     )
 
                     ;; Take the digest of the entropy.
-                    (let [#_"byte[]" hash (Sha256Hash'hash entropy)
-                          #_"boolean[]" __hashBits (MnemonicCode'bytes-to-bits hash)]
+                    (let [#_"boolean[]" hash (MnemonicCode'bytes-to-bits (Sha256Hash'hash entropy))]
 
                         ;; Check all the checksum bits.
-                        (dotimes [#_"int" i __checksumLengthBits]
-                            (when-not (= (aget __concatBits (+ __entropyLengthBits i)) (aget __hashBits i))
+                        (dotimes [#_"int" i clen]
+                            (when-not (= (aget bits (+ elen i)) (aget hash i))
                                 (throw+ (MnemonicChecksumException'new))
                             )
                         )
@@ -15863,14 +15833,11 @@
 
         ;; We take initial entropy of ENT bits and compute its checksum by taking first ENT / 32 bits of its SHA256 hash.
 
-        (let [#_"byte[]" hash (Sha256Hash'hash entropy)
-              #_"boolean[]" __hashBits (MnemonicCode'bytes-to-bits hash)
-              #_"boolean[]" __entropyBits (MnemonicCode'bytes-to-bits entropy)
-              #_"int" m (quot (alength __entropyBits) 32)
+        (let [#_"boolean[]" hash (MnemonicCode'bytes-to-bits (Sha256Hash'hash entropy))
+              #_"boolean[]" ents (MnemonicCode'bytes-to-bits entropy)
+              #_"int" n (alength ents) #_"int" m (quot n 32)
               ;; We append these bits to the end of the initial entropy.
-              #_"boolean[]" bits (boolean-array (+ (alength __entropyBits) m))
-              _ (System/arraycopy __entropyBits, 0, bits, 0, (alength __entropyBits))
-              _ (System/arraycopy __hashBits, 0, bits, (alength __entropyBits), m)]
+              #_"boolean[]" bits (boolean-array (+ n m)) _ (System/arraycopy ents, 0, bits, 0, n) _ (System/arraycopy hash, 0, bits, n, m)]
 
             ;; Next we take these concatenated bits and split them into groups of 11 bits.  Each group encodes number from 0-2047
             ;; which is a position in a wordlist.  We convert numbers into words and use joined words as mnemonic sentence.
@@ -15878,32 +15845,11 @@
             (let [#_"List<String>" words (ArrayList.)]
                 (dotimes [#_"int" i (quot (alength bits) 11)]
                     (let [#_"int" x (loop-when-recur [x 0 #_"int" j 0] (< j 11) [(| (<< x 1) (if (aget bits (+ (* i 11) j)) 1 0)) (inc j)] => x)]
-                        (.add words, (nth (:word-list this) x))
+                        (.add words, (nth (:words this) x))
                     )
                 )
                 words
             )
-        )
-    )
-
-    ;;;
-     ; Check to see if a mnemonic word list is valid.
-     ;;
-    #_throws #_[ "MnemonicException" ]
-    #_method
-    (defn #_"void" MnemonicCode''check [#_"MnemonicCode" this, #_"List<String>" words]
-        (MnemonicCode''to-entropy this, words)
-        nil
-    )
-
-    (defn- #_"boolean[]" MnemonicCode'bytes-to-bits [#_"byte[]" data]
-        (let [#_"boolean[]" bits (boolean-array (* (alength data) 8))]
-            (dotimes [#_"int" i (alength data)]
-                (dotimes [#_"int" j 8]
-                    (aset bits (+ (* i 8) j) (not= (& (aget data i) (<< 1 (- 7 j))) 0))
-                )
-            )
-            bits
         )
     )
 )
@@ -15968,12 +15914,12 @@
 (class-ns PBKDF2SHA512
     #_throws #_[ "Exception" ]
     (defn- #_"byte[]" PBKDF2SHA512'f [#_"String" p, #_"String" s, #_"int" c, #_"int" i]
-        (let [#_"SecretKeySpec" key (SecretKeySpec. (.getBytes p, Charsets/UTF_8), "HmacSHA512")
+        (let [#_"SecretKeySpec" key (SecretKeySpec. (.getBytes p, Charset'UTF-8), "HmacSHA512")
               #_"Mac" mac (Mac/getInstance (.getAlgorithm key)) _ (.init mac, key)]
 
             (loop-when [#_"byte[]" xor' nil #_"byte[]" xor nil #_"int" j 0] (< j c) => xor
                 (if (zero? j)
-                    (let [#_"byte[]" s* (.getBytes s, Charsets/UTF_8)
+                    (let [#_"byte[]" s* (.getBytes s, Charset'UTF-8)
                           #_"byte[]" i* (let [#_"ByteBuffer" b* (ByteBuffer/allocate 4)] (.order b*, ByteOrder/BIG_ENDIAN) (.putInt b*, i) (.array b*))
                           #_"byte[]" u* (byte-array (+ (alength s*) (alength i*)))]
 
@@ -21236,7 +21182,7 @@
      ;;
     #_method
     (defn #_"String" Script''to-string [#_"Script" this]
-        (.join Utils'SPACE_JOINER, (:chunks this))
+        (apply str (interpose " " (:chunks this)))
     )
 )
 
@@ -21861,7 +21807,7 @@
                 (when-let [#_"HashMap<KeyType, ValueType>" m (.get (:temp-map this))]
                     (get m key)
                 )
-                (let-when [#_"HashSet<KeyType>" s (.get (:temp-set-removed this))] (and (some? s) (.contains s, key)) => (get (:map this) key)
+                (let-when [#_"HashSet<KeyType>" s (.get (:temp-set-removed this))] (and (some? s) (contains? s key)) => (get (:map this) key)
                     nil
                 )
             )
@@ -22256,13 +22202,13 @@
                         ;; Check or initialize the header bytes to ensure we don't try to open some random file.
                         (if exists?
                             (let [#_"byte[]" magic (byte-array 4) _ (.get (:buffer this), magic)]
-                                (when-not (= (String. magic, Charsets/US_ASCII) SPVBlockStore'HEADER_MAGIC)
+                                (when-not (= (String. magic, Charset'US-ASCII) SPVBlockStore'HEADER_MAGIC)
                                     (throw+ (BlockStoreException'new (str "Magic bytes do not match " SPVBlockStore'HEADER_MAGIC)))
                                 )
                                 this
                             )
                             (do
-                                (.put (:buffer this), (.getBytes SPVBlockStore'HEADER_MAGIC, Charsets/US_ASCII))
+                                (.put (:buffer this), (.getBytes SPVBlockStore'HEADER_MAGIC, Charset'US-ASCII))
                                 ;; Insert the genesis block.
                                 (sync (:blockstore-lock this)
                                     (SPVBlockStore''set-ring-cursor this, (:buffer this), SPVBlockStore'FILE_PROLOGUE_BYTES)
@@ -23121,8 +23067,7 @@
      ;;
     #_method
     (defn #_"BasicKeyChain" BasicKeyChain''add-event-listener [#_"BasicKeyChain" this, #_"KeyChainEventListener" listener, #_"Executor" executor]
-        (.add (:key-chain-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :key-chain-listeners (ListenerRegistration'new listener, executor))
     )
 
     ;;;
@@ -24326,7 +24271,7 @@
 
     #_method
     (defn #_"String" DeterministicSeed''to-string [#_"DeterministicSeed" this]
-        (str "DeterministicSeed " (DeterministicSeed''to-base16 this) " " (.join Utils'SPACE_JOINER, (:mnemonic-code this)))
+        (apply str "DeterministicSeed " (DeterministicSeed''to-base16 this) " " (interpose " " (:mnemonic-code this)))
     )
 )
 
@@ -24353,7 +24298,7 @@
     (defn #_"CoinSelection" CoinSelector'''select [#_"FilteringCoinSelector" this, #_"Coin" target, #_"List<TransactionOutput>" candidates]
         (loop-when-recur [#_"Iterator<TransactionOutput>" it (.iterator candidates)] (.hasNext it) [it]
             (let [#_"TransactionOutput" output (.next it)]
-                (when (.contains (:spent this), (TransactionOutput''get-outpoint-for output))
+                (when (contains? (:spent this) (TransactionOutput''get-outpoint-for output))
                     (.remove it)
                 )
             )
@@ -24501,8 +24446,7 @@
         (when (<= 0 (:lookahead-threshold this))
             (§ ass chain (DeterministicKeyChain''set-lookahead-threshold chain, (:lookahead-threshold this)))
         )
-        (.add (:chains this), chain)
-        this
+        (append* this :chains chain)
     )
 
     ;;;
@@ -26550,7 +26494,7 @@
                                 ;; level - outpoints from two different inputs that point to the same output compare the same.
                                 (let [#_"TransactionOutPoint" outpoint (:outpoint input)]
                                     ;; If does, it's a double spend against the candidates, which makes it relevant.
-                                    (when (.contains outpoints, outpoint)
+                                    (when (contains? outpoints outpoint)
                                         (.add __doubleSpendTxns, ty)
                                     )
                                 )
@@ -26684,7 +26628,7 @@
                                     ;; Ignore the case where a tx appears on a side chain at the same time as the best chain
                                     ;; (this is quite normal and expected).
                                     (let [#_"Sha256Hash" hash (Transaction''get-hash tx)]
-                                        (when-not (or (.containsKey (:unspent this), hash) (.containsKey (:spent this), hash) (.containsKey (:dead this), hash))
+                                        (when-not (or (contains? (:unspent this) hash) (contains? (:spent this) hash) (contains? (:dead this) hash))
                                             ;; Otherwise put it (possibly back) into pending.
                                             ;; Committing it updates the spent flags and inserts into the pool as well.
                                             (§ ass [this tx] (Wallet''commit-tx this, tx))
@@ -26844,7 +26788,7 @@
                         ;; Notify all the BUILDING transactions of the new block.
                         ;; This is so that they can update their depth.
                         (doseq [#_"Transaction" tx (Wallet''get-transactions this, true)]
-                            (cond (.contains (:ignore-next-new-block this), (Transaction''get-hash tx))
+                            (cond (contains? (:ignore-next-new-block this) (Transaction''get-hash tx))
                                     ;; tx was already processed in receive() due to it appearing in this block, so we don't want
                                     ;; to increment the tx confidence depth twice, it'd result in miscounting.
                                     (.remove (:ignore-next-new-block this), (Transaction''get-hash tx))
@@ -26896,12 +26840,12 @@
     #_method
     (defn- #_"Wallet" Wallet''process-tx-from-best-chain [#_"Wallet" this, #_"Transaction" tx, #_"boolean" force?]
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
-        (assert-state (not (.containsKey (:pending this), (Transaction''get-hash tx))))
+        (assert-state (not (contains? (:pending this) (Transaction''get-hash tx))))
 
         ;; This TX may spend our existing outputs even though it was not pending.  This can happen in unit tests,
         ;; if keys are moved between wallets, if we're catching up to the chain given only a set of keys,
         ;; or if a dead coinbase transaction has moved back onto the main chain.
-        (when (and (Transaction''is-coin-base tx) (.containsKey (:dead this), (Transaction''get-hash tx)))
+        (when (and (Transaction''is-coin-base tx) (contains? (:dead this) (Transaction''get-hash tx)))
             ;; There is a dead coinbase tx being received on the best chain.  A coinbase tx is made dead when it moves
             ;; to a side chain but it can be switched back on a reorg and resurrected back to spent or unspent.
             ;; So take it out of the dead pool.  Note that we don't resurrect dependent transactions here, even though
@@ -26993,7 +26937,7 @@
     (defn- #_"Wallet" Wallet''update-for-spends [#_"Wallet" this, #_"Transaction" tx, #_"boolean" __fromChain]
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
         (when __fromChain
-            (assert-state (not (.containsKey (:pending this), (Transaction''get-hash tx))))
+            (assert-state (not (contains? (:pending this) (Transaction''get-hash tx))))
         )
 
         (doseq [#_"TransactionInput" input (:inputs tx)]
@@ -27183,7 +27127,7 @@
     (defn #_"[Wallet Transaction boolean]" Wallet''maybe-commit-tx [#_"Wallet" this, #_"Transaction" tx]
         (Transaction''verify tx)
         (sync (:wallet-lock this)
-            (let-when [#_"Sha256Hash" hash (Transaction''get-hash tx)] (not (.containsKey (:pending this), hash)) => [this tx false]
+            (let-when [#_"Sha256Hash" hash (Transaction''get-hash tx)] (not (contains? (:pending this) hash)) => [this tx false]
                 (log/info (str "commitTx of " hash))
                 (let [#_"Coin" balance (Wallet''get-balance-2t this, :BalanceType'AVAILABLE)
                       tx (assoc tx :update-time (Time'now))
@@ -27261,10 +27205,8 @@
      ; Updates the wallet with the given transaction: puts it into the pending pool, sets the spent flags
      ; and runs the onCoinsSent/onCoinsReceived event listener.  Used in two situations:
      ;
-     ; <ol>
-     ;     <li>When we have just successfully transmitted the tx we created to the network.</li>
-     ;     <li>When we receive a pending transaction that didn't appear in the chain yet, and we did not create it.</li>
-     ; </ol>
+     ; - When we have just successfully transmitted the tx we created to the network.
+     ; - When we receive a pending transaction that didn't appear in the chain yet, and we did not create it.
      ;
      ; Triggers an auto save.
      ;;
@@ -27277,69 +27219,34 @@
         [this tx]
     )
 
-    ;;;
-     ; Adds an event listener object.  Methods on this object are called when something interesting happens,
-     ; like receiving money.  The listener is executed by the given executor.
-     ;;
     #_method
     (defn #_"Wallet" Wallet''add-change-event-listener [#_"Wallet" this, #_"Executor" executor, #_"WalletChangeEventListener" listener]
-        ;; This is thread safe, so we don't need to take the lock.
-        (.add (:change-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :change-listeners (ListenerRegistration'new listener, executor))
     )
 
-    ;;;
-     ; Adds an event listener object called when coins are received.
-     ; The listener is executed by the given executor.
-     ;;
     #_method
     (defn #_"Wallet" Wallet''add-coins-received-event-listener [#_"Wallet" this, #_"Executor" executor, #_"WalletCoinsReceivedEventListener" listener]
-        ;; This is thread safe, so we don't need to take the lock.
-        (.add (:coins-received-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :coins-received-listeners (ListenerRegistration'new listener, executor))
     )
 
-    ;;;
-     ; Adds an event listener object called when coins are sent.
-     ; The listener is executed by the given executor.
-     ;;
     #_method
     (defn #_"Wallet" Wallet''add-coins-sent-event-listener [#_"Wallet" this, #_"Executor" executor, #_"WalletCoinsSentEventListener" listener]
-        ;; This is thread safe, so we don't need to take the lock.
-        (.add (:coins-sent-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :coins-sent-listeners (ListenerRegistration'new listener, executor))
     )
 
-    ;;;
-     ; Adds an event listener object.  Methods on this object are called when keys are
-     ; added.  The listener is executed by the given executor.
-     ;;
     #_method
     (defn #_"Wallet" Wallet''add-key-chain-event-listener [#_"Wallet" this, #_"Executor" executor, #_"KeyChainEventListener" listener]
-        (§ ass (:key-chain-group this) (KeyChainGroup''add-event-listener (:key-chain-group this), listener, executor))
-        this
+        (update this :key-chain-group KeyChainGroup''add-event-listener listener, executor)
     )
 
-    ;;;
-     ; Adds an event listener object.  Methods on this object are called when something interesting happens,
-     ; like receiving money.  The listener is executed by the given executor.
-     ;;
     #_method
     (defn #_"Wallet" Wallet''add-reorganize-event-listener [#_"Wallet" this, #_"Executor" executor, #_"WalletReorganizeEventListener" listener]
-        ;; This is thread safe, so we don't need to take the lock.
-        (.add (:wallet-reorganize-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :wallet-reorganize-listeners (ListenerRegistration'new listener, executor))
     )
 
-    ;;;
-     ; Adds an event listener object.  Methods on this object are called when confidence
-     ; of a transaction changes.  The listener is executed by the given executor.
-     ;;
     #_method
     (defn #_"Wallet" Wallet''add-transaction-confidence-event-listener [#_"Wallet" this, #_"Executor" executor, #_"TransactionConfidenceEventListener" listener]
-        ;; This is thread safe, so we don't need to take the lock.
-        (.add (:transaction-confidence-listeners this), (ListenerRegistration'new listener, executor))
-        this
+        (append* this :transaction-confidence-listeners (ListenerRegistration'new listener, executor))
     )
 
     #_method
@@ -27362,8 +27269,7 @@
 
     #_method
     (defn #_"Wallet" Wallet''remove-key-chain-event-listener [#_"Wallet" this, #_"KeyChainEventListener" listener]
-        (§ ass (:key-chain-group this) (KeyChainGroup''remove-event-listener (:key-chain-group this), listener))
-        this
+        (update this :key-chain-group KeyChainGroup''remove-event-listener listener)
     )
 
     #_method
@@ -28421,8 +28327,8 @@
                                             (.add __oldChainTxns, tx)
                                             (.remove (:unspent this), __txHash)
                                             (.remove (:spent this), __txHash)
-                                            (assert-state (not (.containsKey (:pending this), __txHash)))
-                                            (assert-state (not (.containsKey (:dead this), __txHash)))
+                                            (assert-state (not (contains? (:pending this) __txHash)))
+                                            (assert-state (not (contains? (:dead this) __txHash)))
                                         )
                                     )
                                 )
@@ -28621,10 +28527,10 @@
 
     ;; Returns true if the output is one that won't be selected by a data element matching in the scriptSig.
     #_method
-    (defn- #_"boolean" Wallet''is-tx-output-bloom-filterable [#_"Wallet" this, #_"TransactionOutput" out]
-        (let [#_"Script" script (TransactionOutput''parse-script-pub-key out)
+    (defn- #_"boolean" Wallet''is-tx-output-bloom-filterable [#_"Wallet" this, #_"TransactionOutput" output]
+        (let [#_"Script" script (TransactionOutput''parse-script-pub-key output)
               #_"boolean" supported? (or (Script''is-sent-to-raw-pub-key script) (Script''is-pay-to-script-hash script))]
-            (and supported? (.contains (:my-unspents this), out))
+            (and supported? (contains? (:my-unspents this) output))
         )
     )
 
