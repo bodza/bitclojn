@@ -207,7 +207,6 @@
 (declare KeyPurpose'enum-set)
 (declare KeyTimeCoinSelector''is-confirmed KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS KeyTimeCoinSelector'new)
 (declare ListMessage''add-item ListMessage''remove-item ListMessage'MAX_INVENTORY_ITEMS ListMessage'new ListMessage'from-wire ListMessage''to-wire)
-(declare ListenerRegistration'new ListenerRegistration'remove)
 (declare LocalTransactionSigner'MINIMUM_VERIFY_FLAGS LocalTransactionSigner'new)
 (declare LoopbackCheckState'enum-set)
 (declare MainLedger'INSTANCE MainLedger'TEXTUAL_CHECKPOINTS MainLedger'new)
@@ -1885,9 +1884,9 @@
                     ;; locked most of the time.
                     #_"Object" :chain-head-lock (Object.)
 
-                    #_"[ListenerRegistration<NewBestBlockListener>]" :new-best-block-listeners (vector)
-                    #_"[ListenerRegistration<ReorganizeListener>]" :reorganize-listeners (vector)
-                    #_"[ListenerRegistration<TransactionReceivedInBlockListener>]" :transaction-received-listeners (vector)
+                    #_"[NewBestBlockListener]" :new-best-block-listeners (vector)
+                    #_"[ReorganizeListener]" :reorganize-listeners (vector)
+                    #_"[TransactionReceivedInBlockListener]" :transaction-received-listeners (vector)
 
                     ;; Holds blocks that we have received but can't plug into the chain yet, e.g. because they were created whilst we
                     ;; were downloading the block chain.
@@ -1908,9 +1907,9 @@
 
             (log/info (str "chain head is at height " (:stored-height (:chain-head this)) ":\n" (:stored-header (:chain-head this))))
 
-            (let [this (reduce #(BlockChain''add-new-best-block-listener       %1, Threading'SAME_THREAD, %2) this wallets)
-                  this (reduce #(BlockChain''add-reorganize-listener           %1, Threading'SAME_THREAD, %2) this wallets)
-                  this (reduce #(BlockChain''add-transaction-received-listener %1, Threading'SAME_THREAD, %2) this wallets)]
+            (let [this (reduce BlockChain''add-new-best-block-listener       this wallets)
+                  this (reduce BlockChain''add-reorganize-listener           this wallets)
+                  this (reduce BlockChain''add-transaction-received-listener this wallets)]
 
                 (assoc this :version-tally (VersionTally'from-store ledger, store, (:chain-head this)))
             )
@@ -1927,9 +1926,9 @@
     (defn #_"BlockChain" BlockChain''add-wallet [#_"BlockChain" this, #_"Wallet" wallet]
         (let [this
                 (-> this
-                    (BlockChain''add-new-best-block-listener       Threading'SAME_THREAD, wallet)
-                    (BlockChain''add-reorganize-listener           Threading'SAME_THREAD, wallet)
-                    (BlockChain''add-transaction-received-listener Threading'SAME_THREAD, wallet)
+                    (BlockChain''add-new-best-block-listener       wallet)
+                    (BlockChain''add-reorganize-listener           wallet)
+                    (BlockChain''add-transaction-received-listener wallet)
                 )
               #_"int" n (:last-block-seen-height wallet) #_"int" m (BlockChain''get-best-chain-height this)]
 
@@ -1969,33 +1968,33 @@
     )
 
     #_method
-    (defn #_"BlockChain" BlockChain''add-new-best-block-listener [#_"BlockChain" this, #_"Executor" executor, #_"NewBestBlockListener" listener]
-        (append* this :new-best-block-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"BlockChain" BlockChain''add-new-best-block-listener [#_"BlockChain" this, #_"NewBestBlockListener" listener]
+        (append* this :new-best-block-listeners listener)
     )
 
     #_method
-    (defn #_"BlockChain" BlockChain''add-reorganize-listener [#_"BlockChain" this, #_"Executor" executor, #_"ReorganizeListener" listener]
-        (append* this :reorganize-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"BlockChain" BlockChain''add-reorganize-listener [#_"BlockChain" this, #_"ReorganizeListener" listener]
+        (append* this :reorganize-listeners listener)
     )
 
     #_method
-    (defn #_"BlockChain" BlockChain''add-transaction-received-listener [#_"BlockChain" this, #_"Executor" executor, #_"TransactionReceivedInBlockListener" listener]
-        (append* this :transaction-received-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"BlockChain" BlockChain''add-transaction-received-listener [#_"BlockChain" this, #_"TransactionReceivedInBlockListener" listener]
+        (append* this :transaction-received-listeners listener)
     )
 
     #_method
     (defn #_"BlockChain" BlockChain''remove-new-best-block-listener [#_"BlockChain" this, #_"NewBestBlockListener" listener]
-        (update this :new-best-block-listeners ListenerRegistration'remove listener)
+        (remove* this :new-best-block-listeners = listener)
     )
 
     #_method
     (defn #_"BlockChain" BlockChain''remove-reorganize-listener [#_"BlockChain" this, #_"ReorganizeListener" listener]
-        (update this :reorganize-listeners ListenerRegistration'remove listener)
+        (remove* this :reorganize-listeners = listener)
     )
 
     #_method
     (defn #_"BlockChain" BlockChain''remove-transaction-received-listener [#_"BlockChain" this, #_"TransactionReceivedInBlockListener" listener]
-        (update this :transaction-received-listeners ListenerRegistration'remove listener)
+        (remove* this :transaction-received-listeners = listener)
     )
 
     ;;;
@@ -2330,62 +2329,32 @@
     )
 
     #_throws #_[ "VerificationException" ]
-    #_method
-    (defn- #_"BlockChain" BlockChain''inform-listeners-for-new-block [#_"BlockChain" this, #_"Block" block, #_"NewBlockType" type, #_"List<Sha256Hash>" __filteredTxHashList, #_"Map<Sha256Hash, Transaction>" __filteredTxn, #_"StoredBlock" stored]
-        ;; Notify the listeners of the new block, so the depth and workDone of stored transactions can be updated
-        ;; (in the case of the listener being a wallet).  Wallets need to know how deep each transaction is, so
-        ;; coinbases aren't used before maturity.
-        (let [#_"Set<Sha256Hash>" __falsePositives (HashSet.) _ (when (some? __filteredTxHashList) (§ ass __falsePositives (.addAll __falsePositives, __filteredTxHashList)))]
-
-            (loop-when-recur [#_"boolean" first? true #_"ListenerRegistration<TransactionReceivedInBlockListener>*" s (:transaction-received-listeners this)] (seq s) [false (next s)]
-                (let [#_"ListenerRegistration<TransactionReceivedInBlockListener>" r (first s)]
-                    (if (= (:executor r) Threading'SAME_THREAD)
-                        (BlockChain'inform-listener-for-new-transactions block, type, __filteredTxHashList, __filteredTxn, stored, (not first?), (:listener r), __falsePositives)
-                        ;; Listener wants to be run on some other thread, so marshal it across here.
-                        (let [#_"boolean" clone? (not first?)]
-                            (.execute (:executor r),
-                                #(try+
-                                    ;; We can't do false-positive handling when executing on another thread.
-                                    (BlockChain'inform-listener-for-new-transactions block, type, __filteredTxHashList, __filteredTxn, stored, (not clone?), (:listener r), (HashSet.))
-                                    (§ catch VerificationException e
-                                        (log/error e, "Block chain listener threw exception")
-                                        ;; Don't attempt to relay this back to the original peer thread if this was an async listener invocation.
-                                        ;; TODO: Make exception reporting a global feature and use it here.
-                                    )
-                                )
-                            )
+    (defn- #_"void" BlockChain'send-transactions-to-listener [#_"StoredBlock" block, #_"NewBlockType" type, #_"TransactionReceivedInBlockListener" listener, #_"int" offset, #_"List<Transaction>" transactions, #_"Set<Sha256Hash>" __falsePositives]
+        (loop-when [#_"int" i offset #_"Transaction*" s transactions] (seq s)
+            (let [#_"Transaction" tx (first s)
+                  i (try+
+                        (§ ass __falsePositives (.remove __falsePositives, (Transaction''get-hash tx)))
+                        (let [tx (when (§ false clone?) => tx
+                                    (Transaction'from-wire (:ledger tx), (ByteBuffer/wrap (Message''to-bytes tx, Transaction''to-wire)))
+                                )]
+                            (§ ass listener (TransactionReceivedInBlockListener'''receive-from-block listener, tx, block, type, i))
+                            (inc i)
                         )
-                    )
-                )
-            )
-
-            (doseq [#_"ListenerRegistration<NewBestBlockListener>" r (:new-best-block-listeners this)]
-                (let [f #(when (= type :NewBlockType'BEST_CHAIN)
-                            (§ ass (:listener r) (NewBestBlockListener'''notify-new-best-block (:listener r), stored))
-                        )]
-                    (if (= (:executor r) Threading'SAME_THREAD)
-                        (f)
-                        ;; Listener wants to be run on some other thread, so marshal it across here.
-                        (.execute (:executor r),
-                            #(try+
-                                (f)
-                                (§ catch VerificationException e
-                                    (log/error e, "Block chain listener threw exception")
-                                    ;; Don't attempt to relay this back to the original peer thread if this was an async listener invocation.
-                                    ;; TODO: Make exception reporting a global feature and use it here.
-                                )
-                            )
+                        (§ catch ScriptException e
+                            ;; We don't want scripts we don't understand to break the block chain,
+                            ;; so just note that this tx was not scanned here and continue.
+                            (log/warn (str "Failed to parse a script: " e))
+                            i
                         )
-                    )
-                )
+                    )]
+                (recur i (next s))
             )
-
-            (BlockChain''track-false-positives this, (count __falsePositives))
         )
+        nil
     )
 
     #_throws #_[ "VerificationException" ]
-    (defn- #_"void" BlockChain'inform-listener-for-new-transactions [#_"Block" block, #_"NewBlockType" type, #_"List<Sha256Hash>" __filteredTxHashList, #_"Map<Sha256Hash, Transaction>" __filteredTxn, #_"StoredBlock" stored, #_"boolean" clone?, #_"TransactionReceivedInBlockListener" listener, #_"Set<Sha256Hash>" __falsePositives]
+    (defn- #_"void" BlockChain'inform-listener-for-new-transactions [#_"Block" block, #_"NewBlockType" type, #_"List<Sha256Hash>" __filteredTxHashList, #_"Map<Sha256Hash, Transaction>" __filteredTxn, #_"StoredBlock" stored, #_"TransactionReceivedInBlockListener" listener, #_"Set<Sha256Hash>" __falsePositives]
         (cond (some? (:transactions block))
             (do
                 ;; If this is not the first wallet, ask for the transactions to be duplicated before being given
@@ -2393,7 +2362,7 @@
                 ;; is relevant to both of them, they don't end up accidentally sharing the same object (which can
                 ;; result in temporary in-memory corruption during re-orgs).  See bug 257.  We only duplicate in
                 ;; the case of multiple wallets to avoid an unnecessary efficiency hit in the common case.
-                (BlockChain'send-transactions-to-listener stored, type, listener, 0, (:transactions block), clone?, __falsePositives)
+                (BlockChain'send-transactions-to-listener stored, type, listener, 0, (:transactions block), __falsePositives)
             )
             (some? __filteredTxHashList)
             (do
@@ -2404,7 +2373,7 @@
                 (loop-when-recur [#_"int" offset 0 #_"Sha256Hash*" s __filteredTxHashList] (seq s) [(inc offset) (next s)]
                     (let [#_"Sha256Hash" hash (first s) #_"Transaction" tx (get __filteredTxn hash)]
                         (if (some? tx)
-                            (BlockChain'send-transactions-to-listener stored, type, listener, offset, (Collections/singletonList tx), clone?, __falsePositives)
+                            (BlockChain'send-transactions-to-listener stored, type, listener, offset, (Collections/singletonList tx), __falsePositives)
                             (when (TransactionReceivedInBlockListener'''notify-transaction-is-in-block listener, hash, stored, type, offset)
                                 (§ ass __falsePositives (.remove __falsePositives, hash))
                             )
@@ -2414,6 +2383,32 @@
             )
         )
         nil
+    )
+
+    #_throws #_[ "VerificationException" ]
+    #_method
+    (defn- #_"BlockChain" BlockChain''inform-listeners-for-new-block [#_"BlockChain" this, #_"Block" block, #_"NewBlockType" type, #_"List<Sha256Hash>" __filteredTxHashList, #_"Map<Sha256Hash, Transaction>" __filteredTxn, #_"StoredBlock" stored]
+        ;; Notify the listeners of the new block, so the depth and workDone of stored transactions can be updated
+        ;; (in the case of the listener being a wallet).  Wallets need to know how deep each transaction is, so
+        ;; coinbases aren't used before maturity.
+        (let [#_"Set<Sha256Hash>" __falsePositives (HashSet.) _ (when (some? __filteredTxHashList) (§ ass __falsePositives (.addAll __falsePositives, __filteredTxHashList)))]
+
+            (doseq [#_"TransactionReceivedInBlockListener" l (:transaction-received-listeners this)]
+                (§ async?
+                    (BlockChain'inform-listener-for-new-transactions block, type, __filteredTxHashList, __filteredTxn, stored, l, __falsePositives)
+                )
+            )
+
+            (when (= type :NewBlockType'BEST_CHAIN)
+                (doseq [#_"NewBestBlockListener" l (:new-best-block-listeners this)]
+                    (§ async?
+                        (§ ass l (NewBestBlockListener'''notify-new-best-block l, stored))
+                    )
+                )
+            )
+
+            (BlockChain''track-false-positives this, (count __falsePositives))
+        )
     )
 
     ;;;
@@ -2511,21 +2506,9 @@
                 ;; Now inform the listeners.  This is necessary so the set of currently active transactions (that we can spend)
                 ;; can be updated to take into account the re-organize.  We might also have received new coins we didn't have
                 ;; before and our previous spends might have been undone.
-                (doseq [#_"ListenerRegistration<ReorganizeListener>" r (:reorganize-listeners this)]
-                    (if (= (:executor r) Threading'SAME_THREAD)
-                        (do
-                            ;; Short circuit the executor so we can propagate any exceptions.
-                            ;; TODO: Do we really need to do this or should it be irrelevant?
-                            (§ ass (:listener r) (ReorganizeListener'''reorganize (:listener r), __splitPoint, __oldBlocks, __newBlocks))
-                        )
-                        (.execute (:executor r),
-                            #(try+
-                                (§ ass (:listener r) (ReorganizeListener'''reorganize (:listener r), __splitPoint, __oldBlocks, __newBlocks))
-                                (§ catch VerificationException e
-                                    (log/error e, "Block chain listener threw exception during reorg")
-                                )
-                            )
-                        )
+                (doseq [#_"ReorganizeListener" l (:reorganize-listeners this)]
+                    (§ async?
+                        (§ ass l (ReorganizeListener'''reorganize l, __splitPoint, __oldBlocks, __newBlocks))
                     )
                 )
 
@@ -2582,31 +2565,6 @@
     #_method
     (defn #_"int" BlockChain''get-best-chain-height [#_"BlockChain" this]
         (:stored-height (BlockChain''get-chain-head this))
-    )
-
-    #_throws #_[ "VerificationException" ]
-    (defn- #_"void" BlockChain'send-transactions-to-listener [#_"StoredBlock" block, #_"NewBlockType" type, #_"TransactionReceivedInBlockListener" listener, #_"int" offset, #_"List<Transaction>" transactions, #_"boolean" clone?, #_"Set<Sha256Hash>" __falsePositives]
-        (loop-when [#_"int" i offset #_"Transaction*" s transactions] (seq s)
-            (let [#_"Transaction" tx (first s)
-                  i (try+
-                        (§ ass __falsePositives (.remove __falsePositives, (Transaction''get-hash tx)))
-                        (let [tx (when clone? => tx
-                                    (Transaction'from-wire (:ledger tx), (ByteBuffer/wrap (Message''to-bytes tx, Transaction''to-wire)))
-                                )]
-                            (§ ass listener (TransactionReceivedInBlockListener'''receive-from-block listener, tx, block, type, i))
-                            (inc i)
-                        )
-                        (§ catch ScriptException e
-                            ;; We don't want scripts we don't understand to break the block chain,
-                            ;; so just note that this tx was not scanned here and continue.
-                            (log/warn (str "Failed to parse a script: " e))
-                            i
-                        )
-                    )]
-                (recur i (next s))
-            )
-        )
-        nil
     )
 
     #_throws #_[ "BlockStoreException" ]
@@ -7163,13 +7121,13 @@
                             #_testing
                             #_"MessageWriteTarget" :write-target nil
 
-                            #_"[ListenerRegistration<BlocksDownloadedEventListener>]" :blocks-downloaded-event-listeners (vector)
-                            #_"[ListenerRegistration<ChainDownloadStartedEventListener>]" :chain-download-started-event-listeners (vector)
-                            #_"[ListenerRegistration<PeerConnectedEventListener>]" :connected-event-listeners (vector)
-                            #_"[ListenerRegistration<PeerDisconnectedEventListener>]" :disconnected-event-listeners (vector)
-                            #_"[ListenerRegistration<GetDataEventListener>]" :get-data-event-listeners (vector)
-                            #_"[ListenerRegistration<PreMessageReceivedEventListener>]" :pre-message-received-event-listeners (vector)
-                            #_"[ListenerRegistration<OnTransactionBroadcastListener>]" :on-transaction-event-listeners (vector)
+                            #_"[BlocksDownloadedEventListener]" :blocks-downloaded-event-listeners (vector)
+                            #_"[ChainDownloadStartedEventListener]" :chain-download-started-event-listeners (vector)
+                            #_"[PeerConnectedEventListener]" :connected-event-listeners (vector)
+                            #_"[PeerDisconnectedEventListener]" :disconnected-event-listeners (vector)
+                            #_"[GetDataEventListener]" :get-data-event-listeners (vector)
+                            #_"[PreMessageReceivedEventListener]" :pre-message-received-event-listeners (vector)
+                            #_"[OnTransactionBroadcastListener]" :on-transaction-event-listeners (vector)
 
                             ;;;
                              ; Whether to try downloading blocks and transactions from this peer.  Set to false by PeerGroup if not the
@@ -7290,79 +7248,79 @@
 
     ;;; Registers a listener that is invoked when new blocks are downloaded. ;;
     #_method
-    (defn #_"Peer" Peer''add-blocks-downloaded-event-listener [#_"Peer" this, #_"Executor" executor, #_"BlocksDownloadedEventListener" listener]
-        (append* this :blocks-downloaded-event-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"Peer" Peer''add-blocks-downloaded-event-listener [#_"Peer" this, #_"BlocksDownloadedEventListener" listener]
+        (append* this :blocks-downloaded-event-listeners listener)
     )
 
     ;;; Registers a listener that is invoked when a blockchain download starts. ;;
     #_method
-    (defn #_"Peer" Peer''add-chain-download-started-event-listener [#_"Peer" this, #_"Executor" executor, #_"ChainDownloadStartedEventListener" listener]
-        (append* this :chain-download-started-event-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"Peer" Peer''add-chain-download-started-event-listener [#_"Peer" this, #_"ChainDownloadStartedEventListener" listener]
+        (append* this :chain-download-started-event-listeners listener)
     )
 
     ;;; Registers a listener that is invoked when a peer is connected. ;;
     #_method
-    (defn #_"Peer" Peer''add-connected-event-listener [#_"Peer" this, #_"Executor" executor, #_"PeerConnectedEventListener" listener]
-        (append* this :connected-event-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"Peer" Peer''add-connected-event-listener [#_"Peer" this, #_"PeerConnectedEventListener" listener]
+        (append* this :connected-event-listeners listener)
     )
 
     ;;; Registers a listener that is invoked when a peer is disconnected. ;;
     #_method
-    (defn #_"Peer" Peer''add-disconnected-event-listener [#_"Peer" this, #_"Executor" executor, #_"PeerDisconnectedEventListener" listener]
-        (append* this :disconnected-event-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"Peer" Peer''add-disconnected-event-listener [#_"Peer" this, #_"PeerDisconnectedEventListener" listener]
+        (append* this :disconnected-event-listeners listener)
     )
 
     ;;; Registers a listener that is called when messages are received. ;;
     #_method
-    (defn #_"Peer" Peer''add-get-data-event-listener [#_"Peer" this, #_"Executor" executor, #_"GetDataEventListener" listener]
-        (append* this :get-data-event-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"Peer" Peer''add-get-data-event-listener [#_"Peer" this, #_"GetDataEventListener" listener]
+        (append* this :get-data-event-listeners listener)
     )
 
     ;;; Registers a listener that is called when a transaction is broadcast across the network. ;;
     #_method
-    (defn #_"Peer" Peer''add-on-transaction-broadcast-listener [#_"Peer" this, #_"Executor" executor, #_"OnTransactionBroadcastListener" listener]
-        (append* this :on-transaction-event-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"Peer" Peer''add-on-transaction-broadcast-listener [#_"Peer" this, #_"OnTransactionBroadcastListener" listener]
+        (append* this :on-transaction-event-listeners listener)
     )
 
     ;;; Registers a listener that is called immediately before a message is received. ;;
     #_method
-    (defn #_"Peer" Peer''add-pre-message-received-event-listener [#_"Peer" this, #_"Executor" executor, #_"PreMessageReceivedEventListener" listener]
-        (append* this :pre-message-received-event-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"Peer" Peer''add-pre-message-received-event-listener [#_"Peer" this, #_"PreMessageReceivedEventListener" listener]
+        (append* this :pre-message-received-event-listeners listener)
     )
 
     #_method
     (defn #_"Peer" Peer''remove-blocks-downloaded-event-listener [#_"Peer" this, #_"BlocksDownloadedEventListener" listener]
-        (update this :blocks-downloaded-event-listeners ListenerRegistration'remove listener)
+        (remove* this :blocks-downloaded-event-listeners = listener)
     )
 
     #_method
     (defn #_"Peer" Peer''remove-chain-download-started-event-listener [#_"Peer" this, #_"ChainDownloadStartedEventListener" listener]
-        (update this :chain-download-started-event-listeners ListenerRegistration'remove listener)
+        (remove* this :chain-download-started-event-listeners = listener)
     )
 
     #_method
     (defn #_"Peer" Peer''remove-connected-event-listener [#_"Peer" this, #_"PeerConnectedEventListener" listener]
-        (update this :connected-event-listeners ListenerRegistration'remove listener)
+        (remove* this :connected-event-listeners = listener)
     )
 
     #_method
     (defn #_"Peer" Peer''remove-disconnected-event-listener [#_"Peer" this, #_"PeerDisconnectedEventListener" listener]
-        (update this :disconnected-event-listeners ListenerRegistration'remove listener)
+        (remove* this :disconnected-event-listeners = listener)
     )
 
     #_method
     (defn #_"Peer" Peer''remove-get-data-event-listener [#_"Peer" this, #_"GetDataEventListener" listener]
-        (update this :get-data-event-listeners ListenerRegistration'remove listener)
+        (remove* this :get-data-event-listeners = listener)
     )
 
     #_method
     (defn #_"Peer" Peer''remove-on-transaction-broadcast-listener [#_"Peer" this, #_"OnTransactionBroadcastListener" listener]
-        (update this :on-transaction-event-listeners ListenerRegistration'remove listener)
+        (remove* this :on-transaction-event-listeners = listener)
     )
 
     #_method
     (defn #_"Peer" Peer''remove-pre-message-received-event-listener [#_"Peer" this, #_"PreMessageReceivedEventListener" listener]
-        (update this :pre-message-received-event-listeners ListenerRegistration'remove listener)
+        (remove* this :pre-message-received-event-listeners = listener)
     )
 
     ;;;
@@ -7403,7 +7361,7 @@
         (log/info (str (:peer-address this) ": Timed out"))
         (let [this (Peer''close this)]
             (when-not (.isDone (:connection-open-future this)) => this
-                ;; Invoke the event handlers to tell listeners e.g. PeerGroup that we never managed to connect.
+                ;; Invoke the event handlers to tell listeners (e.g. PeerGroup) that we never managed to connect.
                 (StreamConnection'''connection-closed this)
             )
         )
@@ -7411,8 +7369,10 @@
 
     #_override
     (defn #_"Peer" StreamConnection'''connection-closed [#_"Peer" this]
-        (doseq [#_"ListenerRegistration<PeerDisconnectedEventListener>" r (:disconnected-event-listeners this)]
-            (.execute (:executor r), #(§ non-void PeerDisconnectedEventListener'''on-peer-disconnected (:listener r), this))
+        (doseq [#_"PeerDisconnectedEventListener" l (:disconnected-event-listeners this)]
+            (§ async?
+                (§ ass l (PeerDisconnectedEventListener'''on-peer-disconnected l, this))
+            )
         )
         this
     )
@@ -7509,12 +7469,12 @@
     #_method
     (defn #_"Peer" Peer''process-message [#_"Peer" this, #_"Message" m]
         ;; Allow event listeners to filter the message stream.  Listeners are allowed to drop messages by returning null.
-        (let [m (loop-when [m m #_"ListenerRegistration<PreMessageReceivedEventListener>*" s (:pre-message-received-event-listeners this)] (seq s) => m
-                    (let [#_"ListenerRegistration<PreMessageReceivedEventListener>" r (first s)]
+        (let [m (loop-when [m m #_"PreMessageReceivedEventListener*" s (:pre-message-received-event-listeners this)] (seq s) => m
+                    (let [#_"PreMessageReceivedEventListener" l (first s)]
                         ;; Skip any listeners that are supposed to run in another thread as we don't want to block waiting for it,
                         ;; which might cause circular deadlock.
-                        (when (= (:executor r) Threading'SAME_THREAD) => (recur m (next s))
-                            (let [m (PreMessageReceivedEventListener'''on-pre-message-received (:listener r), this, m)]
+                        (§ async-
+                            (let [m (PreMessageReceivedEventListener'''on-pre-message-received l, this, m)]
                                 (recur-if (some? m) [m (next s)] => m)
                             )
                         )
@@ -7624,8 +7584,10 @@
     (defn- #_"Peer" Peer''version-handshake-complete [#_"Peer" this]
         (log/debug (str this ": Handshake complete."))
         (let [this (AbstractTimeoutHandler''set-timeout-enabled this, false)]
-            (doseq [#_"ListenerRegistration<PeerConnectedEventListener>" r (:connected-event-listeners this)]
-                (.execute (:executor r), #(§ non-void PeerConnectedEventListener'''on-peer-connected (:listener r), this))
+            (doseq [#_"PeerConnectedEventListener" l (:connected-event-listeners this)]
+                (§ async?
+                    (§ ass l (PeerConnectedEventListener'''on-peer-connected l, this))
+                )
             )
             ;; We check min version after onPeerConnected as channel.close() will
             ;; call onPeerDisconnected, and we should probably call onPeerConnected first.
@@ -7758,9 +7720,9 @@
     (defn #_"Peer" Peer''process-get-data [#_"Peer" this, #_"GetDataMessage" getdata]
         (log/info (str (:peer-address this) ": Received getdata message: " getdata))
         (let [#_"List<Transaction>" items (ArrayList.)]
-            (doseq [#_"ListenerRegistration<GetDataEventListener>" r (:get-data-event-listeners this)]
-                (when (= (:executor r) Threading'SAME_THREAD)
-                    (when-let [#_"Transaction*" item* (GetDataEventListener'''get-data (:listener r), this, getdata)]
+            (doseq [#_"GetDataEventListener" l (:get-data-event-listeners this)]
+                (§ async-
+                    (when-let [#_"Transaction*" item* (GetDataEventListener'''get-data l, this, getdata)]
                         (§ ass items (.addAll items, item*))
                     )
                 )
@@ -7874,8 +7836,10 @@
             (when bcast?
                 ;; Tell all listeners about this tx so they can decide whether to keep it or not.  If no listener keeps a
                 ;; reference around then the memory pool will forget about it after a while too because it uses weak references.
-                (doseq [#_"ListenerRegistration<OnTransactionBroadcastListener>" r (:on-transaction-event-listeners this)]
-                    (.execute (:executor r), #(OnTransactionBroadcastListener'''on-transaction (:listener r), this, tx))
+                (doseq [#_"OnTransactionBroadcastListener" l (:on-transaction-event-listeners this)]
+                    (§ async?
+                        (OnTransactionBroadcastListener'''on-transaction l, this, tx)
+                    )
                 )
             )
             this
@@ -8249,8 +8213,10 @@
         ;; since the time we first connected to the peer.  However, it's weird and unexpected to receive a callback
         ;; with negative "blocks left" in this case, so we clamp to zero so the API user doesn't have to think about it.
         (let [#_"int" n (max 0 (- (int (-> this :v-peer-version-message :best-height)) (BlockChain''get-best-chain-height (ensure some? (:block-chain this)))))]
-            (doseq [#_"ListenerRegistration<BlocksDownloadedEventListener>" r (:blocks-downloaded-event-listeners this)]
-                (.execute (:executor r), #(§ non-void BlocksDownloadedEventListener'''on-blocks-downloaded (:listener r), this, block, filtered, n))
+            (doseq [#_"BlocksDownloadedEventListener" l (:blocks-downloaded-event-listeners this)]
+                (§ async?
+                    (§ ass l (BlocksDownloadedEventListener'''on-blocks-downloaded l, this, block, filtered, n))
+                )
             )
         )
         nil
@@ -8601,8 +8567,10 @@
         (let [this (assoc this :v-download-data true)]
             ;; TODO: Peer might still have blocks that we don't have, and even have a heavier chain even if the chain block count is lower.
             (let-when [#_"int" n (Peer''get-peer-block-height-difference this)] (<= 0 n) => this
-                (doseq [#_"ListenerRegistration<ChainDownloadStartedEventListener>" r (:chain-download-started-event-listeners this)]
-                    (.execute (:executor r), #(§ non-void ChainDownloadStartedEventListener'''on-chain-download-started (:listener r), this, n))
+                (doseq [#_"ChainDownloadStartedEventListener" l (:chain-download-started-event-listeners this)]
+                    (§ async?
+                        (§ ass l (ChainDownloadStartedEventListener'''on-chain-download-started l, this, n))
+                    )
                 )
                 ;; When we just want as many blocks as possible, we can set the target hash to zero.
                 (sync (:peer-lock this)
@@ -9208,18 +9176,18 @@
                         ;; Callback for events related to chain download.
                         #_"PeerDataEventListener" :download-listener nil
 
-                        #_"[ListenerRegistration<BlocksDownloadedEventListener>]" :peers-blocks-downloaded-event-listeners (vector)
-                        #_"[ListenerRegistration<ChainDownloadStartedEventListener>]" :peers-chain-download-started-event-listeners (vector)
+                        #_"[BlocksDownloadedEventListener]" :peers-blocks-downloaded-event-listeners (vector)
+                        #_"[ChainDownloadStartedEventListener]" :peers-chain-download-started-event-listeners (vector)
                         ;;; Callbacks for events related to peers connecting. ;;
-                        #_"[ListenerRegistration<PeerConnectedEventListener>]" :peer-connected-event-listeners (vector)
+                        #_"[PeerConnectedEventListener]" :peer-connected-event-listeners (vector)
                         ;;; Callbacks for events related to peer connection/disconnection. ;;
-                        #_"[ListenerRegistration<PeerDiscoveredEventListener>]" :peer-discovered-event-listeners (vector)
+                        #_"[PeerDiscoveredEventListener]" :peer-discovered-event-listeners (vector)
                         ;;; Callbacks for events related to peers disconnecting. ;;
-                        #_"[ListenerRegistration<PeerDisconnectedEventListener>]" :peer-disconnected-event-listeners (vector)
+                        #_"[PeerDisconnectedEventListener]" :peer-disconnected-event-listeners (vector)
                         ;;; Callbacks for events related to peer data being received. ;;
-                        #_"[ListenerRegistration<GetDataEventListener>]" :peer-get-data-event-listeners (vector)
-                        #_"[ListenerRegistration<PreMessageReceivedEventListener>]" :peers-pre-message-received-event-listeners (vector)
-                        #_"[ListenerRegistration<OnTransactionBroadcastListener>]" :peers-transaction-broadast-event-listeners (vector)
+                        #_"[GetDataEventListener]" :peer-get-data-event-listeners (vector)
+                        #_"[PreMessageReceivedEventListener]" :peers-pre-message-received-event-listeners (vector)
+                        #_"[OnTransactionBroadcastListener]" :peers-transaction-broadast-event-listeners (vector)
 
                         ;; Peer discovery sources, will be polled occasionally if there aren't enough inactives.
                         #_"{PeerDiscovery}" :peer-discoveries (flatland.ordered.set/ordered-set)
@@ -9482,11 +9450,11 @@
      ; @see Peer#addBlocksDownloadedEventListener(Executor, BlocksDownloadedEventListener)
      ;;
     #_method
-    (defn #_"PeerGroup" PeerGroup''add-blocks-downloaded-event-listener [#_"PeerGroup" this, #_"Executor" executor, #_"BlocksDownloadedEventListener" listener]
+    (defn #_"PeerGroup" PeerGroup''add-blocks-downloaded-event-listener [#_"PeerGroup" this, #_"BlocksDownloadedEventListener" listener]
         (-> this
-            (append* :peers-blocks-downloaded-event-listeners (ListenerRegistration'new listener, executor))
-            (update* :connected-peers Peer''add-blocks-downloaded-event-listener executor, listener)
-            (update* :pending-peers Peer''add-blocks-downloaded-event-listener executor, listener)
+            (append* :peers-blocks-downloaded-event-listeners listener)
+            (update* :connected-peers Peer''add-blocks-downloaded-event-listener listener)
+            (update* :pending-peers Peer''add-blocks-downloaded-event-listener listener)
         )
     )
 
@@ -9495,11 +9463,11 @@
      ; chain download starts.
      ;;
     #_method
-    (defn #_"PeerGroup" PeerGroup''add-chain-download-started-event-listener [#_"PeerGroup" this, #_"Executor" executor, #_"ChainDownloadStartedEventListener" listener]
+    (defn #_"PeerGroup" PeerGroup''add-chain-download-started-event-listener [#_"PeerGroup" this, #_"ChainDownloadStartedEventListener" listener]
         (-> this
-            (append* :peers-chain-download-started-event-listeners (ListenerRegistration'new listener, executor))
-            (update* :connected-peers Peer''add-chain-download-started-event-listener executor, listener)
-            (update* :pending-peers Peer''add-chain-download-started-event-listener executor, listener)
+            (append* :peers-chain-download-started-event-listeners listener)
+            (update* :connected-peers Peer''add-chain-download-started-event-listener listener)
+            (update* :pending-peers Peer''add-chain-download-started-event-listener listener)
         )
     )
 
@@ -9508,11 +9476,11 @@
      ; new peers are connected to.
      ;;
     #_method
-    (defn #_"PeerGroup" PeerGroup''add-connected-event-listener [#_"PeerGroup" this, #_"Executor" executor, #_"PeerConnectedEventListener" listener]
+    (defn #_"PeerGroup" PeerGroup''add-connected-event-listener [#_"PeerGroup" this, #_"PeerConnectedEventListener" listener]
         (-> this
-            (append* :peer-connected-event-listeners (ListenerRegistration'new listener, executor))
-            (update* :connected-peers Peer''add-connected-event-listener executor, listener)
-            (update* :pending-peers Peer''add-connected-event-listener executor, listener)
+            (append* :peer-connected-event-listeners listener)
+            (update* :connected-peers Peer''add-connected-event-listener listener)
+            (update* :pending-peers Peer''add-connected-event-listener listener)
         )
     )
 
@@ -9521,11 +9489,11 @@
      ; peers are disconnected from.
      ;;
     #_method
-    (defn #_"PeerGroup" PeerGroup''add-disconnected-event-listener [#_"PeerGroup" this, #_"Executor" executor, #_"PeerDisconnectedEventListener" listener]
+    (defn #_"PeerGroup" PeerGroup''add-disconnected-event-listener [#_"PeerGroup" this, #_"PeerDisconnectedEventListener" listener]
         (-> this
-            (append* :peer-disconnected-event-listeners (ListenerRegistration'new listener, executor))
-            (update* :connected-peers Peer''add-disconnected-event-listener executor, listener)
-            (update* :pending-peers Peer''add-disconnected-event-listener executor, listener)
+            (append* :peer-disconnected-event-listeners listener)
+            (update* :connected-peers Peer''add-disconnected-event-listener listener)
+            (update* :pending-peers Peer''add-disconnected-event-listener listener)
         )
     )
 
@@ -9534,41 +9502,41 @@
      ; peers are discovered.
      ;;
     #_method
-    (defn #_"PeerGroup" PeerGroup''add-discovered-event-listener [#_"PeerGroup" this, #_"Executor" executor, #_"PeerDiscoveredEventListener" listener]
-        (append* this :peer-discovered-event-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"PeerGroup" PeerGroup''add-discovered-event-listener [#_"PeerGroup" this, #_"PeerDiscoveredEventListener" listener]
+        (append* this :peer-discovered-event-listeners listener)
     )
 
     #_method
-    (defn #_"PeerGroup" PeerGroup''add-get-data-event-listener [#_"PeerGroup" this, #_"Executor" executor, #_"GetDataEventListener" listener]
+    (defn #_"PeerGroup" PeerGroup''add-get-data-event-listener [#_"PeerGroup" this, #_"GetDataEventListener" listener]
         (-> this
-            (append* :peer-get-data-event-listeners (ListenerRegistration'new listener, executor))
-            (update* :connected-peers Peer''add-get-data-event-listener executor, listener)
-            (update* :pending-peers Peer''add-get-data-event-listener executor, listener)
+            (append* :peer-get-data-event-listeners listener)
+            (update* :connected-peers Peer''add-get-data-event-listener listener)
+            (update* :pending-peers Peer''add-get-data-event-listener listener)
         )
     )
 
     #_method
-    (defn #_"PeerGroup" PeerGroup''add-on-transaction-broadcast-listener [#_"PeerGroup" this, #_"Executor" executor, #_"OnTransactionBroadcastListener" listener]
+    (defn #_"PeerGroup" PeerGroup''add-on-transaction-broadcast-listener [#_"PeerGroup" this, #_"OnTransactionBroadcastListener" listener]
         (-> this
-            (append* :peers-transaction-broadast-event-listeners (ListenerRegistration'new listener, executor))
-            (update* :connected-peers Peer''add-on-transaction-broadcast-listener executor, listener)
-            (update* :pending-peers Peer''add-on-transaction-broadcast-listener executor, listener)
+            (append* :peers-transaction-broadast-event-listeners listener)
+            (update* :connected-peers Peer''add-on-transaction-broadcast-listener listener)
+            (update* :pending-peers Peer''add-on-transaction-broadcast-listener listener)
         )
     )
 
     #_method
-    (defn #_"PeerGroup" PeerGroup''add-pre-message-received-event-listener [#_"PeerGroup" this, #_"Executor" executor, #_"PreMessageReceivedEventListener" listener]
+    (defn #_"PeerGroup" PeerGroup''add-pre-message-received-event-listener [#_"PeerGroup" this, #_"PreMessageReceivedEventListener" listener]
         (-> this
-            (append* :peers-pre-message-received-event-listeners (ListenerRegistration'new listener, executor))
-            (update* :connected-peers Peer''add-pre-message-received-event-listener executor, listener)
-            (update* :pending-peers Peer''add-pre-message-received-event-listener executor, listener)
+            (append* :peers-pre-message-received-event-listeners listener)
+            (update* :connected-peers Peer''add-pre-message-received-event-listener listener)
+            (update* :pending-peers Peer''add-pre-message-received-event-listener listener)
         )
     )
 
     #_method
     (defn #_"PeerGroup" PeerGroup''remove-blocks-downloaded-event-listener [#_"PeerGroup" this, #_"BlocksDownloadedEventListener" listener]
         (-> this
-            (update :peers-blocks-downloaded-event-listeners ListenerRegistration'remove listener)
+            (remove* :peers-blocks-downloaded-event-listeners = listener)
             (update* :connected-peers Peer''remove-blocks-downloaded-event-listener listener)
             (update* :pending-peers Peer''remove-blocks-downloaded-event-listener listener)
         )
@@ -9577,7 +9545,7 @@
     #_method
     (defn #_"PeerGroup" PeerGroup''remove-chain-download-started-event-listener [#_"PeerGroup" this, #_"ChainDownloadStartedEventListener" listener]
         (-> this
-            (update :peers-chain-download-started-event-listeners ListenerRegistration'remove listener)
+            (remove* :peers-chain-download-started-event-listeners = listener)
             (update* :connected-peers Peer''remove-chain-download-started-event-listener listener)
             (update* :pending-peers Peer''remove-chain-download-started-event-listener listener)
         )
@@ -9586,7 +9554,7 @@
     #_method
     (defn #_"PeerGroup" PeerGroup''remove-connected-event-listener [#_"PeerGroup" this, #_"PeerConnectedEventListener" listener]
         (-> this
-            (update :peer-connected-event-listeners ListenerRegistration'remove listener)
+            (remove* :peer-connected-event-listeners = listener)
             (update* :connected-peers Peer''remove-connected-event-listener listener)
             (update* :pending-peers Peer''remove-connected-event-listener listener)
         )
@@ -9595,7 +9563,7 @@
     #_method
     (defn #_"PeerGroup" PeerGroup''remove-disconnected-event-listener [#_"PeerGroup" this, #_"PeerDisconnectedEventListener" listener]
         (-> this
-            (update :peer-disconnected-event-listeners ListenerRegistration'remove listener)
+            (remove* :peer-disconnected-event-listeners = listener)
             (update* :connected-peers Peer''remove-disconnected-event-listener listener)
             (update* :pending-peers Peer''remove-disconnected-event-listener listener)
         )
@@ -9603,13 +9571,13 @@
 
     #_method
     (defn #_"PeerGroup" PeerGroup''remove-discovered-event-listener [#_"PeerGroup" this, #_"PeerDiscoveredEventListener" listener]
-        (update this :peer-discovered-event-listeners ListenerRegistration'remove listener)
+        (remove* this :peer-discovered-event-listeners = listener)
     )
 
     #_method
     (defn #_"PeerGroup" PeerGroup''remove-get-data-event-listener [#_"PeerGroup" this, #_"GetDataEventListener" listener]
         (-> this
-            (update :peer-get-data-event-listeners ListenerRegistration'remove listener)
+            (remove* :peer-get-data-event-listeners = listener)
             (update* :connected-peers Peer''remove-get-data-event-listener listener)
             (update* :pending-peers Peer''remove-get-data-event-listener listener)
         )
@@ -9618,7 +9586,7 @@
     #_method
     (defn #_"PeerGroup" PeerGroup''remove-on-transaction-broadcast-listener [#_"PeerGroup" this, #_"OnTransactionBroadcastListener" listener]
         (-> this
-            (update :peers-transaction-broadast-event-listeners ListenerRegistration'remove listener)
+            (remove* :peers-transaction-broadast-event-listeners = listener)
             (update* :connected-peers Peer''remove-on-transaction-broadcast-listener listener)
             (update* :pending-peers Peer''remove-on-transaction-broadcast-listener listener)
         )
@@ -9627,7 +9595,7 @@
     #_method
     (defn #_"PeerGroup" PeerGroup''remove-pre-message-received-event-listener [#_"PeerGroup" this, #_"PreMessageReceivedEventListener" listener]
         (-> this
-            (update :peers-pre-message-received-event-listeners ListenerRegistration'remove listener)
+            (remove* :peers-pre-message-received-event-listeners = listener)
             (update* :connected-peers Peer''remove-pre-message-received-event-listener listener)
             (update* :pending-peers Peer''remove-pre-message-received-event-listener listener)
         )
@@ -9729,8 +9697,10 @@
                     (§ ass this (PeerGroup''add-inactive this, address))
                 )
 
-                (doseq [#_"ListenerRegistration<PeerDiscoveredEventListener>" r (:peer-discovered-event-listeners this)]
-                    (.execute (:executor r), #(PeerDiscoveredEventListener'''on-peers-discovered (:listener r), addresses))
+                (doseq [#_"PeerDiscoveredEventListener" l (:peer-discovered-event-listeners this)]
+                    (§ async?
+                        (PeerDiscoveredEventListener'''on-peers-discovered l, addresses)
+                    )
                 )
             )
             (.stop watch)
@@ -9916,8 +9886,8 @@
             (assert-state (not (.contains (:wallets this), wallet)))
 
             (§ ass wallet (Wallet''set-transaction-broadcaster wallet, this))
-            (§ ass wallet (Wallet''add-coins-received-event-listener wallet, Threading'SAME_THREAD, (:wallet-coins-received-event-listener this)))
-            (§ ass wallet (Wallet''add-key-chain-event-listener wallet, Threading'SAME_THREAD, (:wallet-key-event-listener this)))
+            (§ ass wallet (Wallet''add-coins-received-event-listener wallet, (:wallet-coins-received-event-listener this)))
+            (§ ass wallet (Wallet''add-key-chain-event-listener wallet, (:wallet-key-event-listener this)))
 
             (§ ass this (append* this :wallets wallet))
 
@@ -10089,8 +10059,8 @@
 
         (let [this (update this :version-message assoc :best-height (if (some? (:chain this)) (BlockChain''get-best-chain-height (:chain this)) 0), :time-seconds (Time'seconds))
               #_"Peer" peer (PeerGroup''create-peer this, address, (:version-message this))
-              peer (Peer''add-connected-event-listener peer, Threading'SAME_THREAD, this)
-              peer (Peer''add-disconnected-event-listener peer, Threading'SAME_THREAD, this)
+              peer (Peer''add-connected-event-listener peer, this)
+              peer (Peer''add-disconnected-event-listener peer, this)
               [peer _] (Peer''set-min-protocol-version peer, (:v-min-required-protocol-version this))
               this (append* this :pending-peers peer)
               [this abort?]
@@ -10148,7 +10118,7 @@
                                     (update this :download-peer PeerGroup'remove-data-event-listener-from-peer (:download-listener this))
                                 )]
                             (when (some? listener) => this
-                                (update this :download-peer PeerGroup'add-data-event-listener-to-peer Threading'USER_THREAD, listener)
+                                (update this :download-peer PeerGroup'add-data-event-listener-to-peer (§ async! listener))
                             )
                         )
                     )
@@ -10167,12 +10137,12 @@
      ; Register a data event listener against a single peer (i.e. for blockchain download).
      ; Handling registration/deregistration on peer death/add is outside the scope of these methods.
      ;;
-    (defn- #_"Peer" PeerGroup'add-data-event-listener-to-peer [#_"Peer" peer, #_"Executor" executor, #_"PeerDataEventListener" listener]
+    (defn- #_"Peer" PeerGroup'add-data-event-listener-to-peer [#_"Peer" peer, #_"PeerDataEventListener" listener]
         (-> peer
-            (Peer''add-blocks-downloaded-event-listener executor, listener)
-            (Peer''add-chain-download-started-event-listener executor, listener)
-            (Peer''add-get-data-event-listener executor, listener)
-            (Peer''add-pre-message-received-event-listener executor, listener)
+            (Peer''add-blocks-downloaded-event-listener listener)
+            (Peer''add-chain-download-started-event-listener listener)
+            (Peer''add-get-data-event-listener listener)
+            (Peer''add-pre-message-received-event-listener listener)
         )
     )
 
@@ -10241,26 +10211,28 @@
                                 )]
 
                             ;; Make sure the peer knows how to upload transactions that are requested from us.
-                            (§ ass peer (Peer''add-blocks-downloaded-event-listener peer, Threading'SAME_THREAD, (:peer-listener this)))
-                            (§ ass peer (Peer''add-get-data-event-listener peer, Threading'SAME_THREAD, (:peer-listener this)))
+                            (§ ass peer (Peer''add-blocks-downloaded-event-listener peer, (:peer-listener this)))
+                            (§ ass peer (Peer''add-get-data-event-listener peer, (:peer-listener this)))
 
                             ;; And set up event listeners for clients.  This will allow them to find out about new transactions and blocks.
-                            (§ ass peer (reduce #(Peer''add-blocks-downloaded-event-listener %1, (:executor %2), (:listener %2)) peer (:peers-blocks-downloaded-event-listeners this)))
-                            (§ ass peer (reduce #(Peer''add-chain-download-started-event-listener %1, (:executor %2), (:listener %2)) peer (:peers-chain-download-started-event-listeners this)))
-                            (§ ass peer (reduce #(Peer''add-connected-event-listener %1, (:executor %2), (:listener %2)) peer (:peer-connected-event-listeners this)))
+                            (§ ass peer (reduce Peer''add-blocks-downloaded-event-listener peer (:peers-blocks-downloaded-event-listeners this)))
+                            (§ ass peer (reduce Peer''add-chain-download-started-event-listener peer (:peers-chain-download-started-event-listeners this)))
+                            (§ ass peer (reduce Peer''add-connected-event-listener peer (:peer-connected-event-listeners this)))
 
                             ;; We intentionally do not add disconnect listeners to peers.
-                            (§ ass peer (reduce #(Peer''add-get-data-event-listener %1, (:executor %2), (:listener %2)) peer (:peer-get-data-event-listeners this)))
-                            (§ ass peer (reduce #(Peer''add-on-transaction-broadcast-listener %1, (:executor %2), (:listener %2)) peer (:peers-transaction-broadast-event-listeners this)))
-                            (§ ass peer (reduce #(Peer''add-pre-message-received-event-listener %1, (:executor %2), (:listener %2)) peer (:peers-pre-message-received-event-listeners this)))
+                            (§ ass peer (reduce Peer''add-get-data-event-listener peer (:peer-get-data-event-listeners this)))
+                            (§ ass peer (reduce Peer''add-on-transaction-broadcast-listener peer (:peers-transaction-broadast-event-listeners this)))
+                            (§ ass peer (reduce Peer''add-pre-message-received-event-listener peer (:peers-pre-message-received-event-listeners this)))
 
                             this
                         )
                     )
                 )]
 
-            (doseq [#_"ListenerRegistration<PeerConnectedEventListener>" r (:peer-connected-event-listeners this)]
-                (.execute (:executor r), #(§ non-void PeerConnectedEventListener'''on-peer-connected (:listener r), peer))
+            (doseq [#_"PeerConnectedEventListener" l (:peer-connected-event-listeners this)]
+                (§ async?
+                    (§ ass l (PeerConnectedEventListener'''on-peer-connected l, peer))
+                )
             )
             this
         )
@@ -10311,7 +10283,7 @@
                     (when (some? (:download-peer this)) => this
                         (log/info (str "Setting download peer: " (:download-peer this)))
                         (when (some? (:download-listener this))
-                            (§ ass peer (PeerGroup'add-data-event-listener-to-peer peer, Threading'SAME_THREAD, (:download-listener this)))
+                            (§ ass peer (PeerGroup'add-data-event-listener-to-peer peer, (:download-listener this)))
                         )
                         (let [this (update this :download-peer assoc :v-download-data true)]
                             (when (some? (:chain this)) => this
@@ -10393,15 +10365,17 @@
                 (§ ass peer (Peer''remove-get-data-event-listener peer, (:peer-listener this)))
                 (§ ass peer (reduce Peer''remove-wallet peer (:wallets this)))
 
-                (§ ass peer (reduce #(Peer''remove-blocks-downloaded-event-listener %1, (:listener %2)) peer (:peers-blocks-downloaded-event-listeners this)))
-                (§ ass peer (reduce #(Peer''remove-chain-download-started-event-listener %1, (:listener %2)) peer (:peers-chain-download-started-event-listeners this)))
-                (§ ass peer (reduce #(Peer''remove-get-data-event-listener %1, (:listener %2)) peer (:peer-get-data-event-listeners this)))
-                (§ ass peer (reduce #(Peer''remove-pre-message-received-event-listener %1, (:listener %2)) peer (:peers-pre-message-received-event-listeners this)))
-                (§ ass peer (reduce #(Peer''remove-on-transaction-broadcast-listener %1, (:listener %2)) peer (:peers-transaction-broadast-event-listeners this)))
+                (§ ass peer (reduce Peer''remove-blocks-downloaded-event-listener peer (:peers-blocks-downloaded-event-listeners this)))
+                (§ ass peer (reduce Peer''remove-chain-download-started-event-listener peer (:peers-chain-download-started-event-listeners this)))
+                (§ ass peer (reduce Peer''remove-get-data-event-listener peer (:peer-get-data-event-listeners this)))
+                (§ ass peer (reduce Peer''remove-pre-message-received-event-listener peer (:peers-pre-message-received-event-listeners this)))
+                (§ ass peer (reduce Peer''remove-on-transaction-broadcast-listener peer (:peers-transaction-broadast-event-listeners this)))
 
-                (doseq [#_"ListenerRegistration<PeerDisconnectedEventListener>" r (:peer-disconnected-event-listeners this)]
-                    (.execute (:executor r), #(§ non-void PeerDisconnectedEventListener'''on-peer-disconnected (:listener r), peer))
-                    (§ ass peer (Peer''remove-disconnected-event-listener peer, (:listener r)))
+                (doseq [#_"PeerDisconnectedEventListener" l (:peer-disconnected-event-listeners this)]
+                    (§ async?
+                        (§ ass l (PeerDisconnectedEventListener'''on-peer-disconnected l, peer))
+                    )
+                    (§ ass peer (Peer''remove-disconnected-event-listener peer, l))
                 )
 
                 this
@@ -10477,17 +10451,19 @@
             (if (<= n (count peers))
                 (Futures/immediateFuture peers)
                 (let [#_"SettableFuture<List<Peer>>" future (SettableFuture/create)]
-                    (§ ass this (PeerGroup''add-connected-event-listener this, Threading'USER_THREAD,
-                        (§ reify PeerConnectedEventListener
-                            #_override
-                            (§ non-void #_"PeerConnectedEventListener" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" self, #_"Peer" _peer]
-                                (let [#_"List<Peer>" peers (ArrayList. (PeerGroup''find-peers-of-at-least-version this, version))]
-                                    (when (<= n (count peers))
-                                        (.set future, peers)
-                                        (§ ass this (PeerGroup''remove-connected-event-listener this, self))
+                    (§ ass this (PeerGroup''add-connected-event-listener this,
+                        (§ async!
+                            (§ reify PeerConnectedEventListener
+                                #_override
+                                (§ non-void #_"PeerConnectedEventListener" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" self, #_"Peer" _peer]
+                                    (let [#_"List<Peer>" peers (ArrayList. (PeerGroup''find-peers-of-at-least-version this, version))]
+                                        (when (<= n (count peers))
+                                            (.set future, peers)
+                                            (§ ass this (PeerGroup''remove-connected-event-listener this, self))
+                                        )
                                     )
+                                    this
                                 )
-                                this
                             )
                         )
                     ))
@@ -10522,17 +10498,19 @@
                 (if (<= n (count peers))
                     (Futures/immediateFuture peers)
                     (let [#_"SettableFuture<List<Peer>>" future (SettableFuture/create)]
-                        (§ ass this (PeerGroup''add-connected-event-listener this, Threading'USER_THREAD,
-                            (§ reify PeerConnectedEventListener
-                                #_override
-                                (§ non-void #_"PeerConnectedEventListener" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" self, #_"Peer" _peer]
-                                    (let [#_"List<Peer>" peers (ArrayList. (PeerGroup''find-peers-with-service-mask this, mask))]
-                                        (when (<= n (count peers))
-                                            (.set future, peers)
-                                            (§ ass this (PeerGroup''remove-connected-event-listener this, self))
+                        (§ ass this (PeerGroup''add-connected-event-listener this,
+                            (§ async!
+                                (§ reify PeerConnectedEventListener
+                                    #_override
+                                    (§ non-void #_"PeerConnectedEventListener" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" self, #_"Peer" _peer]
+                                        (let [#_"List<Peer>" peers (ArrayList. (PeerGroup''find-peers-with-service-mask this, mask))]
+                                            (when (<= n (count peers))
+                                                (.set future, peers)
+                                                (§ ass this (PeerGroup''remove-connected-event-listener this, self))
+                                            )
                                         )
+                                        this
                                     )
-                                    this
                                 )
                             )
                         ))
@@ -12434,7 +12412,7 @@
             ;; Prepare to send the transaction by adding a listener that'll be called when confidence changes.
             ;; Only bother with this if we might actually hear back:
             (when (< 1 (:min-connections this))
-                (§ ass (Transaction''get-confidence (:tx this)) (TransactionConfidence''add-event-listener (Transaction''get-confidence (:tx this)), Threading'USER_THREAD, (ConfidenceChange'new)))
+                (§ ass (Transaction''get-confidence (:tx this)) (TransactionConfidence''add-event-listener (Transaction''get-confidence (:tx this)), (§ async! (ConfidenceChange'new))))
             )
             ;; Bitcoin Core sends an inv in this case and then lets the peer request the tx data.  We just
             ;; blast out the TX here for a couple of reasons.  Firstly it's simpler: in the case where we have
@@ -12476,7 +12454,7 @@
 
     #_method
     (defn #_"ListenableFuture<Transaction>" TransactionBroadcast''broadcast [#_"TransactionBroadcast" this]
-        (§ ass this (update this :peer-group PeerGroup''add-pre-message-received-event-listener Threading'SAME_THREAD, (:rejection-listener this)))
+        (§ ass this (update this :peer-group PeerGroup''add-pre-message-received-event-listener (:rejection-listener this)))
         (log/info (str "Waiting for " (:min-connections this) " peers required for broadcast, we have " (count (:connected-peers (:peer-group this))) " ..."))
         (.addListener (PeerGroup''wait-for-peers (:peer-group this), (:min-connections this)), #(§ non-void TransactionBroadcast''enough-available-peers this), Threading'SAME_THREAD)
         (:future this)
@@ -12669,7 +12647,7 @@
             #_"long" :last-broadcasted-at nil
 
             ;; Lazily created listeners array.
-            #_"[ListenerRegistration<TransactionConfidenceListener>]" :confidence-listeners (vector)
+            #_"[TransactionConfidenceListener]" :confidence-listeners (vector)
 
             ;;;
              ; The depth of the transaction on the best chain in blocks.  An unconfirmed block has depth 0.
@@ -12726,18 +12704,18 @@
      ; a future from {@link #getDepthFuture(int)}.
      ;;
     #_method
-    (defn #_"TransactionConfidence" TransactionConfidence''add-event-listener [#_"TransactionConfidence" this, #_"Executor" executor, #_"TransactionConfidenceListener" listener]
-        (let [#_"ListenerRegistration<TransactionConfidenceListener>" r (ListenerRegistration'new listener, executor)]
-            (when-not (.contains (:confidence-listeners this), r) => this
+    (defn #_"TransactionConfidence" TransactionConfidence''add-event-listener [#_"TransactionConfidence" this, #_"TransactionConfidenceListener" listener]
+        (let [#_"TransactionConfidenceListener" l listener]
+            (when-not (.contains (:confidence-listeners this), l) => this
                 (swap! TransactionConfidence'PINNED_CONFIDENCE_OBJECTS conj this)
-                (append* this :confidence-listeners r)
+                (append* this :confidence-listeners l)
             )
         )
     )
 
     #_method
     (defn #_"TransactionConfidence" TransactionConfidence''remove-event-listener [#_"TransactionConfidence" this, #_"TransactionConfidenceListener" listener]
-        (let [this (update this :confidence-listeners ListenerRegistration'remove listener)]
+        (let [this (remove* this :confidence-listeners = listener)]
             (when (empty? (:confidence-listeners this))
                 (swap! TransactionConfidence'PINNED_CONFIDENCE_OBJECTS disj this)
             )
@@ -12880,8 +12858,10 @@
      ;;
     #_method
     (defn #_"void" TransactionConfidence''queue-listeners [#_"TransactionConfidence" this, #_"ConfidenceChangeReason" reason]
-        (doseq [#_"ListenerRegistration<TransactionConfidenceListener>" r (:confidence-listeners this)]
-            (.execute (:executor r), #(TransactionConfidenceListener'''on-confidence-changed (:listener r), this, reason))
+        (doseq [#_"TransactionConfidenceListener" l (:confidence-listeners this)]
+            (§ async?
+                (TransactionConfidenceListener'''on-confidence-changed l, this, reason)
+            )
         )
         nil
     )
@@ -12892,21 +12872,23 @@
      ; on the network.
      ;;
     #_method
-    (defn #_"ListenableFuture<TransactionConfidence>" TransactionConfidence''get-depth-future [#_"TransactionConfidence" this, #_"int" depth, #_"Executor" executor]
+    (defn #_"ListenableFuture<TransactionConfidence>" TransactionConfidence''get-depth-future [#_"TransactionConfidence" this, #_"int" depth]
         (sync this
             (let [#_"SettableFuture<TransactionConfidence>" future (SettableFuture/create)]
                 (when (<= depth (:depth-in-blocks this))
                     (.set future, this)
                 )
-                (§ ass this (TransactionConfidence''add-event-listener this, executor,
-                    (reify TransactionConfidenceListener
-                        #_override
-                        (#_"void" TransactionConfidenceListener'''on-confidence-changed [#_"TransactionConfidenceListener" self, #_"TransactionConfidence" confidence, #_"ConfidenceChangeReason" reason]
-                            (when (<= depth (:depth-in-blocks this))
-                                (§ ass this (TransactionConfidence''remove-event-listener this, self))
-                                (.set future, confidence)
+                (§ ass this (TransactionConfidence''add-event-listener this,
+                    (§ async?
+                        (reify TransactionConfidenceListener
+                            #_override
+                            (#_"void" TransactionConfidenceListener'''on-confidence-changed [#_"TransactionConfidenceListener" self, #_"TransactionConfidence" confidence, #_"ConfidenceChangeReason" reason]
+                                (when (<= depth (:depth-in-blocks this))
+                                    (§ ass this (TransactionConfidence''remove-event-listener this, self))
+                                    (.set future, confidence)
+                                )
+                                nil
                             )
-                            nil
                         )
                     )
                 ))
@@ -22457,27 +22439,6 @@
     )
 )
 
-;;;
- ; A simple wrapper around a listener and an executor.
- ;;
-(class-ns ListenerRegistration #_"<T>"
-    (defn #_"ListenerRegistration" ListenerRegistration'new [#_"T" listener, #_"Executor" executor]
-        (hash-map
-            #_"T" :listener (ensure some? listener)
-            #_"Executor" :executor (ensure some? executor)
-        )
-    )
-
-    (defn #_"<T> List<ListenerRegistration<T>>" ListenerRegistration'remove #_"<T>" [#_"List<ListenerRegistration<T>>" list, #_"T" listener]
-        (ensure some? listener)
-
-        (when-let [#_"ListenerRegistration<T>" item (first (filter #(= (:listener %) listener) list))]
-            (§ ass list (.remove list, item))
-        )
-        list
-    )
-)
-
 (class-ns UserThread (§ extends Thread) (§ implements Executor)
     ;; 10,000 pending tasks is entirely arbitrary and may or may not be appropriate for the device we're running on.
     (def #_"int" UserThread'WARNING_THRESHOLD 10000)
@@ -22800,7 +22761,7 @@
             #_"LinkedHashMap<ByteString, ECKey>" :pubkey-to-keys (LinkedHashMap.)
             #_"boolean" :is-watching false
 
-            #_"[ListenerRegistration<KeyChainEventListener>]" :key-chain-listeners (vector)
+            #_"[KeyChainEventListener]" :key-chain-listeners (vector)
         )
     )
 
@@ -22836,8 +22797,10 @@
     (defn- #_"void" BasicKeyChain''queue-on-keys-added [#_"BasicKeyChain" this, #_"List<ECKey>" keys]
         (assert-state (.isHeldByCurrentThread (:b-keychain-lock this)))
 
-        (doseq [#_"ListenerRegistration<KeyChainEventListener>" r (:key-chain-listeners this)]
-            (.execute (:executor r), #(KeyChainEventListener'''on-keys-added (:listener r), keys))
+        (doseq [#_"KeyChainEventListener" l (:key-chain-listeners this)]
+            (§ async?
+                (KeyChainEventListener'''on-keys-added l, keys)
+            )
         )
         nil
     )
@@ -22920,8 +22883,8 @@
      ; Adds a listener for events that are run when keys are added, on the given executor.
      ;;
     #_method
-    (defn #_"BasicKeyChain" BasicKeyChain''add-event-listener [#_"BasicKeyChain" this, #_"KeyChainEventListener" listener, #_"Executor" executor]
-        (append* this :key-chain-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"BasicKeyChain" BasicKeyChain''add-event-listener [#_"BasicKeyChain" this, #_"KeyChainEventListener" listener]
+        (append* this :key-chain-listeners listener)
     )
 
     ;;;
@@ -22929,7 +22892,7 @@
      ;;
     #_method
     (defn #_"BasicKeyChain" BasicKeyChain''remove-event-listener [#_"BasicKeyChain" this, #_"KeyChainEventListener" listener]
-        (update this :key-chain-listeners ListenerRegistration'remove listener)
+        (remove* this :key-chain-listeners = listener)
     )
 
     ;;;
@@ -23410,8 +23373,8 @@
      ; Adds a listener for events that are run when keys are added, on the given executor.
      ;;
     #_method
-    (defn #_"DeterministicKeyChain" DeterministicKeyChain''add-event-listener [#_"DeterministicKeyChain" this, #_"KeyChainEventListener" listener, #_"Executor" executor]
-        (§ ass this (update this :basic-key-chain BasicKeyChain''add-event-listener listener, executor))
+    (defn #_"DeterministicKeyChain" DeterministicKeyChain''add-event-listener [#_"DeterministicKeyChain" this, #_"KeyChainEventListener" listener]
+        (§ ass this (update this :basic-key-chain BasicKeyChain''add-event-listener listener))
         this
     )
 
@@ -24619,9 +24582,9 @@
      ; Adds a listener for events that are run when keys are added, on the given executor.
      ;;
     #_method
-    (defn #_"KeyChainGroup" KeyChainGroup''add-event-listener [#_"KeyChainGroup" this, #_"KeyChainEventListener" listener, #_"Executor" executor]
+    (defn #_"KeyChainGroup" KeyChainGroup''add-event-listener [#_"KeyChainGroup" this, #_"KeyChainEventListener" listener]
         (doseq [#_"DeterministicKeyChain" chain (:chains this)]
-            (§ ass chain (DeterministicKeyChain''add-event-listener chain, listener, executor))
+            (§ ass chain (DeterministicKeyChain''add-event-listener chain, listener))
         )
         this
     )
@@ -25522,11 +25485,11 @@
                          ;;
                         #_"long" :last-block-seen-time-secs 0
 
-                        #_"[ListenerRegistration<WalletChangeEventListener>]" :change-listeners (vector)
-                        #_"[ListenerRegistration<WalletCoinsReceivedEventListener>]" :coins-received-listeners (vector)
-                        #_"[ListenerRegistration<WalletCoinsSentEventListener>]" :coins-sent-listeners (vector)
-                        #_"[ListenerRegistration<WalletReorganizeEventListener>]" :wallet-reorganize-listeners (vector)
-                        #_"[ListenerRegistration<TransactionConfidenceEventListener>]" :transaction-confidence-listeners (vector)
+                        #_"[WalletChangeEventListener]" :change-listeners (vector)
+                        #_"[WalletCoinsReceivedEventListener]" :coins-received-listeners (vector)
+                        #_"[WalletCoinsSentEventListener]" :coins-sent-listeners (vector)
+                        #_"[WalletReorganizeEventListener]" :wallet-reorganize-listeners (vector)
+                        #_"[TransactionConfidenceEventListener]" :transaction-confidence-listeners (vector)
 
                         ;; A listener that relays confidence changes from the transaction confidence object to the wallet event listener,
                         ;; as a convenience to API users so they don't have to register on every transaction themselves.
@@ -27071,48 +27034,48 @@
     )
 
     #_method
-    (defn #_"Wallet" Wallet''add-change-event-listener [#_"Wallet" this, #_"Executor" executor, #_"WalletChangeEventListener" listener]
-        (append* this :change-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"Wallet" Wallet''add-change-event-listener [#_"Wallet" this, #_"WalletChangeEventListener" listener]
+        (append* this :change-listeners listener)
     )
 
     #_method
-    (defn #_"Wallet" Wallet''add-coins-received-event-listener [#_"Wallet" this, #_"Executor" executor, #_"WalletCoinsReceivedEventListener" listener]
-        (append* this :coins-received-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"Wallet" Wallet''add-coins-received-event-listener [#_"Wallet" this, #_"WalletCoinsReceivedEventListener" listener]
+        (append* this :coins-received-listeners listener)
     )
 
     #_method
-    (defn #_"Wallet" Wallet''add-coins-sent-event-listener [#_"Wallet" this, #_"Executor" executor, #_"WalletCoinsSentEventListener" listener]
-        (append* this :coins-sent-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"Wallet" Wallet''add-coins-sent-event-listener [#_"Wallet" this, #_"WalletCoinsSentEventListener" listener]
+        (append* this :coins-sent-listeners listener)
     )
 
     #_method
-    (defn #_"Wallet" Wallet''add-key-chain-event-listener [#_"Wallet" this, #_"Executor" executor, #_"KeyChainEventListener" listener]
-        (update this :key-chain-group KeyChainGroup''add-event-listener listener, executor)
+    (defn #_"Wallet" Wallet''add-key-chain-event-listener [#_"Wallet" this, #_"KeyChainEventListener" listener]
+        (update this :key-chain-group KeyChainGroup''add-event-listener listener)
     )
 
     #_method
-    (defn #_"Wallet" Wallet''add-reorganize-event-listener [#_"Wallet" this, #_"Executor" executor, #_"WalletReorganizeEventListener" listener]
-        (append* this :wallet-reorganize-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"Wallet" Wallet''add-reorganize-event-listener [#_"Wallet" this, #_"WalletReorganizeEventListener" listener]
+        (append* this :wallet-reorganize-listeners listener)
     )
 
     #_method
-    (defn #_"Wallet" Wallet''add-transaction-confidence-event-listener [#_"Wallet" this, #_"Executor" executor, #_"TransactionConfidenceEventListener" listener]
-        (append* this :transaction-confidence-listeners (ListenerRegistration'new listener, executor))
+    (defn #_"Wallet" Wallet''add-transaction-confidence-event-listener [#_"Wallet" this, #_"TransactionConfidenceEventListener" listener]
+        (append* this :transaction-confidence-listeners listener)
     )
 
     #_method
     (defn #_"Wallet" Wallet''remove-change-event-listener [#_"Wallet" this, #_"WalletChangeEventListener" listener]
-        (update this :change-listeners ListenerRegistration'remove listener)
+        (remove* this :change-listeners = listener)
     )
 
     #_method
     (defn #_"Wallet" Wallet''remove-coins-received-event-listener [#_"Wallet" this, #_"WalletCoinsReceivedEventListener" listener]
-        (update this :coins-received-listeners ListenerRegistration'remove listener)
+        (remove* this :coins-received-listeners = listener)
     )
 
     #_method
     (defn #_"Wallet" Wallet''remove-coins-sent-event-listener [#_"Wallet" this, #_"WalletCoinsSentEventListener" listener]
-        (update this :coins-sent-listeners ListenerRegistration'remove listener)
+        (remove* this :coins-sent-listeners = listener)
     )
 
     #_method
@@ -27122,24 +27085,21 @@
 
     #_method
     (defn #_"Wallet" Wallet''remove-reorganize-event-listener [#_"Wallet" this, #_"WalletReorganizeEventListener" listener]
-        (update this :wallet-reorganize-listeners ListenerRegistration'remove listener)
+        (remove* this :wallet-reorganize-listeners = listener)
     )
 
     #_method
     (defn #_"Wallet" Wallet''remove-transaction-confidence-event-listener [#_"Wallet" this, #_"TransactionConfidenceEventListener" listener]
-        (update this :transaction-confidence-listeners ListenerRegistration'remove listener)
+        (remove* this :transaction-confidence-listeners = listener)
     )
 
     #_method
     (defn- #_"void" Wallet''queue-on-transaction-confidence-changed [#_"Wallet" this, #_"Transaction" tx]
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
 
-        (doseq [#_"ListenerRegistration<TransactionConfidenceEventListener>" r (:transaction-confidence-listeners this)]
-            (let [f #(TransactionConfidenceEventListener'''on-transaction-confidence-changed (:listener r), this, tx)]
-                (if (= (:executor r) Threading'SAME_THREAD)
-                    (f)
-                    (.execute (:executor r), f)
-                )
+        (doseq [#_"TransactionConfidenceEventListener" l (:transaction-confidence-listeners this)]
+            (§ async?
+                (TransactionConfidenceEventListener'''on-transaction-confidence-changed l, this, tx)
             )
         )
         nil
@@ -27153,8 +27113,10 @@
         (assert-state (<= 0 (:on-wallet-changed-suppressions this)))
 
         (when-not (< 0 (:on-wallet-changed-suppressions this))
-            (doseq [#_"ListenerRegistration<WalletChangeEventListener>" r (:change-listeners this)]
-                (.execute (:executor r), #(WalletChangeEventListener'''on-wallet-changed (:listener r), this))
+            (doseq [#_"WalletChangeEventListener" l (:change-listeners this)]
+                (§ async?
+                    (WalletChangeEventListener'''on-wallet-changed l, this)
+                )
             )
         )
         nil
@@ -27164,8 +27126,10 @@
     (defn #_"void" Wallet''queue-on-coins-received [#_"Wallet" this, #_"Transaction" tx, #_"Coin" before, #_"Coin" after]
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
 
-        (doseq [#_"ListenerRegistration<WalletCoinsReceivedEventListener>" r (:coins-received-listeners this)]
-            (.execute (:executor r), #(WalletCoinsReceivedEventListener'''on-coins-received (:listener r), this, tx, before, after))
+        (doseq [#_"WalletCoinsReceivedEventListener" l (:coins-received-listeners this)]
+            (§ async?
+                (WalletCoinsReceivedEventListener'''on-coins-received l, this, tx, before, after)
+            )
         )
         nil
     )
@@ -27174,8 +27138,10 @@
     (defn #_"void" Wallet''queue-on-coins-sent [#_"Wallet" this, #_"Transaction" tx, #_"Coin" before, #_"Coin" after]
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
 
-        (doseq [#_"ListenerRegistration<WalletCoinsSentEventListener>" r (:coins-sent-listeners this)]
-            (.execute (:executor r), #(WalletCoinsSentEventListener'''on-coins-sent (:listener r), this, tx, before, after))
+        (doseq [#_"WalletCoinsSentEventListener" l (:coins-sent-listeners this)]
+            (§ async?
+                (WalletCoinsSentEventListener'''on-coins-sent l, this, tx, before, after)
+            )
         )
         nil
     )
@@ -27185,8 +27151,10 @@
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
         (assert-state (:inside-reorg this))
 
-        (doseq [#_"ListenerRegistration<WalletReorganizeEventListener>" r (:wallet-reorganize-listeners this)]
-            (.execute (:executor r), #(WalletReorganizeEventListener'''on-reorganize (:listener r), this))
+        (doseq [#_"WalletReorganizeEventListener" l (:wallet-reorganize-listeners this)]
+            (§ async?
+                (WalletReorganizeEventListener'''on-reorganize l, this)
+            )
         )
         nil
     )
@@ -27237,7 +27205,7 @@
             )
             ;; This is safe even if the listener has been added before, as TransactionConfidence ignores duplicate
             ;; registration requests.  That makes the code in the wallet simpler.
-            (§ ass (Transaction''get-confidence tx) (TransactionConfidence''add-event-listener (Transaction''get-confidence tx), Threading'SAME_THREAD, (:tx-confidence-listener this)))
+            (§ ass (Transaction''get-confidence tx) (TransactionConfidence''add-event-listener (Transaction''get-confidence tx), (:tx-confidence-listener this)))
         )
         this
     )
