@@ -7611,7 +7611,7 @@
                     ;; and so on.
                     (let [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)
                           _ (§ ass confidence (assoc confidence :confidence-source :ConfidenceSource'NETWORK))
-                          _ (§ ass this (update this :pending-tx-downloads disj confidence))
+                          this (update this :pending-tx-downloads disj confidence)
                           [this ?] (Peer''maybe-handle-requested-data this, tx, Transaction''get-hash)]
                         (cond ?
                             (do
@@ -7874,8 +7874,7 @@
                     this
                 )
                 :else
-                (do
-                    (§ ass this (update this :pending-block-downloads disj (Block''get-hash m)))
+                (let [this (update this :pending-block-downloads disj (Block''get-hash m))]
 
                     (try+
                         ;; Otherwise it's a block sent to us because the peer thought we needed it, so add it to the block chain.
@@ -7943,11 +7942,10 @@
                 this
             )
             :else
-            (do
-                ;; Note that we currently do nothing about peers which maliciously do not include transactions which
-                ;; actually match our filter or which simply do not send us all the transactions we need: it can be fixed
-                ;; by cross-checking peers against each other.
-                (§ ass this (update this :pending-block-downloads disj (Block''get-hash (FilteredBlock''get-block-header m))))
+            ;; Note that we currently do nothing about peers which maliciously do not include transactions which
+            ;; actually match our filter or which simply do not send us all the transactions we need: it can be fixed
+            ;; by cross-checking peers against each other.
+            (let [this (update this :pending-block-downloads disj (Block''get-hash (FilteredBlock''get-block-header m)))]
 
                 (try+
                     (let [[this done?]
@@ -8496,12 +8494,13 @@
     #_method
     (defn #_"this" Peer''process-pong [#_"Peer" this, #_"Pong" m]
         ;; Iterates over a snapshot of the list, so we can run unlocked here.
-        (when-let [#_"PendingPing" ping (first (filter #(= (:nonce %) (:nonce m)) (:pending-pings this)))]
-            (§ ass this (remove* this :pending-pings = ping))
-            ;; This line may trigger an event listener that re-runs ping().
-            (§ ass ping (PendingPing''complete ping))
+        (let-when [#_"PendingPing" ping (first (filter #(= (:nonce %) (:nonce m)) (:pending-pings this)))] (some? ping) => this
+            (let [this (remove* this :pending-pings = ping)]
+                ;; This line may trigger an event listener that re-runs ping().
+                (§ ass ping (PendingPing''complete ping))
+                this
+            )
         )
-        this
     )
 
     ;;;
@@ -8910,9 +8909,9 @@
                                             )
                                         #_"long" retry (max (:retry-time (get (:backoff-map this) addr)) (:retry-time (:group-backoff this)))]
                                         (if (< now retry)
-                                            (let [#_"long" delay (- retry now)]
-                                                (log/info (str "Waiting " delay " msec before next connect attempt" (if (some? addr) (str " to " addr) "")))
-                                                (§ ass this (update this :inactives .add addr))
+                                            (let [#_"long" delay (- retry now)
+                                                  _ (log/info (str "Waiting " delay " msec before next connect attempt" (if (some? addr) (str " to " addr) "")))
+                                                  this (ß update this :inactives .add addr)]
                                                 (.schedule (:executor this), self, delay, TimeUnit/MILLISECONDS)
                                                 [this nil]
                                             )
@@ -9450,12 +9449,12 @@
     (defn- #_"this" PeerGroup''add-inactive [#_"PeerGroup" this, #_"PeerAddress" addr]
         (sync (:peergroup-lock this)
             ;; Deduplicate.
-            (when-not (contains? (:backoff-map this) addr)
-                (§ ass this (update this :backoff-map assoc addr (ExponentialBackoff'new (:peer-backoff-params this))))
-                (§ ass this (update this :inactives .add addr))
+            (when-not (contains? (:backoff-map this) addr) => this
+                (let [this (update this :backoff-map assoc addr (ExponentialBackoff'new (:peer-backoff-params this)))]
+                    (ß update this :inactives .add addr)
+                )
             )
         )
-        this
     )
 
     ;;;
@@ -9713,18 +9712,19 @@
         (sync (:peergroup-lock this)
             (assert-state (not (.contains (:wallets this), wallet)))
 
-            (§ ass wallet (Wallet''set-transaction-broadcaster wallet, this))
-            (§ ass wallet (Wallet''add-coins-received-event-listener wallet, (:wallet-coins-received-event-listener this)))
-            (§ ass wallet (Wallet''add-key-chain-event-listener wallet, (:wallet-key-event-listener this)))
+            (let [_ (§ ass wallet (Wallet''set-transaction-broadcaster wallet, this))
+                  _ (§ ass wallet (Wallet''add-coins-received-event-listener wallet, (:wallet-coins-received-event-listener this)))
+                  _ (§ ass wallet (Wallet''add-key-chain-event-listener wallet, (:wallet-key-event-listener this)))
 
-            (§ ass this (append* this :wallets wallet))
+                  this (append* this :wallets wallet)
 
-            ;; Don't bother downloading block bodies before the oldest keys in all our wallets.  Make sure we recalculate
-            ;; if a key is added.  Of course, by then we may have downloaded the chain already.  Ideally adding keys would
-            ;; automatically rewind the block chain and redownload the blocks to find transactions relevant to those keys,
-            ;; all transparently and in the background.  But we are a long way from that yet.
-            (let [_ (PeerGroup''recalculate-fast-catchup-and-filter this, :FilterRecalculateMode'SEND_IF_CHANGED)
+                  ;; Don't bother downloading block bodies before the oldest keys in all our wallets.  Make sure we recalculate
+                  ;; if a key is added.  Of course, by then we may have downloaded the chain already.  Ideally adding keys would
+                  ;; automatically rewind the block chain and redownload the blocks to find transactions relevant to those keys,
+                  ;; all transparently and in the background.  But we are a long way from that yet.
+                  _ (PeerGroup''recalculate-fast-catchup-and-filter this, :FilterRecalculateMode'SEND_IF_CHANGED)
                   this (PeerGroup''update-version-message-relay-txes-before-filter this)]
+
                 (update* this :connected-peers Peer''add-wallet wallet)
             )
         )
@@ -9737,11 +9737,12 @@
     (defn #_"this" PeerGroup''remove-wallet [#_"PeerGroup" this, #_"Wallet" wallet]
         (ensure some? wallet)
 
-        (§ ass wallet (Wallet''remove-coins-received-event-listener wallet, (:wallet-coins-received-event-listener this)))
-        (§ ass wallet (Wallet''remove-key-chain-event-listener wallet, (:wallet-key-event-listener this)))
-        (§ ass wallet (Wallet''set-transaction-broadcaster wallet, nil))
+        (let [_ (§ ass wallet (Wallet''remove-coins-received-event-listener wallet, (:wallet-coins-received-event-listener this)))
+              _ (§ ass wallet (Wallet''remove-key-chain-event-listener wallet, (:wallet-key-event-listener this)))
+              _ (§ ass wallet (Wallet''set-transaction-broadcaster wallet, nil))]
 
-        (-> this (remove* :wallets = wallet) (update* :connected-peers Peer''remove-wallet wallet))
+            (-> this (remove* :wallets = wallet) (update* :connected-peers Peer''remove-wallet wallet))
+        )
     )
 
     #_method
@@ -9848,11 +9849,11 @@
      ;         want a future which completes when the connection is open.
      ;;
     #_method
-    (defn #_"[this Peer]" PeerGroup''connect-to-socket-address [#_"PeerGroup" this, #_"InetSocketAddress" address]
+    (defn #_"[this Peer]" PeerGroup''connect-to-socket-address [#_"PeerGroup" this, #_"InetSocketAddress" __socketAddress]
         (sync (:peergroup-lock this)
-            (let [#_"PeerAddress" __peerAddress (PeerAddress'from-socket-address (:ledger this), address)]
-                (§ ass this (update this :backoff-map assoc __peerAddress (ExponentialBackoff'new (:peer-backoff-params this))))
-                (PeerGroup''connect-to-peer-address this, __peerAddress, true, (:v-connect-timeout-millis this))
+            (let [#_"PeerAddress" addr (PeerAddress'from-socket-address (:ledger this), __socketAddress)
+                  this (update this :backoff-map assoc addr (ExponentialBackoff'new (:peer-backoff-params this)))]
+                (PeerGroup''connect-to-peer-address this, addr, true, (:v-connect-timeout-millis this))
             )
         )
     )
@@ -9863,9 +9864,9 @@
     #_method
     (defn #_"[this Peer]" PeerGroup''connect-to-loopback [#_"PeerGroup" this]
         (sync (:peergroup-lock this)
-            (let [#_"PeerAddress" loopback (PeerAddress'loopback (:ledger this))]
-                (§ ass this (update this :backoff-map assoc loopback (ExponentialBackoff'new (:peer-backoff-params this))))
-                (PeerGroup''connect-to-peer-address this, loopback, true, (:v-connect-timeout-millis this))
+            (let [#_"PeerAddress" addr (PeerAddress'loopback (:ledger this))
+                  this (update this :backoff-map assoc addr (ExponentialBackoff'new (:peer-backoff-params this)))]
+                (PeerGroup''connect-to-peer-address this, addr, true, (:v-connect-timeout-millis this))
             )
         )
     )
@@ -10173,8 +10174,7 @@
                                         )
                                         (let [this (update-in this [:backoff-map address] ExponentialBackoff''track-failure)]
                                             ;; Put back on inactive list.
-                                            (§ ass this (update this :inactives .add address))
-                                            this
+                                            (ß update this :inactives .add address)
                                         )
                                     )]
                                 (when (< (PeerGroup''count-connected-and-pending-peers this) (:max-connections this))
@@ -16268,8 +16268,8 @@
 
                 ;; Just dump the message onto the write buffer and call tryWriteBytes.
                 ;; TODO: Kill the needless message duplication when the write completes right away.
-                (§ ass this (update this :bytes-to-write conj (ByteBuffer/wrap (Arrays/copyOf message, (count message)))))
-                (let [this (update this :bytes-to-write-remaining + (count message))]
+                (let [this (update this :bytes-to-write conj (ByteBuffer/wrap (Arrays/copyOf message, (count message))))
+                      this (update this :bytes-to-write-remaining + (count message))]
                     (ConnectionHandler''set-write-ops this)
                     this
                 )
@@ -19516,16 +19516,13 @@
      ; @throws ScriptException if the script type is not understood or is pay to address or is P2SH (run this method on the "Redeem script" instead).
      ;;
     #_method
-    (defn #_"List<ECKey>" Script''get-pub-keys [#_"Script" this]
+    (defn #_"ECKey*" Script''get-pub-keys [#_"Script" this]
         (when-not (Script''is-sent-to-multi-sig this)
             (throw+ (ScriptException'new :ScriptError'UNKNOWN_ERROR, "Only usable for multisig scripts."))
         )
 
-        (let [#_"List<ECKey>" keys (ArrayList.)]
-            (dotimes [#_"int" i (Script'decode-from-op-n (:opcode (nth (:chunks this) (- (count (:chunks this)) 2))))]
-                (§ ass keys (.add keys, (ECKey'from-public-only-bytes (:data (nth (:chunks this) (inc i))))))
-            )
-            keys
+        (let [#_"int" n (Script'decode-from-op-n (:opcode (nth (:chunks this) (- (count (:chunks this)) 2))))]
+            (map #(ECKey'from-public-only-bytes (:data (nth (:chunks this) (inc %)))) (range n))
         )
     )
 
@@ -21293,10 +21290,7 @@
                 (throw+ (BlockStoreException'new "MemoryBlockStore is closed"))
             )
 
-            (let [#_"Sha256Hash" hash (Block''get-hash (:stored-header block))]
-                (§ ass this (update this :block-map assoc hash block))
-                this
-            )
+            (update this :block-map assoc (Block''get-hash (:stored-header block)) block)
         )
     )
 
@@ -21900,16 +21894,14 @@
             (sync (:blockstore-lock this)
                 (let [#_"int" i (SPVBlockStore''get-ring-cursor this, buffer)
                       ;; Probably wrapped around.
-                      i (if (= i (SPVBlockStore'get-file-size (:capacity this))) SPVBlockStore'FILE_PROLOGUE_BYTES i)]
-                    (.position buffer, i)
-                    (let [#_"Sha256Hash" hash (Block''get-hash (:stored-header block))]
-                        (§ ass this (update this :not-found-cache .remove hash))
-                        (.put buffer, (:hash-bytes hash))
-                        (StoredBlock''serialize-compact block, buffer)
-                        (SPVBlockStore''set-ring-cursor this, buffer, (.position buffer))
-                        (§ ass this (update this :block-cache assoc hash block))
-                        this
-                    )
+                      i (if (= i (SPVBlockStore'get-file-size (:capacity this))) SPVBlockStore'FILE_PROLOGUE_BYTES i)
+                      _ (.position buffer, i)
+                      #_"Sha256Hash" hash (Block''get-hash (:stored-header block))
+                      this (ß update this :not-found-cache .remove hash)
+                      _ (.put buffer, (:hash-bytes hash))]
+                    (StoredBlock''serialize-compact block, buffer)
+                    (SPVBlockStore''set-ring-cursor this, buffer, (.position buffer))
+                    (update this :block-cache assoc hash block)
                 )
             )
         )
@@ -22896,64 +22888,62 @@
      ;;
     #_method
     (defn #_"DeterministicKey" DeterministicKeyChain''get-key [#_"DeterministicKeyChain" this, #_"KeyPurpose" purpose]
-        (first (DeterministicKeyChain''get-keys this, purpose, 1))
+        (let [_ (§ ass [this #_"DeterministicKey*" keys] (DeterministicKeyChain''get-keys this, purpose, 1))]
+            (first keys)
+        )
     )
 
     ;;;
      ; Returns freshly derived key/s that have not been returned by this method before.
      ;;
     #_method
-    (defn #_"List<DeterministicKey>" DeterministicKeyChain''get-keys [#_"DeterministicKeyChain" this, #_"KeyPurpose" purpose, #_"int" __numberOfKeys]
-        (assert-argument (pos? __numberOfKeys))
+    (defn #_"[this DeterministicKey*]" DeterministicKeyChain''get-keys [#_"DeterministicKeyChain" this, #_"KeyPurpose" purpose, #_"int" n]
+        (assert-argument (pos? n))
 
         (sync (:d-keychain-lock this)
             ;; Map both REFUND and RECEIVE_KEYS to the same branch for now.  Refunds are a feature of the BIP 70
             ;; payment protocol.  Later we may wish to map it to a different branch (in a new wallet version?).
             ;; This would allow a watching wallet to only be able to see inbound payments, but not change
             ;; (i.e. spends) or refunds.  Might be useful for auditing ...
-            (let [[#_"int" index #_"DeterministicKey" __parentKey]
+            (let [[this #_"int" index #_"DeterministicKey" parent]
                     (condp =? purpose
                         [:KeyPurpose'RECEIVE_FUNDS :KeyPurpose'REFUND]
-                            (do
-                                (§ ass this (update this :issued-external-keys + __numberOfKeys))
-                                [(:issued-external-keys this) (:external-parent-key this)]
+                            (let [this (update this :issued-external-keys + n)]
+                                [this (:issued-external-keys this) (:external-parent-key this)]
                             )
                         [:KeyPurpose'AUTHENTICATION :KeyPurpose'CHANGE]
-                            (do
-                                (§ ass this (update this :issued-internal-keys + __numberOfKeys))
-                                [(:issued-internal-keys this) (:internal-parent-key this)]
+                            (let [this (update this :issued-internal-keys + n)]
+                                [this (:issued-internal-keys this) (:internal-parent-key this)]
                             )
                         (throw (UnsupportedOperationException.))
-                    )]
-                ;; Optimization: potentially do a very quick key generation for just the number of keys we need if we
-                ;; didn't already create them, ignoring the configured lookahead size.  This ensures we'll be able to
-                ;; retrieve the keys in the following loop, but if we're totally fresh and didn't get a chance to
-                ;; calculate the lookahead keys yet, this will not block waiting to calculate 100+ EC point multiplies.
-                ;; On slow/crappy Android phones looking ahead 100 keys can take ~5 seconds but the OS will kill us
-                ;; if we block for just one second on the UI thread.  Because UI threads may need an address in order
-                ;; to render the screen, we need getKeys to be fast even if the wallet is totally brand new and lookahead
-                ;; didn't happen yet.
-                ;;
-                ;; It's safe to do this because when a network thread tries to calculate a Bloom filter, we'll go ahead
-                ;; and calculate the full lookahead zone there, so network requests will always use the right amount.
-                (let [[this #_"DeterministicKey*" _] (DeterministicKeyChain''maybe-look-ahead-5 this, __parentKey, index, 0, 0)]
-                    (§ ass this (update this :basic-key-chain BasicKeyChain''import-keys _))
-                    (let [#_"List<DeterministicKey>" keys (ArrayList.)]
-                        (dotimes [#_"int" i __numberOfKeys]
-                            (let [#_"[ChildNumber]" path (conj (:child-number-path __parentKey) (ChildNumber'compose (+ (- index __numberOfKeys) i), false))
-                                  #_"DeterministicKey" key (DeterministicHierarchy''get-4 (:hierarchy this), path, false, false)]
-                                ;; Just a last minute sanity check before we hand the key out to the app for usage.  This isn't
-                                ;; inspired by any real problem reports from bitcoinj users, but I've heard of cases via the grapevine
-                                ;; of places that lost money due to bitflips causing addresses to not match keys.  Of course in an
-                                ;; environment with flaky RAM there's no real way to always win: bitflips could be introduced at any
-                                ;; other layer.  But as we're potentially retrieving from long term storage here, check anyway.
-                                (DeterministicKeyChain''check-for-bit-flip this, key)
-                                (§ ass keys (.add keys, key))
-                            )
-                        )
-                        keys
                     )
-                )
+                  ;; Optimization: potentially do a very quick key generation for just the number of keys we need if we
+                  ;; didn't already create them, ignoring the configured lookahead size.  This ensures we'll be able to
+                  ;; retrieve the keys in the following loop, but if we're totally fresh and didn't get a chance to
+                  ;; calculate the lookahead keys yet, this will not block waiting to calculate 100+ EC point multiplies.
+                  ;; On slow/crappy Android phones looking ahead 100 keys can take ~5 seconds but the OS will kill us
+                  ;; if we block for just one second on the UI thread.  Because UI threads may need an address in order
+                  ;; to render the screen, we need getKeys to be fast even if the wallet is totally brand new and lookahead
+                  ;; didn't happen yet.
+                  ;;
+                  ;; It's safe to do this because when a network thread tries to calculate a Bloom filter, we'll go ahead
+                  ;; and calculate the full lookahead zone there, so network requests will always use the right amount.
+                  [this #_"DeterministicKey*" _] (DeterministicKeyChain''maybe-look-ahead-5 this, parent, index, 0, 0)
+                  this (update this :basic-key-chain BasicKeyChain''import-keys _)
+                  #_"DeterministicKey*" keys
+                    (for [#_"int" i (range n)]
+                        (let [#_"[ChildNumber]" path (conj (:child-number-path parent) (ChildNumber'compose (+ (- index n) i), false))
+                              #_"DeterministicKey" key (DeterministicHierarchy''get-4 (:hierarchy this), path, false, false)]
+                            ;; Just a last minute sanity check before we hand the key out to the app for usage.  This isn't
+                            ;; inspired by any real problem reports from bitcoinj users, but I've heard of cases via the grapevine
+                            ;; of places that lost money due to bitflips causing addresses to not match keys.  Of course in an
+                            ;; environment with flaky RAM there's no real way to always win: bitflips could be introduced at any
+                            ;; other layer.  But as we're potentially retrieving from long term storage here, check anyway.
+                            (DeterministicKeyChain''check-for-bit-flip this, key)
+                            key
+                        )
+                    )]
+                [this keys]
             )
         )
     )
@@ -23124,8 +23114,7 @@
      ;;
     #_method
     (defn #_"this" DeterministicKeyChain''add-event-listener [#_"DeterministicKeyChain" this, #_"KeyChainEventListener" listener]
-        (§ ass this (update this :basic-key-chain BasicKeyChain''add-event-listener listener))
-        this
+        (update this :basic-key-chain BasicKeyChain''add-event-listener listener)
     )
 
     ;;;
@@ -23133,8 +23122,7 @@
      ;;
     #_method
     (defn #_"this" DeterministicKeyChain''remove-event-listener [#_"DeterministicKeyChain" this, #_"KeyChainEventListener" listener]
-        (§ ass this (update this :basic-key-chain BasicKeyChain''remove-event-listener listener))
-        this
+        (update this :basic-key-chain BasicKeyChain''remove-event-listener listener)
     )
 
     ;;;
@@ -23983,14 +23971,13 @@
      ; For married keychains use {@link #currentAddress(KeyPurpose)} to get a proper P2SH address.
      ;;
     #_method
-    (defn #_"DeterministicKey" KeyChainGroup''current-key [#_"KeyChainGroup" this, #_"KeyPurpose" purpose]
+    (defn #_"[this DeterministicKey]" KeyChainGroup''current-key [#_"KeyChainGroup" this, #_"KeyPurpose" purpose]
         (let [#_"DeterministicKeyChain" chain (KeyChainGroup''get-active-key-chain this)]
             (if (DeterministicKeyChain'''is-married chain)
                 (throw (UnsupportedOperationException. "Key is not suitable to receive coins for married keychains.  Use freshAddress to get P2SH address instead."))
-                (let-when [#_"DeterministicKey" key (get (:current-keys this) purpose)] (nil? key) => key
+                (let-when [#_"DeterministicKey" key (get (:current-keys this) purpose)] (nil? key) => [this key]
                     (let [key (KeyChainGroup''fresh-key this, purpose)]
-                        (§ ass this (update this :current-keys assoc purpose key))
-                        key
+                        [(update this :current-keys assoc purpose key) key]
                     )
                 )
             )
@@ -24001,16 +23988,17 @@
      ; Returns address for a {@link #currentKey(KeyPurpose)}.
      ;;
     #_method
-    (defn #_"Address" KeyChainGroup''current-address [#_"KeyChainGroup" this, #_"KeyPurpose" purpose]
+    (defn #_"[this Address]" KeyChainGroup''current-address [#_"KeyChainGroup" this, #_"KeyPurpose" purpose]
         (let [#_"DeterministicKeyChain" chain (KeyChainGroup''get-active-key-chain this)]
             (if (DeterministicKeyChain'''is-married chain)
-                (let-when [#_"Address" addr (get (:current-addresses this) purpose)] (nil? addr) => addr
+                (let-when [#_"Address" addr (get (:current-addresses this) purpose)] (nil? addr) => [this addr]
                     (let [addr (KeyChainGroup''fresh-address this, purpose)]
-                        (§ ass this (update this :current-addresses assoc purpose addr))
-                        addr
+                        [(update this :current-addresses assoc purpose addr) addr]
                     )
                 )
-                (ECKey''to-address (KeyChainGroup''current-key this, purpose), (:ledger this))
+                (let [[this #_"DeterministicKey" key] (KeyChainGroup''current-key this, purpose)]
+                    [this (ECKey''to-address key, (:ledger this))]
+                )
             )
         )
     )
@@ -24028,7 +24016,7 @@
      ;;
     #_method
     (defn #_"DeterministicKey" KeyChainGroup''fresh-key [#_"KeyChainGroup" this, #_"KeyPurpose" purpose]
-        (nth (KeyChainGroup''fresh-keys this, purpose, 1) 0)
+        (first (KeyChainGroup''fresh-keys this, purpose, 1))
     )
 
     ;;;
@@ -24043,13 +24031,14 @@
      ; For married keychains use {@link #freshAddress(KeyPurpose)} to get a proper P2SH address.
      ;;
     #_method
-    (defn #_"List<DeterministicKey>" KeyChainGroup''fresh-keys [#_"KeyChainGroup" this, #_"KeyPurpose" purpose, #_"int" n]
+    (defn #_"DeterministicKey*" KeyChainGroup''fresh-keys [#_"KeyChainGroup" this, #_"KeyPurpose" purpose, #_"int" n]
         (let [#_"DeterministicKeyChain" chain (KeyChainGroup''get-active-key-chain this)]
             (when (DeterministicKeyChain'''is-married chain)
                 (throw (UnsupportedOperationException. "Key is not suitable to receive coins for married keychains.  Use freshAddress to get P2SH address instead."))
             )
 
-            (DeterministicKeyChain''get-keys chain, purpose, n) ;; Always returns the next key along the key chain.
+            (§ ass [chain ] (DeterministicKeyChain''get-keys chain, purpose, n)) ;; Always returns the next key along the key chain.
+            
         )
     )
 
@@ -24060,13 +24049,13 @@
     (defn #_"Address" KeyChainGroup''fresh-address [#_"KeyChainGroup" this, #_"KeyPurpose" purpose]
         (let [#_"DeterministicKeyChain" chain (KeyChainGroup''get-active-key-chain this)]
             (if (DeterministicKeyChain'''is-married chain)
-                (let [#_"Script" output (DeterministicKeyChain'''fresh-output-script chain, purpose)]
-                    (assert-state (Script''is-pay-to-script-hash output)) ;; Only handle P2SH for now.
+                (let [#_"Script" script (DeterministicKeyChain'''fresh-output-script chain, purpose)]
+                    (assert-state (Script''is-pay-to-script-hash script)) ;; Only handle P2SH for now.
 
-                    (let [#_"Address" fresh (Address'from-p2sh-script (:ledger this), output)]
+                    (let [#_"Address" addr (Address'from-p2sh-script (:ledger this), script)]
                         (§ ass this (KeyChainGroup''maybe-lookahead-scripts this))
-                        (§ ass this (update this :current-addresses assoc purpose fresh))
-                        fresh
+                        (§ ass this (update this :current-addresses assoc purpose addr))
+                        addr
                     )
                 )
                 (ECKey''to-address (KeyChainGroup''fresh-key this, purpose), (:ledger this))
@@ -24140,18 +24129,18 @@
         (assert-argument (Address''is-p2sh-address address))
 
         (let [#_"RedeemData" data (KeyBag'''find-redeem-data-from-script-hash this, (:addr-bytes address))]
-            (when (some? data) ;; Else not our P2SH address.
+            (when (some? data) => this ;; Else not our P2SH address.
                 (doseq [#_"ECKey" key (:redeem-keys data) #_"DeterministicKeyChain" chain (:chains this)]
                     (let [#_"DeterministicKey" k (DeterministicKeyChain''find-key-from-pub-key chain, (ECKey''get-pub-key key))]
                         (when (some? k)
                             (§ ass chain (DeterministicKeyChain''mark-key-as-used chain, k))
-                            (KeyChainGroup''maybe-mark-current-address-as-used this, address)
+                            (§ ass this (KeyChainGroup''maybe-mark-current-address-as-used this, address))
                         )
                     )
                 )
+                this
             )
         )
-        this
     )
 
     #_override
@@ -24164,36 +24153,41 @@
      ; See {@link DeterministicKeyChain#markKeyAsUsed(DeterministicKey)} for more info on this.
      ;;
     #_method
-    (defn #_"void" KeyChainGroup''mark-pub-key-hash-as-used [#_"KeyChainGroup" this, #_"byte[]" hash]
+    (defn #_"this" KeyChainGroup''mark-pub-key-hash-as-used [#_"KeyChainGroup" this, #_"byte[]" hash]
         (let [#_"DeterministicKey" key (some #(DeterministicKeyChain''mark-pub-hash-as-used %, hash) (:chains this))]
-            (when (some? key)
+            (when (some? key) => this
                 (KeyChainGroup''maybe-mark-current-key-as-used this, key)
             )
         )
-        nil
     )
 
-    ;;; If the given P2SH address is "current", advance it to a new one. ;;
+    ;;;
+     ; If the given P2SH address is "current", advance it to a new one.
+     ;;
     #_method
-    (defn- #_"void" KeyChainGroup''maybe-mark-current-address-as-used [#_"KeyChainGroup" this, #_"Address" address]
+    (defn- #_"this" KeyChainGroup''maybe-mark-current-address-as-used [#_"KeyChainGroup" this, #_"Address" address]
         (assert-argument (Address''is-p2sh-address address))
 
-        (when-let [#_"[KeyPurpose Address]" e (first (filter #(and (some? (val %)) (.equals (val %), address)) (:current-addresses this)))]
-            (log/info (str "Marking P2SH address as used: " address))
-            (§ ass this (update this :current-addresses assoc (key e) (KeyChainGroup''fresh-address this, (key e))))
+        (let [#_"[KeyPurpose Address]" e (first (filter #(and (some? (val %)) (.equals (val %), address)) (:current-addresses this)))]
+            (when (some? e) => this
+                (log/info (str "Marking P2SH address as used: " address))
+                (update this :current-addresses assoc (key e) (KeyChainGroup''fresh-address this, (key e)))
+            )
         )
-        nil
     )
 
-    ;;; If the given key is "current", advance the current key to a new one. ;;
+    ;;;
+     ; If the given key is "current", advance the current key to a new one.
+     ;;
     #_method
-    (defn- #_"void" KeyChainGroup''maybe-mark-current-key-as-used [#_"KeyChainGroup" this, #_"DeterministicKey" key]
+    (defn- #_"this" KeyChainGroup''maybe-mark-current-key-as-used [#_"KeyChainGroup" this, #_"DeterministicKey" key]
         ;; It's OK for :current-keys to be empty here: it means we're a married wallet and the key may be a part of a rotating chain.
-        (when-let [#_"[KeyPurpose DeterministicKey]" e (first (filter #(and (some? (val %)) (.equals (val %), key)) (:current-keys this)))]
-            (log/info (str "Marking key as used: " key))
-            (§ ass this (update this :current-keys assoc (key e) (KeyChainGroup''fresh-key this, (key e))))
+        (let [#_"[KeyPurpose DeterministicKey]" e (first (filter #(and (some? (val %)) (.equals (val %), key)) (:current-keys this)))]
+            (when (some? e) => this
+                (log/info (str "Marking key as used: " key))
+                (update this :current-keys assoc (key e) (KeyChainGroup''fresh-key this, (key e)))
+            )
         )
-        nil
     )
 
     #_method
@@ -24211,13 +24205,12 @@
      ; See {@link DeterministicKeyChain#markKeyAsUsed(DeterministicKey)} for more info on this.
      ;;
     #_method
-    (defn #_"void" KeyChainGroup''mark-pub-key-as-used [#_"KeyChainGroup" this, #_"byte[]" pubkey]
+    (defn #_"this" KeyChainGroup''mark-pub-key-as-used [#_"KeyChainGroup" this, #_"byte[]" pubkey]
         (let [#_"DeterministicKey" key (some #(DeterministicKeyChain''mark-pub-key-as-used %, pubkey) (:chains this))]
-            (when (some? key)
+            (when (some? key) => this
                 (KeyChainGroup''maybe-mark-current-key-as-used this, key)
             )
         )
-        nil
     )
 
     ;;;
@@ -25234,8 +25227,8 @@
                 (let [this
                         (when (zero? (KeyChainGroup''num-keys (:key-chain-group this))) => this
                             (update this :key-chain-group KeyChainGroup''create-and-activate-new-hd-chain)
-                        )]
-                    (§ ass this (Wallet''add-transaction-signer this, (LocalTransactionSigner'new)))
+                        )
+                      this (Wallet''add-transaction-signer this, (LocalTransactionSigner'new))]
                     (Wallet''create-transient-state this)
                 )
             )
@@ -25337,7 +25330,8 @@
     #_method
     (defn #_"DeterministicKey" Wallet''current-key [#_"Wallet" this, #_"KeyPurpose" purpose]
         (sync (:keychaingroup-lock this)
-            (KeyChainGroup''current-key (:key-chain-group this), purpose)
+            (§ ass [(:key-chain-group this) ] (KeyChainGroup''current-key (:key-chain-group this), purpose))
+            
         )
     )
 
@@ -25352,7 +25346,8 @@
     #_method
     (defn #_"Address" Wallet''current-address [#_"Wallet" this, #_"KeyPurpose" purpose]
         (sync (:keychaingroup-lock this)
-            (KeyChainGroup''current-address (:key-chain-group this), purpose)
+            (§ ass [(:key-chain-group this) ] (KeyChainGroup''current-address (:key-chain-group this), purpose))
+            
         )
     )
 
@@ -25370,19 +25365,19 @@
      ;;
     #_method
     (defn #_"DeterministicKey" Wallet''fresh-key [#_"Wallet" this, #_"KeyPurpose" purpose]
-        (nth (Wallet''fresh-keys this, purpose, 1) 0)
+        (first (Wallet''fresh-keys this, purpose, 1))
     )
 
     ;;;
      ; Returns a key/s that has not been returned by this method before (fresh).  You can think of this
      ; as being a newly created key/s, although the notion of "create" is not really valid for a
      ; {@link DeterministicKeyChain}.  When the parameter is {@link KeyPurpose#RECEIVE_FUNDS}
-     ; the returned key is suitable for being put into a receive coins wizard type UI. You should use
+     ; the returned key is suitable for being put into a receive coins wizard type UI.  You should use
      ; this when the user is definitely going to hand this key/s out to someone who wishes to send money.
      ;;
     #_method
-    (defn #_"List<DeterministicKey>" Wallet''fresh-keys [#_"Wallet" this, #_"KeyPurpose" purpose, #_"int" n]
-        (let [#_"List<DeterministicKey>" keys
+    (defn #_"DeterministicKey*" Wallet''fresh-keys [#_"Wallet" this, #_"KeyPurpose" purpose, #_"int" n]
+        (let [#_"DeterministicKey*" keys
                 (sync (:keychaingroup-lock this)
                     (KeyChainGroup''fresh-keys (:key-chain-group this), purpose, n)
                 )]
@@ -25620,11 +25615,11 @@
                         (cond
                             (Script''is-sent-to-raw-pub-key script)
                                 (let [#_"byte[]" pubkey (Script''get-pub-key script)]
-                                    (KeyChainGroup''mark-pub-key-as-used (:key-chain-group this), pubkey)
+                                    (§ ass this (update this :key-chain-group KeyChainGroup''mark-pub-key-as-used pubkey))
                                 )
                             (Script''is-sent-to-address script)
                                 (let [#_"byte[]" hash (Script''get-pub-key-hash script)]
-                                    (KeyChainGroup''mark-pub-key-hash-as-used (:key-chain-group this), hash)
+                                    (§ ass this (update this :key-chain-group KeyChainGroup''mark-pub-key-hash-as-used hash))
                                 )
                             (Script''is-pay-to-script-hash script)
                                 (let [#_"Address" addr (Address'from-p2sh-script (:ledger tx), script)]
@@ -25719,10 +25714,8 @@
     #_method
     (defn #_"void" Wallet''is-consistent-or-throw [#_"Wallet" this]
         (sync (:wallet-lock this)
-            (let [#_"Set<Transaction>" transactions (Wallet''get-transactions this, true) #_"Set<Sha256Hash>" hashes (HashSet.)]
-                (doseq [#_"Transaction" tx transactions]
-                    (§ ass hashes (.add hashes, (Transaction''get-hash tx)))
-                )
+            (let [#_"{Transaction}" transactions (Wallet''get-transactions this, true)
+                  #_"{Sha256Hash}" hashes (into (hash-set) (map Transaction''get-hash transactions))]
 
                 (let [#_"int" size1 (count transactions)]
                     (when-not (= size1 (count hashes))
@@ -26174,11 +26167,12 @@
                     )
                 )
 
-                (Wallet''inform-confidence-listeners-if-not-reorganizing this)
-                (Wallet''is-consistent-or-throw this)
-                ;; Optimization for the case where a block has tons of relevant transactions.
-                (Wallet''save-later this)
-                (assoc this :hard-save-on-next-block true)
+                (let [this (Wallet''inform-confidence-listeners-if-not-reorganizing this)]
+                    (Wallet''is-consistent-or-throw this)
+                    ;; Optimization for the case where a block has tons of relevant transactions.
+                    (Wallet''save-later this)
+                    (assoc this :hard-save-on-next-block true)
+                )
             )
         )
     )
@@ -26227,17 +26221,16 @@
     )
 
     #_method
-    (defn- #_"void" Wallet''inform-confidence-listeners-if-not-reorganizing [#_"Wallet" this]
-        (when-not (:inside-reorg this)
+    (defn- #_"Wallet" Wallet''inform-confidence-listeners-if-not-reorganizing [#_"Wallet" this]
+        (when-not (:inside-reorg this) => this
             (doseq [#_"[Transaction ConfidenceChangeReason]" e (:confidence-changed this)]
                 (let [#_"Transaction" tx (key e)]
                     (TransactionConfidence''queue-listeners (Transaction''get-confidence tx), (val e))
                     (Wallet''queue-on-transaction-confidence-changed this, tx)
                 )
             )
-            (§ ass this (update this :confidence-changed empty))
+            (update this :confidence-changed empty)
         )
-        nil
     )
 
     ;;;
@@ -26288,18 +26281,19 @@
                             )
                         )
 
-                        (Wallet''inform-confidence-listeners-if-not-reorganizing this)
-                        (Wallet''maybe-queue-on-wallet-changed this)
+                        (let [this (Wallet''inform-confidence-listeners-if-not-reorganizing this)]
+                            (Wallet''maybe-queue-on-wallet-changed this)
 
-                        (if (:hard-save-on-next-block this)
-                            (do
-                                (Wallet''save-now this)
-                                (assoc this :hard-save-on-next-block false)
-                            )
-                            (do
-                                ;; Coalesce writes to avoid throttling on disk access when catching up with the chain.
-                                (Wallet''save-later this)
-                                this
+                            (if (:hard-save-on-next-block this)
+                                (do
+                                    (Wallet''save-now this)
+                                    (assoc this :hard-save-on-next-block false)
+                                )
+                                (do
+                                    ;; Coalesce writes to avoid throttling on disk access when catching up with the chain.
+                                    (Wallet''save-later this)
+                                    this
+                                )
                             )
                         )
                     )
@@ -26672,9 +26666,10 @@
                             (Wallet''maybe-queue-on-wallet-changed this)
 
                             (Wallet''is-consistent-or-throw this)
-                            (Wallet''inform-confidence-listeners-if-not-reorganizing this)
-                            (Wallet''save-now this)
-                            [this tx true]
+                            (let [this (Wallet''inform-confidence-listeners-if-not-reorganizing this)]
+                                (Wallet''save-now this)
+                                [this tx true]
+                            )
                         )
                     )
                 )
@@ -26832,17 +26827,9 @@
      ; @param includeDead If true, transactions that were overridden by a double spend are included.
      ;;
     #_method
-    (defn #_"Set<Transaction>" Wallet''get-transactions [#_"Wallet" this, #_"boolean" dead?]
+    (defn #_"{Transaction}" Wallet''get-transactions [#_"Wallet" this, #_"boolean" dead?]
         (sync (:wallet-lock this)
-            (let [#_"Set<Transaction>" all (HashSet.)]
-                (§ ass all (.addAll all, (vals (:unspent this))))
-                (§ ass all (.addAll all, (vals (:spent this))))
-                (§ ass all (.addAll all, (vals (:pending this))))
-                (when dead?
-                    (§ ass all (.addAll all, (vals (:dead this))))
-                )
-                all
-            )
+            (into (hash-set) (mapcat #(when (keyword? %) (vals (% this))) [:unspent :spent :pending (when dead? :dead)]))
         )
     )
 
@@ -27842,12 +27829,13 @@
                                     ;; Inform event listeners that a re-org took place.
                                     (Wallet''queue-on-reorganize this)
                                     (let [this (assoc this :inside-reorg false)
-                                        this (update this :on-wallet-changed-suppressions dec)]
+                                          this (update this :on-wallet-changed-suppressions dec)]
                                         (Wallet''maybe-queue-on-wallet-changed this)
                                         (Wallet''check-balance-futures-locked this)
-                                        (Wallet''inform-confidence-listeners-if-not-reorganizing this)
-                                        (Wallet''save-later this)
-                                        this
+                                        (let [this (Wallet''inform-confidence-listeners-if-not-reorganizing this)]
+                                            (Wallet''save-later this)
+                                            this
+                                        )
                                     )
                                 )
                             )
