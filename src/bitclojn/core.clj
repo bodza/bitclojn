@@ -1857,7 +1857,7 @@
      ; Constructs a SPVBlockChain connected to the given list of listeners (e.g. wallets) and a store.
      ;;
     #_throws #_[ "BlockStoreException" ]
-    (defn #_"BlockChain" BlockChain'new [#_"Ledger" ledger, #_"BlockStore" store, #_"List<Wallet>" wallets]
+    (defn #_"BlockChain" BlockChain'new [#_"Ledger" ledger, #_"BlockStore" store, #_"Wallet*" wallets]
         (let [this
                 (hash-map
                     #_"Ledger" :ledger ledger
@@ -7706,56 +7706,10 @@
         )
     )
 
-    ;;;
-     ; Returns a future that wraps a list of all transactions that the given transaction depends on, recursively.
-     ; Only transactions in peers memory pools are included; the recursion stops at transactions that are in the
-     ; current best chain.  So it doesn't make much sense to provide a tx that was already in the best chain and
-     ; a precondition checks this.
-     ;
-     ; For example, if tx has 2 inputs that connect to transactions A and B, and transaction B is unconfirmed and
-     ; has one input connecting to transaction C that is unconfirmed, and transaction C connects to transaction D
-     ; that is in the chain, then this method will return either {B, C} or {C, B}.  No ordering is guaranteed.
-     ;
-     ; This method is useful for apps that want to learn about how long an unconfirmed transaction might take
-     ; to confirm, by checking for unexpectedly time locked transactions, unusually deep dependency trees or
-     ; fee-paying transactions that depend on unconfirmed free transactions.
-     ;
-     ; Note that dependencies downloaded this way will not trigger the onTransaction method of event listeners.
-     ;;
-    #_method
-    (defn #_"ListenableFuture<List<Transaction>>" Peer''download-dependencies [#_"Peer" this, #_"Transaction" tx]
-        (assert-argument (not= (:confidence-type (Transaction''get-confidence tx)) :ConfidenceType'BUILDING))
-
-        (log/info (str (:peer-address this) ": Downloading dependencies of " (Transaction''get-hash tx)))
-        (let [#_"List<Transaction>" results (LinkedList.)
-              ;; future will be invoked when the entire dependency tree has been walked and the results compiled.
-              #_"ListenableFuture<Object>" future (Peer''download-dependencies-internal this, (:v-download-tx-dependency-depth this), 0, tx, (Object.), results)
-              #_"SettableFuture<List<Transaction>>" __resultFuture (SettableFuture/create)]
-            (Futures/addCallback future,
-                (reify FutureCallback #_"<Object>"
-                    #_foreign
-                    #_override
-                    (#_"void" onSuccess [#_"FutureCallback" __, #_"Object" _ignored]
-                        (.set __resultFuture, results)
-                        nil
-                    )
-
-                    #_foreign
-                    #_override
-                    (#_"void" onFailure [#_"FutureCallback" __, #_"Throwable" throwable]
-                        (.setException __resultFuture, throwable)
-                        nil
-                    )
-                )
-            )
-            __resultFuture
-        )
-    )
-
     ;; The marker object in the future returned is the same as the parameter.  It is arbitrary and can be anything.
     #_method
-    (defn #_"ListenableFuture<Object>" Peer''download-dependencies-internal [#_"Peer" this, #_"int" __maxDepth, #_"int" depth, #_"Transaction" tx, #_"Object" marker, #_"List<Transaction>" results]
-        (let [#_"SettableFuture<Object>" __resultFuture (SettableFuture/create)
+    (defn #_"[ListenableFuture<Object> Transaction*]" Peer''download-dependencies-internal [#_"Peer" this, #_"int" __maxDepth, #_"int" depth, #_"Transaction" tx, #_"Object" marker, #_"Transaction*" deps]
+        (let [#_"SettableFuture<Object>" __resultFuture (SettableFuture/create) deps (vec deps)
               #_"Sha256Hash" __rootTxHash (Transaction''get-hash tx)
               ;; We want to recursively grab its dependencies.  This is so listeners can learn important information like
               ;; whether a transaction is dependent on a timelocked transaction or has an unexpectedly deep dependency tree
@@ -7785,33 +7739,35 @@
 
                         (let [#_"ListenableFuture<List<Transaction>>" successful (Futures/successfulAsList futures)]
                             (Futures/addCallback successful,
-                                (reify FutureCallback #_"<List<Transaction>>"
+                                (reify FutureCallback #_"<Transaction*>"
                                     #_foreign
                                     #_override
-                                    (#_"void" onSuccess [#_"FutureCallback" __, #_"List<Transaction>" transactions]
+                                    (#_"void" onSuccess [#_"FutureCallback" __, #_"Transaction*" transactions]
                                         ;; Once all transactions either were received, or we know there are no more to come, ...
                                         ;; Note that transactions will contain "null" for any positions that weren't successful.
                                         (let [#_"List<ListenableFuture<Object>>" __childFutures (LinkedList.)]
                                             (doseq [#_"Transaction" tx transactions]
                                                 (when (some? tx)
                                                     (log/info (str (:peer-address this) ": Downloaded dependency of " __rootTxHash ": " (Transaction''get-hash tx)))
-                                                    (§ ass results (.add results, tx))
+                                                    (§ ass deps (conj deps tx))
                                                     ;; Now recurse into the dependencies of this transaction too.
                                                     (when (< (inc depth) __maxDepth)
-                                                        (§ ass __childFutures (.add __childFutures, (Peer''download-dependencies-internal this, __maxDepth, (inc depth), tx, marker, results)))
+                                                        (let [[_ deps] (§ ass [ (ß deps)] (Peer''download-dependencies-internal this, __maxDepth, (inc depth), tx, marker, deps))]
+                                                            (§ ass __childFutures (.add __childFutures, _))
+                                                        )
                                                     )
                                                 )
                                             )
-                                            (if (zero? (count __childFutures))
+                                            (if (empty? __childFutures)
                                                 ;; Short-circuit: we're at the bottom of this part of the tree.
                                                 (.set __resultFuture, marker)
                                                 ;; There are some children to download.  Wait until it's done (and their children,
                                                 ;; and their children, ...) to inform the caller that we're finished.
                                                 (Futures/addCallback (Futures/successfulAsList __childFutures),
-                                                    (reify FutureCallback #_"<List<Object>>"
+                                                    (reify FutureCallback #_"<Object*>"
                                                         #_foreign
                                                         #_override
-                                                        (#_"void" onSuccess [#_"FutureCallback" __, #_"List<Object>" _objects]
+                                                        (#_"void" onSuccess [#_"FutureCallback" __, #_"Object*" _objects]
                                                             (.set __resultFuture, marker)
                                                             nil
                                                         )
@@ -7849,6 +7805,52 @@
                 )
             )
 
+            [__resultFuture deps]
+        )
+    )
+
+    ;;;
+     ; Returns a future that wraps a list of all transactions that the given transaction depends on, recursively.
+     ; Only transactions in peers memory pools are included; the recursion stops at transactions that are in the
+     ; current best chain.  So it doesn't make much sense to provide a tx that was already in the best chain and
+     ; a precondition checks this.
+     ;
+     ; For example, if tx has 2 inputs that connect to transactions A and B, and transaction B is unconfirmed and
+     ; has one input connecting to transaction C that is unconfirmed, and transaction C connects to transaction D
+     ; that is in the chain, then this method will return either {B, C} or {C, B}.  No ordering is guaranteed.
+     ;
+     ; This method is useful for apps that want to learn about how long an unconfirmed transaction might take
+     ; to confirm, by checking for unexpectedly time locked transactions, unusually deep dependency trees or
+     ; fee-paying transactions that depend on unconfirmed free transactions.
+     ;
+     ; Note that dependencies downloaded this way will not trigger the onTransaction method of event listeners.
+     ;;
+    #_method
+    (defn #_"ListenableFuture<Transaction*>" Peer''download-dependencies [#_"Peer" this, #_"Transaction" tx]
+        (assert-argument (not= (:confidence-type (Transaction''get-confidence tx)) :ConfidenceType'BUILDING))
+
+        (log/info (str (:peer-address this) ": Downloading dependencies of " (Transaction''get-hash tx)))
+        ;; future will be invoked when the entire dependency tree has been walked and the results compiled.
+        (let [[#_"ListenableFuture<Object>" future #_"Transaction*" deps]
+                (Peer''download-dependencies-internal this, (:v-download-tx-dependency-depth this), 0, tx, (Object.), nil)
+              #_"SettableFuture<Transaction*>" __resultFuture (SettableFuture/create)]
+            (Futures/addCallback future,
+                (reify FutureCallback #_"<Object>"
+                    #_foreign
+                    #_override
+                    (#_"void" onSuccess [#_"FutureCallback" __, #_"Object" _ignored]
+                        (.set __resultFuture, deps)
+                        nil
+                    )
+
+                    #_foreign
+                    #_override
+                    (#_"void" onFailure [#_"FutureCallback" __, #_"Throwable" throwable]
+                        (.setException __resultFuture, throwable)
+                        nil
+                    )
+                )
+            )
             __resultFuture
         )
     )
@@ -26188,22 +26190,25 @@
      ; order, as there is no guarantee on the order of the returned txns besides what was already stated.
      ;;
     #_method
-    (defn #_"List<Transaction>" Wallet''sort-txns-by-dependency [#_"Wallet" this, #_"Set<Transaction>" txns]
-        (let [#_"List<Transaction>" result (ArrayList. txns)]
-            (loop-when-recur [#_"int" i 0] (< (inc i) (count result)) [(inc i)]
-                (loop []
-                    (let [#_"boolean" spends?
-                            (loop-when [#_"int" j (inc i)] (< j (count result)) => false
-                                (when (Wallet''spends this, (nth result i), (nth result j)) => (recur (inc j))
-                                    (§ ass result (.add result, j, (§ ass result (.remove result, i))))
-                                    true
-                                )
-                            )]
-                        (recur-if spends? [])
-                    )
-                )
+    (defn #_"Transaction*" Wallet''sort-txns-by-dependency [#_"Wallet" this, #_"Transaction*" txns]
+        (loop-when [#_"[Transaction]" v (vec txns) #_"int" i 0] (< (inc i) (count v)) => v
+            (let [v (loop [v v]
+                        (let [[v #_"boolean" spends?]
+                                (loop-when [v v #_"int" j (inc i)] (< j (count v)) => [v false]
+                                    (when (Wallet''spends this, (nth v i), (nth v j)) => (recur v (inc j))
+                                        (let [a (subvec v      0       i)
+                                              b (subvec v      i  (inc i))
+                                              c (subvec v (inc i) (inc j))
+                                              d (subvec v (inc j)       )]
+                                            [(catvec a c b d) true]
+                                        )
+                                    )
+                                )]
+                            (recur-if spends? [v] => v)
+                        )
+                    )]
+                (recur v (inc i))
             )
-            result
         )
     )
 
@@ -28234,6 +28239,80 @@
         )
     )
 
+    #_method
+    (defn- #_"Transaction" Wallet''rekey-one-batch [#_"Wallet" this, #_"long" secs, #_"Transaction*" others, #_"boolean" sign?]
+        (sync (:wallet-lock this)
+            ;; Build the transaction using some custom logic for our special needs.  Last parameter to
+            ;; KeyTimeCoinSelector is whether to ignore pending transactions or not.
+            ;;
+            ;; We ignore pending outputs because trying to rotate these is basically racing an attacker, and
+            ;; we're quite likely to lose and create stuck double spends.  Also, some users who have 0.9 wallets
+            ;; have already got stuck double spends in their wallet due to the Bloom-filtering block reordering
+            ;; bug that was fixed in 0.10, thus, making a re-key transaction depend on those would cause it to
+            ;; never confirm at all.
+            (let [#_"FilteringCoinSelector" selector (FilteringCoinSelector'new (KeyTimeCoinSelector'new this, secs, true))
+                  selector (reduce FilteringCoinSelector''exclude-outputs-spent-by selector others)
+                  ;; TODO: Make this use the standard SendRequest.
+                  #_"CoinSelection" __toMove (CoinSelector'''select selector, Coin'ZERO, (Wallet''calculate-all-spend-candidates-1 this))]
+
+                (when-not (Coin''zero? (:value-gathered __toMove)) => nil ;; Nothing to do.
+                    (let [#_"Transaction" tx (Transaction'new (:ledger this))]
+                        (doseq [#_"TransactionOutput" output (:gathered __toMove)]
+                            (Transaction''add-input-o tx, output)
+                        )
+                        ;; When not signing, don't waste addresses.
+                        (Transaction''add-output-ca tx, (:value-gathered __toMove), (if sign? (Wallet''fresh-receive-address this) (Wallet''current-receive-address this)))
+                        (cond (Wallet''adjust-output-downwards-for-fee this, tx, __toMove, Transaction'DEFAULT_TX_FEE, true)
+                            (let [_ (§ ass (Transaction''get-confidence tx) (assoc (Transaction''get-confidence tx) :confidence-source :ConfidenceSource'SELF))
+                                  tx (assoc tx :purpose :TransactionPurpose'KEY_ROTATION)]
+                                (when sign?
+                                    (§ ass this (Wallet''sign-transaction this, (SendRequest'for-tx tx)))
+                                )
+                                ;; KeyTimeCoinSelector should never select enough inputs to push us oversize.
+                                (assert-state (< (count (Message''to-bytes tx, Transaction''to-wire)) Transaction'MAX_STANDARD_TX_SIZE))
+                                tx
+                            )
+                            :else
+                            (do
+                                (log/error "Failed to adjust rekey tx for fees.")
+                                nil
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    )
+
+    ;; Checks to see if any coins are controlled by rotating keys and if so, spends them.
+    #_method
+    (defn- #_"Transaction*" Wallet''maybe-rotate-keys [#_"Wallet" this, #_"boolean" sign?]
+        (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
+        (assert-state (.isHeldByCurrentThread (:keychaingroup-lock this)))
+
+        ;; TODO: Handle chain replays here.
+        (let [#_"long" stamp (:v-key-rotation-timestamp this)]
+            (when-not (zero? stamp) => nil ;; Nothing to do.
+                ;; We might have to create a new HD hierarchy if the previous ones are now rotating.
+                (when-not (some #(<= stamp (DeterministicKeyChain''get-earliest-key-creation-time %)) (:chains (:key-chain-group this)))
+                    (log/info "All HD chains are currently rotating, creating fresh HD chain ...")
+                    (§ ass this (update this :key-chain-group KeyChainGroup''create-and-activate-new-hd-chain))
+                    (Wallet''save-now this)
+                )
+                ;; Because transactions are size limited, we might not be able to re-key the entire wallet in one go.  So loop
+                ;; around here until we no longer produce transactions with the max number of inputs.  That means we're fully
+                ;; done, at least for now (we may still get more transactions later and this method will be reinvoked).
+                (loop [#_"[Transaction]" txns (vector)]
+                    (let-when [#_"Transaction" tx (Wallet''rekey-one-batch this, stamp, txns, sign?)] (some? tx) => txns
+                        (let [txns (conj txns tx)]
+                            (recur-if (= (count (:inputs tx)) KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS) [txns] => txns)
+                        )
+                    )
+                )
+            )
+        )
+    )
+
     ;;;
      ; A wallet app should call this from time to time in order to let the wallet craft and send transactions needed
      ; to re-organise coins internally.  A good time to call this would be after receiving coins for an unencrypted
@@ -28247,8 +28326,8 @@
      ; @return a list of transactions that the wallet just made/will make for internal maintenance.  Might be empty.
      ;;
     #_method
-    (defn #_"ListenableFuture<List<Transaction>>" Wallet''do-maintenance [#_"Wallet" this, #_"boolean" sign?]
-        (let [#_"List<Transaction>" txns
+    (defn #_"ListenableFuture<Transaction*>" Wallet''do-maintenance [#_"Wallet" this, #_"boolean" sign?]
+        (let [#_"Transaction*" txns
                 (sync (:wallet-lock this)
                     (sync (:keychaingroup-lock this)
                         (Wallet''maybe-rotate-keys this, sign?)
@@ -28257,7 +28336,7 @@
             (when sign? => (Futures/immediateFuture txns)
                 (assert-state (not (.isHeldByCurrentThread (:wallet-lock this))))
 
-                (let [#_"ArrayList<ListenableFuture<Transaction>>" futures (ArrayList.)
+                (let [#_"List<ListenableFuture<Transaction>>" futures (ArrayList.)
                       #_"TransactionBroadcaster" broadcaster (:v-transaction-broadcaster this)]
                     (doseq [#_"Transaction" tx txns]
                         (try
@@ -28288,86 +28367,6 @@
                     )
                     (Futures/allAsList futures)
                 )
-            )
-        )
-    )
-
-    #_method
-    (defn- #_"Transaction" Wallet''rekey-one-batch [#_"Wallet" this, #_"long" secs, #_"List<Transaction>" others, #_"boolean" sign?]
-        (sync (:wallet-lock this)
-            ;; Build the transaction using some custom logic for our special needs.  Last parameter to
-            ;; KeyTimeCoinSelector is whether to ignore pending transactions or not.
-            ;;
-            ;; We ignore pending outputs because trying to rotate these is basically racing an attacker, and
-            ;; we're quite likely to lose and create stuck double spends.  Also, some users who have 0.9 wallets
-            ;; have already got stuck double spends in their wallet due to the Bloom-filtering block reordering
-            ;; bug that was fixed in 0.10, thus, making a re-key transaction depend on those would cause it to
-            ;; never confirm at all.
-            (let [#_"FilteringCoinSelector" selector (FilteringCoinSelector'new (KeyTimeCoinSelector'new this, secs, true))]
-                (doseq [#_"Transaction" other others]
-                    (§ ass selector (FilteringCoinSelector''exclude-outputs-spent-by selector, other))
-                )
-                ;; TODO: Make this use the standard SendRequest.
-                (let [#_"CoinSelection" __toMove (CoinSelector'''select selector, Coin'ZERO, (Wallet''calculate-all-spend-candidates-1 this))]
-                    (when-not (Coin''zero? (:value-gathered __toMove)) => nil ;; Nothing to do.
-                        (let [#_"Transaction" tx (Transaction'new (:ledger this))]
-                            (doseq [#_"TransactionOutput" output (:gathered __toMove)]
-                                (Transaction''add-input-o tx, output)
-                            )
-                            ;; When not signing, don't waste addresses.
-                            (Transaction''add-output-ca tx, (:value-gathered __toMove), (if sign? (Wallet''fresh-receive-address this) (Wallet''current-receive-address this)))
-                            (cond (Wallet''adjust-output-downwards-for-fee this, tx, __toMove, Transaction'DEFAULT_TX_FEE, true)
-                                (do
-                                    (§ ass (Transaction''get-confidence tx) (assoc (Transaction''get-confidence tx) :confidence-source :ConfidenceSource'SELF))
-                                    (§ ass tx (assoc tx :purpose :TransactionPurpose'KEY_ROTATION))
-                                    (let [#_"SendRequest" req (SendRequest'for-tx tx)]
-                                        (when sign?
-                                            (§ ass this (Wallet''sign-transaction this, req))
-                                        )
-                                        ;; KeyTimeCoinSelector should never select enough inputs to push us oversize.
-                                        (assert-state (< (count (Message''to-bytes tx, Transaction''to-wire)) Transaction'MAX_STANDARD_TX_SIZE))
-                                        tx
-                                    )
-                                )
-                                :else
-                                (do
-                                    (log/error "Failed to adjust rekey tx for fees.")
-                                    nil
-                                )
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    )
-
-    ;; Checks to see if any coins are controlled by rotating keys and if so, spends them.
-    #_method
-    (defn- #_"List<Transaction>" Wallet''maybe-rotate-keys [#_"Wallet" this, #_"boolean" sign?]
-        (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
-        (assert-state (.isHeldByCurrentThread (:keychaingroup-lock this)))
-
-        (let [#_"List<Transaction>" results (LinkedList.)
-              ;; TODO: Handle chain replays here.
-              #_"long" stamp (:v-key-rotation-timestamp this)]
-            (when-not (zero? stamp) => results ;; Nothing to do.
-                ;; We might have to create a new HD hierarchy if the previous ones are now rotating.
-                (when-not (some #(<= stamp (DeterministicKeyChain''get-earliest-key-creation-time %)) (:chains (:key-chain-group this)))
-                    (log/info "All HD chains are currently rotating, creating fresh HD chain ...")
-                    (§ ass this (update this :key-chain-group KeyChainGroup''create-and-activate-new-hd-chain))
-                    (Wallet''save-now this)
-                )
-                ;; Because transactions are size limited, we might not be able to re-key the entire wallet in one go.  So loop
-                ;; around here until we no longer produce transactions with the max number of inputs.  That means we're fully
-                ;; done, at least for now (we may still get more transactions later and this method will be reinvoked).
-                (loop []
-                    (when-let [#_"Transaction" tx (Wallet''rekey-one-batch this, stamp, results, sign?)]
-                        (§ ass results (.add results, tx))
-                        (recur-if (= (count (:inputs tx)) KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS) [])
-                    )
-                )
-                results
             )
         )
     )
