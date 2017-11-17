@@ -3789,26 +3789,27 @@
     ;; t1 t2 t3 t4 t5 t5
 
     #_method
-    (defn- #_"List<byte[]>" Block''build-merkle-tree [#_"Block" this]
-        (let [#_"List<byte[]>" tree (ArrayList.)]
-            ;; Start by adding all the hashes of the transactions as leaves of the tree.
-            (doseq [#_"Transaction" tx (:transactions this)]
-                (§ ass tree (.add tree, (:hash-bytes (Transaction''get-hash tx))))
-            )
+    (defn- #_"[byte[]]" Block''build-merkle-tree [#_"Block" this]
+        ;; Start by adding all the hashes of the transactions as leaves of the tree.
+        (let [#_"[byte[]]" tree (into (vector) (map #(:hash-bytes (Transaction''get-hash %)) (:transactions this)))]
             ;; Offset in the list is where the currently processed level starts.
-            ;; Step through each level, stopping when we reach the root (size == 1).                  ;; Move to the next level.
-            (loop-when-recur [#_"int" offset 0 #_"int" size (count (:transactions this))] (< 1 size) [(+ offset size) (quot (inc size) 2)]
+            ;; Step through each level, stopping when we reach the root (size == 1).
+            (loop-when [tree tree #_"int" offset 0 #_"int" size (count tree)] (< 1 size) => tree
                 ;; For each pair of nodes on that level:
-                (loop-when-recur [#_"int" left 0] (< left size) [(+ left 2)]
-                    ;; The right hand node can be the same as the left hand, in the case where we don't have enough transactions.
-                    (let [#_"int" right (min (inc left), (dec size))
-                          #_"byte[]" __leftBytes (Wire'reverse-bytes (nth tree (+ offset left)))
-                          #_"byte[]" __rightBytes (Wire'reverse-bytes (nth tree (+ offset right)))]
-                        (§ ass tree (.add tree, (Wire'reverse-bytes (Sha256Hash'hash-twins-twice __leftBytes, 0, 32, __rightBytes, 0, 32))))
-                    )
+                (let [tree
+                        (loop-when [tree tree #_"int" left 0] (< left size) => tree
+                            ;; The right hand node can be the same as the left hand, in the case where we don't have enough transactions.
+                            (let [#_"int" right (min (inc left), (dec size))
+                                  #_"byte[]" left_ (Wire'reverse-bytes (nth tree (+ offset left)))
+                                  #_"byte[]" right_ (Wire'reverse-bytes (nth tree (+ offset right)))
+                                  #_"byte[]" twins (Wire'reverse-bytes (Sha256Hash'hash-twins-twice left_, 0, 32, right_, 0, 32))]
+                                (recur (conj tree twins) (+ left 2))
+                            )
+                        )]
+                    ;; Move to the next level.
+                    (recur tree (+ offset size) (quot (inc size) 2))
                 )
             )
-            tree
         )
     )
 
@@ -3816,10 +3817,8 @@
      ; Calculates the merkle root in big endian form from transactions.
      ;;
     #_method
-    (defn- #_"Sha256Hash" Block''calculate-merkle-root [#_"Block" this]
-        (let [#_"List<byte[]>" tree (Block''build-merkle-tree this)]
-            (Sha256Hash'wrap (nth tree (dec (count tree))))
-        )
+    (defn #_"Sha256Hash" Block''calculate-merkle-root [#_"Block" this]
+        (Sha256Hash'wrap (peek (Block''build-merkle-tree this)))
     )
 
     ;;;
@@ -19032,7 +19031,7 @@
      ; Creates a P2SH output script with given public keys and threshold.
      ; Given public keys will be placed in redeem script in the lexicographical sorting order.
      ;;
-    (defn #_"Script" Script'create-p2sh-output-script-2 [#_"int" threshold, #_"List<ECKey>" keys]
+    (defn #_"Script" Script'create-p2sh-output-script-2 [#_"int" threshold, #_"ECKey*" keys]
         (let [#_"Script" redeem (Script'create-redeem-script threshold, keys)]
             (Script'create-p2sh-output-script-1 redeem)
         )
@@ -19042,7 +19041,7 @@
      ; Creates redeem script with given public keys and threshold.
      ; Given public keys will be placed in redeem script in the lexicographical sorting order.
      ;;
-    (defn #_"Script" Script'create-redeem-script [#_"int" threshold, #_"List<ECKey>" keys]
+    (defn #_"Script" Script'create-redeem-script [#_"int" threshold, #_"ECKey*" keys]
         (Script'create-multi-sig-output-script threshold, (sort ECKey'compare-by-pub-key keys))
     )
 
@@ -23429,32 +23428,31 @@
     )
 
     #_testing
-    (defn #_"List<TransactionOutput>" DefaultCoinSelector'sort-outputs [#_"List<TransactionOutput>" outputs]
-        (Collections/sort outputs,
-            (#_"int" fn [#_"TransactionOutput" a, #_"TransactionOutput" b]
-                (let [#_"int" prior1 (TransactionOutput''get-parent-transaction-depth-in-blocks a)
-                      #_"int" prior2 (TransactionOutput''get-parent-transaction-depth-in-blocks b)
-                      #_"Coin" coin1 (:coin-value a)
-                      #_"Coin" coin2 (:coin-value b)
-                      #_"BigInteger" depth1 (.multiply (BigInteger/valueOf (:value coin1)), (BigInteger/valueOf prior1))
-                      #_"BigInteger" depth2 (.multiply (BigInteger/valueOf (:value coin2)), (BigInteger/valueOf prior2))
-                      #_"int" c1 (compare depth2 depth1)]
-                    (when (= c1 0) => c1
-                        ;; The "coin * days" destroyed are equal, sort by value alone to get the lowest transaction size.
-                        (let [#_"int" c2 (Coin'compare coin2, coin1)]
-                            (when (= c2 0) => c2
-                                ;; They are entirely equivalent (possibly pending) so sort by hash to ensure a total ordering.
-                                (let [#_"BigInteger" hash1 (Sha256Hash''to-big-integer (TransactionOutput''get-parent-transaction-hash a))
-                                      #_"BigInteger" hash2 (Sha256Hash''to-big-integer (TransactionOutput''get-parent-transaction-hash b))]
-                                    (compare hash1 hash2)
+    (defn #_"TransactionOutput*" DefaultCoinSelector'sort-outputs [#_"TransactionOutput*" outputs]
+        (letfn [(#_"int" cmp- [#_"TransactionOutput" %1, #_"TransactionOutput" %2]
+                    (let [#_"int" prior1 (TransactionOutput''get-parent-transaction-depth-in-blocks %1)
+                          #_"int" prior2 (TransactionOutput''get-parent-transaction-depth-in-blocks %2)
+                          #_"Coin" coin1 (:coin-value %1)
+                          #_"Coin" coin2 (:coin-value %2)
+                          #_"BigInteger" depth1 (.multiply (BigInteger/valueOf (:value coin1)), (BigInteger/valueOf prior1))
+                          #_"BigInteger" depth2 (.multiply (BigInteger/valueOf (:value coin2)), (BigInteger/valueOf prior2))
+                          #_"int" c1 (compare depth2 depth1)]
+                        (when (= c1 0) => c1
+                            ;; The "coin * days" destroyed are equal, sort by value alone to get the lowest transaction size.
+                            (let [#_"int" c2 (Coin'compare coin2, coin1)]
+                                (when (= c2 0) => c2
+                                    ;; They are entirely equivalent (possibly pending) so sort by hash to ensure a total ordering.
+                                    (let [#_"BigInteger" hash1 (Sha256Hash''to-big-integer (TransactionOutput''get-parent-transaction-hash %1))
+                                          #_"BigInteger" hash2 (Sha256Hash''to-big-integer (TransactionOutput''get-parent-transaction-hash %2))]
+                                        (compare hash1 hash2)
+                                    )
                                 )
                             )
                         )
                     )
-                )
-            )
+                )]
+            (sort cmp- outputs)
         )
-        outputs
     )
 
     (defn #_"boolean" DefaultCoinSelector'is-selectable [#_"Transaction" tx]
@@ -24474,65 +24472,60 @@
      ;;
     #_override
     (defn #_"Script" DeterministicKeyChain'''fresh-output-script [#_"MarriedKeyChain" this, #_"KeyPurpose" purpose]
-        (let [#_"DeterministicKey" followed (DeterministicKeyChain''get-key this, purpose)
-              #_"ImmutableList.Builder<ECKey>" keys (.add (ImmutableList/builder #_"List<ECKey>"), followed)]
-            (doseq [#_"DeterministicKeyChain" chain (:following-key-chains this)]
-                (let [#_"DeterministicKey" following (DeterministicKeyChain''get-key chain, purpose)]
-                    (assert-state (= (DeterministicKey''get-child-number followed) (DeterministicKey''get-child-number following)), "Following keychains should be in sync")
-                    (§ ass keys (.add keys, following))
+        (let [#_"DeterministicKey" followed (DeterministicKeyChain''get-key this, purpose) #_"ChildNumber" child (DeterministicKey''get-child-number followed)
+              #_"DeterministicKey*" keys
+                (for [#_"DeterministicKeyChain" chain (:following-key-chains this)]
+                    (let [#_"DeterministicKey" following (DeterministicKeyChain''get-key chain, purpose)]
+                        (assert-state (= (DeterministicKey''get-child-number following) child), "Following keychains should be in sync")
+                        following
+                    )
                 )
-            )
-            (let [#_"List<ECKey>" __marriedKeys (.build keys)
-                  #_"Script" redeem (Script'create-redeem-script (:sigs-required-to-spend this), __marriedKeys)]
-                (Script'create-p2sh-output-script-1 redeem)
-            )
+              #_"DeterministicKey*" __marriedKeys (concat (list followed) keys)
+              #_"Script" redeem (Script'create-redeem-script (:sigs-required-to-spend this), __marriedKeys)]
+            (Script'create-p2sh-output-script-1 redeem)
         )
     )
 
     #_method
-    (defn- #_"List<ECKey>" MarriedKeyChain''get-married-keys-with-followed [#_"MarriedKeyChain" this, #_"DeterministicKey" followed]
-        (let [#_"ImmutableList.Builder<ECKey>" keys (ImmutableList/builder)]
-            (doseq [#_"DeterministicKeyChain" chain (:following-key-chains this)]
-                (§ ass chain (DeterministicKeyChain''maybe-look-ahead-1 chain))
-                (§ ass keys (.add keys, (DeterministicKeyChain''get-key-by-path-2 chain, (:child-number-path followed))))
-            )
-            (§ ass keys (.add keys, followed))
-            (.build keys)
+    (defn- #_"DeterministicKey*" MarriedKeyChain''get-married-keys-with-followed [#_"MarriedKeyChain" this, #_"DeterministicKey" followed]
+        (§ ass this (update* this :following-key-chains DeterministicKeyChain''maybe-look-ahead-1))
+        (let [#_"DeterministicKey*" keys (map #(DeterministicKeyChain''get-key-by-path-2 %, (:child-number-path followed)) (:following-key-chains this))]
+            (concat keys (list followed))
         )
     )
 
-    ;;; Get the redeem data for a key in this married chain. ;;
+    ;;;
+     ; Get the redeem data for a key in this married chain.
+     ;;
     #_override
     (defn #_"RedeemData" DeterministicKeyChain'''get-redeem-data [#_"MarriedKeyChain" this, #_"DeterministicKey" followed]
-        (let [#_"List<ECKey>" __marriedKeys (MarriedKeyChain''get-married-keys-with-followed this, followed)
+        (let [#_"DeterministicKey*" __marriedKeys (MarriedKeyChain''get-married-keys-with-followed this, followed)
               #_"Script" redeem (Script'create-redeem-script (:sigs-required-to-spend this), __marriedKeys)]
             (RedeemData'new redeem, __marriedKeys)
         )
     )
 
     #_method
-    (defn- #_"this" MarriedKeyChain''add-following-account-keys [#_"MarriedKeyChain" this, #_"List<DeterministicKey>" __followingAccountKeys, #_"int" __sigsRequiredToSpend]
-        (assert-argument (<= __sigsRequiredToSpend (inc (count __followingAccountKeys))), "Multisig threshold can't exceed total number of keys")
+    (defn- #_"this" MarriedKeyChain''add-following-account-keys [#_"MarriedKeyChain" this, #_"DeterministicKey*" keys, #_"int" sigs]
+        (assert-argument (<= sigs (inc (count keys))), "Multisig threshold can't exceed total number of keys")
         (assert-state (zero? (DeterministicKeyChain''num-leaf-keys-issued this)), "Active keychain already has keys in use")
         (assert-state (nil? (:following-key-chains this)))
 
-        (let [#_"List<DeterministicKeyChain>" __followingKeyChains (ArrayList.)]
-
-            (doseq [#_"DeterministicKey" key __followingAccountKeys]
-                (assert-argument (= (count (:child-number-path key)) (count DeterministicKeyChain'ACCOUNT_ZERO_PATH)), "Following keys have to be account keys")
-
-                (let [#_"DeterministicKeyChain" chain (DeterministicKeyChain'watch-and-follow key)]
-                    (when (<= 0 (:lookahead-size this))
-                        (§ ass chain (DeterministicKeyChain'''set-lookahead-size chain, (:lookahead-size this)))
+        (let [#_"int" n (count DeterministicKeyChain'ACCOUNT_ZERO_PATH)
+              #_"DeterministicKeyChain*" chains
+                (for [#_"DeterministicKey" key keys]
+                    (let [_ (assert-argument (= (count (:child-number-path key)) n), "Following keys have to be account keys")
+                          #_"DeterministicKeyChain" chain (DeterministicKeyChain'watch-and-follow key)]
+                        (when (<= 0 (:lookahead-size this))
+                            (§ ass chain (DeterministicKeyChain'''set-lookahead-size chain, (:lookahead-size this)))
+                        )
+                        (when (<= 0 (:lookahead-threshold this))
+                            (§ ass chain (DeterministicKeyChain''set-lookahead-threshold chain, (:lookahead-threshold this)))
+                        )
+                        chain
                     )
-                    (when (<= 0 (:lookahead-threshold this))
-                        (§ ass chain (DeterministicKeyChain''set-lookahead-threshold chain, (:lookahead-threshold this)))
-                    )
-                    (§ ass __followingKeyChains (.add __followingKeyChains, chain))
-                )
-            )
-
-            (assoc this :sigs-required-to-spend __sigsRequiredToSpend, :following-key-chains (vec __followingKeyChains))
+                )]
+            (assoc this :following-key-chains (vec chains), :sigs-required-to-spend sigs)
         )
     )
 
