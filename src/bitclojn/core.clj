@@ -79,8 +79,8 @@
 
 (ns bitclojn.core
     (:refer-clojure :exclude [ensure subvec sync vec vector vector-of when when-not])
-    (:import [com.google.common.base Stopwatch Throwables]
-             [com.google.common.collect ArrayListMultimap ImmutableList ImmutableSet]
+    (:import [com.google.common.base Throwables]
+             [com.google.common.collect ArrayListMultimap]
              [com.google.common.hash HashCode Hasher Hashing]
              [com.google.common.io BaseEncoding]
              [com.google.common.math LongMath]
@@ -5360,7 +5360,7 @@
     (defn #_"FullPrunedVerifier" FullPrunedVerifier'new [#_"Transaction" tx, #_"Script*" scripts, #_"{ScriptVerifyFlag}" flags]
         (hash-map
             #_"Transaction" :tx tx
-            #_"(Script)" :scripts (list* scripts)
+            #_"[Script]" :scripts (vec scripts)
             #_"{ScriptVerifyFlag}" :verify-flags flags
         )
     )
@@ -5500,7 +5500,7 @@
             (§ ass this (assoc this :script-verification-executor (Executors/newFixedThreadPool (.availableProcessors (Runtime/getRuntime)))))
         )
 
-        (let [#_"LinkedList<UTXO>" __txOutsCreated (LinkedList.) #_"LinkedList<UTXO>" __txOutsSpent (LinkedList.)]
+        (let [#_"[UTXO]" created (vector) #_"[UTXO]" spent (vector)]
             (try+
                 (let [#_"long" ops
                         (when-not (Ledger''is-checkpoint (:ledger this), height) => 0
@@ -5520,13 +5520,13 @@
                                 )
                             )
                         )
-                      #_"List<Future<VerificationException>>" results (ArrayList.)
+                      #_"[Future<VerificationException]>" results (vector)
                       [#_"Coin" fees #_"Coin" __coinbaseValue]
                         (loop-when [ops ops fees Coin'ZERO __coinbaseValue nil #_"Transaction*" s (:transactions block)] (seq s) => [fees __coinbaseValue]
                             (let [#_"Transaction" tx (first s)
                                   #_"{ScriptVerifyFlag}" flags (Ledger''get-transaction-verification-flags (:ledger this), block, tx, (:version-tally this))
                                   #_"boolean" coinbase? (Transaction''is-coin-base tx)
-                                  #_"List<Script>" scripts (LinkedList.)
+                                  #_"[Script]" scripts (vector)
                                   [ops #_"Coin" __valueIn]
                                     (when-not coinbase? => [ops Coin'ZERO]
                                         ;; For each input of the transaction remove the corresponding output from the set of unspent outputs.
@@ -5557,9 +5557,9 @@
                                                                 ops
                                                             )
                                                         )]
-                                                    (§ ass scripts (.add scripts, (:script out)))
+                                                    (§ ass scripts (conj scripts (:script out)))
                                                     (FullPrunedBlockStore'''remove-unspent-transaction-output (:block-store this), out)
-                                                    (§ ass __txOutsSpent (.add __txOutsSpent, out))
+                                                    (§ ass spent (conj spent out))
                                                     (recur ops __valueIn (next inputs))
                                                 )
                                             )
@@ -5574,7 +5574,7 @@
                                                   #_"Script" script (FullPrunedBlockChain''get-script this, (:script-bytes output))
                                                   #_"UTXO" out (UTXO'new hash, (TransactionOutput''get-index output), (:coin-value output), height, coinbase?, script, (FullPrunedBlockChain''get-script-address this, script))]
                                                 (FullPrunedBlockStore'''add-unspent-transaction-output (:block-store this), out)
-                                                (§ ass __txOutsCreated (.add __txOutsCreated, out))
+                                                (§ ass created (conj created out))
                                                 (recur __valueOut (next outputs))
                                             )
                                         )]
@@ -5594,7 +5594,7 @@
                                             ;; Because correctlySpends modifies transactions, this must come after we are done with tx.
                                             (let [#_"FutureTask<VerificationException>" future (FutureTask. (FullPrunedVerifier'new tx, scripts, flags))]
                                                 (.execute (:script-verification-executor this), future)
-                                                (§ ass results (.add results, future))
+                                                (§ ass results (conj results future))
                                             )
                                         )
                                         (recur ops fees __coinbaseValue (next s))
@@ -5637,7 +5637,7 @@
                 )
             )
 
-            (TransactionOutputChanges'new __txOutsCreated, __txOutsSpent)
+            (TransactionOutputChanges'new created, spent)
         )
     )
 
@@ -5676,14 +5676,14 @@
                                 (§ ass this (assoc this :script-verification-executor (Executors/newFixedThreadPool (.availableProcessors (Runtime/getRuntime)))))
                             )
 
-                            (let [#_"LinkedList<UTXO>" __txOutsCreated (LinkedList.) #_"LinkedList<UTXO>" __txOutsSpent (LinkedList.)
-                                  #_"List<Future<VerificationException>>" results (ArrayList.)
+                            (let [#_"[UTXO]" created (vector) #_"[UTXO]" spent (vector)
+                                  #_"[Future<VerificationException]>" results (vector)
                                   [#_"Coin" fees #_"Coin" __coinbaseValue]
                                     (loop-when [#_"long" ops 0 fees Coin'ZERO __coinbaseValue nil #_"Transaction*" s (:transactions this)] (seq s) => [fees __coinbaseValue]
                                         (let [#_"Transaction" tx (first s)
                                               #_"{ScriptVerifyFlag}" flags (Ledger''get-transaction-verification-flags (:ledger this), (:stored-header stored), tx, (:version-tally this))
                                               #_"boolean" coinbase? (Transaction''is-coin-base tx)
-                                              #_"List<Script>" scripts (LinkedList.)
+                                              #_"[Script]" scripts (vector)
                                               [ops #_"Coin" __valueIn]
                                                 (when-not coinbase? => [ops Coin'ZERO]
                                                     (loop-when [ops ops __valueIn Coin'ZERO #_"TransactionInput*" inputs (:inputs tx)] (seq inputs) => [ops __valueIn]
@@ -5711,9 +5711,9 @@
                                                                         )
                                                                     )]
                                                                 ;; TODO: Enforce DER signature format.
-                                                                (§ ass scripts (.add scripts, (:script out)))
+                                                                (§ ass scripts (conj scripts (:script out)))
                                                                 (FullPrunedBlockStore'''remove-unspent-transaction-output (:block-store this), out)
-                                                                (§ ass __txOutsSpent (.add __txOutsSpent, out))
+                                                                (§ ass spent (conj spent out))
                                                                 (recur ops __valueIn (next inputs))
                                                             )
                                                         )
@@ -5727,7 +5727,7 @@
                                                               #_"Script" script (FullPrunedBlockChain''get-script this, (:script-bytes output))
                                                               #_"UTXO" out (UTXO'new hash, (TransactionOutput''get-index output), (:coin-value output), (:stored-height stored), coinbase?, script, (FullPrunedBlockChain''get-script-address this, script))]
                                                             (FullPrunedBlockStore'''add-unspent-transaction-output (:block-store this), out)
-                                                            (§ ass __txOutsCreated (.add __txOutsCreated, out))
+                                                            (§ ass created (conj created out))
                                                             (recur __valueOut (next outputs))
                                                         )
                                                     )]
@@ -5747,7 +5747,7 @@
                                                         ;; Because correctlySpends modifies transactions, this must come after we are done with tx.
                                                         (let [#_"FutureTask<VerificationException>" future (FutureTask. (FullPrunedVerifier'new tx, scripts, flags))]
                                                             (.execute (:script-verification-executor this), future)
-                                                            (§ ass results (.add results, future))
+                                                            (§ ass results (conj results future))
                                                         )
                                                     )
                                                     (recur ops fees __coinbaseValue (next s))
@@ -5778,7 +5778,7 @@
                                     )
                                 )
 
-                                (TransactionOutputChanges'new __txOutsCreated, __txOutsSpent)
+                                (TransactionOutputChanges'new created, spent)
                             )
                         )
                         :else
@@ -6444,10 +6444,9 @@
             (when-not (= (:difficulty-target __nextBlock) (:difficulty-target (:stored-header prior)))
                 (throw+ (VerificationException'new (str "Unexpected change in difficulty at height " (:stored-height prior) ": " (Long/toHexString (:difficulty-target __nextBlock)) " vs " (Long/toHexString (:difficulty-target (:stored-header prior))))))
             )
-            ;; We need to find a block far back in the chain.  It's OK that this is expensive because it only occurs every
+            ;; We need to find a block far back in the chain.  It's OK that this is expensive, because it only occurs every
             ;; two weeks after the initial block chain download.
-            (let [#_"Stopwatch" watch (Stopwatch/createStarted)
-                  [#_"StoredBlock" cursor #_"Sha256Hash" hash]
+            (let [[#_"StoredBlock" cursor #_"Sha256Hash" hash]
                     (loop-when [cursor nil hash (Block''get-hash (:stored-header prior)) #_"int" i 0] (< i (:interval this)) => [cursor hash]
                         (let [cursor (BlockStore'''get store, hash)]
                             (recur-if (some? cursor) [cursor (:prev-block-hash (:stored-header cursor)) (inc i)]
@@ -6457,10 +6456,6 @@
                         )
                     )]
                 (assert-state (and (some? cursor) (Ledger''is-difficulty-transition-point this, (dec (:stored-height cursor)))), "Didn't arrive at a transition point.")
-                (.stop watch)
-                (when (< 50 (.elapsed watch, TimeUnit/MILLISECONDS))
-                    (log/info (str "Difficulty transition traversal took " watch))
-                )
                 (let [#_"int" timespan (int (- (:time-seconds (:stored-header prior)) (:time-seconds (:stored-header cursor))))
                       ;; Limit the adjustment step.
                       #_"int" tts (:target-timespan this) timespan (min (max (quot tts 4) timespan) (* tts 4))
@@ -7720,86 +7715,78 @@
               #_"{Sha256Hash}" needed (into (flatland.ordered.set/ordered-set) (map #(:from-tx-hash (:outpoint %)) (:inputs tx)))]
 
             (sync (:peer-lock this)
+                (when (< 1 (count needed))
+                    (log/info (str (:peer-address this) ": Requesting " (count needed) " transactions for depth " (inc depth) " dep resolution"))
+                )
+
                 (try
                     ;; Build the request for the missing dependencies.
-                    (let [#_"List<ListenableFuture<Transaction>>" futures (ArrayList.)
-                          #_"GetDataMessage" getdata (GetDataMessage'new (:ledger this))]
+                    (let [#_"GetDataRequest*" requests (map #(GetDataRequest'new %, (SettableFuture/create)) needed)]
+                        (§ ass this (apply append* this :get-data-futures requests))
 
-                        (let-when [#_"int" n (count needed)] (< 1 n)
-                            (log/info (str (:peer-address this) ": Requesting " n " transactions for depth " (inc depth) " dep resolution"))
-                        )
-
-                        (doseq [#_"Sha256Hash" hash needed]
-                            (§ ass getdata (GetDataMessage''add-transaction getdata, hash))
-                            (let [#_"GetDataRequest" req (GetDataRequest'new hash, (SettableFuture/create))]
-                                (§ ass futures (.add futures, (:future req)))
-                                (§ ass this (append* this :get-data-futures req))
-                            )
-                        )
-
-                        (let [#_"ListenableFuture<List<Transaction>>" successful (Futures/successfulAsList futures)]
-                            (Futures/addCallback successful,
-                                (reify FutureCallback #_"<Transaction*>"
-                                    #_foreign
-                                    #_override
-                                    (#_"void" onSuccess [#_"FutureCallback" __, #_"Transaction*" transactions]
-                                        ;; Once all transactions either were received, or we know there are no more to come, ...
-                                        ;; Note that transactions will contain "null" for any positions that weren't successful.
-                                        (let [#_"List<ListenableFuture<Object>>" __childFutures (LinkedList.)]
-                                            (doseq [#_"Transaction" tx transactions]
-                                                (when (some? tx)
-                                                    (log/info (str (:peer-address this) ": Downloaded dependency of " __rootTxHash ": " (Transaction''get-hash tx)))
-                                                    (§ ass deps (conj deps tx))
-                                                    ;; Now recurse into the dependencies of this transaction too.
-                                                    (when (< (inc depth) __maxDepth)
-                                                        (let [[_ deps] (§ ass [ (ß deps)] (Peer''download-dependencies-internal this, __maxDepth, (inc depth), tx, marker, deps))]
-                                                            (§ ass __childFutures (.add __childFutures, _))
-                                                        )
-                                                    )
-                                                )
-                                            )
-                                            (if (empty? __childFutures)
-                                                ;; Short-circuit: we're at the bottom of this part of the tree.
-                                                (.set __resultFuture, marker)
-                                                ;; There are some children to download.  Wait until it's done (and their children,
-                                                ;; and their children, ...) to inform the caller that we're finished.
-                                                (Futures/addCallback (Futures/successfulAsList __childFutures),
-                                                    (reify FutureCallback #_"<Object*>"
-                                                        #_foreign
-                                                        #_override
-                                                        (#_"void" onSuccess [#_"FutureCallback" __, #_"Object*" _objects]
-                                                            (.set __resultFuture, marker)
-                                                            nil
-                                                        )
-
-                                                        #_foreign
-                                                        #_override
-                                                        (#_"void" onFailure [#_"FutureCallback" __, #_"Throwable" throwable]
-                                                            (.setException __resultFuture, throwable)
-                                                            nil
-                                                        )
+                        (Futures/addCallback (Futures/successfulAsList (map :future requests)),
+                            (reify FutureCallback #_"<Transaction*>"
+                                #_foreign
+                                #_override
+                                (#_"void" onSuccess [#_"FutureCallback" __, #_"Transaction*" transactions]
+                                    ;; Once all transactions either were received, or we know there are no more to come, ...
+                                    ;; Note that transactions will contain "null" for any positions that weren't successful.
+                                    (let [#_"List<ListenableFuture<Object>>" __childFutures (LinkedList.)]
+                                        (doseq [#_"Transaction" tx transactions]
+                                            (when (some? tx)
+                                                (log/info (str (:peer-address this) ": Downloaded dependency of " __rootTxHash ": " (Transaction''get-hash tx)))
+                                                (§ ass deps (conj deps tx))
+                                                ;; Now recurse into the dependencies of this transaction too.
+                                                (when (< (inc depth) __maxDepth)
+                                                    (let [[_ deps] (§ ass [ (ß deps)] (Peer''download-dependencies-internal this, __maxDepth, (inc depth), tx, marker, deps))]
+                                                        (§ ass __childFutures (.add __childFutures, _))
                                                     )
                                                 )
                                             )
                                         )
-                                        nil
-                                    )
+                                        (if (empty? __childFutures)
+                                            ;; Short-circuit: we're at the bottom of this part of the tree.
+                                            (.set __resultFuture, marker)
+                                            ;; There are some children to download.  Wait until it's done (and their children,
+                                            ;; and their children, ...) to inform the caller that we're finished.
+                                            (Futures/addCallback (Futures/successfulAsList __childFutures),
+                                                (reify FutureCallback #_"<Object*>"
+                                                    #_foreign
+                                                    #_override
+                                                    (#_"void" onSuccess [#_"FutureCallback" __, #_"Object*" _objects]
+                                                        (.set __resultFuture, marker)
+                                                        nil
+                                                    )
 
-                                    #_foreign
-                                    #_override
-                                    (#_"void" onFailure [#_"FutureCallback" __, #_"Throwable" throwable]
-                                        (.setException __resultFuture, throwable)
-                                        nil
+                                                    #_foreign
+                                                    #_override
+                                                    (#_"void" onFailure [#_"FutureCallback" __, #_"Throwable" throwable]
+                                                        (.setException __resultFuture, throwable)
+                                                        nil
+                                                    )
+                                                )
+                                            )
+                                        )
                                     )
+                                    nil
+                                )
+
+                                #_foreign
+                                #_override
+                                (#_"void" onFailure [#_"FutureCallback" __, #_"Throwable" throwable]
+                                    (.setException __resultFuture, throwable)
+                                    nil
                                 )
                             )
+                        )
 
+                        (let [#_"GetDataMessage" getdata (reduce GetDataMessage''add-transaction (GetDataMessage'new (:ledger this)) needed)]
                             ;; Start the operation.
                             (§ ass this (Peer''send-message this, getdata, GetDataMessage''to-wire))
                         )
                     )
                     (catch Exception e
-                        (log/error e, (str this ": Couldn't send getdata in downloadDependencies(" (Transaction''get-hash tx) ")"))
+                        (log/error e, (str this ": Couldn't send getdata in downloadDependencies(" __rootTxHash ")"))
                         (.setException __resultFuture, e)
                     )
                 )
@@ -9508,7 +9495,6 @@
 
         (let [#_"int" n (:v-max-peers-to-discover-count this)
               #_"long" timeout (:v-peer-discovery-timeout-millis this)
-              #_"Stopwatch" watch (Stopwatch/createStarted)
               #_"List<PeerAddress>" addresses (LinkedList.)]
 
             (loop-when [#_"PeerDiscovery*" s (:peer-discoveries this)] (seq s)
@@ -9531,8 +9517,6 @@
                     )
                 )
             )
-            (.stop watch)
-            (log/info (str "Peer discovery took " watch " and returned " (count addresses) " items"))
             (count addresses)
         )
     )
@@ -10249,17 +10233,13 @@
     )
 
     ;;;
-     ; Returns a future that is triggered when the number of connected peers is equal to the given number of peers.
-     ; By using this with {@link PeerGroup#getMaxConnections()} you can wait until the network is fully online.
-     ; To block immediately, just call get() on the result.  Just calls {@link #waitForPeersOfVersion(int, long)}
-     ; with zero as the protocol version.
-     ;
-     ; @param numPeers How many peers to wait for.
-     ; @return a future that will be triggered when the number of connected peers >= numPeers.
+     ; Returns a seq of peers that implement the given protocol version or better.
      ;;
     #_method
-    (defn #_"ListenableFuture<List<Peer>>" PeerGroup''wait-for-peers [#_"PeerGroup" this, #_"int" __numPeers]
-        (PeerGroup''wait-for-peers-of-version this, __numPeers, 0)
+    (defn #_"Peer*" PeerGroup''find-peers-of-at-least-version [#_"PeerGroup" this, #_"long" version]
+        (sync (:peergroup-lock this)
+            (filter #(<= version (:client-version (:v-peer-version-message %))) (:connected-peers this))
+        )
     )
 
     ;;;
@@ -10271,17 +10251,17 @@
      ; @return a future that will be triggered when the number of connected peers implementing protocolVersion or higher >= numPeers.
      ;;
     #_method
-    (defn #_"ListenableFuture<List<Peer>>" PeerGroup''wait-for-peers-of-version [#_"PeerGroup" this, #_"int" n, #_"long" version]
-        (let [#_"List<Peer>" peers (ArrayList. (PeerGroup''find-peers-of-at-least-version this, version))]
+    (defn #_"ListenableFuture<Peer*>" PeerGroup''wait-for-peers-of-version [#_"PeerGroup" this, #_"int" n, #_"long" version]
+        (let [#_"Peer*" peers (PeerGroup''find-peers-of-at-least-version this, version)]
             (if (<= n (count peers))
                 (Futures/immediateFuture peers)
-                (let [#_"SettableFuture<List<Peer>>" future (SettableFuture/create)]
+                (let [#_"SettableFuture<Peer*>" future (SettableFuture/create)]
                     (§ ass this (PeerGroup''add-connected-event-listener this,
                         (§ async!
                             (§ reify PeerConnectedEventListener
                                 #_override
                                 (§ non-void #_"PeerConnectedEventListener" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" self, #_"Peer" _peer]
-                                    (let [#_"List<Peer>" peers (ArrayList. (PeerGroup''find-peers-of-at-least-version this, version))]
+                                    (let [#_"Peer*" peers (PeerGroup''find-peers-of-at-least-version this, version)]
                                         (when (<= n (count peers))
                                             (.set future, peers)
                                             (§ ass this (PeerGroup''remove-connected-event-listener this, self))
@@ -10299,13 +10279,17 @@
     )
 
     ;;;
-     ; Returns a seq of peers that implement the given protocol version or better.
+     ; Returns a future that is triggered when the number of connected peers is equal to the given number of peers.
+     ; By using this with {@link PeerGroup#getMaxConnections()} you can wait until the network is fully online.
+     ; To block immediately, just call get() on the result.  Just calls {@link #waitForPeersOfVersion(int, long)}
+     ; with zero as the protocol version.
+     ;
+     ; @param numPeers How many peers to wait for.
+     ; @return a future that will be triggered when the number of connected peers >= numPeers.
      ;;
     #_method
-    (defn #_"Peer*" PeerGroup''find-peers-of-at-least-version [#_"PeerGroup" this, #_"long" version]
-        (sync (:peergroup-lock this)
-            (filter #(<= version (:client-version (:v-peer-version-message %))) (:connected-peers this))
-        )
+    (defn #_"ListenableFuture<Peer*>" PeerGroup''wait-for-peers [#_"PeerGroup" this, #_"int" n]
+        (PeerGroup''wait-for-peers-of-version this, n, 0)
     )
 
     ;;;
@@ -13595,8 +13579,8 @@
 (class-ns TransactionOutputChanges
     (defn #_"TransactionOutputChanges" TransactionOutputChanges'new [#_"UTXO*" created, #_"UTXO*" spent]
         (hash-map
-            #_"(UTXO)" :tx-outs-created (list* created)
-            #_"(UTXO)" :tx-outs-spent (list* spent)
+            #_"[UTXO]" :tx-outs-created (vec created)
+            #_"[UTXO]" :tx-outs-spent (vec spent)
         )
     )
 )
@@ -14696,7 +14680,7 @@
                             ;; This can happen when deserializing an account key for a watching wallet.  In this case, we assume
                             ;; that the client wants to conceal the key's position in the hierarchy.  The path is truncated at
                             ;; the parent's node.
-                            (if (<= 1 depth) (ImmutableList/of child) (ImmutableList/of))
+                            (if (<= 1 depth) (vector child) (vector))
                         )]
 
                     (let [#_"byte[]" code (byte-array 32) _ (.get buffer, code)
@@ -14864,12 +14848,12 @@
         (let [#_"BigInteger" priv (BigInteger. 1, bytes)]
             (HDKeyDerivation'assert-non-zero priv, "Generated master key is invalid.")
             (HDKeyDerivation'assert-less-than-n priv, "Generated master key is invalid.")
-            (DeterministicKey'new-4 (ImmutableList/of #_"[ChildNumber]"), code, priv, nil)
+            (DeterministicKey'new-4 (vector), code, priv, nil)
         )
     )
 
     (defn #_"DeterministicKey" HDKeyDerivation'create-master-pub-key-from-bytes [#_"byte[]" bytes, #_"byte[]" code]
-        (DeterministicKey'new-5 (ImmutableList/of #_"[ChildNumber]"), code, (.decodePoint (.getCurve ECKey'CURVE), bytes), nil, nil)
+        (DeterministicKey'new-5 (vector), code, (.decodePoint (.getCurve ECKey'CURVE), bytes), nil, nil)
     )
 
     ;;;
@@ -15459,12 +15443,8 @@
         ;; and string "mnemonic" + passphrase (again in UTF-8) used as a salt.  Iteration count is set to 4096 and HMAC-SHA512
         ;; is used as a pseudo-random function.  Desired length of the derived key is 512 bits (= 64 bytes).
 
-        (let [#_"String" pass (apply str (interpose " " words)) #_"String" salt (str "mnemonic" passphrase)
-              #_"Stopwatch" watch (Stopwatch/createStarted)
-              #_"byte[]" seed (PBKDF2SHA512'derive pass, salt, MnemonicCode'PBKDF2_ROUNDS, 64)]
-            (.stop watch)
-            (log/info (str "PBKDF2 took " watch))
-            seed
+        (let [#_"String" pass (apply str (interpose " " words)) #_"String" salt (str "mnemonic" passphrase)]
+            (PBKDF2SHA512'derive pass, salt, MnemonicCode'PBKDF2_ROUNDS, 64)
         )
     )
 
@@ -26361,7 +26341,7 @@
                 )]
 
             ;; Kill txns in conflict with this tx.
-            (let [#_"Set<Transaction>" __doubleSpendTxns (Wallet''find-double-spends-against this, tx, (:pending this))
+            (let [#_"{Transaction}" __doubleSpendTxns (Wallet''find-double-spends-against this, tx, (:pending this))
                   this
                     (when (seq __doubleSpendTxns) => this
                         ;; No need to addTransactionsDependingOn(doubleSpendTxns), because killTxns() already kills dependencies.
@@ -26499,7 +26479,7 @@
 
     ;; Updates the wallet when a double spend occurs.  overridingTx can be null for the case of coinbases.
     #_method
-    (defn- #_"this" Wallet''kill-txns [#_"Wallet" this, #_"Set<Transaction>" __txnsToKill, #_"Transaction" __overridingTx]
+    (defn- #_"this" Wallet''kill-txns [#_"Wallet" this, #_"{Transaction}" __txnsToKill, #_"Transaction" __overridingTx]
         (let [#_"LinkedList<Transaction>" work (LinkedList. __txnsToKill)]
             (while (seq work)
                 (let [#_"Transaction" dead (.poll work) #_"Sha256Hash" hash (Transaction''get-hash dead)]
@@ -26610,9 +26590,9 @@
                     ;; any transactions that are now fully spent to the spent map so we can skip them when creating future spends.
                     (Wallet''update-for-spends this, tx, false)
 
-                    (let [#_"Set<Transaction>" __doublePending (Wallet''find-double-spends-against this, tx, (:pending this))
-                          #_"Set<Transaction>" __doubleUnspent (Wallet''find-double-spends-against this, tx, (:unspent this))
-                          #_"Set<Transaction>" __doubleSpent (Wallet''find-double-spends-against this, tx, (:spent this))]
+                    (let [#_"{Transaction}" __doublePending (Wallet''find-double-spends-against this, tx, (:pending this))
+                          #_"{Transaction}" __doubleUnspent (Wallet''find-double-spends-against this, tx, (:unspent this))
+                          #_"{Transaction}" __doubleSpent (Wallet''find-double-spends-against this, tx, (:spent this))]
 
                         (cond (or (seq __doubleUnspent) (seq __doubleSpent) (Wallet''is-spending-txns-in-confidence-type this, tx, :ConfidenceType'DEAD))
                             (do
@@ -27747,7 +27727,7 @@
                                             ;; this coinbase tx.  Some can just go pending forever, like the Bitcoin Core.  However we
                                             ;; can do our best.
                                             (log/warn (str "Coinbase killed by re-org: " __txHash))
-                                            (§ ass this (Wallet''kill-txns this, (ImmutableSet/of tx), nil))
+                                            (§ ass this (Wallet''kill-txns this, (hash-set tx), nil))
                                         )
                                         :else
                                         (do
