@@ -299,7 +299,7 @@
 (declare Threading'SAME_THREAD Threading'THREAD_POOL Threading'USER_THREAD Threading'wait-for-user-code)
 (declare Transaction''add-input Transaction''add-input-o Transaction''add-input-s Transaction''add-output-ca Transaction''add-output-ce Transaction''add-output-cs Transaction''add-output Transaction''add-signed-input Transaction''calculate-signature-b Transaction''calculate-signature-s Transaction''check-coin-base-height Transaction''estimate-lock-time Transaction''get-confidence Transaction''get-fee Transaction''get-hash Transaction''get-input-sum Transaction''get-output-sum Transaction''get-sig-op-count Transaction''get-value Transaction''get-value-sent-from-me Transaction''get-value-sent-to-me Transaction''get-wallet-outputs Transaction''has-confidence Transaction''hash-for-signature-4b Transaction''hash-for-signature-5b Transaction''hash-for-signature-5s Transaction''is-any-output-spent Transaction''is-coin-base Transaction''is-every-owned-output-spent Transaction''is-final Transaction''is-mature Transaction''is-opt-in-full-rbf Transaction''is-pending Transaction''is-time-locked Transaction''set-block-appearance Transaction''set-lock-time Transaction''shuffle-outputs Transaction''to-string Transaction''verify Transaction'DEFAULT_TX_FEE Transaction'LOCKTIME_THRESHOLD Transaction'LOCKTIME_THRESHOLD_BIG Transaction'MAX_STANDARD_TX_SIZE Transaction'MIN_NONDUST_OUTPUT Transaction'REFERENCE_DEFAULT_MIN_TX_FEE Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG Transaction'SEQUENCE_LOCKTIME_MASK Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG Transaction'compare-by-chain-height Transaction'compare-by-update-time Transaction'new Transaction'from-wire Transaction''to-wire)
 (declare Wallet''get-transaction-pool Wallet''is-pay-to-script-hash-mine Wallet''is-pub-key-hash-mine Wallet''is-pub-key-mine)
-(declare TransactionBroadcast''broadcast TransactionBroadcast''invoke-and-record TransactionBroadcast''invoke-progress-callback TransactionBroadcast''set-progress-callback TransactionBroadcast'RANDOM TransactionBroadcast'new)
+(declare TransactionBroadcast''broadcast TransactionBroadcast''invoke-and-record TransactionBroadcast''invoke-progress-callback TransactionBroadcast''set-progress-callback TransactionBroadcast'new)
 (declare TransactionBroadcaster'''broadcast-transaction-2)
 (declare TransactionConfidence''add-event-listener TransactionConfidence''clear-broadcast-by TransactionConfidence''get-appeared-at-chain-height TransactionConfidence''get-depth-future TransactionConfidence''get-overriding-transaction TransactionConfidence''mark-broadcast-by TransactionConfidence''queue-listeners TransactionConfidence''remove-event-listener TransactionConfidence''set-appeared-at-chain-height TransactionConfidence''set-confidence-type TransactionConfidence''set-overriding-transaction TransactionConfidence''was-broadcast-by TransactionConfidence'PINNED_CONFIDENCE_OBJECTS TransactionConfidence'new)
 (declare TransactionConfidenceListener'''on-confidence-changed)
@@ -461,7 +461,7 @@
      ; @param peerAddresses The set of discovered {@link PeerAddress}es.
      ;;
     #_abstract
-    (#_"void" PeerDiscoveredEventListener'''on-peers-discovered [#_"PeerDiscoveredEventListener" this, #_"Set<PeerAddress>" __peerAddresses])
+    (#_"void" PeerDiscoveredEventListener'''on-peers-discovered [#_"PeerDiscoveredEventListener" this, #_"PeerAddress*" addresses])
 )
 
 ;;;
@@ -8068,36 +8068,27 @@
 
     #_method
     (defn #_"this" Peer''process-inv [#_"Peer" this, #_"InventoryMessage" inv]
-        ;; Separate out the blocks and transactions, we'll handle them differently.
-        (let [#_"List<InventoryItem>" transactions (LinkedList.) #_"List<InventoryItem>" blocks (LinkedList.)]
+        (let [#_"boolean" download? (:v-download-data this)
+              ;; Separate out the blocks and transactions, we'll handle them differently.
+              #_"InventoryItem*" blocks       (filter #(= (:item-type %) :InventoryItemType'BLOCK)       (:items inv))
+              #_"InventoryItem*" transactions (filter #(= (:item-type %) :InventoryItemType'TRANSACTION) (:items inv))]
 
-            (doseq [#_"InventoryItem" item (:items inv)]
-                (condp = (:item-type item)
-                    :InventoryItemType'TRANSACTION (§ ass transactions (.add transactions, item))
-                    :InventoryItemType'BLOCK       (§ ass blocks (.add blocks, item))
-                    (throw (IllegalStateException. (str "Not implemented: " (:item-type item))))
+            (when (and (= (count blocks) 1) (= (count transactions) 0))
+                ;; Single block announcement.  If we're downloading the chain this is just a tickle to make us continue
+                ;; (the block chain download protocol is very implicit and not well thought out).  If we're not downloading
+                ;; the chain then this probably means a new block was solved and the peer believes it connects to the best
+                ;; chain, so count it.  This way getBestChainHeight() can be accurate.
+                (if (and download? (some? (:block-chain this)))
+                    (when-not (BlockChain''is-orphan (:block-chain this), (:item-hash (first blocks)))
+                        (.incrementAndGet (:blocks-announced this))
+                    )
+                    (.incrementAndGet (:blocks-announced this))
                 )
             )
 
-            (let [#_"boolean" download? (:v-download-data this)]
-
-                (when (and (= (count transactions) 0) (= (count blocks) 1))
-                    ;; Single block announcement.  If we're downloading the chain this is just a tickle to make us continue
-                    ;; (the block chain download protocol is very implicit and not well thought out).  If we're not downloading
-                    ;; the chain then this probably means a new block was solved and the peer believes it connects to the best
-                    ;; chain, so count it.  This way getBestChainHeight() can be accurate.
-                    (if (and download? (some? (:block-chain this)))
-                        (when-not (BlockChain''is-orphan (:block-chain this), (:item-hash (nth blocks 0)))
-                            (.incrementAndGet (:blocks-announced this))
-                        )
-                        (.incrementAndGet (:blocks-announced this))
-                    )
-                )
-
-                (let [#_"GetDataMessage" getdata (GetDataMessage'new (:ledger this))]
-
-                    (loop-when-recur [#_"Iterator<InventoryItem>" it (.iterator transactions)] (.hasNext it) [it]
-                        (let [#_"InventoryItem" item (.next it)
+            (let [[this #_"GetDataMessage" getdata]
+                    (loop-when [this this getdata (GetDataMessage'new (:ledger this)) transactions transactions] (seq transactions) => [this getdata]
+                        (let [#_"InventoryItem" item (first transactions)
                               ;; Only download the transaction if we are the first peer that saw it be advertised.  Other peers will also
                               ;; see it be advertised in inv packets asynchronously, they co-ordinate via the memory pool.  We could
                               ;; potentially download transactions faster by always asking every peer for a tx when advertised, as remote
@@ -8106,92 +8097,75 @@
                               ;; sending us the transaction: currently we'll never try to re-fetch after a timeout.
                               ;;
                               ;; The line below can trigger confidence listeners.
-                              #_"TransactionConfidence" conf (TxConfidenceTable''seen TxConfidenceTable'INSTANCE, (:item-hash item), (:peer-address this))]
-                            (cond (< 1 (count (:broadcast-by conf)))
-                                (do
-                                    ;; Some other peer already announced this so don't download.
-                                    (.remove it)
-                                )
-                                (= (:confidence-source conf) :ConfidenceSource'SELF)
-                                (do
-                                    ;; We created this transaction ourselves, so don't download.
-                                    (.remove it)
-                                )
-                                :else
-                                (do
-                                    (log/debug (str (:peer-address this) ": getdata on tx " (:item-hash item)))
-                                    (§ ass getdata (append* getdata :items item))
-                                    ;; Register with the garbage collector that we care about the confidence data for a while.
-                                    (§ ass this (update this :pending-tx-downloads conj conf))
-                                )
+                              #_"TransactionConfidence" conf (TxConfidenceTable''seen TxConfidenceTable'INSTANCE, (:item-hash item), (:peer-address this))
+                              ? (cond
+                                    (< 1 (count (:broadcast-by conf)))                   false ;; Some other peer already announced this, so don't download.
+                                    (= (:confidence-source conf) :ConfidenceSource'SELF) false ;; We created this transaction ourselves, so don't download.
+                                    :else                                                true
+                                )]
+                            (when ? => (recur this getdata (next transactions))
+                                (log/debug (str (:peer-address this) ": getdata on tx " (:item-hash item)))
+                                ;; Register with the garbage collector that we care about the confidence data for a while.
+                                (recur (update this :pending-tx-downloads conj conf) (append* getdata :items item) (next transactions))
                             )
                         )
                     )
-
-                    ;; If we are requesting filteredblocks, we have to send a ping after the getdata so that we have a clear
-                    ;; end to the final FilteredBlock's transactions (in the form of a pong) sent to us.
-                    (let [[this #_"boolean" ping?]
-                            (sync (:peer-lock this)
-                                (when (and (seq blocks) download? (some? (:block-chain this))) => [this false]
-                                    ;; Ideally, we'd only ask for the data here if we actually needed it.  However that can imply a lot of
-                                    ;; disk IO to figure out what we've got.  Normally peers will not send us inv for things we already have
-                                    ;; so we just re-request it here, and if we get duplicates the block chain / wallet will filter them out.
-                                    (loop-when [this this ping? false blocks blocks] (seq blocks) => [this ping?]
-                                        (let [#_"InventoryItem" item (first blocks)
-                                              [this ping?]
-                                                (if (and (BlockChain''is-orphan (:block-chain this), (:item-hash item)) (:download-block-bodies this))
-                                                    ;; If an orphan was re-advertised, ask for more blocks unless we are not currently downloading
-                                                    ;; full block data because we have a getheaders outstanding.
-                                                    (let [#_"Block" root (ensure some? (BlockChain''get-orphan-root (:block-chain this), (:item-hash item)))]
-                                                        [(Peer''block-chain-download-locked this, (Block''get-hash root)) ping?]
-                                                    )
-                                                    ;; Don't re-request blocks we already requested.  Normally this should not happen.  However there is
-                                                    ;; an edge case: if a block is solved and we complete the inv<->getdata<->block<->getblocks cycle
-                                                    ;; whilst other parts of the chain are streaming in, then the new getblocks request won't match the
-                                                    ;; previous one: whilst the stopHash is the same (because we use the orphan root), the start hash
-                                                    ;; will be different and so the getblocks req won't be dropped as a duplicate.  We'll end up
-                                                    ;; requesting a subset of what we already requested, which can lead to parallel chain downloads
-                                                    ;; and other nastyness.  So we just do a quick removal of redundant getdatas here too.
-                                                    ;;
-                                                    ;; Note that as of June 2012 Bitcoin Core won't actually ever interleave blocks pushed as
-                                                    ;; part of chain download with newly announced blocks, so it should always be taken care of by
-                                                    ;; the duplicate check in blockChainDownloadLocked().  But Bitcoin Core may change in future so
-                                                    ;; it's better to be safe here.
-                                                    (when-not (contains? (:pending-block-downloads this) (:item-hash item)) => [this ping?]
-                                                        (let [ping?
-                                                                (if (and (VersionMessage''is-bloom-filtering-supported (:v-peer-version-message this)) (:use-filtered-blocks this))
-                                                                    (do
-                                                                        (§ ass getdata (GetDataMessage''add-filtered-block getdata, (:item-hash item)))
-                                                                        true
-                                                                    )
-                                                                    (do
-                                                                        (§ ass getdata (append* getdata :items item))
-                                                                        ping?
-                                                                    )
-                                                                )]
-                                                            [(update this :pending-block-downloads conj (:item-hash item)) ping?]
-                                                        )
-                                                    )
-                                                )]
-                                            (recur this ping? (next blocks))
-                                        )
-                                    )
-                                    ;; If we're downloading the chain, doing a getdata on the last block we were told about will cause the
-                                    ;; peer to advertize the head block to us in a single-item inv.  When we download THAT, it will be an
-                                    ;; orphan block, meaning we'll re-enter blockChainDownloadLocked() to trigger another getblocks between the
-                                    ;; current best block we have and the orphan block.  If more blocks arrive in the meantime they'll also
-                                    ;; become orphan.
+                  ;; If we are requesting filteredblocks, we have to send a ping after the getdata so that we have
+                  ;; a clear end to the final FilteredBlock's transactions (in the form of a pong) sent to us.
+                  [this getdata #_"boolean" ping?]
+                    (sync (:peer-lock this)
+                        (when (and (seq blocks) download? (some? (:block-chain this))) => [this getdata false]
+                            ;; Ideally, we'd only ask for the data here if we actually needed it.  However that can imply a lot of
+                            ;; disk IO to figure out what we've got.  Normally peers will not send us inv for things we already have
+                            ;; so we just re-request it here, and if we get duplicates the block chain / wallet will filter them out.
+                            (loop-when [this this getdata getdata ping? false blocks blocks] (seq blocks) => [this getdata ping?]
+                                (let [#_"InventoryItem" item (first blocks)
+                                      [this getdata ping?]
+                                        (if (and (BlockChain''is-orphan (:block-chain this), (:item-hash item)) (:download-block-bodies this))
+                                            ;; If an orphan was re-advertised, ask for more blocks unless we are not currently downloading
+                                            ;; full block data because we have a getheaders outstanding.
+                                            (let [#_"Block" root (ensure some? (BlockChain''get-orphan-root (:block-chain this), (:item-hash item)))]
+                                                [(Peer''block-chain-download-locked this, (Block''get-hash root)) getdata ping?]
+                                            )
+                                            ;; Don't re-request blocks we already requested.  Normally this should not happen.  However there is
+                                            ;; an edge case: if a block is solved and we complete the inv<->getdata<->block<->getblocks cycle
+                                            ;; whilst other parts of the chain are streaming in, then the new getblocks request won't match the
+                                            ;; previous one: whilst the stopHash is the same (because we use the orphan root), the start hash
+                                            ;; will be different and so the getblocks req won't be dropped as a duplicate.  We'll end up
+                                            ;; requesting a subset of what we already requested, which can lead to parallel chain downloads
+                                            ;; and other nastyness.  So we just do a quick removal of redundant getdatas here too.
+                                            ;;
+                                            ;; Note that as of June 2012 Bitcoin Core won't actually ever interleave blocks pushed as
+                                            ;; part of chain download with newly announced blocks, so it should always be taken care of by
+                                            ;; the duplicate check in blockChainDownloadLocked().  But Bitcoin Core may change in future so
+                                            ;; it's better to be safe here.
+                                            (when-not (contains? (:pending-block-downloads this) (:item-hash item)) => [this getdata ping?]
+                                                (let [[getdata ping?]
+                                                        (if (and (VersionMessage''is-bloom-filtering-supported (:v-peer-version-message this)) (:use-filtered-blocks this))
+                                                            [(GetDataMessage''add-filtered-block getdata, (:item-hash item)) true]
+                                                            [(append* getdata :items item) ping?]
+                                                        )]
+                                                    [(update this :pending-block-downloads conj (:item-hash item)) getdata ping?]
+                                                )
+                                            )
+                                        )]
+                                    (recur this getdata ping? (next blocks))
                                 )
                             )
-                          this
-                            (when (seq (:items getdata)) => this
-                                ;; This will cause us to receive a bunch of block or tx messages.
-                                (Peer''send-message this, getdata, GetDataMessage''to-wire)
-                            )]
-                        (when ping? => this
-                            (Peer''send-message this, (Ping'new (:ledger this), (long (* (Math/random) Long/MAX_VALUE))), Ping''to-wire)
+                            ;; If we're downloading the chain, doing a getdata on the last block we were told about will cause the
+                            ;; peer to advertize the head block to us in a single-item inv.  When we download THAT, it will be an
+                            ;; orphan block, meaning we'll re-enter blockChainDownloadLocked() to trigger another getblocks between the
+                            ;; current best block we have and the orphan block.  If more blocks arrive in the meantime they'll also
+                            ;; become orphan.
                         )
                     )
+                  this
+                    (when (seq (:items getdata)) => this
+                        ;; This will cause us to receive a bunch of block or tx messages.
+                        (Peer''send-message this, getdata, GetDataMessage''to-wire)
+                    )]
+                (when ping? => this
+                    (Peer''send-message this, (Ping'new (:ledger this), (long (* (Math/random) Long/MAX_VALUE))), Ping''to-wire)
                 )
             )
         )
@@ -8866,13 +8840,15 @@
             ] (some? discover?) => this
 
                 ;; Don't hold the lock across discovery as this process can be very slow.
-                (let [#_"boolean" success?
-                        (when discover? => false
+                (let [[this #_"boolean" success?]
+                        (when discover? => [this false]
                             (try+
-                                (pos? (PeerGroup''discover-peers this))
+                                (let [[this #_"int" n] (PeerGroup''discover-peers this)]
+                                    [this (pos? n)]
+                                )
                                 (§ catch PeerDiscoveryException e
                                     (log/error e, "Peer discovery failure")
-                                    false
+                                    [this false]
                                 )
                             )
                         )
@@ -9489,35 +9465,29 @@
      ;;
     #_throws #_[ "PeerDiscoveryException" ]
     #_method
-    (defn #_"int" PeerGroup''discover-peers [#_"PeerGroup" this]
+    (defn #_"[this int]" PeerGroup''discover-peers [#_"PeerGroup" this]
         ;; Don't hold the lock whilst doing peer discovery: it can take a long time and cause high API latency.
         (assert-state (not (.isHeldByCurrentThread (:peergroup-lock this))))
 
-        (let [#_"int" n (:v-max-peers-to-discover-count this)
-              #_"long" timeout (:v-peer-discovery-timeout-millis this)
-              #_"List<PeerAddress>" addresses (LinkedList.)]
-
-            (loop-when [#_"PeerDiscovery*" s (:peer-discoveries this)] (seq s)
-                (let [#_"PeerDiscovery" discovery (first s)]
-                    (doseq [#_"InetSocketAddress" address (PeerDiscovery'''get-peers discovery, (:required-services this), timeout, TimeUnit/MILLISECONDS)]
-                        (§ ass addresses (.add addresses, (PeerAddress'from-socket-address (:ledger this), address)))
+        (let [#_"long" timeout (:v-peer-discovery-timeout-millis this)
+              #_"PeerAddress*" addresses
+                (take (:v-max-peers-to-discover-count this)
+                    (for [#_"PeerDiscovery" discovery (:peer-discoveries this)
+                          #_"InetSocketAddress" address (PeerDiscovery'''get-peers discovery, (:required-services this), timeout, TimeUnit/MILLISECONDS)]
+                        (PeerAddress'from-socket-address (:ledger this), address)
                     )
-                    (recur-if (< (count addresses) n) [(next s)])
+                )]
+
+            (when (seq addresses) => [this 0]
+                (let [this (reduce PeerGroup''add-inactive this addresses)]
+                    (doseq [#_"PeerDiscoveredEventListener" l (:peer-discovered-event-listeners this)]
+                        (§ async?
+                            (PeerDiscoveredEventListener'''on-peers-discovered l, addresses)
+                        )
+                    )
+                    [this (count addresses)]
                 )
             )
-
-            (when (seq addresses)
-                (doseq [#_"PeerAddress" address addresses]
-                    (§ ass this (PeerGroup''add-inactive this, address))
-                )
-
-                (doseq [#_"PeerDiscoveredEventListener" l (:peer-discovered-event-listeners this)]
-                    (§ async?
-                        (PeerDiscoveredEventListener'''on-peers-discovered l, addresses)
-                    )
-                )
-            )
-            (count addresses)
         )
     )
 
@@ -10293,6 +10263,16 @@
     )
 
     ;;;
+     ; Returns a seq of peers that match the requested service bit mask.
+     ;;
+    #_method
+    (defn #_"Peer*" PeerGroup''find-peers-with-service-mask [#_"PeerGroup" this, #_"int" mask]
+        (sync (:peergroup-lock this)
+            (filter #(= (& (:local-services (:v-peer-version-message %)) mask) mask) (:connected-peers this))
+        )
+    )
+
+    ;;;
      ; Returns a future that is triggered when there are at least the requested number of connected peers that support
      ; the given protocol version or higher.  To block immediately, just call get() on the result.
      ;
@@ -10301,18 +10281,18 @@
      ; @return a future that will be triggered when the number of connected peers implementing protocolVersion or higher >= numPeers.
      ;;
     #_method
-    (defn #_"ListenableFuture<List<Peer>>" PeerGroup''wait-for-peers-with-service-mask [#_"PeerGroup" this, #_"int" n, #_"int" mask]
+    (defn #_"ListenableFuture<Peer*>" PeerGroup''wait-for-peers-with-service-mask [#_"PeerGroup" this, #_"int" n, #_"int" mask]
         (sync (:peergroup-lock this)
-            (let [#_"List<Peer>" peers (ArrayList. (PeerGroup''find-peers-with-service-mask this, mask))]
+            (let [#_"Peer*" peers (PeerGroup''find-peers-with-service-mask this, mask)]
                 (if (<= n (count peers))
                     (Futures/immediateFuture peers)
-                    (let [#_"SettableFuture<List<Peer>>" future (SettableFuture/create)]
+                    (let [#_"SettableFuture<Peer*>" future (SettableFuture/create)]
                         (§ ass this (PeerGroup''add-connected-event-listener this,
                             (§ async!
                                 (§ reify PeerConnectedEventListener
                                     #_override
                                     (§ non-void #_"PeerConnectedEventListener" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" self, #_"Peer" _peer]
-                                        (let [#_"List<Peer>" peers (ArrayList. (PeerGroup''find-peers-with-service-mask this, mask))]
+                                        (let [#_"Peer*" peers (PeerGroup''find-peers-with-service-mask this, mask)]
                                             (when (<= n (count peers))
                                                 (.set future, peers)
                                                 (§ ass this (PeerGroup''remove-connected-event-listener this, self))
@@ -10327,16 +10307,6 @@
                     )
                 )
             )
-        )
-    )
-
-    ;;;
-     ; Returns a seq of peers that match the requested service bit mask.
-     ;;
-    #_method
-    (defn #_"Peer*" PeerGroup''find-peers-with-service-mask [#_"PeerGroup" this, #_"int" mask]
-        (sync (:peergroup-lock this)
-            (filter #(= (& (:local-services (:v-peer-version-message %)) mask) mask) (:connected-peers this))
         )
     )
 
@@ -12101,10 +12071,6 @@
  ; a peer indicating that the transaction was not acceptable.
  ;;
 (class-ns TransactionBroadcast
-    ;;; Used for shuffling the peers before broadcast: unit tests can replace this to make themselves deterministic. ;;
-    #_testing
-    (def #_"Random" TransactionBroadcast'RANDOM (Random.))
-
     (defn #_"TransactionBroadcast" TransactionBroadcast'new [#_"PeerGroup" group, #_"Transaction" tx]
         (hash-map
             #_"SettableFuture<Transaction>" :future (SettableFuture/create)
@@ -12157,7 +12123,7 @@
         ;; wait for it to show up on one of the other two.  This will be taken as sign of network acceptance.  As can
         ;; be seen, 4 peers is probably too little - it doesn't taken many broken peers for tx propagation to have
         ;; a big effect.
-        (let [#_"List<Peer>" peers (ß :connected-peers (:peer-group this))] ;; snapshots
+        (let [#_"Peer*" peers (:connected-peers (:peer-group this))] ;; snapshots
             ;; Prepare to send the transaction by adding a listener that'll be called when confidence changes.
             ;; Only bother with this if we might actually hear back:
             (when (< 1 (:min-connections this))
@@ -12173,8 +12139,7 @@
             ;; to skip the inv here - we wouldn't send invs anyway.
             (let [#_"int" n (count peers) #_"int" m (max 1 (int (Math/round (Math/ceil (/ n 2.0)))))
                   this (assoc this :num-waiting-for (int (Math/ceil (/ (- n m) 2.0))))
-                  _ (Collections/shuffle peers, TransactionBroadcast'RANDOM)
-                  peers (subvec peers 0 m)]
+                  peers (take m (shuffle peers))]
 
                 (log/info (str "broadcastTransaction: We have " n " peers, adding " (Transaction''get-hash (:tx this)) " to the memory pool"))
                 (log/info (apply str "Sending to " m " peers, will wait for " (:num-waiting-for this) ", sending to: " (interpose "," peers)))
@@ -16393,44 +16358,41 @@
 
     #_method
     (defn #_"this" FilterMerger''calculate [#_"FilterMerger" this, #_"Wallet*" wallets]
-        (let [#_"List<Wallet>" __begunWallets (LinkedList.)]
-            (try
-                ;; All providers must be in a consistent, unchanging state because the filter is a merged one that's
-                ;; large enough for all providers elements: if a provider were to get more elements in the middle of the
-                ;; calculation, we might assert or calculate the filter wrongly.  Most providers use a lock here but
-                ;; snapshotting required state is also a legitimate strategy.
+        ;; All providers must be in a consistent, unchanging state because the filter is a merged one that's
+        ;; large enough for all providers elements: if a provider were to get more elements in the middle of the
+        ;; calculation, we might assert or calculate the filter wrongly.  Most providers use a lock here but
+        ;; snapshotting required state is also a legitimate strategy.
+        (doseq [#_"Wallet" wallet wallets]
+            (Wallet''lock-bloom-filter-calculation wallet)
+        )
+        (try
+            (let [[#_"long" earliest #_"int" elements]
+                    (reduce (fn [[earliest elements] wallet]
+                            [(min earliest (Wallet''get-earliest-key-creation-time wallet))
+                             (+   elements (KeyChainGroup''count-bloom-filter-elements (:key-chain-group wallet)) (count (Wallet''bloom-filter-outpoints-locked wallet)))])
+                        [Long/MAX_VALUE 0] wallets)
+                  ;; Adjust the earliest key time backwards by a week to handle the case of clock drift.  This can occur
+                  ;; both in block header timestamps and if the users clock was out of sync when the key was first created
+                  ;; (to within a small amount of tolerance).
+                  this (assoc this :earliest-key-time-secs (- earliest (* 7 24 60 60)))]
+                (when (pos? elements) => this
+                    ;; We stair-step our element count so that we avoid creating a filter with different parameters
+                    ;; as much as possible as that results in a loss of privacy.
+                    ;; The constant 100 here is somewhat arbitrary, but makes sense for small to medium wallets -
+                    ;; it will likely mean we never need to create a filter with different parameters.
+                    (let [this (update this :merger-size #(if (< % elements) (+ elements 100) %))
+                          #_"int" size (:merger-size this)
+                          #_"double" rate (:v-merger-fp-rate this)
+                          #_"long" tweak (:merger-tweak this)
+                          #_"BloomFilter" filter (BloomFilter'new (:ledger this), size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)
+                          filter (reduce BloomFilter''merge filter (map #(Wallet''create-bloom-filter-locked %, size, rate, tweak) wallets))]
+                        (assoc this :merged-filter filter)
+                    )
+                )
+            )
+            (finally
                 (doseq [#_"Wallet" wallet wallets]
-                    (Wallet''lock-bloom-filter-calculation wallet)
-                    (§ ass __begunWallets (.add __begunWallets, wallet))
-                )
-                (let [[#_"long" earliest #_"int" elements]
-                        (reduce (fn [[earliest elements] wallet]
-                                [(min earliest (Wallet''get-earliest-key-creation-time wallet))
-                                 (+   elements (KeyChainGroup''count-bloom-filter-elements (:key-chain-group wallet)) (count (Wallet''bloom-filter-outpoints-locked wallet)))])
-                            [Long/MAX_VALUE 0] wallets)
-                      ;; Adjust the earliest key time backwards by a week to handle the case of clock drift.  This can occur
-                      ;; both in block header timestamps and if the users clock was out of sync when the key was first created
-                      ;; (to within a small amount of tolerance).
-                      this (assoc this :earliest-key-time-secs (- earliest (* 7 24 60 60)))]
-                    (when (pos? elements) => this
-                        ;; We stair-step our element count so that we avoid creating a filter with different parameters
-                        ;; as much as possible as that results in a loss of privacy.
-                        ;; The constant 100 here is somewhat arbitrary, but makes sense for small to medium wallets -
-                        ;; it will likely mean we never need to create a filter with different parameters.
-                        (let [this (update this :merger-size #(if (< % elements) (+ elements 100) %))
-                              #_"int" size (:merger-size this)
-                              #_"double" rate (:v-merger-fp-rate this)
-                              #_"long" tweak (:merger-tweak this)
-                              #_"BloomFilter" filter (BloomFilter'new (:ledger this), size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)
-                              filter (reduce BloomFilter''merge filter (map #(Wallet''create-bloom-filter-locked %, size, rate, tweak) wallets))]
-                            (assoc this :merged-filter filter)
-                        )
-                    )
-                )
-                (finally
-                    (doseq [#_"Wallet" wallet __begunWallets]
-                        (Wallet''unlock-bloom-filter-calculation wallet)
-                    )
+                    (Wallet''unlock-bloom-filter-calculation wallet)
                 )
             )
         )
@@ -17015,13 +16977,13 @@
      ; @param services Required services as a bitmask, e.g. {@link VersionMessage#NODE_NETWORK}.
      ;;
     (defn #_"MultiplexingDiscovery" MultiplexingDiscovery'for-services [#_"Ledger" ledger, #_"long" services]
-        (let [#_"List<PeerDiscovery>" discoveries (ArrayList.)]
-            ;; Also use DNS seeds if there is no specific service requirement.
-            (when (zero? services)
-                (doseq [#_"String" seed (:dns-seeds ledger)]
-                    (§ ass discoveries (.add discoveries, (DnsSeedDiscovery'new ledger, seed)))
-                )
-            )
+        ;; Also use DNS seeds if there is no specific service requirement.
+        (let [#_"PeerDiscovery*" discoveries
+                (when (zero? services) => nil
+                    (for [#_"String" seed (:dns-seeds ledger)]
+                        (DnsSeedDiscovery'new ledger, seed)
+                    )
+                )]
             (MultiplexingDiscovery'new ledger, discoveries)
         )
     )
@@ -17031,41 +16993,36 @@
     (defn #_"InetSocketAddress*" PeerDiscovery'''get-peers [#_"MultiplexingDiscovery" this, #_"long" services, #_"long" timeout, #_"TimeUnit" unit]
         (§ ass this (assoc this :v-thread-pool (MultiplexingDiscovery'''create-executor this)))
         (try
-            (let [#_"List<Callable<InetSocketAddress*>>" tasks (ArrayList.)]
-                (doseq [#_"PeerDiscovery" seed (:seeds this)]
-                    (§ ass tasks (.add tasks,
-                        (reify Callable #_"<InetSocketAddress*>"
-                            #_throws #_[ "Exception" ]
-                            #_foreign
-                            #_override
-                            (#_"InetSocketAddress*" call [#_"Callable" __]
-                                (PeerDiscovery'''get-peers seed, services, timeout, unit)
-                            )
-                        )
-                    ))
-                )
-                (let [#_"List<Future<InetSocketAddress*>>" futures (.invokeAll (:v-thread-pool this), tasks, timeout, unit)
-                      #_"List<InetSocketAddress>" addrs (ArrayList.)]
-                    (dotimes [#_"int" i (count futures)]
-                        (let [#_"Future<InetSocketAddress*>" future (nth futures i)]
+            (let [#_"#(InetSocketAddress*)*" tasks
+                    (for [#_"PeerDiscovery" seed (:seeds this)]
+                        #_throws #_[ "Exception" ]
+                        #(PeerDiscovery'''get-peers seed, services, timeout, unit)
+                    )
+                  #_"InetSocketAddress*" addrs
+                    (apply concat
+                        (for [[#_"PeerDiscovery" seed #_"Future<InetSocketAddress*>" future] (map vec (:seeds this) (.invokeAll (:v-thread-pool this), tasks, timeout, unit))]
                             (if (.isCancelled future)
-                                (log/warn (str "Seed " (nth (:seeds this) i) ": timed out"))
+                                (do
+                                    (log/warn (str "Seed " seed ": timed out"))
+                                    nil
+                                )
                                 (try
-                                    (Collections/addAll addrs, (.get future))
+                                    (.get future)
                                     (catch ExecutionException e
-                                        (log/warn (str "Seed " (nth (:seeds this) i) ": failed to look up: " (.getMessage e)))
+                                        (log/warn (str "Seed " seed ": failed to look up: " (.getMessage e)))
+                                        nil
                                     )
                                 )
                             )
                         )
-                    )
-                    (when (zero? (count addrs))
-                        (throw+ (PeerDiscoveryException'new (str "No peer discovery returned any results in " (.toMillis unit, timeout) "ms.  Check internet connection?")))
-                    )
+                    )]
 
-                    (.shutdownNow (:v-thread-pool this))
-                    (shuffle addrs)
+                (when (empty? addrs)
+                    (throw+ (PeerDiscoveryException'new (str "No peer discovery returned any results in " (.toMillis unit, timeout) "ms.  Check internet connection?")))
                 )
+
+                (.shutdownNow (:v-thread-pool this))
+                (shuffle addrs)
             )
             (catch InterruptedException e
                 (throw+ (PeerDiscoveryException'new) e)
