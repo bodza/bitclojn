@@ -80,7 +80,6 @@
 (ns bitclojn.core
     (:refer-clojure :exclude [ensure subvec sync vec vector vector-of when when-not])
     (:import [com.google.common.base Throwables]
-             [com.google.common.collect ArrayListMultimap]
              [com.google.common.hash HashCode Hasher Hashing]
              [com.google.common.io BaseEncoding]
              [com.google.common.math LongMath]
@@ -204,7 +203,7 @@
 (declare KeyBag'''find-key-from-pub-hash KeyBag'''find-key-from-pub-key KeyBag'''find-redeem-data-from-script-hash)
 (declare BasicKeyChain''add-event-listener DeterministicKeyChain''add-event-listener DeterministicKeyChain''get-earliest-key-creation-time BasicKeyChain''create-bloom-filter DeterministicKeyChain'''create-bloom-filter DeterministicKeyChain''get-key DeterministicKeyChain''get-keys BasicKeyChain''has-key DeterministicKeyChain''has-key DeterministicKeyChain'''count-bloom-filter-elements BasicKeyChain''num-keys DeterministicKeyChain''num-keys BasicKeyChain''remove-event-listener DeterministicKeyChain''remove-event-listener)
 (declare KeyChainEventListener'''on-keys-added)
-(declare KeyChainGroup''add-and-activate-hd-chain KeyChainGroup''add-event-listener KeyChainGroup''create-and-activate-new-hd-chain KeyChainGroup''current-address KeyChainGroup''current-key KeyChainGroup''fresh-address KeyChainGroup''fresh-key KeyChainGroup''fresh-keys KeyChainGroup''get-active-key-chain KeyChainGroup''create-bloom-filter KeyChainGroup''count-bloom-filter-elements KeyChainGroup''get-combined-key-lookahead-epochs KeyChainGroup''get-earliest-key-creation-time KeyChainGroup''get-lookahead-size KeyChainGroup''get-lookahead-threshold KeyChainGroup''has-key KeyChainGroup''is-married KeyChainGroup''is-watching KeyChainGroup''make-p2sh-output-script KeyChainGroup''mark-p2sh-address-as-used KeyChainGroup''mark-pub-key-as-used KeyChainGroup''mark-pub-key-hash-as-used KeyChainGroup''maybe-lookahead-scripts KeyChainGroup''maybe-mark-current-address-as-used KeyChainGroup''maybe-mark-current-key-as-used KeyChainGroup''num-keys KeyChainGroup''remove-event-listener KeyChainGroup''set-lookahead-size KeyChainGroup''set-lookahead-threshold KeyChainGroup''to-string KeyChainGroup'create-current-keys-map KeyChainGroup'extract-following-keychains KeyChainGroup'watch KeyChainGroup'from-seed KeyChainGroup'new)
+(declare KeyChainGroup''add-and-activate-hd-chain KeyChainGroup''add-event-listener KeyChainGroup''create-and-activate-new-hd-chain KeyChainGroup''current-address KeyChainGroup''current-key KeyChainGroup''fresh-address KeyChainGroup''fresh-key KeyChainGroup''fresh-keys KeyChainGroup''get-active-key-chain KeyChainGroup''create-bloom-filter KeyChainGroup''count-bloom-filter-elements KeyChainGroup''get-combined-key-lookahead-epochs KeyChainGroup''get-earliest-key-creation-time KeyChainGroup''get-lookahead-size KeyChainGroup''get-lookahead-threshold KeyChainGroup''has-key KeyChainGroup''is-married KeyChainGroup''is-watching KeyChainGroup''make-p2sh-output-script KeyChainGroup''mark-p2sh-address-as-used KeyChainGroup''mark-pub-key-as-used KeyChainGroup''mark-pub-key-hash-as-used KeyChainGroup''maybe-lookahead-scripts KeyChainGroup''maybe-mark-current-address-as-used KeyChainGroup''maybe-mark-current-key-as-used KeyChainGroup''num-keys KeyChainGroup''remove-event-listener KeyChainGroup''set-lookahead-size KeyChainGroup''set-lookahead-threshold KeyChainGroup''to-string KeyChainGroup'create-current-keys-map KeyChainGroup'watch KeyChainGroup'from-seed KeyChainGroup'new)
 (declare KeyChainState'enum-set)
 (declare KeyPurpose'enum-set)
 (declare KeyTimeCoinSelector''is-confirmed KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS KeyTimeCoinSelector'new)
@@ -276,7 +275,7 @@
 (declare SPVBlockChain'new)
 (declare SPVBlockStore''get-ring-cursor SPVBlockStore''init-store SPVBlockStore''set-ring-cursor SPVBlockStore'DEFAULT_CAPACITY SPVBlockStore'FILE_PROLOGUE_BYTES SPVBlockStore'HEADER_MAGIC SPVBlockStore'NOT_FOUND_MARKER SPVBlockStore'RECORD_SIZE SPVBlockStore'get-file-size SPVBlockStore'new)
 (declare Script''correctly-spends Script''create-empty-input-script Script''find-key-in-redeem Script''find-sig-in-redeem Script''get-cltv-payment-channel-expiry Script''get-cltv-payment-channel-recipient-pub-key Script''get-cltv-payment-channel-sender-pub-key Script''get-from-address Script''get-number-of-bytes-required-to-spend Script''get-number-of-signatures-required-to-spend Script''to-bytes Script''get-pub-key Script''get-pub-key-hash Script''get-pub-keys Script''get-quick-program Script''get-script-sig-with-signature Script''get-script-type Script''get-sig-insertion-index Script''get-to-address-2 Script''get-to-address-3 Script''is-op-return Script''is-pay-to-script-hash Script''is-sent-to-address Script''is-sent-to-cltv-payment-channel Script''is-sent-to-multi-sig Script''is-sent-to-raw-pub-key Script'parse Script'ALL_VERIFY_FLAGS Script'MAX_OPS_PER_SCRIPT Script'MAX_P2SH_SIGOPS Script'MAX_PUBKEYS_PER_MULTISIG Script'MAX_SCRIPT_ELEMENT_SIZE Script'MAX_SCRIPT_SIZE Script'MAX_STACK_SIZE Script'SIG_SIZE Script'cast-to-big-integer-2 Script'cast-to-big-integer-3 Script'cast-to-bool Script'check-sequence Script'decode-from-op-n Script'encode-to-op-n Script'equals-range Script'execute-check-lock-time-verify Script'execute-check-sequence-verify Script'execute-check-sig Script'execute-multi-sig Script'execute-script-5 Script'get-p2sh-sig-op-count Script'get-sig-op-count-1 Script'get-sig-op-count-2 Script'new Script'remove-all-instances-of Script'remove-all-instances-of-op Script'write-bytes Script''to-string)
-(declare ScriptBuilder'new ScriptBuilder''append ScriptBuilder''to-script ScriptBuilder''data ScriptBuilder''num ScriptBuilder''op Script'create-cltv-payment-channel-input-2 Script'create-cltv-payment-channel-input-2-bytes Script'create-cltv-payment-channel-output Script'create-cltv-payment-channel-p2sh-input Script'create-cltv-payment-channel-p2sh-refund Script'create-cltv-payment-channel-refund Script'create-input-script-1 Script'create-input-script-2 Script'create-multi-sig-input-script Script'create-multi-sig-input-script-bytes-1 Script'create-multi-sig-input-script-bytes-2 Script'create-multi-sig-output-script Script'create-op-return-script Script'create-output-script-1a Script'create-output-script-1e Script'create-p2sh-multi-sig-input-script Script'create-p2sh-output-script-1 Script'create-p2sh-output-script-1-bytes Script'create-p2sh-output-script-2 Script'create-redeem-script Script'update-script-with-signature)
+(declare ScriptBuilder'new ScriptBuilder''append ScriptBuilder''to-script ScriptBuilder''data ScriptBuilder''num ScriptBuilder''op Script'create-cltv-payment-channel-input-2 Script'create-cltv-payment-channel-input-2-bytes Script'create-cltv-payment-channel-output Script'create-cltv-payment-channel-p2sh-input Script'create-cltv-payment-channel-p2sh-refund Script'create-cltv-payment-channel-refund Script'create-input-script-1 Script'create-input-script-2 Script'create-multi-sig-input-script Script'create-multi-sig-input-script-bytes Script'create-multi-sig-output-script Script'create-op-return-script Script'create-output-script-1a Script'create-output-script-1e Script'create-p2sh-multi-sig-input-script Script'create-p2sh-output-script-1 Script'create-p2sh-output-script-1-bytes Script'create-p2sh-output-script-2 Script'create-redeem-script Script'update-script-with-signature)
 (declare ScriptChunk''decode-op-n ScriptChunk''equals-op-code ScriptChunk''is-op-code ScriptChunk''is-push-data ScriptChunk''is-shortest-possible-push-data ScriptChunk''write-chunk ScriptChunk'new)
 (declare ScriptError'enum-set)
 (declare ScriptException'new)
@@ -2479,19 +2478,17 @@
                                 )
                             )
                             ;; Walk in ascending chronological order.
-                            (let [#_"Iterator<StoredBlock>" it (.descendingIterator __newBlocks)]
-                                (loop-when [__storedNewHead __splitPoint] (.hasNext it) => __storedNewHead
-                                    (let [#_"StoredBlock" cursor (.next it)]
-                                        (when (and expensive? (<= (:time-seconds (:stored-header cursor)) (BlockChain'get-median-timestamp-of-recent-blocks (StoredBlock''get-prev cursor, (:block-store this)), (:block-store this))))
-                                            (throw+ (VerificationException'new "Block's timestamp is too early during reorg"))
-                                        )
-                                        (let [#_"TransactionOutputChanges" changes
-                                                (if (and (= cursor __newChainHead) (some? block))
-                                                    (BlockChain'''connect-transactions-3 this, (:stored-height __newChainHead), block)
-                                                    (BlockChain'''connect-transactions-2 this, cursor)
-                                                )]
-                                            (recur (BlockChain'''add-to-block-store-4 this, __storedNewHead, (Block''clone-as-header (:stored-header cursor)), changes))
-                                        )
+                            (loop-when [__storedNewHead __splitPoint #_"StoredBlock*" s (reverse __newBlocks)] (seq s) => __storedNewHead
+                                (let [#_"StoredBlock" cursor (first s)]
+                                    (when (and expensive? (<= (:time-seconds (:stored-header cursor)) (BlockChain'get-median-timestamp-of-recent-blocks (StoredBlock''get-prev cursor, (:block-store this)), (:block-store this))))
+                                        (throw+ (VerificationException'new "Block's timestamp is too early during reorg"))
+                                    )
+                                    (let [#_"TransactionOutputChanges" changes
+                                            (if (and (= cursor __newChainHead) (some? block))
+                                                (BlockChain'''connect-transactions-3 this, (:stored-height __newChainHead), block)
+                                                (BlockChain'''connect-transactions-2 this, cursor)
+                                            )]
+                                        (recur (BlockChain'''add-to-block-store-4 this, __storedNewHead, (Block''clone-as-header (:stored-header cursor)), changes) (next s))
                                     )
                                 )
                             )
@@ -18833,48 +18830,10 @@
     )
 
     ;;;
-     ; Create a program that satisfies an OP_CHECKMULTISIG program.
-     ;;
-    (defn #_"Script" Script'create-multi-sig-input-script [#_"List<TransactionSignature>" signatures]
-        (let [#_"List<byte[]>" sigs (ArrayList.)]
-            (doseq [#_"TransactionSignature" signature signatures]
-                (§ ass sigs (.add sigs, (TransactionSignature''encode-to-bitcoin signature)))
-            )
-            (Script'create-multi-sig-input-script-bytes-2 sigs, nil)
-        )
-    )
-
-    ;;;
-     ; Create a program that satisfies an OP_CHECKMULTISIG program, using pre-encoded signatures.
-     ;;
-    (defn #_"Script" Script'create-multi-sig-input-script-bytes-1 [#_"List<byte[]>" signatures]
-        (Script'create-multi-sig-input-script-bytes-2 signatures, nil)
-    )
-
-    ;;;
-     ; Create a program that satisfies a pay-to-script hashed OP_CHECKMULTISIG program.
-     ; If given signature list is null, incomplete scriptSig will be created with OP_0 instead of signatures.
-     ;;
-    (defn #_"Script" Script'create-p2sh-multi-sig-input-script [#_"List<TransactionSignature>" signatures, #_"Script" script]
-        (let [#_"List<byte[]>" sigs (ArrayList.)]
-            (if (some? signatures)
-                (doseq [#_"TransactionSignature" signature signatures]
-                    (§ ass sigs (.add sigs, (TransactionSignature''encode-to-bitcoin signature)))
-                )
-                ;; Create correct number of empty signatures.
-                (dotimes [_ (Script''get-number-of-signatures-required-to-spend script)]
-                    (§ ass sigs (.add sigs, (byte-array 0)))
-                )
-            )
-            (Script'create-multi-sig-input-script-bytes-2 sigs, (Script''to-bytes script))
-        )
-    )
-
-    ;;;
      ; Create a program that satisfies an OP_CHECKMULTISIG program, using pre-encoded signatures.
      ; Optionally, appends the script program bytes if spending a P2SH output.
      ;;
-    (defn #_"Script" Script'create-multi-sig-input-script-bytes-2 [#_"List<byte[]>" sigs, #_"byte[]" program]
+    (defn #_"Script" Script'create-multi-sig-input-script-bytes [#_"byte[]*" sigs, #_"byte[]" program]
         (assert-argument (<= (count sigs) 16))
 
         (-> (ScriptBuilder'new)
@@ -18882,6 +18841,28 @@
             (#(reduce ScriptBuilder''data % sigs))
             (#(if (some? program) (ScriptBuilder''data %, program) %))
             (ScriptBuilder''to-script)
+        )
+    )
+
+    ;;;
+     ; Create a program that satisfies an OP_CHECKMULTISIG program.
+     ;;
+    (defn #_"Script" Script'create-multi-sig-input-script [#_"TransactionSignature*" sigs]
+        (Script'create-multi-sig-input-script-bytes (map TransactionSignature''encode-to-bitcoin sigs), nil)
+    )
+
+    ;;;
+     ; Create a program that satisfies a pay-to-script hashed OP_CHECKMULTISIG program.
+     ; If given signature list is null, incomplete scriptSig will be created with OP_0 instead of signatures.
+     ;;
+    (defn #_"Script" Script'create-p2sh-multi-sig-input-script [#_"TransactionSignature*" sigs, #_"Script" script]
+        (let [#_"byte[]*" sigs'
+                (if (some? sigs)
+                    (map TransactionSignature''encode-to-bitcoin sigs)
+                    ;; Create correct number of empty signatures.
+                    (repeat (Script''get-number-of-signatures-required-to-spend script) (byte-array 0))
+                )]
+            (Script'create-multi-sig-input-script-bytes sigs', (Script''to-bytes script))
         )
     )
 
@@ -24227,52 +24208,32 @@
         (update* this :chains DeterministicKeyChain''remove-event-listener listener)
     )
 
-    (defn- #_"{KeyPurpose DeterministicKey}" KeyChainGroup'create-current-keys-map [#_"List<DeterministicKeyChain>" chains]
-        (let [#_"DeterministicKeyChain" active (nth chains (dec (count chains)))
+    (defn- #_"{KeyPurpose DeterministicKey}" KeyChainGroup'create-current-keys-map [#_"DeterministicKeyChain*" chains]
+        (let [#_"DeterministicKeyChain" active (last chains)
               #_"{KeyPurpose DeterministicKey}" keys (hash-map)
               ;; Assuming that only RECEIVE and CHANGE keys are being used at the moment, we will treat the latest issued
               ;; external key as current RECEIVE key and latest issued internal key as CHANGE key.  This should be changed
               ;; as soon as other kinds of KeyPurpose are introduced.
               keys
                 (let-when [#_"int" n (:issued-external-keys active)] (pos? n) => keys
-                    (let [#_"DeterministicKey" key (DeterministicKeyChain''get-key-by-path-2 active, (conj (catvec DeterministicKeyChain'ACCOUNT_ZERO_PATH DeterministicKeyChain'EXTERNAL_SUBPATH) (ChildNumber'new (dec n))))]
-                        (assoc keys :KeyPurpose'RECEIVE_FUNDS key)
+                    (->>
+                        (ChildNumber'new (dec n))
+                        (conj (catvec DeterministicKeyChain'ACCOUNT_ZERO_PATH DeterministicKeyChain'EXTERNAL_SUBPATH))
+                        (DeterministicKeyChain''get-key-by-path-2 active)
+                        (assoc keys :KeyPurpose'RECEIVE_FUNDS)
                     )
                 )
               keys
                 (let-when [#_"int" n (:issued-internal-keys active)] (pos? n) => keys
-                    (let [#_"DeterministicKey" key (DeterministicKeyChain''get-key-by-path-2 active, (conj (catvec DeterministicKeyChain'ACCOUNT_ZERO_PATH DeterministicKeyChain'INTERNAL_SUBPATH) (ChildNumber'new (dec n))))]
-                        (assoc keys :KeyPurpose'CHANGE key)
+                    (->>
+                        (ChildNumber'new (dec n))
+                        (conj (catvec DeterministicKeyChain'ACCOUNT_ZERO_PATH DeterministicKeyChain'INTERNAL_SUBPATH))
+                        (DeterministicKeyChain''get-key-by-path-2 active)
+                        (assoc keys :KeyPurpose'CHANGE)
                     )
                 )]
             keys
         )
-    )
-
-    (defn- #_"void" KeyChainGroup'extract-following-keychains [#_"List<DeterministicKeyChain>" chains]
-        ;; Look for following key chains and map them to the watch keys of followed keychains.
-        (let [#_"List<DeterministicKeyChain>" __followingChains (ArrayList.)]
-            (loop-when-recur [#_"Iterator<DeterministicKeyChain>" it (.iterator chains)] (.hasNext it) [it]
-                (let [#_"DeterministicKeyChain" chain (.next it)]
-                    (cond (:is-following chain)
-                        (do
-                            (§ ass __followingChains (.add __followingChains, chain))
-                            (.remove it)
-                        )
-                        (seq __followingChains)
-                        (do
-                            (when-not (§ instance? MarriedKeyChain chain)
-                                (throw (IllegalStateException.))
-                            )
-
-                            (§ ass (cast' MarriedKeyChain chain) (assoc (cast' MarriedKeyChain chain) :following-key-chains (vec __followingChains)))
-                            (§ ass __followingChains (empty __followingChains))
-                        )
-                    )
-                )
-            )
-        )
-        nil
     )
 
     ;;;
@@ -25208,7 +25169,7 @@
                             ;; so we'll queue up a wallet change event in other parts of the code.
                             (when (= reason :ConfidenceChangeReason'SEEN_PEERS)
                                 (sync (:wallet-lock this)
-                                    (Wallet''check-balance-futures-locked this)
+                                    (§ ass this (Wallet''check-balance-futures-locked this))
                                     (let [#_"Transaction" tx (Wallet''get-transaction this, (:transaction-hash confidence))]
                                         (Wallet''queue-on-transaction-confidence-changed this, tx)
                                         (Wallet''maybe-queue-on-wallet-changed this)
@@ -26095,7 +26056,7 @@
                                 (Coin''negative? difference) (Wallet''queue-on-coins-sent     this, tx, before, after)
                             )
                         )
-                        (Wallet''check-balance-futures-locked this)
+                        (§ ass this (Wallet''check-balance-futures-locked this))
                     )
                 )
 
@@ -26592,7 +26553,7 @@
                               #_"Coin" spent (Transaction''get-value-sent-from-me tx, this)
                               #_"Coin" after (Coin''subtract (Coin''add balance, earned), spent)]
                             (when (Coin''positive? earned)
-                                (Wallet''check-balance-futures-locked this)
+                                (§ ass this (Wallet''check-balance-futures-locked this))
                                 (Wallet''queue-on-coins-received this, tx, balance, after)
                             )
                             (when (Coin''positive? spent)
@@ -27048,44 +27009,42 @@
      ; money to fail!  Finally please be aware that any listeners on the future will run either on the calling thread
      ; if it completes immediately, or eventually on a background thread if the balance is not yet at the right
      ; level.  If you do something that means you know the balance should be sufficient to trigger the future,
-     ; you can use {@link Threading#waitForUserCode()} to block until the future had a
-     ; chance to be updated.
+     ; you can use {@link Threading#waitForUserCode()} to block until the future had a chance to be updated.
      ;;
     #_method
-    (defn #_"ListenableFuture<Coin>" Wallet''get-balance-future [#_"Wallet" this, #_"Coin" value, #_"BalanceType" type]
+    (defn #_"[this ListenableFuture<Coin>]" Wallet''get-balance-future [#_"Wallet" this, #_"Coin" value, #_"BalanceType" type]
         (sync (:wallet-lock this)
-            (let [#_"SettableFuture<Coin>" future (SettableFuture/create)
-                  #_"Coin" balance (Wallet''get-balance-2t this, type)]
-                (if (<= 0 (Coin'compare balance, value))
+            (let [#_"SettableFuture<Coin>" future (SettableFuture/create) #_"Coin" balance (Wallet''get-balance-2t this, type)]
+                (if-not (Coin''less-than? balance, value)
                     ;; Already have enough.
-                    (.set future, balance)
+                    (do (.set future, balance) [this future])
                     ;; Will be checked later in checkBalanceFutures.  We don't just add an event listener for ourselves
                     ;; here so that running getBalanceFuture().get() in the user code thread works - generally we must
                     ;; avoid giving the user back futures that require the user code thread to be free.
-                    (§ ass this (append* this :balance-future-requests (BalanceFutureRequest'new future, value, type)))
+                    [(append* this :balance-future-requests (BalanceFutureRequest'new future, value, type)) future]
                 )
-                future
             )
         )
     )
 
     ;; Runs any balance futures in the user code thread.
     #_method
-    (defn- #_"void" Wallet''check-balance-futures-locked [#_"Wallet" this]
+    (defn- #_"Wallet" Wallet''check-balance-futures-locked [#_"Wallet" this]
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
 
-        (loop-when-recur [#_"ListIterator<BalanceFutureRequest>" it (.listIterator (:balance-future-requests this))] (.hasNext it) [it]
-            (let [#_"BalanceFutureRequest" req (.next it)
-                  #_"Coin" balance (Wallet''get-balance-2t this, (:balance-type req))] ;; This could be slow for lots of futures.
-                (when (<= 0 (Coin'compare balance, (:balance-value req)))
-                    ;; Found one that's finished.
-                    (.remove it)
-                    ;; Don't run any user-provided future listeners with our lock held.
-                    (.execute Threading'USER_THREAD, #(.set (:future req), balance))
-                )
-            )
+        (letfn [(#_"boolean" processed- [#_"BalanceFutureRequest" req]
+                    ;; This could be slow for lots of futures.
+                    (let [#_"Coin" balance (Wallet''get-balance-2t this, (:balance-type req))]
+                        (when-not (Coin''less-than? balance, (:balance-value req)) => false
+                            ;; Don't run any user-provided future listeners with our lock held.
+                            (.execute Threading'USER_THREAD, #(.set (:future req), balance))
+                            ;; Found one that's finished.
+                            true
+                        )
+                    )
+                )]
+            (remove* this :balance-future-requests processed-)
         )
-        nil
     )
 
     ;;;
@@ -27644,135 +27603,149 @@
                   _ (assert-state (not (:inside-reorg this)))
                   this (assoc this :inside-reorg true)
                   _ (assert-state (zero? (:on-wallet-changed-suppressions this)))
-                  this (update this :on-wallet-changed-suppressions inc)]
+                  this (update this :on-wallet-changed-suppressions inc)
 
-                ;; Map block hash to transactions that appear in it.  We ensure that the map values are sorted according
-                ;; to their relative position within those blocks.
-                (let [#_"ArrayListMultimap<Sha256Hash, TxOffsetPair>" __mapBlockTx (ArrayListMultimap/create)]
-                    (doseq [#_"Transaction" tx (Wallet''get-transactions this, true) #_"[Sha256Hash int]" e (:appears-in-hashes tx)]
-                        (§ ass __mapBlockTx (assoc __mapBlockTx (key e) (TxOffsetPair'new tx, (val e))))
+                  ;; Map block hash to transactions that appear in it.  We ensure that the map values are sorted
+                  ;; according to their relative position within those blocks.
+                  #_"{Sha256Hash TxOffsetPair*}" __mapBlockTx
+                    (reduce (fn [%1 [%2 [%3 %4]]] (update %1 %3 conj (TxOffsetPair'new %2, %4))) (hash-map)
+                        (for [#_"Transaction" tx (Wallet''get-transactions this, true) #_"[Sha256Hash int]" e (:appears-in-hashes tx)] [tx e])
                     )
-                    (doseq [#_"Sha256Hash" __blockHash (.keySet __mapBlockTx)]
-                        (§ ass (get __mapBlockTx __blockHash) (sort TxOffsetPair'compare (get __mapBlockTx __blockHash)))
-                    )
+                  __mapBlockTx (reduce #(update %1 %2 (partial sort TxOffsetPair'compare)) __mapBlockTx (keys __mapBlockTx))]
 
-                    (let [#_"List<Sha256Hash>" __oldBlockHashes (ArrayList.)]
-                        (log/info "Old part of chain (top to bottom):")
-                        (doseq [#_"StoredBlock" b __oldBlocks]
-                            (log/info (str "  " (Block''get-hash (:stored-header b))))
-                            (§ ass __oldBlockHashes (.add __oldBlockHashes, (Block''get-hash (:stored-header b))))
+                (log/info "Old part of chain (top to bottom):")
+                (doseq [#_"StoredBlock" % __oldBlocks]
+                    (log/info (str "  " (Block''get-hash (:stored-header %))))
+                )
+                (log/info "New part of chain (top to bottom):")
+                (doseq [#_"StoredBlock" % __newBlocks]
+                    (log/info (str "  " (Block''get-hash (:stored-header %))))
+                )
+
+                ;; For each block in the old chain, disconnect the transactions in reverse order.
+                (let [#_"Transaction*" txns
+                        (for [#_"Sha256Hash" hash (map #(Block''get-hash (:stored-header %)) __oldBlocks)
+                              #_"Transaction" tx (map :tx (get __mapBlockTx hash))]
+                            tx
                         )
-                        (log/info "New part of chain (top to bottom):")
-                        (doseq [#_"StoredBlock" b __newBlocks]
-                            (log/info (str "  " (Block''get-hash (:stored-header b))))
-                        )
-
-                        (Collections/reverse __newBlocks) ;; Need bottom-to-top but we get top-to-bottom.
-
-                        ;; For each block in the old chain, disconnect the transactions in reverse order.
-                        (let [#_"LinkedList<Transaction>" __oldChainTxns (LinkedList.)]
-                            (doseq [#_"Sha256Hash" __blockHash __oldBlockHashes #_"TxOffsetPair" pair (get __mapBlockTx __blockHash)]
-                                (let [#_"Transaction" tx (:tx pair) #_"Sha256Hash" __txHash (Transaction''get-hash tx)]
-                                    (cond (Transaction''is-coin-base tx)
+                      [this txns]
+                        (loop-when [this this #_"Transaction*" t* txns txns nil] (seq t*) => [this txns]
+                            (let [#_"Transaction" tx (first t*) #_"Sha256Hash" hash (Transaction''get-hash tx)
+                                  [this txns]
+                                    (if (Transaction''is-coin-base tx)
                                         (do
                                             ;; All the transactions that we have in our wallet which spent this coinbase are now invalid
                                             ;; and will never confirm.  Hopefully this should never happen - that's the point of the maturity
                                             ;; rule that forbids spending of coinbase transactions for 100 blocks.
                                             ;;
-                                            ;; This could be recursive, although of course because we don't have the full transaction
-                                            ;; graph we can never reliably kill all transactions we might have that were rooted in
-                                            ;; this coinbase tx.  Some can just go pending forever, like the Bitcoin Core.  However we
-                                            ;; can do our best.
-                                            (log/warn (str "Coinbase killed by re-org: " __txHash))
-                                            (§ ass this (Wallet''kill-txns this, (hash-set tx), nil))
+                                            ;; This could be recursive, although of course because we don't have the full transaction graph
+                                            ;; we can never reliably kill all transactions we might have that were rooted in this coinbase tx.
+                                            ;; Some can just go pending forever, like the Bitcoin Core.  However we can do our best.
+                                            (log/warn (str "Coinbase killed by re-org: " hash))
+                                            [(Wallet''kill-txns this, (hash-set tx), nil) txns]
                                         )
-                                        :else
-                                        (do
-                                            (doseq [#_"TransactionOutput" output (:outputs tx)]
-                                                (when-let [#_"TransactionInput" input (:spent-by output)]
-                                                    (when (TransactionOutput''is-mine output, this)
-                                                        (assert-state (not (contains? (:my-unspents this) output)))
-                                                        (§ ass this (update this :my-unspents conj output))
+                                        (let [this
+                                                (loop-when [this this #_"TransactionOutput*" o* (:outputs tx)] (seq o*) => this
+                                                    (let [#_"TransactionOutput" output (first o*) #_"TransactionInput" input (:spent-by output)
+                                                          this
+                                                            (when (some? input) => this
+                                                                (let [this
+                                                                        (when (TransactionOutput''is-mine output, this) => this
+                                                                            (assert-state (not (contains? (:my-unspents this) output)))
+                                                                            (update this :my-unspents conj output)
+                                                                        )]
+                                                                    (TransactionInput''disconnect input)
+                                                                    this
+                                                                )
+                                                            )]
+                                                        (recur this (next o*))
                                                     )
-                                                    (TransactionInput''disconnect input)
                                                 )
+                                              this (update this :unspent dissoc hash)
+                                              this (update this :spent dissoc hash)]
+                                            (assert-state (not (contains? (:pending this) hash)))
+                                            (assert-state (not (contains? (:dead this) hash)))
+                                            [this (cons tx txns)]
+                                        )
+                                    )]
+                                (recur this (next t*) txns)
+                            )
+                        )
+                      ;; Put all the disconnected transactions back into the pending pool and re-connect them.
+                      this
+                        (loop-when [this this #_"Transaction*" t* (reverse txns)] (seq t*) => this
+                            (let [#_"Transaction" tx (first t*)
+                                  ;; Coinbase transactions on the old part of the chain are dead for good and won't come back unless
+                                  ;; there's another re-org.
+                                  this
+                                    (when-not (Transaction''is-coin-base tx) => this
+                                        (log/info (str "  ->pending " (Transaction''get-hash tx)))
+
+                                        ;; Wipe height/depth/work data.
+                                        (§ ass (Transaction''get-confidence tx) (TransactionConfidence''set-confidence-type (Transaction''get-confidence tx), :ConfidenceType'PENDING))
+
+                                        (let [this (update this :confidence-changed assoc tx :ConfidenceChangeReason'TYPE)
+                                              this (Wallet''add-wallet-transaction this, :PoolType'PENDING, tx)]
+                                            (Wallet''update-for-spends this, tx, false)
+                                            this
+                                        )
+                                    )]
+                                (recur this (next t*))
+                            )
+                        )
+                      ;; Note that dead transactions stay dead.  Consider a chain that Finney attacks T1 and replaces it
+                      ;; with T2, so we move T1 into the dead pool.  If there's now a re-org to a chain that doesn't include
+                      ;; T2, it doesn't matter - the miners deleted T1 from their mempool, will resurrect T2 and put that
+                      ;; into the mempool and so T1 is still seen as a losing double spend.
+
+                      ;; The old blocks have contributed to the depth for all the transactions in the wallet
+                      ;; that are in blocks up to and including the chain split block.
+                      ;; The total depth is calculated here and then subtracted from the appropriate transactions.
+                      this
+                        (let [#_"int" n (count __oldBlocks)]
+                            (log/info (str "depthToSubtract = " n))
+                            ;; Remove depthToSubtract from all transactions in the wallet except for pending.
+                            (let [this (Wallet''subtract-depth this, n, (vals (:spent this)))
+                                  this (Wallet''subtract-depth this, n, (vals (:unspent this)))
+                                  this (Wallet''subtract-depth this, n, (vals (:dead this)))]
+                                this
+                            )
+                        )
+                      ;; The effective last seen block is now the split point so set the lastSeenBlockHash.
+                      this (assoc this :last-block-seen-hash (Block''get-hash (:stored-header __splitPoint)))
+                      ;; For each block in the new chain, work forwards calling receive() and notifyNewBestBlock().
+                      ;; This will pull them back out of the pending pool, or if the tx didn't appear in the old chain
+                      ;; and does appear in the new chain, will treat it as such and possibly kill pending transactions
+                      ;; that conflict.
+                      this
+                        (loop-when [this this #_"StoredBlock*" b* (reverse __newBlocks)] (seq b*) => this
+                            (let [#_"StoredBlock" block (first b*) #_"Sha256Hash" hash (Block''get-hash (:stored-header block))]
+                                (log/info (str "Replaying block " hash))
+                                (let [this
+                                        (loop-when [this this #_"TxOffsetPair*" p* (get __mapBlockTx hash)] (seq p*) => this
+                                            (let [#_"TxOffsetPair" pair (first p*)]
+                                                (log/info (str "  tx " (Transaction''get-hash (:tx pair))))
+                                                (recur (Wallet''receive this, (:tx pair), block, :NewBlockType'BEST_CHAIN, (:offset pair)) (next p*))
                                             )
-                                            (§ ass __oldChainTxns (.add __oldChainTxns, tx))
-                                            (§ ass this (update this :unspent dissoc __txHash))
-                                            (§ ass this (update this :spent dissoc __txHash))
-                                            (assert-state (not (contains? (:pending this) __txHash)))
-                                            (assert-state (not (contains? (:dead this) __txHash)))
-                                        )
-                                    )
+                                        )]
+                                    (recur (NewBestBlockListener'''notify-new-best-block this, block) (next b*))
                                 )
                             )
+                        )]
 
-                            ;; Put all the disconnected transactions back into the pending pool and re-connect them.
-                            (doseq [#_"Transaction" tx __oldChainTxns]
-                                ;; Coinbase transactions on the old part of the chain are dead for good and won't come back unless
-                                ;; there's another re-org.
-                                (when-not (Transaction''is-coin-base tx)
-                                    (log/info (str "  ->pending " (Transaction''get-hash tx)))
+                    (Wallet''is-consistent-or-throw this)
 
-                                    ;; Wipe height/depth/work data.
-                                    (§ ass (Transaction''get-confidence tx) (TransactionConfidence''set-confidence-type (Transaction''get-confidence tx), :ConfidenceType'PENDING))
-
-                                    (§ ass this (update this :confidence-changed assoc tx :ConfidenceChangeReason'TYPE))
-                                    (§ ass this (Wallet''add-wallet-transaction this, :PoolType'PENDING, tx))
-                                    (Wallet''update-for-spends this, tx, false)
-                                )
-                            )
-
-                            ;; Note that dead transactions stay dead.  Consider a chain that Finney attacks T1 and replaces it
-                            ;; with T2, so we move T1 into the dead pool.  If there's now a re-org to a chain that doesn't include
-                            ;; T2, it doesn't matter - the miners deleted T1 from their mempool, will resurrect T2 and put that
-                            ;; into the mempool and so T1 is still seen as a losing double spend.
-
-                            ;; The old blocks have contributed to the depth for all the transactions in the wallet
-                            ;; that are in blocks up to and including the chain split block.
-                            ;; The total depth is calculated here and then subtracted from the appropriate transactions.
-                            (let [this
-                                    (let [#_"int" n (count __oldBlocks)]
-                                        (log/info (str "depthToSubtract = " n))
-                                        ;; Remove depthToSubtract from all transactions in the wallet except for pending.
-                                        (let [this (Wallet''subtract-depth this, n, (vals (:spent this)))
-                                              this (Wallet''subtract-depth this, n, (vals (:unspent this)))
-                                              this (Wallet''subtract-depth this, n, (vals (:dead this)))]
-                                            this
-                                        )
-                                    )
-                                  ;; The effective last seen block is now the split point so set the lastSeenBlockHash.
-                                  this (assoc this :last-block-seen-hash (Block''get-hash (:stored-header __splitPoint)))]
-
-                                ;; For each block in the new chain, work forwards calling receive() and notifyNewBestBlock().
-                                ;; This will pull them back out of the pending pool, or if the tx didn't appear in the old chain
-                                ;; and does appear in the new chain, will treat it as such and possibly kill pending transactions
-                                ;; that conflict.
-                                (doseq [#_"StoredBlock" block __newBlocks]
-                                    (log/info (str "Replaying block " (Block''get-hash (:stored-header block))))
-                                    (doseq [#_"TxOffsetPair" pair (get __mapBlockTx (Block''get-hash (:stored-header block)))]
-                                        (log/info (str "  tx " (Transaction''get-hash (:tx pair))))
-                                        (§ ass this (Wallet''receive this, (:tx pair), block, :NewBlockType'BEST_CHAIN, (:offset pair)))
-                                    )
-                                    (§ ass this (NewBestBlockListener'''notify-new-best-block this, block))
-                                )
-
-                                (Wallet''is-consistent-or-throw this)
-
-                                (let [#_"Coin" balance (Wallet''get-balance-2t this, :BalanceType'AVAILABLE)]
-                                    (log/info (str "post-reorg balance is " (Coin''to-friendly-string balance)))
-                                    ;; Inform event listeners that a re-org took place.
-                                    (Wallet''queue-on-reorganize this)
-                                    (let [this (assoc this :inside-reorg false)
-                                          this (update this :on-wallet-changed-suppressions dec)]
-                                        (Wallet''maybe-queue-on-wallet-changed this)
-                                        (Wallet''check-balance-futures-locked this)
-                                        (let [this (Wallet''inform-confidence-listeners-if-not-reorganizing this)]
-                                            (Wallet''save-later this)
-                                            this
-                                        )
-                                    )
-                                )
+                    (let [#_"Coin" balance (Wallet''get-balance-2t this, :BalanceType'AVAILABLE)]
+                        (log/info (str "post-reorg balance is " (Coin''to-friendly-string balance)))
+                        ;; Inform event listeners that a re-org took place.
+                        (Wallet''queue-on-reorganize this)
+                        (let [this (assoc this :inside-reorg false)
+                              this (update this :on-wallet-changed-suppressions dec)]
+                            (Wallet''maybe-queue-on-wallet-changed this)
+                            (let [this (Wallet''check-balance-futures-locked this)
+                                  this (Wallet''inform-confidence-listeners-if-not-reorganizing this)]
+                                (Wallet''save-later this)
+                                this
                             )
                         )
                     )
@@ -28038,7 +28011,7 @@
     )
 
     #_method
-    (defn- #_"void" Wallet''add-supplied-inputs [#_"Wallet" this, #_"Transaction" tx, #_"List<TransactionInput>" inputs]
+    (defn- #_"void" Wallet''add-supplied-inputs [#_"Wallet" this, #_"Transaction" tx, #_"TransactionInput*" inputs]
         (doseq [#_"TransactionInput" input inputs]
             (Transaction''add-input tx, (TransactionInput'new-unconnected (:ledger this), tx, (Message''to-bytes input, TransactionInput''to-wire)))
         )
@@ -28273,35 +28246,38 @@
             (when sign? => (Futures/immediateFuture txns)
                 (assert-state (not (.isHeldByCurrentThread (:wallet-lock this))))
 
-                (let [#_"List<ListenableFuture<Transaction>>" futures (ArrayList.)
-                      #_"TransactionBroadcaster" broadcaster (:v-transaction-broadcaster this)]
-                    (doseq [#_"Transaction" tx txns]
-                        (try
-                            (let [#_"ListenableFuture<Transaction>" future (:future (TransactionBroadcaster'''broadcast-transaction-2 broadcaster, tx))]
-                                (§ ass futures (.add futures, future))
-                                (Futures/addCallback future,
-                                    (reify FutureCallback #_"<Transaction>"
-                                        #_foreign
-                                        #_override
-                                        (#_"void" onSuccess [#_"FutureCallback" __, #_"Transaction" tx]
-                                            (log/info (str "Successfully broadcast key rotation tx: " tx))
-                                            nil
-                                        )
+                (let [#_"TransactionBroadcaster" broadcaster (:v-transaction-broadcaster this)
+                      #_"ListenableFuture<Transaction>*" futures
+                        (filter some?
+                            (for [#_"Transaction" tx txns]
+                                (try
+                                    (let [#_"ListenableFuture<Transaction>" future (:future (TransactionBroadcaster'''broadcast-transaction-2 broadcaster, tx))]
+                                        (Futures/addCallback future,
+                                            (reify FutureCallback #_"<Transaction>"
+                                                #_foreign
+                                                #_override
+                                                (#_"void" onSuccess [#_"FutureCallback" __, #_"Transaction" tx]
+                                                    (log/info (str "Successfully broadcast key rotation tx: " tx))
+                                                    nil
+                                                )
 
-                                        #_foreign
-                                        #_override
-                                        (#_"void" onFailure [#_"FutureCallback" __, #_"Throwable" th]
-                                            (log/error th, "Failed to broadcast key rotation tx")
-                                            nil
+                                                #_foreign
+                                                #_override
+                                                (#_"void" onFailure [#_"FutureCallback" __, #_"Throwable" th]
+                                                    (log/error th, "Failed to broadcast key rotation tx")
+                                                    nil
+                                                )
+                                            )
                                         )
+                                        future
+                                    )
+                                    (catch Exception e
+                                        (log/error e, "Failed to broadcast rekey tx")
+                                        nil
                                     )
                                 )
                             )
-                            (catch Exception e
-                                (log/error e, "Failed to broadcast rekey tx")
-                            )
-                        )
-                    )
+                        )]
                     (Futures/allAsList futures)
                 )
             )
