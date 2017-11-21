@@ -274,7 +274,7 @@
 (declare RuleViolation'enum-set)
 (declare SPVBlockChain'new)
 (declare SPVBlockStore''get-ring-cursor SPVBlockStore''init-store SPVBlockStore''set-ring-cursor SPVBlockStore'DEFAULT_CAPACITY SPVBlockStore'FILE_PROLOGUE_BYTES SPVBlockStore'HEADER_MAGIC SPVBlockStore'NOT_FOUND_MARKER SPVBlockStore'RECORD_SIZE SPVBlockStore'get-file-size SPVBlockStore'new)
-(declare Script''correctly-spends Script''create-empty-input-script Script''find-key-in-redeem Script''find-sig-in-redeem Script''get-cltv-payment-channel-expiry Script''get-cltv-payment-channel-recipient-pub-key Script''get-cltv-payment-channel-sender-pub-key Script''get-from-address Script''get-number-of-bytes-required-to-spend Script''get-number-of-signatures-required-to-spend Script''to-bytes Script''get-pub-key Script''get-pub-key-hash Script''get-pub-keys Script''get-quick-program Script''get-script-sig-with-signature Script''get-script-type Script''get-sig-insertion-index Script''get-to-address-2 Script''get-to-address-3 Script''is-op-return Script''is-pay-to-script-hash Script''is-sent-to-address Script''is-sent-to-cltv-payment-channel Script''is-sent-to-multi-sig Script''is-sent-to-raw-pub-key Script'parse Script'ALL_VERIFY_FLAGS Script'MAX_OPS_PER_SCRIPT Script'MAX_P2SH_SIGOPS Script'MAX_PUBKEYS_PER_MULTISIG Script'MAX_SCRIPT_ELEMENT_SIZE Script'MAX_SCRIPT_SIZE Script'MAX_STACK_SIZE Script'SIG_SIZE Script'cast-to-big-integer-2 Script'cast-to-big-integer-3 Script'cast-to-bool Script'check-sequence Script'decode-from-op-n Script'encode-to-op-n Script'equals-range Script'execute-check-lock-time-verify Script'execute-check-sequence-verify Script'execute-check-sig Script'execute-multi-sig Script'execute-script-5 Script'get-p2sh-sig-op-count Script'get-sig-op-count-1 Script'get-sig-op-count-2 Script'new Script'remove-all-instances-of Script'remove-all-instances-of-op Script'write-bytes Script''to-string)
+(declare Script''correctly-spends Script''create-empty-input-script Script''find-key-in-redeem Script''find-sig-in-redeem Script''get-cltv-payment-channel-expiry Script''get-cltv-payment-channel-recipient-pub-key Script''get-cltv-payment-channel-sender-pub-key Script''get-from-address Script''get-number-of-bytes-required-to-spend Script''get-number-of-signatures-required-to-spend Script''to-bytes Script''get-pub-key Script''get-pub-key-hash Script''get-pub-keys Script''get-quick-program Script''get-script-sig-with-signature Script''get-script-type Script''get-sig-insertion-index Script''get-to-address-2 Script''get-to-address-3 Script''is-op-return Script''is-pay-to-script-hash Script''is-sent-to-address Script''is-sent-to-cltv-payment-channel Script''is-sent-to-multi-sig Script''is-sent-to-raw-pub-key Script'parse Script'ALL_VERIFY_FLAGS Script'MAX_OPS_PER_SCRIPT Script'MAX_P2SH_SIGOPS Script'MAX_PUBKEYS_PER_MULTISIG Script'MAX_SCRIPT_ELEMENT_SIZE Script'MAX_SCRIPT_SIZE Script'MAX_STACK_SIZE Script'SIG_SIZE Script'cast-to-big-integer-2 Script'cast-to-big-integer-3 Script'cast-to-bool Script'check-sequence Script'decode-from-op-n Script'encode-to-op-n Script'equals-range Script'execute-check-lock-time-verify Script'execute-check-sequence-verify Script'execute-check-sig Script'execute-multi-sig Script'execute-script Script'get-p2sh-sig-op-count Script'get-sig-op-count-1 Script'get-sig-op-count-2 Script'new Script'remove-all-instances-of Script'remove-all-instances-of-op Script'write-bytes Script''to-string)
 (declare ScriptBuilder'new ScriptBuilder''append ScriptBuilder''to-script ScriptBuilder''data ScriptBuilder''num ScriptBuilder''op Script'create-cltv-payment-channel-input-2 Script'create-cltv-payment-channel-input-2-bytes Script'create-cltv-payment-channel-output Script'create-cltv-payment-channel-p2sh-input Script'create-cltv-payment-channel-p2sh-refund Script'create-cltv-payment-channel-refund Script'create-input-script-1 Script'create-input-script-2 Script'create-multi-sig-input-script Script'create-multi-sig-input-script-bytes Script'create-multi-sig-output-script Script'create-op-return-script Script'create-output-script-1a Script'create-output-script-1e Script'create-p2sh-multi-sig-input-script Script'create-p2sh-output-script-1 Script'create-p2sh-output-script-1-bytes Script'create-p2sh-output-script-2 Script'create-redeem-script Script'update-script-with-signature)
 (declare ScriptChunk''decode-op-n ScriptChunk''equals-op-code ScriptChunk''is-op-code ScriptChunk''is-push-data ScriptChunk''is-shortest-possible-push-data ScriptChunk''write-chunk ScriptChunk'new)
 (declare ScriptError'enum-set)
@@ -313,7 +313,6 @@
 (declare TransactionalHashMap''abort-database-batch-write TransactionalHashMap''begin-database-batch-write TransactionalHashMap''commit-database-batch-write TransactionalHashMap''get TransactionalHashMap''put TransactionalHashMap''remove TransactionalHashMap'new)
 (declare TransactionalMultiKeyHashMap''abort-transaction TransactionalMultiKeyHashMap''begin-transaction TransactionalMultiKeyHashMap''commit-transaction TransactionalMultiKeyHashMap''get TransactionalMultiKeyHashMap''put TransactionalMultiKeyHashMap''remove-by-multi-key TransactionalMultiKeyHashMap''remove-by-unique-key TransactionalMultiKeyHashMap'new)
 (declare TxConfidenceTable''clean-table TxConfidenceTable''get TxConfidenceTable''get-or-create TxConfidenceTable''num-broadcast-peers TxConfidenceTable''seen TxConfidenceTable'MAX_SIZE TxConfidenceTable'new TxConfidenceTable'INSTANCE)
-(declare TxOffsetPair'new)
 (declare UTXO'new)
 (declare UnknownMessage'from-wire)
 (declare UserThread'WARNING_THRESHOLD UserThread'new)
@@ -2292,10 +2291,7 @@
                             ;; It connects to somewhere on the chain.  Not necessarily the top of the best known chain.
                             (Ledger'''check-difficulty-transitions (:ledger this), prior, block, (:block-store this))
                             (let [this (BlockChain''connect-block this, block, prior, (BlockChain'''should-verify-transactions this), __filteredTxHashList, __filteredTxn)]
-                                (when __tryConnecting
-                                    (BlockChain''try-connecting-orphans this)
-                                )
-                                [this true]
+                                [(if __tryConnecting (BlockChain''try-connecting-orphans this) this) true]
                             )
                         )
                         (do
@@ -2566,7 +2562,7 @@
      ;;
     #_throws #_[ "VerificationException", "BlockStoreException", "PrunedException" ]
     #_method
-    (defn- #_"void" BlockChain''try-connecting-orphans [#_"BlockChain" this]
+    (defn- #_"BlockChain" BlockChain''try-connecting-orphans [#_"BlockChain" this]
         (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
 
         ;; For each block in our orphan list, try and fit it onto the head of the chain.  If we succeed remove it
@@ -2576,34 +2572,33 @@
         ;; This algorithm is kind of crappy, we should do a topo-sort then just connect them in order, but for small
         ;; numbers of orphan blocks it does OK.
 
-        (loop []
-            (let [#_"int" n
-                    (loop-when [n 0 #_"Iterator<OrphanBlock>" it (.iterator (vals (:orphan-blocks this)))] (.hasNext it) => n
-                        (let [#_"OrphanBlock" orphan (.next it)]
+        (loop [this this]
+            (let [[this #_"int" n]
+                    (loop-when [this this n 0 #_"[Sha256Hash OrphanBlock]*" e* (:orphan-blocks this)] (seq e*) => [this n]
+                        (let [[#_"Sha256Hash" hash #_"OrphanBlock" orphan] (first e*)]
                             (if (nil? (BlockChain'''get-stored-block-in-current-scope this, (:prev-block-hash (:block orphan))))
                                 (do
                                     ;; This is still an unconnected/orphan block.
                                     (log/debug (str "Orphan block " (Block''get-hash (:block orphan)) " is not connectable right now"))
-                                    (recur n it)
+                                    (recur this n (next e*))
                                 )
                                 (do
                                     ;; Otherwise we can connect it now.
                                     ;; False here ensures we don't recurse infinitely downwards when connecting huge chains.
                                     (log/info (str "Connected orphan " (Block''get-hash (:block orphan))))
-                                    (§ ass [this _] (BlockChain''add-5 this, (:block orphan), false, (:filtered-tx-hashes orphan), (:filtered-txns orphan)))
-                                    (.remove it)
-                                    (recur (inc n) it)
+                                    (let [[this _] (BlockChain''add-5 this, (:block orphan), false, (:filtered-tx-hashes orphan), (:filtered-txns orphan))]
+                                        (recur (update this :orphan-blocks dissoc hash) (inc n) (next e*))
+                                    )
                                 )
                             )
                         )
                     )]
-                (when (pos? n)
+                (when (pos? n) => this
                     (log/info (str "Connected " n " orphan blocks."))
-                    (recur)
+                    (recur this)
                 )
             )
         )
-        nil
     )
 
     ;;;
@@ -16163,12 +16158,12 @@
     )
 
     #_method
-    (defn- #_"void" ConnectionHandler''set-write-ops [#_"ConnectionHandler" this]
+    (defn- #_"ConnectionHandler" ConnectionHandler''set-write-ops [#_"ConnectionHandler" this]
         ;; Make sure we are registered to get updated when writing is available again.
         (.interestOps (:key this), (| (.interestOps (:key this)) SelectionKey/OP_WRITE))
         ;; Refresh the selector to make sure it gets the new interestOps.
         (.wakeup (.selector (:key this)))
-        nil
+        this
     )
 
     ;; Tries to write any outstanding write bytes, runs in any thread (possibly unlocked).
@@ -16177,21 +16172,23 @@
     (defn- #_"this" ConnectionHandler''try-write-bytes [#_"ConnectionHandler" this]
         (sync (:connection-lock this)
             ;; Iterate through the outbound ByteBuff queue, pushing as much as possible into the OS' network buffer.
-            (loop-when [#_"Iterator<ByteBuffer>" it (.iterator (:bytes-to-write this))] (.hasNext it)
-                (let [#_"ByteBuffer" buff (.next it)]
-                    (§ ass this (assoc this :bytes-to-write-remaining (- (:bytes-to-write-remaining this) (.write (:channel this), buff))))
-                    (when-not (.hasRemaining buff) => (ConnectionHandler''set-write-ops this)
-                        (.remove it)
-                        (recur it)
-                    )
+            (let [this
+                    (loop [this this]
+                        (let-when [#_"ByteBuffer" buff (peek (:bytes-to-write this))] (some? buff) => this
+                            (let [this (assoc this :bytes-to-write-remaining (- (:bytes-to-write-remaining this) (.write (:channel this), buff)))]
+                                (when-not (.hasRemaining buff) => (ConnectionHandler''set-write-ops this)
+                                    (recur (update this :bytes-to-write pop))
+                                )
+                            )
+                        )
+                    )]
+                ;; If we are done writing, clear the OP_WRITE interestOps.
+                (when (empty? (:bytes-to-write this))
+                    (.interestOps (:key this), (& (.interestOps (:key this)) (bit-not SelectionKey/OP_WRITE)))
                 )
+                ;; Don't bother waking up the selector here, since we're just removing an op, not adding.
+                this
             )
-            ;; If we are done writing, clear the OP_WRITE interestOps.
-            (when (empty? (:bytes-to-write this))
-                (.interestOps (:key this), (& (.interestOps (:key this)) (bit-not SelectionKey/OP_WRITE)))
-            )
-            ;; Don't bother waking up the selector here, since we're just removing an op, not adding.
-            this
         )
     )
 
@@ -16214,7 +16211,6 @@
                 (let [this (update this :bytes-to-write conj (ByteBuffer/wrap (Arrays/copyOf message, (count message))))
                       this (update this :bytes-to-write-remaining + (count message))]
                     (ConnectionHandler''set-write-ops this)
-                    this
                 )
                 (catch IOException e
                     (.unlock (:connection-lock this))
@@ -16633,7 +16629,7 @@
 
                 (.select (:selector this))
 
-                (loop-when-recur [#_"Iterator<SelectionKey>" it (.iterator (.selectedKeys (:selector this)))] (.hasNext it) [it]
+                (loop-when-recur [#_"Iterator<SelectionKey>" it (.iterator (.selectedKeys (:selector this)))] (.hasNext it) [it]
                     (let [#_"SelectionKey" key (.next it)]
                         (.remove it)
                         (ConnectionHandler'handle-key key)
@@ -16791,7 +16787,7 @@
             (while (:v-running this)
                 (.select (:selector this))
 
-                (loop-when-recur [#_"Iterator<SelectionKey>" it (.iterator (.selectedKeys (:selector this)))] (.hasNext it) [it]
+                (loop-when-recur [#_"Iterator<SelectionKey>" it (.iterator (.selectedKeys (:selector this)))] (.hasNext it) [it]
                     (let [#_"SelectionKey" key (.next it)]
                         (.remove it)
                         (.handleKey (:selector this), key)
@@ -19780,586 +19776,569 @@
      ; This interface is very likely to change in future.
      ;;
     #_throws #_[ "ScriptException" ]
-    (defn #_"void" Script'execute-script-5 [#_"Transaction" tx, #_"long" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"{ScriptVerifyFlag}" flags]
-        (let [#_"LinkedList<byte[]>" altstack (LinkedList.) #_"LinkedList<Boolean>" ifstack (LinkedList.)]
+    (defn #_"byte[]*" Script'execute-script [#_"Transaction" tx, #_"long" index, #_"Script" script, #_"byte[]*" stack, #_"{ScriptVerifyFlag}" flags]
+        (let [m (hash-map
+                    #_"byte[]*" :stack stack
+                    #_"byte[]*" :altstack nil
+                    #_"boolean*" :ifstack nil
+                    #_"int" :ops 0
+                )
+              m (loop-when [m m #_"ScriptChunk*" chunks (:chunks script)] (seq chunks) => m
+                    (let [#_"ScriptChunk" chunk (first chunks)]
 
-            (loop-when [#_"int" __opCount 0 #_"ScriptChunk*" chunks (:chunks script)] (seq chunks)
-                (let [#_"ScriptChunk" chunk (first chunks)]
-
-                    ;; Check stack element size.
-                    (when (and (some? (:data chunk)) (< Script'MAX_SCRIPT_ELEMENT_SIZE (count (:data chunk))))
-                        (throw+ (ScriptException'new :ScriptError'PUSH_SIZE, "Attempted to push a data string larger than 520 bytes"))
-                    )
-
-                    (let [#_"int" opcode (:opcode chunk)
-                          __opCount
-                            ;; Note how OP_RESERVED does not count towards the opcode limit.
-                            (when (< Script'OP_16 opcode) => __opCount
-                                (when-not (< __opCount Script'MAX_OPS_PER_SCRIPT)
-                                    (throw+ (ScriptException'new :ScriptError'OP_COUNT, "More script operations than is allowed"))
-                                )
-                                (inc __opCount)
-                            )]
-
-                        ;; Disabled opcodes.
-                        (when (any = opcode Script'OP_CAT Script'OP_SUBSTR Script'OP_LEFT Script'OP_RIGHT Script'OP_INVERT Script'OP_AND Script'OP_OR Script'OP_XOR Script'OP_2MUL Script'OP_2DIV Script'OP_MUL Script'OP_DIV Script'OP_MOD Script'OP_LSHIFT Script'OP_RSHIFT)
-                            (throw+ (ScriptException'new :ScriptError'DISABLED_OPCODE, "Script included a disabled Script Op."))
+                        ;; Check stack element size.
+                        (when (and (some? (:data chunk)) (< Script'MAX_SCRIPT_ELEMENT_SIZE (count (:data chunk))))
+                            (throw+ (ScriptException'new :ScriptError'PUSH_SIZE, "Attempted to push a data string larger than 520 bytes"))
                         )
 
-                        (let [#_"boolean" exec? (not (.contains ifstack, false))
-                              _ (cond (and exec? (<= Script'OP_0 opcode Script'OP_PUSHDATA4))
-                                    (do
-                                        ;; Check minimal push.
-                                        (when (and (contains? flags :ScriptVerifyFlag'MINIMALDATA) (not (ScriptChunk''is-shortest-possible-push-data chunk)))
-                                            (throw+ (ScriptException'new :ScriptError'MINIMALDATA, "Script included a not minimal push operation."))
-                                        )
-                                        (§ ass stack (.add stack, (if (= opcode Script'OP_0) (byte-array 0) (:data chunk))))
-                                        nil
+                        (let [#_"int" opcode (:opcode chunk)
+                              ;; Note how OP_RESERVED does not count towards the opcode limit.
+                              m (when (< Script'OP_16 opcode) => m
+                                    (when-not (< (:ops m) Script'MAX_OPS_PER_SCRIPT)
+                                        (throw+ (ScriptException'new :ScriptError'OP_COUNT, "More script operations than is allowed"))
                                     )
-                                    (or exec? (<= Script'OP_IF opcode Script'OP_ENDIF))
-                                    (do
-                                        (condp =? opcode
-                                            Script'OP_IF
-                                                (do
-                                                    (when exec? => (§ ass ifstack (.add ifstack, false))
-                                                        (when (< (count stack) 1)
-                                                            (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_IF on an empty stack"))
-                                                        )
-                                                        (§ ass ifstack (.add ifstack, (Script'cast-to-bool (.pollLast stack))))
-                                                    )
-                                                    nil
-                                                )
-                                            Script'OP_NOTIF
-                                                (do
-                                                    (when exec? => (§ ass ifstack (.add ifstack, false))
-                                                        (when (< (count stack) 1)
-                                                            (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_NOTIF on an empty stack"))
-                                                        )
-                                                        (§ ass ifstack (.add ifstack, (not (Script'cast-to-bool (.pollLast stack)))))
-                                                    )
-                                                    nil
-                                                )
-                                            Script'OP_ELSE
-                                                (do
-                                                    (when (empty? ifstack)
-                                                        (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_ELSE without OP_IF/NOTIF"))
-                                                    )
-                                                    (§ ass ifstack (.add ifstack, (not (.pollLast ifstack))))
-                                                    nil
-                                                )
-                                            Script'OP_ENDIF
-                                                (do
-                                                    (when (empty? ifstack)
-                                                        (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_ENDIF without OP_IF/NOTIF"))
-                                                    )
-                                                    (.pollLast ifstack)
-                                                    nil
-                                                )
+                                    (update m :ops inc)
+                                )]
 
-                                            ;; OP_0 is no opcode
-                                            Script'OP_1NEGATE
-                                                (do
-                                                    (§ ass stack (.add stack, (Wire'reverse-bytes (Wire'encode-mpi (.negate BigInteger/ONE), false))))
-                                                    nil
-                                                )
-                                           [Script'OP_1
-                                            Script'OP_2
-                                            Script'OP_3
-                                            Script'OP_4
-                                            Script'OP_5
-                                            Script'OP_6
-                                            Script'OP_7
-                                            Script'OP_8
-                                            Script'OP_9
-                                            Script'OP_10
-                                            Script'OP_11
-                                            Script'OP_12
-                                            Script'OP_13
-                                            Script'OP_14
-                                            Script'OP_15
-                                            Script'OP_16]
-                                                (do
-                                                    (§ ass stack (.add stack, (Wire'reverse-bytes (Wire'encode-mpi (BigInteger/valueOf (Script'decode-from-op-n opcode)), false))))
-                                                    nil
-                                                )
-
-                                            Script'OP_NOP
-                                                (do
-                                                    nil
-                                                )
-
-                                            Script'OP_VERIFY
-                                                (do
-                                                    (when (< (count stack) 1)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_VERIFY on an empty stack"))
-                                                    )
-                                                    (when-not (Script'cast-to-bool (.pollLast stack))
-                                                        (throw+ (ScriptException'new :ScriptError'VERIFY, "OP_VERIFY failed"))
-                                                    )
-                                                    nil
-                                                )
-
-                                            Script'OP_RETURN
-                                                (throw+ (ScriptException'new :ScriptError'OP_RETURN, "Script called OP_RETURN"))
-
-                                            Script'OP_TOALTSTACK
-                                                (do
-                                                    (when (< (count stack) 1)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_TOALTSTACK on an empty stack"))
-                                                    )
-                                                    (§ ass altstack (.add altstack, (.pollLast stack)))
-                                                    nil
-                                                )
-                                            Script'OP_FROMALTSTACK
-                                                (do
-                                                    (when (< (count altstack) 1)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_ALTSTACK_OPERATION, "Attempted OP_FROMALTSTACK on an empty altstack"))
-                                                    )
-                                                    (§ ass stack (.add stack, (.pollLast altstack)))
-                                                    nil
-                                                )
-
-                                            Script'OP_2DROP
-                                                (do
-                                                    (when (< (count stack) 2)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2DROP on a stack with size < 2"))
-                                                    )
-                                                    (.pollLast stack)
-                                                    (.pollLast stack)
-                                                    nil
-                                                )
-                                            Script'OP_2DUP
-                                                (do
-                                                    (when (< (count stack) 2)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2DUP on a stack with size < 2"))
-                                                    )
-                                                    (let [#_"Iterator<byte[]>" it (.descendingIterator stack) #_"byte[]" data2 (.next it)]
-                                                        (§ ass stack (.add stack, (.next it)))
-                                                        (§ ass stack (.add stack, data2))
-                                                    )
-                                                    nil
-                                                )
-                                            Script'OP_3DUP
-                                                (do
-                                                    (when (< (count stack) 3)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_3DUP on a stack with size < 3"))
-                                                    )
-                                                    (let [#_"Iterator<byte[]>" it (.descendingIterator stack) #_"byte[]" data3 (.next it) #_"byte[]" data2 (.next it)]
-                                                        (§ ass stack (.add stack, (.next it)))
-                                                        (§ ass stack (.add stack, data2))
-                                                        (§ ass stack (.add stack, data3))
-                                                    )
-                                                    nil
-                                                )
-                                            Script'OP_2OVER
-                                                (do
-                                                    (when (< (count stack) 4)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2OVER on a stack with size < 4"))
-                                                    )
-                                                    (let [#_"Iterator<byte[]>" it (.descendingIterator stack)]
-                                                        (.next it)
-                                                        (.next it)
-                                                        (let [#_"byte[]" data2 (.next it)]
-                                                            (§ ass stack (.add stack, (.next it)))
-                                                            (§ ass stack (.add stack, data2))
-                                                        )
-                                                    )
-                                                    nil
-                                                )
-                                            Script'OP_2ROT
-                                                (do
-                                                    (when (< (count stack) 6)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2ROT on a stack with size < 6"))
-                                                    )
-                                                    (let [#_"byte[]" data6 (.pollLast stack)
-                                                          #_"byte[]" data5 (.pollLast stack)
-                                                          #_"byte[]" data4 (.pollLast stack)
-                                                          #_"byte[]" data3 (.pollLast stack)
-                                                          #_"byte[]" data2 (.pollLast stack)
-                                                          #_"byte[]" data1 (.pollLast stack)]
-                                                        (§ ass stack (.add stack, data3))
-                                                        (§ ass stack (.add stack, data4))
-                                                        (§ ass stack (.add stack, data5))
-                                                        (§ ass stack (.add stack, data6))
-                                                        (§ ass stack (.add stack, data1))
-                                                        (§ ass stack (.add stack, data2))
-                                                    )
-                                                    nil
-                                                )
-                                            Script'OP_2SWAP
-                                                (do
-                                                    (when (< (count stack) 4)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2SWAP on a stack with size < 4"))
-                                                    )
-                                                    (let [#_"byte[]" data4 (.pollLast stack)
-                                                          #_"byte[]" data3 (.pollLast stack)
-                                                          #_"byte[]" data2 (.pollLast stack)
-                                                          #_"byte[]" data1 (.pollLast stack)]
-                                                        (§ ass stack (.add stack, data3))
-                                                        (§ ass stack (.add stack, data4))
-                                                        (§ ass stack (.add stack, data1))
-                                                        (§ ass stack (.add stack, data2))
-                                                    )
-                                                    nil
-                                                )
-
-                                            Script'OP_IFDUP
-                                                (do
-                                                    (when (< (count stack) 1)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_IFDUP on an empty stack"))
-                                                    )
-                                                    (when (Script'cast-to-bool (.getLast stack))
-                                                        (§ ass stack (.add stack, (.getLast stack)))
-                                                    )
-                                                    nil
-                                                )
-
-                                            Script'OP_DEPTH
-                                                (do
-                                                    (§ ass stack (.add stack, (Wire'reverse-bytes (Wire'encode-mpi (BigInteger/valueOf (count stack)), false))))
-                                                    nil
-                                                )
-
-                                            Script'OP_DROP
-                                                (do
-                                                    (when (< (count stack) 1)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_DROP on an empty stack"))
-                                                    )
-                                                    (.pollLast stack)
-                                                    nil
-                                                )
-                                            Script'OP_DUP
-                                                (do
-                                                    (when (< (count stack) 1)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_DUP on an empty stack"))
-                                                    )
-                                                    (§ ass stack (.add stack, (.getLast stack)))
-                                                    nil
-                                                )
-                                            Script'OP_NIP
-                                                (do
-                                                    (when (< (count stack) 2)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_NIP on a stack with size < 2"))
-                                                    )
-                                                    (let [#_"byte[]" data (.pollLast stack)]
-                                                        (.pollLast stack)
-                                                        (§ ass stack (.add stack, data))
-                                                    )
-                                                    nil
-                                                )
-                                            Script'OP_OVER
-                                                (do
-                                                    (when (< (count stack) 2)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_OVER on a stack with size < 2"))
-                                                    )
-                                                    (let [#_"Iterator<byte[]>" it (.descendingIterator stack)]
-                                                        (.next it)
-                                                        (§ ass stack (.add stack, (.next it)))
-                                                    )
-                                                    nil
-                                                )
-                                           [Script'OP_PICK
-                                            Script'OP_ROLL]
-                                                (do
-                                                    (when (< (count stack) 1)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_PICK/OP_ROLL on an empty stack"))
-                                                    )
-                                                    (let [#_"long" n (.longValue (Script'cast-to-big-integer-2 (.pollLast stack), (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
-                                                        (when-not (< -1 n (count stack))
-                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "OP_PICK/OP_ROLL attempted to get data deeper than stack size"))
-                                                        )
-                                                        (let [#_"Iterator<byte[]>" it (.descendingIterator stack)]
-                                                            (dotimes [_ n]
-                                                                (.next it)
-                                                            )
-                                                            (let [#_"byte[]" data (.next it)]
-                                                                (when (= opcode Script'OP_ROLL)
-                                                                    (.remove it)
-                                                                )
-                                                                (§ ass stack (.add stack, data))
-                                                            )
-                                                        )
-                                                    )
-                                                    nil
-                                                )
-                                            Script'OP_ROT
-                                                (do
-                                                    (when (< (count stack) 3)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_ROT on a stack with size < 3"))
-                                                    )
-                                                    (let [#_"byte[]" data3 (.pollLast stack)
-                                                          #_"byte[]" data2 (.pollLast stack)
-                                                          #_"byte[]" data1 (.pollLast stack)]
-                                                        (§ ass stack (.add stack, data2))
-                                                        (§ ass stack (.add stack, data3))
-                                                        (§ ass stack (.add stack, data1))
-                                                    )
-                                                    nil
-                                                )
-                                           [Script'OP_SWAP
-                                            Script'OP_TUCK]
-                                                (do
-                                                    (when (< (count stack) 2)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SWAP on a stack with size < 2"))
-                                                    )
-                                                    (let [#_"byte[]" data2 (.pollLast stack) #_"byte[]" data1 (.pollLast stack)]
-                                                        (§ ass stack (.add stack, data2))
-                                                        (§ ass stack (.add stack, data1))
-                                                        (when (= opcode Script'OP_TUCK)
-                                                            (§ ass stack (.add stack, data2))
-                                                        )
-                                                    )
-                                                    nil
-                                                )
-
-                                            Script'OP_SIZE
-                                                (do
-                                                    (when (< (count stack) 1)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SIZE on an empty stack"))
-                                                    )
-                                                    (§ ass stack (.add stack, (Wire'reverse-bytes (Wire'encode-mpi (BigInteger/valueOf (count (.getLast stack))), false))))
-                                                    nil
-                                                )
-                                            Script'OP_EQUAL
-                                                (do
-                                                    (when (< (count stack) 2)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_EQUAL on a stack with size < 2"))
-                                                    )
-                                                    (§ ass stack (.add stack, (if (Arrays/equals (.pollLast stack), (.pollLast stack)) (byte-array [ 1 ]) (byte-array 0))))
-                                                    nil
-                                                )
-                                            Script'OP_EQUALVERIFY
-                                                (do
-                                                    (when (< (count stack) 2)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_EQUALVERIFY on a stack with size < 2"))
-                                                    )
-                                                    (when-not (Arrays/equals (.pollLast stack), (.pollLast stack))
-                                                        (throw+ (ScriptException'new :ScriptError'EQUALVERIFY, "OP_EQUALVERIFY: non-equal data"))
-                                                    )
-                                                    nil
-                                                )
-
-                                           [Script'OP_1ADD
-                                            Script'OP_1SUB
-                                            Script'OP_NEGATE
-                                            Script'OP_ABS
-                                            Script'OP_NOT
-                                            Script'OP_0NOTEQUAL]
-                                                (do
-                                                    (when (< (count stack) 1)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted a numeric op on an empty stack"))
-                                                    )
-                                                    (let [#_"BigInteger" n (Script'cast-to-big-integer-2 (.pollLast stack), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
-                                                          n (condp = opcode
-                                                                Script'OP_1ADD      (.add n, BigInteger/ONE)
-                                                                Script'OP_1SUB      (.subtract n, BigInteger/ONE)
-                                                                Script'OP_NEGATE    (.negate n)
-                                                                Script'OP_ABS       (if (neg? (.signum n)) (.negate n) n)
-                                                                Script'OP_NOT       (if (= n BigInteger/ZERO) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_0NOTEQUAL (if (= n BigInteger/ZERO) BigInteger/ZERO BigInteger/ONE)
-                                                            )]
-                                                        (§ ass stack (.add stack, (Wire'reverse-bytes (Wire'encode-mpi n, false))))
-                                                    )
-                                                    nil
-                                                )
-                                           [Script'OP_ADD
-                                            Script'OP_SUB
-                                            Script'OP_BOOLAND
-                                            Script'OP_BOOLOR
-                                            Script'OP_NUMEQUAL
-                                            Script'OP_NUMNOTEQUAL
-                                            Script'OP_LESSTHAN
-                                            Script'OP_GREATERTHAN
-                                            Script'OP_LESSTHANOREQUAL
-                                            Script'OP_GREATERTHANOREQUAL
-                                            Script'OP_MIN
-                                            Script'OP_MAX]
-                                                (do
-                                                    (when (< (count stack) 2)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted a numeric op on a stack with size < 2"))
-                                                    )
-                                                    (let [#_"BigInteger" n2 (Script'cast-to-big-integer-2 (.pollLast stack), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
-                                                          #_"BigInteger" n1 (Script'cast-to-big-integer-2 (.pollLast stack), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
-                                                          #_"BigInteger" n
-                                                            (condp = opcode
-                                                                Script'OP_ADD                (.add n1, n2)
-                                                                Script'OP_SUB                (.subtract n1, n2)
-                                                                Script'OP_BOOLAND            (if (and (not= n1 BigInteger/ZERO) (not= n2 BigInteger/ZERO)) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_BOOLOR             (if (or (not= n1 BigInteger/ZERO) (not= n2 BigInteger/ZERO)) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_NUMEQUAL           (if (= n1 n2) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_NUMNOTEQUAL        (if (not= n1 n2) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_LESSTHAN           (if (< n1 n2) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_GREATERTHAN        (if (> n1 n2) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_LESSTHANOREQUAL    (if (<= n1 n2) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_GREATERTHANOREQUAL (if (>= n1 n2) BigInteger/ONE BigInteger/ZERO)
-                                                                Script'OP_MIN                (if (< n1 n2) n1 n2)
-                                                                Script'OP_MAX                (if (> n1 n2) n1 n2)
-                                                                (throw (RuntimeException. "Opcode switched at runtime?"))
-                                                            )]
-                                                        (§ ass stack (.add stack, (Wire'reverse-bytes (Wire'encode-mpi n, false))))
-                                                    )
-                                                    nil
-                                                )
-
-                                            Script'OP_NUMEQUALVERIFY
-                                                (do
-                                                    (when (< (count stack) 2)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_NUMEQUALVERIFY on a stack with size < 2"))
-                                                    )
-                                                    (let [#_"BigInteger" n2 (Script'cast-to-big-integer-2 (.pollLast stack), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
-                                                          #_"BigInteger" n1 (Script'cast-to-big-integer-2 (.pollLast stack), (contains? flags :ScriptVerifyFlag'MINIMALDATA))]
-
-                                                        (when-not (= n1 n2)
-                                                            (throw+ (ScriptException'new :ScriptError'NUMEQUALVERIFY, "OP_NUMEQUALVERIFY failed"))
-                                                        )
-                                                    )
-                                                    nil
-                                                )
-
-                                            Script'OP_WITHIN
-                                                (do
-                                                    (when (< (count stack) 3)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_WITHIN on a stack with size < 3"))
-                                                    )
-                                                    (let [#_"BigInteger" n3 (Script'cast-to-big-integer-2 (.pollLast stack), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
-                                                          #_"BigInteger" n2 (Script'cast-to-big-integer-2 (.pollLast stack), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
-                                                          #_"BigInteger" n1 (Script'cast-to-big-integer-2 (.pollLast stack), (contains? flags :ScriptVerifyFlag'MINIMALDATA))]
-                                                        (if (and (<= n2 n1) (< n1 n3))
-                                                            (§ ass stack (.add stack, (Wire'reverse-bytes (Wire'encode-mpi BigInteger/ONE, false))))
-                                                            (§ ass stack (.add stack, (Wire'reverse-bytes (Wire'encode-mpi BigInteger/ZERO, false))))
-                                                        )
-                                                    )
-                                                    nil
-                                                )
-
-                                            Script'OP_RIPEMD160
-                                                (do
-                                                    (when (< (count stack) 1)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_RIPEMD160 on an empty stack"))
-                                                    )
-                                                    (let [#_"RIPEMD160Digest" digest (RIPEMD160Digest.) #_"byte[]" data (.pollLast stack)]
-                                                        (.update digest, data, 0, (count data))
-                                                        (let [#_"byte[]" hash (byte-array 20)]
-                                                            (.doFinal digest, hash, 0)
-                                                            (§ ass stack (.add stack, hash))
-                                                        )
-                                                    )
-                                                    nil
-                                                )
-                                            Script'OP_SHA1
-                                                (do
-                                                    (when (< (count stack) 1)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA1 on an empty stack"))
-                                                    )
-                                                    (try
-                                                        (§ ass stack (.add stack, (.digest (MessageDigest/getInstance "SHA-1"), (.pollLast stack))))
-                                                        (catch NoSuchAlgorithmException e
-                                                            (throw (RuntimeException. e)) ;; Cannot happen.
-                                                        )
-                                                    )
-                                                    nil
-                                                )
-                                            Script'OP_SHA256
-                                                (do
-                                                    (when (< (count stack) 1)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
-                                                    )
-                                                    (§ ass stack (.add stack, (Sha256Hash'hash (.pollLast stack))))
-                                                    nil
-                                                )
-                                            Script'OP_HASH160
-                                                (do
-                                                    (when (< (count stack) 1)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_HASH160 on an empty stack"))
-                                                    )
-                                                    (§ ass stack (.add stack, (Utils'sha256hash160 (.pollLast stack))))
-                                                    nil
-                                                )
-                                            Script'OP_HASH256
-                                                (do
-                                                    (when (< (count stack) 1)
-                                                        (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
-                                                    )
-                                                    (§ ass stack (.add stack, (Sha256Hash'hash-twice (.pollLast stack))))
-                                                    nil
-                                                )
-
-                                           [Script'OP_CHECKSIG
-                                            Script'OP_CHECKSIGVERIFY]
-                                                (do
-                                                    (when (nil? tx)
-                                                        (throw (IllegalStateException. "Script attempted signature check but no tx was provided"))
-                                                    )
-                                                    (Script'execute-check-sig tx, (int index), script, stack, opcode, flags)
-                                                    nil
-                                                )
-                                           [Script'OP_CHECKMULTISIG
-                                            Script'OP_CHECKMULTISIGVERIFY]
-                                                (do
-                                                    (when (nil? tx)
-                                                        (throw (IllegalStateException. "Script attempted signature check but no tx was provided"))
-                                                    )
-                                                    [(Script'execute-multi-sig tx, (int index), script, stack, __opCount, opcode, flags)]
-                                                )
-                                            Script'OP_CHECKLOCKTIMEVERIFY
-                                                (do
-                                                    (if (not (contains? flags :ScriptVerifyFlag'CHECKLOCKTIMEVERIFY))
-                                                        ;; not enabled; treat as a NOP2
-                                                        (when (contains? flags :ScriptVerifyFlag'DISCOURAGE_UPGRADABLE_NOPS)
-                                                            (throw+ (ScriptException'new :ScriptError'DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " opcode)))
-                                                        )
-                                                        (Script'execute-check-lock-time-verify tx, (int index), stack, flags)
-                                                    )
-                                                    nil
-                                                )
-                                            Script'OP_CHECKSEQUENCEVERIFY
-                                                (do
-                                                    (if (not (contains? flags :ScriptVerifyFlag'CHECKSEQUENCEVERIFY))
-                                                        ;; not enabled; treat as a NOP3
-                                                        (when (contains? flags :ScriptVerifyFlag'DISCOURAGE_UPGRADABLE_NOPS)
-                                                            (throw+ (ScriptException'new :ScriptError'DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " opcode)))
-                                                        )
-                                                        (Script'execute-check-sequence-verify tx, (int index), stack, flags)
-                                                    )
-                                                    nil
-                                                )
-
-                                           [Script'OP_NOP1
-                                            Script'OP_NOP4
-                                            Script'OP_NOP5
-                                            Script'OP_NOP6
-                                            Script'OP_NOP7
-                                            Script'OP_NOP8
-                                            Script'OP_NOP9
-                                            Script'OP_NOP10]
-                                                (do
-                                                    (when (contains? flags :ScriptVerifyFlag'DISCOURAGE_UPGRADABLE_NOPS)
-                                                        (throw+ (ScriptException'new :ScriptError'DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " opcode)))
-                                                    )
-                                                    nil
-                                                )
-
-                                            (throw+ (ScriptException'new :ScriptError'BAD_OPCODE, (str "Script used a reserved or disabled opcode: " opcode)))
-                                        )
-                                    )
-                                )
-                              [__opCount] (or _ [__opCount])]
-
-                            (when-not (<= 0 (+ (count stack) (count altstack)) Script'MAX_STACK_SIZE)
-                                (throw+ (ScriptException'new :ScriptError'STACK_SIZE, "Stack size exceeded range"))
+                            ;; Disabled opcodes.
+                            (when (any = opcode Script'OP_CAT Script'OP_SUBSTR Script'OP_LEFT Script'OP_RIGHT Script'OP_INVERT Script'OP_AND Script'OP_OR Script'OP_XOR Script'OP_2MUL Script'OP_2DIV Script'OP_MUL Script'OP_DIV Script'OP_MOD Script'OP_LSHIFT Script'OP_RSHIFT)
+                                (throw+ (ScriptException'new :ScriptError'DISABLED_OPCODE, "Script included a disabled Script Op."))
                             )
 
-                            (recur __opCount (next chunks))
+                            (let [#_"boolean" exec? (not (.contains (:ifstack m), false))
+                                  _ (cond (and exec? (<= Script'OP_0 opcode Script'OP_PUSHDATA4))
+                                        (do
+                                            ;; Check minimal push.
+                                            (when (and (contains? flags :ScriptVerifyFlag'MINIMALDATA) (not (ScriptChunk''is-shortest-possible-push-data chunk)))
+                                                (throw+ (ScriptException'new :ScriptError'MINIMALDATA, "Script included a not minimal push operation."))
+                                            )
+                                            (update m :stack conj (if (= opcode Script'OP_0) (byte-array 0) (:data chunk)))
+                                        )
+                                        (or exec? (<= Script'OP_IF opcode Script'OP_ENDIF))
+                                        (do
+                                            (condp =? opcode
+                                                Script'OP_IF
+                                                    (do
+                                                        (when exec? => (update m :ifstack conj false)
+                                                            (when (< (count (:stack m)) 1)
+                                                                (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_IF on an empty stack"))
+                                                            )
+                                                            (update m :ifstack conj (Script'cast-to-bool (.pollLast (:stack m))))
+                                                        )
+                                                    )
+                                                Script'OP_NOTIF
+                                                    (do
+                                                        (when exec? => (update m :ifstack conj false)
+                                                            (when (< (count (:stack m)) 1)
+                                                                (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_NOTIF on an empty stack"))
+                                                            )
+                                                            (update m :ifstack conj (not (Script'cast-to-bool (.pollLast (:stack m)))))
+                                                        )
+                                                    )
+                                                Script'OP_ELSE
+                                                    (do
+                                                        (when (empty? (:ifstack m))
+                                                            (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_ELSE without OP_IF/NOTIF"))
+                                                        )
+                                                        (update m :ifstack conj (not (.pollLast (:ifstack m))))
+                                                    )
+                                                Script'OP_ENDIF
+                                                    (do
+                                                        (when (empty? (:ifstack m))
+                                                            (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "Attempted OP_ENDIF without OP_IF/NOTIF"))
+                                                        )
+                                                        (.pollLast (:ifstack m))
+                                                        nil
+                                                    )
+
+                                                ;; OP_0 is no opcode
+                                                Script'OP_1NEGATE
+                                                    (do
+                                                        (update m :stack conj (Wire'reverse-bytes (Wire'encode-mpi (.negate BigInteger/ONE), false)))
+                                                    )
+                                               [Script'OP_1
+                                                Script'OP_2
+                                                Script'OP_3
+                                                Script'OP_4
+                                                Script'OP_5
+                                                Script'OP_6
+                                                Script'OP_7
+                                                Script'OP_8
+                                                Script'OP_9
+                                                Script'OP_10
+                                                Script'OP_11
+                                                Script'OP_12
+                                                Script'OP_13
+                                                Script'OP_14
+                                                Script'OP_15
+                                                Script'OP_16]
+                                                    (do
+                                                        (update m :stack conj (Wire'reverse-bytes (Wire'encode-mpi (BigInteger/valueOf (Script'decode-from-op-n opcode)), false)))
+                                                    )
+
+                                                Script'OP_NOP
+                                                    (do
+                                                        nil
+                                                    )
+
+                                                Script'OP_VERIFY
+                                                    (do
+                                                        (when (< (count (:stack m)) 1)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_VERIFY on an empty stack"))
+                                                        )
+                                                        (when-not (Script'cast-to-bool (.pollLast (:stack m)))
+                                                            (throw+ (ScriptException'new :ScriptError'VERIFY, "OP_VERIFY failed"))
+                                                        )
+                                                        nil
+                                                    )
+
+                                                Script'OP_RETURN
+                                                    (throw+ (ScriptException'new :ScriptError'OP_RETURN, "Script called OP_RETURN"))
+
+                                                Script'OP_TOALTSTACK
+                                                    (do
+                                                        (when (< (count (:stack m)) 1)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_TOALTSTACK on an empty stack"))
+                                                        )
+                                                        (update m :altstack conj (.pollLast (:stack m)))
+                                                    )
+                                                Script'OP_FROMALTSTACK
+                                                    (do
+                                                        (when (< (count (:altstack m)) 1)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_ALTSTACK_OPERATION, "Attempted OP_FROMALTSTACK on an empty altstack"))
+                                                        )
+                                                        (update m :stack conj (.pollLast (:altstack m)))
+                                                    )
+
+                                                Script'OP_2DROP
+                                                    (do
+                                                        (when (< (count (:stack m)) 2)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2DROP on a stack with size < 2"))
+                                                        )
+                                                        (.pollLast (:stack m))
+                                                        (.pollLast (:stack m))
+                                                        nil
+                                                    )
+                                                Script'OP_2DUP
+                                                    (do
+                                                        (when (< (count (:stack m)) 2)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2DUP on a stack with size < 2"))
+                                                        )
+                                                        (let [#_"Iterator<byte[]>" it (.descendingIterator (:stack m)) #_"byte[]" data2 (.next it)]
+                                                            (§ ass m (update m :stack conj (.next it)))
+                                                            (§ ass m (update m :stack conj data2))
+                                                        )
+                                                        nil
+                                                    )
+                                                Script'OP_3DUP
+                                                    (do
+                                                        (when (< (count (:stack m)) 3)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_3DUP on a stack with size < 3"))
+                                                        )
+                                                        (let [#_"Iterator<byte[]>" it (.descendingIterator (:stack m)) #_"byte[]" data3 (.next it) #_"byte[]" data2 (.next it)]
+                                                            (§ ass m (update m :stack conj (.next it)))
+                                                            (§ ass m (update m :stack conj data2))
+                                                            (§ ass m (update m :stack conj data3))
+                                                        )
+                                                        nil
+                                                    )
+                                                Script'OP_2OVER
+                                                    (do
+                                                        (when (< (count (:stack m)) 4)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2OVER on a stack with size < 4"))
+                                                        )
+                                                        (let [#_"Iterator<byte[]>" it (.descendingIterator (:stack m))]
+                                                            (.next it)
+                                                            (.next it)
+                                                            (let [#_"byte[]" data2 (.next it)]
+                                                                (§ ass m (update m :stack conj (.next it)))
+                                                                (§ ass m (update m :stack conj data2))
+                                                            )
+                                                        )
+                                                        nil
+                                                    )
+                                                Script'OP_2ROT
+                                                    (do
+                                                        (when (< (count (:stack m)) 6)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2ROT on a stack with size < 6"))
+                                                        )
+                                                        (let [#_"byte[]" data6 (.pollLast (:stack m))
+                                                              #_"byte[]" data5 (.pollLast (:stack m))
+                                                              #_"byte[]" data4 (.pollLast (:stack m))
+                                                              #_"byte[]" data3 (.pollLast (:stack m))
+                                                              #_"byte[]" data2 (.pollLast (:stack m))
+                                                              #_"byte[]" data1 (.pollLast (:stack m))]
+                                                            (§ ass m (update m :stack conj data3))
+                                                            (§ ass m (update m :stack conj data4))
+                                                            (§ ass m (update m :stack conj data5))
+                                                            (§ ass m (update m :stack conj data6))
+                                                            (§ ass m (update m :stack conj data1))
+                                                            (§ ass m (update m :stack conj data2))
+                                                        )
+                                                        nil
+                                                    )
+                                                Script'OP_2SWAP
+                                                    (do
+                                                        (when (< (count (:stack m)) 4)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_2SWAP on a stack with size < 4"))
+                                                        )
+                                                        (let [#_"byte[]" data4 (.pollLast (:stack m))
+                                                              #_"byte[]" data3 (.pollLast (:stack m))
+                                                              #_"byte[]" data2 (.pollLast (:stack m))
+                                                              #_"byte[]" data1 (.pollLast (:stack m))]
+                                                            (§ ass m (update m :stack conj data3))
+                                                            (§ ass m (update m :stack conj data4))
+                                                            (§ ass m (update m :stack conj data1))
+                                                            (§ ass m (update m :stack conj data2))
+                                                        )
+                                                        nil
+                                                    )
+
+                                                Script'OP_IFDUP
+                                                    (do
+                                                        (when (< (count (:stack m)) 1)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_IFDUP on an empty stack"))
+                                                        )
+                                                        (when (Script'cast-to-bool (.getLast (:stack m)))
+                                                            (§ ass m (update m :stack conj (.getLast (:stack m))))
+                                                        )
+                                                        nil
+                                                    )
+
+                                                Script'OP_DEPTH
+                                                    (do
+                                                        (update m :stack conj (Wire'reverse-bytes (Wire'encode-mpi (BigInteger/valueOf (count (:stack m))), false)))
+                                                    )
+
+                                                Script'OP_DROP
+                                                    (do
+                                                        (when (< (count (:stack m)) 1)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_DROP on an empty stack"))
+                                                        )
+                                                        (.pollLast (:stack m))
+                                                        nil
+                                                    )
+                                                Script'OP_DUP
+                                                    (do
+                                                        (when (< (count (:stack m)) 1)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_DUP on an empty stack"))
+                                                        )
+                                                        (update m :stack conj (.getLast (:stack m)))
+                                                    )
+                                                Script'OP_NIP
+                                                    (do
+                                                        (when (< (count (:stack m)) 2)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_NIP on a stack with size < 2"))
+                                                        )
+                                                        (let [#_"byte[]" data (.pollLast (:stack m))]
+                                                            (.pollLast (:stack m))
+                                                            (§ ass m (update m :stack conj data))
+                                                        )
+                                                        nil
+                                                    )
+                                                Script'OP_OVER
+                                                    (do
+                                                        (when (< (count (:stack m)) 2)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_OVER on a stack with size < 2"))
+                                                        )
+                                                        (let [#_"Iterator<byte[]>" it (.descendingIterator (:stack m))]
+                                                            (.next it)
+                                                            (§ ass m (update m :stack conj (.next it)))
+                                                        )
+                                                        nil
+                                                    )
+                                               [Script'OP_PICK
+                                                Script'OP_ROLL]
+                                                    (do
+                                                        (when (< (count (:stack m)) 1)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_PICK/OP_ROLL on an empty stack"))
+                                                        )
+                                                        (let [#_"long" n (.longValue (Script'cast-to-big-integer-2 (.pollLast (:stack m)), (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
+                                                            (when-not (< -1 n (count (:stack m)))
+                                                                (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "OP_PICK/OP_ROLL attempted to get data deeper than stack size"))
+                                                            )
+                                                            (let [#_"Iterator<byte[]>" it (.descendingIterator (:stack m))]
+                                                                (dotimes [_ n]
+                                                                    (.next it)
+                                                                )
+                                                                (let [#_"byte[]" data (.next it)]
+                                                                    (when (= opcode Script'OP_ROLL)
+                                                                        (.remove it)
+                                                                    )
+                                                                    (§ ass m (update m :stack conj data))
+                                                                )
+                                                            )
+                                                        )
+                                                        nil
+                                                    )
+                                                Script'OP_ROT
+                                                    (do
+                                                        (when (< (count (:stack m)) 3)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_ROT on a stack with size < 3"))
+                                                        )
+                                                        (let [#_"byte[]" data3 (.pollLast (:stack m))
+                                                              #_"byte[]" data2 (.pollLast (:stack m))
+                                                              #_"byte[]" data1 (.pollLast (:stack m))]
+                                                            (§ ass m (update m :stack conj data2))
+                                                            (§ ass m (update m :stack conj data3))
+                                                            (§ ass m (update m :stack conj data1))
+                                                        )
+                                                        nil
+                                                    )
+                                               [Script'OP_SWAP
+                                                Script'OP_TUCK]
+                                                    (do
+                                                        (when (< (count (:stack m)) 2)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SWAP on a stack with size < 2"))
+                                                        )
+                                                        (let [#_"byte[]" data2 (.pollLast (:stack m)) #_"byte[]" data1 (.pollLast (:stack m))]
+                                                            (§ ass m (update m :stack conj data2))
+                                                            (§ ass m (update m :stack conj data1))
+                                                            (when (= opcode Script'OP_TUCK)
+                                                                (§ ass m (update m :stack conj data2))
+                                                            )
+                                                        )
+                                                        nil
+                                                    )
+
+                                                Script'OP_SIZE
+                                                    (do
+                                                        (when (< (count (:stack m)) 1)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SIZE on an empty stack"))
+                                                        )
+                                                        (update m :stack conj (Wire'reverse-bytes (Wire'encode-mpi (BigInteger/valueOf (count (.getLast (:stack m)))), false)))
+                                                    )
+                                                Script'OP_EQUAL
+                                                    (do
+                                                        (when (< (count (:stack m)) 2)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_EQUAL on a stack with size < 2"))
+                                                        )
+                                                        (update m :stack conj (if (Arrays/equals (.pollLast (:stack m)), (.pollLast (:stack m))) (byte-array [ 1 ]) (byte-array 0)))
+                                                    )
+                                                Script'OP_EQUALVERIFY
+                                                    (do
+                                                        (when (< (count (:stack m)) 2)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_EQUALVERIFY on a stack with size < 2"))
+                                                        )
+                                                        (when-not (Arrays/equals (.pollLast (:stack m)), (.pollLast (:stack m)))
+                                                            (throw+ (ScriptException'new :ScriptError'EQUALVERIFY, "OP_EQUALVERIFY: non-equal data"))
+                                                        )
+                                                        nil
+                                                    )
+
+                                               [Script'OP_1ADD
+                                                Script'OP_1SUB
+                                                Script'OP_NEGATE
+                                                Script'OP_ABS
+                                                Script'OP_NOT
+                                                Script'OP_0NOTEQUAL]
+                                                    (do
+                                                        (when (< (count (:stack m)) 1)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted a numeric op on an empty stack"))
+                                                        )
+                                                        (let [#_"BigInteger" n (Script'cast-to-big-integer-2 (.pollLast (:stack m)), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
+                                                              n (condp = opcode
+                                                                    Script'OP_1ADD      (.add n, BigInteger/ONE)
+                                                                    Script'OP_1SUB      (.subtract n, BigInteger/ONE)
+                                                                    Script'OP_NEGATE    (.negate n)
+                                                                    Script'OP_ABS       (if (neg? (.signum n)) (.negate n) n)
+                                                                    Script'OP_NOT       (if (= n BigInteger/ZERO) BigInteger/ONE BigInteger/ZERO)
+                                                                    Script'OP_0NOTEQUAL (if (= n BigInteger/ZERO) BigInteger/ZERO BigInteger/ONE)
+                                                                )]
+                                                            (update m :stack conj (Wire'reverse-bytes (Wire'encode-mpi n, false)))
+                                                        )
+                                                    )
+                                               [Script'OP_ADD
+                                                Script'OP_SUB
+                                                Script'OP_BOOLAND
+                                                Script'OP_BOOLOR
+                                                Script'OP_NUMEQUAL
+                                                Script'OP_NUMNOTEQUAL
+                                                Script'OP_LESSTHAN
+                                                Script'OP_GREATERTHAN
+                                                Script'OP_LESSTHANOREQUAL
+                                                Script'OP_GREATERTHANOREQUAL
+                                                Script'OP_MIN
+                                                Script'OP_MAX]
+                                                    (do
+                                                        (when (< (count (:stack m)) 2)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted a numeric op on a stack with size < 2"))
+                                                        )
+                                                        (let [#_"BigInteger" n2 (Script'cast-to-big-integer-2 (.pollLast (:stack m)), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
+                                                              #_"BigInteger" n1 (Script'cast-to-big-integer-2 (.pollLast (:stack m)), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
+                                                              #_"BigInteger" n
+                                                                (condp = opcode
+                                                                    Script'OP_ADD                (.add n1, n2)
+                                                                    Script'OP_SUB                (.subtract n1, n2)
+                                                                    Script'OP_BOOLAND            (if (and (not= n1 BigInteger/ZERO) (not= n2 BigInteger/ZERO)) BigInteger/ONE BigInteger/ZERO)
+                                                                    Script'OP_BOOLOR             (if (or (not= n1 BigInteger/ZERO) (not= n2 BigInteger/ZERO)) BigInteger/ONE BigInteger/ZERO)
+                                                                    Script'OP_NUMEQUAL           (if (= n1 n2) BigInteger/ONE BigInteger/ZERO)
+                                                                    Script'OP_NUMNOTEQUAL        (if (not= n1 n2) BigInteger/ONE BigInteger/ZERO)
+                                                                    Script'OP_LESSTHAN           (if (< n1 n2) BigInteger/ONE BigInteger/ZERO)
+                                                                    Script'OP_GREATERTHAN        (if (> n1 n2) BigInteger/ONE BigInteger/ZERO)
+                                                                    Script'OP_LESSTHANOREQUAL    (if (<= n1 n2) BigInteger/ONE BigInteger/ZERO)
+                                                                    Script'OP_GREATERTHANOREQUAL (if (>= n1 n2) BigInteger/ONE BigInteger/ZERO)
+                                                                    Script'OP_MIN                (if (< n1 n2) n1 n2)
+                                                                    Script'OP_MAX                (if (> n1 n2) n1 n2)
+                                                                    (throw (RuntimeException. "Opcode switched at runtime?"))
+                                                                )]
+                                                            (update m :stack conj (Wire'reverse-bytes (Wire'encode-mpi n, false)))
+                                                        )
+                                                    )
+
+                                                Script'OP_NUMEQUALVERIFY
+                                                    (do
+                                                        (when (< (count (:stack m)) 2)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_NUMEQUALVERIFY on a stack with size < 2"))
+                                                        )
+                                                        (let [#_"BigInteger" n2 (Script'cast-to-big-integer-2 (.pollLast (:stack m)), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
+                                                              #_"BigInteger" n1 (Script'cast-to-big-integer-2 (.pollLast (:stack m)), (contains? flags :ScriptVerifyFlag'MINIMALDATA))]
+
+                                                            (when-not (= n1 n2)
+                                                                (throw+ (ScriptException'new :ScriptError'NUMEQUALVERIFY, "OP_NUMEQUALVERIFY failed"))
+                                                            )
+                                                        )
+                                                        nil
+                                                    )
+
+                                                Script'OP_WITHIN
+                                                    (do
+                                                        (when (< (count (:stack m)) 3)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_WITHIN on a stack with size < 3"))
+                                                        )
+                                                        (let [#_"BigInteger" n3 (Script'cast-to-big-integer-2 (.pollLast (:stack m)), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
+                                                              #_"BigInteger" n2 (Script'cast-to-big-integer-2 (.pollLast (:stack m)), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
+                                                              #_"BigInteger" n1 (Script'cast-to-big-integer-2 (.pollLast (:stack m)), (contains? flags :ScriptVerifyFlag'MINIMALDATA))]
+                                                            (if (and (<= n2 n1) (< n1 n3))
+                                                                (§ ass m (update m :stack conj (Wire'reverse-bytes (Wire'encode-mpi BigInteger/ONE, false))))
+                                                                (§ ass m (update m :stack conj (Wire'reverse-bytes (Wire'encode-mpi BigInteger/ZERO, false))))
+                                                            )
+                                                        )
+                                                        nil
+                                                    )
+
+                                                Script'OP_RIPEMD160
+                                                    (do
+                                                        (when (< (count (:stack m)) 1)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_RIPEMD160 on an empty stack"))
+                                                        )
+                                                        (let [#_"RIPEMD160Digest" digest (RIPEMD160Digest.) #_"byte[]" data (.pollLast (:stack m))]
+                                                            (.update digest, data, 0, (count data))
+                                                            (let [#_"byte[]" hash (byte-array 20)]
+                                                                (.doFinal digest, hash, 0)
+                                                                (update m :stack conj hash)
+                                                            )
+                                                        )
+                                                    )
+                                                Script'OP_SHA1
+                                                    (do
+                                                        (when (< (count (:stack m)) 1)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA1 on an empty stack"))
+                                                        )
+                                                        (try
+                                                            (update m :stack conj (.digest (MessageDigest/getInstance "SHA-1"), (.pollLast (:stack m))))
+                                                            (catch NoSuchAlgorithmException e
+                                                                (throw (RuntimeException. e)) ;; Cannot happen.
+                                                            )
+                                                        )
+                                                    )
+                                                Script'OP_SHA256
+                                                    (do
+                                                        (when (< (count (:stack m)) 1)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
+                                                        )
+                                                        (update m :stack conj (Sha256Hash'hash (.pollLast (:stack m))))
+                                                    )
+                                                Script'OP_HASH160
+                                                    (do
+                                                        (when (< (count (:stack m)) 1)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_HASH160 on an empty stack"))
+                                                        )
+                                                        (update m :stack conj (Utils'sha256hash160 (.pollLast (:stack m))))
+                                                    )
+                                                Script'OP_HASH256
+                                                    (do
+                                                        (when (< (count (:stack m)) 1)
+                                                            (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_SHA256 on an empty stack"))
+                                                        )
+                                                        (update m :stack conj (Sha256Hash'hash-twice (.pollLast (:stack m))))
+                                                    )
+
+                                               [Script'OP_CHECKSIG
+                                                Script'OP_CHECKSIGVERIFY]
+                                                    (do
+                                                        (when (nil? tx)
+                                                            (throw (IllegalStateException. "Script attempted signature check but no tx was provided"))
+                                                        )
+                                                        (Script'execute-check-sig tx, (int index), script, (:stack m), opcode, flags)
+                                                        nil
+                                                    )
+                                               [Script'OP_CHECKMULTISIG
+                                                Script'OP_CHECKMULTISIGVERIFY]
+                                                    (do
+                                                        (when (nil? tx)
+                                                            (throw (IllegalStateException. "Script attempted signature check but no tx was provided"))
+                                                        )
+                                                        (assoc m :ops (Script'execute-multi-sig tx, (int index), script, (:stack m), (:ops m), opcode, flags))
+                                                    )
+                                                Script'OP_CHECKLOCKTIMEVERIFY
+                                                    (do
+                                                        (if (not (contains? flags :ScriptVerifyFlag'CHECKLOCKTIMEVERIFY))
+                                                            ;; not enabled; treat as a NOP2
+                                                            (when (contains? flags :ScriptVerifyFlag'DISCOURAGE_UPGRADABLE_NOPS)
+                                                                (throw+ (ScriptException'new :ScriptError'DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " opcode)))
+                                                            )
+                                                            (Script'execute-check-lock-time-verify tx, (int index), (:stack m), flags)
+                                                        )
+                                                        nil
+                                                    )
+                                                Script'OP_CHECKSEQUENCEVERIFY
+                                                    (do
+                                                        (if (not (contains? flags :ScriptVerifyFlag'CHECKSEQUENCEVERIFY))
+                                                            ;; not enabled; treat as a NOP3
+                                                            (when (contains? flags :ScriptVerifyFlag'DISCOURAGE_UPGRADABLE_NOPS)
+                                                                (throw+ (ScriptException'new :ScriptError'DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " opcode)))
+                                                            )
+                                                            (Script'execute-check-sequence-verify tx, (int index), (:stack m), flags)
+                                                        )
+                                                        nil
+                                                    )
+
+                                               [Script'OP_NOP1
+                                                Script'OP_NOP4
+                                                Script'OP_NOP5
+                                                Script'OP_NOP6
+                                                Script'OP_NOP7
+                                                Script'OP_NOP8
+                                                Script'OP_NOP9
+                                                Script'OP_NOP10]
+                                                    (do
+                                                        (when (contains? flags :ScriptVerifyFlag'DISCOURAGE_UPGRADABLE_NOPS)
+                                                            (throw+ (ScriptException'new :ScriptError'DISCOURAGE_UPGRADABLE_NOPS, (str "Script used a reserved opcode " opcode)))
+                                                        )
+                                                        nil
+                                                    )
+
+                                                (throw+ (ScriptException'new :ScriptError'BAD_OPCODE, (str "Script used a reserved or disabled opcode: " opcode)))
+                                            )
+                                        )
+                                    )
+                                  m (or _ m)]
+
+                                (when-not (<= 0 (+ (count (:stack m)) (count (:altstack m))) Script'MAX_STACK_SIZE)
+                                    (throw+ (ScriptException'new :ScriptError'STACK_SIZE, "Stack size exceeded range"))
+                                )
+
+                                (recur m (next chunks))
+                            )
                         )
                     )
-                )
-            )
-
-            (when (seq ifstack)
+                )]
+            (when (seq (:ifstack m))
                 (throw+ (ScriptException'new :ScriptError'UNBALANCED_CONDITIONAL, "OP_IF/OP_NOTIF without OP_ENDIF"))
             )
+            (:stack m)
         )
-        nil
     )
 
     ;; This is more or less a direct translation of the code in Bitcoin Core.
@@ -20369,7 +20348,7 @@
             (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKLOCKTIMEVERIFY on a stack with size < 1"))
         )
         ;; Thus as a special case we tell CScriptNum to accept up to 5-byte bignums to avoid year 2038 issue.
-        (let [#_"BigInteger" time (Script'cast-to-big-integer-3 (.getLast stack), 5, (contains? flags :ScriptVerifyFlag'MINIMALDATA))]
+        (let [#_"BigInteger" time (Script'cast-to-big-integer-3 (.getLast stack), 5, (contains? flags :ScriptVerifyFlag'MINIMALDATA))]
             (cond
                 (< time BigInteger/ZERO)
                     (throw+ (ScriptException'new :ScriptError'NEGATIVE_LOCKTIME, "Negative locktime"))
@@ -20406,7 +20385,7 @@
             ;;
             ;; Thus as a special case we tell CScriptNum to accept up to 5-byte bignums, which are good until
             ;; 2**39-1, well beyond the 2**32-1 limit of the nSequence field itself.
-            (let [#_"long" n (.longValue (Script'cast-to-big-integer-3 (.getLast stack), 5, (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
+            (let [#_"long" n (.longValue (Script'cast-to-big-integer-3 (.getLast stack), 5, (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
                 (cond
                     ;; In the rare event that the argument may be < 0 due to some arithmetic being done first,
                     ;; you can always use 0 MAX CHECKSEQUENCEVERIFY.
@@ -20467,7 +20446,7 @@
                 (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKSIG(VERIFY) on a stack with size < 2"))
             )
 
-            (let [#_"byte[]" __pubKey (.pollLast stack) #_"byte[]" __sigBytes (.pollLast stack)
+            (let [#_"byte[]" __pubKey (.pollLast stack) #_"byte[]" __sigBytes (.pollLast stack)
                   rem- #(let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (inc (count %2))) _ (Script'write-bytes baos, %2)]
                             (Script'remove-all-instances-of %1, (.toByteArray baos))
                         )
@@ -20509,27 +20488,27 @@
     )
 
     #_throws #_[ "ScriptException" ]
-    (defn- #_"int" Script'execute-multi-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" __opCount, #_"int" opcode, #_"{ScriptVerifyFlag}" flags]
+    (defn- #_"int" Script'execute-multi-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" ops, #_"int" opcode, #_"{ScriptVerifyFlag}" flags]
         (let [#_"boolean" canon? (or (contains? flags :ScriptVerifyFlag'STRICTENC) (contains? flags :ScriptVerifyFlag'DERSIG) (contains? flags :ScriptVerifyFlag'LOW_S))]
             (when (< (count stack) 1)
                 (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < 1"))
             )
 
-            (let [#_"int" __pubKeyCount (.intValue (Script'cast-to-big-integer-2 (.pollLast stack), (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
+            (let [#_"int" __pubKeyCount (.intValue (Script'cast-to-big-integer-2 (.pollLast stack), (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
                 (when-not (<= 0 __pubKeyCount Script'MAX_PUBKEYS_PER_MULTISIG)
                     (throw+ (ScriptException'new :ScriptError'PUBKEY_COUNT, "OP_CHECKMULTISIG(VERIFY) with pubkey count out of range"))
                 )
 
-                (let [__opCount (+ __opCount __pubKeyCount)]
-                    (when (< Script'MAX_OPS_PER_SCRIPT __opCount)
+                (let [ops (+ ops __pubKeyCount)]
+                    (when (< Script'MAX_OPS_PER_SCRIPT ops)
                         (throw+ (ScriptException'new :ScriptError'OP_COUNT, "Total op count > 201 during OP_CHECKMULTISIG(VERIFY)"))
                     )
                     (when (< (count stack) (inc __pubKeyCount))
                         (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + 2"))
                     )
 
-                    (let [#_"LinkedList<byte[]>" pubkeys (LinkedList.) _ (dotimes [_ __pubKeyCount] (§ ass pubkeys (.add pubkeys, (.pollLast stack))))
-                          #_"int" __sigCount (.intValue (Script'cast-to-big-integer-2 (.pollLast stack), (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
+                    (let [#_"LinkedList<byte[]>" pubkeys (LinkedList.) _ (dotimes [_ __pubKeyCount] (§ ass pubkeys (.add pubkeys, (.pollLast stack))))
+                          #_"int" __sigCount (.intValue (Script'cast-to-big-integer-2 (.pollLast stack), (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
                         (when-not (<= 0 __sigCount __pubKeyCount)
                             (throw+ (ScriptException'new :ScriptError'SIG_COUNT, "OP_CHECKMULTISIG(VERIFY) with sig count out of range"))
                         )
@@ -20537,7 +20516,7 @@
                             (throw+ (ScriptException'new :ScriptError'INVALID_STACK_OPERATION, "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + num_of_signatures + 3"))
                         )
 
-                        (let [#_"LinkedList<byte[]>" sigs (LinkedList.) _ (dotimes [_ __sigCount] (§ ass sigs (.add sigs, (.pollLast stack))))
+                        (let [#_"LinkedList<byte[]>" sigs (LinkedList.) _ (dotimes [_ __sigCount] (§ ass sigs (.add sigs, (.pollLast stack))))
                               rem- #(let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (inc (count %2))) _ (Script'write-bytes baos, %2)]
                                         (Script'remove-all-instances-of %1, (.toByteArray baos))
                                     )
@@ -20564,7 +20543,7 @@
                                     )
                                 )
                               ;; We uselessly remove a stack object to emulate a Bitcoin Core bug.
-                              #_"byte[]" __nullDummy (.pollLast stack)]
+                              #_"byte[]" __nullDummy (.pollLast stack)]
                             (when (and (contains? flags :ScriptVerifyFlag'NULLDUMMY) (pos? (count __nullDummy)))
                                 (throw+ (ScriptException'new :ScriptError'SIG_NULLFAIL, (str "OP_CHECKMULTISIG(VERIFY) with non-null nulldummy: " (vec __nullDummy))))
                             )
@@ -20579,7 +20558,7 @@
                                 )
                             )
 
-                            __opCount
+                            ops
                         )
                     )
                 )
@@ -20606,46 +20585,44 @@
                 (throw+ (ScriptException'new :ScriptError'SCRIPT_SIZE, "Script larger than 10,000 bytes"))
             )
 
-            (let [#_"LinkedList<byte[]>" stack (LinkedList.)]
-                (Script'execute-script-5 tx, index, this, stack, flags)
+            (let [#_"LinkedList<byte[]>" stack (Script'execute-script tx, index, this, (LinkedList.), flags)
+                  #_"LinkedList<byte[]>" __p2shStack (when (contains? flags :ScriptVerifyFlag'P2SH) (LinkedList. stack))
+                  stack (Script'execute-script tx, index, __scriptPubKey, stack, flags)]
 
-                (let [#_"LinkedList<byte[]>" __p2shStack (when (contains? flags :ScriptVerifyFlag'P2SH) (LinkedList. stack))]
-                    (Script'execute-script-5 tx, index, __scriptPubKey, stack, flags)
+                (when (empty? stack)
+                    (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, "Stack empty at end of script execution."))
+                )
+                (when-not (Script'cast-to-bool (.pollLast stack))
+                    (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, (str "Script execution resulted in a non-true stack: " stack)))
+                )
 
-                    (when (zero? (count stack))
-                        (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, "Stack empty at end of script execution."))
-                    )
-                    (when-not (Script'cast-to-bool (.pollLast stack))
-                        (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, (str "Script resulted in a non-true stack: " stack)))
-                    )
+                ;; P2SH is pay to script hash.  It means that the scriptPubKey has a special form which is a valid
+                ;; program but it has "useless" form that if evaluated as a normal program always returns true.
+                ;; Instead, miners recognize it as special based on its template - it provides a hash of the real scriptPubKey
+                ;; and that must be provided by the input.  The goal of this bizarre arrangement is twofold:
+                ;;
+                ;; (1) You can sum up a large, complex script (like a CHECKMULTISIG script) with an address that's the same
+                ;;     size as a regular address.  This means it doesn't overload scannable QR codes/NFC tags or become
+                ;;     un-wieldy to copy/paste.
+                ;; (2) It allows the working set to be smaller: nodes perform best when they can store as many unspent outputs
+                ;;     in RAM as possible, so if the outputs are made smaller and the inputs get bigger, then it's better for
+                ;;     overall scalability and performance.
 
-                    ;; P2SH is pay to script hash.  It means that the scriptPubKey has a special form which is a valid
-                    ;; program but it has "useless" form that if evaluated as a normal program always returns true.
-                    ;; Instead, miners recognize it as special based on its template - it provides a hash of the real scriptPubKey
-                    ;; and that must be provided by the input.  The goal of this bizarre arrangement is twofold:
-                    ;;
-                    ;; (1) You can sum up a large, complex script (like a CHECKMULTISIG script) with an address that's the same
-                    ;;     size as a regular address.  This means it doesn't overload scannable QR codes/NFC tags or become
-                    ;;     un-wieldy to copy/paste.
-                    ;; (2) It allows the working set to be smaller: nodes perform best when they can store as many unspent outputs
-                    ;;     in RAM as possible, so if the outputs are made smaller and the inputs get bigger, then it's better for
-                    ;;     overall scalability and performance.
-
-                    ;; TODO: Check if we can take out enforceP2SH if there's a checkpoint at the enforcement block.
-                    (when (and (contains? flags :ScriptVerifyFlag'P2SH) (Script''is-pay-to-script-hash __scriptPubKey))
-                        (doseq [#_"ScriptChunk" chunk (:chunks this)]
-                            (when (and (ScriptChunk''is-op-code chunk) (< Script'OP_16 (:opcode chunk)))
-                                (throw+ (ScriptException'new :ScriptError'SIG_PUSHONLY, "Attempted to spend a P2SH scriptPubKey with a script that contained script ops"))
-                            )
+                ;; TODO: Check if we can take out enforceP2SH if there's a checkpoint at the enforcement block.
+                (when (and (contains? flags :ScriptVerifyFlag'P2SH) (Script''is-pay-to-script-hash __scriptPubKey))
+                    (doseq [#_"ScriptChunk" chunk (:chunks this)]
+                        (when (and (ScriptChunk''is-op-code chunk) (< Script'OP_16 (:opcode chunk)))
+                            (throw+ (ScriptException'new :ScriptError'SIG_PUSHONLY, "Attempted to spend a P2SH scriptPubKey with a script that contained script ops"))
                         )
+                    )
 
-                        (Script'execute-script-5 tx, index, (Script'parse (.pollLast __p2shStack)), __p2shStack, flags)
+                    (let [__p2shStack (Script'execute-script tx, index, (Script'parse (.pollLast __p2shStack)), __p2shStack, flags)]
 
-                        (when (zero? (count __p2shStack))
+                        (when (empty? __p2shStack)
                             (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, "P2SH stack empty at end of script execution."))
                         )
-                        (when-not (Script'cast-to-bool (.pollLast __p2shStack))
-                            (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, "P2SH script execution resulted in a non-true stack"))
+                        (when-not (Script'cast-to-bool (.pollLast __p2shStack))
+                            (throw+ (ScriptException'new :ScriptError'EVAL_FALSE, (str "P2SH script execution resulted in a non-true stack: " __p2shStack)))
                         )
                     )
                 )
@@ -24035,11 +24012,7 @@
     #_override
     (defn #_"RedeemData" KeyBag'''find-redeem-data-from-script-hash [#_"KeyChainGroup" this, #_"byte[]" hash]
         ;; Iterate in reverse order, since the active keychain is the one most likely to have the hit.
-        (loop-when [#_"Iterator<DeterministicKeyChain>" it (.descendingIterator (:chains this))] (.hasNext it)
-            (let [#_"RedeemData" redeem (DeterministicKeyChain'''find-redeem-data-by-script-hash (.next it), (§ ByteString/copyFrom hash))]
-                (or redeem (recur it))
-            )
-        )
+        (some #(DeterministicKeyChain'''find-redeem-data-by-script-hash %, (§ ByteString/copyFrom hash)) (reverse (:chains this)))
     )
 
     #_method
@@ -24925,20 +24898,6 @@
 (class-ns ExceededMaxTransactionSize (§ extends CompletionException)
     (defn #_"ExceededMaxTransactionSize" ExceededMaxTransactionSize'new []
         (CompletionException'new)
-    )
-)
-
-(class-ns TxOffsetPair
-    (defn- #_"TxOffsetPair" TxOffsetPair'new [#_"Transaction" tx, #_"int" offset]
-        (hash-map
-            #_"Transaction" :tx tx
-            #_"int" :offset offset
-        )
-    )
-
-    (defn #_"int" TxOffsetPair'compare [#_"TxOffsetPair" this, #_"TxOffsetPair" that]
-        ;; Note that in this implementation compareTo() is not consistent with equals().
-        (compare (:offset this) (:offset that))
     )
 )
 
@@ -26867,36 +26826,39 @@
     #_method
     (defn #_"this" Wallet''cleanup [#_"Wallet" this]
         (sync (:wallet-lock this)
-            (let [#_"Iterator<Transaction>" it (.iterator (vals (:pending this)))
-                  #_"int" n
-                    (loop-when [n 0] (.hasNext it) => n
-                        (let [#_"Transaction" tx (.next it) #_"Sha256Hash" hash (Transaction''get-hash tx)]
-                            (when (and (Wallet''is-transaction-risky this, tx, nil) (not (:accept-risky-transactions this))) => (recur n)
+            (let [[this #_"int" n]
+                    (loop-when [this this n 0 #_"[Sha256Hash Transaction]*" e* (:pending this)] (seq e*) => [this n]
+                        (let [[#_"Sha256Hash" hash #_"Transaction" tx] (first e*)]
+                            (when (and (Wallet''is-transaction-risky this, tx, nil) (not (:accept-risky-transactions this))) => (recur this n (next e*))
                                 (log/debug (str "Found risky transaction " hash " in wallet during cleanup."))
                                 (if (Transaction''is-any-output-spent tx)
                                     (do
                                         (log/info (str "Cannot remove transaction " hash " from pending pool during cleanup, as it's already spent partially."))
-                                        (recur n)
+                                        (recur this n (next e*))
                                     )
-                                    (do
-                                        ;; Sync myUnspents with the change.
-                                        (doseq [#_"TransactionInput" input (:inputs tx)]
-                                            (when-let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
-                                                (when (TransactionOutput''is-mine output, this)
-                                                    (assert-state (not (contains? (:my-unspents this) output)))
-                                                    (§ ass this (update this :my-unspents conj output))
+                                    ;; Sync myUnspents with the change.
+                                    (let [this
+                                            (loop-when [this this #_"TransactionInput*" i* (:inputs tx)] (seq i*) => this
+                                                (let [#_"TransactionInput" input (first i*) #_"TransactionOutput" output (TransactionInput''get-connected-output input)
+                                                      this
+                                                        (when (some? output) => this
+                                                            (let [this
+                                                                    (when (TransactionOutput''is-mine output, this) => this
+                                                                        (assert-state (not (contains? (:my-unspents this) output)))
+                                                                        (update this :my-unspents conj output)
+                                                                    )]
+                                                                (TransactionInput''disconnect input)
+                                                                this
+                                                            )
+                                                        )]
+                                                    (recur this (next i*))
                                                 )
-                                                (TransactionInput''disconnect input)
                                             )
-                                        )
-                                        (doseq [#_"TransactionOutput" output (:outputs tx)]
-                                            (§ ass this (update this :my-unspents disj output))
-                                        )
-
-                                        (.remove it)
-                                        (§ ass this (update this :transactions dissoc hash))
+                                          this (update this :my-unspents #(apply disj % (:outputs tx)))
+                                          this (update this :pending dissoc hash)
+                                          this (update this :transactions dissoc hash)]
                                         (log/info (str "Removed transaction " hash " from pending pool during cleanup."))
-                                        (recur (inc n))
+                                        (recur this (inc n) (next e*))
                                     )
                                 )
                             )
@@ -27607,11 +27569,13 @@
 
                   ;; Map block hash to transactions that appear in it.  We ensure that the map values are sorted
                   ;; according to their relative position within those blocks.
-                  #_"{Sha256Hash TxOffsetPair*}" __mapBlockTx
-                    (reduce (fn [%1 [%2 [%3 %4]]] (update %1 %3 conj (TxOffsetPair'new %2, %4))) (hash-map)
-                        (for [#_"Transaction" tx (Wallet''get-transactions this, true) #_"[Sha256Hash int]" e (:appears-in-hashes tx)] [tx e])
+                  #_"{Sha256Hash {Transaction :tx, int :offset}*}" m
+                    (reduce (fn [%1 [%2 %3 %4]] (update %1 %3 conj {:tx %2, :offset %4})) (hash-map)
+                        (for [#_"Transaction" tx (Wallet''get-transactions this, true) #_"[Sha256Hash int]" e (:appears-in-hashes tx)]
+                            [tx (key e) (val e)]
+                        )
                     )
-                  __mapBlockTx (reduce #(update %1 %2 (partial sort TxOffsetPair'compare)) __mapBlockTx (keys __mapBlockTx))]
+                  m (reduce #(update %1 %2 (partial sort-by :offset)) m (keys m))]
 
                 (log/info "Old part of chain (top to bottom):")
                 (doseq [#_"StoredBlock" % __oldBlocks]
@@ -27625,7 +27589,7 @@
                 ;; For each block in the old chain, disconnect the transactions in reverse order.
                 (let [#_"Transaction*" txns
                         (for [#_"Sha256Hash" hash (map #(Block''get-hash (:stored-header %)) __oldBlocks)
-                              #_"Transaction" tx (map :tx (get __mapBlockTx hash))]
+                              #_"Transaction" tx (map :tx (get m hash))]
                             tx
                         )
                       [this txns]
@@ -27722,8 +27686,8 @@
                             (let [#_"StoredBlock" block (first b*) #_"Sha256Hash" hash (Block''get-hash (:stored-header block))]
                                 (log/info (str "Replaying block " hash))
                                 (let [this
-                                        (loop-when [this this #_"TxOffsetPair*" p* (get __mapBlockTx hash)] (seq p*) => this
-                                            (let [#_"TxOffsetPair" pair (first p*)]
+                                        (loop-when [this this #_"{Transaction :tx, int :offset}*" p* (get m hash)] (seq p*) => this
+                                            (let [#_"{Transaction :tx, int :offset}" pair (first p*)]
                                                 (log/info (str "  tx " (Transaction''get-hash (:tx pair))))
                                                 (recur (Wallet''receive this, (:tx pair), block, :NewBlockType'BEST_CHAIN, (:offset pair)) (next p*))
                                             )
