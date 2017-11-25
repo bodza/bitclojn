@@ -19956,24 +19956,14 @@
                                                         (when (empty? (:stack m))
                                                             (throw+ (ScriptException'new "Attempted OP_PICK/OP_ROLL on an empty stack"))
                                                         )
-                                                        (let [? (peek (:stack m)) m (update m :stack pop)]
-                                                            (let [#_"long" n (.longValue (Script'cast-to-big-integer-2 ?, (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
-                                                                (when-not (< -1 n (count (:stack m)))
-                                                                    (throw+ (ScriptException'new "OP_PICK/OP_ROLL attempted to get data deeper than stack size"))
-                                                                )
-                                                                (let [#_"Iterator<byte[]>" it (.descendingIterator (:stack m))]
-                                                                    (dotimes [_ n]
-                                                                        (.next it)
-                                                                    )
-                                                                    (let [#_"byte[]" data (.next it)]
-                                                                        (when (= opcode Script'OP_ROLL)
-                                                                            (.remove it)
-                                                                        )
-                                                                        (§ ass m (update m :stack conj data))
-                                                                    )
-                                                                )
+                                                        (let [? (peek (:stack m)) m (update m :stack pop)
+                                                              #_"long" n (.longValue (Script'cast-to-big-integer-2 ?, (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
+                                                            (when-not (< -1 n (count (:stack m)))
+                                                                (throw+ (ScriptException'new "OP_PICK/OP_ROLL attempted to get data deeper than stack size"))
                                                             )
-                                                            m
+                                                            (letfn [(-nth [s n] (concat (take n s) (drop (inc n) s)))]
+                                                                (update m :stack #(conj (if (= opcode Script'OP_ROLL) (-nth % n) %) (nth % n)))
+                                                            )
                                                         )
                                                     )
                                                 Script'OP_ROT
@@ -19981,15 +19971,8 @@
                                                         (when (< (count (:stack m)) 3)
                                                             (throw+ (ScriptException'new "Attempted OP_ROT on a stack with size < 3"))
                                                         )
-                                                        (let [? (peek (:stack m)) m (update m :stack pop)]
-                                                            (let [#_"byte[]" data3 ?
-                                                                #_"byte[]" data2 (§ ass*  (peek (:stack m)) m (update m :stack pop))
-                                                                #_"byte[]" data1 (§ ass*  (peek (:stack m)) m (update m :stack pop))]
-                                                                (§ ass m (update m :stack conj data2))
-                                                                (§ ass m (update m :stack conj data3))
-                                                                (§ ass m (update m :stack conj data1))
-                                                            )
-                                                            m
+                                                        (let [[#_"byte[]" data3 #_"byte[]" data2 #_"byte[]" data1] (:stack m)]
+                                                            (update m :stack #(conj (drop 3 %) data2 data3 data1))
                                                         )
                                                     )
                                                [Script'OP_SWAP
@@ -19998,15 +19981,11 @@
                                                         (when (< (count (:stack m)) 2)
                                                             (throw+ (ScriptException'new "Attempted OP_SWAP on a stack with size < 2"))
                                                         )
-                                                        (let [? (peek (:stack m)) m (update m :stack pop)]
-                                                            (let [#_"byte[]" data2 ? #_"byte[]" data1 (§ ass*  (peek (:stack m)) m (update m :stack pop))]
-                                                                (§ ass m (update m :stack conj data2))
-                                                                (§ ass m (update m :stack conj data1))
-                                                                (when (= opcode Script'OP_TUCK)
-                                                                    (§ ass m (update m :stack conj data2))
-                                                                )
+                                                        (let [[#_"byte[]" data2 #_"byte[]" data1] (:stack m)
+                                                              m (update m :stack #(conj (drop 2 %) data2 data1))]
+                                                            (when (= opcode Script'OP_TUCK) => m
+                                                                (update m :stack conj data2)
                                                             )
-                                                            m
                                                         )
                                                     )
 
@@ -20015,15 +19994,15 @@
                                                         (when (empty? (:stack m))
                                                             (throw+ (ScriptException'new "Attempted OP_SIZE on an empty stack"))
                                                         )
-                                                        (update m :stack conj (Wire'reverse-bytes (Wire'encode-mpi (BigInteger/valueOf (count (peek (:stack m)))), false)))
+                                                        (update m :stack #(conj % (Wire'reverse-bytes (Wire'encode-mpi (BigInteger/valueOf (count (peek %))), false))))
                                                     )
                                                 Script'OP_EQUAL
                                                     (do
                                                         (when (< (count (:stack m)) 2)
                                                             (throw+ (ScriptException'new "Attempted OP_EQUAL on a stack with size < 2"))
                                                         )
-                                                        (let [? (peek (:stack m)) m (update m :stack pop)]
-                                                            (update m :stack conj (if (Arrays/equals ?, (§ ass*  (peek (:stack m)) m (update m :stack pop))) (byte-array [ 1 ]) (byte-array 0)))
+                                                        (let [[#_"byte[]" data2 #_"byte[]" data1] (:stack m) m (update m :stack drop 2)]
+                                                            (update m :stack conj (if (Arrays/equals data2, data1) (byte-array [ 1 ]) (byte-array 0)))
                                                         )
                                                     )
                                                 Script'OP_EQUALVERIFY
@@ -20031,8 +20010,8 @@
                                                         (when (< (count (:stack m)) 2)
                                                             (throw+ (ScriptException'new "Attempted OP_EQUALVERIFY on a stack with size < 2"))
                                                         )
-                                                        (let [? (peek (:stack m)) m (update m :stack pop)]
-                                                            (when-not (Arrays/equals ?, (§ ass*  (peek (:stack m)) m (update m :stack pop)))
+                                                        (let [[#_"byte[]" data2 #_"byte[]" data1] (:stack m) m (update m :stack drop 2)]
+                                                            (when-not (Arrays/equals data2, data1)
                                                                 (throw+ (ScriptException'new "OP_EQUALVERIFY: non-equal data"))
                                                             )
                                                             m
