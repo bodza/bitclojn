@@ -85,7 +85,6 @@
              [com.google.common.math LongMath]
              [com.google.common.primitives UnsignedBytes]
              [com.google.common.util.concurrent AbstractExecutionThreadService AbstractIdleService FutureCallback Futures ListenableFuture ListeningExecutorService MoreExecutors Runnables Service SettableFuture Uninterruptibles]
-           #_[com.google.protobuf ByteString]
              [java.io ByteArrayInputStream ByteArrayOutputStream File IOException RandomAccessFile]
              [java.lang.ref ReferenceQueue WeakReference]
              [java.math BigDecimal BigInteger RoundingMode]
@@ -2320,60 +2319,55 @@
     )
 
     #_throws #_[ "VerificationException" ]
-    (defn- #_"void" BlockChain'send-transactions-to-listener [#_"StoredBlock" block, #_"NewBlockType" type, #_"TransactionReceivedInBlockListener" listener, #_"int" offset, #_"Transaction*" transactions, #_"Set<Sha256Hash>" __falsePositives]
-        (loop-when [#_"int" i offset #_"Transaction*" s transactions] (seq s)
+    (defn- #_"{Sha256Hash}" BlockChain'send-transactions-to-listener [#_"StoredBlock" block, #_"NewBlockType" type, #_"TransactionReceivedInBlockListener" listener, #_"int" offset, #_"Transaction*" transactions, #_"{Sha256Hash}" __falsePositives]
+        (loop-when [__falsePositives __falsePositives #_"int" i offset #_"Transaction*" s transactions] (seq s) => __falsePositives
             (let [#_"Transaction" tx (first s)
-                  i (try+
-                        (§ ass __falsePositives (.remove __falsePositives, (Transaction''get-hash tx)))
-                        (let [tx (when (§ false clone?) => tx
-                                    (Transaction'from-wire (:ledger tx), (ByteBuffer/wrap (Message''to-bytes tx, Transaction''to-wire)))
-                                )]
+                  [__falsePositives i]
+                    (try+
+                        (let [__falsePositives (disj __falsePositives (Transaction''get-hash tx))]
                             (§ ass listener (TransactionReceivedInBlockListener'''receive-from-block listener, tx, block, type, i))
-                            (inc i)
+                            [__falsePositives (inc i)]
                         )
                         (§ catch ScriptException e
                             ;; We don't want scripts we don't understand to break the block chain,
                             ;; so just note that this tx was not scanned here and continue.
                             (log/warn (str "Failed to parse a script: " e))
-                            i
+                            [__falsePositives i]
                         )
                     )]
-                (recur i (next s))
+                (recur __falsePositives i (next s))
             )
         )
-        nil
     )
 
     #_throws #_[ "VerificationException" ]
-    (defn- #_"void" BlockChain'inform-listener-for-new-transactions [#_"Block" block, #_"NewBlockType" type, #_"Sha256Hash*" __filteredTxHashList, #_"{Sha256Hash Transaction}" __filteredTxn, #_"StoredBlock" stored, #_"TransactionReceivedInBlockListener" listener, #_"Set<Sha256Hash>" __falsePositives]
-        (cond (some? (:transactions block))
-            (do
-                ;; If this is not the first wallet, ask for the transactions to be duplicated before being given
-                ;; to the wallet when relevant.  This ensures that if we have two connected wallets and a tx that
-                ;; is relevant to both of them, they don't end up accidentally sharing the same object (which can
-                ;; result in temporary in-memory corruption during re-orgs).  See bug 257.  We only duplicate in
-                ;; the case of multiple wallets to avoid an unnecessary efficiency hit in the common case.
-                (BlockChain'send-transactions-to-listener stored, type, listener, 0, (:transactions block), __falsePositives)
-            )
-            (some? __filteredTxHashList)
-            (do
+    (defn- #_"{Sha256Hash}" BlockChain'inform-listener-for-new-transactions [#_"Block" block, #_"NewBlockType" type, #_"Sha256Hash*" __filteredTxHashList, #_"{Sha256Hash Transaction}" __filteredTxn, #_"StoredBlock" stored, #_"TransactionReceivedInBlockListener" listener, #_"{Sha256Hash}" __falsePositives]
+        (if (some? (:transactions block))
+            ;; If this is not the first wallet, ask for the transactions to be duplicated before being given
+            ;; to the wallet when relevant.  This ensures that if we have two connected wallets and a tx that
+            ;; is relevant to both of them, they don't end up accidentally sharing the same object (which can
+            ;; result in temporary in-memory corruption during re-orgs).  See bug 257.  We only duplicate in
+            ;; the case of multiple wallets to avoid an unnecessary efficiency hit in the common case.
+            (BlockChain'send-transactions-to-listener stored, type, listener, 0, (:transactions block), __falsePositives)
+            (when (some? __filteredTxHashList) => __falsePositives
                 (ensure some? __filteredTxn)
                 ;; We must send transactions to listeners in the order they appeared in the block - thus we iterate over the
                 ;; set of hashes and call sendTransactionsToListener with individual txn when they have not already been
                 ;; seen in loose broadcasts - otherwise notifyTransactionIsInBlock on the hash.
-                (loop-when-recur [#_"int" offset 0 #_"Sha256Hash*" s __filteredTxHashList] (seq s) [(inc offset) (next s)]
-                    (let [#_"Sha256Hash" hash (first s) #_"Transaction" tx (get __filteredTxn hash)]
-                        (if (some? tx)
-                            (BlockChain'send-transactions-to-listener stored, type, listener, offset, (vector tx), __falsePositives)
-                            (when (TransactionReceivedInBlockListener'''notify-transaction-is-in-block listener, hash, stored, type, offset)
-                                (§ ass __falsePositives (.remove __falsePositives, hash))
-                            )
-                        )
+                (loop-when [__falsePositives __falsePositives #_"int" offset 0 #_"Sha256Hash*" s __filteredTxHashList] (seq s) => __falsePositives
+                    (let [#_"Sha256Hash" hash (first s) #_"Transaction" tx (get __filteredTxn hash)
+                          __falsePositives
+                            (if (some? tx)
+                                (BlockChain'send-transactions-to-listener stored, type, listener, offset, (vector tx), __falsePositives)
+                                (when (TransactionReceivedInBlockListener'''notify-transaction-is-in-block listener, hash, stored, type, offset) => __falsePositives
+                                    (disj __falsePositives hash)
+                                )
+                            )]
+                        (recur __falsePositives (inc offset) (next s))
                     )
                 )
             )
         )
-        nil
     )
 
     #_throws #_[ "VerificationException" ]
@@ -2382,11 +2376,11 @@
         ;; Notify the listeners of the new block, so the depth and workDone of stored transactions can be updated
         ;; (in the case of the listener being a wallet).  Wallets need to know how deep each transaction is, so
         ;; coinbases aren't used before maturity.
-        (let [#_"Set<Sha256Hash>" __falsePositives (HashSet.) _ (when (some? __filteredTxHashList) (§ ass __falsePositives (.addAll __falsePositives, __filteredTxHashList)))]
+        (let [#_"{Sha256Hash}" __falsePositives (apply hash-set __filteredTxHashList)]
 
             (doseq [#_"TransactionReceivedInBlockListener" l (:transaction-received-listeners this)]
                 (§ async?
-                    (BlockChain'inform-listener-for-new-transactions block, type, __filteredTxHashList, __filteredTxn, stored, l, __falsePositives)
+                    (§ ass __falsePositives (BlockChain'inform-listener-for-new-transactions block, type, __filteredTxHashList, __filteredTxn, stored, l, __falsePositives))
                 )
             )
 
@@ -12814,7 +12808,7 @@
      ; @return the TransactionOutput (or null) if the transaction's map doesn't contain the referenced tx.
      ;;
     #_method
-    (defn #_"TransactionOutput" TransactionInput''get-connected-output-2 [#_"TransactionInput" this, #_"Map<Sha256Hash, Transaction>" transactions]
+    (defn #_"TransactionOutput" TransactionInput''get-connected-output-2 [#_"TransactionInput" this, #_"{Sha256Hash Transaction}" transactions]
         (let [#_"Transaction" tx (get transactions (:from-tx-hash (:outpoint this)))]
             (when (some? tx) (nth (:outputs tx) (:index (:outpoint this))))
         )
@@ -12830,7 +12824,7 @@
      ; @return NO_SUCH_TX if the prevtx wasn't found, ALREADY_SPENT if there was a conflict, SUCCESS if not.
      ;;
     #_method
-    (defn #_"ConnectionResult" TransactionInput''connect-3m [#_"TransactionInput" this, #_"Map<Sha256Hash, Transaction>" transactions, #_"ConnectionMode" mode]
+    (defn #_"ConnectionResult" TransactionInput''connect-3m [#_"TransactionInput" this, #_"{Sha256Hash Transaction}" transactions, #_"ConnectionMode" mode]
         (let [#_"Transaction" tx (get transactions (:from-tx-hash (:outpoint this)))]
             (if (some? tx) (TransactionInput''connect-3t this, tx, mode) :ConnectionResult'NO_SUCH_TX)
         )
@@ -18190,7 +18184,7 @@
     (def #_"int" Script'OP_NOP10 0xb9)
     (def #_"int" Script'OP_INVALIDOPCODE 0xff)
 
-    (def- #_"Map<Integer, String>" Script'OP_CODE_MAP
+    (def- #_"{int String}" Script'OP_CODE_MAP
     {
         Script'OP_0 "0",
         Script'OP_PUSHDATA1 "PUSHDATA1",
@@ -18305,7 +18299,7 @@
         Script'OP_NOP10 "NOP10",
     })
 
-    (def- #_"Map<String, Integer>" Script'OP_NAME_MAP
+    (def- #_"{String int}" Script'OP_NAME_MAP
     {
         "0" Script'OP_0,
         "PUSHDATA1" Script'OP_PUSHDATA1,
@@ -19702,6 +19696,225 @@
         (and (seq (:chunks this)) (ScriptChunk''equals-op-code (first (:chunks this)), Script'OP_RETURN))
     )
 
+    #_throws #_[ "ScriptException" ]
+    (defn- #_"byte[]*" Script'execute-check-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"byte[]*" stack, #_"int" opcode, #_"{ScriptVerifyFlag}" flags]
+        (let [#_"boolean" canon? (or (contains? flags :ScriptVerifyFlag'STRICTENC) (contains? flags :ScriptVerifyFlag'DERSIG) (contains? flags :ScriptVerifyFlag'LOW_S))]
+            (when (< (count stack) 2)
+                (throw+ (ScriptException'new "Attempted OP_CHECKSIG(VERIFY) on a stack with size < 2"))
+            )
+
+            (let [#_"byte[]" __pubKey (peek stack) stack (pop stack) #_"byte[]" __sigBytes (peek stack) stack (pop stack)
+                  rem- #(let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (inc (count %2))) _ (Script'write-bytes baos, %2)]
+                            (Script'remove-all-instances-of %1, (.toByteArray baos))
+                        )
+                  #_"byte[]" prog (let [prog (Script''to-bytes script)] (rem- (Arrays/copyOfRange prog, 0, (count prog)), __sigBytes))
+                  ;; TODO: Use int for indexes everywhere, we can't have that many inputs/outputs.
+                  #_"boolean" valid?
+                    (try
+                        (let [#_"TransactionSignature" sig (TransactionSignature'decode-from-bitcoin __sigBytes, canon?, (contains? flags :ScriptVerifyFlag'LOW_S))
+                              ;; TODO: Should check hash type is known.
+                              #_"Sha256Hash" hash (Transaction''hash-for-signature-4b tx, index, prog, (byte (:sighash-flags sig)))]
+                            (ECKey'verify-3e (:hash-bytes hash), sig, __pubKey)
+                        )
+                        (catch Exception e
+                            ;; There is (at least) one exception that could be hit here (EOFException, if the sig is too short).
+                            ;; Because I can't verify there aren't more, we use a very generic Exception catch.
+
+                            ;; This RuntimeException occurs when signing as we run partial/invalid scripts to see if they need more
+                            ;; signing work to be done inside LocalTransactionSigner.signInputs().
+                            (when-not (.contains (.getMessage e), "Reached past end of ASN.1 stream")
+                                (log/warn e, "Signature checking failed!")
+                            )
+                            false
+                        )
+                    )]
+
+                (cond
+                    (= opcode Script'OP_CHECKSIG)                          (conj stack (if valid? (byte-array [ 1 ]) (byte-array 0)))
+                    (and (= opcode Script'OP_CHECKSIGVERIFY) (not valid?)) (throw+ (ScriptException'new "Script failed OP_CHECKSIGVERIFY"))
+                    :else                                                  stack
+                )
+            )
+        )
+    )
+
+    #_throws #_[ "ScriptException" ]
+    (defn- #_"[byte[]* int]" Script'execute-multi-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"byte[]*" stack, #_"int" ops, #_"int" opcode, #_"{ScriptVerifyFlag}" flags]
+        (let [#_"boolean" canon? (or (contains? flags :ScriptVerifyFlag'STRICTENC) (contains? flags :ScriptVerifyFlag'DERSIG) (contains? flags :ScriptVerifyFlag'LOW_S))]
+            (when (empty? stack)
+                (throw+ (ScriptException'new "Attempted OP_CHECKMULTISIG(VERIFY) on an empty stack"))
+            )
+
+            (let [? (peek stack) stack (pop stack)
+                  #_"int" n (.intValue (Script'cast-to-big-integer-2 ?, (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
+                (when-not (<= 0 n Script'MAX_PUBKEYS_PER_MULTISIG)
+                    (throw+ (ScriptException'new "OP_CHECKMULTISIG(VERIFY) with pubkey count out of range"))
+                )
+
+                (let [ops (+ ops n)]
+                    (when (< Script'MAX_OPS_PER_SCRIPT ops)
+                        (throw+ (ScriptException'new "Total op count > 201 during OP_CHECKMULTISIG(VERIFY)"))
+                    )
+                    (when (< (count stack) (inc n))
+                        (throw+ (ScriptException'new "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + 2"))
+                    )
+
+                    (let [#_"byte[]*" pubs (take n stack) stack (drop n stack)
+                          ? (peek stack) stack (pop stack)
+                          #_"int" m (.intValue (Script'cast-to-big-integer-2 ?, (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
+                        (when-not (<= 0 m n)
+                            (throw+ (ScriptException'new "OP_CHECKMULTISIG(VERIFY) with sig count out of range"))
+                        )
+                        (when (< (count stack) (inc m))
+                            (throw+ (ScriptException'new "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + num_of_signatures + 3"))
+                        )
+
+                        (let [#_"byte[]*" sigs (take m stack) stack (drop m stack)
+                              rem- #(let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (inc (count %2))) _ (Script'write-bytes baos, %2)]
+                                        (Script'remove-all-instances-of %1, (.toByteArray baos))
+                                    )
+                              #_"byte[]" prog (let [prog (Script''to-bytes script)] (reduce rem- (Arrays/copyOfRange prog, 0, (count prog)) sigs))
+                              #_"boolean" valid?
+                                (loop-when [pubs pubs sigs sigs] (seq sigs) => true
+                                    (let [#_"byte[]" __pubKey (peek pubs) pubs (pop pubs)
+                                          ;; We could reasonably move this out of the loop, but because signature verification is significantly
+                                          ;; more expensive than hashing, its not a big deal.
+                                          sigs
+                                            (try
+                                                (let [#_"TransactionSignature" sig (TransactionSignature'decode-from-bitcoin (peek sigs), canon?, false)
+                                                      #_"Sha256Hash" hash (Transaction''hash-for-signature-4b tx, index, prog, (byte (:sighash-flags sig)))]
+                                                    (when (ECKey'verify-3e (:hash-bytes hash), sig, __pubKey) => sigs
+                                                        (pop sigs)
+                                                    )
+                                                )
+                                                (catch Exception _
+                                                    ;; There is (at least) one exception that could be hit here (EOFException, if the sig is too short).
+                                                    ;; Because I can't verify there aren't more, we use a very generic Exception catch.
+                                                    sigs
+                                                )
+                                            )]
+                                        (recur-if (<= (count sigs) (count pubs)) [pubs sigs] => false)
+                                    )
+                                )
+                              ;; We uselessly remove a stack object to emulate a Bitcoin Core bug.
+                              ? (peek stack) stack (pop stack)]
+                            (when (and (contains? flags :ScriptVerifyFlag'NULLDUMMY) (pos? (count ?)))
+                                (throw+ (ScriptException'new (str "OP_CHECKMULTISIG(VERIFY) with non-null nulldummy: " (vec ?))))
+                            )
+
+                            (let [stack
+                                    (cond
+                                        (= opcode Script'OP_CHECKMULTISIG)                          (conj stack (if valid? (byte-array [ 1 ]) (byte-array 0)))
+                                        (and (= opcode Script'OP_CHECKMULTISIGVERIFY) (not valid?)) (throw+ (ScriptException'new "Script failed OP_CHECKMULTISIGVERIFY"))
+                                        :else                                                       stack
+                                    )]
+
+                                [stack ops]
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    )
+
+    #_throws #_[ "ScriptException" ]
+    (defn- #_"void" Script'execute-check-lock-time-verify [#_"Transaction" tx, #_"int" index, #_"byte[]*" stack, #_"{ScriptVerifyFlag}" flags]
+        (when (empty? stack)
+            (throw+ (ScriptException'new "Attempted OP_CHECKLOCKTIMEVERIFY on an empty stack"))
+        )
+        ;; Thus as a special case we tell CScriptNum to accept up to 5-byte bignums to avoid year 2038 issue.
+        (let [#_"BigInteger" time (Script'cast-to-big-integer-3 (peek stack), 5, (contains? flags :ScriptVerifyFlag'MINIMALDATA))]
+            (cond
+                (< time BigInteger/ZERO)
+                    (throw+ (ScriptException'new "Negative locktime"))
+
+                ;; There are two kinds of nLockTime, need to ensure we're comparing apples-to-apples.
+                (let [#_"boolean" a? (< (:lock-time tx) Transaction'LOCKTIME_THRESHOLD) #_"boolean" b? (< time Transaction'LOCKTIME_THRESHOLD_BIG)]
+                        (not (or (and a? b?) (and (not a?) (not b?)))))
+                    (throw+ (ScriptException'new "Locktime requirement type mismatch"))
+
+                ;; Now that we know we're comparing apples-to-apples, the comparison is a simple numeric one.
+                (< (BigInteger/valueOf (:lock-time tx)) time)
+                    (throw+ (ScriptException'new "Locktime requirement not satisfied"))
+
+                ;; Finally the nLockTime feature can be disabled and thus CHECKLOCKTIMEVERIFY bypassed if every txin has been
+                ;; finalized by setting nSequence to maxint.  The transaction would be allowed into the blockchain, making
+                ;; the opcode ineffective.
+                ;;
+                ;; Testing if this vin is not final is sufficient to prevent this condition.  Alternatively we could test all
+                ;; inputs, but testing just this input minimizes the data required to prove correct CHECKLOCKTIMEVERIFY execution.
+                (not (TransactionInput''has-sequence (nth (:inputs tx) index)))
+                    (throw+ (ScriptException'new "Transaction contains a final transaction input for a CHECKLOCKTIMEVERIFY script."))
+            )
+        )
+        nil
+    )
+
+    (defn- #_"boolean" Script'check-sequence [#_"long" __nSeq, #_"Transaction" tx, #_"int" index]
+        ;; Relative lock times are supported by comparing the passed in operand to the sequence number of the input.
+        (let [#_"long" __tSeq (:sequence (nth (:inputs tx) index))]
+            (and
+                ;; Fail if the transaction's version number is not set high enough to trigger BIP 68 rules.
+                (<= 2 (:version tx))
+
+                ;; Sequence numbers with their most significant bit set are not consensus constrained.  Testing
+                ;; that the transaction's sequence number do not have this bit set prevents using this property
+                ;; to get around a CHECKSEQUENCEVERIFY check.
+                (zero? (& __tSeq Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG))
+
+                ;; Mask off any bits that do not have consensus-enforced meaning before doing the integer comparisons.
+                (let [#_"long" mask (| Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG Transaction'SEQUENCE_LOCKTIME_MASK)
+                      #_"long" __tSeq' (& __tSeq mask)
+                      #_"long" __nSeq' (& __nSeq mask)]
+                    (and
+                        ;; There are two kinds of nSequence: lock-by-blockheight and lock-by-blocktime, distinguished by
+                        ;; whether nSequenceMasked < CTxIn::SEQUENCE_LOCKTIME_TYPE_FLAG.
+                        ;;
+                        ;; We want to compare apples to apples, so fail the script unless the type of nSequenceMasked
+                        ;; being tested is the same as the nSequenceMasked in the transaction.
+                        (or (and (< __tSeq' Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG) (< __nSeq' Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG))
+                            (and (<= Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG __tSeq') (<= Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG __nSeq')))
+
+                        ;; Now that we know we're comparing apples-to-apples, the comparison is a simple numeric one.
+                        (<= __nSeq' __tSeq')
+                    )
+                )
+            )
+        )
+    )
+
+    #_throws #_[ "ScriptException" ]
+    (defn- #_"void" Script'execute-check-sequence-verify [#_"Transaction" tx, #_"int" index, #_"byte[]*" stack, #_"{ScriptVerifyFlag}" flags]
+        (when (empty? stack)
+            (throw+ (ScriptException'new "Attempted OP_CHECKSEQUENCEVERIFY on an empty stack"))
+        )
+        ;; Note that elsewhere numeric opcodes are limited to operands in the range -2**31+1 to 2**31-1,
+        ;; however it is legal for opcodes to produce results exceeding that range.  This limitation is
+        ;; implemented by CScriptNum's default 4-byte limit.
+        ;;
+        ;; Thus as a special case we tell CScriptNum to accept up to 5-byte bignums, which are good until
+        ;; 2**39-1, well beyond the 2**32-1 limit of the nSequence field itself.
+        (let [#_"long" n (.longValue (Script'cast-to-big-integer-3 (peek stack), 5, (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
+            (cond
+                ;; In the rare event that the argument may be < 0 due to some arithmetic being done first,
+                ;; you can always use 0 MAX CHECKSEQUENCEVERIFY.
+                (neg? n)
+                    (throw+ (ScriptException'new "Negative sequence"))
+
+                ;; To provide for future soft-fork extensibility, if the operand has the disabled lock-time
+                ;; flag set, CHECKSEQUENCEVERIFY behaves as a NOP.
+                (not= (& n Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG) 0)
+                    nil
+
+                ;; Compare the specified sequence number with the input.
+                (not (Script'check-sequence n, tx, index))
+                    (throw+ (ScriptException'new "Unsatisfied CHECKLOCKTIMEVERIFY lock time"))
+            )
+        )
+        nil
+    )
+
     ;;;
      ; Exposes the script interpreter.  Normally you should not use this directly, instead use
      ; {@link TransactionInput#verify(TransactionOutput)} or {@link Script#correctlySpends(Transaction, long, Script)}.
@@ -20028,7 +20241,8 @@
                                                         (when (empty? (:stack m))
                                                             (throw+ (ScriptException'new "Attempted a numeric op on an empty stack"))
                                                         )
-                                                        (let [#_"BigInteger" n (Script'cast-to-big-integer-2 (§ ass*  (peek (:stack m)) m (update m :stack pop)), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
+                                                        (let [? (peek (:stack m)) m (update m :stack pop)
+                                                              #_"BigInteger" n (Script'cast-to-big-integer-2 ?, (contains? flags :ScriptVerifyFlag'MINIMALDATA))
                                                               n (condp = opcode
                                                                     Script'OP_1ADD      (.add n, BigInteger/ONE)
                                                                     Script'OP_1SUB      (.subtract n, BigInteger/ONE)
@@ -20056,8 +20270,9 @@
                                                         (when (< (count (:stack m)) 2)
                                                             (throw+ (ScriptException'new "Attempted a numeric op on a stack with size < 2"))
                                                         )
-                                                        (let [#_"BigInteger" n2 (Script'cast-to-big-integer-2 (§ ass*  (peek (:stack m)) m (update m :stack pop)), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
-                                                              #_"BigInteger" n1 (Script'cast-to-big-integer-2 (§ ass*  (peek (:stack m)) m (update m :stack pop)), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
+                                                        (let [[#_"byte[]" data2 #_"byte[]" data1] (:stack m) m (update m :stack drop 2)
+                                                              #_"BigInteger" n2 (Script'cast-to-big-integer-2 data2, (contains? flags :ScriptVerifyFlag'MINIMALDATA))
+                                                              #_"BigInteger" n1 (Script'cast-to-big-integer-2 data1, (contains? flags :ScriptVerifyFlag'MINIMALDATA))
                                                               #_"BigInteger" n
                                                                 (condp = opcode
                                                                     Script'OP_ADD                (.add n1, n2)
@@ -20083,13 +20298,11 @@
                                                         (when (< (count (:stack m)) 2)
                                                             (throw+ (ScriptException'new "Attempted OP_NUMEQUALVERIFY on a stack with size < 2"))
                                                         )
-                                                        (let [? (peek (:stack m)) m (update m :stack pop)]
-                                                            (let [#_"BigInteger" n2 (Script'cast-to-big-integer-2 ?, (contains? flags :ScriptVerifyFlag'MINIMALDATA))
-                                                                #_"BigInteger" n1 (Script'cast-to-big-integer-2 (§ ass*  (peek (:stack m)) m (update m :stack pop)), (contains? flags :ScriptVerifyFlag'MINIMALDATA))]
-
-                                                                (when-not (= n1 n2)
-                                                                    (throw+ (ScriptException'new "OP_NUMEQUALVERIFY failed"))
-                                                                )
+                                                        (let [[#_"byte[]" data2 #_"byte[]" data1] (:stack m) m (update m :stack drop 2)
+                                                              #_"BigInteger" n2 (Script'cast-to-big-integer-2 data2, (contains? flags :ScriptVerifyFlag'MINIMALDATA))
+                                                              #_"BigInteger" n1 (Script'cast-to-big-integer-2 data1, (contains? flags :ScriptVerifyFlag'MINIMALDATA))]
+                                                            (when-not (= n1 n2)
+                                                                (throw+ (ScriptException'new "OP_NUMEQUALVERIFY failed"))
                                                             )
                                                             m
                                                         )
@@ -20100,16 +20313,12 @@
                                                         (when (< (count (:stack m)) 3)
                                                             (throw+ (ScriptException'new "Attempted OP_WITHIN on a stack with size < 3"))
                                                         )
-                                                        (let [? (peek (:stack m)) m (update m :stack pop)]
-                                                            (let [#_"BigInteger" n3 (Script'cast-to-big-integer-2 ?, (contains? flags :ScriptVerifyFlag'MINIMALDATA))
-                                                                #_"BigInteger" n2 (Script'cast-to-big-integer-2 (§ ass*  (peek (:stack m)) m (update m :stack pop)), (contains? flags :ScriptVerifyFlag'MINIMALDATA))
-                                                                #_"BigInteger" n1 (Script'cast-to-big-integer-2 (§ ass*  (peek (:stack m)) m (update m :stack pop)), (contains? flags :ScriptVerifyFlag'MINIMALDATA))]
-                                                                (if (and (<= n2 n1) (< n1 n3))
-                                                                    (§ ass m (update m :stack conj (Wire'reverse-bytes (Wire'encode-mpi BigInteger/ONE, false))))
-                                                                    (§ ass m (update m :stack conj (Wire'reverse-bytes (Wire'encode-mpi BigInteger/ZERO, false))))
-                                                                )
-                                                            )
-                                                            m
+                                                        (let [[#_"byte[]" data3 #_"byte[]" data2 #_"byte[]" data1] (:stack m) m (update m :stack drop 3)
+                                                              #_"BigInteger" n3 (Script'cast-to-big-integer-2 data3, (contains? flags :ScriptVerifyFlag'MINIMALDATA))
+                                                              #_"BigInteger" n2 (Script'cast-to-big-integer-2 data2, (contains? flags :ScriptVerifyFlag'MINIMALDATA))
+                                                              #_"BigInteger" n1 (Script'cast-to-big-integer-2 data1, (contains? flags :ScriptVerifyFlag'MINIMALDATA))
+                                                              ? (if (and (<= n2 n1) (< n1 n3)) BigInteger/ONE BigInteger/ZERO)]
+                                                            (update m :stack conj (Wire'reverse-bytes (Wire'encode-mpi ?, false)))
                                                         )
                                                     )
 
@@ -20118,7 +20327,8 @@
                                                         (when (empty? (:stack m))
                                                             (throw+ (ScriptException'new "Attempted OP_RIPEMD160 on an empty stack"))
                                                         )
-                                                        (let [#_"RIPEMD160Digest" digest (RIPEMD160Digest.) #_"byte[]" data (§ ass*  (peek (:stack m)) m (update m :stack pop))]
+                                                        (let [#_"RIPEMD160Digest" digest (RIPEMD160Digest.)
+                                                              #_"byte[]" data (peek (:stack m)) m (update m :stack pop)]
                                                             (.update digest, data, 0, (count data))
                                                             (let [#_"byte[]" hash (byte-array 20)]
                                                                 (.doFinal digest, hash, 0)
@@ -20132,7 +20342,9 @@
                                                             (throw+ (ScriptException'new "Attempted OP_SHA1 on an empty stack"))
                                                         )
                                                         (try
-                                                            (update m :stack conj (.digest (MessageDigest/getInstance "SHA-1"), (§ ass*  (peek (:stack m)) m (update m :stack pop))))
+                                                            (let [? (peek (:stack m)) m (update m :stack pop)]
+                                                                (update m :stack conj (.digest (MessageDigest/getInstance "SHA-1"), ?))
+                                                            )
                                                             (catch NoSuchAlgorithmException e
                                                                 (throw (RuntimeException. e)) ;; Cannot happen.
                                                             )
@@ -20172,8 +20384,7 @@
                                                         (when (nil? tx)
                                                             (throw (IllegalStateException. "Script attempted signature check but no tx was provided"))
                                                         )
-                                                        (Script'execute-check-sig tx, (int index), script, (:stack m), opcode, flags)
-                                                        nil
+                                                        (assoc m :stack (Script'execute-check-sig tx, (int index), script, (:stack m), opcode, flags))
                                                     )
                                                [Script'OP_CHECKMULTISIG
                                                 Script'OP_CHECKMULTISIGVERIFY]
@@ -20181,7 +20392,9 @@
                                                         (when (nil? tx)
                                                             (throw (IllegalStateException. "Script attempted signature check but no tx was provided"))
                                                         )
-                                                        (assoc m :ops (Script'execute-multi-sig tx, (int index), script, (:stack m), (:ops m), opcode, flags))
+                                                        (let [[#_"byte[]*" stack #_"int" ops] (Script'execute-multi-sig tx, (int index), script, (:stack m), (:ops m), opcode, flags)]
+                                                            (assoc m :stack stack :ops ops)
+                                                        )
                                                     )
                                                 Script'OP_CHECKLOCKTIMEVERIFY
                                                     (do
@@ -20190,9 +20403,9 @@
                                                             (when (contains? flags :ScriptVerifyFlag'DISCOURAGE_UPGRADABLE_NOPS)
                                                                 (throw+ (ScriptException'new (str "Script used a reserved opcode " opcode)))
                                                             )
-                                                            (Script'execute-check-lock-time-verify tx, (int index), (:stack m), flags)
+                                                            (Script'execute-check-lock-time-verify tx, (int index), (:stack m), flags)
                                                         )
-                                                        nil
+                                                        m
                                                     )
                                                 Script'OP_CHECKSEQUENCEVERIFY
                                                     (do
@@ -20201,9 +20414,9 @@
                                                             (when (contains? flags :ScriptVerifyFlag'DISCOURAGE_UPGRADABLE_NOPS)
                                                                 (throw+ (ScriptException'new (str "Script used a reserved opcode " opcode)))
                                                             )
-                                                            (Script'execute-check-sequence-verify tx, (int index), (:stack m), flags)
+                                                            (Script'execute-check-sequence-verify tx, (int index), (:stack m), flags)
                                                         )
-                                                        nil
+                                                        m
                                                     )
 
                                                [Script'OP_NOP1
@@ -20240,231 +20453,6 @@
                 (throw+ (ScriptException'new "OP_IF/OP_NOTIF without OP_ENDIF"))
             )
             (:stack m)
-        )
-    )
-
-    ;; This is more or less a direct translation of the code in Bitcoin Core.
-    #_throws #_[ "ScriptException" ]
-    (defn- #_"void" Script'execute-check-lock-time-verify [#_"Transaction" tx, #_"int" index, #_"LinkedList<byte[]>" stack, #_"{ScriptVerifyFlag}" flags]
-        (when (< (count stack) 1)
-            (throw+ (ScriptException'new "Attempted OP_CHECKLOCKTIMEVERIFY on a stack with size < 1"))
-        )
-        ;; Thus as a special case we tell CScriptNum to accept up to 5-byte bignums to avoid year 2038 issue.
-        (let [#_"BigInteger" time (Script'cast-to-big-integer-3 (peek stack), 5, (contains? flags :ScriptVerifyFlag'MINIMALDATA))]
-            (cond
-                (< time BigInteger/ZERO)
-                    (throw+ (ScriptException'new "Negative locktime"))
-
-                ;; There are two kinds of nLockTime, need to ensure we're comparing apples-to-apples.
-                (let [#_"boolean" a? (< (:lock-time tx) Transaction'LOCKTIME_THRESHOLD) #_"boolean" b? (< time Transaction'LOCKTIME_THRESHOLD_BIG)]
-                        (not (or (and a? b?) (and (not a?) (not b?)))))
-                    (throw+ (ScriptException'new "Locktime requirement type mismatch"))
-
-                ;; Now that we know we're comparing apples-to-apples, the comparison is a simple numeric one.
-                (< (BigInteger/valueOf (:lock-time tx)) time)
-                    (throw+ (ScriptException'new "Locktime requirement not satisfied"))
-
-                ;; Finally the nLockTime feature can be disabled and thus CHECKLOCKTIMEVERIFY bypassed if every txin has been
-                ;; finalized by setting nSequence to maxint.  The transaction would be allowed into the blockchain, making
-                ;; the opcode ineffective.
-                ;;
-                ;; Testing if this vin is not final is sufficient to prevent this condition.  Alternatively we could test all
-                ;; inputs, but testing just this input minimizes the data required to prove correct CHECKLOCKTIMEVERIFY execution.
-                (not (TransactionInput''has-sequence (nth (:inputs tx) index)))
-                    (throw+ (ScriptException'new "Transaction contains a final transaction input for a CHECKLOCKTIMEVERIFY script."))
-            )
-        )
-        nil
-    )
-
-    #_throws #_[ "ScriptException" ]
-    (defn- #_"void" Script'execute-check-sequence-verify [#_"Transaction" tx, #_"int" index, #_"LinkedList<byte[]>" stack, #_"{ScriptVerifyFlag}" flags]
-        (if (< (count stack) 1)
-            (throw+ (ScriptException'new "Attempted OP_CHECKSEQUENCEVERIFY on a stack with size < 1"))
-            ;; Note that elsewhere numeric opcodes are limited to operands in the range -2**31+1 to 2**31-1,
-            ;; however it is legal for opcodes to produce results exceeding that range.  This limitation is
-            ;; implemented by CScriptNum's default 4-byte limit.
-            ;;
-            ;; Thus as a special case we tell CScriptNum to accept up to 5-byte bignums, which are good until
-            ;; 2**39-1, well beyond the 2**32-1 limit of the nSequence field itself.
-            (let [#_"long" n (.longValue (Script'cast-to-big-integer-3 (peek stack), 5, (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
-                (cond
-                    ;; In the rare event that the argument may be < 0 due to some arithmetic being done first,
-                    ;; you can always use 0 MAX CHECKSEQUENCEVERIFY.
-                    (neg? n)
-                        (throw+ (ScriptException'new "Negative sequence"))
-
-                    ;; To provide for future soft-fork extensibility, if the operand has the disabled lock-time
-                    ;; flag set, CHECKSEQUENCEVERIFY behaves as a NOP.
-                    (not= (& n Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG) 0)
-                        nil
-
-                    ;; Compare the specified sequence number with the input.
-                    (not (Script'check-sequence n, tx, index))
-                        (throw+ (ScriptException'new "Unsatisfied CHECKLOCKTIMEVERIFY lock time"))
-                )
-            )
-        )
-        nil
-    )
-
-    (defn- #_"boolean" Script'check-sequence [#_"long" __nSeq, #_"Transaction" tx, #_"int" index]
-        ;; Relative lock times are supported by comparing the passed in operand to the sequence number of the input.
-        (let [#_"long" __tSeq (:sequence (nth (:inputs tx) index))]
-            (and
-                ;; Fail if the transaction's version number is not set high enough to trigger BIP 68 rules.
-                (<= 2 (:version tx))
-
-                ;; Sequence numbers with their most significant bit set are not consensus constrained.  Testing
-                ;; that the transaction's sequence number do not have this bit set prevents using this property
-                ;; to get around a CHECKSEQUENCEVERIFY check.
-                (zero? (& __tSeq Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG))
-
-                ;; Mask off any bits that do not have consensus-enforced meaning before doing the integer comparisons.
-                (let [#_"long" mask (| Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG Transaction'SEQUENCE_LOCKTIME_MASK)
-                      #_"long" __tSeq' (& __tSeq mask)
-                      #_"long" __nSeq' (& __nSeq mask)]
-                    (and
-                        ;; There are two kinds of nSequence: lock-by-blockheight and lock-by-blocktime, distinguished by
-                        ;; whether nSequenceMasked < CTxIn::SEQUENCE_LOCKTIME_TYPE_FLAG.
-                        ;;
-                        ;; We want to compare apples to apples, so fail the script unless the type of nSequenceMasked
-                        ;; being tested is the same as the nSequenceMasked in the transaction.
-                        (or (and (< __tSeq' Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG) (< __nSeq' Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG))
-                            (and (<= Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG __tSeq') (<= Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG __nSeq')))
-
-                        ;; Now that we know we're comparing apples-to-apples, the comparison is a simple numeric one.
-                        (<= __nSeq' __tSeq')
-                    )
-                )
-            )
-        )
-    )
-
-    #_throws #_[ "ScriptException" ]
-    (defn- #_"void" Script'execute-check-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" opcode, #_"{ScriptVerifyFlag}" flags]
-        (let [#_"boolean" canon? (or (contains? flags :ScriptVerifyFlag'STRICTENC) (contains? flags :ScriptVerifyFlag'DERSIG) (contains? flags :ScriptVerifyFlag'LOW_S))]
-            (when (< (count stack) 2)
-                (throw+ (ScriptException'new "Attempted OP_CHECKSIG(VERIFY) on a stack with size < 2"))
-            )
-
-            (let [#_"byte[]" __pubKey (§ ass*  (peek stack) stack (pop stack)) #_"byte[]" __sigBytes (§ ass*  (peek stack) stack (pop stack))
-                  rem- #(let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (inc (count %2))) _ (Script'write-bytes baos, %2)]
-                            (Script'remove-all-instances-of %1, (.toByteArray baos))
-                        )
-                  #_"byte[]" prog (Script''to-bytes script)
-                  #_"byte[]" __connectedScript (rem- (Arrays/copyOfRange prog, 0, (count prog)), __sigBytes)
-                  ;; TODO: Use int for indexes everywhere, we can't have that many inputs/outputs.
-                  #_"boolean" valid?
-                    (try
-                        (let [#_"TransactionSignature" sig (TransactionSignature'decode-from-bitcoin __sigBytes, canon?, (contains? flags :ScriptVerifyFlag'LOW_S))
-                              ;; TODO: Should check hash type is known.
-                              #_"Sha256Hash" hash (Transaction''hash-for-signature-4b tx, index, __connectedScript, (byte (:sighash-flags sig)))]
-                            (ECKey'verify-3e (:hash-bytes hash), sig, __pubKey)
-                        )
-                        (catch Exception e
-                            ;; There is (at least) one exception that could be hit here (EOFException, if the sig is too short).
-                            ;; Because I can't verify there aren't more, we use a very generic Exception catch.
-
-                            ;; This RuntimeException occurs when signing as we run partial/invalid scripts to see if they need more
-                            ;; signing work to be done inside LocalTransactionSigner.signInputs().
-                            (when-not (.contains (.getMessage e), "Reached past end of ASN.1 stream")
-                                (log/warn e, "Signature checking failed!")
-                            )
-                            false
-                        )
-                    )]
-
-                (cond (= opcode Script'OP_CHECKSIG)
-                    (do
-                        (§ ass stack (.add stack, (if valid? (byte-array [ 1 ]) (byte-array 0))))
-                    )
-                    (and (= opcode Script'OP_CHECKSIGVERIFY) (not valid?))
-                    (do
-                        (throw+ (ScriptException'new "Script failed OP_CHECKSIGVERIFY"))
-                    )
-                )
-            )
-        )
-        nil
-    )
-
-    #_throws #_[ "ScriptException" ]
-    (defn- #_"int" Script'execute-multi-sig [#_"Transaction" tx, #_"int" index, #_"Script" script, #_"LinkedList<byte[]>" stack, #_"int" ops, #_"int" opcode, #_"{ScriptVerifyFlag}" flags]
-        (let [#_"boolean" canon? (or (contains? flags :ScriptVerifyFlag'STRICTENC) (contains? flags :ScriptVerifyFlag'DERSIG) (contains? flags :ScriptVerifyFlag'LOW_S))]
-            (when (< (count stack) 1)
-                (throw+ (ScriptException'new "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < 1"))
-            )
-
-            (let [#_"int" __pubKeyCount (.intValue (Script'cast-to-big-integer-2 (§ ass*  (peek stack) stack (pop stack)), (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
-                (when-not (<= 0 __pubKeyCount Script'MAX_PUBKEYS_PER_MULTISIG)
-                    (throw+ (ScriptException'new "OP_CHECKMULTISIG(VERIFY) with pubkey count out of range"))
-                )
-
-                (let [ops (+ ops __pubKeyCount)]
-                    (when (< Script'MAX_OPS_PER_SCRIPT ops)
-                        (throw+ (ScriptException'new "Total op count > 201 during OP_CHECKMULTISIG(VERIFY)"))
-                    )
-                    (when (< (count stack) (inc __pubKeyCount))
-                        (throw+ (ScriptException'new "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + 2"))
-                    )
-
-                    (let [#_"LinkedList<byte[]>" pubkeys (LinkedList.) _ (dotimes [_ __pubKeyCount] (§ ass pubkeys (.add pubkeys, (§ ass*  (peek stack) stack (pop stack)))))
-                          #_"int" __sigCount (.intValue (Script'cast-to-big-integer-2 (§ ass*  (peek stack) stack (pop stack)), (contains? flags :ScriptVerifyFlag'MINIMALDATA)))]
-                        (when-not (<= 0 __sigCount __pubKeyCount)
-                            (throw+ (ScriptException'new "OP_CHECKMULTISIG(VERIFY) with sig count out of range"))
-                        )
-                        (when (< (count stack) (inc __sigCount))
-                            (throw+ (ScriptException'new "Attempted OP_CHECKMULTISIG(VERIFY) on a stack with size < num_of_pubkeys + num_of_signatures + 3"))
-                        )
-
-                        (let [#_"LinkedList<byte[]>" sigs (LinkedList.) _ (dotimes [_ __sigCount] (§ ass sigs (.add sigs, (§ ass*  (peek stack) stack (pop stack)))))
-                              rem- #(let [#_"ByteArrayOutputStream" baos (ByteArrayOutputStream. (inc (count %2))) _ (Script'write-bytes baos, %2)]
-                                        (Script'remove-all-instances-of %1, (.toByteArray baos))
-                                    )
-                              #_"byte[]" prog (Script''to-bytes script)
-                              #_"byte[]" __connectedScript (reduce rem- (Arrays/copyOfRange prog, 0, (count prog)) sigs)
-                              #_"boolean" valid?
-                                (loop-when [] (seq sigs) => true
-                                    (let [#_"byte[]" __pubKey (.pollFirst pubkeys)]
-                                        ;; We could reasonably move this out of the loop, but because signature verification is significantly
-                                        ;; more expensive than hashing, its not a big deal.
-                                        (try
-                                            (let [#_"TransactionSignature" sig (TransactionSignature'decode-from-bitcoin (.getFirst sigs), canon?, false)
-                                                  #_"Sha256Hash" hash (Transaction''hash-for-signature-4b tx, index, __connectedScript, (byte (:sighash-flags sig)))]
-                                                (when (ECKey'verify-3e (:hash-bytes hash), sig, __pubKey)
-                                                    (.pollFirst sigs)
-                                                )
-                                            )
-                                            (catch Exception _
-                                                ;; There is (at least) one exception that could be hit here (EOFException, if the sig is too short).
-                                                ;; Because I can't verify there aren't more, we use a very generic Exception catch.
-                                            )
-                                        )
-                                        (recur-if (<= (count sigs) (count pubkeys)) [] => false)
-                                    )
-                                )
-                              ;; We uselessly remove a stack object to emulate a Bitcoin Core bug.
-                              #_"byte[]" __nullDummy (§ ass*  (peek stack) stack (pop stack))]
-                            (when (and (contains? flags :ScriptVerifyFlag'NULLDUMMY) (pos? (count __nullDummy)))
-                                (throw+ (ScriptException'new (str "OP_CHECKMULTISIG(VERIFY) with non-null nulldummy: " (vec __nullDummy))))
-                            )
-
-                            (cond (= opcode Script'OP_CHECKMULTISIG)
-                                (do
-                                    (§ ass stack (.add stack, (if valid? (byte-array [ 1 ]) (byte-array 0))))
-                                )
-                                (and (= opcode Script'OP_CHECKMULTISIGVERIFY) (not valid?))
-                                (do
-                                    (throw+ (ScriptException'new "Script failed OP_CHECKMULTISIGVERIFY"))
-                                )
-                            )
-
-                            ops
-                        )
-                    )
-                )
-            )
         )
     )
 
@@ -22298,8 +22286,8 @@
             #_"Object" :b-keychain-lock (Object.)
 
             ;; Maps used to let us quickly look up a key given data we find in transcations or the block chain.
-            #_"{ByteString ECKey}" :hash-to-keys (flatland.ordered.map/ordered-map)
-            #_"{ByteString ECKey}" :pubkey-to-keys (flatland.ordered.map/ordered-map)
+            #_"{byte[] ECKey}" :hash-to-keys (flatland.ordered.map/ordered-map)
+            #_"{byte[] ECKey}" :pubkey-to-keys (flatland.ordered.map/ordered-map)
             #_"boolean" :is-watching false
 
             #_"[KeyChainEventListener]" :key-chain-listeners (vector)
@@ -22326,12 +22314,12 @@
                     (and (not watching?) (:is-watching this)) (throw (IllegalArgumentException. "Key is not watching but chain is"))
                     :else                                     this
                 )
-              #_"ByteString" pubkey (§ ByteString/copyFrom (ECKey''get-pub-key key))]
+              #_"byte[]" pubkey (ECKey''get-pub-key key)]
             (assert-state (not (contains? (:pubkey-to-keys this) pubkey)))
 
             (-> this
                 (update :pubkey-to-keys assoc pubkey key)
-                (update :hash-to-keys assoc (§ ByteString/copyFrom (ECKey''calculate-pub-key-hash160 key)) key)
+                (update :hash-to-keys assoc (ECKey''calculate-pub-key-hash160 key) key)
             )
         )
     )
@@ -22380,14 +22368,14 @@
     #_method
     (defn #_"ECKey" BasicKeyChain''find-key-from-pub-hash [#_"BasicKeyChain" this, #_"byte[]" hash]
         (sync (:b-keychain-lock this)
-            (get (:hash-to-keys this) (§ ByteString/copyFrom hash))
+            (get (:hash-to-keys this) hash)
         )
     )
 
     #_method
     (defn #_"ECKey" BasicKeyChain''find-key-from-pub-key [#_"BasicKeyChain" this, #_"byte[]" pubkey]
         (sync (:b-keychain-lock this)
-            (get (:pubkey-to-keys this) (§ ByteString/copyFrom pubkey))
+            (get (:pubkey-to-keys this) pubkey)
         )
     )
 
@@ -23179,7 +23167,7 @@
      ; Returns the redeem script by its hash or null if this keychain did not generate the script.
      ;;
     #_abstract
-    (defn #_"RedeemData" DeterministicKeyChain'''find-redeem-data-by-script-hash [#_"DeterministicKeyChain" __, #_"ByteString" bytes]
+    (defn #_"RedeemData" DeterministicKeyChain'''find-redeem-data-by-script-hash [#_"DeterministicKeyChain" __, #_"byte[]" bytes]
         nil
     )
 )
@@ -23913,7 +23901,7 @@
     #_override
     (defn #_"RedeemData" KeyBag'''find-redeem-data-from-script-hash [#_"KeyChainGroup" this, #_"byte[]" hash]
         ;; Iterate in reverse order, since the active keychain is the one most likely to have the hit.
-        (some #(DeterministicKeyChain'''find-redeem-data-by-script-hash %, (§ ByteString/copyFrom hash)) (reverse (:chains this)))
+        (some #(DeterministicKeyChain'''find-redeem-data-by-script-hash %, hash) (reverse (:chains this)))
     )
 
     #_method
@@ -24212,7 +24200,7 @@
         (hash-map
             ;; The map holds P2SH redeem script and corresponding ECKeys issued by this KeyChainGroup (including lookahead)
             ;; mapped to redeem script hashes.
-            #_"{ByteString RedeemData}" :married-keys-redeem-data (flatland.ordered.map/ordered-map)
+            #_"{byte[] RedeemData}" :married-keys-redeem-data (flatland.ordered.map/ordered-map)
 
             #_"[DeterministicKeyChain]" :following-key-chains nil
         )
@@ -24339,7 +24327,7 @@
                     (doseq [#_"DeterministicKey" leaf (DeterministicKeyChain''get-leaf-keys this)]
                         (let [#_"RedeemData" redeem (DeterministicKeyChain'''get-redeem-data this, leaf)
                               #_"Script" script (Script'create-p2sh-output-script-1 (:redeem-script redeem))]
-                            (§ ass this (update this :married-keys-redeem-data assoc (§ ByteString/copyFrom (Script''get-pub-key-hash script)) redeem))
+                            (§ ass this (update this :married-keys-redeem-data assoc (Script''get-pub-key-hash script) redeem))
                         )
                     )
                     this
@@ -24349,7 +24337,7 @@
     )
 
     #_override
-    (defn #_"RedeemData" DeterministicKeyChain'''find-redeem-data-by-script-hash [#_"MarriedKeyChain" this, #_"ByteString" bytes]
+    (defn #_"RedeemData" DeterministicKeyChain'''find-redeem-data-by-script-hash [#_"MarriedKeyChain" this, #_"byte[]" bytes]
         (get (:married-keys-redeem-data this) bytes)
     )
 
@@ -24357,8 +24345,8 @@
     (defn #_"BloomFilter" DeterministicKeyChain'''create-bloom-filter [#_"MarriedKeyChain" this, #_"int" size, #_"double" rate, #_"long" tweak]
         (sync (:d-keychain-lock this)
             (let [#_"BloomFilter" filter (BloomFilter'new nil, size, rate, tweak, :BloomUpdate'UPDATE_P2PUBKEY_ONLY)]
-                (doseq [#_"[ByteString RedeemData]" e (:married-keys-redeem-data this)]
-                    (§ ass filter (BloomFilter''insert-data filter, (.toByteArray (key e))))
+                (doseq [#_"[byte[] RedeemData]" e (:married-keys-redeem-data this)]
+                    (§ ass filter (BloomFilter''insert-data filter, (key e)))
                     (§ ass filter (BloomFilter''insert-data filter, (Script''to-bytes (:redeem-script (val e)))))
                 )
                 filter
@@ -25731,28 +25719,32 @@
      ; and all txns spending the outputs of those txns, recursively.
      ;;
     #_method
-    (defn #_"this" Wallet''add-transactions-depending-on [#_"Wallet" this, #_"Set<Transaction>" __txSet, #_"Set<Transaction>" pool]
-        (let [#_"Map<Sha256Hash, Transaction>" queue (flatland.ordered.map/ordered-map)]
-            (doseq [#_"Transaction" tx __txSet]
-                (§ ass queue (assoc queue (Transaction''get-hash tx) tx))
-            )
-            (while (seq queue)
-                (let [#_"Transaction" tx (§ ass queue (.remove queue, (.next (.iterator (.keySet queue)))))]
-                    (doseq [#_"Transaction" ty pool]
-                        (when-not (.equals ty, tx)
-                            (doseq [#_"TransactionInput" input (:inputs ty)]
-                                (when (= (:from-tx-hash (:outpoint input)) (Transaction''get-hash tx))
-                                    (let-when [#_"Sha256Hash" hy (Transaction''get-hash ty)] (nil? (get queue hy))
-                                        (§ ass queue (assoc queue hy ty))
-                                        (§ ass __txSet (.add __txSet, ty))
-                                    )
-                                )
+    (defn #_"[this {Transaction}]" Wallet''add-transactions-depending-on [#_"Wallet" this, #_"{Transaction}" deps, #_"Transaction*" pool]
+        (let [#_"{Sha256Hash Transaction}" queue (into (flatland.ordered.map/ordered-map) (map (fn [%] [(Transaction''get-hash %) %]) deps))]
+            (loop-when [deps deps queue queue] (seq queue) => [this deps]
+                (let [[#_"Sha256Hash" hx #_"Transaction" tx] (first queue) queue (dissoc queue hx)
+                      [deps queue]
+                        (loop-when [deps deps queue queue pool pool] (seq pool) => [deps queue]
+                            (let [#_"Transaction" ty (first pool)
+                                  [deps queue]
+                                    (when-not (.equals ty, tx) => [deps queue]
+                                        (loop-when [deps deps queue queue #_"TransactionInput*" is (:inputs ty)] (seq is) => [deps queue]
+                                            (let [[deps queue]
+                                                    (when (= (-> (first is) :outpoint :from-tx-hash) hx) => [deps queue]
+                                                        (let-when [#_"Sha256Hash" hy (Transaction''get-hash ty)] (nil? (get queue hy)) => [deps queue]
+                                                            [(conj deps ty) (assoc queue hy ty)]
+                                                        )
+                                                    )]
+                                                (recur deps queue (next is))
+                                            )
+                                        )
+                                    )]
+                                (recur deps queue (next pool))
                             )
-                        )
-                    )
+                        )]
+                    (recur deps queue)
                 )
             )
-            this
         )
     )
 
@@ -25866,28 +25858,30 @@
                         ;; Mark the tx as appearing in this block so we can find it later after a re-org.  This also tells
                         ;; the tx confidence object about the block and sets its depth appropriately.
                         (§ ass tx (Transaction''set-block-appearance tx, block, best?, offset))
-                        (when best?
+                        (when best? => this
                             ;; Don't notify this tx of work done in notifyNewBestBlock which will be called immediately
                             ;; after this method has been called by SPVBlockChain for all relevant transactions.  Otherwise
                             ;; we'd double count.
-                            (§ ass this (update this :ignore-next-new-block conj __txHash))
+                            (let [this (update this :ignore-next-new-block conj __txHash)
+                                  ;; When a tx is received from the best chain, if other txns that spend this tx are IN_CONFLICT,
+                                  ;; change its confidence to PENDING (Unless they are also spending other txns IN_CONFLICT).
+                                  ;; Consider dependency chains.
+                                  [this #_"{Transaction}" deps]
+                                    (Wallet''add-transactions-depending-on this, (hash-set tx), (Wallet''get-transactions this, true))]
 
-                            ;; When a tx is received from the best chain, if other txns that spend this tx are IN_CONFLICT,
-                            ;; change its confidence to PENDING (Unless they are also spending other txns IN_CONFLICT).
-                            ;; Consider dependency chains.
-                            (let [#_"Set<Transaction>" deps (HashSet. (Collections/singleton tx))]
-                                (§ ass this (Wallet''add-transactions-depending-on this, deps, (Wallet''get-transactions this, true)))
-                                (§ ass deps (.remove deps, tx))
-                                (doseq [#_"Transaction" dep (Wallet''sort-txns-by-dependency this, deps)]
-                                    (when (and (= (:confidence-type (Transaction''get-confidence dep)) :ConfidenceType'IN_CONFLICT)
-                                               (not (Wallet''is-spending-txns-in-confidence-type this, dep, :ConfidenceType'IN_CONFLICT)))
-                                        (§ ass (Transaction''get-confidence dep) (TransactionConfidence''set-confidence-type (Transaction''get-confidence dep), :ConfidenceType'PENDING))
-                                        (§ ass this (update this :confidence-changed assoc dep :ConfidenceChangeReason'TYPE))
+                                (loop-when [this this deps (Wallet''sort-txns-by-dependency this, (disj deps tx))] (seq deps) => this
+                                    (let [#_"Transaction" dep (first deps)
+                                          this
+                                            (when (and (= (:confidence-type (Transaction''get-confidence dep)) :ConfidenceType'IN_CONFLICT)
+                                                  (not (Wallet''is-spending-txns-in-confidence-type this, dep, :ConfidenceType'IN_CONFLICT))) => this
+                                                (§ ass (Transaction''get-confidence dep) (TransactionConfidence''set-confidence-type (Transaction''get-confidence dep), :ConfidenceType'PENDING))
+                                                (update this :confidence-changed assoc dep :ConfidenceChangeReason'TYPE)
+                                            )]
+                                        (recur this (next deps))
                                     )
                                 )
                             )
                         )
-                        this
                     )
                   this (update this :on-wallet-changed-suppressions dec)]
 
@@ -26368,43 +26362,45 @@
                     ;; any transactions that are now fully spent to the spent map so we can skip them when creating future spends.
                     (Wallet''update-for-spends this, tx, false)
 
-                    (let [#_"{Transaction}" __doublePending (Wallet''find-double-spends-against this, tx, (:pending this))
-                          #_"{Transaction}" __doubleUnspent (Wallet''find-double-spends-against this, tx, (:unspent this))
-                          #_"{Transaction}" __doubleSpent (Wallet''find-double-spends-against this, tx, (:spent this))]
-
-                        (cond (or (seq __doubleUnspent) (seq __doubleSpent) (Wallet''is-spending-txns-in-confidence-type this, tx, :ConfidenceType'DEAD))
-                            (do
+                    (let [#_"{Transaction}" pending' (Wallet''find-double-spends-against this, tx, (:pending this))
+                          #_"{Transaction}" unspent' (Wallet''find-double-spends-against this, tx, (:unspent this))
+                          #_"{Transaction}" spent'   (Wallet''find-double-spends-against this, tx, (:spent this))
+                          this
+                            (cond (or (seq unspent') (seq spent') (Wallet''is-spending-txns-in-confidence-type this, tx, :ConfidenceType'DEAD))
                                 ;; tx is a double spend against a tx already in the best chain or spends outputs of a DEAD tx.
                                 ;; Add tx to the dead pool and schedule confidence listener notifications.
-                                (log/info (str "->dead: " hash))
-                                (§ ass (Transaction''get-confidence tx) (TransactionConfidence''set-confidence-type (Transaction''get-confidence tx), :ConfidenceType'DEAD))
-                                (§ ass this (update this :confidence-changed assoc tx :ConfidenceChangeReason'TYPE))
-                                (§ ass this (Wallet''add-wallet-transaction this, :PoolType'DEAD, tx))
-                            )
-                            (or (seq __doublePending) (Wallet''is-spending-txns-in-confidence-type this, tx, :ConfidenceType'IN_CONFLICT))
-                            (do
+                                (let [_ (log/info (str "->dead: " hash))]
+                                    (§ ass (Transaction''get-confidence tx) (TransactionConfidence''set-confidence-type (Transaction''get-confidence tx), :ConfidenceType'DEAD))
+                                    (-> this
+                                        (update :confidence-changed assoc tx :ConfidenceChangeReason'TYPE)
+                                        (Wallet''add-wallet-transaction :PoolType'DEAD, tx)
+                                    )
+                                )
+                                (or (seq pending') (Wallet''is-spending-txns-in-confidence-type this, tx, :ConfidenceType'IN_CONFLICT))
                                 ;; tx is a double spend against a pending tx or spends outputs of a tx already IN_CONFLICT.
                                 ;; Add tx to the pending pool.  Update the confidence type of tx, the txns in conflict with tx
                                 ;; and all their dependencies to IN_CONFLICT and schedule confidence listener notifications.
-                                (log/info (str "->pending (IN_CONFLICT): " hash))
-                                (§ ass this (Wallet''add-wallet-transaction this, :PoolType'PENDING, tx))
-                                (§ ass __doublePending (.add __doublePending, tx))
-                                (§ ass this (Wallet''add-transactions-depending-on this, __doublePending, (Wallet''get-transactions this, true)))
-                                (doseq [#_"Transaction" __doubleSpendTx __doublePending]
-                                    (§ ass (Transaction''get-confidence __doubleSpendTx) (TransactionConfidence''set-confidence-type (Transaction''get-confidence __doubleSpendTx), :ConfidenceType'IN_CONFLICT))
-                                    (§ ass this (update this :confidence-changed assoc __doubleSpendTx :ConfidenceChangeReason'TYPE))
+                                (let [_ (log/info (str "->pending (IN_CONFLICT): " hash))
+                                      this (Wallet''add-wallet-transaction this, :PoolType'PENDING, tx)
+                                      [this pending'] (Wallet''add-transactions-depending-on this, (conj pending' tx), (Wallet''get-transactions this, true))]
+                                    (loop-when [this this pending' pending'] (seq pending') => this
+                                        (let [#_"Transaction" ty (first pending')]
+                                            (§ ass (Transaction''get-confidence ty) (TransactionConfidence''set-confidence-type (Transaction''get-confidence ty), :ConfidenceType'IN_CONFLICT))
+                                            (recur (update this :confidence-changed assoc ty :ConfidenceChangeReason'TYPE) (next pending'))
+                                        )
+                                    )
                                 )
-                            )
-                            :else
-                            (do
+                                :else
                                 ;; No conflict detected.
                                 ;; Add to the pending pool and schedule confidence listener notifications.
-                                (log/info (str "->pending: " hash))
-                                (§ ass (Transaction''get-confidence tx) (TransactionConfidence''set-confidence-type (Transaction''get-confidence tx), :ConfidenceType'PENDING))
-                                (§ ass this (update this :confidence-changed assoc tx :ConfidenceChangeReason'TYPE))
-                                (§ ass this (Wallet''add-wallet-transaction this, :PoolType'PENDING, tx))
-                            )
-                        )
+                                (let [_ (log/info (str "->pending: " hash))]
+                                    (§ ass (Transaction''get-confidence tx) (TransactionConfidence''set-confidence-type (Transaction''get-confidence tx), :ConfidenceType'PENDING))
+                                    (-> this
+                                        (update :confidence-changed assoc tx :ConfidenceChangeReason'TYPE)
+                                        (Wallet''add-wallet-transaction :PoolType'PENDING, tx)
+                                    )
+                                )
+                            )]
                         (log/info (str "Estimated balance is now: " (Coin''to-friendly-string (Wallet''get-balance-2t this, :BalanceType'ESTIMATED))))
 
                         ;; Mark any keys used in the outputs as "used", this allows wallet UI's to auto-advance
