@@ -350,7 +350,7 @@
      ; @param blocksLeft The number of blocks left to download.
      ;;
     #_abstract
-    (#_"BlocksDownloadedEventListener" BlocksDownloadedEventListener'''on-blocks-downloaded [#_"BlocksDownloadedEventListener" this, #_"Peer" peer, #_"Block" block, #_"FilteredBlock" filtered, #_"int" __blocksLeft])
+    (#_"this" BlocksDownloadedEventListener'''on-blocks-downloaded [#_"BlocksDownloadedEventListener" this, #_"Peer" peer, #_"Block" block, #_"FilteredBlock" filtered, #_"int" __blocksLeft])
 )
 
 ;;;
@@ -366,7 +366,7 @@
      ; @param blocksLeft The number of blocks left to download.
      ;;
     #_abstract
-    (#_"ChainDownloadStartedEventListener" ChainDownloadStartedEventListener'''on-chain-download-started [#_"ChainDownloadStartedEventListener" this, #_"Peer" peer, #_"int" __blocksLeft])
+    (#_"this" ChainDownloadStartedEventListener'''on-chain-download-started [#_"ChainDownloadStartedEventListener" this, #_"Peer" peer, #_"int" __blocksLeft])
 )
 
 ;;;
@@ -400,7 +400,7 @@
      ;;
     #_throws #_[ "VerificationException" ]
     #_abstract
-    (#_"NewBestBlockListener" NewBestBlockListener'''notify-new-best-block [#_"NewBestBlockListener" this, #_"StoredBlock" block])
+    (#_"this" NewBestBlockListener'''notify-new-best-block [#_"NewBestBlockListener" this, #_"StoredBlock" block])
 )
 
 ;;;
@@ -422,7 +422,7 @@
      ; Called when a peer is connected.
      ;;
     #_abstract
-    (#_"PeerConnectedEventListener" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" this, #_"Peer" peer])
+    (#_"this" PeerConnectedEventListener'''on-peer-connected [#_"PeerConnectedEventListener" this, #_"Peer" peer])
 )
 
 ;;;
@@ -443,7 +443,7 @@
      ; without a corresponding invocation of onPeerConnected if the initial connection is never successful.
      ;;
     #_abstract
-    (#_"PeerDisconnectedEventListener" PeerDisconnectedEventListener'''on-peer-disconnected [#_"PeerDisconnectedEventListener" this, #_"Peer" peer])
+    (#_"this" PeerDisconnectedEventListener'''on-peer-disconnected [#_"PeerDisconnectedEventListener" this, #_"Peer" peer])
 )
 
 ;;;
@@ -492,7 +492,7 @@
      ;;
     #_throws #_[ "VerificationException" ]
     #_abstract
-    (#_"ReorganizeListener" ReorganizeListener'''reorganize [#_"ReorganizeListener" this, #_"StoredBlock" __splitPoint, #_"StoredBlock*" __oldBlocks, #_"StoredBlock*" __newBlocks])
+    (#_"this" ReorganizeListener'''reorganize [#_"ReorganizeListener" this, #_"StoredBlock" __splitPoint, #_"StoredBlock*" __oldBlocks, #_"StoredBlock*" __newBlocks])
 )
 
 ;;;
@@ -545,7 +545,7 @@
      ;;
     #_throws #_[ "VerificationException" ]
     #_abstract
-    (#_"TransactionReceivedInBlockListener" TransactionReceivedInBlockListener'''receive-from-block [#_"TransactionReceivedInBlockListener" this, #_"Transaction" tx, #_"StoredBlock" block, #_"NewBlockType" type, #_"int" offset])
+    (#_"this" TransactionReceivedInBlockListener'''receive-from-block [#_"TransactionReceivedInBlockListener" this, #_"Transaction" tx, #_"StoredBlock" block, #_"NewBlockType" type, #_"int" offset])
 
     ;;;
      ; Called by the {@link SPVBlockChain} when we receive a new {@link FilteredBlock} that contains the given
@@ -2046,7 +2046,7 @@
      ;;
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    (defn #_"void" BlockChain'''not-setting-chain-head [#_"BlockChain" this])
+    (defn #_"this" BlockChain'''not-setting-chain-head [#_"BlockChain" this])
 
     ;;;
      ; For a standard SPVBlockChain, this should return blockStore.get(hash),
@@ -2068,7 +2068,7 @@
         (try+
             (BlockChain''add-5 this, block, true, nil, nil)
             (§ catch VerificationException e
-                (BlockChain'''not-setting-chain-head this)
+                (§ ass this (BlockChain'''not-setting-chain-head this))
                 (throw+ (VerificationException'new (str "Could not verify block:\n" block)) e)
             )
         )
@@ -2092,7 +2092,7 @@
             ;; of the transactions.
             (BlockChain''add-5 this, (FilteredBlock''get-block-header filtered), true, (FilteredBlock''get-transaction-hashes filtered), (:associated-transactions filtered))
             (§ catch VerificationException e
-                (BlockChain'''not-setting-chain-head this)
+                (§ ass this (BlockChain'''not-setting-chain-head this))
                 (throw+ (VerificationException'new (str "Could not verify block " (FilteredBlock''get-hash filtered) "\n" filtered)) e)
             )
         )
@@ -2555,7 +2555,7 @@
      ;;
     #_throws #_[ "VerificationException", "BlockStoreException", "PrunedException" ]
     #_method
-    (defn- #_"BlockChain" BlockChain''try-connecting-orphans [#_"BlockChain" this]
+    (defn- #_"this" BlockChain''try-connecting-orphans [#_"BlockChain" this]
         (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
 
         ;; For each block in our orphan list, try and fit it onto the head of the chain.  If we succeed remove it
@@ -4090,9 +4090,9 @@
 
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" BlockChain'''not-setting-chain-head [#_"SPVBlockChain" __]
+    (defn #_"this" BlockChain'''not-setting-chain-head [#_"SPVBlockChain" this]
         ;; We don't use DB transactions here, so we don't need to do anything.
-        nil
+        this
     )
 
     #_throws #_[ "BlockStoreException" ]
@@ -5316,7 +5316,7 @@
      ;;
     #_throws #_[ "VerificationException" ]
     #_method
-    (defn #_"FilteredBlock?" FilteredBlock''provide-transaction? [#_"FilteredBlock" this, #_"Transaction" tx]
+    (defn #_"this?" FilteredBlock''provide-transaction? [#_"FilteredBlock" this, #_"Transaction" tx]
         (let [#_"Sha256Hash" hash (Transaction''get-hash tx)]
             (when (some #(= % hash) (FilteredBlock''get-transaction-hashes this)) => nil
                 (update this :associated-transactions assoc hash tx)
@@ -5479,7 +5479,7 @@
             (throw+ (VerificationException'new (str "Block failed checkpoint lockin at " height)))
         )
 
-        (FullPrunedBlockStore'''begin-database-batch-write (:block-store this))
+        (§ ass this (update this :block-store FullPrunedBlockStore'''begin-database-batch-write))
 
         (when (.isShutdown (:script-verification-executor this))
             (§ ass this (assoc this :script-verification-executor (Executors/newFixedThreadPool (.availableProcessors (Runtime/getRuntime)))))
@@ -5543,7 +5543,7 @@
                                                             )
                                                         )]
                                                     (§ ass scripts (conj scripts (:script out)))
-                                                    (FullPrunedBlockStore'''remove-unspent-transaction-output (:block-store this), out)
+                                                    (§ ass this (update this :block-store FullPrunedBlockStore'''remove-unspent-transaction-output out))
                                                     (§ ass spent (conj spent out))
                                                     (recur ops __valueIn (next inputs))
                                                 )
@@ -5558,7 +5558,7 @@
                                                   ;; For each output, add it to the set of unspent outputs so it can be consumed in future.
                                                   #_"Script" script (FullPrunedBlockChain''get-script this, (:script-bytes output))
                                                   #_"UTXO" out (UTXO'new hash, (TransactionOutput''get-index output), (:coin-value output), height, coinbase?, script, (FullPrunedBlockChain''get-script-address this, script))]
-                                                (FullPrunedBlockStore'''add-unspent-transaction-output (:block-store this), out)
+                                                (§ ass this (update this :block-store FullPrunedBlockStore'''add-unspent-transaction-output out))
                                                 (§ ass created (conj created out))
                                                 (recur __valueOut (next outputs))
                                             )
@@ -5612,12 +5612,12 @@
                 )
                 (§ catch VerificationException _
                     (.shutdownNow (:script-verification-executor this))
-                    (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
+                    (§ ass this (update this :block-store FullPrunedBlockStore'''abort-database-batch-write))
                     (throw+)
                 )
                 (§ catch BlockStoreException _
                     (.shutdownNow (:script-verification-executor this))
-                    (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
+                    (§ ass this (update this :block-store FullPrunedBlockStore'''abort-database-batch-write))
                     (throw+)
                 )
             )
@@ -5638,11 +5638,12 @@
                 (throw+ (VerificationException'new (str "Block failed checkpoint lockin at " (:stored-height stored))))
             )
 
-            (FullPrunedBlockStore'''begin-database-batch-write (:block-store this))
+            (§ ass this (update this :block-store FullPrunedBlockStore'''begin-database-batch-write))
+
             (let [#_"StoredUndoableBlock" block (FullPrunedBlockStore'''get-undo-block (:block-store this), (Block''get-hash (:stored-header stored)))]
                 (when (nil? block)
                     ;; We're trying to re-org too deep and the data needed has been deleted.
-                    (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
+                    (§ ass this (update this :block-store FullPrunedBlockStore'''abort-database-batch-write))
                     (throw+ (PrunedException'new (Block''get-hash (:stored-header stored))))
                 )
 
@@ -5697,7 +5698,7 @@
                                                                     )]
                                                                 ;; TODO: Enforce DER signature format.
                                                                 (§ ass scripts (conj scripts (:script out)))
-                                                                (FullPrunedBlockStore'''remove-unspent-transaction-output (:block-store this), out)
+                                                                (§ ass this (update this :block-store FullPrunedBlockStore'''remove-unspent-transaction-output out))
                                                                 (§ ass spent (conj spent out))
                                                                 (recur ops __valueIn (next inputs))
                                                             )
@@ -5711,7 +5712,7 @@
                                                               __valueOut (Coin''add __valueOut, (:coin-value output))
                                                               #_"Script" script (FullPrunedBlockChain''get-script this, (:script-bytes output))
                                                               #_"UTXO" out (UTXO'new hash, (TransactionOutput''get-index output), (:coin-value output), (:stored-height stored), coinbase?, script, (FullPrunedBlockChain''get-script-address this, script))]
-                                                            (FullPrunedBlockStore'''add-unspent-transaction-output (:block-store this), out)
+                                                            (§ ass this (update this :block-store FullPrunedBlockStore'''add-unspent-transaction-output out))
                                                             (§ ass created (conj created out))
                                                             (recur __valueOut (next outputs))
                                                         )
@@ -5779,10 +5780,10 @@
                                     )
                                 )
                                 (doseq [#_"UTXO" out (:tx-outs-created changes)]
-                                    (FullPrunedBlockStore'''add-unspent-transaction-output (:block-store this), out)
+                                    (§ ass this (update this :block-store FullPrunedBlockStore'''add-unspent-transaction-output out))
                                 )
                                 (doseq [#_"UTXO" out (:tx-outs-spent changes)]
-                                    (FullPrunedBlockStore'''remove-unspent-transaction-output (:block-store this), out)
+                                    (§ ass this (update this :block-store FullPrunedBlockStore'''remove-unspent-transaction-output out))
                                 )
                                 changes
                             )
@@ -5790,12 +5791,12 @@
                     )
                     (§ catch VerificationException _
                         (.shutdownNow (:script-verification-executor this))
-                        (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
+                        (§ ass this (update this :block-store FullPrunedBlockStore'''abort-database-batch-write))
                         (throw+)
                     )
                     (§ catch BlockStoreException _
                         (.shutdownNow (:script-verification-executor this))
-                        (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
+                        (§ ass this (update this :block-store FullPrunedBlockStore'''abort-database-batch-write))
                         (throw+)
                     )
                 )
@@ -5812,7 +5813,8 @@
     (defn #_"void" BlockChain'''disconnect-transactions [#_"FullPrunedBlockChain" this, #_"StoredBlock" __oldBlock]
         (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
 
-        (FullPrunedBlockStore'''begin-database-batch-write (:block-store this))
+        (§ ass this (update this :block-store FullPrunedBlockStore'''begin-database-batch-write))
+
         (try+
             (let [#_"StoredUndoableBlock" __undoBlock (FullPrunedBlockStore'''get-undo-block (:block-store this), (Block''get-hash (:stored-header __oldBlock)))]
                 (when (nil? __undoBlock)
@@ -5821,19 +5823,19 @@
 
                 (let [#_"TransactionOutputChanges" changes (:tx-out-changes __undoBlock)]
                     (doseq [#_"UTXO" out (:tx-outs-spent changes)]
-                        (FullPrunedBlockStore'''add-unspent-transaction-output (:block-store this), out)
+                        (§ ass this (update this :block-store FullPrunedBlockStore'''add-unspent-transaction-output out))
                     )
                     (doseq [#_"UTXO" out (:tx-outs-created changes)]
-                        (FullPrunedBlockStore'''remove-unspent-transaction-output (:block-store this), out)
+                        (§ ass this (update this :block-store FullPrunedBlockStore'''remove-unspent-transaction-output out))
                     )
                 )
             )
             (§ catch PrunedException _
-                (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
+                (§ ass this (update this :block-store FullPrunedBlockStore'''abort-database-batch-write))
                 (throw+)
             )
             (§ catch BlockStoreException _
-                (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
+                (§ ass this (update this :block-store FullPrunedBlockStore'''abort-database-batch-write))
                 (throw+)
             )
         )
@@ -5846,16 +5848,14 @@
         (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
 
         (let [this (update this :block-store FullPrunedBlockStore'''set-verified-chain-head head)]
-            (FullPrunedBlockStore'''commit-database-batch-write (:block-store this))
-            this
+            (update this :block-store FullPrunedBlockStore'''commit-database-batch-write)
         )
     )
 
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" BlockChain'''not-setting-chain-head [#_"FullPrunedBlockChain" this]
-        (FullPrunedBlockStore'''abort-database-batch-write (:block-store this))
-        nil
+    (defn #_"this" BlockChain'''not-setting-chain-head [#_"FullPrunedBlockChain" this]
+        (update this :block-store FullPrunedBlockStore'''abort-database-batch-write)
     )
 
     #_throws #_[ "BlockStoreException" ]
@@ -6853,11 +6853,11 @@
 (defprotocol StreamConnection
     ;;; Called when the connection socket is closed. ;;
     #_abstract
-    (#_"StreamConnection" StreamConnection'''connection-closed [#_"StreamConnection" this])
+    (#_"this" StreamConnection'''connection-closed [#_"StreamConnection" this])
 
     ;;; Called when the connection socket is first opened. ;;
     #_abstract
-    (#_"StreamConnection" StreamConnection'''connection-opened [#_"StreamConnection" this])
+    (#_"this" StreamConnection'''connection-opened [#_"StreamConnection" this])
 
     ;;;
      ; Called when new bytes are available from the remote end.  This should only ever be called by the single
@@ -6886,7 +6886,7 @@
      ; This writeTarget should be stored and used to close the connection or write data to the socket.
      ;;
     #_abstract
-    (#_"StreamConnection" StreamConnection'''set-write-target [#_"StreamConnection" this, #_"MessageWriteTarget" target])
+    (#_"this" StreamConnection'''set-write-target [#_"StreamConnection" this, #_"MessageWriteTarget" target])
 
     ;;;
      ; Returns the maximum message size of a message on the socket. This is used in calculating size of buffers
@@ -15983,13 +15983,13 @@
      ;;
     #_throws #_[ "IOException" ]
     #_abstract
-    (#_"MessageWriteTarget" MessageWriteTarget'''write-bytes [#_"MessageWriteTarget" this, #_"byte[]" message])
+    (#_"this" MessageWriteTarget'''write-bytes [#_"MessageWriteTarget" this, #_"byte[]" message])
     ;;;
      ; Closes the connection to the server, triggering the {@link StreamConnection#connectionClosed()}
      ; event on the network-handling thread where all callbacks occur.
      ;;
     #_abstract
-    (#_"MessageWriteTarget" MessageWriteTarget'''close-connection [#_"MessageWriteTarget" this])
+    (#_"this" MessageWriteTarget'''close-connection [#_"MessageWriteTarget" this])
 )
 
 ;;;
@@ -16149,7 +16149,7 @@
     )
 
     #_method
-    (defn- #_"ConnectionHandler" ConnectionHandler''set-write-ops [#_"ConnectionHandler" this]
+    (defn- #_"this" ConnectionHandler''set-write-ops [#_"ConnectionHandler" this]
         ;; Make sure we are registered to get updated when writing is available again.
         (.interestOps (:key this), (| (.interestOps (:key this)) SelectionKey/OP_WRITE))
         ;; Refresh the selector to make sure it gets the new interestOps.
@@ -16618,7 +16618,7 @@
                     )
                 )
 
-                (.select (:selector this))
+                (.select (:selector this))
 
                 (loop-when-recur [#_"Iterator<SelectionKey>" it (.iterator (.selectedKeys (:selector this)))] (.hasNext it) [it]
                     (let [#_"SelectionKey" key (.next it)]
@@ -16776,7 +16776,7 @@
     (defn #_"void" Runnable'''run [#_"NioServer" this]
         (try
             (while (:v-running this)
-                (.select (:selector this))
+                (.select (:selector this))
 
                 (loop-when-recur [#_"Iterator<SelectionKey>" it (.iterator (.selectedKeys (:selector this)))] (.hasNext it) [it]
                     (let [#_"SelectionKey" key (.next it)]
@@ -20849,7 +20849,7 @@
      ;;
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    (#_"BlockStore" BlockStore'''put [#_"BlockStore" this, #_"StoredBlock" block])
+    (#_"this" BlockStore'''put [#_"BlockStore" this, #_"StoredBlock" block])
 
     ;;;
      ; Returns the StoredBlock given a hash.  The returned values block.getHash() method will be equal to the
@@ -20874,12 +20874,12 @@
      ;;
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    (#_"BlockStore" BlockStore'''set-chain-head [#_"BlockStore" this, #_"StoredBlock" head])
+    (#_"this" BlockStore'''set-chain-head [#_"BlockStore" this, #_"StoredBlock" head])
 
     ;;; Closes the store. ;;
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    (#_"BlockStore" BlockStore'''close [#_"BlockStore" this])
+    (#_"this" BlockStore'''close [#_"BlockStore" this])
 )
 
 ;;;
@@ -20942,7 +20942,7 @@
      ;;
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    (#_"FullPrunedBlockStore" FullPrunedBlockStore'''put-3 [#_"FullPrunedBlockStore" this, #_"StoredBlock" stored, #_"StoredUndoableBlock" undoable])
+    (#_"this" FullPrunedBlockStore'''put-3 [#_"FullPrunedBlockStore" this, #_"StoredBlock" stored, #_"StoredUndoableBlock" undoable])
 
     ;;;
      ; Returns the StoredBlock that was added as a StoredUndoableBlock given a hash.  The returned values block.getHash()
@@ -20973,7 +20973,7 @@
      ;;
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    (#_"void" FullPrunedBlockStore'''add-unspent-transaction-output [#_"FullPrunedBlockStore" this, #_"UTXO" out])
+    (#_"this" FullPrunedBlockStore'''add-unspent-transaction-output [#_"FullPrunedBlockStore" this, #_"UTXO" out])
 
     ;;;
      ; Removes a {@link UTXO} from the list of unspent TransactionOutputs.
@@ -20983,7 +20983,7 @@
      ;;
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    (#_"void" FullPrunedBlockStore'''remove-unspent-transaction-output [#_"FullPrunedBlockStore" this, #_"UTXO" out])
+    (#_"this" FullPrunedBlockStore'''remove-unspent-transaction-output [#_"FullPrunedBlockStore" this, #_"UTXO" out])
 
     ;;;
      ; True if this store has any unspent outputs from a transaction with a hash equal to the first parameter.
@@ -21015,7 +21015,7 @@
      ;;
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    (#_"FullPrunedBlockStore" FullPrunedBlockStore'''set-verified-chain-head [#_"FullPrunedBlockStore" this, #_"StoredBlock" head])
+    (#_"this" FullPrunedBlockStore'''set-verified-chain-head [#_"FullPrunedBlockStore" this, #_"StoredBlock" head])
 
     ;;;
      ; Begins/Commits/Aborts a database transaction.
@@ -21030,15 +21030,15 @@
      ;;
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    (#_"void" FullPrunedBlockStore'''begin-database-batch-write [#_"FullPrunedBlockStore" this])
+    (#_"this" FullPrunedBlockStore'''begin-database-batch-write [#_"FullPrunedBlockStore" this])
 
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    (#_"void" FullPrunedBlockStore'''commit-database-batch-write [#_"FullPrunedBlockStore" this])
+    (#_"this" FullPrunedBlockStore'''commit-database-batch-write [#_"FullPrunedBlockStore" this])
 
     #_throws #_[ "BlockStoreException" ]
     #_abstract
-    (#_"void" FullPrunedBlockStore'''abort-database-batch-write [#_"FullPrunedBlockStore" this])
+    (#_"this" FullPrunedBlockStore'''abort-database-batch-write [#_"FullPrunedBlockStore" this])
 )
 
 ;;;
@@ -21139,42 +21139,37 @@
 (class-ns TransactionalHashMap #_"<KeyType, ValueType>"
     (defn #_"TransactionalHashMap" TransactionalHashMap'new []
         (hash-map
-            #_"ThreadLocal<HashMap<KeyType, ValueType>>" :temp-map (ThreadLocal.)
-            #_"ThreadLocal<HashSet<KeyType>>" :temp-set-removed (ThreadLocal.)
+            #_"ThreadLocal<HashMap<KeyType, ValueType>>" :temp-map (ThreadLocal.)
+            #_"ThreadLocal<HashSet<KeyType>>" :temp-set-removed (ThreadLocal.)
             #_"ThreadLocal<Boolean>" :in-transaction (ThreadLocal.)
 
-            #_"HashMap<KeyType, ValueType>" :map (HashMap.)
+            #_"{KeyType ValueType}" :map (hash-map)
         )
     )
 
     #_method
-    (defn #_"void" TransactionalHashMap''begin-database-batch-write [#_"TransactionalHashMap" this]
+    (defn #_"this" TransactionalHashMap''begin-database-batch-write [#_"TransactionalHashMap" this]
         (.set (:in-transaction this), true)
-        nil
+        this
     )
 
     #_method
-    (defn #_"void" TransactionalHashMap''commit-database-batch-write [#_"TransactionalHashMap" this]
-        (when-let [#_"HashSet<KeyType>" s (.get (:temp-set-removed this))]
-            (doseq [#_"KeyType" key s]
-                (§ ass this (update this :map .remove key))
-            )
+    (defn #_"this" TransactionalHashMap''commit-database-batch-write [#_"TransactionalHashMap" this]
+        (doseq [#_"KeyType" key (.get (:temp-set-removed this))]
+            (§ ass this (update this :map dissoc key))
         )
-        (when-let [#_"HashMap<KeyType, ValueType>" m (.get (:temp-map this))]
-            (doseq [#_"[KeyType ValueType]" e m]
-                (§ ass this (update this :map assoc (key e) (val e)))
-            )
+        (doseq [#_"[KeyType ValueType]" e (.get (:temp-map this))]
+            (§ ass this (update this :map assoc (key e) (val e)))
         )
         (TransactionalHashMap''abort-database-batch-write this)
-        nil
     )
 
     #_method
-    (defn #_"void" TransactionalHashMap''abort-database-batch-write [#_"TransactionalHashMap" this]
+    (defn #_"this" TransactionalHashMap''abort-database-batch-write [#_"TransactionalHashMap" this]
         (.set (:in-transaction this), false)
-        (.remove (:temp-set-removed this))
-        (.remove (:temp-map this))
-        nil
+        (.remove (:temp-set-removed this))
+        (.remove (:temp-map this))
+        this
     )
 
     #_method
@@ -21192,31 +21187,31 @@
     )
 
     #_method
-    (defn #_"void" TransactionalHashMap''put [#_"TransactionalHashMap" this, #_"KeyType" key, #_"ValueType" value]
-        (when (.get (:in-transaction this)) => (§ ass this (update this :map assoc key value))
+    (defn #_"this" TransactionalHashMap''put [#_"TransactionalHashMap" this, #_"KeyType" key, #_"ValueType" value]
+        (when (.get (:in-transaction this)) => (update this :map assoc key value)
             (when-let [#_"HashSet<KeyType>" s (.get (:temp-set-removed this))]
-                (§ ass s (.remove s, key))
+                (§ ass s (disj s key))
             )
             (when (nil? (.get (:temp-map this)))
                 (.set (:temp-map this), (HashMap. #_"<KeyType, ValueType>"))
             )
             (§ ass (.get (:temp-map this)) (assoc (.get (:temp-map this)) key value))
+            this
         )
-        nil
     )
 
     #_method
     (defn #_"ValueType" TransactionalHashMap''remove [#_"TransactionalHashMap" this, #_"KeyType" key]
-        (when (.get (:in-transaction this)) => (§ ass this (update this :map .remove key))
+        (when (.get (:in-transaction this)) => (§ ass this (update this :map dissoc key))
             (let [#_"ValueType" value (get (:map this) key)]
                 (when (some? value)
                     (when (nil? (.get (:temp-set-removed this)))
                         (.set (:temp-set-removed this), (HashSet. #_"<KeyType>"))
                     )
-                    (§ ass (.get (:temp-set-removed this)) (.add (.get (:temp-set-removed this)), key))
+                    (§ ass (.get (:temp-set-removed this)) (conj (.get (:temp-set-removed this)) key))
                 )
                 (if (some? (.get (:temp-map this)))
-                    (or (§ ass (.get (:temp-map this)) (.remove (.get (:temp-map this)), key)) value)
+                    (or (§ ass (.get (:temp-map this)) (dissoc (.get (:temp-map this)) key)) value)
                     value
                 )
             )
@@ -21234,63 +21229,60 @@
 (class-ns TransactionalMultiKeyHashMap #_"<UniqueKeyType, MultiKeyType, ValueType>"
     (defn #_"TransactionalMultiKeyHashMap" TransactionalMultiKeyHashMap'new []
         (hash-map
-            #_"TransactionalHashMap<UniqueKeyType, ValueType>" :map-values (TransactionalHashMap'new)
-            #_"HashMap<MultiKeyType, Set<UniqueKeyType>>" :map-keys (HashMap.)
+            #_"TransactionalHashMap<UniqueKeyType, ValueType>" :map-values (TransactionalHashMap'new)
+            #_"{MultiKeyType Set<UniqueKeyType>}" :map-keys (hash-map)
         )
     )
 
     #_method
-    (defn #_"void" TransactionalMultiKeyHashMap''begin-transaction [#_"TransactionalMultiKeyHashMap" this]
-        (TransactionalHashMap''begin-database-batch-write (:map-values this))
-        nil
+    (defn #_"this" TransactionalMultiKeyHashMap''begin-transaction [#_"TransactionalMultiKeyHashMap" this]
+        (update this :map-values TransactionalHashMap''begin-database-batch-write)
     )
 
     #_method
-    (defn #_"void" TransactionalMultiKeyHashMap''commit-transaction [#_"TransactionalMultiKeyHashMap" this]
-        (TransactionalHashMap''commit-database-batch-write (:map-values this))
-        nil
+    (defn #_"this" TransactionalMultiKeyHashMap''commit-transaction [#_"TransactionalMultiKeyHashMap" this]
+        (update this :map-values TransactionalHashMap''commit-database-batch-write)
     )
 
     #_method
-    (defn #_"void" TransactionalMultiKeyHashMap''abort-transaction [#_"TransactionalMultiKeyHashMap" this]
-        (TransactionalHashMap''abort-database-batch-write (:map-values this))
-        nil
+    (defn #_"this" TransactionalMultiKeyHashMap''abort-transaction [#_"TransactionalMultiKeyHashMap" this]
+        (update this :map-values TransactionalHashMap''abort-database-batch-write)
     )
 
     #_method
-    (defn #_"ValueType" TransactionalMultiKeyHashMap''get [#_"TransactionalMultiKeyHashMap" this, #_"UniqueKeyType" key]
-        (TransactionalHashMap''get (:map-values this) key)
+    (defn #_"ValueType" TransactionalMultiKeyHashMap''get [#_"TransactionalMultiKeyHashMap" this, #_"UniqueKeyType" unique]
+        (TransactionalHashMap''get (:map-values this) unique)
     )
 
     #_method
-    (defn #_"void" TransactionalMultiKeyHashMap''put [#_"TransactionalMultiKeyHashMap" this, #_"UniqueKeyType" unique, #_"MultiKeyType" multi, #_"ValueType" value]
-        (TransactionalHashMap''put (:map-values this), unique, value)
-        (let [#_"Set<UniqueKeyType>" set (get (:map-keys this) multi)]
-            (when (nil? set) => (§ ass set (.add set, unique))
-                (let [set (HashSet.)]
-                    (§ ass set (.add set, unique))
-                    (§ ass this (update this :map-keys assoc multi set))
+    (defn #_"this" TransactionalMultiKeyHashMap''put [#_"TransactionalMultiKeyHashMap" this, #_"UniqueKeyType" unique, #_"MultiKeyType" multi, #_"ValueType" value]
+        (let [this (update this :map-values TransactionalHashMap''put unique, value)
+              #_"{UniqueKeyType}" values (get (:map-keys this) multi)]
+            (if (some? values)
+                (§ ass values (conj values unique))
+                (§ ass this (update this :map-keys assoc multi (hash-set unique)))
+            )
+            this
+        )
+    )
+
+    #_method
+    (defn #_"ValueType" TransactionalMultiKeyHashMap''remove-by-unique-key [#_"TransactionalMultiKeyHashMap" this, #_"UniqueKeyType" unique]
+        (TransactionalHashMap''remove (:map-values this), unique)
+    )
+
+    #_method
+    (defn #_"this" TransactionalMultiKeyHashMap''remove-by-multi-key [#_"TransactionalMultiKeyHashMap" this, #_"MultiKeyType" multi]
+        (let [#_"{UniqueKeyType}" values (get (:map-keys this) multi)]
+            (when (some? values) => this
+                (let [this (update this :map-keys dissoc multi)]
+                    (doseq [#_"UniqueKeyType" unique values]
+                        (TransactionalMultiKeyHashMap''remove-by-unique-key this, unique)
+                    )
+                    this
                 )
             )
         )
-        nil
-    )
-
-    #_method
-    (defn #_"ValueType" TransactionalMultiKeyHashMap''remove-by-unique-key [#_"TransactionalMultiKeyHashMap" this, #_"UniqueKeyType" key]
-        (TransactionalHashMap''remove (:map-values this), key)
-    )
-
-    #_method
-    (defn #_"void" TransactionalMultiKeyHashMap''remove-by-multi-key [#_"TransactionalMultiKeyHashMap" this, #_"MultiKeyType" key]
-        (let [#_"Set<UniqueKeyType>" set (§ ass this (update this :map-keys .remove key))]
-            (when (some? set)
-                (doseq [#_"UniqueKeyType" unique set]
-                    (TransactionalMultiKeyHashMap''remove-by-unique-key this, unique)
-                )
-            )
-        )
-        nil
     )
 )
 
@@ -21318,10 +21310,10 @@
                 (hash-map
                     #_"Ledger" :ledger ledger
                     #_"int" :full-store-depth (max 1 depth)
-                    #_"TransactionalHashMap<Sha256Hash, StoredBlockAndWasUndoableFlag>" :block-map (TransactionalHashMap'new)
-                    #_"TransactionalMultiKeyHashMap<Sha256Hash, Integer, StoredUndoableBlock>" :full-block-map (TransactionalMultiKeyHashMap'new)
+                    #_"TransactionalHashMap<Sha256Hash, StoredBlockAndWasUndoableFlag>" :block-map (TransactionalHashMap'new)
+                    #_"TransactionalMultiKeyHashMap<Sha256Hash, Integer, StoredUndoableBlock>" :full-block-map (TransactionalMultiKeyHashMap'new)
                     ;; TODO: Use something more suited to remove-heavy use?
-                    #_"TransactionalHashMap<StoredTransactionOutPoint, UTXO>" :transaction-output-map (TransactionalHashMap'new)
+                    #_"TransactionalHashMap<StoredTransactionOutPoint, UTXO>" :transaction-output-map (TransactionalHashMap'new)
                     #_"StoredBlock" :chain-head nil
                     #_"StoredBlock" :verified-chain-head nil
                 )
@@ -21344,8 +21336,7 @@
         (sync this
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
             (let [#_"Sha256Hash" hash (Block''get-hash (:stored-header stored))]
-                (TransactionalHashMap''put (:block-map this), hash, (StoredBlockAndWasUndoableFlag'new stored, false))
-                this
+                (update this :block-map TransactionalHashMap''put hash, (StoredBlockAndWasUndoableFlag'new stored, false))
             )
         )
     )
@@ -21356,9 +21347,10 @@
         (sync this
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
             (let [#_"Sha256Hash" hash (Block''get-hash (:stored-header stored))]
-                (TransactionalMultiKeyHashMap''put (:full-block-map this), hash, (:stored-height stored), undoable)
-                (TransactionalHashMap''put (:block-map this), hash, (StoredBlockAndWasUndoableFlag'new stored, true))
-                this
+                (-> this
+                    (update :full-block-map TransactionalMultiKeyHashMap''put hash, (:stored-height stored), undoable)
+                    (update :block-map TransactionalHashMap''put hash, (StoredBlockAndWasUndoableFlag'new stored, true))
+                )
             )
         )
     )
@@ -21433,8 +21425,7 @@
                     )]
                 ;; Potential leak here if not all blocks get setChainHead'd.
                 ;; Though the FullPrunedBlockStore allows for this, the current BlockChain will not do it.
-                (TransactionalMultiKeyHashMap''remove-by-multi-key (:full-block-map this), (- (:stored-height head) (:full-store-depth this)))
-                this
+                (update this :full-block-map TransactionalMultiKeyHashMap''remove-by-multi-key (- (:stored-height head) (:full-store-depth this)))
             )
         )
     )
@@ -21455,57 +21446,59 @@
 
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" FullPrunedBlockStore'''add-unspent-transaction-output [#_"MemoryFullPrunedBlockStore" this, #_"UTXO" out]
+    (defn #_"this" FullPrunedBlockStore'''add-unspent-transaction-output [#_"MemoryFullPrunedBlockStore" this, #_"UTXO" out]
         (sync this
             (ensure some? (:transaction-output-map this), "MemoryFullPrunedBlockStore is closed")
-            (TransactionalHashMap''put (:transaction-output-map this), (StoredTransactionOutPoint'new (:utxo-hash out), (:utxo-index out)), out)
+            (update this :transaction-output-map TransactionalHashMap''put (StoredTransactionOutPoint'new (:utxo-hash out), (:utxo-index out)), out)
         )
-        nil
     )
 
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" FullPrunedBlockStore'''remove-unspent-transaction-output [#_"MemoryFullPrunedBlockStore" this, #_"UTXO" out]
+    (defn #_"this" FullPrunedBlockStore'''remove-unspent-transaction-output [#_"MemoryFullPrunedBlockStore" this, #_"UTXO" out]
         (sync this
             (ensure some? (:transaction-output-map this), "MemoryFullPrunedBlockStore is closed")
             (when (nil? (TransactionalHashMap''remove (:transaction-output-map this), (StoredTransactionOutPoint'new (:utxo-hash out), (:utxo-index out))))
                 (throw+ (BlockStoreException'new "Tried to remove a UTXO from MemoryFullPrunedBlockStore that it didn't have!"))
             )
+            this
         )
-        nil
     )
 
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" FullPrunedBlockStore'''begin-database-batch-write [#_"MemoryFullPrunedBlockStore" this]
+    (defn #_"this" FullPrunedBlockStore'''begin-database-batch-write [#_"MemoryFullPrunedBlockStore" this]
         (sync this
-            (TransactionalHashMap''begin-database-batch-write (:block-map this))
-            (TransactionalMultiKeyHashMap''begin-transaction (:full-block-map this))
-            (TransactionalHashMap''begin-database-batch-write (:transaction-output-map this))
+            (-> this
+                (update :block-map TransactionalHashMap''begin-database-batch-write)
+                (update :full-block-map TransactionalMultiKeyHashMap''begin-transaction)
+                (update :transaction-output-map TransactionalHashMap''begin-database-batch-write)
+            )
         )
-        nil
     )
 
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" FullPrunedBlockStore'''commit-database-batch-write [#_"MemoryFullPrunedBlockStore" this]
+    (defn #_"this" FullPrunedBlockStore'''commit-database-batch-write [#_"MemoryFullPrunedBlockStore" this]
         (sync this
-            (TransactionalHashMap''commit-database-batch-write (:block-map this))
-            (TransactionalMultiKeyHashMap''commit-transaction (:full-block-map this))
-            (TransactionalHashMap''commit-database-batch-write (:transaction-output-map this))
+            (-> this
+                (update :block-map TransactionalHashMap''commit-database-batch-write)
+                (update :full-block-map TransactionalMultiKeyHashMap''commit-transaction)
+                (update :transaction-output-map TransactionalHashMap''commit-database-batch-write)
+            )
         )
-        nil
     )
 
     #_throws #_[ "BlockStoreException" ]
     #_override
-    (defn #_"void" FullPrunedBlockStore'''abort-database-batch-write [#_"MemoryFullPrunedBlockStore" this]
+    (defn #_"this" FullPrunedBlockStore'''abort-database-batch-write [#_"MemoryFullPrunedBlockStore" this]
         (sync this
-            (TransactionalHashMap''abort-database-batch-write (:block-map this))
-            (TransactionalMultiKeyHashMap''abort-transaction (:full-block-map this))
-            (TransactionalHashMap''abort-database-batch-write (:transaction-output-map this))
+            (-> this
+                (update :block-map TransactionalHashMap''abort-database-batch-write)
+                (update :full-block-map TransactionalMultiKeyHashMap''abort-transaction)
+                (update :transaction-output-map TransactionalHashMap''abort-database-batch-write)
+            )
         )
-        nil
     )
 
     #_throws #_[ "BlockStoreException" ]
@@ -25971,7 +25964,7 @@
     )
 
     #_method
-    (defn- #_"Wallet" Wallet''inform-confidence-listeners-if-not-reorganizing [#_"Wallet" this]
+    (defn- #_"this" Wallet''inform-confidence-listeners-if-not-reorganizing [#_"Wallet" this]
         (when-not (:inside-reorg this) => this
             (doseq [#_"[Transaction ConfidenceChangeReason]" e (:confidence-changed this)]
                 (let [#_"Transaction" tx (key e)]
@@ -26252,46 +26245,47 @@
     ;; Updates the wallet when a double spend occurs.  overridingTx can be null for the case of coinbases.
     #_method
     (defn- #_"this" Wallet''kill-txns [#_"Wallet" this, #_"{Transaction}" __txnsToKill, #_"Transaction" __overridingTx]
-        (let [#_"LinkedList<Transaction>" work (LinkedList. __txnsToKill)]
-            (while (seq work)
-                (let [#_"Transaction" dead (.poll work) #_"Sha256Hash" hash (Transaction''get-hash dead)]
-                    (log/warn (str "TX " hash " killed" (if (some? __overridingTx) (str " by " (Transaction''get-hash __overridingTx)) "")))
-                    (log/warn "Disconnecting each input and moving connected transactions.")
-                    ;; TX could be pending (finney attack), or in unspent/spent (coinbase killed by reorg).
-                    (§ ass this (update this :pending dissoc hash))
-                    (§ ass this (update this :unspent dissoc hash))
-                    (§ ass this (update this :spent dissoc hash))
-                    (§ ass this (Wallet''add-wallet-transaction this, :PoolType'DEAD, dead))
-                    (doseq [#_"TransactionInput" input (:inputs dead)]
-                        (when-let [#_"Transaction" zombie (TransactionInput''get-connected-transaction input)]
-                            (when-not (= (:confidence-type (Transaction''get-confidence zombie)) :ConfidenceType'DEAD)
-                                (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
-                                    (when (and (some? (:spent-by output)) (.equals (:spent-by output), input))
-                                        (assert-state (not (contains? (:my-unspents this) output)))
-                                        (§ ass this (update this :my-unspents conj output))
-                                        (log/info (str "Added to UNSPENTS: " output " in " (Transaction''get-hash (:parent-tx output))))
+        (let [this
+                (loop-when [this this #_"LinkedList<Transaction>" work (LinkedList. __txnsToKill)] (seq work) => this
+                    (let [#_"Transaction" dead (.poll work) #_"Sha256Hash" hash (Transaction''get-hash dead)]
+                        (log/warn (str "TX " hash " killed" (if (some? __overridingTx) (str " by " (Transaction''get-hash __overridingTx)) "")))
+                        (log/warn "Disconnecting each input and moving connected transactions.")
+                        ;; TX could be pending (finney attack), or in unspent/spent (coinbase killed by reorg).
+                        (let [this (-> this (update :pending dissoc hash) (update :unspent dissoc hash) (update :spent dissoc hash))
+                              this (Wallet''add-wallet-transaction this, :PoolType'DEAD, dead)]
+                            (doseq [#_"TransactionInput" input (:inputs dead)]
+                                (when-let [#_"Transaction" zombie (TransactionInput''get-connected-transaction input)]
+                                    (when-not (= (:confidence-type (Transaction''get-confidence zombie)) :ConfidenceType'DEAD)
+                                        (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
+                                            (when (and (some? (:spent-by output)) (.equals (:spent-by output), input))
+                                                (assert-state (not (contains? (:my-unspents this) output)))
+                                                (§ ass this (update this :my-unspents conj output))
+                                                (log/info (str "Added to UNSPENTS: " output " in " (Transaction''get-hash (:parent-tx output))))
+                                            )
+                                        )
                                     )
+                                    (TransactionInput''disconnect input)
+                                    (§ ass this (Wallet''maybe-move-pool this, zombie, "kill"))
                                 )
                             )
-                            (TransactionInput''disconnect input)
-                            (§ ass this (Wallet''maybe-move-pool this, zombie, "kill"))
+                            (§ ass (Transaction''get-confidence dead) (TransactionConfidence''set-overriding-transaction (Transaction''get-confidence dead), __overridingTx))
+                            (§ ass this (update this :confidence-changed assoc dead :ConfidenceChangeReason'TYPE))
+                            ;; Now kill any transactions we have that depended on this one.
+                            (doseq [#_"TransactionOutput" output (:outputs dead)]
+                                (when (contains? (:my-unspents this) output)
+                                    (§ ass this (update this :my-unspents disj output))
+                                    (log/info (str "Removed from UNSPENTS: " output))
+                                )
+                                (when-let [#_"TransactionInput" input (:spent-by output)]
+                                    (log/info (str "This death invalidated dependent tx " (Transaction''get-hash (:parent-tx input))))
+                                    (§ ass work (.push work, (:parent-tx input)))
+                                )
+                            )
+                            (recur this work)
                         )
                     )
-                    (§ ass (Transaction''get-confidence dead) (TransactionConfidence''set-overriding-transaction (Transaction''get-confidence dead), __overridingTx))
-                    (§ ass this (update this :confidence-changed assoc dead :ConfidenceChangeReason'TYPE))
-                    ;; Now kill any transactions we have that depended on this one.
-                    (doseq [#_"TransactionOutput" output (:outputs dead)]
-                        (when (contains? (:my-unspents this) output)
-                            (§ ass this (update this :my-unspents disj output))
-                            (log/info (str "Removed from UNSPENTS: " output))
-                        )
-                        (when-let [#_"TransactionInput" input (:spent-by output)]
-                            (log/info (str "This death invalidated dependent tx " (Transaction''get-hash (:parent-tx input))))
-                            (§ ass work (.push work, (:parent-tx input)))
-                        )
-                    )
-                )
-            )
+                )]
+
             (when (some? __overridingTx) => this
                 (log/warn "Now attempting to connect the inputs of the overriding transaction.")
                 (doseq [#_"TransactionInput" input (:inputs __overridingTx)]
@@ -26888,7 +26882,7 @@
 
     ;; Runs any balance futures in the user code thread.
     #_method
-    (defn- #_"Wallet" Wallet''check-balance-futures-locked [#_"Wallet" this]
+    (defn- #_"this" Wallet''check-balance-futures-locked [#_"Wallet" this]
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
 
         (letfn [(#_"boolean" processed- [#_"BalanceFutureRequest" req]
@@ -27619,14 +27613,17 @@
      ; Subtract the supplied depth from the given transactions.
      ;;
     #_method
-    (defn- #_"this" Wallet''subtract-depth [#_"Wallet" this, #_"int" depth, #_"Collection<Transaction>" transactions]
-        (doseq [#_"Transaction" tx transactions]
-            (let-when [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)] (= (:confidence-type confidence) :ConfidenceType'BUILDING)
-                (§ ass confidence (update confidence :depth-in-blocks - depth))
-                (§ ass this (update this :confidence-changed assoc tx :ConfidenceChangeReason'DEPTH))
+    (defn- #_"this" Wallet''subtract-depth [#_"Wallet" this, #_"int" depth, #_"Transaction*" transactions]
+        (loop-when [this this #_"Transaction*" s transactions] (seq s) => this
+            (let [#_"Transaction" tx (first s) #_"TransactionConfidence" confidence (Transaction''get-confidence tx)
+                  this
+                    (when (= (:confidence-type confidence) :ConfidenceType'BUILDING) => this
+                        (§ ass confidence (update confidence :depth-in-blocks - depth))
+                        (update this :confidence-changed assoc tx :ConfidenceChangeReason'DEPTH)
+                    )]
+                (recur this (next s))
             )
         )
-        this
     )
 
     ;;;
