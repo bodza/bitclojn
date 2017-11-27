@@ -308,8 +308,8 @@
 (declare TransactionReceivedInBlockListener'''notify-transaction-is-in-block TransactionReceivedInBlockListener'''receive-from-block)
 (declare TransactionSignature''anyone-can-pay TransactionSignature''encode-to-bitcoin TransactionSignature''sig-hash-mode TransactionSignature'calc-sig-hash-value TransactionSignature'decode-from-bitcoin TransactionSignature'dummy TransactionSignature'init TransactionSignature'is-encoding-canonical TransactionSignature'new TransactionSignature'from-ecdsa)
 (declare TransactionSigner'''sign-inputs)
-(declare TransactionalHashMap''abort-database-batch-write TransactionalHashMap''begin-database-batch-write TransactionalHashMap''commit-database-batch-write TransactionalHashMap''get TransactionalHashMap''put TransactionalHashMap''remove TransactionalHashMap'new)
-(declare TransactionalMultiKeyHashMap''abort-transaction TransactionalMultiKeyHashMap''begin-transaction TransactionalMultiKeyHashMap''commit-transaction TransactionalMultiKeyHashMap''get TransactionalMultiKeyHashMap''put TransactionalMultiKeyHashMap''remove-by-multi-key TransactionalMultiKeyHashMap''remove-by-unique-key TransactionalMultiKeyHashMap'new)
+(declare TransactionalHashMap''abort-database-batch-write TransactionalHashMap''begin-database-batch-write TransactionalHashMap''commit-database-batch-write TransactionalHashMap''get TransactionalHashMap''assoc TransactionalHashMap''dissoc TransactionalHashMap'new)
+(declare TransactionalMultiKeyHashMap''abort-transaction TransactionalMultiKeyHashMap''begin-transaction TransactionalMultiKeyHashMap''commit-transaction TransactionalMultiKeyHashMap''get TransactionalMultiKeyHashMap''assoc TransactionalMultiKeyHashMap''dissoc-by-multi-key TransactionalMultiKeyHashMap''dissoc-by-unique-key TransactionalMultiKeyHashMap'new)
 (declare TxConfidenceTable''clean-table TxConfidenceTable''get TxConfidenceTable''get-or-create TxConfidenceTable''num-broadcast-peers TxConfidenceTable''seen TxConfidenceTable'MAX_SIZE TxConfidenceTable'new TxConfidenceTable'INSTANCE)
 (declare UTXO'new)
 (declare UnknownMessage'from-wire)
@@ -21139,9 +21139,12 @@
 (class-ns TransactionalHashMap #_"<KeyType, ValueType>"
     (defn #_"TransactionalHashMap" TransactionalHashMap'new []
         (hash-map
-            #_"ThreadLocal<HashMap<KeyType, ValueType>>" :temp-map (ThreadLocal.)
-            #_"ThreadLocal<HashSet<KeyType>>" :temp-set-removed (ThreadLocal.)
-            #_"ThreadLocal<Boolean>" :in-transaction (ThreadLocal.)
+            #_thread-local
+            #_"{KeyType ValueType}" :temp-map (hash-map)
+            #_thread-local
+            #_"{KeyType}" :temp-set-removed (hash-set)
+            #_thread-local
+            #_"boolean" :in-transaction nil
 
             #_"{KeyType ValueType}" :map (hash-map)
         )
@@ -21149,37 +21152,32 @@
 
     #_method
     (defn #_"this" TransactionalHashMap''begin-database-batch-write [#_"TransactionalHashMap" this]
-        (.set (:in-transaction this), true)
-        this
+        (assoc this :in-transaction true)
     )
 
     #_method
     (defn #_"this" TransactionalHashMap''commit-database-batch-write [#_"TransactionalHashMap" this]
-        (doseq [#_"KeyType" key (.get (:temp-set-removed this))]
-            (§ ass this (update this :map dissoc key))
+        (let [this (apply update this :map dissoc (:temp-set-removed this))
+              this (      update this :map merge  (:temp-map this))]
+            (TransactionalHashMap''abort-database-batch-write this)
         )
-        (doseq [#_"[KeyType ValueType]" e (.get (:temp-map this))]
-            (§ ass this (update this :map assoc (key e) (val e)))
-        )
-        (TransactionalHashMap''abort-database-batch-write this)
     )
 
     #_method
     (defn #_"this" TransactionalHashMap''abort-database-batch-write [#_"TransactionalHashMap" this]
-        (.set (:in-transaction this), false)
-        (.remove (:temp-set-removed this))
-        (.remove (:temp-map this))
-        this
+        (-> this
+            (assoc :in-transaction false)
+            (update :temp-set-removed empty)
+            (update :temp-map empty)
+        )
     )
 
     #_method
     (defn #_"ValueType" TransactionalHashMap''get [#_"TransactionalHashMap" this, #_"KeyType" key]
-        (when (.get (:in-transaction this)) => (get (:map this) key)
+        (when (:in-transaction this) => (get (:map this) key)
             (or
-                (when-let [#_"HashMap<KeyType, ValueType>" m (.get (:temp-map this))]
-                    (get m key)
-                )
-                (let-when [#_"HashSet<KeyType>" s (.get (:temp-set-removed this))] (and (some? s) (contains? s key)) => (get (:map this) key)
+                (get (:temp-map this) key)
+                (when (contains? (:temp-set-removed this) key) => (get (:map this) key)
                     nil
                 )
             )
@@ -21187,33 +21185,23 @@
     )
 
     #_method
-    (defn #_"this" TransactionalHashMap''put [#_"TransactionalHashMap" this, #_"KeyType" key, #_"ValueType" value]
-        (when (.get (:in-transaction this)) => (update this :map assoc key value)
-            (when-let [#_"HashSet<KeyType>" s (.get (:temp-set-removed this))]
-                (§ ass s (disj s key))
+    (defn #_"this" TransactionalHashMap''assoc [#_"TransactionalHashMap" this, #_"KeyType" key, #_"ValueType" value]
+        (when (:in-transaction this) => (update this :map assoc key value)
+            (-> this
+                (update :temp-set-removed disj key)
+                (update :temp-map assoc key value)
             )
-            (when (nil? (.get (:temp-map this)))
-                (.set (:temp-map this), (HashMap. #_"<KeyType, ValueType>"))
-            )
-            (§ ass (.get (:temp-map this)) (assoc (.get (:temp-map this)) key value))
-            this
         )
     )
 
     #_method
-    (defn #_"ValueType" TransactionalHashMap''remove [#_"TransactionalHashMap" this, #_"KeyType" key]
-        (when (.get (:in-transaction this)) => (§ ass this (update this :map dissoc key))
-            (let [#_"ValueType" value (get (:map this) key)]
-                (when (some? value)
-                    (when (nil? (.get (:temp-set-removed this)))
-                        (.set (:temp-set-removed this), (HashSet. #_"<KeyType>"))
-                    )
-                    (§ ass (.get (:temp-set-removed this)) (conj (.get (:temp-set-removed this)) key))
-                )
-                (if (some? (.get (:temp-map this)))
-                    (or (§ ass (.get (:temp-map this)) (dissoc (.get (:temp-map this)) key)) value)
-                    value
-                )
+    (defn #_"this" TransactionalHashMap''dissoc [#_"TransactionalHashMap" this, #_"KeyType" key]
+        (when (:in-transaction this) => (update this :map dissoc key)
+            (let [this
+                    (when (contains? (:map this) key) => this
+                        (update this :temp-set-removed conj key)
+                    )]
+                (update this :temp-map dissoc key)
             )
         )
     )
@@ -21255,8 +21243,8 @@
     )
 
     #_method
-    (defn #_"this" TransactionalMultiKeyHashMap''put [#_"TransactionalMultiKeyHashMap" this, #_"UniqueKeyType" unique, #_"MultiKeyType" multi, #_"ValueType" value]
-        (let [this (update this :map-values TransactionalHashMap''put unique, value)
+    (defn #_"this" TransactionalMultiKeyHashMap''assoc [#_"TransactionalMultiKeyHashMap" this, #_"UniqueKeyType" unique, #_"MultiKeyType" multi, #_"ValueType" value]
+        (let [this (update this :map-values TransactionalHashMap''assoc unique, value)
               #_"{UniqueKeyType}" values (get (:map-keys this) multi)]
             (if (some? values)
                 (§ ass values (conj values unique))
@@ -21267,17 +21255,17 @@
     )
 
     #_method
-    (defn #_"ValueType" TransactionalMultiKeyHashMap''remove-by-unique-key [#_"TransactionalMultiKeyHashMap" this, #_"UniqueKeyType" unique]
-        (TransactionalHashMap''remove (:map-values this), unique)
+    (defn #_"this" TransactionalMultiKeyHashMap''dissoc-by-unique-key [#_"TransactionalMultiKeyHashMap" this, #_"UniqueKeyType" unique]
+        (update this :map-values TransactionalHashMap''dissoc unique)
     )
 
     #_method
-    (defn #_"this" TransactionalMultiKeyHashMap''remove-by-multi-key [#_"TransactionalMultiKeyHashMap" this, #_"MultiKeyType" multi]
+    (defn #_"this" TransactionalMultiKeyHashMap''dissoc-by-multi-key [#_"TransactionalMultiKeyHashMap" this, #_"MultiKeyType" multi]
         (let [#_"{UniqueKeyType}" values (get (:map-keys this) multi)]
             (when (some? values) => this
                 (let [this (update this :map-keys dissoc multi)]
                     (doseq [#_"UniqueKeyType" unique values]
-                        (TransactionalMultiKeyHashMap''remove-by-unique-key this, unique)
+                        (§ ass this (TransactionalMultiKeyHashMap''dissoc-by-unique-key this, unique))
                     )
                     this
                 )
@@ -21336,7 +21324,7 @@
         (sync this
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
             (let [#_"Sha256Hash" hash (Block''get-hash (:stored-header stored))]
-                (update this :block-map TransactionalHashMap''put hash, (StoredBlockAndWasUndoableFlag'new stored, false))
+                (update this :block-map TransactionalHashMap''assoc hash, (StoredBlockAndWasUndoableFlag'new stored, false))
             )
         )
     )
@@ -21348,8 +21336,8 @@
             (ensure some? (:block-map this), "MemoryFullPrunedBlockStore is closed")
             (let [#_"Sha256Hash" hash (Block''get-hash (:stored-header stored))]
                 (-> this
-                    (update :full-block-map TransactionalMultiKeyHashMap''put hash, (:stored-height stored), undoable)
-                    (update :block-map TransactionalHashMap''put hash, (StoredBlockAndWasUndoableFlag'new stored, true))
+                    (update :full-block-map TransactionalMultiKeyHashMap''assoc hash, (:stored-height stored), undoable)
+                    (update :block-map TransactionalHashMap''assoc hash, (StoredBlockAndWasUndoableFlag'new stored, true))
                 )
             )
         )
@@ -21425,7 +21413,7 @@
                     )]
                 ;; Potential leak here if not all blocks get setChainHead'd.
                 ;; Though the FullPrunedBlockStore allows for this, the current BlockChain will not do it.
-                (update this :full-block-map TransactionalMultiKeyHashMap''remove-by-multi-key (- (:stored-height head) (:full-store-depth this)))
+                (update this :full-block-map TransactionalMultiKeyHashMap''dissoc-by-multi-key (- (:stored-height head) (:full-store-depth this)))
             )
         )
     )
@@ -21449,7 +21437,7 @@
     (defn #_"this" FullPrunedBlockStore'''add-unspent-transaction-output [#_"MemoryFullPrunedBlockStore" this, #_"UTXO" out]
         (sync this
             (ensure some? (:transaction-output-map this), "MemoryFullPrunedBlockStore is closed")
-            (update this :transaction-output-map TransactionalHashMap''put (StoredTransactionOutPoint'new (:utxo-hash out), (:utxo-index out)), out)
+            (update this :transaction-output-map TransactionalHashMap''assoc (StoredTransactionOutPoint'new (:utxo-hash out), (:utxo-index out)), out)
         )
     )
 
@@ -21458,10 +21446,7 @@
     (defn #_"this" FullPrunedBlockStore'''remove-unspent-transaction-output [#_"MemoryFullPrunedBlockStore" this, #_"UTXO" out]
         (sync this
             (ensure some? (:transaction-output-map this), "MemoryFullPrunedBlockStore is closed")
-            (when (nil? (TransactionalHashMap''remove (:transaction-output-map this), (StoredTransactionOutPoint'new (:utxo-hash out), (:utxo-index out))))
-                (throw+ (BlockStoreException'new "Tried to remove a UTXO from MemoryFullPrunedBlockStore that it didn't have!"))
-            )
-            this
+            (update this :transaction-output-map TransactionalHashMap''dissoc (StoredTransactionOutPoint'new (:utxo-hash out), (:utxo-index out)))
         )
     )
 
