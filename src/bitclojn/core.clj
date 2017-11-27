@@ -95,7 +95,7 @@
              [java.nio.charset Charset]
              [java.security MessageDigest NoSuchAlgorithmException SecureRandom SignatureException]
              [java.text DateFormat SimpleDateFormat]
-             [java.util ArrayList Arrays Collection Collections Comparator Date HashMap HashSet Iterator LinkedHashMap LinkedList List ListIterator Locale Map Objects PriorityQueue Random Set Timer TimerTask TimeZone TreeMap TreeSet]
+             [java.util Arrays Collections Comparator Date Iterator LinkedHashMap LinkedList List Locale Map Objects PriorityQueue Timer TimerTask TimeZone]
              [java.util.concurrent CountDownLatch ExecutionException Executor Executors FutureTask LinkedBlockingQueue RejectedExecutionException ScheduledThreadPoolExecutor ThreadFactory TimeUnit]
              [java.util.concurrent.atomic AtomicInteger]
              [java.util.function Function]
@@ -114,7 +114,8 @@
              [org.spongycastle.math.ec.custom.sec SecP256K1Curve]
              [org.spongycastle.util.encoders Base64]
     )
-    (:require [clojure set]
+    (:require [clojure.data priority-map]
+              [clojure set]
               [clojure.tools.logging :as log]
               [flatland.ordered map set])
     (:use [slingshot slingshot]
@@ -309,7 +310,7 @@
 (declare TransactionSignature''anyone-can-pay TransactionSignature''encode-to-bitcoin TransactionSignature''sig-hash-mode TransactionSignature'calc-sig-hash-value TransactionSignature'decode-from-bitcoin TransactionSignature'dummy TransactionSignature'init TransactionSignature'is-encoding-canonical TransactionSignature'new TransactionSignature'from-ecdsa)
 (declare TransactionSigner'''sign-inputs)
 (declare TransactionalHashMap''abort-database-batch-write TransactionalHashMap''begin-database-batch-write TransactionalHashMap''commit-database-batch-write TransactionalHashMap''get TransactionalHashMap''assoc TransactionalHashMap''dissoc TransactionalHashMap'new)
-(declare TransactionalMultiKeyHashMap''abort-transaction TransactionalMultiKeyHashMap''begin-transaction TransactionalMultiKeyHashMap''commit-transaction TransactionalMultiKeyHashMap''get TransactionalMultiKeyHashMap''assoc TransactionalMultiKeyHashMap''dissoc-by-multi-key TransactionalMultiKeyHashMap''dissoc-by-unique-key TransactionalMultiKeyHashMap'new)
+(declare TransactionalMultiKeyHashMap''abort-transaction TransactionalMultiKeyHashMap''begin-transaction TransactionalMultiKeyHashMap''commit-transaction TransactionalMultiKeyHashMap''get TransactionalMultiKeyHashMap''assoc TransactionalMultiKeyHashMap''dissoc TransactionalMultiKeyHashMap'new)
 (declare TxConfidenceTable''clean-table TxConfidenceTable''get TxConfidenceTable''get-or-create TxConfidenceTable''num-broadcast-peers TxConfidenceTable''seen TxConfidenceTable'MAX_SIZE TxConfidenceTable'new TxConfidenceTable'INSTANCE)
 (declare UTXO'new)
 (declare UnknownMessage'from-wire)
@@ -2004,7 +2005,7 @@
      ;;
     #_throws #_[ "BlockStoreException", "VerificationException" ]
     #_abstract
-    (defn #_"StoredBlock" BlockChain'''add-to-block-store-3 [#_"BlockChain" this, #_"StoredBlock" prior, #_"Block" block])
+    (defn #_"[this StoredBlock]" BlockChain'''add-to-block-store-3 [#_"BlockChain" this, #_"StoredBlock" prior, #_"Block" block])
 
     ;;;
      ; Adds/updates the given {@link StoredBlock} with the block store.
@@ -2018,7 +2019,7 @@
      ;;
     #_throws #_[ "BlockStoreException", "VerificationException" ]
     #_abstract
-    (defn #_"StoredBlock" BlockChain'''add-to-block-store-4 [#_"BlockChain" this, #_"StoredBlock" prior, #_"Block" header, #_"TransactionOutputChanges" changes])
+    (defn #_"[this StoredBlock]" BlockChain'''add-to-block-store-4 [#_"BlockChain" this, #_"StoredBlock" prior, #_"Block" header, #_"TransactionOutputChanges" changes])
 
     ;;;
      ; Rollback the block store to a given height.  This is currently only supported by {@link SPVBlockChain} instances.
@@ -2155,7 +2156,7 @@
             )
 
             (let [#_"StoredBlock" head (BlockChain''get-chain-head this)]
-                (cond (.equals prior, head)
+                (cond (= prior head)
                     (do
                         (when (and filtered? (seq __filteredTxn))
                             (log/debug (str "Block " (Block''get-hash block) " connects to top of best chain with " (count __filteredTxHashList) " transaction(s) of which we were sent " (count __filteredTxn)))
@@ -2180,11 +2181,11 @@
 
                         ;; This block connects to the best known block, it is a normal continuation of the system.
                         (let [#_"TransactionOutputChanges" changes (when (BlockChain'''should-verify-transactions this) (BlockChain'''connect-transactions-3 this, (inc (:stored-height prior)), block))
-                              #_"StoredBlock" __newStoredBlock (BlockChain'''add-to-block-store-4 this, prior, (Block''clone-as-header block), changes)
+                              [this #_"StoredBlock" stored] (BlockChain'''add-to-block-store-4 this, prior, (Block''clone-as-header block), changes)
                               this (update this :version-tally VersionTally''add (:version block))
-                              this (BlockChain''set-chain-head this, __newStoredBlock)]
-                            (log/debug (str "Chain is now " (:stored-height __newStoredBlock) " blocks high, running listeners"))
-                            (BlockChain''inform-listeners-for-new-block this, block, :NewBlockType'BEST_CHAIN, __filteredTxHashList, __filteredTxn, __newStoredBlock)
+                              this (BlockChain''set-chain-head this, stored)]
+                            (log/debug (str "Chain is now " (:stored-height stored) " blocks high, running listeners"))
+                            (BlockChain''inform-listeners-for-new-block this, block, :NewBlockType'BEST_CHAIN, __filteredTxHashList, __filteredTxn, stored)
                         )
                     )
                     :else
@@ -2194,23 +2195,24 @@
                     ;; to become the new best chain head.  This simplifies handling of the re-org in the Wallet class.
                     (let [#_"StoredBlock" __newBlock (StoredBlock''build prior, block)
                           #_"boolean" reorg? (StoredBlock''more-work-than __newBlock, head)
-                          #_"boolean" abort?
-                            (when-not reorg? => false
+                          [this #_"boolean" abort?]
+                            (when-not reorg? => [this false]
                                 (let [#_"StoredBlock" __splitPoint (BlockChain'find-split __newBlock, head, (:block-store this))]
-                                    (cond (and (some? __splitPoint) (.equals __splitPoint, __newBlock))
+                                    (cond (and (some? __splitPoint) (= __splitPoint __newBlock))
                                         (do
                                             ;; newStoredBlock is a part of the same chain, there's no fork.  This happens when we receive a block
                                             ;; that we already saw and linked into the chain previously, which isn't the chain head.
                                             ;; Re-processing it is confusing for the wallet so just skip.
                                             (log/warn (str "Saw duplicated block in main chain at height " (:stored-height __newBlock) ": " (Block''get-hash (:stored-header __newBlock))))
-                                            true
+                                            [this true]
                                         )
                                         (some? __splitPoint)
                                         (do
                                             ;; We aren't actually spending any transactions (yet) because we are on a fork.
-                                            (BlockChain'''add-to-block-store-3 this, prior, block)
                                             (log/info (str "Block forks the chain at height " (:stored-height __splitPoint) "/block " (Block''get-hash (:stored-header __splitPoint)) ", but it did not cause a reorganize:\n" (Block''get-hash (:stored-header __newBlock))))
-                                            false
+                                            (let [[this _] (BlockChain'''add-to-block-store-3 this, prior, block)]
+                                                [this false]
+                                            )
                                         )
                                         :else
                                         (do
@@ -2422,7 +2424,7 @@
      ;;
     #_throws #_[ "PrunedException", "BlockStoreException" ]
     #_abstract
-    (defn #_"void" BlockChain'''disconnect-transactions [#_"BlockChain" this, #_"StoredBlock" block])
+    (defn #_"this" BlockChain'''disconnect-transactions [#_"BlockChain" this, #_"StoredBlock" block])
 
     ;;;
      ; Called as part of connecting a block when the new block results in a different chain having higher total work.
@@ -2451,12 +2453,12 @@
             (let [#_"StoredBlock*" __oldBlocks (BlockChain'get-partial-chain head, __splitPoint, (:block-store this))
                   #_"StoredBlock*" __newBlocks (BlockChain'get-partial-chain __newChainHead, __splitPoint, (:block-store this))
                   ;; Disconnect each transaction in the previous main chain that is no longer in the new main chain.
-                  #_"StoredBlock" __storedNewHead
+                  [this #_"StoredBlock" stored]
                     (if (BlockChain'''should-verify-transactions this)
                         (do
                             (doseq [#_"StoredBlock" __oldBlock __oldBlocks]
                                 (try+
-                                    (BlockChain'''disconnect-transactions this, __oldBlock)
+                                    (§ ass this (BlockChain'''disconnect-transactions this, __oldBlock))
                                     (§ catch PrunedException _
                                         ;; We threw away the data we need to re-org this deep!  We need to go back to a peer with full
                                         ;; block contents and ask them for the relevant data then rebuild the indexs.  Or we could just
@@ -2467,7 +2469,7 @@
                                 )
                             )
                             ;; Walk in ascending chronological order.
-                            (loop-when [__storedNewHead __splitPoint #_"StoredBlock*" s (reverse __newBlocks)] (seq s) => __storedNewHead
+                            (loop-when [this this stored __splitPoint #_"StoredBlock*" s (reverse __newBlocks)] (seq s) => [this stored]
                                 (let [#_"StoredBlock" cursor (first s)]
                                     (when (and expensive? (<= (:time-seconds (:stored-header cursor)) (BlockChain'get-median-timestamp-of-recent-blocks (StoredBlock''get-prev cursor, (:block-store this)), (:block-store this))))
                                         (throw+ (VerificationException'new "Block's timestamp is too early during reorg"))
@@ -2476,8 +2478,10 @@
                                             (if (and (= cursor __newChainHead) (some? block))
                                                 (BlockChain'''connect-transactions-3 this, (:stored-height __newChainHead), block)
                                                 (BlockChain'''connect-transactions-2 this, cursor)
-                                            )]
-                                        (recur (BlockChain'''add-to-block-store-4 this, __storedNewHead, (Block''clone-as-header (:stored-header cursor)), changes) (next s))
+                                            )
+                                          [this stored]
+                                            (BlockChain'''add-to-block-store-4 this, stored, (Block''clone-as-header (:stored-header cursor)), changes)]
+                                        (recur this stored (next s))
                                     )
                                 )
                             )
@@ -2496,7 +2500,7 @@
                 )
 
                 ;; Update the pointer to the best known block.
-                (BlockChain''set-chain-head this, __storedNewHead)
+                (BlockChain''set-chain-head this, stored)
             )
         )
     )
@@ -2508,7 +2512,7 @@
     (defn- #_"StoredBlock*" BlockChain'get-partial-chain [#_"StoredBlock" higher, #_"StoredBlock" lower, #_"BlockStore" store]
         (assert-argument (< (:stored-height lower) (:stored-height higher)), "higher and lower are reversed")
 
-        (take-while #(not (.equals %, lower)) (iterate #(ensure some? (StoredBlock''get-prev %, store), "Ran off the end of the chain") higher))
+        (take-while #(not= % lower) (iterate #(ensure some? (StoredBlock''get-prev %, store), "Ran off the end of the chain") higher))
     )
 
     ;;;
@@ -2524,7 +2528,7 @@
         ;;         \--> E -> F -> G
         ;;
         ;; findSplit will return block B.  oldChainHead = D and newChainHead = G.
-        (loop-when [#_"StoredBlock" x __oldChainHead #_"StoredBlock" y __newChainHead] (not (.equals x, y)) => x
+        (loop-when [#_"StoredBlock" x __oldChainHead #_"StoredBlock" y __newChainHead] (not= x y) => x
             (if (< (:stored-height y) (:stored-height x))
                 (let [x (StoredBlock''get-prev x, store)] (ensure some? x, "Attempt to follow an orphan chain") (recur x y))
                 (let [y (StoredBlock''get-prev y, store)] (ensure some? y, "Attempt to follow an orphan chain") (recur x y))
@@ -3659,29 +3663,6 @@
     )
 
     ;;;
-     ; Finds a value of nonce that makes the blocks hash lower than the difficulty target.
-     ; This is called mining, but solve() is far too slow to do real mining with.
-     ;
-     ; This can loop forever if a solution cannot be found solely by incrementing nonce.
-     ; It doesn't change extraNonce.
-     ;;
-    #_method
-    (defn #_"this" Block''solve [#_"Block" this]
-        (while
-            ;; Is our proof of work valid yet?
-            (if (Block''check-proof-of-work this, false)
-                false
-                (do
-                    ;; No, so increment the nonce and try again.
-                    (§ ass this (update this :nonce inc))
-                    true
-                )
-            )
-        )
-        this
-    )
-
-    ;;;
      ; Returns the difficulty target as a 256 bit value that can be compared to a SHA-256 hash.  Inside a block the
      ; target is represented using a compact form.  If this form decodes to a value that is out of bounds, an exception
      ; is thrown.
@@ -3719,6 +3700,29 @@
                 )
             )
         )
+    )
+
+    ;;;
+     ; Finds a value of nonce that makes the blocks hash lower than the difficulty target.
+     ; This is called mining, but solve() is far too slow to do real mining with.
+     ;
+     ; This can loop forever if a solution cannot be found solely by incrementing nonce.
+     ; It doesn't change extraNonce.
+     ;;
+    #_method
+    (defn #_"this" Block''solve [#_"Block" this]
+        (while
+            ;; Is our proof of work valid yet?
+            (if (Block''check-proof-of-work this, false)
+                false
+                (do
+                    ;; No, so increment the nonce and try again.
+                    (§ ass this (update this :nonce inc))
+                    true
+                )
+            )
+        )
+        this
     )
 
     #_throws #_[ "VerificationException" ]
@@ -4019,19 +4023,17 @@
 
     #_throws #_[ "BlockStoreException", "VerificationException" ]
     #_override
-    (defn #_"StoredBlock" BlockChain'''add-to-block-store-3 [#_"SPVBlockChain" this, #_"StoredBlock" prior, #_"Block" block]
+    (defn #_"[this StoredBlock]" BlockChain'''add-to-block-store-3 [#_"SPVBlockChain" this, #_"StoredBlock" prior, #_"Block" block]
         (let [#_"StoredBlock" stored (StoredBlock''build prior, block)]
-            (§ ass this (update this :block-store BlockStore'''put stored))
-            stored
+            [(update this :block-store BlockStore'''put stored) stored]
         )
     )
 
     #_throws #_[ "BlockStoreException", "VerificationException" ]
     #_override
-    (defn #_"StoredBlock" BlockChain'''add-to-block-store-4 [#_"SPVBlockChain" this, #_"StoredBlock" prior, #_"Block" header, #_"TransactionOutputChanges" changes]
+    (defn #_"[this StoredBlock]" BlockChain'''add-to-block-store-4 [#_"SPVBlockChain" this, #_"StoredBlock" prior, #_"Block" header, #_"TransactionOutputChanges" changes]
         (let [#_"StoredBlock" stored (StoredBlock''build prior, header)]
-            (§ ass this (update this :block-store BlockStore'''put stored))
-            stored
+            [(update this :block-store BlockStore'''put stored) stored]
         )
     )
 
@@ -4077,7 +4079,7 @@
     )
 
     #_override
-    (defn #_"void" BlockChain'''disconnect-transactions [#_"SPVBlockChain" this, #_"StoredBlock" block]
+    (defn #_"this" BlockChain'''disconnect-transactions [#_"SPVBlockChain" this, #_"StoredBlock" block]
         ;; Don't have to do anything as this is only called if shouldVerifyTransactions().
         (throw (UnsupportedOperationException.))
     )
@@ -5410,19 +5412,19 @@
 
     #_throws #_[ "BlockStoreException", "VerificationException" ]
     #_override
-    (defn #_"StoredBlock" BlockChain'''add-to-block-store-3 [#_"FullPrunedBlockChain" this, #_"StoredBlock" prior, #_"Block" block]
-        (let [#_"StoredBlock" stored (StoredBlock''build prior, block)]
-            (§ ass this (update this :block-store FullPrunedBlockStore'''put-3 stored, (StoredUndoableBlock'from-transactions (Block''get-hash (:stored-header stored)), (:transactions block))))
-            stored
+    (defn #_"[this StoredBlock]" BlockChain'''add-to-block-store-3 [#_"FullPrunedBlockChain" this, #_"StoredBlock" prior, #_"Block" block]
+        (let [#_"StoredBlock" stored (StoredBlock''build prior, block)
+              this (update this :block-store FullPrunedBlockStore'''put-3 stored, (StoredUndoableBlock'from-transactions (Block''get-hash (:stored-header stored)), (:transactions block)))]
+            [this stored]
         )
     )
 
     #_throws #_[ "BlockStoreException", "VerificationException" ]
     #_override
-    (defn #_"StoredBlock" BlockChain'''add-to-block-store-4 [#_"FullPrunedBlockChain" this, #_"StoredBlock" prior, #_"Block" header, #_"TransactionOutputChanges" changes]
-        (let [#_"StoredBlock" stored (StoredBlock''build prior, header)]
-            (§ ass this (update this :block-store FullPrunedBlockStore'''put-3 stored, (StoredUndoableBlock'from-changes (Block''get-hash (:stored-header stored)), changes)))
-            stored
+    (defn #_"[this StoredBlock]" BlockChain'''add-to-block-store-4 [#_"FullPrunedBlockChain" this, #_"StoredBlock" prior, #_"Block" header, #_"TransactionOutputChanges" changes]
+        (let [#_"StoredBlock" stored (StoredBlock''build prior, header)
+              this (update this :block-store FullPrunedBlockStore'''put-3 stored, (StoredUndoableBlock'from-changes (Block''get-hash (:stored-header stored)), changes))]
+            [this stored]
         )
     )
 
@@ -5810,36 +5812,33 @@
      ;;
     #_throws #_[ "PrunedException", "BlockStoreException" ]
     #_override
-    (defn #_"void" BlockChain'''disconnect-transactions [#_"FullPrunedBlockChain" this, #_"StoredBlock" __oldBlock]
+    (defn #_"this" BlockChain'''disconnect-transactions [#_"FullPrunedBlockChain" this, #_"StoredBlock" __oldBlock]
         (assert-state (.isHeldByCurrentThread (:blockchain-lock this)))
 
-        (§ ass this (update this :block-store FullPrunedBlockStore'''begin-database-batch-write))
-
-        (try+
-            (let [#_"StoredUndoableBlock" __undoBlock (FullPrunedBlockStore'''get-undo-block (:block-store this), (Block''get-hash (:stored-header __oldBlock)))]
-                (when (nil? __undoBlock)
-                    (throw+ (PrunedException'new (Block''get-hash (:stored-header __oldBlock))))
-                )
-
-                (let [#_"TransactionOutputChanges" changes (:tx-out-changes __undoBlock)]
-                    (doseq [#_"UTXO" out (:tx-outs-spent changes)]
-                        (§ ass this (update this :block-store FullPrunedBlockStore'''add-unspent-transaction-output out))
+        (let [this (update this :block-store FullPrunedBlockStore'''begin-database-batch-write)]
+            (try+
+                (let [#_"StoredUndoableBlock" undo (FullPrunedBlockStore'''get-undo-block (:block-store this), (Block''get-hash (:stored-header __oldBlock)))]
+                    (when (nil? undo)
+                        (throw+ (PrunedException'new (Block''get-hash (:stored-header __oldBlock))))
                     )
-                    (doseq [#_"UTXO" out (:tx-outs-created changes)]
-                        (§ ass this (update this :block-store FullPrunedBlockStore'''remove-unspent-transaction-output out))
+
+                    (let [#_"TransactionOutputChanges" changes (:tx-out-changes undo)]
+                        (-> this
+                            (update :block-store #(reduce FullPrunedBlockStore'''add-unspent-transaction-output % (:tx-outs-spent changes)))
+                            (update :block-store #(reduce FullPrunedBlockStore'''remove-unspent-transaction-output % (:tx-outs-created changes)))
+                        )
                     )
                 )
-            )
-            (§ catch PrunedException _
-                (§ ass this (update this :block-store FullPrunedBlockStore'''abort-database-batch-write))
-                (throw+)
-            )
-            (§ catch BlockStoreException _
-                (§ ass this (update this :block-store FullPrunedBlockStore'''abort-database-batch-write))
-                (throw+)
+                (§ catch PrunedException _
+                    (§ ass this (update this :block-store FullPrunedBlockStore'''abort-database-batch-write))
+                    (throw+)
+                )
+                (§ catch BlockStoreException _
+                    (§ ass this (update this :block-store FullPrunedBlockStore'''abort-database-batch-write))
+                    (throw+)
+                )
             )
         )
-        nil
     )
 
     #_throws #_[ "BlockStoreException" ]
@@ -9385,10 +9384,9 @@
      ;;
     #_method
     (defn #_"this" PeerGroup''add-address-p [#_"PeerGroup" this, #_"PeerAddress" addr]
-        (let [#_"int" n
+        (let [[this #_"int" n]
                 (sync (:peergroup-lock this)
-                    (§ ass this (PeerGroup''add-inactive this, addr))
-                    (inc (:max-connections this))
+                    [(PeerGroup''add-inactive this, addr) (inc (:max-connections this))]
                 )]
             (PeerGroup''set-max-connections this, n)
         )
@@ -12140,11 +12138,12 @@
                 ;; remote peer won't tell us about transactions we just announced to it for obvious reasons.
                 ;; So we just have to assume we're done, at that point.  This happens when we're not given
                 ;; any peer discovery source and the user just calls connectTo() once.
-                (when (= (:min-connections this) 1)
-                    (§ ass this (update this :peer-group PeerGroup''remove-pre-message-received-event-listener (:rejection-listener this)))
-                    (.set (:future this), (:tx this))
+                (when (= (:min-connections this) 1) => this
+                    (let [this (update this :peer-group PeerGroup''remove-pre-message-received-event-listener (:rejection-listener this))]
+                        (.set (:future this), (:tx this))
+                        this
+                    )
                 )
-                this
             )
         )
     )
@@ -13599,31 +13598,29 @@
      ; that are relevant to any of our wallets.
      ;;
     #_method
-    (defn- #_"void" TxConfidenceTable''clean-table [#_"TxConfidenceTable" this]
+    (defn- #_"this" TxConfidenceTable''clean-table [#_"TxConfidenceTable" this]
         (sync (:confidence-lock this)
-            (loop [] ;; Find which transaction got deleted by the GC,
-                (when-let [#_"Reference<TransactionConfidence>" ref (.poll (:reference-queue this))]
+            (loop [this this] ;; Find which transaction got deleted by the GC,
+                (let-when [#_"Reference<TransactionConfidence>" ref (.poll (:reference-queue this))] (some? ref) => this
                     ;; and remove the associated map entry, so the other bits of memory can also be reclaimed.
-                    (§ ass this (update this :table .remove (:weak-hash (cast' WeakConfidenceReference ref))))
-                    (recur)
+                    (recur (ß update this :table .remove (:weak-hash (cast' WeakConfidenceReference ref))))
                 )
             )
         )
-        nil
     )
 
     ;;;
      ; Returns the number of peers that have seen the given hash recently.
      ;;
     #_method
-    (defn #_"int" TxConfidenceTable''num-broadcast-peers [#_"TxConfidenceTable" this, #_"Sha256Hash" hash]
+    (defn #_"[this int]" TxConfidenceTable''num-broadcast-peers [#_"TxConfidenceTable" this, #_"Sha256Hash" hash]
         (sync (:confidence-lock this)
-            (TxConfidenceTable''clean-table this)
-            (let-when [#_"WeakConfidenceReference" ref (get (:table this) hash)] (some? ref) => 0 ;; No such TX known.
-                (let-when [#_"TransactionConfidence" confidence (.get ref)] (nil? confidence) => (count (:broadcast-by confidence))
-                    ;; Such a TX hash was seen, but nothing seemed to care, so we ended up throwing away the data.
-                    (§ ass this (update this :table .remove hash))
-                    0
+            (let [this (TxConfidenceTable''clean-table this)]
+                (let-when [#_"WeakConfidenceReference" ref (get (:table this) hash)] (some? ref) => [this 0] ;; No such TX known.
+                    (let-when [#_"TransactionConfidence" conf (.get ref)] (nil? conf) => [this (count (:broadcast-by conf))]
+                        ;; Such a TX hash was seen, but nothing seemed to care, so we ended up throwing away the data.
+                        [(ß update this :table .remove hash) 0]
+                    )
                 )
             )
         )
@@ -13637,15 +13634,15 @@
      ;;
     #_method
     (defn #_"TransactionConfidence" TxConfidenceTable''seen [#_"TxConfidenceTable" this, #_"Sha256Hash" hash, #_"PeerAddress" __byPeer]
-        (let [[#_"TransactionConfidence" confidence #_"boolean" fresh?]
+        (let [[#_"TransactionConfidence" conf #_"boolean" fresh?]
                 (sync (:confidence-lock this)
-                    (TxConfidenceTable''clean-table this)
+                    (§ ass this (TxConfidenceTable''clean-table this))
                     (TransactionConfidence''mark-broadcast-by (TxConfidenceTable''get-or-create this, hash), __byPeer)
                 )]
             (when fresh?
-                (TransactionConfidence''queue-listeners confidence, :ConfidenceChangeReason'SEEN_PEERS)
+                (TransactionConfidence''queue-listeners conf, :ConfidenceChangeReason'SEEN_PEERS)
             )
-            confidence
+            conf
         )
     )
 
@@ -13659,11 +13656,11 @@
 
         (sync (:confidence-lock this)
             (let [#_"WeakConfidenceReference" ref (get (:table this) hash)
-                  #_"TransactionConfidence" confidence (when (some? ref) (.get ref))]
-                (when (nil? confidence) => confidence
-                    (let [confidence (TransactionConfidence'new hash)]
-                        (§ ass this (update this :table assoc hash (WeakConfidenceReference'new confidence, (:reference-queue this))))
-                        confidence
+                  #_"TransactionConfidence" conf (when (some? ref) (.get ref))]
+                (when (nil? conf) => conf
+                    (let [conf (TransactionConfidence'new hash)]
+                        (§ ass this (update this :table assoc hash (WeakConfidenceReference'new conf, (:reference-queue this))))
+                        conf
                     )
                 )
             )
@@ -13684,7 +13681,7 @@
     )
 )
 
-;; TODO: Fix this class: should not talk about addresses, height should be optional/support mempool height etc.
+;; TODO: Fix this class: should not talk about addresses, height should be optional/support mempool height, etc.
 
 ;;;
  ; A UTXO message contains the information necessary to check a spending transaction.
@@ -16620,10 +16617,11 @@
 
                 (.select (:selector this))
 
-                (loop-when-recur [#_"Iterator<SelectionKey>" it (.iterator (.selectedKeys (:selector this)))] (.hasNext it) [it]
-                    (let [#_"SelectionKey" key (.next it)]
-                        (.remove it)
-                        (ConnectionHandler'handle-key key)
+                (let [#_"Iterator<SelectionKey>" it (.iterator (.selectedKeys (:selector this)))]
+                    (while (.hasNext it)
+                        (let [#_"SelectionKey" key (.next it) _ (.remove it)]
+                            (ConnectionHandler'handle-key key)
+                        )
                     )
                 )
             )
@@ -16778,10 +16776,11 @@
             (while (:v-running this)
                 (.select (:selector this))
 
-                (loop-when-recur [#_"Iterator<SelectionKey>" it (.iterator (.selectedKeys (:selector this)))] (.hasNext it) [it]
-                    (let [#_"SelectionKey" key (.next it)]
-                        (.remove it)
-                        (.handleKey (:selector this), key)
+                (let [#_"Iterator<SelectionKey>" it (.iterator (.selectedKeys (:selector this)))]
+                    (while (.hasNext it)
+                        (let [#_"SelectionKey" key (.next it) _ (.remove it)]
+                            (.handleKey (:selector this), key)
+                        )
                     )
                 )
             )
@@ -19014,9 +19013,8 @@
      ;;
     #_throws #_[ "ScriptException" ]
     (defn #_"Script" Script'parse [#_"byte[]" bytes]
-        (let [#_"Script" this (Script'new nil, bytes)
-              #_"ByteArrayInputStream" bais (ByteArrayInputStream. bytes)]
-            (while (pos? (.available bais))
+        (let [#_"ByteArrayInputStream" bais (ByteArrayInputStream. bytes)]
+            (loop-when [#_"Script" this (Script'new nil, bytes)] (pos? (.available bais)) => this
                 (let [#_"int" opcode (.read bais)
                       #_"long" n
                         (cond (< -1 opcode Script'OP_PUSHDATA1)
@@ -19060,10 +19058,9 @@
                             )
                         )]
 
-                    (§ ass this (append* this :chunks chunk))
+                    (recur (append* this :chunks chunk))
                 )
             )
-            this
         )
     )
 
@@ -21218,7 +21215,7 @@
     (defn #_"TransactionalMultiKeyHashMap" TransactionalMultiKeyHashMap'new []
         (hash-map
             #_"TransactionalHashMap<UniqueKeyType, ValueType>" :map-values (TransactionalHashMap'new)
-            #_"{MultiKeyType Set<UniqueKeyType>}" :map-keys (hash-map)
+            #_"{MultiKeyType {UniqueKeyType}}" :map-keys (hash-map)
         )
     )
 
@@ -21244,30 +21241,19 @@
 
     #_method
     (defn #_"this" TransactionalMultiKeyHashMap''assoc [#_"TransactionalMultiKeyHashMap" this, #_"UniqueKeyType" unique, #_"MultiKeyType" multi, #_"ValueType" value]
-        (let [this (update this :map-values TransactionalHashMap''assoc unique, value)
-              #_"{UniqueKeyType}" values (get (:map-keys this) multi)]
-            (if (some? values)
-                (§ ass values (conj values unique))
-                (§ ass this (update this :map-keys assoc multi (hash-set unique)))
-            )
-            this
+        (-> this
+            (update :map-values TransactionalHashMap''assoc unique, value)
+            (update :map-keys update multi #(conj (or % (hash-set)) unique))
         )
     )
 
     #_method
-    (defn #_"this" TransactionalMultiKeyHashMap''dissoc-by-unique-key [#_"TransactionalMultiKeyHashMap" this, #_"UniqueKeyType" unique]
-        (update this :map-values TransactionalHashMap''dissoc unique)
-    )
-
-    #_method
-    (defn #_"this" TransactionalMultiKeyHashMap''dissoc-by-multi-key [#_"TransactionalMultiKeyHashMap" this, #_"MultiKeyType" multi]
-        (let [#_"{UniqueKeyType}" values (get (:map-keys this) multi)]
-            (when (some? values) => this
-                (let [this (update this :map-keys dissoc multi)]
-                    (doseq [#_"UniqueKeyType" unique values]
-                        (§ ass this (TransactionalMultiKeyHashMap''dissoc-by-unique-key this, unique))
-                    )
-                    this
+    (defn #_"this" TransactionalMultiKeyHashMap''dissoc [#_"TransactionalMultiKeyHashMap" this, #_"MultiKeyType" multi]
+        (let [#_"{UniqueKeyType}" uniques (get (:map-keys this) multi)]
+            (when (some? uniques) => this
+                (-> this
+                    (update :map-keys dissoc multi)
+                    (update :map-values #(reduce TransactionalHashMap''dissoc % uniques))
                 )
             )
         )
@@ -21413,7 +21399,7 @@
                     )]
                 ;; Potential leak here if not all blocks get setChainHead'd.
                 ;; Though the FullPrunedBlockStore allows for this, the current BlockChain will not do it.
-                (update this :full-block-map TransactionalMultiKeyHashMap''dissoc-by-multi-key (- (:stored-height head) (:full-store-depth this)))
+                (update this :full-block-map TransactionalMultiKeyHashMap''dissoc (- (:stored-height head) (:full-store-depth this)))
             )
         )
     )
@@ -21660,7 +21646,7 @@
                       i (if (= i (SPVBlockStore'get-file-size (:capacity this))) SPVBlockStore'FILE_PROLOGUE_BYTES i)
                       _ (.position buffer, i)
                       #_"Sha256Hash" hash (Block''get-hash (:stored-header block))
-                      this (ß update this :not-found-cache .remove hash)
+                      this (update this :not-found-cache dissoc hash)
                       _ (.put buffer, (:hash-bytes hash))]
                     (StoredBlock''serialize-compact block, buffer)
                     (SPVBlockStore''set-ring-cursor this, buffer, (.position buffer))
@@ -23926,7 +23912,7 @@
     (defn- #_"this" KeyChainGroup''maybe-mark-current-address-as-used [#_"KeyChainGroup" this, #_"Address" address]
         (assert-argument (Address''is-p2sh-address address))
 
-        (let [#_"[KeyPurpose Address]" e (first (filter #(and (some? (val %)) (.equals (val %), address)) (:current-addresses this)))]
+        (let [#_"[KeyPurpose Address]" e (first (filter #(and (some? (val %)) (= (val %) address)) (:current-addresses this)))]
             (when (some? e) => this
                 (log/info (str "Marking P2SH address as used: " address))
                 (update this :current-addresses assoc (key e) (KeyChainGroup''fresh-address this, (key e)))
@@ -26231,69 +26217,89 @@
     #_method
     (defn- #_"this" Wallet''kill-txns [#_"Wallet" this, #_"{Transaction}" __txnsToKill, #_"Transaction" __overridingTx]
         (let [this
-                (loop-when [this this #_"LinkedList<Transaction>" work (LinkedList. __txnsToKill)] (seq work) => this
-                    (let [#_"Transaction" dead (.poll work) #_"Sha256Hash" hash (Transaction''get-hash dead)]
+                (loop-when [this this #_"(Transaction)" work (list* __txnsToKill)] (seq work) => this
+                    (let [#_"Transaction" dead (peek work) work (pop work) #_"Sha256Hash" hash (Transaction''get-hash dead)]
                         (log/warn (str "TX " hash " killed" (if (some? __overridingTx) (str " by " (Transaction''get-hash __overridingTx)) "")))
                         (log/warn "Disconnecting each input and moving connected transactions.")
                         ;; TX could be pending (finney attack), or in unspent/spent (coinbase killed by reorg).
                         (let [this (-> this (update :pending dissoc hash) (update :unspent dissoc hash) (update :spent dissoc hash))
-                              this (Wallet''add-wallet-transaction this, :PoolType'DEAD, dead)]
-                            (doseq [#_"TransactionInput" input (:inputs dead)]
-                                (when-let [#_"Transaction" zombie (TransactionInput''get-connected-transaction input)]
-                                    (when-not (= (:confidence-type (Transaction''get-confidence zombie)) :ConfidenceType'DEAD)
-                                        (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
-                                            (when (and (some? (:spent-by output)) (.equals (:spent-by output), input))
-                                                (assert-state (not (contains? (:my-unspents this) output)))
-                                                (§ ass this (update this :my-unspents conj output))
-                                                (log/info (str "Added to UNSPENTS: " output " in " (Transaction''get-hash (:parent-tx output))))
-                                            )
-                                        )
+                              this (Wallet''add-wallet-transaction this, :PoolType'DEAD, dead)
+                              this
+                                (loop-when [this this #_"TransactionInput*" inputs (:inputs dead)] (seq inputs) => this
+                                    (let [#_"TransactionInput" input (first inputs)
+                                          this
+                                            (let-when [#_"Transaction" zombie (TransactionInput''get-connected-transaction input)] (some? zombie) => this
+                                                (let [this
+                                                        (when-not (= (:confidence-type (Transaction''get-confidence zombie)) :ConfidenceType'DEAD) => this
+                                                            (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
+                                                                (when (and (some? (:spent-by output)) (.equals (:spent-by output), input)) => this
+                                                                    (assert-state (not (contains? (:my-unspents this) output)))
+                                                                    (log/info (str "Added to UNSPENTS: " output " in " (Transaction''get-hash (:parent-tx output))))
+                                                                    (update this :my-unspents conj output)
+                                                                )
+                                                            )
+                                                        )]
+                                                    (TransactionInput''disconnect input)
+                                                    (Wallet''maybe-move-pool this, zombie, "kill")
+                                                )
+                                            )]
+                                        (recur this (next inputs))
                                     )
-                                    (TransactionInput''disconnect input)
-                                    (§ ass this (Wallet''maybe-move-pool this, zombie, "kill"))
-                                )
-                            )
+                                )]
                             (§ ass (Transaction''get-confidence dead) (TransactionConfidence''set-overriding-transaction (Transaction''get-confidence dead), __overridingTx))
-                            (§ ass this (update this :confidence-changed assoc dead :ConfidenceChangeReason'TYPE))
-                            ;; Now kill any transactions we have that depended on this one.
-                            (doseq [#_"TransactionOutput" output (:outputs dead)]
-                                (when (contains? (:my-unspents this) output)
-                                    (§ ass this (update this :my-unspents disj output))
-                                    (log/info (str "Removed from UNSPENTS: " output))
-                                )
-                                (when-let [#_"TransactionInput" input (:spent-by output)]
-                                    (log/info (str "This death invalidated dependent tx " (Transaction''get-hash (:parent-tx input))))
-                                    (§ ass work (.push work, (:parent-tx input)))
-                                )
+                            (let [this (update this :confidence-changed assoc dead :ConfidenceChangeReason'TYPE)
+                                  ;; Now kill any transactions we have that depended on this one.
+                                  [this work]
+                                    (loop-when [this this work work #_"TransactionOutput*" outputs (:outputs dead)] (seq outputs) => [this work]
+                                        (let [#_"TransactionOutput" output (first outputs)
+                                              this
+                                                (when (contains? (:my-unspents this) output) => this
+                                                    (log/info (str "Removed from UNSPENTS: " output))
+                                                    (update this :my-unspents disj output)
+                                                )
+                                              work
+                                                (let-when [#_"TransactionInput" input (:spent-by output)] (some? input) => work
+                                                    (log/info (str "This death invalidated dependent tx " (Transaction''get-hash (:parent-tx input))))
+                                                    (conj work (:parent-tx input))
+                                                )]
+                                            (recur this work (next outputs))
+                                        )
+                                    )]
+                                (recur this work)
                             )
-                            (recur this work)
                         )
                     )
                 )]
 
             (when (some? __overridingTx) => this
                 (log/warn "Now attempting to connect the inputs of the overriding transaction.")
-                (doseq [#_"TransactionInput" input (:inputs __overridingTx)]
-                    (let [#_"ConnectionResult" result (TransactionInput''connect-3m input, (:unspent this), :ConnectionMode'DISCONNECT_ON_CONFLICT)]
-                        (if (= result :ConnectionResult'SUCCESS)
-                            (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
-                                (§ ass this (Wallet''maybe-move-pool this, (TransactionInput''get-connected-transaction input), "kill"))
-                                (§ ass this (update this :my-unspents disj output))
-                                (log/info (str "Removing from UNSPENTS: " output))
-                            )
-                            (let [result (TransactionInput''connect-3m input, (:spent this), :ConnectionMode'DISCONNECT_ON_CONFLICT)]
-                                (when (= result :ConnectionResult'SUCCESS)
-                                    (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
-                                        (§ ass this (Wallet''maybe-move-pool this, (TransactionInput''get-connected-transaction input), "kill"))
-                                        (§ ass this (update this :my-unspents disj output))
-                                        (log/info (str "Removing from UNSPENTS: " output))
+                (loop-when [this this #_"TransactionInput*" inputs (:inputs __overridingTx)] (seq inputs) => this
+                    (let [#_"TransactionInput" input (first inputs)
+                          #_"ConnectionResult" result (TransactionInput''connect-3m input, (:unspent this), :ConnectionMode'DISCONNECT_ON_CONFLICT)
+                          this
+                            (if (= result :ConnectionResult'SUCCESS)
+                                (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
+                                    (log/info (str "Removing from UNSPENTS: " output))
+                                    (-> this
+                                        (Wallet''maybe-move-pool (TransactionInput''get-connected-transaction input), "kill")
+                                        (update :my-unspents disj output)
                                     )
                                 )
-                            )
-                        )
+                                (let [result (TransactionInput''connect-3m input, (:spent this), :ConnectionMode'DISCONNECT_ON_CONFLICT)]
+                                    (when (= result :ConnectionResult'SUCCESS) => this
+                                        (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
+                                            (log/info (str "Removing from UNSPENTS: " output))
+                                            (-> this
+                                                (Wallet''maybe-move-pool (TransactionInput''get-connected-transaction input), "kill")
+                                                (update :my-unspents disj output)
+                                            )
+                                        )
+                                    )
+                                )
+                            )]
+                        (recur this (next inputs))
                     )
                 )
-                this
             )
         )
     )
@@ -28131,12 +28137,9 @@
     (defn- #_"void" Wallet''to-string-helper [#_"Wallet" this, #_"{Sha256Hash Transaction}" pool, #_"Comparator<Transaction>" order, #_"BlockChain" chain, #_"StringBuilder" sb]
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
 
-        (let [#_"Collection<Transaction>" txns
+        (let [#_"Transaction*" txns
                 (when (some? order) => (vals pool)
-                    (let [txns (TreeSet. order)]
-                        (§ ass txns (.addAll txns, (vals pool)))
-                        txns
-                    )
+                    (apply sorted-set-by order (vals pool))
                 )]
 
             (doseq [#_"Transaction" tx txns]
