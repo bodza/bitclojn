@@ -294,7 +294,7 @@
 (declare TestLedger'INSTANCE TestLedger'TESTNET_DIFF_DATE TestLedger'TEXTUAL_CHECKPOINTS TestLedger'new)
 (declare ThreadFactory'''newThread)
 (declare Threading'SAME_THREAD Threading'THREAD_POOL Threading'USER_THREAD Threading'wait-for-user-code)
-(declare Transaction''add-input Transaction''add-input-o Transaction''add-input-s Transaction''add-output-ca Transaction''add-output-ce Transaction''add-output-cs Transaction''add-output Transaction''add-signed-input Transaction''calculate-signature-b Transaction''calculate-signature-s Transaction''check-coin-base-height Transaction''estimate-lock-time Transaction''get-confidence Transaction''get-fee Transaction''get-hash Transaction''get-input-sum Transaction''get-output-sum Transaction''get-sig-op-count Transaction''get-value Transaction''get-value-sent-from-me Transaction''get-value-sent-to-me Transaction''get-wallet-outputs Transaction''has-confidence Transaction''hash-for-signature-4b Transaction''hash-for-signature-5b Transaction''hash-for-signature-5s Transaction''is-any-output-spent Transaction''is-coin-base Transaction''is-every-owned-output-spent Transaction''is-final Transaction''is-mature Transaction''is-opt-in-full-rbf Transaction''is-pending Transaction''is-time-locked Transaction''set-block-appearance Transaction''set-lock-time Transaction''shuffle-outputs Transaction''to-string Transaction''verify Transaction'DEFAULT_TX_FEE Transaction'LOCKTIME_THRESHOLD Transaction'LOCKTIME_THRESHOLD_BIG Transaction'MAX_STANDARD_TX_SIZE Transaction'MIN_NONDUST_OUTPUT Transaction'REFERENCE_DEFAULT_MIN_TX_FEE Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG Transaction'SEQUENCE_LOCKTIME_MASK Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG Transaction'compare-by-chain-height Transaction'compare-by-update-time Transaction'new Transaction'from-wire Transaction''to-wire)
+(declare Transaction''add-input Transaction''add-input-o Transaction''add-input-s Transaction''add-output-ca Transaction''add-output-ce Transaction''add-output-cs Transaction''add-output Transaction''add-signed-input Transaction''calculate-signature-b Transaction''calculate-signature-s Transaction''check-coin-base-height Transaction''estimate-lock-time Transaction''get-confidence-ref Transaction''get-confidence Transaction''get-fee Transaction''get-hash Transaction''get-input-sum Transaction''get-output-sum Transaction''get-sig-op-count Transaction''get-value Transaction''get-value-sent-from-me Transaction''get-value-sent-to-me Transaction''get-wallet-outputs Transaction''has-confidence Transaction''hash-for-signature-4b Transaction''hash-for-signature-5b Transaction''hash-for-signature-5s Transaction''is-any-output-spent Transaction''is-coin-base Transaction''is-every-owned-output-spent Transaction''is-final Transaction''is-mature Transaction''is-opt-in-full-rbf Transaction''is-pending Transaction''is-time-locked Transaction''set-block-appearance Transaction''set-lock-time Transaction''shuffle-outputs Transaction''to-string Transaction''verify Transaction'DEFAULT_TX_FEE Transaction'LOCKTIME_THRESHOLD Transaction'LOCKTIME_THRESHOLD_BIG Transaction'MAX_STANDARD_TX_SIZE Transaction'MIN_NONDUST_OUTPUT Transaction'REFERENCE_DEFAULT_MIN_TX_FEE Transaction'SEQUENCE_LOCKTIME_DISABLE_FLAG Transaction'SEQUENCE_LOCKTIME_MASK Transaction'SEQUENCE_LOCKTIME_TYPE_FLAG Transaction'compare-by-chain-height Transaction'compare-by-update-time Transaction'new Transaction'from-wire Transaction''to-wire)
 (declare Wallet''get-transaction-pool Wallet''is-pay-to-script-hash-mine Wallet''is-pub-key-hash-mine Wallet''is-pub-key-mine)
 (declare TransactionBroadcast''broadcast TransactionBroadcast''invoke-and-record TransactionBroadcast''invoke-progress-callback TransactionBroadcast''set-progress-callback TransactionBroadcast'new)
 (declare TransactionBroadcaster'''broadcast-transaction-2)
@@ -310,7 +310,7 @@
 (declare TransactionSigner'''sign-inputs)
 (declare TransactionalHashMap''abort-database-batch-write TransactionalHashMap''begin-database-batch-write TransactionalHashMap''commit-database-batch-write TransactionalHashMap''get TransactionalHashMap''assoc TransactionalHashMap''dissoc TransactionalHashMap'new)
 (declare TransactionalMultiKeyHashMap''abort-transaction TransactionalMultiKeyHashMap''begin-transaction TransactionalMultiKeyHashMap''commit-transaction TransactionalMultiKeyHashMap''get TransactionalMultiKeyHashMap''assoc TransactionalMultiKeyHashMap''dissoc TransactionalMultiKeyHashMap'new)
-(declare TxConfidenceTable''get TxConfidenceTable''get-or-create TxConfidenceTable''num-broadcast-peers TxConfidenceTable''seen TxConfidenceTable'MAX_SIZE TxConfidenceTable'new TxConfidenceTable'INSTANCE)
+(declare ConfidenceTable'get-or-create ConfidenceTable'seen ConfidenceTable'MAX_SIZE ConfidenceTable'new ConfidenceTable'INSTANCE)
 (declare UTXO'new)
 (declare UnknownMessage'from-wire)
 (declare UserThread'WARNING_THRESHOLD UserThread'new)
@@ -3547,7 +3547,7 @@
                     (let [#_"Transaction*" txns (doall (for [_ (range (Wire'read-var-int payload))] (Transaction'from-wire ledger, payload)))]
                         (doseq [#_"Transaction" tx txns]
                             ;; Label the transaction as coming from the P2P network, so code that cares where we first saw it knows.
-                            (§ ass (Transaction''get-confidence tx) (assoc (Transaction''get-confidence tx) :confidence-source :ConfidenceSource'NETWORK))
+                            (swap! (Transaction''get-confidence-ref tx) assoc :confidence-source :ConfidenceSource'NETWORK)
                         )
                         (assoc this :transactions (vec txns))
                     )
@@ -4174,7 +4174,7 @@
      ;
      ; In order for filtered block download to function efficiently, the number of matched transactions in any given
      ; block should be less than (with some headroom) the maximum size of the MemoryPool used by the Peer
-     ; doing the downloading (default is {@link TxConfidenceTable#MAX_SIZE}).
+     ; doing the downloading (default is {@link ConfidenceTable#MAX_SIZE}).
      ; See the comment in processBlock(FilteredBlock) for more information on this restriction.
      ;
      ; randomNonce is a tweak for the hash function used to prevent some theoretical DoS attacks.
@@ -4377,8 +4377,8 @@
 
     #_method
     (defn- #_"boolean" BloomFilter''apply-and-update-tx [#_"BloomFilter" this, #_"Transaction" tx]
-        (letfn [#_"boolean" (chunk-found? [#_"ScriptChunk" %] (and (ScriptChunk''is-push-data %) (BloomFilter''contains this, (:data %))))
-                #_"boolean" (input-found? [#_"TransactionInput" %]
+        (letfn [(#_"boolean" chunk-found? [#_"ScriptChunk" %] (and (ScriptChunk''is-push-data %) (BloomFilter''contains this, (:data %))))
+                (#_"boolean" input-found? [#_"TransactionInput" %]
                     (or (BloomFilter''contains this, (Message''to-bytes (:outpoint %), TransactionOutPoint''to-wire))
                         (some chunk-found? (:chunks (TransactionInput''get-script-sig %)))
                     )
@@ -6214,7 +6214,7 @@
 ;;;
  ; The "mempool" message asks a remote peer to announce all transactions in its memory pool, possibly restricted by
  ; any Bloom filter set on the connection.  The list of transaction hashes comes back in an inv message.  Note that
- ; this is different to the {@link TxConfidenceTable} object which doesn't try to keep track of all pending transactions,
+ ; this is different to the {@link ConfidenceTable} object which doesn't try to keep track of all pending transactions,
  ; it's just a holding area for transactions that a part of the app may find interesting.  The mempool message has
  ; no fields.
  ;
@@ -6922,7 +6922,7 @@
     (def- #_"int" Peer'PING_MOVING_AVERAGE_WINDOW 20)
 
     ;;;
-     ; Construct a peer that reads/writes from the given block chain.  Transactions stored in a {@link TxConfidenceTable}
+     ; Construct a peer that reads/writes from the given block chain.  Transactions stored in a {@link ConfidenceTable}
      ; will have their confidence levels updated when a peer announces it, to reflect the greater likelyhood that
      ; the transaction is valid.
      ;
@@ -7023,12 +7023,6 @@
                             ;; It is important to avoid a nasty edge case where we can end up with parallel chain downloads proceeding
                             ;; simultaneously if we were to receive a newly solved block whilst parts of the chain are streaming to us.
                             #_"{Sha256Hash}" :pending-block-downloads (hash-set)
-                            ;; Keep references to TransactionConfidence objects for transactions that were announced by a remote peer,
-                            ;; but which we haven't downloaded yet.  These objects are de-duplicated by the TxConfidenceTable class.
-                            ;; Once the tx is downloaded (by some peer), the Transaction object that is created will have a reference to
-                            ;; the confidence object held inside it, and it's then up to the event listeners that receive the Transaction
-                            ;; to keep it pinned to the root set if they care about this data.
-                            #_"{TransactionConfidence}" :pending-tx-downloads (hash-set)
                             ;; The lowest version number we're willing to accept.  Lower than this will result in an immediate disconnect.
                             #_volatile
                             #_"int" :v-min-protocol-version ProtocolVersion'PONG
@@ -7585,10 +7579,8 @@
                     ;; we can stop holding a reference to the confidence object ourselves.  It's up to event listeners on the
                     ;; Peer to stash the tx object somewhere if they want to keep receiving updates about network propagation
                     ;; and so on.
-                    (let [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)
-                          _ (§ ass confidence (assoc confidence :confidence-source :ConfidenceSource'NETWORK))
-                          this (update this :pending-tx-downloads disj confidence)
-                          [this ?] (Peer''maybe-handle-requested-data this, tx, Transaction''get-hash)]
+                    (swap! (Transaction''get-confidence-ref tx) assoc :confidence-source :ConfidenceSource'NETWORK)
+                    (let [[this ?] (Peer''maybe-handle-requested-data this, tx, Transaction''get-hash)]
                         (cond ?
                             (do
                                 [this false]
@@ -8079,7 +8071,7 @@
                               ;; sending us the transaction: currently we'll never try to re-fetch after a timeout.
                               ;;
                               ;; The line below can trigger confidence listeners.
-                              #_"TransactionConfidence" conf (TxConfidenceTable''seen TxConfidenceTable'INSTANCE, (:item-hash item), (:peer-address this))
+                              #_"TransactionConfidence" conf (ConfidenceTable'seen (:item-hash item), (:peer-address this))
                               ? (cond
                                     (< 1 (count (:broadcast-by conf)))                   false ;; Some other peer already announced this, so don't download.
                                     (= (:confidence-source conf) :ConfidenceSource'SELF) false ;; We created this transaction ourselves, so don't download.
@@ -8088,7 +8080,7 @@
                             (when ? => (recur this getdata (next transactions))
                                 (log/debug (str (:peer-address this) ": getdata on tx " (:item-hash item)))
                                 ;; Register with the garbage collector that we care about the confidence data for a while.
-                                (recur (update this :pending-tx-downloads conj conf) (append* getdata :items item) (next transactions))
+                                (recur this (append* getdata :items item) (next transactions))
                             )
                         )
                     )
@@ -10342,7 +10334,7 @@
         ;; redownloading it from the network redundantly.
         (when (= (:confidence-source (Transaction''get-confidence tx)) :ConfidenceSource'UNKNOWN)
             (log/info (str "Transaction source unknown, setting to SELF: " (Transaction''get-hash tx)))
-            (§ ass (Transaction''get-confidence tx) (assoc (Transaction''get-confidence tx) :confidence-source :ConfidenceSource'SELF))
+            (swap! (Transaction''get-confidence-ref tx) assoc :confidence-source :ConfidenceSource'SELF)
         )
         (let [#_"TransactionBroadcast" broadcast (TransactionBroadcast'new this, tx)]
             (§ ass broadcast (assoc broadcast :min-connections __minConnections))
@@ -11195,10 +11187,10 @@
      ; A comparator that can be used to sort transactions by their chain height.
      ;;
     (defn #_"int" Transaction'compare-by-chain-height [#_"Transaction" this, #_"Transaction" that]
-        (let [#_"TransactionConfidence" cf1 (Transaction''get-confidence this)
-              #_"int" height1 (if (= (:confidence-type cf1) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf1) Block'BLOCK_HEIGHT_UNKNOWN)
-              #_"TransactionConfidence" cf2 (Transaction''get-confidence that)
-              #_"int" height2 (if (= (:confidence-type cf2) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height cf2) Block'BLOCK_HEIGHT_UNKNOWN)
+        (let [#_"TransactionConfidence" conf1 (Transaction''get-confidence this)
+              #_"int" height1 (if (= (:confidence-type conf1) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height conf1) Block'BLOCK_HEIGHT_UNKNOWN)
+              #_"TransactionConfidence" conf2 (Transaction''get-confidence that)
+              #_"int" height2 (if (= (:confidence-type conf2) :ConfidenceType'BUILDING) (TransactionConfidence''get-appeared-at-chain-height conf2) Block'BLOCK_HEIGHT_UNKNOWN)
               #_"int" cmp (- (compare height1 height2))]
             ;; If height1 == height2, compare by tx hash to make comparator consistent with equals.
             (if (not= cmp 0) cmp (Sha256Hash'compare (Transaction''get-hash this), (Transaction''get-hash that)))
@@ -11256,7 +11248,7 @@
 
             (when best? => this
                 ;; This sets type to BUILDING and depth to one.
-                (§ ass (Transaction''get-confidence this) (TransactionConfidence''set-appeared-at-chain-height (Transaction''get-confidence this), (:stored-height block)))
+                (swap! (Transaction''get-confidence-ref this) TransactionConfidence''set-appeared-at-chain-height (:stored-height block))
                 this
             )
         )
@@ -11674,11 +11666,16 @@
     )
 
     ;;;
-     ; Returns the confidence object for this transaction from the {@link TxConfidenceTable}.
+     ; Returns the confidence object for this transaction from the {@link ConfidenceTable}.
      ;;
     #_method
+    (defn #_"TransactionConfidence'" Transaction''get-confidence-ref [#_"Transaction" this]
+        (ConfidenceTable'get-or-create (Transaction''get-hash this))
+    )
+
+    #_method
     (defn #_"TransactionConfidence" Transaction''get-confidence [#_"Transaction" this]
-        (TxConfidenceTable''get-or-create TxConfidenceTable'INSTANCE, (Transaction''get-hash this))
+        @(Transaction''get-confidence-ref this)
     )
 
     ;;;
@@ -11999,7 +11996,7 @@
  ;;
 (defprotocol TransactionConfidenceListener
     #_abstract
-    (#_"void" TransactionConfidenceListener'''on-confidence-changed [#_"TransactionConfidenceListener" this, #_"TransactionConfidence" confidence, #_"ConfidenceChangeReason" reason])
+    (#_"void" TransactionConfidenceListener'''on-confidence-changed [#_"TransactionConfidenceListener" this, #_"TransactionConfidence" conf, #_"ConfidenceChangeReason" reason])
 )
 
 #_non-static #_"TransactionBroadcast"
@@ -12106,7 +12103,7 @@
             ;; Prepare to send the transaction by adding a listener that'll be called when confidence changes.
             ;; Only bother with this if we might actually hear back:
             (when (< 1 (:min-connections this))
-                (§ ass (Transaction''get-confidence (:tx this)) (TransactionConfidence''add-event-listener (Transaction''get-confidence (:tx this)), (§ async! (ConfidenceChange'new))))
+                (swap! (Transaction''get-confidence-ref (:tx this)) TransactionConfidence''add-event-listener (§ async! (ConfidenceChange'new)))
             )
             ;; Bitcoin Core sends an inv in this case and then lets the peer request the tx data.  We just
             ;; blast out the TX here for a couple of reasons.  Firstly it's simpler: in the case where we have
@@ -12457,21 +12454,26 @@
     ;;;
      ; Called by a {@link Peer} when a transaction is pending and announced by a peer.  The more peers announce
      ; the transaction, the more peers have validated it (assuming your internet connection is not being intercepted).
-     ; If confidence is currently unknown, sets it to {@link ConfidenceType#PENDING}.  Does not run listeners.
+     ; If confidence is currently unknown, sets it to {@link ConfidenceType#PENDING}.  Does run listeners.
      ;
      ; @param address IP address of the peer, used as a proxy for identity.
      ; @return true if marked, false if this address was already seen.
      ;;
     #_method
-    (defn #_"[this boolean]" TransactionConfidence''mark-broadcast-by [#_"TransactionConfidence" this, #_"PeerAddress" address]
+    (defn #_"this" TransactionConfidence''mark-broadcast-by [#_"TransactionConfidence" this, #_"PeerAddress" address, #_"boolean" fire?]
         (let [this (assoc this :last-broadcasted-at (Time'now))]
-            (when-not (TransactionConfidence''was-broadcast-by this, address) => [this false] ;; Duplicate.
-                (let [this (update this :broadcast-by conj address)]
-                    (sync this
-                        (when (= (:confidence-type this) :ConfidenceType'UNKNOWN) => [this true]
-                            [(assoc this :confidence-type :ConfidenceType'PENDING) true]
-                        )
+            (when-not (TransactionConfidence''was-broadcast-by this, address) => this ;; Duplicate.
+                (let [this (update this :broadcast-by conj address)
+                      this
+                        (sync this
+                            (when (= (:confidence-type this) :ConfidenceType'UNKNOWN) => this
+                                (assoc this :confidence-type :ConfidenceType'PENDING)
+                            )
+                        )]
+                    (when fire?
+                        (TransactionConfidence''queue-listeners this, :ConfidenceChangeReason'SEEN_PEERS)
                     )
+                    this
                 )
             )
         )
@@ -12561,10 +12563,10 @@
                     (§ async?
                         (reify TransactionConfidenceListener
                             #_override
-                            (#_"void" TransactionConfidenceListener'''on-confidence-changed [#_"TransactionConfidenceListener" self, #_"TransactionConfidence" confidence, #_"ConfidenceChangeReason" reason]
+                            (#_"void" TransactionConfidenceListener'''on-confidence-changed [#_"TransactionConfidenceListener" self, #_"TransactionConfidence" conf, #_"ConfidenceChangeReason" reason]
                                 (when (<= depth (:depth-in-blocks this))
                                     (§ ass this (TransactionConfidence''remove-event-listener this, self))
-                                    (.set future, confidence)
+                                    (.set future, conf)
                                 )
                                 nil
                             )
@@ -13444,9 +13446,9 @@
     #_method
     (defn #_"int" TransactionOutput''get-parent-transaction-depth-in-blocks [#_"TransactionOutput" this]
         (let-when [#_"Transaction" tx (:parent-tx this)] (some? tx) => -1
-            (let [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)]
-                (when (= (:confidence-type confidence) :ConfidenceType'BUILDING) => -1
-                    (:depth-in-blocks confidence)
+            (let [#_"TransactionConfidence" conf (Transaction''get-confidence tx)]
+                (when (= (:confidence-type conf) :ConfidenceType'BUILDING) => -1
+                    (:depth-in-blocks conf)
                 )
             )
         )
@@ -13526,97 +13528,51 @@
  ; It is <b>not</b> at this time directly equivalent to the Bitcoin Core memory pool, which tracks
  ; all transactions not currently included in the best chain - it's simply a cache.
  ;;
-(class-ns TxConfidenceTable
-    ;;; The max size of a table created with the no-args constructor. ;;
-    (def #_"int" TxConfidenceTable'MAX_SIZE 1000)
+#_semi-stateless
+(class-ns ConfidenceTable
+    ;;;
+     ; The max size of a table created with the no-args constructor.
+     ;;
+    (def #_"int" ConfidenceTable'MAX_SIZE 1000)
 
     ;;;
      ; Creates a table that will track at most the given number of transactions (allowing you to bound memory usage).
      ;
      ; @param size Max number of transactions to track.  The table will fill up to this size, then stop growing.
      ;;
-    (defn #_"TxConfidenceTable" TxConfidenceTable'new
-        ([] (TxConfidenceTable'new TxConfidenceTable'MAX_SIZE))
+    (defn #_"ConfidenceTable" ConfidenceTable'new
+        ([] (ConfidenceTable'new ConfidenceTable'MAX_SIZE))
         ([#_"int" size]
-            (hash-map
-                #_"Object" :confidence-lock (Object.)
-
-                #_"LinkedHashMap<Sha256Hash, TransactionConfidence>" :table
-                    (proxy [LinkedHashMap #_"<Sha256Hash, TransactionConfidence>"] []
-                        #_foreign
-                        #_override
-                        (#_"boolean" removeEldestEntry [#_"LinkedHashMap" #_this, #_"Map.Entry<Sha256Hash, TransactionConfidence>" _eldest]
-                            ;; An arbitrary choice to stop the memory used by tracked transactions getting too huge in the event
-                            ;; of some kind of DoS attack.
-                            (< size (.size this))
-                        )
-                    )
-            )
-        )
-    )
-
-    (def #_"TxConfidenceTable" TxConfidenceTable'INSTANCE (TxConfidenceTable'new))
-
-    ;;;
-     ; Returns the number of peers that have seen the given hash recently.
-     ;;
-    #_method
-    (defn #_"int" TxConfidenceTable''num-broadcast-peers [#_"TxConfidenceTable" this, #_"Sha256Hash" hash]
-        (sync (:confidence-lock this)
-            (let-when [#_"TransactionConfidence" conf (get (:table this) hash)] (some? conf) => 0 ;; No such TX known.
-                (count (:broadcast-by conf))
-            )
-        )
-    )
-
-    ;;;
-     ; Called by peers when they see a transaction advertised in an "inv" message.  It passes the data on to the relevant
-     ; {@link TransactionConfidence} object, creating it if needed.
-     ;
-     ; @return the number of peers that have now announced this hash (including the caller).
-     ;;
-    #_method
-    (defn #_"TransactionConfidence" TxConfidenceTable''seen [#_"TxConfidenceTable" this, #_"Sha256Hash" hash, #_"PeerAddress" __byPeer]
-        (let [[#_"TransactionConfidence" conf #_"boolean" fresh?]
-                (sync (:confidence-lock this)
-                    (TransactionConfidence''mark-broadcast-by (TxConfidenceTable''get-or-create this, hash), __byPeer)
-                )]
-            (when fresh?
-                (TransactionConfidence''queue-listeners conf, :ConfidenceChangeReason'SEEN_PEERS)
-            )
-            conf
-        )
-    )
-
-    ;;;
-     ; Returns the {@link TransactionConfidence} for the given hash if we have downloaded it, or null if that tx hash
-     ; is unknown to the system at this time.
-     ;;
-    #_method
-    (defn #_"TransactionConfidence" TxConfidenceTable''get-or-create [#_"TxConfidenceTable" this, #_"Sha256Hash" hash]
-        (ensure some? hash)
-
-        (sync (:confidence-lock this)
-            (let [#_"TransactionConfidence" conf (get (:table this) hash)]
-                (when (nil? conf) => conf
-                    (let [conf (TransactionConfidence'new hash)]
-                        (§ ass this (update this :table assoc hash conf))
-                        conf
-                    )
+            (proxy [LinkedHashMap #_"<Sha256Hash, TransactionConfidence'>"] []
+                #_foreign
+                #_override
+                (#_"boolean" removeEldestEntry [#_"LinkedHashMap" #_this, #_"Map.Entry<Sha256Hash, TransactionConfidence'>" _eldest]
+                    ;; An arbitrary choice to stop the memory used by tracked transactions getting too huge in the event
+                    ;; of some kind of DoS attack.
+                    (< size (.size this))
                 )
             )
         )
     )
 
+    (def #_"ConfidenceTable'" ConfidenceTable'INSTANCE (atom (ConfidenceTable'new)))
+
     ;;;
-     ; Returns the {@link TransactionConfidence} for the given hash if we have downloaded it, or null if that tx hash
+     ; Returns the {@link TransactionConfidence} for the given hash if we have downloaded it, or creates it if that hash
      ; is unknown to the system at this time.
      ;;
-    #_method
-    (defn #_"TransactionConfidence" TxConfidenceTable''get [#_"TxConfidenceTable" this, #_"Sha256Hash" hash]
-        (sync (:confidence-lock this)
-            (get (:table this) hash)
-        )
+    (defn #_"TransactionConfidence'" ConfidenceTable'get-or-create [#_"Sha256Hash" hash]
+        (ensure some? hash)
+
+        (get (swap! ConfidenceTable'INSTANCE update hash #(or % (atom (TransactionConfidence'new hash)))) hash)
+    )
+
+    ;;;
+     ; Called by peers when they see a transaction advertised in an "inv" message.  It passes the data on to the relevant
+     ; {@link TransactionConfidence} object, creating it if needed.
+     ;;
+    (defn #_"TransactionConfidence" ConfidenceTable'seen [#_"Sha256Hash" hash, #_"PeerAddress" peer]
+        (swap! (ConfidenceTable'get-or-create hash) TransactionConfidence''mark-broadcast-by peer, true)
     )
 )
 
@@ -18525,7 +18481,7 @@
  ; behind convenience methods on {@link Transaction}, but they are useful when working with the protocol
  ; at a lower level.
  ;;
-#_stateless
+#_semi-stateless
 (class-ns ScriptBuilder
     ;;;
      ; Creates a fresh ScriptBuilder with an empty program.
@@ -23149,13 +23105,13 @@
 
     (defn #_"boolean" DefaultCoinSelector'is-selectable [#_"Transaction" tx]
         ;; Only pick chain-included transactions, or transactions that are ours and pending.
-        (let [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)
-              #_"ConfidenceType" type (:confidence-type confidence)]
+        (let [#_"TransactionConfidence" conf (Transaction''get-confidence tx)
+              #_"ConfidenceType" type (:confidence-type conf)]
             ;; TODO: The value 1 below dates from a time when transactions we broadcast *to* were counted, set to 0.
             (or (= type :ConfidenceType'BUILDING)
                 (and (= type :ConfidenceType'PENDING)
-                     (= (:confidence-source confidence) :ConfidenceSource'SELF)
-                     (< 1 (count (:broadcast-by confidence)))))
+                     (= (:confidence-source conf) :ConfidenceSource'SELF)
+                     (< 1 (count (:broadcast-by conf)))))
         )
     )
 
@@ -24915,7 +24871,7 @@
                 (assoc this :tx-confidence-listener
                     (reify TransactionConfidenceListener
                         #_override
-                        (#_"void" TransactionConfidenceListener'''on-confidence-changed [#_"TransactionConfidenceListener" __, #_"TransactionConfidence" confidence, #_"ConfidenceChangeReason" reason]
+                        (#_"void" TransactionConfidenceListener'''on-confidence-changed [#_"TransactionConfidenceListener" __, #_"TransactionConfidence" conf, #_"ConfidenceChangeReason" reason]
                             ;; This will run on the user code thread so we shouldn't do anything too complicated here.
                             ;; We only want to queue a wallet changed event and auto-save if the number of peers announcing
                             ;; the transaction has changed, as that confidence change is made by the networking code which
@@ -24925,7 +24881,7 @@
                             (when (= reason :ConfidenceChangeReason'SEEN_PEERS)
                                 (sync (:wallet-lock this)
                                     (§ ass this (Wallet''check-balance-futures-locked this))
-                                    (let [#_"Transaction" tx (Wallet''get-transaction this, (:transaction-hash confidence))]
+                                    (let [#_"Transaction" tx (Wallet''get-transaction this, (:transaction-hash conf))]
                                         (Wallet''queue-on-transaction-confidence-changed this, tx)
                                         (§ ass this (Wallet''maybe-queue-on-wallet-changed this))
                                     )
@@ -25787,7 +25743,7 @@
                                           this
                                             (when (and (= (:confidence-type (Transaction''get-confidence dep)) :ConfidenceType'IN_CONFLICT)
                                                   (not (Wallet''is-spending-txns-in-confidence-type this, dep, :ConfidenceType'IN_CONFLICT))) => this
-                                                (§ ass (Transaction''get-confidence dep) (TransactionConfidence''set-confidence-type (Transaction''get-confidence dep), :ConfidenceType'PENDING))
+                                                (swap! (Transaction''get-confidence-ref dep) TransactionConfidence''set-confidence-type :ConfidenceType'PENDING)
                                                 (update this :confidence-changed assoc dep :ConfidenceChangeReason'TYPE)
                                             )]
                                         (recur this (next deps))
@@ -25925,8 +25881,8 @@
                                             ;; tx was already processed in receive() due to it appearing in this block, so we don't want
                                             ;; to increment the tx confidence depth twice, it'd result in miscounting.
                                             (update this :ignore-next-new-block disj (Transaction''get-hash tx))
-                                            (let [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)]
-                                                (when (= (:confidence-type confidence) :ConfidenceType'BUILDING) => this
+                                            (let [#_"TransactionConfidence'" conf' (Transaction''get-confidence-ref tx)]
+                                                (when (= (:confidence-type @conf') :ConfidenceType'BUILDING) => this
                                                     ;; Erase the set of seen peers once the tx is so deep that it seems unlikely to ever go
                                                     ;; pending again.  We could clear this data the moment a tx is seen in the block chain,
                                                     ;; but in cases where the chain re-orgs, this would mean that wallets would perceive a
@@ -25934,9 +25890,9 @@
                                                     ;; be included once again.  We could have a separate was-in-chain-and-now-isn't confidence
                                                     ;; type, but this way is backwards compatible with existing software, and the new state
                                                     ;; probably wouldn't mean anything different to just remembering peers anyway.
-                                                    (§ ass confidence (update confidence :depth-in-blocks inc))
-                                                    (when (< (:event-horizon this) (:depth-in-blocks confidence))
-                                                        (§ ass confidence (TransactionConfidence''clear-broadcast-by confidence))
+                                                    (swap! conf' update :depth-in-blocks inc)
+                                                    (when (< (:event-horizon this) (:depth-in-blocks @conf'))
+                                                        (swap! conf' TransactionConfidence''clear-broadcast-by)
                                                     )
                                                     (update this :confidence-changed assoc tx :ConfidenceChangeReason'DEPTH)
                                                 )
@@ -26193,7 +26149,7 @@
                                         (recur this (next inputs))
                                     )
                                 )]
-                            (§ ass (Transaction''get-confidence dead) (TransactionConfidence''set-overriding-transaction (Transaction''get-confidence dead), __overridingTx))
+                            (swap! (Transaction''get-confidence-ref dead) TransactionConfidence''set-overriding-transaction __overridingTx)
                             (let [this (update this :confidence-changed assoc dead :ConfidenceChangeReason'TYPE)
                                   ;; Now kill any transactions we have that depended on this one.
                                   [this work]
@@ -26302,7 +26258,7 @@
                                 ;; tx is a double spend against a tx already in the best chain or spends outputs of a DEAD tx.
                                 ;; Add tx to the dead pool and schedule confidence listener notifications.
                                 (let [_ (log/info (str "->dead: " hash))]
-                                    (§ ass (Transaction''get-confidence tx) (TransactionConfidence''set-confidence-type (Transaction''get-confidence tx), :ConfidenceType'DEAD))
+                                    (swap! (Transaction''get-confidence-ref tx) TransactionConfidence''set-confidence-type :ConfidenceType'DEAD)
                                     (-> this
                                         (update :confidence-changed assoc tx :ConfidenceChangeReason'TYPE)
                                         (Wallet''add-wallet-transaction :PoolType'DEAD, tx)
@@ -26317,7 +26273,7 @@
                                       [this pending'] (Wallet''add-transactions-depending-on this, (conj pending' tx), (Wallet''get-transactions this, true))]
                                     (loop-when [this this pending' pending'] (seq pending') => this
                                         (let [#_"Transaction" ty (first pending')]
-                                            (§ ass (Transaction''get-confidence ty) (TransactionConfidence''set-confidence-type (Transaction''get-confidence ty), :ConfidenceType'IN_CONFLICT))
+                                            (swap! (Transaction''get-confidence-ref ty) TransactionConfidence''set-confidence-type :ConfidenceType'IN_CONFLICT)
                                             (recur (update this :confidence-changed assoc ty :ConfidenceChangeReason'TYPE) (next pending'))
                                         )
                                     )
@@ -26326,7 +26282,7 @@
                                 ;; No conflict detected.
                                 ;; Add to the pending pool and schedule confidence listener notifications.
                                 (let [_ (log/info (str "->pending: " hash))]
-                                    (§ ass (Transaction''get-confidence tx) (TransactionConfidence''set-confidence-type (Transaction''get-confidence tx), :ConfidenceType'PENDING))
+                                    (swap! (Transaction''get-confidence-ref tx) TransactionConfidence''set-confidence-type :ConfidenceType'PENDING)
                                     (-> this
                                         (update :confidence-changed assoc tx :ConfidenceChangeReason'TYPE)
                                         (Wallet''add-wallet-transaction :PoolType'PENDING, tx)
@@ -26546,7 +26502,7 @@
                     )]
                 ;; This is safe even if the listener has been added before, as TransactionConfidence ignores duplicate
                 ;; registration requests.  That makes the code in the wallet simpler.
-                (§ ass (Transaction''get-confidence tx) (TransactionConfidence''add-event-listener (Transaction''get-confidence tx), (:tx-confidence-listener this)))
+                (swap! (Transaction''get-confidence-ref tx) TransactionConfidence''add-event-listener (:tx-confidence-listener this))
                 this
             )
         )
@@ -26854,7 +26810,7 @@
      ;;
     #_method
     (defn #_"Coin" Wallet''get-total-received [#_"Wallet" this]
-        (letfn [#_"Coin" (sum- [#_"Transaction" tx]
+        (letfn [(#_"Coin" sum- [#_"Transaction" tx]
                     ;; Include outputs to us if they were not just change outputs,
                     ;; i.e. the inputs to us summed to less than the outputs to us.
                     (let [#_"Coin" sum Coin'ZERO
@@ -26885,7 +26841,7 @@
      ;;
     #_method
     (defn #_"Coin" Wallet''get-total-sent [#_"Wallet" this]
-        (letfn [#_"Coin" (sumo- [#_"Transaction" tx]
+        (letfn [(#_"Coin" sumo- [#_"Transaction" tx]
                     (->> (:outputs tx)
                             (remove #(TransactionOutput''is-mine %, this))
                             (map :coin-value)
@@ -27199,7 +27155,7 @@
                             ;; Label the transaction as being self created.  We can use this later to spend its change output even before
                             ;; the transaction is confirmed.  We deliberately won't bother notifying listeners here as there's not much
                             ;; point - the user isn't interested in a confidence transition they made themselves.
-                            (§ ass (Transaction''get-confidence (:tx req)) (assoc (Transaction''get-confidence (:tx req)) :confidence-source :ConfidenceSource'SELF))
+                            (swap! (Transaction''get-confidence-ref (:tx req)) assoc :confidence-source :ConfidenceSource'SELF)
                             ;; Label the transaction as being a user requested payment.  This can be used to render GUI wallet
                             ;; transaction lists more appropriately, especially when the wallet starts to generate transactions itself
                             ;; for internal purposes.
@@ -27481,7 +27437,7 @@
                                         (log/info (str "  ->pending " (Transaction''get-hash tx)))
 
                                         ;; Wipe height/depth/work data.
-                                        (§ ass (Transaction''get-confidence tx) (TransactionConfidence''set-confidence-type (Transaction''get-confidence tx), :ConfidenceType'PENDING))
+                                        (swap! (Transaction''get-confidence-ref tx) TransactionConfidence''set-confidence-type :ConfidenceType'PENDING)
 
                                         (let [this (update this :confidence-changed assoc tx :ConfidenceChangeReason'TYPE)
                                               this (Wallet''add-wallet-transaction this, :PoolType'PENDING, tx)]
@@ -27558,10 +27514,10 @@
     #_method
     (defn- #_"this" Wallet''subtract-depth [#_"Wallet" this, #_"int" depth, #_"Transaction*" transactions]
         (loop-when [this this #_"Transaction*" s transactions] (seq s) => this
-            (let [#_"Transaction" tx (first s) #_"TransactionConfidence" confidence (Transaction''get-confidence tx)
+            (let [#_"Transaction" tx (first s) #_"TransactionConfidence'" conf' (Transaction''get-confidence-ref tx)
                   this
-                    (when (= (:confidence-type confidence) :ConfidenceType'BUILDING) => this
-                        (§ ass confidence (update confidence :depth-in-blocks - depth))
+                    (when (= (:confidence-type @conf') :ConfidenceType'BUILDING) => this
+                        (swap! conf' update :depth-in-blocks - depth)
                         (update this :confidence-changed assoc tx :ConfidenceChangeReason'DEPTH)
                     )]
                 (recur this (next s))
@@ -27821,7 +27777,7 @@
 
     #_method
     (defn- #_"int" Wallet''estimate-bytes-for-signing [#_"Wallet" this, #_"CoinSelection" selection]
-        (letfn [#_"int" (size- [#_"TransactionOutput" output]
+        (letfn [(#_"int" size- [#_"TransactionOutput" output]
                     (try+
                         (let [#_"Script" script (TransactionOutput''parse-script-pub-key output)
                               [#_"ECKey" key #_"Script" redeem]
@@ -27974,7 +27930,7 @@
                         ;; When not signing, don't waste addresses.
                         (Transaction''add-output-ca tx, (:value-gathered __toMove), (if sign? (Wallet''fresh-receive-address this) (Wallet''current-receive-address this)))
                         (cond (Wallet''adjust-output-downwards-for-fee this, tx, __toMove, Transaction'DEFAULT_TX_FEE, true)
-                            (let [_ (§ ass (Transaction''get-confidence tx) (assoc (Transaction''get-confidence tx) :confidence-source :ConfidenceSource'SELF))
+                            (let [_ (swap! (Transaction''get-confidence-ref tx) assoc :confidence-source :ConfidenceSource'SELF)
                                   tx (assoc tx :purpose :TransactionPurpose'KEY_ROTATION)
                                   this (if sign? (Wallet''sign-transaction this, (SendRequest'for-tx tx)) this)]
                                 ;; KeyTimeCoinSelector should never select enough inputs to push us oversize.
