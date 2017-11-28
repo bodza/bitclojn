@@ -86,7 +86,6 @@
              [com.google.common.primitives UnsignedBytes]
              [com.google.common.util.concurrent AbstractExecutionThreadService AbstractIdleService FutureCallback Futures ListenableFuture ListeningExecutorService MoreExecutors Runnables Service SettableFuture Uninterruptibles]
              [java.io ByteArrayInputStream ByteArrayOutputStream File IOException RandomAccessFile]
-             [java.lang.ref ReferenceQueue WeakReference]
              [java.math BigDecimal BigInteger RoundingMode]
              [java.net ConnectException Inet6Address InetAddress InetSocketAddress NoRouteToHostException Socket SocketAddress UnknownHostException]
              [java.nio BufferUnderflowException ByteBuffer ByteOrder]
@@ -299,7 +298,7 @@
 (declare Wallet''get-transaction-pool Wallet''is-pay-to-script-hash-mine Wallet''is-pub-key-hash-mine Wallet''is-pub-key-mine)
 (declare TransactionBroadcast''broadcast TransactionBroadcast''invoke-and-record TransactionBroadcast''invoke-progress-callback TransactionBroadcast''set-progress-callback TransactionBroadcast'new)
 (declare TransactionBroadcaster'''broadcast-transaction-2)
-(declare TransactionConfidence''add-event-listener TransactionConfidence''clear-broadcast-by TransactionConfidence''get-appeared-at-chain-height TransactionConfidence''get-depth-future TransactionConfidence''get-overriding-transaction TransactionConfidence''mark-broadcast-by TransactionConfidence''queue-listeners TransactionConfidence''remove-event-listener TransactionConfidence''set-appeared-at-chain-height TransactionConfidence''set-confidence-type TransactionConfidence''set-overriding-transaction TransactionConfidence''was-broadcast-by TransactionConfidence'PINNED_CONFIDENCE_OBJECTS TransactionConfidence'new)
+(declare TransactionConfidence''add-event-listener TransactionConfidence''clear-broadcast-by TransactionConfidence''get-appeared-at-chain-height TransactionConfidence''get-depth-future TransactionConfidence''get-overriding-transaction TransactionConfidence''mark-broadcast-by TransactionConfidence''queue-listeners TransactionConfidence''remove-event-listener TransactionConfidence''set-appeared-at-chain-height TransactionConfidence''set-confidence-type TransactionConfidence''set-overriding-transaction TransactionConfidence''was-broadcast-by TransactionConfidence'new)
 (declare TransactionConfidenceListener'''on-confidence-changed)
 (declare TransactionInput''clear-script-bytes TransactionInput''connect-3m TransactionInput''connect-3t TransactionInput''connect-output TransactionInput''disconnect TransactionInput''get-connected-output TransactionInput''get-connected-output-2 TransactionInput''get-connected-transaction TransactionInput''get-from-address TransactionInput''get-script-sig TransactionInput''has-sequence TransactionInput''is-coin-base TransactionInput''is-opt-in-full-rbf TransactionInput''is-standard TransactionInput''set-script-bytes TransactionInput''set-script-sig TransactionInput''verify-1 TransactionInput''verify-2 TransactionInput'NO_SEQUENCE TransactionInput'UNCONNECTED TransactionInput'new TransactionInput'new-unconnected TransactionInput'for-output TransactionInput'for-outpoint TransactionInput'from-wire TransactionInput''to-wire)
 (declare TransactionOutPoint''get-connected-key TransactionOutPoint''get-connected-output TransactionOutPoint''get-connected-pub-key-script TransactionOutPoint''get-connected-redeem-data TransactionOutPoint'new TransactionOutPoint'for-output TransactionOutPoint'for-hash TransactionOutPoint'for-transaction TransactionOutPoint'from-wire TransactionOutPoint''to-wire)
@@ -311,7 +310,7 @@
 (declare TransactionSigner'''sign-inputs)
 (declare TransactionalHashMap''abort-database-batch-write TransactionalHashMap''begin-database-batch-write TransactionalHashMap''commit-database-batch-write TransactionalHashMap''get TransactionalHashMap''assoc TransactionalHashMap''dissoc TransactionalHashMap'new)
 (declare TransactionalMultiKeyHashMap''abort-transaction TransactionalMultiKeyHashMap''begin-transaction TransactionalMultiKeyHashMap''commit-transaction TransactionalMultiKeyHashMap''get TransactionalMultiKeyHashMap''assoc TransactionalMultiKeyHashMap''dissoc TransactionalMultiKeyHashMap'new)
-(declare TxConfidenceTable''clean-table TxConfidenceTable''get TxConfidenceTable''get-or-create TxConfidenceTable''num-broadcast-peers TxConfidenceTable''seen TxConfidenceTable'MAX_SIZE TxConfidenceTable'new TxConfidenceTable'INSTANCE)
+(declare TxConfidenceTable''get TxConfidenceTable''get-or-create TxConfidenceTable''num-broadcast-peers TxConfidenceTable''seen TxConfidenceTable'MAX_SIZE TxConfidenceTable'new TxConfidenceTable'INSTANCE)
 (declare UTXO'new)
 (declare UnknownMessage'from-wire)
 (declare UserThread'WARNING_THRESHOLD UserThread'new)
@@ -324,7 +323,6 @@
 (declare Wallet'DEFAULT_EVENT_HORIZON Wallet''add-and-activate-hd-chain Wallet''add-change-event-listener Wallet''add-coins-received-event-listener Wallet''add-coins-sent-event-listener Wallet''add-key-chain-event-listener Wallet''add-reorganize-event-listener Wallet''add-supplied-inputs Wallet''add-transaction-confidence-event-listener Wallet''add-transaction-signer Wallet''add-transactions-depending-on Wallet''add-wallet-transaction Wallet''adjust-output-downwards-for-fee Wallet''calculate-all-spend-candidates-1 Wallet''calculate-all-spend-candidates-3 Wallet''calculate-fee Wallet''can-sign-for Wallet''check-balance-futures-locked Wallet''check-for-filter-exhaustion Wallet''cleanup Wallet''clear-transactions-1 Wallet''clear-transactions-2 Wallet''commit-tx Wallet''complete-tx Wallet''create-send Wallet''create-transient-state Wallet''current-address Wallet''current-change-address Wallet''current-key Wallet''current-receive-address Wallet''current-receive-key Wallet''do-maintenance Wallet''estimate-bytes-for-signing Wallet''find-double-spends-against Wallet''fresh-address Wallet''fresh-key Wallet''fresh-keys Wallet''fresh-receive-address Wallet''fresh-receive-key Wallet''get-active-key-chain Wallet''get-balance-2s Wallet''get-balance-2t Wallet''get-balance-future Wallet''create-bloom-filter Wallet''get-coin-selector Wallet''get-containing-pools Wallet''get-issued-receive-addresses Wallet''get-issued-receive-keys Wallet''get-key-by-path-2 Wallet''get-key-chain-group-combined-key-lookahead-epochs Wallet''get-key-chain-group-lookahead-size Wallet''get-key-chain-group-lookahead-threshold Wallet''get-key-chain-group-size Wallet''get-key-chain-seed Wallet''get-key-rotation-time Wallet''get-last-block-seen-hash Wallet''get-last-block-seen-time Wallet''get-pending-transactions Wallet''get-recent-transactions Wallet''get-total-received Wallet''get-total-sent Wallet''get-transaction Wallet''get-transaction-signers Wallet''get-transactions Wallet''get-transactions-by-time Wallet''get-watching-key Wallet''has-key Wallet''inform-confidence-listeners-if-not-reorganizing Wallet''is-consistent Wallet''is-consistent-or-throw Wallet''is-key-rotating Wallet''is-spending-txns-in-confidence-type Wallet''is-pending-transaction-relevant Wallet''is-transaction-relevant Wallet''is-transaction-risky Wallet''is-tx-consistent Wallet''is-tx-output-bloom-filterable Wallet''is-watching Wallet''kill-txns Wallet''mark-keys-as-used Wallet''maybe-commit-tx Wallet''maybe-move-pool Wallet''maybe-queue-on-wallet-changed Wallet''maybe-rotate-keys Wallet''process-tx-from-best-chain Wallet''queue-on-coins-received Wallet''queue-on-coins-sent Wallet''queue-on-reorganize Wallet''queue-on-transaction-confidence-changed Wallet''receive Wallet''receive-pending-3 Wallet''receive-pending-4 Wallet''rekey-one-batch Wallet''remove-change-event-listener Wallet''remove-coins-received-event-listener Wallet''remove-coins-sent-event-listener Wallet''remove-key-chain-event-listener Wallet''remove-reorganize-event-listener Wallet''remove-transaction-confidence-event-listener Wallet''reset Wallet''save Wallet''save-later Wallet''save-now Wallet''send-coins-2 Wallet''send-coins-3b Wallet''send-coins-3p Wallet''send-coins-4 Wallet''send-coins-offline Wallet''set-coin-selector Wallet''set-key-chain-group-lookahead-size Wallet''set-key-chain-group-lookahead-threshold Wallet''set-key-rotation-time-d Wallet''set-key-rotation-time-l Wallet''set-transaction-broadcaster Wallet''sign-transaction Wallet''sort-txns-by-dependency Wallet''spends Wallet''subtract-depth Wallet''to-string Wallet''to-string-helper Wallet''update-for-spends Wallet'from-seed Wallet'from-watching-key Wallet'from-watching-key-base58 Wallet'new)
 (declare WalletAppKit''chain WalletAppKit''connect-to-loopback WalletAppKit''create-peer-group WalletAppKit''create-wallet WalletAppKit''install-shutdown-hook WalletAppKit''on-setup-completed WalletAppKit''peer-group WalletAppKit''provide-block-store WalletAppKit''set-checkpoints WalletAppKit''set-peer-nodes WalletAppKit''store WalletAppKit''wallet WalletAppKit'new)
 (declare WalletCoinsReceivedEventListener'''on-coins-received)
-(declare WeakConfidenceReference'new)
 (declare WrongNetworkException'new)
 
 (§ ns bitclojn.base-listeners
@@ -4122,10 +4120,10 @@
  ;;
 (def BloomUpdate'enum-map
     (hash-map
-        :BloomUpdate'UPDATE_NONE          0,
-        :BloomUpdate'UPDATE_ALL           1,
+        :BloomUpdate'UPDATE_NONE          0
+        :BloomUpdate'UPDATE_ALL           1
         ;;; Only adds outpoints to the filter if the output is a pay-to-pubkey/pay-to-multisig script. ;;
-        :BloomUpdate'UPDATE_P2PUBKEY_ONLY 2,
+        :BloomUpdate'UPDATE_P2PUBKEY_ONLY 2
     )
 )
 
@@ -6149,10 +6147,10 @@
 
 (def InventoryItemType'enum-map
     (hash-map
-        :InventoryItemType'ERROR          0,
-        :InventoryItemType'TRANSACTION    1,
-        :InventoryItemType'BLOCK          2,
-        :InventoryItemType'FILTERED_BLOCK 3,
+        :InventoryItemType'ERROR          0
+        :InventoryItemType'TRANSACTION    1
+        :InventoryItemType'BLOCK          2
+        :InventoryItemType'FILTERED_BLOCK 3
     )
 )
 
@@ -10554,35 +10552,35 @@
 (def RejectCode'enum-map
     (hash-map
         ;;; The message was not able to be parsed. ;;
-        :RejectCode'MALFORMED       0x01,
+        :RejectCode'MALFORMED       0x01
         ;;; The message described an invalid object. ;;
-        :RejectCode'INVALID         0x10,
+        :RejectCode'INVALID         0x10
         ;;;
          ; The message was obsolete or described an object which is obsolete (e.g. unsupported, old version, v1 block).
          ;;
-        :RejectCode'OBSOLETE        0x11,
+        :RejectCode'OBSOLETE        0x11
         ;;;
          ; The message was relayed multiple times or described an object which is in conflict with another.
          ; This message can describe errors in protocol implementation or the presence of an attempt to DOUBLE SPEND.
          ;;
-        :RejectCode'DUPLICATE       0x12,
+        :RejectCode'DUPLICATE       0x12
         ;;;
          ; The message described an object was not standard and was thus not accepted.
          ; Bitcoin Core has a concept of standard transaction forms, which describe scripts and encodings which
          ; it is willing to relay further.  Other transactions are neither relayed nor mined, though they are considered
          ; valid if they appear in a block.
          ;;
-        :RejectCode'NONSTANDARD     0x40,
+        :RejectCode'NONSTANDARD     0x40
         ;;;
          ; This refers to a specific form of NONSTANDARD transactions, which have an output smaller than some constant
          ; defining them as dust (this is no longer used).
          ;;
-        :RejectCode'DUST            0x41,
+        :RejectCode'DUST            0x41
         ;;; The messages described an object which did not have sufficient fee to be relayed further. ;;
-        :RejectCode'INSUFFICIENTFEE 0x42,
+        :RejectCode'INSUFFICIENTFEE 0x42
         ;;; The message described a block which was invalid according to hard-coded checkpoint blocks. ;;
-        :RejectCode'CHECKPOINT      0x43,
-        :RejectCode'OTHER           0xff,
+        :RejectCode'CHECKPOINT      0x43
+        :RejectCode'OTHER           0xff
     )
 )
 
@@ -12381,15 +12379,6 @@
         )
     )
 
-    ;; This is used to ensure that confidence objects which aren't referenced from anywhere but which have an event
-    ;; listener set on them don't become eligible for garbage collection.  Otherwise the TxConfidenceTable, which only
-    ;; has weak references to these objects, would not be enough to keep the event listeners working as transactions
-    ;; propagate around the network - it cannot know directly if the API user is interested in the object, so it uses
-    ;; heap reachability as a proxy for interest.
-    ;;
-    ;; We add ourselves to this set when a listener is added and remove ourselves when the listener list is empty.
-    (def- #_"{TransactionConfidence}'" TransactionConfidence'PINNED_CONFIDENCE_OBJECTS (atom (hash-set)))
-
     ;;;
      ; Adds an event listener that will be run when this confidence object is updated.  The listener will be locked
      ; and is likely to be invoked on a peer thread.
@@ -12403,7 +12392,6 @@
     (defn #_"this" TransactionConfidence''add-event-listener [#_"TransactionConfidence" this, #_"TransactionConfidenceListener" listener]
         (let [#_"TransactionConfidenceListener" l listener]
             (when-not (.contains (:confidence-listeners this), l) => this
-                (swap! TransactionConfidence'PINNED_CONFIDENCE_OBJECTS conj this)
                 (append* this :confidence-listeners l)
             )
         )
@@ -12411,12 +12399,7 @@
 
     #_method
     (defn #_"this" TransactionConfidence''remove-event-listener [#_"TransactionConfidence" this, #_"TransactionConfidenceListener" listener]
-        (let [this (remove* this :confidence-listeners = listener)]
-            (when (empty? (:confidence-listeners this))
-                (swap! TransactionConfidence'PINNED_CONFIDENCE_OBJECTS disj this)
-            )
-            this
-        )
+        (remove* this :confidence-listeners = listener)
     )
 
     ;;;
@@ -12677,7 +12660,7 @@
                 ;;;
                  ; The Script object obtained from parsing scriptBytes.  Only filled in on demand and if the transaction is not coinbase.
                  ;;
-                #_"WeakReference<Script>" :script-sig nil
+                #_"Script" :script-sig nil
                 ;;;
                  ; Value of the output connected to the input, if known.  This field does not participate in equals()/hashCode().
                  ;;
@@ -12751,20 +12734,20 @@
     (defn #_"Script" TransactionInput''get-script-sig [#_"TransactionInput" this]
         ;; Transactions that generate new coins don't actually have a script.
         ;; Instead this parameter is overloaded to be something totally different.
-        (let [#_"Script" script (when (some? (:script-sig this)) (.get (:script-sig this)))]
-            (or script
-                (let [script (Script'parse (:script-bytes this))]
-                    (§ ass this (assoc this :script-sig (WeakReference. script)))
-                    script
-                )
+        (or (:script-sig this)
+            (let [#_"Script" script (Script'parse (:script-bytes this))]
+                (§ ass this (assoc this :script-sig script))
+                script
             )
         )
     )
 
-    ;;; Set the given program as the scriptSig that is supposed to satisfy the connected output script. ;;
+    ;;;
+     ; Set the given program as the scriptSig that is supposed to satisfy the connected output script.
+     ;;
     #_method
     (defn #_"this" TransactionInput''set-script-sig [#_"TransactionInput" this, #_"Script" script]
-        (let [this (assoc this :script-sig (WeakReference. (ensure some? script)))]
+        (let [this (assoc this :script-sig (ensure some? script))]
             ;; TODO: This should all be cleaned up so we have a consistent internal representation.
             (TransactionInput''set-script-bytes this, (Script''to-bytes script))
         )
@@ -13532,16 +13515,6 @@
     )
 )
 
-(class-ns WeakConfidenceReference (§ extends WeakReference #_"<TransactionConfidence>")
-    (defn #_"WeakConfidenceReference" WeakConfidenceReference'new [#_"TransactionConfidence" confidence, #_"ReferenceQueue<TransactionConfidence>" queue]
-        (merge (§ super WeakReference'new confidence, queue)
-            (hash-map
-                #_"Sha256Hash" :weak-hash (:transaction-hash confidence)
-            )
-        )
-    )
-)
-
 ;;;
  ; Tracks transactions that are being announced across the network.  Typically one is created for you by a
  ; {@link PeerGroup} and then given to each Peer to update.  The current purpose is to let Peers update the confidence
@@ -13568,23 +13541,16 @@
             (hash-map
                 #_"Object" :confidence-lock (Object.)
 
-                #_"LinkedHashMap<Sha256Hash, WeakConfidenceReference>" :table
-                    (proxy [LinkedHashMap #_"<Sha256Hash, WeakConfidenceReference>"] []
+                #_"LinkedHashMap<Sha256Hash, TransactionConfidence>" :table
+                    (proxy [LinkedHashMap #_"<Sha256Hash, TransactionConfidence>"] []
                         #_foreign
                         #_override
-                        (#_"boolean" removeEldestEntry [#_"LinkedHashMap" #_this, #_"Map.Entry<Sha256Hash, WeakConfidenceReference>" _eldest]
+                        (#_"boolean" removeEldestEntry [#_"LinkedHashMap" #_this, #_"Map.Entry<Sha256Hash, TransactionConfidence>" _eldest]
                             ;; An arbitrary choice to stop the memory used by tracked transactions getting too huge in the event
                             ;; of some kind of DoS attack.
                             (< size (.size this))
                         )
                     )
-
-                ;; This ReferenceQueue gets entries added to it when they are only weakly reachable, i.e. the TxConfidenceTable is
-                ;; the only thing that is tracking the confidence data anymore.  We check it from time to time and delete table entries
-                ;; corresponding to expired transactions.  In this way memory usage of the system is in line with however many
-                ;; transactions you actually care to track the confidence of.  We can still end up with lots of hashes being stored
-                ;; if our peers flood us with invs but the MAX_SIZE param caps this.
-                #_"ReferenceQueue<TransactionConfidence>" :reference-queue (ReferenceQueue.)
             )
         )
     )
@@ -13592,36 +13558,13 @@
     (def #_"TxConfidenceTable" TxConfidenceTable'INSTANCE (TxConfidenceTable'new))
 
     ;;;
-     ; If any transactions have expired due to being only weakly reachable through us, go ahead and delete their
-     ; table entries - it means we downloaded the transaction and sent it to various event listeners, none of
-     ; which bothered to keep a reference.  Typically, this is because the transaction does not involve any keys
-     ; that are relevant to any of our wallets.
-     ;;
-    #_method
-    (defn- #_"this" TxConfidenceTable''clean-table [#_"TxConfidenceTable" this]
-        (sync (:confidence-lock this)
-            (loop [this this] ;; Find which transaction got deleted by the GC,
-                (let-when [#_"Reference<TransactionConfidence>" ref (.poll (:reference-queue this))] (some? ref) => this
-                    ;; and remove the associated map entry, so the other bits of memory can also be reclaimed.
-                    (recur (ß update this :table .remove (:weak-hash (cast' WeakConfidenceReference ref))))
-                )
-            )
-        )
-    )
-
-    ;;;
      ; Returns the number of peers that have seen the given hash recently.
      ;;
     #_method
-    (defn #_"[this int]" TxConfidenceTable''num-broadcast-peers [#_"TxConfidenceTable" this, #_"Sha256Hash" hash]
+    (defn #_"int" TxConfidenceTable''num-broadcast-peers [#_"TxConfidenceTable" this, #_"Sha256Hash" hash]
         (sync (:confidence-lock this)
-            (let [this (TxConfidenceTable''clean-table this)]
-                (let-when [#_"WeakConfidenceReference" ref (get (:table this) hash)] (some? ref) => [this 0] ;; No such TX known.
-                    (let-when [#_"TransactionConfidence" conf (.get ref)] (nil? conf) => [this (count (:broadcast-by conf))]
-                        ;; Such a TX hash was seen, but nothing seemed to care, so we ended up throwing away the data.
-                        [(ß update this :table .remove hash) 0]
-                    )
-                )
+            (let-when [#_"TransactionConfidence" conf (get (:table this) hash)] (some? conf) => 0 ;; No such TX known.
+                (count (:broadcast-by conf))
             )
         )
     )
@@ -13636,7 +13579,6 @@
     (defn #_"TransactionConfidence" TxConfidenceTable''seen [#_"TxConfidenceTable" this, #_"Sha256Hash" hash, #_"PeerAddress" __byPeer]
         (let [[#_"TransactionConfidence" conf #_"boolean" fresh?]
                 (sync (:confidence-lock this)
-                    (§ ass this (TxConfidenceTable''clean-table this))
                     (TransactionConfidence''mark-broadcast-by (TxConfidenceTable''get-or-create this, hash), __byPeer)
                 )]
             (when fresh?
@@ -13655,11 +13597,10 @@
         (ensure some? hash)
 
         (sync (:confidence-lock this)
-            (let [#_"WeakConfidenceReference" ref (get (:table this) hash)
-                  #_"TransactionConfidence" conf (when (some? ref) (.get ref))]
+            (let [#_"TransactionConfidence" conf (get (:table this) hash)]
                 (when (nil? conf) => conf
                     (let [conf (TransactionConfidence'new hash)]
-                        (§ ass this (update this :table assoc hash (WeakConfidenceReference'new conf, (:reference-queue this))))
+                        (§ ass this (update this :table assoc hash conf))
                         conf
                     )
                 )
@@ -13674,9 +13615,7 @@
     #_method
     (defn #_"TransactionConfidence" TxConfidenceTable''get [#_"TxConfidenceTable" this, #_"Sha256Hash" hash]
         (sync (:confidence-lock this)
-            (let [#_"WeakConfidenceReference" ref (get (:table this) hash)]
-                (when (some? ref) (.get ref))
-            )
+            (get (:table this) hash)
         )
     )
 )
@@ -22586,19 +22525,14 @@
     (defn #_"DeterministicKeyChain" DeterministicKeyChain'watch
         ([#_"DeterministicKey" key] (DeterministicKeyChain'watch key, false))
         ([#_"DeterministicKey" key, #_"boolean" following?]
-            (assert-argument (ECKey'''is-pub-key-only key), "Private subtrees are not supported yet: do .dropPrivate().dropParent() at first.")
+            (assert-argument (ECKey'''is-pub-key-only key), "Private subtrees are not supported yet: do (-> drop-private drop-parent) at first.")
+            (assert-argument (= (count (:child-number-path key)) (count DeterministicKeyChain'ACCOUNT_ZERO_PATH)), "You can only watch an account key for now.")
 
-            (let [this (DeterministicKeyChain'init)]
-                (assert-argument (= (count (:child-number-path key)) (count DeterministicKeyChain'ACCOUNT_ZERO_PATH)), "You can only watch an account key currently")
-
-                (let [this (assoc this :basic-key-chain (BasicKeyChain'new))
-                      this (assoc this :seed nil)
-                      this (assoc this :root-key nil)
-                      this (update this :basic-key-chain BasicKeyChain''import-key key)
-                      this (assoc this :hierarchy (DeterministicHierarchy'new key))
-                      this (DeterministicKeyChain''initialize-hierarchy this)]
-                    (assoc this :is-following following?)
-                )
+            (-> (DeterministicKeyChain'init)
+                (assoc :basic-key-chain (-> (BasicKeyChain'new) (BasicKeyChain''import-key key)))
+                (assoc :hierarchy (DeterministicHierarchy'new key))
+                (DeterministicKeyChain''initialize-hierarchy)
+                (assoc :is-following following?)
             )
         )
     )
@@ -22617,17 +22551,25 @@
      ; the same if the starting seed is the same.
      ;;
     (defn #_"DeterministicKeyChain" DeterministicKeyChain'from-seed [#_"DeterministicSeed" seed]
-        (let [this (DeterministicKeyChain'init)
-              this (assoc this :seed seed)
-              this (assoc this :root-key (HDKeyDerivation'create-master-private-key (:seed-bytes seed)))
-              this (update this :root-key DeterministicKey''set-creation-time-seconds (:creation-time-seconds seed))
-              this (assoc this :basic-key-chain (BasicKeyChain'new))
-              this (update this :basic-key-chain BasicKeyChain''import-key (:root-key this))
-              this (assoc this :hierarchy (DeterministicHierarchy'new (:root-key this)))
-              #_"[ChildNumber]" path DeterministicKeyChain'ACCOUNT_ZERO_PATH]
-            (dotimes [#_"int" i (count path)]
-                (§ ass this (update this :basic-key-chain BasicKeyChain''import-key (DeterministicHierarchy''get-4 (:hierarchy this), (subvec path 0 (inc i)), false, true)))
-            )
+        (let [#_"DeterministicKey" root
+                (-> (HDKeyDerivation'create-master-private-key (:seed-bytes seed))
+                    (DeterministicKey''set-creation-time-seconds (:creation-time-seconds seed))
+                )
+              this
+                (assoc (DeterministicKeyChain'init)
+                    :seed seed
+                    :root-key root
+                    :basic-key-chain (-> (BasicKeyChain'new) (BasicKeyChain''import-key root))
+                    :hierarchy (DeterministicHierarchy'new root)
+                )
+              this
+                (let [#_"[ChildNumber]" path DeterministicKeyChain'ACCOUNT_ZERO_PATH
+                      #_"DeterministicKey*" keys
+                        (for [#_"int" i (range (count path))]
+                            (DeterministicHierarchy''get-4 (:hierarchy this), (subvec path 0 (inc i)), false, true)
+                        )]
+                    (update this :basic-key-chain #(reduce BasicKeyChain''import-key % keys))
+                )]
             (DeterministicKeyChain''initialize-hierarchy this)
         )
     )
@@ -23649,12 +23591,13 @@
               this (KeyChainGroup''maybe-lookahead-scripts this)]
 
             (when (KeyChainGroup''is-married this) => this
-                (doseq [#_"[KeyPurpose DeterministicKey]" e (:current-keys this)]
-                    (let [#_"Address" address (Script''get-to-address-2 (KeyChainGroup''make-p2sh-output-script this, (val e), (KeyChainGroup''get-active-key-chain this)), ledger)]
-                        (§ ass this (update this :current-addresses assoc (key e) address))
+                (let [#_"DeterministicKeyChain" chain (KeyChainGroup''get-active-key-chain this)]
+                    (letfn [(e' [#_"[KeyPurpose DeterministicKey]" e]
+                                [(key e) (Script''get-to-address-2 (KeyChainGroup''make-p2sh-output-script this, (val e), chain), ledger)]
+                            )]
+                        (update this :current-addresses into (map e' (:current-keys this)))
                     )
                 )
-                this
             )
         )
     )
@@ -24984,7 +24927,7 @@
                                     (§ ass this (Wallet''check-balance-futures-locked this))
                                     (let [#_"Transaction" tx (Wallet''get-transaction this, (:transaction-hash confidence))]
                                         (Wallet''queue-on-transaction-confidence-changed this, tx)
-                                        (Wallet''maybe-queue-on-wallet-changed this)
+                                        (§ ass this (Wallet''maybe-queue-on-wallet-changed this))
                                     )
                                 )
                             )
@@ -25088,7 +25031,7 @@
                 )]
             ;; Do we really need an immediate hard save?  Arguably all this is doing is saving the 'current' key
             ;; and that's not quite so important, so we could coalesce for more performance.
-            (Wallet''save-now this)
+            (§ ass this (Wallet''save-now this))
             keys
         )
     )
@@ -25107,7 +25050,7 @@
                 (sync (:keychaingroup-lock this)
                     (KeyChainGroup''fresh-address (:key-chain-group this), purpose)
                 )]
-            (Wallet''save-now this)
+            (§ ass this (Wallet''save-now this))
             key
         )
     )
@@ -25314,31 +25257,37 @@
     #_method
     (defn- #_"this" Wallet''mark-keys-as-used [#_"Wallet" this, #_"Transaction" tx]
         (sync (:keychaingroup-lock this)
-            (doseq [#_"TransactionOutput" output (:outputs tx)]
-                (try+
-                    (let [#_"Script" script (TransactionOutput''parse-script-pub-key output)]
-                        (cond
-                            (Script''is-sent-to-raw-pub-key script)
-                                (let [#_"byte[]" pubkey (Script''get-pub-key script)]
-                                    (§ ass this (update this :key-chain-group KeyChainGroup''mark-pub-key-as-used pubkey))
+            (loop-when [this this #_"TransactionOutput*" outputs (:outputs tx)] (seq outputs) => this
+                (let [#_"TransactionOutput" output (first outputs)
+                      this
+                        (try+
+                            (let [#_"Script" script (TransactionOutput''parse-script-pub-key output)]
+                                (cond
+                                    (Script''is-sent-to-raw-pub-key script)
+                                        (let [#_"byte[]" pubkey (Script''get-pub-key script)]
+                                            (update this :key-chain-group KeyChainGroup''mark-pub-key-as-used pubkey)
+                                        )
+                                    (Script''is-sent-to-address script)
+                                        (let [#_"byte[]" hash (Script''get-pub-key-hash script)]
+                                            (update this :key-chain-group KeyChainGroup''mark-pub-key-hash-as-used hash)
+                                        )
+                                    (Script''is-pay-to-script-hash script)
+                                        (let [#_"Address" addr (Address'from-p2sh-script (:ledger tx), script)]
+                                            (update this :key-chain-group KeyChainGroup''mark-p2sh-address-as-used addr)
+                                        )
+                                    :else
+                                        this
                                 )
-                            (Script''is-sent-to-address script)
-                                (let [#_"byte[]" hash (Script''get-pub-key-hash script)]
-                                    (§ ass this (update this :key-chain-group KeyChainGroup''mark-pub-key-hash-as-used hash))
-                                )
-                            (Script''is-pay-to-script-hash script)
-                                (let [#_"Address" addr (Address'from-p2sh-script (:ledger tx), script)]
-                                    (§ ass this (update this :key-chain-group KeyChainGroup''mark-p2sh-address-as-used addr))
-                                )
-                        )
-                    )
-                    (§ catch ScriptException e
-                        ;; Just means we didn't understand the output of this transaction: ignore it.
-                        (log/warn e, "Could not parse tx output script")
-                    )
+                            )
+                            (§ catch ScriptException e
+                                ;; Just means we didn't understand the output of this transaction: ignore it.
+                                (log/warn e, "Could not parse tx output script")
+                                this
+                            )
+                        )]
+                    (recur this (next outputs))
                 )
             )
-            this
         )
     )
 
@@ -25377,16 +25326,16 @@
      ; Requests an asynchronous save on a background thread.
      ;;
     #_method
-    (defn #_"void" Wallet''save-later [#_"Wallet" __]
-        nil
+    (defn #_"this" Wallet''save-later [#_"Wallet" this]
+        this
     )
 
     ;;;
      ; If auto saving is enabled, do an immediate sync write to disk ignoring any delays.
      ;;
     #_method
-    (defn #_"void" Wallet''save-now [#_"Wallet" __]
-        nil
+    (defn #_"this" Wallet''save-now [#_"Wallet" this]
+        this
     )
 
     ;;;
@@ -25847,43 +25796,41 @@
                             )
                         )
                     )
-                  this (update this :on-wallet-changed-suppressions dec)]
-
-                ;; Side chains don't affect confidence.
-                (if best?
-                    ;; notifyNewBestBlock will be invoked next and will then call maybeQueueOnWalletChanged for us.
-                    (§ ass this (update this :confidence-changed assoc tx :ConfidenceChangeReason'TYPE))
-                    (Wallet''maybe-queue-on-wallet-changed this)
-                )
-
-                ;; Inform anyone interested that we have received or sent coins but only if:
-                ;;  - This is not due to a re-org.
-                ;;  - The coins appeared on the best chain.
-                ;;  - We did in fact receive some new money.
-                ;;  - We have not already informed the user about the coins when we received the tx broadcast,
-                ;;    or for our own spends.  If users want to know when a broadcast tx becomes confirmed,
-                ;;    they need to use tx confidence listeners.
-                (when (and (not (:inside-reorg this)) best?)
-                    (let [#_"Coin" after (Wallet''get-balance-2t this, :BalanceType'AVAILABLE)] ;; This is slow.
-                        (log/info (str "Balance is now: " (Coin''to-friendly-string after)))
-                        (when-not pending?
-                            ;; We pick one callback based on the value difference, though a tx can of course both
-                            ;; send and receive coins from the wallet.
-                            (cond
-                                (Coin''positive? difference) (Wallet''queue-on-coins-received this, tx, before, after)
-                                (Coin''negative? difference) (Wallet''queue-on-coins-sent     this, tx, before, after)
-                            )
-                        )
-                        (§ ass this (Wallet''check-balance-futures-locked this))
+                  this (update this :on-wallet-changed-suppressions dec)
+                  ;; Side chains don't affect confidence.
+                  this
+                    (if best?
+                        ;; notifyNewBestBlock will be invoked next and will then call maybeQueueOnWalletChanged for us.
+                        (update this :confidence-changed assoc tx :ConfidenceChangeReason'TYPE)
+                        (Wallet''maybe-queue-on-wallet-changed this)
                     )
-                )
-
-                (let [this (Wallet''inform-confidence-listeners-if-not-reorganizing this)]
-                    (Wallet''is-consistent-or-throw this)
-                    ;; Optimization for the case where a block has tons of relevant transactions.
-                    (Wallet''save-later this)
-                    (assoc this :hard-save-on-next-block true)
-                )
+                  ;; Inform anyone interested that we have received or sent coins but only if:
+                  ;;  - This is not due to a re-org.
+                  ;;  - The coins appeared on the best chain.
+                  ;;  - We did in fact receive some new money.
+                  ;;  - We have not already informed the user about the coins when we received the tx broadcast,
+                  ;;    or for our own spends.  If users want to know when a broadcast tx becomes confirmed,
+                  ;;    they need to use tx confidence listeners.
+                  this
+                    (when (and (not (:inside-reorg this)) best?) => this
+                        (let [#_"Coin" after (Wallet''get-balance-2t this, :BalanceType'AVAILABLE)] ;; This is slow.
+                            (log/info (str "Balance is now: " (Coin''to-friendly-string after)))
+                            (when-not pending?
+                                ;; We pick one callback based on the value difference, though a tx can of course both
+                                ;; send and receive coins from the wallet.
+                                (cond
+                                    (Coin''positive? difference) (Wallet''queue-on-coins-received this, tx, before, after)
+                                    (Coin''negative? difference) (Wallet''queue-on-coins-sent     this, tx, before, after)
+                                )
+                            )
+                            (Wallet''check-balance-futures-locked this)
+                        )
+                    )
+                  this (Wallet''inform-confidence-listeners-if-not-reorganizing this)
+                  _ (Wallet''is-consistent-or-throw this)
+                  ;; Optimization for the case where a block has tons of relevant transactions.
+                  this (Wallet''save-later this)]
+                (assoc this :hard-save-on-next-block true)
             )
         )
     )
@@ -25966,49 +25913,49 @@
                     ;; Store the new block hash.
                     (let [this (assoc this :last-block-seen-hash __newBlockHash)
                           this (assoc this :last-block-seen-height (:stored-height block))
-                          this (assoc this :last-block-seen-time-secs (:time-seconds (:stored-header block)))]
+                          this (assoc this :last-block-seen-time-secs (:time-seconds (:stored-header block)))
 
-                        ;; Notify all the BUILDING transactions of the new block.
-                        ;; This is so that they can update their depth.
-                        (doseq [#_"Transaction" tx (Wallet''get-transactions this, true)]
-                            (cond (contains? (:ignore-next-new-block this) (Transaction''get-hash tx))
-                                    ;; tx was already processed in receive() due to it appearing in this block, so we don't want
-                                    ;; to increment the tx confidence depth twice, it'd result in miscounting.
-                                    (§ ass this (update this :ignore-next-new-block disj (Transaction''get-hash tx)))
-                                :else
-                                (let [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)]
-                                    (when (= (:confidence-type confidence) :ConfidenceType'BUILDING)
-                                        ;; Erase the set of seen peers once the tx is so deep that it seems unlikely to ever go
-                                        ;; pending again.  We could clear this data the moment a tx is seen in the block chain,
-                                        ;; but in cases where the chain re-orgs, this would mean that wallets would perceive a
-                                        ;; newly pending tx has zero confidence at all, which would not be right: we expect it to
-                                        ;; be included once again.  We could have a separate was-in-chain-and-now-isn't confidence
-                                        ;; type, but this way is backwards compatible with existing software, and the new state
-                                        ;; probably wouldn't mean anything different to just remembering peers anyway.
-                                        (§ ass confidence (update confidence :depth-in-blocks inc))
-                                        (when (< (:event-horizon this) (:depth-in-blocks confidence))
-                                            (§ ass confidence (TransactionConfidence''clear-broadcast-by confidence))
-                                        )
-                                        (§ ass this (update this :confidence-changed assoc tx :ConfidenceChangeReason'DEPTH))
-                                    )
+                          ;; Notify all the BUILDING transactions of the new block.
+                          ;; This is so that they can update their depth.
+                          this
+                            (loop-when [this this #_"Transaction*" txns (Wallet''get-transactions this, true)] (seq txns) => this
+                                (let [#_"Transaction" tx (first txns)
+                                      this
+                                        (if (contains? (:ignore-next-new-block this) (Transaction''get-hash tx))
+                                            ;; tx was already processed in receive() due to it appearing in this block, so we don't want
+                                            ;; to increment the tx confidence depth twice, it'd result in miscounting.
+                                            (update this :ignore-next-new-block disj (Transaction''get-hash tx))
+                                            (let [#_"TransactionConfidence" confidence (Transaction''get-confidence tx)]
+                                                (when (= (:confidence-type confidence) :ConfidenceType'BUILDING) => this
+                                                    ;; Erase the set of seen peers once the tx is so deep that it seems unlikely to ever go
+                                                    ;; pending again.  We could clear this data the moment a tx is seen in the block chain,
+                                                    ;; but in cases where the chain re-orgs, this would mean that wallets would perceive a
+                                                    ;; newly pending tx has zero confidence at all, which would not be right: we expect it to
+                                                    ;; be included once again.  We could have a separate was-in-chain-and-now-isn't confidence
+                                                    ;; type, but this way is backwards compatible with existing software, and the new state
+                                                    ;; probably wouldn't mean anything different to just remembering peers anyway.
+                                                    (§ ass confidence (update confidence :depth-in-blocks inc))
+                                                    (when (< (:event-horizon this) (:depth-in-blocks confidence))
+                                                        (§ ass confidence (TransactionConfidence''clear-broadcast-by confidence))
+                                                    )
+                                                    (update this :confidence-changed assoc tx :ConfidenceChangeReason'DEPTH)
+                                                )
+                                            )
+                                        )]
+                                    (recur this (next txns))
                                 )
                             )
-                        )
 
-                        (let [this (Wallet''inform-confidence-listeners-if-not-reorganizing this)]
-                            (Wallet''maybe-queue-on-wallet-changed this)
+                          this (Wallet''inform-confidence-listeners-if-not-reorganizing this)
+                          this (Wallet''maybe-queue-on-wallet-changed this)]
 
-                            (if (:hard-save-on-next-block this)
-                                (do
-                                    (Wallet''save-now this)
-                                    (assoc this :hard-save-on-next-block false)
-                                )
-                                (do
-                                    ;; Coalesce writes to avoid throttling on disk access when catching up with the chain.
-                                    (Wallet''save-later this)
-                                    this
-                                )
+                        (if (:hard-save-on-next-block this)
+                            (-> this
+                                (Wallet''save-now)
+                                (assoc :hard-save-on-next-block false)
                             )
+                            ;; Coalesce writes to avoid throttling on disk access when catching up with the chain.
+                            (Wallet''save-later this)
                         )
                     )
                 )
@@ -26029,71 +25976,70 @@
         ;; This TX may spend our existing outputs even though it was not pending.  This can happen in unit tests,
         ;; if keys are moved between wallets, if we're catching up to the chain given only a set of keys,
         ;; or if a dead coinbase transaction has moved back onto the main chain.
-        (when (and (Transaction''is-coin-base tx) (contains? (:dead this) (Transaction''get-hash tx)))
-            ;; There is a dead coinbase tx being received on the best chain.  A coinbase tx is made dead when it moves
-            ;; to a side chain but it can be switched back on a reorg and resurrected back to spent or unspent.
-            ;; So take it out of the dead pool.  Note that we don't resurrect dependent transactions here, even though
-            ;; we could.  Bitcoin Core nodes on the network have deleted the dependent transactions from their mempools
-            ;; entirely by this point.  We could and maybe should rebroadcast them so the network remembers and tries
-            ;; to confirm them again.  But this is a deeply unusual edge case that due to the maturity rule should never
-            ;; happen in practice, thus for simplicities sake we ignore it here.
-            (log/info (str "  coinbase tx " (Transaction''get-hash tx) " <-dead: confidence " (:confidence-type (Transaction''get-confidence tx))))
-            (§ ass this (update this :dead dissoc (Transaction''get-hash tx)))
-        )
-
-        ;; Update tx and other unspent/pending transactions by connecting inputs/outputs.
-        (Wallet''update-for-spends this, tx, true)
-
-        ;; Now make sure it ends up in the right pool.  Also, handle the case where this TX is double-spending
-        ;; against our pending transactions.  Note that a tx may double spend our pending transactions and also
-        ;; send us money/spend our money.
-        (let [#_"boolean" __hasOutputsToMe (Coin''positive? (Transaction''get-value-sent-to-me tx, this))
-              #_"boolean" __hasOutputsFromMe
-                (cond __hasOutputsToMe
-                    (let [#_"boolean" spent? (Transaction''is-every-owned-output-spent tx, this)]
-                        ;; Needs to go into either unspent or spent (if the outputs were already spent by a pending tx).
-                        (log/info (str "  tx " (Transaction''get-hash tx) (if spent? " ->spent (by pending)" " ->unspent")))
-                        (§ ass this (Wallet''add-wallet-transaction this, (if spent? :PoolType'SPENT :PoolType'UNSPENT), tx))
-                        false
-                    )
-                    (Coin''positive? (Transaction''get-value-sent-from-me tx, this))
-                    (do
-                        ;; Didn't send us any money, but did spend some.  Keep it around for record keeping purposes.
-                        (log/info (str "  tx " (Transaction''get-hash tx) " ->spent"))
-                        (§ ass this (Wallet''add-wallet-transaction this, :PoolType'SPENT, tx))
-                        true
-                    )
-                    force?
-                    (do
-                        ;; Was manually added to pending, so we should keep it to notify the user of confidence information.
-                        (log/info (str "  tx " (Transaction''get-hash tx) " ->spent (manually added)"))
-                        (§ ass this (Wallet''add-wallet-transaction this, :PoolType'SPENT, tx))
-                        false
-                    )
-                    :else
-                    (do
-                        false
-                    )
+        (let [this
+                (when (and (Transaction''is-coin-base tx) (contains? (:dead this) (Transaction''get-hash tx))) => this
+                    ;; There is a dead coinbase tx being received on the best chain.  A coinbase tx is made dead when it moves
+                    ;; to a side chain but it can be switched back on a reorg and resurrected back to spent or unspent.
+                    ;; So take it out of the dead pool.  Note that we don't resurrect dependent transactions here, even though
+                    ;; we could.  Bitcoin Core nodes on the network have deleted the dependent transactions from their mempools
+                    ;; entirely by this point.  We could and maybe should rebroadcast them so the network remembers and tries
+                    ;; to confirm them again.  But this is a deeply unusual edge case that due to the maturity rule should never
+                    ;; happen in practice, thus for simplicities sake we ignore it here.
+                    (log/info (str "  coinbase tx " (Transaction''get-hash tx) " <-dead: confidence " (:confidence-type (Transaction''get-confidence tx))))
+                    (update this :dead dissoc (Transaction''get-hash tx))
                 )]
 
-            ;; Kill txns in conflict with this tx.
-            (let [#_"{Transaction}" __doubleSpendTxns (Wallet''find-double-spends-against this, tx, (:pending this))
-                  this
-                    (when (seq __doubleSpendTxns) => this
-                        ;; No need to addTransactionsDependingOn(doubleSpendTxns), because killTxns() already kills dependencies.
-                        (Wallet''kill-txns this, __doubleSpendTxns, tx)
+            ;; Update tx and other unspent/pending transactions by connecting inputs/outputs.
+            (Wallet''update-for-spends this, tx, true)
+
+            ;; Now make sure it ends up in the right pool.  Also, handle the case where this TX is double-spending
+            ;; against our pending transactions.  Note that a tx may double spend our pending transactions and also
+            ;; send us money/spend our money.
+            (let [#_"boolean" __hasOutputsToMe (Coin''positive? (Transaction''get-value-sent-to-me tx, this))
+                  [this #_"boolean" __hasOutputsFromMe]
+                    (cond __hasOutputsToMe
+                        (let [#_"boolean" spent? (Transaction''is-every-owned-output-spent tx, this)]
+                            ;; Needs to go into either unspent or spent (if the outputs were already spent by a pending tx).
+                            (log/info (str "  tx " (Transaction''get-hash tx) (if spent? " ->spent (by pending)" " ->unspent")))
+                            [(Wallet''add-wallet-transaction this, (if spent? :PoolType'SPENT :PoolType'UNSPENT), tx) false]
+                        )
+                        (Coin''positive? (Transaction''get-value-sent-from-me tx, this))
+                        (do
+                            ;; Didn't send us any money, but did spend some.  Keep it around for record keeping purposes.
+                            (log/info (str "  tx " (Transaction''get-hash tx) " ->spent"))
+                            [(Wallet''add-wallet-transaction this, :PoolType'SPENT, tx) true]
+                        )
+                        force?
+                        (do
+                            ;; Was manually added to pending, so we should keep it to notify the user of confidence information.
+                            (log/info (str "  tx " (Transaction''get-hash tx) " ->spent (manually added)"))
+                            [(Wallet''add-wallet-transaction this, :PoolType'SPENT, tx) false]
+                        )
+                        :else
+                        (do
+                            [this false]
+                        )
                     )]
-                (when (and (not __hasOutputsToMe) (not __hasOutputsFromMe) (not force?) (seq (Wallet''find-double-spends-against this, tx, (:transactions this))))
-                    ;; Disconnect irrelevant inputs (otherwise might cause protobuf serialization issue).
-                    (doseq [#_"TransactionInput" input (:inputs tx)]
-                        (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
-                            (when (and (some? output) (not (TransactionOutput''is-mine output, this)))
-                                (TransactionInput''disconnect input)
+
+                ;; Kill txns in conflict with this tx.
+                (let [#_"{Transaction}" __doubleSpendTxns (Wallet''find-double-spends-against this, tx, (:pending this))
+                      this
+                        (when (seq __doubleSpendTxns) => this
+                            ;; No need to addTransactionsDependingOn(doubleSpendTxns), because killTxns() already kills dependencies.
+                            (Wallet''kill-txns this, __doubleSpendTxns, tx)
+                        )]
+                    (when (and (not __hasOutputsToMe) (not __hasOutputsFromMe) (not force?) (seq (Wallet''find-double-spends-against this, tx, (:transactions this))))
+                        ;; Disconnect irrelevant inputs (otherwise might cause protobuf serialization issue).
+                        (doseq [#_"TransactionInput" input (:inputs tx)]
+                            (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
+                                (when (and (some? output) (not (TransactionOutput''is-mine output, this)))
+                                    (TransactionInput''disconnect input)
+                                )
                             )
                         )
                     )
+                    this
                 )
-                this
             )
         )
     )
@@ -26124,92 +26070,93 @@
             (assert-state (not (contains? (:pending this) (Transaction''get-hash tx))))
         )
 
-        (doseq [#_"TransactionInput" input (:inputs tx)]
-            (let [#_"ConnectionResult" result (TransactionInput''connect-3m input, (:unspent this), :ConnectionMode'ABORT_ON_CONFLICT)
-                  result ;; Not found in the unspent map.  Try again with the spent map.
-                    (when (= result :ConnectionResult'NO_SUCH_TX) => result
-                        (TransactionInput''connect-3m input, (:spent this), :ConnectionMode'ABORT_ON_CONFLICT)
-                    )
-                  result ;; Not found in the unspent and spent maps.  Try again with the pending map.
-                    (when (= result :ConnectionResult'NO_SUCH_TX) => result
-                        (TransactionInput''connect-3m input, (:pending this), :ConnectionMode'ABORT_ON_CONFLICT)
-                    )]
-                (when-not (= result :ConnectionResult'NO_SUCH_TX) ;; Else doesn't spend any of our outputs or is coinbase.
-                    (let [#_"TransactionOutput" output (ensure some? (TransactionInput''get-connected-output input))]
-                        (cond (= result :ConnectionResult'ALREADY_SPENT)
-                            (if __fromChain
-                                (do
-                                    ;; Can be:
-                                    ;; (1) We already marked this output as spent when we saw the pending transaction (most likely).
-                                    ;;     Now it's being confirmed of course, we cannot mark it as spent again.
-                                    ;; (2) A double spend from chain: this will be handled later by findDoubleSpendsAgainst()/killTxns().
-                                    ;;
-                                    ;; In any case, nothing to do here.
-                                )
-                                (do
-                                    ;; We saw two pending transactions that double spend each other.  We don't know which will win.
-                                    ;; This can happen in the case of bad network nodes that mutate transactions.  Do a hex dump
-                                    ;; so the exact nature of the mutation can be examined.
-                                    (log/warn "Saw two pending transactions double spend each other")
-                                    (log/warn (str "  offending input is input " (.indexOf (:inputs tx), input)))
-                                    (log/warn (str (Transaction''get-hash tx) ": " (Base16'encode (Message''to-bytes tx, Transaction''to-wire))))
-                                    (let [#_"Transaction" ty (:parent-tx (:spent-by output))]
-                                        (log/warn (str (Transaction''get-hash ty) ": " (Base16'encode (Message''to-bytes ty, Transaction''to-wire))))
-                                    )
-                                )
+        (let [this
+                (loop-when [this this #_"TransactionInput*" inputs (:inputs tx)] (seq inputs) => this
+                    (let [#_"TransactionInput" input (first inputs)
+                          #_"ConnectionResult" result (TransactionInput''connect-3m input, (:unspent this), :ConnectionMode'ABORT_ON_CONFLICT)
+                          result ;; Not found in the unspent map.  Try again with the spent map.
+                            (when (= result :ConnectionResult'NO_SUCH_TX) => result
+                                (TransactionInput''connect-3m input, (:spent this), :ConnectionMode'ABORT_ON_CONFLICT)
                             )
-                            (= result :ConnectionResult'SUCCESS)
-                            (do
-                                ;; Otherwise we saw a transaction spend our coins, but we didn't try and spend them ourselves yet.
-                                ;; The outputs are already marked as spent by the connect call above, so check if there are any more for
-                                ;; us to use.  Move if not.
-                                (let [#_"Transaction" connected (ensure some? (TransactionInput''get-connected-transaction input))]
-                                    (log/info (str "  marked " (:outpoint input) " as spent by " (Transaction''get-hash tx)))
-                                    (§ ass this (Wallet''maybe-move-pool this, connected, "prevtx"))
-                                    ;; Just because it's connected, doesn't mean it's actually ours: sometimes we have total visibility.
-                                    (when (TransactionOutput''is-mine output, this)
-                                        (assert-state (contains? (:my-unspents this) output))
-                                        (§ ass this (update this :my-unspents disj output))
+                          result ;; Not found in the unspent and spent maps.  Try again with the pending map.
+                            (when (= result :ConnectionResult'NO_SUCH_TX) => result
+                                (TransactionInput''connect-3m input, (:pending this), :ConnectionMode'ABORT_ON_CONFLICT)
+                            )
+                          this
+                            (when-not (= result :ConnectionResult'NO_SUCH_TX) => this ;; Else doesn't spend any of our outputs or is coinbase.
+                                (let [#_"TransactionOutput" output (ensure some? (TransactionInput''get-connected-output input))]
+                                    (cond (= result :ConnectionResult'ALREADY_SPENT)
+                                        ;; Else can be:
+                                        ;; (1) We already marked this output as spent when we saw the pending transaction (most likely).
+                                        ;;     Now it's being confirmed of course, we cannot mark it as spent again.
+                                        ;; (2) A double spend from chain: this will be handled later by findDoubleSpendsAgainst()/killTxns().
+                                        ;; In any case, nothing to do here.
+                                        (when-not __fromChain => this
+                                            ;; We saw two pending transactions that double spend each other.  We don't know which will win.
+                                            ;; This can happen in the case of bad network nodes that mutate transactions.  Do a hex dump
+                                            ;; so the exact nature of the mutation can be examined.
+                                            (log/warn "Saw two pending transactions double spend each other")
+                                            (log/warn (str "  offending input is input " (.indexOf (:inputs tx), input)))
+                                            (log/warn (str (Transaction''get-hash tx) ": " (Base16'encode (Message''to-bytes tx, Transaction''to-wire))))
+                                            (let [#_"Transaction" ty (:parent-tx (:spent-by output))]
+                                                (log/warn (str (Transaction''get-hash ty) ": " (Base16'encode (Message''to-bytes ty, Transaction''to-wire))))
+                                            )
+                                            this
+                                        )
+                                    :else
+                                        (when (= result :ConnectionResult'SUCCESS) => this
+                                            ;; Otherwise we saw a transaction spend our coins, but we didn't try and spend them ourselves yet.
+                                            ;; The outputs are already marked as spent by the connect call above, so check if there are any more for
+                                            ;; us to use.  Move if not.
+                                            (let [#_"Transaction" connected (ensure some? (TransactionInput''get-connected-transaction input))
+                                                  _ (log/info (str "  marked " (:outpoint input) " as spent by " (Transaction''get-hash tx)))
+                                                  this (Wallet''maybe-move-pool this, connected, "prevtx")]
+                                                ;; Just because it's connected, doesn't mean it's actually ours: sometimes we have total visibility.
+                                                (when (TransactionOutput''is-mine output, this) => this
+                                                    (assert-state (contains? (:my-unspents this) output))
+                                                    (update this :my-unspents disj output)
+                                                )
+                                            )
+                                        )
                                     )
                                 )
+                            )]
+                        (recur this (next inputs))
+                    )
+                )]
+
+            ;; Now check each output and see if there is a pending transaction which spends it.  This shouldn't normally
+            ;; ever occur because we expect transactions to arrive in temporal order, but this assumption can be violated
+            ;; when we receive a pending transaction from the mempool that is relevant to us, which spends coins that we
+            ;; didn't see arrive on the best chain yet.  For instance, because of a chain replay or because of our keys were
+            ;; used by another wallet somewhere else.  Also, unconfirmed transactions can arrive from the mempool in more
+            ;; or less random order.
+            (doseq [#_"Transaction" pending (vals (:pending this)) #_"TransactionInput" input (:inputs pending)]
+                (let [#_"ConnectionResult" result (TransactionInput''connect-3t input, tx, :ConnectionMode'ABORT_ON_CONFLICT)]
+                    (when __fromChain
+                        ;; This TX is supposed to have just appeared on the best chain, so its outputs should not be marked
+                        ;; as spent yet.  If they are, it means something is happening out of order.
+                        (assert-state (not= result :ConnectionResult'ALREADY_SPENT))
+                    )
+                    (when (= result :ConnectionResult'SUCCESS)
+                        (log/info (str "Connected pending tx input " (Transaction''get-hash pending) ":" (.indexOf (:inputs pending), input)))
+                        ;; The unspents map might not have it if we never saw this tx until it was included in the chain
+                        ;; and thus becomes spent the moment we become aware of it.
+                        (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
+                            (when (contains? (:my-unspents this) output)
+                                (log/info (str "Removed from UNSPENTS: " output))
+                                (§ ass this (update this :my-unspents disj output))
                             )
                         )
                     )
                 )
             )
-        )
 
-        ;; Now check each output and see if there is a pending transaction which spends it.  This shouldn't normally
-        ;; ever occur because we expect transactions to arrive in temporal order, but this assumption can be violated
-        ;; when we receive a pending transaction from the mempool that is relevant to us, which spends coins that we
-        ;; didn't see arrive on the best chain yet.  For instance, because of a chain replay or because of our keys were
-        ;; used by another wallet somewhere else.  Also, unconfirmed transactions can arrive from the mempool in more
-        ;; or less random order.
-        (doseq [#_"Transaction" pending (vals (:pending this)) #_"TransactionInput" input (:inputs pending)]
-            (let [#_"ConnectionResult" result (TransactionInput''connect-3t input, tx, :ConnectionMode'ABORT_ON_CONFLICT)]
-                (when __fromChain
-                    ;; This TX is supposed to have just appeared on the best chain, so its outputs should not be marked
-                    ;; as spent yet.  If they are, it means something is happening out of order.
-                    (assert-state (not= result :ConnectionResult'ALREADY_SPENT))
-                )
-                (when (= result :ConnectionResult'SUCCESS)
-                    (log/info (str "Connected pending tx input " (Transaction''get-hash pending) ":" (.indexOf (:inputs pending), input)))
-                    ;; The unspents map might not have it if we never saw this tx until it was included in the chain
-                    ;; and thus becomes spent the moment we become aware of it.
-                    (let [#_"TransactionOutput" output (TransactionInput''get-connected-output input)]
-                        (when (contains? (:my-unspents this) output)
-                            (§ ass this (update this :my-unspents disj output))
-                            (log/info (str "Removed from UNSPENTS: " output))
-                        )
-                    )
-                )
+            ;; If the transactions outputs are now all spent,
+            ;; it will be moved into the spent pool by the processTxFromBestChain method.
+            (when-not __fromChain => this
+                (Wallet''maybe-move-pool this, tx, "pendingtx")
             )
-        )
-
-        ;; If the transactions outputs are now all spent,
-        ;; it will be moved into the spent pool by the processTxFromBestChain method.
-        (when-not __fromChain => this
-            (Wallet''maybe-move-pool this, tx, "pendingtx")
         )
     )
 
@@ -26392,21 +26339,21 @@
                         ;; the current key they are showing to the user in qr codes etc.
                         (let [this (Wallet''mark-keys-as-used this, tx)
                               #_"Coin" spent (Transaction''get-value-sent-from-me tx, this)
-                              #_"Coin" after (Coin''subtract (Coin''add balance, earned), spent)]
-                            (when (Coin''positive? earned)
-                                (§ ass this (Wallet''check-balance-futures-locked this))
-                                (Wallet''queue-on-coins-received this, tx, balance, after)
-                            )
-                            (when (Coin''positive? spent)
-                                (Wallet''queue-on-coins-sent this, tx, balance, after)
-                            )
-                            (Wallet''maybe-queue-on-wallet-changed this)
-
-                            (Wallet''is-consistent-or-throw this)
-                            (let [this (Wallet''inform-confidence-listeners-if-not-reorganizing this)]
-                                (Wallet''save-now this)
-                                [this tx true]
-                            )
+                              #_"Coin" after (Coin''subtract (Coin''add balance, earned), spent)
+                              this
+                                (when (Coin''positive? earned) => this
+                                    (let [this (Wallet''check-balance-futures-locked this)]
+                                        (Wallet''queue-on-coins-received this, tx, balance, after)
+                                        this
+                                    )
+                                )
+                              _ (when (Coin''positive? spent)
+                                    (Wallet''queue-on-coins-sent this, tx, balance, after)
+                                )
+                              this (Wallet''maybe-queue-on-wallet-changed this)
+                              _ (Wallet''is-consistent-or-throw this)
+                              this (Wallet''inform-confidence-listeners-if-not-reorganizing this)]
+                            [(Wallet''save-now this) tx true]
                         )
                     )
                 )
@@ -26505,7 +26452,7 @@
     )
 
     #_method
-    (defn #_"void" Wallet''maybe-queue-on-wallet-changed [#_"Wallet" this]
+    (defn #_"this" Wallet''maybe-queue-on-wallet-changed [#_"Wallet" this]
         ;; Don't invoke the callback in some circumstances, e.g. whilst we are re-organizing or fiddling
         ;; with transactions due to a new block arriving.  It will be called later instead.
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
@@ -26518,7 +26465,7 @@
                 )
             )
         )
-        nil
+        this
     )
 
     #_method
@@ -26584,14 +26531,19 @@
                 )]
             (assert-state (not (contains? (pool' this) hash)))
 
-            (let [this (update this pool' assoc hash tx)]
-                (when (any = pool :PoolType'UNSPENT :PoolType'PENDING)
-                    (doseq [#_"TransactionOutput" output (:outputs tx)]
-                        (when (and (TransactionOutput''is-available-for-spending output) (TransactionOutput''is-mine output, this))
-                            (§ ass this (update this :my-unspents conj output))
+            (let [this (update this pool' assoc hash tx)
+                  this
+                    (when (any = pool :PoolType'UNSPENT :PoolType'PENDING) => this
+                        (loop-when [this this #_"TransactionOutput*" outputs (:outputs tx)] (seq outputs) => this
+                            (let [#_"TransactionOutput" output (first outputs)
+                                  this
+                                    (when (and (TransactionOutput''is-available-for-spending output) (TransactionOutput''is-mine output, this)) => this
+                                        (update this :my-unspents conj output)
+                                    )]
+                                (recur this (next outputs))
+                            )
                         )
-                    )
-                )
+                    )]
                 ;; This is safe even if the listener has been added before, as TransactionConfidence ignores duplicate
                 ;; registration requests.  That makes the code in the wallet simpler.
                 (§ ass (Transaction''get-confidence tx) (TransactionConfidence''add-event-listener (Transaction''get-confidence tx), (:tx-confidence-listener this)))
@@ -26661,13 +26613,13 @@
     #_method
     (defn #_"this" Wallet''reset [#_"Wallet" this]
         (sync (:wallet-lock this)
-            (let [this (Wallet''clear-transactions-1 this)
-                  this (assoc this :last-block-seen-hash nil)
-                  this (assoc this :last-block-seen-height -1) ;; Magic value for 'never'.
-                  this (assoc this :last-block-seen-time-secs 0)]
-                (Wallet''save-later this)
-                (Wallet''maybe-queue-on-wallet-changed this)
-                this
+            (-> this
+                (Wallet''clear-transactions-1)
+                (assoc :last-block-seen-hash nil)
+                (assoc :last-block-seen-height -1) ;; Magic value for 'never'.
+                (assoc :last-block-seen-time-secs 0)
+                (Wallet''save-later)
+                (Wallet''maybe-queue-on-wallet-changed)
             )
         )
     )
@@ -26681,9 +26633,9 @@
     (defn #_"this" Wallet''clear-transactions-2 [#_"Wallet" this, #_"int" __fromHeight]
         (sync (:wallet-lock this)
             (when (zero? __fromHeight) => (throw (UnsupportedOperationException.))
-                (let [this (Wallet''clear-transactions-1 this)]
-                    (Wallet''save-later this)
-                    this
+                (-> this
+                    (Wallet''clear-transactions-1)
+                    (Wallet''save-later)
                 )
             )
         )
@@ -26746,12 +26698,13 @@
                             )
                         )
                     )]
-                (when (pos? n)
-                    (Wallet''is-consistent-or-throw this)
-                    (Wallet''save-later this)
-                    (log/info (str "Estimated balance is now: " (Coin''to-friendly-string (Wallet''get-balance-2t this, :BalanceType'ESTIMATED))))
+                (when (pos? n) => this
+                    (let [_ (Wallet''is-consistent-or-throw this)
+                          this (Wallet''save-later this)]
+                        (log/info (str "Estimated balance is now: " (Coin''to-friendly-string (Wallet''get-balance-2t this, :BalanceType'ESTIMATED))))
+                        this
+                    )
                 )
-                this
             )
         )
     )
@@ -27585,14 +27538,13 @@
                         (log/info (str "post-reorg balance is " (Coin''to-friendly-string balance)))
                         ;; Inform event listeners that a re-org took place.
                         (Wallet''queue-on-reorganize this)
-                        (let [this (assoc this :inside-reorg false)
-                              this (update this :on-wallet-changed-suppressions dec)]
-                            (Wallet''maybe-queue-on-wallet-changed this)
-                            (let [this (Wallet''check-balance-futures-locked this)
-                                  this (Wallet''inform-confidence-listeners-if-not-reorganizing this)]
-                                (Wallet''save-later this)
-                                this
-                            )
+                        (-> this
+                            (assoc :inside-reorg false)
+                            (update :on-wallet-changed-suppressions dec)
+                            (Wallet''maybe-queue-on-wallet-changed)
+                            (Wallet''check-balance-futures-locked)
+                            (Wallet''inform-confidence-listeners-if-not-reorganizing)
+                            (Wallet''save-later)
                         )
                     )
                 )
@@ -27984,9 +27936,9 @@
     (defn #_"this" Wallet''set-key-rotation-time-l [#_"Wallet" this, #_"long" secs]
         (assert-argument (<= secs (Time'seconds)), (str "Given time (" (Time'format-seconds secs) ") cannot be in the future."))
 
-        (let [this (assoc this :v-key-rotation-timestamp secs)]
-            (Wallet''save-now this)
-            this
+        (-> this
+            (assoc :v-key-rotation-timestamp secs)
+            (Wallet''save-now)
         )
     )
 
@@ -27999,7 +27951,7 @@
     )
 
     #_method
-    (defn- #_"Transaction" Wallet''rekey-one-batch [#_"Wallet" this, #_"long" secs, #_"Transaction*" others, #_"boolean" sign?]
+    (defn- #_"[this Transaction]" Wallet''rekey-one-batch [#_"Wallet" this, #_"long" secs, #_"Transaction*" others, #_"boolean" sign?]
         (sync (:wallet-lock this)
             ;; Build the transaction using some custom logic for our special needs.  Last parameter to
             ;; KeyTimeCoinSelector is whether to ignore pending transactions or not.
@@ -28014,7 +27966,7 @@
                   ;; TODO: Make this use the standard SendRequest.
                   #_"CoinSelection" __toMove (CoinSelector'''select selector, Coin'ZERO, (Wallet''calculate-all-spend-candidates-1 this))]
 
-                (when-not (Coin''zero? (:value-gathered __toMove)) => nil ;; Nothing to do.
+                (when-not (Coin''zero? (:value-gathered __toMove)) => [this nil] ;; Nothing to do.
                     (let [#_"Transaction" tx (Transaction'new (:ledger this))]
                         (doseq [#_"TransactionOutput" output (:gathered __toMove)]
                             (Transaction''add-input-o tx, output)
@@ -28023,18 +27975,16 @@
                         (Transaction''add-output-ca tx, (:value-gathered __toMove), (if sign? (Wallet''fresh-receive-address this) (Wallet''current-receive-address this)))
                         (cond (Wallet''adjust-output-downwards-for-fee this, tx, __toMove, Transaction'DEFAULT_TX_FEE, true)
                             (let [_ (§ ass (Transaction''get-confidence tx) (assoc (Transaction''get-confidence tx) :confidence-source :ConfidenceSource'SELF))
-                                  tx (assoc tx :purpose :TransactionPurpose'KEY_ROTATION)]
-                                (when sign?
-                                    (§ ass this (Wallet''sign-transaction this, (SendRequest'for-tx tx)))
-                                )
+                                  tx (assoc tx :purpose :TransactionPurpose'KEY_ROTATION)
+                                  this (if sign? (Wallet''sign-transaction this, (SendRequest'for-tx tx)) this)]
                                 ;; KeyTimeCoinSelector should never select enough inputs to push us oversize.
                                 (assert-state (< (count (Message''to-bytes tx, Transaction''to-wire)) Transaction'MAX_STANDARD_TX_SIZE))
-                                tx
+                                [this tx]
                             )
                             :else
                             (do
                                 (log/error "Failed to adjust rekey tx for fees.")
-                                nil
+                                [this nil]
                             )
                         )
                     )
@@ -28045,26 +27995,30 @@
 
     ;; Checks to see if any coins are controlled by rotating keys and if so, spends them.
     #_method
-    (defn- #_"Transaction*" Wallet''maybe-rotate-keys [#_"Wallet" this, #_"boolean" sign?]
+    (defn- #_"[this Transaction*]" Wallet''maybe-rotate-keys [#_"Wallet" this, #_"boolean" sign?]
         (assert-state (.isHeldByCurrentThread (:wallet-lock this)))
         (assert-state (.isHeldByCurrentThread (:keychaingroup-lock this)))
 
         ;; TODO: Handle chain replays here.
         (let [#_"long" stamp (:v-key-rotation-timestamp this)]
-            (when-not (zero? stamp) => nil ;; Nothing to do.
+            (when-not (zero? stamp) => [this nil] ;; Nothing to do.
                 ;; We might have to create a new HD hierarchy if the previous ones are now rotating.
-                (when-not (some #(<= stamp (DeterministicKeyChain''get-earliest-key-creation-time %)) (:chains (:key-chain-group this)))
-                    (log/info "All HD chains are currently rotating, creating fresh HD chain ...")
-                    (§ ass this (update this :key-chain-group KeyChainGroup''create-and-activate-new-hd-chain))
-                    (Wallet''save-now this)
-                )
-                ;; Because transactions are size limited, we might not be able to re-key the entire wallet in one go.  So loop
-                ;; around here until we no longer produce transactions with the max number of inputs.  That means we're fully
-                ;; done, at least for now (we may still get more transactions later and this method will be reinvoked).
-                (loop [#_"[Transaction]" txns (vector)]
-                    (let-when [#_"Transaction" tx (Wallet''rekey-one-batch this, stamp, txns, sign?)] (some? tx) => txns
-                        (let [txns (conj txns tx)]
-                            (recur-if (= (count (:inputs tx)) KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS) [txns] => txns)
+                (let [this
+                        (when-not (some #(<= stamp (DeterministicKeyChain''get-earliest-key-creation-time %)) (:chains (:key-chain-group this))) => this
+                            (log/info "All HD chains are currently rotating, creating fresh HD chain ...")
+                            (-> this
+                                (update :key-chain-group KeyChainGroup''create-and-activate-new-hd-chain)
+                                (Wallet''save-now)
+                            )
+                        )]
+                    ;; Because transactions are size limited, we might not be able to re-key the entire wallet in one go.  So loop
+                    ;; around here until we no longer produce transactions with the max number of inputs.  That means we're fully
+                    ;; done, at least for now (we may still get more transactions later and this method will be reinvoked).
+                    (loop [this this txns (vector)]
+                        (let-when [[this #_"Transaction" tx] (Wallet''rekey-one-batch this, stamp, txns, sign?)] (some? tx) => [this txns]
+                            (let [txns (conj txns tx)]
+                                (recur-if (= (count (:inputs tx)) KeyTimeCoinSelector'MAX_SIMULTANEOUS_INPUTS) [this txns] => [this txns])
+                            )
                         )
                     )
                 )
@@ -28085,14 +28039,14 @@
      ; @return a list of transactions that the wallet just made/will make for internal maintenance.  Might be empty.
      ;;
     #_method
-    (defn #_"ListenableFuture<Transaction*>" Wallet''do-maintenance [#_"Wallet" this, #_"boolean" sign?]
-        (let [#_"Transaction*" txns
+    (defn #_"[this ListenableFuture<Transaction*>]" Wallet''do-maintenance [#_"Wallet" this, #_"boolean" sign?]
+        (let [[this #_"Transaction*" txns]
                 (sync (:wallet-lock this)
                     (sync (:keychaingroup-lock this)
                         (Wallet''maybe-rotate-keys this, sign?)
                     )
                 )]
-            (when sign? => (Futures/immediateFuture txns)
+            (when sign? => [this (Futures/immediateFuture txns)]
                 (assert-state (not (.isHeldByCurrentThread (:wallet-lock this))))
 
                 (let [#_"TransactionBroadcaster" broadcaster (:v-transaction-broadcaster this)
@@ -28127,7 +28081,7 @@
                                 )
                             )
                         )]
-                    (Futures/allAsList futures)
+                    [this (Futures/allAsList futures)]
                 )
             )
         )
